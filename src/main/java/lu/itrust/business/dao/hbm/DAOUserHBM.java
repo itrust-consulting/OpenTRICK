@@ -1,0 +1,134 @@
+/**
+ * 
+ */
+package lu.itrust.business.dao.hbm;
+
+import java.util.List;
+
+import lu.itrust.business.TS.User;
+import lu.itrust.business.dao.DAOUser;
+
+/**
+ * @author oensuifudine
+ * 
+ */
+public class DAOUserHBM extends DAOHibernate implements DAOUser {
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#get(long)
+	 */
+	@Override
+	public User get(long id) throws Exception {
+		return (User) getSession().get(User.class, id);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String)
+	 */
+	@Override
+	public User get(String login) throws Exception {
+		return (User) getSession()
+				.createQuery("From User where login = :login")
+				.setString("login", login).uniqueResult();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String,
+	 * java.lang.String)
+	 */
+	@Override
+	public User get(String login, String password) throws Exception {
+		return (User) getSession()
+				.createQuery(
+						"From User where login = :login and password = :password")
+				.setString("login", login).setString("password", password)
+				.uniqueResult();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#loadAll()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> loadAll() throws Exception {
+		return getSession().createQuery("From User").list();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#loadByName(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> loadByName(String name) throws Exception {
+		return getSession().createQuery("From User where firstName = :name").setString("name", name).list();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#loadByCountry(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> loadByCountry(String name) throws Exception {
+		return getSession().createQuery("From User where country = :country").setString("country", name).list();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#save(lu.itrust.business.TS.User)
+	 */
+	@Override
+	public void save(User user) throws Exception {
+		getSession().save(user);
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.dao.DAOUser#saveOrUpdate(lu.itrust.business.TS.User)
+	 */
+	@Override
+	public void saveOrUpdate(User user) throws Exception {
+		getSession().saveOrUpdate(user);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#delete(lu.itrust.business.TS.User)
+	 */
+	@Override
+	public void delete(User user) throws Exception {
+		getSession().delete(user);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#delete(long)
+	 */
+	@Override
+	public void delete(long id) throws Exception {
+		delete(get(id));
+	}
+
+	@Override
+	public boolean isEmpty() throws Exception {
+		// TODO Auto-generated method stub
+		return ((Long)getSession().createQuery("Select count(*) From User").uniqueResult()).intValue()==0;
+	}
+}
