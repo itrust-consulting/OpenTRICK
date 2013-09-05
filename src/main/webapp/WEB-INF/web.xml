@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
-  <display-name>TrickService</display-name>
- <context-param>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  <display-name>TRICKService</display-name>
+  <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>
       	classpath:spring/application-config.xml
@@ -12,19 +12,18 @@
     <servlet-class>
             org.springframework.web.servlet.DispatcherServlet
         </servlet-class>
-        <init-param>
-        	<param-name>contextConfigLocation</param-name>
-		    <param-value>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>
 		      	/WEB-INF/dispatcherServlet-config.xml
 		 	</param-value>
-        </init-param>
-        <init-param>
-        	<param-name>defaultHtmlEscape</param-name>
-			<param-value>true</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
+    </init-param>
+    <init-param>
+      <param-name>defaultHtmlEscape</param-name>
+      <param-value>true</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
   </servlet>
-  
   <filter>
     <filter-name>springSecurityFilterChain</filter-name>
     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -32,11 +31,6 @@
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
-  <!--  
-  <listener>
-    <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-</listener>
--->
   <filter-mapping>
     <filter-name>springSecurityFilterChain</filter-name>
     <url-pattern>/*</url-pattern>
@@ -48,37 +42,37 @@
   </servlet-mapping>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
-  </welcome-file-list> 
+  </welcome-file-list>
   <error-page>
-	<error-code>400</error-code>
-	<location>/WEB-INF/views/400.jsp</location>
-  </error-page>
-   <error-page>
-	<error-code>401</error-code>
-	<location>/WEB-INF/views/401.jsp</location>
-  </error-page>
-   <error-page>
-	<error-code>402</error-code>
-	<location>/WEB-INF/views/404.jsp</location>
+    <error-code>400</error-code>
+    <location>/WEB-INF/views/400.jsp</location>
   </error-page>
   <error-page>
-	<error-code>403</error-code>
-	<location>/WEB-INF/views/403.jsp</location>
+    <error-code>401</error-code>
+    <location>/WEB-INF/views/401.jsp</location>
   </error-page>
   <error-page>
-	<error-code>404</error-code>
-	<location>/WEB-INF/views/404.jsp</location>
+    <error-code>402</error-code>
+    <location>/WEB-INF/views/404.jsp</location>
   </error-page>
   <error-page>
-	<error-code>405</error-code>
-	<location>/WEB-INF/views/405.jsp</location>
-  </error-page>
-    <error-page>
-	<error-code>500</error-code>
-	<location>/WEB-INF/views/500.jsp</location>
+    <error-code>403</error-code>
+    <location>/WEB-INF/views/403.jsp</location>
   </error-page>
   <error-page>
-	<error-code>505</error-code>
-	<location>/WEB-INF/views/404.jsp</location>
+    <error-code>404</error-code>
+    <location>/WEB-INF/views/404.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>405</error-code>
+    <location>/WEB-INF/views/405.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>500</error-code>
+    <location>/WEB-INF/views/500.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>505</error-code>
+    <location>/WEB-INF/views/404.jsp</location>
   </error-page>
 </web-app>
