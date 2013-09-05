@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.TS">
+ <class name="lu.itrust.business.TS.Customer" table="customer">
+  <id column="idCustomer" name="id" unsaved-value="-1">
+   <generator class="increment"/>
+  </id>
+  <property column="dtOrganisation" name="organisation" not-null="true" />
+  <property column="dtAddress" name="address" not-null="true" />
+  <property column="dtZIP" name="ZIPCode" length="50" not-null="true" />
+  <property column="dtCity" name="city" length="45" not-null="true" />
+  <property column="dtCountry" name="country" not-null="true" />
+  <property column="dtContactPerson" name="contactPerson" not-null="true" />
+  <property column="dtTelephone" name="telephoneNumber" not-null="true" />
+  <property column="dtEmail" name="email" not-null="true" />
+ </class>
+</hibernate-mapping>

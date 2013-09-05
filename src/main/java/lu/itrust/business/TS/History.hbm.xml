@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.TS">
+	<class name="lu.itrust.business.TS.History" table="history">
+		<id name="id" column="idHistory" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<property name="version" column="dtVersion" length="12" not-null="true" />
+		<property column="dtAuthor" generated="never" lazy="false" name="author" not-null="true" />
+		<property column="dtComment" generated="never" lazy="false" name="comment" not-null="true" />
+		<property column="dtDateComment" generated="never" lazy="false" name="date" not-null="true" />
+	</class>
+</hibernate-mapping>

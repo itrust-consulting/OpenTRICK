@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 28, 2013 12:50:51 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.TS">
+	<class name="MeasureDescription" table="measureDescription">
+		<id name="id" type="int" column="idMeasureDescription" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<many-to-one name="norm" column="fiNorm" not-null="true"/>
+		<property name="level" type="int" column="dtLevel" not-null="true" access="field"/>
+		<property name="reference" type="java.lang.String" column="dtReference" not-null="true"  access="field"/>
+		<bag name="measureDescriptionTexts" table="MeasureDescriptionText" cascade="all" inverse="true">
+			<key column="idMeasureDescription" />
+			<one-to-many class="MeasureDescriptionText" />
+		</bag>
+	</class>
+</hibernate-mapping>

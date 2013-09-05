@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 12, 2013 5:51:35 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="lu.itrust.business.TS.Role" table="role">
+        <id name="id" type="long" unsaved-value="-1">
+            <column name="idRole" />
+            <generator class="increment" />
+        </id>
+        <property name="type">
+            <column name="dtType" />
+            <type name="org.hibernate.type.EnumType">
+                <param name="type">12</param>
+                <param name="useNamed">true</param>
+                <param name="enumClass">lu.itrust.business.TS.RoleType</param>
+            </type>
+        </property>
+    </class>
+</hibernate-mapping>

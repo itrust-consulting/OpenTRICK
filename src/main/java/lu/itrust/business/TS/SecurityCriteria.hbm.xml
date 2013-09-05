@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="lu.itrust.business.TS">
+	<class name="SecurityCriteria" abstract="true" table="securityCriteria">
+		<id name="id" column="idSecurityCriteria" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<property name="confidentiality" column="dtConfidentialityCat" not-null="true" />
+		<property name="integrity" column="dtIntegrityCat" not-null="true" />
+		<property name="availability" column="dtAvailabilityCat" not-null="true" />
+		<property name="direct1" column="dtDirect1Cat" not-null="true" />
+		<property name="direct2" column="dtDirect2Cat" not-null="true" />
+		<property name="direct3" column="dtDirect3Cat" not-null="true" />
+		<property name="direct4" column="dtDirect4Cat" not-null="true" />
+		<property name="direct5" column="dtDirect5Cat" not-null="true" />
+		<property name="direct6" column="dtDirect6Cat" not-null="true" />
+		<property name="direct61" column="`dtDirect6.1Cat`" not-null="true" />
+		<property name="direct62" column="`dtDirect6.2Cat`" not-null="true" />
+		<property name="direct63" column="`dtDirect6.3Cat`" not-null="true" />
+		<property name="direct64" column="`dtDirect6.4Cat`" not-null="true" />
+		<property name="direct7" column="dtDirect7Cat" not-null="true" />
+		<property name="indirect1" column="dtIndirect1Cat" not-null="true" />
+		<property name="indirect2" column="dtIndirect2Cat" not-null="true" />
+		<property name="indirect3" column="dtIndirect3Cat" not-null="true" />
+		<property name="indirect4" column="dtIndirect4Cat" not-null="true" />
+		<property name="indirect5" column="dtIndirect5Cat" not-null="true" />
+		<property name="indirect6" column="dtIndirect6Cat" not-null="true" />
+		<property name="indirect7" column="dtIndirect7Cat" not-null="true" />
+		<property name="indirect8" column="dtIndirect8Cat" not-null="true" />
+		<property name="indirect81" column="`dtIndirect8.1Cat`" not-null="true" />
+		<property name="indirect82" column="`dtIndirect8.2Cat`" not-null="true" />
+		<property name="indirect83" column="`dtIndirect8.3Cat`" not-null="true" />
+		<property name="indirect84" column="`dtIndirect8.4Cat`" not-null="true" />
+		<property name="indirect9" column="dtIndirect9Cat" not-null="true" />
+		<property name="indirect10" column="dtIndirect10Cat" not-null="true" />
+		<property name="preventive" column="dtPreventiveType" not-null="true" />
+		<property name="detective" column="dtDetectiveType" not-null="true" />
+		<property name="limitative" column="dtLimitabilityType" not-null="true" />
+		<property name="corrective" column="dtCorrectiveType" not-null="true" />
+		<property name="intentional" column="dtIntentionalSource" not-null="true" />
+		<property name="accidental" column="dtAccidentalSource" not-null="true" />
+		<property name="environmental" column="dtEnvironmentalSource" not-null="true" />
+		<property name="internalThreat" column="dtInternalThreatSource" not-null="true" />
+		<property name="externalThreat" column="dtExternalThreatSource" not-null="true" />
+		<joined-subclass name="Scenario" extends="SecurityCriteria" table="scenario">
+			<key column="idScenario" not-null="true" />
+			<many-to-one name="type" class="ScenarioType" column="fiScenarioType" not-null="true"/>
+			<property name="name" column="dtLabel" not-null="true" />
+			<property name="description" column="dtDescription" not-null="true" type="text" />
+			<property name="selected" column="dtSelected" not-null="true" />
+			<bag name="assetTypeValues" table="scenarioAssetTypeValue" cascade="all">
+				<key column="idScenario" not-null="true"/>
+				<many-to-many class="AssetTypeValue" column="idScenarioAssetTypeValue" />
+			</bag>
+		</joined-subclass>
+		<joined-subclass name="MeasureProperties" extends="SecurityCriteria" table="measureProperties">
+			<key column="idMeasureProperties" not-null="true" />
+			<property name="FMeasure" column="dtStrengthMeasure" not-null="true" />
+			<property name="FSectoral" column="dtStrengthSectoral" not-null="true" />
+			<property name="soaReference" column="dtSOAReference" not-null="true" />
+			<property name="soaComment" column="dtSOAComment" not-null="true" />
+			<property name="soaRisk" column="dtSOARisk" not-null="true" />
+		</joined-subclass>
+	</class>
+	<class name="ScenarioType" table="scenariotype">
+		<id name="id" column="idScenarioType" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<property name="type" column="dtLabel" not-null="true" access="field" unique="true" />
+	</class>
+</hibernate-mapping>

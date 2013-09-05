@@ -1,0 +1,214 @@
+package lu.itrust.business.TS;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * MeasureDescription: <br>
+ * Represents the description of a Measure:
+ * <ul>
+ * <li>The Norm Object</li>
+ * <li>The Level of Measure (1-3)</li>
+ * <li>The Measure Reference inside the Norm</li>
+ * <li>
+ * Measure Description Texts which represents the Domain and Description f a Measure in one to more
+ * languages</li>
+ * </ul>
+ * 
+ * @author itrust consulting s.à r.l. : SME, BJA, EOM
+ * @version 0.1
+ * @since Jan 28, 2013
+ */
+public class MeasureDescription {
+
+	/***********************************************************************************************
+	 * Fields declaration
+	 **********************************************************************************************/
+
+	/** Measure Description id */
+	private int id = -1;
+
+	/** Measure Norm Object */
+	private Norm norm = null;
+
+	/** Measure Description Text List (one entry represents one language) */
+	private List<MeasureDescriptionText> measureDescriptionTexts =
+		new ArrayList<MeasureDescriptionText>();
+
+	/** Measure Level */
+	private int level = -1;
+
+	/** Measure Reference */
+	private String reference = "";
+
+	/***********************************************************************************************
+	 * Constructors
+	 **********************************************************************************************/
+
+	/**
+	 * Constructor:<br>
+	 * 
+	 * @param maturityRef
+	 *            Reference of the Measure
+	 * @param norm
+	 *            Norm of the Measure
+	 */
+	public MeasureDescription(String maturityRef, Norm norm) {
+		this.norm = norm;
+		this.reference = maturityRef;
+	}
+
+	/**
+	 * Constructor:<br>
+	 */
+	public MeasureDescription() {
+	}
+
+	/***********************************************************************************************
+	 * Getters and Setters
+	 **********************************************************************************************/
+
+	/**
+	 * getId: <br>
+	 * Returns the id field value.
+	 * 
+	 * @return The value of the id field
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * setId: <br>
+	 * Sets the Field "id" with a value.
+	 * 
+	 * @param id
+	 *            The Value to set the id field
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * getNorm: <br>
+	 * Returns the norm field value.
+	 * 
+	 * @return The value of the norm field
+	 */
+	public Norm getNorm() {
+		return norm;
+	}
+
+	/**
+	 * setNorm: <br>
+	 * Sets the Field "norm" with a value.
+	 * 
+	 * @param norm
+	 *            The Value to set the norm field
+	 */
+	public void setNorm(Norm norm) {
+		this.norm = norm;
+	}
+
+	/**
+	 * getLevel: <br>
+	 * Returns the level field value.
+	 * 
+	 * @return The value of the level field
+	 */
+	public int getLevel() {
+		return level;
+	}
+
+	/**
+	 * setLevel: <br>
+	 * Sets the Field "level" with a value.
+	 * 
+	 * @param level
+	 *            The Value to set the level field
+	 */
+	public void setLevel(int level) {
+		this.level = level;
+	}
+
+	/**
+	 * getReference: <br>
+	 * Returns the reference field value.
+	 * 
+	 * @return The value of the reference field
+	 */
+	public String getReference() {
+		return reference;
+	}
+
+	/**
+	 * setReference: <br>
+	 * Sets the Field "reference" with a value.
+	 * 
+	 * @param reference
+	 *            The Value to set the reference field
+	 */
+	public void setReference(String reference) {
+		this.reference = reference;
+	}
+
+	/**
+	 * getMeasureDescriptionText: <br>
+	 * Returns the measureDescriptionTexts field value.
+	 * 
+	 * @return The value of the measureDescriptionTexts field
+	 */
+	public MeasureDescriptionText getAMeasureDescriptionText(int index) {
+		return measureDescriptionTexts.get(index);
+	}
+
+	/**
+	 * getMeasureDescriptionText: <br>
+	 * Returns the measureDescriptionTexts field value.
+	 * 
+	 * @return The value of the measureDescriptionTexts field
+	 */
+	public MeasureDescriptionText getAMeasureDescriptionText(Language lang) {
+		for (int i = 0; i < measureDescriptionTexts.size(); i++) {
+			if (measureDescriptionTexts.get(i).getLanguage().equals(lang)) {
+				return measureDescriptionTexts.get(i);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * setMeasureDescriptionText: <br>
+	 * Sets the Field "measureDescriptionTexts" with a value.
+	 * 
+	 * @param measureDescriptionTexts
+	 *            The Value to set the measureDescriptionTexts field
+	 */
+	public void addMeasureDescriptionText(MeasureDescriptionText measureDescriptionText) {
+		measureDescriptionText.setMeasureDescription(this);
+		this.measureDescriptionTexts.add(measureDescriptionText);
+	}
+
+	/**
+	 * getMeasureDescriptionTexts: <br>
+	 * Returns the measureDescriptionTexts field value.
+	 * 
+	 * @return The value of the measureDescriptionTexts field
+	 */
+	public List<MeasureDescriptionText> getMeasureDescriptionTexts() {
+		return measureDescriptionTexts;
+	}
+
+	/**
+	 * setMeasureDescriptionTexts: <br>
+	 * Sets the Field "measureDescriptionTexts" with a value.
+	 * 
+	 * @param measureDescriptionTexts
+	 *            The Value to set the measureDescriptionTexts field
+	 */
+	public void setMeasureDescriptionTexts(List<MeasureDescriptionText> measureDescriptionTexts) {
+		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts)
+			measureDescriptionText.setMeasureDescription(this);
+		this.measureDescriptionTexts = measureDescriptionTexts;
+	}
+}

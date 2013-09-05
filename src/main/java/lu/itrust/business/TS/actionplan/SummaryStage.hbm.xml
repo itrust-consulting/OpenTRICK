@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 25, 2013 3:41:26 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+	<class name="lu.itrust.business.TS.actionplan.SummaryStage" table="actionplansummary">
+		<id name="id" type="int" column="idActionPlanSummary" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<many-to-one name="actionPlanType" column="fiActionPlanType" not-null="true"/>
+		<property name="stage" type="java.lang.String" column="dtName" />
+		<property name="conformance27001" type="double" column="dt27001Conformance" />
+		<property name="conformance27002" type="double" column="dt27002Conformance" />
+		<property name="measureCount" type="int" column="dtMeasureCount" />
+		<property name="implementedMeasuresCount" type="int" column="dtImplementedMeasureCount" />
+		<property name="totalALE" type="double" column="dtCurrentTotalALE" />
+		<property name="deltaALE" type="double" column="dtCurrentDeltaALE" />
+		<property name="costOfMeasures" type="double" column="dtCurrentCostMeasures" />
+		<property name="ROSI" type="double" column="dtROSI" />
+		<property name="relativeROSI" type="double" column="dtRelativeROSI" />
+		<property name="internalWorkload" type="double" column="dtTotalInternalWorkLoad" />
+		<property name="externalWorkload" type="double" column="dtTotalExternalWorkload" />
+		<property name="investment" type="double" column="dtInvestment" />
+		<property name="internalMaintenance" type="double" column="dtTotalInternalMaintenance" />
+		<property name="externalMaintenance" type="double" column="dtTotalExternalMaintenance" />
+		<property name="recurrentCost" type="double" column="dtRecurrentCost" />
+		<property name="totalCostofStage" type="double" column="dtTotalCost" />
+	</class>
+</hibernate-mapping>

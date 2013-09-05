@@ -1,0 +1,94 @@
+package lu.itrust.business.TS;
+
+import lu.itrust.business.TS.tsconstant.Constant;
+
+/**
+ * ParameterType: <br>
+ * Represents the Parameter Type as Name.
+ * 
+ * @author itrust consulting s.à r.l. : EOM, BJA, SME
+ * @version 0.1
+ * @since 25 janv. 2013
+ */
+public class ParameterType {
+
+	/***********************************************************************************************
+	 * Field declarations
+	 **********************************************************************************************/
+
+	/** Parameter Type Identifier */
+	private int id = -1;
+
+	/** Parameter Type Label */
+	private String label = "";
+
+	/***********************************************************************************************
+	 * Constructors
+	 **********************************************************************************************/
+
+	/**
+	 * Constructor: <br>
+	 */
+	public ParameterType() {
+	}
+
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param label
+	 *            The Parameter Type Label
+	 */
+	public ParameterType(String label) {
+		if (label == null || !label.matches(Constant.REGEXP_VALID_PARAMETERTYPE))
+				throw new IllegalArgumentException("Given Parameter Name does not exist!");
+		this.label = label;
+	}
+
+	/***********************************************************************************************
+	 * Getters and Setters
+	 **********************************************************************************************/
+
+	/**
+	 * getId: <br>
+	 * Returns the id field value.
+	 * 
+	 * @return The value of the id field
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * setId: <br>
+	 * Sets the Field "id" with a value.
+	 * 
+	 * @param id
+	 *            The Value to set the id field
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * getLabel: <br>
+	 * Returns the label field value.
+	 * 
+	 * @return The value of the label field
+	 */
+	public String getLabel() {
+		return label;
+	}
+
+	/**
+	 * setLabel: <br>
+	 * Sets the Field "label" with a value.
+	 * 
+	 * @param label
+	 *            The Value to set the label field
+	 */
+	public void setLabel(String label) {
+		if (label == null || !label.matches(Constant.REGEXP_VALID_PARAMETERTYPE))
+				throw new IllegalArgumentException("Given Parameter Name does not exist!");
+		this.label = label;
+	}
+}

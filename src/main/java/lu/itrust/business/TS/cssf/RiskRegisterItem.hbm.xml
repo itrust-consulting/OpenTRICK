@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+	<class name="lu.itrust.business.TS.cssf.RiskRegisterItem" table="RiskRegister">
+		<id name="id" column="idRiskRegisterItem" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<properties name="scenario_asset" unique="true">
+			<many-to-one name="scenario" column="fiScenario" cascade="save-update" access="field" not-null="true"/>
+			<many-to-one name="asset" column="fiAsset" cascade="save-update" access="field" not-null="true"/>
+		</properties>
+		
+		<property name="position" column="dtOrder" type="int" not-null="true" />
+		<component name="netEvaluation" access="field">
+			<property name="impact" column="dtNetEvaluationImpact" not-null="true" access="field"/>
+			<property name="probability" column="dtNetEvaluationProbability" not-null="true" access="field"/>
+			<property name="importance" column="dtNetEvaluationImportance" not-null="true" access="field"/>
+		</component>
+		<component name="rawEvaluation" access="field">
+			<property name="impact" column="dtRawEvaluationImpact" not-null="true" access="field"/>
+			<property name="probability" column="dtRawEvaluationProbability" not-null="true" access="field"/>
+			<property name="importance" column="dtRawEvaluationImportance" not-null="true" access="field"/>
+		</component>
+		<component name="expectedImportance" access="field">
+			<property name="impact" column="dtExpEvaluationImpact" not-null="true" access="field"/>
+			<property name="probability" column="dtExpEvaluationProbability" not-null="true" access="field"/>
+			<property name="importance" column="dtExpEvaluationImportance" not-null="true" access="field"/>
+		</component>
+		<property name="strategy" column="dtResponseStrategy" type="java.lang.String" not-null="true" />
+	</class>
+</hibernate-mapping>

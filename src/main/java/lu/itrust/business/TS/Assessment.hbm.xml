@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.TS">
+	<class name="Assessment" table="assessment">
+		<id name="id" column="idAssessment" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<properties name="unique_index" unique="true">
+			<many-to-one name="scenario" column="fiScenario" access="field" not-null="true"/>
+			<many-to-one name="asset" column="fiAsset" access="field" not-null="true"/>
+		</properties>
+		<property name="selected" column="dtSelected" not-null="true" />
+		<property name="comment" column="dtComment" type="text" not-null="true" />
+		<property name="hiddenComment" column="dtHiddenComment" type="text" not-null="true" />
+		<property name="impactRep" column="dtImpactRep" not-null="true" />
+		<property name="impactOp" column="dtImpactOp" not-null="true" />
+		<property name="impactLeg" column="dtImpactLeg" not-null="true" />
+		<property name="impactFin" column="dtImpactFin" not-null="true" />
+		<property name="impactReal" column="dtImpactReal" not-null="true" />
+		<property name="likelihood" column="dtLikelihood" not-null="true" />
+		<property name="likelihoodReal" column="dtLikelihoodReal" not-null="true" />
+		<property name="uncertainty" column="dtUncertainty" not-null="true" />
+		<property name="ALEP" column="dtALEP" not-null="true" />
+		<property name="ALE" column="dtALE" not-null="true" />
+		<property name="ALEO" column="dtALEO" not-null="true" />
+	</class>
+</hibernate-mapping>

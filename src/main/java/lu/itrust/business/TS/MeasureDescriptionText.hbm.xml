@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 28, 2013 1:19:09 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.TS">
+    <class name="lu.itrust.business.TS.MeasureDescriptionText" table="measureDescriptiontext">
+        <id name="id" type="int" column="idMeasureDescriptionText" unsaved-value="-1">
+            <generator class="increment" />
+        </id>
+        <many-to-one name="measureDescription" column="idMeasureDescription" not-null="true"/>
+        <many-to-one name="language" column="fiLanguage" not-null="true" />
+        <property name="domain" type="java.lang.String" column="dtDomain" not-null="true" access="field"/>
+        <property name="description" type="text" column="dtDescription" not-null="true" access="field"/>
+    </class>
+</hibernate-mapping>

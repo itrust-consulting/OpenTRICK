@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.TS">
+	<class name="AssetType" table="assetType">
+		<id name="id" column="idAssetType" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<property name="type" column="dtLabel" not-null="true" />
+	</class>
+	<class name="Asset" table="asset">
+		<id name="id" column="idAsset" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<many-to-one name="assetType" column="fiAssetType" not-null="true"/>
+		<property name="name" column="dtLabel" not-null="true" access="field"/>
+		<property name="value" column="dtValue" not-null="true" access="field"/>
+		<property name="comment" column="dtComment" type="text" access="field" />
+		<property name="hiddenComment" column="dtHiddenComment" type="text" not-null="true" access="field" />
+		<property name="selected" column="dtSelected" not-null="true" access="field"/>
+	</class>
+</hibernate-mapping>

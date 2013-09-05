@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.TS">
+	<class table="norm" name="Norm">
+		<id name="id" column="idNorm" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<property name="label" column="dtLabel" not-null="true" />
+	</class>
+	<class name="AnalysisNorm" table="analysisNorm" abstract="true">
+		<id name="id" column="idAnalysisNorm" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<discriminator column="dtDiscriminator" not-null="true" />
+		<properties name="unique_index" unique="true">
+			<many-to-one name="norm" column="fiNorm" not-null="true"/>
+			<many-to-one name="analysis" column="fiAnalysis" not-null="true" cascade="save-update"/>
+		</properties>
+		<bag name="measures" table="measure" cascade="all" inverse="true">
+			<key column="fiAnalysisNorm" />
+			<one-to-many class="Measure" />
+		</bag>
+	</class>
+	<subclass name="MeasureNorm" extends="AnalysisNorm" discriminator-value="MeasureNorm" />
+	<subclass name="MaturityNorm" extends="AnalysisNorm" discriminator-value="MaturityNorm" />
+</hibernate-mapping>

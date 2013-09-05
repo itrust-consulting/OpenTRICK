@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 12, 2013 5:51:35 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.TS">
+    <class name="User" table="user">
+        <id name="id" type="long" unsaved-value="-1">
+            <column name="idUser" />
+            <generator class="increment" />
+        </id>
+        <property name="login" type="java.lang.String">
+            <column name="dtLogin" />
+        </property>
+        <property name="password" type="java.lang.String">
+            <column name="dtPassword" />
+        </property>
+        <property name="firstName" type="java.lang.String">
+            <column name="dtFirstName" />
+        </property>
+        <property name="lastName" type="java.lang.String">
+            <column name="dtLastName" />
+        </property>
+        <property name="country" type="java.lang.String">
+            <column name="dtCountry" />
+        </property>
+        <property name="email" type="java.lang.String">
+            <column name="dtEmail" />
+        </property>
+        <property name="enable" type="boolean">
+            <column name="dtEnable" />
+        </property>
+        <bag name="roles" table="userRole" cascade="all">
+            <key column="idUser" not-null="true" />
+            <many-to-many class="Role" column="idRole" />
+        </bag>
+    </class>
+</hibernate-mapping>
