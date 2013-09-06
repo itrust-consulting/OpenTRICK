@@ -18,10 +18,34 @@
 		var strUser = e.options[e.selectedIndex].value;
 		
 		if (strUser==-1)
+		{
 			document.getElementById("file").disabled = true;
+			document.getElementById("validation").disabled = true;
+		}
 		else
+		{
 			document.getElementById("file").disabled = false;
+			checkFile(false);
+		}
 	}
+	
+	function checkFile(b){
+		var fileVal = document.getElementById("file").value;
+		
+   		var ext = fileVal.substr(fileVal.length - 7, fileVal.length);
+   		
+		switch(ext){
+     		case '.sqlite':
+     			document.getElementById("validation").disabled = false;
+       		break;
+     		default:
+     			document.getElementById("validation").disabled = true;
+     			if (b)
+     				alert("You must import a .sqlite file!");
+       		break;
+  		}
+}
+	
 </script>
 </head>
 <body>
@@ -34,8 +58,8 @@
 				<form:option value="-1">Select the customer</form:option>
 				<form:options items="${customers}" itemLabel="contactPerson" itemValue="id"/>
 			</form:select>
-			<input id="file" type="file" name="file" disabled/>
-			<input type="submit" />
+			<input id="file" onchange="checkFile(true)" type="file" name="file" disabled/>
+			<input id="validation" type="submit" disabled/>
 		</form>
 	</c:if>
 </body>
