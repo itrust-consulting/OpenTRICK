@@ -6,7 +6,9 @@
 	uri="http://www.springframework.org/security/tags"%>
 <html>
 <head>
-<title><spring:message code="label.importAnalysis.title" /></title>
+<title>TRICK Service</title>
+<link rel="stylesheet" type="text/css"
+	href='<spring:url value="/css/main.css" />' />
 <style>
 .error {
 	color: #ff0000;
@@ -14,8 +16,12 @@
 </style>
 </head>
 <body>
-	<form:errors cssClass="error" element="div" />
-	<a href="${pageContext.request.contextPath}/index">Home</a>
+	<div class="container">
+		<div class="menu">
+			<jsp:include page="menu.jsp" />
+		</div>
+		<div class="content" id="content">
+			<form:errors cssClass="error" element="div" />
 	<c:if test="${!empty userManageRole}">
 		<table>
 			<tr>
@@ -46,5 +52,10 @@
 				value="<spring:message code="label.action.addRole"/>" />
 		</form:form>
 	</c:if>
+</div>
+		<div class="footer">
+			<jsp:include page="footer.jsp" />
+		</div>
+	</div>
 </body>
 </html>

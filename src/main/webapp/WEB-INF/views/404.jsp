@@ -6,8 +6,7 @@
 	uri="http://www.springframework.org/security/tags"%>
 <html>
 <head>
-<title><spring:message code="label.title.404"
-		text="Error 404: Not Found" /></title>
+<title><spring:message code="label.title.404" text="Error 404: Not Found" /></title>
 <link rel="stylesheet" type="text/css"
 	href='<spring:url value="/css/main.css" />' />
 <META HTTP-EQUIV="refresh"

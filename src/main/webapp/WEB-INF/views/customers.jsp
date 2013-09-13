@@ -6,27 +6,23 @@
 	uri="http://www.springframework.org/security/tags"%>
 <html>
 <head>
-<title>Trick Service</title>
-<style >
+<title>TRICK Service</title>
+<link rel="stylesheet" type="text/css"
+	href='<spring:url value="/css/main.css" />' />
+<style>
 .error {
 	color: #ff0000;
 }
 </style>
 </head>
 <body>
-	<form:errors cssClass="error" element="div"/>
-	<table>
-		<tr>
-			<th>Commandes</th>
-		</tr>
-		<tr>
-			<td><a href="${pageContext.request.contextPath}/index">Home</a></td>
-		</tr>
-		<tr>
-			<td><a href="${pageContext.request.contextPath}/customer/add">Add
-					customer</a></td>
-		</tr>
-	</table>
+	<div class="container">
+		<div class="menu">
+			<jsp:include page="menu.jsp" />
+		</div>
+		<div class="content" id="content">
+			<form:errors cssClass="error" element="div" />
+	
 	<c:if test="${!empty customers}">
 		<table class="data" border="1">
 			<tr>
@@ -46,5 +42,10 @@
 		</table>
 	</c:if>
 
+		</div>
+		<div class="footer">
+			<jsp:include page="footer.jsp" />
+		</div>
+	</div>
 </body>
 </html>
