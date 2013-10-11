@@ -12,8 +12,8 @@
 
 <html>
 
-<!-- ##################################################################### Header ################################################################### -->
-<jsp:include page="header.jsp" />
+<!-- Include Header -->
+<jsp:include page="../header.jsp" />
 
 
 <!-- ################################################################# Start Container ############################################################## -->
@@ -21,61 +21,71 @@
 <body>
 <div class="container">
 
+<!-- ################################################################### Nav Menu ################################################################### -->
+
+<jsp:include page="../menu.jsp" />
+
 <!-- #################################################################### Content ################################################################### -->
 
 <div class="content" id="content">
 
-	<h1>Register</h1>
-
+	<h1>Add new Customer</h1>
+	<a href="../Customer/Display">Back</a>
 	<form:errors cssClass="error" element="div" />
-	<form:form method="post" action="${pageContext.request.contextPath}/user/save.html"	commandName="user">
-		<spring:hasBindErrors name="*" />
-		<table>
+	<form:form method="post" action="Create" commandName="customer">
+
+		<table border="1">
 			<tr>
-				<td><form:label path="login">
-						<spring:message code="label.user.login" />
+				<td><form:label path="contactPerson">
+						<spring:message code="label.customer.contactPerson" />
 					</form:label></td>
-				<td><form:input path="login" /></td>
-				<form:errors path="login" cssClass="error" element="td" />
+				<td><form:input path="contactPerson" /></td>
 			</tr>
 			<tr>
-				<td><form:label path="password">
-						<spring:message code="label.user.password" />
+				<td><form:label path="organisation">
+						<spring:message code="label.customer.organisation" />
 					</form:label></td>
-				<td><form:password path="password" /></td>
-				<form:errors path="password" cssClass="error" element="td" />
+				<td><form:input path="organisation" /></td>
 			</tr>
 			<tr>
-				<td><form:label path="firstName">
-						<spring:message code="label.user.firstName" />
+				<td><form:label path="address">
+						<spring:message code="label.customer.address" />
 					</form:label></td>
-				<td><form:input path="firstName" /></td>
-				<form:errors path="firstName" cssClass="error" element="td" />
+				<td><form:input path="address" /></td>
 			</tr>
 			<tr>
-				<td><form:label path="lastName">
-						<spring:message code="label.user.lastName" />
+				<td><form:label path="city">
+						<spring:message code="label.customer.city" />
 					</form:label></td>
-				<td><form:input path="lastName" /></td>
-				<form:errors path="lastName" cssClass="error" element="td" />
+				<td><form:input path="city" /></td>
+			</tr>
+			<tr>
+				<td><form:label path="ZIPCode">
+						<spring:message code="label.customer.ZIPCode" />
+					</form:label></td>
+				<td><form:input path="ZIPCode" /></td>
 			</tr>
 			<tr>
 				<td><form:label path="country">
-						<spring:message code="label.user.country" />
+						<spring:message code="label.customer.country" />
 					</form:label></td>
 				<td><form:input path="country" /></td>
-				<form:errors path="country" cssClass="error" element="td" />
+			</tr>
+			<tr>
+				<td><form:label path="telephoneNumber">
+						<spring:message code="label.customer.telephoneNumber" />
+					</form:label></td>
+				<td><form:input path="telephoneNumber" /></td>
 			</tr>
 			<tr>
 				<td><form:label path="email">
-						<spring:message code="label.user.email" />
+						<spring:message code="label.customer.email" />
 					</form:label></td>
 				<td><form:input path="email" /></td>
-				<form:errors path="email" cssClass="error" element="td" />
 			</tr>
 			<tr>
 				<td colspan="2"><input type="submit"
-					value="<spring:message code="label.action.save"/>" /></td>
+					value="<spring:message code="label.addCustomer"/>" /></td>
 			</tr>
 		</table>
 	</form:form>
@@ -83,7 +93,7 @@
 		
 <!-- ################################################################ Include Footer ################################################################ -->
 
-<jsp:include page="footer.jsp" />
+<jsp:include page="../footer.jsp" />
 
 <!-- ################################################################ End Container ################################################################# -->
 

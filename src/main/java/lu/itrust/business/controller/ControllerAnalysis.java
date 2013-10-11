@@ -113,7 +113,7 @@ public class ControllerAnalysis {
 	public String loadAll(Map<String, Object> model, HttpSession session)
 			throws Exception {
 
-		model.put("analyzes", serviceAnalysis.loadAll());
+		model.put("analyses", serviceAnalysis.loadAll());
 
 		return "analysis";
 	}

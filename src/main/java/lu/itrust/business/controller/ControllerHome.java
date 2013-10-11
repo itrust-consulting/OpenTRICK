@@ -26,7 +26,7 @@ public class ControllerHome {
 	private ServiceUser serviceUser;
 
 	@Secured("ROLE_USER")
-	@RequestMapping("/index")
+	@RequestMapping("/home")
 	public String home(HttpSession session, Principal principal)
 			throws Exception {
 		User user = (User) session.getAttribute("user");
@@ -37,12 +37,6 @@ public class ControllerHome {
 			else return "redirect:/logout";
 		}
 		return "index";
-	}
-	
-	@Secured("ROLE_USER")
-	@RequestMapping("/fromTRESPASS")
-	public String fromTresPass(){
-		return "redirect:/analysis/all";
 	}
 	
 	@RequestMapping("/login")
