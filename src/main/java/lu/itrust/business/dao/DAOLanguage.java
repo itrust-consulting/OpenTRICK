@@ -8,7 +8,7 @@ import lu.itrust.business.TS.Language;
  * DAOLanguage.java: <br>
  * Detailed description...
  *
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version 
  * @since 16 janv. 2013
  */
@@ -30,4 +30,5 @@ public interface DAOLanguage {
 	
 	public void remove(Language language)throws Exception;
 
+	public void remove(Integer languageID)throws Exception;
 }

@@ -20,7 +20,7 @@
 		</a>
 	</li>
 	<li>
-		<a href="${pageContext.request.contextPath}/KnowLedgeBase/Display" ${menu.equals("KnowLedgeBase/Display")? "id='active'" : "" }>
+		<a href="${pageContext.request.contextPath}/KnowLedgeBase/Display" ${menu.startsWith("KnowLedgeBase")? "id='active'" : "" }>
 			<spring:message code="label.menu.analysis.knowledgebase" text="KnowLedge Base" />
 		</a>
 	</li>

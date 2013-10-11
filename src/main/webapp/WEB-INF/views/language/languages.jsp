@@ -6,7 +6,7 @@
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
-<c:set scope="request" var="title">title.knowledgebase.Customer</c:set>
+<c:set scope="request" var="title">title.knowledgebase.Language</c:set>
 
 <!-- ###################################################################### HTML #################################################################### -->
 
@@ -30,40 +30,32 @@
 <div class="content" id="content">
 	<jsp:include page="../successErrors.jsp" />
 
-	<h1><spring:message code="menu.knowledgebase.customers" /></h1>
+	<h1><spring:message code="menu.knowledgebase.languages" /></h1>
 
-	<a href="../Display">Back</a>|<a href="Add"><spring:message code="label.customer.add.menu" /></a>
+	<a href="../Display"><spring:message code="menu.navigate.back" /></a>|<a href="Add"><spring:message code="label.language.add.menu" /></a>
 
-	<c:if test="${!empty customers}">
+	<c:if test="${!empty languages}">
 		<table class="data" border="1">
 			<tr>
-				<th><spring:message code="label.customer.contactPerson" /></th>
-				<th><spring:message code="label.customer.organisation" /></th>
-				<th><spring:message code="label.customer.address" /></th>
-				<th><spring:message code="label.customer.city" /></th>
-				<th><spring:message code="label.customer.ZIPCode" /></th>
-				<th><spring:message code="label.customer.country" /></th>
-				<th><spring:message code="label.customer.telephoneNumber" /></th>
-				<th><spring:message code="label.customer.email" /></th>
+				<th><spring:message code="label.language.id" text="id" /></th>
+				<th><spring:message code="label.language.alpha3" /></th>
+				<th><spring:message code="label.language.name" /></th>
+				<th><spring:message code="label.language.altName" /></th>
 				<th><spring:message code="label.action" /></th>
 			</tr>
-			<c:forEach items="${customers}" var="customer">
+			<c:forEach items="${languages}" var="language">
 				<tr>
-					<td>${customer.contactPerson}</td>
-					<td>${customer.organisation}</td>
-					<td>${customer.address}</td>
-					<td>${customer.ZIPCode}</td>
-					<td>${customer.city}</td>
-					<td>${customer.country}</td>
-					<td>${customer.telephoneNumber}</td>
-					<td>${customer.email}</td>
-					<td><a href="Edit/${customer.id}"><spring:message code="label.action.edit" /></a>|<a href="Delete/${customer.id}"><spring:message code="label.action.delete" /></a></td>
+					<td>${language.id}</td>
+					<td>${language.alpha3}</td>
+					<td>${language.name}</td>
+					<td>${language.altName}</td>
+					<td><a href="Edit/${language.id}"><spring:message code="label.action.edit" /></a>|<a href="Delete/${language.id}"><spring:message code="label.action.delete" /></a></td>
 				</tr>
 			</c:forEach>
 		</table>
 	</c:if>
-	<c:if test="${empty customers}">
-	<h4><spring:message code="label.customer.notexist" /></h4>	
+	<c:if test="${empty languages}">
+	<h4><spring:message code="label.language.notexist" /></h4>	
 	</c:if>
 </div>
 		

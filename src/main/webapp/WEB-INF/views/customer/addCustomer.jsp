@@ -6,7 +6,7 @@
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
-<c:set scope="request" var="title">label.knowledgebase.knowledgebase</c:set>
+<c:set scope="request" var="title">title.knowledgebase.Customer.Add</c:set>
 
 <!-- ###################################################################### HTML #################################################################### -->
 
@@ -29,8 +29,8 @@
 
 <div class="content" id="content">
 
-	<h1>Add new Customer</h1>
-	<a href="../Customer/Display">Back</a>
+	<h1><spring:message code="label.customer.add.menu" /></h1>
+	<a href="../Customer/Display"><spring:message code="menu.navigate.back" /></a>
 	<form:errors cssClass="error" element="div" />
 	<form:form method="post" action="Create" commandName="customer">
 
@@ -85,7 +85,7 @@
 			</tr>
 			<tr>
 				<td colspan="2"><input type="submit"
-					value="<spring:message code="label.addCustomer"/>" /></td>
+					value="<spring:message code="label.customer.add.form"/>" /></td>
 			</tr>
 		</table>
 	</form:form>

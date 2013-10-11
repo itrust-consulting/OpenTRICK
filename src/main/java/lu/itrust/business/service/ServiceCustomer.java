@@ -31,7 +31,7 @@ public interface ServiceCustomer {
 
 	public void remove(Customer customer) throws Exception;
 
-	public void remove(Integer customerId);
+	public void remove(Integer customerId) throws Exception;
 	
 	public DAOCustomer getDaoCustomer();
 

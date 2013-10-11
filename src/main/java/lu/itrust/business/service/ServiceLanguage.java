@@ -30,6 +30,8 @@ public Language get(int id) throws Exception;
 	
 	public void remove(Language language)throws Exception;
 	
+	public void remove(Integer languageID)throws Exception;
+		
 	public DAOLanguage getDaoLanguage();
 
 }

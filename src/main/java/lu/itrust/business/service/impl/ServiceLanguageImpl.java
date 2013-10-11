@@ -28,7 +28,6 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 */
 	@Override
 	public Language get(int id) throws Exception {
-		// TODO Auto-generated method stub
 		return daoLanguage.get(id);
 	}
 
@@ -37,7 +36,6 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 */
 	@Override
 	public Language loadFromAlpha3(String alpha3) throws Exception {
-		// TODO Auto-generated method stub
 		return daoLanguage.loadFromAlpha3(alpha3);
 	}
 
@@ -46,7 +44,6 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 */
 	@Override
 	public Language loadFromName(String name) throws Exception {
-		// TODO Auto-generated method stub
 		return daoLanguage.loadFromName(name);
 	}
 
@@ -56,7 +53,6 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	@Override
 	public Language loadFromAlternativeName(String alternativeName)
 			throws Exception {
-		// TODO Auto-generated method stub
 		return daoLanguage.loadFromAlternativeName(alternativeName);
 	}
 
@@ -65,7 +61,6 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 */
 	@Override
 	public List<Language> loadAll() throws Exception {
-		// TODO Auto-generated method stub
 		return daoLanguage.loadAll();
 	}
 
@@ -95,9 +90,15 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	@Override
 	public void remove(Language language) throws Exception {
 		daoLanguage.remove(language);
-
 	}
 
+	@Transactional
+	@Override
+	public void remove(Integer languageId) throws Exception {
+		daoLanguage.remove(languageId);
+
+	}
+	
 	/**
 	 * @return the daoLanguage
 	 */

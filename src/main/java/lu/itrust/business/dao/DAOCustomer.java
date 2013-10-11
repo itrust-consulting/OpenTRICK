@@ -8,7 +8,7 @@ import lu.itrust.business.TS.Customer;
  * DAOCustomer.java: <br>
  * Detailed description...
  *
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version 
  * @since 16 janv. 2013
  */
@@ -30,6 +30,6 @@ public interface DAOCustomer {
 	
 	public void remove(Customer customer)throws Exception;
 
-	public void remove(Integer customerId);
+	public void remove(Integer customerId) throws Exception;
 
 }

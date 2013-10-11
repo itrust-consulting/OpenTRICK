@@ -1,18 +1,15 @@
 package lu.itrust.business.dao.hbm;
 
-import java.util.ArrayList;
 import java.util.List;
-
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.dao.DAOLanguage;
-
 import org.hibernate.Query;
 
 /**
  * DAOLanguageHBM.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 16 janv. 2013
  */
@@ -77,7 +74,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 
 		// execute query
 
-		return (ArrayList<Language>) query.list();
+		return (List<Language>) query.list();
 	}
 
 	@Override
@@ -95,8 +92,15 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 
 	@Override
 	public void remove(Language language) throws Exception {
-		// open session
 		getSession().delete(language);
+	}
+	
+	@Override
+	public void remove(Integer languageId) throws Exception {
+		Query query = getSession().createQuery(
+				"delete from Language where id = :languageId");
+		query.setParameter("languageId", languageId);
+		query.executeUpdate();
 	}
 
 }

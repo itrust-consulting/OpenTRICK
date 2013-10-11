@@ -6,7 +6,7 @@
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
-<c:set scope="request" var="title">title.knowledgebase.Customer.Update</c:set>
+<c:set scope="request" var="title">title.knowledgebase.Language.Update</c:set>
 
 <!-- ###################################################################### HTML #################################################################### -->
 
@@ -29,52 +29,32 @@
 
 		<div class="content" id="content">
 		
-			<h1><spring:message code="label.customer.update.form" />: ${customerProfil.organisation}</h1>
+			<h1><spring:message code="label.language.update.form" />: ${language.name}</h1>
 		
 			<a href="../Display"><spring:message code="menu.navigate.back" /></a>
 		
 			<form:errors cssClass="error" element="div" />
-			<c:if test="${!empty customerProfil}">
-				<form:form method="post" action="../Update/${customerProfil.id}" commandName="customer">
+			<c:if test="${!empty language}">
+				<form:form method="post" action="../Update/${language.id}" commandName="language">
 					<table class="data" border="1">
 						<tr>
-							<td><spring:message code="label.customer.id" /></td>
-							<td><input type="hidden" id="id" name="id" value="${customerProfil.id}"/>${customerProfil.id}</td>
+							<td><spring:message code="label.language.id" /></td>
+							<td><input type="hidden" id="id" name="id" value="${language.id}"/>${language.id}</td>
 						</tr>
 						<tr>
-							<td><spring:message code="label.customer.contactPerson" /></td>
-							<td><input id="contactPerson" name="contactPerson" type="text" value="${customerProfil.contactPerson}"></td>
+							<td><spring:message code="label.language.alpha3" /></td>
+							<td><input id="contactPerson" name="alpha3" type="text" value="${language.alpha3}"></td>
 						</tr>
 						<tr>
-							<td><spring:message code="label.customer.organisation" /></td>
-							<td><input id="organisation" name="organisation" type="text" value="${customerProfil.organisation}"></td>
+							<td><spring:message code="label.language.name" /></td>
+							<td><input id="organisation" name="name" type="text" value="${language.name}"></td>
 						</tr>
 						<tr>
-							<td><spring:message code="label.customer.address" /></td>
-							<td><input id="address" name="address" type="text" value="${customerProfil.address}"></td>
+							<td><spring:message code="label.language.altName" /></td>
+							<td><input id="address" name="altName" type="text" value="${language.altName}"></td>
 						</tr>
 						<tr>
-							<td><spring:message code="label.customer.ZIPCode" /></td>
-							<td><input id="ZIPCode" name="ZIPCode" type="text" value="${customerProfil.ZIPCode}"></td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.customer.city" /></td>
-							<td><input id="city" name="city" type="text" value="${customerProfil.city}"></td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.customer.country" /></td>
-							<td><input id="country" name="country" type="text" value="${customerProfil.country}"></td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.customer.telephoneNumber" /></td>
-							<td><input id="telephoneNumber" name="telephoneNumber" type="text" value="${customerProfil.telephoneNumber}"></td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.customer.email" /></td>
-							<td><input id="email" name="email" type="text" value="${customerProfil.email}"></td>
-						</tr>
-						<tr>
-							<td colspan="2"><input type="submit" value="<spring:message code="label.customer.update.form" />"></td>
+							<td colspan="2"><input type="submit" value="<spring:message code="label.language.update.form" />"></td>
 						</tr>
 					</table>
 				</form:form>

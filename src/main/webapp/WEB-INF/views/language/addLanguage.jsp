@@ -6,7 +6,7 @@
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
-<c:set scope="request" var="title">title.knowledgebase.Customer</c:set>
+<c:set scope="request" var="title">title.knowledgebase.Language.Add</c:set>
 
 <!-- ###################################################################### HTML #################################################################### -->
 
@@ -28,43 +28,36 @@
 <!-- #################################################################### Content ################################################################### -->
 
 <div class="content" id="content">
-	<jsp:include page="../successErrors.jsp" />
 
-	<h1><spring:message code="menu.knowledgebase.customers" /></h1>
-
-	<a href="../Display">Back</a>|<a href="Add"><spring:message code="label.customer.add.menu" /></a>
-
-	<c:if test="${!empty customers}">
-		<table class="data" border="1">
+	<h1><spring:message code="label.language.add.menu" /></h1>
+	<a href="../Language/Display"><spring:message code="menu.navigate.back" /></a>
+	<form:errors cssClass="error" element="div" />
+	<form:form method="post" action="Create" commandName="language">
+		<table border="1">
 			<tr>
-				<th><spring:message code="label.customer.contactPerson" /></th>
-				<th><spring:message code="label.customer.organisation" /></th>
-				<th><spring:message code="label.customer.address" /></th>
-				<th><spring:message code="label.customer.city" /></th>
-				<th><spring:message code="label.customer.ZIPCode" /></th>
-				<th><spring:message code="label.customer.country" /></th>
-				<th><spring:message code="label.customer.telephoneNumber" /></th>
-				<th><spring:message code="label.customer.email" /></th>
-				<th><spring:message code="label.action" /></th>
+				<td><form:label path="alpha3">
+						<spring:message code="label.language.alpha3" />
+					</form:label></td>
+				<td><form:input path="alpha3" /></td>
 			</tr>
-			<c:forEach items="${customers}" var="customer">
-				<tr>
-					<td>${customer.contactPerson}</td>
-					<td>${customer.organisation}</td>
-					<td>${customer.address}</td>
-					<td>${customer.ZIPCode}</td>
-					<td>${customer.city}</td>
-					<td>${customer.country}</td>
-					<td>${customer.telephoneNumber}</td>
-					<td>${customer.email}</td>
-					<td><a href="Edit/${customer.id}"><spring:message code="label.action.edit" /></a>|<a href="Delete/${customer.id}"><spring:message code="label.action.delete" /></a></td>
-				</tr>
-			</c:forEach>
+			<tr>
+				<td><form:label path="name">
+						<spring:message code="label.language.name" />
+					</form:label></td>
+				<td><form:input path="name" /></td>
+			</tr>
+			<tr>
+				<td><form:label path="altName">
+						<spring:message code="label.language.altName" />
+					</form:label></td>
+				<td><form:input path="altName" /></td>
+			</tr>
+			<tr>
+				<td colspan="2"><input type="submit"
+					value="<spring:message code="label.language.add.form"/>" /></td>
+			</tr>
 		</table>
-	</c:if>
-	<c:if test="${empty customers}">
-	<h4><spring:message code="label.customer.notexist" /></h4>	
-	</c:if>
+	</form:form>
 </div>
 		
 <!-- ################################################################ Include Footer ################################################################ -->

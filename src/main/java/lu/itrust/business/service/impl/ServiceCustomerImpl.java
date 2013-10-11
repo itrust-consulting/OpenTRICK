@@ -143,7 +143,7 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 
 	@Transactional
 	@Override
-	public void remove(Integer customerId) {
+	public void remove(Integer customerId)throws Exception {
 		daoCustomer.remove(customerId);
 		
 	}

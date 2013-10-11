@@ -6,7 +6,7 @@
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
-<c:set scope="request" var="title">label.knowledgebase.knowledgebase</c:set>
+<c:set scope="request" var="title">title.knowledgebase</c:set>
 
 <!-- ###################################################################### HTML #################################################################### -->
 
@@ -29,11 +29,11 @@
 
 	<div class="content" id="content">
 	
-	<a href="Customer/Display"><spring:message code="label.customer.customers"/></a>
+	<a href="Customer/Display"><spring:message code="menu.knowledgebase.customers"/></a>
 	
-	<a href="Language/Display"><spring:message code="label.language.languages"/></a>	
+	<a href="Language/Display"><spring:message code="menu.knowledgebase.languages"/></a>	
 
-	<a href="Standard/Display"><spring:message code="label.measuredescription.standards"/></a>
+	<a href="Standard/Display"><spring:message code="menu.knowledgebase.standards"/></a>
 		
 	</div>
 		

@@ -12,7 +12,7 @@ import org.hibernate.Query;
  * DAOCustomerHBM.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 16 janv. 2013
  */
@@ -123,7 +123,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	}
 
 	@Override
-	public void remove(Integer customerId) {
+	public void remove(Integer customerId) throws Exception {
 		Query query = getSession().createQuery(
 				"delete from Analysis where customer.id = :customerId");
 		query.setParameter("customerId", customerId);

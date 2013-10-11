@@ -141,7 +141,7 @@ public class ControllerCustomer {
 	 * 
 	 * */
 	@RequestMapping("KnowLedgeBase/Customer/Delete/{customerId}")
-	public String deleteCustomer(@PathVariable("customerId") Integer customerId) {
+	public String deleteCustomer(@PathVariable("customerId") Integer customerId) throws Exception {
 		serviceCustomer.remove(customerId);
 		return "redirect:../Display";
 	}
