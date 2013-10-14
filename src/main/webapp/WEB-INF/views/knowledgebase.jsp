@@ -33,7 +33,7 @@
 	
 	<a href="Language/Display"><spring:message code="menu.knowledgebase.languages"/></a>	
 
-	<a href="Standard/Display"><spring:message code="menu.knowledgebase.standards"/></a>
+	<a href="Standard/Norm/Display"><spring:message code="menu.knowledgebase.standards"/></a>
 		
 	</div>
 		

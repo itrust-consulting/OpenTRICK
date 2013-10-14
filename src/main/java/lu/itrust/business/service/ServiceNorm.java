@@ -23,18 +23,16 @@ public interface ServiceNorm {
 
 	public List<Norm> loadAllFromAnalysis(Analysis analysis) throws Exception;
 
-	public List<Norm> loadAllFromAnalysisIdentifierVersionCreationDate(
-			int identifier, String version, String creationDate)
-			throws Exception;
+	public List<Norm> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier, String version, String creationDate) throws Exception;
 
 	public List<Norm> loadAll() throws Exception;
 
-	public void save(Norm Norm) throws Exception;
+	public void save(Norm norm) throws Exception;
 
-	public void saveOrUpdate(Norm Norm) throws Exception;
+	public void saveOrUpdate(Norm norm) throws Exception;
 
-	public void remove(Norm Norm) throws Exception;
-	
+	public void remove(Norm norm) throws Exception;
+
 	public DAONorm getDaoNorm();
 
 }

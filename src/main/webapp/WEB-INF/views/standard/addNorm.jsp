@@ -6,7 +6,7 @@
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
-<c:set scope="request" var="title">title.knowledgebase.Language.Update</c:set>
+<c:set scope="request" var="title">title.knowledgebase.Norm.Add</c:set>
 
 <!-- ###################################################################### HTML #################################################################### -->
 
@@ -19,55 +19,42 @@
 <!-- ################################################################# Start Container ############################################################## -->
 
 <body>
-	<div class="container">
+<div class="container">
 
 <!-- ################################################################### Nav Menu ################################################################### -->
 
-		<jsp:include page="../menu.jsp" />
+<jsp:include page="../menu.jsp" />
 
 <!-- #################################################################### Content ################################################################### -->
 
-		<div class="content" id="content">
-		
-			<h1><spring:message code="label.language.update.form" />: ${language.name}</h1>
-		
-			<a href="../Display"><spring:message code="menu.navigate.back" /></a>
-		
-			<form:errors cssClass="error" element="div" />
-			<c:if test="${!empty language}">
-				<form:form method="post" action="../Update/${language.id}" commandName="language">
-					<table class="data" border="1">
-						<tr>
-							<td><spring:message code="label.language.id" /></td>
-							<td><input type="hidden" id="id" name="id" value="${language.id}"/>${language.id}</td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.language.alpha3" /></td>
-							<td><input id="alpha3" name="alpha3" type="text" value="${language.alpha3}"></td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.language.name" /></td>
-							<td><input id="name" name="name" type="text" value="${language.name}"></td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.language.altName" /></td>
-							<td><input id="altName" name="altName" type="text" value="${language.altName}"></td>
-						</tr>
-						<tr>
-							<td colspan="2"><input type="submit" value="<spring:message code="label.language.update.form" />"></td>
-						</tr>
-					</table>
-				</form:form>
-			</c:if>
-		</div>
+<div class="content" id="content">
 
+	<h1><spring:message code="label.norm.add.menu" /></h1>
+	<a href="../Norm/Display"><spring:message code="menu.navigate.back" /></a>
+	<form:errors cssClass="error" element="div" />
+	<form:form method="post" action="Create" commandName="norm">
+		<table border="1">
+			<tr>
+				<td><form:label path="label">
+						<spring:message code="label.norm.label" />
+					</form:label></td>
+				<td><form:input path="label" /></td>
+			</tr>
+			<tr>
+				<td colspan="2"><input type="submit"
+					value="<spring:message code="label.norm.add.form"/>" /></td>
+			</tr>
+		</table>
+	</form:form>
+</div>
+		
 <!-- ################################################################ Include Footer ################################################################ -->
 
-		<jsp:include page="../footer.jsp" />
+<jsp:include page="../footer.jsp" />
 
 <!-- ################################################################ End Container ################################################################# -->
 
-	</div>
+</div>
 </body>
 
 <!-- ################################################################### End HTML ################################################################### -->

@@ -10,54 +10,56 @@ import lu.itrust.business.dao.DAONorm;
 import org.hibernate.Query;
 
 public class DAONormHBM extends DAOHibernate implements DAONorm {
-	
+
 	@Override
 	public Norm getNormByID(int normID) throws Exception {
-			return (Norm) getSession().get(Norm.class, normID);
+		return (Norm) getSession().get(Norm.class, normID);
 	}
-	
+
 	@Override
 	public Norm loadNotCustomNormByName(String label) throws Exception {
-		
-			Query query = getSession().createQuery("from Norm where label = :label and label != :custom");
-			query.setString("label", label);
-			query.setString("custom", Constant.NORM_CUSTOM);
-			return (Norm) query.uniqueResult();
-		
+
+		Query query =
+			getSession().createQuery("from Norm where label = :label and label != :custom");
+		query.setString("label", label);
+		query.setString("custom", Constant.NORM_CUSTOM);
+		return (Norm) query.uniqueResult();
+
 	}
-	
+
 	@Override
 	public Norm loadSingleNormByName(String label) throws Exception {
-	
-			Query query = getSession().createQuery("from Norm where label = :label");
-			query.setString("label", label);
-			return (Norm) query.uniqueResult();
-		
+
+		Query query = getSession().createQuery("from Norm where label = :label");
+		query.setString("label", label);
+		return (Norm) query.uniqueResult();
+
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Norm> loadAllFromAnalysis(Analysis analysis) throws Exception {
-	
-			Query query = getSession().createQuery("From Norm");
-			return (List<Norm>) query.list();
-		
+
+		Query query = getSession().createQuery("From Norm");
+		return (List<Norm>) query.list();
+
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Norm> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier, String version, String creationDate) throws Exception {
-	
-			Query query = getSession().createQuery("From Norm");
-			return (List<Norm>) query.list();
+	public List<Norm> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier,
+			String version, String creationDate) throws Exception {
+
+		Query query = getSession().createQuery("From Norm");
+		return (List<Norm>) query.list();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Norm> loadAll() throws Exception {
-	
-			Query query = getSession().createQuery("From Norm");
-			return (List<Norm>) query.list();
+
+		Query query = getSession().createQuery("From Norm");
+		return (List<Norm>) query.list();
 	}
 
 	@Override
@@ -75,7 +77,7 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 	@Override
 	public void remove(Norm norm) throws Exception {
 		getSession().delete(norm);
-		
+
 	}
 
 }

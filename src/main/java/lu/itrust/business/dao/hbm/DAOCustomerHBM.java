@@ -1,6 +1,5 @@
 package lu.itrust.business.dao.hbm;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import lu.itrust.business.TS.Customer;
@@ -82,7 +81,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 
 		Query query = getSession().createQuery("From Customer");
 
-		return (ArrayList<Customer>) query.list();
+		return (List<Customer>) query.list();
 	}
 
 	/**

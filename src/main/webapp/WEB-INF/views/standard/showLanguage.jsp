@@ -2,11 +2,12 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec"	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec"
+	uri="http://www.springframework.org/security/tags"%>
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
-<c:set scope="request" var="title">title.knowledgebase.Language.Update</c:set>
+<c:set scope="request" var="title">label.home</c:set>
 
 <!-- ###################################################################### HTML #################################################################### -->
 
@@ -28,36 +29,49 @@
 <!-- #################################################################### Content ################################################################### -->
 
 		<div class="content" id="content">
-		
-			<h1><spring:message code="label.language.update.form" />: ${language.name}</h1>
-		
-			<a href="../Display"><spring:message code="menu.navigate.back" /></a>
-		
+			
+			<h1>Customer: ${customerProfil.organisation}</h1>
+			
 			<form:errors cssClass="error" element="div" />
-			<c:if test="${!empty language}">
-				<form:form method="post" action="../Update/${language.id}" commandName="language">
-					<table class="data" border="1">
-						<tr>
-							<td><spring:message code="label.language.id" /></td>
-							<td><input type="hidden" id="id" name="id" value="${language.id}"/>${language.id}</td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.language.alpha3" /></td>
-							<td><input id="alpha3" name="alpha3" type="text" value="${language.alpha3}"></td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.language.name" /></td>
-							<td><input id="name" name="name" type="text" value="${language.name}"></td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.language.altName" /></td>
-							<td><input id="altName" name="altName" type="text" value="${language.altName}"></td>
-						</tr>
-						<tr>
-							<td colspan="2"><input type="submit" value="<spring:message code="label.language.update.form" />"></td>
-						</tr>
-					</table>
-				</form:form>
+			<c:if test="${!empty customerProfil}">
+				<table class="data" border="1">
+					<tr>
+						<td><spring:message code="label.customer.id" /></td>
+						<td>${customerProfil.id}</td>
+					</tr>
+					<tr>
+						<td><spring:message code="label.customer.contactPerson" /></td>
+						<td>${customerProfil.contactPerson}</td>
+					</tr>
+					<tr>
+						<td><spring:message code="label.customer.organisation" /></td>
+						<td>${customerProfil.organisation}</td>
+					</tr>
+					<tr>
+						<td><spring:message code="label.customer.address" /></td>
+						<td>${customerProfil.address}</td>
+					</tr>
+					<tr>
+						<td><spring:message code="label.customer.ZIPCode" /></td>
+						<td>${customerProfil.ZIPCode}</td>
+					</tr>
+					<tr>
+						<td><spring:message code="label.customer.city" /></td>
+						<td>${customerProfil.city}</td>
+					</tr>
+					<tr>
+						<td><spring:message code="label.customer.country" /></td>
+						<td>${customerProfil.country}</td>
+					</tr>
+					<tr>
+						<td><spring:message code="label.customer.telephoneNumber" /></td>
+						<td>${customerProfil.telephoneNumber}</td>
+					</tr>
+					<tr>
+						<td><spring:message code="label.customer.email" /></td>
+						<td>${customerProfil.email}</td>
+					</tr>
+				</table>
 			</c:if>
 		</div>
 
