@@ -8,17 +8,12 @@
     <global-method-security secured-annotations="enabled"
 		access-decision-manager-ref="accessDecisionManager" />
            
-    <http pattern="/api/trespass">
-    	<intercept-url pattern="/api/trespass*" access="ROLE_USER,ROLE_CONSULTANT,ROLE_ADMIN" />
-    	<http-basic/>
-    </http>
-           
 	<http auto-config="true">
 		<intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/addUser*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<form-login login-page="/login" default-target-url="/index"
+		<form-login login-page="/login" default-target-url="/home"
 			authentication-failure-url="/login" />
-		<logout invalidate-session="true" logout-success-url="/index" />
+		<logout invalidate-session="true" logout-success-url="/home" />
 	</http>
 
 	<authentication-manager>

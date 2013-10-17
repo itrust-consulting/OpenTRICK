@@ -37,8 +37,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@Override
 	public Customer loadByCustomerName(String fullName) throws Exception {
-		Query query = getSession().createQuery(
-				"From Customer where contactPerson = :contactPerson");
+		Query query = getSession().createQuery("From Customer where contactPerson = :contactPerson");
 		query.setString("contactPerson", fullName);
 		return (Customer) query.uniqueResult();
 
@@ -51,8 +50,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.dao.DAOCustomer#loadByOrganasition(java.lang.String)
 	 */
 	@Override
-	public List<Customer> loadByOrganasition(String organisation)
-			throws Exception {
+	public List<Customer> loadByOrganasition(String organisation) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -114,8 +112,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@Override
 	public void remove(Customer customer) throws Exception {
-		Query query = getSession().createQuery(
-				"delete from Analysis where Customer = :customer");
+		Query query = getSession().createQuery("delete from Analysis where Customer = :customer");
 		query.setParameter("customer", customer);
 		query.executeUpdate();
 		getSession().delete(customer);
@@ -123,8 +120,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 
 	@Override
 	public void remove(Integer customerId) throws Exception {
-		Query query = getSession().createQuery(
-				"delete from Analysis where customer.id = :customerId");
+		Query query = getSession().createQuery("delete from Analysis where customer.id = :customerId");
 		query.setParameter("customerId", customerId);
 		query.executeUpdate();
 		query = getSession().createQuery("delete from Customer where id = :customerId");

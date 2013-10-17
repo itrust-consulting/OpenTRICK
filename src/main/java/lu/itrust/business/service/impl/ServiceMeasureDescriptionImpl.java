@@ -42,8 +42,8 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * (java.lang.String, lu.itrust.business.TS.Norm)
 	 */
 	@Override
-	public MeasureDescription getByReferenceNorm(String Reference, Norm norm) throws Exception {
-		return daoMeasureDescription.getByReferenceNorm(Reference, norm);
+	public MeasureDescription getByReferenceNorm(String reference, Norm norm) throws Exception {
+		return daoMeasureDescription.getByReferenceNorm(reference, norm);
 	}
 
 	/*
@@ -53,8 +53,8 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * lu.itrust.business.TS.Norm)
 	 */
 	@Override
-	public boolean exists(String Reference, Norm norm) throws Exception {
-		return daoMeasureDescription.exists(Reference, norm);
+	public boolean exists(String reference, Norm norm) throws Exception {
+		return daoMeasureDescription.exists(reference, norm);
 	}
 
 	/*
@@ -64,8 +64,8 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * (java.lang.String, lu.itrust.business.TS.Norm, lu.itrust.business.TS.Language)
 	 */
 	@Override
-	public boolean existsWithLanguage(String Reference, Norm norm, Language language) throws Exception {
-		return daoMeasureDescription.existsWithLanguage(Reference, norm, language);
+	public boolean existsWithLanguage(String reference, Norm norm, Language language) throws Exception {
+		return daoMeasureDescription.existsWithLanguage(reference, norm, language);
 	}
 
 	/*
@@ -153,6 +153,17 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	@Override
 	public List<MeasureDescription> getAllByNorm(Integer normid) throws Exception {
 		return this.daoMeasureDescription.getAllByNorm(normid);
+	}
+	
+	/**
+	 * getAllByNorm: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceMeasureDescription#getAllByNorm(java.lang.Integer)
+	 */
+	@Override
+	public List<MeasureDescription> getAllByNorm(String label) throws Exception {
+		return this.daoMeasureDescription.getAllByNorm(label);
 	}
 
 }

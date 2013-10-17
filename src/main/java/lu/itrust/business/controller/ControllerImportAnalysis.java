@@ -35,7 +35,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author oensuifudine
  */
 @Secured("ROLE_CONSULTANT")
-@RequestMapping("/import")
 @Controller
 public class ControllerImportAnalysis {
 
@@ -69,31 +68,45 @@ public class ControllerImportAnalysis {
 	@Autowired
 	private ServiceScenarioType serviceScenarioType;
 
-	public void setServiceCustomer(ServiceCustomer serviceCustomer) {
-		this.serviceCustomer = serviceCustomer;
-	}
+	// ******************************************************************************************************************
+	// * Request Mappings
+	// ******************************************************************************************************************
 
-	public void setServiceAnalysis(ServiceAnalysis serviceAnalysis) {
-		this.serviceAnalysis = serviceAnalysis;
-	}
-
-	@RequestMapping("/analysis")
+	/**
+	 * importAnalysis: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("Analysis/Import/Display")
 	public String importAnalysis(Map<String, Object> model) throws Exception {
 		model.put("customerId", -1);
 		model.put("customers", serviceCustomer.loadAll());
-		return "importAnalysisForm";
+		return "analysis/importAnalysisForm";
 	}
 
-	@RequestMapping("/analysis/save")
-	public ModelAndView importAnalysisSave(HttpSession session,
-			@RequestParam(value = "customerId") Integer customerId,
-			@RequestParam(value = "file") MultipartFile file, RedirectAttributes redirectAttributes) throws Exception {
+	/**
+	 * importAnalysisSave: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param customerId
+	 * @param file
+	 * @param redirectAttributes
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("Analysis/Import/Execute")
+	public ModelAndView importAnalysisSave(HttpSession session, @RequestParam(value = "customerId") Integer customerId, @RequestParam(value = "file") MultipartFile file,
+			RedirectAttributes redirectAttributes) throws Exception {
 
 		Customer customer = serviceCustomer.get(customerId);
 
-		if (customer == null || file.isEmpty())
-			
-			return new ModelAndView("importAnalysisForm");
+		if (customer == null || file.isEmpty()) {
+			return new ModelAndView("analysis/importAnalysisForm");
+		}
 
 		ImportAnalysis importAnalysis = new ImportAnalysis();
 
@@ -105,8 +118,7 @@ public class ControllerImportAnalysis {
 
 		importAnalysis.setServiceMeasureDescription(serviceMeasureDescription);
 
-		importAnalysis
-				.setServiceMeasureDescriptionText(serviceMeasureDescriptionText);
+		importAnalysis.setServiceMeasureDescriptionText(serviceMeasureDescriptionText);
 
 		importAnalysis.setServiceNorm(serviceNorm);
 
@@ -116,58 +128,124 @@ public class ControllerImportAnalysis {
 
 		KnowLedgeBase knowLedgeBase = new KnowLedgeBase(importAnalysis);
 
-		MessageHandler handler = knowLedgeBase.importSQLite(
-				file.getOriginalFilename(), file.getInputStream(), customer);
+		MessageHandler handler = knowLedgeBase.importSQLite(file.getOriginalFilename(), file.getInputStream(), customer);
 
 		if (handler == null) {
-			
-		
-			redirectAttributes.addFlashAttribute("analysis", importAnalysis.getAnalysis());
-			
-			return new ModelAndView(
-					"redirect:/analysis/import/compute/actionPlan");
+
+			redirectAttributes.addFlashAttribute("success", "Import Success");
+
+			return new ModelAndView("redirect:/Analyses/Display");
+		} else {
+
+			redirectAttributes.addFlashAttribute("errors", handler.getException().getMessage());
+
+			handler.getException().printStackTrace();
+
+			return new ModelAndView("redirect:/Analysis/Import/Display");
 		}
-		
-		redirectAttributes.addFlashAttribute("errors", handler.getException().getMessage());
-
-		handler.getException().printStackTrace();
-
-		return new ModelAndView("redirect:/analysis/customer/" + customerId);
 	}
 
+	// ******************************************************************************************************************
+	// * Setters
+	// ******************************************************************************************************************
+
+	/**
+	 * setServiceCustomer: <br>
+	 * Description
+	 * 
+	 * @param serviceCustomer
+	 */
+	public void setServiceCustomer(ServiceCustomer serviceCustomer) {
+		this.serviceCustomer = serviceCustomer;
+	}
+
+	/**
+	 * setServiceAnalysis: <br>
+	 * Description
+	 * 
+	 * @param serviceAnalysis
+	 */
+	public void setServiceAnalysis(ServiceAnalysis serviceAnalysis) {
+		this.serviceAnalysis = serviceAnalysis;
+	}
+
+	/**
+	 * setServiceAnalysisNorm: <br>
+	 * Description
+	 * 
+	 * @param serviceAnalysisNorm
+	 */
 	public void setServiceAnalysisNorm(ServiceAnalysisNorm serviceAnalysisNorm) {
 		this.serviceAnalysisNorm = serviceAnalysisNorm;
 	}
 
+	/**
+	 * setServiceAssetType: <br>
+	 * Description
+	 * 
+	 * @param serviceAssetType
+	 */
 	public void setServiceAssetType(ServiceAssetType serviceAssetType) {
 		this.serviceAssetType = serviceAssetType;
 	}
 
+	/**
+	 * setServiceLanguage: <br>
+	 * Description
+	 * 
+	 * @param serviceLanguage
+	 */
 	public void setServiceLanguage(ServiceLanguage serviceLanguage) {
 		this.serviceLanguage = serviceLanguage;
 	}
 
-	public void setServiceMeasureDescription(
-			ServiceMeasureDescription serviceMeasureDescription) {
+	/**
+	 * setServiceMeasureDescription: <br>
+	 * Description
+	 * 
+	 * @param serviceMeasureDescription
+	 */
+	public void setServiceMeasureDescription(ServiceMeasureDescription serviceMeasureDescription) {
 		this.serviceMeasureDescription = serviceMeasureDescription;
 	}
 
-	public void setServiceMeasureDescriptionText(
-			ServiceMeasureDescriptionText serviceMeasureDescriptionText) {
+	/**
+	 * setServiceMeasureDescriptionText: <br>
+	 * Description
+	 * 
+	 * @param serviceMeasureDescriptionText
+	 */
+	public void setServiceMeasureDescriptionText(ServiceMeasureDescriptionText serviceMeasureDescriptionText) {
 		this.serviceMeasureDescriptionText = serviceMeasureDescriptionText;
 	}
 
+	/**
+	 * setServiceNorm: <br>
+	 * Description
+	 * 
+	 * @param serviceNorm
+	 */
 	public void setServiceNorm(ServiceNorm serviceNorm) {
 		this.serviceNorm = serviceNorm;
 	}
 
-	public void setServiceParameterType(
-			ServiceParameterType serviceParameterType) {
+	/**
+	 * setServiceParameterType: <br>
+	 * Description
+	 * 
+	 * @param serviceParameterType
+	 */
+	public void setServiceParameterType(ServiceParameterType serviceParameterType) {
 		this.serviceParameterType = serviceParameterType;
 	}
 
+	/**
+	 * setServiceScenarioType: <br>
+	 * Description
+	 * 
+	 * @param serviceScenarioType
+	 */
 	public void setServiceScenarioType(ServiceScenarioType serviceScenarioType) {
 		this.serviceScenarioType = serviceScenarioType;
 	}
-
 }

@@ -26,26 +26,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @since Oct 14, 2013
  */
 @Controller
-public class ControllerStandard {
-
-	@Autowired
-	private ServiceMeasureDescription serviceMeasureDescription;
+public class ControllerNorm {
 
 	@Autowired
 	private ServiceNorm serviceNorm;
 
 	@Autowired
 	private MessageSource messageSource;
-
-	/**
-	 * setServiceMeasureDescription: <br>
-	 * Description
-	 * 
-	 * @param serviceMeasureDescription
-	 */
-	public void setServiceMeasureDescription(ServiceMeasureDescription serviceMeasureDescription) {
-		this.serviceMeasureDescription = serviceMeasureDescription;
-	}
 
 	/**
 	 * setServiceNorm: <br>
@@ -73,12 +60,12 @@ public class ControllerStandard {
 	 * Edit Norm
 	 * 
 	 * */
-	@RequestMapping("KnowLedgeBase/Standard/Norm/Edit/{standardId}")
-	public String editStandard(@PathVariable("standardId") Integer standardId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
+	@RequestMapping("KnowLedgeBase/Standard/Norm/Edit/{normLabel}")
+	public String editStandard(@PathVariable("normLabel") String normLabel, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
 			throws Exception {
 		Norm norm = (Norm) session.getAttribute("norm");
-		if (norm == null || norm.getId() != standardId)
-			norm = serviceNorm.getNormByID(standardId);
+		if (norm == null || !norm.getLabel().equals(normLabel))
+			norm = serviceNorm.loadSingleNormByName(normLabel);
 		if (norm == null) {
 			String msg = messageSource.getMessage("errors.norm.notexist", null, "Norm does not exist", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
@@ -93,10 +80,10 @@ public class ControllerStandard {
 	 * Perform edit Norm
 	 * 
 	 * */
-	@RequestMapping("KnowLedgeBase/Standard/Norm/Update/{standardId}")
-	public String updateLanguage(@PathVariable("standardId") Integer standardId, @ModelAttribute("norm") @Valid Norm norm, BindingResult result,
+	@RequestMapping("KnowLedgeBase/Standard/Norm/Update/{normLabel}")
+	public String updateLanguage(@PathVariable("normLabel") String normLabel, @ModelAttribute("norm") @Valid Norm norm, BindingResult result,
 			RedirectAttributes redirectAttributes, Locale locale) throws Exception {
-		if (norm == null || norm.getId() != standardId) {
+		if (norm == null || !norm.getLabel().equals(normLabel)) {
 			String msg = messageSource.getMessage("errors.norm.update.notrecognized", null, "Norm not recognized", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
 		} else {
@@ -117,9 +104,10 @@ public class ControllerStandard {
 	 * Delete single Norm
 	 * 
 	 * */
-	@RequestMapping("KnowLedgeBase/Standard/Norm/Delete/{standardId}")
-	public String deleteLanguage(@PathVariable("standardId") Integer standardId) throws Exception {
-		serviceNorm.remove(serviceNorm.getNormByID(standardId));
+	@RequestMapping("KnowLedgeBase/Standard/Norm/Delete/{normLabel}")
+	public String deleteLanguage(@PathVariable("normLabel") String normLabel) throws Exception {
+		
+		serviceNorm.remove(serviceNorm.loadSingleNormByName(normLabel));
 		return "redirect:../Display";
 	}
 

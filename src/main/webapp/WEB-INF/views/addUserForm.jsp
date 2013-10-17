@@ -6,7 +6,7 @@
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
-<c:set scope="request" var="title">label.knowledgebase.knowledgebase</c:set>
+<c:set scope="request" var="title">title.register</c:set>
 
 <!-- ###################################################################### HTML #################################################################### -->
 
@@ -25,10 +25,10 @@
 
 <div class="content" id="content">
 
-	<h1>Register</h1>
-
+	<h1><spring:message code="title.user.register" /></h1>
+	<a href="../login"><spring:message code="menu.navigate.back" /></a>
 	<form:errors cssClass="error" element="div" />
-	<form:form method="post" action="${pageContext.request.contextPath}/user/save.html"	commandName="user">
+	<form:form method="post" action="${pageContext.request.contextPath}/user/save"	commandName="user">
 		<spring:hasBindErrors name="*" />
 		<table>
 			<tr>
@@ -60,13 +60,6 @@
 				<form:errors path="lastName" cssClass="error" element="td" />
 			</tr>
 			<tr>
-				<td><form:label path="country">
-						<spring:message code="label.user.country" />
-					</form:label></td>
-				<td><form:input path="country" /></td>
-				<form:errors path="country" cssClass="error" element="td" />
-			</tr>
-			<tr>
 				<td><form:label path="email">
 						<spring:message code="label.user.email" />
 					</form:label></td>
@@ -75,7 +68,7 @@
 			</tr>
 			<tr>
 				<td colspan="2"><input type="submit"
-					value="<spring:message code="label.action.save"/>" /></td>
+					value="<spring:message code="label.user.submit"/>" /></td>
 			</tr>
 		</table>
 	</form:form>

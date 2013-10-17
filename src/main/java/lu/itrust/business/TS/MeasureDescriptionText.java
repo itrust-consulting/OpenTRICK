@@ -75,14 +75,19 @@ public class MeasureDescriptionText {
 	 *            The Value to set the Measure Description
 	 */
 	public void setDescription(String description) {
+		if (this.measureDescription == null) {
+			throw new NullPointerException("Measuredescription field needs to be set before!");
+		}
 		if ((this.measureDescription.getLevel() == 1) || (this.measureDescription.getLevel() == 2)) {
 			this.description = "";
-		} else if (this.measureDescription == null || this.measureDescription.getLevel() == -1) {
-			throw new IllegalArgumentException(
-					"Measure Level needs to be set before adding a Description!");
+		} else if (this.measureDescription.getLevel() == -1) {
+			throw new IllegalArgumentException("Measure Level needs to be set before adding a Description!");
 		} else if (description == null) {
-			throw new IllegalArgumentException("Measure Description cannot be null");
+			throw new IllegalArgumentException("The description cannot be null or empty");
 		}
+		
+		this.description=description;
+		
 	}
 
 	/**

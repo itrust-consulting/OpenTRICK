@@ -37,11 +37,11 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 *      lu.itrust.business.TS.Norm)
 	 */
 	@Override
-	public MeasureDescription getByReferenceNorm(String Reference, Norm norm) throws Exception {
+	public MeasureDescription getByReferenceNorm(String reference, Norm norm) throws Exception {
 
 		Query query = getSession().createQuery("From MeasureDescription where norm = :norm and reference = :reference");
 		query.setParameter("norm", norm);
-		query.setString("reference", Reference);
+		query.setString("reference", reference);
 		return (MeasureDescription) query.uniqueResult();
 
 	}
@@ -54,11 +54,11 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 *      lu.itrust.business.TS.Norm)
 	 */
 	@Override
-	public boolean exists(String Reference, Norm norm) throws Exception {
+	public boolean exists(String reference, Norm norm) throws Exception {
 
 		Query query = getSession().createQuery("Select count(*) From MeasureDescription where norm = :norm and reference = :reference");
 		query.setParameter("norm", norm);
-		query.setString("reference", Reference);
+		query.setString("reference", reference);
 		return (Long) query.uniqueResult() >= 1;
 
 	}
@@ -71,7 +71,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 *      lu.itrust.business.TS.Norm, lu.itrust.business.TS.Language)
 	 */
 	@Override
-	public boolean existsWithLanguage(String Reference, Norm norm, Language language) throws Exception {
+	public boolean existsWithLanguage(String reference, Norm norm, Language language) throws Exception {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -150,6 +150,20 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	public List<MeasureDescription> getAllByNorm(Integer normid) throws Exception {
 		Query query = getSession().createQuery("From MeasureDescription where norm.id = :normid");
 		query.setParameter("normid", normid);
+		return (List<MeasureDescription>) query.list();
+	}
+	
+	/**
+	 * getAllByNorm: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllByNorm(java.lang.Integer)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<MeasureDescription> getAllByNorm(String label) throws Exception {
+		Query query = getSession().createQuery("From MeasureDescription where norm.label = :normLabel");
+		query.setParameter("normLabel", label);
 		return (List<MeasureDescription>) query.list();
 	}
 }

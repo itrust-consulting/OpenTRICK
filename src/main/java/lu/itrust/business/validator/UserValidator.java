@@ -44,9 +44,6 @@ public class UserValidator implements Validator {
 		if(user.getLastName()==null || user.getLastName().trim().isEmpty())
 			errors.rejectValue("lastName", "errors.user.lastName.empty");
 		
-		if(user.getCountry()==null || user.getCountry().trim().isEmpty())
-			errors.rejectValue("country", "errors.user.country.empty");
-		
 		if(user.getEmail()==null || user.getEmail().trim().isEmpty())
 			errors.rejectValue("email", "errors.user.email.empty");
 	}

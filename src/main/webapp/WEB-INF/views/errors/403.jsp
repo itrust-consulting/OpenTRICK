@@ -6,12 +6,12 @@
 	uri="http://www.springframework.org/security/tags"%>
 <html>
 <head>
-<title><spring:message code="label.title.400"
-		text="Error 400: Bad Request" /></title>
+<title><spring:message code="label.title.403"
+		text="Error 403: Access denied" /></title>
 <link rel="stylesheet" type="text/css"
 	href='<spring:url value="/css/main.css" />' />
 <META HTTP-EQUIV="refresh"
-	CONTENT="<spring:message code='label.error.400.redirect.value' text='3' />;${pageContext.request.contextPath}/index">
+	CONTENT="<spring:message code='label.error.403.redirect.value' text='3' />;${pageContext.request.contextPath}/index">
 </head>
 <body>
 	<div class="container">
@@ -20,15 +20,15 @@
 				<c:when
 					test="${'XMLHttpRequest' != request.getHeader('X-Requested-With')}">
 					<spring:message
-						code="errors.400.bad.Request label.redirect label.error.400.redirect.value label.error.400.redirect.unit" 
-						text="Bad Request, You will be redirected in 3 seconds" />
+						code="errors.403.access.denied label.redirect label.error.403.redirect.value label.error.403.redirect.unit"
+						text="Access denied, You will be redirected in 3 seconds" />
 				</c:when>
 				<c:otherwise>
-					<spring:message code="errors.400.bad.Request" text="Bad Request" />
+					<spring:message code="errors.403.access.denied" text="Access denied" />
 				</c:otherwise>
 			</c:choose>
 		</div>
-		<div class="footer"><jsp:include page="footer.jsp" /></div>
+		<div class="footer"><jsp:include page="../footer.jsp" /></div>
 	</div>
 </body>
 </html>

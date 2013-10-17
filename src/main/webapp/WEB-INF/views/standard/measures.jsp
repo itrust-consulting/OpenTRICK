@@ -6,7 +6,7 @@
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
-<c:set scope="request" var="title">title.knowledgebase.Standard</c:set>
+<c:set scope="request" var="title">title.knowledgebase.Measure</c:set>
 
 <!-- ###################################################################### HTML #################################################################### -->
 
@@ -30,32 +30,37 @@
 <div class="content" id="content">
 	<jsp:include page="../successErrors.jsp" />
 
-	<h1><spring:message code="menu.knowledgebase.standards.norms" /></h1>
+	<h1><spring:message code="label.measure.measures" /> ${normLabel}</h1>
 
-	<a href="../../Display"><spring:message code="menu.navigate.back" /></a>|<a href="Add"><spring:message code="label.norm.add.menu" /></a>
+	<a href="../../Display"><spring:message code="menu.navigate.back" /></a>|<a href="Add"><spring:message code="label.measure.add.menu" /></a>
 
-	<c:if test="${!empty norms}">
+	<c:if test="${!empty measureDescriptions}">
 		<table class="data" border="1">
 			<tr>
-				<th><spring:message code="label.norm.id" text="id" /></th>
-				<th><spring:message code="label.norm.label" /></th>
+				<th><spring:message code="label.measure.id" text="id" /></th>
+				<th><spring:message code="label.measure.level" /></th>
+				<th><spring:message code="label.measure.reference" /></th>
+				<th><spring:message code="label.measure.domain" /></th>
+				<th><spring:message code="label.measure.description" /></th>
 				<th><spring:message code="label.action" /></th>
 			</tr>
-			<c:forEach items="${norms}" var="norm">
+			<c:forEach items="${measureDescriptions}" var="measureDescription">
 				<tr>
-					<td>${norm.id}</td>
-					<td>${norm.label}</td>
+					<td>${measureDescription.id}</td>
+					<td>${measureDescription.level}</td>
+					<td>${measureDescription.reference}</td>
+					<td>${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:"&nbsp;"}</td>
+					<td>${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:"&nbsp;"}</td>
 					<td>
-						<a href="${norm.label}/Measures/Display"><spring:message code="label.action.norm.showMeasures" /></a>
-						<a href="Edit/${norm.label}"><spring:message code="label.action.edit" /></a>|
-						<a href="Delete/${norm.label}"><spring:message code="label.action.delete" /></a>
+						<a href="Edit/${measureDescription.id}"><spring:message code="label.action.edit" /></a>|
+						<a href="Delete/${measureDescription.id}"><spring:message code="label.action.delete" /></a>
 					</td>
 				</tr>
 			</c:forEach>
 		</table>
 	</c:if>
-	<c:if test="${empty norms}">
-	<h4><spring:message code="label.norm.notexist" /></h4>	
+	<c:if test="${empty measureDescriptions}">
+	<h4><spring:message code="label.measure.notexist" /></h4>	
 	</c:if>
 </div>
 		

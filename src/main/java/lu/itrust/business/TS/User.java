@@ -17,8 +17,8 @@ public class User implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	private long id =- 1;
+
+	private long id = -1;
 
 	private String login = null;
 
@@ -27,8 +27,6 @@ public class User implements Serializable {
 	private String firstName = null;
 
 	private String lastName = null;
-
-	private String country = null;
 
 	private String email = null;
 
@@ -41,16 +39,13 @@ public class User implements Serializable {
 	 * @param password
 	 * @param firstName
 	 * @param lastName
-	 * @param country
 	 * @param email
 	 */
-	public User(String login, String password, String firstName,
-			String lastName, String country, String email) {
+	public User(String login, String password, String firstName, String lastName, String email) {
 		this.login = login;
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.country = country;
 		this.email = email;
 	}
 
@@ -133,21 +128,6 @@ public class User implements Serializable {
 	 */
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
-	}
-
-	/**
-	 * @return the country
-	 */
-	public String getCountry() {
-		return country;
-	}
-
-	/**
-	 * @param country
-	 *            the country to set
-	 */
-	public void setCountry(String country) {
-		this.country = country;
 	}
 
 	/**

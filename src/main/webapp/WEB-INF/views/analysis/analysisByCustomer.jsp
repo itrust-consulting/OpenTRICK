@@ -18,7 +18,7 @@
 <body>
 	<div class="container">
 		<div class="menu">
-			<jsp:include page="menu.jsp" />
+			<jsp:include page="../menu.jsp" />
 		</div>
 		<div class="content" id="content">
 			<form:errors cssClass="error" element="div" />
@@ -38,7 +38,7 @@
 	</c:if>
 </div>
 		<div class="footer">
-			<jsp:include page="footer.jsp" />
+			<jsp:include page="../footer.jsp" />
 		</div>
 	</div>
 </body>

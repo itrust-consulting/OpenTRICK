@@ -37,7 +37,7 @@ public class ControllerUser {
 
 	@Autowired
 	private ServiceUser serviceUser;
-	
+
 	@Autowired
 	private ServiceRole serviceRole;
 
@@ -46,6 +46,14 @@ public class ControllerUser {
 		binder.replaceValidators(new UserValidator());
 	}
 
+	/**
+	 * loadAll: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
 	@Secured("ROLE_ADMIN")
 	@RequestMapping("/all")
 	public String loadAll(Map<String, Object> model) throws Exception {
@@ -55,8 +63,7 @@ public class ControllerUser {
 
 	@Secured("ROLE_USER")
 	@RequestMapping("/{userId}")
-	public String profil(@PathVariable("userId") Long userId,
-			HttpSession session, Map<String, Object> model) throws Exception {
+	public String profil(@PathVariable("userId") Long userId, HttpSession session, Map<String, Object> model) throws Exception {
 		User user = (User) session.getAttribute("user");
 		if (user == null || user.getId() != userId)
 			user = serviceUser.get(userId);
@@ -71,32 +78,30 @@ public class ControllerUser {
 	}
 
 	@RequestMapping("/save")
-	public String save(@ModelAttribute("user") @Valid User user,
-			BindingResult result) throws Exception {
+	public String save(@ModelAttribute("user") @Valid User user, BindingResult result) throws Exception {
 
 		if (result.hasErrors())
 			return "addUserForm";
 
 		PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 
-		user.setPassword(passwordEncoder.encodePassword(user.getPassword(),
-				user.getLogin()));
-		
+		user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+
 		if (serviceUser.isEmpty()) {
-			
+
 			Role role = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
-			
+
 			if (role == null) {
 				role = new Role(RoleType.ROLE_ADMIN);
 				serviceRole.save(role);
 			}
-			
+
 			user.add(role);
 		}
-		
+
 		this.serviceUser.saveOrUpdate(user);
 
-		return "redirect:/index";
+		return "redirect:/login";
 	}
 
 	@Secured("ROLE_ADMIN")

@@ -32,8 +32,7 @@ public class MeasureDescription {
 	private Norm norm = null;
 
 	/** Measure Description Text List (one entry represents one language) */
-	private List<MeasureDescriptionText> measureDescriptionTexts =
-		new ArrayList<MeasureDescriptionText>();
+	private List<MeasureDescriptionText> measureDescriptionTexts =		new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */
 	private int level = -1;

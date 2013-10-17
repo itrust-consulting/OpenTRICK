@@ -16,12 +16,13 @@ import lu.itrust.business.TS.Norm;
  */
 public interface DAOMeasureDescription {
 	public MeasureDescription get(int id) throws Exception;
-	public MeasureDescription getByReferenceNorm(String Reference, Norm norm) throws Exception;
+	public MeasureDescription getByReferenceNorm(String reference, Norm norm) throws Exception;
 	public List<MeasureDescription> getAllByNorm(Norm norm) throws Exception;
 	public List<MeasureDescription> getAllByNorm(Integer normid) throws Exception;
+	public List<MeasureDescription> getAllByNorm(String label) throws Exception;
 	public List<MeasureDescription> getAll() throws Exception;
-	public boolean exists(String Reference, Norm norm) throws Exception;
-	public boolean existsWithLanguage(String Reference, Norm norm, Language language) throws Exception;
+	public boolean exists(String reference, Norm norm) throws Exception;
+	public boolean existsWithLanguage(String reference, Norm norm, Language language) throws Exception;
 	public void save(MeasureDescription measureDescription) throws Exception;
 	public void saveOrUpdate(MeasureDescription measureDescription) throws Exception;
 	public void remove(MeasureDescription measureDescription) throws Exception;

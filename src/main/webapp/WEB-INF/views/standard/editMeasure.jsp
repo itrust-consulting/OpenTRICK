@@ -6,7 +6,7 @@
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
-<c:set scope="request" var="title">title.knowledgebase.Standard</c:set>
+<c:set scope="request" var="title">title.knowledgebase.Norm.Update</c:set>
 
 <!-- ###################################################################### HTML #################################################################### -->
 
@@ -19,53 +19,47 @@
 <!-- ################################################################# Start Container ############################################################## -->
 
 <body>
-<div class="container">
+	<div class="container">
 
 <!-- ################################################################### Nav Menu ################################################################### -->
 
-<jsp:include page="../menu.jsp" />
+		<jsp:include page="../menu.jsp" />
 
 <!-- #################################################################### Content ################################################################### -->
 
-<div class="content" id="content">
-	<jsp:include page="../successErrors.jsp" />
-
-	<h1><spring:message code="menu.knowledgebase.standards.norms" /></h1>
-
-	<a href="../../Display"><spring:message code="menu.navigate.back" /></a>|<a href="Add"><spring:message code="label.norm.add.menu" /></a>
-
-	<c:if test="${!empty norms}">
-		<table class="data" border="1">
-			<tr>
-				<th><spring:message code="label.norm.id" text="id" /></th>
-				<th><spring:message code="label.norm.label" /></th>
-				<th><spring:message code="label.action" /></th>
-			</tr>
-			<c:forEach items="${norms}" var="norm">
-				<tr>
-					<td>${norm.id}</td>
-					<td>${norm.label}</td>
-					<td>
-						<a href="${norm.label}/Measures/Display"><spring:message code="label.action.norm.showMeasures" /></a>
-						<a href="Edit/${norm.label}"><spring:message code="label.action.edit" /></a>|
-						<a href="Delete/${norm.label}"><spring:message code="label.action.delete" /></a>
-					</td>
-				</tr>
-			</c:forEach>
-		</table>
-	</c:if>
-	<c:if test="${empty norms}">
-	<h4><spring:message code="label.norm.notexist" /></h4>	
-	</c:if>
-</div>
+		<div class="content" id="content">
 		
+			<h1><spring:message code="label.norm.update.form" />: ${norm.label}</h1>
+		
+			<a href="../Display"><spring:message code="menu.navigate.back" /></a>
+		
+			<form:errors cssClass="error" element="div" />
+			<c:if test="${!empty norm}">
+				<form:form method="post" action="../Update/${norm.id}" commandName="norm">
+					<table class="data" border="1">
+						<tr>
+							<td><spring:message code="label.norm.id" /></td>
+							<td><input type="hidden" id="id" name="id" value="${norm.id}"/>${norm.id}</td>
+						</tr>
+						<tr>
+							<td><spring:message code="label.norm.label" /></td>
+							<td><input id="label" name="label" type="text" value="${norm.label}"></td>
+						</tr>
+						<tr>
+							<td colspan="2"><input type="submit" value="<spring:message code="label.norm.update.form" />"></td>
+						</tr>
+					</table>
+				</form:form>
+			</c:if>
+		</div>
+
 <!-- ################################################################ Include Footer ################################################################ -->
 
-<jsp:include page="../footer.jsp" />
+		<jsp:include page="../footer.jsp" />
 
 <!-- ################################################################ End Container ################################################################# -->
 
-</div>
+	</div>
 </body>
 
 <!-- ################################################################### End HTML ################################################################### -->

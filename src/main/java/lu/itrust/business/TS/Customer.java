@@ -96,8 +96,7 @@ public class Customer implements Serializable {
 	 */
 	public void setOrganisation(String organisation) {
 		if ((organisation == null) || (organisation.trim().equals(""))) {
-			throw new IllegalArgumentException(
-					"Customer Organisation field cannot be null or empty!");
+			throw new IllegalArgumentException("Customer Organisation field cannot be null or empty!");
 		}
 		this.organisation = organisation;
 	}
@@ -215,10 +214,8 @@ public class Customer implements Serializable {
 	 *            The value to set the Contact Person Name
 	 */
 	public void setContactPerson(String contactPerson) {
-		if ((contactPerson == null) || (contactPerson.trim().equals(""))
-			|| (!contactPerson.matches(Constant.REGEXP_VALID_NAME))) {
-			throw new IllegalArgumentException(
-					"Customer Contact Person field cannot be null or empty!");
+		if ((contactPerson == null) || (contactPerson.trim().equals("")) || (!contactPerson.matches(Constant.REGEXP_VALID_NAME))) {
+			throw new IllegalArgumentException("Customer Contact Person field cannot be null or empty!");
 		}
 		this.contactPerson = contactPerson;
 	}
@@ -241,11 +238,8 @@ public class Customer implements Serializable {
 	 *            The value to set the Telephone Number (from the Contact Person or Organisation)
 	 */
 	public void setTelephoneNumber(String telephoneNumber) {
-		if ((telephoneNumber == null) || (telephoneNumber.trim().equals(""))
-			|| (!telephoneNumber.matches(Constant.REGEXP_VALID_PHONE))) {
-			throw new IllegalArgumentException(
-					"Customer Telephone Number field cannot be null or empty and has to match Regualr Expression: "
-						+ Constant.REGEXP_VALID_PHONE);
+		if ((telephoneNumber == null) || (telephoneNumber.trim().equals("")) || (!telephoneNumber.matches(Constant.REGEXP_VALID_PHONE))) {
+			throw new IllegalArgumentException("Customer Telephone Number field cannot be null or empty and has to match Regualr Expression: " + Constant.REGEXP_VALID_PHONE);
 		}
 		this.telephoneNumber = telephoneNumber;
 	}
@@ -269,8 +263,7 @@ public class Customer implements Serializable {
 	 */
 	public void setEmail(String email) {
 		if (((email == null) || (email.trim().equals("")) || (email.matches(Constant.REGEXP_VALID_EMAIL)))) {
-			throw new IllegalArgumentException(
-					"Customer Email field cannot be null or empty and needs to be valid!");
+			throw new IllegalArgumentException("Customer Email field cannot be null or empty and needs to be valid!");
 		}
 		this.email = email;
 	}
@@ -326,9 +319,7 @@ public class Customer implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "Customer [id=" + id + ", organisation=" + organisation + ", address=" + address
-			+ ", city=" + city + ", ZIPCode=" + ZIPCode + ", country=" + country
-			+ ", contactPerson=" + contactPerson + ", telephoneNumber=" + telephoneNumber
-			+ ", email=" + email + "]";
+		return "Customer [id=" + id + ", organisation=" + organisation + ", address=" + address + ", city=" + city + ", ZIPCode=" + ZIPCode + ", country=" + country
+			+ ", contactPerson=" + contactPerson + ", telephoneNumber=" + telephoneNumber + ", email=" + email + "]";
 	}
 }

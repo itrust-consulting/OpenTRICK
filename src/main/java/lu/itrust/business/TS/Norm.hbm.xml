@@ -7,7 +7,7 @@
 		<id name="id" column="idNorm" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
-		<property name="label" column="dtLabel" not-null="true" />
+		<property name="label" column="dtLabel" not-null="true" unique="true" />
 	</class>
 	<class name="AnalysisNorm" table="analysisNorm" abstract="true">
 		<id name="id" column="idAnalysisNorm" unsaved-value="-1">

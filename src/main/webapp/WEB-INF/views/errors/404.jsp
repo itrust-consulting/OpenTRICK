@@ -6,12 +6,12 @@
 	uri="http://www.springframework.org/security/tags"%>
 <html>
 <head>
-<title><spring:message code="label.title.401"
-		text="Error 401: Unauthorized" /></title>
+<title><spring:message code="label.title.404"
+		text="Error 404: Not Found" /></title>
 <link rel="stylesheet" type="text/css"
 	href='<spring:url value="/css/main.css" />' />
 <META HTTP-EQUIV="refresh"
-	CONTENT="<spring:message code='label.error.401.redirect.value' text='3' />;${pageContext.request.contextPath}/index">
+	CONTENT="<spring:message code='label.error.404.redirect.value' text='3' />;${pageContext.request.contextPath}/home">
 </head>
 <body>
 	<div class="container">
@@ -20,15 +20,15 @@
 				<c:when
 					test="${'XMLHttpRequest' != request.getHeader('X-Requested-With')}">
 					<spring:message
-						code="errors.401.unauthorized label.redirect label.error.401.redirect.value label.error.401.redirect.unit"
-						text="Unauthorized, You will be redirected in 3 seconds" />
+						code="errors.404.not.found label.redirect error.404.not.found.redirect.value error.404.not.found.redirect.unit"
+						text="Not Found, You will be redirected in 3 seconds" />
 				</c:when>
 				<c:otherwise>
-					<spring:message code="errors.401.unauthorized" text="Unauthorized" />
+					<spring:message code="errors.404.not.found" text="Not Found" />
 				</c:otherwise>
 			</c:choose>
 		</div>
-		<div class="footer"><jsp:include page="footer.jsp" /></div>
+		<div class="footer"><jsp:include page="../footer.jsp" /></div>
 	</div>
 </body>
 </html>

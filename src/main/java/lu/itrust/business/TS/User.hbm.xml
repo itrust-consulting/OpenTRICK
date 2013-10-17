@@ -20,9 +20,6 @@
         <property name="lastName" type="java.lang.String">
             <column name="dtLastName" />
         </property>
-        <property name="country" type="java.lang.String">
-            <column name="dtCountry" />
-        </property>
         <property name="email" type="java.lang.String">
             <column name="dtEmail" />
         </property>

@@ -39,7 +39,7 @@ public class ScenarioType {
 	 *            The Scenario Type Name
 	 */
 	public ScenarioType(String type) {
-		System.out.println(type);
+		//System.out.println(type);
 		if (type == null || !type.matches(Constant.REGEXP_VALID_SCENARIO_TYPE)) 
 			throw new IllegalArgumentException("Scenario Type is not valid!");
 		this.type = type;
