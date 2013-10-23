@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.controller;
 
 import java.sql.Timestamp;
@@ -37,8 +34,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * @author oensuifudine
- * 
+ * ControllerAnalysis.java: <br>
+ * Detailed description...
+ *
+ * @author itrust consulting s.à.rl. :
+ * @version 
+ * @since Oct 22, 2013
  */
 @Secured("ROLE_USER")
 @Controller

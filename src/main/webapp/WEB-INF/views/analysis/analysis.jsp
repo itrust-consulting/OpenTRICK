@@ -28,6 +28,16 @@
 <!-- #################################################################### Content ################################################################### -->
 
 	<div class="content" id="content">
+	
+	
+<!-- #################################################################### Analysis Menu ################################################################### -->		
+	
+		<c:if test="${sessionScope.selectedAnalysis != null}">
+			<c:if test="${sessionScope.selectedAnalysis > 0 }">
+				<jsp:include page="analysisMenu.jsp" />
+			</c:if>
+		</c:if>
+	
 			<form:errors cssClass="error" element="div" />
 
 			<h1><spring:message code="label.analysis.title" /></h1>

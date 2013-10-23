@@ -2,6 +2,7 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
@@ -68,6 +69,21 @@ public class History implements Serializable {
 		this.comment = comment;
 	}
 
+	public static final boolean versionAGreaterThanB(String versionA, String versionB) {
+
+		String[] sVersionA = null;
+		String[] sVersionB = null;
+
+		//System.out.println(versionA + ":::" + versionB);
+		
+		sVersionA = versionA.split("\\.");
+		sVersionB = versionB.split("\\.");
+		Integer sVAVal = (Integer.valueOf(sVersionA[0])) + (Integer.valueOf(sVersionA[1])) + (Integer.valueOf(sVersionA[2]));
+		Integer sVBVal = (Integer.valueOf(sVersionB[0])) + (Integer.valueOf(sVersionB[1])) + (Integer.valueOf(sVersionB[2]));
+
+		return (sVAVal > sVBVal);
+	}
+
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
@@ -114,8 +130,7 @@ public class History implements Serializable {
 	 */
 	public void setAuthor(String author) {
 		if ((author == null) || (author.trim().equals("")) || (!author.matches(Constant.REGEXP_VALID_NAME))) {
-			throw new IllegalArgumentException(
-					"History Author cannot be nullor empty and has to be a valid name!");
+			throw new IllegalArgumentException("History Author cannot be nullor empty and has to be a valid name!");
 		}
 		this.author = author;
 	}
@@ -149,9 +164,8 @@ public class History implements Serializable {
 	 *            The value to set the Version Identifier
 	 */
 	public void setVersion(String version) {
-		if (version == null) {
-			throw new IllegalArgumentException(
-					"History Version is null");
+		if (version == null || !version.matches(Constant.REGEXP_VALID_ANALYSIS_VERSION)) {
+			throw new IllegalArgumentException("History Version not acceptable");
 		}
 		this.version = version;
 	}
@@ -165,7 +179,6 @@ public class History implements Serializable {
 	public String getVersion() {
 		return version;
 	}
-
 
 	/**
 	 * getId: <br>
@@ -196,8 +209,7 @@ public class History implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "History [id=" + id + ", version=" + version
-			+ ", date=" + date + ", author=" + author + ", comment=" + comment + "]";
+		return "History [id=" + id + ", version=" + version + ", date=" + date + ", author=" + author + ", comment=" + comment + "]";
 	}
 
 	/**

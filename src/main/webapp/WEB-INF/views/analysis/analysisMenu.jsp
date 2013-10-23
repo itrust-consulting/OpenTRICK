@@ -12,45 +12,57 @@
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
 
-<div class="menu">
-<ul>
-	<li>
-		<a href="${pageContext.request.contextPath}/home" ${menu.equals("home")? "id='active'" : "" }>
-			<spring:message code="label.menu.home" text="Home" />
-		</a>
-	</li>
-	<li>
-		<a href="${pageContext.request.contextPath}/KnowLedgeBase/Display" ${menu.startsWith("KnowLedgeBase")? "id='active'" : "" }>
-			<spring:message code="label.menu.analysis.knowledgebase" text="KnowLedge Base" />
-		</a>
-	</li>
-	<li>
-		<a href="${pageContext.request.contextPath}/Analysis/Display" ${menu.equals("analysis/all")? "id='active'" : "" }>
-			<spring:message	code="label.menu.analysis.all" text="Analysis" />
-		</a>
-	</li>
-	<li>
-		<a href="${pageContext.request.contextPath}/Analysis/Import/Display" ${menu.startsWith("Analysis")? "id='active'" : "" }>
-			<spring:message code="label.menu.analysis.import" text="Import" />
-		</a>
-	</li>
-	<li>
-		<a href="${pageContext.request.contextPath}/export/analysis" ${menu.equals("export/analysis")? "id='active'" : "" }>
-			<spring:message	code="label.menu.analysis.export" text="Export" />
-		</a>
-	</li>
-	<li>
-		<a href="${pageContext.request.contextPath}/Admin/Display" ${menu.equals("Admin/Display")? "id='active'" : "" }>
-			<spring:message	code="label.menu.user.all" text="Admin" />
-		</a>
-	</li>
-	<li>
-		<a href='<c:url value="${pageContext.request.contextPath}/j_spring_security_logout" />'>
-			<spring:message code="label.menu.logout" text="Logout" />
-		</a>
-	</li>
-	<c:if test="${sessionScope.selectedAnalysis!=null}">
-	<li class="selectedAnalysis">|||Selected Analysis: ${sessionScope.selectedAnalysis}|||</li>
-	</c:if>
-</ul>
+<div id="analysismenu">
+	<ul>
+		<li ${menu.contains("History")? "class='active'" : "" }>
+			<a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/History/Display" >
+				<spring:message code="menu.analysis.history" text="History" />
+			</a>
+		</li>
+		<li ${menu.contains("ItemInformation")? "class='active'" : "" }>
+			<a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/ItemInformation/Display" >
+				<spring:message code="menu.analysis.iteminformation" text="Item Information" />
+			</a>
+		</li>
+		<li ${menu.contains("RiskInformation")? "class='active'" : "" }>
+			<a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/RiskInformation/Display">
+				<spring:message code="menu.analysis.riskinformation" text="Risk Information" />
+			</a>
+		</li>
+		<li ${menu.contains("Parameter")? "class='active'" : "" }>
+			<a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Parameter/Display">
+				<spring:message code="menu.analysis.parameter" text="Parameters" />
+			</a>
+		</li>
+		<li ${menu.contains("Asset")? "class='active'" : "" }>
+			<a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Asset/Display">
+				<spring:message	code="menu.analysis.asset" text="Assets" />
+			</a>
+		</li>
+		<li ${menu.contains("Scenario")? "class='active'" : "" }>
+			<a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Scenario/Display">
+				<spring:message	code="menu.analysis.scenario" text="Scenarios" />
+			</a>
+		</li>
+		<li ${menu.contains("Assessment")? "class='active'" : "" }>
+			<a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Assessment/Display">
+				<spring:message	code="menu.analysis.assessment" text="Assessments" />
+			</a>
+		</li>
+		<li ${menu.contains("Measure")? "class='active'" : "" }>
+			<a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Measure/Display">
+				<spring:message	code="menu.analysis.measure" text="Measures" />
+			</a>
+		</li>
+		<li ${menu.contains("Phase")? "class='active'" : "" }>
+			<a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Phase/Display">
+				<spring:message	code="menu.analysis.phase" text="Phases" />
+			</a>
+		</li>
+		<li ${menu.contains("ActionPlan")? "class='active'" : "" }>
+			<a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/ActionPlan/Display">
+				<spring:message	code="menu.analysis.actionplan" text="Action Plans" />
+			</a>
+		</li>
+	</ul>
 </div>

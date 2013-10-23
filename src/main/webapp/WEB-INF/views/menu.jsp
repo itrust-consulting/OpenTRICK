@@ -12,35 +12,35 @@
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
 
-<div class="menu">
+<div id="menu">
 <ul>
-	<li>
-		<a href="${pageContext.request.contextPath}/home" ${menu.equals("home")? "id='active'" : "" }>
+	<li ${menu.equals("home")? "class='active'" : "" }>
+		<a href="${pageContext.request.contextPath}/home">
 			<spring:message code="label.menu.home" text="Home" />
 		</a>
 	</li>
-	<li>
-		<a href="${pageContext.request.contextPath}/KnowLedgeBase/Display" ${menu.startsWith("KnowLedgeBase")? "id='active'" : "" }>
+	<li ${menu.startsWith("KnowLedgeBase")? "class='active'" : ""}>
+		<a href="${pageContext.request.contextPath}/KnowLedgeBase/Display">
 			<spring:message code="label.menu.analysis.knowledgebase" text="KnowLedge Base" />
 		</a>
 	</li>
-	<li>
-		<a href="${pageContext.request.contextPath}/Analysis/Display" ${menu.equals("analysis/all")? "id='active'" : "" }>
+	<li ${menu.startsWith("Analysis/") && ! menu.startsWith("Analysis/Import")? "class='active'" : "" }>
+		<a href="${pageContext.request.contextPath}/Analysis/Display" >
 			<spring:message	code="label.menu.analysis.all" text="Analysis" />
 		</a>
 	</li>
-	<li>
-		<a href="${pageContext.request.contextPath}/Analysis/Import/Display" ${menu.startsWith("Analysis")? "id='active'" : "" }>
+	<li ${menu.equals("Analysis/Import/Display")? "class='active'" : "" }>
+		<a href="${pageContext.request.contextPath}/Analysis/Import/Display" >
 			<spring:message code="label.menu.analysis.import" text="Import" />
 		</a>
 	</li>
-	<li>
-		<a href="${pageContext.request.contextPath}/export/analysis" ${menu.equals("export/analysis")? "id='active'" : "" }>
+	<li ${menu.equals("export/analysis")? "class='active'" : "" }>
+		<a href="${pageContext.request.contextPath}/export/analysis" >
 			<spring:message	code="label.menu.analysis.export" text="Export" />
 		</a>
 	</li>
-	<li>
-		<a href="${pageContext.request.contextPath}/Admin/Display" ${menu.equals("Admin/Display")? "id='active'" : "" }>
+	<li ${menu.equals("Admin/Display")? "class='active'" : "" }>
+		<a href="${pageContext.request.contextPath}/Admin/Display" >
 			<spring:message	code="label.menu.user.all" text="Admin" />
 		</a>
 	</li>
@@ -50,7 +50,7 @@
 		</a>
 	</li>
 	<c:if test="${sessionScope.selectedAnalysis!=null}">
-	<li class="selectedAnalysis">|||Selected Analysis: ${sessionScope.selectedAnalysis}|||</li>
+	<li><a>Selected Analysis: ${sessionScope.selectedAnalysis}</a></li>
 	</c:if>
 </ul>
 </div>

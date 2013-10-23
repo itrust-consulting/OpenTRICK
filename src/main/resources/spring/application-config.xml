@@ -123,6 +123,8 @@
 	<bean id="serviceRole" class="lu.itrust.business.service.impl.ServiceRoleImpl" />
 	<bean id="daoRole" class="lu.itrust.business.dao.hbm.DAORoleHBM" />
 	
+	<bean id="serviceHistory" class="lu.itrust.business.service.impl.ServiceHistoryImpl" />
+	<bean id="daoHistory" class="lu.itrust.business.dao.hbm.DAOHistoryHBM" />
 	
 	<bean id="serviceActionPlan" class="lu.itrust.business.service.impl.ServiceActionPlanImpl" />
 	<bean id="daoActionPlan" class="lu.itrust.business.dao.hbm.DAOActionPlanHBM" />

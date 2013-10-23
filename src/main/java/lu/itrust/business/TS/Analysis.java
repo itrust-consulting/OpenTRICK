@@ -188,6 +188,53 @@ public class Analysis implements Serializable {
 		return result;
 	}
 
+	/**
+	 * getLatestVersion: <br>
+	 * Parse all history entries to find latest version (version has to be of format xx.xx.xx)
+	 * 
+	 * @return
+	 */
+	public String getLatestVersion() {
+		
+		Integer v = 0;
+		
+		String finalVersion = "";
+		
+		for (int i = 0; i < histories.size(); i++) {
+			Integer t = 0;
+			String version = histories.get(i).getVersion();
+			String[] splittedVerison = version.split("\\.");
+			t= (Integer.valueOf(splittedVerison[0])) + (Integer.valueOf(splittedVerison[1])) + (Integer.valueOf(splittedVerison[2]));
+			if (v < t) {
+				v = t;
+				finalVersion = version;
+			}
+		}
+		
+		return finalVersion;
+		
+	}
+	
+	/**
+	 * versionExists: <br>
+	 * Checks if given version string exists in analysis
+	 * 
+	 * @param version
+	 * @return
+	 */
+	public boolean versionExists(String version) {
+		boolean res = false;
+		
+		for (int i = 0; i < histories.size(); i++) {
+			if (histories.get(i).getVersion().equals(version)) {
+				res = true;
+				break;
+			}
+		}
+		
+		return res;
+	}
+	
 	/***********************************************************************************************
 	 * RRF - BEGIN
 	 **********************************************************************************************/
