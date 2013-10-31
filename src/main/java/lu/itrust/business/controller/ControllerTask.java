@@ -14,6 +14,7 @@ import lu.itrust.business.task.Worker;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 
  */
 @Controller
-@RequestMapping("Task")
+@RequestMapping("/Task")
+@Secured("ROLE_USER")
 public class ControllerTask {
 
 	@Autowired
@@ -33,6 +35,7 @@ public class ControllerTask {
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
 
+	@Autowired
 	private MessageSource messageSource;
 
 	@RequestMapping("/Status/{id}")
@@ -52,7 +55,7 @@ public class ControllerTask {
 				flag = 1;
 				status = messageSource.getMessage("delete", null, "Deleted",
 						locale);
-			} else if (worker.isCancled()) {
+			} else if (worker.isCanceled()) {
 				flag = 2;
 				status = messageSource.getMessage("abort", null, "Aborted",
 						locale);
@@ -76,31 +79,37 @@ public class ControllerTask {
 						messageHandler.getParameters(),
 						messageHandler.getMessage(), locale);
 			else
-				message = messageSource.getMessage(
-						"error.message_handler.not_found", null,
-						"Sorry, message cannot be found", locale);
+				message = null;
 			if (flag != 5)
 				serviceTaskFeedback.deregisterTask(principal.getName(), id);
 		}
 		return new Object[] { flag, message, status };
 	}
-	
+
 	@RequestMapping("/Stop/{id}")
-	public @ResponseBody String stop(@PathVariable Long id, Principal principal){
+	public @ResponseBody
+	String stop(@PathVariable Long id, Principal principal, Locale locale) {
 		if (!serviceTaskFeedback.hasTask(principal.getName(), id)) {
 			Worker worker = workersPoolManager.get(id);
-			if(worker.isWorking())
+			if (worker.isWorking()) {
 				worker.cancel();
-		}
-		
-		return null;
+				return messageSource.getMessage("success.task.canceled", null,
+						"Task was canceled successfully", locale);
+			} else
+				return messageSource.getMessage("failed.task.canceled", null,
+						"Sorry, Task is not running", locale);
+		} else
+			return messageSource.getMessage("error.task.not_found", null,
+					"Sorry, task cannot be found", locale);
 	}
 
+	@RequestMapping("/InProcessing")
 	public @ResponseBody
 	List<Long> processing(Principal principal) {
 		return serviceTaskFeedback.tasks(principal.getName());
 	}
 
+	@RequestMapping("/Exist")
 	public @ResponseBody
 	boolean hasTask(Principal principal) {
 		return serviceTaskFeedback.userHasTask(principal.getName());

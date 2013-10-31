@@ -26,7 +26,6 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * 
 	 */
 	public DAOAnalysisHBM() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -195,8 +194,10 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public void remove(Integer analysisId) throws Exception {
 		Analysis analysis = get(analysisId);
-		if (analysis != null)
+		if (analysis != null){
 			remove(analysis);
+			System.out.println("Analysis was deleted");
+		}
 	}
 
 	@SuppressWarnings("unchecked")

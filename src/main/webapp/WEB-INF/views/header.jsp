@@ -17,6 +17,13 @@
 <script src="<spring:url value="/js/dom-parser.js" />"></script>
 <script src="<spring:url value="/js/main.js" />"></script>
 <script type="text/javascript">
+	<!--
 	var context = '${pageContext.request.contextPath}';
+	-->
+	<sec:authorize ifNotGranted="ROLE_ANONYMOUS" >
+	<!--
+	updateTask();
+	-->
+	</sec:authorize>
 </script>
 </head>

@@ -14,7 +14,7 @@ public interface Worker extends Runnable{
 	
 	boolean isWorking();
 	
-	boolean isCancled();
+	boolean isCanceled();
 	
 	Exception getError();
 	

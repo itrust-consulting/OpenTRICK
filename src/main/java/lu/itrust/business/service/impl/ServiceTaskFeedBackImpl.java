@@ -3,10 +3,12 @@
  */
 package lu.itrust.business.service.impl;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.service.ServiceTaskFeedback;
@@ -20,9 +22,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 
-	private Map<String, List<Long>> userTasks = new LinkedHashMap<>();
+	private Map<String, List<Long>> userTasks = Collections
+			.synchronizedMap(new LinkedHashMap<String, List<Long>>());
 
-	private Map<Long, MessageHandler> messageHandlers = new LinkedHashMap<>();
+	private Map<Long, Queue<MessageHandler>> messageHandlers = Collections
+			.synchronizedMap(new LinkedHashMap<Long, Queue<MessageHandler>>());
 
 	/*
 	 * (non-Javadoc)
@@ -33,7 +37,10 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 */
 	@Override
 	public void send(MessageHandler handler) {
-		messageHandlers.put(handler.getIdTask(), handler);
+		Queue<MessageHandler> queue = messageHandlers.get(handler.getIdTask());
+		if(queue == null)
+			return;
+		queue.add(handler);
 	}
 
 	/*
@@ -44,7 +51,10 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 */
 	@Override
 	public void send(long id, MessageHandler handler) {
-		messageHandlers.put(id, handler);
+		Queue<MessageHandler> queue = messageHandlers.get(id);
+		if(queue == null)
+			return;
+		queue.add(handler);
 	}
 
 	/*
@@ -68,7 +78,10 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 */
 	@Override
 	public MessageHandler recive(long id) {
-		return messageHandlers.remove(id);
+		Queue<MessageHandler> queue = messageHandlers.get(id);
+		if(queue == null || queue.isEmpty())
+			return null;
+		return queue.poll();
 	}
 
 	/*
@@ -80,11 +93,11 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	@Override
 	public List<MessageHandler> recive(String userName) {
 		List<MessageHandler> handlers = new LinkedList<>();
-		if(!userTasks.containsKey(userName))
+		if (!userTasks.containsKey(userName))
 			return handlers;
 		for (Long taskId : userTasks.get(userName))
 			if (messageHandlers.containsKey(taskId))
-				handlers.add(messageHandlers.get(taskId));
+				handlers.addAll(messageHandlers.get(taskId));
 		return handlers;
 	}
 
@@ -102,7 +115,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	/**
 	 * @return the messageHandlers
 	 */
-	protected Map<Long, MessageHandler> getMessageHandlers() {
+	protected Map<Long, Queue<MessageHandler>> getMessageHandlers() {
 		return messageHandlers;
 	}
 
@@ -110,7 +123,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param messageHandlers
 	 *            the messageHandlers to set
 	 */
-	protected void setMessageHandlers(Map<Long, MessageHandler> messageHandlers) {
+	protected void setMessageHandlers(Map<Long, Queue<MessageHandler>> messageHandlers) {
 		this.messageHandlers = messageHandlers;
 	}
 
@@ -133,10 +146,10 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	public boolean registerTask(String userName, long id) {
 		if (messageHandlers.containsKey(id))
 			return false;
-		messageHandlers.put(id, new MessageHandler("success.register.task",
-				"Task was created successfully", null));
+		messageHandlers.put(id, new LinkedList<MessageHandler>());
 		List<Long> tasks = userTasks.containsKey(userName) ? userTasks
-				.get(userName) : new LinkedList<Long>();
+				.get(userName) : Collections
+				.synchronizedList(new LinkedList<Long>());
 		tasks.add(id);
 		if (!userTasks.containsKey(userName))
 			userTasks.put(userName, tasks);
@@ -145,13 +158,18 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 
 	@Override
 	public void deregisterTask(String userName, long id) {
-		messageHandlers.put(id, new MessageHandler("success.register.task",
-				"Task was created successfully", null));
-		List<Long> tasks = userTasks.containsKey(userName) ? userTasks
-				.get(userName) : new LinkedList<Long>();
+
+		if (!userTasks.containsKey(userName))
+			return;
+		List<Long> tasks = userTasks.get(userName);
+
+		if (tasks == null || tasks.isEmpty())
+			return;
 		tasks.remove(id);
 		if (tasks.isEmpty())
 			userTasks.remove(userName);
+		if(messageHandlers.containsKey(id) && !messageHandlers.get(id).isEmpty())
+			messageHandlers.get(id).clear();
 		messageHandlers.remove(id);
 	}
 
@@ -170,6 +188,10 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 
 	@Override
 	public boolean hasTask(String userName, long id) {
+
+		if (!userTasks.containsKey(userName))
+			return false;
+
 		for (Long task : userTasks.get(userName))
 			if (id == task)
 				return true;

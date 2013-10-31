@@ -5,6 +5,7 @@ package lu.itrust.business.controller;
 
 import java.io.File;
 import java.security.Principal;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import lu.itrust.business.task.WorkerAnalysisImport;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -47,6 +49,9 @@ public class ControllerImportAnalysis {
 
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
+
+	@Autowired
+	private MessageSource messageSource;
 
 	// ******************************************************************************************************************
 	// * Request Mappings
@@ -83,7 +88,8 @@ public class ControllerImportAnalysis {
 			final @RequestParam(value = "customerId") Integer customerId,
 			final HttpServletRequest request,
 			final @RequestParam(value = "file") MultipartFile file,
-			final RedirectAttributes redirectAttributes) throws Exception {
+			final RedirectAttributes attributes, Locale locale)
+			throws Exception {
 
 		Customer customer = serviceCustomer.get(customerId);
 
@@ -100,10 +106,26 @@ public class ControllerImportAnalysis {
 				serviceTaskFeedback, importFile, customer);
 
 		worker.setPoolManager(workersPoolManager);
+
+		String message = null;
+		String typeMessage = null;
+
 		if (serviceTaskFeedback.registerTask(principal.getName(),
-				worker.getId()))
+				worker.getId())) {
 			executor.execute(worker);
-		return "redirect:/feedback";
+			typeMessage = "success";
+			message = messageSource.getMessage("success.start.import.analysis",
+					null, "Analysis importation was started successfully",
+					locale);
+		} else {
+			typeMessage = "errors";
+			message = messageSource.getMessage("failed.start.import.analysis",
+					null, "Analysis importation was failed", locale);
+		}
+
+		attributes.addFlashAttribute(typeMessage, message);
+
+		return "redirect:/Analysis/Display";
 	}
 
 }

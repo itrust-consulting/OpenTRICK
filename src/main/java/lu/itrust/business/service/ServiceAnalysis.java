@@ -8,7 +8,6 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
-import lu.itrust.business.dao.DAOAnalysis;
 
 /**
  * @author oensuifudine
@@ -39,8 +38,6 @@ public interface ServiceAnalysis {
 	public void saveOrUpdate(Analysis analysis) throws Exception;
 
 	public void remove(Analysis analysis) throws Exception;
-
-	public DAOAnalysis getDaoAnalysis();
 
 	public void remove(Integer analysisId) throws Exception;
 

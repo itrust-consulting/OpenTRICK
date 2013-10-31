@@ -7,22 +7,6 @@ function changePassword() {
 	return false;
 }
 
-function MessageResolver(code) {
-	$.ajax({
-		url : context + "/MessageResolver",
-		data : {
-			source : code
-		},
-		contentType : "application/json",
-		success : function(response) {
-			if (response == null || response == "")
-				return code;
-			return response;
-		}
-	});
-	return code;
-}
-
 function extract(data) {
 	var parser = new DOMParser();
 	var doc = parser.parseFromString(data, "text/html");
@@ -75,7 +59,7 @@ function createNewArg(index, args) {
 function consolidateArg(refIndex, args) {
 	var index = parseInt(refIndex.substring(refIndex.lastIndexOf("_") + 1));
 	var inputs = args.getElementsByTagName("input");
-	for (var int = index + 1; int < inputs.length + 1 && inputs.length > 0; int++) {
+	for ( var int = index + 1; int < inputs.length + 1 && inputs.length > 0; int++) {
 		var label = document.getElementById("arg_" + int + "_label");
 		var input = document.getElementById("arg_" + int + "_input");
 		var link = document.getElementById("arg_" + int);
@@ -87,7 +71,7 @@ function consolidateArg(refIndex, args) {
 }
 
 function checkProcessing(message) {
-	if (parseInt($("#TaskInProcess").text(), 0) == 0)
+	if(parseInt($("#TaskInProcess").text(),0)==0)
 		return true;
 	return confirm(message);
 }
@@ -125,64 +109,66 @@ function createLeftContent() {
 	return true;
 }
 
-function cancelTask(taskId){
+function processingTask() {
 	$.ajax({
-		url : context + "/Task/Stop/" + taskId,
-		async : true,
+		url : context + "/task/update/count",
 		contentType : "application/json",
 		success : function(reponse) {
-			Alert(reponse);
-			$("#task_"+taskId).remove();
+			if ($.isNumeric(reponse)) {
+				$("#TaskInProcess").text(reponse);
+				if (reponse > 0)
+					setTimeout('processingTask();', 3000);
+			}
+			return false;
+		},
+		error : function() {
+			$("#TaskInProcess").text("0");
+			return false;
 		}
 	});
+	return false;
 }
 
-function updateTaskStatus(taskId) {
-	$.ajax({
-		url : context + "/Task/Status/" + taskId,
-		async : true,
-		contentType : "application/json",
-		success : function(reponse) {
-			if (reponse == null)
-				return false;
-			if (!$("#task_" + taskId).length) {
-				var div = document.createElement("div");
-				if (reponse[0] < 4)
-					div.setAttribute("class", "error");
-				else
-					div.setAttribute("class", "success");
-				div.setAttribute("id", "task_" + taskId);
-				var linkRemove = document.createElement("a");
-				linkRemove.setAttribute("class", "commandes");
-				linkRemove.setAttribute("onclick", "return cancelTask('task_"
-						+ taskId + "');");
-				linkRemove.setAttribute("href", "#");
-				linkRemove.appendChild(document.createTextNode("X"));
-				div.appendChild(linkRemove);
-				var content = document.getElementById("content");
-				if (content == null)
-					return;
-				content.insertBefore(div, content.firstChild);
-			}
-			if(reponse[1]!=null)
-				$("#task_" + taskId).text(reponse[1]);
-			if (reponse[0] ==4)
-				setTimeout("updateTaskStatus('" + taskId + "');", 2000);
-			return true;
-		}
-	});
+function updateTaskStatus(data) {
+	createLeftContent();
+	var states = $("div[name='status']");
+	var lastLength = states.length;
+	for ( var int = 0; int < states.length; int++)
+		$(states[int]).remove();
+	states = $("div[name='task']");
+	for ( var int = 0; int < states.length; int++)
+		$(states[int]).remove();
+	var parser = new DOMParser();
+	var doc = parser.parseFromString(data, "text/html");
+	states = $(doc).find("div[name='status']");
+	for ( var int = 0; int < states.length; int++)
+		$("#content_side_left").append($(states[int]));
+	if (lastLength > 0 && lastLength != states.length)
+		openLink(context + "/task");
+	if ($("#content_side_left").is(':empty'))
+		$("#content_side_left").remove();
+	return states.length != 0;
 }
 
 function updateTask() {
 	$.ajax({
-		url : context + "/Task/InProcessing",
-		async : true,
+		url : context + "/task/update",
 		contentType : "application/json",
 		success : function(reponse) {
 			if (reponse == null)
 				return false;
-			for (var int = 0; int < reponse.length; int++)
-				updateTaskStatus(reponse[int]);
+			if (updateTaskStatus(reponse)) {
+				if (!lastProcessingCount)
+					lastProcessingCount = true;
+				setTimeout('updateTask();', 1500);
+			}
+			return false;
+		},
+		error : function() {
+			if (lastProcessingCount)
+				openLink(context + "/task");
+			$("#content_side_left").remove();
+			return false;
 		}
 	});
 	return false;

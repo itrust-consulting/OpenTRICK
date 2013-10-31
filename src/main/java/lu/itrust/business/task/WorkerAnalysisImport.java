@@ -28,7 +28,7 @@ public class WorkerAnalysisImport implements Worker {
 
 	private boolean working = false;
 
-	private boolean canceld = false;
+	private boolean canceled = false;
 
 	private WorkersPoolManager poolManager;
 
@@ -116,7 +116,7 @@ public class WorkerAnalysisImport implements Worker {
 			try {
 				if (working) {
 					Thread.currentThread().interrupt();
-					canceld = true;
+					canceled = true;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -190,7 +190,7 @@ public class WorkerAnalysisImport implements Worker {
 				if (poolManager != null && !poolManager.exist(getId()))
 					if (!poolManager.add(this))
 						return;
-				if (canceld || working)
+				if (canceled || working)
 					return;
 				working = true;
 			}
@@ -228,9 +228,9 @@ public class WorkerAnalysisImport implements Worker {
 	}
 
 	@Override
-	public boolean isCancled() {
+	public boolean isCanceled() {
 
-		return canceld;
+		return canceled;
 	}
 
 	@Override

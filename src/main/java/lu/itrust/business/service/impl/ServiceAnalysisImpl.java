@@ -143,15 +143,6 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public void remove(Analysis analysis) throws Exception {
 		daoAnalysis.remove(analysis);
-
-	}
-
-	public DAOAnalysis getDaoAnalysis() {
-		return daoAnalysis;
-	}
-
-	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
-		this.daoAnalysis = daoAnalysis;
 	}
 
 	@Transactional

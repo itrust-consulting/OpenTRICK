@@ -17,30 +17,22 @@
 	<context:annotation-config />
 
 	<mvc:annotation-driven>
-		<mvc:async-support default-timeout="900000" />
+		<mvc:async-support default-timeout="90000" />
 	</mvc:annotation-driven>
+	
+	<context:component-scan base-package="lu.itrust.business" />
 
 	<task:annotation-driven executor="executor"
 		scheduler="scheduler" />
+		
+	<tx:annotation-driven />
 
 	<bean id="executor"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="maxPoolSize" value="100" />
 	</bean>
 
-	<bean id="workerAnalysisImport" class="lu.itrust.business.task.WorkerAnalysisImport"
-		scope="session">
-		<aop:scoped-proxy />
-	</bean>
-	
-	<bean id="importAnalysis" class="lu.itrust.business.TS.importation.ImportAnalysis"
-		scope="session">
-		<aop:scoped-proxy />
-	</bean>
-
 	<task:scheduler id="scheduler" pool-size="5" />
-
-	<context:component-scan base-package="lu.itrust.business" />
 
 	<mvc:resources mapping="/images/**" location="/WEB-INF/images/*" />
 
@@ -99,7 +91,5 @@
 	<!-- File Uploader -->
 	<bean id="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
-
-
 
 </beans>
