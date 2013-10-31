@@ -7,11 +7,29 @@ import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.dao.DAORiskRegister;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /**
  * @author oensuifudine
  * 
  */
+@Repository
 public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister {
+	
+	/**
+	 * 
+	 */
+	public DAORiskRegisterHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAORiskRegisterHBM(Session session) {
+		super(session);
+	}
 
 	/*
 	 * (non-Javadoc)

@@ -3,14 +3,14 @@
  */
 package lu.itrust.business.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.dao.DAORiskRegister;
 import lu.itrust.business.service.ServiceRiskRegister;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author oensuifudine

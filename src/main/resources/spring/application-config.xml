@@ -2,26 +2,46 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://www.springframework.org/schema/beans" xmlns:sec="http://www.springframework.org/schema/security"
 	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
-	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:task="http://www.springframework.org/schema/task"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd 
-        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd">
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
 
 	<context:annotation-config />
 
-	<mvc:annotation-driven />
+	<mvc:annotation-driven>
+		<mvc:async-support default-timeout="900000" />
+	</mvc:annotation-driven>
+
+	<task:annotation-driven executor="executor"
+		scheduler="scheduler" />
+
+	<bean id="executor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="maxPoolSize" value="100" />
+	</bean>
+
+	<bean id="workerAnalysisImport" class="lu.itrust.business.task.WorkerAnalysisImport"
+		scope="session">
+		<aop:scoped-proxy />
+	</bean>
 	
-    <tx:annotation-driven />
-    
-    <context:component-scan base-package="lu.itrust.business" />
-    
-	
-	
+	<bean id="importAnalysis" class="lu.itrust.business.TS.importation.ImportAnalysis"
+		scope="session">
+		<aop:scoped-proxy />
+	</bean>
+
+	<task:scheduler id="scheduler" pool-size="5" />
+
+	<context:component-scan base-package="lu.itrust.business" />
+
 	<mvc:resources mapping="/images/**" location="/WEB-INF/images/*" />
 
 	<mvc:resources mapping="/css/**" location="/WEB-INF/css/*" />
@@ -29,9 +49,10 @@
 	<mvc:resources mapping="/data/**" location="/WEB-INF/data/*" />
 
 	<mvc:resources mapping="/js/**" location="/WEB-INF/js/*" />
-	
-	<bean id="webexpressionHandler" class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
-	
+
+	<bean id="webexpressionHandler"
+		class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
+
 	<bean id="messageSource"
 		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
 		<property name="basename" value="classpath:messages" />
@@ -45,7 +66,6 @@
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close" p:driverClassName="${jdbc.driverClassName}"
 		p:url="${jdbc.databaseurl}" p:username="${jdbc.username}" p:password="${jdbc.password}" />
-
 
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
@@ -74,67 +94,12 @@
 		</bean>
 	</mvc:interceptors>
 
+	<import resource="spring-security.xml" />
+
 	<!-- File Uploader -->
 	<bean id="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
 
-	<!-- Autowired -->
 
-	<bean id="serviceCustomer" class="lu.itrust.business.service.impl.ServiceCustomerImpl" />
-	<bean id="daoCustomer" class="lu.itrust.business.dao.hbm.DAOCustomerHBM" />
-
-	<bean id="serviceAnalysis" class="lu.itrust.business.service.impl.ServiceAnalysisImpl" />
-	<bean id="daoAnalysis" class="lu.itrust.business.dao.hbm.DAOAnalysisHBM" />
-
-	<bean id="serviceAnalysisNorm" class="lu.itrust.business.service.impl.ServiceAnalysisNormImpl" />
-	<bean id="daoAnalysisNorm" class="lu.itrust.business.dao.hbm.DAOAnalysisNormHBM" />
-
-	<bean id="serviceAssetType" class="lu.itrust.business.service.impl.ServiceAssetTypeImpl" />
-	<bean id="daoAssetType" class="lu.itrust.business.dao.hbm.DAOAssetTypeHBM" />
-
-	<bean id="serviceLanguage" class="lu.itrust.business.service.impl.ServiceLanguageImpl" />
-	<bean id="daoLanguage" class="lu.itrust.business.dao.hbm.DAOLanguageHBM" />
-
-	<bean id="serviceMeasureDescription"
-		class="lu.itrust.business.service.impl.ServiceMeasureDescriptionImpl" />
-	<bean id="daoMeasureDescription" class="lu.itrust.business.dao.hbm.DAOMeasureDescriptionHBM" />
-
-	<bean id="serviceMeasureDescriptionText"
-		class="lu.itrust.business.service.impl.ServiceMeasureDescriptionTextImpl" />
-	<bean id="daoMeasureDescriptionText" class="lu.itrust.business.dao.hbm.DAOMeasureDescriptionTextHBM" />
-
-	<bean id="serviceNorm" class="lu.itrust.business.service.impl.ServiceNormImpl" />
-	<bean id="daoNorm" class="lu.itrust.business.dao.hbm.DAONormHBM" />
-
-	<bean id="serviceParameterType"
-		class="lu.itrust.business.service.impl.ServiceParameterTypeImpl" />
-	<bean id="daoParameterType" class="lu.itrust.business.dao.hbm.DAOParameterTypeHBM" />
-
-	<bean id="serviceScenarioType" class="lu.itrust.business.service.impl.ServiceScenarioTypeImpl" />
-	<bean id="daoScenarioType" class="lu.itrust.business.dao.hbm.DAOScenarioTypeHBM" />
-
-	<bean id="serviceActionPlanType"
-		class="lu.itrust.business.service.impl.ServiceActionPlanTypeImpl" />
-	<bean id="daoActionPlanType" class="lu.itrust.business.dao.hbm.DAOActionPlanTypeHBM" />
-
-	<bean id="serviceUser" class="lu.itrust.business.service.impl.ServiceUserImpl" />
-	<bean id="daoUser" class="lu.itrust.business.dao.hbm.DAOUserHBM" />
-
-	<bean id="serviceRole" class="lu.itrust.business.service.impl.ServiceRoleImpl" />
-	<bean id="daoRole" class="lu.itrust.business.dao.hbm.DAORoleHBM" />
-	
-	<bean id="serviceHistory" class="lu.itrust.business.service.impl.ServiceHistoryImpl" />
-	<bean id="daoHistory" class="lu.itrust.business.dao.hbm.DAOHistoryHBM" />
-	
-	<bean id="serviceActionPlan" class="lu.itrust.business.service.impl.ServiceActionPlanImpl" />
-	<bean id="daoActionPlan" class="lu.itrust.business.dao.hbm.DAOActionPlanHBM" />
-
-	<bean id="serviceActionPlanSummary" class="lu.itrust.business.service.impl.ServiceActionPlanSummaryImpl" />
-	<bean id="daoActionPlanSummary" class="lu.itrust.business.dao.hbm.DAOActionPlanSummaryHBM" />
-	
-	<bean id="serviceRiskRegister" class="lu.itrust.business.service.impl.ServiceRiskRegisterImpl" />
-	<bean id="daoRiskRegister" class="lu.itrust.business.dao.hbm.DAORiskRegisterHBM" />
-	
-	<import resource="spring-security.xml" />
 
 </beans>

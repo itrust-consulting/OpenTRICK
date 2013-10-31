@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.directory.InvalidAttributesException;
+
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
@@ -19,6 +20,10 @@ import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceActionPlanType;
+import lu.itrust.business.service.ServiceTaskFeedback;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * ActionPlanComputation: <br>
@@ -33,13 +38,20 @@ import lu.itrust.business.service.ServiceActionPlanType;
  * @version 0.1
  * @since 9 janv. 2013
  */
+@Component
 public class ActionPlanComputation {
 
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
 
+	@Autowired
 	private ServiceActionPlanType serviceActionPlanType;
+
+	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+
+	private Long idTask;
 
 	/** Analysis Object */
 	private Analysis analysis = null;
@@ -59,6 +71,12 @@ public class ActionPlanComputation {
 	 */
 	public ActionPlanComputation(Analysis analysis) {
 		this.analysis = analysis;
+	}
+
+	/**
+	 * 
+	 */
+	public ActionPlanComputation() {
 	}
 
 	/***********************************************************************************************
@@ -98,12 +116,19 @@ public class ActionPlanComputation {
 	 */
 	public MessageHandler calculateActionPlans() {
 
+		serviceTaskFeedback.send(idTask, new MessageHandler(
+				"info.action_plan.computing", null, "Computing Action Plans"));
+
 		System.out.println("Computing Action Plans...");
 
 		// ****************************************************************
 		// * initialise phases and order phases ascending
 		// ****************************************************************
 		this.analysis.initialisePhases();
+
+		serviceTaskFeedback.send(idTask, new MessageHandler(
+				"success.phase.initialise", null,
+				"Phases ware initialised successfully"));
 
 		// ****************************************************************
 		// * Begin transaction
@@ -118,53 +143,69 @@ public class ActionPlanComputation {
 			/*
 			 * //
 			 * ****************************************************************
-			 * // * compute Action Plan - normal mode 
+			 * // * compute Action Plan - normal mode
 			 * ****************************************************************
 			 * System.out.println("compute Action Plan - normal mode");
 			 */
-			//	computeActionPlan(ActionPlanMode.NORMAL);
-			 /* 
+			// computeActionPlan(ActionPlanMode.NORMAL);
+			/*
 			 * //
 			 * ****************************************************************
 			 * // * compute Action Plan - optimistic mode //
 			 * ****************************************************************
 			 * System.out.println("compute Action Plan - optimistic mode");
 			 */
-			//	computeActionPlan(ActionPlanMode.OPTIMISTIC);
-			 /* 
+			// computeActionPlan(ActionPlanMode.OPTIMISTIC);
+			/*
 			 * //
 			 * ****************************************************************
 			 * // * compute Action Plan - pessimistic mode //
 			 * ****************************************************************
 			 * System.out.println("compute Action Plan - pessimistic mode");
-			 */ 
-			//	computeActionPlan(ActionPlanMode.PESSIMISTIC);
-			 /*/
-			// ****************************************************************
-			// * compute Action Plan - normal mode - Phase
-			// ****************************************************************
-			*/System.out.println("compute Action Plan - normal mode - Phase");
-			
-				computePhaseActionPlan(ActionPlanMode.PHASE_NORMAL);
+			 */
+			// computeActionPlan(ActionPlanMode.PESSIMISTIC);
+			/*
+			 * / //
+			 * ****************************************************************
+			 * // * compute Action Plan - normal mode - Phase //
+			 * ****************************************************************
+			 */System.out.println("compute Action Plan - normal mode - Phase");
+
+			serviceTaskFeedback.send(idTask, new MessageHandler(
+					"info.info.action_plan.phase.normal_mode", null,
+					"Compute Action Plan - normal mode - Phase"));
+
+			computePhaseActionPlan(ActionPlanMode.PHASE_NORMAL);
 
 			// ****************************************************************
 			// * compute Action Plan - optimistic mode - Phase
 			// ****************************************************************
+			serviceTaskFeedback.send(idTask, new MessageHandler(
+					"info.info.action_plan.phase.optimistic_mode", null,
+					"Compute Action Plan - optimistic mode - Phase"));
+			
 			System.out.println("compute Action Plan - optimistic mode - Phase");
 			computePhaseActionPlan(ActionPlanMode.PHASE_OPTIMISTIC);
 
 			// ****************************************************************
 			// * compute Action Plan - pessimistic mode - Phase
 			// ****************************************************************
+			
+			serviceTaskFeedback.send(idTask, new MessageHandler(
+					"info.info.action_plan.phase.optimistic_mode", null,
+					"Compute Action Plan - optimistic mode - Phase"));
+			
 			System.out
 					.println("compute Action Plan - pessimistic mode - Phase");
+			
+			
 			computePhaseActionPlan(ActionPlanMode.PHASE_PESSIMISTIC);
 
 			// ****************************************************************
 			// * set positions relative to normal action plan for all action
 			// * plans
 			// ****************************************************************
-			//determinePositions();
+			// determinePositions();
 
 			// ****************************************************************
 			// * Compute summary of action plans
@@ -175,32 +216,43 @@ public class ActionPlanComputation {
 			 * // * create summary for normal action plan summary //
 			 * ****************************************************************
 			 */// computeSummary(ActionPlanMode.NORMAL);
-			 /* 
+			/*
 			 * //
 			 * ****************************************************************
 			 * // * create summary for optimistic action plan summary //
 			 * ****************************************************************
 			 */// computeSummary(ActionPlanMode.OPTIMISTIC);
-			 /* 
+			/*
 			 * //
 			 * ****************************************************************
 			 * // * create summary for pessimistic action plan summary //
 			 * ****************************************************************
-			 */ //computeSummary(ActionPlanMode.PESSIMISTIC);
-			 /*/
-			// ****************************************************************
-			// * create summary for normal phase action plan summary
-			// ****************************************************************
-			*/computeSummary(ActionPlanMode.PHASE_NORMAL);
+			 */// computeSummary(ActionPlanMode.PESSIMISTIC);
+			/*
+			 * / //
+			 * ****************************************************************
+			 * // * create summary for normal phase action plan summary //
+			 * ****************************************************************
+			 */
+			serviceTaskFeedback.send(idTask, new MessageHandler(
+					"info.info.action_plan.create_summary.normal_phase", null,
+					"Create summary for normal phase action plan summary"));
+			computeSummary(ActionPlanMode.PHASE_NORMAL);
 
 			// ****************************************************************
 			// * create summary for optimistic phase action plan summary
 			// ****************************************************************
+			serviceTaskFeedback.send(idTask, new MessageHandler(
+					"info.info.action_plan.create_summary.optimistic_phase", null,
+					"Create summary for optimistic phase action plan summary"));
 			computeSummary(ActionPlanMode.PHASE_OPTIMISTIC);
 
 			// ****************************************************************
 			// * create summary for pessimistic phase action plan summary
 			// ****************************************************************
+			serviceTaskFeedback.send(idTask, new MessageHandler(
+					"info.info.action_plan.create_summary.pessimistic_phase", null,
+					"Create summary for pessimistic phase action plan summary"));
 			computeSummary(ActionPlanMode.PHASE_PESSIMISTIC);
 
 			// ****************************************************************
@@ -223,19 +275,27 @@ public class ActionPlanComputation {
 						+ ape.getROI() + "|" + ape.getCost());
 			}
 
+			serviceTaskFeedback.send(idTask, new MessageHandler(
+					"info.info.action_plan.saved", null,
+					"Saving Action Plans"));
+			
 			System.out.println("Saving Action Plans...");
+			
+			serviceTaskFeedback.send(idTask, new MessageHandler(
+					"info.info.action_plan.done", null,
+					"Computing Action Plans Done"));
 
 			System.out.println("Computing Action Plans Done!");
 
 			return null;
 
 		} catch (Exception e) {
-
-			// print error message
 			System.out.println("Action Plan saving failed! ");
+			MessageHandler messageHandler = new MessageHandler(e.getMessage(), "Action Plan saving failed", e);
+			serviceTaskFeedback.send(idTask,messageHandler);
+			// print error message
 			e.printStackTrace();
-
-			return new MessageHandler(e);
+			return messageHandler;
 		}
 	}
 
@@ -498,9 +558,9 @@ public class ActionPlanComputation {
 	 *            Pessimistic
 	 * @param actionPlan
 	 *            The Action Plan where the Final Values are Stored
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	private void computeActionPlan(ActionPlanMode mode)	throws Exception {
+	private void computeActionPlan(ActionPlanMode mode) throws Exception {
 
 		// ****************************************************************
 		// * variables initialisation
@@ -674,8 +734,7 @@ public class ActionPlanComputation {
 			actionPlanType.setId(mode.getValue());
 			serviceActionPlanType.merge(actionPlanType);
 		}
-				
-		
+
 		// ****************************************************************
 		// * parse all phases where measures are in
 		// ****************************************************************
@@ -1029,8 +1088,11 @@ public class ActionPlanComputation {
 							// rewrite previous
 							// * value (of tmpAssets)
 							// ****************************************************************
-							if (tmpAssets.get(ac).getAsset()
-									.equals(TMAList.get(j).getAssessment().getAsset())) {
+							if (tmpAssets
+									.get(ac)
+									.getAsset()
+									.equals(TMAList.get(j).getAssessment()
+											.getAsset())) {
 
 								// ****************************************************************
 								// * Calculate new ALE for this asset
@@ -1048,7 +1110,10 @@ public class ActionPlanComputation {
 								// ****************************************************************
 								// * update the object's ALE value
 								// ****************************************************************
-								tmpAssets.get(ac).setCurrentALE(tmpAssets.get(ac).getCurrentALE()+ALE);
+								tmpAssets.get(ac)
+										.setCurrentALE(
+												tmpAssets.get(ac)
+														.getCurrentALE() + ALE);
 							}
 						}
 
@@ -1326,8 +1391,11 @@ public class ActionPlanComputation {
 							// rewrite previous
 							// * value (of tmpAssets)
 							// ****************************************************************
-							if (tmpAssets.get(ac).getAsset()
-									.equals(TMAList.get(napmc).getAssessment().getAsset())) {
+							if (tmpAssets
+									.get(ac)
+									.getAsset()
+									.equals(TMAList.get(napmc).getAssessment()
+											.getAsset())) {
 
 								// ****************************************************************
 								// * update ALE of asset
@@ -1428,53 +1496,56 @@ public class ActionPlanComputation {
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		 Asset tmpAsset = null;
-		//List<ActionPlanAssessment> tmpAssets = new ArrayList<ActionPlanAssessment>();
-		
-		 List<ActionPlanAsset> tmpAssets = new ArrayList<ActionPlanAsset>();
+		Asset tmpAsset = null;
+		// List<ActionPlanAssessment> tmpAssets = new
+		// ArrayList<ActionPlanAssessment>();
 
-		 //List<Assessment> actionplanassessments = new ArrayList<Assessment>();
+		List<ActionPlanAsset> tmpAssets = new ArrayList<ActionPlanAsset>();
+
+		// List<Assessment> actionplanassessments = new ArrayList<Assessment>();
 
 		// ****************************************************************
 		// * take each asset and make a copy into another list
 		// ****************************************************************
 
-		 // parse assets
-		 for (int asc = 0; asc < this.analysis.getAssets().size(); asc++) {
-		
-			 // selected asset -> YES
-			 if (this.analysis.getAnAsset(asc).isSelected() && !tmpAssets.contains(this.analysis.getAnAsset(asc)) ) {
-			
-				 // ****************************************************************
-				 // * create new asset object
-				 // ****************************************************************
-				 tmpAsset = new Asset();
-				 tmpAsset.setComment(this.analysis.getAnAsset(asc).getComment());
-				 tmpAsset.setId(this.analysis.getAnAsset(asc).getId());
-				 tmpAsset.setName(this.analysis.getAnAsset(asc).getName());
-				 tmpAsset.setSelected(this.analysis.getAnAsset(asc).isSelected());
-				 tmpAsset.setAssetType(new AssetType(this.analysis
-				 .getAnAsset(asc).getAssetType().getType()));
-				 tmpAsset.setValue(this.analysis.getAnAsset(asc).getValue());
-				
-				 // ****************************************************************
-				 // * add asset to the list
-				 // ****************************************************************
-				 tmpAssets.add(new ActionPlanAsset(null, tmpAsset, 0));
-			 }
-		 }
-
 		// parse assets
-		/*for (int asc = 0; asc < this.analysis.getAssessments().size(); asc++) {
+		for (int asc = 0; asc < this.analysis.getAssets().size(); asc++) {
 
 			// selected asset -> YES
-			if (this.analysis.getAnAssessment(asc).isSelected()) {
+			if (this.analysis.getAnAsset(asc).isSelected()
+					&& !tmpAssets.contains(this.analysis.getAnAsset(asc))) {
 
-				// actionplanassessments.add(this.analysis.getAnAssessment(asc));
-				tmpAssets.add(new ActionPlanAssessment(null, this.analysis
-						.getAnAssessment(asc), 0));
+				// ****************************************************************
+				// * create new asset object
+				// ****************************************************************
+				tmpAsset = new Asset();
+				tmpAsset.setComment(this.analysis.getAnAsset(asc).getComment());
+				tmpAsset.setId(this.analysis.getAnAsset(asc).getId());
+				tmpAsset.setName(this.analysis.getAnAsset(asc).getName());
+				tmpAsset.setSelected(this.analysis.getAnAsset(asc).isSelected());
+				tmpAsset.setAssetType(new AssetType(this.analysis
+						.getAnAsset(asc).getAssetType().getType()));
+				tmpAsset.setValue(this.analysis.getAnAsset(asc).getValue());
+
+				// ****************************************************************
+				// * add asset to the list
+				// ****************************************************************
+				tmpAssets.add(new ActionPlanAsset(null, tmpAsset, 0));
 			}
-		}*/
+		}
+
+		// parse assets
+		/*
+		 * for (int asc = 0; asc < this.analysis.getAssessments().size(); asc++)
+		 * {
+		 * 
+		 * // selected asset -> YES if
+		 * (this.analysis.getAnAssessment(asc).isSelected()) {
+		 * 
+		 * // actionplanassessments.add(this.analysis.getAnAssessment(asc));
+		 * tmpAssets.add(new ActionPlanAssessment(null, this.analysis
+		 * .getAnAssessment(asc), 0)); } }
+		 */
 
 		// ****************************************************************
 		// * return copy of assets
@@ -1725,10 +1796,11 @@ public class ActionPlanComputation {
 	 * @param phase
 	 *            Defines if the Phase Calculation is Enabled and what Phase to
 	 *            take into account
-	 * @param isCssf 
+	 * @param isCssf
 	 */
 	public static List<TMA> generateTMAList(Analysis analysis,
-			List<Measure> usedMeasures, ActionPlanMode mode, int phase, boolean isCssf) {
+			List<Measure> usedMeasures, ActionPlanMode mode, int phase,
+			boolean isCssf) {
 
 		// ****************************************************************
 		// * initialise variables
@@ -1814,8 +1886,9 @@ public class ActionPlanComputation {
 							// * check if norm 27002 measure for Maturity
 							// calculation
 							// ****************************************************************
-							if (!isCssf && measureNorm.getNorm().getLabel()
-									.equals(Constant.NORM_27002)) {
+							if (!isCssf
+									&& measureNorm.getNorm().getLabel()
+											.equals(Constant.NORM_27002)) {
 
 								// ****************************************************************
 								// * generate TMA entry -> not a useful measure
@@ -1840,8 +1913,9 @@ public class ActionPlanComputation {
 						// Maturity
 						// * calculation
 						// ****************************************************************
-						if (!isCssf &&  !(normMeasure.getStatus()
-								.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+						if (!isCssf
+								&& !(normMeasure.getStatus()
+										.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
 								&& (normMeasure.getMeasureDescription()
 										.getLevel() == Constant.MEASURE_LEVEL_3)
 								&& (normMeasure.getCost() >= 0)
@@ -2493,27 +2567,27 @@ public class ActionPlanComputation {
 			}
 		}
 
-		//Comparator<Measure> comparator = new ComparatorMeasure();
+		// Comparator<Measure> comparator = new ComparatorMeasure();
 
-//		if (tmpval.norm27001 != null) {
-//
-//			Collections.sort(tmpval.norm27001.getMeasures(), comparator);
-//			System.out.println("Measure 27001: ");
-//			for (int i = 0; i < tmpval.norm27001.getMeasures().size(); i++) {
-//				System.out.println("Measure: "
-//						+ tmpval.norm27001.getMeasures().get(i)
-//								.getMeasureDescription().getReference());
-//			}
-//		}
-//
-//		if (tmpval.norm27002 != null) {
-//			Collections.sort(tmpval.norm27002.getMeasures(), comparator);
-//			System.out.println("Measure 27002: ");
-//			for (int i = 0; i < tmpval.norm27002.getMeasures().size(); i++) {
-//				System.out.println(tmpval.norm27002.getMeasures().get(i)
-//						.getMeasureDescription().getReference());
-//			}
-//		}
+		// if (tmpval.norm27001 != null) {
+		//
+		// Collections.sort(tmpval.norm27001.getMeasures(), comparator);
+		// System.out.println("Measure 27001: ");
+		// for (int i = 0; i < tmpval.norm27001.getMeasures().size(); i++) {
+		// System.out.println("Measure: "
+		// + tmpval.norm27001.getMeasures().get(i)
+		// .getMeasureDescription().getReference());
+		// }
+		// }
+		//
+		// if (tmpval.norm27002 != null) {
+		// Collections.sort(tmpval.norm27002.getMeasures(), comparator);
+		// System.out.println("Measure 27002: ");
+		// for (int i = 0; i < tmpval.norm27002.getMeasures().size(); i++) {
+		// System.out.println(tmpval.norm27002.getMeasures().get(i)
+		// .getMeasureDescription().getReference());
+		// }
+		// }
 
 		// ****************************************************************
 		// * generate first stage
@@ -2668,42 +2742,44 @@ public class ActionPlanComputation {
 			generateStage(apt, tmpval, sumStage, "All Measures", false);
 		}
 
-//		for (int i = 0; i < sumStage.size(); i++) {
-//			System.out.println("Stage:" + sumStage.get(i).getStage());
-//			System.out.println("conformance 27001:"
-//					+ (sumStage.get(i).getConformance27001() * 100) + "%");
-//			System.out.println("conformance 27002:"
-//					+ (sumStage.get(i).getConformance27002() * 100) + "%");
-//			System.out.println("Number of Measures:"
-//					+ sumStage.get(i).getMeasureCount());
-//			System.out.println("Implemented Measures:"
-//					+ sumStage.get(i).getImplementedMeasuresCount());
-//			System.out.println("ALE:" + sumStage.get(i).getTotalALE() + "���");
-//			System.out.println("Risk Reduction:"
-//					+ sumStage.get(i).getDeltaALE() + "���");
-//			System.out.println("Avarage Cost:"
-//					+ sumStage.get(i).getCostOfMeasures() + "���");
-//			System.out.println("ROSI:" + sumStage.get(i).getROSI() + "���");
-//			System.out.println("relative ROSI:"
-//					+ sumStage.get(i).getRelativeROSI() + "���");
-//			System.out.println("InternalWorkload:"
-//					+ sumStage.get(i).getInternalWorkload() + "md");
-//			System.out.println("ExternalWorkload:"
-//					+ sumStage.get(i).getExternalWorkload() + "md");
-//			System.out.println("Investment:" + sumStage.get(i).getInvestment()
-//					+ "���");
-//			System.out.println("Internal Maintenance:"
-//					+ sumStage.get(i).getInternalMaintenance() + "md");
-//			System.out.println("External Maintenance:"
-//					+ sumStage.get(i).getExternalMaintenance() + "md");
-//			System.out.println("Recurrent Cost:"
-//					+ sumStage.get(i).getRecurrentCost() + "���");
-//			System.out.println("Total Cost:"
-//					+ sumStage.get(i).getTotalCostofStage() + "���");
-//			System.out
-//					.println("-----------------------------------------------------------------"
-//							+ "------------");
-//		}
+		// for (int i = 0; i < sumStage.size(); i++) {
+		// System.out.println("Stage:" + sumStage.get(i).getStage());
+		// System.out.println("conformance 27001:"
+		// + (sumStage.get(i).getConformance27001() * 100) + "%");
+		// System.out.println("conformance 27002:"
+		// + (sumStage.get(i).getConformance27002() * 100) + "%");
+		// System.out.println("Number of Measures:"
+		// + sumStage.get(i).getMeasureCount());
+		// System.out.println("Implemented Measures:"
+		// + sumStage.get(i).getImplementedMeasuresCount());
+		// System.out.println("ALE:" + sumStage.get(i).getTotalALE() +
+		// "���");
+		// System.out.println("Risk Reduction:"
+		// + sumStage.get(i).getDeltaALE() + "���");
+		// System.out.println("Avarage Cost:"
+		// + sumStage.get(i).getCostOfMeasures() + "���");
+		// System.out.println("ROSI:" + sumStage.get(i).getROSI() +
+		// "���");
+		// System.out.println("relative ROSI:"
+		// + sumStage.get(i).getRelativeROSI() + "���");
+		// System.out.println("InternalWorkload:"
+		// + sumStage.get(i).getInternalWorkload() + "md");
+		// System.out.println("ExternalWorkload:"
+		// + sumStage.get(i).getExternalWorkload() + "md");
+		// System.out.println("Investment:" + sumStage.get(i).getInvestment()
+		// + "���");
+		// System.out.println("Internal Maintenance:"
+		// + sumStage.get(i).getInternalMaintenance() + "md");
+		// System.out.println("External Maintenance:"
+		// + sumStage.get(i).getExternalMaintenance() + "md");
+		// System.out.println("Recurrent Cost:"
+		// + sumStage.get(i).getRecurrentCost() + "���");
+		// System.out.println("Total Cost:"
+		// + sumStage.get(i).getTotalCostofStage() + "���");
+		// System.out
+		// .println("-----------------------------------------------------------------"
+		// + "------------");
+		// }
 
 		// ****************************************************************
 		// * set stages in correct list
@@ -2846,8 +2922,8 @@ public class ActionPlanComputation {
 	public static String extractMainChapter(String chapter) {
 
 		if (chapter.toUpperCase().startsWith("A.")) {
-			String [] chapters  = chapter.split("[.]");
-			return  "A." + (chapters.length==1?chapters[0] : chapters[1]);
+			String[] chapters = chapter.split("[.]");
+			return "A." + (chapters.length == 1 ? chapters[0] : chapters[1]);
 		} else {
 			return (chapter.contains(".") ? chapter.split("[.]")[0] : chapter);
 		}
@@ -2879,14 +2955,14 @@ public class ActionPlanComputation {
 
 		// check if first stage -> YES
 		if (firstStage) {
-			
+
 			tmpval.implementedCount = 0;
 		}
 
 		tmpval.measureCount = 0;
 		tmpval.conf27001 = 0;
 		tmpval.conf27002 = 0;
-		
+
 		// ****************************************************************
 		// * check compliance for norm 27001: retrieve implementation rates
 		// ****************************************************************
@@ -2930,14 +3006,14 @@ public class ActionPlanComputation {
 					Integer implementation = (Integer) chapter[2];// increment
 																	// implemented
 																	// counter
-					
+
 					// increment measure counter
 					denominator++;
 
 					// check if it is the first stage -> YES
 					if (firstStage) {
 
-						tmpval.measureCount ++;
+						tmpval.measureCount++;
 						// check if measure is already implemented -> YES
 						if (normMeasure.getImplementationRate() == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) {
 
@@ -2992,7 +3068,6 @@ public class ActionPlanComputation {
 			// * conformance
 			// ****************************************************************
 
-			
 			for (String key : chapters.keySet()) {
 
 				Object[] chapter = chapters.get(key);
@@ -3009,11 +3084,12 @@ public class ActionPlanComputation {
 				Integer implementation = (Integer) chapter[2];// increment
 																// implemented
 																// counter
-				
-				//System.out.println("Chapter: " + (numerator / (double) denominator));
-				
+
+				// System.out.println("Chapter: " + (numerator / (double)
+				// denominator));
+
 				tmpval.implementedCount += implementation;
-				
+
 				tmpval.measureCount += denominator;
 			}
 
@@ -3070,13 +3146,13 @@ public class ActionPlanComputation {
 					Integer implementation = (Integer) chapter[2];// increment
 																	// implemented
 																	// counter
-						// increment measure counter
-						denominator++;
-						
+					// increment measure counter
+					denominator++;
+
 					if (firstStage) {
-						
-						tmpval.measureCount ++;
-						
+
+						tmpval.measureCount++;
+
 						// check if measure is already implemented
 						if (normMeasure.getImplementationRate() == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) {
 
@@ -3126,7 +3202,7 @@ public class ActionPlanComputation {
 							}
 						}
 					}
-					
+
 					chapters.put(chapterName, new Object[] { numerator,
 							denominator, implementation });
 				}
@@ -3152,16 +3228,18 @@ public class ActionPlanComputation {
 				/*-------------------------------------------------------------*/
 				Integer implementation = (Integer) chapter[2];// increment
 																// implemented
-															// counter
-				
-				//System.out.println("Chapter: " + (numerator / (double) denominator));
-				
+				// counter
+
+				// System.out.println("Chapter: " + (numerator / (double)
+				// denominator));
+
 				tmpval.implementedCount += implementation;
 			}
 
-			//System.out.println("tmpval.conf27002:" + tmpval.conf27002+" :"+chapters.size());
+			// System.out.println("tmpval.conf27002:" +
+			// tmpval.conf27002+" :"+chapters.size());
 			if (chapters.size() > 0)
-				tmpval.conf27002 /= (double)chapters.size();
+				tmpval.conf27002 /= (double) chapters.size();
 			else
 				tmpval.conf27002 = 0;
 
@@ -3203,6 +3281,21 @@ public class ActionPlanComputation {
 
 	public Analysis getAnalysis() {
 		return analysis;
+	}
+
+	/**
+	 * @return the idTask
+	 */
+	public Long getIdTask() {
+		return idTask;
+	}
+
+	/**
+	 * @param idTask
+	 *            the idTask to set
+	 */
+	public void setIdTask(Long idTask) {
+		this.idTask = idTask;
 	}
 
 	/***********************************************************************************************

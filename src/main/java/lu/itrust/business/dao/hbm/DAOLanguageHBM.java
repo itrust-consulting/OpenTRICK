@@ -1,9 +1,13 @@
 package lu.itrust.business.dao.hbm;
 
 import java.util.List;
+
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.dao.DAOLanguage;
+
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOLanguageHBM.java: <br>
@@ -13,7 +17,22 @@ import org.hibernate.Query;
  * @version
  * @since 16 janv. 2013
  */
+@Repository
 public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
+	
+	/**
+	 * 
+	 */
+	public DAOLanguageHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOLanguageHBM(Session session) {
+		super(session);
+	}
 
 	@Override
 	public Language get(int id) throws Exception {

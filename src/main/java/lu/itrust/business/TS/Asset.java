@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import java.io.Serializable;
+
 import javax.naming.directory.InvalidAttributesException;
 
 /**
@@ -66,7 +67,7 @@ public class Asset implements Serializable {
 	 */
 	public void setId(int id) {
 		if (id < 1) {
-			throw new IllegalArgumentException("Asset ID cannot be < 1!");
+			throw new IllegalArgumentException("error.asset.invalid.id");
 		}
 		this.id = id;
 	}
@@ -89,9 +90,10 @@ public class Asset implements Serializable {
 	 *            The value to set the Asset "name" field
 	 */
 	public void setName(String name) {
-		if ((name == null) || (name.trim().isEmpty())) {
-			throw new IllegalArgumentException("Asset Name cannot be null or empty!");
-		}
+		if (name == null)
+			throw new IllegalArgumentException("error.asset.label_null");
+		else if (name.trim().isEmpty())
+			throw new IllegalArgumentException("error.asset.label_empty");
 		this.name = name;
 	}
 
@@ -113,10 +115,15 @@ public class Asset implements Serializable {
 	 *            The value to set the Asset "assetType" field
 	 */
 	public void setAssetType(AssetType assetType) {
-		if (assetType == null || assetType.getType() == null
-			|| assetType.getType().trim().isEmpty()) {
-			throw new IllegalArgumentException("Asset Type cannot be null or empty!");
-		}
+		if (assetType == null)
+			throw new IllegalArgumentException(
+					"error.asset.assettype_null");
+		else if (assetType.getType() == null)
+			throw new IllegalArgumentException(
+					"error.asset.assettype.type_null");
+		else if (assetType.getType().trim().isEmpty())
+			throw new IllegalArgumentException(
+					"error.asset.assettype.type_empty");
 		this.assetType = assetType;
 	}
 
@@ -139,7 +146,7 @@ public class Asset implements Serializable {
 	 */
 	public void setValue(double value) {
 		if (value < 0) {
-			throw new IllegalArgumentException("Asset Value cannot be < 0!");
+			throw new IllegalArgumentException("error.asset.value");
 		}
 		this.value = value;
 	}
@@ -206,10 +213,12 @@ public class Asset implements Serializable {
 	 *             if others fields are not initialized yet
 	 */
 	public void setSelected(boolean selected) throws InvalidAttributesException {
-		if ((name.equals("")) || (value < 0)) {
+		if (name.trim().isEmpty())
 			throw new InvalidAttributesException(
-					"All Asset fields need to be initialised in order to select it!");
-		}
+					"error.asset.selected.name");
+		if (value < 0)
+			throw new InvalidAttributesException(
+					"error.asset.selected.value");
 		this.selected = selected;
 	}
 
@@ -227,13 +236,14 @@ public class Asset implements Serializable {
 		int result = 1;
 		result = prime * result + id;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((assetType == null) ? 0 : assetType.hashCode());
+		result = prime * result
+				+ ((assetType == null) ? 0 : assetType.hashCode());
 		return result;
 	}
 
 	/**
-	 * equals: This method checks if an object Asset equals another object Asset. Fields taken in
-	 * concideration: ID, name, assetType.<br>
+	 * equals: This method checks if an object Asset equals another object
+	 * Asset. Fields taken in concideration: ID, name, assetType.<br>
 	 * <br>
 	 * <b>NOTE:</b> This Method is auto generated
 	 * 

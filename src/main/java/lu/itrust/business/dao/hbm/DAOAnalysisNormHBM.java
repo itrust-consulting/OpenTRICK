@@ -8,8 +8,24 @@ import lu.itrust.business.TS.Norm;
 import lu.itrust.business.dao.DAOAnalysisNorm;
 
 import org.hibernate.Query;
-
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+@Repository
 public class DAOAnalysisNormHBM extends DAOHibernate implements DAOAnalysisNorm {
+	
+	/**
+	 * 
+	 */
+	public DAOAnalysisNormHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOAnalysisNormHBM(Session session) {
+		super(session);
+	}
 
 	@Override
 	public AnalysisNorm get(int id) throws Exception {

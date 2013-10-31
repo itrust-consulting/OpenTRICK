@@ -5,6 +5,9 @@ import java.util.List;
 import lu.itrust.business.TS.ParameterType;
 import lu.itrust.business.dao.DAOParameterType;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /**
  * DAOParameterTypeHBM.java: <br>
  * Detailed description...
@@ -13,8 +16,23 @@ import lu.itrust.business.dao.DAOParameterType;
  * @version
  * @since 31 janv. 2013
  */
+@Repository
 public class DAOParameterTypeHBM extends DAOHibernate implements
 		DAOParameterType {
+	
+	/**
+	 * 
+	 */
+	public DAOParameterTypeHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOParameterTypeHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>

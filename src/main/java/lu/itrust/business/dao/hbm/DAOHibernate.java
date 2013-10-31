@@ -3,7 +3,7 @@ package lu.itrust.business.dao.hbm;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 /**
  * HibernateDAO.java: <br>
@@ -13,9 +13,18 @@ import org.springframework.stereotype.Repository;
  * @version
  * @since 11 janv. 2013
  */
-@Repository
+@Component
 public class DAOHibernate {
 
+	public DAOHibernate(){
+	}
+	
+	public DAOHibernate(Session session){
+		this.session = session;
+	}
+	
+	private Session session;
+	
 	@Autowired
 	private SessionFactory sessionFactory;
 	
@@ -36,7 +45,7 @@ public class DAOHibernate {
 	 * @return current session
 	 */
 	public Session getSession() {
-		return sessionFactory.getCurrentSession();
+		return session == null? sessionFactory.getCurrentSession() : session;
 	}
 
 }

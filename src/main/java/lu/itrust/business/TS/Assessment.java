@@ -98,7 +98,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setId(int id) {
 		if (id < 1) {
-			throw new IllegalArgumentException("ID must be > 0!");
+			throw new IllegalArgumentException("error.assessment.id");
 		}
 		this.id = id;
 	}
@@ -249,7 +249,7 @@ public class Assessment implements Serializable {
 	public void setImpactReal(double impactReal) {
 		if (impactReal < 0) {
 			throw new IllegalArgumentException(
-					"Impact value should be greater or equal 0");
+					"error.assessment.impact_value");
 		}
 		this.impactReal = impactReal;
 	}
@@ -301,7 +301,7 @@ public class Assessment implements Serializable {
 	public void setLikelihoodReal(double likelihood) {
 		if (likelihood < 0) {
 			throw new IllegalArgumentException(
-					"Likelihood real needs to be >= 0!");
+					"error.assessment.likelihood");
 		}
 		this.likelihoodReal = likelihood;
 	}
@@ -325,7 +325,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setUncertainty(double uncertainty) {
 		if (uncertainty <= 1.0) {
-			throw new IllegalArgumentException("uncertainty needs to be > 1!");
+			throw new IllegalArgumentException("error.assessment.uncertainty");
 		}
 		this.uncertainty = uncertainty;
 	}
@@ -349,7 +349,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setALEP(double ALEP) {
 		if (ALEP < 0) {
-			throw new IllegalArgumentException("ALEP needs to be >= 0!");
+			throw new IllegalArgumentException("error.assessment.alep");
 		}
 		this.ALEP = ALEP;
 	}
@@ -373,7 +373,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setALE(double ALE) {
 		if (ALE < 0) {
-			throw new IllegalArgumentException("ALE needs be >= 0!");
+			throw new IllegalArgumentException("error.assessment.ale");
 		}
 		this.ALE = ALE;
 	}
@@ -397,7 +397,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setALEO(double ALEO) {
 		if (ALEO < 0) {
-			throw new IllegalArgumentException("ALEO needs to be >= 0!");
+			throw new IllegalArgumentException("error.assessment.aleo");
 		}
 		this.ALEO = ALEO;
 	}
@@ -421,7 +421,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setAsset(Asset asset) {
 		if (asset == null) {
-			throw new IllegalArgumentException("Asset cannot be null!");
+			throw new IllegalArgumentException("error.assessment.asset");
 		}
 		this.asset = asset;
 	}
@@ -445,7 +445,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setScenario(Scenario scenario) {
 		if (scenario == null) {
-			throw new IllegalArgumentException("Scenario cannot be null!");
+			throw new IllegalArgumentException("error.assessment.scenario");
 		}
 		this.scenario = scenario;
 	}

@@ -39,10 +39,7 @@ public class AssetType {
 	 *            Type Name
 	 */
 	public AssetType(String type) {
-		if (type == null || !type.matches(Constant.REGEXP_VALID_ASSET_TYPE)) {
-			throw new IllegalArgumentException("Asset Type Name is not valid!");
-		}
-		this.type = type;
+		setType(type);
 	}
 
 	/***********************************************************************************************
@@ -88,9 +85,10 @@ public class AssetType {
 	 *            The Value to set the type field
 	 */
 	public void setType(String type) {
-		if (type == null || !type.matches(Constant.REGEXP_VALID_ASSET_TYPE)) {
-			throw new IllegalArgumentException("Asset Type Name is not valid!");
-		}
+		if (type == null)
+			throw new IllegalArgumentException("error.assettype.type_null");
+		else if (!type.matches(Constant.REGEXP_VALID_ASSET_TYPE))
+			throw new IllegalArgumentException("error.assettype.type_no_meet");
 		this.type = type;
 	}
 

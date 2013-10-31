@@ -6,6 +6,8 @@ import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.dao.DAOAssetType;
 
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOAssetTypeHBM.java: <br>
@@ -15,7 +17,22 @@ import org.hibernate.Query;
  * @version
  * @since 31 janv. 2013
  */
+@Repository
 public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
+	
+	/**
+	 * 
+	 */
+	public DAOAssetTypeHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOAssetTypeHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>

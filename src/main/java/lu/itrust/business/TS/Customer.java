@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import java.io.Serializable;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /**

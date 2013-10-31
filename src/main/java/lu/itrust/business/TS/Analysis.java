@@ -6,13 +6,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import lu.itrust.business.TS.actionplan.ActionPlanComputation;
+
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
-import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
-import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
@@ -127,15 +125,15 @@ public class Analysis implements Serializable {
 	 * @return A MessageHandler Object containing either a Exception or null
 	 *         (Error or no Error)
 	 */
-	public MessageHandler computeActionPlan() {
-
-		// create object
-		ActionPlanComputation actionPlanComputation = new ActionPlanComputation(
-				this);
-
-		// perform computation
-		return actionPlanComputation.calculateActionPlans();
-	}
+	/*
+	 * public MessageHandler computeActionPlan() {
+	 * 
+	 * // create object ActionPlanComputation actionPlanComputation = new
+	 * ActionPlanComputation( this);
+	 * 
+	 * // perform computation return
+	 * actionPlanComputation.calculateActionPlans(); }
+	 */
 
 	/**
 	 * computeRiskRegister: <br>
@@ -144,15 +142,15 @@ public class Analysis implements Serializable {
 	 * @return A MessageHandler Object containing either a Exception or null
 	 *         (Error or no Error)
 	 */
-	public MessageHandler computeRiskRegister() {
-
-		// create object
-		RiskRegisterComputation riskcomputation = new RiskRegisterComputation(
-				this);
-
-		// compute the risk register and store to database
-		return riskcomputation.computeRiskRegister();
-	}
+	/*
+	 * public MessageHandler computeRiskRegister() {
+	 * 
+	 * // create object RiskRegisterComputation riskcomputation = new
+	 * RiskRegisterComputation( this);
+	 * 
+	 * // compute the risk register and store to database return
+	 * riskcomputation.computeRiskRegister(); }
+	 */
 
 	/**
 	 * getALEOfAsset: <br>
@@ -168,11 +166,10 @@ public class Analysis implements Serializable {
 		double result = 0;
 
 		// check if asset exists and if assessments are not empty
-		if (asset == null || this.assessments.isEmpty()) {
-			throw new IllegalArgumentException(
-					"Asset and Assessments List cannot be null and need to exist!");
-		}
-
+		if (asset == null)
+			throw new IllegalArgumentException("error.ale.asset_null");
+		if (this.assessments.isEmpty())
+			throw new IllegalArgumentException("error.ale.Assessments_empty");
 		// parse assessments
 		for (Assessment assessment : assessments) {
 
@@ -190,31 +187,34 @@ public class Analysis implements Serializable {
 
 	/**
 	 * getLatestVersion: <br>
-	 * Parse all history entries to find latest version (version has to be of format xx.xx.xx)
+	 * Parse all history entries to find latest version (version has to be of
+	 * format xx.xx.xx)
 	 * 
 	 * @return
 	 */
 	public String getLatestVersion() {
-		
+
 		Integer v = 0;
-		
+
 		String finalVersion = "";
-		
+
 		for (int i = 0; i < histories.size(); i++) {
 			Integer t = 0;
 			String version = histories.get(i).getVersion();
 			String[] splittedVerison = version.split("\\.");
-			t= (Integer.valueOf(splittedVerison[0])) + (Integer.valueOf(splittedVerison[1])) + (Integer.valueOf(splittedVerison[2]));
+			t = (Integer.valueOf(splittedVerison[0]))
+					+ (Integer.valueOf(splittedVerison[1]))
+					+ (Integer.valueOf(splittedVerison[2]));
 			if (v < t) {
 				v = t;
 				finalVersion = version;
 			}
 		}
-		
+
 		return finalVersion;
-		
+
 	}
-	
+
 	/**
 	 * versionExists: <br>
 	 * Checks if given version string exists in analysis
@@ -224,17 +224,17 @@ public class Analysis implements Serializable {
 	 */
 	public boolean versionExists(String version) {
 		boolean res = false;
-		
+
 		for (int i = 0; i < histories.size(); i++) {
 			if (histories.get(i).getVersion().equals(version)) {
 				res = true;
 				break;
 			}
 		}
-		
+
 		return res;
 	}
-	
+
 	/***********************************************************************************************
 	 * RRF - BEGIN
 	 **********************************************************************************************/
@@ -402,9 +402,11 @@ public class Analysis implements Serializable {
 			Scenario scenario) {
 
 		// check if properties and scenario are not null to avoid failures
-		if (properties == null || scenario == null) {
-			throw new IllegalArgumentException("Properties or Scenario is null");
-		}
+		if (properties == null)
+			throw new IllegalArgumentException("error.rrf.compute.properties_null");
+		
+		if(scenario == null)
+			throw new IllegalArgumentException("error.rrf.compute.scenario_null");
 
 		// **************************************************************
 		// * intialise variables
@@ -431,7 +433,7 @@ public class Analysis implements Serializable {
 
 		// check if not Division by 0
 		if (categoryDenominator == 0) {
-			throw new ArithmeticException("Category Denominator cannot be 0");
+			throw new ArithmeticException("error.rrf.compute.arithmetic_denominator_zero");
 		}
 
 		// **************************************************************
@@ -854,11 +856,12 @@ public class Analysis implements Serializable {
 				tmpPhases.remove(smallest);
 			}
 		}
-		
-//		for (int i=0; i < usedPhases.size();i++) {
-//			System.out.println("ID: " + usedPhases.get(i).getId() + "::: Number: " + usedPhases.get(i).getNumber());
-//		}
-		
+
+		// for (int i=0; i < usedPhases.size();i++) {
+		// System.out.println("ID: " + usedPhases.get(i).getId() +
+		// "::: Number: " + usedPhases.get(i).getNumber());
+		// }
+
 	}
 
 	/**
@@ -1353,9 +1356,8 @@ public class Analysis implements Serializable {
 	 *            The asset Object to Add
 	 */
 	public void addAnAsset(Asset asset) {
-		if (this.assets.contains(asset)) {
-			throw new IllegalArgumentException("Asset already exists!");
-		}
+		if (this.assets.contains(asset))
+			throw new IllegalArgumentException("error.asset.duplicate");
 		this.assets.add(asset);
 	}
 
@@ -1448,7 +1450,7 @@ public class Analysis implements Serializable {
 	 */
 	public void addAScenario(Scenario scenario) {
 		if (this.scenarios.contains(scenario)) {
-			throw new IllegalArgumentException("Scenario already exists!");
+			throw new IllegalArgumentException("error.scenario.duplicate");
 		}
 		this.scenarios.add(scenario);
 	}
@@ -1495,9 +1497,8 @@ public class Analysis implements Serializable {
 	 *            The Assessment Object to Add
 	 */
 	public void addAnAssessment(Assessment assessment) {
-		if (this.assessments.contains(assessment)) {
-			throw new IllegalArgumentException("Assessment already exists!");
-		}
+		if (this.assessments.contains(assessment))
+			throw new IllegalArgumentException("error.assessment.duplicate");
 		this.assessments.add(assessment);
 	}
 
@@ -1599,7 +1600,7 @@ public class Analysis implements Serializable {
 		if (this.usedPhases == null)
 			usedPhases = new ArrayList<Phase>();
 		phase.setAnalysis(this);
-		if(!usedPhases.contains(phase))
+		if (!usedPhases.contains(phase))
 			usedPhases.add(phase);
 	}
 

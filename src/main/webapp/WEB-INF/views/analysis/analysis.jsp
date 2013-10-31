@@ -38,7 +38,7 @@
 			</c:if>
 		</c:if>
 	
-			<form:errors cssClass="error" element="div" />
+			<jsp:include page="../successErrors.jsp" />
 
 			<h1><spring:message code="label.analysis.title" /></h1>
 

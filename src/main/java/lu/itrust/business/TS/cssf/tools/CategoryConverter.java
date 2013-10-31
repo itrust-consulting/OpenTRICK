@@ -2,6 +2,7 @@ package lu.itrust.business.TS.cssf.tools;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import lu.itrust.business.TS.Scenario;
 
 /**

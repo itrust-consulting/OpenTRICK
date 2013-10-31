@@ -1,10 +1,14 @@
 package lu.itrust.business.dao.hbm;
 
 import java.util.List;
+
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
+
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOMeasureDescriptionText.java: <br>
@@ -14,7 +18,22 @@ import org.hibernate.Query;
  * @version
  * @since Feb 1, 2013
  */
+@Repository
 public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itrust.business.dao.DAOMeasureDescriptionText {
+	
+	/**
+	 * 
+	 */
+	public DAOMeasureDescriptionTextHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOMeasureDescriptionTextHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>

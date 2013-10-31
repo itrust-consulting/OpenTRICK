@@ -9,11 +9,29 @@ import lu.itrust.business.TS.Role;
 import lu.itrust.business.TS.User;
 import lu.itrust.business.dao.DAORole;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /**
  * @author oensuifudine
  * 
  */
+@Repository
 public class DAORoleHBM extends DAOHibernate implements DAORole {
+	
+	/**
+	 * 
+	 */
+	public DAORoleHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAORoleHBM(Session session) {
+		super(session);
+	}
 
 	/*
 	 * (non-Javadoc)

@@ -5,6 +5,9 @@ import java.util.List;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.dao.DAOScenarioType;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /**
  * DAOScenarioTypeHBM.java: <br>
  * Detailed description...
@@ -13,7 +16,22 @@ import lu.itrust.business.dao.DAOScenarioType;
  * @version
  * @since 31 janv. 2013
  */
+@Repository
 public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType {
+
+	/**
+	 * 
+	 */
+	public DAOScenarioTypeHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOScenarioTypeHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>

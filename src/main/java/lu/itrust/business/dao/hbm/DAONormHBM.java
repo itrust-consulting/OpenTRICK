@@ -8,8 +8,24 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAONorm;
 
 import org.hibernate.Query;
-
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+@Repository
 public class DAONormHBM extends DAOHibernate implements DAONorm {
+
+	/**
+	 * 
+	 */
+	public DAONormHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAONormHBM(Session session) {
+		super(session);
+	}
 
 	@Override
 	public Norm getNormByID(int normID) throws Exception {

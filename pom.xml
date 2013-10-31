@@ -155,7 +155,14 @@
 			<artifactId>commons-fileupload</artifactId>
 			<version>1.2.2</version>
 		</dependency>
-
+		
+		<!-- AJAX json -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.2</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>

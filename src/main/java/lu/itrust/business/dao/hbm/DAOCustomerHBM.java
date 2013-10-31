@@ -6,6 +6,8 @@ import lu.itrust.business.TS.Customer;
 import lu.itrust.business.dao.DAOCustomer;
 
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOCustomerHBM.java: <br>
@@ -15,7 +17,22 @@ import org.hibernate.Query;
  * @version
  * @since 16 janv. 2013
  */
+@Repository
 public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
+	
+	/**
+	 * 
+	 */
+	public DAOCustomerHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOCustomerHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>

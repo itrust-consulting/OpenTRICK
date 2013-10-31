@@ -8,6 +8,9 @@ import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.dao.DAOActionPlan;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /** 
  * DAOActionPlanHBM.java: <br>
  * Detailed description...
@@ -16,7 +19,22 @@ import lu.itrust.business.dao.DAOActionPlan;
  * @version 
  * @since Feb 5, 2013
  */
+@Repository
 public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
+	
+	/**
+	 * 
+	 */
+	public DAOActionPlanHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOActionPlanHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>

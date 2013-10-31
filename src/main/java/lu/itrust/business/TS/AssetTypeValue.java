@@ -69,9 +69,15 @@ public class AssetTypeValue {
 	 *            The value to set the "assetType" field
 	 */
 	public void setAssetType(AssetType assetType) {
-		if ((assetType == null || assetType.getType() == null) || (assetType.getType().equals(""))) {
-			throw new IllegalArgumentException("AssetTypeValue Name cannot be null or empty!");
-		}
+		if (assetType == null)
+			throw new IllegalArgumentException(
+					"error.assettypevalue.assettype_null");
+		else if (assetType.getType() == null)
+			throw new IllegalArgumentException(
+					"error.asset.assettypevalue.type_null");
+		else if (assetType.getType().trim().isEmpty())
+			throw new IllegalArgumentException(
+					"error.asset.assettypevalue.type_empty");
 		this.assetType = assetType;
 	}
 
@@ -94,7 +100,7 @@ public class AssetTypeValue {
 	 */
 	public void setValue(int value) {
 		if ((value < -1) || (value > 101)) {
-			throw new IllegalArgumentException("AssetTypeValue Value should be between -1 and 101");
+			throw new IllegalArgumentException("error.asset.assettypevalue.value");
 		}
 		this.value = value;
 	}

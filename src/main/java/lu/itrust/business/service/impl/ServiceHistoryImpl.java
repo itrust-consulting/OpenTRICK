@@ -2,12 +2,13 @@ package lu.itrust.business.service.impl;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.dao.DAOHistory;
 import lu.itrust.business.service.ServiceHistory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /** 
  * ServiceHistoryImpl.java: <br>
@@ -17,6 +18,7 @@ import lu.itrust.business.service.ServiceHistory;
  * @version 
  * @since Oct 22, 2013
  */
+@Service
 public class ServiceHistoryImpl implements ServiceHistory {
 
 	@Autowired

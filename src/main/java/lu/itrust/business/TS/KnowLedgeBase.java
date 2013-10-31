@@ -229,8 +229,9 @@ public class KnowLedgeBase {
 				
 				importAnalysis.setAnalysis(analysis);
 				
+				 importAnalysis.ImportAnAnalysis();
 				// perform import
-				return importAnalysis.ImportAnAnalysis();
+				return null;
 			}
 			
 		} catch (Exception e) {
@@ -349,7 +350,7 @@ public class KnowLedgeBase {
 				// ****************************************************************
 				// * create file object
 				// ****************************************************************
-				sqlitefile = new File(servletContext.getRealPath("/WEB-INF/temp/"+fileName));
+				sqlitefile = new File(servletContext.getRealPath("/WEB-INF/tmp/"+fileName));
 
 				// check if file does not exists -> YES
 				if (!sqlitefile.exists()) {

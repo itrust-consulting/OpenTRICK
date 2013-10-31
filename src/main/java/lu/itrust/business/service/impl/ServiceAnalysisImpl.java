@@ -6,14 +6,14 @@ package lu.itrust.business.service.impl;
 import java.sql.Timestamp;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.service.ServiceAnalysis;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author oensuifudine
@@ -121,7 +121,6 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public void save(Analysis analysis) throws Exception {
 		daoAnalysis.save(analysis);
-
 	}
 
 	/*
@@ -133,7 +132,6 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public void saveOrUpdate(Analysis analysis) throws Exception {
 		daoAnalysis.saveOrUpdate(analysis);
-
 	}
 
 	/*
@@ -160,7 +158,6 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public void remove(Integer analysisId) throws Exception {
 		daoAnalysis.remove(analysisId);
-
 	}
 
 	@Override

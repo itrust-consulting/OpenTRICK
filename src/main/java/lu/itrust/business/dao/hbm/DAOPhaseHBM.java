@@ -7,6 +7,9 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.dao.DAOPhase;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /** 
  * DAOPhaseHBM.java: <br>
  * Detailed description...
@@ -15,7 +18,22 @@ import lu.itrust.business.dao.DAOPhase;
  * @version 
  * @since Feb 1, 2013
  */
+@Repository
 public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
+	
+	/**
+	 * 
+	 */
+	public DAOPhaseHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOPhaseHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>

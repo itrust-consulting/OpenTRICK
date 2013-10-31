@@ -1,6 +1,7 @@
 package lu.itrust.business.dao;
 
 import java.util.List;
+
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.TS.actionplan.SummaryStage;

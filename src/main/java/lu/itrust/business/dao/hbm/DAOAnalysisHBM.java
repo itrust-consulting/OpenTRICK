@@ -8,6 +8,8 @@ import lu.itrust.business.TS.Customer;
 import lu.itrust.business.dao.DAOAnalysis;
 
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOAnalysisHBM: <br>
@@ -17,7 +19,22 @@ import org.hibernate.Query;
  * @version
  * @since 16 janv. 2013
  */
+@Repository
 public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
+	
+	/**
+	 * 
+	 */
+	public DAOAnalysisHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOAnalysisHBM(Session session) {
+		super(session);
+	}
 
 	@Override
 	public Analysis get(int id) throws Exception {

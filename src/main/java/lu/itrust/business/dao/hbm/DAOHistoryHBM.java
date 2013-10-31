@@ -2,12 +2,14 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
+import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.History;
+import lu.itrust.business.dao.DAOHistory;
+
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
-
-import lu.itrust.business.TS.History;
-import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.dao.DAOHistory;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOHistoryHBM.java: <br>
@@ -17,7 +19,26 @@ import lu.itrust.business.dao.DAOHistory;
  * @version
  * @since Feb 1, 2013
  */
+@Repository
 public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
+	
+	/**
+	 * 
+	 */
+	public DAOHistoryHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOHistoryHBM(Session session) {
+		super(session);
+	}
+
+
 
 	/**
 	 * get: <br>

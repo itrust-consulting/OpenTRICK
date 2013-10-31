@@ -7,6 +7,8 @@ import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.Norm;
 
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOMeasureDescription.java: <br>
@@ -16,7 +18,22 @@ import org.hibernate.Query;
  * @version
  * @since Feb 1, 2013
  */
+@Repository
 public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.business.dao.DAOMeasureDescription {
+	
+	/**
+	 * 
+	 */
+	public DAOMeasureDescriptionHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOMeasureDescriptionHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>

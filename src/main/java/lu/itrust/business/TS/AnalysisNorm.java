@@ -3,6 +3,7 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
@@ -100,9 +101,12 @@ public abstract class AnalysisNorm implements Serializable {
 	 *            The value to set the AnalysisNorm Name
 	 */
 	public void setNorm(Norm name) {
-		if (name == null || name.getLabel() == null || !name.getLabel().matches(Constant.REGEXP_VALID_NORM_NAME))
-			throw new IllegalArgumentException("Name should meet this regular expression "
-				+ Constant.REGEXP_VALID_NAME);
+		if (name == null)
+			throw new IllegalArgumentException("error.norm.null");
+		else if(name.getLabel() == null)
+			throw new IllegalArgumentException("error.norm.label_null");
+		else if(!name.getLabel().matches(Constant.REGEXP_VALID_NORM_NAME))
+			throw new IllegalArgumentException("error.norm.label_no_meet_regex");
 		this.norm = name;
 	}
 

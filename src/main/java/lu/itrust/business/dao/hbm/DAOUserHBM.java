@@ -8,11 +8,29 @@ import java.util.List;
 import lu.itrust.business.TS.User;
 import lu.itrust.business.dao.DAOUser;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /**
  * @author oensuifudine
  * 
  */
+@Repository
 public class DAOUserHBM extends DAOHibernate implements DAOUser {
+
+	/**
+	 * 
+	 */
+	public DAOUserHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOUserHBM(Session session) {
+		super(session);
+	}
 
 	/*
 	 * (non-Javadoc)

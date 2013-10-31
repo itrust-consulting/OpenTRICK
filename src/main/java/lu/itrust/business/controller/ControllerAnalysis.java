@@ -2,15 +2,13 @@ package lu.itrust.business.controller;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.Customer;
-import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -24,13 +22,13 @@ import lu.itrust.business.service.ServiceRiskRegister;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -43,6 +41,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Secured("ROLE_USER")
 @Controller
+@RequestMapping("/Analysis")
 public class ControllerAnalysis {
 
 	@Autowired
@@ -65,6 +64,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceRiskRegister serviceRiskRegister;
+	
+	@Autowired
+	private MessageSource messageSource;
 
 	// ******************************************************************************************************************
 	// * Request mappers
@@ -79,8 +81,8 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("Analysis/Display")
-	public String displayAll(Map<String, Object> model, HttpSession session) throws Exception {
+	@RequestMapping("/Display")
+	public String displayAll(Map<String, Object> model) throws Exception {
 
 		model.put("analyses", serviceAnalysis.loadAll());
 
@@ -96,7 +98,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("Analysis/{analysisId}/Select")
+	@RequestMapping("/{analysisId}/Select")
 	public String selectAnalysis(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, RedirectAttributes attributes) throws Exception {
 	
 		
@@ -133,8 +135,8 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("Analysis/Edit/{analysisId}")
-	public String requestEditAnalysis(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session) throws Exception {
+	@RequestMapping("/Edit/{analysisId}")
+	public String requestEditAnalysis(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model) throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
 
@@ -161,7 +163,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("Analysis/Edit/{analysisId}/Save")
+	@RequestMapping("/Edit/{analysisId}/Save")
 	public String performEditAnalysis(@PathVariable("analysisId") Integer analysisId, @ModelAttribute("analysis") @Valid Analysis analysis, RedirectAttributes attributes, 
 			BindingResult result) throws Exception {
 
@@ -193,9 +195,17 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("Analysis/Delete/{analysisId}")
-	public String deleteAnalysis(@PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
-		serviceAnalysis.remove(analysisId);
+	@RequestMapping("/Delete/{analysisId}")
+	public String deleteAnalysis(@PathVariable("analysisId") Integer analysisId, RedirectAttributes attributes, Locale locale) throws Exception {
+		try {
+			serviceAnalysis.remove(analysisId);
+			String message = messageSource.getMessage("success.delete.analysis", null, "Analysis was deleted successfully", locale);
+			attributes.addFlashAttribute("success", message);
+		} catch (Exception e) {
+			String message = messageSource.getMessage("failed.delete.analysis", null, "Analysis can be deleted", locale);
+			attributes.addFlashAttribute("errors", message);
+			e.printStackTrace();
+		}
 		return "redirect:/Analysis/Display";
 	}
 
@@ -208,7 +218,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("Analysis/{analysisId}/compute/riskRegister")
+	@RequestMapping("/{analysisId}/compute/riskRegister")
 	public String computeRiskRegister(@PathVariable("analysisId") Integer analysisId, RedirectAttributes attributes) throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
@@ -234,7 +244,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("Analysis/{analysisId}/compute/actionPlan")
+	@RequestMapping("/{analysisId}/compute/actionPlan")
 	public String computeActionPlan(@PathVariable("analysisId") Integer analysisId, RedirectAttributes attributes) throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
@@ -251,7 +261,7 @@ public class ControllerAnalysis {
 			attributes.addFlashAttribute("error", handler.getException().getMessage());
 		}
 
-		return "redirect:/analysis/customer/" + analysis.getCustomer().getId();
+		return "redirect:/Analysis/customer/" + analysis.getCustomer().getId();
 	}
 
 	// ******************************************************************************************************************
@@ -372,139 +382,5 @@ public class ControllerAnalysis {
 			System.out.println("Saving Risk Register done");
 		}
 		return handler;
-	}
-
-	// ******************************************************************************************************************
-	// * Setters
-	// ******************************************************************************************************************
-
-	/**
-	 * getServiceAnalysis: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public ServiceAnalysis getServiceAnalysis() {
-		return serviceAnalysis;
-	}
-
-	/**
-	 * setServiceAnalysis: <br>
-	 * Description
-	 * 
-	 * @param serviceAnalysis
-	 */
-	public void setServiceAnalysis(ServiceAnalysis serviceAnalysis) {
-		this.serviceAnalysis = serviceAnalysis;
-	}
-
-	/**
-	 * getServiceCustomer: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public ServiceCustomer getServiceCustomer() {
-		return serviceCustomer;
-	}
-
-	/**
-	 * setServiceCustomer: <br>
-	 * Description
-	 * 
-	 * @param serviceCustomer
-	 */
-	public void setServiceCustomer(ServiceCustomer serviceCustomer) {
-		this.serviceCustomer = serviceCustomer;
-	}
-
-	/**
-	 * getServiceLanguage: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public ServiceLanguage getServiceLanguage() {
-		return serviceLanguage;
-	}
-
-	/**
-	 * setServiceLanguage: <br>
-	 * Description
-	 * 
-	 * @param serviceLanguage
-	 */
-	public void setServiceLanguage(ServiceLanguage serviceLanguage) {
-		this.serviceLanguage = serviceLanguage;
-	}
-
-	/**
-	 * setServiceActionPlanType: <br>
-	 * Description
-	 * 
-	 * @param serviceActionPlanType
-	 */
-	public void setServiceActionPlanType(ServiceActionPlanType serviceActionPlanType) {
-		this.serviceActionPlanType = serviceActionPlanType;
-	}
-
-	/**
-	 * getServiceActionPlan: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public ServiceActionPlan getServiceActionPlan() {
-		return serviceActionPlan;
-	}
-
-	/**
-	 * setServiceActionPlan: <br>
-	 * Description
-	 * 
-	 * @param serviceActionPlan
-	 */
-	public void setServiceActionPlan(ServiceActionPlan serviceActionPlan) {
-		this.serviceActionPlan = serviceActionPlan;
-	}
-
-	/**
-	 * getServiceActionPlanSummary: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public ServiceActionPlanSummary getServiceActionPlanSummary() {
-		return serviceActionPlanSummary;
-	}
-
-	/**
-	 * setServiceActionPlanSummary: <br>
-	 * Description
-	 * 
-	 * @param serviceActionPlanSummary
-	 */
-	public void setServiceActionPlanSummary(ServiceActionPlanSummary serviceActionPlanSummary) {
-		this.serviceActionPlanSummary = serviceActionPlanSummary;
-	}
-
-	/**
-	 * getServiceRiskRegister: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public ServiceRiskRegister getServiceRiskRegister() {
-		return serviceRiskRegister;
-	}
-
-	/**
-	 * setServiceRiskRegister: <br>
-	 * Description
-	 * 
-	 * @param serviceRiskRegister
-	 */
-	public void setServiceRiskRegister(ServiceRiskRegister serviceRiskRegister) {
-		this.serviceRiskRegister = serviceRiskRegister;
 	}
 }

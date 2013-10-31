@@ -10,12 +10,30 @@ import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.dao.DAOActionPlanSummary;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /**
  * @author oensuifudine
  *
  */
+@Repository
 public class DAOActionPlanSummaryHBM extends DAOHibernate implements
 		DAOActionPlanSummary {
+
+	/**
+	 * 
+	 */
+	public DAOActionPlanSummaryHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOActionPlanSummaryHBM(Session session) {
+		super(session);
+	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.dao.DAOActionPlanSummary#get(long, lu.itrust.business.TS.actionplan.ActionPlanType, lu.itrust.business.TS.Analysis)

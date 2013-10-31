@@ -5,15 +5,15 @@ package lu.itrust.business.service.impl;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.dao.DAOActionPlanSummary;
 import lu.itrust.business.service.ServiceActionPlanSummary;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author oensuifudine

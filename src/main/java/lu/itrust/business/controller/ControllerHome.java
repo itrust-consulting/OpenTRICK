@@ -4,16 +4,20 @@
 package lu.itrust.business.controller;
 
 import java.security.Principal;
+import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.User;
+import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author oensuifudine
@@ -24,6 +28,9 @@ public class ControllerHome {
 
 	@Autowired
 	private ServiceUser serviceUser;
+	
+	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
 
 	@Secured("ROLE_USER")
 	@RequestMapping("/home")
@@ -37,6 +44,12 @@ public class ControllerHome {
 			else return "redirect:/logout";
 		}
 		return "index";
+	}
+	
+	@Secured("ROLE_USER")
+	@RequestMapping("/feedback")
+	public @ResponseBody List<MessageHandler> revice(Principal principal){
+		return serviceTaskFeedback.recive(principal.getName());
 	}
 	
 	@RequestMapping("/login")

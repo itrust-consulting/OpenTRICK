@@ -8,6 +8,8 @@ import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.dao.DAOScenario;
 
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOScenarioHBM.java: <br>
@@ -17,7 +19,22 @@ import org.hibernate.Query;
  * @version
  * @since 22 janv. 2013
  */
+@Repository
 public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
+
+	/**
+	 * 
+	 */
+	public DAOScenarioHBM() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param sessionFactory
+	 */
+	public DAOScenarioHBM(Session session) {
+		super(session);
+	}
 
 	@Override
 	public Scenario get(int id) throws Exception {

@@ -82,6 +82,7 @@ public class Scenario extends SecurityCriteria {
 	 */
 	public void setType(ScenarioType type) {
 		if ((type == null) || (type.getTypeName() == null) || (type.getTypeName().trim().isEmpty())) {
+			System.out.println(name+type);
 			throw new IllegalArgumentException("Scenario Type cannot be null or empty!");
 		}
 		this.type = type;
