@@ -23,7 +23,6 @@
 						<th><spring:message code="label.history.date" /></th>
 						<th><spring:message code="label.history.author" /></th>
 						<th><spring:message code="label.history.comment" /></th>
-						<th><spring:message code="label.action" /></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -31,12 +30,9 @@
 						<tr>
 							<!--<td>${history.id}</td>-->
 							<td>${history.version}</td>
-							<td>${history.date}</td>
-							<td>${history.author}</td>
-							<td>${history.comment}</td>
-							<td><a href="Edit/${history.id}"><spring:message
-										code="label.action.edit" /></a>|<a href="Delete/${history.id}"><spring:message
-										code="label.action.delete" /></a></td>
+							<td ondblclick="editField(this, 'history','${history.id}', 'date', 'date');">${history.date}</td>
+							<td ondblclick="editField(this, 'history','${history.id}', 'author', 'string');">${history.author}</td>
+							<td ondblclick="editField(this, 'history','${history.id}', 'comment', 'string');">${history.comment}</td>
 						</tr>
 					</c:forEach>
 				</tbody>

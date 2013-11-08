@@ -9,6 +9,7 @@ import lu.itrust.business.service.ServiceHistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** 
  * ServiceHistoryImpl.java: <br>
@@ -84,6 +85,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 *
 	 * @see lu.itrust.business.service.ServiceHistory#save(lu.itrust.business.TS.History)
 	 */
+	@Transactional
 	@Override
 	public void save(History history) throws Exception {
 		daoHistory.save(history);
@@ -95,6 +97,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 *
 	 * @see lu.itrust.business.service.ServiceHistory#saveOrUpdate(lu.itrust.business.TS.History)
 	 */
+	@Transactional
 	@Override
 	public void saveOrUpdate(History history) throws Exception {
 		daoHistory.saveOrUpdate(history);
@@ -106,6 +109,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 *
 	 * @see lu.itrust.business.service.ServiceHistory#delete(lu.itrust.business.TS.History)
 	 */
+	@Transactional
 	@Override
 	public void delete(History history) throws Exception {
 		daoHistory.remove(history);
@@ -139,6 +143,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 *
 	 * @see lu.itrust.business.service.ServiceHistory#save(java.lang.Integer, lu.itrust.business.TS.History)
 	 */
+	@Transactional
 	@Override
 	public void save(Integer analysisId, History history) throws Exception {
 		daoHistory.save(analysisId, history);

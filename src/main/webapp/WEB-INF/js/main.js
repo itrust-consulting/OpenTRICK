@@ -181,10 +181,9 @@ function TaskManager() {
 				}
 			}
 		});
-/*
-		setTimeout(function() {
-			instance.UpdateTaskCount();
-		}, 10000);*/
+		/*
+		 * setTimeout(function() { instance.UpdateTaskCount(); }, 10000);
+		 */
 		return false;
 	};
 
@@ -301,49 +300,69 @@ function addNewRole(id) {
 	return false;
 }
 
-function saveField(element, controller, id, field) {
+function defaultValueByType(value, type, emptySupport) {
+	if (value.length == 0) {
+		if (type == "int" || type == "integer")
+			value = '0';
+		else if (type == "float")
+			value = '0f';
+		else if (type == "double")
+			value = '0.0';
+		else if (type == "bool" || type == "boolean")
+			value = 'false';
+		else if(type == "date")
+			return new Date().toDateString();
+		else if (emptySupport)
+			value = "";
+		else
+			value = '""';
+	}
+	return value;
+}
+
+function updateFieldValue(element, value, type) {
+	$(element).parent().text(defaultValueByType(value, type, true));
+}
+
+function saveField(element, controller, id, field, type) {
 	if ($(element).prop("value") != $(element).prop("placeholder")) {
-		
-		var value = $(element).prop("value");
-		
 		$.ajax({
-			url : context + "/" + controller + "/editField",
+			url : context + "/editField/"+controller,
 			type : "post",
-			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":'
-					+ $(element).prop("value") + '}',
+			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"'
+					+ defaultValueByType($(element).prop("value"), type, false)
+					+ '"}',
 			contentType : "application/json",
 			success : function(response) {
-				if (response == "" || response ==null) {
-					var parent = $(element).parent();
-					parent.text();
+				if (response == "" || response == null) {
+					updateFieldValue(element, $(element).prop("value"));
 					return false;
 				}
 				alert(response);
 				return true;
 			},
-		error: function(jqXHR, textStatus, errorThrown) {
-	        console.log(textStatus);
-	        console.log(errorThrown);
-	        console.log(jqXHR);
-	    },
+			error : function(jqXHR, textStatus, errorThrown) {
+				updateFieldValue(element, $(element).prop("placeholder"));
+			},
 		});
 	} else {
-		var parent = $(element).parent();
-		parent.text($(element).prop("value"));
+		updateFieldValue(element, $(element).prop("placeholder"));
 		return false;
 	}
 }
 
-function editField(element, controller, id, field) {
+function editField(element, controller, id, field, type) {
 	if ($(element).find("input").length)
 		return;
+	if (type == null)
+		type = "string";
 	var content = element.innerHTML;
 	var input = document.createElement("input");
 	input.setAttribute("value", content);
 	input.setAttribute("class", "form-control");
 	input.setAttribute("placeholder", content);
 	input.setAttribute("onblur", "return saveField(this,'" + controller + "','"
-			+ id + "','" + field + "')");
+			+ id + "','" + field + "','" + type + "')");
 	if (element.firstChild != null)
 		element.replaceChild(input, element.firstChild);
 	else

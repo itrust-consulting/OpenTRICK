@@ -30,7 +30,6 @@
 										code="label.itemInformation.description" text="Description" /></th>
 								<th><spring:message code="label.itemInformation.value"
 										text="Value" /></th>
-								<th><spring:message code="label.action" /></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -39,11 +38,7 @@
 								<tr>
 									<!--<td>${itemInformation.id}</td>-->
 									<td>${itemInformation.description}</td>
-									<td>${itemInformation.value}</td>
-									<td><a href="Edit/${itemInformation.id}"><spring:message
-												code="label.action.edit" /></a>|<a
-										href="Delete/${itemInformation.id}"><spring:message
-												code="label.action.delete" /></a></td>
+									<td ondblclick="return editField(this, 'itemInformation','${itemInformation.id}', 'value', 'string');">${itemInformation.value}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -72,10 +67,9 @@
 							<c:forEach items="${itemInformationsSplited[1]}"
 								var="itemInformation">
 								<tr ondblclick="return globalEdit(this, )">
+									<td>${itemInformation.description}</td>
 									<td
-										ondblclick="return editField(this, 'itemInformation','${itemInformation.id}', 'description');">${itemInformation.description}</td>
-									<td
-										ondblclick="return editField(this, 'itemInformation','${itemInformation.id}', 'value');">${itemInformation.value}</td>
+										ondblclick="return editField(this, 'itemInformation','${itemInformation.id}', 'value', 'string');">${itemInformation.value}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
