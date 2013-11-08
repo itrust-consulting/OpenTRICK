@@ -99,7 +99,7 @@ public class ImportAnalysis {
 	private DAONorm daoNorm;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
-	
+
 	private SessionFactory sessionFactory;
 
 	/** The Analysis Object */
@@ -175,19 +175,19 @@ public class ImportAnalysis {
 	public void ImportAnAnalysis() throws Exception {
 
 		Session session = null;
-		
+
 		try {
-			
-			if(sessionFactory!=null){
+
+			if (sessionFactory != null) {
 				session = sessionFactory.openSession();
 				initialiseDAO(session);
 				session.getTransaction().begin();
 			}
-			
+
 			System.out.println("Importing...");
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.analysis.importing", "Importing", null));
+					"info.analysis.importing", "Importing", 0));
 
 			// ****************************************************************
 			// * create analysis id, analysis label, analysis language and
@@ -197,7 +197,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.risk_information.importing",
-					"Importing risk information", null));
+					"Importing risk information", 5));
 
 			// ****************************************************************
 			// * import risk information
@@ -206,7 +206,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.risk_information.importing",
-					"Import item information", null));
+					"Import item information", 10));
 
 			// ****************************************************************
 			// * import item information
@@ -215,7 +215,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.simple_parameters.importing",
-					"Import simple parameters", null));
+					"Import simple parameters", 15));
 
 			// ****************************************************************
 			// * import simple parameters
@@ -224,7 +224,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.extended_parameters.importing",
-					"Import extended parameters", null));
+					"Import extended parameters", 20));
 
 			// ****************************************************************
 			// * import extended parameters
@@ -237,7 +237,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.maturity_parameters.importing",
-					"Import maturity parameters", null));
+					"Import maturity parameters", 25));
 
 			importMaturityParameters();
 
@@ -246,7 +246,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.asset.importing", "Import assets", null));
+					"info.asset.importing", "Import assets", 30));
 			importAssets();
 
 			// ****************************************************************
@@ -254,7 +254,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.scenario.importing", "Import scenarios", null));
+					"info.scenario.importing", "Import scenarios", 40));
 			importScenarios();
 
 			// ****************************************************************
@@ -262,7 +262,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.assessments.importing", "Import assessments", null));
+					"info.assessments.importing", "Import assessments", 50));
 			importAssessments();
 
 			// ****************************************************************
@@ -270,7 +270,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.phase.importing", "Import phases", null));
+					"info.phase.importing", "Import phases", 55));
 			importPhases();
 
 			// ****************************************************************
@@ -278,7 +278,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.norm_measures.importing", "Analysis norm measures",
-					null));
+					60));
 			importNormMeasures();
 
 			// ****************************************************************
@@ -286,7 +286,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.asset_type_value.importing",
-					"Import asset type values", null));
+					"Import asset type values", 70));
 			importAssetTypeValues();
 
 			// ****************************************************************
@@ -295,29 +295,32 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.maturity_measure.importing",
-					"Import maturity measures", null));
+					"Import maturity measures", 80));
 			importMaturityMeasures();
 
-			System.out.println("Saving Data to Database...");
+			//System.out.println("Saving Data to Database...");
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"Saving Data to Database", null));
+					"import.saving.analysis", "Saving Data to Database", 90));
 
 			// save or update analysis
 			daoAnalysis.saveOrUpdate(this.analysis);
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"success.analysis.import", "Import Done", null));
+					"success.analysis.import", "Import Done", 100));
 
-			System.out.println("Import Done!");
-			
-			if(session!=null)
+			//System.out.println("Import Done!");
+
+			if (session != null)
 				session.getTransaction().commit();
-			
+		} catch (Exception e) {
+			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(),
+					e.getMessage(), e));
+			throw e;
 		} finally {
 			// clear maps
 			clearData();
-			if(session!=null)
+			if (session != null)
 				session.close();
 		}
 	}
@@ -340,8 +343,6 @@ public class ImportAnalysis {
 		if (scenarios != null)
 			scenarios.clear();
 	}
-	
-	
 
 	/**
 	 * importAnalyses: <br>
@@ -1919,8 +1920,8 @@ public class ImportAnalysis {
 				// else: check if measure description text exists in the
 				// language of the analysis ->
 				// NO
-			} else if (!daoMeasureDescriptionText.existsForLanguage(
-					mesDesc, this.analysis.getLanguage())) {
+			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc,
+					this.analysis.getLanguage())) {
 
 				// System.out.println("Not found");
 
@@ -2316,8 +2317,7 @@ public class ImportAnalysis {
 			if (norm == null) {
 
 				// retrieve norm from database
-				norm = daoNorm
-						.loadNotCustomNormByName(Constant.NORM_MATURITY);
+				norm = daoNorm.loadNotCustomNormByName(Constant.NORM_MATURITY);
 
 				// norm does not exist in database
 				if (norm == null) {
@@ -2388,8 +2388,8 @@ public class ImportAnalysis {
 				// else: measure description exist: measure description text
 				// exists in the language
 				// of the analysis -> NO
-			} else if (!daoMeasureDescriptionText.existsForLanguage(
-					mesDesc, this.analysis.getLanguage())) {
+			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc,
+					this.analysis.getLanguage())) {
 
 				// create new measure description text
 				mesText = new MeasureDescriptionText();
@@ -3084,8 +3084,8 @@ public class ImportAnalysis {
 	public void setIdTask(long idTask) {
 		this.idTask = idTask;
 	}
-	
-	protected void initialiseDAO(Session session){
+
+	protected void initialiseDAO(Session session) {
 		setDaoAnalysis(new DAOAnalysisHBM(session));
 		setDaoAssetType(new DAOAssetTypeHBM(session));
 		setDaoLanguage(new DAOLanguageHBM(session));
@@ -3097,56 +3097,65 @@ public class ImportAnalysis {
 	}
 
 	/**
-	 * @param serviceTaskFeedback the serviceTaskFeedback to set
+	 * @param serviceTaskFeedback
+	 *            the serviceTaskFeedback to set
 	 */
 	public void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback) {
 		this.serviceTaskFeedback = serviceTaskFeedback;
 	}
 
 	/**
-	 * @param daoParameterType the daoParameterType to set
+	 * @param daoParameterType
+	 *            the daoParameterType to set
 	 */
 	public void setDaoParameterType(DAOParameterType daoParameterType) {
 		this.daoParameterType = daoParameterType;
 	}
 
 	/**
-	 * @param daoAssetType the daoAssetType to set
+	 * @param daoAssetType
+	 *            the daoAssetType to set
 	 */
 	public void setDaoAssetType(DAOAssetType daoAssetType) {
 		this.daoAssetType = daoAssetType;
 	}
 
 	/**
-	 * @param daoScenarioType the daoScenarioType to set
+	 * @param daoScenarioType
+	 *            the daoScenarioType to set
 	 */
 	public void setDaoScenarioType(DAOScenarioType daoScenarioType) {
 		this.daoScenarioType = daoScenarioType;
 	}
 
 	/**
-	 * @param daoAnalysis the daoAnalysis to set
+	 * @param daoAnalysis
+	 *            the daoAnalysis to set
 	 */
 	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
 		this.daoAnalysis = daoAnalysis;
 	}
 
 	/**
-	 * @param daoLanguage the daoLanguage to set
+	 * @param daoLanguage
+	 *            the daoLanguage to set
 	 */
 	public void setDaoLanguage(DAOLanguage daoLanguage) {
 		this.daoLanguage = daoLanguage;
 	}
 
 	/**
-	 * @param daoMeasureDescription the daoMeasureDescription to set
+	 * @param daoMeasureDescription
+	 *            the daoMeasureDescription to set
 	 */
-	public void setDaoMeasureDescription(DAOMeasureDescription daoMeasureDescription) {
+	public void setDaoMeasureDescription(
+			DAOMeasureDescription daoMeasureDescription) {
 		this.daoMeasureDescription = daoMeasureDescription;
 	}
 
 	/**
-	 * @param daoMeasureDescriptionText the daoMeasureDescriptionText to set
+	 * @param daoMeasureDescriptionText
+	 *            the daoMeasureDescriptionText to set
 	 */
 	public void setDaoMeasureDescriptionText(
 			DAOMeasureDescriptionText daoMeasureDescriptionText) {
@@ -3154,7 +3163,8 @@ public class ImportAnalysis {
 	}
 
 	/**
-	 * @param daoNorm the daoNorm to set
+	 * @param daoNorm
+	 *            the daoNorm to set
 	 */
 	public void setDaoNorm(DAONorm daoNorm) {
 		this.daoNorm = daoNorm;
@@ -3168,7 +3178,8 @@ public class ImportAnalysis {
 	}
 
 	/**
-	 * @param sessionFactory the sessionFactory to set
+	 * @param sessionFactory
+	 *            the sessionFactory to set
 	 */
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;

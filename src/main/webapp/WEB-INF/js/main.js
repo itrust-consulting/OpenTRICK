@@ -46,73 +46,6 @@ function changeDisplay(source) {
 	return false;
 }
 
-function nominateArg(label, input, link, index) {
-	label.setAttribute("for", "args[" + index + "]");
-	label.setAttribute("id", "arg_" + index + "_label");
-	label.appendChild(document.createTextNode("Arg n°" + (index + 1)));
-	input.setAttribute("name", "args[" + index + "]");
-	input.setAttribute("type", "text");
-	input.setAttribute("id", "arg_" + index + "_input");
-	link.setAttribute("href", "#");
-	link.setAttribute("id", "arg_" + index);
-	link.setAttribute("onclick", "return removeArg('arg_" + index + "');");
-	link.appendChild(document.createTextNode("X"));
-	return false;
-}
-
-function createNewArg(index, args) {
-	var label = document.createElement("label");
-	var input = document.createElement("input");
-	var link = document.createElement("a");
-	var addbutton = document.getElementById("addbutton");
-	nominateArg(label, input, link, index);
-	args.insertBefore(label, addbutton);
-	args.insertBefore(input, addbutton);
-	args.insertBefore(link, addbutton);
-	return false;
-}
-
-function consolidateArg(refIndex, args) {
-	var index = parseInt(refIndex.substring(refIndex.lastIndexOf("_") + 1));
-	var inputs = args.getElementsByTagName("input");
-	for (var int = index + 1; int < inputs.length + 1 && inputs.length > 0; int++) {
-		var label = document.getElementById("arg_" + int + "_label");
-		var input = document.getElementById("arg_" + int + "_input");
-		var link = document.getElementById("arg_" + int);
-		label.removeChild(label.lastChild);
-		link.removeChild(link.lastChild);
-		nominateArg(label, input, link, int - 1);
-	}
-	return false;
-}
-
-function checkProcessing(message) {
-	if (parseInt($("#TaskInProcess").text(), 0) == 0)
-		return true;
-	return confirm(message);
-}
-
-function removeArg(index) {
-	var args = document.getElementById("args");
-	args.removeChild(document.getElementById(index));
-	args.removeChild(document.getElementById(index + "_input"));
-	args.removeChild(document.getElementById(index + "_label"));
-	consolidateArg(index, args);
-	return false;
-}
-
-function addArg() {
-	var args = document.getElementById("args");
-	if (args != null) {
-		var inputs = args.getElementsByTagName("input");
-		if (inputs == null || inputs.length == 0)
-			return createNewArg(0, args);
-		else
-			return createNewArg(inputs.length, args);
-	}
-	return false;
-}
-
 function createLeftContent() {
 	if (document.getElementById("content_side_left") == null) {
 		var leftContent = document.createElement("div");
@@ -125,67 +58,16 @@ function createLeftContent() {
 	return true;
 }
 
-function cancelTask(taskId){
+function cancelTask(taskId) {
 	$.ajax({
 		url : context + "/Task/Stop/" + taskId,
 		async : true,
 		contentType : "application/json",
 		success : function(reponse) {
 			Alert(reponse);
-			$("#task_"+taskId).remove();
+			$("#task_" + taskId).remove();
 		}
 	});
-}
-
-function updateTaskStatus(taskId) {
-	$.ajax({
-		url : context + "/Task/Status/" + taskId,
-		async : true,
-		contentType : "application/json",
-		success : function(reponse) {
-			if (reponse == null)
-				return false;
-			if (!$("#task_" + taskId).length) {
-				var div = document.createElement("div");
-				if (reponse[0] < 4)
-					div.setAttribute("class", "error");
-				else
-					div.setAttribute("class", "success");
-				div.setAttribute("id", "task_" + taskId);
-				var linkRemove = document.createElement("a");
-				linkRemove.setAttribute("class", "commandes");
-				linkRemove.setAttribute("onclick", "return cancelTask('task_"
-						+ taskId + "');");
-				linkRemove.setAttribute("href", "#");
-				linkRemove.appendChild(document.createTextNode("X"));
-				div.appendChild(linkRemove);
-				var content = document.getElementById("content");
-				if (content == null)
-					return;
-				content.insertBefore(div, content.firstChild);
-			}
-			if(reponse[1]!=null)
-				$("#task_" + taskId).text(reponse[1]);
-			if (reponse[0] ==4)
-				setTimeout("updateTaskStatus('" + taskId + "');", 2000);
-			return true;
-		}
-	});
-}
-
-function updateTask() {
-	$.ajax({
-		url : context + "/Task/InProcessing",
-		async : true,
-		contentType : "application/json",
-		success : function(reponse) {
-			if (reponse == null)
-				return false;
-			for (var int = 0; int < reponse.length; int++)
-				updateTaskStatus(reponse[int]);
-		}
-	});
-	return false;
 }
 
 function refraichContentSideLeft() {
@@ -250,54 +132,135 @@ function openLinkWithReferer(url, referer, refraich) {
 	return false;
 }
 
-function createProgressbar(completeText, waittingText, labeltext) {
-	var dialog = $("#progressbar-dialog").dialog(
-			{
-				closeOnEscape : false,
-				modal : true,
-				open : function(event, ui) {
-					$(this).parent().children().children(
-							'.ui-dialog-titlebar-close').hide();
-				}
-			});
-	var progressbar = $("#progressbar"), progressLabel = $(".progress-label");
-	progressbar.progressbar({
-		value : false,
-		change : function() {
-			progressLabel.text(labeltext + progressbar.progressbar("value")
-					+ "%");
+function TaskManager() {
+	this.tasks = [];
+	this.view = null;
+	this.progressBars = [];
 
-		},
-		complete : function() {
-			progressLabel.text(completeText);
-			var buttons = {
-				Close : {
-					text : $("#dialog_button_close").text(),
-					click : function() {
-						$(this).dialog("close");
+	TaskManager.prototype.Start = function() {
+		var instance = this;
+		setTimeout(function() {
+			instance.UpdateTaskCount();
+		}, 1000);
+	};
+
+	TaskManager.prototype.createView = function() {
+		var div = document.getElementById("tasks");
+		if (div == null) {
+			div = document.createElement("div");
+			div.setAttribute("id", "tasks");
+			div.setAttribute("title", "Tasks");
+			var content = document.getElementById("content");
+			content.insertBefore(div, content.firstChild);
+		}
+		;
+		this.view = $("#tasks").dialog();
+	};
+
+	TaskManager.prototype.Show = function() {
+		if (this.view == null)
+			this.createView();
+		this.view.show();
+	};
+	TaskManager.prototype.UpdateTaskCount = function() {
+		var instance = this;
+		$.ajax({
+			url : context + "/Task/InProcessing",
+			async : true,
+			contentType : "application/json",
+			success : function(reponse) {
+				if (reponse == null || reponse == "")
+					return false;
+				else if (reponse.length)
+					instance.Show();
+				for (var int = 0; int < reponse.length; int++) {
+					if (!(reponse[int] in instance.tasks)) {
+						instance.tasks.push(reponse[int]);
+						instance.UpdateStatus(reponse[int]);
 					}
 				}
-			};
-			$("#progressbar-dialog").dialog('option', 'buttons', buttons);
-			setTimeout("$('#progressbar-dialog').dialog('close')", 15000);
-		}
-	});
-	progressLabel.text(waittingText);
-	dialog.dialog('option', 'buttons', null);
-	dialog
-			.dialog('option', 'title', $('#label_dialog_waiting_indexing')
-					.text());
-	dialog.show();
-	return progressbar;
-}
+			}
+		});
+/*
+		setTimeout(function() {
+			instance.UpdateTaskCount();
+		}, 10000);*/
+		return false;
+	};
 
-function progress(progressbar, steep) {
-	var val = progressbar.progressbar("value") || 0;
-	if ((100 - (val + steep)) < val)
-		progressbar.progressbar("value", 100);
-	else
-		progressbar.progressbar("value", val + steep);
-}
+	TaskManager.prototype.createProgressBar = function(taskId) {
+		if (!$("#" + taskId + "-progress-bar").length) {
+			div = document.createElement("div");
+			div.setAttribute("id", taskId + "-progress-bar");
+			div.setAttribute("class", "ui-progressbar");
+			label = document.createElement("div");
+			label.setAttribute("id", taskId + "-progress-label");
+			label.setAttribute("class", "progress-label");
+			div.appendChild(label);
+			task = document.getElementById("task_" + taskId);
+			task.insertBefore(div, task.firstChild);
+		}
+		var progressbar = $("#" + taskId + "-progress-bar"), progressLabel = $("#"
+				+ taskId + "-progress-label");
+		progressbar.progressbar({
+			value : false,
+			change : function() {
+				progressLabel.text(progressbar.progressbar("value") + "%");
+			},
+			complete : function() {
+				progressLabel.text("Complete!");
+			}
+		});
+		return progressbar;
+	};
+
+	TaskManager.prototype.UpdateStatus = function(taskId) {
+		if (!$.isNumeric(taskId))
+			return;
+		var instance = this;
+		$.ajax({
+			url : context + "/Task/Status/" + taskId,
+			async : true,
+			contentType : "application/json",
+			success : function(reponse) {
+				if (reponse == null)
+					return false;
+				if (!$("#task_" + taskId).length) {
+					var div = document.createElement("div");
+					div.setAttribute("id", "task_" + taskId);
+					var linkRemove = document.createElement("a");
+					linkRemove.setAttribute("class", "ui-button");
+					linkRemove.setAttribute("onclick", "return cancelTask('"
+							+ taskId + "');");
+					linkRemove.setAttribute("href", "#");
+					linkRemove.appendChild(document.createTextNode("X"));
+					var text = document.createElement("label");
+					text.setAttribute("class", "ui-widget");
+					div.appendChild(text);
+					div.appendChild(linkRemove);
+					var tasks = document.getElementById("tasks");
+					if (tasks == null)
+						return;
+					tasks.insertBefore(div, tasks.firstChild);
+					instance.progressBars[taskId] = instance
+							.createProgressBar(taskId);
+				}
+				if (reponse.message != null) {
+					$("#task_" + taskId + ">label").text(reponse.message);
+					instance.progressBars[taskId].progressbar("value",
+							reponse.progress);
+				}
+				if (reponse.flag < 5) {
+					setTimeout(function() {
+						instance.UpdateStatus(taskId);
+					}, reponse.flag == 4 ? 250 : 500);
+				} else
+					openLink(context + "/Analysis/Display");
+				return true;
+			}
+		});
+	};
+};
 
 function post(url, data, refraich) {
 	$.ajax({
@@ -337,3 +300,128 @@ function addNewRole(id) {
 	});
 	return false;
 }
+
+function saveField(element, controller, id, field) {
+	if ($(element).prop("value") != $(element).prop("placeholder")) {
+		
+		var value = $(element).prop("value");
+		
+		$.ajax({
+			url : context + "/" + controller + "/editField",
+			type : "post",
+			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":'
+					+ $(element).prop("value") + '}',
+			contentType : "application/json",
+			success : function(response) {
+				if (response == "" || response ==null) {
+					var parent = $(element).parent();
+					parent.text();
+					return false;
+				}
+				alert(response);
+				return true;
+			},
+		error: function(jqXHR, textStatus, errorThrown) {
+	        console.log(textStatus);
+	        console.log(errorThrown);
+	        console.log(jqXHR);
+	    },
+		});
+	} else {
+		var parent = $(element).parent();
+		parent.text($(element).prop("value"));
+		return false;
+	}
+}
+
+function editField(element, controller, id, field) {
+	if ($(element).find("input").length)
+		return;
+	var content = element.innerHTML;
+	var input = document.createElement("input");
+	input.setAttribute("value", content);
+	input.setAttribute("class", "form-control");
+	input.setAttribute("placeholder", content);
+	input.setAttribute("onblur", "return saveField(this,'" + controller + "','"
+			+ id + "','" + field + "')");
+	if (element.firstChild != null)
+		element.replaceChild(input, element.firstChild);
+	else
+		element.appendChild(input);
+	$(input).focus();
+}
+
+!function($) {
+	$(function() {
+		var $window = $(window)
+		var $body = $(document.body)
+		var $sideBar = $('.bs-sidebar')
+		var navHeight = $('.navbar').outerHeight(true) + 10
+
+		$body.scrollspy({
+			target : '.bs-sidebar',
+			offset : navHeight
+		})
+
+		$('.bs-container [href=#]').click(function(e) {
+			e.preventDefault()
+		})
+
+		$window.on('resize', function() {
+			$body.scrollspy('refresh')
+			// We were resized. Check the position of the nav box
+			$sideBar.affix('checkPosition')
+		})
+
+		$window.on('load', function() {
+			$body.scrollspy('refresh')
+			$('.bs-top').affix();
+			$sideBar.affix({
+				offset : {
+					top : function() {
+						var offsetTop = $sideBar.offset().top
+						var sideBarMargin = parseInt($sideBar.children(0).css(
+								'margin-top'), 10)
+						var navOuterHeight = $('.bs-docs-nav').height()
+
+						// We can cache the height of the header (hence the
+						// this.top=)
+						// This function will never be called again.
+						return (this.top = offsetTop - navOuterHeight
+								- sideBarMargin);
+					},
+					bottom : function() {
+						// We can't cache the height of the footer, since it
+						// could change
+						// when the window is resized. This function will be
+						// called every
+						// time the window is scrolled or resized
+						return $('.bs-footer').outerHeight(true)
+					}
+				}
+			})
+			setTimeout(function() {
+				// Check the position of the nav box ASAP
+				$sideBar.affix('checkPosition')
+			}, 10);
+			setTimeout(function() {
+				// Check it again after a while (required for IE)
+				$sideBar.affix('checkPosition')
+			}, 100);
+		});
+
+		// tooltip demo
+		$('.tooltip-demo').tooltip({
+			selector : "[data-toggle=tooltip]",
+			container : "body"
+		})
+
+		$('.tooltip-test').tooltip()
+		$('.popover-test').popover()
+
+		$('.bs-docs-navbar').tooltip({
+			selector : "a[data-toggle=tooltip]",
+			container : ".bs-docs-navbar .nav"
+		})
+	})
+}(window.jQuery)

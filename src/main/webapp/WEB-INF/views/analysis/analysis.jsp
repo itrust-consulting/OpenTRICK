@@ -2,7 +2,10 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec"	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib prefix="sec"
+	uri="http://www.springframework.org/security/tags"%>
+<spring:htmlEscape defaultHtmlEscape="true" />
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
@@ -21,96 +24,122 @@
 <!-- ################################################################# Start Container ############################################################## -->
 
 <body>
-<div class="container">
+	<div class="container">
 
-<!-- ################################################################### Nav Menu ################################################################### -->
+		<!-- ################################################################### Nav Menu ################################################################### -->
 
-<jsp:include page="../menu.jsp" />
+		<jsp:include page="../menu.jsp" />
 
-<!-- #################################################################### Content ################################################################### -->
+		<jsp:include page="../successErrors.jsp" />
+		<!-- #################################################################### Content ################################################################### -->
 
-	<div class="content" id="content">
-	
-<!-- #################################################################### Analysis Menu ################################################################### -->		
-	
-		<c:if test="${sessionScope.selectedAnalysis != null}">
-			<c:if test="${sessionScope.selectedAnalysis > 0 }">
+
+		<div class="row">
+			<div class="page-header">
+
+				<c:choose>
+					<c:when test="${!empty(analyses) }">
+						<h1>
+							<spring:message code="label.analysis.title" />
+						</h1>
+					</c:when>
+					<c:when test="${!empty(analysis) }">
+						<h1 title="${analysis.label}">${analysis.customer.contactPerson }
+							| ${analysis.getVersion() }</h1>
+					</c:when>
+				</c:choose>
+
+			</div>
+			<!-- #################################################################### Analysis Menu ################################################################### -->
+
+			<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 				<jsp:include page="analysisMenu.jsp" />
+				<div class="content col-md-9" id="content" role="main">
+					<jsp:include page="./analysisComponent/history.jsp" />
+					<jsp:include page="./analysisComponent/itemInformation.jsp" />
+					<jsp:include page="./analysisComponent/parameter.jsp" />
+				</div>
 			</c:if>
-		</c:if>
-	
-			<jsp:include page="../successErrors.jsp" />
+			<c:if
+				test="${!empty analyses and empty(sessionScope.selectedAnalysis)}">
+				<div class="table-responsive">
 
-			<h1><spring:message code="label.analysis.title" /></h1>
+					<table class="table table-bordered">
+						<thead>
+							<tr class="table-header">
+								<th><spring:message code="label.analysis.identifier" /></th>
+								<th><spring:message code="label.analysis.version" /></th>
+								<th><spring:message code="label.analysis.creationDate" /></th>
+								<th><spring:message code="label.analysis.language" /></th>
+								<th><spring:message code="label.analysis.label" /></th>
+								<th><spring:message code="label.action" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach items="${analyses}" var="analysis">
+								<tr>
+									<td>${analysis.identifier}</td>
+									<td>${analysis.version}</td>
+									<td>${analysis.creationDate}</td>
+									<td>${analysis.language.name}</td>
+									<td>${analysis.label}</td>
+									<td><a class="btn btn-primary btn-sm"
+										href="${pageContext.request.contextPath}/Analysis/${analysis.id}/Select">
+											<c:if test="${sessionScope.selectedAnalysis != null }">
+												<c:if test="${sessionScope.selectedAnalysis == analysis.id}">
+													<samp class="glyphicon glyphicon-minus"></samp>
+												</c:if>
+												<c:if test="${sessionScope.selectedAnalysis != analysis.id}">
+													<samp class="glyphicon glyphicon-pushpin"></samp>
+												</c:if>
+											</c:if> <c:if test="${sessionScope.selectedAnalysis == null }">
+												<samp class="glyphicon glyphicon-pushpin"></samp>
+											</c:if>
+									</a> <a class="btn btn-danger btn-sm"
+										href="${pageContext.request.contextPath}/Analysis/Delete/${analysis.id}"
+										title='<spring:message code="label.action.delete" />'> <samp
+												class="glyphicon glyphicon-trash"></samp>
+									</a> <a class="btn btn-warning btn-sm"
+										href="${pageContext.request.contextPath}/Analysis/Edit/${analysis.id}"
+										title='<spring:message code="label.action.edit" />'> <samp
+												class="glyphicon glyphicon-edit"></samp>
+									</a> <c:choose>
+											<c:when test="${!analysis.isEmpty()}">
+												<a class="btn btn-success btn-sm"
+													href="${pageContext.request.contextPath}/export/analysis/${analysis.id}"
+													title='<spring:message code="label.action.export" />'><samp
+														class="glyphicon glyphicon-floppy-open"></samp></a>
+												<a class="btn btn-default btn-sm"
+													href="${pageContext.request.contextPath}/analysis/${analysis.id}/compute/actionPlan"
+													title='<spring:message code="label.action.compute.actionPlan" />'>
+													<samp class="glyphicon glyphicon-play"></samp>
+												</a>
 
-			<c:if test="${!empty analyses}">
-				<table class="data" border="1">
-					<tr>
-						<th><spring:message code="label.analysis.identifier" /></th>
-						<th><spring:message code="label.analysis.version" /></th>
-						<th><spring:message code="label.analysis.creationDate" /></th>
-						<th><spring:message code="label.analysis.language" /></th>
-						<th><spring:message code="label.analysis.label" /></th>
-						<th><spring:message code="label.action" /></th>
-					</tr>
-					<c:forEach items="${analyses}" var="analysis">
-						<tr>
-							<td>${analysis.identifier}</td>
-							<td>${analysis.version}</td>
-							<td>${analysis.creationDate}</td>
-							<td>${analysis.language.name}</td>
-							<td>${analysis.label}</td>
-							<td>
-								<a href="${pageContext.request.contextPath}/Analysis/${analysis.id}/Select">
-									<c:if test="${sessionScope.selectedAnalysis != null }">
-										<c:if test="${sessionScope.selectedAnalysis == analysis.id}">
-											Unselect
-										</c:if>
-										<c:if test="${sessionScope.selectedAnalysis != analysis.id}">
-											Select
-										</c:if>
-									</c:if>
-									<c:if test="${sessionScope.selectedAnalysis == null }">
-										Select
-									</c:if>
-								</a>
-								<a href="${pageContext.request.contextPath}/Analysis/Delete/${analysis.id}" title='<spring:message code="label.action.delete" />'>
-									<img src='<spring:url value="/images/delete.png"/>' alt='<spring:message code="label.action.delete" />' />
-								</a>
-								<a href="${pageContext.request.contextPath}/Analysis/Edit/${analysis.id}" title='<spring:message code="label.action.edit" />'> 
-									<img src='<spring:url value="/images/edit.png"/>' alt='<spring:message code="label.action.edit" />' />
-								</a> 
-								<c:choose>
-									<c:when test="${!analysis.isEmpty()}">
-										<a href="${pageContext.request.contextPath}/export/analysis/${analysis.id}" title='<spring:message code="label.action.export" />'> 
-											<img src='<spring:url value="/images/export.png"/>' alt='<spring:message code="label.action.export" />' />
-										</a>
-										<a href="${pageContext.request.contextPath}/analysis/${analysis.id}/compute/actionPlan">
-											<spring:message	code="label.action.compute.actionPlan" />
-										</a>
-
-										<a href="${pageContext.request.contextPath}/analysis/${analysis.id}/compute/riskRegister">
-											<spring:message code="label.action.compute.riskRegister" />
-										</a>
-									</c:when>
-									<c:otherwise>
+												<a class="btn btn-default btn-sm"
+													href="${pageContext.request.contextPath}/analysis/${analysis.id}/compute/riskRegister"
+													title="<spring:message code="label.action.compute.riskRegister" />">
+													<samp class="glyphicon glyphicon-play-circle"></samp>
+												</a>
+											</c:when>
+											<c:otherwise>
 										&nbsp;
 									</c:otherwise>
-								</c:choose>
-							</td>
-						</tr>
-					</c:forEach>
-				</table>
+										</c:choose></td>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
+				</div>
 			</c:if>
+			<!-- ################################################################ Include Footer ################################################################ -->
+
+		</div>
+		<jsp:include page="../footer.jsp" />
 	</div>
-		
-<!-- ################################################################ Include Footer ################################################################ -->
 
-<jsp:include page="../footer.jsp" />
+	<!-- ################################################################ End Container ################################################################# -->
 
-<!-- ################################################################ End Container ################################################################# -->
-
-</div>
+	<jsp:include page="../scripts.jsp" />
 </body>
 
 <!-- ################################################################### End HTML ################################################################### -->

@@ -1,5 +1,8 @@
 package lu.itrust.business.TS.messagehandler;
 
+import lu.itrust.business.view.model.TaskName;
+import lu.itrust.business.view.model.TaskStatus;
+
 /** 
  * MessageHandler: <br>
  * Keeps information of a result and message used as return result in methods. One can check the 
@@ -14,11 +17,17 @@ public class MessageHandler {
 	
 	private long idTask = 0;
 	
+	private TaskStatus taskStatus;
+	
+	private TaskName taskName = null;
+	
 	private String code = null;
 	
 	private Object [] parameters = null;
 	
 	private String message = null;
+	
+	private int progress = 0;
 	
 	/** The Exception */
 	
@@ -43,9 +52,10 @@ public class MessageHandler {
 	 * @param code
 	 * @param message
 	 */
-	public MessageHandler(String code, String message) {
+	public MessageHandler(String code, String message, int progress) {
 		this.code = code;
 		this.message = message;
+		this.progress = progress;
 	}
 
 	/**
@@ -148,5 +158,47 @@ public class MessageHandler {
 	 */
 	public void setIdTask(long idTask) {
 		this.idTask = idTask;
+	}
+
+	/**
+	 * @return the taskName
+	 */
+	public TaskName getTaskName() {
+		return taskName;
+	}
+
+	/**
+	 * @param taskName the taskName to set
+	 */
+	public void setTaskName(TaskName taskName) {
+		this.taskName = taskName;
+	}
+
+	/**
+	 * @return the taskStatus
+	 */
+	public TaskStatus getTaskStatus() {
+		return taskStatus;
+	}
+
+	/**
+	 * @param taskStatus the taskStatus to set
+	 */
+	public void setTaskStatus(TaskStatus taskStatus) {
+		this.taskStatus = taskStatus;
+	}
+
+	/**
+	 * @return the progress
+	 */
+	public int getProgress() {
+		return progress;
+	}
+
+	/**
+	 * @param progress the progress to set
+	 */
+	public void setProgress(int progress) {
+		this.progress = progress;
 	}
 }

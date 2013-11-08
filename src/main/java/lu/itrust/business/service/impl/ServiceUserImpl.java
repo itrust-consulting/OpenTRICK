@@ -5,9 +5,9 @@ package lu.itrust.business.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.User;
 import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.service.ServiceUser;
+import lu.itrust.business.view.model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

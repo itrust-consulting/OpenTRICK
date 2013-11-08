@@ -17,6 +17,8 @@ public interface ServiceAnalysis {
 
 	public Analysis get(int id) throws Exception;
 
+	public boolean exist(int id);
+	
 	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception;
 
 	public Analysis get(int id, String identifier, String version, Timestamp creationDate) throws Exception;
@@ -40,5 +42,7 @@ public interface ServiceAnalysis {
 	public void remove(Analysis analysis) throws Exception;
 
 	public void remove(Integer analysisId) throws Exception;
+
+	
 
 }

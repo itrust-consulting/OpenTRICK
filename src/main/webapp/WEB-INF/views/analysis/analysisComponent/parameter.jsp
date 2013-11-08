@@ -1,0 +1,208 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib prefix="sec"
+	uri="http://www.springframework.org/security/tags"%>
+<spring:htmlEscape defaultHtmlEscape="true" />
+<div class="section">
+	<div class="page-header">
+		<h3 id="parameter">
+			<spring:message code="label.parameter" text="Parameter" />
+		</h3>
+	</div>
+	<c:set scope="request" var="parametersSplited"
+		value="${analysis.SplitParameters(analysis.parameters)}" />
+	<c:set scope="request" var="simpleParameters"
+		value="${analysis.SplitSimpleParameters(parametersSplited[0])}" />
+	<c:set scope="request" var="extendedParameters"
+		value="${analysis.SplitExtendedParameters(parametersSplited[1])}" />
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<spring:message code="label.parameter.simple.various"
+						text="Various parameters" />
+				</div>
+				<div class="panel-body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th><spring:message
+										code="label.parameter.simple.internal_setup"
+										text="Internal setup" /></th>
+								<th><spring:message
+										code="label.parameter.simple.external_setup"
+										text="External setup" /></th>
+								<th><spring:message
+										code="label.parameter.simple.default_life_time"
+										text="Default lifetime" /></th>
+								<th><spring:message
+										code="label.parameter.simple.default_maintenance"
+										text="Default maintenance" /></th>
+								<th><spring:message code="label.parameter.simple.tuning"
+										text="Tunning" /></th>
+								<th><spring:message code="label.parameter.simple.soa"
+										text="SOA" /></th>
+								<th><spring:message
+										code="label.parameter.simple.mandatory_phase"
+										text="Mandatory phase" /></th>
+								<th><spring:message
+										code="label.parameter.simple.importance_threshold"
+										text="Importance threshold" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<c:forEach var="index" begin="0" end="7">
+									<td>${simpleParameters[0].size() >index ? simpleParameters[0].get(index).value : '0.0'}
+									</td>
+								</c:forEach>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<spring:message code="label.parameter.extended.impact"
+						text="Impact of thread" />
+				</div>
+				<div class="panel-body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th><spring:message code="label.parameter.level"
+										text="Level" /></th>
+								<th><spring:message code="label.parameter.acronym"
+										text="Acronym" /></th>
+								<th><spring:message code="label.parameter.qualification"
+										text="Qualification" /></th>
+								<th><spring:message code="label.parameter.value"
+										text="Value" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach items="${extendedParameters[0]}" var="parameter"
+								varStatus="status">
+								<tr>
+									<!--<td>${itemInformation.id}</td>-->
+									<td>${status.index}</td>
+									<td>${parameter.acronym}</td>
+									<td>${parameter.description}</td>
+									<td>${parameter.value*0.001}k&euro;</td>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<spring:message code="label.parameter.extended.probability"
+						text="Probability of threat occurence" />
+				</div>
+				<div class="panel-body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th><spring:message code="label.parameter.level"
+										text="Level" /></th>
+								<th><spring:message code="label.parameter.acronym"
+										text="Acronym" /></th>
+								<th><spring:message code="label.parameter.qualification"
+										text="Qualification" /></th>
+								<th><spring:message code="label.parameter.value"
+										text="Value" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach items="${extendedParameters[1]}" var="parameter"
+								varStatus="status">
+								<tr>
+									<!--<td>${itemInformation.id}</td>-->
+									<td>${status.index}</td>
+									<td>${parameter.acronym}</td>
+									<td>${parameter.description}</td>
+									<td><fmt:formatNumber value="${parameter.value}"
+											maxFractionDigits="3" minFractionDigits="1" /> /y</td>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<spring:message code="label.parameter.simple.smt"
+						text="Implementation scale of SMT" />
+				</div>
+				<div class="panel-body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th><spring:message code="label.parameter.Level"
+										text="Level" /></th>
+								<th><spring:message code="label.parameter.percentage"
+										text="Implementation" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach items="${simpleParameters[2]}" var="parameter">
+								<tr>
+									<!--<td>${itemInformation.id}</td>-->
+									<td><spring:message
+											code="label.parameter.simple.smt.level_${parameter.description}"
+											text="${parameter.description}" /></td>
+									<td>${parameter.value}%</td>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<spring:message code="label.parameter.simple.maturity_level"
+						text="Maximal efficiency rate per security maturity level" />
+				</div>
+				<div class="panel-body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th><spring:message code="label.parameter.simple.sml0"
+										text="SML0" /></th>
+								<th><spring:message code="label.parameter.simple.sml1"
+										text="SML1" /></th>
+								<th><spring:message code="label.parameter.simple.sml2"
+										text="SML2" /></th>
+								<th><spring:message code="label.parameter.simple.sml3"
+										text="SML3" /></th>
+								<th><spring:message code="label.parameter.simple.sml4"
+										text="SML4" /></th>
+								<th><spring:message code="label.parameter.simple.sml5"
+										text="SML5" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<c:forEach items="${simpleParameters[1]}" var="parameter">
+									<td>${parameter.value}%</td>
+								</c:forEach>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

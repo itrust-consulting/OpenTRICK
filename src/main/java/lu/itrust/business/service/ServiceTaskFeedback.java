@@ -15,6 +15,10 @@ public interface ServiceTaskFeedback {
 	
 	boolean taskExist(long id);
 	
+	boolean hasMessage(long id);
+	
+	int messageCount(long id);
+	
 	boolean userHasTask(String userName);
 	
 	boolean hasTask(String userName, long id);

@@ -42,53 +42,49 @@
 			<one-to-many class="ItemInformation" />
 		</bag>
 		
-		
-		
 		<bag name="riskRegisters" table="RiskRegisterItem" cascade="all">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="lu.itrust.business.TS.cssf.RiskRegisterItem" />
 		</bag>
-		
-		
-
+	
 		<bag name="summaries" table="actionplansummary" cascade="all">
 			<key column="fiAnalysis" not-null="true"  />
 			<one-to-many class="lu.itrust.business.TS.actionplan.SummaryStage" />
 		</bag>
 
-		<bag name="actionPlans" table="actionplan" cascade="all">
+		<bag name="actionPlans" table="actionplan" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="lu.itrust.business.TS.actionplan.ActionPlanEntry" />
 		</bag>
 
 
-		<bag name="assessments" table="assessment" cascade="all" lazy="false">
+		<bag name="assessments" table="assessment" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Assessment" />
 		</bag>
 
-<bag name="scenarios" table="scenario" cascade="all" lazy="false" >
+<bag name="scenarios" table="scenario" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Scenario" />
 		</bag>
 
 		<bag name="analysisNorms" table="analysisNorm" cascade="all"
-			inverse="true"  lazy="false" >
+			inverse="true" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="AnalysisNorm" />
 		</bag>
 
-		<bag name="usedPhases" table="phase" cascade="all" inverse="true"  lazy="false" >
+		<bag name="usedPhases" table="phase" cascade="all" inverse="true" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Phase" />
 		</bag>
 		
-		<bag name="parameters" table="parameter" cascade="all"   lazy="false" >
+		<bag name="parameters" table="parameter" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Parameter" />
 		</bag>
 		
-		<bag name="assets" table="asset" cascade="all"   lazy="false" >
+		<bag name="assets" table="asset" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Asset" />
 		</bag>

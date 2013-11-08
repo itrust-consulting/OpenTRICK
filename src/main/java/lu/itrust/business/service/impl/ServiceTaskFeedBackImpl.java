@@ -38,7 +38,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	@Override
 	public void send(MessageHandler handler) {
 		Queue<MessageHandler> queue = messageHandlers.get(handler.getIdTask());
-		if(queue == null)
+		if (queue == null)
 			return;
 		queue.add(handler);
 	}
@@ -52,7 +52,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	@Override
 	public void send(long id, MessageHandler handler) {
 		Queue<MessageHandler> queue = messageHandlers.get(id);
-		if(queue == null)
+		if (queue == null)
 			return;
 		queue.add(handler);
 	}
@@ -79,7 +79,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	@Override
 	public MessageHandler recive(long id) {
 		Queue<MessageHandler> queue = messageHandlers.get(id);
-		if(queue == null || queue.isEmpty())
+		if (queue == null || queue.isEmpty())
 			return null;
 		return queue.poll();
 	}
@@ -123,7 +123,8 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param messageHandlers
 	 *            the messageHandlers to set
 	 */
-	protected void setMessageHandlers(Map<Long, Queue<MessageHandler>> messageHandlers) {
+	protected void setMessageHandlers(
+			Map<Long, Queue<MessageHandler>> messageHandlers) {
 		this.messageHandlers = messageHandlers;
 	}
 
@@ -168,7 +169,8 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		tasks.remove(id);
 		if (tasks.isEmpty())
 			userTasks.remove(userName);
-		if(messageHandlers.containsKey(id) && !messageHandlers.get(id).isEmpty())
+		if (messageHandlers.containsKey(id)
+				&& !messageHandlers.get(id).isEmpty())
 			messageHandlers.get(id).clear();
 		messageHandlers.remove(id);
 	}
@@ -198,4 +200,15 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		return false;
 	}
 
+	@Override
+	public boolean hasMessage(long id) {
+		Queue<MessageHandler> queue = messageHandlers.get(id);
+		return queue != null && !queue.isEmpty();
+	}
+
+	@Override
+	public int messageCount(long id) {
+		Queue<MessageHandler> queue = messageHandlers.get(id);
+		return queue == null ? 0 : queue.size();
+	}
 }

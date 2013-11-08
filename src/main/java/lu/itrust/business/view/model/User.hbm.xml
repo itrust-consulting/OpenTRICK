@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 12, 2013 5:51:35 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.view.model">
+ <class name="User" table="user">
+  <id name="id" type="long" unsaved-value="-1">
+   <column name="idUser"/>
+   <generator class="increment"/>
+  </id>
+  <property generated="never" lazy="false" name="login" type="java.lang.String">
+   <column name="dtLogin"/>
+  </property>
+  <property generated="never" lazy="false" name="password" type="java.lang.String">
+   <column name="dtPassword"/>
+  </property>
+  <property generated="never" lazy="false" name="firstName" type="java.lang.String">
+   <column name="dtFirstName"/>
+  </property>
+  <property generated="never" lazy="false" name="lastName" type="java.lang.String">
+   <column name="dtLastName"/>
+  </property>
+  <property generated="never" lazy="false" name="email" type="java.lang.String">
+   <column name="dtEmail"/>
+  </property>
+  <property generated="never" lazy="false" name="enable" type="boolean">
+   <column name="dtEnable"/>
+  </property>
+  <bag cascade="all" name="roles" table="userRole">
+   <key column="idUser" not-null="true"/>
+   <many-to-many class="Role" column="idRole" unique="false"/>
+  </bag>
+ </class>
+</hibernate-mapping>

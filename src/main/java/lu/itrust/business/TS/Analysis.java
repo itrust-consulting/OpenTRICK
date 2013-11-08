@@ -403,10 +403,12 @@ public class Analysis implements Serializable {
 
 		// check if properties and scenario are not null to avoid failures
 		if (properties == null)
-			throw new IllegalArgumentException("error.rrf.compute.properties_null");
-		
-		if(scenario == null)
-			throw new IllegalArgumentException("error.rrf.compute.scenario_null");
+			throw new IllegalArgumentException(
+					"error.rrf.compute.properties_null");
+
+		if (scenario == null)
+			throw new IllegalArgumentException(
+					"error.rrf.compute.scenario_null");
 
 		// **************************************************************
 		// * intialise variables
@@ -433,7 +435,8 @@ public class Analysis implements Serializable {
 
 		// check if not Division by 0
 		if (categoryDenominator == 0) {
-			throw new ArithmeticException("error.rrf.compute.arithmetic_denominator_zero");
+			throw new ArithmeticException(
+					"error.rrf.compute.arithmetic_denominator_zero");
 		}
 
 		// **************************************************************
@@ -1755,6 +1758,73 @@ public class Analysis implements Serializable {
 			}
 		}
 		return ape;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Parameter>[] SplitParameters(List<Parameter> parameters) {
+		List<?>[] splits = new List<?>[3];
+		splits[0] = new ArrayList<Parameter>();
+		splits[1] = new ArrayList<ExtendedParameter>();
+		splits[2] = new ArrayList<MaturityParameter>();
+		for (Parameter parameter : parameters) {
+			if (parameter instanceof ExtendedParameter)
+				((List<ExtendedParameter>) splits[1])
+						.add((ExtendedParameter) parameter);
+			else if (parameter instanceof MaturityParameter)
+				((List<MaturityParameter>) splits[2])
+						.add((MaturityParameter) parameter);
+			else
+				((List<Parameter>) splits[0]).add(parameter);
+		}
+		return (List<Parameter>[]) splits;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Parameter>[] SplitSimpleParameters(
+			List<Parameter> parameters) {
+		List<?>[] splits = new List<?>[3];
+		splits[0] = new ArrayList<Parameter>();
+		splits[1] = new ArrayList<ExtendedParameter>();
+		splits[2] = new ArrayList<MaturityParameter>();
+		for (Parameter parameter : parameters) {
+			if (parameter.getType().getLabel().equals("SINGLE"))
+				((List<Parameter>) splits[0]).add(parameter);
+			else if (parameter.getType().getLabel().equals("MAXEFF"))
+				((List<Parameter>) splits[1]).add(parameter);
+			else
+				((List<Parameter>) splits[2]).add(parameter);
+		}
+		return (List<Parameter>[]) splits;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Parameter>[] SplitExtendedParameters(
+			List<Parameter> parameters) {
+		List<?>[] splits = new List<?>[2];
+		splits[0] = new ArrayList<Parameter>();
+		splits[1] = new ArrayList<ExtendedParameter>();
+		for (Parameter parameter : parameters) {
+			if (parameter.getType().getLabel().equals("IMPACT"))
+				((List<Parameter>) splits[0]).add(parameter);
+			else
+				((List<Parameter>) splits[1]).add(parameter);
+		}
+		return (List<Parameter>[]) splits;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<ItemInformation>[] SplitItemInformations(
+			List<ItemInformation> itemInformations) {
+		List<?>[] splits = new List<?>[2];
+		splits[0] = new ArrayList<ItemInformation>();
+		splits[1] = new ArrayList<ItemInformation>();
+		for (ItemInformation itemInformation : itemInformations) {
+			if (itemInformation.getType().equalsIgnoreCase("scope"))
+				((List<ItemInformation>) splits[0]).add(itemInformation);
+			else
+				((List<ItemInformation>) splits[1]).add(itemInformation);
+		}
+		return (List<ItemInformation>[]) splits;
 	}
 
 	/**

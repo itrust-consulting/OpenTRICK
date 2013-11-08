@@ -156,4 +156,10 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 		return daoAnalysis.loadAllNotEmpty();
 	}
 
+	@Override
+	public boolean exist(int id) {
+
+		return daoAnalysis.exist(id);
+	}
+
 }

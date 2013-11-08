@@ -2,7 +2,8 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec"	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec"
+	uri="http://www.springframework.org/security/tags"%>
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
@@ -19,68 +20,74 @@
 <!-- ################################################################# Start Container ############################################################## -->
 
 <body>
-<div class="container">
-
-<!-- #################################################################### Content ################################################################### -->
-
-<div class="content" id="content">
-
-	<h1><spring:message code="title.user.register" /></h1>
-	<a href="../login"><spring:message code="menu.navigate.back" /></a>
-	<form:errors cssClass="error" element="div" />
-	<form:form method="post" action="${pageContext.request.contextPath}/user/save"	commandName="user">
-		<spring:hasBindErrors name="*" />
-		<table>
-			<tr>
-				<td><form:label path="login">
+	<div class="container">
+		<div  style="margin: 0 auto; max-width:500px; padding: 15px;">
+			<h2 class="form-signin-heading">
+				<spring:message code="title.user.register" />
+			</h2>
+			<a class="navbar-link pull-right" href="../login" style="margin-top: -35px;"><spring:message code="menu.navigate.back" /></a>
+			<form:form cssClass="form-horizontal"
+				method="post" action="${pageContext.request.contextPath}/user/save"
+				commandName="user">
+				<div class="form-group">
+					<form:label path="login" cssClass="col-sm-2 control-label">
 						<spring:message code="label.user.login" />
-					</form:label></td>
-				<td><form:input path="login" /></td>
-				<form:errors path="login" cssClass="error" element="td" />
-			</tr>
-			<tr>
-				<td><form:label path="password">
+					</form:label>
+					<div class="col-sm-10">
+						<form:input path="login" cssClass="form-control" />
+						<form:errors path="login" cssClass="label label-danger" element="span" />
+					</div>
+				</div>
+				<div class="form-group">
+					<form:label path="password" cssClass="col-sm-2 control-label">
 						<spring:message code="label.user.password" />
-					</form:label></td>
-				<td><form:password path="password" /></td>
-				<form:errors path="password" cssClass="error" element="td" />
-			</tr>
-			<tr>
-				<td><form:label path="firstName">
+					</form:label>
+					<div class="col-sm-10">
+						<form:password path="password" cssClass="form-control" />
+						<form:errors path="password" cssClass="label label-danger" element="span" />
+					</div>
+				</div>
+				<div class="form-group">
+					<form:label path="firstName" cssClass="col-sm-2 control-label">
 						<spring:message code="label.user.firstName" />
-					</form:label></td>
-				<td><form:input path="firstName" /></td>
-				<form:errors path="firstName" cssClass="error" element="td" />
-			</tr>
-			<tr>
-				<td><form:label path="lastName">
+					</form:label>
+					<div class="col-sm-10">
+						<form:input path="firstName" cssClass="form-control" />
+						<form:errors path="firstName" cssClass="label label-danger" element="span" />
+					</div>
+				</div>
+				<div class="form-group">
+					<form:label path="lastName" cssClass="col-sm-2 control-label">
 						<spring:message code="label.user.lastName" />
-					</form:label></td>
-				<td><form:input path="lastName" /></td>
-				<form:errors path="lastName" cssClass="error" element="td" />
-			</tr>
-			<tr>
-				<td><form:label path="email">
+					</form:label>
+					<div class="col-sm-10">
+						<form:input path="lastName" cssClass="form-control" />
+						<form:errors path="lastName" cssClass="label label-danger" element="span" />
+					</div>
+				</div>
+				<div class="form-group">
+					<form:label path="email" cssClass="col-sm-2 control-label">
 						<spring:message code="label.user.email" />
-					</form:label></td>
-				<td><form:input path="email" /></td>
-				<form:errors path="email" cssClass="error" element="td" />
-			</tr>
-			<tr>
-				<td colspan="2"><input type="submit"
-					value="<spring:message code="label.user.submit"/>" /></td>
-			</tr>
-		</table>
-	</form:form>
-</div>
-		
-<!-- ################################################################ Include Footer ################################################################ -->
+					</form:label>
+					<div class="col-sm-10">
+						<form:input path="email" cssClass="form-control" />
+						<form:errors path="email" cssClass="label label-danger" element="span" />
+					</div>
+				</div>
+				<button class="btn btn-default navbar-btn" type="submit">
+					<spring:message code="label.user.submit" />
+				</button>
+			</form:form>
+		</div>
 
-<jsp:include page="footer.jsp" />
+		<!-- ################################################################ Include Footer ################################################################ -->
+		<jsp:include page="footer.jsp" />
 
-<!-- ################################################################ End Container ################################################################# -->
+	</div>
 
-</div>
+	<!-- ################################################################ End Container ################################################################# -->
+
+	<jsp:include page="scripts.jsp" />
 </body>
 
 <!-- ################################################################### End HTML ################################################################### -->

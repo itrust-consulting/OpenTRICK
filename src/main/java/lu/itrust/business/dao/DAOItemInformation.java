@@ -2,7 +2,6 @@ package lu.itrust.business.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.ItemInformation;
 
 /** 
@@ -17,8 +16,6 @@ public interface DAOItemInformation {
 	public ItemInformation get(int id) throws Exception;
 	
 	public ItemInformation loadFromDescription(String description) throws Exception;
-	
-	public List<ItemInformation> loadAllFromAnalysis(Analysis analysis) throws Exception;
 	
 	public List<ItemInformation> loadAllFromAnalysisID(int analysisID) throws Exception;
 	

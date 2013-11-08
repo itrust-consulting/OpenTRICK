@@ -30,5 +30,6 @@
 		</div>
 		<div class="footer"><jsp:include page="../footer.jsp" /></div>
 	</div>
+	<jsp:include page="../scripts.jsp" />
 </body>
 </html>

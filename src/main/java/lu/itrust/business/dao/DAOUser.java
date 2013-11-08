@@ -5,7 +5,7 @@ package lu.itrust.business.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.User;
+import lu.itrust.business.view.model.User;
 
 /**
  * @author oensuifudine

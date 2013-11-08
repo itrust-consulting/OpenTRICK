@@ -5,8 +5,8 @@ package lu.itrust.business.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.Role;
-import lu.itrust.business.TS.User;
+import lu.itrust.business.view.model.Role;
+import lu.itrust.business.view.model.User;
 
 /**
  * @author oensuifudine

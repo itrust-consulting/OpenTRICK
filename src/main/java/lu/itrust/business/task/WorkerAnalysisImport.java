@@ -112,29 +112,25 @@ public class WorkerAnalysisImport implements Worker {
 	 */
 	@Override
 	public void cancel() {
-		synchronized (this) {
-			try {
+		try {
+			synchronized (this) {
 				if (working) {
 					Thread.currentThread().interrupt();
 					canceled = true;
 				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				error = e;
-			} finally {
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			error = e;
+		} finally {
+			synchronized (this) {
 				working = false;
 				File file = new File(fileName);
 				if (file.exists())
 					file.delete();
-				try {
-					Thread.sleep(30000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}finally{
-					if (poolManager != null)
-						poolManager.remove(getId());
-				}
 			}
+			if (poolManager != null)
+				poolManager.remove(getId());
 		}
 	}
 
@@ -202,23 +198,16 @@ public class WorkerAnalysisImport implements Worker {
 			importAnalysis.setDatabaseHandler(DatabaseHandler);
 			importAnalysis.ImportAnAnalysis();
 		} catch (Exception e) {
-			e.printStackTrace();
 			error = e;
 		} finally {
 			synchronized (this) {
 				working = false;
+				File file = new File(fileName);
+				if (file.exists())
+					file.delete();
 			}
-			File file = new File(fileName);
-			if (file.exists())
-				file.delete();
-			try {
-				Thread.sleep(60000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}finally{
-				if (poolManager != null)
-					poolManager.remove(getId());
-			}
+			if (poolManager != null)
+				poolManager.remove(getId());
 		}
 	}
 

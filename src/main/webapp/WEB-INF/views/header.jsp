@@ -10,20 +10,12 @@
 <title>
 	<spring:message code="${title}" text="TRICK Service" />
 </title>
-<link rel="stylesheet" href='<spring:url value="/css/jquery.css" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/main.css" />' />
-<script src="<spring:url value="/js/jquery-2.0.js" />"></script>
-<script src="<spring:url value="/js/jquery-ui.js" />"></script>
-<script src="<spring:url value="/js/dom-parser.js" />"></script>
-<script src="<spring:url value="/js/main.js" />"></script>
-<script type="text/javascript">
-	<!--
-	var context = '${pageContext.request.contextPath}';
-	-->
-	<sec:authorize ifNotGranted="ROLE_ANONYMOUS" >
-	<!--
-	updateTask();
-	-->
-	</sec:authorize>
-</script>
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.css" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.min.css" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.css" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.min.css" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.css" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.min.css" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/navigation.css" />' />
+<!--  <link rel="stylesheet" type="text/css" href='<spring:url value="/css/main.css" />' />-->
 </head>
