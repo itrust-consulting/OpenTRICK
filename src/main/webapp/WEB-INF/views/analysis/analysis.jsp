@@ -54,10 +54,11 @@
 
 			<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 				<jsp:include page="analysisMenu.jsp" />
-				<div class="content col-md-9" id="content" role="main">
+				<div class="content col-md-9" id="content" role="main" data-spy="scroll">
 					<jsp:include page="./components/history.jsp" />
 					<jsp:include page="./components/itemInformation.jsp" />
 					<jsp:include page="./components/parameter.jsp" />
+					<jsp:include page="./components/asset.jsp" />
 				</div>
 			</c:if>
 			<c:if

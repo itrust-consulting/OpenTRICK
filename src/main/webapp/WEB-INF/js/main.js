@@ -375,7 +375,7 @@ function editField(element, controller, id, field, type) {
 		var $window = $(window)
 		var $body = $(document.body)
 		var $sideBar = $('.bs-sidebar')
-		var navHeight = $('.navbar').outerHeight(true) + 10
+		var navHeight = $('.nav-tabs').outerHeight(true) + 10
 
 		$body.scrollspy({
 			target : '.bs-sidebar',
