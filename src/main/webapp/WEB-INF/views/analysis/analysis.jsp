@@ -55,9 +55,9 @@
 			<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 				<jsp:include page="analysisMenu.jsp" />
 				<div class="content col-md-9" id="content" role="main">
-					<jsp:include page="./analysisComponent/history.jsp" />
-					<jsp:include page="./analysisComponent/itemInformation.jsp" />
-					<jsp:include page="./analysisComponent/parameter.jsp" />
+					<jsp:include page="./components/history.jsp" />
+					<jsp:include page="./components/itemInformation.jsp" />
+					<jsp:include page="./components/parameter.jsp" />
 				</div>
 			</c:if>
 			<c:if

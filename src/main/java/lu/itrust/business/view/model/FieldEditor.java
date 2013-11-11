@@ -13,7 +13,9 @@ public class FieldEditor {
 	
 	private String fieldName;
 	
-	private Object value;
+	private String type;
+	
+	private String value;
 
 	/**
 	 * @return the id
@@ -32,14 +34,14 @@ public class FieldEditor {
 	/**
 	 * @return the value
 	 */
-	public Object getValue() {
+	public String getValue() {
 		return value;
 	}
 
 	/**
 	 * @param value the value to set
 	 */
-	public void setValue(Object value) {
+	public void setValue(String value) {
 		this.value = value;
 	}
 
@@ -55,6 +57,20 @@ public class FieldEditor {
 	 */
 	public void setFieldName(String fieldName) {
 		this.fieldName = fieldName;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(String type) {
+		this.type = type;
 	}
 
 }
