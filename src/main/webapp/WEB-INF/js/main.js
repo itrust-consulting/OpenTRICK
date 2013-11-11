@@ -300,48 +300,48 @@ function addNewRole(id) {
 	return false;
 }
 
-function defaultValueByType(value, type, emptySupport) {
+function defaultValueByType(value, type, protect) {
 	if (value.length == 0) {
 		if (type == "int" || type == "integer")
-			value = '0';
+			value = 0;
 		else if (type == "float")
-			value = '0f';
+			value = 0.0;
 		else if (type == "double")
-			value = '0.0';
+			value = 0.0;
 		else if (type == "bool" || type == "boolean")
-			value = 'false';
-		else if(type == "date")
+			value = false;
+		else if (type == "date")
 			return new Date().toDateString();
-		else if (emptySupport)
-			value = "";
 		else
-			value = '""';
+			value = "";
 	}
 	return value;
 }
 
 function updateFieldValue(element, value, type) {
-	$(element).parent().text(defaultValueByType(value, type, true));
+	$(element).parent().text(defaultValueByType(value, type));
 }
 
 function saveField(element, controller, id, field, type) {
 	if ($(element).prop("value") != $(element).prop("placeholder")) {
 		$.ajax({
-			url : context + "/editField/"+controller,
+			url : context + "/editField/" + controller,
 			type : "post",
 			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"'
-					+ defaultValueByType($(element).prop("value"), type, false)
-					+ '"}',
+					+ defaultValueByType($(element).prop("value"), type, true)
+					+ '", "type": "' + type + '"}',
 			contentType : "application/json",
 			success : function(response) {
 				if (response == "" || response == null) {
 					updateFieldValue(element, $(element).prop("value"));
 					return false;
 				}
-				alert(response);
+				bootbox.alert(jqXHR.responseText);
+				updateFieldValue(element, $(element).prop("placeholder"));
 				return true;
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
+				bootbox.alert(jqXHR.responseText);
 				updateFieldValue(element, $(element).prop("placeholder"));
 			},
 		});

@@ -82,7 +82,7 @@
 								<th><spring:message code="label.parameter.qualification"
 										text="Qualification" /></th>
 								<th><spring:message code="label.parameter.value"
-										text="Value" /></th>
+										text="Value" /> k&euro;</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -91,9 +91,9 @@
 								<tr>
 									<!--<td>${itemInformation.id}</td>-->
 									<td>${status.index}</td>
-									<td>${parameter.acronym}</td>
-									<td>${parameter.description}</td>
-									<td>${parameter.value*0.001}k&euro;</td>
+									<td ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'acronym', 'string');">${parameter.acronym}</td>
+									<td ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'description', 'string');">${parameter.description}</td>
+									<td ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'value', 'double');">${parameter.value*0.001}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -118,7 +118,7 @@
 								<th><spring:message code="label.parameter.qualification"
 										text="Qualification" /></th>
 								<th><spring:message code="label.parameter.value"
-										text="Value" /></th>
+										text="Value" /> /y</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -127,10 +127,10 @@
 								<tr>
 									<!--<td>${itemInformation.id}</td>-->
 									<td>${status.index}</td>
-									<td>${parameter.acronym}</td>
-									<td>${parameter.description}</td>
-									<td><fmt:formatNumber value="${parameter.value}"
-											maxFractionDigits="3" minFractionDigits="1" /> /y</td>
+									<td ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'acronym', 'string');">${parameter.acronym}</td>
+									<td ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'description', 'string');">${parameter.description}</td>
+									<td ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'value', 'double');"><fmt:formatNumber value="${parameter.value}"
+											maxFractionDigits="3" minFractionDigits="1" /></td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -151,7 +151,7 @@
 								<th><spring:message code="label.parameter.Level"
 										text="Level" /></th>
 								<th><spring:message code="label.parameter.percentage"
-										text="Implementation" /></th>
+										text="Implementation" /> %</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -161,7 +161,7 @@
 									<td><spring:message
 											code="label.parameter.simple.smt.level_${parameter.description}"
 											text="${parameter.description}" /></td>
-									<td>${parameter.value}%</td>
+									<td ondblclick="return editField(this, 'parameter','${parameter.id}', 'value', 'double');">${parameter.value}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -180,23 +180,23 @@
 						<thead>
 							<tr>
 								<th><spring:message code="label.parameter.simple.sml0"
-										text="SML0" /></th>
+										text="SML0" /> %</th>
 								<th><spring:message code="label.parameter.simple.sml1"
-										text="SML1" /></th>
+										text="SML1" /> %</th>
 								<th><spring:message code="label.parameter.simple.sml2"
-										text="SML2" /></th>
+										text="SML2" /> %</th>
 								<th><spring:message code="label.parameter.simple.sml3"
-										text="SML3" /></th>
+										text="SML3" /> %</th>
 								<th><spring:message code="label.parameter.simple.sml4"
-										text="SML4" /></th>
+										text="SML4" /> %</th>
 								<th><spring:message code="label.parameter.simple.sml5"
-										text="SML5" /></th>
+										text="SML5" /> %</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr>
 								<c:forEach items="${simpleParameters[1]}" var="parameter">
-									<td>${parameter.value}%</td>
+									<td ondblclick="return editField(this, 'parameter','${parameter.id}', 'value', 'double');">${parameter.value}</td>
 								</c:forEach>
 							</tr>
 						</tbody>
