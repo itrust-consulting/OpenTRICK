@@ -17,5 +17,5 @@
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/navigation.css" />' />
-<!--  <link rel="stylesheet" type="text/css" href='<spring:url value="/css/main.css" />' />-->
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/main.css" />' />
 </head>
