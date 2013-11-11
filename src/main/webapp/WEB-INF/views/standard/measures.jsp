@@ -35,7 +35,7 @@
 	<a href="../../Display"><spring:message code="menu.navigate.back" /></a>|<a href="Add"><spring:message code="label.measure.add.menu" /></a>
 
 	<c:if test="${!empty measureDescriptions}">
-		<table class="data" border="1">
+		<table class="table">
 			<tr>
 				<th><spring:message code="label.measure.id" text="id" /></th>
 				<th><spring:message code="label.measure.level" /></th>
