@@ -336,12 +336,12 @@ function saveField(element, controller, id, field, type) {
 					updateFieldValue(element, $(element).prop("value"));
 					return false;
 				}
-				alert(response);
+				bootbox.alert(jqXHR.responseText);
 				updateFieldValue(element, $(element).prop("placeholder"));
 				return true;
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
-				alert(jqXHR.responseText);
+				bootbox.alert(jqXHR.responseText);
 				updateFieldValue(element, $(element).prop("placeholder"));
 			},
 		});
