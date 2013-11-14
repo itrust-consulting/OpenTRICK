@@ -6,54 +6,51 @@
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
 <spring:htmlEscape defaultHtmlEscape="true" />
-<div class="section">
+<div class="section" id="section_asset">
 	<div class="page-header">
-		<h3 id="asset">
+		<h3 id="Asset">
 			<spring:message code="label.asset" text="Asset" />
 		</h3>
-		<button class="btn btn-primary" data-toggle="modal" data-target="#addAssetModel">
-			<spring:message code="label.asset.add" text="Add new asset"/>
-		</button>
 	</div>
-	
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<button class="btn btn-default" data-toggle="modal"
+				onclick="findAllAssetType('asset_assettype_id');"
+				data-target="#addAssetModel">
+				<spring:message code="label.asset.add" text="Add new asset" />
+			</button>
+		</div>
+		<div class="panel-body">
+			<table class="table">
+				<thead>
+					<tr>
+						<th><spring:message code="label.asset.name" text="Name"
+								htmlEscape="true" /></th>
+						<th><spring:message code="label.asset.type" text="Type"
+								htmlEscape="true" /></th>
+						<th><spring:message code="label.asset.value" text="Value"
+								htmlEscape="true" /></th>
+						<th><spring:message code="label.asset.selected"
+								text="Selected" htmlEscape="true" /></th>
+						<th><spring:message code="label.asset.comment" text="Comment"
+								htmlEscape="true" /></th>
+						<th><spring:message code="label.asset.comment"
+								text="Hidden comment" htmlEscape="true" /></th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach items="${assets}" var="asset">
+						<tr class="${asset.value < 1 ? 'warning' : asset.selected? 'success' : 'active'}" trick-id="${asset.id}" trick-selected="${asset.selected}">
+							<td>${asset.name}</td>
+							<td>${ asset.assetType.type}</td>
+							<td>${asset.value}</td>
+							<td>${asset.selected}</td>
+							<td>${asset.comment}</td>
+							<td>${asset.hiddenComment}</td>
+						</tr>
+					</c:forEach>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>
-<!-- Modal -->
-<div class="modal fade" id="addAssetModel" tabindex="-1" role="dialog" aria-labelledby="addNewAsset" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel"><spring:message code="label.asset.add" text="Add new asset"/></h4>
-      </div>
-      <div class="modal-body">
-      		<form name="asset" action="Asset/Save" class="form-horizontal">
-      			<div class="form-group">
-					<label for="Label" class="col-sm-2 control-label">
-						<spring:message code="label.asset.label" text="Label"/>
-					</label>
-					<div class="col-sm-10">
-						<input name="label" class="form-control" />
-					</div>
-				</div>
-				<div class="form-group">
-					<label for="Type" class="col-sm-2 control-label">
-						<spring:message code="label.asset.type" text="Type"/>
-					</label>
-					<div class="col-sm-10">
-						<select name="type" class="form-control">
-							<option value=''><spring:message code="label.asset.type.default" text="Select asset type"/></option>
-							<option value='Serv'><spring:message code="label.asset.type.serv" text="Serv"/></option>
-							<option value='Inf'><spring:message code="label.asset.type.inf" text="Info"/></option>
-							<option value='Pers'><spring:message code="label.asset.type.pers" text="Pers"/></option>
-						</select>
-					</div>
-				</div>
-      		</form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->

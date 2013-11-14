@@ -14,7 +14,7 @@
 <html>
 
 <!-- Include Header -->
-<jsp:include page="../header.jsp" />
+<jsp:include page="header.jsp" />
 
 
 <!-- ################################################################# Start Container ############################################################## -->
@@ -24,40 +24,31 @@
 	<div id="wrap">
 		<!-- ################################################################### Nav Menu ################################################################### -->
 
-		<jsp:include page="../menu.jsp" />
+		<jsp:include page="menu.jsp" />
 
 		<div class="container">
 
-			<jsp:include page="../successErrors.jsp" />
 
 			<!-- #################################################################### Content ################################################################### -->
 
-			<div class="row">
-				<div class="page-header">
-				
-					<h1><spring:message code="title.knowledgebase" text="Knowledge Base" /></h1>
-				</div>
-				<jsp:include page="knowledgebasemenu.jsp" />
+			<div class="content" id="content">
 
-				<div class="content col-md-9" id="content" role="main"
-					data-spy="scroll">
-					<jsp:include page="customer/customers.jsp" />
-					<jsp:include page="language/languages.jsp" />
-					<jsp:include page="standard/norms.jsp" />
-				</div>
+				<a href="Customer/Display"><spring:message
+						code="menu.knowledgebase.customers" /></a> <a href="Language/Display"><spring:message
+						code="menu.knowledgebase.languages" /></a> <a
+					href="Standard/Norm/Display"><spring:message
+						code="menu.knowledgebase.standards" /></a>
 
 			</div>
-			
-			
 
-			<!-- ################################################################ End Container ################################################################# -->
+			<!-- ################################################################ Include Footer ################################################################ -->
 
 		</div>
 
-		<!-- ################################################################ Include Footer ################################################################ -->
+		<jsp:include page="footer.jsp" />
 
-		<jsp:include page="../footer.jsp" />
-		<jsp:include page="../scripts.jsp" />
+		<!-- ################################################################ End Container ################################################################# -->
+		<jsp:include page="scripts.jsp" />
 	</div>
 </body>
 

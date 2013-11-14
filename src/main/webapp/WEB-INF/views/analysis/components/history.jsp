@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
 <spring:htmlEscape defaultHtmlEscape="true" />
-<div class="section">
+<div class="section" id="section_history">
 	<div class="page-header">
 		<h3 id="history">
 			<spring:message code="label.history" text="History" />
@@ -26,7 +26,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					<c:forEach items="${analysis.histories}" var="history">
+					<c:forEach items="${histories}" var="history">
 						<tr>
 							<!--<td>${history.id}</td>-->
 							<td>${history.version}</td>

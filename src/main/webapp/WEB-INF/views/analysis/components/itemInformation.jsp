@@ -6,15 +6,13 @@
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
 <spring:htmlEscape defaultHtmlEscape="true" />
-<div class="section">
+<div class="section" id="section_itemInformation">
 	<div class="page-header">
 		<h3 id="itemInformation">
 			<spring:message code="label.itemInformation" text="Item Information" />
 		</h3>
 	</div>
-	<c:set scope="request" var="itemInformationsSplited"
-		value="${analysis.SplitItemInformations(analysis.itemInformations)}" />
-
+	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitItemInformations(itemInformations)" var="itemInformationsSplited" />
 	<div class="row">
 		<div class="col-md-12">
 			<div class="panel panel-info">
