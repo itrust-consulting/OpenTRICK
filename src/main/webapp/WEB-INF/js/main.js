@@ -7,7 +7,7 @@ function changePassword() {
 	return false;
 }
 
-function MessageResolver(code) {
+function MessageResolver(code, defaulttext) {
 	$.ajax({
 		url : context + "/MessageResolver",
 		data : {
@@ -16,11 +16,11 @@ function MessageResolver(code) {
 		contentType : "application/json",
 		success : function(response) {
 			if (response == null || response == "")
-				return code;
-			return response;
+				return defaulttext;
+			defaulttext = response;
 		}
 	});
-	return code;
+	return defaulttext;
 }
 
 function extract(data) {
@@ -351,6 +351,45 @@ function saveField(element, controller, id, field, type) {
 	}
 }
 
+function selectAsset(assetId, selectVaue) {
+	$.ajax({
+		url : context + "/Asset/Select/" + assetId,
+		contentType : "application/json",
+		success : function(reponse) {
+			reloadSection("section_asset");
+			return false;
+		}
+	});
+	return false;
+}
+
+function deleteAsset(assetId) {
+	$.ajax({
+		url : context + "/Asset/Delete/" + assetId,
+		contentType : "application/json",
+		success : function(reponse) {
+			reloadSection("section_asset");
+			return false;
+		}
+	});
+	return false;
+}
+
+function editAssetRow(rowTrickId) {
+	findAllAssetType("asset_assettype_id");
+	var rows = $("#section_asset").find("tr[trick-id='" + rowTrickId + "'] td");
+	$("#asset_id").prop("value", rowTrickId);
+	$("#asset_name").prop("value", $(rows[0]).text());
+	$("#asset_value").prop("value", $(rows[2]).text());
+	$("#asset_selected").prop("checked", $(rows[3]).text());
+	$("#asset_comment").text($(rows[4]).text());
+	$("#asset_hiddenComment").text($(rows[5]).text());
+	$("#addAssetModel").modal('toggle');
+	$("#asset_assettype_id option[text='" + $(rows[1]).text() + "']").prop(
+			"selected", true);
+	return false;
+}
+
 function editField(element, controller, id, field, type) {
 	if ($(element).find("input").length)
 		return;
@@ -368,40 +407,240 @@ function editField(element, controller, id, field, type) {
 	else
 		element.appendChild(input);
 	$(input).focus();
+	return false;
 }
+
+function findAllAssetType(selector) {
+	var element = document.getElementById(selector);
+	$.ajax({
+		url : context + "/AssetType/All",
+		async : true,
+		contentType : "application/json",
+		success : function(reponse) {
+			var option = document.createElement("option");
+			option.setAttribute("value", -1);
+			element.innerHTML = "";
+			option.appendChild(document.createTextNode(MessageResolver(
+					"label.asset.type.default", "Select assettype")));
+			element.appendChild(option);
+			for (var int = 0; int < reponse.length; int++) {
+				var assettype = reponse[int];
+				var option = document.createElement("option");
+				option.setAttribute("value", assettype.id);
+				option.appendChild(document.createTextNode(assettype.type));
+				element.appendChild(option);
+			}
+		}
+	});
+}
+
+function showError(parent, text) {
+	var error = document.createElement("div");
+	var close = document.createElement("a");
+	close.setAttribute("class", "close");
+	close.setAttribute("href", "#");
+	close.setAttribute("data-dismiss", "alert");
+	error.setAttribute("class", "alert alert-error");
+	error.setAttribute("aria-hidden", "true");
+	error
+			.setAttribute("style",
+					"background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
+	close.appendChild(document.createTextNode("x"));
+	error.appendChild(close);
+	error.appendChild(document.createTextNode(text));
+	parent.insertBefore(error, parent.firstChild);
+	return false;
+}
+
+function getControllerBySection(section) {
+	var controllers = {
+		"section_asset" : "/Asset/Section",
+		"section_parameter" : "/Parameter/Section",
+		"section_scenario" : "/Scenario/Section"
+	};
+	return controllers[section];
+}
+
+function serializeAssetForm(formId) {
+	var form = $("#" + formId);
+	var data = form.serializeJSON();
+	data["assetType"] = {
+		"id" : parseInt(data["assetType"], 0),
+		"type" : $("#asset_assettype_id option:selected").text()
+	};
+	data["value"] = parseFloat(data["value"]);
+	data["selected"] = data["selected"] == "on";
+	return JSON.stringify(data);
+}
+
+function reloadSection(section) {
+	if (Array.isArray(section)) {
+		for (var int = 0; int < section.length; int++)
+			reloadSection(section[int]);
+	} else {
+		var controller = getControllerBySection(section);
+		if (controller == null || controller == undefined)
+			return false;
+		$
+				.ajax({
+					url : context + controller,
+					type : "get",
+					async : true,
+					contentType : "application/json",
+					success : function(response) {
+						var parser = new DOMParser();
+						var doc = parser.parseFromString(response, "text/html");
+						newSection = $(doc).find("*[id = '" + section + "']");
+						oldSection = $(document.body).find(
+								"*[id = '" + section + "']");
+						$(oldSection).html($(newSection).html());
+						return result;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						return result;
+					},
+				});
+	}
+}
+
+function saveAsset(form) {
+	return $.ajax({
+		url : context + "/Asset/Save",
+		type : "post",
+		data : serializeAssetForm(form),
+		contentType : "application/json",
+		success : function(response) {
+			var data = "";
+			for ( var error in response)
+				data += response[error][1] + "\n";
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
+			if (result) {
+				$("#addAssetModel").modal("hide");
+				reloadSection("section_asset");
+			}
+			return result;
+
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
+	});
+}
+
+$(function() {
+	var $contextMenu = $("#asset_contextMenu");
+
+	if ($contextMenu == null || $contextMenu == undefined)
+		return false;
+
+	$("#section_asset")
+			.on(
+					"contextmenu",
+					"table tr",
+					function(e) {
+						$contextMenu.css({
+							display : "block",
+							left : $(e.target).position().left,
+							top : $(e.target).position().top + 20
+						});
+						if ($(e.currentTarget).attr('trick-selected') == "true") {
+							$contextMenu.find("li[name='select']").attr(
+									"hidden", true);
+							$contextMenu.find("li[name='unselect']").attr(
+									"hidden", false);
+						} else {
+							$contextMenu.find("li[name='select']").attr(
+									"hidden", false);
+							$contextMenu.find("li[name='unselect']").attr(
+									"hidden", true);
+						}
+						$contextMenu.attr("trick-selected-id", $(
+								e.currentTarget).attr('trick-id'));
+						return false;
+					});
+	$contextMenu.on("click", "a", function() {
+		$contextMenu.hide();
+	});
+	$contextMenu.on("focusout", function() {
+		$contextMenu.hide();
+	});
+});
+
+/**
+ * Serialize form fields into JSON
+ */
+
+(function($) {
+
+	$.fn.serializeJSON = function() {
+		var json = {};
+		var form = $(this);
+		form.find('input, select, textarea').each(
+				function() {
+					var val;
+					if (!this.name)
+						return;
+
+					if ('radio' === this.type) {
+						if (json[this.name]) {
+							return;
+						}
+
+						json[this.name] = this.checked ? this.value : '';
+					} else if ('checkbox' === this.type) {
+						val = json[this.name];
+
+						if (!this.checked) {
+							if (!val) {
+								json[this.name] = '';
+							}
+						} else {
+							json[this.name] = typeof val === 'string' ? [ val,
+									this.value ] : $.isArray(val) ? $.merge(
+									val, [ this.value ]) : this.value;
+						}
+					} else {
+						json[this.name] = this.value;
+					}
+				});
+		return json;
+	};
+
+})(jQuery);
 
 !function($) {
 	$(function() {
-		var $window = $(window)
-		var $body = $(document.body)
-		var $sideBar = $('.bs-sidebar')
-		var navHeight = $('.nav-tabs').outerHeight(true) + 10
+		var $window = $(window);
+		var $body = $(document.body);
+		var $sideBar = $('.bs-sidebar');
+		var navHeight = $('.nav-tabs').outerHeight(true) + 10;
 
 		$body.scrollspy({
 			target : '.bs-sidebar',
 			offset : navHeight
-		})
+		});
 
 		$('.bs-container [href=#]').click(function(e) {
-			e.preventDefault()
-		})
+			e.preventDefault();
+		});
 
 		$window.on('resize', function() {
-			$body.scrollspy('refresh')
+			$body.scrollspy('refresh');
 			// We were resized. Check the position of the nav box
-			$sideBar.affix('checkPosition')
-		})
+			$sideBar.affix('checkPosition');
+		});
 
 		$window.on('load', function() {
-			$body.scrollspy('refresh')
+			$body.scrollspy('refresh');
 			$('.bs-top').affix();
 			$sideBar.affix({
 				offset : {
 					top : function() {
-						var offsetTop = $sideBar.offset().top
+						var offsetTop = $sideBar.offset().top;
 						var sideBarMargin = parseInt($sideBar.children(0).css(
-								'margin-top'), 10)
-						var navOuterHeight = $('.bs-docs-nav').height()
+								'margin-top'), 10);
+						var navOuterHeight = $('.bs-docs-nav').height();
 
 						// We can cache the height of the header (hence the
 						// this.top=)
@@ -415,32 +654,30 @@ function editField(element, controller, id, field, type) {
 						// when the window is resized. This function will be
 						// called every
 						// time the window is scrolled or resized
-						return $('.bs-footer').outerHeight(true)
+						return $('.bs-footer').outerHeight(true);
 					}
 				}
-			})
+			});
 			setTimeout(function() {
 				// Check the position of the nav box ASAP
-				$sideBar.affix('checkPosition')
+				$sideBar.affix('checkPosition');
 			}, 10);
 			setTimeout(function() {
 				// Check it again after a while (required for IE)
-				$sideBar.affix('checkPosition')
+				$sideBar.affix('checkPosition');
 			}, 100);
 		});
 
 		// tooltip demo
 		$('.tooltip-demo').tooltip({
 			selector : "[data-toggle=tooltip]",
-			container : "body"
-		})
-
-		$('.tooltip-test').tooltip()
-		$('.popover-test').popover()
-
+			container : "nav-container"
+		});
+		$('.tooltip-test').tooltip();
+		$('.popover-test').popover();
 		$('.bs-docs-navbar').tooltip({
 			selector : "a[data-toggle=tooltip]",
 			container : ".bs-docs-navbar .nav"
-		})
-	})
-}(window.jQuery)
+		});
+	});
+}(window.jQuery);

@@ -20,62 +20,72 @@
 <!-- ################################################################# Start Container ############################################################## -->
 
 <body>
-	<div class="container">
+	<div id="wrap">
 
 		<!-- ################################################################### Nav Menu ################################################################### -->
 
 		<jsp:include page="../menu.jsp" />
+		
+		<div class="container">
 
-		<!-- #################################################################### Content ################################################################### -->
+			<!-- #################################################################### Content ################################################################### -->
 
-		<div class="content" id="content">
+			<div class="content" id="content">
 
-			<h1>
-				<spring:message code="label.measure.add.menu" />
-			</h1>
-			<a href="../Measures/Display"><spring:message
-					code="menu.navigate.back" /></a>
-			<form:errors cssClass="error" element="div" />
-			<form:form method="post" action="Create"
-				commandName="measureDescription">
-				<table border="1">
-					<tr>
-						<td><form:label path="reference"><spring:message code="label.measure.reference" /></form:label></td>
-						<td><form:input path="reference" /></td>
-					</tr>
-					<tr>
-						<td><form:label path="level">
-								<spring:message code="label.measure.level" />
-							</form:label></td>
-						<td><form:input path="level" /></td>
-					</tr>
-					<tr>
-						<td colspan="2"><spring:message code="language.English" /><input type="hidden" name="language_code_eng" id="language_code_eng" value="language_code_eng"></td>
-					</tr>
-					<tr>
-						<td><label><spring:message code="label.measure.domain" /></label></td>
-						<td><textarea id="domain_eng" name="domain_eng" ></textarea></td>
-					</tr>
-					<tr>
-						<td><label><spring:message code="label.measure.description" /></label></td>
-						<td><textarea id="description_eng" name="description_eng" ></textarea></td>
-					</tr>
-					<tr>
-						<td colspan="2"><input type="submit"
-							value="<spring:message code="label.measure.add.form"/>" /></td>
-					</tr>
-				</table>
-			</form:form>
+				<h1>
+					<spring:message code="label.measure.add.menu" />
+				</h1>
+				<a href="../Measures/Display"><spring:message
+						code="menu.navigate.back" /></a>
+				<form:errors cssClass="error" element="div" />
+				<form:form method="post" action="Create"
+					commandName="measureDescription">
+					<table class="table">
+						<tr>
+							<td><form:label path="reference">
+									<spring:message code="label.measure.reference" />
+								</form:label></td>
+							<td><form:input path="reference" /></td>
+						</tr>
+						<tr>
+							<td><form:label path="level">
+									<spring:message code="label.measure.level" />
+								</form:label></td>
+							<td><form:input path="level" /></td>
+						</tr>
+						<tr>
+							<td colspan="2"><spring:message code="language.English" /><input
+								type="hidden" name="language_code_eng" id="language_code_eng"
+								value="language_code_eng"></td>
+						</tr>
+						<tr>
+							<td><label><spring:message
+										code="label.measure.domain" /></label></td>
+							<td><textarea id="domain_eng" name="domain_eng"></textarea></td>
+						</tr>
+						<tr>
+							<td><label><spring:message
+										code="label.measure.description" /></label></td>
+							<td><textarea id="description_eng" name="description_eng"></textarea></td>
+						</tr>
+						<tr>
+							<td colspan="2"><input type="submit"
+								value="<spring:message code="label.measure.add.form"/>" /></td>
+						</tr>
+					</table>
+				</form:form>
+			</div>
+
+			<!-- ################################################################ End Container ################################################################# -->
+
 		</div>
 
 		<!-- ################################################################ Include Footer ################################################################ -->
 
 		<jsp:include page="../footer.jsp" />
 
-		<!-- ################################################################ End Container ################################################################# -->
-
+		<jsp:include page="../scripts.jsp" />
 	</div>
-	<jsp:include page="../scripts.jsp" />
 </body>
 
 <!-- ################################################################### End HTML ################################################################### -->

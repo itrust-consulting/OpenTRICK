@@ -1,7 +1,5 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
 import javax.naming.directory.InvalidAttributesException;
 
 /**
@@ -14,14 +12,11 @@ import javax.naming.directory.InvalidAttributesException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Asset implements Serializable {
+public class Asset {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-
-	/** serialVersionUID */
-	private static final long serialVersionUID = 1L;
 
 	/** Asset Identifier */
 	private int id = -1;
@@ -116,8 +111,7 @@ public class Asset implements Serializable {
 	 */
 	public void setAssetType(AssetType assetType) {
 		if (assetType == null)
-			throw new IllegalArgumentException(
-					"error.asset.assettype_null");
+			throw new IllegalArgumentException("error.asset.assettype_null");
 		else if (assetType.getType() == null)
 			throw new IllegalArgumentException(
 					"error.asset.assettype.type_null");
@@ -214,11 +208,9 @@ public class Asset implements Serializable {
 	 */
 	public void setSelected(boolean selected) throws InvalidAttributesException {
 		if (name.trim().isEmpty())
-			throw new InvalidAttributesException(
-					"error.asset.selected.name");
+			throw new InvalidAttributesException("error.asset.selected.name");
 		if (value < 0)
-			throw new InvalidAttributesException(
-					"error.asset.selected.value");
+			throw new InvalidAttributesException("error.asset.selected.value");
 		this.selected = selected;
 	}
 
@@ -262,23 +254,18 @@ public class Asset implements Serializable {
 		}
 		Asset other = (Asset) obj;
 		if (getId() != other.getId()) {
-			return false;
+			if (getId() > 0 && other.getId() > 0) {
+
+				System.out.println(getId() + " - " + other.getId());
+				return false;
+			}
 		}
 		if (getName() == null) {
 			if (other.getName() != null) {
 				return false;
 			}
-		} else if (!name.equals(other.name)) {
-			return false;
 		}
-		if (getAssetType() == null) {
-			if (other.getAssetType() != null) {
-				return false;
-			}
-		} else if (!assetType.equals(other.assetType)) {
-			return false;
-		}
-		return true;
+		return name.equals(other.name);
 	}
 
 	/**

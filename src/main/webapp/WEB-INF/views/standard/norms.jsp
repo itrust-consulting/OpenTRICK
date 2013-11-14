@@ -19,11 +19,13 @@
 <!-- ################################################################# Start Container ############################################################## -->
 
 <body>
-<div class="container">
 
+<div id="wrap">
 <!-- ################################################################### Nav Menu ################################################################### -->
 
 <jsp:include page="../menu.jsp" />
+
+<div class="container">
 
 <!-- #################################################################### Content ################################################################### -->
 
@@ -35,7 +37,7 @@
 	<a href="../../Display"><spring:message code="menu.navigate.back" /></a>|<a href="Add"><spring:message code="label.norm.add.menu" /></a>
 
 	<c:if test="${!empty norms}">
-		<table class="data" border="1">
+		<table class="table">
 			<tr>
 				<th><spring:message code="label.norm.id" text="id" /></th>
 				<th><spring:message code="label.norm.label" /></th>
@@ -58,16 +60,15 @@
 	<h4><spring:message code="label.norm.notexist" /></h4>	
 	</c:if>
 </div>
-		
+</div>
 <!-- ################################################################ Include Footer ################################################################ -->
 
 <jsp:include page="../footer.jsp" />
 
 <!-- ################################################################ End Container ################################################################# -->
+<jsp:include page="../scripts.jsp" />
 
 </div>
-
-<jsp:include page="../scripts.jsp" />
 
 </body>
 

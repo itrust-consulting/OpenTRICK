@@ -6,18 +6,21 @@
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
 <spring:htmlEscape defaultHtmlEscape="true" />
-<div class="section">
+<div class="section" id="section_parameter">
 	<div class="page-header">
 		<h3 id="parameter">
 			<spring:message code="label.parameter" text="Parameter" />
 		</h3>
 	</div>
-	<c:set scope="request" var="parametersSplited"
-		value="${analysis.SplitParameters(analysis.parameters)}" />
-	<c:set scope="request" var="simpleParameters"
-		value="${analysis.SplitSimpleParameters(parametersSplited[0])}" />
-	<c:set scope="request" var="extendedParameters"
-		value="${analysis.SplitExtendedParameters(parametersSplited[1])}" />
+	<spring:eval
+		expression="T(lu.itrust.business.TS.Analysis).SplitParameters(parameters)"
+		var="parametersSplited" />
+	<spring:eval
+		expression="T(lu.itrust.business.TS.Analysis).SplitSimpleParameters(parametersSplited[0])"
+		var="simpleParameters" />
+	<spring:eval
+		expression="T(lu.itrust.business.TS.Analysis).SplitExtendedParameters(parametersSplited[1])"
+		var="extendedParameters" />
 	<div class="row">
 		<div class="col-md-12">
 			<div class="panel panel-primary">
@@ -91,9 +94,12 @@
 								<tr>
 									<!--<td>${itemInformation.id}</td>-->
 									<td>${status.index}</td>
-									<td ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'acronym', 'string');">${parameter.acronym}</td>
-									<td ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'description', 'string');">${parameter.description}</td>
-									<td ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'value', 'double');">${parameter.value*0.001}</td>
+									<td
+										ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'acronym', 'string');">${parameter.acronym}</td>
+									<td
+										ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'description', 'string');">${parameter.description}</td>
+									<td
+										ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'value', 'double');">${parameter.value*0.001}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -127,10 +133,14 @@
 								<tr>
 									<!--<td>${itemInformation.id}</td>-->
 									<td>${status.index}</td>
-									<td ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'acronym', 'string');">${parameter.acronym}</td>
-									<td ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'description', 'string');">${parameter.description}</td>
-									<td ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'value', 'double');"><fmt:formatNumber value="${parameter.value}"
-											maxFractionDigits="3" minFractionDigits="1" /></td>
+									<td
+										ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'acronym', 'string');">${parameter.acronym}</td>
+									<td
+										ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'description', 'string');">${parameter.description}</td>
+									<td
+										ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'value', 'double');"><fmt:formatNumber
+											value="${parameter.value}" maxFractionDigits="3"
+											minFractionDigits="1" /></td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -161,7 +171,8 @@
 									<td><spring:message
 											code="label.parameter.simple.smt.level_${parameter.description}"
 											text="${parameter.description}" /></td>
-									<td ondblclick="return editField(this, 'parameter','${parameter.id}', 'value', 'double');">${parameter.value}</td>
+									<td
+										ondblclick="return editField(this, 'parameter','${parameter.id}', 'value', 'double');">${parameter.value}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -196,7 +207,8 @@
 						<tbody>
 							<tr>
 								<c:forEach items="${simpleParameters[1]}" var="parameter">
-									<td ondblclick="return editField(this, 'parameter','${parameter.id}', 'value', 'double');">${parameter.value}</td>
+									<td
+										ondblclick="return editField(this, 'parameter','${parameter.id}', 'value', 'double');">${parameter.value}</td>
 								</c:forEach>
 							</tr>
 						</tbody>

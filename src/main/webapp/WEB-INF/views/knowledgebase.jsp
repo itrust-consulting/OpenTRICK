@@ -2,7 +2,8 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec"	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec"
+	uri="http://www.springframework.org/security/tags"%>
 
 <!-- ################################################################ Set Page Title ################################################################ -->
 
@@ -19,32 +20,36 @@
 <!-- ################################################################# Start Container ############################################################## -->
 
 <body>
-<div class="container">
 
-<!-- ################################################################### Nav Menu ################################################################### -->
+	<div id="wrap">
+		<!-- ################################################################### Nav Menu ################################################################### -->
 
-<jsp:include page="menu.jsp" />
+		<jsp:include page="menu.jsp" />
 
-<!-- #################################################################### Content ################################################################### -->
+		<div class="container">
 
-	<div class="content" id="content">
-	
-	<a href="Customer/Display"><spring:message code="menu.knowledgebase.customers"/></a>
-	
-	<a href="Language/Display"><spring:message code="menu.knowledgebase.languages"/></a>	
 
-	<a href="Standard/Norm/Display"><spring:message code="menu.knowledgebase.standards"/></a>
-		
+			<!-- #################################################################### Content ################################################################### -->
+
+			<div class="content" id="content">
+
+				<a href="Customer/Display"><spring:message
+						code="menu.knowledgebase.customers" /></a> <a href="Language/Display"><spring:message
+						code="menu.knowledgebase.languages" /></a> <a
+					href="Standard/Norm/Display"><spring:message
+						code="menu.knowledgebase.standards" /></a>
+
+			</div>
+
+			<!-- ################################################################ Include Footer ################################################################ -->
+
+		</div>
+
+		<jsp:include page="footer.jsp" />
+
+		<!-- ################################################################ End Container ################################################################# -->
+		<jsp:include page="scripts.jsp" />
 	</div>
-		
-<!-- ################################################################ Include Footer ################################################################ -->
-
-<jsp:include page="footer.jsp" />
-
-<!-- ################################################################ End Container ################################################################# -->
-
-</div>
-<jsp:include page="scripts.jsp" />
 </body>
 
 <!-- ################################################################### End HTML ################################################################### -->
