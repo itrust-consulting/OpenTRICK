@@ -13,7 +13,7 @@
 <body>
 	<div id="wrap">
 		<div class="menu">
-			<jsp:include page="menu.jsp" />
+			<jsp:include page="../menu.jsp" />
 		</div>
 		<div class="container">
 			<div class="content" id="content">
@@ -50,8 +50,8 @@
 				</c:if>
 			</div>
 		</div>
-		<jsp:include page="footer.jsp" />
-		<jsp:include page="scripts.jsp" />
+		<jsp:include page="../footer.jsp" />
+		<jsp:include page="../scripts.jsp" />
 	</div>
 </body>
 </html>

@@ -14,7 +14,7 @@
 <html>
 
 <!-- Include Header -->
-<jsp:include page="../header.jsp" />
+<jsp:include page="../../header.jsp" />
 
 
 <!-- ################################################################# Start Container ############################################################## -->
@@ -24,7 +24,7 @@
 
 		<!-- ################################################################### Nav Menu ################################################################### -->
 
-		<jsp:include page="../menu.jsp" />
+		<jsp:include page="../../menu.jsp" />
 		
 		<div class="container">
 
@@ -82,9 +82,9 @@
 
 		<!-- ################################################################ Include Footer ################################################################ -->
 
-		<jsp:include page="../footer.jsp" />
+		<jsp:include page="../../footer.jsp" />
 
-		<jsp:include page="../scripts.jsp" />
+		<jsp:include page="../../scripts.jsp" />
 	</div>
 </body>
 
