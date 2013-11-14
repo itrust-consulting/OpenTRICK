@@ -133,5 +133,4 @@ public class ControllerNorm {
 		this.serviceNorm.save(norm);
 		return "redirect:./Display";
 	}
-
 }

@@ -1,8 +1,10 @@
 package lu.itrust.business.view.controller;
 
-import lu.itrust.business.service.ServiceLanguage;
-import lu.itrust.business.service.ServiceMeasureDescription;
+import java.util.Map;
 
+import lu.itrust.business.service.ServiceCustomer;
+import lu.itrust.business.service.ServiceLanguage;
+import lu.itrust.business.service.ServiceNorm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 
 @Secured("ROLE_ADMIN")
-@RequestMapping("/KnowLedgeBase")
+@RequestMapping("/KnowledgeBase")
 @Controller
 public class ControllerKnowledgeBase {
 	
@@ -29,20 +31,30 @@ public class ControllerKnowledgeBase {
 	private ServiceLanguage serviceLanguage;
 		
 	@Autowired
-	private ServiceMeasureDescription serviceMeasureDescription;
+	private ServiceNorm serviceNorm;
 	
-	@RequestMapping("/Display")
-	public String displayKowledgeBase()  {
-		return "knowledgebase";
+	@Autowired
+	private ServiceCustomer serviceCustomer;
+	
+	
+	@RequestMapping("")
+	public String displayKowledgeBase(Map<String, Object> model) throws Exception  {
+		
+		model.put("customers",serviceCustomer.loadAll());
+		model.put("languages", serviceLanguage.loadAll());
+		model.put("norms", serviceNorm.loadAll());
+		return "knowledgebase/knowledgebase";
 	}
-	
-	
 		
 	public void setServiceLanguage(ServiceLanguage serviceLanguage){
 		this.serviceLanguage = serviceLanguage;
 	}
-		
-	public void setServiceMeasureDescription(ServiceMeasureDescription serviceMeasureDescription){
-		this.serviceMeasureDescription = serviceMeasureDescription;
-	}	
+	
+	public void setServiceCustomer(ServiceCustomer serviceCustomer){
+		this.serviceCustomer = serviceCustomer;
+	}
+	
+	public void setServiceNorm(ServiceNorm serviceNorm) {
+		this.serviceNorm = serviceNorm;
+	}
 }

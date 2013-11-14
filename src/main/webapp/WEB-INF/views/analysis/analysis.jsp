@@ -17,9 +17,6 @@
 
 <!-- Include Header -->
 <jsp:include page="../header.jsp" />
-<script type="text/javascript">
-	
-</script>
 
 <!-- ################################################################# Start Container ############################################################## -->
 
@@ -39,13 +36,14 @@
 
 				<c:choose>
 					<c:when test="${!empty(analyses) }">
-						<h1>
-							<spring:message code="label.analysis.title" />
-						</h1>
+						<h1><spring:message code="label.analysis.title" /></h1>
 					</c:when>
 					<c:when test="${!empty(analysis) }">
-						<h1 title="${analysis.label}">${analysis.customer.contactPerson }
-							| ${analysis.getVersion() }</h1>
+						<h1 title="${analysis.label}">
+							${analysis.customer.contactPerson } | 
+							${analysis.getVersion() } | 
+							<a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select">Close</a>
+						</h1>
 					</c:when>
 				</c:choose>
 

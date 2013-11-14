@@ -41,7 +41,7 @@ public class ControllerCustomer {
 	 * Display all customers
 	 * 
 	 * */
-	@RequestMapping("KnowLedgeBase/Customer/Display")
+	@RequestMapping("KnowLedgeBase/Customers")
 	public String loadAllCustomer(Map<String, Object> model) throws Exception {
 		model.put("customers", serviceCustomer.loadAll());
 		return "customer/customers";
