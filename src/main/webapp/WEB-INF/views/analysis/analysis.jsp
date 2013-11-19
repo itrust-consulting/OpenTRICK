@@ -27,7 +27,7 @@
 
 		<div class="container">
 
-			<div class="page-header">
+			<div class="page-header" >
 				<c:choose>
 					<c:when test="${!empty(analyses) }">
 						<h1><spring:message code="label.analysis.title" /></h1>

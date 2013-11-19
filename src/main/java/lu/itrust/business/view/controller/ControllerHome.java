@@ -5,6 +5,7 @@ package lu.itrust.business.view.controller;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
@@ -14,9 +15,12 @@ import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.view.model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -28,9 +32,18 @@ public class ControllerHome {
 
 	@Autowired
 	private ServiceUser serviceUser;
-	
+
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
+	
+	@Autowired
+	private MessageSource messageSource;
+
+	@RequestMapping(value = "/MessageResolver", method = RequestMethod.GET, headers = "Accept=application/json")
+	public @ResponseBody
+	String resolveMessage(@RequestBody String code, Locale locale) {
+		return messageSource.getMessage(code, null, locale);
+	}
 
 	@Secured("ROLE_USER")
 	@RequestMapping("/home")
@@ -41,17 +54,19 @@ public class ControllerHome {
 			user = serviceUser.get(principal.getName());
 			if (user != null)
 				session.setAttribute("user", user);
-			else return "redirect:/logout";
+			else
+				return "redirect:/logout";
 		}
 		return "index";
 	}
-	
+
 	@Secured("ROLE_USER")
 	@RequestMapping("/feedback")
-	public @ResponseBody List<MessageHandler> revice(Principal principal){
+	public @ResponseBody
+	List<MessageHandler> revice(Principal principal) {
 		return serviceTaskFeedback.recive(principal.getName());
 	}
-	
+
 	@RequestMapping("/login")
 	public String login() {
 		return "loginForm";
@@ -60,9 +75,5 @@ public class ControllerHome {
 	@RequestMapping("/logout")
 	public String logout() {
 		return "redirect:/j_spring_security_logout";
-	}
-
-	public void setServiceUser(ServiceUser serviceUser) {
-		this.serviceUser = serviceUser;
 	}
 }

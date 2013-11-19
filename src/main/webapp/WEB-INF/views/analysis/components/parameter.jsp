@@ -68,7 +68,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6">
+		<div class="col-md-12">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.impact"
@@ -86,6 +86,10 @@
 										text="Qualification" /></th>
 								<th><spring:message code="label.parameter.value"
 										text="Value" /> k&euro;</th>
+								<th><spring:message code="label.parameter.range.min"
+										text="Range Min" /></th>
+								<th><spring:message code="label.parameter.range.max"
+										text="Range max" /></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -100,6 +104,8 @@
 										ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'description', 'string');">${parameter.description}</td>
 									<td
 										ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'value', 'double');">${parameter.value*0.001}</td>
+									<td>${parameter.bounds.from*0.001}</td>
+									<td>${parameter.bounds.to*0.001}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -107,7 +113,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6">
+		<div class="col-md-12">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.probability"
@@ -125,6 +131,10 @@
 										text="Qualification" /></th>
 								<th><spring:message code="label.parameter.value"
 										text="Value" /> /y</th>
+								<th><spring:message code="label.parameter.range.min"
+										text="Range Min" /></th>
+								<th><spring:message code="label.parameter.range.max"
+										text="Range max" /></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -141,6 +151,8 @@
 										ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'value', 'double');"><fmt:formatNumber
 											value="${parameter.value}" maxFractionDigits="3"
 											minFractionDigits="1" /></td>
+									<td>${parameter.bounds.from*0.001}</td>
+									<td>${parameter.bounds.to*0.001}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -148,7 +160,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6">
+		<div class="col-md-5">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.smt"
@@ -180,7 +192,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6">
+		<div class="col-md-7">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.maturity_level"
@@ -191,17 +203,18 @@
 						<thead>
 							<tr>
 								<th><spring:message code="label.parameter.simple.sml0"
-										text="SML0" /> %</th>
+										text="SML0" /></th>
 								<th><spring:message code="label.parameter.simple.sml1"
-										text="SML1" /> %</th>
+										text="SML1" /></th>
 								<th><spring:message code="label.parameter.simple.sml2"
-										text="SML2" /> %</th>
+										text="SML2" /></th>
 								<th><spring:message code="label.parameter.simple.sml3"
-										text="SML3" /> %</th>
+										text="SML3" /></th>
 								<th><spring:message code="label.parameter.simple.sml4"
-										text="SML4" /> %</th>
+										text="SML4" /></th>
 								<th><spring:message code="label.parameter.simple.sml5"
-										text="SML5" /> %</th>
+										text="SML5" /></th>
+										<th></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -210,6 +223,7 @@
 									<td
 										ondblclick="return editField(this, 'parameter','${parameter.id}', 'value', 'double');">${parameter.value}</td>
 								</c:forEach>
+								<td>%</td>
 							</tr>
 						</tbody>
 					</table>

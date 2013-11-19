@@ -30,29 +30,28 @@
 					href="${pageContext.request.contextPath}/home"> <spring:message
 							code="label.menu.home" text="Home" />
 				</a></li>
-				<li ${menu.startsWith("KnowLedgeBase")? "class='active'" : ""}><a
-					href="${pageContext.request.contextPath}/KnowLedgeBase">
-						<spring:message code="label.menu.analysis.knowledgebase"
-							text="KnowLedge Base" />
+				<li ${menu.startsWith("KnowledgeBase")? "class='active'" : ""}><a
+					href="${pageContext.request.contextPath}/KnowledgeBase"> <spring:message
+							code="label.menu.analysis.knowledgebase" text="KnowLedge Base" />
 				</a></li>
 				<li
 					${menu.startsWith("Analysis") && ! menu.startsWith("Analysis/Import")? "class='active'" : "" }>
-					<a href="${pageContext.request.contextPath}/Analysis">
-						<spring:message code="label.menu.analysis.all" text="Analysis" />
+					<a href="${pageContext.request.contextPath}/Analysis"> <spring:message
+							code="label.menu.analysis.all" text="Analysis" />
+				</a> <c:if test="${!empty(sessionScope.selectedAnalysis)}">
+						<ul class="dropdown-menu">
+							<li><a
+								href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select">Release
+									Analysis</a></li>
+						</ul>
+					</c:if>
+				</li>
+				<li ${menu.equals("Analysis/Import")? "class='active'" : "" }>
+					<a href="${pageContext.request.contextPath}/Analysis/Import"> <spring:message
+							code="label.menu.analysis.import" text="Import" />
 				</a>
 				</li>
-				<li
-					${menu.equals("Analysis/Import")? "class='active'" : "" }>
-					<a
-					href="${pageContext.request.contextPath}/Analysis/Import">
-						<spring:message code="label.menu.analysis.import" text="Import" />
-				</a>
-				</li>
-				<c:if test="${!empty(sessionScope.selectedAnalysis)}">
-					<li><a
-						href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select">Release
-							Analysis</a></li>
-				</c:if>
+
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
 				<li ${menu.equals("Admin")? "class='active'" : "" }><a

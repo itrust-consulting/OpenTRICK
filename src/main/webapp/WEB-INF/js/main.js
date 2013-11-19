@@ -10,9 +10,7 @@ function changePassword() {
 function MessageResolver(code, defaulttext) {
 	$.ajax({
 		url : context + "/MessageResolver",
-		data : {
-			source : code
-		},
+		data : code,
 		contentType : "application/json",
 		success : function(response) {
 			if (response == null || response == "")
@@ -152,8 +150,7 @@ function TaskManager() {
 			div.setAttribute("title", "Tasks");
 			var content = document.getElementById("content");
 			content.insertBefore(div, content.firstChild);
-		}
-		;
+		};
 		this.view = $("#tasks").dialog();
 	};
 
@@ -376,17 +373,20 @@ function deleteAsset(assetId) {
 }
 
 function editAssetRow(rowTrickId) {
-	findAllAssetType("asset_assettype_id");
+	
+	/*findAllAssetType("asset_assettype_id");
 	var rows = $("#section_asset").find("tr[trick-id='" + rowTrickId + "'] td");
 	$("#asset_id").prop("value", rowTrickId);
 	$("#asset_name").prop("value", $(rows[0]).text());
 	$("#asset_value").prop("value", $(rows[2]).text());
 	$("#asset_selected").prop("checked", $(rows[3]).text());
-	$("#asset_comment").text($(rows[4]).text());
-	$("#asset_hiddenComment").text($(rows[5]).text());
-	$("#addAssetModel").modal('toggle');
+	$("#asset_comment").text($(rows[4]).text()+"");
+	$("#asset_hiddenComment").text($(rows[5]).text()+"");
+	$("#addAssetModel").modal('show');
 	$("#asset_assettype_id option[text='" + $(rows[1]).text() + "']").prop(
-			"selected", true);
+			"selected", true);*/
+	$('#addAssetModel').data('modal').options.remote = context+"/Asset/Edit/"+rowTrickId;
+	$("#addAssetModel").modal('show');
 	return false;
 }
 
@@ -537,7 +537,7 @@ $(function() {
 	$("#section_asset")
 			.on(
 					"contextmenu",
-					"table tr",
+					"table tbody tr",
 					function(e) {
 						$contextMenu.css({
 							display : "block",
@@ -562,8 +562,13 @@ $(function() {
 	$contextMenu.on("click", "a", function() {
 		$contextMenu.hide();
 	});
-	$contextMenu.on("focusout", function() {
+	
+	$('html').click(function() {
 		$contextMenu.hide();
+	});
+
+	$('#asset_contextMenu').click(function(event){
+	    event.stopPropagation();
 	});
 });
 
@@ -614,7 +619,7 @@ $(function() {
 		var $window = $(window);
 		var $body = $(document.body);
 		var $sideBar = $('.bs-sidebar');
-		var navHeight = $('.nav-tabs').outerHeight(true) + 10;
+		var navHeight = $('.nav-container').outerHeight(true) + 10;
 
 		$body.scrollspy({
 			target : '.bs-sidebar',
@@ -669,15 +674,15 @@ $(function() {
 		});
 
 		// tooltip demo
-		$('.tooltip-demo').tooltip({
+		/*$('.tooltip-demo').tooltip({
 			selector : "[data-toggle=tooltip]",
 			container : "nav-container"
 		});
-		$('.tooltip-test').tooltip();
-		$('.popover-test').popover();
+		//$('.tooltip-test').tooltip();
+		//$('.popover-test').popover();
 		$('.bs-docs-navbar').tooltip({
 			selector : "a[data-toggle=tooltip]",
 			container : ".bs-docs-navbar .nav"
-		});
+		});*/
 	});
 }(window.jQuery);

@@ -61,8 +61,11 @@
 									code="label.asset.value" text="Value" />
 							</label>
 							<div class="col-sm-10">
-								<input name="value" id="asset_value" class="form-control"
-									type="number" />
+								<div class="input-group">
+									<input name="value"
+										id="asset_value" class="form-control" type="number" />
+										<span class="input-group-addon">k&euro;</span> 
+								</div>
 							</div>
 						</div>
 						<div class="form-group">
