@@ -32,8 +32,7 @@ public class Constant {
 		"^([a-zA-Zàãâáäãåæèêéëñíïìîøôõòóùûúüĉĝĥĵŝŭýšžčçß-]+[',.]?\\s?){1,4}";
 
 	/** Email Regular expression to be valid */
-	public static final String REGEXP_VALID_EMAIL = "^[\\w\\-]([\\.\\w])+[\\w]+"
-		+ "@([\\w\\-]+\\.)+[A-Z]{2,4}$";
+	public static final String REGEXP_VALID_EMAIL = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
 	/** Telephone number regular expression to be valid */
 	public static final String REGEXP_VALID_PHONE = "^(\\+)?(\\d){5,}$";

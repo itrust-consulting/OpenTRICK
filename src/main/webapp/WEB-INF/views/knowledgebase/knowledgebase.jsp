@@ -44,6 +44,7 @@
 					<jsp:include page="customer/customers.jsp" />
 					<jsp:include page="language/languages.jsp" />
 					<jsp:include page="standard/norms.jsp" />
+					<jsp:include page="widget.jsp" />
 				</div>
 
 			</div>

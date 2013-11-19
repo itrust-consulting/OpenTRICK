@@ -2,16 +2,24 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec"	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec"
+	uri="http://www.springframework.org/security/tags"%>
 
 <div class="section">
 	<div class="page-header">
-		<h3 id="Customers"><spring:message code="menu.knowledgebase.customers" /></h3>
+		<h3 id="Customers">
+			<spring:message code="menu.knowledgebase.customers" />
+		</h3>
 	</div>
-	<a href="Add"><spring:message code="label.customer.add.menu" /></a>
 	<c:if test="${!empty customers}">
 		<div class="panel panel-default">
-			<div class="panel-heading">&nbsp;</div>
+			<div class="panel-heading">
+				<button class="btn btn-default" data-toggle="modal"
+					data-target="#addCustomerModel">
+					<spring:message code="label.customer.add.menu"
+						text="Add new Customer" />
+				</button>
+			</div>
 			<div class="panel-body">
 				<table class="table">
 					<thead>
@@ -38,7 +46,9 @@
 								<td>${customer.country}</td>
 								<td>${customer.telephoneNumber}</td>
 								<td>${customer.email}</td>
-								<td><a href="Edit/${customer.id}"><spring:message code="label.action.edit" /></a>|<a href="Delete/${customer.id}"><spring:message code="label.action.delete" /></a></td>
+								<td><a href="Edit/${customer.id}"><spring:message
+											code="label.action.edit" /></a>|<a href="Delete/${customer.id}"><spring:message
+											code="label.action.delete" /></a></td>
 							</tr>
 						</c:forEach>
 					</tbody>
@@ -46,8 +56,21 @@
 			</div>
 		</div>
 	</c:if>
-	
+
 	<c:if test="${empty customers}">
-		<h4><spring:message code="label.customer.notexist" /></h4>	
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<button class="btn btn-default" data-toggle="modal"
+					data-target="#addCustomerModel">
+					<spring:message code="label.customer.add.menu"
+						text="Add new Customer" />
+				</button>
+			</div>
+			<div class="panel-body">
+				<h4>
+					<spring:message code="label.customer.notexist" />
+				</h4>
+			</div>
+		</div>
 	</c:if>
 </div>

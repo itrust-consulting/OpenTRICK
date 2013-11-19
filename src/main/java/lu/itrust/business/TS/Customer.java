@@ -2,6 +2,8 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import org.hibernate.validator.constraints.impl.EmailValidator;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
@@ -263,7 +265,7 @@ public class Customer implements Serializable {
 	 *            The value to set the Email (from the Contact Person or Organisation)
 	 */
 	public void setEmail(String email) {
-		if (((email == null) || (email.trim().equals("")) || (email.matches(Constant.REGEXP_VALID_EMAIL)))) {
+		if (((email == null) || (email.trim().equals("")) || (!email.matches(Constant.REGEXP_VALID_EMAIL)))) {
 			throw new IllegalArgumentException("Customer Email field cannot be null or empty and needs to be valid!");
 		}
 		this.email = email;

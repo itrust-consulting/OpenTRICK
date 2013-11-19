@@ -528,6 +528,12 @@ function saveAsset(form) {
 	});
 }
 
+function serializeForm(formId) {
+	var form = $("#" + formId);
+	var data = form.serializeJSON();
+	return JSON.stringify(data);
+}
+
 $(function() {
 	var $contextMenu = $("#asset_contextMenu");
 
