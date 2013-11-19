@@ -37,7 +37,7 @@ public class ControllerKnowledgeBase {
 	private ServiceCustomer serviceCustomer;
 	
 	
-	@RequestMapping("")
+	@RequestMapping
 	public String displayKowledgeBase(Map<String, Object> model) throws Exception  {
 		
 		model.put("customers",serviceCustomer.loadAll());

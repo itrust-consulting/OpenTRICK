@@ -14,7 +14,7 @@
 <html>
 
 <!-- Include Header -->
-<jsp:include page="../header.jsp" />
+<jsp:include page="../../header.jsp" />
 
 <!-- ################################################################# Start Container ############################################################## -->
 
@@ -22,14 +22,14 @@
 	<div id="wrap">
 		<!-- ################################################################### Nav Menu ################################################################### -->
 
-		<jsp:include page="../menu.jsp" />
+		<jsp:include page="../../menu.jsp" />
 
 		<div class="container">
 
 			<!-- #################################################################### Content ################################################################### -->
 
 			<div class="content" id="content">
-				<jsp:include page="../successErrors.jsp" />
+				<jsp:include page="../../successErrors.jsp" />
 
 				<h1>
 					<spring:message code="label.measure.measures" />
@@ -77,9 +77,9 @@
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
 
-		<jsp:include page="../footer.jsp" />
+		<jsp:include page="../../footer.jsp" />
 
-		<jsp:include page="../scripts.jsp" />
+		<jsp:include page="../../scripts.jsp" />
 	</div>
 </body>
 

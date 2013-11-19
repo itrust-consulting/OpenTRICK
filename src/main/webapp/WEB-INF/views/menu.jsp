@@ -14,8 +14,8 @@
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
-<div class="navbar navbar-default navbar-fixed-top">
-	<div class="container">
+<div id="header" class="navbar navbar-default navbar-fixed-top">
+<div class="container">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle" data-toggle="collapse"
 				data-target=".navbar-collapse">
@@ -30,10 +30,10 @@
 					href="${pageContext.request.contextPath}/home"> <spring:message
 							code="label.menu.home" text="Home" />
 				</a></li>
-				<li ${menu.startsWith("KnowLedgeBase")? "class='active'" : ""}><a
-					href="${pageContext.request.contextPath}/KnowLedgeBase">
+				<li ${menu.startsWith("KnowledgeBase")? "class='active'" : ""}><a
+					href="${pageContext.request.contextPath}/KnowledgeBase">
 						<spring:message code="label.menu.analysis.knowledgebase"
-							text="KnowLedge Base" />
+							text="Knowledge Base" />
 				</a></li>
 				<li
 					${menu.startsWith("Analysis") && ! menu.startsWith("Analysis/Import")? "class='active'" : "" }>

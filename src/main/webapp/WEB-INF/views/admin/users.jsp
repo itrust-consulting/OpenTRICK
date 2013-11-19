@@ -17,7 +17,7 @@
 </head>
 <body>
 	<div id="wrap">
-		<jsp:include page="menu.jsp" />
+		<jsp:include page="../menu.jsp" />
 		<div class="container">
 			<div class="content" id="content">
 				<c:if test="${!empty users}">
@@ -50,8 +50,8 @@
 				</c:if>
 			</div>
 		</div>
-		<jsp:include page="footer.jsp" />
-		<jsp:include page="scripts.jsp" />
+		<jsp:include page="../footer.jsp" />
+		<jsp:include page="../scripts.jsp" />
 	</div>
 
 </body>
