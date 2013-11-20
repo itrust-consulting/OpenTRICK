@@ -5,18 +5,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
+
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.service.ServiceCustomer;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,19 +48,34 @@ public class ControllerCustomer {
 	 * 
 	 * */
 	@RequestMapping
-	public String loadAllCustomer(Map<String, Object> model) throws Exception {
+	public String loadAllCustomers(Map<String, Object> model) throws Exception {
 		model.put("customers", serviceCustomer.loadAll());
-		return "customer/customers";
+		return "knowledgebase/customer/customers";
 	}
 
+	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String section(Model model, HttpSession session, Principal principal) throws Exception{
+		model.addAttribute("customers", serviceCustomer.loadAll());
+		return "knowledgebase/customer/customers";
+	}
+	
 	/**
 	 * 
 	 * Display single customer
 	 * 
 	 * */
-	@Secured("ROLE_USER")
 	@RequestMapping("/{customerId}")
-	public String profil(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
+	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
 			throws Exception {
 		Customer customer = (Customer) session.getAttribute("customer");
 		if (customer == null || customer.getId() != customerId)
@@ -70,24 +85,21 @@ public class ControllerCustomer {
 			redirectAttributes.addFlashAttribute("errors", msg);
 			return "redirect:/KnowLedgeBase/Customer/Display";
 		}
-		model.put("customerProfil", customer);
-		return "customer/showCustomer";
+		model.put("customer", customer);
+		return "knowledgebase/customer/showCustomer";
 	}
 
 	/**
+	 * save: <br>
+	 * Description
 	 * 
-	 * Request add new customer
-	 * 
-	 * */
-	@RequestMapping("/Add")
-	public String addCustomer(Map<String, Object> model) {
-		model.put("customer", new Customer());
-		return "customer/addCustomer";
-	}
-
+	 * @param value
+	 * @param locale
+	 * @return
+	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	List<String[]> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
+	List<String[]> save(@RequestBody String value, Locale locale) {
 		List<String[]> errors = new LinkedList<>();
 		try {
 
@@ -108,57 +120,18 @@ public class ControllerCustomer {
 
 	/**
 	 * 
-	 * Request edit single customer
-	 * 
-	 * */
-	@RequestMapping("/Edit/{customerId}")
-	public String editCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
-			throws Exception {
-		Customer customer = (Customer) session.getAttribute("customer");
-		if (customer == null || customer.getId() != customerId)
-			customer = serviceCustomer.get(customerId);
-		if (customer == null) {
-			String msg = messageSource.getMessage("errors.customer.notexist", null, "Customer does not exist", locale);
-			redirectAttributes.addFlashAttribute("errors", msg);
-			return "redirect:/KnowLedgeBase/Customer/Display";
-		}
-		model.put("customerProfil", customer);
-		return "customer/editCustomer";
-	}
-
-	/**
-	 * 
-	 * Perform edit single customer
-	 * 
-	 * */
-	@RequestMapping("/Update/{customerId}")
-	public String updateCustomer(@PathVariable("customerId") Integer customerId, @ModelAttribute("customer") @Valid Customer customer, BindingResult result,
-			RedirectAttributes redirectAttributes, Locale locale) throws Exception {
-		if (customer == null || customer.getId() != customerId) {
-			String msg = messageSource.getMessage("errors.customer.update.notrecognized", null, "Customer not recognized", locale);
-			redirectAttributes.addFlashAttribute("errors", msg);
-		} else {
-			try {
-				serviceCustomer.saveOrUpdate(customer);
-				String msg = messageSource.getMessage("success.customer.update.success", null, "Customer had been updated!", locale);
-				redirectAttributes.addFlashAttribute("success", msg);
-			} catch (Exception e) {
-				String msg = messageSource.getMessage("errors.customer.update.fail", null, "Customer update failed!", locale);
-				redirectAttributes.addFlashAttribute("errors", msg);
-			}
-		}
-		return "redirect:/KnowLedgeBase/Customer/Display";
-	}
-
-	/**
-	 * 
 	 * Delete single customer
 	 * 
 	 * */
-	@RequestMapping("/Delete/{customerId}")
-	public String deleteCustomer(@PathVariable("customerId") Integer customerId) throws Exception {
-		serviceCustomer.remove(customerId);
-		return "redirect:../Display";
+	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody String[] deleteCustomer(@PathVariable("customerId") Integer customerId, Locale locale) throws Exception {
+		serviceCustomer.remove(customerId);		
+		return new String[] {
+			"error",
+			messageSource.getMessage("success.customer.delete.successfully", null,
+					"Customer was deleted successfully", locale) 
+		};
+		
 	}
 
 	/**

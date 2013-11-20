@@ -7,12 +7,10 @@ function changePassword() {
 	return false;
 }
 
-function MessageResolver(code, defaulttext) {
+function MessageResolver(code, defaulttext,params) {
 	$.ajax({
 		url : context + "/MessageResolver",
-		data : {
-			source : code
-		},
+		data : {"code":code},
 		contentType : "application/json",
 		success : function(response) {
 			if (response == null || response == "")
@@ -456,7 +454,10 @@ function getControllerBySection(section) {
 	var controllers = {
 		"section_asset" : "/Asset/Section",
 		"section_parameter" : "/Parameter/Section",
-		"section_scenario" : "/Scenario/Section"
+		"section_scenario" : "/Scenario/Section",
+		"section_customer":"/KnowledgeBase/Customer/Section",
+		"section_language":"/KnowledgeBase/Language/Section",
+		"section_norm":"/KnowledgeBase/Norm/Section"
 	};
 	return controllers[section];
 }

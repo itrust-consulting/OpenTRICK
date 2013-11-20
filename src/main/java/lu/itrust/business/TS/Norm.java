@@ -44,9 +44,7 @@ public class Norm implements Serializable {
 	 *            The Norm Name
 	 */
 	public Norm(String label) {
-		if (label == null || !label.matches(Constant.REGEXP_VALID_NORM_NAME))
-			throw new IllegalArgumentException("Given Norm Name is not valid!");
-		this.label = label;
+		this.setLabel(label);
 	}
 
 	/***********************************************************************************************
@@ -92,7 +90,7 @@ public class Norm implements Serializable {
 	 *            The Value to set the label field
 	 */
 	public void setLabel(String label) {
-		if (label == null || !label.matches(Constant.REGEXP_VALID_NORM_NAME))
+		if ((label == null) || (label.trim().equals(Constant.EMPTY_STRING)))
 			throw new IllegalArgumentException("Given Norm Name is not valid!");
 		this.label = label;
 	}

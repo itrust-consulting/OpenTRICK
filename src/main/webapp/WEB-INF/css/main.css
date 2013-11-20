@@ -25,7 +25,6 @@ body {
 	width:70%;
 }
 
-
 code {
   font-size: 80%;
 }
@@ -34,8 +33,14 @@ code {
 	height:50px;
 }
 
+#footer {
+	height:50px;
+	padding-top:15px;
+	padding-bottom:15px;
+}
+
 #content {
-	height:75%;
 	overflow:auto;
 	padding:15px;
+	height:75%
 }

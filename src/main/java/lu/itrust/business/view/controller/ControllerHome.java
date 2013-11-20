@@ -5,7 +5,9 @@ package lu.itrust.business.view.controller;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -14,9 +16,11 @@ import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.view.model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -32,6 +36,9 @@ public class ControllerHome {
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
 
+	@Autowired
+	private MessageSource messageSource;
+	
 	@Secured("ROLE_USER")
 	@RequestMapping("/home")
 	public String home(HttpSession session, Principal principal)
@@ -45,6 +52,13 @@ public class ControllerHome {
 		}
 		return "index";
 	}
+	
+	@RequestMapping(value = "/MessageResolver", method = RequestMethod.GET, headers = "Accept=application/json")
+    public @ResponseBody
+    String resolveMessage(Locale locale, HttpServletRequest request) {
+		String code = request.getParameter("code");
+        return messageSource.getMessage(code, null, locale);
+    }
 	
 	@Secured("ROLE_USER")
 	@RequestMapping("/feedback")

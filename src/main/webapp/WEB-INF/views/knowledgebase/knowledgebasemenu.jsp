@@ -13,7 +13,7 @@
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
-<div class="col-md-3">
+<div id="submenu" class="col-md-2">
 	<div id="knowledgebasemenu" class="bs-sidebar hidden-print affix" role="complementary">
 		<ul class="nav bs-sidenav">
 			<li class="active">
