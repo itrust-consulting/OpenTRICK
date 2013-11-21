@@ -7,10 +7,12 @@ function changePassword() {
 	return false;
 }
 
-function MessageResolver(code, defaulttext,params) {
+function MessageResolver(code, defaulttext, params) {
 	$.ajax({
 		url : context + "/MessageResolver",
-		data : {"code":code},
+		data : {
+			"code" : code
+		},
 		contentType : "application/json",
 		success : function(response) {
 			if (response == null || response == "")
@@ -24,11 +26,7 @@ function MessageResolver(code, defaulttext,params) {
 function extract(data) {
 	var parser = new DOMParser();
 	var doc = parser.parseFromString(data, "text/html");
-	$("#content")
-			.html(
-					doc.getElementById("login") == null ? doc
-							.getElementById("content").innerHTML : doc
-							.getElementById("login").outerHTML);
+	$("#content").html(doc.getElementById("login") == null ? doc.getElementById("content").innerHTML : doc.getElementById("login").outerHTML);
 	return false;
 }
 
@@ -75,8 +73,7 @@ function refraichContentSideLeft() {
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
-			$("#content_side_left").html(
-					doc.getElementById("content_side_left").innerHTML);
+			$("#content_side_left").html(doc.getElementById("content_side_left").innerHTML);
 		}
 	});
 	return false;
@@ -99,8 +96,7 @@ function extractLeftSide(data) {
 	if (doc.getElementById("login") != null)
 		$("#content").html(doc.getElementById("login").outerHTML);
 	else
-		$("#content_side_left").html(
-				doc.getElementById("content_side_left").innerHTML);
+		$("#content_side_left").html(doc.getElementById("content_side_left").innerHTML);
 	return false;
 }
 
@@ -197,8 +193,7 @@ function TaskManager() {
 			task = document.getElementById("task_" + taskId);
 			task.insertBefore(div, task.firstChild);
 		}
-		var progressbar = $("#" + taskId + "-progress-bar"), progressLabel = $("#"
-				+ taskId + "-progress-label");
+		var progressbar = $("#" + taskId + "-progress-bar"), progressLabel = $("#" + taskId + "-progress-label");
 		progressbar.progressbar({
 			value : false,
 			change : function() {
@@ -227,8 +222,7 @@ function TaskManager() {
 					div.setAttribute("id", "task_" + taskId);
 					var linkRemove = document.createElement("a");
 					linkRemove.setAttribute("class", "ui-button");
-					linkRemove.setAttribute("onclick", "return cancelTask('"
-							+ taskId + "');");
+					linkRemove.setAttribute("onclick", "return cancelTask('" + taskId + "');");
 					linkRemove.setAttribute("href", "#");
 					linkRemove.appendChild(document.createTextNode("X"));
 					var text = document.createElement("label");
@@ -239,13 +233,11 @@ function TaskManager() {
 					if (tasks == null)
 						return;
 					tasks.insertBefore(div, tasks.firstChild);
-					instance.progressBars[taskId] = instance
-							.createProgressBar(taskId);
+					instance.progressBars[taskId] = instance.createProgressBar(taskId);
 				}
 				if (reponse.message != null) {
 					$("#task_" + taskId + ">label").text(reponse.message);
-					instance.progressBars[taskId].progressbar("value",
-							reponse.progress);
+					instance.progressBars[taskId].progressbar("value", reponse.progress);
 				}
 				if (reponse.flag < 5) {
 					setTimeout(function() {
@@ -325,9 +317,7 @@ function saveField(element, controller, id, field, type) {
 		$.ajax({
 			url : context + "/editField/" + controller,
 			type : "post",
-			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"'
-					+ defaultValueByType($(element).prop("value"), type, true)
-					+ '", "type": "' + type + '"}',
+			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"' + defaultValueByType($(element).prop("value"), type, true) + '", "type": "' + type + '"}',
 			contentType : "application/json",
 			success : function(response) {
 				if (response == "" || response == null) {
@@ -383,8 +373,7 @@ function editAssetRow(rowTrickId) {
 	$("#asset_comment").text($(rows[4]).text());
 	$("#asset_hiddenComment").text($(rows[5]).text());
 	$("#addAssetModel").modal('toggle');
-	$("#asset_assettype_id option[text='" + $(rows[1]).text() + "']").prop(
-			"selected", true);
+	$("#asset_assettype_id option[text='" + $(rows[1]).text() + "']").prop("selected", true);
 	return false;
 }
 
@@ -398,8 +387,7 @@ function editField(element, controller, id, field, type) {
 	input.setAttribute("value", content);
 	input.setAttribute("class", "form-control");
 	input.setAttribute("placeholder", content);
-	input.setAttribute("onblur", "return saveField(this,'" + controller + "','"
-			+ id + "','" + field + "','" + type + "')");
+	input.setAttribute("onblur", "return saveField(this,'" + controller + "','" + id + "','" + field + "','" + type + "')");
 	if (element.firstChild != null)
 		element.replaceChild(input, element.firstChild);
 	else
@@ -418,8 +406,7 @@ function findAllAssetType(selector) {
 			var option = document.createElement("option");
 			option.setAttribute("value", -1);
 			element.innerHTML = "";
-			option.appendChild(document.createTextNode(MessageResolver(
-					"label.asset.type.default", "Select assettype")));
+			option.appendChild(document.createTextNode(MessageResolver("label.asset.type.default", "Select assettype")));
 			element.appendChild(option);
 			for (var int = 0; int < reponse.length; int++) {
 				var assettype = reponse[int];
@@ -440,9 +427,7 @@ function showError(parent, text) {
 	close.setAttribute("data-dismiss", "alert");
 	error.setAttribute("class", "alert alert-error");
 	error.setAttribute("aria-hidden", "true");
-	error
-			.setAttribute("style",
-					"background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
+	error.setAttribute("style", "background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
 	close.appendChild(document.createTextNode("x"));
 	error.appendChild(close);
 	error.appendChild(document.createTextNode(text));
@@ -455,9 +440,9 @@ function getControllerBySection(section) {
 		"section_asset" : "/Asset/Section",
 		"section_parameter" : "/Parameter/Section",
 		"section_scenario" : "/Scenario/Section",
-		"section_customer":"/KnowledgeBase/Customer/Section",
-		"section_language":"/KnowledgeBase/Language/Section",
-		"section_norm":"/KnowledgeBase/Norm/Section"
+		"section_customer" : "/KnowledgeBase/Customer/Section",
+		"section_language" : "/KnowledgeBase/Language/Section",
+		"section_norm" : "/KnowledgeBase/Norm/Section"
 	};
 	return controllers[section];
 }
@@ -482,25 +467,23 @@ function reloadSection(section) {
 		var controller = getControllerBySection(section);
 		if (controller == null || controller == undefined)
 			return false;
-		$
-				.ajax({
-					url : context + controller,
-					type : "get",
-					async : true,
-					contentType : "application/json",
-					success : function(response) {
-						var parser = new DOMParser();
-						var doc = parser.parseFromString(response, "text/html");
-						newSection = $(doc).find("*[id = '" + section + "']");
-						oldSection = $(document.body).find(
-								"*[id = '" + section + "']");
-						$(oldSection).html($(newSection).html());
-						return result;
-					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						return result;
-					},
-				});
+		$.ajax({
+			url : context + controller,
+			type : "get",
+			async : true,
+			contentType : "application/json",
+			success : function(response) {
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(response, "text/html");
+				newSection = $(doc).find("*[id = '" + section + "']");
+				oldSection = $(document.body).find("*[id = '" + section + "']");
+				$(oldSection).html($(newSection).html());
+				return result;
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				return result;
+			},
+		});
 	}
 }
 
@@ -514,8 +497,7 @@ function saveAsset(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document
-					.getElementById(form), data);
+			result = data == "" ? true : showError(document.getElementById(form), data);
 			if (result) {
 				$("#addAssetModel").modal("hide");
 				reloadSection("section_asset");
@@ -541,31 +523,22 @@ $(function() {
 	if ($contextMenu == null || $contextMenu == undefined)
 		return false;
 
-	$("#section_asset")
-			.on(
-					"contextmenu",
-					"table tr",
-					function(e) {
-						$contextMenu.css({
-							display : "block",
-							left : $(e.target).position().left,
-							top : $(e.target).position().top + 20
-						});
-						if ($(e.currentTarget).attr('trick-selected') == "true") {
-							$contextMenu.find("li[name='select']").attr(
-									"hidden", true);
-							$contextMenu.find("li[name='unselect']").attr(
-									"hidden", false);
-						} else {
-							$contextMenu.find("li[name='select']").attr(
-									"hidden", false);
-							$contextMenu.find("li[name='unselect']").attr(
-									"hidden", true);
-						}
-						$contextMenu.attr("trick-selected-id", $(
-								e.currentTarget).attr('trick-id'));
-						return false;
-					});
+	$("#section_asset").on("contextmenu", "table tr", function(e) {
+		$contextMenu.css({
+			display : "block",
+			left : $(e.target).position().left,
+			top : $(e.target).position().top + 20
+		});
+		if ($(e.currentTarget).attr('trick-selected') == "true") {
+			$contextMenu.find("li[name='select']").attr("hidden", true);
+			$contextMenu.find("li[name='unselect']").attr("hidden", false);
+		} else {
+			$contextMenu.find("li[name='select']").attr("hidden", false);
+			$contextMenu.find("li[name='unselect']").attr("hidden", true);
+		}
+		$contextMenu.attr("trick-selected-id", $(e.currentTarget).attr('trick-id'));
+		return false;
+	});
 	$contextMenu.on("click", "a", function() {
 		$contextMenu.hide();
 	});
@@ -583,34 +556,31 @@ $(function() {
 	$.fn.serializeJSON = function() {
 		var json = {};
 		var form = $(this);
-		form.find('input, select, textarea').each(
-				function() {
-					var val;
-					if (!this.name)
-						return;
+		form.find('input, select, textarea').each(function() {
+			var val;
+			if (!this.name)
+				return;
 
-					if ('radio' === this.type) {
-						if (json[this.name]) {
-							return;
-						}
+			if ('radio' === this.type) {
+				if (json[this.name]) {
+					return;
+				}
 
-						json[this.name] = this.checked ? this.value : '';
-					} else if ('checkbox' === this.type) {
-						val = json[this.name];
+				json[this.name] = this.checked ? this.value : '';
+			} else if ('checkbox' === this.type) {
+				val = json[this.name];
 
-						if (!this.checked) {
-							if (!val) {
-								json[this.name] = '';
-							}
-						} else {
-							json[this.name] = typeof val === 'string' ? [ val,
-									this.value ] : $.isArray(val) ? $.merge(
-									val, [ this.value ]) : this.value;
-						}
-					} else {
-						json[this.name] = this.value;
+				if (!this.checked) {
+					if (!val) {
+						json[this.name] = '';
 					}
-				});
+				} else {
+					json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
+				}
+			} else {
+				json[this.name] = this.value;
+			}
+		});
 		return json;
 	};
 
@@ -645,15 +615,13 @@ $(function() {
 				offset : {
 					top : function() {
 						var offsetTop = $sideBar.offset().top;
-						var sideBarMargin = parseInt($sideBar.children(0).css(
-								'margin-top'), 10);
+						var sideBarMargin = parseInt($sideBar.children(0).css('margin-top'), 10);
 						var navOuterHeight = $('.bs-docs-nav').height();
 
 						// We can cache the height of the header (hence the
 						// this.top=)
 						// This function will never be called again.
-						return (this.top = offsetTop - navOuterHeight
-								- sideBarMargin);
+						return (this.top = offsetTop - navOuterHeight - sideBarMargin);
 					},
 					bottom : function() {
 						// We can't cache the height of the footer, since it

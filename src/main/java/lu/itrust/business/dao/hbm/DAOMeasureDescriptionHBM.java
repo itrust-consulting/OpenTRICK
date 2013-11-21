@@ -5,7 +5,6 @@ import java.util.List;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.Norm;
-
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;

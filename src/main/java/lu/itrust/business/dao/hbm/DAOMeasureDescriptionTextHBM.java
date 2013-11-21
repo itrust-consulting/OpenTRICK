@@ -25,7 +25,6 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 * 
 	 */
 	public DAOMeasureDescriptionTextHBM() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -70,6 +69,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	public MeasureDescriptionText getByLanguage(MeasureDescription mesDesc, Language language) throws Exception {
 		Query query = getSession().createQuery("from MeasureDescriptionText where measureDescription = :measureDescription and language= :language");
 		query.setParameter("measureDescription", mesDesc);
+		query.setParameter("language", language);
 		return (MeasureDescriptionText) query.uniqueResult();
 	}
 

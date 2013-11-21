@@ -165,5 +165,4 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	public List<MeasureDescription> getAllByNorm(String label) throws Exception {
 		return this.daoMeasureDescription.getAllByNorm(label);
 	}
-
 }

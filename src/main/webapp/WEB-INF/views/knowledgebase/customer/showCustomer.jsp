@@ -19,7 +19,7 @@
 			<!-- #################################################################### Content ################################################################### -->
 			<div class="row">
 				<div class="page-header">
-					<h1>Customer: ${customer.organisation}</h1>
+					<h1><spring:message code="label.customer" />: ${customer.organisation}</h1>
 				</div>
 				<div class="content col-md-10" id="content" role="main" data-spy="scroll">
 					<c:if test="${!empty customer}">

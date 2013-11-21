@@ -19,7 +19,7 @@
 			<!-- #################################################################### Content ################################################################### -->
 			<div class="row">
 				<div class="page-header">
-					<h1>Language: ${language.name}</h1>
+					<h1><spring:message code="label.language" />: ${language.name}</h1>
 				</div>
 				<div class="content col-md-10" id="content" role="main" data-spy="scroll">
 					<c:if test="${!empty language}">

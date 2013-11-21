@@ -28,7 +28,7 @@
 								<tr trick-id="${norm.id}">
 									<td>${norm.label}</td>
 									<td>
-										<a href="${norm.label}/Measures"><spring:message code="label.action.norm.showMeasures" /></a> | 
+										<a href="<spring:url value="KnowledgeBase/Norm/${norm.id}/Measures"/>" ><spring:message code="label.action.norm.showMeasures" /></a> | 
 										<a title="<spring:message code="label.action.edit" />" href="#" onclick="javascript:editSingleNorm(${norm.id});" class="btn btn-warning btn-sm">
 											<samp class="glyphicon glyphicon-edit"></samp>
 										</a> 
