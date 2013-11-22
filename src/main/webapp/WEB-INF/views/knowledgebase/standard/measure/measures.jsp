@@ -20,7 +20,8 @@
 			<div class="row">
 				<div class="page-header">
 					<h3 id="Measures">
-						<spring:message code="label.measure.measures" /> : ${norm}
+						<spring:message code="label.measure.measures" /> : ${norm.label}
+						<input type="hidden" id="normId" value="${norm.id}" />
 					</h3>
 				</div>
 				<div class="content" role="main" data-spy="scroll">
@@ -30,8 +31,13 @@
 								<button class="btn btn-default" onclick="newMeasure();">
 									<spring:message code="label.measure.add.menu" text="Add a new Measure" />
 								</button>
-								<select>
-								</select>
+								<c:if test="${!empty languages}">
+									<select id="languageselect">
+										<c:forEach items="${languages}" var="language">						
+												<option ${language.id == selectedLanguage.id?'selected="selected"':""} value="${language.id}">${language.name}</option>
+										</c:forEach>
+									</select>
+								</c:if>
 							</div>
 							<div class="panel-body">
 								<table id="measurestable">
@@ -82,28 +88,29 @@
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="../../../footer.jsp" />
-		<script src="${pageContext.request.contextPath}/js/jquery-2.0.js"></script>
-		<script src="${pageContext.request.contextPath}/js/jquery-ui.js"></script>
-		<script src="${pageContext.request.contextPath}/js/bootstrap.min.js"></script>
-		<script src="${pageContext.request.contextPath}/js/bootbox.min.js"></script>
-		<script src="${pageContext.request.contextPath}/js/dom-parser.js"></script>
-		<script src="${pageContext.request.contextPath}/js/main.js"></script>
-		<script src="${pageContext.request.contextPath}/js/datatables/media/js/jquery.dataTables.min.js"></script>
+		<jsp:include page="../../../scripts.jsp" />
+		<script src="<spring:url value="/js/measuredescription.js" />"></script>
 		<script type="text/javascript">
-							$(document).ready(function() {
-								$('#measurestable').dataTable({
-									"bLengthChange" : false,
-									"aoColumns": [
-													{ "sWidth": "20px" },
-													{ "sWidth": "20px" },
-													{ "sWidth": "20px" },
-													null,
-													null,
-													{ "sWidth": "20px" }
-												]
-								});
-							});
-						</script>
+			$(document).ready(function() {
+				var measurestable = $('#measurestable').dataTable({
+					"bLengthChange" : false,
+					"aoColumns": [
+									{ "sWidth": "20px" },
+									{ "sWidth": "20px" },
+									{ "sWidth": "20px" },
+									null,
+									null,
+									{ "sWidth": "20px" }
+								]
+				});
+			});
+			$("#languageselect").change(function(){
+				  var language = $(this).find("option:selected").attr("value");
+				  var normId = $("#normId").attr("value");
+				  alert(normId + ":::" + language);
+				  showMeasures(normId, language);
+			});			
+		</script>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

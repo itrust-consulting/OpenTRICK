@@ -1,5 +1,6 @@
 package lu.itrust.business.view.controller;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -20,13 +21,17 @@ import lu.itrust.business.service.ServiceMeasureDescription;
 import lu.itrust.business.service.ServiceMeasureDescriptionText;
 import lu.itrust.business.service.ServiceNorm;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -104,11 +109,18 @@ public class ControllerMeasureDescription {
 	 * 
 	 * */
 	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures")
-	public String displayAll(@PathVariable("normId") Integer normId,HttpServletRequest request, Map<String, Object> model) throws Exception {
+	public String displayAll(@PathVariable("normId") Integer normId, @RequestBody String value,HttpServletRequest request, Model model) throws Exception {
 		List<MeasureDescription> mesDescs = serviceMeasureDescription.getAllByNorm(normId);
+		int id = 0;
+		if (!value.equals("")){
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(value);
+			id = jsonNode.get("languageId").asInt();
+			//System.out.println(id);
+		}
 		Language lang = null;
-		if(request.getParameter("languageId")!=null) {
-			lang = serviceLanguage.get(Integer.valueOf(request.getParameter("languageId")));
+		if(id!=0) {
+			lang = serviceLanguage.get(id);
 		} else {
 			lang = serviceLanguage.loadFromAlpha3("ENG");
 		}
@@ -121,8 +133,10 @@ public class ControllerMeasureDescription {
 			}
 			mesDesc.addMeasureDescriptionText(mesDescText);
 		}
-		model.put("norm", serviceNorm.getNormByID(normId).getLabel());
-		model.put("measureDescriptions", mesDescs);
+		model.addAttribute("selectedLanguage", lang);	
+		model.addAttribute("languages", serviceLanguage.loadAll());
+		model.addAttribute("norm", serviceNorm.getNormByID(normId));
+		model.addAttribute("measureDescriptions", mesDescs);
 		return "knowledgebase/standard/measure/measures";
 	}
 
