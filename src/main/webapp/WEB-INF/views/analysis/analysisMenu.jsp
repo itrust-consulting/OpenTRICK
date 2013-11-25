@@ -18,7 +18,7 @@
 	<div id="analysismenu" class="bs-sidebar hidden-print affix"
 		role="complementary">
 		<ul class="nav bs-sidenav">
-			<li><a href="#section_history"> <spring:message
+			<li class="active"><a href="#section_history"> <spring:message
 						code="menu.analysis.history" text="History" />
 			</a></li>
 			<li><a href="#section_itemInformation"> <spring:message

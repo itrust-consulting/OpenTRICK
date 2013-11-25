@@ -2,6 +2,7 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
@@ -9,13 +10,14 @@ import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
  * SecurityCriteria: <br>
- * This class represents SecurityCriteria which are properties of either a Measure or a Scenario.
+ * This class represents SecurityCriteria which are properties of either a
+ * Measure or a Scenario.
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
  * @since 2012-11-26
  */
-public abstract class SecurityCriteria implements Serializable {
+public abstract class SecurityCriteria implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -107,7 +109,8 @@ public abstract class SecurityCriteria implements Serializable {
 
 	/**
 	 * setDirect1: <br>
-	 * Sets the "Direct1" with a value. Uses {@link #setCategoryValue(String, int)}.
+	 * Sets the "Direct1" with a value. Uses
+	 * {@link #setCategoryValue(String, int)}.
 	 * 
 	 * @param value
 	 *            the value to set
@@ -632,7 +635,8 @@ public abstract class SecurityCriteria implements Serializable {
 
 	/**
 	 * setConfidentiality: <br>
-	 * Sets the "Confidentiality" value. Uses {@link #setCategoryValue(String, int)}
+	 * Sets the "Confidentiality" value. Uses
+	 * {@link #setCategoryValue(String, int)}
 	 * 
 	 * @param value
 	 *            Value to set
@@ -674,7 +678,8 @@ public abstract class SecurityCriteria implements Serializable {
 
 	/**
 	 * setAvailability: <br>
-	 * Sets the "Availability" value. Uses {@link #setCategoryValue(String, int)}
+	 * Sets the "Availability" value. Uses
+	 * {@link #setCategoryValue(String, int)}
 	 * 
 	 * @param value
 	 *            Value to set the Availability
@@ -882,13 +887,14 @@ public abstract class SecurityCriteria implements Serializable {
 	 * @return True if Key is valid; False if Key is not valid
 	 */
 	public boolean isCategoryKey(String category) {
-		return category != null && category.matches(Constant.REGEXP_VALID_SCENARIO_CATEGORY);
+		return category != null
+				&& category.matches(Constant.REGEXP_VALID_SCENARIO_CATEGORY);
 	}
 
 	/**
 	 * isValidValue: <br>
-	 * Checks if a given Value is valid. Will be overriden inside inherited classes (Scenario and
-	 * MeasureProperties).
+	 * Checks if a given Value is valid. Will be overriden inside inherited
+	 * classes (Scenario and MeasureProperties).
 	 * 
 	 * @param value
 	 *            The Value to check
@@ -898,9 +904,11 @@ public abstract class SecurityCriteria implements Serializable {
 
 	/**
 	 * hasCSSFInfluence: <br>
-	 * Check if this object has CSSF Categories that are influenced. (CSSF Category Value is > 0).
+	 * Check if this object has CSSF Categories that are influenced. (CSSF
+	 * Category Value is > 0).
 	 * 
-	 * @return True if there is at least 1 CSSF category influenced; False if none are influenced
+	 * @return True if there is at least 1 CSSF category influenced; False if
+	 *         none are influenced
 	 */
 	public boolean hasCSSFInfluence() {
 
@@ -916,7 +924,8 @@ public abstract class SecurityCriteria implements Serializable {
 		// parse all keys
 		for (String category : keys) {
 
-			// retrieve value for this key or add new key if it does not exist, and check if
+			// retrieve value for this key or add new key if it does not exist,
+			// and check if
 			// value > 0
 			if (getCategoryValue(category) != 0) {
 
@@ -931,10 +940,11 @@ public abstract class SecurityCriteria implements Serializable {
 
 	/**
 	 * hasCIAInfluence: <br>
-	 * Check if Categories Confidentiality, Integrity or Availability are influenced (Category Value
-	 * > 0).
+	 * Check if Categories Confidentiality, Integrity or Availability are
+	 * influenced (Category Value > 0).
 	 * 
-	 * @return True if at least 1 Category is influenced; False if none is influenced
+	 * @return True if at least 1 Category is influenced; False if none is
+	 *         influenced
 	 */
 	public boolean hasCIAInfluence() {
 
@@ -950,7 +960,8 @@ public abstract class SecurityCriteria implements Serializable {
 		// parse all keys
 		for (String category : keys) {
 
-			// retrieve value for this key or add new key if it does not exist, and check if
+			// retrieve value for this key or add new key if it does not exist,
+			// and check if
 			// value > 0
 			if (getCategoryValue(category) != 0) {
 
@@ -967,8 +978,8 @@ public abstract class SecurityCriteria implements Serializable {
 	 * hasInfluenceOnAllCategories: <br>
 	 * Checks if Categories of CIA or CSSF are influenced.
 	 * 
-	 * @return True if CIA or CSSF Categories are influenced. Returns False if none of both
-	 *         Categories are influenced.
+	 * @return True if CIA or CSSF Categories are influenced. Returns False if
+	 *         none of both Categories are influenced.
 	 */
 	public boolean hasInfluenceOnAllCategories() {
 
@@ -980,10 +991,11 @@ public abstract class SecurityCriteria implements Serializable {
 
 	/**
 	 * hasInfluenceOnCategory: <br>
-	 * Checks if given Category exists and is valid, then checks if it is influenced. (Category
-	 * Value > 0)
+	 * Checks if given Category exists and is valid, then checks if it is
+	 * influenced. (Category Value > 0)
 	 * 
-	 * @return True if the given category is influenced. Returns False if it is not influenced.
+	 * @return True if the given category is influenced. Returns False if it is
+	 *         not influenced.
 	 */
 	public boolean hasInfluenceOnCategory(String key) {
 		return isCategoryKey(key) && getCategoryValue(key) != 0;
@@ -991,9 +1003,10 @@ public abstract class SecurityCriteria implements Serializable {
 
 	/**
 	 * getCategoryValue: <br>
-	 * Checks if the given Category Key is valid, then checks if the Key exists inside the Map. If
-	 * the Key exists: the value is returned, if the Key does not exist, it will be added with the
-	 * default value 0, which will be returned.
+	 * Checks if the given Category Key is valid, then checks if the Key exists
+	 * inside the Map. If the Key exists: the value is returned, if the Key does
+	 * not exist, it will be added with the default value 0, which will be
+	 * returned.
 	 * 
 	 * @param category
 	 *            The Key that represents the category
@@ -1007,7 +1020,8 @@ public abstract class SecurityCriteria implements Serializable {
 
 		// check if the category key is valid -> NO
 		if (!isCategoryKey(category)) {
-			throw new IllegalArgumentException("Category '" + category + "' is not Valid!");
+			throw new IllegalArgumentException("Category '" + category
+					+ "' is not Valid!");
 		}
 
 		// check if category key exists in MAP -> NO
@@ -1017,14 +1031,15 @@ public abstract class SecurityCriteria implements Serializable {
 			categories.put(category, 0);
 		}
 
-		// return value of Category (At this moment, the Key is valid and already exists in MAP)
+		// return value of Category (At this moment, the Key is valid and
+		// already exists in MAP)
 		return categories.get(category);
 	}
 
 	/**
 	 * setCategoryValue: <br>
-	 * Set the value of a key given by parameters. A check will be performed to have only valid keys
-	 * and valid values.
+	 * Set the value of a key given by parameters. A check will be performed to
+	 * have only valid keys and valid values.
 	 * 
 	 * @param category
 	 *            The Key that represents the Category
@@ -1039,13 +1054,15 @@ public abstract class SecurityCriteria implements Serializable {
 		// * Check if Category is valid
 		// ***********************************************************************
 		if (!isCategoryKey(category)) {
-			throw new IllegalArgumentException("Category '" + category + "' is not Valid!");
+			throw new IllegalArgumentException("Category '" + category
+					+ "' is not Valid!");
 
 			// ***********************************************************************
 			// * Check if Value is valid
 			// ***********************************************************************
 		} else if (!isValidValue(value)) {
-			throw new IllegalArgumentException("Category Value '" + value + "' is not Valid!");
+			throw new IllegalArgumentException("Category Value '" + value
+					+ "' is not Valid!");
 		}
 
 		// ***********************************************************************
@@ -1056,9 +1073,11 @@ public abstract class SecurityCriteria implements Serializable {
 
 	/**
 	 * getGenericCategoryKeys:<br>
-	 * Returns a String[] (array) with confidentiality, integrity and availability categories.
+	 * Returns a String[] (array) with confidentiality, integrity and
+	 * availability categories.
 	 * 
-	 * @return Array of Scenario Confidentiality, Integrity and Availability Categories
+	 * @return Array of Scenario Confidentiality, Integrity and Availability
+	 *         Categories
 	 */
 	public static final String[] getCIACategoryKeys() {
 		return CategoryConverter.TYPE_CIA_KEYS;
@@ -1083,4 +1102,28 @@ public abstract class SecurityCriteria implements Serializable {
 	public static final String[] getCategoryKeys() {
 		return CategoryConverter.JAVAKEYS;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public SecurityCriteria clone() throws CloneNotSupportedException {
+		SecurityCriteria securityCriteria = (SecurityCriteria) super.clone();
+		securityCriteria.categories = new LinkedHashMap<String, Integer>();
+		for (String key : categories.keySet())
+			securityCriteria.categories.put(key, categories.get(key));
+		return securityCriteria;
+	}
+
+	public SecurityCriteria duplicate() throws CloneNotSupportedException {
+		SecurityCriteria securityCriteria = (SecurityCriteria) super.clone();
+		securityCriteria.categories = new LinkedHashMap<String, Integer>();
+		for (String key : categories.keySet())
+			securityCriteria.categories.put(key, categories.get(key));
+		securityCriteria.id = -1;
+		return securityCriteria;
+	}
+
 }

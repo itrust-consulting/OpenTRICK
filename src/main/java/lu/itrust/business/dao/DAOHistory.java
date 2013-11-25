@@ -26,6 +26,8 @@ public interface DAOHistory {
 	
 	public boolean versionExists(Analysis analysis, String version) throws Exception;
 	
+	public List<String> findVersionByAnalysis(int analysisId);
+	
 	public boolean versionExists(Integer analysisId, String version) throws Exception;
 	
 	public List<History> loadAll() throws Exception;

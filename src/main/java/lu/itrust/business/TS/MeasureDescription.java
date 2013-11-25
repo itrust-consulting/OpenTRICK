@@ -3,6 +3,8 @@ package lu.itrust.business.TS;
 import java.util.ArrayList;
 import java.util.List;
 
+import lu.itrust.business.TS.tsconstant.Constant;
+
 /**
  * MeasureDescription: <br>
  * Represents the description of a Measure:
@@ -19,7 +21,7 @@ import java.util.List;
  * @version 0.1
  * @since Jan 28, 2013
  */
-public class MeasureDescription {
+public class MeasureDescription implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -32,7 +34,7 @@ public class MeasureDescription {
 	private Norm norm = null;
 
 	/** Measure Description Text List (one entry represents one language) */
-	private List<MeasureDescriptionText> measureDescriptionTexts =		new ArrayList<MeasureDescriptionText>();
+	private List<MeasureDescriptionText> measureDescriptionTexts =	new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */
 	private int level = -1;
@@ -209,5 +211,24 @@ public class MeasureDescription {
 		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts)
 			measureDescriptionText.setMeasureDescription(this);
 		this.measureDescriptionTexts = measureDescriptionTexts;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public MeasureDescription clone() throws CloneNotSupportedException {
+		return (MeasureDescription) super.clone();
+	}
+	
+	/**
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
+	public MeasureDescription duplicate() throws CloneNotSupportedException {
+		MeasureDescription measureDescription = (MeasureDescription) super.clone();
+		if(norm.getLabel().equalsIgnoreCase(Constant.NORM_CUSTOM))
+			measureDescription.id = -1;
+		return measureDescription;
 	}
 }

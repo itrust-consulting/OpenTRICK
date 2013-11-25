@@ -44,7 +44,7 @@
 							text="Please select a customer, choose a sqlite file and click on submit" />
 					</label>
 					<form id="importform" name="importform" method="post"
-						action="Execute" enctype="multipart/form-data">
+						action="${pageContext.request.contextPath}/Analysis/Import/Execute" enctype="multipart/form-data">
 						<div class="input-group">
 							<span class="text-muted"> 1. <spring:message
 									code="label.analysis.import.select.customer" /></span>

@@ -11,7 +11,7 @@ import java.sql.Date;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Phase implements Serializable {
+public class Phase implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -98,8 +98,10 @@ public class Phase implements Serializable {
 	 *            The value to set the Begin Date of the Phase
 	 */
 	public void setBeginDate(Date beginDate) {
-		if ((beginDate != null) && (this.endDate != null) && (!beginDate.before(endDate))) {
-			throw new IllegalArgumentException("Date is null or BeginDate is not less than EndDate");
+		if ((beginDate != null) && (this.endDate != null)
+				&& (!beginDate.before(endDate))) {
+			throw new IllegalArgumentException(
+					"Date is null or BeginDate is not less than EndDate");
 		}
 		this.beginDate = beginDate;
 	}
@@ -122,8 +124,10 @@ public class Phase implements Serializable {
 	 *            The value to set the End Date of the Phase
 	 */
 	public void setEndDate(Date endDate) {
-		if ((endDate != null) && (this.beginDate != null) && (!endDate.after(this.beginDate))) {
-			throw new IllegalArgumentException("Date is null or BeginDate is not less than EndDate");
+		if ((endDate != null) && (this.beginDate != null)
+				&& (!endDate.after(this.beginDate))) {
+			throw new IllegalArgumentException(
+					"Date is null or BeginDate is not less than EndDate");
 		}
 		this.endDate = endDate;
 	}
@@ -148,10 +152,10 @@ public class Phase implements Serializable {
 	public void setAnalysis(Analysis analysis) {
 		this.analysis = analysis;
 	}
-	
-	
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -164,7 +168,9 @@ public class Phase implements Serializable {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -206,4 +212,21 @@ public class Phase implements Serializable {
 	public void setId(int id) {
 		this.id = id;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Phase clone() throws CloneNotSupportedException {
+		return (Phase) super.clone();
+	}
+
+	public Phase duplicate() throws CloneNotSupportedException {
+		Phase phase = (Phase) super.clone();
+		phase.id = -1;
+		return phase;
+	}
+
 }

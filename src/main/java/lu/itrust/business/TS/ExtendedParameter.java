@@ -16,7 +16,7 @@ package lu.itrust.business.TS;
  * @version 0.1
  * @since 2012-08-21
  */
-public class ExtendedParameter extends Parameter {
+public class ExtendedParameter extends Parameter implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -103,5 +103,26 @@ public class ExtendedParameter extends Parameter {
 	 */
 	public void setBounds(Bounds bounds) {
 		this.bounds = bounds;
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.Parameter#clone()
+	 */
+	@Override
+	public ExtendedParameter clone() throws CloneNotSupportedException {
+		ExtendedParameter parameter = (ExtendedParameter) super.clone();
+		parameter.bounds = (Bounds) this.bounds.clone();
+		return parameter;
+	}
+	
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.Parameter#clone()
+	 */
+	@Override
+	public ExtendedParameter duplicate() throws CloneNotSupportedException {
+		ExtendedParameter parameter = (ExtendedParameter) super.duplicate();
+		parameter.bounds = (Bounds) this.bounds.clone();
+		return parameter;
 	}
 }

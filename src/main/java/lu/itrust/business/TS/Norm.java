@@ -12,7 +12,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 24 janv. 2013
  */
-public class Norm implements Serializable {
+public class Norm implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -23,7 +23,7 @@ public class Norm implements Serializable {
 
 	/** Norm ID */
 	private int id = -1;
-	
+
 	/** Norm Name */
 	private String label = "";
 
@@ -147,4 +147,27 @@ public class Norm implements Serializable {
 	public String toString() {
 		return "Norm [id=" + id + ", label=" + label + "]";
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Norm clone() throws CloneNotSupportedException {
+		return (Norm) super.clone();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	public Norm duplicate() throws CloneNotSupportedException {
+		Norm norm = (Norm) super.clone();
+		if (norm.label.equalsIgnoreCase(Constant.NORM_CUSTOM))
+			norm.id = -1;
+		return norm;
+	}
+
 }

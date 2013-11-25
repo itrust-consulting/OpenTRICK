@@ -26,7 +26,6 @@
 		<jsp:include page="../menu.jsp" />
 
 		<div class="container">
-
 			<div class="page-header" >
 				<c:choose>
 					<c:when test="${!empty(analyses) }">
@@ -40,18 +39,17 @@
 						</h1>
 					</c:when>
 				</c:choose>
+				<jsp:include page="../successErrors.jsp" />
 			</div>
 			<!-- #################################################################### Content ################################################################### -->
 
-			<div class="row" id="nav-container">
-
-				<jsp:include page="../successErrors.jsp" />
+			<div class="row nav-container" id="nav-container">
 				<!-- #################################################################### Analysis Menu ################################################################### -->
 
 				<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 					<jsp:include page="analysisMenu.jsp" />
 					<div class="content col-md-9">
-						<div id="content" role="main" data-spy="scroll">
+						<div id="content" role="main" >
 							<c:set var="histories" value="${analysis.histories}"
 								scope="request" />
 							<jsp:include page="./components/history.jsp" />
@@ -112,7 +110,13 @@
 											href="${pageContext.request.contextPath}/Analysis/Edit/${analysis.id}"
 											title='<spring:message code="label.action.edit" />'> <samp
 													class="glyphicon glyphicon-edit"></samp>
-										</a> <c:choose>
+										</a>
+										<a class="btn btn-warning btn-sm"
+											href="#"
+											title='<spring:message code="label.action.duplicate"  text="Duplicate"/>' onclick="return addHistory('${analysis.id}')" > <samp
+													class="glyphicon glyphicon-plus"></samp>
+										</a>
+										<c:choose>
 												<c:when test="${!analysis.isEmpty()}">
 													<a class="btn btn-success btn-sm"
 														href="${pageContext.request.contextPath}/export/analysis/${analysis.id}"
@@ -123,7 +127,6 @@
 														title='<spring:message code="label.action.compute.actionPlan" />'>
 														<samp class="glyphicon glyphicon-play"></samp>
 													</a>
-
 													<a class="btn btn-default btn-sm"
 														href="${pageContext.request.contextPath}/analysis/${analysis.id}/compute/riskRegister"
 														title="<spring:message code="label.action.compute.riskRegister" />">
@@ -139,6 +142,7 @@
 							</tbody>
 						</table>
 					</div>
+					<jsp:include page="components/widgets/historyForm.jsp" />
 				</c:if>
 				<!-- ################################################################ Include Footer ################################################################ -->
 			</div>

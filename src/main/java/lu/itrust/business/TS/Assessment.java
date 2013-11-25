@@ -15,7 +15,7 @@ import java.io.Serializable;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Assessment implements Serializable {
+public class Assessment implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -217,16 +217,17 @@ public class Assessment implements Serializable {
 	public String getImpactFin() {
 		return impactFin;
 	}
-	
-	protected String checkImpact(String impact){
-		/*if (impact == null)
-			throw new IllegalArgumentException("Impact value is null");
-		else if (impact.trim().isEmpty())
-			impact = "0";
-		else if (!impact.matches(Constant.REGEXP_VALID_IMPACT))
-			throw new IllegalArgumentException(
-					"Impact does not meet the regular expression: "
-							+ Constant.REGEXP_VALID_IMPACT);*/
+
+	protected String checkImpact(String impact) {
+		/*
+		 * if (impact == null) throw new
+		 * IllegalArgumentException("Impact value is null"); else if
+		 * (impact.trim().isEmpty()) impact = "0"; else if
+		 * (!impact.matches(Constant.REGEXP_VALID_IMPACT)) throw new
+		 * IllegalArgumentException(
+		 * "Impact does not meet the regular expression: " +
+		 * Constant.REGEXP_VALID_IMPACT);
+		 */
 		return impact.toLowerCase();
 	}
 
@@ -238,7 +239,7 @@ public class Assessment implements Serializable {
 	 *            The value to set "impactFin"
 	 */
 	public void setImpactFin(String impact) {
-		
+
 		this.impactFin = checkImpact(impact);
 	}
 
@@ -248,8 +249,7 @@ public class Assessment implements Serializable {
 
 	public void setImpactReal(double impactReal) {
 		if (impactReal < 0) {
-			throw new IllegalArgumentException(
-					"error.assessment.impact_value");
+			throw new IllegalArgumentException("error.assessment.impact_value");
 		}
 		this.impactReal = impactReal;
 	}
@@ -272,12 +272,13 @@ public class Assessment implements Serializable {
 	 *            The value to set "likelihood"
 	 */
 	public void setLikelihood(String likelihood) {
-		/*if ((likelihood == null)
-				|| (!likelihood.matches(Constant.REGEXP_VALID_LIKELIHOOD))) {
-			throw new IllegalArgumentException(
-					"Likelihood value is null or it does not meet the regular expression: "
-							+ Constant.REGEXP_VALID_LIKELIHOOD);
-		}*/
+		/*
+		 * if ((likelihood == null) ||
+		 * (!likelihood.matches(Constant.REGEXP_VALID_LIKELIHOOD))) { throw new
+		 * IllegalArgumentException(
+		 * "Likelihood value is null or it does not meet the regular expression: "
+		 * + Constant.REGEXP_VALID_LIKELIHOOD); }
+		 */
 		this.likelihood = likelihood;
 	}
 
@@ -300,8 +301,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setLikelihoodReal(double likelihood) {
 		if (likelihood < 0) {
-			throw new IllegalArgumentException(
-					"error.assessment.likelihood");
+			throw new IllegalArgumentException("error.assessment.likelihood");
 		}
 		this.likelihoodReal = likelihood;
 	}
@@ -460,7 +460,8 @@ public class Assessment implements Serializable {
 	 */
 	public boolean isUsable() {
 		return (this.getAsset() == null) || (this.getScenario() == null) ? false
-				: (this.isSelected() && this.getAsset().isSelected() && this.getScenario().isSelected() && this.getALE() > 0);
+				: (this.isSelected() && this.getAsset().isSelected()
+						&& this.getScenario().isSelected() && this.getALE() > 0);
 	}
 
 	/**
@@ -535,11 +536,16 @@ public class Assessment implements Serializable {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-
+	public Assessment clone() throws CloneNotSupportedException {
 		Assessment assessment = (Assessment) super.clone();
 		assessment.asset = (Asset) asset.clone();
 		assessment.scenario = (Scenario) scenario.clone();
+		return assessment;
+	}
+
+	public Assessment duplicate() throws CloneNotSupportedException {
+		Assessment assessment = (Assessment) super.clone();
+		assessment.id = -1;
 		return assessment;
 	}
 

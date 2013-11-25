@@ -12,7 +12,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 2012-08-21
  */
-public class ItemInformation {
+public class ItemInformation implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -125,5 +125,20 @@ public class ItemInformation {
 	public void setId(int id) {
 		this.id = id;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public ItemInformation clone() throws CloneNotSupportedException {
+		return (ItemInformation) super.clone();
+	}
+	
+	public ItemInformation duplicate() throws CloneNotSupportedException {
+		ItemInformation itemInformation = (ItemInformation) super.clone();
+		itemInformation.id = -1;
+		return itemInformation;
+	}
+	
 
 }

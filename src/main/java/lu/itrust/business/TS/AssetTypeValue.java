@@ -9,7 +9,7 @@ package lu.itrust.business.TS;
  * @version 0.1
  * @since 2012-08-21
  */
-public class AssetTypeValue {
+public class AssetTypeValue implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -112,10 +112,20 @@ public class AssetTypeValue {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public AssetTypeValue clone() throws CloneNotSupportedException {
+		return (AssetTypeValue) super.clone();
+	}
+	
+	/**
+	 * clone: <br>
+	 * Description
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	public AssetTypeValue duplicate() throws CloneNotSupportedException {
 		AssetTypeValue assetTypeValue = (AssetTypeValue) super.clone();
-		assetTypeValue.assetType = (AssetType) assetType.clone();
-		return super.clone();
+		assetTypeValue.id = -1;
+		return assetTypeValue;
 	}
 
 	/**

@@ -8,7 +8,7 @@ package lu.itrust.business.TS;
  * @version 0.1
  * @since 2012-08-21
  */
-public class MaturityMeasure extends Measure {
+public class MaturityMeasure extends Measure implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -212,7 +212,6 @@ public class MaturityMeasure extends Measure {
 	@Override
 	public void setImplementationRate(Object implementationRate) {
 		if (!(implementationRate instanceof Parameter)) {
-			System.out.println(implementationRate.getClass().toString());
 			throw new IllegalArgumentException("Object needs to be of Type Parameter!");
 		}
 		super.setImplementationRate((Parameter) implementationRate);
@@ -228,4 +227,19 @@ public class MaturityMeasure extends Measure {
 	public double getImplementationRateValue() {
 		return getImplementationRate().getValue();
 	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.Measure#clone()
+	 */
+	@Override
+	public MaturityMeasure clone() throws CloneNotSupportedException {
+		return (MaturityMeasure) super.clone();
+	}
+	
+	@Override
+	public MaturityMeasure duplicate() throws CloneNotSupportedException {
+		return (MaturityMeasure) super.duplicate();
+	}
+	
+	
 }

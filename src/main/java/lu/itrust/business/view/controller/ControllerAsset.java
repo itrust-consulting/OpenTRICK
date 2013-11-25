@@ -160,6 +160,13 @@ public class ControllerAsset {
 		model.addAttribute("assets", serviceAsset.findByAnalysis(integer));
 		return "analysis/components/asset";
 	}
+	
+	@RequestMapping("/Edit/{id}")
+	public String edit(@PathVariable Integer id, Model model) throws Exception{
+		model.addAttribute("assettypes", serviceAssetType.loadAll());
+		model.addAttribute("asset", serviceAsset.get(id));
+		return "analysis/components/widgets/assetForm";
+	}
 
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody

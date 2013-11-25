@@ -58,7 +58,8 @@ public class Scenario extends SecurityCriteria {
 	 */
 	public void setName(String name) {
 		if ((name == null) || (name.trim().isEmpty())) {
-			throw new IllegalArgumentException("Scenario Name cannot be null or empty!");
+			throw new IllegalArgumentException(
+					"Scenario Name cannot be null or empty!");
 		}
 		this.name = name;
 	}
@@ -81,9 +82,11 @@ public class Scenario extends SecurityCriteria {
 	 *            The value to set the Scenario Type
 	 */
 	public void setType(ScenarioType type) {
-		if ((type == null) || (type.getTypeName() == null) || (type.getTypeName().trim().isEmpty())) {
-			System.out.println(name+type);
-			throw new IllegalArgumentException("Scenario Type cannot be null or empty!");
+		if ((type == null) || (type.getTypeName() == null)
+				|| (type.getTypeName().trim().isEmpty())) {
+			System.out.println(name + type);
+			throw new IllegalArgumentException(
+					"Scenario Type cannot be null or empty!");
 		}
 		this.type = type;
 	}
@@ -108,7 +111,8 @@ public class Scenario extends SecurityCriteria {
 	public void setSelected(boolean selected) {
 		if (((this.getCorrective() + this.getLimitative() + this.getDetective() + this
 				.getPreventive()) != 1)
-			&& (this.getName().isEmpty()) && (selected)) {
+				&& (this.getName().isEmpty())
+				&& (selected)) {
 			throw new IllegalArgumentException(
 					"Scenario Fields have not been correctly initialised in order to be selected!");
 		}
@@ -215,7 +219,8 @@ public class Scenario extends SecurityCriteria {
 	@Override
 	public void setIntentional(int intentional) {
 		if (!isValidValue(intentional)) {
-			throw new IllegalArgumentException("Intentional needs to be 0 or 1!");
+			throw new IllegalArgumentException(
+					"Intentional needs to be 0 or 1!");
 		}
 		super.setIntentional(intentional);
 	}
@@ -247,7 +252,8 @@ public class Scenario extends SecurityCriteria {
 	@Override
 	public void setEnvironmental(int environmental) {
 		if (!isValidValue(environmental)) {
-			throw new IllegalArgumentException("Environmental needs to be 0 or 1!");
+			throw new IllegalArgumentException(
+					"Environmental needs to be 0 or 1!");
 		}
 		super.setEnvironmental(environmental);
 	}
@@ -263,7 +269,8 @@ public class Scenario extends SecurityCriteria {
 	@Override
 	public void setInternalThreat(int internalthreat) {
 		if (!isValidValue(internalthreat)) {
-			throw new IllegalArgumentException("Internal Threat needs to be 0 or 1!");
+			throw new IllegalArgumentException(
+					"Internal Threat needs to be 0 or 1!");
 		}
 		super.setInternalThreat(internalthreat);
 	}
@@ -279,14 +286,16 @@ public class Scenario extends SecurityCriteria {
 	@Override
 	public void setExternalThreat(int externalthreat) {
 		if (!isValidValue(externalthreat)) {
-			throw new IllegalArgumentException("External Threat needs to be 0 or 1!");
+			throw new IllegalArgumentException(
+					"External Threat needs to be 0 or 1!");
 		}
 		super.setExternalThreat(externalthreat);
 	}
 
 	/**
 	 * isValidValue: <br>
-	 * Check if Category value is valid or not. A valid value in scenario is 0 or 1 or 4.
+	 * Check if Category value is valid or not. A valid value in scenario is 0
+	 * or 1 or 4.
 	 * 
 	 * @param value
 	 *            The value to check if valid
@@ -359,12 +368,13 @@ public class Scenario extends SecurityCriteria {
 
 	/**
 	 * equals: <br>
-	 * This method is used to determine if the current object equals another object. Fields that
-	 * identify a Scenario object are: id, name and type.
+	 * This method is used to determine if the current object equals another
+	 * object. Fields that identify a Scenario object are: id, name and type.
 	 * 
 	 * @param obj
 	 *            The object to check
-	 * @return True if the object equals the other object; False if the objects are not the same
+	 * @return True if the object equals the other object; False if the objects
+	 *         are not the same
 	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -406,12 +416,20 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @see java.lang.Object#clone()
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public Scenario clone() throws CloneNotSupportedException {
 		Scenario scenario = (Scenario) super.clone();
-		ArrayList<AssetTypeValue> typeValues = (ArrayList<AssetTypeValue>) assetTypeValues;
-		scenario.assetTypeValues = (List<AssetTypeValue>) typeValues.clone();
+		scenario.assetTypeValues = new ArrayList<>();
+		for (AssetTypeValue assetTypeValue : assetTypeValues)
+			scenario.assetTypeValues.add(assetTypeValue.clone());
+		return scenario;
+	}
+	
+	public Scenario duplicate() throws CloneNotSupportedException {
+		Scenario scenario = (Scenario) super.duplicate();
+		scenario.assetTypeValues = new ArrayList<>();
+		for (AssetTypeValue assetTypeValue : assetTypeValues)
+			scenario.assetTypeValues.add(assetTypeValue.duplicate());
 		return scenario;
 	}
 }

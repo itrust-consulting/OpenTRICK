@@ -150,7 +150,8 @@ function TaskManager() {
 			div.setAttribute("title", "Tasks");
 			var content = document.getElementById("content");
 			content.insertBefore(div, content.firstChild);
-		};
+		}
+		;
 		this.view = $("#tasks").dialog();
 	};
 
@@ -251,7 +252,7 @@ function TaskManager() {
 						instance.UpdateStatus(taskId);
 					}, reponse.flag == 4 ? 250 : 500);
 				} else
-					openLink(context + "/Analysis/Display");
+					openLink(context + "/Analysis");
 				return true;
 			}
 		});
@@ -348,6 +349,30 @@ function saveField(element, controller, id, field, type) {
 	}
 }
 
+function duplicateAnalysis(form, analyisId) {
+	$(".progress-striped").show();
+	return $.ajax({
+		url : context + "/History/Save/Analysis/" + analyisId,
+		type : "post",
+		aync : true,
+		data : $("#" + form).serialize(),
+		success : function(response) {
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			if ((error = $(doc).find("#addHistoryModal")).length) {
+				$("#addHistoryModal .modal-body").html(
+						$(error).find(".modal-body"));
+				return false;
+				;
+			} else {
+				$("#addHistoryModal").modal("hide");
+				$("body").html($(doc).find("body").html());
+				return false;
+			}
+		}
+	});
+}
+
 function selectAsset(assetId, selectVaue) {
 	$.ajax({
 		url : context + "/Asset/Select/" + assetId,
@@ -361,32 +386,40 @@ function selectAsset(assetId, selectVaue) {
 }
 
 function deleteAsset(assetId) {
-	$.ajax({
-		url : context + "/Asset/Delete/" + assetId,
-		contentType : "application/json",
-		success : function(reponse) {
-			reloadSection("section_asset");
-			return false;
-		}
+	$("#confirm-dialog .modal-body").text(
+			MessageResolver("confirm.delete.asset",
+					"Are you sur, you want to delete this asset"));
+	$("#confirm-dialog .btn-danger").click(function() {
+		$.ajax({
+			url : context + "/Asset/Delete/" + assetId,
+			contentType : "application/json",
+			success : function(reponse) {
+				reloadSection("section_asset");
+				return false;
+			}
+		});
 	});
+	$("#confirm-dialog").modal("toggle");
 	return false;
+
 }
 
 function editAssetRow(rowTrickId) {
-	
-	/*findAllAssetType("asset_assettype_id");
-	var rows = $("#section_asset").find("tr[trick-id='" + rowTrickId + "'] td");
-	$("#asset_id").prop("value", rowTrickId);
-	$("#asset_name").prop("value", $(rows[0]).text());
-	$("#asset_value").prop("value", $(rows[2]).text());
-	$("#asset_selected").prop("checked", $(rows[3]).text());
-	$("#asset_comment").text($(rows[4]).text()+"");
-	$("#asset_hiddenComment").text($(rows[5]).text()+"");
-	$("#addAssetModel").modal('show');
-	$("#asset_assettype_id option[text='" + $(rows[1]).text() + "']").prop(
-			"selected", true);*/
-	$('#addAssetModel').data('modal').options.remote = context+"/Asset/Edit/"+rowTrickId;
-	$("#addAssetModel").modal('show');
+	$.ajax({
+		url : context + "/Asset/Edit/" + rowTrickId,
+		contentType : "application/json",
+		success : function(response) {
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			if ((addAssetModel = doc.getElementById("addAssetModel")) == null)
+				return false;
+			var parent = $("#addAssetModel").parent();
+			$("#addAssetModel").remove();
+			parent[0].insertBefore(addAssetModel, parent[0].firstChild);
+			$('#addAssetModel').modal("toggle");
+			return false;
+		}
+	});
 	return false;
 }
 
@@ -510,6 +543,9 @@ function saveAsset(form) {
 		data : serializeAssetForm(form),
 		contentType : "application/json",
 		success : function(response) {
+			var previewError = $("#addAssetModel .alert");
+			if (previewError.length)
+				previewError.remove();
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
@@ -520,12 +556,30 @@ function saveAsset(form) {
 				reloadSection("section_asset");
 			}
 			return result;
-
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return result;
 		},
 	});
+}
+
+function addHistory(analysisId) {
+	return $
+			.ajax({
+				url : context + "/History/Add/Analysis/" + analysisId,
+				contentType : "application/json",
+				success : function(response) {
+					var parser = new DOMParser();
+					var doc = parser.parseFromString(response, "text/html");
+					if ((addAssetModel = doc.getElementById("addHistoryModal")) == null)
+						return false;
+					var parent = $("#addHistoryModal").parent();
+					$("#addHistoryModal").remove();
+					parent[0].insertBefore(addAssetModel, parent[0].firstChild);
+					$('#addHistoryModal').modal("toggle");
+					return false;
+				}
+			});
 }
 
 $(function() {
@@ -534,41 +588,37 @@ $(function() {
 	if ($contextMenu == null || $contextMenu == undefined)
 		return false;
 
-	$("#section_asset")
-			.on(
-					"contextmenu",
-					"table tbody tr",
-					function(e) {
-						$contextMenu.css({
-							display : "block",
-							left : $(e.target).position().left,
-							top : $(e.target).position().top + 20
-						});
-						if ($(e.currentTarget).attr('trick-selected') == "true") {
-							$contextMenu.find("li[name='select']").attr(
-									"hidden", true);
-							$contextMenu.find("li[name='unselect']").attr(
-									"hidden", false);
-						} else {
-							$contextMenu.find("li[name='select']").attr(
-									"hidden", false);
-							$contextMenu.find("li[name='unselect']").attr(
-									"hidden", true);
-						}
-						$contextMenu.attr("trick-selected-id", $(
-								e.currentTarget).attr('trick-id'));
-						return false;
-					});
+	$("#section_asset").on("contextmenu", "table tbody tr", function(e) {
+		$contextMenu.css({
+			display : "block",
+			left : $(e.target).position().left,
+			top : $(e.target).position().top + 20
+		});
+		if ($(e.currentTarget).attr('trick-selected') == "true") {
+			$contextMenu.find("li[name='select']").attr("hidden", true);
+			$contextMenu.find("li[name='unselect']").attr("hidden", false);
+		} else {
+			$contextMenu.find("li[name='select']").attr("hidden", false);
+			$contextMenu.find("li[name='unselect']").attr("hidden", true);
+		}
+		var rowTrickId = $(e.currentTarget).attr('trick-id');
+
+		// $contextMenu.find("li[name='edit_row'] >
+		// a").attr("href",context+"/Asset/Edit/"+rowTrickId);
+
+		$contextMenu.attr("trick-selected-id", rowTrickId);
+		return false;
+	});
 	$contextMenu.on("click", "a", function() {
 		$contextMenu.hide();
 	});
-	
+
 	$('html').click(function() {
 		$contextMenu.hide();
 	});
 
-	$('#asset_contextMenu').click(function(event){
-	    event.stopPropagation();
+	$('#asset_contextMenu').click(function(event) {
+		event.stopPropagation();
 	});
 });
 
@@ -613,76 +663,3 @@ $(function() {
 	};
 
 })(jQuery);
-
-!function($) {
-	$(function() {
-		var $window = $(window);
-		var $body = $(document.body);
-		var $sideBar = $('.bs-sidebar');
-		var navHeight = $('.nav-container').outerHeight(true) + 10;
-
-		$body.scrollspy({
-			target : '.bs-sidebar',
-			offset : navHeight
-		});
-
-		$('.bs-container [href=#]').click(function(e) {
-			e.preventDefault();
-		});
-
-		$window.on('resize', function() {
-			$body.scrollspy('refresh');
-			// We were resized. Check the position of the nav box
-			$sideBar.affix('checkPosition');
-		});
-
-		$window.on('load', function() {
-			$body.scrollspy('refresh');
-			$('.bs-top').affix();
-			$sideBar.affix({
-				offset : {
-					top : function() {
-						var offsetTop = $sideBar.offset().top;
-						var sideBarMargin = parseInt($sideBar.children(0).css(
-								'margin-top'), 10);
-						var navOuterHeight = $('.bs-docs-nav').height();
-
-						// We can cache the height of the header (hence the
-						// this.top=)
-						// This function will never be called again.
-						return (this.top = offsetTop - navOuterHeight
-								- sideBarMargin);
-					},
-					bottom : function() {
-						// We can't cache the height of the footer, since it
-						// could change
-						// when the window is resized. This function will be
-						// called every
-						// time the window is scrolled or resized
-						return $('.bs-footer').outerHeight(true);
-					}
-				}
-			});
-			setTimeout(function() {
-				// Check the position of the nav box ASAP
-				$sideBar.affix('checkPosition');
-			}, 10);
-			setTimeout(function() {
-				// Check it again after a while (required for IE)
-				$sideBar.affix('checkPosition');
-			}, 100);
-		});
-
-		// tooltip demo
-		/*$('.tooltip-demo').tooltip({
-			selector : "[data-toggle=tooltip]",
-			container : "nav-container"
-		});
-		//$('.tooltip-test').tooltip();
-		//$('.popover-test').popover();
-		$('.bs-docs-navbar').tooltip({
-			selector : "a[data-toggle=tooltip]",
-			container : ".bs-docs-navbar .nav"
-		});*/
-	});
-}(window.jQuery);

@@ -14,7 +14,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 2012-08-21
  */
-public abstract class AnalysisNorm implements Serializable {
+public abstract class AnalysisNorm implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -26,14 +26,13 @@ public abstract class AnalysisNorm implements Serializable {
 	/** AnalysisNorm id */
 	private int id = -1;
 
-	/** AnalysisNorm Analysis object */
-	private Analysis analysis = null;
-
 	/** AnalysisNorm Norm Object */
 	private Norm norm = null;
 
 	/** AnalysisNorm List of measures */
 	private List<Measure> measures = new ArrayList<Measure>();
+
+	private Analysis analysis = null;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -103,9 +102,9 @@ public abstract class AnalysisNorm implements Serializable {
 	public void setNorm(Norm name) {
 		if (name == null)
 			throw new IllegalArgumentException("error.norm.null");
-		else if(name.getLabel() == null)
+		else if (name.getLabel() == null)
 			throw new IllegalArgumentException("error.norm.label_null");
-		else if(!name.getLabel().matches(Constant.REGEXP_VALID_NORM_NAME))
+		else if (!name.getLabel().matches(Constant.REGEXP_VALID_NORM_NAME))
 			throw new IllegalArgumentException("error.norm.label_no_meet_regex");
 		this.norm = name;
 	}
@@ -172,4 +171,28 @@ public abstract class AnalysisNorm implements Serializable {
 	public void setMeasures(List<Measure> measures) {
 		this.measures = measures;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		AnalysisNorm analysisNorm = (AnalysisNorm) super.clone();
+		analysisNorm.measures = new ArrayList<>();
+		for (Measure measure : measures) {
+			Measure measure2 = (Measure) measure.clone();
+			measure2.setAnalysisNorm(analysisNorm);
+			analysisNorm.measures.add(measure2);
+		}
+		return analysisNorm;
+	}
+
+	public AnalysisNorm duplicate() throws CloneNotSupportedException {
+		AnalysisNorm analysisNorm = (AnalysisNorm) super.clone();
+		analysisNorm.id = -1;
+		return analysisNorm;
+	}
+
 }

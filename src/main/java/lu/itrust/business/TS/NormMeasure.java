@@ -183,4 +183,32 @@ public class NormMeasure extends Measure {
 	public void setImplementationRate(double implementationRate) {
 		super.setImplementationRate(implementationRate);
 	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.Measure#clone()
+	 */
+	@Override
+	public NormMeasure clone() throws CloneNotSupportedException {
+		NormMeasure normMeasure = (NormMeasure) super.clone();
+		normMeasure.assetTypeValues = new ArrayList<>();
+		for (AssetTypeValue assetTypeValue : assetTypeValues)
+			normMeasure.assetTypeValues.add(assetTypeValue.clone());
+		normMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.clone();
+		return normMeasure;
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.Measure#duplicate()
+	 */
+	@Override
+	public NormMeasure duplicate() throws CloneNotSupportedException {
+		NormMeasure normMeasure = (NormMeasure) super.duplicate();
+		normMeasure.assetTypeValues = new ArrayList<>();
+		for (AssetTypeValue assetTypeValue : assetTypeValues)
+			normMeasure.assetTypeValues.add(assetTypeValue.duplicate());
+		normMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.duplicate();
+		return normMeasure;
+	}
+	
+	
 }

@@ -13,7 +13,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 2012-08-21
  */
-public abstract class Measure implements Serializable {
+public abstract class Measure implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -448,5 +448,19 @@ public abstract class Measure implements Serializable {
 			return false;
 		}
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Measure clone() throws CloneNotSupportedException {
+		return (Measure) super.clone();
+	}
+
+	public Measure duplicate() throws CloneNotSupportedException {
+		Measure measure = (Measure) super.clone();
+		measure.id = -1;
+		return measure;
 	}
 }

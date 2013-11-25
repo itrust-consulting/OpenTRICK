@@ -34,5 +34,7 @@ public interface ServiceHistory {
 	public void delete(History history) throws Exception;
 	
 	public DAOHistory getDAOHistory() throws Exception;
+
+	public List<String> findVersionByAnalysis(int analysisId);
 	
 }

@@ -10,7 +10,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 25 janv. 2013
  */
-public class AssetType {
+public class AssetType implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields
@@ -99,8 +99,8 @@ public class AssetType {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
+	public AssetType clone() throws CloneNotSupportedException {
+		return (AssetType) super.clone();
 	}
 
 	/**

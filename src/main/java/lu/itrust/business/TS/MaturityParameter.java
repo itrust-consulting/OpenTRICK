@@ -10,7 +10,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 2012-08-21
  */
-public class MaturityParameter extends Parameter {
+public class MaturityParameter extends Parameter implements Cloneable{
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -79,4 +79,23 @@ public class MaturityParameter extends Parameter {
 		}
 		this.SMLLevel = SMLLevel;
 	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.Parameter#clone()
+	 */
+	@Override
+	public MaturityParameter clone() throws CloneNotSupportedException {
+		return (MaturityParameter) super.clone();
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.Parameter#duplicate()
+	 */
+	@Override
+	public MaturityParameter duplicate() throws CloneNotSupportedException {
+		return (MaturityParameter)super.duplicate();
+	}
+	
+	
+	
 }

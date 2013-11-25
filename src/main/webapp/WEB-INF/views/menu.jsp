@@ -14,7 +14,7 @@
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
-<div class="navbar navbar-default navbar-fixed-top">
+<header class="navbar navbar-default navbar-fixed-top">
 	<div class="container">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle" data-toggle="collapse"
@@ -34,18 +34,35 @@
 					href="${pageContext.request.contextPath}/KnowledgeBase"> <spring:message
 							code="label.menu.analysis.knowledgebase" text="KnowLedge Base" />
 				</a></li>
-				<li
-					${menu.startsWith("Analysis") && ! menu.startsWith("Analysis/Import")? "class='active'" : "" }>
-					<a href="${pageContext.request.contextPath}/Analysis"> <spring:message
-							code="label.menu.analysis.all" text="Analysis" />
-				</a> <c:if test="${!empty(sessionScope.selectedAnalysis)}">
-						<ul class="dropdown-menu">
-							<li><a
-								href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select">Release
-									Analysis</a></li>
-						</ul>
-					</c:if>
-				</li>
+				<c:choose>
+					<c:when
+						test="${menu.startsWith('Analysis') and not menu.startsWith('Analysis/Import')}">
+						<c:choose>
+							<c:when test="${!empty(sessionScope.selectedAnalysis)}">
+								<li tabindex="-1" class="dropdown-submenu"><a
+									href="${pageContext.request.contextPath}/Analysis"
+									class="dropdown-toggle" data-toggle="dropdown"> <spring:message
+											code="label.menu.analysis.all" text="Analysis" /><span class="caret" ></span>
+								</a>
+									<ul class="dropdown-menu sm">
+										<li><a
+											href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select">Close</a></li>
+									</ul></li>
+							</c:when>
+							<c:otherwise>
+								<li class="active"><a
+									href="${pageContext.request.contextPath}/Analysis"> <spring:message
+											code="label.menu.analysis.all" text="Analysis" />
+								</a></li>
+							</c:otherwise>
+						</c:choose>
+					</c:when>
+					<c:otherwise>
+						<li><a href="${pageContext.request.contextPath}/Analysis">
+								<spring:message code="label.menu.analysis.all" text="Analysis" />
+						</a></li>
+					</c:otherwise>
+				</c:choose>
 				<li ${menu.equals("Analysis/Import")? "class='active'" : "" }>
 					<a href="${pageContext.request.contextPath}/Analysis/Import"> <spring:message
 							code="label.menu.analysis.import" text="Import" />
@@ -65,4 +82,4 @@
 			</ul>
 		</div>
 	</div>
-</div>
+</header>

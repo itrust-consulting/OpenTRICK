@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Parameter implements Serializable {
+public class Parameter implements Serializable, Cloneable {
 
 	/** serialVersionUID */
 	private static final long serialVersionUID = 1L;
@@ -118,4 +118,20 @@ public class Parameter implements Serializable {
 	public void setId(int id) {
 		this.id = id;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Parameter clone() throws CloneNotSupportedException {
+		return (Parameter) super.clone();
+	}
+
+	public Parameter duplicate() throws CloneNotSupportedException {
+		Parameter parameter = (Parameter) super.clone();
+		parameter.id = -1;
+		return parameter;
+	}
+	
+	
 }

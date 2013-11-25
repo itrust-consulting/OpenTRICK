@@ -10,7 +10,7 @@ import java.util.List;
  * @version 0.1
  * @since 2012-08-21
  */
-public class MaturityNorm extends AnalysisNorm {
+public class MaturityNorm extends AnalysisNorm implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -111,4 +111,22 @@ public class MaturityNorm extends AnalysisNorm {
 		measure.setAnalysisNorm(this);
 		this.getMeasures().add(measure);
 	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.AnalysisNorm#clone()
+	 */
+	@Override
+	public MaturityNorm clone() throws CloneNotSupportedException {
+		return (MaturityNorm) super.clone();
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.AnalysisNorm#basicClone()
+	 */
+	@Override
+	public MaturityNorm duplicate() throws CloneNotSupportedException {
+		return (MaturityNorm) super.duplicate();
+	}
+	
+	
 }

@@ -3,20 +3,19 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.util.Date;
 
-import lu.itrust.business.TS.tsconstant.Constant;
-
 /**
  * History: <br>
  * This class represents an History and all its data.
  * 
- * This class is used to store History. Each analysis has only one single history. Each analysis in
- * the knowledgebase can be the same, but has different histories (versions).
+ * This class is used to store History. Each analysis has only one single
+ * history. Each analysis in the knowledgebase can be the same, but has
+ * different histories (versions).
  * 
  * @author itrust consulting s.à r.l. - SME,BJA
  * @version 0.1
  * @since 2012-08-21
  */
-public class History implements Serializable {
+public class History implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -34,7 +33,10 @@ public class History implements Serializable {
 	/** The Date when the History entry was created */
 	private Date date = null;
 
-	/** The Name of the Author that created the History Entry (The Analysis at this Version) */
+	/**
+	 * The Name of the Author that created the History Entry (The Analysis at
+	 * this Version)
+	 */
 	private String author = "";
 
 	/** The Comment an Author gave to the History Entry */
@@ -69,19 +71,31 @@ public class History implements Serializable {
 		this.comment = comment;
 	}
 
-	public static final boolean versionAGreaterThanB(String versionA, String versionB) {
+	private static int toInt(String version) {
+		try {
+			if (version.isEmpty())
+				return 0;
+			return Integer.parseInt(version);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
 
-		String[] sVersionA = null;
-		String[] sVersionB = null;
-
-		//System.out.println(versionA + ":::" + versionB);
-		
-		sVersionA = versionA.split("\\.");
-		sVersionB = versionB.split("\\.");
-		Integer sVAVal = (Integer.valueOf(sVersionA[0])) + (Integer.valueOf(sVersionA[1])) + (Integer.valueOf(sVersionA[2]));
-		Integer sVBVal = (Integer.valueOf(sVersionB[0])) + (Integer.valueOf(sVersionB[1])) + (Integer.valueOf(sVersionB[2]));
-
-		return (sVAVal > sVBVal);
+	public static final int VersionComparator(String versionA, String versionB) {
+		String[] versionsA = versionA.split("\\.", 2);
+		String[] versionsB = versionB.split("\\.", 2);
+		int valueA = toInt(versionsA[0]);
+		int valueB = toInt(versionsB[0]);
+		if (valueA > valueB)
+			return 1;
+		else if (valueA < valueB)
+			return -1;
+		else if (valueA == valueB
+				&& (versionsA.length == 1 && versionsB.length == 1))
+			return 0;
+		return VersionComparator(versionsA.length > 1 ? versionsA[1] : "",
+				versionsB.length > 1 ? versionsB[1] : "");
 	}
 
 	/***********************************************************************************************
@@ -129,9 +143,6 @@ public class History implements Serializable {
 	 *            The value to set the Author Name
 	 */
 	public void setAuthor(String author) {
-		if ((author == null) || (author.trim().equals("")) || (!author.matches(Constant.REGEXP_VALID_NAME))) {
-			throw new IllegalArgumentException("History Author cannot be nullor empty and has to be a valid name!");
-		}
 		this.author = author;
 	}
 
@@ -164,9 +175,6 @@ public class History implements Serializable {
 	 *            The value to set the Version Identifier
 	 */
 	public void setVersion(String version) {
-		if (version == null || !version.matches(Constant.REGEXP_VALID_ANALYSIS_VERSION)) {
-			throw new IllegalArgumentException("History Version not acceptable");
-		}
 		this.version = version;
 	}
 
@@ -209,7 +217,8 @@ public class History implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "History [id=" + id + ", version=" + version + ", date=" + date + ", author=" + author + ", comment=" + comment + "]";
+		return "History [id=" + id + ", version=" + version + ", date=" + date
+				+ ", author=" + author + ", comment=" + comment + "]";
 	}
 
 	/**
@@ -219,13 +228,19 @@ public class History implements Serializable {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		History history = new History();
-		history.author = author;
-		history.comment = comment;
-		history.date = new Date(date.getTime());
-		history.version = version;
-		history.id = id;
+	public History clone() throws CloneNotSupportedException {
+		return (History) super.clone();
+	}
+
+	/**
+	 * clone: <br>
+	 * Description
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	public History duplicate() throws CloneNotSupportedException {
+		History history = (History) super.clone();
+		history.id = -1;
 		return history;
 	}
 }

@@ -12,7 +12,7 @@ import javax.naming.directory.InvalidAttributesException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Asset {
+public class Asset implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -275,7 +275,19 @@ public class Asset {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
+	public Asset clone() throws CloneNotSupportedException {
+		return (Asset) super.clone();
+	}
+	
+	/**
+	 * clone: <br>
+	 * Description
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	public Asset duplicate() throws CloneNotSupportedException {
+		Asset asset =(Asset) super.clone();
+		asset.id = -1;
+		return asset;
 	}
 }

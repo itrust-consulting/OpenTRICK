@@ -148,4 +148,9 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	public void save(Integer analysisId, History history) throws Exception {
 		daoHistory.save(analysisId, history);
 	}
+
+	@Override
+	public List<String> findVersionByAnalysis(int analysisId) {
+		return daoHistory.findVersionByAnalysis(analysisId);
+	}
 }

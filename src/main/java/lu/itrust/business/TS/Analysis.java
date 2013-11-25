@@ -33,7 +33,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Analysis implements Serializable {
+public class Analysis implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -1997,4 +1997,29 @@ public class Analysis implements Serializable {
 	public void setId(int id) {
 		this.id = id;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Analysis clone() throws CloneNotSupportedException {
+		return (Analysis) super.clone();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	public Analysis duplicate() throws CloneNotSupportedException {
+		Analysis analysis = (Analysis) super.clone();
+		analysis.actionPlans = new ArrayList<>();
+		analysis.riskRegisters = new ArrayList<>();
+		analysis.summaries = new ArrayList<>();
+		analysis.id = -1;
+		return analysis;
+	}
+
 }
