@@ -1,6 +1,5 @@
 package lu.itrust.business.view.controller;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -33,7 +32,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -110,33 +108,38 @@ public class ControllerMeasureDescription {
 	 * */
 	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures")
 	public String displayAll(@PathVariable("normId") Integer normId, @RequestBody String value,HttpServletRequest request, Model model) throws Exception {
-		List<MeasureDescription> mesDescs = serviceMeasureDescription.getAllByNorm(normId);
 		int id = 0;
-		if (!value.equals("")){
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
-			id = jsonNode.get("languageId").asInt();
-			//System.out.println(id);
-		}
-		Language lang = null;
-		if(id!=0) {
-			lang = serviceLanguage.get(id);
-		} else {
-			lang = serviceLanguage.loadFromAlpha3("ENG");
-		}
-		for (MeasureDescription mesDesc : mesDescs) {
-			mesDesc.getMeasureDescriptionTexts().clear();
-			MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getByLanguage(mesDesc, lang);
-			if (mesDescText == null) {
-				mesDescText = new MeasureDescriptionText();
-				mesDescText.setLanguage(lang);
+		
+		List<MeasureDescription> mesDescs = serviceMeasureDescription.getAllByNorm(normId);
+		
+		if (mesDescs != null) {
+			
+			if (!value.equals("")){
+				ObjectMapper mapper = new ObjectMapper();
+				JsonNode jsonNode = mapper.readTree(value);
+				id = jsonNode.get("languageId").asInt();
+				//System.out.println(id);
 			}
-			mesDesc.addMeasureDescriptionText(mesDescText);
+			Language lang = null;
+			if(id!=0) {
+				lang = serviceLanguage.get(id);
+			} else {
+				lang = serviceLanguage.loadFromAlpha3("ENG");
+			}
+			for (MeasureDescription mesDesc : mesDescs) {
+				mesDesc.getMeasureDescriptionTexts().clear();
+				MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getByLanguage(mesDesc, lang);
+				if (mesDescText == null) {
+					mesDescText = new MeasureDescriptionText();
+					mesDescText.setLanguage(lang);
+				}
+				mesDesc.addMeasureDescriptionText(mesDescText);
+			}
+			model.addAttribute("selectedLanguage", lang);	
+			model.addAttribute("languages", serviceLanguage.loadAll());
+			model.addAttribute("norm", serviceNorm.getNormByID(normId));
+			model.addAttribute("measureDescriptions", mesDescs);
 		}
-		model.addAttribute("selectedLanguage", lang);	
-		model.addAttribute("languages", serviceLanguage.loadAll());
-		model.addAttribute("norm", serviceNorm.getNormByID(normId));
-		model.addAttribute("measureDescriptions", mesDescs);
 		return "knowledgebase/standard/measure/measures";
 	}
 

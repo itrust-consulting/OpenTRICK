@@ -25,6 +25,10 @@ body {
 	width:70%;
 }
 
+#wrap > .container > .row {
+	padding-bottom:60px;
+}
+
 code {
   font-size: 80%;
 }

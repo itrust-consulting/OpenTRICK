@@ -20,8 +20,8 @@
 			<div class="row">
 				<div class="page-header">
 					<h3 id="Measures">
-						<spring:message code="label.measure.measures" /> : ${norm.label}
-						<input type="hidden" id="normId" value="${norm.id}" />
+						<spring:message code="label.measure.measures" />
+						: ${norm.label} <input type="hidden" id="normId" value="${norm.id}" />
 					</h3>
 				</div>
 				<div class="content" role="main" data-spy="scroll">
@@ -33,8 +33,8 @@
 								</button>
 								<c:if test="${!empty languages}">
 									<select id="languageselect">
-										<c:forEach items="${languages}" var="language">						
-												<option ${language.id == selectedLanguage.id?'selected="selected"':""} value="${language.id}">${language.name}</option>
+										<c:forEach items="${languages}" var="language">
+											<option ${language.id == selectedLanguage.id?'selected="selected"':""} value="${language.id}">${language.name}</option>
 										</c:forEach>
 									</select>
 								</c:if>
@@ -59,8 +59,12 @@
 												<td>${measureDescription.reference}</td>
 												<td>${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:"&nbsp;"}</td>
 												<td>${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:"&nbsp;"}</td>
-												<td><a href="Edit/${measureDescription.id}"><spring:message code="label.action.edit" /></a>| <a href="Delete/${measureDescription.id}"><spring:message
-															code="label.action.delete" /></a></td>
+												<td><a title="<spring:message code="label.action.edit" />" href="#" onclick="javascript:editSingleMeasure(${measureDescription.id});"
+													class="btn btn-warning btn-sm"> <samp class="glyphicon glyphicon-edit"></samp>
+												</a> <a title="<spring:message code="label.action.delete" />" href="#"
+													onclick="javascript:deleteMeasureDescription(${measureDescription.id}, '${measureDescription.reference}', '${measureDescription.norm.label}')"
+													class="btn btn-danger btn-sm"> <samp class="glyphicon glyphicon-trash"></samp>
+												</a></td>
 											</tr>
 										</c:forEach>
 									</tbody>
@@ -92,17 +96,20 @@
 		<script src="<spring:url value="/js/measuredescription.js" />"></script>
 		<script type="text/javascript">
 			$(document).ready(function() {
-				var measurestable = $('#measurestable').dataTable({
+				$('#measurestable').dataTable({
 					"bLengthChange" : false,
+					"bAutoWidth" : false,
 					"aoColumns": [
 									{ "sWidth": "20px" },
 									{ "sWidth": "20px" },
 									{ "sWidth": "20px" },
 									null,
 									null,
-									{ "sWidth": "20px" }
+									{ "sWidth": "70px" }
 								]
 				});
+				$("#measurestable").removeAttr( "style" );
+
 			});
 			$("#languageselect").change(function(){
 				  var language = $(this).find("option:selected").attr("value");
