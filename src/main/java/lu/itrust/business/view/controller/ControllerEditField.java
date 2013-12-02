@@ -14,6 +14,7 @@ import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceHistory;
 import lu.itrust.business.service.ServiceItemInformation;
 import lu.itrust.business.service.ServiceParameter;
@@ -34,7 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Secured("ROLE_USER")
 @Controller
-@RequestMapping("/editField")
+@RequestMapping("/EditField")
 public class ControllerEditField {
 
 	@Autowired
@@ -52,7 +53,6 @@ public class ControllerEditField {
 	protected boolean setFieldData(Field field, Object object,
 			FieldEditor fieldEditor) throws IllegalArgumentException,
 			IllegalAccessException, ParseException, NumberFormatException {
-		System.out.println(fieldEditor.getValue());
 		if (fieldEditor.getType().equalsIgnoreCase("string"))
 			field.set(object, (String) fieldEditor.getValue());
 		else if (fieldEditor.getType().equalsIgnoreCase("integer"))
@@ -71,30 +71,32 @@ public class ControllerEditField {
 		return true;
 	}
 
-	@RequestMapping(value = "/itemInformation", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/ItemInformation", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
 	String itemInformation(@RequestBody FieldEditor fieldEditor, Locale locale) {
 		try {
-
 			ItemInformation itemInformation = serviceItemInformation
 					.get(fieldEditor.getId());
 			if (itemInformation == null)
-				return messageSource.getMessage(
+				return JsonMessage.Error(messageSource.getMessage(
 						"error.itemInformation.not_found", null,
-						"ItemInformation cannot be found", locale);
+						"ItemInformation cannot be found", locale));
 			Field field = itemInformation.getClass().getDeclaredField(
 					fieldEditor.getFieldName());
 			field.setAccessible(true);
 
 			if (setFieldData(field, itemInformation, fieldEditor)) {
 				serviceItemInformation.saveOrUpdate(itemInformation);
-				return null;
+				return JsonMessage.Success(messageSource.getMessage(
+						"success.itemInformation.updated", null,
+						"ItemInformation was successfully updated", locale));
 			} else
-				return messageSource.getMessage("error.edit.type.field", null,
-						"Data cannot be updated", locale);
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.edit.type.field", null,
+						"Data cannot be updated", locale));
 		} catch (NumberFormatException e) {
-			return messageSource.getMessage("error.format.number", null,
-					"Number expected", locale);
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.format.number", null, "Number expected", locale));
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
@@ -102,66 +104,71 @@ public class ControllerEditField {
 		} catch (RuntimeException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
-			return messageSource.getMessage(e.getMessage(), null,
-					e.getMessage(), locale);
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(),
+					null, e.getMessage(), locale));
 		}
-		return messageSource.getMessage("error.edit.save.field", null,
-				"Data cannot be saved", locale);
+		return JsonMessage.Error(messageSource.getMessage(
+				"error.edit.save.field", null, "Data cannot be saved", locale));
 	}
 
-	@RequestMapping(value = "/parameter", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Parameter", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
 	String parameter(@RequestBody FieldEditor fieldEditor, Locale locale) {
 		try {
 			Parameter parameter = serviceParameter.get(fieldEditor.getId());
 
 			if (parameter == null)
-				return messageSource.getMessage("error.parameter.not_found",
-						null, "Parameter cannot be found", locale);
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.parameter.not_found", null,
+						"Parameter cannot be found", locale));
 			Field field = parameter.getClass().getDeclaredField(
 					fieldEditor.getFieldName());
 			field.setAccessible(true);
 			if (setFieldData(field, parameter, fieldEditor)) {
 				serviceParameter.saveOrUpdate(parameter);
-				return null;
+				return JsonMessage.Success(messageSource.getMessage(
+						"success.parameter.updated", null,
+						"Parameter was successfully updated", locale));
 			} else
-				return messageSource.getMessage("error.edit.type.field", null,
-						"Data cannot be updated", locale);
+				return JsonMessage.Success(messageSource.getMessage(
+						"error.edit.type.field", null,
+						"Data cannot be updated", locale));
 		} catch (NoSuchFieldException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NumberFormatException e) {
-			return messageSource.getMessage("error.format.number", null,
-					"Number expected", locale);
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.format.number", null, "Number expected", locale));
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
-			return messageSource.getMessage(e.getMessage(), null,
-					e.getMessage(), locale);
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(),
+					null, e.getMessage(), locale));
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (ParseException e) {
 			e.printStackTrace();
-			return messageSource.getMessage("error.format.date", null,
-					"Date expected", locale);
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.format.date", null, "Date expected", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return messageSource.getMessage(e.getMessage(), null,
-					e.getMessage(), locale);
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(),
+					null, e.getMessage(), locale));
 		}
-		return messageSource.getMessage("error.edit.save.field", null,
-				"Data cannot be saved", locale);
+		return JsonMessage.Error(messageSource.getMessage(
+				"error.edit.save.field", null, "Data cannot be saved", locale));
 	}
 
-	@RequestMapping(value = "/extendedParameter", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/ExtendedParameter", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
 	String extendedParameter(@RequestBody FieldEditor fieldEditor, Locale locale) {
 		try {
 			ExtendedParameter parameter = (ExtendedParameter) serviceParameter
 					.get(fieldEditor.getId());
 			if (parameter == null)
-				return messageSource.getMessage("error.parameter.not_found",
-						null, "Parameter cannot be found", locale);
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.parameter.not_found", null,
+						"Parameter cannot be found", locale));
 			Field field = null;
 			if ("value id type description"
 					.contains(fieldEditor.getFieldName()))
@@ -173,45 +180,49 @@ public class ControllerEditField {
 			field.setAccessible(true);
 			if (setFieldData(field, parameter, fieldEditor)) {
 				serviceParameter.saveOrUpdate(parameter);
-				return null;
+				return JsonMessage.Success(messageSource.getMessage(
+						"success.extendedParameter.update", null,
+						"Parameter was successfully update", locale));
 			} else
-				return messageSource.getMessage("error.edit.type.field", null,
-						"Data cannot be updated", locale);
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.edit.type.field", null,
+						"Data cannot be updated", locale));
 		} catch (NoSuchFieldException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NumberFormatException e) {
-			return messageSource.getMessage("error.format.number", null,
-					"Number expected", locale);
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.format.number", null, "Number expected", locale));
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
-			return messageSource.getMessage(e.getMessage(), null,
-					e.getMessage(), locale);
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(),
+					null, e.getMessage(), locale));
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (ParseException e) {
 			e.printStackTrace();
-			return messageSource.getMessage("error.format.date", null,
-					"Date expected", locale);
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.format.date", null, "Date expected", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return messageSource.getMessage(e.getMessage(), null,
-					e.getMessage(), locale);
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(),
+					null, e.getMessage(), locale));
 		}
-		return messageSource.getMessage("error.edit.save.field", null,
-				"Data cannot be saved", locale);
+		return JsonMessage.Error(messageSource.getMessage(
+				"error.edit.save.field", null, "Data cannot be saved", locale));
 	}
 
-	@RequestMapping(value = "/history", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/History", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
 	String history(@RequestBody FieldEditor fieldEditor, Locale locale) {
 		try {
 			History history = serviceHistory.get(fieldEditor.getId());
 
 			if (history == null)
-				return messageSource.getMessage("error.history.not_found",
-						null, "History cannot be found", locale);
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.history.not_found", null,
+						"History cannot be found", locale));
 
 			Field field = history.getClass().getDeclaredField(
 					fieldEditor.getFieldName());
@@ -219,34 +230,37 @@ public class ControllerEditField {
 
 			if (setFieldData(field, history, fieldEditor)) {
 				serviceHistory.saveOrUpdate(history);
-				return null;
+				return JsonMessage.Success(messageSource.getMessage(
+						"success.history.updated", null,
+						"History was successfully updated", locale));
 			} else
-				return messageSource.getMessage("error.edit.type.field", null,
-						"Data cannot be updated", locale);
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.edit.type.field", null,
+						"Data cannot be updated", locale));
 		} catch (NoSuchFieldException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NumberFormatException e) {
-			return messageSource.getMessage("error.format.number", null,
-					"Number expected", locale);
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.format.number", null, "Number expected", locale));
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
-			return messageSource.getMessage(e.getMessage(), null,
-					e.getMessage(), locale);
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(),
+					null, e.getMessage(), locale));
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (ParseException e) {
 			e.printStackTrace();
-			return messageSource.getMessage("error.format.date", null,
-					"Date expected", locale);
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.format.date", null, "Date expected", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return messageSource.getMessage(e.getMessage(), null,
-					e.getMessage(), locale);
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(),
+					null, e.getMessage(), locale));
 		}
-		return messageSource.getMessage("error.edit.save.field", null,
-				"Data cannot be saved", locale);
+		return JsonMessage.Error(messageSource.getMessage(
+				"error.edit.save.field", null, "Data cannot be saved", locale));
 	}
 
 }

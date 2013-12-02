@@ -12,20 +12,29 @@
 				<button type="button" class="close" data-dismiss="modal"
 					aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addAssetModel-title">
-					<spring:message code="label.asset.${empty(asset)? 'add':'edit'}" text="${empty(asset)? 'Add new asset':'Edit asset'}" />
+					<spring:message code="label.asset.${empty(asset)? 'add':'edit'}"
+						text="${empty(asset)? 'Add new asset':'Edit asset'}" />
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="asset" action="${pageContext.request.contextPath}/Asset/Save" class="form-horizontal"
-					id="asset_form">
-					<input type="hidden" name="id" value="-1" id="asset_id">
+				<form name="asset"
+					action="${pageContext.request.contextPath}/Asset/Save"
+					class="form-horizontal" id="asset_form">
+					<c:choose>
+						<c:when test="${!empty(asset)}">
+							<input name="id" value="${asset.id}" type="hidden">
+						</c:when>
+						<c:otherwise>
+							<input name="id" value="-1" type="hidden">
+						</c:otherwise>
+					</c:choose>
 					<div class="form-group">
 						<label for="name" class="col-sm-2 control-label"> <spring:message
 								code="label.asset.name" text="Name" />
 						</label>
 						<div class="col-sm-10">
 							<input name="name" id="asset_name" class="form-control"
-								value="${empty(asset)? '':asset.name}"/>
+								value="${empty(asset)? '':asset.name}" />
 						</div>
 					</div>
 					<div class="form-group">
@@ -54,9 +63,6 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<c:if test="${!empty(asset) }">
-							<input name="id" value="${asset.id}" type="hidden">
-						</c:if>
 						<label for="value" class="col-sm-2 control-label"> <spring:message
 								code="label.asset.value" text="Value" />
 						</label>
@@ -92,7 +98,7 @@
 								text="Comment hidden" />
 						</label>
 						<div class="col-sm-10">
-							<textarea name="hiddenComment" id="asset_hiddenComment" 
+							<textarea name="hiddenComment" id="asset_hiddenComment"
 								class="form-control">${empty(asset)? '': asset.hiddenComment}</textarea>
 						</div>
 					</div>

@@ -23,6 +23,8 @@ public interface ServiceAsset {
 	
 	List<Asset> findByAnalysis(int pageIndex, int pageSize ,int analysisId);
 	
+	List<Asset> findByAnalysisAndSelected(int idAnalysis);
+	
 	Asset save(Asset asset);
 	
 	void saveOrUpdate(Asset asset);

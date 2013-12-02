@@ -8,7 +8,7 @@
 <spring:htmlEscape defaultHtmlEscape="true" />
 <div class="section" id="section_parameter">
 	<div class="page-header">
-		<h3 id="parameter">
+		<h3 id="Parameter">
 			<spring:message code="label.parameter" text="Parameter" />
 		</h3>
 	</div>
@@ -22,53 +22,7 @@
 		expression="T(lu.itrust.business.TS.Analysis).SplitExtendedParameters(parametersSplited[1])"
 		var="extendedParameters" />
 	<div class="row">
-		<div class="col-md-12">
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<spring:message code="label.parameter.simple.various"
-						text="Various parameters" />
-				</div>
-				<div class="panel-body">
-					<table class="table">
-						<thead>
-							<tr>
-								<th><spring:message
-										code="label.parameter.simple.internal_setup"
-										text="Internal setup" /></th>
-								<th><spring:message
-										code="label.parameter.simple.external_setup"
-										text="External setup" /></th>
-								<th><spring:message
-										code="label.parameter.simple.default_life_time"
-										text="Default lifetime" /></th>
-								<th><spring:message
-										code="label.parameter.simple.default_maintenance"
-										text="Default maintenance" /></th>
-								<th><spring:message code="label.parameter.simple.tuning"
-										text="Tunning" /></th>
-								<th><spring:message code="label.parameter.simple.soa"
-										text="SOA" /></th>
-								<th><spring:message
-										code="label.parameter.simple.mandatory_phase"
-										text="Mandatory phase" /></th>
-								<th><spring:message
-										code="label.parameter.simple.importance_threshold"
-										text="Importance threshold" /></th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<c:forEach var="index" begin="0" end="7">
-									<td>${simpleParameters[0].size() >index ? simpleParameters[0].get(index).value : '0.0'}
-									</td>
-								</c:forEach>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-12">
+		<div class="col-md-6">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.impact"
@@ -103,7 +57,7 @@
 									<td
 										ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'description', 'string');">${parameter.description}</td>
 									<td
-										ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'value', 'double');">${parameter.value*0.001}</td>
+										ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'value', 'double');" real-value="${parameter.value}">${parameter.value*0.001}</td>
 									<td>${parameter.bounds.from*0.001}</td>
 									<td>${parameter.bounds.to*0.001}</td>
 								</tr>
@@ -113,7 +67,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-12">
+		<div class="col-md-6">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.probability"
@@ -160,7 +114,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-5">
+		<div class="col-md-4">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.smt"
@@ -192,7 +146,53 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-7">
+		<div class="col-md-8">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<spring:message code="label.parameter.simple.various"
+						text="Various parameters" />
+				</div>
+				<div class="panel-body">
+					<table class="table">
+						<thead>
+							<tr>
+								<th><spring:message
+										code="label.parameter.simple.internal_setup"
+										text="Internal setup" /></th>
+								<th><spring:message
+										code="label.parameter.simple.external_setup"
+										text="External setup" /></th>
+								<th><spring:message
+										code="label.parameter.simple.default_life_time"
+										text="Default lifetime" /></th>
+								<th><spring:message
+										code="label.parameter.simple.default_maintenance"
+										text="Default maintenance" /></th>
+								<th><spring:message code="label.parameter.simple.tuning"
+										text="Tunning" /></th>
+								<th><spring:message code="label.parameter.simple.soa"
+										text="SOA" /></th>
+								<th><spring:message
+										code="label.parameter.simple.mandatory_phase"
+										text="Mandatory phase" /></th>
+								<th><spring:message
+										code="label.parameter.simple.importance_threshold"
+										text="Importance threshold" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<c:forEach var="index" begin="0" end="7">
+									<td>${simpleParameters[0].size() >index ? simpleParameters[0].get(index).value : '0.0'}
+									</td>
+								</c:forEach>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-5">
 			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.maturity_level"

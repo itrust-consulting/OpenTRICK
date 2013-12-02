@@ -9,11 +9,6 @@
 <title>TRICK Service</title>
 <link rel="stylesheet" type="text/css"
 	href='<spring:url value="/css/main.css" />' />
-<style>
-.error {
-	color: #ff0000;
-}
-</style>
 </head>
 <body>
 	<div class="container">

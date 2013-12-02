@@ -306,13 +306,15 @@ public class ImportAnalysis {
 			// save or update analysis
 			daoAnalysis.saveOrUpdate(this.analysis);
 
+			if (session != null)
+				session.getTransaction().commit();
+			
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"success.analysis.import", "Import Done", 100));
 
-			//System.out.println("Import Done!");
-
-			if (session != null)
-				session.getTransaction().commit();
+			System.out.println("Import Done!");
+			
+			
 		} catch (Exception e) {
 			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(),
 					e.getMessage(), e));

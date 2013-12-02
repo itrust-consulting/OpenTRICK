@@ -35,6 +35,8 @@ public interface ServiceTaskFeedback {
 	
 	MessageHandler recive(long id);
 	
+	MessageHandler reciveLast(long id);
+	
 	List<MessageHandler> recive(String userName);
 	
 	List<Long> tasks(String userName);

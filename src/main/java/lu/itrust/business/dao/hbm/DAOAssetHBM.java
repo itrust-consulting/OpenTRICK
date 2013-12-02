@@ -145,4 +145,13 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 		getSession().delete(get(id));
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Asset> findByAnalysisAndSelected(int idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true")
+				.setInteger("idAnalysis", idAnalysis).list();
+	}
+
 }

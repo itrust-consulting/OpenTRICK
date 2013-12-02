@@ -161,5 +161,4 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 		return daoAnalysis.exist(id);
 	}
-
 }

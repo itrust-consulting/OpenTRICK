@@ -12,7 +12,6 @@
 <script src="<spring:url value="/js/bootbox.min.js" />"></script>
 <script src="<spring:url value="/js/dom-parser.js" />"></script>
 <script src="<spring:url value="/js/main.js" />"></script>
-<script src="<spring:url value="/js/navigation.js" />"></script>
 <script type="text/javascript">
 	<!--
 	var context = '${pageContext.request.contextPath}';
@@ -23,4 +22,5 @@
 		taskManager.Start();
 	-->
 	</sec:authorize>
+	
 </script>

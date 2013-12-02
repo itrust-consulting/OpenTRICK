@@ -14,38 +14,52 @@
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
-<div class="col-md-3 nav-container">
-	<div id="analysismenu" class="bs-sidebar hidden-print affix"
-		role="complementary">
-		<ul class="nav bs-sidenav">
-			<li class="active"><a href="#section_history"> <spring:message
+<div class="navbar navbar-default navbar-static-top navbar-custom">
+	<div id="analysismenu" class="container"
+		role="navigation">
+		<ul class="nav navbar-nav">
+			<li class="active"><a href="#History"> <spring:message
 						code="menu.analysis.history" text="History" />
 			</a></li>
-			<li><a href="#section_itemInformation"> <spring:message
+			<li><a href="#ItemInformation"> <spring:message
 						code="menu.analysis.iteminformation" text="Item Information" />
 			</a></li>
-			<li><a href="#section_parameter"> <spring:message
+			<li><a href="#Parameter"> <spring:message
 						code="menu.analysis.parameter" text="Parameters" />
 			</a></li>
-			<li><a href="#section_asset"> <spring:message
+			<li><a href="#Asset"> <spring:message
 						code="menu.analysis.asset" text="Assets" />
 			</a></li>
-			<li><a href="#section_scenario"> <spring:message
+			<li><a href="#Scenario"> <spring:message
 						code="menu.analysis.scenario" text="Scenarios" />
-			</a></li>
-			<li><a href="#section_assessment"> <spring:message
+			</a>
+			<li><a href="#Assessment"> <spring:message
 						code="menu.analysis.assessment" text="Assessments" />
 			</a></li>
-			<li><a href="#section_measure"> <spring:message
+			<li><a href="#Measure"> <spring:message
 						code="menu.analysis.measure" text="Measures" />
 			</a></li>
-			<li><a href="#section_phase"> <spring:message
+			<li><a href="#Phase"> <spring:message
 						code="menu.analysis.phase" text="Phases" />
 			</a></li>
-			<li><a href="#section_riskInformation"> <spring:message
+			<li><a href="#RiskInformation"> <spring:message
 						code="menu.analysis.riskinformation" text="Risk Information" />
-			</a></li>
-			<li><a href="#section_actionPlan"> <spring:message
+			</a>
+				<!-- 
+				<ul class="nav">
+					<li><a href="#Threats"> <spring:message
+								code="menu.analysis.threat" text="Threats" />
+					</a></li>
+					<li><a href="#Risks"> <spring:message
+								code="menu.analysis.risk" text="Risks" />
+					</a></li>
+					<li><a href="#Vulnerabilities"> <spring:message
+								code="menu.analysis.vulnerability" text="Vulnerability" />
+					</a></li>
+				</ul></li>
+				 -->
+			</li>
+			<li><a href="#ActionPlan"> <spring:message
 						code="menu.analysis.actionplan" text="Action Plans" />
 			</a></li>
 		</ul>

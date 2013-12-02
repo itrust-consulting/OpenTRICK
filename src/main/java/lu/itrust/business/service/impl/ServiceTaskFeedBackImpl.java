@@ -211,4 +211,15 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		Queue<MessageHandler> queue = messageHandlers.get(id);
 		return queue == null ? 0 : queue.size();
 	}
+
+	@Override
+	public MessageHandler reciveLast(long id) {
+		Queue<MessageHandler> queue = messageHandlers.get(id);
+		if (queue == null || queue.isEmpty())
+			return null;
+		MessageHandler messageHandler = null;
+		while (!queue.isEmpty())
+			messageHandler = queue.poll();
+		return messageHandler;
+	}
 }

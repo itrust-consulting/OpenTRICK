@@ -8,11 +8,13 @@
 <spring:htmlEscape defaultHtmlEscape="true" />
 <div class="section" id="section_itemInformation">
 	<div class="page-header">
-		<h3 id="itemInformation">
+		<h3 id="ItemInformation">
 			<spring:message code="label.itemInformation" text="Item Information" />
 		</h3>
 	</div>
-	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitItemInformations(itemInformations)" var="itemInformationsSplited" />
+	<spring:eval
+		expression="T(lu.itrust.business.TS.Analysis).SplitItemInformations(itemInformations)"
+		var="itemInformationsSplited" />
 	<div class="row">
 		<div class="col-md-12">
 			<div class="panel panel-info">
@@ -33,10 +35,11 @@
 						<tbody>
 							<c:forEach items="${itemInformationsSplited[0]}"
 								var="itemInformation">
-								<tr>
-									<!--<td>${itemInformation.id}</td>-->
+								<tr trick-class="ItemInformation"
+									trick-id="${itemInformation.id}">
 									<td>${itemInformation.description}</td>
-									<td ondblclick="return editField(this, 'itemInformation','${itemInformation.id}', 'value', 'string');">${itemInformation.value}</td>
+									<td trick-field="value" trick-field-type="string"
+										ondblclick="return editField(this);">${itemInformation.value}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -64,10 +67,11 @@
 						<tbody>
 							<c:forEach items="${itemInformationsSplited[1]}"
 								var="itemInformation">
-								<tr ondblclick="return globalEdit(this, )">
+								<tr trick-class="ItemInformation"
+									trick-id="${itemInformation.id}">
 									<td>${itemInformation.description}</td>
-									<td
-										ondblclick="return editField(this, 'itemInformation','${itemInformation.id}', 'value', 'string');">${itemInformation.value}</td>
+									<td trick-field="value" trick-field-trype="string"
+										ondblclick="return editField(this);">${itemInformation.value}</td>
 								</tr>
 							</c:forEach>
 						</tbody>

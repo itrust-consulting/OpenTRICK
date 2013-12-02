@@ -40,7 +40,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="assetType.id" class="col-sm-2 control-label">
+						<label for=version class="col-sm-2 control-label">
 							<spring:message code="label.history.version" text="Version" />
 						</label>
 						<div class="col-sm-10">

@@ -79,6 +79,15 @@ public class Assessment implements Serializable, Cloneable {
 	 * Getters and Setters
 	 **********************************************************************************************/
 
+	public Assessment(Asset asset, Scenario scenario) {
+		setAsset(asset);
+		setScenario(scenario);
+		setSelected(asset.isSelected() && scenario.isSelected());
+	}
+
+	public Assessment() {
+	}
+
 	/**
 	 * getId: <br>
 	 * Returns the field "id"

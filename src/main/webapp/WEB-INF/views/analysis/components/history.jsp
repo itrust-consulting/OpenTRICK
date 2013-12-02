@@ -8,7 +8,7 @@
 <spring:htmlEscape defaultHtmlEscape="true" />
 <div class="section" id="section_history">
 	<div class="page-header">
-		<h3 id="history">
+		<h3 id="History">
 			<spring:message code="label.history" text="History" />
 		</h3>
 	</div>
@@ -27,12 +27,14 @@
 				</thead>
 				<tbody>
 					<c:forEach items="${histories}" var="history">
-						<tr>
-							<!--<td>${history.id}</td>-->
+						<tr trick-class="History" trick-id="${history.id}">
 							<td>${history.version}</td>
-							<td ondblclick="editField(this, 'history','${history.id}', 'date', 'date');">${history.date}</td>
-							<td ondblclick="editField(this, 'history','${history.id}', 'author', 'string');">${history.author}</td>
-							<td ondblclick="editField(this, 'history','${history.id}', 'comment', 'string');">${history.comment}</td>
+							<td trick-field="date" trick-field-type="date"
+								ondblclick="editField(this);">${history.date}</td>
+							<td trick-field="author" trick-field-type="string"
+								ondblclick="editField(this);">${history.author}</td>
+							<td trick-field="comment" trick-field-type="string"
+								ondblclick="editField(this);">${history.comment}</td>
 						</tr>
 					</c:forEach>
 				</tbody>

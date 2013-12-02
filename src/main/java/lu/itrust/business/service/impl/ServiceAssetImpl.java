@@ -109,4 +109,9 @@ public class ServiceAssetImpl implements ServiceAsset {
 		daoAsset.delete(id);
 	}
 
+	@Override
+	public List<Asset> findByAnalysisAndSelected(int idAnalysis) {
+		return daoAsset.findByAnalysisAndSelected(idAnalysis);
+	}
+
 }

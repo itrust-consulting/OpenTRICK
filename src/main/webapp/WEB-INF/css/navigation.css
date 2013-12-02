@@ -53,7 +53,7 @@
 	font-size: 90%;
 }
 /* Show and affix the side nav when space allows it */
-@media ( min-width : 992px) {
+@media ( min-width : 1300px) {
 	.bs-sidebar .nav>.active>ul {
 		display: block;
 	}
@@ -74,7 +74,7 @@
 	}
 }
 
-@media ( min-width : 1300px) {
+@media ( min-width : 768px) {
 	/* Widen the fixed sidebar again */
 	.bs-sidebar.affix-bottom,.bs-sidebar.affix {
 		width: 263px;

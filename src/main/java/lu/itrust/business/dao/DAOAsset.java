@@ -13,6 +13,7 @@ import lu.itrust.business.TS.Asset;
  * @since 16 janv. 2013
  */
 public interface DAOAsset {
+	
 	Asset get(int id);
 
 	List<Asset> find();
@@ -20,6 +21,8 @@ public interface DAOAsset {
 	List<Asset> find(int pageIndex, int pageSize);
 
 	List<Asset> findByAnalysis(int analysisId);
+	
+	List<Asset> findByAnalysisAndSelected(int idAnalysis);
 
 	List<Asset> findByAnalysis(int pageIndex, int pageSize, int analysisId);
 

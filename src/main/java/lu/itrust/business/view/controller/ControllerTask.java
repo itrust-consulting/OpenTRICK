@@ -74,14 +74,20 @@ public class ControllerTask {
 				asyncResult.setFlag(5);
 			}
 
-			MessageHandler messageHandler = serviceTaskFeedback.recive(id);
+			MessageHandler messageHandler = serviceTaskFeedback.reciveLast(id);
 			if (messageHandler != null) {
 				asyncResult.setMessage(messageSource.getMessage(
 						messageHandler.getCode(),
 						messageHandler.getParameters(),
 						messageHandler.getMessage(), locale));
 				asyncResult.setProgress(messageHandler.getProgress());
-
+				if ( messageHandler.getProgress() == 100 || asyncResult.getFlag() == 0
+						&& messageHandler.getException() == null) {
+					asyncResult.setStatus(messageSource.getMessage(
+							"label.task_status.success", null, "Success",
+							locale));
+					asyncResult.setFlag(5);
+				}
 			} else
 				asyncResult.setMessage(null);
 

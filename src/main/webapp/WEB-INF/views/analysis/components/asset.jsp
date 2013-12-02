@@ -30,23 +30,20 @@
 								htmlEscape="true" /></th>
 						<th><spring:message code="label.asset.value" text="Value"
 								htmlEscape="true" /></th>
-						<th><spring:message code="label.asset.selected"
-								text="Selected" htmlEscape="true" /></th>
-						<th><spring:message code="label.asset.comment" text="Comment"
+						<th colspan="3"><spring:message code="label.asset.comment" text="Comment"
 								htmlEscape="true" /></th>
-						<th><spring:message code="label.asset.comment"
+						<th colspan="3"><spring:message code="label.asset.comment"
 								text="Hidden comment" htmlEscape="true" /></th>
 					</tr>
 				</thead>
 				<tbody>
 					<c:forEach items="${assets}" var="asset">
-						<tr class="${asset.value < 1 ? 'warning' : asset.selected? 'success' : 'active'}" trick-id="${asset.id}" trick-selected="${asset.selected}">
+						<tr class="${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}" trick-id="${asset.id}" trick-selected="${asset.selected}" ondblclick="return editAssetRow('${asset.id}');">
 							<td>${asset.name}</td>
 							<td>${ asset.assetType.type}</td>
 							<td>${asset.value}</td>
-							<td>${asset.selected}</td>
-							<td>${asset.comment}</td>
-							<td>${asset.hiddenComment}</td>
+							<td colspan="3">${asset.comment}</td>
+							<td colspan="3">${asset.hiddenComment}</td>
 						</tr>
 					</c:forEach>
 				</tbody>
