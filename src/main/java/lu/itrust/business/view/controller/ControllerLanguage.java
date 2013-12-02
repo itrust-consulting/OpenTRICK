@@ -1,154 +1,173 @@
 package lu.itrust.business.view.controller;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
-
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.service.ServiceLanguage;
-
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/** 
+/**
  * ControllerLanguage.java: <br>
  * Detailed description...
- *
+ * 
  * @author itrust consulting s.à.rl. :
- * @version 
+ * @version
  * @since Oct 11, 2013
  */
 @Controller
+@RequestMapping("/KnowledgeBase/Language")
 public class ControllerLanguage {
 
 	@Autowired
 	private ServiceLanguage serviceLanguage;
-	
+
 	@Autowired
 	private MessageSource messageSource;
-	
-	/** 
+
+	/**
 	 * 
 	 * Display all Language
 	 * 
 	 * */
-	@RequestMapping("KnowLedgeBase/Language/Display")
+	@RequestMapping
 	public String loadAllLanguages(Map<String, Object> model) throws Exception {
 		model.put("languages", serviceLanguage.loadAll());
-		return "language/languages";
+		return "knowledgebase/language/languages";
 	}
 
-	/** 
+	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String section(Model model) throws Exception {
+		model.addAttribute("languages", serviceLanguage.loadAll());
+		return "knowledgebase/language/languages";
+	}
+
+	/**
 	 * 
 	 * Display single Language
 	 * 
 	 * */
-	@Secured("ROLE_USER")
-	@RequestMapping("KnowLedgeBase/Language/{languageId}")
-	public String loadLanguage(@PathVariable("languageId") Integer languageId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, 
-			Locale locale) throws Exception {
+	@RequestMapping("/{languageId}")
+	public String loadSingleLanguage(@PathVariable("languageId") Integer languageId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
+			throws Exception {
 		Language language = (Language) session.getAttribute("language");
 		if (language == null || language.getId() != languageId)
 			language = serviceLanguage.get(languageId);
-			if (language == null) {
-				String msg = messageSource.getMessage("errors.language.notexist", null, "Langiage does not exist",locale);
-				redirectAttributes.addFlashAttribute("errors", msg);
-				return "redirect:/KnowLedgeBase/Language/Display";
-			}
-		model.put("language", language);
-		return "language/showLanguage";
-	}
-	
-	/** 
-	 * 
-	 * Request add new Language
-	 * 
-	 * */
-	@RequestMapping("KnowLedgeBase/Language/Add")
-	public String addLanguage(Map<String, Object> model) {
-		model.put("language", new Language());
-		return "language/addLanguage";
-	}
-
-	/** 
-	 * 
-	 * Perform add new Language
-	 * 
-	 * */
-	@RequestMapping("KnowLedgeBase/Language/Create")
-	public String createLanguage(@ModelAttribute("language") @Valid Language language,
-			BindingResult result) throws Exception {
-		this.serviceLanguage.save(language);
-		return "redirect:../Language/Display";
-	}
-
-	/** 
-	 * 
-	 * Request edit single Language
-	 * 
-	 * */
-	@RequestMapping("KnowLedgeBase/Language/Edit/{languageId}")
-	public String editLanguage(@PathVariable("languageId") Integer languageId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, 
-			Locale locale) throws Exception {
-		Language language = (Language) session.getAttribute("language");
-		if (language == null || language.getId() != languageId)
-			language = serviceLanguage.get(languageId);
-			if (language == null) {
-				String msg = messageSource.getMessage("errors.language.notexist", null, "Language does not exist",locale);
-				redirectAttributes.addFlashAttribute("errors", msg);
-				return "redirect:/KnowLedgeBase/Language/Display";
-			}
-		model.put("language", language);
-		return "language/editLanguage";
-	}
-	
-	/** 
-	 * 
-	 * Perform edit single Language
-	 * 
-	 * */
-	@RequestMapping("KnowLedgeBase/Language/Update/{languageId}")
-	public String updateLanguage(@PathVariable("languageId") Integer languageId, @ModelAttribute("language") @Valid Language language, BindingResult result,
-		   RedirectAttributes redirectAttributes,Locale locale) throws Exception {
-		if (language == null || language.getId() != languageId) {
-			String msg = messageSource.getMessage("errors.language.update.notrecognized", null, "Language not recognized",locale);
+		if (language == null) {
+			String msg = messageSource.getMessage("errors.language.notexist", null, "Language does not exist", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
-		} else {
-			try {
-				serviceLanguage.saveOrUpdate(language);
-				String msg = messageSource.getMessage("success.language.update.success", null, "Language had been updated!",locale);
-				redirectAttributes.addFlashAttribute("success", msg);
-			} catch (Exception e) {
-				String msg = messageSource.getMessage("errors.language.update.fail", null, "Language update failed!",locale);
-				redirectAttributes.addFlashAttribute("errors", msg);
-			}
+			return "redirect:/KnowLedgeBase/Language";
 		}
-		return "redirect:/KnowLedgeBase/Language/Display";
+		model.put("language", language);
+		return "knowledgebase/language/showLanguage";
 	}
-	
-	/** 
+
+	/**
+	 * save: <br>
+	 * Description
 	 * 
-	 * Delete single Language
+	 * @param value
+	 * @param locale
+	 * @return
+	 */
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody
+	List<String[]> save(@RequestBody String value, Locale locale) {
+		List<String[]> errors = new LinkedList<>();
+		try {
+
+			Language language = new Language();
+			if (!buildLanguage(errors, language, value, locale))
+				return errors;
+			if (language.getId() < 1) {
+				serviceLanguage.save(language);
+			} else {
+				serviceLanguage.saveOrUpdate(language);
+			}
+		} catch (Exception e) {
+			errors.add(new String[] { "language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			e.printStackTrace();
+		}
+		return errors;
+	}
+
+	/**
+	 * 
+	 * Delete single language
 	 * 
 	 * */
-	@RequestMapping("KnowLedgeBase/Language/Delete/{languageId}")
-	public String deleteLanguage(@PathVariable("languageId") Integer languageId) throws Exception {
-		serviceLanguage.remove(languageId);
-		return "redirect:../Display";
+	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody String[] deleteLanguage(@PathVariable("languageId") Integer languageId, Locale locale) throws Exception {
+		serviceLanguage.remove(languageId);		
+		return new String[] {
+			"error",
+			messageSource.getMessage("success.language.delete.successfully", null,
+					"Language was deleted successfully", locale) 
+		};
+		
+	}
+
+	/**
+	 * buildLanguage: <br>
+	 * Description
+	 * 
+	 * @param errors
+	 * @param language
+	 * @param source
+	 * @param locale
+	 * @return
+	 */
+	private boolean buildLanguage(List<String[]> errors, Language language, String source, Locale locale) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+			int id = jsonNode.get("id").asInt();
+			if (id > 0)
+				language.setId(jsonNode.get("id").asInt());
+			
+			language.setAlpha3(jsonNode.get("alpha3").asText());
+			language.setName(jsonNode.get("name").asText());
+			language.setAltName(jsonNode.get("altName").asText());
+
+			return true;
+
+		} catch (Exception e) {
+
+			errors.add(new String[] { "language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			e.printStackTrace();
+			return false;
+		}
+		
 	}
 	
-	public void setServiceLanguage(ServiceLanguage serviceLanguage){
+	/**
+	 * setServiceLanguage: <br>
+	 * Description
+	 * 
+	 * @param serviceLanguage
+	 */
+	public void setServiceLanguage(ServiceLanguage serviceLanguage) {
 		this.serviceLanguage = serviceLanguage;
 	}
-	
-	
 }

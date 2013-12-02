@@ -16,5 +16,7 @@
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.min.css" />' />
 <!--  <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.css" />' />-->
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.min.css" />' />
+<!--  <link rel="stylesheet" type="text/css" href='<spring:url value="/css/navigation.css" />' />-->
+<link rel="stylesheet" type="text/css" href='<spring:url value="/js/datatables/media/css/jquery.dataTables.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/main.css" />' />
 </head>

@@ -42,11 +42,13 @@
 								<li tabindex="-1" class="dropdown-submenu active"><a
 									href="${pageContext.request.contextPath}/Analysis"
 									class="dropdown-toggle" data-toggle="dropdown"> <spring:message
-											code="label.menu.analysis.all" text="Analysis" /><span class="caret" ></span>
+											code="label.menu.analysis.all" text="Analysis" /><span
+										class="caret"></span>
 								</a>
 									<ul class="dropdown-menu sm">
 										<li><a
-											href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select"><spring:message code="label.analysis.release" text="Realse analysis"/></a></li>
+											href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select"><spring:message
+													code="label.analysis.release" text="Realse analysis" /></a></li>
 									</ul></li>
 							</c:when>
 							<c:otherwise>

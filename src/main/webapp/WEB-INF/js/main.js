@@ -7,10 +7,20 @@ function changePassword() {
 	return false;
 }
 
-function MessageResolver(code, defaulttext) {
+function serializeForm(formId) {
+	var form = $("#" + formId);
+	var data = form.serializeJSON();
+	return JSON.stringify(data);
+}
+
+function MessageResolver(code, defaulttext, params) {
 	$.ajax({
 		url : context + "/MessageResolver",
-		data : code,
+		data : {
+			"code" : code,
+			"default": defaulttext,
+			"params" : params
+		},
 		contentType : "application/json",
 		success : function(response) {
 			if (response == null || response == "")
@@ -24,11 +34,7 @@ function MessageResolver(code, defaulttext) {
 function extract(data) {
 	var parser = new DOMParser();
 	var doc = parser.parseFromString(data, "text/html");
-	$("#content")
-			.html(
-					doc.getElementById("login") == null ? doc
-							.getElementById("content").innerHTML : doc
-							.getElementById("login").outerHTML);
+	$("#content").html(doc.getElementById("login") == null ? doc.getElementById("content").innerHTML : doc.getElementById("login").outerHTML);
 	return false;
 }
 
@@ -68,42 +74,6 @@ function cancelTask(taskId) {
 	});
 }
 
-function refraichContentSideLeft() {
-	$.ajax({
-		url : context + "/admin",
-		contentType : "text/html",
-		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			$("#content_side_left").html(
-					doc.getElementById("content_side_left").innerHTML);
-		}
-	});
-	return false;
-}
-
-function leftSideOpenLink(url, extractor) {
-	if (extractor == null)
-		extractor = extractLeftSide;
-	$.ajax({
-		url : url,
-		contentType : "text/html",
-		success : extractor
-	});
-	return false;
-}
-
-function extractLeftSide(data) {
-	var parser = new DOMParser();
-	var doc = parser.parseFromString(data, "text/html");
-	if (doc.getElementById("login") != null)
-		$("#content").html(doc.getElementById("login").outerHTML);
-	else
-		$("#content_side_left").html(
-				doc.getElementById("content_side_left").innerHTML);
-	return false;
-}
-
 function openLink(url, confirmAction, message) {
 	if (!confirmAction || confirm(message)) {
 		$.ajax({
@@ -112,21 +82,6 @@ function openLink(url, confirmAction, message) {
 			success : extract
 		});
 	}
-	return false;
-}
-
-function openLinkWithReferer(url, referer, refraich) {
-	$.ajax({
-		url : url,
-		data : {
-			redirection : referer
-		},
-		contentType : "text/html",
-		success : extract
-	}).done(function() {
-		if (refraich)
-			refraichContentSideLeft();
-	});
 	return false;
 }
 
@@ -648,8 +603,7 @@ function TaskManager() {
 					return false;
 				if (instance.progressBars[taskId] == null
 						|| instance.progressBars[taskId] == undefined) {
-					instance.progressBars[taskId] = instance
-							.createProgressBar(taskId);
+					instance.progressBars[taskId] = instance.createProgressBar(taskId);
 				}
 				if (reponse.message != null) {
 					instance.progressBars[taskId].Update(reponse.progress,
@@ -677,19 +631,6 @@ function post(url, data, refraich) {
 		if (refraich)
 			refraichContentSideLeft();
 	});
-	return false;
-}
-
-function createDialogInfo(title, content) {
-	var info = document.getElementById("info");
-	if (info == null) {
-		info = document.createElement("div");
-		info.setAttribute("id", "info");
-		info.setAttribute("title", title);
-		document.getElementById("content").appendChild(info);
-	} else
-		info.setAttribute("title", title);
-	$("#info").html(content);
 	return false;
 }
 
@@ -754,9 +695,7 @@ function saveField(element, controller, id, field, type) {
 			url : context + "/editField/" + controller,
 			type : "post",
 			async : true,
-			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"'
-					+ defaultValueByType($(element).prop("value"), type, true)
-					+ '", "type": "' + type + '"}',
+			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"' + defaultValueByType($(element).prop("value"), type, true) + '", "type": "' + type + '"}',
 			contentType : "application/json",
 			success : function(response) {
 				if (response == "" || response == null) {
@@ -816,9 +755,7 @@ function showError(parent, text) {
 	close.setAttribute("data-dismiss", "alert");
 	error.setAttribute("class", "alert alert-error");
 	error.setAttribute("aria-hidden", "true");
-	error
-			.setAttribute("style",
-					"background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
+	error.setAttribute("style", "background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
 	close.appendChild(document.createTextNode("x"));
 	error.appendChild(close);
 	error.appendChild(document.createTextNode(text));
@@ -832,7 +769,10 @@ function controllerBySection(section) {
 		"section_parameter" : "/Parameter/Section",
 		"section_scenario" : "/Scenario/Section",
 		"section_assessment" : "/Assessment/Section",
-		"section_analysis" : "/Analysis"
+		"section_analysis" : "/Analysis",
+		"section_customer" : "/KnowledgeBase/Customer/Section",
+		"section_language" : "/KnowledgeBase/Language/Section",
+		"section_norm" : "/KnowledgeBase/Norm/Section"
 	};
 	return controllers[section];
 }
@@ -1003,8 +943,7 @@ function saveAsset(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document
-					.getElementById(form), data);
+			result = data == "" ? true : showError(document.getElementById(form), data);
 			if (result) {
 				$("#addAssetModel").modal("hide");
 				reloadSection("section_asset");
@@ -1341,34 +1280,31 @@ $(function() {
 	$.fn.serializeJSON = function() {
 		var json = {};
 		var form = $(this);
-		form.find('input, select, textarea').each(
-				function() {
-					var val;
-					if (!this.name)
-						return;
+		form.find('input, select, textarea').each(function() {
+			var val;
+			if (!this.name)
+				return;
 
-					if ('radio' === this.type) {
-						if (json[this.name]) {
-							return;
-						}
+			if ('radio' === this.type) {
+				if (json[this.name]) {
+					return;
+				}
 
-						json[this.name] = this.checked ? this.value : '';
-					} else if ('checkbox' === this.type) {
-						val = json[this.name];
+				json[this.name] = this.checked ? this.value : '';
+			} else if ('checkbox' === this.type) {
+				val = json[this.name];
 
-						if (!this.checked) {
-							if (!val) {
-								json[this.name] = '';
-							}
-						} else {
-							json[this.name] = typeof val === 'string' ? [ val,
-									this.value ] : $.isArray(val) ? $.merge(
-									val, [ this.value ]) : this.value;
-						}
-					} else {
-						json[this.name] = this.value;
+				if (!this.checked) {
+					if (!val) {
+						json[this.name] = '';
 					}
-				});
+				} else {
+					json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
+				}
+			} else {
+				json[this.name] = this.value;
+			}
+		});
 		return json;
 	};
 

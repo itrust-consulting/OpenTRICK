@@ -38,14 +38,12 @@
 					<h1><spring:message code="title.knowledgebase" text="Knowledge Base" /></h1>
 				</div>
 				<jsp:include page="knowledgebasemenu.jsp" />
-
-				<div class="content col-md-9" id="content" role="main"
-					data-spy="scroll">
+				<div class="content col-md-10" id="content" role="main" data-spy="scroll">
 					<jsp:include page="customer/customers.jsp" />
 					<jsp:include page="language/languages.jsp" />
-					<jsp:include page="standard/norms.jsp" />
+					<jsp:include page="standard/norm/norms.jsp" />
+					<jsp:include page="widget.jsp" />
 				</div>
-
 			</div>
 			
 			
