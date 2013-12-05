@@ -12,7 +12,7 @@
 		<many-to-one cascade="save-update" name="measureDescription" column="fiMeasureDescription"
 			not-null="true" />
 		<many-to-one name="phase" column="fiPhase" cascade="save-update"
-			not-null="true"  lazy="false"/>
+			not-null="true"  access="field"/>
 		<property name="status" column="dtStatus" not-null="true" />
 		<property name="internalWL" column="dtInternalWorkLoad"
 			not-null="true" />
@@ -48,7 +48,7 @@
 			<bag name="assetTypeValues" table="measureAssetTypeValue"
 				cascade="all">
 				<key column="idNormMeasure" not-null="true" />
-				<many-to-many class="AssetTypeValue" column="idMeasureAssetTypeValue" />
+				<many-to-many class="AssetTypeValue" column="idMeasureAssetTypeValue" unique="true"/>
 			</bag>
 		</joined-subclass>
 	</class>

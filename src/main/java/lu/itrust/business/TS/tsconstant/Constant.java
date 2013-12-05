@@ -11,7 +11,7 @@ package lu.itrust.business.TS.tsconstant;
  * 	<li>SQLite Database Table Constants</li>
  * </ul>
  *
- * @author itrust consulting s.�.rl. : SME
+ * @author itrust consulting s.ï¿½.rl. : SME
  * @version 
  * @since 9 January 2013
  */
@@ -29,7 +29,7 @@ public class Constant {
 	
 	/** Regular *Expression to check on valid Names */
 	public static final String REGEXP_VALID_NAME =
-		"^([a-zA-Zàãâáäãåæèêéëñíïìîøôõòóùûúüĉĝĥĵŝŭýšžčçß-]+[',.]?\\s?){1,4}";
+		"^([a-zA-ZÃ Ã£Ã¢Ã¡Ã¤Ã£Ã¥Ã¦Ã¨ÃªÃ©Ã«Ã±Ã­Ã¯Ã¬Ã®Ã¸Ã´ÃµÃ²Ã³Ã¹Ã»ÃºÃ¼Ä‰Ä�Ä¥ÄµÅ�Å­Ã½Å¡Å¾Ä�Ã§ÃŸ-]+[',.]?\\s?){1,4}";
 
 	/** Email Regular expression to be valid */
 	public static final String REGEXP_VALID_EMAIL = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
@@ -104,7 +104,7 @@ public class Constant {
 	public static final int MEASURE_LEVEL_3 = 3;
 
 	/** Double maximum Value */
-	public static final double DOUBLE_MAX_VALUE = 1.79769313486231e+308;
+	public static final double DOUBLE_MAX_VALUE = 1.79769313486231e+108;
 	
 	/** Asset, Threat (Scenario) and assessment selected sign */
 	public static final String ASSET_SELECTED = "x";

@@ -37,22 +37,22 @@ public class Assessment implements Serializable, Cloneable {
 	private String hiddenComment = "";
 
 	/** The impactFin value of this assessment */
-	private String impactRep = "";
+	private String impactRep = "0";
 
 	/** The impactOp value of this assessment */
-	private String impactOp = "";
+	private String impactOp = "0";
 
 	/** The impactLeg value of this assessment */
-	private String impactLeg = "";
+	private String impactLeg = "0";
 
 	/** The impactFin value of this assessment */
-	private String impactFin = "";
+	private String impactFin = "0";
 
 	/** The impactFin value of this assessment */
 	private double impactReal = 0;
 
 	/** The likelihood value of this assessment */
-	private String likelihood = "";
+	private String likelihood = "0";
 
 	/** The likelihood value of this assessment */
 	private double likelihoodReal = 0;
@@ -82,7 +82,8 @@ public class Assessment implements Serializable, Cloneable {
 	public Assessment(Asset asset, Scenario scenario) {
 		setAsset(asset);
 		setScenario(scenario);
-		setSelected(asset.isSelected() && scenario.isSelected());
+		setSelected(asset.isSelected() && scenario.isSelected()
+				&& scenario.hasInfluenceOnAsset(asset.getAssetType()));
 	}
 
 	public Assessment() {

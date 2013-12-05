@@ -1,5 +1,7 @@
 package lu.itrust.business.TS;
 
+import lu.itrust.business.TS.tsconstant.Constant;
+
 /**
  * ExtendedParameter: <br>
  * This class represents an Extended Parameter and all its data.
@@ -105,7 +107,9 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 		this.bounds = bounds;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.Parameter#clone()
 	 */
 	@Override
@@ -114,9 +118,10 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 		parameter.bounds = (Bounds) this.bounds.clone();
 		return parameter;
 	}
-	
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.Parameter#clone()
 	 */
 	@Override
@@ -124,5 +129,37 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 		ExtendedParameter parameter = (ExtendedParameter) super.duplicate();
 		parameter.bounds = (Bounds) this.bounds.clone();
 		return parameter;
+	}
+
+	public static void ComputeScales(ExtendedParameter extendedParameter,
+			ExtendedParameter extendedParameterPrev,
+			ExtendedParameter extendedParameterNext) {
+		extendedParameter.setValue(Math.sqrt(extendedParameterPrev.getValue()
+				* extendedParameterNext.getValue()));
+
+		if (extendedParameterPrev.level == 0) {
+			extendedParameterPrev.bounds = new Bounds(0,
+					Math.sqrt(extendedParameter.getValue()
+							* extendedParameterPrev.getValue()));
+		} else {
+			extendedParameterPrev.bounds = new Bounds(
+					extendedParameterPrev.bounds.getFrom(),
+					Math.sqrt(extendedParameter.getValue()
+							* extendedParameterPrev.getValue()));
+		}
+		
+		extendedParameter.bounds = new Bounds(
+				extendedParameterPrev.bounds.getTo(),
+				Math.sqrt(extendedParameter.getValue()
+						* extendedParameterNext.getValue()));
+
+		if (extendedParameterNext.level == 10)
+			extendedParameterNext.bounds = new Bounds(
+					extendedParameter.bounds.getTo(), Constant.DOUBLE_MAX_VALUE);
+		else
+			extendedParameterNext.bounds = new Bounds(
+					extendedParameter.bounds.getTo(),
+					extendedParameter.bounds.getTo() + 1);
+
 	}
 }

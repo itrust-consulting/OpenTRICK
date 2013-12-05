@@ -76,14 +76,14 @@ html,body {
 }
 
 .navbar-custom{
-	margin-top: -40px;
+	margin-top: 0px;
 }
 
 .navbar-custom.affix{
-	margin-top: -142px;
+	margin-top: -39px;
 }
 
-.navbar-custom +.nav-container{
+.navbar-custom +.nav-container, #success+.nav-container, #error+.nav-container {
 	margin-top: -108px;
 }
 

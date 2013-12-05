@@ -5,11 +5,14 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
+import lu.itrust.business.TS.ExtendedParameter;
+import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.ParameterType;
+import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.dao.DAOParameter;
+
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
-
-import lu.itrust.business.TS.Parameter;
-import lu.itrust.business.dao.DAOParameter;
 
 /**
  * @author eom
@@ -139,6 +142,119 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	@Override
 	public void delete(int id) {
 		getSession().delete(get(id));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Parameter> findByAnalysisAndType(int idAnalysis, String type) {
+		return getSession()
+				.createQuery(
+						"Select parameter "
+								+ "From Analysis as analysis "
+								+ "inner join analysis.parameters as parameter "
+								+ "where analysis.id = :analysisId and parameter.type.label = :type")
+				.setInteger("analysisId", idAnalysis).setString("type", type)
+				.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Parameter> findByAnalysisAndType(int idAnalysis, int idType) {
+		return getSession()
+				.createQuery(
+						"Select parameter "
+								+ "From Analysis as analysis "
+								+ "inner join analysis.parameters as parameter "
+								+ "where analysis.id = :analysisId and parameter.type.id = :idType")
+				.setInteger("analysisId", idAnalysis)
+				.setInteger("idType", idType).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Parameter> findByAnalysisAndType(int idAnalysis,
+			ParameterType type) {
+		return getSession()
+				.createQuery(
+						"Select parameter "
+								+ "From Analysis as analysis "
+								+ "inner join analysis.parameters as parameter "
+								+ "where analysis.id = :analysisId and parameter.type= :type")
+				.setInteger("analysisId", idAnalysis)
+				.setParameter("type", type).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ExtendedParameter> findImpactByAnalysisAndType(int idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select parameter "
+								+ "From Analysis as analysis "
+								+ "inner join analysis.parameters as parameter "
+								+ "where analysis.id = :analysisId and parameter.type.label = :type order by parameter.level asc")
+				.setInteger("analysisId", idAnalysis)
+				.setString("type", Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)
+				.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ExtendedParameter> findProbaByAnalysisAndType(int idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select parameter "
+								+ "From Analysis as analysis "
+								+ "inner join analysis.parameters as parameter "
+								+ "where analysis.id = :analysisId and parameter.type.label = :type order by parameter.level asc")
+				.setInteger("analysisId", idAnalysis)
+				.setString("type", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
+				.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ExtendedParameter> findExtendedByAnalysisAndType(
+			int idAnalysis, ParameterType type) {
+		return getSession()
+				.createQuery(
+						"Select parameter "
+								+ "From Analysis as analysis "
+								+ "inner join analysis.parameters as parameter "
+								+ "where analysis.id = :analysisId and parameter.type = :type order by parameter.level asc")
+				.setInteger("analysisId", idAnalysis)
+				.setParameter("type", type).list();
+	}
+
+	@Override
+	public void saveOrUpdate(List<? extends Parameter> parameters) {
+		for (Parameter parameter : parameters)
+			saveOrUpdate(parameter);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Parameter> findByAnalysis(int idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis")
+				.setParameter("idAnalysis", idAnalysis).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ExtendedParameter> findExtendedByAnalysis(int idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select parameter "
+								+ "From Analysis as analysis inner join analysis.parameters as parameter "
+								+ "where analysis.id = :idAnalysis "
+								+ "and (parameter.type.label = :impact or parameter.type.label = :proba ) "
+								+ "order by parameter.type.id, parameter.level")
+				.setParameter("idAnalysis", idAnalysis)
+				.setString("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
+				.setString("proba",
+						Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
 	}
 
 }

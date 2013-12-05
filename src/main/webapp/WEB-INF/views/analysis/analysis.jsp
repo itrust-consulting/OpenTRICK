@@ -26,28 +26,22 @@
 		<jsp:include page="../menu.jsp" />
 
 		<div class="container">
-			<div class="page-header">
-				<c:choose>
-					<c:when test="${!empty(analyses) }">
-						<h1>
-							<spring:message code="label.analysis.title" />
-						</h1>
-					</c:when>
-					<c:when test="${!empty(analysis) }">
-						<h1 title="${analysis.label}">
-							${analysis.customer.contactPerson } | ${analysis.getVersion() }
-						</h1>
-					</c:when>
-				</c:choose>
-				<jsp:include page="../successErrors.jsp" />
-			</div>
+			
 			<!-- #################################################################### Content ################################################################### -->
-
+			<c:if test="${!empty(analyses)}">
+				<div class="page-header">
+						<h1>
+							<spring:message code="label.analysis.title" text="Analyses"/>
+						</h1>
+						<jsp:include page="../successErrors.jsp" />
+				</div>
+			</c:if>
 			<div class="row nav-container" id="nav-container">
 				<!-- #################################################################### Analysis Menu ################################################################### -->
 
 				<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 					<jsp:include page="analysisMenu.jsp" />
+					<jsp:include page="../successErrors.jsp" />
 					<div class="content nav-container" id="content">
 						<c:set var="histories" value="${analysis.histories}"
 							scope="request" />
@@ -63,9 +57,6 @@
 						<c:set var="scenarios" value="${analysis.scenarios}"
 							scope="request" />
 						<jsp:include page="./components/scenario.jsp" />
-						<c:set var="assessments" value="${analysis.assessments}"
-							scope="request" />
-						<jsp:include page="./components/assessment.jsp" />
 						<jsp:include page="./components/widgets.jsp" />
 					</div>
 				</c:if>

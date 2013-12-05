@@ -84,7 +84,6 @@ public class Scenario extends SecurityCriteria {
 	public void setType(ScenarioType type) {
 		if ((type == null) || (type.getTypeName() == null)
 				|| (type.getTypeName().trim().isEmpty())) {
-			System.out.println(name + type);
 			throw new IllegalArgumentException(
 					"Scenario Type cannot be null or empty!");
 		}
@@ -142,6 +141,39 @@ public class Scenario extends SecurityCriteria {
 		} else {
 			this.description = description;
 		}
+	}
+
+	public void setAssetTypeValue(AssetType assetType, int value) {
+		for (AssetTypeValue typeValue : assetTypeValues) {
+			if (typeValue.getAssetType()
+					.equals(assetType)) {
+				typeValue.setValue(value);
+				return;
+			}
+		}
+		assetTypeValues.add(new AssetTypeValue(assetType, value));
+	}
+
+	public int getAssetTypeValue(AssetType assetType) {
+		for (AssetTypeValue typeValue : assetTypeValues) {
+			if (typeValue.getAssetType().equals(assetType)) {
+				return typeValue.getValue();
+			}
+		}
+		assetTypeValues.add(new AssetTypeValue(assetType, 0));
+		return 0;
+	}
+
+	public boolean hasInfluenceOnAsset(String assettype) {
+		for (AssetTypeValue assetTypeValue : assetTypeValues)
+			if (assettype.equalsIgnoreCase(assetTypeValue.getAssetType()
+					.getType()))
+				return assetTypeValue.getValue()>0;
+		return false;
+	}
+
+	public boolean hasInfluenceOnAsset(AssetType assettype) {
+		return hasInfluenceOnAsset(assettype.getType());
 	}
 
 	/**
@@ -424,7 +456,7 @@ public class Scenario extends SecurityCriteria {
 			scenario.assetTypeValues.add(assetTypeValue.clone());
 		return scenario;
 	}
-	
+
 	public Scenario duplicate() throws CloneNotSupportedException {
 		Scenario scenario = (Scenario) super.duplicate();
 		scenario.assetTypeValues = new ArrayList<>();

@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * 
+ */
+
+var application = new Application();
+
+function Application() {
+	this.modal = {};
+}
+
 function changePassword() {
 	$.ajax({
 		url : context + "/changePassword",
@@ -18,7 +28,7 @@ function MessageResolver(code, defaulttext, params) {
 		url : context + "/MessageResolver",
 		data : {
 			"code" : code,
-			"default": defaulttext,
+			"default" : defaulttext,
 			"params" : params
 		},
 		contentType : "application/json",
@@ -34,7 +44,11 @@ function MessageResolver(code, defaulttext, params) {
 function extract(data) {
 	var parser = new DOMParser();
 	var doc = parser.parseFromString(data, "text/html");
-	$("#content").html(doc.getElementById("login") == null ? doc.getElementById("content").innerHTML : doc.getElementById("login").outerHTML);
+	$("#content")
+			.html(
+					doc.getElementById("login") == null ? doc
+							.getElementById("content").innerHTML : doc
+							.getElementById("login").outerHTML);
 	return false;
 }
 
@@ -83,6 +97,123 @@ function openLink(url, confirmAction, message) {
 		});
 	}
 	return false;
+}
+
+function computeAssessment() {
+	$.ajax({
+		url : context + "/Assessment/Update",
+		type : "get",
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			if (response['error'] != undefined) {
+				$("#info-dialog .modal-body").text(response['error']);
+				$("#info-dialog").modal("toggle");
+			} else if (response['success'] != undefined) {
+				$("#info-dialog .modal-body").text(response['success']);
+				$("#info-dialog").modal("toggle");
+			}
+			return false;
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			console.log(textStatus);
+			console.log(errorThrown);
+			alert(jqXHR.responseText);
+			return false;
+		},
+	});
+	return false;
+}
+
+function wipeAssessment() {
+	$.ajax({
+		url : context + "/Assessment/Wipe",
+		type : "get",
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			if (response['error'] != undefined) {
+				$("#info-dialog .modal-body").text(response['error']);
+				$("#info-dialog").modal("toggle");
+			} else if (response['success'] != undefined) {
+				$("#info-dialog .modal-body").text(response['success']);
+				$("#info-dialog").modal("toggle");
+			}
+			return false;
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			console.log(textStatus);
+			console.log(errorThrown);
+			alert(jqXHR.responseText);
+			return false;
+		},
+	});
+	return false;
+}
+
+function TrickCarousel(table) {
+	this.table = table;
+	this.count = 0;
+	this.theader = null;
+	this.tdata = null;
+	this.navLeft = null;
+	this.navRight = null;
+	this.selected = 1;
+
+	TrickCarousel.prototype.initialise = function() {
+		this.theader = $(this.table).find("th");
+		this.tdata = $(this.table).find("td");
+		this.count = $(this.table).find("th[trick-table-part]").length - 1;
+		this.navLeft = $($(this.table).parent()).find(
+				"a[control-trick-table='left']");
+		this.navRight = $($(this.table).parent()).find(
+				"a[control-trick-table='right']");
+		this.showGroup(1);
+		var that = this;
+
+		$(this.navLeft).click(function() {
+			if (that.selected < 2)
+				that.showGroup(that.count);
+			else
+				that.showGroup(that.selected - 1);
+			return false;
+		});
+		$(this.navRight).click(function() {
+			if (that.selected >= that.count)
+				that.showGroup(1);
+			else
+				that.showGroup(that.selected + 1);
+			return false;
+		});
+		return false;
+
+	};
+
+	TrickCarousel.prototype.showGroup = function(groupId) {
+		this.showPart(this.theader, groupId);
+		this.showPart(this.tdata, groupId);
+		return false;
+	};
+
+	TrickCarousel.prototype.showPart = function(items, groupId) {
+		var canHide = false;
+		this.selected = groupId;
+		for (var i = 0; i < items.length; i++) {
+			var item = items[i];
+			part = $(item).attr('trick-table-part');
+			if (part !== undefined) {
+				if (part == 0 || part == groupId)
+					canHide = false;
+				else
+					canHide = true;
+			}
+			if (canHide)
+				$(item).hide();
+			else
+				$(item).show();
+		}
+		return false;
+	};
 }
 
 function FieldEditor(element, validator) {
@@ -145,6 +276,10 @@ function FieldEditor(element, validator) {
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
+		$(this.inputField).prop(
+				"value",
+				this.realValue != null ? this.realValue : $(this.element)
+						.text());
 		$(this.element).html(this.inputField);
 		$(this.inputField).focus();
 		return false;
@@ -218,24 +353,140 @@ function FieldEditor(element, validator) {
 	};
 }
 
+ExtendedFieldEditor.prototype = new FieldEditor();
+
+function ExtendedFieldEditor(element) {
+	this.element = element;
+	this.controllor = "ExtendedParameter";
+	this.defaultValue = $(element).text();
+
+	ExtendedFieldEditor.prototype.constructor = ExtendedFieldEditor;
+
+	ExtendedFieldEditor.prototype.Save = function(that) {
+		if (!that.Validate()) {
+			that.Rollback();
+		} else {
+			if (that.HasChanged()) {
+				$
+						.ajax({
+							url : context + "/EditField/" + that.controllor,
+							type : "post",
+							async : true,
+							data : '{"id":'
+									+ that.classId
+									+ ', "fieldName":"'
+									+ that.fieldName
+									+ '", "value":"'
+									+ defaultValueByType($(that.inputField)
+											.prop("value"), that.fieldType,
+											true) + '", "type": "'
+									+ that.fieldType + '"}',
+							contentType : "application/json",
+							success : function(response) {
+								if (response["success"] != undefined) {
+									return reloadSection("section_parameter");
+								} else {
+									$("#alert-dialog .modal-body").html(
+											response["error"]);
+									$("#alert-dialog").modal("toggle");
+								}
+								return true;
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								$("#alert-dialog .modal-body").text(
+										jqXHR.responseText);
+								$("#alert-dialog").modal("toggle");
+							},
+						});
+			} else {
+				that.Rollback();
+				return false;
+			}
+		}
+		return false;
+	};
+}
+
 AssessmentFieldEditor.prototype = new FieldEditor();
 
 function AssessmentFieldEditor(element) {
 
+	this.element = element;
+
+	this.defaultValue = $(element).text();
+
 	AssessmentFieldEditor.prototype.constructor = AssessmentFieldEditor;
 
-	AssessmentFieldEditor.prototype.Validate = function() {
+	AssessmentFieldEditor.prototype.Save = function(that) {
+		if (!that.Validate()) {
+			that.Rollback();
+		} else {
+			if (that.HasChanged()) {
+				$
+						.ajax({
+							url : context + "/EditField/" + that.controllor,
+							type : "post",
+							async : true,
+							data : '{"id":'
+									+ that.classId
+									+ ', "fieldName":"'
+									+ that.fieldName
+									+ '", "value":"'
+									+ defaultValueByType($(that.inputField)
+											.prop("value"), that.fieldType,
+											true) + '", "type": "'
+									+ that.fieldType + '"}',
+							contentType : "application/json",
+							success : function(response) {
+								if (response["success"] != undefined) {
+
+									if (application.modal["AssessmentViewer"] != undefined)
+										application.modal["AssessmentViewer"]
+												.Load();
+									else {
+										$("#info-dialog .modal-body").html(
+												response["success"]);
+										$("#info-dialog").modal("toggle");
+									}
+								} else {
+									$("#alert-dialog .modal-body").html(
+											response["error"]);
+									$("#alert-dialog").modal("toggle");
+								}
+								return true;
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								$("#alert-dialog .modal-body").text(
+										jqXHR.responseText);
+								$("#alert-dialog").modal("toggle");
+							},
+						});
+			} else {
+				that.Rollback();
+				return false;
+			}
+		}
+		return false;
 	};
 }
 
 function Modal() {
 	this.modal = null;
+	this.modal_dialog = null;
 	this.modal_header = null;
 	this.modal_body = null;
 	this.modal_title = null;
 	this.modal_footer = null;
-	this.modal_head_buttons = {};
-	this.modal_footer_buttons = {};
+	this.modal_head_buttons = [];
+	this.modal_footer_buttons = [];
+
+	Modal.prototype.Size = function(map) {
+		var size = 0;
+		for ( var value in map)
+			size++;
+		return size;
+
+	};
 
 	Modal.prototype.__Create = function() {
 		// declare modal
@@ -244,8 +495,7 @@ function Modal() {
 		this.modal_body = document.createElement("div");
 		this.modal_title = document.createElement("h4");
 		this.modal_footer = document.createElement("div");
-
-		var modal_diaog = document.createElement("div");
+		this.modal_dialog = document.createElement("div");
 		var modal_content = document.createElement("div");
 
 		// design modal
@@ -254,7 +504,7 @@ function Modal() {
 		this.modal.setAttribute("role", "dialog");
 		this.modal.setAttribute("tabindex", "-1");
 		this.modal.setAttribute("aria-hidden", "true");
-		modal_diaog.setAttribute("class", "modal-dialog");
+		this.modal_dialog.setAttribute("class", "modal-dialog");
 		modal_content.setAttribute("class", "modal-content");
 		this.modal_header.setAttribute("class", "modal-header");
 		this.modal_title.setAttribute("class", "modal-title");
@@ -262,17 +512,14 @@ function Modal() {
 		this.modal_footer.setAttribute("class", "modal-footer");
 
 		// build modal
-		this.modal.appendChild(modal_diaog);
-		modal_diaog.appendChild(modal_content);
+		this.modal.appendChild(this.modal_dialog);
+		this.modal_dialog.appendChild(modal_content);
 		modal_content.appendChild(this.modal_header);
 		this.modal_header.appendChild(this.modal_title);
 		modal_content.appendChild(this.modal_body);
 		modal_content.appendChild(this.modal_footer);
 
-		// initialise text
-		$(this.modal_title).text("Modal");
-
-		if (!this.modal_head_buttons.length) {
+		if (!this.Size(this.modal_head_buttons)) {
 			var button_head_close = document.createElement("button");
 			button_head_close.setAttribute("class", "close");
 			button_head_close.setAttribute("data-dismiss", "modal");
@@ -282,7 +529,7 @@ function Modal() {
 		} else
 			this.__addHeadButton();
 
-		if (!this.modal_footer_buttons.length) {
+		if (!this.Size(this.modal_footer_buttons)) {
 			var button_footer_OK = document.createElement("button");
 			var button_footer_cancel = document.createElement("button");
 			button_footer_OK.setAttribute("class", "btn btn-default");
@@ -314,8 +561,8 @@ function Modal() {
 			$(this).remove();
 		});
 
-		for (var i = 0; i < this.modal_head_buttons.length; i++)
-			this.modal_header.insertBefore(this.modal_head_buttons[i],
+		for ( var button in this.modal_head_buttons)
+			this.modal_header.insertBefore(this.modal_head_buttons[button],
 					this.modal_header.firstChild);
 		return false;
 	};
@@ -328,8 +575,8 @@ function Modal() {
 			$(this).remove();
 		});
 
-		for (var i = 0; i < this.modal_footer_buttons.length; i++)
-			this.modal_footer.appendChild(this.modal_footer_buttons[i]);
+		for ( var button in this.modal_footer_buttons)
+			this.modal_footer.appendChild(this.modal_footer_buttons[button]);
 		return false;
 	};
 
@@ -360,7 +607,7 @@ function Modal() {
 			if (this.modal != null && this.modal != undefined)
 				$(this.modal).modal("toggle");
 			else {
-				this.__Create();
+				this.Intialise();
 				$(this.modal).modal("toggle");
 			}
 		} catch (e) {
@@ -580,7 +827,7 @@ function TaskManager() {
 
 	TaskManager.prototype.Remove = function(taskId) {
 		var index = this.tasks.indexOf(taskId);
-		if (index >-1)
+		if (index > -1)
 			this.tasks.splice(index, 1);
 		index = this.progressBars.indexOf(this.progressBars[taskId]);
 		if (index != -1)
@@ -603,7 +850,8 @@ function TaskManager() {
 					return false;
 				if (instance.progressBars[taskId] == null
 						|| instance.progressBars[taskId] == undefined) {
-					instance.progressBars[taskId] = instance.createProgressBar(taskId);
+					instance.progressBars[taskId] = instance
+							.createProgressBar(taskId);
 				}
 				if (reponse.message != null) {
 					instance.progressBars[taskId].Update(reponse.progress,
@@ -620,6 +868,185 @@ function TaskManager() {
 		});
 	};
 };
+
+AssessmentViewer.prototype = new Modal();
+
+function AssessmentViewer() {
+
+	AssessmentViewer.prototype.Intialise = function() {
+		var instance = this;
+
+		this.modal_footer_buttons["update"] = document.createElement("button");
+		this.modal_footer_buttons["update"].setAttribute("class",
+				"btn btn-warning");
+
+		this.modal_footer_buttons["close"] = document.createElement("button");
+		this.modal_footer_buttons["close"].setAttribute("class",
+				"btn btn-default");
+
+		$(this.modal_footer_buttons["close"]).click(function() {
+			return instance.Distroy();
+		});
+
+		$(this.modal_footer_buttons["close"]).html(
+				MessageResolver("label.action.cloase", "Close"));
+		$(this.modal_footer_buttons["update"]).html(
+				MessageResolver("label.assessment.recompute",
+						"Update assessments"));
+
+		$(this.modal_footer_buttons["close"]).click(function() {
+			return instance.Distroy();
+		});
+
+		$(this.modal_footer_buttons["update"]).click(function() {
+			return instance.Update();
+		});
+
+		Modal.prototype.Intialise.call(this);
+		$(this.modal_dialog).prop("style",
+				"width: 95%; min-width:1170px; max-width:1300px;");
+
+		return false;
+
+	};
+
+	AssessmentViewer.prototype.Show = function() {
+		var instance = this;
+		return this.Load(function() {
+			return Modal.prototype.Show.call(instance);
+		});
+	};
+
+	AssessmentViewer.prototype.Load = function(callback) {
+		throw "Not implemented";
+	};
+
+	AssessmentViewer.prototype.Update = function() {
+		throw "Not implemented";
+	};
+}
+
+/**
+ * Class AssessmentAssetViewer
+ */
+AssessmentAssetViewer.prototype = new AssessmentViewer();
+
+function AssessmentAssetViewer(assetId) {
+	this.assetId = assetId;
+
+	AssessmentAssetViewer.prototype.constructor = AssessmentAssetViewer;
+
+	AssessmentAssetViewer.prototype.Load = function(callback) {
+		if (this.modal_body == null)
+			this.Intialise();
+		var instance = this;
+		return $.ajax({
+			url : context + "/Assessment/Asset/" + instance.assetId,
+			contentType : "application/json",
+			async : false,
+			success : function(reponse) {
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(reponse, "text/html");
+				var assessments = $(doc).find(
+						"*[id='section_asset_assessment']");
+				if (!assessments.length)
+					return true;
+				$(instance.modal_body).html($(assessments).html());
+				instance.setTitle($(assessments).attr("trick-name"));
+				if (callback != null && $.isFunction(callback))
+					return callback();
+				return false;
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				return true;
+			}
+		});
+	};
+
+	AssessmentAssetViewer.prototype.Update = function() {
+		var instance = this;
+		return $
+				.ajax({
+					url : context + "/Assessment/Asset/" + instance.assetId
+							+ "/Update",
+					contentType : "application/json",
+					async : false,
+					success : function(reponse) {
+						var parser = new DOMParser();
+						var doc = parser.parseFromString(reponse, "text/html");
+						var assessments = $(doc).find(
+								"*[id='section_asset_assessment']");
+						if (!assessments.length)
+							return true;
+						$(instance.modal_body).html($(assessments).html());
+						instance.setTitle($(assessments).attr("trick-name"));
+						return false;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						return true;
+					}
+				});
+	};
+}
+
+AssessmentScenarioViewer.prototype = new AssessmentViewer();
+
+function AssessmentScenarioViewer(scenarioId) {
+	this.scenarioId = scenarioId;
+
+	AssessmentScenarioViewer.prototype.constructor = AssessmentScenarioViewer;
+
+	AssessmentScenarioViewer.prototype.Load = function(callback) {
+		if (this.modal_body == null)
+			this.Intialise();
+		var instance = this;
+		return $.ajax({
+			url : context + "/Assessment/Scenario/" + instance.scenarioId,
+			contentType : "application/json",
+			async : false,
+			success : function(reponse) {
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(reponse, "text/html");
+				var assessments = $(doc).find(
+						"*[id='section_scenario_assessment']");
+				if (!assessments.length)
+					return true;
+				$(instance.modal_body).html($(assessments).html());
+				instance.setTitle($(assessments).attr("trick-name"));
+				if (callback != null && $.isFunction(callback))
+					return callback();
+				return false;
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				return true;
+			}
+		});
+	};
+
+	AssessmentScenarioViewer.prototype.Update = function() {
+		var instance = this;
+		return $.ajax({
+			url : context + "/Assessment/Scenario/" + instance.scenarioId
+					+ "/Update",
+			contentType : "application/json",
+			async : false,
+			success : function(reponse) {
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(reponse, "text/html");
+				var assessments = $(doc).find(
+						"*[id='section_scenario_assessment']");
+				if (!assessments.length)
+					return true;
+				$(instance.modal_body).html($(assessments).html());
+				instance.setTitle($(assessments).attr("trick-name"));
+				return false;
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				return true;
+			}
+		});
+	};
+}
 
 function post(url, data, refraich) {
 	$.ajax({
@@ -695,7 +1122,9 @@ function saveField(element, controller, id, field, type) {
 			url : context + "/editField/" + controller,
 			type : "post",
 			async : true,
-			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"' + defaultValueByType($(element).prop("value"), type, true) + '", "type": "' + type + '"}',
+			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"'
+					+ defaultValueByType($(element).prop("value"), type, true)
+					+ '", "type": "' + type + '"}',
 			contentType : "application/json",
 			success : function(response) {
 				if (response == "" || response == null) {
@@ -742,7 +1171,16 @@ function duplicateAnalysis(form, analyisId) {
 }
 
 function editField(element, controller, id, field, type) {
-	var fieldEditor = new FieldEditor(element, null);
+	var fieldEditor = null;
+	if (controller == null || controller == undefined)
+		controller = FieldEditor.prototype.__findControllor(element);
+	if (controller == "ExtendedParameter")
+		fieldEditor = new ExtendedFieldEditor(element);
+	else if (controller == "Assessment")
+		fieldEditor = new AssessmentFieldEditor(element);
+	else
+		fieldEditor = new FieldEditor(element);
+
 	if (!fieldEditor.Initialise())
 		fieldEditor.Show();
 }
@@ -755,7 +1193,9 @@ function showError(parent, text) {
 	close.setAttribute("data-dismiss", "alert");
 	error.setAttribute("class", "alert alert-error");
 	error.setAttribute("aria-hidden", "true");
-	error.setAttribute("style", "background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
+	error
+			.setAttribute("style",
+					"background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
 	close.appendChild(document.createTextNode("x"));
 	error.appendChild(close);
 	error.appendChild(document.createTextNode(text));
@@ -780,14 +1220,10 @@ function controllerBySection(section) {
 function callbackBySection(section) {
 	var callbacks = {
 		"section_asset" : function() {
-			setTimeout(function() {
-				reloadSection("section_assessment");
-			}, 1);
+			return false;
 		},
 		"section_scenario" : function() {
-			setTimeout(function() {
-				reloadSection("section_assessment");
-			}, 1);
+			return false;
 		}
 	};
 	return callbacks[section];
@@ -834,7 +1270,7 @@ function reloadSection(section) {
 						return false;
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
-						return result;
+						return false;
 					},
 				});
 	}
@@ -892,7 +1328,7 @@ function selectAsset(assetId, selectVaue) {
 function deleteAsset(assetId) {
 	$("#confirm-dialog .modal-body").text(
 			MessageResolver("confirm.delete.asset",
-					"Are you sur, you want to delete this asset"));
+					"Are you sure, you want to delete this asset"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Asset/Delete/" + assetId,
@@ -943,7 +1379,8 @@ function saveAsset(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
 			if (result) {
 				$("#addAssetModel").modal("hide");
 				reloadSection("section_asset");
@@ -968,12 +1405,10 @@ function saveAsset(form) {
 function serializeScenarioForm(formId) {
 	var form = $("#" + formId);
 	var data = form.serializeJSON();
-	data["assetType"] = {
+	data["scenarioType"] = {
 		"id" : parseInt(data["scenarioType"], 0),
 		"type" : $("#scenario_scenariotype_id option:selected").text()
 	};
-	data["value"] = parseFloat(data["value"]);
-	data["selected"] = data["selected"] == "on";
 	return JSON.stringify(data);
 }
 
@@ -1020,7 +1455,7 @@ function selectScenario(assetId, selectVaue) {
 function deleteScenario(assetId) {
 	$("#confirm-dialog .modal-body").text(
 			MessageResolver("confirm.delete.scenario",
-					"Are you sur, you want to delete this scenario"));
+					"Are you sure, you want to delete this scenario"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Scenario/Delete/" + assetId,
@@ -1086,96 +1521,6 @@ function saveScenario(form) {
 	});
 }
 
-function TrickCarousel(table) {
-	this.table = table;
-	this.count = 0;
-	this.theader = null;
-	this.tdata = null;
-	this.navLeft = null;
-	this.navRight = null;
-	this.selected = 1;
-
-	TrickCarousel.prototype.initialise = function() {
-		this.theader = $(this.table).find("th");
-		this.tdata = $(this.table).find("td");
-		this.count = $(this.table).find("th[trick-table-part]").length - 1;
-		this.navLeft = $($(this.table).parent()).find(
-				"a[control-trick-table='left']");
-		this.navRight = $($(this.table).parent()).find(
-				"a[control-trick-table='right']");
-		this.showGroup(1);
-		var that = this;
-
-		$(this.navLeft).click(function() {
-			if (that.selected < 2)
-				that.showGroup(that.count);
-			else
-				that.showGroup(that.selected - 1);
-			return false;
-		});
-		$(this.navRight).click(function() {
-			if (that.selected >= that.count)
-				that.showGroup(1);
-			else
-				that.showGroup(that.selected + 1);
-			return false;
-		});
-		return false;
-
-	};
-
-	TrickCarousel.prototype.showGroup = function(groupId) {
-		this.showPart(this.theader, groupId);
-		this.showPart(this.tdata, groupId);
-		return false;
-	};
-
-	TrickCarousel.prototype.showPart = function(items, groupId) {
-		var canHide = false;
-		this.selected = groupId;
-		for (var i = 0; i < items.length; i++) {
-			var item = items[i];
-			part = $(item).attr('trick-table-part');
-			if (part !== undefined) {
-				if (part == 0 || part == groupId)
-					canHide = false;
-				else
-					canHide = true;
-			}
-			if (canHide)
-				$(item).hide();
-			else
-				$(item).show();
-		}
-		return false;
-	};
-}
-
-function generateMissingAssessment() {
-
-	return $.ajax({
-		url : context + "/Assessment/Generate/Missing",
-		type : "get",
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			if (response['error'] != undefined)
-				alert(response['error']);
-			else if (response['success'] != undefined) {
-				alert(response['success']);
-				reloadSection("section_assessment");
-			}
-			return false;
-		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			console.log(textStatus);
-			console.log(errorThrown);
-			alert(jqXHR.responseText);
-			return false;
-		},
-	});
-}
-
 $(function() {
 	var trick_table = $(this).find("table[trick-table]");
 	if (!trick_table.length)
@@ -1187,6 +1532,14 @@ $(function() {
 });
 
 /* context menu */
+
+function contextMenuHide(context) {
+	var elements = $(context).find("li[name]");
+	for (var i = 0; i < elements.length; i++)
+		$(elements[i]).attr("hidden", true);
+	return true;
+}
+
 $(function() {
 	var $contextMenu = $("#contextMenu");
 
@@ -1197,41 +1550,58 @@ $(function() {
 	var editRow = $contextMenu.find("li[name='edit_row'] a");
 	var deleteElement = $contextMenu.find("li[name='delete'] a");
 
-	$("#section_asset").on(
-			"contextmenu",
-			"table tbody tr",
-			function(e) {
-				var rowTrickId = $(e.currentTarget).attr('trick-id');
-				$contextMenu.attr("trick-selected-id", rowTrickId);
-				select.attr("onclick", "return selectAsset('" + rowTrickId
-						+ "','true');");
-				unSelect.attr("onclick", "return selectAsset('" + rowTrickId
-						+ "','false');");
-				editRow.attr("onclick", "return editAssetRow('" + rowTrickId
-						+ "');");
-				deleteElement.attr("onclick", "return deleteAsset('"
-						+ rowTrickId + "');");
-				editRow.attr("href", "#addAssetModel");
+	$("#section_asset")
+			.on(
+					"contextmenu",
+					"table tbody tr",
+					function(e) {
+						contextMenuHide($contextMenu);
+						var rowTrickId = $(e.currentTarget).attr('trick-id');
+						$contextMenu.attr("trick-selected-id", rowTrickId);
+						select.attr("onclick", "return selectAsset('"
+								+ rowTrickId + "','true');");
+						unSelect.attr("onclick", "return selectAsset('"
+								+ rowTrickId + "','false');");
+						editRow.attr("onclick", "return editAssetRow('"
+								+ rowTrickId + "');");
+						deleteElement.attr("onclick", "return deleteAsset('"
+								+ rowTrickId + "');");
+						editRow.attr("href", "#addAssetModel");
 
-				if ($(e.currentTarget).attr('trick-selected') == "true") {
-					select.parent().attr("hidden", true);
-					unSelect.parent().attr("hidden", false);
-				} else {
-					select.parent().attr("hidden", false);
-					unSelect.parent().attr("hidden", true);
-				}
-				$contextMenu.css({
-					display : "block",
-					left : e.screenX,
-					top : $(e.target).position().top + 20
-				});
-				return false;
-			});
+						if ($(e.currentTarget).attr('trick-selected') == "true") {
+							unSelect.parent().attr("hidden", false);
+							var assessment = $contextMenu
+									.find("li[name='assessment'] a");
+							$(assessment).parent().attr("hidden", false);
+							$(assessment).unbind();
+							var assessmentViewer = new AssessmentAssetViewer(
+									rowTrickId);
+							application.modal["AssessmentViewer"] = assessmentViewer;
+							$(assessment).click(function() {
+								assessmentViewer.Show();
+								$($contextMenu).hide();
+								return false;
+							});
+						} else
+							select.parent().attr("hidden", false);
+
+						$(editRow).parent().attr("hidden", false);
+
+						$(deleteElement).parent().attr("hidden", false);
+
+						$contextMenu.css({
+							display : "block",
+							left : e.pageX,
+							top : $(e.target).position().top + 20
+						});
+						return false;
+					});
 
 	$("#section_scenario").on(
 			"contextmenu",
 			"table tbody tr",
 			function(e) {
+				contextMenuHide($contextMenu);
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
 				select.attr("onclick", "return selectScenario('" + rowTrickId
 						+ "',true);");
@@ -1243,16 +1613,30 @@ $(function() {
 						+ rowTrickId + "');");
 				editRow.attr("href", "#addScenarioModel");
 				if ($(e.currentTarget).attr('trick-selected') == "true") {
-					select.parent().attr("hidden", true);
 					unSelect.parent().attr("hidden", false);
-				} else {
+					var assessment = $contextMenu
+							.find("li[name='assessment'] a");
+					$(assessment).parent().attr("hidden", false);
+					$(assessment).unbind();
+					var assessmentViewer = new AssessmentScenarioViewer(
+							rowTrickId);
+					application.modal["AssessmentViewer"] = assessmentViewer;
+					$(assessment).click(function() {
+						assessmentViewer.Show();
+						$($contextMenu).hide();
+						return false;
+					});
+				} else
 					select.parent().attr("hidden", false);
-					unSelect.parent().attr("hidden", true);
-				}
+
+				$(editRow).parent().attr("hidden", false);
+
+				$(deleteElement).parent().attr("hidden", false);
+
 				$contextMenu.attr("trick-selected-id", rowTrickId);
 				$contextMenu.css({
 					display : "block",
-					left : e.screenX,
+					left : e.pageX,
 					top : $(e.target).position().top + 20
 				});
 				return false;
@@ -1280,31 +1664,34 @@ $(function() {
 	$.fn.serializeJSON = function() {
 		var json = {};
 		var form = $(this);
-		form.find('input, select, textarea').each(function() {
-			var val;
-			if (!this.name)
-				return;
+		form.find('input, select, textarea').each(
+				function() {
+					var val;
+					if (!this.name)
+						return;
 
-			if ('radio' === this.type) {
-				if (json[this.name]) {
-					return;
-				}
+					if ('radio' === this.type) {
+						if (json[this.name]) {
+							return;
+						}
 
-				json[this.name] = this.checked ? this.value : '';
-			} else if ('checkbox' === this.type) {
-				val = json[this.name];
+						json[this.name] = this.checked ? this.value : '';
+					} else if ('checkbox' === this.type) {
+						val = json[this.name];
 
-				if (!this.checked) {
-					if (!val) {
-						json[this.name] = '';
+						if (!this.checked) {
+							if (!val) {
+								json[this.name] = '';
+							}
+						} else {
+							json[this.name] = typeof val === 'string' ? [ val,
+									this.value ] : $.isArray(val) ? $.merge(
+									val, [ this.value ]) : this.value;
+						}
+					} else {
+						json[this.name] = this.value;
 					}
-				} else {
-					json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
-				}
-			} else {
-				json[this.name] = this.value;
-			}
-		});
+				});
 		return json;
 	};
 

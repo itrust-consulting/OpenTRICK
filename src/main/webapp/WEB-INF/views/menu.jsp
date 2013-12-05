@@ -48,7 +48,7 @@
 									<ul class="dropdown-menu sm">
 										<li><a
 											href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select"><spring:message
-													code="label.analysis.release" text="Realse analysis" /></a></li>
+													code="label.analysis.release" text="Release analysis" /></a></li>
 									</ul></li>
 							</c:when>
 							<c:otherwise>
@@ -60,9 +60,26 @@
 						</c:choose>
 					</c:when>
 					<c:otherwise>
-						<li><a href="${pageContext.request.contextPath}/Analysis">
-								<spring:message code="label.menu.analysis.all" text="Analysis" />
-						</a></li>
+						<c:choose>
+							<c:when test="${!empty(sessionScope.selectedAnalysis)}">
+								<li tabindex="-1" class="dropdown-submenu"><a
+									href="${pageContext.request.contextPath}/Analysis"
+									class="dropdown-toggle" data-toggle="dropdown"> <spring:message
+											code="label.menu.analysis.all" text="Analysis" /><span
+										class="caret"></span>
+								</a>
+									<ul class="dropdown-menu sm">
+										<li><a
+											href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select"><spring:message
+													code="label.analysis.release" text="Release analysis" /></a></li>
+									</ul></li>
+							</c:when>
+							<c:otherwise>
+								<li><a href="${pageContext.request.contextPath}/Analysis">
+										<spring:message code="label.menu.analysis.all" text="Analysis" />
+								</a></li>
+							</c:otherwise>
+						</c:choose>
 					</c:otherwise>
 				</c:choose>
 				<li ${menu.equals("Analysis/Import")? "class='active'" : "" }>

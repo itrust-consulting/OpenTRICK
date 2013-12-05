@@ -45,26 +45,26 @@
 		<property name="externalThreat" column="dtExternalThreatSource" not-null="true" />
 		<joined-subclass name="Scenario" extends="SecurityCriteria" table="scenario">
 			<key column="idScenario" not-null="true" />
-			<many-to-one name="type" class="ScenarioType" column="fiScenarioType" not-null="true"/>
-			<property name="name" column="dtLabel" not-null="true" />
-			<property name="description" column="dtDescription" not-null="true" type="text" />
-			<property name="selected" column="dtSelected" not-null="true" />
-			<bag name="assetTypeValues" table="scenarioAssetTypeValue" cascade="all">
+			<many-to-one name="type" class="ScenarioType" column="fiScenarioType" not-null="true" access="field"/>
+			<property name="name" column="dtLabel" not-null="true" access="field"/>
+			<property name="description" column="dtDescription" not-null="true" type="text" access="field"/>
+			<property name="selected" column="dtSelected" not-null="true" access="field"/>
+			<bag name="assetTypeValues" table="scenarioAssetTypeValue" cascade="all" access="field">
 				<key column="idScenario" not-null="true"/>
-				<many-to-many class="AssetTypeValue" column="idScenarioAssetTypeValue" />
+				<many-to-many class="AssetTypeValue" column="idScenarioAssetTypeValue" unique="true"/>
 			</bag>
 		</joined-subclass>
 		<joined-subclass name="MeasureProperties" extends="SecurityCriteria" table="measureProperties">
 			<key column="idMeasureProperties" not-null="true" />
-			<property name="FMeasure" column="dtStrengthMeasure" not-null="true" />
-			<property name="FSectoral" column="dtStrengthSectoral" not-null="true" />
-			<property name="soaReference" column="dtSOAReference" not-null="true" />
-			<property name="soaComment" column="dtSOAComment" not-null="true" />
-			<property name="soaRisk" column="dtSOARisk" not-null="true" />
+			<property name="fmeasure" column="dtStrengthMeasure" not-null="true" access="field"/>
+			<property name="fSectoral" column="dtStrengthSectoral" not-null="true" access="field"/>
+			<property name="soaReference" column="dtSOAReference" not-null="true" access="field"/>
+			<property name="soaComment" column="dtSOAComment" not-null="true" access="field"/>
+			<property name="soaRisk" column="dtSOARisk" not-null="true" access="field"/>
 		</joined-subclass>
 	</class>
 	<class name="ScenarioType" table="scenariotype">
-		<id name="id" column="idScenarioType" unsaved-value="-1">
+		<id name="id" column="idScenarioType" unsaved-value="-1" access="field">
 			<generator class="increment" />
 		</id>
 		<property name="type" column="dtLabel" not-null="true" access="field" unique="true" />

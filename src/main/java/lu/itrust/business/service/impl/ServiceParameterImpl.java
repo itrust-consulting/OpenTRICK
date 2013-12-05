@@ -9,21 +9,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.ParameterType;
 import lu.itrust.business.dao.DAOParameter;
 import lu.itrust.business.service.ServiceParameter;
 
 /**
  * @author eom
- *
+ * 
  */
 @Service
 public class ServiceParameterImpl implements ServiceParameter {
 
 	@Autowired
 	private DAOParameter daoParameter;
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceParameter#get(int)
 	 */
 	@Override
@@ -31,7 +35,9 @@ public class ServiceParameterImpl implements ServiceParameter {
 		return daoParameter.get(id);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceParameter#findAll()
 	 */
 	@Override
@@ -39,7 +45,9 @@ public class ServiceParameterImpl implements ServiceParameter {
 		return daoParameter.findAll();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceParameter#findAll(int, int)
 	 */
 	@Override
@@ -47,8 +55,11 @@ public class ServiceParameterImpl implements ServiceParameter {
 		return daoParameter.findAll(pageIndex, pageSize);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceParameter#findByAnalysis(int, int, int)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.service.ServiceParameter#findByAnalysis(int, int,
+	 * int)
 	 */
 	@Override
 	public List<Parameter> findByAnalysis(int idAnalysis, int pageIndex,
@@ -56,8 +67,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 		return daoParameter.findByAnalysis(idAnalysis, pageIndex, pageSize);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceParameter#save(lu.itrust.business.TS.Parameter)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.service.ServiceParameter#save(lu.itrust.business.TS
+	 * .Parameter)
 	 */
 	@Transactional
 	@Override
@@ -65,8 +80,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 		return daoParameter.save(parameter);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceParameter#saveOrUpdate(lu.itrust.business.TS.Parameter)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.service.ServiceParameter#saveOrUpdate(lu.itrust.business
+	 * .TS.Parameter)
 	 */
 	@Transactional
 	@Override
@@ -75,8 +94,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceParameter#merge(lu.itrust.business.TS.Parameter)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.service.ServiceParameter#merge(lu.itrust.business.
+	 * TS.Parameter)
 	 */
 	@Transactional
 	@Override
@@ -84,8 +107,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 		return daoParameter.merge(parameter);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceParameter#delete(lu.itrust.business.TS.Parameter)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.service.ServiceParameter#delete(lu.itrust.business
+	 * .TS.Parameter)
 	 */
 	@Transactional
 	@Override
@@ -93,7 +120,9 @@ public class ServiceParameterImpl implements ServiceParameter {
 		daoParameter.delete(parameter);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceParameter#delete(int)
 	 */
 	@Transactional
@@ -101,5 +130,55 @@ public class ServiceParameterImpl implements ServiceParameter {
 	public void delete(int id) {
 		daoParameter.delete(id);
 	}
+	
+	@Transactional
+	@Override
+	public void saveOrUpdate(List<? extends Parameter> parameters) {
+		daoParameter.saveOrUpdate( parameters);
+	}
+
+	@Override
+	public List<ExtendedParameter> findImpactByAnalysisAndType(int idAnalysis) {
+		return daoParameter.findImpactByAnalysisAndType(idAnalysis);
+	}
+
+	@Override
+	public List<ExtendedParameter> findProbaByAnalysisAndType(int idAnalysis) {
+		return daoParameter.findProbaByAnalysisAndType(idAnalysis);
+	}
+
+	@Override
+	public List<ExtendedParameter> findExtendedByAnalysisAndType(
+			int idAnalysis, ParameterType type) {
+		return daoParameter.findExtendedByAnalysisAndType(idAnalysis, type);
+	}
+
+	@Override
+	public List<Parameter> findByAnalysisAndType(int idAnalysis, String type) {
+		return daoParameter.findByAnalysisAndType(idAnalysis, type);
+	}
+
+	@Override
+	public List<Parameter> findByAnalysisAndType(int idAnalysis, int idType) {
+		return daoParameter.findByAnalysisAndType(idAnalysis, idType);
+	}
+
+	@Override
+	public List<Parameter> findByAnalysisAndType(int idAnalysis,
+			ParameterType type) {
+		return daoParameter.findByAnalysisAndType(idAnalysis, type);
+	}
+
+	@Override
+	public List<Parameter> findByAnalysis(int idAnalysis) {
+		return daoParameter.findByAnalysis(idAnalysis);
+	}
+
+	@Override
+	public List<ExtendedParameter> findExtendedByAnalysis(int idAnalysis) {
+		return daoParameter.findExtendedByAnalysis(idAnalysis);
+	}
+
+	
 
 }

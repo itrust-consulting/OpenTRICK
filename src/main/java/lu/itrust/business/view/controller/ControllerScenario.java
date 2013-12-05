@@ -13,11 +13,13 @@ import javax.naming.directory.InvalidAttributesException;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceScenario;
 import lu.itrust.business.service.ServiceScenarioType;
 
@@ -55,6 +57,9 @@ public class ControllerScenario {
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
+	private ServiceAssetType serviceAssetType;
+
+	@Autowired
 	private CustomDelete customDelete;
 
 	@Autowired
@@ -64,19 +69,19 @@ public class ControllerScenario {
 	private AssessmentManager assessmentManager;
 
 	private boolean buildAsset(List<String[]> errors, Scenario scenario,
-			String source, Locale locale) {
+			List<AssetType> assetTypes, String source, Locale locale) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
-			int id = jsonNode.get("id").asInt();
-			if (id > 0)
-				scenario.setId(jsonNode.get("id").asInt());
 			scenario.setName(jsonNode.get("name").asText());
 			scenario.setSelected(jsonNode.get("selected").asBoolean());
 			scenario.setDescription(jsonNode.get("description").asText());
-			JsonNode node = jsonNode.get("assetType");
+			JsonNode node = jsonNode.get("scenarioType");
 			ScenarioType scenarioType = serviceScenarioType.get(node.get("id")
 					.asInt());
+			for (AssetType assetType : assetTypes)
+				scenario.setAssetTypeValue(assetType,
+						jsonNode.get(assetType.getType()).asInt());
 			if (scenarioType == null) {
 				errors.add(new String[] {
 						"assetType",
@@ -122,6 +127,17 @@ public class ControllerScenario {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	private int retrieveId(String source) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+			return jsonNode.get("id").asInt();
+		} catch (JsonProcessingException e) {
+		} catch (IOException e) {
+		}
+		return -1;
 	}
 
 	@RequestMapping(value = "/Select/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
@@ -215,13 +231,29 @@ public class ControllerScenario {
 				return errors;
 			}
 
-			Scenario scenario = new Scenario();
-			if (!buildAsset(errors, scenario, value, locale))
+			int idScenario = retrieveId(value);
+			Scenario scenario = null;
+			if (idScenario > 0) {
+				scenario = serviceScenario.get(idScenario);
+				if (scenario == null) {
+					errors.add(new String[] {
+							"scenario",
+							messageSource.getMessage(
+									"error.scenario.not_found", null,
+									"Scenario cannot be found", locale) });
+					return errors;
+				}
+			} else
+				scenario = new Scenario();
+
+			List<AssetType> assetTypes = serviceAssetType.loadAll();
+
+			if (!buildAsset(errors, scenario, assetTypes, value, locale))
 				return errors;
 			if (scenario.getId() < 1) {
 				assessmentManager.build(scenario, idAnalysis);
 			} else {
-				serviceScenario.merge(scenario);
+				serviceScenario.saveOrUpdate(scenario);
 				if (scenario.isSelected())
 					assessmentManager.selectScenario(scenario);
 				else

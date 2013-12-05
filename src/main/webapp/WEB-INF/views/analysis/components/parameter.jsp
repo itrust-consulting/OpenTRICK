@@ -49,17 +49,28 @@
 						<tbody>
 							<c:forEach items="${extendedParameters[0]}" var="parameter"
 								varStatus="status">
-								<tr>
+								<tr trick-class="ExtendedParameter" trick-id="${parameter.id}">
 									<!--<td>${itemInformation.id}</td>-->
-									<td>${status.index}</td>
-									<td
-										ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'acronym', 'string');">${parameter.acronym}</td>
-									<td
-										ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'description', 'string');">${parameter.description}</td>
-									<td
-										ondblclick="return editField(this, 'extendedParameter','${extendedParameters[0].get(index).id}', 'value', 'double');" real-value="${parameter.value}">${parameter.value*0.001}</td>
-									<td>${parameter.bounds.from*0.001}</td>
-									<td>${parameter.bounds.to*0.001}</td>
+									<td>${parameter.level}</td>
+									<td trick-field="acronym" trick-field-type="string" class="success"
+										ondblclick="return editField(this);">${parameter.acronym}</td>
+									<td trick-field="description" trick-field-type="string" class="success"
+										ondblclick="return editField(this);">${parameter.description}</td>
+									<td trick-field="value" trick-field-type="double"
+										${(parameter.level mod 2)==0? 'ondblclick="return editField(this);" class="success"': ''}
+										real-value="${parameter.value}"><fmt:formatNumber
+											value="${parameter.value*0.001}" maxFractionDigits="0" /></td>
+									<td><fmt:formatNumber
+											value="${parameter.bounds.from*0.001}" maxFractionDigits="0" /></td>
+									<td><c:choose>
+											<c:when test="${status.index!=10}">
+												<fmt:formatNumber value="${parameter.bounds.to*0.001}"
+													maxFractionDigits="0" />
+											</c:when>
+											<c:otherwise>
+											+00
+											</c:otherwise>
+										</c:choose></td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -94,19 +105,28 @@
 						<tbody>
 							<c:forEach items="${extendedParameters[1]}" var="parameter"
 								varStatus="status">
-								<tr>
+								<tr trick-class="ExtendedParameter" trick-id="${parameter.id}">
 									<!--<td>${itemInformation.id}</td>-->
-									<td>${status.index}</td>
-									<td
-										ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'acronym', 'string');">${parameter.acronym}</td>
-									<td
-										ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'description', 'string');">${parameter.description}</td>
-									<td
-										ondblclick="return editField(this, 'parameter','${extendedParameters[1].get(index).id}', 'value', 'double');"><fmt:formatNumber
-											value="${parameter.value}" maxFractionDigits="3"
-											minFractionDigits="1" /></td>
-									<td>${parameter.bounds.from*0.001}</td>
-									<td>${parameter.bounds.to*0.001}</td>
+									<td>${parameter.level}</td>
+									<td trick-field="acronym" trick-field-type="string" class="success"
+										ondblclick="return editField(this);">${parameter.acronym}</td>
+									<td trick-field="description" trick-field-type="string" class="success"
+										ondblclick="return editField(this);">${parameter.description}</td>
+									<td trick-field="value" trick-field-type="double"
+										${(parameter.level mod 2)==0? 'ondblclick="return editField(this);" class="success"': ''}
+										real-value="${parameter.value}"><fmt:formatNumber
+											value="${parameter.value}" maxFractionDigits="2" minFractionDigits="2"/></td>
+									<td><fmt:formatNumber
+											value="${parameter.bounds.from}" maxFractionDigits="2" minFractionDigits="2" /></td>
+									<td><c:choose>
+											<c:when test="${status.index!=10}">
+												<fmt:formatNumber value="${parameter.bounds.to}"
+													maxFractionDigits="2" minFractionDigits="2"/>
+											</c:when>
+											<c:otherwise>
+											+00
+											</c:otherwise>
+										</c:choose></td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -132,13 +152,13 @@
 						</thead>
 						<tbody>
 							<c:forEach items="${simpleParameters[2]}" var="parameter">
-								<tr>
+								<tr trick-class="Parameter" trick-id="${parameter.id}">
 									<!--<td>${itemInformation.id}</td>-->
 									<td><spring:message
 											code="label.parameter.simple.smt.level_${parameter.description}"
 											text="${parameter.description}" /></td>
-									<td
-										ondblclick="return editField(this, 'parameter','${parameter.id}', 'value', 'double');">${parameter.value}</td>
+									<td trick-field="value" trick-field-type="double" class="success"
+										ondblclick="return editField(this);">${parameter.value}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -214,14 +234,15 @@
 										text="SML4" /></th>
 								<th><spring:message code="label.parameter.simple.sml5"
 										text="SML5" /></th>
-										<th></th>
+								<th></th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr>
 								<c:forEach items="${simpleParameters[1]}" var="parameter">
-									<td
-										ondblclick="return editField(this, 'parameter','${parameter.id}', 'value', 'double');">${parameter.value}</td>
+									<td trick-class="Parameter" trick-id="${parameter.id}" class="success"
+										trick-field="value" trick-field-type="double"
+										ondblclick="return editField(this);">${parameter.value}</td>
 								</c:forEach>
 								<td>%</td>
 							</tr>

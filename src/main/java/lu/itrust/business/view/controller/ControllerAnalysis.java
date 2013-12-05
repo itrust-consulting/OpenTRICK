@@ -23,6 +23,7 @@ import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceActionPlanType;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceRiskRegister;
@@ -65,6 +66,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
+	
+	@Autowired
+	private ServiceAssetType serviceAssetType;
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
@@ -113,8 +117,10 @@ public class ControllerAnalysis {
 	public String displayAll(Map<String, Object> model, HttpSession session)
 			throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
-		if (selected != null)
+		if (selected != null){
+			model.put("assettypes", serviceAssetType.loadAll());
 			model.put("analysis", serviceAnalysis.get(selected));
+		}
 		else
 			model.put("analyses", serviceAnalysis.loadAll());
 		return "analysis/analysis";

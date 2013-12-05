@@ -4,6 +4,7 @@
 package lu.itrust.business.component;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.Map;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
+import lu.itrust.business.TS.ExtendedParameter;
+import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAssessment;
@@ -47,7 +50,9 @@ public class AssessmentManager {
 		List<Assessment> assessments = daoAssessment
 				.findByAssetAndUnselected(asset);
 		for (Assessment assessment : assessments) {
-			if (assessment.getScenario().isSelected()) {
+			if (assessment.getScenario().isSelected()
+					&& assessment.getScenario().hasInfluenceOnAsset(
+							asset.getAssetType())) {
 				assessment.setSelected(true);
 				daoAssessment.saveOrUpdate(assessment);
 			}
@@ -91,7 +96,9 @@ public class AssessmentManager {
 		List<Assessment> assessments = daoAssessment
 				.findByScenarioAndUnselected(scenario);
 		for (Assessment assessment : assessments) {
-			if (assessment.getAsset().isSelected()) {
+			if (assessment.getAsset().isSelected()
+					&& scenario.hasInfluenceOnAsset(assessment.getAsset()
+							.getAssetType())) {
 				assessment.setSelected(true);
 				daoAssessment.saveOrUpdate(assessment);
 			}
@@ -151,24 +158,45 @@ public class AssessmentManager {
 		analysis.addAScenario(scenario);
 		List<Assessment> assessments = analysis.getAssessments();
 		List<Asset> assets = daoAsset.findByAnalysisAndSelected(idAnalysis);
-		for (Asset asset : assets)
-			assessments.add(new Assessment(asset, scenario));
+		for (Asset asset : assets) {
+			if (scenario.hasInfluenceOnAsset(asset.getAssetType()))
+				assessments.add(new Assessment(asset, scenario));
+		}
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
 	@Transactional
-	public void generateMissingAssessment(Analysis analysis) throws Exception {
+	public void UpdateAssessment(Analysis analysis) throws Exception {
 		Map<String, Boolean> assessmentMapper = new LinkedHashMap<>();
 		for (Assessment assessment : analysis.getAssessments())
 			assessmentMapper.put(assessment.getAsset().getId() + "_"
 					+ assessment.getScenario().getId(), true);
+		Map<String, ExtendedParameter> parameters = new LinkedHashMap<>();
+
+		for (Parameter parameter : analysis.getParameters())
+			if (parameter instanceof ExtendedParameter)
+				parameters.put(((ExtendedParameter) parameter).getAcronym(),
+						(ExtendedParameter) parameter);
 		for (Asset asset : analysis.getAssets()) {
 			for (Scenario scenario : analysis.getScenarios()) {
 				if (!assessmentMapper.containsKey(asset.getId() + "_"
-						+ scenario.getId()))
-					analysis.getAssessments().add(
-							new Assessment(asset, scenario));
+						+ scenario.getId())) {
+					Assessment assessment = new Assessment(asset, scenario);
+					analysis.getAssessments().add(assessment);
+					ComputeAlE(assessment, parameters);
+				}
 			}
+		}
+		daoAnalysis.saveOrUpdate(analysis);
+	}
+
+	@Transactional
+	public void WipeAssessment(Analysis analysis) throws Exception {
+		Iterator<Assessment> iterator = analysis.getAssessments().iterator();
+		while (iterator.hasNext()) {
+			Assessment assessment = iterator.next();
+			iterator.remove();
+			daoAssessment.remove(assessment);
 		}
 		daoAnalysis.saveOrUpdate(analysis);
 	}
@@ -214,6 +242,48 @@ public class AssessmentManager {
 		}
 	}
 
+	private static double StringToDouble(String value,
+			Map<String, ExtendedParameter> parameters) {
+		try {
+			if (parameters.containsKey(value.trim().toLowerCase()))
+				return parameters.get(value.trim().toLowerCase()).getValue();
+			return Double.parseDouble(value);
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+
+	public static void ComputeAlE(List<Assessment> assessments,
+			List<ExtendedParameter> parameters) {
+		Map<String, ExtendedParameter> parametersMapping = new LinkedHashMap<>(
+				parameters.size());
+		try {
+			for (ExtendedParameter extendedParameter : parameters)
+				parametersMapping.put(extendedParameter.getAcronym(),
+						extendedParameter);
+			for (Assessment assessment : assessments)
+				ComputeAlE(assessment, parametersMapping);
+		} finally {
+			parametersMapping.clear();
+		}
+	}
+
+	public static void ComputeAlE(Assessment assessment,
+			Map<String, ExtendedParameter> parameters) {
+		double impactRep = StringToDouble(assessment.getImpactRep(), parameters);
+		double impactOP = StringToDouble(assessment.getImpactOp(), parameters);
+		double impactLeg = StringToDouble(assessment.getImpactLeg(), parameters);
+		double impactFin = StringToDouble(assessment.getImpactFin(), parameters);
+		double probability = StringToDouble(assessment.getLikelihood(),
+				parameters);
+		assessment.setImpactReal(Math.max(impactRep,
+				Math.max(impactOP, Math.max(impactLeg, impactFin))));
+		assessment.setLikelihoodReal(probability);
+		assessment.setALE(assessment.getImpactReal() * probability);
+		assessment.setALEP(assessment.getALE() * assessment.getUncertainty());
+		assessment.setALEO(assessment.getALE() / assessment.getUncertainty());
+	}
+
 	private static List<Assessment> Concact(List<ALE> sortAles,
 			Map<String, List<Assessment>> assessmentByAssets) {
 		List<Assessment> assessments = new LinkedList<>();
@@ -223,5 +293,32 @@ public class AssessmentManager {
 			assessments.addAll(assessmentByAssets.get(ale.getAssetName()));
 		}
 		return assessments;
+	}
+
+	public static ALE ComputeALE(List<Assessment> assessments) {
+		ALE ale = null;
+		for (Assessment assessment : assessments) {
+			if (ale == null)
+				ale = new ALE(assessment.getAsset().getName(), 0);
+			ale.setValue(ale.getValue() + assessment.getALE());
+		}
+		return ale;
+	}
+
+	public static List<Assessment> Sort(List<Assessment> assessments, ALE ale,
+			ALE alep, ALE aleo) {
+		ComputeALE(assessments, ale, alep, aleo);
+		Collections.sort(assessments, new AssessmentComparator());
+		return assessments;
+	}
+
+	private static void ComputeALE(List<Assessment> assessments, ALE ale,
+			ALE alep, ALE aleo) {
+		for (Assessment assessment : assessments) {
+			ale.setValue(ale.getValue() + assessment.getALE());
+			alep.setValue(alep.getValue() + assessment.getALEP());
+			aleo.setValue(aleo.getValue() + assessment.getALEO());
+		}
+
 	}
 }

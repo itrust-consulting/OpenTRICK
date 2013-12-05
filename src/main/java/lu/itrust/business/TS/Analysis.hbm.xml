@@ -32,22 +32,22 @@
 			<one-to-many class="History" />
 		</bag>
 		
-		<bag name="riskInformations" table="RiskInformation" cascade="all">
+		<bag name="riskInformations" table="RiskInformation" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="RiskInformation" />
 		</bag>
 
-		<bag name="itemInformations" table="ItemInformation" cascade="all">
+		<bag name="itemInformations" table="ItemInformation" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="ItemInformation" />
 		</bag>
 		
-		<bag name="riskRegisters" table="RiskRegisterItem" cascade="all">
+		<bag name="riskRegisters" table="RiskRegisterItem" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="lu.itrust.business.TS.cssf.RiskRegisterItem" />
 		</bag>
 	
-		<bag name="summaries" table="actionplansummary" cascade="all">
+		<bag name="summaries" table="actionplansummary" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true"  />
 			<one-to-many class="lu.itrust.business.TS.actionplan.SummaryStage" />
 		</bag>

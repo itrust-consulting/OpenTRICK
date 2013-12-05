@@ -27,8 +27,7 @@
 								id="scenario_id">
 						</c:when>
 						<c:otherwise>
-							<input type="hidden" name="id" value="-1"
-								id="scenario_id">
+							<input type="hidden" name="id" value="-1" id="scenario_id">
 						</c:otherwise>
 					</c:choose>
 					<div class="form-group">
@@ -71,10 +70,66 @@
 						</label>
 						<div class="col-sm-10">
 							<input name="selected" id="scenario_selected"
-								class="form-control checkbox" type="checkbox"
+								class="form-control checkbox" type="checkbox" value="true"
 								${empty(scenario)? '': scenario.selected? 'checked' : ''} />
 						</div>
 					</div>
+					<table class="table">
+						<c:choose>
+							<c:when test="${!empty(scenario)}">
+								<thead>
+									<tr>
+									<c:forEach items="${scenario.assetTypeValues }"
+										var="assetTypeValue" varStatus="status">
+										<td>
+										<spring:message
+											code="label.assettype.${assetTypeValue.assetType.type}"
+											text="${assetTypeValue.assetType.type}" htmlEscape="true"/></td>
+
+									</c:forEach>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<c:forEach items="${scenario.assetTypeValues }"
+										var="assetTypeValue" varStatus="status">
+										<td>
+										
+										<input type="checkbox" ${assetTypeValue.value>0? 'checked' : ''} value="1" name="<spring:message
+											text="${assetTypeValue.assetType.type}" htmlEscape="true"/>" />
+										</td>
+
+									</c:forEach>
+									</tr>
+								</tbody>
+							</c:when>
+							<c:when test="${!empty(assettypes)}">
+								<thead>
+									<tr>
+									<c:forEach items="${assettypes }"
+										var="assetType" varStatus="status">
+										<td>
+										<spring:message
+											code="label.assettype.${assetType.type}"
+											text="${assetType.type}" htmlEscape="true"/></td>
+
+									</c:forEach>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<c:forEach items="${assettypes}"
+										var="assetType" varStatus="status">
+										<td>
+										<input type="checkbox" name="<spring:message
+											text="${assetType.type}" htmlEscape="true"/>" value="1"/>
+										</td>
+									</c:forEach>
+									</tr>
+								</tbody>
+							</c:when>
+						</c:choose>
+					</table>
 					<div class="form-group">
 						<label for="comment" class="col-sm-2 control-label"> <spring:message
 								code="label.scenario.description" text="Description" />

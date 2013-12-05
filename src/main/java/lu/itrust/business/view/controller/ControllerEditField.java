@@ -8,13 +8,23 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
+import javax.servlet.http.HttpSession;
+
+import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.component.ParameterManager;
+import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceHistory;
 import lu.itrust.business.service.ServiceItemInformation;
 import lu.itrust.business.service.ServiceParameter;
@@ -45,10 +55,16 @@ public class ControllerEditField {
 	private ServiceParameter serviceParameter;
 
 	@Autowired
+	private ServiceAssessment serviceAssessment;
+
+	@Autowired
 	private ServiceHistory serviceHistory;
 
 	@Autowired
 	private MessageSource messageSource;
+
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
 
 	protected boolean setFieldData(Field field, Object object,
 			FieldEditor fieldEditor) throws IllegalArgumentException,
@@ -161,7 +177,8 @@ public class ControllerEditField {
 
 	@RequestMapping(value = "/ExtendedParameter", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	String extendedParameter(@RequestBody FieldEditor fieldEditor, Locale locale) {
+	String extendedParameter(@RequestBody FieldEditor fieldEditor,
+			HttpSession session, Locale locale) {
 		try {
 			ExtendedParameter parameter = (ExtendedParameter) serviceParameter
 					.get(fieldEditor.getId());
@@ -179,7 +196,27 @@ public class ControllerEditField {
 						fieldEditor.getFieldName());
 			field.setAccessible(true);
 			if (setFieldData(field, parameter, fieldEditor)) {
+
+				Integer id = (Integer) session.getAttribute("selectedAnalysis");
+
+				if (id == null)
+					return JsonMessage.Error(messageSource.getMessage(
+							"error.analysis.no_selected", null,
+							"No selected analysis", locale));
+
+				if (!serviceAnalysis.exist(id))
+					return JsonMessage.Error(messageSource.getMessage(
+							"error.analysis.not_found", null,
+							"Analysis cannot be found", locale));
+				
 				serviceParameter.saveOrUpdate(parameter);
+
+				List<ExtendedParameter> parameters = serviceParameter.findExtendedByAnalysisAndType(id, parameter.getType());
+				
+				ParameterManager.ComputeImpactValue(parameters);
+	
+				serviceParameter.saveOrUpdate(parameters);
+
 				return JsonMessage.Success(messageSource.getMessage(
 						"success.extendedParameter.update", null,
 						"Parameter was successfully update", locale));
@@ -208,6 +245,49 @@ public class ControllerEditField {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(),
 					null, e.getMessage(), locale));
+		}
+		return JsonMessage.Error(messageSource.getMessage(
+				"error.edit.save.field", null, "Data cannot be saved", locale));
+	}
+
+	@RequestMapping(value = "/Assessment", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody
+	String assessment(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale) {
+
+		try {
+			Assessment assessment = serviceAssessment.get(fieldEditor.getId());
+			if (assessment == null)
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.assessment.not_found", null,
+						"Assessment cannot be found", locale));
+
+			Field field = assessment.getClass().getDeclaredField(
+					fieldEditor.getFieldName());
+			field.setAccessible(true);
+			if (!setFieldData(field, assessment, fieldEditor))
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.edit.type.field", null,
+						"Data cannot be updated", locale));
+			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+			
+			if(id == null)
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.analysis.no_selected", null,
+						"No selected analysis", locale));
+				
+			Map<String, ExtendedParameter> parameters = new LinkedHashMap<>();
+			
+			for (ExtendedParameter parameter : serviceParameter.findExtendedByAnalysis(id))
+				parameters.put(parameter.getAcronym(), parameter);
+			
+			AssessmentManager.ComputeAlE(assessment, parameters);
+			
+			serviceAssessment.saveOrUpdate(assessment);
+			return JsonMessage.Success(messageSource.getMessage(
+					"success.assessment.updated", null,
+					"Assessment was successfully updated", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return JsonMessage.Error(messageSource.getMessage(
 				"error.edit.save.field", null, "Data cannot be saved", locale));

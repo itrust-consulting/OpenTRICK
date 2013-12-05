@@ -15,8 +15,8 @@
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
 <div class="navbar navbar-default navbar-static-top navbar-custom">
-	<div id="analysismenu" class="container"
-		role="navigation">
+	<div id="analysismenu" class="container" role="navigation">
+		<a class="navbar-brand" href="#">${analysis.customer.contactPerson } | ${analysis.getVersion()}</a>
 		<ul class="nav navbar-nav">
 			<li class="active"><a href="#History"> <spring:message
 						code="menu.analysis.history" text="History" />
@@ -33,9 +33,6 @@
 			<li><a href="#Scenario"> <spring:message
 						code="menu.analysis.scenario" text="Scenarios" />
 			</a>
-			<li><a href="#Assessment"> <spring:message
-						code="menu.analysis.assessment" text="Assessments" />
-			</a></li>
 			<li><a href="#Measure"> <spring:message
 						code="menu.analysis.measure" text="Measures" />
 			</a></li>
@@ -44,8 +41,7 @@
 			</a></li>
 			<li><a href="#RiskInformation"> <spring:message
 						code="menu.analysis.riskinformation" text="Risk Information" />
-			</a>
-				<!-- 
+			</a> <!-- 
 				<ul class="nav">
 					<li><a href="#Threats"> <spring:message
 								code="menu.analysis.threat" text="Threats" />
@@ -57,11 +53,34 @@
 								code="menu.analysis.vulnerability" text="Vulnerability" />
 					</a></li>
 				</ul></li>
-				 -->
-			</li>
+				 --></li>
 			<li><a href="#ActionPlan"> <spring:message
 						code="menu.analysis.actionplan" text="Action Plans" />
 			</a></li>
+			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle"
+				data-toggle="dropdown"> <spring:message code="label.action"
+						text="Action" /><span class="caret"></span>
+			</a>
+				<ul class="dropdown-menu">
+					<li><a href="#" onclick="return computeAssessment();">
+							<spring:message code="label.assessment.generate.missing"
+								text="Update Assessment" />
+					</a></li>
+					<li class="divider"></li>
+					<li><a href="#">
+							<spring:message code="label.analysis.compute.actionPlan"
+								text="Compute ActionPlan" />
+					</a></li>
+					<li><a href="#">
+							<spring:message code="label.analysis.compute.riskRegister"
+								text="Compute Registers" />
+					</a></li>
+					<li class="divider"></li>
+					<li><a href="#" onclick="return wipeAssessment();">
+							<spring:message code="label.analysis.assessment.wipe"
+								text="Wipe assessments" />
+								</a>
+				</ul></li>
 		</ul>
 	</div>
 </div>
