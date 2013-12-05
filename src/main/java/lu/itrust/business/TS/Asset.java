@@ -256,7 +256,7 @@ public class Asset implements Cloneable {
 		if (getId() != other.getId()) {
 			if (getId() > 0 && other.getId() > 0) {
 
-				System.out.println(getId() + " - " + other.getId());
+				//System.out.println(getId() + " - " + other.getId());
 				return false;
 			}
 		}

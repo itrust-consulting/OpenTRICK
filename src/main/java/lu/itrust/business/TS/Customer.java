@@ -2,8 +2,6 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
-import org.hibernate.validator.constraints.impl.EmailValidator;
-
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /**

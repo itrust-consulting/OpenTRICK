@@ -53,7 +53,8 @@ public class ControllerHome {
 		}
 		return "index";
 	}
-	
+
+	@Secured("ROLE_USER")
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.GET, headers = "Accept=application/json")
     public @ResponseBody
     String resolveMessage(Locale locale, HttpServletRequest request) {

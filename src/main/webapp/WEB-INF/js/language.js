@@ -40,6 +40,7 @@ function deleteLanguage(languageId, name) {
 	$("#deleteLanguageBody").html(MessageResolver("label.language.question.delete", "Are you sure that you want to delete the language") + "&nbsp;<strong>" + name + "</strong>?");
 	$("#deletelanguagebuttonYes").attr("onclick", "deleteALanguage(" + languageId + ")");
 	$("#deleteLanguageModel").modal('toggle');
+	return false;
 }
 
 function newLanguage() {
@@ -51,6 +52,7 @@ function newLanguage() {
 	$("#addlanguagebutton").text(MessageResolver("label.action.add", "Add"));
 	$("#language_form").prop("action", "Language/Save");
 	$("#addLanguageModel").modal('toggle');
+	return false;
 }
 
 function editSingleLanguage(languageId) {
@@ -63,4 +65,5 @@ function editSingleLanguage(languageId) {
 	$("#addlanguagebutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#language_form").prop("action", "Language/Edit/" + languageId);
 	$("#addLanguageModel").modal('toggle');
+	return false;
 }

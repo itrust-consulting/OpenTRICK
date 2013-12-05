@@ -21,24 +21,12 @@
 					<thead>
 						<tr>
 							<th><spring:message code="label.norm.label" /></th>
-							<th><spring:message code="label.action" /></th>
 						</tr>
 					</thead>
 					<tbody>
 						<c:forEach items="${norms}" var="norm">
 							<tr trick-id="${norm.id}">
 								<td>${norm.label}</td>
-								<td>
-									<a href="<spring:url value="KnowledgeBase/Norm/${norm.id}/Measures"/>" title="<spring:message code="label.action.norm.showMeasures" />" class="btn btn-primary btn-sm">
-										<samp class="glyphicon glyphicon-list"></samp>
-									</a> 
-									<a title="<spring:message code="label.action.edit" />" href="#" onclick="javascript:editSingleNorm(${norm.id});" class="btn btn-warning btn-sm">
-										<samp class="glyphicon glyphicon-edit"></samp>
-									</a> 
-									<a title="<spring:message code="label.action.delete" />" href="#" onclick="javascript:deleteNorm(${norm.id}, '${norm.label}')" class="btn btn-danger btn-sm"> 
-										<samp class="glyphicon glyphicon-trash"></samp>
-									</a>
-								</td>
 							</tr>
 						</c:forEach>
 					</tbody>
