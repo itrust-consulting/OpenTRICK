@@ -84,7 +84,7 @@
 			<one-to-many class="Parameter" />
 		</bag>
 		
-		<bag name="assets" table="asset" cascade="all" access="field">
+		<bag name="assets" table="asset" cascade="all" access="field" order-by="selected desc, value desc">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Asset" />
 		</bag>

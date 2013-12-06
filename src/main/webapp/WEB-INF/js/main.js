@@ -648,11 +648,11 @@ function ProgressBar() {
 		this.progressbar.setAttribute("valuemax", "100");
 		this.progressbar.setAttribute("style", "width: 100%");
 		this.sr_only.setAttribute("class", "sr-only");
-		this.infoText.setAttribute("class", ".progress-info");
+		this.infoText.setAttribute("class", "progress-info");
 
 		// build progress
 		this.progress.appendChild(this.progressbar);
-		this.progressbar.appendChild(this.infoText);
+		this.progress.appendChild(this.infoText);
 		this.progressbar.appendChild(this.sr_only);
 		return false;
 	};
@@ -676,9 +676,11 @@ function ProgressBar() {
 		if (!$.isNumeric(value))
 			return false;
 		if (this.progressbar != null) {
+			if(value==0)
+				$(this.infoText).css("margin-top", 0);
+			else $(this.infoText).css("margin-top", "-17px");
 			$(this.progressbar).css("width", value + "%");
 			$(this.progressbar).prop("aria-valuenow", value);
-
 			if (this.waitting && $(this.progress).hasClass("active")) {
 				this.waitting = false;
 				$(this.progressbar).removeClass("active");

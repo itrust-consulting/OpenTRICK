@@ -50,52 +50,55 @@ html,body {
 	z-index: 10;
 }
 
-.carousel-control.no-background .icon-next, .carousel-control.no-background .icon-prev{
+.carousel-control.no-background .icon-next,.carousel-control.no-background .icon-prev
+	{
 	font-size: 60px;
 }
 
-.carousel-control.no-background .icon-next{
+.carousel-control.no-background .icon-next {
 	margin-right: -23px;
 }
 
-.carousel-control.no-background .icon-prev{
+.carousel-control.no-background .icon-prev {
 	margin-left: -23px;
 }
+
 .vertical-text {
 	transform: rotate(12deg);
 }
 
-.nav-container{
+.nav-container {
 	padding-top: 80px;
 	margin-top: -50px;
 }
 
-.nav-container h3{
+.nav-container h3 {
 	margin-top: -120px;
-    padding-top: 120px;
+	padding-top: 120px;
 }
 
-.navbar-custom{
+.navbar-custom {
 	margin-top: 0px;
 }
 
-.navbar-custom.affix{
+.navbar-custom.affix {
 	margin-top: -39px;
 }
 
-.navbar-custom +.nav-container, #success+.nav-container, #error+.nav-container {
+.navbar-custom+.nav-container,#success+.nav-container,#error+.nav-container
+	{
 	margin-top: -108px;
 }
 
-.navbar-custom.affix +.nav-container{
+.navbar-custom.affix+.nav-container {
 	margin-top: -71px;
 }
 
 .progress-info {
-    position: absolute;
-    top: 5px;
-    z-index: 2;
-    color: #fff;
+	color: #FF0033;
+    display: inline-block;
+    margin-top: -17px;
+    float: left;
     text-align: center;
     width: 100%;
 }

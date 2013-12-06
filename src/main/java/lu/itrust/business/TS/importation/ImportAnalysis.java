@@ -3,6 +3,7 @@ package lu.itrust.business.TS.importation;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -199,7 +200,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.risk_information.importing",
-					"Importing risk information", 5));
+					"Importing risk information", 1));
 
 			// ****************************************************************
 			// * import risk information
@@ -208,7 +209,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.risk_information.importing",
-					"Import item information", 10));
+					"Import item information", 5));
 
 			// ****************************************************************
 			// * import item information
@@ -217,7 +218,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.simple_parameters.importing",
-					"Import simple parameters", 15));
+					"Import simple parameters", 10));
 
 			// ****************************************************************
 			// * import simple parameters
@@ -226,7 +227,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.extended_parameters.importing",
-					"Import extended parameters", 20));
+					"Import extended parameters", 15));
 
 			// ****************************************************************
 			// * import extended parameters
@@ -239,7 +240,7 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"info.maturity_parameters.importing",
-					"Import maturity parameters", 25));
+					"Import maturity parameters", 20));
 
 			importMaturityParameters();
 
@@ -248,7 +249,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.asset.importing", "Import assets", 30));
+					"info.asset.importing", "Import assets", 25));
 			importAssets();
 
 			// ****************************************************************
@@ -315,7 +316,23 @@ public class ImportAnalysis {
 					"success.analysis.import", "Import Done", 100));
 
 			System.out.println("Import Done!");
-
+		} catch (SQLException e) {
+			int index = e.getMessage().indexOf("no such column:");
+			if (index != -1) {
+				int index2 = e.getMessage().lastIndexOf(")");
+				index += "no such column: ".length();
+				String column = e.getMessage().substring(index, index2);
+				serviceTaskFeedback.send(idTask, new MessageHandler(
+						"error.colums.not_found", new String[] {
+								this.currentSqliteTable, column },
+						"Please check table '" + this.currentSqliteTable
+								+ "', column '" + column+"'", e));
+			} else {
+				serviceTaskFeedback.send(idTask,
+						new MessageHandler(e.getMessage(), e.getMessage(), e));
+			}
+			e.printStackTrace();
+			throw e;
 		} catch (Exception e) {
 			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(),
 					e.getMessage(), e));
@@ -369,7 +386,7 @@ public class ImportAnalysis {
 		String query = "";
 		Language language = null;
 
-		currentSqliteTable = "identifier";
+		setCurrentSqliteTable("identifier");
 
 		// ****************************************************************
 		// * Retrieve analysis ID and label
@@ -565,7 +582,7 @@ public class ImportAnalysis {
 		ResultSet rs = null;
 		String query = "";
 		RiskInformation tempRI = null;
-		currentSqliteTable = "threat_typology";
+		setCurrentSqliteTable("threat_typology");
 		// ****************************************************************
 		// * Query sqlite for all threats (threat_typology)
 		// ****************************************************************
@@ -608,7 +625,7 @@ public class ImportAnalysis {
 		// * Query sqlite for all vulnerabilities (vulnerabilities)
 		// ****************************************************************
 
-		currentSqliteTable = "vulnerabilities";
+		setCurrentSqliteTable("vulnerabilities");
 		// build query
 		query = "SELECT * FROM vulnerabilities";
 
@@ -647,7 +664,7 @@ public class ImportAnalysis {
 		// * Query sqlite for all risks (threat_Source)
 		// ****************************************************************
 
-		currentSqliteTable = "threat_Source";
+		setCurrentSqliteTable("threat_Source");
 
 		// build query
 		query = "SELECT * FROM threat_Source";
@@ -1114,6 +1131,8 @@ public class ImportAnalysis {
 		String query = "";
 		ParameterType parameterType = null;
 
+		currentSqliteTable = "scope";
+
 		// ****************************************************************
 		// * import scope values:
 		// * - internal_setup_rate
@@ -1243,16 +1262,14 @@ public class ImportAnalysis {
 			// * Insert mandatoryPhase into simple parameter table
 			// ****************************************************************
 
-
 			parameter = new Parameter(parameterType, Constant.SOA_THRESHOLD,
 					rs.getInt(Constant.SOA_THRESHOLD));
 			this.analysis.addAParameter(parameter);
-			
-			
+
 			// ****************************************************************
 			// * create instance of mandatoryPhase
 			// *****************************************************************
-			
+
 			parameter = new Parameter();
 			parameter.setDescription(Constant.MANDATORY_PHASE);
 			parameter.setType(parameterType);
@@ -1265,7 +1282,8 @@ public class ImportAnalysis {
 			 * // * add instance to list of parameters //
 			 * ****************************************************************
 			 */
-			parameter = new Parameter(parameterType, Constant.IMPORTANCE_THRESHOLD,
+			parameter = new Parameter(parameterType,
+					Constant.IMPORTANCE_THRESHOLD,
 					rs.getInt(Constant.IMPORTANCE_THRESHOLD));
 			this.analysis.addAParameter(parameter);
 		}
@@ -1299,6 +1317,8 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * retrieve maturity_max_effency
 		// ****************************************************************
+
+		currentSqliteTable = "maturity_max_eff";
 
 		// build and execute query
 		rs = sqlite.query("SELECT * FROM maturity_max_eff", null);
@@ -1353,6 +1373,8 @@ public class ImportAnalysis {
 			// save parameter type into database
 			daoParameterType.save(parameterType);
 		}
+
+		currentSqliteTable = "maturity_IS";
 
 		// ****************************************************************
 		// * retrieve maturity_IS
@@ -1437,6 +1459,8 @@ public class ImportAnalysis {
 		// * retrieve impact values
 		// ****************************************************************
 
+		currentSqliteTable = "impact";
+
 		// build query
 		query = "SELECT * FROM impact";
 
@@ -1502,6 +1526,8 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * retrieve likelihood values
 		// ****************************************************************
+
+		currentSqliteTable = "potentiality";
 
 		// build query
 		query = "SELECT * FROM potentiality";
@@ -1596,6 +1622,8 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * import maturity parameters
 		// ****************************************************************
+
+		currentSqliteTable = "maturity_required_LIPS";
 
 		// build query
 		query = "SELECT * FROM maturity_required_LIPS";
@@ -1696,6 +1724,8 @@ public class ImportAnalysis {
 		// * select all existing phases from info_phases
 		// ****************************************************************
 
+		currentSqliteTable = "info_phases";
+
 		// build query
 		query = "SELECT * FROM info_phases";
 
@@ -1742,6 +1772,7 @@ public class ImportAnalysis {
 		// * retrieve maturity phases from maturity_phase table
 		// ****************************************************************
 
+		currentSqliteTable = "measures";
 		// build and execute query
 		query = "SELECT DISTINCT m.phase AS MeasurePhase, ma.phase AS MaturityPhase FROM measures m, maturity_phase ma";
 
@@ -1815,6 +1846,8 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * retrieve all measures
 		// ****************************************************************
+
+		currentSqliteTable = "measures";
 
 		// build query
 		query = "SELECT rowid, * FROM measures";
@@ -2170,20 +2203,7 @@ public class ImportAnalysis {
 		ItemInformation itemInformation = null;
 		ResultSetMetaData rsMetaData = null;
 		int numColumns = 0;
-		currentSqliteTable = "scope";
-
-		/**
-		 * !rsMetaData.getColumnName(i).equalsIgnoreCase(
-		 * Constant.PARAMETER_INTERNAL_SETUP_RATE) &&
-		 * !rsMetaData.getColumnName(i).equalsIgnoreCase(
-		 * Constant.PARAMETER_EXTERNAL_SETUP_RATE) &&
-		 * !rsMetaData.getColumnName(i).equalsIgnoreCase(
-		 * Constant.PARAMETER_LIFETIME_DEFAULT) &&
-		 * !rsMetaData.getColumnName(i).equalsIgnoreCase(
-		 * Constant.PARAMETER_MAINTENANCE_DEFAULT) &&
-		 * !rsMetaData.getColumnName(i).equalsIgnoreCase(
-		 * Constant.PARAMETER_TUNING)
-		 */
+		setCurrentSqliteTable("scope");
 
 		// ****************************************************************
 		// * Import data from scope
@@ -2244,7 +2264,7 @@ public class ImportAnalysis {
 		// * Import data from organisation
 		// ****************************************************************
 
-		currentSqliteTable = "organisation";
+		setCurrentSqliteTable("organisation");
 		// build and execute query
 		rs = sqlite.query("SELECT * FROM organisation", null);
 
@@ -2336,6 +2356,7 @@ public class ImportAnalysis {
 		// retrieve results
 		while (rs.next()) {
 
+			currentSqliteTable = "maturities";
 			// retrieve norm from map
 			norm = norms.get(Constant.NORM_MATURITY);
 
@@ -2452,6 +2473,7 @@ public class ImportAnalysis {
 				// * select phase number for the chapter
 				// ****************************************************************
 
+				currentSqliteTable = "maturity_phase";
 				// build query
 				query = "SELECT phase FROM maturity_phase WHERE chapter=?";
 
@@ -2653,7 +2675,7 @@ public class ImportAnalysis {
 		ResultSet rs = null;
 		String query = "";
 		History tempHist = null;
-		currentSqliteTable = "history";
+		setCurrentSqliteTable("history");
 
 		// ****************************************************************
 		// * Retrieve histories of the analysis
@@ -2902,6 +2924,8 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * retrieve asset type values for measures
 		// ****************************************************************
+
+		currentSqliteTable = "spec_default_type_asset_measure";
 
 		// build query
 		query = "SELECT * FROM spec_default_type_asset_measure";
@@ -3210,5 +3234,20 @@ public class ImportAnalysis {
 	 */
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
+	}
+
+	/**
+	 * @return the currentSqliteTable
+	 */
+	public String getCurrentSqliteTable() {
+		return currentSqliteTable;
+	}
+
+	/**
+	 * @param currentSqliteTable
+	 *            the currentSqliteTable to set
+	 */
+	public void setCurrentSqliteTable(String currentSqliteTable) {
+		this.currentSqliteTable = currentSqliteTable;
 	}
 }
