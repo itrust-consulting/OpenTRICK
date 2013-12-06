@@ -3,10 +3,12 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<div id="section_measure" class="section">
 <div id="measures_header" class="page-header">
 	<h3 id="Measures">
 		<spring:message code="label.measure.measures" />
 		: ${norm.label} <input type="hidden" id="normId" value="${norm.id}" />
+		<input type="hidden" id="normLabel" value="${norm.label}" />
 	</h3>
 </div>
 <div id="measures_body" class="content" role="main" data-spy="scroll">
@@ -28,28 +30,19 @@
 				<table id="measurestable">
 					<thead>
 						<tr>
-							<th><spring:message code="label.measure.id" text="id" /></th>
 							<th><spring:message code="label.measure.level" /></th>
 							<th><spring:message code="label.measure.reference" /></th>
 							<th><spring:message code="label.measure.domain" /></th>
 							<th><spring:message code="label.measure.description" /></th>
-							<th><spring:message code="label.action" /></th>
 						</tr>
 					</thead>
 					<tbody>
 						<c:forEach items="${measureDescriptions}" var="measureDescription">
-							<tr>
-								<td>${measureDescription.id}</td>
+							<tr trick-id="${measureDescription.id}">
 								<td>${measureDescription.level}</td>
 								<td>${measureDescription.reference}</td>
 								<td>${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:"&nbsp;"}</td>
 								<td>${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:"&nbsp;"}</td>
-								<td><a title="<spring:message code="label.action.edit" />" href="#" onclick="javascript:editSingleMeasure(${measureDescription.id});" class="btn btn-warning btn-sm">
-										<samp class="glyphicon glyphicon-edit"></samp>
-								</a> <a title="<spring:message code="label.action.delete" />" href="#"
-									onclick="javascript:deleteMeasureDescription(${measureDescription.id}, '${measureDescription.reference}', '${measureDescription.norm.label}')"
-									class="btn btn-danger btn-sm"> <samp class="glyphicon glyphicon-trash"></samp>
-								</a></td>
 							</tr>
 						</c:forEach>
 					</tbody>
@@ -72,13 +65,13 @@
 		</div>
 	</c:if>
 </div>
+</div>
 <script type="text/javascript">
 $(document).ready(function() {
 	$('#measurestable').dataTable({
 		"bLengthChange" : false,
 		"bAutoWidth" : false,
 		"aoColumns": [
-						{ "sWidth": "20px" },
 						{ "sWidth": "20px" },
 						{ "sWidth": "20px" },
 						null,

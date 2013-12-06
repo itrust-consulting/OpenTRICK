@@ -1305,8 +1305,8 @@ $(function() {
 				var normname = $(e.currentTarget).children(":first").text();
 				//alert(organisation);
 				$contextMenu.attr("trick-selected-id", rowTrickId);
-				editRow.attr("onclick", "javascript:return editSingleLanguage(" + rowTrickId + ");");
-				deleteElement.attr("onclick", "javascript:return deleteLanguage("+rowTrickId+",'"+normname+"');");
+				editRow.attr("onclick", "javascript:return editSingleNorm(" + rowTrickId + ");");
+				deleteElement.attr("onclick", "javascript:return deleteNorm("+rowTrickId+",'"+normname+"');");
 				showMeasures.attr("onclick", "javascript:return showMeasures(" + rowTrickId + ", 1);");
 				showMeasures.parent().attr("hidden", false);
 				$contextMenu.css({
