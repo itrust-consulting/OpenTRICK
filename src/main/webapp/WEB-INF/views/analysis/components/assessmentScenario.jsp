@@ -12,8 +12,11 @@
 			<table class="table table-responsive">
 				<thead>
 					<tr>
-						<th colspan="3"><spring:message
+						<th colspan="2"><spring:message
 								code="label.assessment.asset" text="Asset"
+								htmlEscape="true" /></th>
+						<th><spring:message
+								code="label.assessment.asset.value" text="Asset value"
 								htmlEscape="true" /></th>
 						<th><spring:message code="label.assessment.impactRep"
 								text="Rep." htmlEscape="true" /></th>
@@ -47,7 +50,8 @@
 						var="sortedAssessments" />
 					<c:forEach items="${sortedAssessments}" var="assessment">
 						<tr trick-class="Assessment" trick-id="${assessment.id}">
-							<td colspan="3">${assessment.asset.name}</td>
+							<td colspan="2">${assessment.asset.name}</td>
+							<td>${assessment.asset.value}</td>
 							<td trick-field="impactRep" trick-field-type="string" class="success"
 								ondblclick="return editField(this);"><spring:message
 									text="${assessment.impactRep}" htmlEscape="true" /></td>

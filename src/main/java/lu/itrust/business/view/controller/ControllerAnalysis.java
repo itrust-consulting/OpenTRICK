@@ -185,11 +185,9 @@ public class ControllerAnalysis {
 
 		if (selected != null && selected.intValue() == analysisId)
 			session.removeAttribute("selectedAnalysis");
-		else if (serviceAnalysis.exist(analysisId)) {
+		else if (serviceAnalysis.exist(analysisId))
 			session.setAttribute("selectedAnalysis", analysisId);
-			attributes.addFlashAttribute("success",
-					"Analysis selected for editing!");
-		} else {
+		else {
 			session.removeAttribute("selectedAnalysis");
 			attributes.addFlashAttribute("error", "Analysis not recognized!");
 		}

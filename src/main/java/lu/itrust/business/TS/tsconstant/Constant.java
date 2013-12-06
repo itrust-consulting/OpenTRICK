@@ -1,86 +1,82 @@
 package lu.itrust.business.TS.tsconstant;
 
-/** 
+/**
  * Constant: <br>
  * This Class contains all the Constants used inside TRICK Service.<br>
  * There are 3 groups of constants:
  * 
  * <ul>
- * 	<li>Commonly used Constants</li>
- * 	<li>MySQL Database Table Constants</li>
- * 	<li>SQLite Database Table Constants</li>
+ * <li>Commonly used Constants</li>
+ * <li>MySQL Database Table Constants</li>
+ * <li>SQLite Database Table Constants</li>
  * </ul>
- *
+ * 
  * @author itrust consulting s.ï¿½.rl. : SME
- * @version 
+ * @version
  * @since 9 January 2013
  */
 public class Constant {
-	
+
 	/***********************************************************************************************
 	 * List of Regular Expressions - BEGIN
 	 **********************************************************************************************/
-	
+
 	/** Regular expression to validate likelihood value */
 	public static final String REGEXP_VALID_LIKELIHOOD = "i|l[13579]|r|3a|a|t|m";
 
 	/** Regular expression to validate impactFin value */
 	public static final String REGEXP_VALID_IMPACT = "\\d+|\\d+\\.\\d*|[cC]([0-9]|10)";
-	
+
 	/** Regular *Expression to check on valid Names */
-	public static final String REGEXP_VALID_NAME =
-		"^([a-zA-ZÃ Ã£Ã¢Ã¡Ã¤Ã£Ã¥Ã¦Ã¨ÃªÃ©Ã«Ã±Ã­Ã¯Ã¬Ã®Ã¸Ã´ÃµÃ²Ã³Ã¹Ã»ÃºÃ¼Ä‰Ä�Ä¥ÄµÅ�Å­Ã½Å¡Å¾Ä�Ã§ÃŸ-]+[',.]?\\s?){1,4}";
+	public static final String REGEXP_VALID_NAME = "^([a-zA-ZÃ Ã£Ã¢Ã¡Ã¤Ã£Ã¥Ã¦Ã¨ÃªÃ©Ã«Ã±Ã­Ã¯Ã¬Ã®Ã¸Ã´ÃµÃ²Ã³Ã¹Ã»ÃºÃ¼Ä‰Ä�Ä¥ÄµÅ�Å­Ã½Å¡Å¾Ä�Ã§ÃŸ-]+[',.]?\\s?){1,4}";
 
 	/** Email Regular expression to be valid */
 	public static final String REGEXP_VALID_EMAIL = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
 	/** Telephone number regular expression to be valid */
 	public static final String REGEXP_VALID_PHONE = "^(\\+)?(\\d){5,}$";
-	
+
 	/** Regular Expression to check on valid Version */
 	public static final String REGEXP_VALID_ANALYSIS_VERSION = "\\d+|\\d+\\.\\d+|\\d+\\.\\d+\\.\\d+";
-	
+
 	/** Regular Expression for a valid Item Information Type */
 	public static final String REGEXP_VALID_ITEMINFORMATION_TYPE = "Scope|Organisation";
-	
+
 	/** Regular Expression to check on valid Alpha 3 code */
 	public static final String REGEXP_VALID_ALPHA_3 = "[A-Z,a-z]{3}";
 
 	/** Regular Expression to check on category */
 	public static final String REGEXP_VALID_MATURITY_CATEGORY = "Policies|Procedure|Implementation|Test|Integration";
-	
+
 	/** Status regular expression */
 	public static final String REGEXP_VALID_MEASURE_STATUS = "AP|NA|M";
-	
+
 	/** Norm Caption regular Expression */
 	public static final String REGEXP_VALID_NORM_NAME = "Maturity|2700[1-2]|[cC]ustom";
-	
+
 	/** Regular expression for Parameter types */
 	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPACT|IMPSCALE|MAXEFF|PROBA|SINGLE";
-	
+
 	/** Regular expression for asset types */
 	public static final String REGEXP_VALID_ASSET_TYPE = "Serv|Info|SW|HW|Net|Staff|IV|Busi|Fin|Compl";
-	
+
 	/** Regular expression for exposed field value */
 	public static final String REGEXP_VALID_RISKINFORMATION_EXPOSED = "N|\\+|\\+\\+|-|--|=||";
 
 	/** Regular expression for Risk Information Categories */
 	public static final String REGEXP_VALID_RISKINFORMATION_TYPE = "Vul|Threat|Risk_(TBS|TBA)";
-	
-	public static final String REGEXP_VALID_SCENARIO_TYPE = 
-	"Confidentiality|Integrity|Availability|D1-Strat|D2-RH|D3-Processus|D4-BCM|D5-Soustrait|D6-SI|"+
-	"D6\\.1-Secu|D6\\.2-Dev|D6\\.3-Expl|D6\\.4-Support|D7-Aut|I1-Strat|I2-Fin|I3-Leg|I4-RH|I5-Processus|"+
-	"I6-BCM|I7-Soustrait|I8-SI|I8\\.1-Secu|I8\\.2-Dev|I8\\.3-Expl|I8\\.4-Support|I9-Prest|I10-Aut";
-	
-	/** The Regular expression for valid Risk Categories */
-	public static final String REGEXP_VALID_SCENARIO_CATEGORY =
-		"Direct([1-7]|6\\.[1-4])|Indirect([1-9]|8\\.[1-4]|10)|Confidentiality|Availability|Integrity";
 
-	
+	public static final String REGEXP_VALID_SCENARIO_TYPE = "Confidentiality|Integrity|Availability|D1-Strat|D2-RH|D3-Processus|D4-BCM|D5-Soustrait|D6-SI|"
+			+ "D6\\.1-Secu|D6\\.2-Dev|D6\\.3-Expl|D6\\.4-Support|D7-Aut|I1-Strat|I2-Fin|I3-Leg|I4-RH|I5-Processus|"
+			+ "I6-BCM|I7-Soustrait|I8-SI|I8\\.1-Secu|I8\\.2-Dev|I8\\.3-Expl|I8\\.4-Support|I9-Prest|I10-Aut";
+
+	/** The Regular expression for valid Risk Categories */
+	public static final String REGEXP_VALID_SCENARIO_CATEGORY = "Direct([1-7]|6\\.[1-4])|Indirect([1-9]|8\\.[1-4]|10)|Confidentiality|Availability|Integrity";
+
 	/***********************************************************************************************
 	 * List of Regular Expressions - END
 	 **********************************************************************************************/
-	
+
 	/***********************************************************************************************
 	 * List of Common Constants - BEGIN
 	 **********************************************************************************************/
@@ -105,13 +101,13 @@ public class Constant {
 
 	/** Double maximum Value */
 	public static final double DOUBLE_MAX_VALUE = 1.79769313486231e+108;
-	
+
 	/** Asset, Threat (Scenario) and assessment selected sign */
 	public static final String ASSET_SELECTED = "x";
 	public static final String THREAT_SELECTED = "x";
 	public static final String ASSESSMENT_SELECTED = "x";
-	
-	/** Asset Type Names*/
+
+	/** Asset Type Names */
 	public static final String ASSET_TYPE_SERV = "Serv";
 	public static final String ASSET_TYPE_INFO = "Info";
 	public static final String ASSET_TYPE_SW = "SW";
@@ -122,7 +118,7 @@ public class Constant {
 	public static final String ASSET_TYPE_BUSI = "Busi";
 	public static final String ASSET_TYPE_FIN = "Fin";
 	public static final String ASSET_TYPE_COMPL = "Compl";
-	
+
 	/** Item Information Categories */
 	public static final String ITEMINFORMATION_SCOPE = "Scope";
 	public static final String ITEMINFORMATION_ORGANISATION = "Organisation";
@@ -188,7 +184,7 @@ public class Constant {
 	public static final String RI_TYPE_VUL = "Vul";
 	public static final String RI_TYPE_RISK = "Risk";
 	public static final String RI_TYPE_RISK_TBS = "Risk_TBS";
-	public static final String RI_TYPE_RISK_TBA= "Risk_TBA";
+	public static final String RI_TYPE_RISK_TBA = "Risk_TBA";
 
 	/** Parameter Attributes */
 	public final static String PARAMATTRIBUTE_NAME = "Name";
@@ -199,7 +195,7 @@ public class Constant {
 	public final static String PARAMATTRIBUTE_EXT_LEVEL = "Level";
 	public final static String PARAMATTRIBUTE_EXT_FROM = "From";
 	public final static String PARAMATTRIBUTE_EXT_TO = "To";
-	
+
 	/** Parameter Attribute Value Types */
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_STRING = "S";
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_INTEGER = "I";
@@ -208,7 +204,7 @@ public class Constant {
 	public static final String CONFIDENTIALITY_RISK = "Confidentiality";
 	public static final String INTEGRITY_RISK = "Integrity";
 	public static final String AVAILABILITY_RISK = "Availability";
-	
+
 	public static final String ASSET_TYPES = "serv,info,sw,hw,net,staff,iv,busi,fin,compl";
 
 	/***********************************************************************************************
@@ -263,7 +259,7 @@ public class Constant {
 
 	/** List of Constants for the MySQL Table "ScenarioAssetTypeValue" */
 	public final static String SCENARIOASSETTYPEVALUE_MYSQL_ID = "dtValue";
-	
+
 	/** List of Constants for the MySQL Table "Scenario" */
 	public final static String SCENARIO_MYSQL_ID = "idScenario";
 	public final static String SCENARIO_MYSQL_LABEL = "dtLabel";
@@ -311,16 +307,11 @@ public class Constant {
 	public final static String ACTIONPLANSUMMARY_MYSQL_CONFORMANCE27002 = "dt27001Conformance";
 	public final static String ACTIONPLANSUMMARY_MYSQL_CURRENTMEASURECOST = "dtCurrentCostMeasures";
 	public final static String ACTIONPLANSUMMARY_MYSQL_CURRENTDELTAALE = "dtCurrentDeltaALE";
-	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALEXTERNALMAINTENANCE =
-		"dtTotalExternalMaintenance";
-	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALEXTERNALWORKLOAD =
-		"dtTotalExternalWorkload";
-	public final static String ACTIONPLANSUMMARY_MYSQL_IMPLEMENTEDMEASURECOUNT =
-		"dtImplementedMeasureCount";
-	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALINTERNALMAINTENANCE =
-		"dtTotalInternalMaintenance";
-	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALINTERNALWORKLOAD =
-		"dtTotalInternalWorkload";
+	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALEXTERNALMAINTENANCE = "dtTotalExternalMaintenance";
+	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALEXTERNALWORKLOAD = "dtTotalExternalWorkload";
+	public final static String ACTIONPLANSUMMARY_MYSQL_IMPLEMENTEDMEASURECOUNT = "dtImplementedMeasureCount";
+	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALINTERNALMAINTENANCE = "dtTotalInternalMaintenance";
+	public final static String ACTIONPLANSUMMARY_MYSQL_TOTALINTERNALWORKLOAD = "dtTotalInternalWorkload";
 	public final static String ACTIONPLANSUMMARY_MYSQL_INVESTMENT = "dtInvestment";
 	public final static String ACTIONPLANSUMMARY_MYSQL_MEASURECOUNT = "dtMeasureCount";
 	public final static String ACTIONPLANSUMMARY_MYSQL_RECURRENTCOST = "dtRecurrentCost";
@@ -427,7 +418,7 @@ public class Constant {
 	public final static String LANGUAGE_MYSQL_ALPHA3 = "dtAlpha3";
 	public final static String LANGUAGE_MYSQL_NAME = "dtName";
 	public final static String LANGUAGE_MYSQL_ALTNAME = "dtAlternativeName";
-	
+
 	/** List of Constants for the MySQL Table "RiskRegister" */
 	public static final String RISKREGISTER_MYSQL_ID = "idRiskRegisterEntry";
 	public static final String RISKREGISTER_MYSQL_SCENARIO_ID = "idScenario";
@@ -499,9 +490,11 @@ public class Constant {
 	public static final String MEASURE_LIMITING = "limiting";
 	public static final String MEASURE_DETECTIVE = "detective";
 	public static final String MEASURE_PREVENTIVE = "preventive";
-	public static final String MEASURE_AVAILABILITY = AVAILABILITY_RISK.toLowerCase();
+	public static final String MEASURE_AVAILABILITY = AVAILABILITY_RISK
+			.toLowerCase();
 	public static final String MEASURE_INTEGRITY = INTEGRITY_RISK.toLowerCase();
-	public static final String MEASURE_CONFIDENTIALITY = CONFIDENTIALITY_RISK.toLowerCase();
+	public static final String MEASURE_CONFIDENTIALITY = CONFIDENTIALITY_RISK
+			.toLowerCase();
 	public static final String MEASURE_STRENGTH_SECTORAL = "strength_sectoral";
 	public static final String MEASURE_STRENGTH_MEASURE = "strength_measure";
 	public static final String MEASURE_REVISION = "revision";
@@ -545,8 +538,10 @@ public class Constant {
 
 	/** List of Constants for the Sqlite Table "parameter" */
 	public static final String PARAMETER_TUNING = "tuning";
-	public static final String MANDATORY_PHASE ="mandatoryPhase";
-	
+	public static final String MANDATORY_PHASE = "mandatoryPhase";
+	public static final String SOA_THRESHOLD = "soaThreshold";
+	public static final String IMPORTANCE_THRESHOLD = "importanceThreshold";
+
 	public static final String PARAMETER_MAINTENANCE_DEFAULT = "maintenance_default";
 	public static final String PARAMETER_LIFETIME_DEFAULT = "lifetime_default";
 	public static final String PARAMETER_EXTERNAL_SETUP_RATE = "external_setup_rate";
@@ -611,6 +606,8 @@ public class Constant {
 	public static final String ASSET_NAME_ASSET = "name_asset";
 	public static final String ASSET_ID_TYPE_ASSET = "id_type_asset";
 	public static final String ASSET_ID_ASSET = "id_asset";
+
+	public static final String SCOPE_EXCLUDE = "soaThreshold,mandatoryPhase,importanceThreshold,internal_setup_rate,external_setup_rate,lifetime_default,maintenance_default,tuning";
 
 	/** List of Constants for the Sqlite Table "asset_types" */
 	public static final String ASSET_TYPE_LABEL = "name_type_asset";

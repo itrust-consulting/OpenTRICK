@@ -35,6 +35,21 @@ public class Parameter implements Serializable, Cloneable {
 	 * Getters and Setters
 	 **********************************************************************************************/
 
+	
+	
+	public Parameter(ParameterType type, String descriptif,
+			int value) {
+		setType(type);
+		setDescription(descriptif);
+		setValue(value);
+	}
+
+	/**
+	 * 
+	 */
+	public Parameter() {
+	}
+
 	/**
 	 * getDescription: <br>
 	 * Returns the "description" field value

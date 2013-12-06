@@ -202,8 +202,10 @@
 						</thead>
 						<tbody>
 							<tr>
-								<c:forEach var="index" begin="0" end="7">
-									<td>${simpleParameters[0].size() >index ? simpleParameters[0].get(index).value : '0.0'}
+								<c:forEach items="${simpleParameters[0]}" var="parameter" >
+									<td trick-class="Parameter" trick-id="${parameter.id}" class="success"
+										trick-field="value" trick-field-type="double"
+										ondblclick="return editField(this);">${parameter.value}
 									</td>
 								</c:forEach>
 							</tr>

@@ -102,6 +102,8 @@ public class ImportAnalysis {
 
 	private SessionFactory sessionFactory;
 
+	private String currentSqliteTable = "";
+
 	/** The Analysis Object */
 	private Analysis analysis = null;
 
@@ -298,7 +300,7 @@ public class ImportAnalysis {
 					"Import maturity measures", 80));
 			importMaturityMeasures();
 
-			//System.out.println("Saving Data to Database...");
+			// System.out.println("Saving Data to Database...");
 
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"import.saving.analysis", "Saving Data to Database", 90));
@@ -308,16 +310,16 @@ public class ImportAnalysis {
 
 			if (session != null)
 				session.getTransaction().commit();
-			
+
 			serviceTaskFeedback.send(idTask, new MessageHandler(
 					"success.analysis.import", "Import Done", 100));
 
 			System.out.println("Import Done!");
-			
-			
+
 		} catch (Exception e) {
 			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(),
 					e.getMessage(), e));
+			e.printStackTrace();
 			throw e;
 		} finally {
 			// clear maps
@@ -366,6 +368,8 @@ public class ImportAnalysis {
 		String acroLanguage = "";
 		String query = "";
 		Language language = null;
+
+		currentSqliteTable = "identifier";
 
 		// ****************************************************************
 		// * Retrieve analysis ID and label
@@ -561,6 +565,7 @@ public class ImportAnalysis {
 		ResultSet rs = null;
 		String query = "";
 		RiskInformation tempRI = null;
+		currentSqliteTable = "threat_typology";
 		// ****************************************************************
 		// * Query sqlite for all threats (threat_typology)
 		// ****************************************************************
@@ -603,6 +608,7 @@ public class ImportAnalysis {
 		// * Query sqlite for all vulnerabilities (vulnerabilities)
 		// ****************************************************************
 
+		currentSqliteTable = "vulnerabilities";
 		// build query
 		query = "SELECT * FROM vulnerabilities";
 
@@ -640,6 +646,8 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * Query sqlite for all risks (threat_Source)
 		// ****************************************************************
+
+		currentSqliteTable = "threat_Source";
 
 		// build query
 		query = "SELECT * FROM threat_Source";
@@ -1116,8 +1124,8 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = "SELECT internal_setup_rate, mandatoryPhase, external_setup_rate, lifetime_default, ";
-		query += "maintenance_default, tuning FROM scope";
+		query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, ";
+		query += "maintenance_default, tuning, soaThreshold, mandatoryPhase, importanceThreshold FROM scope";
 
 		// execute query
 		rs = sqlite.query(query, null);
@@ -1235,9 +1243,16 @@ public class ImportAnalysis {
 			// * Insert mandatoryPhase into simple parameter table
 			// ****************************************************************
 
+
+			parameter = new Parameter(parameterType, Constant.SOA_THRESHOLD,
+					rs.getInt(Constant.SOA_THRESHOLD));
+			this.analysis.addAParameter(parameter);
+			
+			
 			// ****************************************************************
 			// * create instance of mandatoryPhase
 			// *****************************************************************
+			
 			parameter = new Parameter();
 			parameter.setDescription(Constant.MANDATORY_PHASE);
 			parameter.setType(parameterType);
@@ -1250,6 +1265,8 @@ public class ImportAnalysis {
 			 * // * add instance to list of parameters //
 			 * ****************************************************************
 			 */
+			parameter = new Parameter(parameterType, Constant.IMPORTANCE_THRESHOLD,
+					rs.getInt(Constant.IMPORTANCE_THRESHOLD));
 			this.analysis.addAParameter(parameter);
 		}
 		// close result
@@ -2143,7 +2160,7 @@ public class ImportAnalysis {
 	 */
 	private void importItemInformation() throws Exception {
 
-		System.out.println("Import Item Information ");
+		System.out.println("Import Item Information");
 
 		// *********************************************
 		// * initialise variables
@@ -2153,6 +2170,20 @@ public class ImportAnalysis {
 		ItemInformation itemInformation = null;
 		ResultSetMetaData rsMetaData = null;
 		int numColumns = 0;
+		currentSqliteTable = "scope";
+
+		/**
+		 * !rsMetaData.getColumnName(i).equalsIgnoreCase(
+		 * Constant.PARAMETER_INTERNAL_SETUP_RATE) &&
+		 * !rsMetaData.getColumnName(i).equalsIgnoreCase(
+		 * Constant.PARAMETER_EXTERNAL_SETUP_RATE) &&
+		 * !rsMetaData.getColumnName(i).equalsIgnoreCase(
+		 * Constant.PARAMETER_LIFETIME_DEFAULT) &&
+		 * !rsMetaData.getColumnName(i).equalsIgnoreCase(
+		 * Constant.PARAMETER_MAINTENANCE_DEFAULT) &&
+		 * !rsMetaData.getColumnName(i).equalsIgnoreCase(
+		 * Constant.PARAMETER_TUNING)
+		 */
 
 		// ****************************************************************
 		// * Import data from scope
@@ -2181,16 +2212,8 @@ public class ImportAnalysis {
 			for (int i = 1; i < numColumns + 1; i++) {
 
 				// check all column names if they are not parameters
-				if (!rsMetaData.getColumnName(i).equalsIgnoreCase(
-						Constant.PARAMETER_INTERNAL_SETUP_RATE)
-						&& !rsMetaData.getColumnName(i).equalsIgnoreCase(
-								Constant.PARAMETER_EXTERNAL_SETUP_RATE)
-						&& !rsMetaData.getColumnName(i).equalsIgnoreCase(
-								Constant.PARAMETER_LIFETIME_DEFAULT)
-						&& !rsMetaData.getColumnName(i).equalsIgnoreCase(
-								Constant.PARAMETER_MAINTENANCE_DEFAULT)
-						&& !rsMetaData.getColumnName(i).equalsIgnoreCase(
-								Constant.PARAMETER_TUNING)) {
+				if (!Constant.SCOPE_EXCLUDE.contains(rsMetaData
+						.getColumnName(i))) {
 
 					// ****************************************************************
 					// * Insert scope data into item information table.
@@ -2221,6 +2244,7 @@ public class ImportAnalysis {
 		// * Import data from organisation
 		// ****************************************************************
 
+		currentSqliteTable = "organisation";
 		// build and execute query
 		rs = sqlite.query("SELECT * FROM organisation", null);
 
@@ -2629,6 +2653,7 @@ public class ImportAnalysis {
 		ResultSet rs = null;
 		String query = "";
 		History tempHist = null;
+		currentSqliteTable = "history";
 
 		// ****************************************************************
 		// * Retrieve histories of the analysis

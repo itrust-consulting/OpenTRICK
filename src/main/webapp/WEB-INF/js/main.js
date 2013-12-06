@@ -220,9 +220,9 @@ function FieldEditor(element, validator) {
 	this.element = element;
 	this.validator = validator;
 	this.controllor = null;
-	this.defaultValue = $(element).text();
+	this.defaultValue = $(element).text().trim();
 	this.inputField = null;
-	this.realValue = null;
+	this.realValue =  null;
 	this.fieldName = null;
 	this.classId = null;
 	this.fieldType = null;
@@ -236,10 +236,16 @@ function FieldEditor(element, validator) {
 				&& this.realValue != undefined ? this.realValue
 				: this.defaultValue);
 		var that = this;
+		this.realValue = this.element.hasAttribute("real-value")? $(this.element).attr("real-value") : null;
 		$(this.inputField).blur(function() {
 			return that.Save(that);
 		});
 		return false;
+	};
+
+	FieldEditor.prototype.HasAttr = function(element, attribute) {
+		var attr = $(element).attr(attribute);
+		return typeof attr !== 'undefined' && attr !== false;
 	};
 
 	FieldEditor.prototype.Initialise = function() {
@@ -279,7 +285,7 @@ function FieldEditor(element, validator) {
 		$(this.inputField).prop(
 				"value",
 				this.realValue != null ? this.realValue : $(this.element)
-						.text());
+						.text().trim());
 		$(this.element).html(this.inputField);
 		$(this.inputField).focus();
 		return false;

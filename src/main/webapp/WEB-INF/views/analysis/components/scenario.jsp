@@ -35,7 +35,7 @@
 				<tbody>
 					<c:forEach items="${scenarios}" var="scenario">
 						<tr class="${scenario.selected? 'success' : 'active'}"
-							trick-id="${scenario.id}" trick-selected="${scenario.selected}">
+							trick-id="${scenario.id}" trick-selected="${scenario.selected}" ondblclick="return editScenarioRow(${scenario.id})">
 							<td colspan="2">${scenario.name}</td>
 							<td>${scenario.type.getTypeName()}</td>
 							<td colspan="2">${scenario.description}</td>
