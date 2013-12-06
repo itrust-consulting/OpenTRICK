@@ -40,6 +40,7 @@ function deleteNorm(normId, name) {
 	$("#deleteNormBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the norm") + "&nbsp;<strong>" + name + "</strong>?");
 	$("#deletenormbuttonYes").attr("onclick", "deleteANorm(" + normId + ")");
 	$("#deleteNormModel").modal('toggle');
+	return false;
 }
 
 function newNorm() {
@@ -49,6 +50,7 @@ function newNorm() {
 	$("#addnormbutton").text(MessageResolver("label.action.add", "Add"));
 	$("#norm_form").prop("action", "/Save");
 	$("#addNormModel").modal('toggle');
+	return false;
 }
 
 function editSingleNorm(normId) {
@@ -59,4 +61,5 @@ function editSingleNorm(normId) {
 	$("#addnormbutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#norm_form").prop("action", "/Save");
 	$("#addNormModel").modal('toggle');
+	return false;
 }

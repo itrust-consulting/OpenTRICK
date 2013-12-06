@@ -23,20 +23,14 @@
 							<th><spring:message code="label.language.alpha3" /></th>
 							<th><spring:message code="label.language.name" /></th>
 							<th><spring:message code="label.language.altName" /></th>
-							<th><spring:message code="label.action" /></th>
 						</tr>
 					</thead>
 					<tbody>
 						<c:forEach items="${languages}" var="language">
 							<tr trick-id="${language.id}">
-								<td>${language.alpha3}</td>
+								<td><spring:message text="${language.alpha3}" htmlEscape="true"/></td>
 								<td>${language.name}</td>
 								<td>${language.altName}</td>
-								<td><a title="<spring:message code="label.action.edit" />" href="#" onclick="javascript:editSingleLanguage(${language.id});" class="btn btn-warning btn-sm"> <samp
-											class="glyphicon glyphicon-edit"></samp>
-								</a> <a title="<spring:message code="label.action.delete" />" href="#" onclick="javascript:deleteLanguage(${language.id}, '${language.name}')" class="btn btn-danger btn-sm">
-										<samp class="glyphicon glyphicon-trash"></samp>
-								</a></td>
 							</tr>
 						</c:forEach>
 					</tbody>

@@ -102,3 +102,7 @@ html,body {
     text-align: center;
     width: 100%;
 }
+
+table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
+	background-color: #FFFFFF;
+}

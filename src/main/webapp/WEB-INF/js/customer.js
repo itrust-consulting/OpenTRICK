@@ -44,6 +44,7 @@ function deleteCustomer(customerId, organisation) {
 	$("#deletecustomerbuttonYes").attr("onclick",
 			"deleteACustomer(" + customerId + ")");
 	$("#deleteCustomerModel").modal('toggle');
+	return false;
 }
 
 function newCustomer() {
@@ -62,6 +63,7 @@ function newCustomer() {
 	$("#addcustomerbutton").text(MessageResolver("label.action.add", "Add"));
 	$("#customer_form").prop("action", "Customer/Create");
 	$("#addCustomerModel").modal('toggle');
+	return false;
 }
 
 function editSingleCustomer(customerId) {
@@ -82,4 +84,5 @@ function editSingleCustomer(customerId) {
 	$("#addcustomerbutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#customer_form").prop("action", "Customer/Edit/" + customerId);
 	$("#addCustomerModel").modal('toggle');
+	return false;
 }

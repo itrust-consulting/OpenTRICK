@@ -28,7 +28,6 @@
 							<th><spring:message code="label.customer.city" /></th>
 							<th><spring:message code="label.customer.ZIPCode" /></th>
 							<th><spring:message code="label.customer.country" /></th>
-							<th><spring:message code="label.action" /></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -42,14 +41,6 @@
 								<td>${customer.city}</td>
 								<td>${customer.ZIPCode}</td>
 								<td>${customer.country}</td>
-								<td>
-									<a title="<spring:message code="label.action.edit" />" href="#" onclick="javascript:editSingleCustomer(${customer.id});" class="btn btn-warning btn-sm">
-										<samp class="glyphicon glyphicon-edit"></samp>
-									</a>
-									<a title="<spring:message code="label.action.delete" />" href="#" onclick="javascript:deleteCustomer(${customer.id}, '${customer.organisation}')" class="btn btn-danger btn-sm">
-										<samp class="glyphicon glyphicon-trash"></samp>
-									</a>
-								</td>
 							</tr>
 						</c:forEach>
 					</tbody>

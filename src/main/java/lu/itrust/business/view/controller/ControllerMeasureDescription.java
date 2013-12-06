@@ -1,15 +1,12 @@
 package lu.itrust.business.view.controller;
 
-import java.util.HashMap;
+import java.security.Principal;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
@@ -27,12 +24,11 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * ControllerMeasureDescription.java: <br>
@@ -48,7 +44,7 @@ public class ControllerMeasureDescription {
 
 	@Autowired
 	private ServiceMeasureDescription serviceMeasureDescription;
-	
+
 	@Autowired
 	private ServiceMeasureDescriptionText serviceMeasureDescriptionText;
 
@@ -70,7 +66,7 @@ public class ControllerMeasureDescription {
 	public void setServiceMeasureDescription(ServiceMeasureDescription serviceMeasureDescription) {
 		this.serviceMeasureDescription = serviceMeasureDescription;
 	}
-	
+
 	/**
 	 * setServiceMeasureDescriptionText: <br>
 	 * Description
@@ -107,21 +103,21 @@ public class ControllerMeasureDescription {
 	 * 
 	 * */
 	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures")
-	public String displayAll(@PathVariable("normId") Integer normId, @RequestBody String value,HttpServletRequest request, Model model) throws Exception {
+	public String displayAll(@PathVariable("normId") Integer normId, @RequestBody String value, HttpServletRequest request, Model model) throws Exception {
 		int id = 0;
-		
+
 		List<MeasureDescription> mesDescs = serviceMeasureDescription.getAllByNorm(normId);
-		
+
 		if (mesDescs != null) {
-			
-			if (!value.equals("")){
+
+			if (!value.equals("")) {
 				ObjectMapper mapper = new ObjectMapper();
 				JsonNode jsonNode = mapper.readTree(value);
 				id = jsonNode.get("languageId").asInt();
-				//System.out.println(id);
+				// System.out.println(id);
 			}
 			Language lang = null;
-			if(id!=0) {
+			if (id != 0) {
 				lang = serviceLanguage.get(id);
 			} else {
 				lang = serviceLanguage.loadFromAlpha3("ENG");
@@ -135,7 +131,7 @@ public class ControllerMeasureDescription {
 				}
 				mesDesc.addMeasureDescriptionText(mesDescText);
 			}
-			model.addAttribute("selectedLanguage", lang);	
+			model.addAttribute("selectedLanguage", lang);
 			model.addAttribute("languages", serviceLanguage.loadAll());
 			model.addAttribute("norm", serviceNorm.getNormByID(normId));
 			model.addAttribute("measureDescriptions", mesDescs);
@@ -145,156 +141,151 @@ public class ControllerMeasureDescription {
 
 	/**
 	 * 
-	 * Edit a Measure
+	 * Display all MeasureDescriptions of a given Norm
 	 * 
 	 * */
-	@RequestMapping("KnowLedgeBase/Standard/Norm/{normLabel}/Measures/Edit/{measureid}")
-	public String editMeasureDescription(@PathVariable("normLabel") String normLabel, @PathVariable("measureid") Integer measureid, HttpSession session, Map<String, Object> model,
-			RedirectAttributes redirectAttributes, Locale locale) throws Exception {
-		MeasureDescription measureDescription = (MeasureDescription) session.getAttribute("measure");
-		if (measureDescription == null || !measureDescription.getNorm().getLabel().equals(normLabel) || measureDescription.getId() != measureid)
-			measureDescription = serviceMeasureDescription.get(measureid);
-		if (measureDescription == null) {
-			String msg = messageSource.getMessage("errors.measure.notexist", null, "Measure does not exist", locale);
-			redirectAttributes.addFlashAttribute("errors", msg);
-			return "redirect:/KnowLedgeBase/Standard/Norm/" + normLabel + "/Measures/Display";
+	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures/AddForm")
+	public String displayAddForm(@PathVariable("normId") Integer normId, @RequestBody String value, HttpServletRequest request, Model model) throws Exception {
+
+		List<Language> languages = serviceLanguage.loadAll();
+
+		model.addAttribute("languages", languages);
+		if (languages != null) {
+			model.addAttribute("selectedLanguage", languages.get(0));
 		}
-		model.put("measureDescription", measureDescription);
-		return "standard/editMeasureDescription";
+
+		return "knowledgebase/standard/measure/measuredescriptionform";
 	}
 
+	/**
+	 * 
+	 * Display all MeasureDescriptions of a given Norm
+	 * 
+	 * */
+	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures/EditForm")
+	public String displayEditForm(@PathVariable("normId") Integer normId, @RequestBody String value, HttpServletRequest request, Model model) throws Exception {
+		
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode jsonNode = mapper.readTree(value);
+		int measureId = jsonNode.get("measureId").asInt();
+		
+		List<Language> languages = serviceLanguage.loadAll();
+		
+		List<MeasureDescriptionText> mesDesc = serviceMeasureDescription.get(measureId).getMeasureDescriptionTexts();
+
+		model.addAttribute("measuredescriptionTexts", mesDesc);
+		model.addAttribute("languages", languages);
+		if (languages != null) {
+			model.addAttribute("selectedLanguage", languages.get(0));
+		}
+
+		return "knowledgebase/standard/measure/measuredescriptioneditform";
+	}
+	
 	/**
 	 * 
 	 * Perform edit Measure
 	 * 
 	 * */
-	@RequestMapping("KnowLedgeBase/Standard/Norm/{normLabel}/Measures/Update/{measureid}")
-	public String updateMeasureDescription(@PathVariable("measureid") Integer measureid, @PathVariable("normLabel") String normLabel,
-			@ModelAttribute("measureDescription") @Valid MeasureDescription measureDescription, BindingResult result, RedirectAttributes redirectAttributes, Locale locale)
-			throws Exception {
-		if (measureDescription == null || !measureDescription.getNorm().getLabel().equals(normLabel) || measureDescription.getId() != measureid) {
-			String msg = messageSource.getMessage("errors.measure.update.notrecognized", null, "Measure not recognized", locale);
-			redirectAttributes.addFlashAttribute("errors", msg);
-		} else {
-			try {
-				serviceMeasureDescription.saveOrUpdate(measureDescription);
-				String msg = messageSource.getMessage("success.measure.update.success", null, "Measure had been updated!", locale);
-				redirectAttributes.addFlashAttribute("success", msg);
-			} catch (Exception e) {
-				String msg = messageSource.getMessage("errors.measure.update.fail", null, "Measure update failed!", locale);
-				redirectAttributes.addFlashAttribute("errors", msg);
-			}
+	@RequestMapping(value = "KnowledgeBase/Norm/{normId}/Measures/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody
+	List<String[]> save(@PathVariable("normId") Integer normId, @RequestBody String value, HttpSession session, Principal principal, Locale locale) {
+		List<String[]> errors = new LinkedList<>();
+		try {
+
+			Norm norm = serviceNorm.getNormByID(normId);
+			
+			MeasureDescription measureDescription = new MeasureDescription();
+			
+			measureDescription.setNorm(norm);
+			
+			if (!buildMeasureDescription(errors, measureDescription, value, locale))
+				return errors;
 		}
-		return "redirect:/KnowLedgeBase/Standard/Norm/" + normLabel + "/Measures/Display";
+
+		catch (Exception e) {
+			errors.add(new String[] { "measuredescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			e.printStackTrace();
+		}
+		return errors;
 	}
 
+	private boolean buildMeasureDescription(List<String[]> errors, MeasureDescription measuredescription, String source, Locale locale) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+			int id = jsonNode.get("id").asInt();
+			
+			measuredescription.setReference(jsonNode.get("reference").asText());
+			measuredescription.setLevel(jsonNode.get("level").asInt());
+			
+			if (id > 0) {
+				measuredescription.setId(jsonNode.get("id").asInt());
+			} else {
+				serviceMeasureDescription.save(measuredescription);
+			}
+			
+
+			List<Language> languages = serviceLanguage.loadAll();
+			
+			for (int i=0;i<languages.size();i++){
+				
+				Language language = languages.get(i);
+				
+				String domain = jsonNode.get("domain_"+language.getId()).asText();
+				String description = jsonNode.get("description_"+language.getId()).asText();
+				
+				MeasureDescriptionText mesDescText = null;
+				
+				mesDescText = serviceMeasureDescriptionText.getByLanguage(measuredescription, language);
+				
+				if (id<1 || mesDescText == null){
+				
+					mesDescText = new MeasureDescriptionText();
+									
+					mesDescText.setMeasureDescription(measuredescription);
+					
+					mesDescText.setLanguage(language);
+					
+					mesDescText.setDomain(domain);
+					
+					mesDescText.setDescription(description);
+					
+					serviceMeasureDescriptionText.save(mesDescText);
+					
+				} else {
+					mesDescText.setDomain(domain);
+					mesDescText.setDescription(description);
+					serviceMeasureDescriptionText.saveOrUpdate(mesDescText);
+				}
+							
+				measuredescription.addMeasureDescriptionText(mesDescText);
+								
+			}
+					
+			return true;
+
+		} catch (Exception e) {
+
+			errors.add(new String[] { "buildMeasureDescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	/**
 	 * 
-	 * Delete single Norm
+	 * Delete single language
 	 * 
 	 * */
-	@RequestMapping("KnowLedgeBase/Standard/Norm/{normLabel}/Measures/Delete/{measureid}")
-	public String deleteMeasureDescription(@PathVariable("normLabel") String normLabel, @PathVariable("measureid") Integer measureid) throws Exception {
-		if (serviceMeasureDescription.get(measureid).getNorm().getLabel().equals(normLabel)) {
+	@RequestMapping(value = "KnowledgeBase/Norm/{normId}/Measures/Delete/{measureid}", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody
+	String[] deleteMeasureDescription(@PathVariable("normId") Integer normId, @PathVariable("measureid") Integer measureid, Locale locale) throws Exception {
+		if (serviceMeasureDescription.get(measureid).getNorm().getId()==normId) {
 			serviceMeasureDescription.remove(serviceMeasureDescription.get(measureid));
 		}
-		return "redirect:../Display";
-	}
+		return new String[] { "error", messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale) };
 
-	/**
-	 * 
-	 * Request add new Norm
-	 * 
-	 * */
-	@RequestMapping("KnowLedgeBase/Standard/Norm/{normLabel}/Measures/Add")
-	public String addMEasureDescription(Map<String, Object> model) {
-		model.put("measureDescription", new MeasureDescription());
-		return "standard/addMeasureDescription";
-	}
-
-	/**
-	 * 
-	 * Perform add new Measure
-	 * 
-	 * */
-	@RequestMapping("KnowLedgeBase/Standard/Norm/{normLabel}/Measures/Create")
-	public String createMeasure(@PathVariable("normLabel") String normLabel, @ModelAttribute("measureDescription") @Valid MeasureDescription measureDescription,
-			BindingResult result, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		Norm norm = serviceNorm.loadSingleNormByName(normLabel);
-
-		measureDescription.setNorm(norm);
-
-		HashMap<String, MeasureDescriptionText> measureDescriptionTexts = new HashMap<>();
-		
-		List<Language> languages = serviceLanguage.loadAll();
-		
-		for (int i = 0; i < languages.size();i++) {
-			measureDescriptionTexts.put(languages.get(i).getAlpha3(), new MeasureDescriptionText());
-		}
-		
-		for (Entry<String, String[]> parameter : request.getParameterMap().entrySet()) {
-
-			// get the parameter name
-			String parametername = parameter.getKey();
-			
-			// get the paramter value (or values if the same name was used)
-			String[] parameterValues = parameter.getValue();
-		
-			// check if the paramter was a domain value field
-			if (parametername.startsWith("domain_")) {
-									
-				String langLabel = parametername.substring(parametername.indexOf("_")+1, parametername.length());
-				Language language = serviceLanguage.loadFromAlpha3(langLabel);
-						
-				if (language != null) {
-					
-					MeasureDescriptionText mesDescText = measureDescriptionTexts.get(language.getAlpha3());
-					
-					if (mesDescText.getLanguage() == null) {
-						mesDescText.setLanguage(language);
-					}
-					
-					if (parameterValues[0] == null) {
-						mesDescText.setDomain("");
-					} else {
-						mesDescText.setDomain(parameterValues[0]);
-					}
-				}
-							 
-			}
-			
-			// check if the paramter was a description value field
-			if (parametername.startsWith("description_")) {
-									
-				String langLabel = parametername.substring(parametername.indexOf("_")+1, parametername.length());
-				Language language = serviceLanguage.loadFromAlpha3(langLabel);
-						
-				if (language != null) {
-					
-					MeasureDescriptionText mesDescText = measureDescriptionTexts.get(language.getAlpha3());
-					
-					if (mesDescText.getLanguage() == null) {
-						mesDescText.setLanguage(language);
-					}
-
-					if (parameterValues[0] == null) {
-						mesDescText.setDescription("");
-					} else {
-						mesDescText.setDescription(parameterValues[0]);
-					}
-				}
-							 
-			}
-
-		}
-
-		for (MeasureDescriptionText mesDescText: measureDescriptionTexts.values()) {
-			measureDescription.addMeasureDescriptionText(mesDescText);
-		}
-			
-		this.serviceMeasureDescription.save(measureDescription);
-		return "redirect:./Display";
 	}
 
 }
