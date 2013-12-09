@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  * DAOScenarioHBM.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 22 janv. 2013
  */
@@ -81,7 +81,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 				.createQuery(
 						"Select scenario "
 								+ "from Analysis as analysis inner join analysis.scenarios as scenario "
-								+ "where analysis.id = :analysisId")
+								+ "where analysis.id = :analysisId order by selected desc, scenario.name asc")
 				.setParameter("analysisId", idAnalysis).list();
 	}
 
@@ -122,7 +122,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	public List<Scenario> findByAnalysisAndSelected(int idAnalysis) {
 		return getSession()
 				.createQuery(
-						"select scenario From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :idAnalysis and scenario.selected = true")
+						"select scenario From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :idAnalysis and scenario.selected = true order by scenario.name asc")
 				.setInteger("idAnalysis", idAnalysis).list();
 	}
 

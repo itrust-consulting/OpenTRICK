@@ -139,14 +139,16 @@ function newMeasure(normId) {
 		contentType : "application/json",
 		success : function(response) {
 			$("#measurelanguages").html(response);	
+			
+			var previous=0;
 			$("#measurelanguageselect").focus(function(){
 				
 				previous = this.value;
 			}).change(function(){
+				
+				$("div[measurelanguage='"+previous+"']").attr("style","display:none;");
 				var language = $(this).find("option:selected").attr("value");
-				alert(previous + "::" + language);
-				$("div[measurelanguage="+previous+"]").attr("style","display:none;");
-				$("div[measurelanguage="+language+"]").removeAttr("style");
+				$("div[measurelanguage='"+language+"']").removeAttr("style");
 			});
 			$("#measure_form").prop("action", context + "/KnowledgeBase/Norm/"+normId+"/Measures/Save");
 			return false;
