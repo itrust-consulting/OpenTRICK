@@ -1,21 +1,4 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec"
-	uri="http://www.springframework.org/security/tags"%>
-<html>
-<head>
-<title>TRICK Service</title>
-<link rel="stylesheet" type="text/css"
-	href='<spring:url value="/css/main.css" />' />
-</head>
-<body>
-	<div id="wrap">
-		<div class="menu">
-			<jsp:include page="../menu.jsp" />
-		</div>
-		<div class="container">
+
 			<div class="content" id="content">
 				<form:errors cssClass="error" element="div" />
 				<c:if test="${!empty userManageRole}">
@@ -49,9 +32,3 @@
 					</form:form>
 				</c:if>
 			</div>
-		</div>
-		<jsp:include page="../footer.jsp" />
-		<jsp:include page="../scripts.jsp" />
-	</div>
-</body>
-</html>

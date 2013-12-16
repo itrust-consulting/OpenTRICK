@@ -30,7 +30,7 @@
 					<spring:message code="label.login.title" text="Sign in" />
 				</h2>
 				<a class="navbar-link pull-right" style="margin-top: -35px;"
-					href="${pageContext.request.contextPath}/user/add"> <spring:message
+					href="${pageContext.request.contextPath}/register"> <spring:message
 						code="label.signup" text="Sign up" />
 				</a>
 				<jsp:include page="successErrors.jsp" />

@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Norm;
+import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.service.ServiceNorm;
 
 import org.codehaus.jackson.JsonNode;
@@ -43,6 +44,9 @@ public class ControllerNorm {
 	@Autowired
 	private MessageSource messageSource;
 
+	@Autowired
+	private CustomDelete customDelete;
+	
 	/**
 	 * 
 	 * Display all Norms
@@ -119,15 +123,20 @@ public class ControllerNorm {
 
 	/**
 	 * 
-	 * Delete single language
+	 * Delete single norm
 	 * 
 	 * */
 	@RequestMapping(value = "/Delete/{normId}", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	String[] deleteLanguage(@PathVariable("normId") Integer normId, Locale locale) throws Exception {
-		serviceNorm.remove(serviceNorm.getNormByID(normId));
-		return new String[] { "error", messageSource.getMessage("success.norm.delete.successfully", null, "Norm was deleted successfully", locale) };
-
+	String[] deleteNorm(@PathVariable("normId") Integer normId, Locale locale) throws Exception {
+		
+		try {
+			customDelete.deleteNorm(serviceNorm.getNormByID(normId));
+			return new String[] {"success",messageSource.getMessage("success.norm.delete.successfully", null, "Norm was deleted successfully", locale) };
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new String[] { "error", messageSource.getMessage("error.norm.delete.successfully", null, "Norm was not deleted. Make sure it is not used in an analysis", locale) };
+		}
 	}
 
 	/**

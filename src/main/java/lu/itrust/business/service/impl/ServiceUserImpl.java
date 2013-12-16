@@ -7,6 +7,7 @@ import java.util.List;
 
 import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.service.ServiceUser;
+import lu.itrust.business.view.model.Role;
 import lu.itrust.business.view.model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,6 @@ public class ServiceUserImpl implements ServiceUser {
 	 */
 	@Override
 	public User get(long id) throws Exception {
-		// TODO Auto-generated method stub
 		return daoUser.get(id);
 	}
 
@@ -37,7 +37,6 @@ public class ServiceUserImpl implements ServiceUser {
 	 */
 	@Override
 	public User get(String login) throws Exception {
-		// TODO Auto-generated method stub
 		return daoUser.get(login);
 	}
 
@@ -46,7 +45,6 @@ public class ServiceUserImpl implements ServiceUser {
 	 */
 	@Override
 	public User get(String login, String password) throws Exception {
-		// TODO Auto-generated method stub
 		return daoUser.get(login, password);
 	}
 
@@ -55,7 +53,6 @@ public class ServiceUserImpl implements ServiceUser {
 	 */
 	@Override
 	public List<User> loadAll() throws Exception {
-		// TODO Auto-generated method stub
 		return daoUser.loadAll();
 	}
 
@@ -64,7 +61,6 @@ public class ServiceUserImpl implements ServiceUser {
 	 */
 	@Override
 	public List<User> loadByName(String name) throws Exception {
-		// TODO Auto-generated method stub
 		return daoUser.loadByName(name);
 	}
 
@@ -73,10 +69,29 @@ public class ServiceUserImpl implements ServiceUser {
 	 */
 	@Override
 	public List<User> loadByCountry(String name) throws Exception {
-		// TODO Auto-generated method stub
 		return daoUser.loadByCountry(name);
 	}
 
+	/**
+	 * addRole: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.service.ServiceUser#addRole(lu.itrust.business.view.model.User, lu.itrust.business.view.model.Role)
+	 */
+	public boolean addRole(User user, Role role) throws Exception{
+		return daoUser.addRole(user, role);
+	}
+	
+	/**
+	 * removeRole: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.service.ServiceUser#removeRole(lu.itrust.business.view.model.User, lu.itrust.business.view.model.Role)
+	 */
+	public boolean removeRole(User user, Role role) throws Exception{
+		return daoUser.removeRole(user, role);
+	}
+	
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.service.ServiceUser#save(lu.itrust.business.TS.User)
 	 */

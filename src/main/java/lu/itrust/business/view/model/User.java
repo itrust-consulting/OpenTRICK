@@ -168,27 +168,27 @@ public class User implements Serializable {
 		this.roles = roles;
 	}
 
-	public boolean add(Role arg0) {
+	public boolean addRole(Role role) {
 		boolean add = false;
 
 		if (roles == null)
 			roles = new ArrayList<Role>();
 
-		if (!roles.contains(arg0))
-			add = roles.add(arg0);
+		if (!roles.contains(role))
+			add = roles.add(role);
 
 		enable = !roles.isEmpty();
 		return add;
 	}
 
-	public boolean contains(Object arg0) {
-		return roles.contains(arg0);
+	public boolean containsRole(Object role) {
+		return roles.contains(role);
 	}
 
-	public Role get(int arg0) {
+	public Role getRole(Role role) {
 		if (roles == null)
 			return null;
-		return roles.get(arg0);
+		return roles.get(roles.indexOf(role));
 	}
 
 	public boolean isAutorise(RoleType role) {
@@ -204,23 +204,16 @@ public class User implements Serializable {
 
 	}
 
-	public boolean isAutorise(String role) {
+	public boolean isAutorised(String role) {
 
 		return isAutorise(RoleType.valueOf(role));
 	}
 
-	public Role remove(Long roleId) {
-
-		Role role = null;
+	public Role removeRole(Role role) {
 
 		if (roles != null) {
 
-			for (int i = 0; i < roles.size(); i++) {
-				if (roles.get(i).getId() == roleId) {
-					role = roles.remove(i);
-					break;
-				}
-			}
+			roles.remove(role);
 		}
 
 		enable = roles != null && !roles.isEmpty();
