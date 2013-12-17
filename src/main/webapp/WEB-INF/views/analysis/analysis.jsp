@@ -26,14 +26,14 @@
 		<jsp:include page="../menu.jsp" />
 
 		<div class="container">
-			
+
 			<!-- #################################################################### Content ################################################################### -->
 			<c:if test="${!empty(analyses)}">
 				<div class="page-header">
-						<h1>
-							<spring:message code="label.analysis.title" text="Analyses"/>
-						</h1>
-						<jsp:include page="../successErrors.jsp" />
+					<h1>
+						<spring:message code="label.analysis.title" text="Analyses" />
+					</h1>
+					<jsp:include page="../successErrors.jsp" />
 				</div>
 			</c:if>
 			<div class="row nav-container" id="nav-container">
@@ -57,6 +57,10 @@
 						<c:set var="scenarios" value="${analysis.scenarios}"
 							scope="request" />
 						<jsp:include page="./components/scenario.jsp" />
+						<spring:eval
+							expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)"
+							var="measures" scope="request" />
+						<jsp:include page="./components/measure.jsp" />
 						<jsp:include page="./components/widgets.jsp" />
 					</div>
 				</c:if>

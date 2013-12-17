@@ -11,7 +11,12 @@ import lu.itrust.business.TS.ParameterType;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOParameter;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.proxy.HibernateProxy;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -155,6 +160,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 								+ "where analysis.id = :analysisId and parameter.type.label = :type")
 				.setInteger("analysisId", idAnalysis).setString("type", type)
 				.list();
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -255,6 +261,17 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 				.setString("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
 				.setString("proba",
 						Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
+	}
+
+	@Override
+	public List<Parameter> findByAnalysisAndTypeAndNoLazy(int idAnalysis,
+			String type) {
+		List<Parameter> parameters = findByAnalysisAndType(idAnalysis, type);
+		for (int i = 0; i < parameters.size(); i++) {
+			parameters.set(i, Initialise(parameters.get(i)));
+			parameters.get(i).setType(Initialise(parameters.get(i).getType()));
+		}
+		return parameters;
 	}
 
 }

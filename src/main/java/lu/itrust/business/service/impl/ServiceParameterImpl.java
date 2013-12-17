@@ -179,6 +179,12 @@ public class ServiceParameterImpl implements ServiceParameter {
 		return daoParameter.findExtendedByAnalysis(idAnalysis);
 	}
 
+	@Override
+	public List<Parameter> findByAnalysisAndTypeAndNoLazy(int idAnalysis,
+			String type) {
+		return daoParameter.findByAnalysisAndTypeAndNoLazy(idAnalysis, type);
+	}
+
 	
 
 }

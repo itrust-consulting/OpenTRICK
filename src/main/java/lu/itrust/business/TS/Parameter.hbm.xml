@@ -7,14 +7,14 @@
 		<id name="id" column="idParameter" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
-		<many-to-one name="type" column="fiparameterType" not-null="true"/>
-		<property name="description" column="dtLabel" not-null="true" />
-		<property name="value" column="dtValue" not-null="true" />
+		<many-to-one name="type" column="fiparameterType" not-null="true" access="field"/>
+		<property name="description" column="dtLabel" not-null="true" access="field"/>
+		<property name="value" column="dtValue" not-null="true" access="field"/>
 		<joined-subclass name="MaturityParameter" extends="Parameter"
 			table="maturityParameter">
 			<key column="idMaturityParameter" not-null="true" />
-			<property name="category" column="dtCategory" not-null="true" />
-			<property name="SMLLevel" column="dtSML" not-null="true" />
+			<property name="category" column="dtCategory" not-null="true" access="field"/>
+			<property name="SMLLevel" column="dtSML" not-null="true" access="field"/>
 		</joined-subclass>
 		<joined-subclass name="ExtendedParameter" extends="Parameter" table="extendedParameter">
 				<key column="idExtendedParameter" not-null="true" />
@@ -23,8 +23,8 @@
 						access="field" />
 					<property name="to" column="dtTo" not-null="true" access="field" />
 				</component>
-				<property name="level" column="dtLevel" not-null="true" />
-				<property name="acronym" column="dtAcronym" not-null="true" />
+				<property name="level" column="dtLevel" not-null="true" access="field"/>
+				<property name="acronym" column="dtAcronym" not-null="true" access="field"/>
 		</joined-subclass>
 	</class>
 	<class name="ParameterType" table="parameterType">
@@ -32,6 +32,6 @@
 			<generator class="assigned" />
 		</id>
 		<property name="label" column="dtLabel" not-null="true"
-			unique="true" />
+			unique="true" access="field"/>
 	</class>
 </hibernate-mapping>
