@@ -6,6 +6,7 @@ package lu.itrust.business.dao.hbm;
 import java.util.List;
 
 import lu.itrust.business.dao.DAOUser;
+import lu.itrust.business.view.model.Role;
 import lu.itrust.business.view.model.User;
 
 import org.hibernate.Session;
@@ -49,24 +50,17 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@Override
 	public User get(String login) throws Exception {
-		return (User) getSession()
-				.createQuery("From User where login = :login")
-				.setString("login", login).uniqueResult();
+		return (User) getSession().createQuery("From User where login = :login").setString("login", login).uniqueResult();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String,
-	 * java.lang.String)
+	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public User get(String login, String password) throws Exception {
-		return (User) getSession()
-				.createQuery(
-						"From User where login = :login and password = :password")
-				.setString("login", login).setString("password", password)
-				.uniqueResult();
+		return (User) getSession().createQuery("From User where login = :login and password = :password").setString("login", login).setString("password", password).uniqueResult();
 	}
 
 	/*
@@ -102,6 +96,44 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		return getSession().createQuery("From User where country = :country").setString("country", name).list();
 	}
 
+	/**
+	 * addRole: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUser#addRole(lu.itrust.business.view.model.Role)
+	 */
+	public boolean addRole(User user, Role role) throws Exception {
+		boolean result = false;
+		try {
+			user.addRole(role);
+			getSession().saveOrUpdate(user);
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			result=false;
+		}
+		return result;
+	}
+	
+	/**
+	 * removeRole: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUser#removeRole(lu.itrust.business.view.model.Role)
+	 */
+	public boolean removeRole(User user, Role role) throws Exception {
+		boolean result = false;
+		try {
+			user.removeRole(role);
+			getSession().saveOrUpdate(user);
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			result=false;
+		}
+		return result;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -116,8 +148,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOUser#saveOrUpdate(lu.itrust.business.TS.User)
+	 * @see lu.itrust.business.dao.DAOUser#saveOrUpdate(lu.itrust.business.TS.User)
 	 */
 	@Override
 	public void saveOrUpdate(User user) throws Exception {
@@ -147,6 +178,6 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	@Override
 	public boolean isEmpty() throws Exception {
 		// TODO Auto-generated method stub
-		return ((Long)getSession().createQuery("Select count(*) From User").uniqueResult()).intValue()==0;
+		return ((Long) getSession().createQuery("Select count(*) From User").uniqueResult()).intValue() == 0;
 	}
 }

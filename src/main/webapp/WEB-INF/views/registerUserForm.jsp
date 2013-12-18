@@ -25,9 +25,9 @@
 			<h2 class="form-signin-heading">
 				<spring:message code="title.user.register" />
 			</h2>
-			<a class="navbar-link pull-right" href="../login" style="margin-top: -35px;"><spring:message code="menu.navigate.back" /></a>
+			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/login" style="margin-top: -35px;"><spring:message code="menu.navigate.back" /></a>
 			<form:form cssClass="form-horizontal"
-				method="post" action="${pageContext.request.contextPath}/user/save"
+				method="post" action="${pageContext.request.contextPath}/DoRegister"
 				commandName="user">
 				<div class="form-group">
 					<form:label path="login" cssClass="col-sm-2 control-label">

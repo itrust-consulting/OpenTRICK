@@ -1709,6 +1709,26 @@ $("#section_customer").on(
 				return false;
 			});
 	
+	
+	$("#section_user").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				var user = $(e.currentTarget).children(":first").text();
+				//alert(organisation);
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				editRow.attr("onclick", "javascript:return editSingleUser(" + rowTrickId + ");");
+				deleteElement.attr("onclick", "javascript:return deleteUser("+rowTrickId+",'"+user+"');");
+				showMeasures.parent().attr("hidden", true);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
+				return false;
+			});
+	
 	$contextMenu.on("click", "a", function() {
 		$contextMenu.hide();
 	});

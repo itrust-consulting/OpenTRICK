@@ -317,6 +317,9 @@ public class ImportAnalysis {
 
 			System.out.println("Import Done!");
 		} catch (SQLException e) {
+			
+			try {
+			
 			int index = e.getMessage().indexOf("no such column:");
 			if (index != -1) {
 				int index2 = e.getMessage().lastIndexOf(")");
@@ -331,8 +334,14 @@ public class ImportAnalysis {
 				serviceTaskFeedback.send(idTask,
 						new MessageHandler(e.getMessage(), e.getMessage(), e));
 			}
+			}				
+			catch(Exception ed) {
+				ed.printStackTrace();
+			}
+			
 			e.printStackTrace();
 			throw e;
+			
 		} catch (Exception e) {
 			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(),
 					e.getMessage(), e));
@@ -1919,9 +1928,9 @@ public class ImportAnalysis {
 			// retrieve phase from phases map
 			phase = phases.get(phaseNumber);
 
-			if (phase.getAnalysis() == null) {
-				System.out.println(phase);
-			}
+//			if (phase.getAnalysis() == null) {
+//				System.out.println(phase);
+//			}
 
 			// ****************************************************************
 			// * retrieve measuredescription
@@ -1959,10 +1968,10 @@ public class ImportAnalysis {
 				mesText.setDescription(rs
 						.getString(Constant.MEASURE_QUESTION_MEASURE));
 
-				System.out.println(mesDesc.getReference() + ":::"
+				/*System.out.println(mesDesc.getReference() + ":::"
 						+ mesDesc.getNorm().getLabel() + ":::"
 						+ mesText.getDomain() + ":::"
-						+ mesText.getDescription());
+						+ mesText.getDescription());*/
 
 				mesText.setLanguage(this.analysis.getLanguage());
 

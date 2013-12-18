@@ -7,9 +7,15 @@ import java.util.List;
 
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
+import lu.itrust.business.TS.MeasureDescription;
+import lu.itrust.business.TS.MeasureDescriptionText;
+import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
+import lu.itrust.business.dao.DAOMeasureDescription;
+import lu.itrust.business.dao.DAOMeasureDescriptionText;
+import lu.itrust.business.dao.DAONorm;
 import lu.itrust.business.dao.DAOScenario;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +36,15 @@ public class CustomDelete {
 	private DAOAsset daoAsset;
 	
 	@Autowired
+	private DAONorm daoNorm;
+	
+	@Autowired
+	private DAOMeasureDescription daoMeasureDescription;
+	
+	@Autowired
+	private DAOMeasureDescriptionText daoMeasureDescriptionText;
+		
+	@Autowired
 	private DAOScenario daoScenario;
 	
 	@Transactional
@@ -48,4 +63,17 @@ public class CustomDelete {
 		daoScenario.remove(scenario);
 	}
 
+	@Transactional
+	public void deleteNorm(Norm norm) throws Exception{
+		List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByNorm(norm);
+		for (MeasureDescription measureDescription : measureDescriptions) {
+			List<MeasureDescriptionText> measureDescriptionTexts = daoMeasureDescriptionText.getByMeasureDescription(measureDescription.getId());
+			for (MeasureDescriptionText measureDescriptiontext : measureDescriptionTexts) {
+				daoMeasureDescriptionText.remove(measureDescriptiontext);
+			}
+			daoMeasureDescription.remove(measureDescription);
+		}
+		daoNorm.remove(norm);
+	}
+	
 }

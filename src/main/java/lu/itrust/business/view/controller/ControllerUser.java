@@ -35,7 +35,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author oensuifudine
  * 
  */
-@RequestMapping("/user")
+@Secured("ROLE_USER")
+@RequestMapping("/Profile")
 @Controller
 public class ControllerUser {
 
@@ -53,25 +54,8 @@ public class ControllerUser {
 		binder.replaceValidators(new UserValidator());
 	}
 
-	/**
-	 * loadAll: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@Secured("ROLE_ADMIN")
-	@RequestMapping("/all")
-	public String loadAll(Map<String, Object> model) throws Exception {
-		model.put("users", serviceUser.loadAll());
-		return "users";
-	}
-
-	@Secured("ROLE_USER")
 	@RequestMapping("/{userId}")
-	public String profil(@PathVariable("userId") Long userId,
-			HttpSession session, Map<String, Object> model) throws Exception {
+	public String profil(@PathVariable("userId") Long userId, HttpSession session, Map<String, Object> model) throws Exception {
 		User user = (User) session.getAttribute("user");
 		if (user == null || user.getId() != userId)
 			user = serviceUser.get(userId);
@@ -79,65 +63,24 @@ public class ControllerUser {
 		return "profilUser";
 	}
 
-	@RequestMapping("/add")
-	public String add(Map<String, Object> model) {
-		model.put("user", new User());
-		return "addUserForm";
-	}
-
-	@RequestMapping("/save")
-	public String save(@ModelAttribute("user") @Valid User user,
-			BindingResult result, RedirectAttributes attributes, Locale locale)
-			throws Exception {
+	@RequestMapping("/Update")
+	public String save(@ModelAttribute("user") @Valid User user, BindingResult result, RedirectAttributes attributes, Locale locale, Map<String, Object> model) throws Exception {
 
 		try {
 			if (result.hasErrors())
-				return "addUserForm";
+				return "profilUser";
 			PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-			user.setPassword(passwordEncoder.encodePassword(user.getPassword(),
-					user.getLogin()));
-			if (serviceUser.isEmpty()) {
-				Role role = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
-				if (role == null) {
-					role = new Role(RoleType.ROLE_ADMIN);
-					serviceRole.save(role);
-				}
-				user.add(role);
-			}
+			user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
 			this.serviceUser.saveOrUpdate(user);
-			attributes.addFlashAttribute("success", messageSource.getMessage(
-					"success.create.account", null,
-					"Account has been created successfully", locale));
-			return "redirect:/login";
-		} catch (ConstraintViolationException e) {
+			attributes.addFlashAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
+			model.put("userProfil", user);
+			return "profilUser";
+		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage().contains("dtLogin"))
-				result.rejectValue("login", "error.duplicate.login", null,
-						"Login is already used");
-			else if (e.getMessage().contains("dtEmail"))
-				result.rejectValue("login", "error.duplicate.email", null,
-						"Email is already used");
-			else {
-				attributes
-						.addFlashAttribute(
-								"errors",
-								messageSource
-										.getMessage(
-												"error.create.account.unknown",
-												null,
-												"Account creation failed, Please try again later",
-												locale));
-				return "redirect:/login";
-			}
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.update.account", null, e.getMessage(), locale));
+			return "profilUser";
+			
 		}
-		return "addUserForm";
-	}
-
-	@Secured("ROLE_ADMIN")
-	@RequestMapping("/{userId}/delete")
-	public String delete(@PathVariable("userId") Long userId) throws Exception {
-		serviceUser.delete(userId);
-		return "redirect:/index";
 	}
 
 	public ServiceUser getServiceUser() {

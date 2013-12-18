@@ -205,7 +205,7 @@ public class Constant {
 	public static final String INTEGRITY_RISK = "Integrity";
 	public static final String AVAILABILITY_RISK = "Availability";
 
-	public static final String ASSET_TYPES = "serv,info,sw,hw,net,staff,iv,busi,fin,compl";
+	public static final String ASSET_TYPES = "Serv,Info,SW,HW,Net,Staff,IV,Busi,Fin,Compl";
 
 	/***********************************************************************************************
 	 * List of Common Constants - END

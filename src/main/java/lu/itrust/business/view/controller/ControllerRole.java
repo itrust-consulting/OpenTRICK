@@ -30,66 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class ControllerRole {
 	
-	@Autowired
-	private ServiceRole serviceRole;
 	
-	@Autowired
-	private ServiceUser serviceUser;
-	
-	
-	@Secured("ROLE_ADMIN")
-	@RequestMapping("/manage/user/{userId}")
-	public String manageUserRole(@PathVariable("userId") Long userId,
-			Map<String, Object> model, HttpSession session) throws Exception {
-		User user = (User) session.getAttribute("user");
-		if (user == null || user.getId() != userId) {
-			model.put("userManageRole", serviceUser.get(userId));
-			model.put("roles", RoleType.values());
-			model.put("userRole", new Role());
-			return "roleManagerForm";
-		}
-		return "redirect:/index";
-	}
-
-
-	@Secured("ROLE_ADMIN")
-	@RequestMapping("/add/user/{userId}")
-	public String add(@PathVariable("userId") Long userId,
-			@ModelAttribute("userRole") Role userRole, BindingResult result)
-			throws Exception {
-		User user = serviceUser.get(userId);
-
-		user.add(userRole);
-
-		serviceUser.saveOrUpdate(user);
-
-		return "redirect:/role/manage/user/{userId}";
-	}
-	
-	@Secured("ROLE_ADMIN")
-	@RequestMapping("/delete/{roleId}/user/{userId}")
-	public String delete(@PathVariable("userId") Long userId,
-			@PathVariable("roleId") Long roleId) throws Exception {
-		User user = serviceUser.get(userId);
-
-		Role role = user.remove(roleId);
-
-		if (role != null)
-			serviceRole.delete(role);
-
-		serviceUser.saveOrUpdate(user);
-
-		return "redirect:/role/manage/user/{userId}";
-
-	}
-
-	public void setServiceRole(ServiceRole serviceRole) {
-		this.serviceRole = serviceRole;
-	}
-
-
-	public void setServiceUser(ServiceUser serviceUser) {
-		this.serviceUser = serviceUser;
-	}
 
 }
