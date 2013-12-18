@@ -19,7 +19,9 @@ import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.ItemInformation;
+import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.component.ParameterManager;
@@ -27,6 +29,7 @@ import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceHistory;
 import lu.itrust.business.service.ServiceItemInformation;
+import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceParameter;
 import lu.itrust.business.view.model.FieldEditor;
 
@@ -65,6 +68,9 @@ public class ControllerEditField {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
+	private ServiceMeasure serviceMeasure;
 
 	protected boolean setFieldData(Field field, Object object,
 			FieldEditor fieldEditor) throws IllegalArgumentException,
@@ -208,13 +214,14 @@ public class ControllerEditField {
 					return JsonMessage.Error(messageSource.getMessage(
 							"error.analysis.not_found", null,
 							"Analysis cannot be found", locale));
-				
+
 				serviceParameter.saveOrUpdate(parameter);
 
-				List<ExtendedParameter> parameters = serviceParameter.findExtendedByAnalysisAndType(id, parameter.getType());
-				
+				List<ExtendedParameter> parameters = serviceParameter
+						.findExtendedByAnalysisAndType(id, parameter.getType());
+
 				ParameterManager.ComputeImpactValue(parameters);
-	
+
 				serviceParameter.saveOrUpdate(parameters);
 
 				return JsonMessage.Success(messageSource.getMessage(
@@ -252,7 +259,8 @@ public class ControllerEditField {
 
 	@RequestMapping(value = "/Assessment", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	String assessment(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale) {
+	String assessment(@RequestBody FieldEditor fieldEditor,
+			HttpSession session, Locale locale) {
 
 		try {
 			Assessment assessment = serviceAssessment.get(fieldEditor.getId());
@@ -269,19 +277,20 @@ public class ControllerEditField {
 						"error.edit.type.field", null,
 						"Data cannot be updated", locale));
 			Integer id = (Integer) session.getAttribute("selectedAnalysis");
-			
-			if(id == null)
+
+			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage(
 						"error.analysis.no_selected", null,
 						"No selected analysis", locale));
-				
+
 			Map<String, ExtendedParameter> parameters = new LinkedHashMap<>();
-			
-			for (ExtendedParameter parameter : serviceParameter.findExtendedByAnalysis(id))
+
+			for (ExtendedParameter parameter : serviceParameter
+					.findExtendedByAnalysis(id))
 				parameters.put(parameter.getAcronym(), parameter);
-			
+
 			AssessmentManager.ComputeAlE(assessment, parameters);
-			
+
 			serviceAssessment.saveOrUpdate(assessment);
 			return JsonMessage.Success(messageSource.getMessage(
 					"success.assessment.updated", null,
@@ -338,6 +347,82 @@ public class ControllerEditField {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(),
 					null, e.getMessage(), locale));
+		}
+		return JsonMessage.Error(messageSource.getMessage(
+				"error.edit.save.field", null, "Data cannot be saved", locale));
+	}
+
+	@RequestMapping(value = "/Measure", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody
+	String measure(@RequestBody FieldEditor fieldEditor, Locale locale) {
+		try {
+			Measure measure = serviceMeasure.findOne(fieldEditor.getId());
+			if (measure == null)
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.measure.not_found", null,
+						"Measure cannot be found", locale));
+			Field field = measure.getClass().getSuperclass()
+					.getDeclaredField(fieldEditor.getFieldName());
+			field.setAccessible(true);
+			if (setFieldData(field, measure, fieldEditor)) {
+				serviceMeasure.saveOrUpdate(measure);
+				return JsonMessage.Success(messageSource.getMessage(
+						"success.measure.updated", null,
+						"Measure was successfully updated", locale));
+			} else
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.edit.type.field", null,
+						"Data cannot be updated", locale));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return JsonMessage.Error(messageSource.getMessage(
+				"error.edit.save.field", null, "Data cannot be saved", locale));
+		
+	}
+
+	@RequestMapping(value = "/MaturityMeasure", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody
+	String maturityMeasure(@RequestBody FieldEditor fieldEditor,
+			HttpSession session, Locale locale) {
+		try {
+			Measure measure = serviceMeasure.findOne(fieldEditor.getId());
+			if (measure == null)
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.measure.not_found", null,
+						"Measure cannot be found", locale));
+
+			if (fieldEditor.getFieldName().equalsIgnoreCase(
+					"implementationRate")) {
+				Integer idAnalysis = (Integer) session
+						.getAttribute("selectedAnalysis");
+				if (idAnalysis == null)
+					return JsonMessage.Error(messageSource.getMessage(
+							"error.analysis.not_found", null,
+							"Analysis cannot be found", locale));
+
+				List<Parameter> parameters = serviceParameter
+						.findByAnalysisAndType(idAnalysis,
+								Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+
+				double value = Double.parseDouble(fieldEditor.getValue());
+
+				for (Parameter parameter : parameters) {
+					if (Math.abs(parameter.getValue() - value) < 1e-5) {
+						measure.setImplementationRate(parameter);
+						serviceMeasure.saveOrUpdate(measure);
+						return JsonMessage.Success(messageSource.getMessage(
+								"success.measure.updated", null,
+								"Measure was successfully updated", locale));
+					}
+				}
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.edit.type.field", null, "Data cannot be updated",
+						locale));
+			}else measure(fieldEditor, locale);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return JsonMessage.Error(messageSource.getMessage(
 				"error.edit.save.field", null, "Data cannot be saved", locale));

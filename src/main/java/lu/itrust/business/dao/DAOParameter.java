@@ -35,6 +35,8 @@ public interface DAOParameter {
 	List<ExtendedParameter> findExtendedByAnalysisAndType(int idAnalysis, ParameterType type);
 
 	List<Parameter> findByAnalysisAndType(int idAnalysis, String type);
+	
+	List<Parameter> findByAnalysisAndTypeAndNoLazy(int idAnalysis, String type);
 
 	List<Parameter> findByAnalysisAndType(int idAnalysis, int idType);
 
@@ -52,6 +54,8 @@ public interface DAOParameter {
 	void delete(Parameter parameter);
 
 	void delete(int id);
+
+	
 
 	
 

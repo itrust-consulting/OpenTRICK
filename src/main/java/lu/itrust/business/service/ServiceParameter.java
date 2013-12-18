@@ -18,32 +18,34 @@ public interface ServiceParameter {
 	Parameter get(int id);
 
 	List<Parameter> findAll();
-	
+
 	List<Parameter> findByAnalysis(int idAnalysis);
-	
+
 	List<Parameter> findAll(int pageIndex, int pageSize);
 
 	List<Parameter> findByAnalysis(int idAnalysis, int pageIndex, int pageSize);
-	
+
 	List<ExtendedParameter> findImpactByAnalysisAndType(int idAnalysis);
-	
+
 	List<ExtendedParameter> findExtendedByAnalysis(int idAnalysis);
-	
+
 	List<ExtendedParameter> findProbaByAnalysisAndType(int idAnalysis);
-	
-	List<ExtendedParameter> findExtendedByAnalysisAndType(int idAnalysis, ParameterType type);
+
+	List<ExtendedParameter> findExtendedByAnalysisAndType(int idAnalysis,
+			ParameterType type);
 
 	List<Parameter> findByAnalysisAndType(int idAnalysis, String type);
 
+	List<Parameter> findByAnalysisAndTypeAndNoLazy(int idAnalysis,
+			String type);
+
 	List<Parameter> findByAnalysisAndType(int idAnalysis, int idType);
 
-	List<Parameter> findByAnalysisAndType(int idAnalysis,
-			ParameterType type);
+	List<Parameter> findByAnalysisAndType(int idAnalysis, ParameterType type);
 
 	Parameter save(Parameter parameter);
-	
+
 	void saveOrUpdate(List<? extends Parameter> parameters);
-	
 
 	void saveOrUpdate(Parameter parameter);
 
@@ -52,9 +54,5 @@ public interface ServiceParameter {
 	void delete(Parameter parameter);
 
 	void delete(int id);
-
-	
-
-	
 
 }

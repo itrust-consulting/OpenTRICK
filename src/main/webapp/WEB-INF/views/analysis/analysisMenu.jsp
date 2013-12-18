@@ -16,7 +16,8 @@
 </c:set>
 <div class="navbar navbar-default navbar-static-top navbar-custom">
 	<div id="analysismenu" class="container" role="navigation">
-		<a class="navbar-brand" href="#">${analysis.customer.contactPerson } | ${analysis.getVersion()}</a>
+		<a class="navbar-brand" href="#">${analysis.customer.contactPerson }
+			| ${analysis.getVersion()}</a>
 		<ul class="nav navbar-nav">
 			<li class="active"><a href="#History"> <spring:message
 						code="menu.analysis.history" text="History" />
@@ -33,9 +34,22 @@
 			<li><a href="#Scenario"> <spring:message
 						code="menu.analysis.scenario" text="Scenarios" />
 			</a>
-			<li><a href="#Measure"> <spring:message
-						code="menu.analysis.measure" text="Measures" />
-			</a></li>
+			<li class="dropdown"><a href="#Measure" class="dropdown-toggle"> <spring:message
+						code="menu.analysis.measure" text="Measures" /></a>
+				<ul class="dropdown-menu dropdown-features">
+					<li><a href="#Measure_27001"> <spring:message
+								code="menu.measure.27001" text="27001" />
+					</a></li>
+					<li><a href="#Measure_27002"> <spring:message
+								code="menu.measure.27002" text="27002" />
+					</a></li>
+					<li><a href="#Measure_Maturity"> <spring:message
+								code="menu.measure.maturity" text="Maturity" />
+					</a></li>
+					<li><a href="#Measure_Custom"> <spring:message
+								code="menu.measure.custom" text="Custom" />
+					</a></li>
+				</ul></li>
 			<li><a href="#Phase"> <spring:message
 						code="menu.analysis.phase" text="Phases" />
 			</a></li>
@@ -62,24 +76,23 @@
 						text="Action" /><span class="caret"></span>
 			</a>
 				<ul class="dropdown-menu">
-					<li><a href="#" onclick="return computeAssessment();">
-							<spring:message code="label.assessment.generate.missing"
+					<li><a href="#" onclick="return computeAssessment();"> <spring:message
+								code="label.assessment.generate.missing"
 								text="Update Assessment" />
 					</a></li>
 					<li class="divider"></li>
-					<li><a href="#">
-							<spring:message code="label.analysis.compute.actionPlan"
+					<li><a href="#"> <spring:message
+								code="label.analysis.compute.actionPlan"
 								text="Compute ActionPlan" />
 					</a></li>
-					<li><a href="#">
-							<spring:message code="label.analysis.compute.riskRegister"
+					<li><a href="#"> <spring:message
+								code="label.analysis.compute.riskRegister"
 								text="Compute Registers" />
 					</a></li>
 					<li class="divider"></li>
-					<li><a href="#" onclick="return wipeAssessment();">
-							<spring:message code="label.analysis.assessment.wipe"
-								text="Wipe assessments" />
-								</a>
+					<li><a href="#" onclick="return wipeAssessment();"> <spring:message
+								code="label.analysis.assessment.wipe" text="Wipe assessments" />
+					</a>
 				</ul></li>
 		</ul>
 	</div>

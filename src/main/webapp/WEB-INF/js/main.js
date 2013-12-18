@@ -6,6 +6,7 @@ var application = new Application();
 
 function Application() {
 	this.modal = {};
+	this.data = {};
 }
 
 function changePassword() {
@@ -221,8 +222,9 @@ function FieldEditor(element, validator) {
 	this.validator = validator;
 	this.controllor = null;
 	this.defaultValue = $(element).text().trim();
+	this.choose = [];
 	this.inputField = null;
-	this.realValue =  null;
+	this.realValue = null;
 	this.fieldName = null;
 	this.classId = null;
 	this.fieldType = null;
@@ -230,13 +232,28 @@ function FieldEditor(element, validator) {
 	FieldEditor.prototype.GenerateInputField = function() {
 		if ($(this.element).find("input").length)
 			return true;
-		this.inputField = document.createElement("input");
+		if (!this.LoadData())
+			return true;
+		if (!this.choose.length) {
+			this.inputField = document.createElement("input");
+			this.realValue = this.element.hasAttribute("real-value") ? $(
+					this.element).attr("real-value") : null;
+		} else {
+			this.inputField = document.createElement("select");
+			for (var i = 0; i < this.choose.length; i++) {
+				var option = document.createElement("option");
+				option.setAttribute("value", this.choose[i]);
+				$(option).text(this.choose[i]);
+				if (this.choose[i] == this.defaultValue)
+					option.setAttribute("selected", true);
+				$(option).appendTo($(this.inputField));
+			}
+		}
+		var that = this;
 		this.inputField.setAttribute("class", "form-control");
 		this.inputField.setAttribute("placeholder", this.realValue != null
 				&& this.realValue != undefined ? this.realValue
 				: this.defaultValue);
-		var that = this;
-		this.realValue = this.element.hasAttribute("real-value")? $(this.element).attr("real-value") : null;
 		$(this.inputField).blur(function() {
 			return that.Save(that);
 		});
@@ -257,6 +274,12 @@ function FieldEditor(element, validator) {
 			return false;
 		}
 		return true;
+	};
+
+	FieldEditor.prototype.__findChoose = function(element) {
+		if ($(element).attr("trick-choose") != undefined)
+			return $(element).attr("trick-choose").split(",");
+		return [];
 	};
 
 	FieldEditor.prototype.__findControllor = function(element) {
@@ -292,6 +315,11 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.Validate = function() {
+		return true;
+	};
+
+	FieldEditor.prototype.LoadData = function() {
+		this.choose = this.__findChoose(this.element);
 		return true;
 	};
 
@@ -474,6 +502,58 @@ function AssessmentFieldEditor(element) {
 		}
 		return false;
 	};
+}
+
+MaturityMeasureFieldEditor.prototype = new FieldEditor();
+
+function MaturityMeasureFieldEditor(element) {
+	this.element = element;
+	this.defaultValue = $(element).text();
+	this.implementations = [];
+
+	MaturityMeasureFieldEditor.prototype.constructor = MaturityMeasureFieldEditor;
+
+	MaturityMeasureFieldEditor.prototype.LoadData = function() {
+		var $implementationRate = $("#Maturity_implementation_rate td[trick-class='Parameter']");
+		if (!$implementationRate.length)
+			return true;
+		for (var i = 0; i < $implementationRate.length; i++)
+			this.implementations[i] = {
+				'id' : $($implementationRate[i]).attr('trick-id'),
+				'value' : $($implementationRate[i]).text()
+			};
+		return !this.implementations.length;
+	};
+
+	MaturityMeasureFieldEditor.prototype.GenerateInputField = function() {
+		if ($(this.element).find("select").length)
+			return true;
+		if (this.LoadData())
+			return true;
+		this.inputField = document.createElement("select");
+		this.inputField.setAttribute("class", "form-control");
+		this.inputField.setAttribute("placeholder", this.realValue != null
+				&& this.realValue != undefined ? this.realValue
+				: this.defaultValue);
+		for ( var i in this.implementations) {
+			var option = document.createElement("option");
+			option.setAttribute("value", this.implementations[i].value);
+			option.setAttribute("trick-id", this.implementations[i].id);
+			$(option).text(this.implementations[i].value);
+			$(option).appendTo($(this.inputField));
+			if (this.defaultValue == this.implementations[i].value)
+				$(option).prop("selected", true);
+		}
+
+		var that = this;
+		this.realValue = this.element.hasAttribute("real-value") ? $(
+				this.element).attr("real-value") : null;
+		$(this.inputField).blur(function() {
+			return that.Save(that);
+		});
+		return false;
+	};
+
 }
 
 function Modal() {
@@ -676,9 +756,10 @@ function ProgressBar() {
 		if (!$.isNumeric(value))
 			return false;
 		if (this.progressbar != null) {
-			if(value==0)
+			if (value == 0)
 				$(this.infoText).css("margin-top", 0);
-			else $(this.infoText).css("margin-top", "-17px");
+			else
+				$(this.infoText).css("margin-top", "-17px");
 			$(this.progressbar).css("width", value + "%");
 			$(this.progressbar).prop("aria-valuenow", value);
 			if (this.waitting && $(this.progress).hasClass("active")) {
@@ -1186,6 +1267,8 @@ function editField(element, controller, id, field, type) {
 		fieldEditor = new ExtendedFieldEditor(element);
 	else if (controller == "Assessment")
 		fieldEditor = new AssessmentFieldEditor(element);
+	else if (controller == "MaturityMeasure")
+		fieldEditor = new MaturityMeasureFieldEditor(element);
 	else
 		fieldEditor = new FieldEditor(element);
 
@@ -1560,30 +1643,74 @@ $(function() {
 	var showMeasures = $contextMenu.find("li[name='show_measures'] a");
 
 	$("#section_asset")
-	.on(
+			.on(
+					"contextmenu",
+					"table tbody tr",
+					function(e) {
+						contextMenuHide($contextMenu);
+						var rowTrickId = $(e.currentTarget).attr('trick-id');
+						$contextMenu.attr("trick-selected-id", rowTrickId);
+						select.attr("onclick", "return selectAsset('"
+								+ rowTrickId + "','true');");
+						unSelect.attr("onclick", "return selectAsset('"
+								+ rowTrickId + "','false');");
+						editRow.attr("onclick", "return editAssetRow('"
+								+ rowTrickId + "');");
+						deleteElement.attr("onclick", "return deleteAsset('"
+								+ rowTrickId + "');");
+						editRow.attr("href", "#addAssetModel");
+
+						if ($(e.currentTarget).attr('trick-selected') == "true") {
+							unSelect.parent().attr("hidden", false);
+							var assessment = $contextMenu
+									.find("li[name='assessment'] a");
+							$(assessment).parent().attr("hidden", false);
+							$(assessment).unbind();
+							var assessmentViewer = new AssessmentAssetViewer(
+									rowTrickId);
+							application.modal["AssessmentViewer"] = assessmentViewer;
+							$(assessment).click(function() {
+								assessmentViewer.Show();
+								$($contextMenu).hide();
+								return false;
+							});
+						} else
+							select.parent().attr("hidden", false);
+
+						$(editRow).parent().attr("hidden", false);
+
+						$(deleteElement).parent().attr("hidden", false);
+
+						$contextMenu.css({
+							display : "block",
+							left : e.pageX,
+							top : $(e.target).position().top + 20
+						});
+						return false;
+					});
+
+	$("#section_scenario").on(
 			"contextmenu",
 			"table tbody tr",
 			function(e) {
 				contextMenuHide($contextMenu);
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
-				$contextMenu.attr("trick-selected-id", rowTrickId);
-				select.attr("onclick", "return selectAsset('"
-						+ rowTrickId + "','true');");
-				unSelect.attr("onclick", "return selectAsset('"
-						+ rowTrickId + "','false');");
-				editRow.attr("onclick", "return editAssetRow('"
+				select.attr("onclick", "return selectScenario('" + rowTrickId
+						+ "',true);");
+				unSelect.attr("onclick", "return selectScenario('" + rowTrickId
+						+ "',false);");
+				editRow.attr("onclick", "return editScenarioRow('" + rowTrickId
+						+ "');");
+				deleteElement.attr("onclick", "return deleteScenario('"
 						+ rowTrickId + "');");
-				deleteElement.attr("onclick", "return deleteAsset('"
-						+ rowTrickId + "');");
-				editRow.attr("href", "#addAssetModel");
-
+				editRow.attr("href", "#addScenarioModel");
 				if ($(e.currentTarget).attr('trick-selected') == "true") {
 					unSelect.parent().attr("hidden", false);
 					var assessment = $contextMenu
 							.find("li[name='assessment'] a");
 					$(assessment).parent().attr("hidden", false);
 					$(assessment).unbind();
-					var assessmentViewer = new AssessmentAssetViewer(
+					var assessmentViewer = new AssessmentScenarioViewer(
 							rowTrickId);
 					application.modal["AssessmentViewer"] = assessmentViewer;
 					$(assessment).click(function() {
@@ -1598,6 +1725,7 @@ $(function() {
 
 				$(deleteElement).parent().attr("hidden", false);
 
+				$contextMenu.attr("trick-selected-id", rowTrickId);
 				$contextMenu.css({
 					display : "block",
 					left : e.pageX,
@@ -1606,69 +1734,31 @@ $(function() {
 				return false;
 			});
 
-$("#section_scenario").on(
-		"contextmenu",
-		"table tbody tr",
-		function(e) {
-			contextMenuHide($contextMenu);
-			var rowTrickId = $(e.currentTarget).attr('trick-id');
-			select.attr("onclick", "return selectScenario('" + rowTrickId
-					+ "',true);");
-			unSelect.attr("onclick", "return selectScenario('" + rowTrickId
-					+ "',false);");
-			editRow.attr("onclick", "return editScenarioRow('" + rowTrickId
-					+ "');");
-			deleteElement.attr("onclick", "return deleteScenario('"
-					+ rowTrickId + "');");
-			editRow.attr("href", "#addScenarioModel");
-			if ($(e.currentTarget).attr('trick-selected') == "true") {
-				unSelect.parent().attr("hidden", false);
-				var assessment = $contextMenu
-						.find("li[name='assessment'] a");
-				$(assessment).parent().attr("hidden", false);
-				$(assessment).unbind();
-				var assessmentViewer = new AssessmentScenarioViewer(
-						rowTrickId);
-				application.modal["AssessmentViewer"] = assessmentViewer;
-				$(assessment).click(function() {
-					assessmentViewer.Show();
-					$($contextMenu).hide();
-					return false;
-				});
-			} else
-				select.parent().attr("hidden", false);
-
-			$(editRow).parent().attr("hidden", false);
-
-			$(deleteElement).parent().attr("hidden", false);
-
-			$contextMenu.attr("trick-selected-id", rowTrickId);
-			$contextMenu.css({
-				display : "block",
-				left : e.pageX,
-				top : $(e.target).position().top + 20
-			});
-			return false;
-		});
-	
-$("#section_customer").on(
-		"contextmenu",
-		"table tbody tr",
-		function(e) {
-			var rowTrickId = $(e.currentTarget).attr('trick-id');
-			var organisation = $(e.currentTarget).children(":first").text();
-			//alert(organisation);
-			$contextMenu.attr("trick-selected-id", rowTrickId);
-			editRow.attr("onclick", "javascript:return editSingleCustomer(" + rowTrickId + ");");
-			deleteElement.attr("onclick", "javascript:return deleteCustomer("+rowTrickId+",'"+organisation+"');");
-			showMeasures.parent().attr("hidden", true);
-			$contextMenu.css({
-				display : "block",
-				left : e.pageX,
-				top : $(e.target).position().top + 20
-			});
-			return false;
-		});
+	$("#section_customer")
+			.on(
+					"contextmenu",
+					"table tbody tr",
+					function(e) {
+						var rowTrickId = $(e.currentTarget).attr('trick-id');
+						var organisation = $(e.currentTarget)
+								.children(":first").text();
+						// alert(organisation);
+						$contextMenu.attr("trick-selected-id", rowTrickId);
+						editRow.attr("onclick",
+								"javascript:return editSingleCustomer("
+										+ rowTrickId + ");");
+						deleteElement.attr("onclick",
+								"javascript:return deleteCustomer("
+										+ rowTrickId + ",'" + organisation
+										+ "');");
+						showMeasures.parent().attr("hidden", true);
+						$contextMenu.css({
+							display : "block",
+							left : e.pageX,
+							top : $(e.target).position().top + 20
+						});
+						return false;
+					});
 
 	$("#section_language").on(
 			"contextmenu",
@@ -1676,10 +1766,13 @@ $("#section_customer").on(
 			function(e) {
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
 				var langname = $(e.currentTarget).children(":eq(1)").text();
-				//alert(organisation);
+				// alert(organisation);
 				$contextMenu.attr("trick-selected-id", rowTrickId);
-				editRow.attr("onclick", "javascript:return editSingleLanguage(" + rowTrickId + ");");
-				deleteElement.attr("onclick", "javascript:return deleteLanguage("+rowTrickId+",'"+langname+"');");
+				editRow.attr("onclick", "javascript:return editSingleLanguage("
+						+ rowTrickId + ");");
+				deleteElement.attr("onclick",
+						"javascript:return deleteLanguage(" + rowTrickId + ",'"
+								+ langname + "');");
 				showMeasures.parent().attr("hidden", true);
 				$contextMenu.css({
 					display : "block",
@@ -1688,18 +1781,21 @@ $("#section_customer").on(
 				});
 				return false;
 			});
-	
+
 	$("#section_norm").on(
 			"contextmenu",
 			"table tbody tr",
 			function(e) {
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
 				var normname = $(e.currentTarget).children(":first").text();
-				//alert(organisation);
+				// alert(organisation);
 				$contextMenu.attr("trick-selected-id", rowTrickId);
-				editRow.attr("onclick", "javascript:return editSingleNorm(" + rowTrickId + ");");
-				deleteElement.attr("onclick", "javascript:return deleteNorm("+rowTrickId+",'"+normname+"');");
-				showMeasures.attr("onclick", "javascript:return showMeasures(" + rowTrickId + ", 1);");
+				editRow.attr("onclick", "javascript:return editSingleNorm("
+						+ rowTrickId + ");");
+				deleteElement.attr("onclick", "javascript:return deleteNorm("
+						+ rowTrickId + ",'" + normname + "');");
+				showMeasures.attr("onclick", "javascript:return showMeasures("
+						+ rowTrickId + ", 1);");
 				showMeasures.parent().attr("hidden", false);
 				$contextMenu.css({
 					display : "block",
@@ -1708,7 +1804,6 @@ $("#section_customer").on(
 				});
 				return false;
 			});
-	
 	
 	$("#section_user").on(
 			"contextmenu",

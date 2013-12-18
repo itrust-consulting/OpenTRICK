@@ -1,7 +1,11 @@
 package lu.itrust.business.dao.hbm;
 
+import lu.itrust.business.TS.Parameter;
+
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,25 +20,37 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class DAOHibernate {
 
-	public DAOHibernate(){
+	public DAOHibernate() {
 	}
-	
-	public DAOHibernate(Session session){
+
+	public DAOHibernate(Session session) {
 		this.session = session;
 	}
-	
+
 	private Session session;
-	
+
 	@Autowired
 	private SessionFactory sessionFactory;
-	
+
 	/**
 	 * getSession()<br>
 	 * retrieves current session
+	 * 
 	 * @return current session
 	 */
 	public Session getSession() {
-		return session == null? sessionFactory.getCurrentSession() : session;
+		return session == null ? sessionFactory.getCurrentSession() : session;
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T> T Initialise(T object) {
+		Hibernate.initialize(object);
+		if (object instanceof HibernateProxy) {
+			return (T) ((HibernateProxy) object).getHibernateLazyInitializer()
+					.getImplementation();
+		}
+
+		return object;
+
+	}
 }

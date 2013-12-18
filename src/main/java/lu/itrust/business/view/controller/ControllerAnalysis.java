@@ -66,7 +66,7 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-	
+
 	@Autowired
 	private ServiceAssetType serviceAssetType;
 
@@ -114,14 +114,14 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String displayAll(Map<String, Object> model, HttpSession session)
-			throws Exception {
+	public String displayAll(Map<String, Object> model, HttpSession session,
+			Locale Locale) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
-		if (selected != null){
+		if (selected != null) {
 			model.put("assettypes", serviceAssetType.loadAll());
 			model.put("analysis", serviceAnalysis.get(selected));
-		}
-		else
+			model.put("locale", Locale);
+		} else
 			model.put("analyses", serviceAnalysis.loadAll());
 		return "analysis/analysis";
 	}

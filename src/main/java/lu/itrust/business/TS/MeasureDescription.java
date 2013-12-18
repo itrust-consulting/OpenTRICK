@@ -2,6 +2,7 @@ package lu.itrust.business.TS;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 
@@ -13,8 +14,8 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * <li>The Level of Measure (1-3)</li>
  * <li>The Measure Reference inside the Norm</li>
  * <li>
- * Measure Description Texts which represents the Domain and Description f a Measure in one to more
- * languages</li>
+ * Measure Description Texts which represents the Domain and Description f a
+ * Measure in one to more languages</li>
  * </ul>
  * 
  * @author itrust consulting s.à r.l. : SME, BJA, EOM
@@ -34,7 +35,7 @@ public class MeasureDescription implements Cloneable {
 	private Norm norm = null;
 
 	/** Measure Description Text List (one entry represents one language) */
-	private List<MeasureDescriptionText> measureDescriptionTexts =	new ArrayList<MeasureDescriptionText>();
+	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */
 	private int level = -1;
@@ -57,6 +58,23 @@ public class MeasureDescription implements Cloneable {
 	public MeasureDescription(String maturityRef, Norm norm) {
 		this.norm = norm;
 		this.reference = maturityRef;
+	}
+
+	public MeasureDescriptionText getMeasureDescriptionText(Locale locale) {
+
+		MeasureDescriptionText descriptionText = null;
+
+		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts) {
+			if (measureDescriptionText.getLanguage().getAlpha3()
+					.equalsIgnoreCase(locale.getISO3Language()))
+				return measureDescriptionText;
+			else if (measureDescriptionText.getLanguage().getAlpha3()
+					.equalsIgnoreCase("eng"))
+				descriptionText = measureDescriptionText;
+		}
+
+		return descriptionText == null && measureDescriptionTexts.size() > 1 ? measureDescriptionTexts
+				.get(0) : descriptionText;
 	}
 
 	/**
@@ -185,7 +203,8 @@ public class MeasureDescription implements Cloneable {
 	 * @param measureDescriptionTexts
 	 *            The Value to set the measureDescriptionTexts field
 	 */
-	public void addMeasureDescriptionText(MeasureDescriptionText measureDescriptionText) {
+	public void addMeasureDescriptionText(
+			MeasureDescriptionText measureDescriptionText) {
 		measureDescriptionText.setMeasureDescription(this);
 		this.measureDescriptionTexts.add(measureDescriptionText);
 	}
@@ -207,27 +226,31 @@ public class MeasureDescription implements Cloneable {
 	 * @param measureDescriptionTexts
 	 *            The Value to set the measureDescriptionTexts field
 	 */
-	public void setMeasureDescriptionTexts(List<MeasureDescriptionText> measureDescriptionTexts) {
+	public void setMeasureDescriptionTexts(
+			List<MeasureDescriptionText> measureDescriptionTexts) {
 		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts)
 			measureDescriptionText.setMeasureDescription(this);
 		this.measureDescriptionTexts = measureDescriptionTexts;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public MeasureDescription clone() throws CloneNotSupportedException {
 		return (MeasureDescription) super.clone();
 	}
-	
+
 	/**
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
 	public MeasureDescription duplicate() throws CloneNotSupportedException {
-		MeasureDescription measureDescription = (MeasureDescription) super.clone();
-		if(norm.getLabel().equalsIgnoreCase(Constant.NORM_CUSTOM))
+		MeasureDescription measureDescription = (MeasureDescription) super
+				.clone();
+		if (norm.getLabel().equalsIgnoreCase(Constant.NORM_CUSTOM))
 			measureDescription.id = -1;
 		return measureDescription;
 	}
