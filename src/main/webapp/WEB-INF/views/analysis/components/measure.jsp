@@ -29,7 +29,7 @@
 									text="Ref." /></td>
 							<td colspan="2"><spring:message code="label.measure.domain"
 									text="Domain" /></td>
-							<td><spring:message code="label.measure.st" text="ST" /></td>
+							<td><spring:message code="label.measure.st" text="Status" /></td>
 							<td><spring:message code="label.measure.ir" text="IR (%)" /></td>
 							<td><spring:message code="label.measure.iw" text="IW (md)" /></td>
 							<td><spring:message code="label.measure.ew" text="EW (md)" /></td>
@@ -55,7 +55,7 @@
 									value="${measure.measureDescription.getMeasureDescriptionText(locale)}" />
 								<td colspan="2"><spring:message
 										text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-								<td class="success" trick-field="status"
+								<td class="success" trick-field="status" trick-choose="M,AP,NA"
 									trick-field-type="string" ondblclick="return editField(this);"><spring:message
 										text="${measure.status}" htmlEscape="true" /></td>
 								<c:choose>

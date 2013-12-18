@@ -34,10 +34,8 @@
 			<li><a href="#Scenario"> <spring:message
 						code="menu.analysis.scenario" text="Scenarios" />
 			</a>
-			<li class="dropdown"><a href="#Measure" class="dropdown-toggle"
-				data-toggle="dropdown"> <spring:message
-						code="menu.analysis.measure" text="Measures" /><span
-					class="caret"></span></a>
+			<li class="dropdown"><a href="#Measure" class="dropdown-toggle"> <spring:message
+						code="menu.analysis.measure" text="Measures" /></a>
 				<ul class="dropdown-menu dropdown-features">
 					<li><a href="#Measure_27001"> <spring:message
 								code="menu.measure.27001" text="27001" />

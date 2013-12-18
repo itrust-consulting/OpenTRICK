@@ -222,6 +222,7 @@ function FieldEditor(element, validator) {
 	this.validator = validator;
 	this.controllor = null;
 	this.defaultValue = $(element).text().trim();
+	this.choose = [];
 	this.inputField = null;
 	this.realValue = null;
 	this.fieldName = null;
@@ -233,14 +234,26 @@ function FieldEditor(element, validator) {
 			return true;
 		if (!this.LoadData())
 			return true;
-		this.inputField = document.createElement("input");
+		if (!this.choose.length) {
+			this.inputField = document.createElement("input");
+			this.realValue = this.element.hasAttribute("real-value") ? $(
+					this.element).attr("real-value") : null;
+		} else {
+			this.inputField = document.createElement("select");
+			for (var i = 0; i < this.choose.length; i++) {
+				var option = document.createElement("option");
+				option.setAttribute("value", this.choose[i]);
+				$(option).text(this.choose[i]);
+				if (this.choose[i] == this.defaultValue)
+					option.setAttribute("selected", true);
+				$(option).appendTo($(this.inputField));
+			}
+		}
+		var that = this;
 		this.inputField.setAttribute("class", "form-control");
 		this.inputField.setAttribute("placeholder", this.realValue != null
 				&& this.realValue != undefined ? this.realValue
 				: this.defaultValue);
-		var that = this;
-		this.realValue = this.element.hasAttribute("real-value") ? $(
-				this.element).attr("real-value") : null;
 		$(this.inputField).blur(function() {
 			return that.Save(that);
 		});
@@ -261,6 +274,12 @@ function FieldEditor(element, validator) {
 			return false;
 		}
 		return true;
+	};
+
+	FieldEditor.prototype.__findChoose = function(element) {
+		if ($(element).attr("trick-choose") != undefined)
+			return $(element).attr("trick-choose").split(",");
+		return [];
 	};
 
 	FieldEditor.prototype.__findControllor = function(element) {
@@ -300,6 +319,7 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.LoadData = function() {
+		this.choose = this.__findChoose(this.element);
 		return true;
 	};
 
