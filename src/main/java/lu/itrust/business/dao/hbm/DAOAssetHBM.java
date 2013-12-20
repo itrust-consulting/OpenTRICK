@@ -74,7 +74,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	public List<Asset> findByAnalysis(int analysisId) {
 		return getSession()
 				.createQuery(
-						"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId")
+						"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId order by asset.value desc, asset.ALE desc, asset.name asc")
 				.setInteger("analysisId", analysisId).list();
 	}
 
@@ -150,8 +150,17 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	public List<Asset> findByAnalysisAndSelected(int idAnalysis) {
 		return getSession()
 				.createQuery(
-						"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true")
+						"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.value desc , asset.name asc")
 				.setInteger("idAnalysis", idAnalysis).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Asset> findByAnalysisAndSelectedOderByALE(int idAnalysis) {
+		 return getSession()
+			.createQuery(
+					"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.ALE asc, asset.ALEO asc, asset.ALEP asc , asset.name asc, asset.value asc")
+			.setInteger("idAnalysis", idAnalysis).list();
 	}
 
 }

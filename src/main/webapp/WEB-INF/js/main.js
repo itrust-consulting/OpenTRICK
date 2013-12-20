@@ -1804,17 +1804,19 @@ $(function() {
 				});
 				return false;
 			});
-	
+
 	$("#section_user").on(
 			"contextmenu",
 			"table tbody tr",
 			function(e) {
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
 				var user = $(e.currentTarget).children(":first").text();
-				//alert(organisation);
+				// alert(organisation);
 				$contextMenu.attr("trick-selected-id", rowTrickId);
-				editRow.attr("onclick", "javascript:return editSingleUser(" + rowTrickId + ");");
-				deleteElement.attr("onclick", "javascript:return deleteUser("+rowTrickId+",'"+user+"');");
+				editRow.attr("onclick", "javascript:return editSingleUser("
+						+ rowTrickId + ");");
+				deleteElement.attr("onclick", "javascript:return deleteUser("
+						+ rowTrickId + ",'" + user + "');");
 				showMeasures.parent().attr("hidden", true);
 				$contextMenu.css({
 					display : "block",
@@ -1823,7 +1825,7 @@ $(function() {
 				});
 				return false;
 			});
-	
+
 	$contextMenu.on("click", "a", function() {
 		$contextMenu.hide();
 	});
@@ -1907,4 +1909,36 @@ $(function() {
 
 	});
 
+});
+
+$(function() {
+
+	if (!$('#chart_ale_asset').length)
+		return false;
+	$.ajax({
+		url : context + "/Asset/Chart/Ale",
+		type : "get",
+		async: true,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			$('#chart_ale_asset').highcharts(JSON.parse(response));
+		}
+	});
+});
+
+$(function() {
+
+	if (!$('#chart_ale_asset_type').length)
+		return false;
+	$.ajax({
+		url : context + "/Asset/Chart/AssetType/Ale",
+		type : "get",
+		async: true,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			$('#chart_ale_asset_type').highcharts(JSON.parse(response));
+		}
+	});
 });

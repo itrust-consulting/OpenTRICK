@@ -5,7 +5,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
@@ -2020,6 +2023,39 @@ public class Analysis implements Serializable, Cloneable {
 		analysis.summaries = new ArrayList<>();
 		analysis.id = -1;
 		return analysis;
+	}
+
+	public List<ExtendedParameter> findExtendedByAnalysis() {
+		List<ExtendedParameter> extendedParameters = new ArrayList<ExtendedParameter>();
+		for (Parameter parameter : parameters) {
+			if (parameter instanceof ExtendedParameter)
+				extendedParameters.add((ExtendedParameter) parameter);
+		}
+		return extendedParameters;
+	}
+
+	public Map<Integer, List<Assessment>> findAssessmentByAssetAndSelected() {
+		Map<Integer, List<Assessment>> assessmentSorted = new LinkedHashMap<Integer, List<Assessment>>();
+		for (Assessment assessment : assessments) {
+			if (assessment.isSelected()) {
+				int assetId = assessment.getAsset().getId();
+				List<Assessment> assessments = assessmentSorted.get(assetId);
+				if (assessments == null)
+					assessmentSorted.put(assetId,
+							assessments = new ArrayList<Assessment>());
+				assessments.add(assessment);
+			}
+		}
+		return assessmentSorted;
+	}
+
+	public List<Asset> findAssessmentBySelected() {
+		List<Asset> assets = new LinkedList<Asset>();
+		for (Asset asset : this.assets) {
+			if (asset.isSelected())
+				assets.add(asset);
+		}
+		return assets;
 	}
 
 }

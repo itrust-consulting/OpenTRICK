@@ -1,24 +1,17 @@
 package lu.itrust.business.view.controller;
 
-import java.security.Principal;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import lu.itrust.business.TS.Customer;
-import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.view.model.Role;
 import lu.itrust.business.view.model.RoleType;
 import lu.itrust.business.view.model.User;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -26,14 +19,10 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -154,14 +143,4 @@ public class ControllerAdministration {
 		serviceUser.delete(userId);
 		return "redirect:/index";
 	}
-	
-	public void setServiceRole(ServiceRole serviceRole) {
-		this.serviceRole = serviceRole;
-	}
-
-
-	public void setServiceUser(ServiceUser serviceUser) {
-		this.serviceUser = serviceUser;
-	}
-	
 }

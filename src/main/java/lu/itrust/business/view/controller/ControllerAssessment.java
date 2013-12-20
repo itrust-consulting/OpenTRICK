@@ -224,6 +224,10 @@ public class ControllerAssessment {
 		model.addAttribute("asset", asset);
 		model.addAttribute("assessments",
 				AssessmentManager.Sort(assessments, ale, alep, aleo));
+		asset.setALE(ale.getValue());
+		asset.setALEO(aleo.getValue());
+		asset.setALEP(alep.getValue());
+		serviceAsset.saveOrUpdate(asset);
 		return "analysis/components/assessmentAsset";
 	}
 

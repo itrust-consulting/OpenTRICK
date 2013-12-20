@@ -38,6 +38,16 @@ public class Asset implements Cloneable {
 
 	/** The Flag to determine if the Asset is selected for calculations */
 	private boolean selected = false;
+	
+	/** The Annual Loss Expectancy - Pessimistic */
+	private double ALEP = 0;
+
+	/** The Annual Loss Expectancy - Normal */
+	private double ALE = 0;
+
+	/** The Annual Loss Expectancy - Optimistic */
+	private double ALEO = 0;
+
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -287,5 +297,58 @@ public class Asset implements Cloneable {
 		Asset asset =(Asset) super.clone();
 		asset.id = -1;
 		return asset;
+	}
+
+	/**
+	 * @return the aLEP
+	 */
+	public double getALEP() {
+		return ALEP;
+	}
+
+	/**
+	 * @param aLEP the aLEP to set
+	 */
+	public void setALEP(double aLEP) {
+		ALEP = aLEP;
+	}
+
+	/**
+	 * @return the aLE
+	 */
+	public double getALE() {
+		return ALE;
+	}
+
+	/**
+	 * @param aLE the aLE to set
+	 */
+	public void setALE(double aLE) {
+		ALE = aLE;
+	}
+
+	/**
+	 * @return the aLEO
+	 */
+	public double getALEO() {
+		return ALEO;
+	}
+
+	/**
+	 * @param aLEO the aLEO to set
+	 */
+	public void setALEO(double aLEO) {
+		ALEO = aLEO;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Asset [id=" + id + ", name=" + name + ", assetType="
+				+ assetType + ", value=" + value + ", comment=" + comment
+				+ ", hiddenComment=" + hiddenComment + ", selected=" + selected
+				+ ", ALEP=" + ALEP + ", ALE=" + ALE + ", ALEO=" + ALEO + "]";
 	}
 }

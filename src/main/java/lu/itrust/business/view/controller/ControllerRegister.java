@@ -46,45 +46,42 @@ public class ControllerRegister {
 	}
 
 	@RequestMapping("/DoRegister")
-	public String save(@ModelAttribute("user") @Valid User user, BindingResult result, RedirectAttributes attributes, Locale locale) throws Exception {
+	public String save(@ModelAttribute("user") @Valid User user,
+			BindingResult result, RedirectAttributes attributes, Locale locale)
+			throws Exception {
 
 		try {
 			if (result.hasErrors())
 				return "registerUserForm";
 			PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-			user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+			user.setPassword(passwordEncoder.encodePassword(user.getPassword(),
+					user.getLogin()));
+			Role role = null;
 			if (serviceUser.isEmpty()) {
-				Role role = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
+				role = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
 				if (role == null) {
 					role = new Role(RoleType.ROLE_ADMIN);
 					serviceRole.save(role);
 				}
-				user.addRole(role);
+			} else {
+				role = serviceRole.findByName(RoleType.ROLE_USER.name());
+				if (role == null) {
+					role = new Role(RoleType.ROLE_USER);
+					serviceRole.save(role);
+				}
 			}
+			user.addRole(role);
 			this.serviceUser.saveOrUpdate(user);
-			attributes.addFlashAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
+			attributes.addFlashAttribute("success", messageSource.getMessage(
+					"success.create.account", null,
+					"Account has been created successfully", locale));
 			return "redirect:/login";
 		} catch (ConstraintViolationException e) {
 			e.printStackTrace();
-			attributes.addFlashAttribute("errors", messageSource.getMessage("error.create.account.unknown", null, "Account creation failed, Please try again", locale));
+			attributes.addFlashAttribute("errors", messageSource.getMessage(
+					"error.create.account.unknown", null,
+					"Account creation failed, Please try again", locale));
 			return "redirect:/login";
 		}
 	}
-
-	public ServiceUser getServiceUser() {
-		return serviceUser;
-	}
-
-	public void setServiceUser(ServiceUser serviceUser) {
-		this.serviceUser = serviceUser;
-	}
-
-	public ServiceRole getServiceRole() {
-		return serviceRole;
-	}
-
-	public void setServiceRole(ServiceRole serviceRole) {
-		this.serviceRole = serviceRole;
-	}
-
 }

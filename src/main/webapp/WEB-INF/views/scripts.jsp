@@ -11,6 +11,9 @@
 <script src="<spring:url value="/js/bootstrap.min.js" />"></script>
 <script src="<spring:url value="/js/bootbox.min.js" />"></script>
 <script src="<spring:url value="/js/dom-parser.js" />"></script>
+<script src="<spring:url value="/js/highstock.js" />"></script>
+<script src="<spring:url value="/js/highcharts-more.js" />"></script>
+<script src="<spring:url value="/js/modules/exporting.js" />"></script>
 <script src="<spring:url value="/js/main.js" />"></script>
 <script src="<spring:url value="/js/datatables/media/js/jquery.dataTables.min.js" />"></script>
 <script type="text/javascript">

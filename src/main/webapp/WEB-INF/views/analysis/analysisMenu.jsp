@@ -34,8 +34,9 @@
 			<li><a href="#Scenario"> <spring:message
 						code="menu.analysis.scenario" text="Scenarios" />
 			</a>
-			<li class="dropdown"><a href="#Measure" class="dropdown-toggle"> <spring:message
-						code="menu.analysis.measure" text="Measures" /></a>
+			<li class="dropdown"><a href="#Measure" class="dropdown-toggle">
+					<spring:message code="menu.analysis.measure" text="Measures" />
+			</a>
 				<ul class="dropdown-menu dropdown-features">
 					<li><a href="#Measure_27001"> <spring:message
 								code="menu.measure.27001" text="27001" />
@@ -50,6 +51,8 @@
 								code="menu.measure.custom" text="Custom" />
 					</a></li>
 				</ul></li>
+			<li><a href="#Charts"> <spring:message
+						code="menu.analysis.chart" text="Charts" /></a></li>
 			<li><a href="#Phase"> <spring:message
 						code="menu.analysis.phase" text="Phases" />
 			</a></li>

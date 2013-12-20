@@ -22,6 +22,8 @@ public interface DAOAsset {
 
 	List<Asset> findByAnalysis(int analysisId);
 	
+	List<Asset> findByAnalysisAndSelectedOderByALE(int idAnalysis);
+	
 	List<Asset> findByAnalysisAndSelected(int idAnalysis);
 
 	List<Asset> findByAnalysis(int pageIndex, int pageSize, int analysisId);

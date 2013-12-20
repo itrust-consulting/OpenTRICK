@@ -19,5 +19,8 @@
 		<property name="comment" column="dtComment" type="text" access="field" />
 		<property name="hiddenComment" column="dtHiddenComment" type="text" not-null="true" access="field" />
 		<property name="selected" column="dtSelected" not-null="true" access="field"/>
+		<property name="ALEP" column="dtALEP" not-null="true" access="field"/>
+		<property name="ALE" column="dtALE" not-null="true" access="field"/>
+		<property name="ALEO" column="dtALEO" not-null="true" access="field"/>
 	</class>
 </hibernate-mapping>

@@ -19,6 +19,7 @@ import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
+import lu.itrust.business.dao.DAOParameter;
 import lu.itrust.business.dao.DAOScenario;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,9 @@ public class AssessmentManager {
 
 	@Autowired
 	private DAOAnalysis daoAnalysis;
+
+	@Autowired
+	private DAOParameter daoParameter;
 
 	@Transactional
 	public void selectAsset(Asset asset) throws Exception {
@@ -187,6 +191,7 @@ public class AssessmentManager {
 				}
 			}
 		}
+		UpdateAssetALE(analysis);
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
@@ -221,6 +226,42 @@ public class AssessmentManager {
 		}
 	}
 
+	public void UpdateAssetALE(Analysis analysis) throws Exception {
+		List<ExtendedParameter> extendedParameters = analysis
+				.findExtendedByAnalysis();
+		Map<String, ExtendedParameter> parametersMapping = new LinkedHashMap<>(
+				extendedParameters.size());
+		List<Asset> assets = analysis.findAssessmentBySelected();
+		Map<Integer, List<Assessment>> assessmentsByAsset = analysis
+				.findAssessmentByAssetAndSelected();
+		try {
+			double ale = 0, alep = 0, aleo;
+			for (ExtendedParameter extendedParameter : extendedParameters)
+				parametersMapping.put(extendedParameter.getAcronym(),
+						extendedParameter);
+			for (Asset asset : assets) {
+				ale = alep = aleo = 0;
+				List<Assessment> assessments = assessmentsByAsset.get(asset
+						.getId());
+				for (Assessment assessment : assessments) {
+					ComputeAlE(assessment, parametersMapping);
+					ale += assessment.getALE();
+					aleo += assessment.getALEO();
+					alep += assessment.getALEP();
+				}
+				asset.setALE(ale);
+				asset.setALEO(aleo);
+				asset.setALEP(alep);
+				assessments.clear();
+			}
+		} finally {
+			assets.clear();
+			assessmentsByAsset.clear();
+			parametersMapping.clear();
+			extendedParameters.clear();
+		}
+	}
+
 	public static List<Assessment> Sort(List<Assessment> assessments) {
 		Map<String, List<Assessment>> assessmentByAssets = null;
 		Map<String, ALE> ales = null;
@@ -230,7 +271,7 @@ public class AssessmentManager {
 			ales = new LinkedHashMap<>();
 			SplitAssessment(assessments, ales, assessmentByAssets);
 			sortAles = new LinkedList<>(ales.values());
-			Collections.sort(sortAles, new AleComparator());
+			Collections.sort(sortAles, new AssetComparatorByALE());
 			return Concact(sortAles, assessmentByAssets);
 		} finally {
 			if (assessmentByAssets != null)
