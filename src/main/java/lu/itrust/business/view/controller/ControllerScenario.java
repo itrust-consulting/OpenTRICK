@@ -17,6 +17,7 @@ import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.component.AssessmentManager;
+import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssetType;
@@ -58,6 +59,9 @@ public class ControllerScenario {
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
+	
+	@Autowired
+	private ChartGenerator chartGenerator;
 
 	@Autowired
 	private CustomDelete customDelete;
@@ -280,6 +284,24 @@ public class ControllerScenario {
 			e.printStackTrace();
 		}
 		return errors;
+	}
+	
+	@RequestMapping("/Chart/Ale")
+	public @ResponseBody
+	String aleByAsset(HttpSession session, Model model, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		if (idAnalysis == null)
+			return null;
+		return chartGenerator.aleByScenario(idAnalysis, locale);
+	}
+	
+	@RequestMapping("/Chart/Type/Ale")
+	public @ResponseBody
+	String assetByALE(HttpSession session, Model model, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		if (idAnalysis == null)
+			return null;
+		return chartGenerator.aleByScenarioType(idAnalysis, locale);
 	}
 
 }

@@ -1911,6 +1911,72 @@ $(function() {
 
 });
 
+
+$(function() {
+
+	if (!$('#chart_ale_scenario_type').length)
+		return false;
+	$.ajax({
+		url : context + "/Scenario/Chart/Type/Ale",
+		type : "get",
+		async: true,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			$('#chart_ale_scenario_type').highcharts(JSON.parse(response));
+		}
+	});
+});
+
+$(function() {
+
+	if (!$('#chart_ale_scenario').length)
+		return false;
+	$.ajax({
+		url : context + "/Scenario/Chart/Ale",
+		type : "get",
+		async: true,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			$('#chart_ale_scenario').highcharts(JSON.parse(response));
+		}
+	});
+});
+
+$(function() {
+
+	if (!$('#chart_compliance_27001').length)
+		return false;
+	$.ajax({
+		url : context + "/Measure/Compliance/27001",
+		type : "get",
+		async: true,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			$('#chart_compliance_27001').highcharts(JSON.parse(response));
+
+		}
+	});
+});
+
+$(function() {
+
+	if (!$('#chart_compliance_27002').length)
+		return false;
+	$.ajax({
+		url : context + "/Measure/Compliance/27002",
+		type : "get",
+		async: true,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			$('#chart_compliance_27002').highcharts(JSON.parse(response));
+		}
+	});
+});
+
 $(function() {
 
 	if (!$('#chart_ale_asset').length)
@@ -1927,6 +1993,7 @@ $(function() {
 	});
 });
 
+
 $(function() {
 
 	if (!$('#chart_ale_asset_type').length)
@@ -1942,3 +2009,6 @@ $(function() {
 		}
 	});
 });
+
+
+

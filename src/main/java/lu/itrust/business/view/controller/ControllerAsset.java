@@ -262,20 +262,20 @@ public class ControllerAsset {
 
 	@RequestMapping("/Chart/Ale")
 	public @ResponseBody
-	String aleByAsset(HttpSession session, Model model) {
+	String aleByAsset(HttpSession session, Model model, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
-		return chartGenerator.aleByAsset(idAnalysis);
+		return chartGenerator.aleByAsset(idAnalysis, locale);
 	}
 	
 	@RequestMapping("/Chart/AssetType/Ale")
 	public @ResponseBody
-	String assetByALE(HttpSession session, Model model) {
+	String assetByALE(HttpSession session, Model model, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
-		return chartGenerator.aleByAssetType(idAnalysis);
+		return chartGenerator.aleByAssetType(idAnalysis, locale);
 	}
 
 
