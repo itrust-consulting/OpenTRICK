@@ -13,12 +13,30 @@
 		</h3>
 	</div>
 	<div class="panel panel-default">
-		<div class="panel-heading"></div>
+		<div class="panel-heading">
+			<spring:message code="label.chart.title.asset" text="Asset" />
+		</div>
 		<div class="panel-body">
-			<div id="chart_ale_asset">
-			</div>
-			<div id="chart_ale_asset_type">
-			</div>
+			<div id="chart_ale_asset"></div>
+			<div id="chart_ale_asset_type"></div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<spring:message code="label.chart.title.scenario" text="Scenario" />
+		</div>
+		<div class="panel-body">
+			<div id="chart_ale_scenario"></div>
+			<div id="chart_ale_scenario_type"></div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<spring:message code="label.chart.title.compliance" text="Compliance" />
+		</div>
+		<div class="panel-body">
+			<div id="chart_compliance_27001"></div>
+			<div id="chart_compliance_27002"></div>
 		</div>
 	</div>
 </div>

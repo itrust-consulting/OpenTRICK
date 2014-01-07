@@ -31,4 +31,5 @@ public interface DAOAssessment {
 	public List<Assessment> findByAssetAndSelected(Asset asset);
 	public List<Assessment> findByScenarioAndSelected(Scenario scenario);
 	public List<Assessment> findByScenarioAndUnselected(Scenario scenario);
+	public List<Assessment> findByAnalysisAndSelectedScenario(Integer idAnalysis);
 }

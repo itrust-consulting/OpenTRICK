@@ -203,4 +203,13 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 				"scenario", scenario).list();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Assessment> findByAnalysisAndSelectedScenario(Integer idAnalysis) {
+		return getSession()
+		.createQuery(
+				"Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.scenario.selected = true")
+		.setParameter("idAnalysis", idAnalysis).list();
+	}
+
 }
