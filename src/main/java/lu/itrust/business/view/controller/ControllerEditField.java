@@ -5,6 +5,7 @@ package lu.itrust.business.view.controller;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,6 +22,7 @@ import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.JsonMessage;
@@ -31,6 +33,7 @@ import lu.itrust.business.service.ServiceHistory;
 import lu.itrust.business.service.ServiceItemInformation;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceParameter;
+import lu.itrust.business.service.ServicePhase;
 import lu.itrust.business.view.model.FieldEditor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,9 +75,13 @@ public class ControllerEditField {
 	@Autowired
 	private ServiceMeasure serviceMeasure;
 
+	@Autowired
+	private ServicePhase servicePhase;
+
 	protected boolean setFieldData(Field field, Object object,
-			FieldEditor fieldEditor) throws IllegalArgumentException,
-			IllegalAccessException, ParseException, NumberFormatException {
+			FieldEditor fieldEditor, String pattern)
+			throws IllegalArgumentException, IllegalAccessException,
+			ParseException, NumberFormatException {
 		if (fieldEditor.getType().equalsIgnoreCase("string"))
 			field.set(object, (String) fieldEditor.getValue());
 		else if (fieldEditor.getType().equalsIgnoreCase("integer"))
@@ -86,7 +93,8 @@ public class ControllerEditField {
 		else if (fieldEditor.getType().equalsIgnoreCase("boolean"))
 			field.set(object, Boolean.parseBoolean(fieldEditor.getValue()));
 		else if (fieldEditor.getType().equalsIgnoreCase("date")) {
-			DateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+			DateFormat format = new SimpleDateFormat(
+					pattern == null ? "yyyy-MM-dd hh:mm:ss" : pattern);
 			field.set(object, format.parse(fieldEditor.getValue()));
 		} else
 			return false;
@@ -107,7 +115,7 @@ public class ControllerEditField {
 					fieldEditor.getFieldName());
 			field.setAccessible(true);
 
-			if (setFieldData(field, itemInformation, fieldEditor)) {
+			if (setFieldData(field, itemInformation, fieldEditor, null)) {
 				serviceItemInformation.saveOrUpdate(itemInformation);
 				return JsonMessage.Success(messageSource.getMessage(
 						"success.itemInformation.updated", null,
@@ -146,7 +154,7 @@ public class ControllerEditField {
 			Field field = parameter.getClass().getDeclaredField(
 					fieldEditor.getFieldName());
 			field.setAccessible(true);
-			if (setFieldData(field, parameter, fieldEditor)) {
+			if (setFieldData(field, parameter, fieldEditor, null)) {
 				serviceParameter.saveOrUpdate(parameter);
 				return JsonMessage.Success(messageSource.getMessage(
 						"success.parameter.updated", null,
@@ -201,7 +209,7 @@ public class ControllerEditField {
 				field = parameter.getClass().getDeclaredField(
 						fieldEditor.getFieldName());
 			field.setAccessible(true);
-			if (setFieldData(field, parameter, fieldEditor)) {
+			if (setFieldData(field, parameter, fieldEditor, null)) {
 
 				Integer id = (Integer) session.getAttribute("selectedAnalysis");
 
@@ -272,7 +280,7 @@ public class ControllerEditField {
 			Field field = assessment.getClass().getDeclaredField(
 					fieldEditor.getFieldName());
 			field.setAccessible(true);
-			if (!setFieldData(field, assessment, fieldEditor))
+			if (!setFieldData(field, assessment, fieldEditor, null))
 				return JsonMessage.Error(messageSource.getMessage(
 						"error.edit.type.field", null,
 						"Data cannot be updated", locale));
@@ -317,7 +325,7 @@ public class ControllerEditField {
 					fieldEditor.getFieldName());
 			field.setAccessible(true);
 
-			if (setFieldData(field, history, fieldEditor)) {
+			if (setFieldData(field, history, fieldEditor, null)) {
 				serviceHistory.saveOrUpdate(history);
 				return JsonMessage.Success(messageSource.getMessage(
 						"success.history.updated", null,
@@ -364,7 +372,7 @@ public class ControllerEditField {
 			Field field = measure.getClass().getSuperclass()
 					.getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
-			if (setFieldData(field, measure, fieldEditor)) {
+			if (setFieldData(field, measure, fieldEditor, null)) {
 				serviceMeasure.saveOrUpdate(measure);
 				return JsonMessage.Success(messageSource.getMessage(
 						"success.measure.updated", null,
@@ -379,7 +387,7 @@ public class ControllerEditField {
 		}
 		return JsonMessage.Error(messageSource.getMessage(
 				"error.edit.save.field", null, "Data cannot be saved", locale));
-		
+
 	}
 
 	@RequestMapping(value = "/MaturityMeasure", method = RequestMethod.POST, headers = "Accept=application/json")
@@ -418,9 +426,39 @@ public class ControllerEditField {
 					}
 				}
 				return JsonMessage.Error(messageSource.getMessage(
-						"error.edit.type.field", null, "Data cannot be updated",
+						"error.edit.type.field", null,
+						"Data cannot be updated", locale));
+			} else
+				measure(fieldEditor, locale);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return JsonMessage.Error(messageSource.getMessage(
+				"error.edit.save.field", null, "Data cannot be saved", locale));
+	}
+
+	@RequestMapping(value = "/Phase", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody
+	String phase(@RequestBody FieldEditor fieldEditor, HttpSession session,
+			Locale locale) {
+		try {
+			Phase phase = servicePhase.get(fieldEditor.getId());
+			if (phase == null)
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.phase.not_found", null, "Phase cannot be found",
 						locale));
-			}else measure(fieldEditor, locale);
+			Field field = phase.getClass().getDeclaredField(
+					fieldEditor.getFieldName());
+			field.setAccessible(true);
+
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			field.set(phase, new Date(format.parse(fieldEditor.getValue())
+					.getTime()));
+			servicePhase.saveOrUpdate(phase);
+			return JsonMessage.Success(messageSource.getMessage(
+					"success.phase.updated", null,
+					"Phase was successfully updated", locale));
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -60,8 +60,10 @@
 						<spring:eval
 							expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)"
 							var="measures" scope="request" />
+						<c:set var="phases" scope="request" value="${analysis.usedPhases}"/>
 						<jsp:include page="./components/measure.jsp" />
 						<jsp:include page="./components/charts.jsp" />
+						<jsp:include page="./components/phase.jsp"/>
 						<jsp:include page="./components/widgets.jsp" />
 					</div>
 				</c:if>

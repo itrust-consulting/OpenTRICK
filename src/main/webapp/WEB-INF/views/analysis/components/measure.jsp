@@ -59,9 +59,15 @@
 									trick-field-type="string" ondblclick="return editField(this);"><spring:message
 										text="${measure.status}" htmlEscape="true" /></td>
 								<c:choose>
-									<c:when test="${norm.equalsIgnoreCase('Maturity')==false}">
+									<c:when test="${norm.equalsIgnoreCase('Custom')==true}">
 										<td class="success" trick-field="implementationRate"
 											trick-field-type="double"
+											ondblclick="return editField(this);"><spring:message
+												text="${measure.getImplementationRateValue()}" /></td>
+									</c:when>
+									<c:when test="${norm.equalsIgnoreCase('Maturity')==false}">
+										<td class="success" trick-field="implementationRate"
+											trick-field-type="double" trick-callback="compliance('${norm}')"
 											ondblclick="return editField(this);"><spring:message
 												text="${measure.getImplementationRateValue()}" /></td>
 									</c:when>

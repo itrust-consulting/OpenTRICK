@@ -106,10 +106,10 @@ public class ChartGenerator {
 		dataALEOs += "]";
 		dataALEPs += "]";
 
-		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\": 10}";
+		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\": "+assets.size()%10+"}";
 		series += "\"series\":[{\"name\":\"ALEO\", \"data\":" + dataALEOs
-				+ "},{\"name\":\"ALE\", \"data\":" + dataALEs
-				+ "},{\"name\":\"ALEP\", \"data\":" + dataALEPs + "}]";
+				+ ",\"valueDecimals\": 0},{\"name\":\"ALE\", \"data\":" + dataALEs
+				+ ",\"valueDecimals\": 0},{\"name\":\"ALEP\", \"data\":" + dataALEPs + ",\"valueDecimals\": 0}]";
 		return "{" + chart + "," + title + "," + legend + "," + pane + ","
 				+ plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + ","
 				+ series + "}";
@@ -223,10 +223,10 @@ public class ChartGenerator {
 		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1
 				+ ", \"title\": {\"text\": \"ALE\"}}";
 
-		xAxis = "\"xAxis\":{\"categories\":" + categories + "}";
+		xAxis = "\"xAxis\":{\"categories\":" + categories + " ,\"min\":0}";
 		series += "\"series\":[{\"name\":\"ALEO\", \"data\":" + dataALEOs
-				+ "},{\"name\":\"ALE\", \"data\":" + dataALEs
-				+ "},{\"name\":\"ALEP\", \"data\":" + dataALEPs + "}]";
+				+ ",\"valueDecimals\": 0 },{\"name\":\"ALE\", \"data\":" + dataALEs
+				+ ",\"valueDecimals\": 0 },{\"name\":\"ALEP\", \"data\":" + dataALEPs + ",\"valueDecimals\": 0}]";
 		return "{" + chart + "," + title + "," + legend + "," + pane + ","
 				+ plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + ","
 				+ series + "}";
@@ -250,7 +250,7 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:60px;'><b>{point.y:.1f} %</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
+		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:70px;'><b>{point.y:.1f} %</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
 
 		if (compliances.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + ","
@@ -285,7 +285,7 @@ public class ChartGenerator {
 
 		series += "\"series\":[{\"name\":\""
 				+ messageSource.getMessage("label.chart.series.chapter", null,
-						"Chapter", locale) + "\", \"data\":" + data + "}]";
+						"Chapter", locale) + "\", \"data\":" + data + ",\"valueDecimals\": 0}]";
 
 		return "{" + chart + "," + title + "," + legend + "," + pane + ","
 				+ plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + ","
@@ -354,8 +354,8 @@ public class ChartGenerator {
 		}
 		categories += "]";
 		dataALEs += "]";
-		xAxis = "\"xAxis\":{\"categories\":" + categories + "}";
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
+		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":"+ales2.size()%3+"}";
+		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + ",\"valueDecimals\": 0}]";
 
 		ales.clear();
 
@@ -428,9 +428,8 @@ public class ChartGenerator {
 		}
 		categories += "]";
 		dataALEs += "]";
-		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\": "
-				+ ales2.size() / 10 + "}";
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
+		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":"+ales2.size()%10+"}";
+		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + ",\"valueDecimals\": 0}]";
 
 		ales.clear();
 

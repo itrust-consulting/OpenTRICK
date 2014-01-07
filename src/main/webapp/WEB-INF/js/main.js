@@ -113,6 +113,7 @@ function computeAssessment() {
 			} else if (response['success'] != undefined) {
 				$("#info-dialog .modal-body").text(response['success']);
 				$("#info-dialog").modal("toggle");
+				chartALE();
 			}
 			return false;
 		},
@@ -228,6 +229,7 @@ function FieldEditor(element, validator) {
 	this.fieldName = null;
 	this.classId = null;
 	this.fieldType = null;
+	this.callback = null;
 
 	FieldEditor.prototype.GenerateInputField = function() {
 		if ($(this.element).find("input").length)
@@ -269,6 +271,7 @@ function FieldEditor(element, validator) {
 		if (!this.GenerateInputField()) {
 			this.controllor = this.__findControllor(this.element);
 			this.classId = this.__findClassId(this.element);
+			this.callback = this.__findCallback(this.element);
 			this.fieldName = $(this.element).attr("trick-field");
 			this.fieldType = $(this.element).attr("trick-field-type");
 			return false;
@@ -285,7 +288,7 @@ function FieldEditor(element, validator) {
 	FieldEditor.prototype.__findControllor = function(element) {
 		if ($(element).attr("trick-class") != undefined)
 			return $(element).attr("trick-class");
-		else if ($(element).parent().prop("tagName") != "body")
+		else if ($(element).parent().prop("tagName") != "BODY")
 			return this.__findControllor($(element).parent());
 		else
 			return null;
@@ -294,8 +297,19 @@ function FieldEditor(element, validator) {
 	FieldEditor.prototype.__findClassId = function(element) {
 		if ($(element).attr("trick-id") != undefined)
 			return $(element).attr("trick-id");
-		else if ($(element).parent().prop("tagName") != "body")
+		else if ($(element).parent().prop("tagName") != "BODY")
 			return this.__findClassId($(element).parent());
+		else
+			return null;
+	};
+
+	FieldEditor.prototype.__findCallback = function(element) {
+		if ($(element).attr("trick-callback") != undefined)
+			return $(element).attr("trick-callback");
+		else if ($(element).parent().prop("tagName") != "BODY"){
+			console.log($(element).parent().prop("tagName"));
+			return this.__findCallback($(element).parent());
+		}
 		else
 			return null;
 	};
@@ -360,6 +374,9 @@ function FieldEditor(element, validator) {
 									$("#info-dialog .modal-body").html(
 											response["success"]);
 									$("#info-dialog").modal("toggle");
+									if (that.callback != null
+											&& that.callback != undefined)
+										setTimeout(that.callback, 10);
 								} else {
 									$("#alert-dialog .modal-body").html(
 											response["error"]);
@@ -1311,9 +1328,11 @@ function controllerBySection(section) {
 function callbackBySection(section) {
 	var callbacks = {
 		"section_asset" : function() {
+			chartALE();
 			return false;
 		},
 		"section_scenario" : function() {
+			chartALE();
 			return false;
 		}
 	};
@@ -1504,6 +1523,7 @@ function serializeScenarioForm(formId) {
 }
 
 function findAllScenarioType(selector) {
+	clearScenarioFormData();
 	var element = document.getElementById(selector);
 	$.ajax({
 		url : context + "/ScenarioType/All",
@@ -1528,6 +1548,11 @@ function findAllScenarioType(selector) {
 			}
 		}
 	});
+}
+
+function clearScenarioFormData(){
+	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario"));
+	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
 
 function selectScenario(assetId, selectVaue) {
@@ -1911,104 +1936,77 @@ $(function() {
 
 });
 
-
-$(function() {
-
-	if (!$('#chart_ale_scenario_type').length)
+function compliance(norm) {
+	if (!$('#chart_compliance_' + norm).length)
 		return false;
 	$.ajax({
-		url : context + "/Scenario/Chart/Type/Ale",
+		url : context + "/Measure/Compliance/" + norm,
 		type : "get",
-		async: true,
+		async : true,
 		contentType : "application/json",
 		async : true,
 		success : function(response) {
-			$('#chart_ale_scenario_type').highcharts(JSON.parse(response));
+			$('#chart_compliance_' + norm).highcharts(JSON.parse(response));
+
 		}
 	});
-});
+}
 
 $(function() {
-
-	if (!$('#chart_ale_scenario').length)
-		return false;
-	$.ajax({
-		url : context + "/Scenario/Chart/Ale",
-		type : "get",
-		async: true,
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			$('#chart_ale_scenario').highcharts(JSON.parse(response));
-		}
-	});
+	chartALE();
+	compliance('27001');
+	compliance('27002');
+	
 });
 
-$(function() {
+function chartALE() {
+	if ($('#chart_ale_scenario_type').length) {
+		$.ajax({
+			url : context + "/Scenario/Chart/Type/Ale",
+			type : "get",
+			async : true,
+			contentType : "application/json",
+			async : true,
+			success : function(response) {
+				$('#chart_ale_scenario_type').highcharts(JSON.parse(response));
+			}
+		});
+	}
+	if ($('#chart_ale_scenario').length) {
+		$.ajax({
+			url : context + "/Scenario/Chart/Ale",
+			type : "get",
+			async : true,
+			contentType : "application/json",
+			async : true,
+			success : function(response) {
+				$('#chart_ale_scenario').highcharts(JSON.parse(response));
+			}
+		});
+	}
 
-	if (!$('#chart_compliance_27001').length)
-		return false;
-	$.ajax({
-		url : context + "/Measure/Compliance/27001",
-		type : "get",
-		async: true,
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			$('#chart_compliance_27001').highcharts(JSON.parse(response));
-
-		}
-	});
-});
-
-$(function() {
-
-	if (!$('#chart_compliance_27002').length)
-		return false;
-	$.ajax({
-		url : context + "/Measure/Compliance/27002",
-		type : "get",
-		async: true,
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			$('#chart_compliance_27002').highcharts(JSON.parse(response));
-		}
-	});
-});
-
-$(function() {
-
-	if (!$('#chart_ale_asset').length)
-		return false;
-	$.ajax({
-		url : context + "/Asset/Chart/Ale",
-		type : "get",
-		async: true,
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			$('#chart_ale_asset').highcharts(JSON.parse(response));
-		}
-	});
-});
-
-
-$(function() {
-
-	if (!$('#chart_ale_asset_type').length)
-		return false;
-	$.ajax({
-		url : context + "/Asset/Chart/AssetType/Ale",
-		type : "get",
-		async: true,
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			$('#chart_ale_asset_type').highcharts(JSON.parse(response));
-		}
-	});
-});
-
-
-
+	if ($('#chart_ale_asset').length) {
+		$.ajax({
+			url : context + "/Asset/Chart/Ale",
+			type : "get",
+			async : true,
+			contentType : "application/json",
+			async : true,
+			success : function(response) {
+				$('#chart_ale_asset').highcharts(JSON.parse(response));
+			}
+		});
+	}
+	if ($('#chart_ale_asset_type').length) {
+		$.ajax({
+			url : context + "/Asset/Chart/AssetType/Ale",
+			type : "get",
+			async : true,
+			contentType : "application/json",
+			async : true,
+			success : function(response) {
+				$('#chart_ale_asset_type').highcharts(JSON.parse(response));
+			}
+		});
+	}
+}
