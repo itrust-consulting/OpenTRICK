@@ -48,10 +48,12 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 * 
 	 * @see lu.itrust.business.dao.DAORole#get(java.lang.String)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<Role> load(String login) throws Exception {
-		return (List<Role>) getSession().createQuery("From Role where user.login = :login").setString("login", login).list();
+	public List<Role> getFromUser(String login) throws Exception {
+		User aUser = (User) getSession().createQuery("From User where login = :user").setParameter("user", login).uniqueResult();
+		List<Role> roles = aUser.getRoles();
+		
+		return roles;
 	}
 
 	/*
@@ -59,16 +61,14 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 * 
 	 * @see lu.itrust.business.dao.DAORole#get(lu.itrust.business.TS.User)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<Role> load(User user) throws Exception {
-		return (List<Role>) getSession().createQuery("From Role where user = :user").setParameter("user", user).list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Role> load(String login, String password) throws Exception {
-		return (List<Role>) getSession().createQuery("From Role where user.login = :login and user.password = :password").setParameter("login", login).setString("password", password).list();
+	public List<Role> getFromUser(User user) throws Exception {
+		
+		User aUser = (User) getSession().createQuery("From User where id = :user").setParameter("user", user.getId()).uniqueResult();
+		
+		List<Role> roles = aUser.getRoles();
+				
+		return roles;
 	}
 
 	/*
@@ -133,7 +133,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	@Override
 	public void delete(User user) throws Exception {
 
-		for (Role role : load(user))
+		for (Role role : getFromUser(user))
 			delete(role);
 
 	}
@@ -146,7 +146,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	@Override
 	public void delete(String login) throws Exception {
 
-		for (Role role : load(login))
+		for (Role role : getFromUser(login))
 			delete(role);
 	}
 

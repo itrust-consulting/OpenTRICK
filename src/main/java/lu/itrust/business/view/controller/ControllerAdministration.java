@@ -1,53 +1,58 @@
 package lu.itrust.business.view.controller;
 
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.view.model.Role;
 import lu.itrust.business.view.model.RoleType;
 import lu.itrust.business.view.model.User;
 
-import org.hibernate.exception.ConstraintViolationException;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * ControllerAdministration.java: <br>
  * Detailed description...
- *
+ * 
  * @author smenghi, itrust consulting s.à.rl. :
- * @version 
+ * @version
  * @since Dec 13, 2013
  */
 @Secured("ROLE_ADMIN")
 @Controller
 @RequestMapping("/Admin")
 public class ControllerAdministration {
-	
 
 	@Autowired
 	private MessageSource messageSource;
-	
+
 	@Autowired
 	private ServiceRole serviceRole;
-	
+
 	@Autowired
 	private ServiceUser serviceUser;
-	
+
 	/**
 	 * loadAll: <br>
 	 * Description
@@ -60,6 +65,42 @@ public class ControllerAdministration {
 	public String showAdministration(Map<String, Object> model) throws Exception {
 		model.put("users", serviceUser.loadAll());
 		return "admin/administration";
+		// TODO:  Manage analysis access rights
+	}
+
+	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/User/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String section(Model model, HttpSession session, Principal principal) throws Exception{
+		model.addAttribute("users", serviceUser.loadAll());
+		return "admin/user/users";
+	}
+	
+	/**
+	 * getAllRoles: <br>
+	 * Description
+	 * 
+	 * @param userId
+	 * @param model
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Roles", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String getAllRoles(Map<String, Object> model, HttpSession session) throws Exception {
+
+			model.put("roles", RoleType.values());
+
+			return "admin/user/roles";
+			
 	}
 	
 	/**
@@ -72,19 +113,92 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/User/{userId}")
-	public String manageUserRole(@PathVariable("userId") Long userId,
-			Map<String, Object> model, HttpSession session) throws Exception {
-		User user = (User) session.getAttribute("user");
-		if (user == null || user.getId() != userId) {
-			model.put("userManageRole", serviceUser.get(userId));
-			model.put("roles", RoleType.values());
-			model.put("userRole", new Role());
-			return "roleManagerForm";
+	@RequestMapping(value = "/User/Roles/{userId}", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String getUserRoles(@PathVariable("userId") Long userId, Map<String, Object> model, HttpSession session) throws Exception {
+		
+		List<Role> userRoles = serviceRole.getByUser(serviceUser.get(userId));	
+		
+		List<RoleType> roleTypes = new ArrayList<RoleType>();
+		
+		for (Role role: userRoles) {
+			roleTypes.add(role.getType());
 		}
-		return "redirect:/index";
+				
+		model.put("userRoles", roleTypes);
+		model.put("roles", RoleType.values());
+		return "admin/user/userRoles";
+
 	}
 
+	/**
+	 * buildUser: <br>
+	 * Description
+	 * 
+	 * @param errors
+	 * @param customer
+	 * @param source
+	 * @param locale
+	 * @return
+	 */
+	private User buildUser(List<String[]> errors, String source, Locale locale, Principal principal) {
+		
+		User user = null;
+		
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+			int id = jsonNode.get("id").asInt();
+			if (id > 0) {
+				user = serviceUser.get(jsonNode.get("id").asInt());				
+			} else {
+				user = new User();
+				user.setLogin(jsonNode.get("login").asText());
+			}
+			
+			if (!jsonNode.get("password").asText().equals(Constant.EMPTY_STRING)) {
+				user.setPassword(jsonNode.get("password").asText());
+				PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+			}
+						
+			user.setFirstName(jsonNode.get("firstName").asText());
+			user.setLastName(jsonNode.get("lastName").asText());
+			
+			user.setEmail(jsonNode.get("email").asText());
+			
+			if(!principal.getName().equals(user.getLogin())) {
+			
+				user.getRoles().clear();
+				
+				RoleType[] roletypes = RoleType.values();
+				
+				for (int i = 0 ; i < roletypes.length; i++) {
+					Role role = serviceRole.findByName(roletypes[i].name());
+					
+					if (role == null) {
+						role = new Role(roletypes[i]);
+						serviceRole.save(role);
+					}
+					
+					if (jsonNode.get(role.getType().name()).asText().equals(Constant.CHECKBOX_CONTROL_ON)) {
+						user.addRole(role);
+					}
+					
+				}
+			
+			}
+		
+			return user;
+
+		} catch (Exception e) {
+
+			errors.add(new String[] { "user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
 	/**
 	 * save: <br>
 	 * Description
@@ -96,39 +210,32 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/User/Save")
-	public String save(@ModelAttribute("user") @Valid User user, BindingResult result, RedirectAttributes attributes, Locale locale) throws Exception {
+	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody List<String[]> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 
+		List<String[]> errors = new LinkedList<>();
 		try {
-			if (result.hasErrors())
-				return "addUserForm";
-			PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-			user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
-			if (serviceUser.isEmpty()) {
-				Role role = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
-				if (role == null) {
-					role = new Role(RoleType.ROLE_ADMIN);
-					serviceRole.save(role);
+
+			User user = buildUser(errors, value, locale, principal);
+			
+			if (user==null) {
+				return errors;
+			} else {
+				if (user.getId() < 1) {
+					serviceUser.save(user);
+				} else {
+					serviceUser.saveOrUpdate(user);
 				}
-				user.addRole(role);
 			}
-			this.serviceUser.saveOrUpdate(user);
-			attributes.addFlashAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
-			return "redirect:/login";
-		} catch (ConstraintViolationException e) {
+		} catch (Exception e) {
+			errors.add(new String[] { "user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
-			if (e.getMessage().contains("dtLogin"))
-				result.rejectValue("login", "error.duplicate.login", null, "Login is already used");
-			else if (e.getMessage().contains("dtEmail"))
-				result.rejectValue("login", "error.duplicate.email", null, "Email is already used");
-			else {
-				attributes.addFlashAttribute("errors", messageSource.getMessage("error.create.account.unknown", null, "Account creation failed, Please try again later", locale));
-				return "redirect:/login";
-			}
 		}
-		return "addUserForm";
+		
+		return errors;
+		
 	}
-	
+
 	/**
 	 * delete: <br>
 	 * Description
@@ -138,9 +245,24 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@Secured("ROLE_ADMIN")
-	@RequestMapping("/User/delete/{userId}")
-	public String delete(@PathVariable("userId") Long userId) throws Exception {
-		serviceUser.delete(userId);
-		return "redirect:/index";
+	@RequestMapping("/User/Delete/{userId}")
+	public @ResponseBody Boolean delete(@PathVariable("userId") Long userId, Principal principal) throws Exception {
+		try {
+					
+			User user = serviceUser.get(userId);
+			
+			if (!user.getLogin().equals(principal.getName())) {
+				user.getRoles().clear();
+				serviceUser.saveOrUpdate(user);
+				serviceUser.delete(userId);
+				return true;
+			} else {
+				return false;
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 }

@@ -53,6 +53,7 @@ public class User implements Serializable {
 	 * 
 	 */
 	public User() {
+		roles = new ArrayList<Role>();
 	}
 
 	/**

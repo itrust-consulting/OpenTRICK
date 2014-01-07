@@ -118,6 +118,8 @@ public class Constant {
 	public static final String ASSET_TYPE_BUSI = "Busi";
 	public static final String ASSET_TYPE_FIN = "Fin";
 	public static final String ASSET_TYPE_COMPL = "Compl";
+	
+	public static final String ASSET_TYPES = "Serv,Info,SW,HW,Net,Staff,IV,Busi,Fin,Compl";
 
 	/** Item Information Categories */
 	public static final String ITEMINFORMATION_SCOPE = "Scope";
@@ -161,8 +163,6 @@ public class Constant {
 	public final static String PARAMETERTYPE_TYPE_PROPABILITY_NAME = "PROBA";
 	public final static String PARAMETERTYPE_TYPE_SINGLE_NAME = "SINGLE";
 
-	public final static String EMPTY_STRING = "";
-
 	/** Action Plan Type Names */
 	public final static String ACTIONPLAN_NORMAL = "APN";
 	public final static String ACTIONPLAN_PESSIMISTIC = "APP";
@@ -201,11 +201,15 @@ public class Constant {
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_INTEGER = "I";
 	public final static String PARAMATTRIBUTE_VALUE_TYPE_DOUBLE = "D";
 
+	/** CIA */
 	public static final String CONFIDENTIALITY_RISK = "Confidentiality";
 	public static final String INTEGRITY_RISK = "Integrity";
 	public static final String AVAILABILITY_RISK = "Availability";
 
-	public static final String ASSET_TYPES = "Serv,Info,SW,HW,Net,Staff,IV,Busi,Fin,Compl";
+	
+	public final static String EMPTY_STRING = "";
+
+	public final static String CHECKBOX_CONTROL_ON = "on";
 
 	/***********************************************************************************************
 	 * List of Common Constants - END

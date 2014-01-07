@@ -16,12 +16,10 @@ public interface DAORole {
 	
 	Role get(long id) throws Exception;
 	
-	List<Role> load(String login) throws Exception;
+	List<Role> getFromUser(String login) throws Exception;
 	
-	List<Role> load(User user) throws Exception;
-	
-	List<Role> load(String login, String password)throws Exception;
-	
+	List<Role> getFromUser(User user) throws Exception;
+		
 	List<Role> loadAll() throws Exception;
 	
 	void save(Role role)throws Exception;

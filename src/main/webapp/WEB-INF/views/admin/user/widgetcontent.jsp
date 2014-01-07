@@ -13,7 +13,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form name="user" action="User/Save" class="form-horizontal" id="user_form">
+				<form name="user" action="User/Save" class="form-horizontal" id="user_form" commandName="user">
 					<input type="hidden" name="id" value="-1" id="user_id">
 					<div class="form-group">
 						<label for="login" class="col-sm-2 control-label">
@@ -56,34 +56,10 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="enable" class="col-sm-2 control-label">
-							<spring:message code="label.user.enable" />
-						</label>
-						<div class="col-sm-10">
-							<input id="user_enable" name="enable" class="form-control" type="checkbox" />
-						</div>
-					</div>
-					<div class="form-group">
 						<label for="roles" class="col-sm-2 control-label">
 							<spring:message code="label.role" />
 						</label>
-						<div class="col-sm-10">
-							<table class="table" style="text-align:center;">
-							<tbody>
-							<tr>			
-								<td><spring:message code="label.role.ROLE_ADMIN" /></td>
-								<td><spring:message code="label.role.ROLE_CONSULTANT" /></td>
-								<td><spring:message code="label.role.ROLE_USER" /></td>
-								<td><spring:message code="label.role.ROLE_SUPERVISOR" /></td>
-							</tr>
-							<tr>
-								<td><input id="user_role_admin" name="role_admin" class="form-control" type="checkbox" /></td>
-								<td><input id="user_role_consultant" name="role_consultant" class="form-control" type="checkbox" /></td>
-								<td><input id="user_role_user" name="role_user" class="form-control" type="checkbox" /></td>
-								<td><input id="user_role_supervisor" name="role_supervisor" class="form-control" type="checkbox" /></td>
-							</tr>
-							</tbody>
-							</table>
+						<div class="col-sm-10" id="rolescontainer">
 						</div>
 					</div>
 				</form>

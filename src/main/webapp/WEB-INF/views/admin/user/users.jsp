@@ -26,7 +26,6 @@
 							<th><spring:message code="label.user.email" /></th>					
 							<th><spring:message code="label.user.enabled" /></th>
 							<th><spring:message code="label.role" /></th>
-							<th><spring:message code="label.action" /></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -41,10 +40,6 @@
 									<c:forEach items="${user.roles}" var="role">
 										<spring:message code="label.role.${role.type}" />
 									</c:forEach>
-								</td>
-								<td>
-									<a href="${pageContext.request.contextPath}/user/${user.id}/delete"><spring:message code="label.action.delete" /></a> 
-									<a href="${pageContext.request.contextPath}/role/manage/user/${user.id}"><spring:message code="label.role.manage" /></a>
 								</td>
 							</tr>
 						</c:forEach>

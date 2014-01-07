@@ -41,21 +41,9 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * @see lu.itrust.business.service.ServiceRole#get(java.lang.String)
 	 */
 	@Override
-	public List<Role> load(String login) throws Exception {
+	public List<Role> getByUser(String login) throws Exception {
 		// TODO Auto-generated method stub
-		return daoRole.load(login);
-	}
-	
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.service.ServiceRole#get(java.lang.String)
-	 */
-	@Override
-	public List<Role> load(String login, String password) throws Exception {
-		// TODO Auto-generated method stub
-		return daoRole.load(login,password);
+		return daoRole.getFromUser(login);
 	}
 
 	/*
@@ -65,8 +53,8 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * lu.itrust.business.service.ServiceRole#get(lu.itrust.business.TS.User)
 	 */
 	@Override
-	public List<Role> load(User user) throws Exception {
-		return daoRole.load(user);
+	public List<Role> getByUser(User user) throws Exception {
+		return daoRole.getFromUser(user);
 	}
 
 	/*

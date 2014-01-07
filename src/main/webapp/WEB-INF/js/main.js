@@ -1303,7 +1303,8 @@ function controllerBySection(section) {
 		"section_analysis" : "/Analysis",
 		"section_customer" : "/KnowledgeBase/Customer/Section",
 		"section_language" : "/KnowledgeBase/Language/Section",
-		"section_norm" : "/KnowledgeBase/Norm/Section"
+		"section_norm" : "/KnowledgeBase/Norm/Section",
+		"section_user" : "/Admin/User/Section"
 	};
 	return controllers[section];
 }

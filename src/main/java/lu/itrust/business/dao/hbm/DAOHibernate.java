@@ -1,7 +1,5 @@
 package lu.itrust.business.dao.hbm;
 
-import lu.itrust.business.TS.Parameter;
-
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -13,7 +11,7 @@ import org.springframework.stereotype.Repository;
  * HibernateDAO.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 11 janv. 2013
  */

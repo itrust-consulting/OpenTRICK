@@ -18,12 +18,10 @@ public interface ServiceRole {
 	
 	Role findByName(String name) throws Exception;
 	
-	List<Role> load(String login) throws Exception;
+	List<Role> getByUser(String login) throws Exception;
 	
-	List<Role> load(User user) throws Exception;
-	
-	List<Role> load(String login, String password)throws Exception;
-	
+	List<Role> getByUser(User user) throws Exception;
+		
 	List<Role> loadAll() throws Exception;
 	
 	void save(Role role)throws Exception;
