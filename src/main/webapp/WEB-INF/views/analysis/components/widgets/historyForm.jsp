@@ -36,7 +36,7 @@
 						<label for=basedOnVersion class="col-sm-2 control-label"> <spring:message code="label.history.basedOn" text="Based on Version" />
 						</label>
 						<div class="col-sm-10">
-							<input class="form-control" value="${oldVersion}" readonly />
+							<input class="form-control" value="${oldVersion}" />
 						</div>
 					</div>
 					<div class="form-group">
@@ -59,8 +59,8 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="submit" class="btn btn-primary" onclick="$('#history_form').submit()">
-					<spring:message code="label.action.Create" text="Create" />
+				<button type="button" class="btn btn-primary" onclick="return duplicateAnalysis('history_form', '${analysisId}')">
+					<spring:message code="label.action.save" text="Save" />
 				</button>
 			</div>
 		</div>
