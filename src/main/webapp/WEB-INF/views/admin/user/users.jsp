@@ -35,7 +35,9 @@
 								<td>${user.firstName}</td>
 								<td>${user.lastName}</td>
 								<td>${user.email}</td>
-								<td><spring:message code="label.user.enable.${user.enable}" /></td>
+								<td><spring:message code="label.user.enable.${user.enable}" />
+								</td>
+								
 								<td>
 									<c:forEach items="${user.roles}" var="role">
 										<spring:message code="label.role.${role.type}" />

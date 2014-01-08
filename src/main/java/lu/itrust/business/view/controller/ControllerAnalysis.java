@@ -28,6 +28,7 @@ import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceRiskRegister;
 import lu.itrust.business.service.ServiceTaskFeedback;
+import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerAnalysisImport;
@@ -61,6 +62,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
 
+	@Autowired
+	private ServiceUser serviceUser;
+	
 	@Autowired
 	private ServiceActionPlanType serviceActionPlanType;
 
@@ -114,8 +118,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String displayAll(Map<String, Object> model, HttpSession session,
-			Locale Locale) throws Exception {
+	public String displayAll(Map<String, Object> model, HttpSession session, Locale Locale) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 		if (selected != null) {
 			model.put("assettypes", serviceAssetType.loadAll());
@@ -127,14 +130,10 @@ public class ControllerAnalysis {
 	}
 
 	@RequestMapping("/{analysisId}/Duplicate")
-	public String createNewVersion(@ModelAttribute History history,
-			@PathVariable Integer analysisId, HttpSession session,
-			RedirectAttributes attributes, Locale locale) throws Exception {
+	public String createNewVersion(@ModelAttribute History history, @PathVariable Integer analysisId, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null) {
-			attributes.addFlashAttribute("error", messageSource.getMessage(
-					"error.analysis.not_found", null,
-					"Analysis cannot be found!", locale));
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 			return "redirect:/Analysis";
 		}
 		try {
@@ -146,20 +145,14 @@ public class ControllerAnalysis {
 			copy.setLabel(history.getComment());
 			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
 			serviceAnalysis.saveOrUpdate(copy);
-			attributes.addFlashAttribute("success", messageSource.getMessage(
-					"success.analysis.duplicate", null,
-					"Analysis cannot be found!", locale));
+			attributes.addFlashAttribute("success", messageSource.getMessage("success.analysis.duplicate", null, "Analysis cannot be found!", locale));
 			return "redirect:/Analysis/" + copy.getId() + "/Select";
 		} catch (CloneNotSupportedException e) {
-			attributes.addAttribute("error", messageSource.getMessage(
-					"error.analysis.duplicate", null,
-					"Analysis cannot be duplicate!", locale));
+			attributes.addAttribute("error", messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicate!", locale));
 			e.printStackTrace();
 			return "redirect:/Analysis";
 		} catch (DataIntegrityViolationException e) {
-			attributes.addAttribute("error", messageSource.getMessage(
-					"error.version.duplicate", null, "Version already exists",
-					locale));
+			attributes.addAttribute("error", messageSource.getMessage("error.version.duplicate", null, "Version already exists", locale));
 			e.printStackTrace();
 		}
 		return "analysis/components/widgets/historyForm";
@@ -176,10 +169,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisId}/Select")
-	public String selectAnalysis(
-			@PathVariable("analysisId") Integer analysisId,
-			Map<String, Object> model, HttpSession session,
-			RedirectAttributes attributes) throws Exception {
+	public String selectAnalysis(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, RedirectAttributes attributes) throws Exception {
 
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 
@@ -205,9 +195,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Edit/{analysisId}")
-	public String requestEditAnalysis(
-			@PathVariable("analysisId") Integer analysisId,
-			Map<String, Object> model) throws Exception {
+	public String requestEditAnalysis(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model) throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
 
@@ -235,11 +223,8 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Edit/{analysisId}/Save")
-	public String performEditAnalysis(
-			@PathVariable("analysisId") Integer analysisId,
-			@ModelAttribute("analysis") @Valid Analysis analysis,
-			RedirectAttributes attributes, BindingResult result)
-			throws Exception {
+	public String performEditAnalysis(@PathVariable("analysisId") Integer analysisId, @ModelAttribute("analysis") @Valid Analysis analysis, RedirectAttributes attributes,
+			BindingResult result) throws Exception {
 
 		analysis.setId(Integer.valueOf(result.getFieldValue("id").toString()));
 
@@ -249,8 +234,7 @@ public class ControllerAnalysis {
 
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 
-		Timestamp timestamp = new Timestamp(format.parse(
-				result.getFieldValue("creationDate").toString()).getTime());
+		Timestamp timestamp = new Timestamp(format.parse(result.getFieldValue("creationDate").toString()).getTime());
 
 		analysis.setCreationDate(timestamp);
 
@@ -271,18 +255,13 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Delete/{analysisId}")
-	public String deleteAnalysis(
-			@PathVariable("analysisId") Integer analysisId,
-			RedirectAttributes attributes, Locale locale) throws Exception {
+	public String deleteAnalysis(@PathVariable("analysisId") Integer analysisId, RedirectAttributes attributes, Locale locale) throws Exception {
 		try {
 			serviceAnalysis.remove(analysisId);
-			String message = messageSource.getMessage(
-					"success.delete.analysis", null,
-					"Analysis was deleted successfully", locale);
+			String message = messageSource.getMessage("success.delete.analysis", null, "Analysis was deleted successfully", locale);
 			attributes.addFlashAttribute("success", message);
 		} catch (Exception e) {
-			String message = messageSource.getMessage("failed.delete.analysis",
-					null, "Analysis can be deleted", locale);
+			String message = messageSource.getMessage("failed.delete.analysis", null, "Analysis can be deleted", locale);
 			attributes.addFlashAttribute("errors", message);
 			e.printStackTrace();
 		}
@@ -299,9 +278,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisId}/compute/riskRegister")
-	public String computeRiskRegister(
-			@PathVariable("analysisId") Integer analysisId,
-			RedirectAttributes attributes) throws Exception {
+	public String computeRiskRegister(@PathVariable("analysisId") Integer analysisId, RedirectAttributes attributes) throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
 
@@ -312,8 +289,7 @@ public class ControllerAnalysis {
 		MessageHandler handler = computeRiskRegisters(analysis);
 
 		if (handler != null) {
-			attributes.addFlashAttribute("error", handler.getException()
-					.getMessage());
+			attributes.addFlashAttribute("error", handler.getException().getMessage());
 		}
 		return "redirect:Analysis";
 	}
@@ -328,9 +304,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisId}/compute/actionPlan")
-	public String computeActionPlan(
-			@PathVariable("analysisId") Integer analysisId,
-			RedirectAttributes attributes) throws Exception {
+	public String computeActionPlan(@PathVariable("analysisId") Integer analysisId, RedirectAttributes attributes) throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
 
@@ -343,8 +317,7 @@ public class ControllerAnalysis {
 		MessageHandler handler = computeActionPlan(analysis);
 
 		if (handler != null) {
-			attributes.addFlashAttribute("error", handler.getException()
-					.getMessage());
+			attributes.addFlashAttribute("error", handler.getException().getMessage());
 		}
 
 		return "redirect:/Analysis";
@@ -381,43 +354,32 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Import/Execute")
-	public Object importAnalysisSave(final Principal principal,
-			final @RequestParam(value = "customerId") Integer customerId,
-			final HttpServletRequest request,
-			final @RequestParam(value = "file") MultipartFile file,
-			final RedirectAttributes attributes, Locale locale)
-			throws Exception {
+	public Object importAnalysisSave(final Principal principal, final @RequestParam(value = "customerId") Integer customerId, final HttpServletRequest request, final @RequestParam(
+			value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
 
 		Customer customer = serviceCustomer.get(customerId);
 
 		if (customer == null || file.isEmpty())
 			return "analysis/importAnalysisForm";
 
-		File importFile = new File(request.getServletContext().getRealPath(
-				"/WEB-INF/tmp")
-				+ "/" + principal.getName() + "_" + System.nanoTime() + "");
+		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 
 		file.transferTo(importFile);
 
-		Worker worker = new WorkerAnalysisImport(sessionFactory,
-				serviceTaskFeedback, importFile, customer);
+		Worker worker = new WorkerAnalysisImport(sessionFactory, serviceTaskFeedback, importFile, customer, serviceUser.get(principal.getName()));
 
 		worker.setPoolManager(workersPoolManager);
 
 		String message = null;
 		String typeMessage = null;
 
-		if (serviceTaskFeedback.registerTask(principal.getName(),
-				worker.getId())) {
+		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
 			executor.execute(worker);
 			typeMessage = "success";
-			message = messageSource.getMessage("success.start.import.analysis",
-					null, "Analysis importation was started successfully",
-					locale);
+			message = messageSource.getMessage("success.start.import.analysis", null, "Analysis importation was started successfully", locale);
 		} else {
 			typeMessage = "errors";
-			message = messageSource.getMessage("failed.start.import.analysis",
-					null, "Analysis importation was failed", locale);
+			message = messageSource.getMessage("failed.start.import.analysis", null, "Analysis importation was failed", locale);
 		}
 
 		attributes.addFlashAttribute(typeMessage, message);
@@ -460,16 +422,14 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	private MessageHandler computeActionPlan(Analysis analysis)
-			throws Exception {
+	private MessageHandler computeActionPlan(Analysis analysis) throws Exception {
 
 		deleteActionPlan(analysis);
 
 		// ****************************************************************
 		// Calculate Action Plan - BEGIN
 		// ****************************************************************
-		ActionPlanComputation actionPlanComputation = new ActionPlanComputation(
-				serviceActionPlanType, analysis);
+		ActionPlanComputation actionPlanComputation = new ActionPlanComputation(serviceActionPlanType, analysis);
 
 		MessageHandler handler = actionPlanComputation.calculateActionPlans();
 
@@ -504,12 +464,10 @@ public class ControllerAnalysis {
 	private void deleteActionPlan(Analysis analysis) throws Exception {
 
 		while (!analysis.getSummaries().isEmpty())
-			serviceActionPlanSummary.remove(analysis.getSummaries().remove(
-					analysis.getSummaries().size() - 1));
+			serviceActionPlanSummary.remove(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
 
 		while (!analysis.getActionPlans().isEmpty())
-			serviceActionPlan.delete(analysis.getActionPlans().remove(
-					analysis.getActionPlans().size() - 1));
+			serviceActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
 	}
 
 	/**
@@ -522,8 +480,7 @@ public class ControllerAnalysis {
 	private void deleteRiskRegister(Analysis analysis) throws Exception {
 
 		while (!analysis.getRiskRegisters().isEmpty())
-			serviceRiskRegister.remove(analysis.getRiskRegisters().remove(
-					analysis.getRiskRegisters().size() - 1));
+			serviceRiskRegister.remove(analysis.getRiskRegisters().remove(analysis.getRiskRegisters().size() - 1));
 	}
 
 	/**
@@ -534,13 +491,11 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	private MessageHandler computeRiskRegisters(Analysis analysis)
-			throws Exception {
+	private MessageHandler computeRiskRegisters(Analysis analysis) throws Exception {
 
 		deleteRiskRegister(analysis);
 
-		RiskRegisterComputation registerComputation = new RiskRegisterComputation(
-				analysis);
+		RiskRegisterComputation registerComputation = new RiskRegisterComputation(analysis);
 
 		MessageHandler handler = registerComputation.computeRiskRegister();
 

@@ -7,6 +7,15 @@
 		<id column="idAnalysis" name="id" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
+		
+		<many-to-one name="owner" class="lu.itrust.business.view.model.User">
+        	<column name="fiOwner" not-null="true" />
+		</many-to-one>
+		
+		<many-to-one name="basedOnAnalysis" class="Analysis" not-null="false">
+        	<column name="fiBasedOnAnalysis" />
+		</many-to-one>
+		
 		<many-to-one class="Language" column="fiLanguage" name="language" not-null="true" />
 
 		<many-to-one class="Customer" column="fiCustomer" name="customer" not-null="true" />
@@ -63,7 +72,7 @@
 			<one-to-many class="Assessment" />
 		</bag>
 
-<bag name="scenarios" table="scenario" cascade="all" access="field" order-by="selected desc, name asc">
+		<bag name="scenarios" table="scenario" cascade="all" access="field" order-by="selected desc, name asc">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Scenario" />
 		</bag>

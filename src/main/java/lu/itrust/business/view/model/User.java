@@ -161,6 +161,16 @@ public class User implements Serializable {
 		this.enable = enable;
 	}
 
+	/**
+	 * disable: <br>
+	 * Removes all accounts and disables it.
+	 *
+	 */
+	public void disable() {
+		this.roles.clear();
+		enable = !roles.isEmpty();
+	}
+	
 	public List<Role> getRoles() {
 		return roles;
 	}
