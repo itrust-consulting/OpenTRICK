@@ -104,4 +104,14 @@ public class ServicePhaseImpl implements ServicePhase {
 		daoPhase.remove(phase);
 	}
 
+	@Override
+	public Phase loadByIdAndIdAnalysis(int idPhase, Integer idAnalysis) {
+		return daoPhase.loadByIdAndIdAnalysis(idPhase,idAnalysis);
+	}
+
+	@Override
+	public boolean canBeDeleted(int idPhase) {
+		return daoPhase.canBeDeleted(idPhase);
+	}
+
 }

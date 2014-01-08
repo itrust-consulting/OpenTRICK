@@ -306,11 +306,10 @@ function FieldEditor(element, validator) {
 	FieldEditor.prototype.__findCallback = function(element) {
 		if ($(element).attr("trick-callback") != undefined)
 			return $(element).attr("trick-callback");
-		else if ($(element).parent().prop("tagName") != "BODY"){
+		else if ($(element).parent().prop("tagName") != "BODY") {
 			console.log($(element).parent().prop("tagName"));
 			return this.__findCallback($(element).parent());
-		}
-		else
+		} else
 			return null;
 	};
 
@@ -1317,10 +1316,12 @@ function controllerBySection(section) {
 		"section_parameter" : "/Parameter/Section",
 		"section_scenario" : "/Scenario/Section",
 		"section_assessment" : "/Assessment/Section",
+		"section_phase" : "/Phase/Section",
 		"section_analysis" : "/Analysis",
 		"section_customer" : "/KnowledgeBase/Customer/Section",
 		"section_language" : "/KnowledgeBase/Language/Section",
 		"section_norm" : "/KnowledgeBase/Norm/Section"
+
 	};
 	return controllers[section];
 }
@@ -1550,8 +1551,9 @@ function findAllScenarioType(selector) {
 	});
 }
 
-function clearScenarioFormData(){
-	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario"));
+function clearScenarioFormData() {
+	$("#addScenarioModal #addScenarioModel-title").html(
+			MessageResolver("label.scenario.add", "Add new scenario"));
 	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
 
@@ -1636,6 +1638,64 @@ function saveScenario(form) {
 		},
 	});
 }
+/**
+ * 
+ * @param form
+ * @returns
+ */
+function savePhase(form) {
+	return $.ajax({
+		url : context + "/Phase/Save",
+		type : "post",
+		async : true,
+		data : serializeAssetForm(form),
+		contentType : "application/json",
+		success : function(response) {
+			var previewError = $("#addPhaseModel .alert");
+			if (previewError.length)
+				previewError.remove();
+			var data = "";
+			for ( var error in response)
+				data += response[error][1] + "\n";
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
+			if (result) {
+				$("#addPhaseModel").modal("hide");
+				reloadSection("section_phase");
+			}
+			return result;
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
+	});
+}
+
+function deletePhase(idPhase) {
+	$("#confirm-dialog .modal-body").text(
+			MessageResolver("confirm.delete.phase",
+					"Are you sure, you want to delete this phase"));
+	$("#confirm-dialog .btn-danger").click(function() {
+		$.ajax({
+			url : context + "/Phase/Delete/" + idPhase,
+			contentType : "application/json",
+			async : true,
+			success : function(response) {
+				if (response["success"] != undefined) {
+					reloadSection("section_phase");
+					$("#info-dialog .modal-body").html(response["success"]);
+					$("#info-dialog").modal("toggle");
+				} else if (response["error"] != undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
+					$("#alert-dialog").modal("toggle");
+				}
+				return false;
+			}
+		});
+	});
+	$("#confirm-dialog").modal("toggle");
+	return false;
+}
 
 $(function() {
 	var trick_table = $(this).find("table[trick-table]");
@@ -1651,8 +1711,12 @@ $(function() {
 
 function contextMenuHide(context) {
 	var elements = $(context).find("li[name]");
-	for (var i = 0; i < elements.length; i++)
-		$(elements[i]).attr("hidden", true);
+	for (var i = 0; i < elements.length; i++) {
+		if ($(elements[i]).attr("class") == "divider")
+			$(elements[i]).attr("hidden", false);
+		else
+			$(elements[i]).attr("hidden", true);
+	}
 	return true;
 }
 
@@ -1767,7 +1831,6 @@ $(function() {
 						var rowTrickId = $(e.currentTarget).attr('trick-id');
 						var organisation = $(e.currentTarget)
 								.children(":first").text();
-						// alert(organisation);
 						$contextMenu.attr("trick-selected-id", rowTrickId);
 						editRow.attr("onclick",
 								"javascript:return editSingleCustomer("
@@ -1791,7 +1854,6 @@ $(function() {
 			function(e) {
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
 				var langname = $(e.currentTarget).children(":eq(1)").text();
-				// alert(organisation);
 				$contextMenu.attr("trick-selected-id", rowTrickId);
 				editRow.attr("onclick", "javascript:return editSingleLanguage("
 						+ rowTrickId + ");");
@@ -1813,7 +1875,6 @@ $(function() {
 			function(e) {
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
 				var normname = $(e.currentTarget).children(":first").text();
-				// alert(organisation);
 				$contextMenu.attr("trick-selected-id", rowTrickId);
 				editRow.attr("onclick", "javascript:return editSingleNorm("
 						+ rowTrickId + ");");
@@ -1836,7 +1897,6 @@ $(function() {
 			function(e) {
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
 				var user = $(e.currentTarget).children(":first").text();
-				// alert(organisation);
 				$contextMenu.attr("trick-selected-id", rowTrickId);
 				editRow.attr("onclick", "javascript:return editSingleUser("
 						+ rowTrickId + ");");
@@ -1851,6 +1911,24 @@ $(function() {
 				return false;
 			});
 
+	$("#section_phase").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				contextMenuHide($contextMenu);
+				$contextMenu.find("li[name='divider_0']").attr("hidden", true);
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				deleteElement.attr("onclick", "return deletePhase('"
+						+ rowTrickId + "');");
+				$(deleteElement).parent().attr("hidden", false);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
+				return false;
+			});
 	$contextMenu.on("click", "a", function() {
 		$contextMenu.hide();
 	});
@@ -1910,6 +1988,10 @@ $(function() {
  * Content Navigation
  */
 $(function() {
+	
+	if($('#confirm-dialog').length)
+		$('#confirm-dialog').on('hidden.bs.modal', function() {$("#confirm-dialog .btn-danger").unbind("click");});
+	
 	var $window = $(window);
 	var previewScrollTop = $window.scrollTop();
 	if (!$(".navbar-custom").length)
@@ -1956,7 +2038,7 @@ $(function() {
 	chartALE();
 	compliance('27001');
 	compliance('27002');
-	
+
 });
 
 function chartALE() {

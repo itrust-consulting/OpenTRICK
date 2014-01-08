@@ -11,12 +11,7 @@ import lu.itrust.business.TS.ParameterType;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOParameter;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
-import org.hibernate.proxy.HibernateProxy;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
 /**

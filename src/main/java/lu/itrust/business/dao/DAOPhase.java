@@ -33,5 +33,9 @@ public interface DAOPhase {
 
 	Phase loadFromPhaseNumberAnalysis(int number, int IdAnalysis)
 			throws Exception;
+	
+	Phase loadByIdAndIdAnalysis(int idPhase, Integer idAnalysis);
+
+	public boolean canBeDeleted(int idPhase);
 
 }

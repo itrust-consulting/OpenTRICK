@@ -51,11 +51,14 @@
 								code="menu.measure.custom" text="Custom" />
 					</a></li>
 				</ul></li>
-			<li><a href="#Charts"> <spring:message
-						code="menu.analysis.chart" text="Charts" /></a></li>
+
 			<li><a href="#Phase"> <spring:message
 						code="menu.analysis.phase" text="Phases" />
 			</a></li>
+
+			<li><a href="#Charts"> <spring:message
+						code="menu.analysis.chart" text="Charts" /></a></li>
+
 			<li><a href="#RiskInformation"> <spring:message
 						code="menu.analysis.riskinformation" text="Risk Information" />
 			</a> <!-- 

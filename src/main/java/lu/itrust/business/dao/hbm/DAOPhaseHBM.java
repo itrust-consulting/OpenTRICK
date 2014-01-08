@@ -92,10 +92,10 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	public List<Phase> loadByEndDate(Date endDate, int idAnalysis)
 			throws Exception {
 		return getSession()
-		.createQuery(
-				"Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.endDate = :endDate order by phase.number")
-		.setParameter("idAnalysis", idAnalysis)
-		.setParameter("endDate", endDate).list();
+				.createQuery(
+						"Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.endDate = :endDate order by phase.number")
+				.setParameter("idAnalysis", idAnalysis)
+				.setParameter("endDate", endDate).list();
 	}
 
 	/**
@@ -108,9 +108,9 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	@Override
 	public List<Phase> loadAllFromAnalysis(int idAnalysis) throws Exception {
 		return getSession()
-		.createQuery(
-				"Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis order by phase.number asc")
-		.setParameter("idAnalysis", idAnalysis).list();
+				.createQuery(
+						"Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis order by phase.number asc")
+				.setParameter("idAnalysis", idAnalysis).list();
 	}
 
 	/**
@@ -119,9 +119,13 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * 
 	 * @see lu.itrust.business.dao.DAOPhase#loadAll()
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Phase> loadAll() throws Exception {
-		return null;
+		return getSession()
+				.createQuery(
+						"from Phase phase order by phase.number asc, phase.beginDate asc")
+				.list();
 	}
 
 	/**
@@ -157,6 +161,23 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	public void remove(Phase phase) throws Exception {
 		getSession().delete(phase);
 
+	}
+
+	@Override
+	public Phase loadByIdAndIdAnalysis(int idPhase, Integer idAnalysis) {
+		return (Phase) getSession()
+				.createQuery(
+						"Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.id = :idPhase")
+				.setParameter("idAnalysis", idAnalysis)
+				.setParameter("idPhase", idPhase).uniqueResult();
+	}
+
+	@Override
+	public boolean canBeDeleted(int idPhase) {
+		return ((Long) getSession()
+				.createQuery(
+						"Select count(measure) from Measure as measure where measure.phase.id = :idPhase")
+				.setParameter("idPhase", idPhase).uniqueResult()).intValue() == 0;
 	}
 
 }
