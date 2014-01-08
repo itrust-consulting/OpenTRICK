@@ -61,6 +61,8 @@
 							expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)"
 							var="measures" scope="request" />
 						<jsp:include page="./components/measure.jsp" />
+						<c:set var="phases" scope="request" value="${analysis.usedPhases}"/>
+						<jsp:include page="./components/phase.jsp"/>
 						<jsp:include page="./components/charts.jsp" />
 						<jsp:include page="./components/widgets.jsp" />
 					</div>

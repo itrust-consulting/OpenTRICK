@@ -3,7 +3,6 @@ package lu.itrust.business.dao;
 import java.sql.Date;
 import java.util.List;
 
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Phase;
 
 /** 
@@ -17,16 +16,12 @@ import lu.itrust.business.TS.Phase;
 public interface DAOPhase {
 	
 	public Phase get(int id) throws Exception;
+
+	public List<Phase> loadByBeginDate(Date beginDate, int idAnalysis) throws Exception;
 	
-	public List<Phase> loadFromPhaseNumberAnalysis(int number, Analysis analysis) throws Exception;
+	public List<Phase> loadByEndDate(Date beginDate, int idAnalysis) throws Exception;
 	
-	public List<Phase> loadByBeginDate(Date beginDate, Analysis analysis) throws Exception;
-	
-	public List<Phase> loadByEndDate(Date beginDate, Analysis analysis) throws Exception;
-	
-	public List<Phase> loadAllFromAnalysis(Analysis analysis) throws Exception;
-	
-	public List<Phase> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier, int version, String creationDate) throws Exception;
+	public List<Phase> loadAllFromAnalysis(int idAnalysis) throws Exception;
 	
 	public List<Phase> loadAll() throws Exception;
 	
@@ -35,5 +30,12 @@ public interface DAOPhase {
 	public void saveOrUpdate(Phase phase) throws Exception;
 	
 	public void remove(Phase phase)throws Exception;
+
+	Phase loadFromPhaseNumberAnalysis(int number, int IdAnalysis)
+			throws Exception;
+	
+	Phase loadByIdAndIdAnalysis(int idPhase, Integer idAnalysis);
+
+	public boolean canBeDeleted(int idPhase);
 
 }
