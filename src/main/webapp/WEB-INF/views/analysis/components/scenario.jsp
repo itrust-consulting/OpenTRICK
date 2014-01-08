@@ -24,21 +24,29 @@
 			<table class="table">
 				<thead>
 					<tr>
-						<th colspan="2"><spring:message code="label.scenario.name" text="Name"
+						<th><spring:message code="label.row.index" text="#"
 								htmlEscape="true" /></th>
+						<th colspan="2"><spring:message code="label.scenario.name"
+								text="Name" htmlEscape="true" /></th>
 						<th><spring:message code="label.scenario.type" text="Type"
 								htmlEscape="true" /></th>
-						<th colspan="2"><spring:message code="label.scenario.description"
-								text="Description" htmlEscape="true" /></th>
+						<th colspan="2"><spring:message
+								code="label.scenario.description" text="Description"
+								htmlEscape="true" /></th>
 					</tr>
 				</thead>
 				<tbody>
-					<c:forEach items="${scenarios}" var="scenario">
-						<tr class="${scenario.selected? 'success' : 'active'}"
-							trick-id="${scenario.id}" trick-selected="${scenario.selected}" ondblclick="return editScenarioRow(${scenario.id})">
-							<td colspan="2">${scenario.name}</td>
-							<td>${scenario.type.getTypeName()}</td>
-							<td colspan="2">${scenario.description}</td>
+					<c:forEach items="${scenarios}" var="scenario" varStatus="status">
+						<c:set var="cssClass">
+								${scenario.selected? 'success' : ''}
+							</c:set>
+						<tr trick-id="${scenario.id}"
+							trick-selected="${scenario.selected}"
+							ondblclick="return editScenarioRow(${scenario.id})">
+							<td>${status.index+1}</td>
+							<td class="${cssClass}" colspan="2">${scenario.name}</td>
+							<td class="${cssClass}">${scenario.type.getTypeName()}</td>
+							<td class="${cssClass}" colspan="2">${scenario.description}</td>
 						</tr>
 					</c:forEach>
 				</tbody>

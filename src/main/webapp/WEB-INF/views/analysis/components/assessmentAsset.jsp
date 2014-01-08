@@ -46,7 +46,7 @@
 						expression="T(lu.itrust.business.component.AssessmentManager).Sort(assessments)"
 						var="sortedAssessments" />
 					<c:forEach items="${sortedAssessments}" var="assessment">
-						<tr trick-class="Assessment" trick-id="${assessment.id}">
+						<tr trick-class="Assessment" trick-id="${assessment.id}" trick-callback="chartALE()">
 							<td colspan="3">${assessment.scenario.name}</td>
 							<td trick-field="impactRep" trick-field-type="string" class="success"
 								ondblclick="return editField(this);"><spring:message

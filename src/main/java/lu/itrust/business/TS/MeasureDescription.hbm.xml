@@ -7,7 +7,7 @@
 		<id name="id" type="int" column="idMeasureDescription" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
-		<many-to-one name="norm" column="fiNorm" not-null="true"/>
+		<many-to-one name="norm" column="fiNorm" not-null="true" cascade="save-update"/>
 		<property name="level" type="int" column="dtLevel" not-null="true" access="field"/>
 		<property name="reference" type="java.lang.String" column="dtReference" not-null="true"  access="field"/>
 		<bag name="measureDescriptionTexts" table="MeasureDescriptionText" cascade="all" inverse="true">

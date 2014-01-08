@@ -38,7 +38,7 @@
 								<tr trick-class="ItemInformation"
 									trick-id="${itemInformation.id}">
 									<td>${itemInformation.description}</td>
-									<td trick-field="value" trick-field-type="string"
+									<td trick-field="value" trick-field-type="string" class="success"
 										ondblclick="return editField(this);">${itemInformation.value}</td>
 								</tr>
 							</c:forEach>
@@ -70,7 +70,7 @@
 								<tr trick-class="ItemInformation"
 									trick-id="${itemInformation.id}">
 									<td>${itemInformation.description}</td>
-									<td trick-field="value" trick-field-trype="string"
+									<td trick-field="value" trick-field-trype="string" class="success"
 										ondblclick="return editField(this);">${itemInformation.value}</td>
 								</tr>
 							</c:forEach>

@@ -113,6 +113,7 @@ function computeAssessment() {
 			} else if (response['success'] != undefined) {
 				$("#info-dialog .modal-body").text(response['success']);
 				$("#info-dialog").modal("toggle");
+				chartALE();
 			}
 			return false;
 		},
@@ -228,6 +229,7 @@ function FieldEditor(element, validator) {
 	this.fieldName = null;
 	this.classId = null;
 	this.fieldType = null;
+	this.callback = null;
 
 	FieldEditor.prototype.GenerateInputField = function() {
 		if ($(this.element).find("input").length)
@@ -269,6 +271,7 @@ function FieldEditor(element, validator) {
 		if (!this.GenerateInputField()) {
 			this.controllor = this.__findControllor(this.element);
 			this.classId = this.__findClassId(this.element);
+			this.callback = this.__findCallback(this.element);
 			this.fieldName = $(this.element).attr("trick-field");
 			this.fieldType = $(this.element).attr("trick-field-type");
 			return false;
@@ -285,7 +288,7 @@ function FieldEditor(element, validator) {
 	FieldEditor.prototype.__findControllor = function(element) {
 		if ($(element).attr("trick-class") != undefined)
 			return $(element).attr("trick-class");
-		else if ($(element).parent().prop("tagName") != "body")
+		else if ($(element).parent().prop("tagName") != "BODY")
 			return this.__findControllor($(element).parent());
 		else
 			return null;
@@ -294,9 +297,19 @@ function FieldEditor(element, validator) {
 	FieldEditor.prototype.__findClassId = function(element) {
 		if ($(element).attr("trick-id") != undefined)
 			return $(element).attr("trick-id");
-		else if ($(element).parent().prop("tagName") != "body")
+		else if ($(element).parent().prop("tagName") != "BODY")
 			return this.__findClassId($(element).parent());
 		else
+			return null;
+	};
+
+	FieldEditor.prototype.__findCallback = function(element) {
+		if ($(element).attr("trick-callback") != undefined)
+			return $(element).attr("trick-callback");
+		else if ($(element).parent().prop("tagName") != "BODY") {
+			console.log($(element).parent().prop("tagName"));
+			return this.__findCallback($(element).parent());
+		} else
 			return null;
 	};
 
@@ -360,6 +373,9 @@ function FieldEditor(element, validator) {
 									$("#info-dialog .modal-body").html(
 											response["success"]);
 									$("#info-dialog").modal("toggle");
+									if (that.callback != null
+											&& that.callback != undefined)
+										setTimeout(that.callback, 10);
 								} else {
 									$("#alert-dialog .modal-body").html(
 											response["error"]);
@@ -1302,6 +1318,7 @@ function controllerBySection(section) {
 		"section_parameter" : "/Parameter/Section",
 		"section_scenario" : "/Scenario/Section",
 		"section_assessment" : "/Assessment/Section",
+		"section_phase" : "/Phase/Section",
 		"section_analysis" : "/Analysis",
 		"section_customer" : "/KnowledgeBase/Customer/Section",
 		"section_language" : "/KnowledgeBase/Language/Section",
@@ -1314,9 +1331,11 @@ function controllerBySection(section) {
 function callbackBySection(section) {
 	var callbacks = {
 		"section_asset" : function() {
+			chartALE();
 			return false;
 		},
 		"section_scenario" : function() {
+			chartALE();
 			return false;
 		}
 	};
@@ -1507,6 +1526,7 @@ function serializeScenarioForm(formId) {
 }
 
 function findAllScenarioType(selector) {
+	clearScenarioFormData();
 	var element = document.getElementById(selector);
 	$.ajax({
 		url : context + "/ScenarioType/All",
@@ -1531,6 +1551,12 @@ function findAllScenarioType(selector) {
 			}
 		}
 	});
+}
+
+function clearScenarioFormData() {
+	$("#addScenarioModal #addScenarioModel-title").html(
+			MessageResolver("label.scenario.add", "Add new scenario"));
+	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
 
 function selectScenario(assetId, selectVaue) {
@@ -1614,6 +1640,64 @@ function saveScenario(form) {
 		},
 	});
 }
+/**
+ * 
+ * @param form
+ * @returns
+ */
+function savePhase(form) {
+	return $.ajax({
+		url : context + "/Phase/Save",
+		type : "post",
+		async : true,
+		data : serializeAssetForm(form),
+		contentType : "application/json",
+		success : function(response) {
+			var previewError = $("#addPhaseModel .alert");
+			if (previewError.length)
+				previewError.remove();
+			var data = "";
+			for ( var error in response)
+				data += response[error][1] + "\n";
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
+			if (result) {
+				$("#addPhaseModel").modal("hide");
+				reloadSection("section_phase");
+			}
+			return result;
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
+	});
+}
+
+function deletePhase(idPhase) {
+	$("#confirm-dialog .modal-body").text(
+			MessageResolver("confirm.delete.phase",
+					"Are you sure, you want to delete this phase"));
+	$("#confirm-dialog .btn-danger").click(function() {
+		$.ajax({
+			url : context + "/Phase/Delete/" + idPhase,
+			contentType : "application/json",
+			async : true,
+			success : function(response) {
+				if (response["success"] != undefined) {
+					reloadSection("section_phase");
+					$("#info-dialog .modal-body").html(response["success"]);
+					$("#info-dialog").modal("toggle");
+				} else if (response["error"] != undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
+					$("#alert-dialog").modal("toggle");
+				}
+				return false;
+			}
+		});
+	});
+	$("#confirm-dialog").modal("toggle");
+	return false;
+}
 
 $(function() {
 	var trick_table = $(this).find("table[trick-table]");
@@ -1629,8 +1713,12 @@ $(function() {
 
 function contextMenuHide(context) {
 	var elements = $(context).find("li[name]");
-	for (var i = 0; i < elements.length; i++)
-		$(elements[i]).attr("hidden", true);
+	for (var i = 0; i < elements.length; i++) {
+		if ($(elements[i]).attr("class") == "divider")
+			$(elements[i]).attr("hidden", false);
+		else
+			$(elements[i]).attr("hidden", true);
+	}
 	return true;
 }
 
@@ -1745,7 +1833,6 @@ $(function() {
 						var rowTrickId = $(e.currentTarget).attr('trick-id');
 						var organisation = $(e.currentTarget)
 								.children(":first").text();
-						// alert(organisation);
 						$contextMenu.attr("trick-selected-id", rowTrickId);
 						editRow.attr("onclick",
 								"javascript:return editSingleCustomer("
@@ -1769,7 +1856,6 @@ $(function() {
 			function(e) {
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
 				var langname = $(e.currentTarget).children(":eq(1)").text();
-				// alert(organisation);
 				$contextMenu.attr("trick-selected-id", rowTrickId);
 				editRow.attr("onclick", "javascript:return editSingleLanguage("
 						+ rowTrickId + ");");
@@ -1791,7 +1877,6 @@ $(function() {
 			function(e) {
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
 				var normname = $(e.currentTarget).children(":first").text();
-				// alert(organisation);
 				$contextMenu.attr("trick-selected-id", rowTrickId);
 				editRow.attr("onclick", "javascript:return editSingleNorm("
 						+ rowTrickId + ");");
@@ -1814,7 +1899,6 @@ $(function() {
 			function(e) {
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
 				var user = $(e.currentTarget).children(":first").text();
-				// alert(organisation);
 				$contextMenu.attr("trick-selected-id", rowTrickId);
 				editRow.attr("onclick", "javascript:return editSingleUser("
 						+ rowTrickId + ");");
@@ -1829,6 +1913,24 @@ $(function() {
 				return false;
 			});
 
+	$("#section_phase").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				contextMenuHide($contextMenu);
+				$contextMenu.find("li[name='divider_0']").attr("hidden", true);
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				deleteElement.attr("onclick", "return deletePhase('"
+						+ rowTrickId + "');");
+				$(deleteElement).parent().attr("hidden", false);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
+				return false;
+			});
 	$contextMenu.on("click", "a", function() {
 		$contextMenu.hide();
 	});
@@ -1888,6 +1990,10 @@ $(function() {
  * Content Navigation
  */
 $(function() {
+	
+	if($('#confirm-dialog').length)
+		$('#confirm-dialog').on('hidden.bs.modal', function() {$("#confirm-dialog .btn-danger").unbind("click");});
+	
 	var $window = $(window);
 	var previewScrollTop = $window.scrollTop();
 	if (!$(".navbar-custom").length)
@@ -1914,104 +2020,77 @@ $(function() {
 
 });
 
-
-$(function() {
-
-	if (!$('#chart_ale_scenario_type').length)
+function compliance(norm) {
+	if (!$('#chart_compliance_' + norm).length)
 		return false;
 	$.ajax({
-		url : context + "/Scenario/Chart/Type/Ale",
+		url : context + "/Measure/Compliance/" + norm,
 		type : "get",
-		async: true,
+		async : true,
 		contentType : "application/json",
 		async : true,
 		success : function(response) {
-			$('#chart_ale_scenario_type').highcharts(JSON.parse(response));
+			$('#chart_compliance_' + norm).highcharts(JSON.parse(response));
+
 		}
 	});
-});
+}
 
 $(function() {
+	chartALE();
+	compliance('27001');
+	compliance('27002');
 
-	if (!$('#chart_ale_scenario').length)
-		return false;
-	$.ajax({
-		url : context + "/Scenario/Chart/Ale",
-		type : "get",
-		async: true,
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			$('#chart_ale_scenario').highcharts(JSON.parse(response));
-		}
-	});
 });
 
-$(function() {
+function chartALE() {
+	if ($('#chart_ale_scenario_type').length) {
+		$.ajax({
+			url : context + "/Scenario/Chart/Type/Ale",
+			type : "get",
+			async : true,
+			contentType : "application/json",
+			async : true,
+			success : function(response) {
+				$('#chart_ale_scenario_type').highcharts(JSON.parse(response));
+			}
+		});
+	}
+	if ($('#chart_ale_scenario').length) {
+		$.ajax({
+			url : context + "/Scenario/Chart/Ale",
+			type : "get",
+			async : true,
+			contentType : "application/json",
+			async : true,
+			success : function(response) {
+				$('#chart_ale_scenario').highcharts(JSON.parse(response));
+			}
+		});
+	}
 
-	if (!$('#chart_compliance_27001').length)
-		return false;
-	$.ajax({
-		url : context + "/Measure/Compliance/27001",
-		type : "get",
-		async: true,
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			$('#chart_compliance_27001').highcharts(JSON.parse(response));
-
-		}
-	});
-});
-
-$(function() {
-
-	if (!$('#chart_compliance_27002').length)
-		return false;
-	$.ajax({
-		url : context + "/Measure/Compliance/27002",
-		type : "get",
-		async: true,
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			$('#chart_compliance_27002').highcharts(JSON.parse(response));
-		}
-	});
-});
-
-$(function() {
-
-	if (!$('#chart_ale_asset').length)
-		return false;
-	$.ajax({
-		url : context + "/Asset/Chart/Ale",
-		type : "get",
-		async: true,
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			$('#chart_ale_asset').highcharts(JSON.parse(response));
-		}
-	});
-});
-
-
-$(function() {
-
-	if (!$('#chart_ale_asset_type').length)
-		return false;
-	$.ajax({
-		url : context + "/Asset/Chart/AssetType/Ale",
-		type : "get",
-		async: true,
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			$('#chart_ale_asset_type').highcharts(JSON.parse(response));
-		}
-	});
-});
-
-
-
+	if ($('#chart_ale_asset').length) {
+		$.ajax({
+			url : context + "/Asset/Chart/Ale",
+			type : "get",
+			async : true,
+			contentType : "application/json",
+			async : true,
+			success : function(response) {
+				$('#chart_ale_asset').highcharts(JSON.parse(response));
+			}
+		});
+	}
+	if ($('#chart_ale_asset_type').length) {
+		$.ajax({
+			url : context + "/Asset/Chart/AssetType/Ale",
+			type : "get",
+			async : true,
+			contentType : "application/json",
+			async : true,
+			success : function(response) {
+				$('#chart_ale_asset_type').highcharts(JSON.parse(response));
+			}
+		});
+	}
+}

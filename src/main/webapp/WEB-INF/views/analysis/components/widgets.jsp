@@ -18,7 +18,7 @@
 						code="label.action.assessment" text="Assessment" /></a></li>
 			<li name="edit_row" hidden="true"><a tabindex="-1" href="#"><spring:message
 						code="label.action.edit_row" text="Edit row" /></a></li>
-			<li class="divider"></li>
+			<li class="divider" name="divider_0"></li>
 			<li name="delete" hidden="true"><a tabindex="-1" href="#"><spring:message
 						code="label.action.delete" text="Delete" /></a></li>
 		</ul>
@@ -73,4 +73,5 @@
 	</div>
 	<jsp:include page="widgets/assetForm.jsp" />
 	<jsp:include page="widgets/scenarioForm.jsp" />
+	<jsp:include page="widgets/phaseForm.jsp" />
 </div>
