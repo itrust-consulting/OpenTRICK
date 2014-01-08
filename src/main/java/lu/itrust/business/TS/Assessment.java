@@ -58,7 +58,7 @@ public class Assessment implements Serializable, Cloneable {
 	private double likelihoodReal = 0;
 
 	/** The uncertainty value of this assessment */
-	private double uncertainty = 1 + 1e-15;
+	private double uncertainty = 1 + 1e-7;
 
 	/** The Annual Loss Expectancy - Pessimistic */
 	private double ALEP = 0;

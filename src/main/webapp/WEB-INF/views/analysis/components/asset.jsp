@@ -24,6 +24,8 @@
 			<table class="table">
 				<thead>
 					<tr>
+						<th><spring:message code="label.row.index" text="#"
+								htmlEscape="true" /></th>
 						<th><spring:message code="label.asset.name" text="Name"
 								htmlEscape="true" /></th>
 						<th><spring:message code="label.asset.type" text="Type"
@@ -37,13 +39,17 @@
 					</tr>
 				</thead>
 				<tbody>
-					<c:forEach items="${assets}" var="asset">
-						<tr class="${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}" trick-id="${asset.id}" trick-selected="${asset.selected}" ondblclick="return editAssetRow('${asset.id}');">
-							<td>${asset.name}</td>
-							<td>${ asset.assetType.type}</td>
-							<td>${asset.value}</td>
-							<td colspan="3">${asset.comment}</td>
-							<td colspan="3">${asset.hiddenComment}</td>
+					<c:forEach items="${assets}" var="asset" varStatus="status">
+						<tr  trick-id="${asset.id}" trick-selected="${asset.selected}" ondblclick="return editAssetRow('${asset.id}');">
+							<c:set var="cssClass">
+								${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}
+							</c:set>
+							<td>${status.index+1}</td>
+							<td class="${cssClass}">${asset.name}</td>
+							<td class="${cssClass}">${ asset.assetType.type}</td>
+							<td class="${cssClass}">${asset.value}</td>
+							<td class="${cssClass}" colspan="3">${asset.comment}</td>
+							<td class="${cssClass}" colspan="3">${asset.hiddenComment}</td>
 						</tr>
 					</c:forEach>
 				</tbody>
