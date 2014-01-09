@@ -15,7 +15,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.view.model.User;
+import lu.itrust.business.TS.usermanagment.User;
 
 /**
  * Analysis: <br>
@@ -64,6 +64,9 @@ public class Analysis implements Serializable, Cloneable {
 	/** Analysis owner (the one that created or imported it) */
 	private User owner;
 	
+	/** List of users and their access rights */
+	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
+
 	/** Based on analysis */
 	private Analysis basedOnAnalysis;
 	
@@ -2103,4 +2106,85 @@ public class Analysis implements Serializable, Cloneable {
 		this.basedOnAnalysis = basedOnAnalysis;
 	}
 
+	/** getUserRights: <br>
+	 * Returns the userRights field value.
+	 * 
+	 * @return The value of the userRights field
+	 */
+	public List<UserAnalysisRight> getUserRights() {
+		return userRights;
+	}
+
+	/** setUserRights: <br>
+	 * Sets the Field "userRights" with a value.
+	 * 
+	 * @param userRights 
+	 * 			The Value to set the userRights field
+	 */
+	public void setUserRights(List<UserAnalysisRight> userRights) {
+		this.userRights = userRights;
+	}
+	
+	/**
+	 * addUserRights: <br>
+	 * Description
+	 * 
+	 * @param userRight
+	 */
+	public void addUserRight(UserAnalysisRight userRight) {
+		this.userRights.add(userRight);
+	}
+	
+	/**
+	 * addUserRights: <br>
+	 * Description
+	 * 
+	 * @param userRight
+	 */
+	public void addUserRight(User user, AnalysisRight right) {
+		this.userRights.add(new UserAnalysisRight(user, this, right));
+	}
+	
+	public UserAnalysisRight getRightsforUser(User user) {
+		
+		for (UserAnalysisRight userRight : userRights) {
+			if (userRight.getUser().equals(user)) {
+				return userRight;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * editUserRight: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @param newRight
+	 */
+	public void editUserRight(User user, AnalysisRight newRight) {
+		userRights.get(userRights.indexOf(getRightsforUser(user))).setRight(newRight);
+	}
+	
+	/**
+	 * removeRights: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public boolean removeRights(User user) {
+		
+		UserAnalysisRight userRight = getRightsforUser(user);
+		
+		if (userRight !=null) {
+		userRights.remove(userRight);
+		return true;
+		} else {
+			return false;
+		}
+		
+	}
+	
 }

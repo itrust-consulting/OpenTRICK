@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.view.model;
 
+import lu.itrust.business.TS.messagehandler.TaskName;
+
 /**
  * @author eom
  *

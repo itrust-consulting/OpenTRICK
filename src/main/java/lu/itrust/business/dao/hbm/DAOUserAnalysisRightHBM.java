@@ -1,0 +1,136 @@
+package lu.itrust.business.dao.hbm;
+
+import java.util.List;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+
+import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.UserAnalysisRight;
+import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.dao.DAOUserAnalysisRight;
+
+public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAnalysisRight {
+
+	/**
+	 * Constructor
+	 */
+	public DAOUserAnalysisRightHBM() {
+	}
+
+	/**
+	 * Constructor
+	 * @param session
+	 */
+	public DAOUserAnalysisRightHBM(Session session) {
+		super(session);
+	}
+	
+	/**
+	 * get: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#get(long)
+	 */
+	@Override
+	public UserAnalysisRight get(long id) throws Exception {
+		return (UserAnalysisRight) getSession().get(DAOUserAnalysisRightHBM.class, id);
+	}
+
+	/**
+	 * getAllByUser: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByUser(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UserAnalysisRight> getAllByUser(String login) throws Exception {
+		Query query = getSession().createQuery("From UserAnalysisRight WHERE user.login = :user").setParameter("user", login);
+		return (List<UserAnalysisRight>) query.list();
+	}
+
+	/**
+	 * getAllByUser: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByUser(lu.itrust.business.TS.usermanagment.User)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UserAnalysisRight> getAllByUser(User user) throws Exception {
+		Query query = getSession().createQuery("From UserAnalysisRight WHERE user = :user").setParameter("user", user);
+		return (List<UserAnalysisRight>) query.list();
+	}
+
+	/**
+	 * getAllByUniqueAnalysis: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByUniqueAnalysis(lu.itrust.business.TS.Analysis)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UserAnalysisRight> getAllByUniqueAnalysis(Analysis analysis) throws Exception {
+		Query query = getSession().createQuery("From UserAnalysisRight WHERE analysis = :analysis").setParameter("analysis", analysis);
+		return (List<UserAnalysisRight>) query.list();
+	}
+
+	/**
+	 * getAllByAnalysisIdentifier: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByAnalysisIdentifier(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UserAnalysisRight> getAllByAnalysisIdentifier(String identifier) throws Exception {
+		Query query = getSession().createQuery("From UserAnalysisRight WHERE analysis.identifier = :identifier").setParameter("identifier", identifier);
+		return (List<UserAnalysisRight>) query.list();
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#save(lu.itrust.business.TS.UserAnalysisRight)
+	 */
+	@Override
+	public void save(UserAnalysisRight userAnalysisRight) throws Exception {
+		getSession().save(userAnalysisRight);
+	}
+
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#saveOrUpdate(lu.itrust.business.TS.UserAnalysisRight)
+	 */
+	@Override
+	public void saveOrUpdate(UserAnalysisRight userAnalysisRight) throws Exception {
+		getSession().saveOrUpdate(userAnalysisRight);
+	}
+
+	/**
+	 * delete: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#delete(lu.itrust.business.TS.UserAnalysisRight)
+	 */
+	@Override
+	public void delete(UserAnalysisRight userAnalysisRight) throws Exception {
+		getSession().delete(userAnalysisRight);
+	}
+
+	/**
+	 * delete: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#delete(long)
+	 */
+	@Override
+	public void delete(long id) throws Exception {
+		getSession().delete(get(id));
+	}
+
+}

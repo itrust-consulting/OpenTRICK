@@ -2,12 +2,15 @@ package lu.itrust.business.view.controller;
 
 import java.util.Locale;
 import java.util.Map;
+
 import javax.validation.Valid;
+
+import lu.itrust.business.TS.usermanagment.Role;
+import lu.itrust.business.TS.usermanagment.RoleType;
+import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
-import lu.itrust.business.view.model.Role;
-import lu.itrust.business.view.model.RoleType;
-import lu.itrust.business.view.model.User;
+
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;

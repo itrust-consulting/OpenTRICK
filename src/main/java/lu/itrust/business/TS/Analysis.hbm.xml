@@ -7,40 +7,35 @@
 		<id column="idAnalysis" name="id" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
-		
-		<many-to-one name="owner" class="lu.itrust.business.view.model.User">
-        	<column name="fiOwner" not-null="true" />
+
+		<many-to-one name="owner" class="lu.itrust.business.TS.usermanagment.User">
+			<column name="fiOwner" not-null="true"/>
 		</many-to-one>
-		
-		<many-to-one name="basedOnAnalysis" class="Analysis" not-null="false">
-        	<column name="fiBasedOnAnalysis" />
+
+		<many-to-one name="basedOnAnalysis" class="Analysis" not-null="false" cascade="save-update">
+			<column name="fiBasedOnAnalysis" />
 		</many-to-one>
-		
+
 		<many-to-one class="Language" column="fiLanguage" name="language" not-null="true" />
 
 		<many-to-one class="Customer" column="fiCustomer" name="customer" not-null="true" />
 
 		<properties name="index_unique" unique="true">
-			<property length="23" type="string" column="dtIdentifier"
-				generated="never" lazy="false" name="identifier" not-null="true" />
-			<property length="12" type="string" column="dtVersion"
-				generated="never" lazy="false" name="version" not-null="true" />
+			<property length="23" type="string" column="dtIdentifier" generated="never" lazy="false" name="identifier" not-null="true" />
+			<property length="12" type="string" column="dtVersion" generated="never" lazy="false" name="version" not-null="true" />
 		</properties>
 
-		<property type="timestamp" column="dtCreationDate" generated="never"
-			lazy="false" name="creationDate" not-null="true" />
+		<property type="timestamp" column="dtCreationDate" generated="never" lazy="false" name="creationDate" not-null="true" />
 
-		<property length="255" type="string" column="dtLabel"
-			generated="never" lazy="false" not-null="true" name="label" />
+		<property length="255" type="string" column="dtLabel" generated="never" lazy="false" not-null="true" name="label" />
 
-		<property column="dtEmpty" generated="never" lazy="false"
-			name="empty" not-null="true" />
+		<property column="dtEmpty" generated="never" lazy="false" name="empty" not-null="true" />
 
 		<bag name="histories" table="history" cascade="all">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="History" />
 		</bag>
-		
+
 		<bag name="riskInformations" table="RiskInformation" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="RiskInformation" />
@@ -50,14 +45,14 @@
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="ItemInformation" />
 		</bag>
-		
+
 		<bag name="riskRegisters" table="RiskRegisterItem" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="lu.itrust.business.TS.cssf.RiskRegisterItem" />
 		</bag>
-	
+
 		<bag name="summaries" table="actionplansummary" cascade="all" access="field">
-			<key column="fiAnalysis" not-null="true"  />
+			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="lu.itrust.business.TS.actionplan.SummaryStage" />
 		</bag>
 
@@ -77,8 +72,7 @@
 			<one-to-many class="Scenario" />
 		</bag>
 
-		<bag name="analysisNorms" table="analysisNorm" cascade="all"
-			inverse="true" access="field">
+		<bag name="analysisNorms" table="analysisNorm" cascade="all" inverse="true" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="AnalysisNorm" />
 		</bag>
@@ -87,17 +81,40 @@
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Phase" />
 		</bag>
-		
+
 		<bag name="parameters" table="parameter" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Parameter" />
 		</bag>
-		
+
 		<bag name="assets" table="asset" cascade="all" access="field" order-by="value desc, ALE desc , name asc">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Asset" />
 		</bag>
 
-		
+		<bag name="userRights" table="userAnalysisRight" cascade="all" access="field" inverse="true">
+			<key column="fiAnalysis" not-null="true" />
+			<one-to-many class="UserAnalysisRight" />
+		</bag>
+
 	</class>
+	
+	<class name="lu.itrust.business.TS.UserAnalysisRight" table="userAnalysisRight">
+		<id column="idUserAnalysisRight" name="id" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<properties name="unique_index" unique="true">
+			<many-to-one name="user" column="fiUser" not-null="true" cascade="save-update" />
+			<many-to-one name="analysis" column="fiAnalysis" not-null="true" cascade="save-update" />
+		</properties>
+		<property generated="never" lazy="false" name="right">
+		   <column name="dtRight"/>
+		   <type name="org.hibernate.type.EnumType">
+			    <param name="type">12</param>
+			    <param name="useNamed">true</param>
+			    <param name="enumClass">lu.itrust.business.TS.AnalysisRight</param>
+		   </type>
+		</property>
+ 	</class>
+	
 </hibernate-mapping>

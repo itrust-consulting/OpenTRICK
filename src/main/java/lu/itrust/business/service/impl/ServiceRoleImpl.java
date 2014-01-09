@@ -5,10 +5,10 @@ package lu.itrust.business.service.impl;
 
 import java.util.List;
 
+import lu.itrust.business.TS.usermanagment.Role;
+import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.dao.DAORole;
 import lu.itrust.business.service.ServiceRole;
-import lu.itrust.business.view.model.Role;
-import lu.itrust.business.view.model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

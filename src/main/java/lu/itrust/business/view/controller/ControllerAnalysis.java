@@ -140,6 +140,7 @@ public class ControllerAnalysis {
 			history.setDate(new Date(System.currentTimeMillis()));
 			Duplicator duplicator = new Duplicator();
 			Analysis copy = duplicator.duplicate(analysis);
+			copy.setBasedOnAnalysis(analysis);
 			copy.addAHistory(history);
 			copy.setVersion(history.getVersion());
 			copy.setLabel(history.getComment());

@@ -14,6 +14,7 @@ import java.util.Vector;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
@@ -40,6 +41,7 @@ import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.TS.SecurityCriteria;
+import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -284,7 +286,7 @@ public class ImportAnalysis {
 			serviceTaskFeedback.send(idTask, new MessageHandler("import.saving.analysis", "Saving Data to Database", 90));
 
 			// save or update analysis
-			daoAnalysis.saveOrUpdate(this.analysis);
+			daoAnalysis.save(this.analysis);
 
 			if (session != null)
 				session.getTransaction().commit();
@@ -452,6 +454,8 @@ public class ImportAnalysis {
 		// create DAO Analysis object
 		Analysis analysis = null;
 
+		History history = null;
+		
 		// ****************************************************************
 		// * add analysis and / or version if not exists
 		// ****************************************************************
@@ -476,8 +480,10 @@ public class ImportAnalysis {
 			// * check if analysis and version exists
 			// ****************************************************************
 
+			history = this.analysis.getAHistory(i);
+			
 			// check if analysis with this version does NOT already exist -> YES
-			if (!daoAnalysis.analysisExist(this.analysis.getIdentifier(), this.analysis.getAHistory(i).getVersion())) {
+			if (!daoAnalysis.analysisExist(this.analysis.getIdentifier(), history.getVersion() )) {
 
 				// ****************************************************************
 				// * store analysis with history entries to the current version
@@ -489,25 +495,32 @@ public class ImportAnalysis {
 
 				// set data for analyses
 				analysis.setIdentifier(this.analysis.getIdentifier());
-				analysis.setVersion(this.analysis.getAHistory(i).getVersion());
+				analysis.setVersion(history.getVersion());
 				analysis.setCreationDate(this.analysis.getCreationDate());
 				analysis.setLabel(this.analysis.getLabel());
 				analysis.setLanguage(this.analysis.getLanguage());
 				analysis.setCustomer(this.analysis.getCustomer());
+				analysis.setOwner(this.analysis.getOwner());
+				analysis.addUserRight(new UserAnalysisRight(this.analysis.getOwner(),analysis,AnalysisRight.OWNER));
+				if (i==0) {
+					analysis.setBasedOnAnalysis(null);
+				} else {
+					analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), this.analysis.getAHistory(i-1).getVersion()));
+				}
 
 				// add history entries to this history entry
 				for (int j = 0; j <= i; j++) {
 
 					// clone history entry and add it to the list of history
 					// entries
-					analysis.addAHistory((History) this.analysis.getHistories().get(j).clone());
+					analysis.addAHistory((History) this.analysis.getHistories().get(j).duplicate());
 				}
 
 				// set empty analysis or filled analysis
 				analysis.setEmpty(true);
 
 				// save analysis into database
-				daoAnalysis.save(analysis);
+				daoAnalysis.saveOrUpdate(analysis);
 			}
 		}
 
@@ -531,6 +544,9 @@ public class ImportAnalysis {
 				throw new IllegalArgumentException("Your file has already been imported, whether it is a new version, do not forget to increase version");
 			}
 		}
+		
+		this.analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), history.getVersion()));
+		
 	}
 
 	/**
@@ -2944,6 +2960,7 @@ public class ImportAnalysis {
 		setDaoScenarioType(new DAOScenarioTypeHBM(session));
 	}
 
+
 	/**
 	 * @param serviceTaskFeedback
 	 *            the serviceTaskFeedback to set
@@ -3045,4 +3062,5 @@ public class ImportAnalysis {
 	public void setCurrentSqliteTable(String currentSqliteTable) {
 		this.currentSqliteTable = currentSqliteTable;
 	}
+
 }

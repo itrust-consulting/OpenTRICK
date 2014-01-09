@@ -1256,7 +1256,7 @@ function saveField(element, controller, id, field, type) {
 function duplicateAnalysis(form, analyisId) {
 	$(".progress-striped").show();
 	return $.ajax({
-		url : context + "/History/Analysis/" + analyisId + "/History/NewVersion/Save",
+		url : context + "/History/Analysis/" + analyisId + "/NewVersion/Save",
 		type : "post",
 		aync : true,
 		data : $("#" + form).serialize(),
