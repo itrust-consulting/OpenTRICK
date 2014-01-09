@@ -29,6 +29,7 @@ import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceRiskRegister;
 import lu.itrust.business.service.ServiceTaskFeedback;
+import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerAnalysisImport;
@@ -62,6 +63,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
+
+	@Autowired
+	private ServiceUser serviceUser;
 
 	@Autowired
 	private ServiceActionPlanType serviceActionPlanType;
@@ -128,11 +132,12 @@ public class ControllerAnalysis {
 		return "analysis/analysis";
 	}
 
-	@RequestMapping(value="/{analysisId}/Duplicate",  headers = "Accept=application/json")
+	@RequestMapping(value = "/{analysisId}/Duplicate", headers = "Accept=application/json")
 	public @ResponseBody
 	String createNewVersion(@ModelAttribute History history,
 			@PathVariable int analysisId, Model model, HttpSession session,
 			RedirectAttributes attributes, Locale locale) throws Exception {
+
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null) {
 			return JsonMessage.Error(messageSource.getMessage(
@@ -400,7 +405,8 @@ public class ControllerAnalysis {
 		file.transferTo(importFile);
 
 		Worker worker = new WorkerAnalysisImport(sessionFactory,
-				serviceTaskFeedback, importFile, customer);
+				serviceTaskFeedback, importFile, customer,
+				serviceUser.get(principal.getName()));
 
 		worker.setPoolManager(workersPoolManager);
 

@@ -15,6 +15,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.view.model.User;
 
 /**
  * Analysis: <br>
@@ -60,6 +61,12 @@ public class Analysis implements Serializable, Cloneable {
 	/** Creation Date of the Analysis (and a specific version) */
 	private Timestamp creationDate;
 
+	/** Analysis owner (the one that created or imported it) */
+	private User owner;
+	
+	/** Based on analysis */
+	private Analysis basedOnAnalysis;
+	
 	/** The Label of this Analysis */
 	private String label;
 
@@ -2056,6 +2063,44 @@ public class Analysis implements Serializable, Cloneable {
 				assets.add(asset);
 		}
 		return assets;
+	}
+
+	/** getOwner: <br>
+	 * Returns the owner field value.
+	 * 
+	 * @return The value of the owner field
+	 */
+	public User getOwner() {
+		return owner;
+	}
+
+	/** setOwner: <br>
+	 * Sets the Field "owner" with a value.
+	 * 
+	 * @param owner 
+	 * 			The Value to set the owner field
+	 */
+	public void setOwner(User owner) {
+		this.owner = owner;
+	}
+
+	/** getBasedOnAnalysis: <br>
+	 * Returns the basedOnAnalysis field value.
+	 * 
+	 * @return The value of the basedOnAnalysis field
+	 */
+	public Analysis getBasedOnAnalysis() {
+		return basedOnAnalysis;
+	}
+
+	/** setBasedOnAnalysis: <br>
+	 * Sets the Field "basedOnAnalysis" with a value.
+	 * 
+	 * @param basedOnAnalysis 
+	 * 			The Value to set the basedOnAnalysis field
+	 */
+	public void setBasedOnAnalysis(Analysis basedOnAnalysis) {
+		this.basedOnAnalysis = basedOnAnalysis;
 	}
 
 }

@@ -12,6 +12,7 @@ import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.importation.ImportAnalysis;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
+import lu.itrust.business.view.model.User;
 
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,8 @@ public class WorkerAnalysisImport implements Worker {
 	private String fileName;
 
 	private Customer customer;
+	
+	private User owner;
 
 	/**
 	 * 
@@ -51,16 +54,14 @@ public class WorkerAnalysisImport implements Worker {
 	 * @throws IOException
 	 * 
 	 */
-	public WorkerAnalysisImport(ImportAnalysis importAnalysis, File importFile,
-			Customer customer2) throws IOException {
+	public WorkerAnalysisImport(ImportAnalysis importAnalysis, File importFile, Customer customer2) throws IOException {
 		setCustomer(customer2);
 		setFileName(importFile.getCanonicalPath());
 		setImportAnalysis(importAnalysis);
 	}
 
-	public WorkerAnalysisImport(SessionFactory sessionFactory,
-			ServiceTaskFeedback serviceTaskFeedback, File importFile,
-			Customer customer) throws IOException {
+	public WorkerAnalysisImport(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, File importFile, Customer customer, User owner) throws IOException {
+		setOwner(owner);
 		setCustomer(customer);
 		setFileName(importFile.getCanonicalPath());
 		setImportAnalysis(new ImportAnalysis());
@@ -68,8 +69,7 @@ public class WorkerAnalysisImport implements Worker {
 		importAnalysis.setSessionFactory(sessionFactory);
 	}
 
-	public void initialise(File importFile, Customer customer2)
-			throws IOException {
+	public void initialise(File importFile, Customer customer2) throws IOException {
 		setCustomer(customer2);
 		setFileName(importFile.getCanonicalPath());
 	}
@@ -134,6 +134,25 @@ public class WorkerAnalysisImport implements Worker {
 		}
 	}
 
+	/** getOwner: <br>
+	 * Returns the owner field value.
+	 * 
+	 * @return The value of the owner field
+	 */
+	public User getOwner() {
+		return owner;
+	}
+
+	/** setOwner: <br>
+	 * Sets the Field "owner" with a value.
+	 * 
+	 * @param owner 
+	 * 			The Value to set the owner field
+	 */
+	public void setOwner(User owner) {
+		this.owner = owner;
+	}
+
 	/**
 	 * @return the fileName
 	 */
@@ -193,6 +212,8 @@ public class WorkerAnalysisImport implements Worker {
 			DatabaseHandler DatabaseHandler = new DatabaseHandler(fileName);
 			Analysis analysis = new Analysis();
 			analysis.setCustomer(customer);
+			analysis.setOwner(owner);
+			analysis.setBasedOnAnalysis(analysis);
 			importAnalysis.setAnalysis(analysis);
 			importAnalysis.setIdTask(getId());
 			importAnalysis.setDatabaseHandler(DatabaseHandler);

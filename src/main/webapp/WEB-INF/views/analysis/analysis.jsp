@@ -74,22 +74,36 @@
 						<table class="table table-bordered">
 							<thead>
 								<tr class="table-header">
-									<th><spring:message code="label.analysis.identifier" /></th>
-									<th><spring:message code="label.analysis.version" /></th>
-									<th><spring:message code="label.analysis.creationDate" /></th>
-									<th><spring:message code="label.analysis.language" /></th>
+									<th><spring:message code="label.analysis.id" /></th>
+									<th><spring:message code="label.analysis.customer" /></th>
 									<th><spring:message code="label.analysis.label" /></th>
+									<th><spring:message code="label.analysis.creationDate" /></th>
+									<th><spring:message code="label.analysis.version" /></th>
+									<th><spring:message code="label.analysis.author" /></th>
+									<th><spring:message code="label.analysis.basedOnAnalysis" /></th>
+									<th><spring:message code="label.analysis.language" /></th>
 									<th><spring:message code="label.action" /></th>
 								</tr>
 							</thead>
 							<tbody>
 								<c:forEach items="${analyses}" var="analysis">
 									<tr>
-										<td>${analysis.identifier}</td>
-										<td>${analysis.version}</td>
-										<td>${analysis.creationDate}</td>
-										<td>${analysis.language.name}</td>
+										<td>${analysis.id}</td>
+										<td>${analysis.customer.organisation}</td>
 										<td>${analysis.label}</td>
+										<td>${analysis.creationDate}</td>										
+										<td>${analysis.version}</td>
+										<td>${analysis.getLastHistory().author}</td>
+										<c:choose>
+										<c:when test="${analysis.basedOnAnalysis.id == analysis.id}">
+											<td><spring:message code="label.analysis.basedonself" /></td>
+										</c:when>
+										<c:when test="${analysis.basedOnAnalysis.id != analysis.id}">
+											<td>${analysis.basedOnAnalysis.version}</td>
+										</c:when>
+										</c:choose>
+										<td>${analysis.language.name}</td>
+
 										<td><a class="btn btn-primary btn-sm"
 											href="${pageContext.request.contextPath}/Analysis/${analysis.id}/Select">
 												<c:if test="${sessionScope.selectedAnalysis != null }">
@@ -114,7 +128,7 @@
 													class="glyphicon glyphicon-edit"></samp>
 										</a> <a class="btn btn-warning btn-sm" href="#"
 											title='<spring:message code="label.action.duplicate"  text="Duplicate"/>'
-											onclick="return addHistory('${analysis.id}')"> <samp
+											onclick="return addHistory('${analysis.id}', '${analysis.version}')"> <samp
 													class="glyphicon glyphicon-plus"></samp>
 										</a> <c:choose>
 												<c:when test="${!analysis.isEmpty()}">

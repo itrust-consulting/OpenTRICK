@@ -168,7 +168,7 @@ public class ControllerAdministration {
 			
 			if(!principal.getName().equals(user.getLogin())) {
 			
-				user.getRoles().clear();
+				user.disable();
 				
 				RoleType[] roletypes = RoleType.values();
 				
@@ -252,7 +252,7 @@ public class ControllerAdministration {
 			User user = serviceUser.get(userId);
 			
 			if (!user.getLogin().equals(principal.getName())) {
-				user.getRoles().clear();
+				user.disable();
 				serviceUser.saveOrUpdate(user);
 				serviceUser.delete(userId);
 				return true;

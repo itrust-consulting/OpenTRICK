@@ -1180,11 +1180,13 @@ function addNewRole(id) {
 }
 
 /* History */
-function addHistory(analysisId) {
+function addHistory(analysisId, oldVersion) {
 	return $
 			.ajax({
-				url : context + "/History/Add/Analysis/" + analysisId,
+				url : context + "/History/Analysis/"+ analysisId+"/NewVersion" ,
+				type : "get",
 				contentType : "application/json",
+				data: {"oldVersion":oldVersion},
 				success : function(response) {
 					var parser = new DOMParser();
 					var doc = parser.parseFromString(response, "text/html");
@@ -1254,7 +1256,7 @@ function saveField(element, controller, id, field, type) {
 function duplicateAnalysis(form, analyisId) {
 	$(".progress-striped").show();
 	return $.ajax({
-		url : context + "/History/Save/Analysis/" + analyisId,
+		url : context + "/History/Analysis/" + analyisId + "/History/NewVersion/Save",
 		type : "post",
 		aync : true,
 		data : $("#" + form).serialize(),

@@ -68,8 +68,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ImportAnalysis: <br>
- * This class is for importing an Analysis from an TRICK Light SQLite file into
- * Java objects.
+ * This class is for importing an Analysis from an TRICK Light SQLite file into Java objects.
  * 
  * @author itrust consulting s.��� r.l. - BJA,SME
  * @version 0.1
@@ -169,8 +168,7 @@ public class ImportAnalysis {
 
 	/**
 	 * ImportAnAnalysis: <br>
-	 * Method used to import and given analysis using an sqlite file into the
-	 * mysql database.
+	 * Method used to import and given analysis using an sqlite file into the mysql database.
 	 * 
 	 * @throws Exception
 	 */
@@ -189,8 +187,8 @@ public class ImportAnalysis {
 
 			System.out.println("Importing...");
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.analysis.importing", "Importing", 0));
+			
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.importing", "Importing", 0));
 
 			// ****************************************************************
 			// * create analysis id, analysis label, analysis language and
@@ -198,36 +196,28 @@ public class ImportAnalysis {
 			// ****************************************************************
 			importAnalyses();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.risk_information.importing",
-					"Importing risk information", 1));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Importing risk information", 1));
 
 			// ****************************************************************
 			// * import risk information
 			// ****************************************************************
 			importRiskInformation();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.risk_information.importing",
-					"Import item information", 5));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Import item information", 5));
 
 			// ****************************************************************
 			// * import item information
 			// ****************************************************************
 			importItemInformation();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.simple_parameters.importing",
-					"Import simple parameters", 10));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.simple_parameters.importing", "Import simple parameters", 10));
 
 			// ****************************************************************
 			// * import simple parameters
 			// ****************************************************************
 			importSimpleParameters();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.extended_parameters.importing",
-					"Import extended parameters", 15));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.extended_parameters.importing", "Import extended parameters", 15));
 
 			// ****************************************************************
 			// * import extended parameters
@@ -238,9 +228,7 @@ public class ImportAnalysis {
 			// * import maturity parameters
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.maturity_parameters.importing",
-					"Import maturity parameters", 20));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_parameters.importing", "Import maturity parameters", 20));
 
 			importMaturityParameters();
 
@@ -248,63 +236,52 @@ public class ImportAnalysis {
 			// * import assets
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.asset.importing", "Import assets", 25));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset.importing", "Import assets", 25));
 			importAssets();
 
 			// ****************************************************************
 			// * import scenarios
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.scenario.importing", "Import scenarios", 40));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.scenario.importing", "Import scenarios", 40));
 			importScenarios();
 
 			// ****************************************************************
 			// * import assessments
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.assessments.importing", "Import assessments", 50));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.assessments.importing", "Import assessments", 50));
 			importAssessments();
 
 			// ****************************************************************
 			// * import phases
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.phase.importing", "Import phases", 55));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.phase.importing", "Import phases", 55));
 			importPhases();
 
 			// ****************************************************************
 			// * import AnalysisNorm measures
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.norm_measures.importing", "Analysis norm measures",
-					60));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.norm_measures.importing", "Analysis norm measures", 60));
 			importNormMeasures();
 
 			// ****************************************************************
 			// * import asset type values
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.asset_type_value.importing",
-					"Import asset type values", 70));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset_type_value.importing", "Import asset type values", 70));
 			importAssetTypeValues();
 
 			// ****************************************************************
 			// * import maturity measures
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"info.maturity_measure.importing",
-					"Import maturity measures", 80));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.maturity_measure.importing", "Import maturity measures", 80));
 			importMaturityMeasures();
 
 			// System.out.println("Saving Data to Database...");
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"import.saving.analysis", "Saving Data to Database", 90));
+			serviceTaskFeedback.send(idTask, new MessageHandler("import.saving.analysis", "Saving Data to Database", 90));
 
 			// save or update analysis
 			daoAnalysis.saveOrUpdate(this.analysis);
@@ -312,39 +289,32 @@ public class ImportAnalysis {
 			if (session != null)
 				session.getTransaction().commit();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler(
-					"success.analysis.import", "Import Done", 100));
+			serviceTaskFeedback.send(idTask, new MessageHandler("success.analysis.import", "Import Done", 100));
 
 			System.out.println("Import Done!");
 		} catch (SQLException e) {
-			
+
 			try {
-			
-			int index = e.getMessage().indexOf("no such column:");
-			if (index != -1) {
-				int index2 = e.getMessage().lastIndexOf(")");
-				index += "no such column: ".length();
-				String column = e.getMessage().substring(index, index2);
-				serviceTaskFeedback.send(idTask, new MessageHandler(
-						"error.colums.not_found", new String[] {
-								this.currentSqliteTable, column },
-						"Please check table '" + this.currentSqliteTable
-								+ "', column '" + column+"'", e));
-			} else {
-				serviceTaskFeedback.send(idTask,
-						new MessageHandler(e.getMessage(), e.getMessage(), e));
-			}
-			}				
-			catch(Exception ed) {
+
+				int index = e.getMessage().indexOf("no such column:");
+				if (index != -1) {
+					int index2 = e.getMessage().lastIndexOf(")");
+					index += "no such column: ".length();
+					String column = e.getMessage().substring(index, index2);
+					serviceTaskFeedback.send(idTask, new MessageHandler("error.colums.not_found", new String[] { this.currentSqliteTable, column }, "Please check table '"
+						+ this.currentSqliteTable + "', column '" + column + "'", e));
+				} else {
+					serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), e));
+				}
+			} catch (Exception ed) {
 				ed.printStackTrace();
 			}
-			
+
 			e.printStackTrace();
 			throw e;
-			
+
 		} catch (Exception e) {
-			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(),
-					e.getMessage(), e));
+			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), e));
 			e.printStackTrace();
 			throw e;
 		} finally {
@@ -379,8 +349,7 @@ public class ImportAnalysis {
 	 * <ul>
 	 * <li>Creates Analysis ID from Sqlite File</li>
 	 * <li>Creates Analysis Versions from Sqlite History Table</li>
-	 * <li>Sets the Language Object of the Analysis and set the "language" field
-	 * </li>
+	 * <li>Sets the Language Object of the Analysis and set the "language" field</li>
 	 * </ul>
 	 * 
 	 * @throws Exception
@@ -424,8 +393,7 @@ public class ImportAnalysis {
 		// close result
 		rs.close();
 
-		this.analysis
-				.setCreationDate(new Timestamp(System.currentTimeMillis()));
+		this.analysis.setCreationDate(new Timestamp(System.currentTimeMillis()));
 
 		// ****************************************************************
 		// * Retireve language
@@ -492,8 +460,7 @@ public class ImportAnalysis {
 		this.analysis.setEmpty(false);
 
 		// set analysis creationdate
-		this.analysis
-				.setCreationDate(new Timestamp(System.currentTimeMillis()));
+		this.analysis.setCreationDate(new Timestamp(System.currentTimeMillis()));
 
 		// initialise analysis version to the last history version
 		this.analysis.setVersion(this.analysis.getLastHistory().getVersion());
@@ -510,8 +477,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			// check if analysis with this version does NOT already exist -> YES
-			if (!daoAnalysis.analysisExist(this.analysis.getIdentifier(),
-					this.analysis.getAHistory(i).getVersion())) {
+			if (!daoAnalysis.analysisExist(this.analysis.getIdentifier(), this.analysis.getAHistory(i).getVersion())) {
 
 				// ****************************************************************
 				// * store analysis with history entries to the current version
@@ -534,8 +500,7 @@ public class ImportAnalysis {
 
 					// clone history entry and add it to the list of history
 					// entries
-					analysis.addAHistory((History) this.analysis.getHistories()
-							.get(j).clone());
+					analysis.addAHistory((History) this.analysis.getHistories().get(j).clone());
 				}
 
 				// set empty analysis or filled analysis
@@ -547,8 +512,7 @@ public class ImportAnalysis {
 		}
 
 		// retrive last version of the analysis if it exists
-		analysis = daoAnalysis.getFromIdentifierVersion(
-				this.analysis.getIdentifier(), this.analysis.getVersion());
+		analysis = daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), this.analysis.getVersion());
 
 		// if analysis is not null (The Analysis and its version has aready been
 		// imported)
@@ -558,15 +522,13 @@ public class ImportAnalysis {
 			if (analysis.isEmpty()) {
 
 				// fill the analysis with data and change flag of empty analysis
-				System.err
-						.println("Your file has already been imported without data");
+				System.err.println("Your file has already been imported without data");
 				this.analysis = analysis;
 				this.analysis.setEmpty(false);
 			} else {
 
 				// analysis had already been imported and has data
-				throw new IllegalArgumentException(
-						"Your file has already been imported, whether it is a new version, do not forget to increase version");
+				throw new IllegalArgumentException("Your file has already been imported, whether it is a new version, do not forget to increase version");
 			}
 		}
 	}
@@ -692,8 +654,7 @@ public class ImportAnalysis {
 			// * create instance of this risk information
 			// ****************************************************************
 			tempRI = new RiskInformation();
-			tempRI.setCategory(Constant.RI_TYPE_RISK + "_"
-					+ rs.getString(Constant.RI_TYPE));
+			tempRI.setCategory(Constant.RI_TYPE_RISK + "_" + rs.getString(Constant.RI_TYPE));
 			tempRI.setChapter(rs.getString(Constant.RI_LEVEL));
 			tempRI.setLabel(rs.getString(Constant.RI_NAME));
 			tempRI.setAcronym(Constant.EMPTY_STRING);
@@ -802,14 +763,11 @@ public class ImportAnalysis {
 			// ****************************************************************
 			tempAsset = new Asset();
 			tempAsset.setName(rs.getString(Constant.ASSET_NAME_ASSET));
-			tempAsset.setAssetType(assetTypes.get(rs
-					.getInt(Constant.ASSET_ID_TYPE_ASSET)));
+			tempAsset.setAssetType(assetTypes.get(rs.getInt(Constant.ASSET_ID_TYPE_ASSET)));
 			tempAsset.setValue(rs.getDouble(Constant.ASSET_VALUE_ASSET));
 			tempAsset.setComment(rs.getString(Constant.ASSET_COMMENT_ASSET));
-			tempAsset.setHiddenComment(rs
-					.getString(Constant.ASSET_HIDE_COMMENT_ASSET));
-			tempAsset.setSelected(rs.getString(Constant.ASSET_SEL_ASSET)
-					.equalsIgnoreCase(Constant.ASSET_SELECTED));
+			tempAsset.setHiddenComment(rs.getString(Constant.ASSET_HIDE_COMMENT_ASSET));
+			tempAsset.setSelected(rs.getString(Constant.ASSET_SEL_ASSET).equalsIgnoreCase(Constant.ASSET_SELECTED));
 
 			// store asset to build assessment.
 			assets.put(rs.getInt(Constant.ASSET_ID_ASSET), tempAsset);
@@ -881,8 +839,7 @@ public class ImportAnalysis {
 			}
 
 			// add scneario type to map
-			scenarioTypes.put(rs.getInt(Constant.THREAT_ID_TYPE_THREAT),
-					scenarioType);
+			scenarioTypes.put(rs.getInt(Constant.THREAT_ID_TYPE_THREAT), scenarioType);
 		}
 
 		// System.out.println("scenariotypes ok");
@@ -909,40 +866,28 @@ public class ImportAnalysis {
 			// ****************************************************************
 			tempScenario = new Scenario();
 			tempScenario.setName(rs.getString(Constant.THREAT_NAME_THREAT));
-			if (rs.getString(Constant.THREAT_SEL_THREAT).equalsIgnoreCase(
-					Constant.THREAT_SELECTED)) {
+			if (rs.getString(Constant.THREAT_SEL_THREAT).equalsIgnoreCase(Constant.THREAT_SELECTED)) {
 				tempScenario.setSelected(true);
 			} else {
 				tempScenario.setSelected(false);
 			}
-			tempScenario.setDescription(rs
-					.getString(Constant.THREAT_DESCRIPTION_THREAT));
-			tempScenario.setCategoryValue(Constant.CONFIDENTIALITY_RISK,
-					rs.getInt(Constant.THREAT_CONFIDENTIALITY));
-			tempScenario.setCategoryValue(Constant.INTEGRITY_RISK,
-					rs.getInt(Constant.THREAT_INTEGRITY));
-			tempScenario.setCategoryValue(Constant.AVAILABILITY_RISK,
-					rs.getInt(Constant.THREAT_AVAILABILITY));
+			tempScenario.setDescription(rs.getString(Constant.THREAT_DESCRIPTION_THREAT));
+			tempScenario.setCategoryValue(Constant.CONFIDENTIALITY_RISK, rs.getInt(Constant.THREAT_CONFIDENTIALITY));
+			tempScenario.setCategoryValue(Constant.INTEGRITY_RISK, rs.getInt(Constant.THREAT_INTEGRITY));
+			tempScenario.setCategoryValue(Constant.AVAILABILITY_RISK, rs.getInt(Constant.THREAT_AVAILABILITY));
 
 			// add cssf categories to object
 			setAllCriteriaCSSFCategories(tempScenario, rs);
-			tempScenario
-					.setPreventive(rs.getDouble(Constant.THREAT_PREVENTIVE));
+			tempScenario.setPreventive(rs.getDouble(Constant.THREAT_PREVENTIVE));
 			tempScenario.setDetective(rs.getDouble(Constant.THREAT_DETECTIVE));
-			tempScenario
-					.setLimitative(rs.getDouble(Constant.THREAT_LIMITATIVE));
-			tempScenario
-					.setCorrective(rs.getDouble(Constant.THREAT_CORRECTIVE));
+			tempScenario.setLimitative(rs.getDouble(Constant.THREAT_LIMITATIVE));
+			tempScenario.setCorrective(rs.getDouble(Constant.THREAT_CORRECTIVE));
 			tempScenario.setIntentional(rs.getInt(Constant.THREAT_INTENTIONAL));
 			tempScenario.setAccidental(rs.getInt(Constant.THREAT_ACCIDENTAL));
-			tempScenario.setEnvironmental(rs
-					.getInt(Constant.THREAT_ENVIRONMENTAL));
-			tempScenario.setExternalThreat(rs
-					.getInt(Constant.THREAT_EXTERNAL_THREAT));
-			tempScenario.setInternalThreat(rs
-					.getInt(Constant.THREAT_INTERNAL_THREAT));
-			tempScenario.setType(scenarioTypes.get(rs
-					.getInt(Constant.THREAT_ID_TYPE_THREAT)));
+			tempScenario.setEnvironmental(rs.getInt(Constant.THREAT_ENVIRONMENTAL));
+			tempScenario.setExternalThreat(rs.getInt(Constant.THREAT_EXTERNAL_THREAT));
+			tempScenario.setInternalThreat(rs.getInt(Constant.THREAT_INTERNAL_THREAT));
+			tempScenario.setType(scenarioTypes.get(rs.getInt(Constant.THREAT_ID_TYPE_THREAT)));
 
 			// set scenario asset types
 			setScenarioAssetValues(tempScenario, rs);
@@ -1014,12 +959,9 @@ public class ImportAnalysis {
 			parameterName = rs.getString(Constant.ASSESSMENT_POTENTIALITY);
 
 			for (int i = 0; i < this.analysis.getParameters().size(); i++) {
-				if (this.analysis.getAParameter(i).getType().getLabel()
-						.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
-					if (((ExtendedParameter) this.analysis.getAParameter(i))
-							.getAcronym().equals(parameterName)) {
-						likelihoodValue = this.analysis.getAParameter(i)
-								.getValue();
+				if (this.analysis.getAParameter(i).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
+					if (((ExtendedParameter) this.analysis.getAParameter(i)).getAcronym().equals(parameterName)) {
+						likelihoodValue = this.analysis.getAParameter(i).getValue();
 						break;
 					}
 				}
@@ -1030,24 +972,19 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			// Reputation
-			impactRep = convertImpactToDouble(rs
-					.getString(Constant.ASSESSMENT_IMPACT_REP));
+			impactRep = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_REP));
 
 			// Financial
-			impactFin = convertImpactToDouble(rs
-					.getString(Constant.ASSESSMENT_IMPACT_FIN));
+			impactFin = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_FIN));
 
 			// Operational
-			impactOp = convertImpactToDouble(rs
-					.getString(Constant.ASSESSMENT_IMPACT_OP));
+			impactOp = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_OP));
 
 			// Legal
-			impactLeg = convertImpactToDouble(rs
-					.getString(Constant.ASSESSMENT_IMPACT_LEG));
+			impactLeg = convertImpactToDouble(rs.getString(Constant.ASSESSMENT_IMPACT_LEG));
 
 			// Determine biggest impact
-			impactValue = Math.max(impactFin,
-					Math.max(impactLeg, Math.max(impactOp, impactRep)));
+			impactValue = Math.max(impactFin, Math.max(impactLeg, Math.max(impactOp, impactRep)));
 
 			// ****************************************************************
 			// ALE calculation
@@ -1078,31 +1015,20 @@ public class ImportAnalysis {
 			tmpAssessment = new Assessment();
 			tmpAssessment.setAsset(tempAsset);
 			tmpAssessment.setScenario(tempScenario);
-			tmpAssessment.setImpactRep(rs
-					.getString(Constant.ASSESSMENT_IMPACT_REP));
-			tmpAssessment.setImpactOp(rs
-					.getString(Constant.ASSESSMENT_IMPACT_OP));
-			tmpAssessment.setImpactLeg(rs
-					.getString(Constant.ASSESSMENT_IMPACT_LEG));
-			tmpAssessment.setImpactFin(rs
-					.getString(Constant.ASSESSMENT_IMPACT_FIN));
-			tmpAssessment.setImpactReal(rs
-					.getDouble(Constant.ASSESSMENT_IMPACT_REAL));
-			tmpAssessment.setLikelihood(rs
-					.getString(Constant.ASSESSMENT_POTENTIALITY));
-			tmpAssessment.setLikelihoodReal(rs
-					.getDouble(Constant.ASSESSMENT_POTENTIALITY_REAL));
-			tmpAssessment.setUncertainty(rs
-					.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
+			tmpAssessment.setImpactRep(rs.getString(Constant.ASSESSMENT_IMPACT_REP));
+			tmpAssessment.setImpactOp(rs.getString(Constant.ASSESSMENT_IMPACT_OP));
+			tmpAssessment.setImpactLeg(rs.getString(Constant.ASSESSMENT_IMPACT_LEG));
+			tmpAssessment.setImpactFin(rs.getString(Constant.ASSESSMENT_IMPACT_FIN));
+			tmpAssessment.setImpactReal(rs.getDouble(Constant.ASSESSMENT_IMPACT_REAL));
+			tmpAssessment.setLikelihood(rs.getString(Constant.ASSESSMENT_POTENTIALITY));
+			tmpAssessment.setLikelihoodReal(rs.getDouble(Constant.ASSESSMENT_POTENTIALITY_REAL));
+			tmpAssessment.setUncertainty(rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
 			tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
-			tmpAssessment.setHiddenComment(rs
-					.getString(Constant.ASSESSMENT_HIDE_COMMENT));
+			tmpAssessment.setHiddenComment(rs.getString(Constant.ASSESSMENT_HIDE_COMMENT));
 			tmpAssessment.setALEO(ALEO);
 			tmpAssessment.setALE(ALE);
 			tmpAssessment.setALEP(ALEP);
-			tmpAssessment.setSelected(rs.getString(
-					Constant.ASSESSMENT_SEL_ASSESSMENT).equals(
-					Constant.ASSESSMENT_SELECTED));
+			tmpAssessment.setSelected(rs.getString(Constant.ASSESSMENT_SEL_ASSESSMENT).equals(Constant.ASSESSMENT_SELECTED));
 
 			// System.out.println(tmpAssessment.getALE() + ":::" +
 			// tmpAssessment.getAsset().getName() + ":::" +
@@ -1163,16 +1089,14 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// retrieve parameter type
-		parameterType = daoParameterType
-				.get(Constant.PARAMETERTYPE_TYPE_SINGLE);
+		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_SINGLE);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null) {
 
 			// create new parameter type single
 
-			parameterType = new ParameterType(
-					Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
+			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
 
 			parameterType.setId(Constant.PARAMETERTYPE_TYPE_SINGLE);
 
@@ -1189,8 +1113,7 @@ public class ImportAnalysis {
 			parameter = new Parameter();
 			parameter.setDescription(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 			parameter.setType(parameterType);
-			parameter.setValue(rs
-					.getInt(Constant.PARAMETER_INTERNAL_SETUP_RATE));
+			parameter.setValue(rs.getInt(Constant.PARAMETER_INTERNAL_SETUP_RATE));
 
 			// ****************************************************************
 			// * add instance to list of parameters
@@ -1203,8 +1126,7 @@ public class ImportAnalysis {
 			parameter = new Parameter();
 			parameter.setDescription(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
 			parameter.setType(parameterType);
-			parameter.setValue(rs
-					.getInt(Constant.PARAMETER_EXTERNAL_SETUP_RATE));
+			parameter.setValue(rs.getInt(Constant.PARAMETER_EXTERNAL_SETUP_RATE));
 
 			// ****************************************************************
 			// * add instance to list of parameters
@@ -1240,8 +1162,7 @@ public class ImportAnalysis {
 			parameter = new Parameter();
 			parameter.setDescription(Constant.PARAMETER_MAINTENANCE_DEFAULT);
 			parameter.setType(parameterType);
-			parameter.setValue(rs
-					.getInt(Constant.PARAMETER_MAINTENANCE_DEFAULT));
+			parameter.setValue(rs.getInt(Constant.PARAMETER_MAINTENANCE_DEFAULT));
 
 			// ****************************************************************
 			// * add instance to list of parameters
@@ -1260,9 +1181,8 @@ public class ImportAnalysis {
 			parameter.setType(parameterType);
 			parameter.setValue(rs.getInt(Constant.PARAMETER_TUNING));
 			/*
-			 * //
-			 * ****************************************************************
-			 * // * add instance to list of parameters //
+			 * // **************************************************************** // * add instance
+			 * to list of parameters //
 			 * ****************************************************************
 			 */
 			this.analysis.addAParameter(parameter);
@@ -1271,8 +1191,7 @@ public class ImportAnalysis {
 			// * Insert mandatoryPhase into simple parameter table
 			// ****************************************************************
 
-			parameter = new Parameter(parameterType, Constant.SOA_THRESHOLD,
-					rs.getInt(Constant.SOA_THRESHOLD));
+			parameter = new Parameter(parameterType, Constant.SOA_THRESHOLD, rs.getInt(Constant.SOA_THRESHOLD));
 			this.analysis.addAParameter(parameter);
 
 			// ****************************************************************
@@ -1286,14 +1205,11 @@ public class ImportAnalysis {
 			this.analysis.addAParameter(parameter);
 
 			/*
-			 * //
-			 * ****************************************************************
-			 * // * add instance to list of parameters //
+			 * // **************************************************************** // * add instance
+			 * to list of parameters //
 			 * ****************************************************************
 			 */
-			parameter = new Parameter(parameterType,
-					Constant.IMPORTANCE_THRESHOLD,
-					rs.getInt(Constant.IMPORTANCE_THRESHOLD));
+			parameter = new Parameter(parameterType, Constant.IMPORTANCE_THRESHOLD, rs.getInt(Constant.IMPORTANCE_THRESHOLD));
 			this.analysis.addAParameter(parameter);
 		}
 		// close result
@@ -1307,15 +1223,13 @@ public class ImportAnalysis {
 		// * retrieve parametertype label
 		// ****************************************************************
 
-		parameterType = daoParameterType
-				.get(Constant.PARAMETERTYPE_TYPE_MAX_EFF);
+		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_MAX_EFF);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null) {
 
 			// create new parameter type
-			parameterType = new ParameterType(
-					Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
 
 			parameterType.setId(Constant.PARAMETERTYPE_TYPE_MAX_EFF);
 
@@ -1343,11 +1257,9 @@ public class ImportAnalysis {
 			// * create instance
 			// ****************************************************************
 			parameter = new Parameter();
-			parameter.setDescription("SML"
-					+ String.valueOf(rs.getInt(Constant.MATURITY_MAX_EFF_COL)));
+			parameter.setDescription("SML" + String.valueOf(rs.getInt(Constant.MATURITY_MAX_EFF_COL)));
 			parameter.setType(parameterType);
-			parameter
-					.setValue(rs.getDouble(Constant.MATURITY_MAX_EFF_VALUE) * 100);
+			parameter.setValue(rs.getDouble(Constant.MATURITY_MAX_EFF_VALUE) * 100);
 
 			// ****************************************************************
 			// * add instance to list of parameters
@@ -1366,18 +1278,15 @@ public class ImportAnalysis {
 		// * retrieve parametertype label
 		// ****************************************************************
 
-		parameterType = daoParameterType
-				.get(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE);
+		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null) {
 
 			// create new parameter type
-			parameterType = new ParameterType(
-					Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
+			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 
-			parameterType
-					.setId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE);
+			parameterType.setId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE);
 
 			// save parameter type into database
 			daoParameterType.save(parameterType);
@@ -1403,8 +1312,7 @@ public class ImportAnalysis {
 			// * create instance
 			// ****************************************************************
 			parameter = new Parameter();
-			parameter.setDescription("ImpScale"
-					+ String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE)));
+			parameter.setDescription("ImpScale" + String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE)));
 			parameter.setType(parameterType);
 			parameter.setValue(rs.getDouble(Constant.MATURITY_IS_VALUE) * 100);
 
@@ -1448,15 +1356,13 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * retrieve parametertype
 		// ****************************************************************
-		parameterType = daoParameterType
-				.get(Constant.PARAMETERTYPE_TYPE_IMPACT);
+		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_IMPACT);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null) {
 
 			// create new parameter type
-			parameterType = new ParameterType(
-					Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
 
 			parameterType.setId(Constant.PARAMETERTYPE_TYPE_IMPACT);
 
@@ -1487,16 +1393,12 @@ public class ImportAnalysis {
 			// * create instance of extended parameter
 			// ****************************************************************
 			extenededParameter = new ExtendedParameter();
-			extenededParameter.setDescription(rs
-					.getString(Constant.NAME_IMPACT));
+			extenededParameter.setDescription(rs.getString(Constant.NAME_IMPACT));
 			extenededParameter.setType(parameterType);
-			extenededParameter.setLevel(Integer.valueOf(rs
-					.getString(Constant.SCALE_IMPACT)));
+			extenededParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_IMPACT)));
 			extenededParameter.setAcronym(rs.getString(Constant.ACRO_IMPACT));
 			extenededParameter.setValue(rs.getDouble(Constant.VALUE_IMPACT));
-			parameterbounds = new Bounds(
-					rs.getDouble(Constant.VALUE_FROM_IMPACT),
-					rs.getDouble(Constant.VALUE_TO_IMPACT));
+			parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_IMPACT), rs.getDouble(Constant.VALUE_TO_IMPACT));
 			extenededParameter.setBounds(parameterbounds);
 
 			// ****************************************************************
@@ -1516,15 +1418,13 @@ public class ImportAnalysis {
 		// * retrieve parameter type label
 		// ****************************************************************
 
-		parameterType = daoParameterType
-				.get(Constant.PARAMETERTYPE_TYPE_PROPABILITY);
+		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_PROPABILITY);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null) {
 
 			// create new parameter type
-			parameterType = new ParameterType(
-					Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
+			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
 
 			parameterType.setId(Constant.PARAMETERTYPE_TYPE_PROPABILITY);
 
@@ -1555,18 +1455,12 @@ public class ImportAnalysis {
 			// * create instance
 			// ****************************************************************
 			extenededParameter = new ExtendedParameter();
-			extenededParameter.setDescription(rs
-					.getString(Constant.NAME_POTENTIALITY));
+			extenededParameter.setDescription(rs.getString(Constant.NAME_POTENTIALITY));
 			extenededParameter.setType(parameterType);
-			extenededParameter.setLevel(Integer.valueOf(rs
-					.getString(Constant.SCALE_POTENTIALITY)));
-			extenededParameter.setAcronym(rs
-					.getString(Constant.ACRO_POTENTIALITY));
-			extenededParameter.setValue(rs
-					.getDouble(Constant.VALUE_POTENTIALITY));
-			parameterbounds = new Bounds(
-					rs.getDouble(Constant.VALUE_FROM_POTENTIALITY),
-					rs.getDouble(Constant.VALUE_TO_POTENTIALITY));
+			extenededParameter.setLevel(Integer.valueOf(rs.getString(Constant.SCALE_POTENTIALITY)));
+			extenededParameter.setAcronym(rs.getString(Constant.ACRO_POTENTIALITY));
+			extenededParameter.setValue(rs.getDouble(Constant.VALUE_POTENTIALITY));
+			parameterbounds = new Bounds(rs.getDouble(Constant.VALUE_FROM_POTENTIALITY), rs.getDouble(Constant.VALUE_TO_POTENTIALITY));
 			extenededParameter.setBounds(parameterbounds);
 
 			// ****************************************************************
@@ -1611,18 +1505,15 @@ public class ImportAnalysis {
 		// * retrieve parameter type
 		// ****************************************************************
 
-		parameterType = daoParameterType
-				.get(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML);
+		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML);
 
 		// paramter type does not exist -> NO
 		if (parameterType == null) {
 
 			// create new parameter type
-			parameterType = new ParameterType(
-					Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME);
+			parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME);
 
-			parameterType
-					.setId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML);
+			parameterType.setId(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML);
 
 			// save parameter type into database
 			daoParameterType.save(parameterType);
@@ -1678,10 +1569,8 @@ public class ImportAnalysis {
 			maturityParameter.setCategory(cat);
 			maturityParameter.setDescription(label);
 			maturityParameter.setType(parameterType);
-			maturityParameter.setSMLLevel(rs
-					.getInt(Constant.MATURITY_REQUIRED_LIPS_SML));
-			maturityParameter.setValue(rs
-					.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+			maturityParameter.setSMLLevel(rs.getInt(Constant.MATURITY_REQUIRED_LIPS_SML));
+			maturityParameter.setValue(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
 
 			// ****************************************************************
 			// * add instance to list of parameters
@@ -1758,16 +1647,14 @@ public class ImportAnalysis {
 			if (phaseBeginDate.equals(Constant.EMPTY_STRING)) {
 				phase.setBeginDate(null);
 			} else {
-				phase.setBeginDate(new Date(dateFormat.parse(phaseBeginDate)
-						.getTime()));
+				phase.setBeginDate(new Date(dateFormat.parse(phaseBeginDate).getTime()));
 			}
 
 			// set end date if not empty
 			if (phaseEndDate.equals(Constant.EMPTY_STRING)) {
 				phase.setEndDate(null);
 			} else {
-				phase.setEndDate(new Date(dateFormat.parse(phaseEndDate)
-						.getTime()));
+				phase.setEndDate(new Date(dateFormat.parse(phaseEndDate).getTime()));
 			}
 
 			// add phase to map
@@ -1818,14 +1705,12 @@ public class ImportAnalysis {
 	/**
 	 * importNormMeasures: <br>
 	 * <ul>
-	 * <li>Imports all AnalysisNorm Measures (27001,27002,custom) except
-	 * maturity</li>
+	 * <li>Imports all AnalysisNorm Measures (27001,27002,custom) except maturity</li>
 	 * <li>Create Objects for each AnalysisNorm</li>
 	 * <li>Create Objects for each Measure</li>
 	 * <li>Create Objects for the Measure Phase</li>
 	 * <li>Adds the Phase to the Measure Object</li>
-	 * <li>Adds the Measure Objects to the their cosresponding AnalysisNorm (int
-	 * the "norms" field)</li>
+	 * <li>Adds the Measure Objects to the their cosresponding AnalysisNorm (int the "norms" field)</li>
 	 * </ul>
 	 * 
 	 * @throws Exception
@@ -1928,9 +1813,9 @@ public class ImportAnalysis {
 			// retrieve phase from phases map
 			phase = phases.get(phaseNumber);
 
-//			if (phase.getAnalysis() == null) {
-//				System.out.println(phase);
-//			}
+			// if (phase.getAnalysis() == null) {
+			// System.out.println(phase);
+			// }
 
 			// ****************************************************************
 			// * retrieve measuredescription
@@ -1940,8 +1825,7 @@ public class ImportAnalysis {
 			measureRefMeasure = rs.getString(Constant.MEASURE_REF_MEASURE);
 
 			// get measure description from database
-			mesDesc = daoMeasureDescription.getByReferenceNorm(
-					measureRefMeasure, norm);
+			mesDesc = daoMeasureDescription.getByReferenceNorm(measureRefMeasure, norm);
 
 			// measure description was found -> NO
 			if (mesDesc == null) {
@@ -1965,13 +1849,12 @@ public class ImportAnalysis {
 
 				// fill measure description text with data
 				mesText.setDomain(rs.getString(Constant.MEASURE_DOMAIN_MEASURE));
-				mesText.setDescription(rs
-						.getString(Constant.MEASURE_QUESTION_MEASURE));
+				mesText.setDescription(rs.getString(Constant.MEASURE_QUESTION_MEASURE));
 
-				/*System.out.println(mesDesc.getReference() + ":::"
-						+ mesDesc.getNorm().getLabel() + ":::"
-						+ mesText.getDomain() + ":::"
-						+ mesText.getDescription());*/
+				/*
+				 * System.out.println(mesDesc.getReference() + ":::" + mesDesc.getNorm().getLabel()
+				 * + ":::" + mesText.getDomain() + ":::" + mesText.getDescription());
+				 */
 
 				mesText.setLanguage(this.analysis.getLanguage());
 
@@ -1981,8 +1864,7 @@ public class ImportAnalysis {
 				// else: check if measure description text exists in the
 				// language of the analysis ->
 				// NO
-			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc,
-					this.analysis.getLanguage())) {
+			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc, this.analysis.getLanguage())) {
 
 				// System.out.println("Not found");
 
@@ -2000,8 +1882,7 @@ public class ImportAnalysis {
 
 				// fill measure description text
 				mesText.setDomain(rs.getString(Constant.MEASURE_DOMAIN_MEASURE));
-				mesText.setDescription(rs
-						.getString(Constant.MEASURE_QUESTION_MEASURE));
+				mesText.setDescription(rs.getString(Constant.MEASURE_QUESTION_MEASURE));
 				mesText.setLanguage(this.analysis.getLanguage());
 
 				// save measure description text to database
@@ -2017,39 +1898,21 @@ public class ImportAnalysis {
 			NormMeasure normMeasure = new NormMeasure();
 			normMeasure.setMeasureDescription(mesDesc);
 			normMeasure.setComment(rs.getString(Constant.MEASURE_COMMENT));
-			normMeasure.setInternalWL(rs
-					.getInt(Constant.MEASURE_INTERNAL_SETUP));
-			normMeasure.setExternalWL(rs
-					.getInt(Constant.MEASURE_EXTERNAL_SETUP));
-			normMeasure.setImplementationRate(rs
-					.getDouble(Constant.MEASURE_IMPLEMENTATION_RATE));
-			normMeasure.setInvestment(rs
-					.getDouble(Constant.MEASURE_INVESTISMENT));
+			normMeasure.setInternalWL(rs.getInt(Constant.MEASURE_INTERNAL_SETUP));
+			normMeasure.setExternalWL(rs.getInt(Constant.MEASURE_EXTERNAL_SETUP));
+			normMeasure.setImplementationRate(rs.getDouble(Constant.MEASURE_IMPLEMENTATION_RATE));
+			normMeasure.setInvestment(rs.getDouble(Constant.MEASURE_INVESTISMENT));
 			normMeasure.setLifetime(rs.getInt(Constant.MEASURE_LIFETIME));
-			normMeasure
-					.setMaintenance(rs.getString(Constant.MEASURE_MAINTENANCE)
-							.trim().isEmpty() ? -1 : rs
-							.getInt(Constant.MEASURE_MAINTENANCE));
+			normMeasure.setMaintenance(rs.getString(Constant.MEASURE_MAINTENANCE).trim().isEmpty() ? -1 : rs.getInt(Constant.MEASURE_MAINTENANCE));
 			normMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS));
 			normMeasure.setToCheck(rs.getString(Constant.MEASURE_REVISION));
 			normMeasure.setToDo(rs.getString(Constant.MEASURE_TODO));
 
 			// calculate cost
-			cost = Analysis
-					.computeCost(
-							this.analysis
-									.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE),
-							this.analysis
-									.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
-							this.analysis
-									.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
-							this.analysis
-									.getParameter(Constant.PARAMETER_MAINTENANCE_DEFAULT),
-							normMeasure.getInternalWL(), normMeasure
-									.getExternalWL(), normMeasure
-									.getInvestment(),
-							normMeasure.getLifetime(), normMeasure
-									.getMaintenance());
+			cost =
+				Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE), this.analysis
+						.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), this.analysis.getParameter(Constant.PARAMETER_MAINTENANCE_DEFAULT), normMeasure.getInternalWL(), normMeasure
+						.getExternalWL(), normMeasure.getInvestment(), normMeasure.getLifetime(), normMeasure.getMaintenance());
 
 			normMeasure.setCost(cost);
 
@@ -2062,43 +1925,26 @@ public class ImportAnalysis {
 			// * create measureproperties instance for this measure
 			// ****************************************************************
 			MeasureProperties measureProperties = new MeasureProperties();
-			measureProperties.setFMeasure(rs
-					.getInt(Constant.MEASURE_STRENGTH_MEASURE));
-			measureProperties.setFSectoral(rs
-					.getInt(Constant.MEASURE_STRENGTH_SECTORAL));
-			measureProperties.setCategoryValue(Constant.CONFIDENTIALITY_RISK,
-					rs.getInt(Constant.MEASURE_CONFIDENTIALITY));
-			measureProperties.setCategoryValue(Constant.INTEGRITY_RISK,
-					rs.getInt(Constant.MEASURE_INTEGRITY));
-			measureProperties.setCategoryValue(Constant.AVAILABILITY_RISK,
-					rs.getInt(Constant.MEASURE_AVAILABILITY));
+			measureProperties.setFMeasure(rs.getInt(Constant.MEASURE_STRENGTH_MEASURE));
+			measureProperties.setFSectoral(rs.getInt(Constant.MEASURE_STRENGTH_SECTORAL));
+			measureProperties.setCategoryValue(Constant.CONFIDENTIALITY_RISK, rs.getInt(Constant.MEASURE_CONFIDENTIALITY));
+			measureProperties.setCategoryValue(Constant.INTEGRITY_RISK, rs.getInt(Constant.MEASURE_INTEGRITY));
+			measureProperties.setCategoryValue(Constant.AVAILABILITY_RISK, rs.getInt(Constant.MEASURE_AVAILABILITY));
 
 			// load CSSF Risk data from sqlLight
 			setAllCriteriaCSSFCategories(measureProperties, rs);
-			measureProperties.setPreventive(rs
-					.getInt(Constant.MEASURE_PREVENTIVE));
-			measureProperties.setDetective(rs
-					.getInt(Constant.MEASURE_DETECTIVE));
-			measureProperties.setLimitative(rs
-					.getInt(Constant.MEASURE_LIMITING));
-			measureProperties.setCorrective(rs
-					.getInt(Constant.MEASURE_CORRECTIVE));
-			measureProperties.setIntentional(rs
-					.getInt(Constant.MEASURE_INTENTIONAL));
-			measureProperties.setAccidental(rs
-					.getInt(Constant.MEASURE_ACCIDENTAL));
-			measureProperties.setEnvironmental(rs
-					.getInt(Constant.MEASURE_ENVIRONMENTAL));
-			measureProperties.setInternalThreat(rs
-					.getInt(Constant.MEASURE_INTERNAL_THREAT));
-			measureProperties.setExternalThreat(rs
-					.getInt(Constant.THREAT_EXTERNAL_THREAT));
-			measureProperties.setSoaComment(rs
-					.getString(Constant.MEASURE_SOA_COMMENT));
-			measureProperties.setSoaReference(rs
-					.getString(Constant.MEASURE_SOA_REFERENCE));
-			measureProperties.setSoaRisk(rs
-					.getString(Constant.MEASURE_SOA_RISK));
+			measureProperties.setPreventive(rs.getInt(Constant.MEASURE_PREVENTIVE));
+			measureProperties.setDetective(rs.getInt(Constant.MEASURE_DETECTIVE));
+			measureProperties.setLimitative(rs.getInt(Constant.MEASURE_LIMITING));
+			measureProperties.setCorrective(rs.getInt(Constant.MEASURE_CORRECTIVE));
+			measureProperties.setIntentional(rs.getInt(Constant.MEASURE_INTENTIONAL));
+			measureProperties.setAccidental(rs.getInt(Constant.MEASURE_ACCIDENTAL));
+			measureProperties.setEnvironmental(rs.getInt(Constant.MEASURE_ENVIRONMENTAL));
+			measureProperties.setInternalThreat(rs.getInt(Constant.MEASURE_INTERNAL_THREAT));
+			measureProperties.setExternalThreat(rs.getInt(Constant.THREAT_EXTERNAL_THREAT));
+			measureProperties.setSoaComment(rs.getString(Constant.MEASURE_SOA_COMMENT));
+			measureProperties.setSoaReference(rs.getString(Constant.MEASURE_SOA_REFERENCE));
+			measureProperties.setSoaRisk(rs.getString(Constant.MEASURE_SOA_RISK));
 
 			// ****************************************************************
 			// * add measureporperties instance to measure instance
@@ -2169,8 +2015,7 @@ public class ImportAnalysis {
 				// ****************************************************************
 
 				// parse assettypevalues of current measure
-				for (AssetTypeValue assetTypeValue : normMeasure
-						.getAssetTypeValues()) {
+				for (AssetTypeValue assetTypeValue : normMeasure.getAssetTypeValues()) {
 
 					// ****************************************************************
 					// * check if asset type value is 101 (-1) and level is
@@ -2179,8 +2024,7 @@ public class ImportAnalysis {
 					// ****************************************************************
 
 					// check if value is 101 and level 3 -> YES
-					if ((assetTypeValue.getValue() == -1)
-							&& (normMeasure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_3)) {
+					if ((assetTypeValue.getValue() == -1) && (normMeasure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_3)) {
 
 						// set this asset type value with a valid value
 						updateAssetTypeValue(normMeasure, assetTypeValue);
@@ -2241,8 +2085,7 @@ public class ImportAnalysis {
 			for (int i = 1; i < numColumns + 1; i++) {
 
 				// check all column names if they are not parameters
-				if (!Constant.SCOPE_EXCLUDE.contains(rsMetaData
-						.getColumnName(i))) {
+				if (!Constant.SCOPE_EXCLUDE.contains(rsMetaData.getColumnName(i))) {
 
 					// ****************************************************************
 					// * Insert scope data into item information table.
@@ -2253,8 +2096,7 @@ public class ImportAnalysis {
 					// * create instance
 					// ****************************************************************
 					itemInformation = new ItemInformation();
-					itemInformation.setValue(rs.getString(rsMetaData
-							.getColumnName(i)));
+					itemInformation.setValue(rs.getString(rsMetaData.getColumnName(i)));
 					itemInformation.setDescription(rsMetaData.getColumnName(i));
 					itemInformation.setType(Constant.ITEMINFORMATION_SCOPE);
 
@@ -2306,8 +2148,7 @@ public class ImportAnalysis {
 				// * create instance
 				// ****************************************************************
 				itemInformation = new ItemInformation();
-				itemInformation.setValue(rs.getString(rsMetaData
-						.getColumnName(i)));
+				itemInformation.setValue(rs.getString(rsMetaData.getColumnName(i)));
 				itemInformation.setDescription(rsMetaData.getColumnName(i));
 				itemInformation.setType(Constant.ITEMINFORMATION_ORGANISATION);
 
@@ -2396,8 +2237,7 @@ public class ImportAnalysis {
 			if (analysisNorm == null)
 
 				// add norm to analysinorm map as analaysisnorm object
-				analysisNorms.put(norm, analysisNorm = new MaturityNorm(
-						analysis, norm));
+				analysisNorms.put(norm, analysisNorm = new MaturityNorm(analysis, norm));
 
 			// ****************************************************************
 			// * retrieve measure description and implementation rate ID to
@@ -2412,8 +2252,7 @@ public class ImportAnalysis {
 			chapter = rs.getString(Constant.MATURITY_REF);
 
 			// retrieve measuredescription from database
-			mesDesc = daoMeasureDescription.getByReferenceNorm(chapter,
-					analysisNorm.getNorm());
+			mesDesc = daoMeasureDescription.getByReferenceNorm(chapter, analysisNorm.getNorm());
 
 			// measure description does not exist
 			if (mesDesc == null) {
@@ -2436,16 +2275,14 @@ public class ImportAnalysis {
 				mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
 
 				// fill measure description text
-				mesText.setDomain(rs.getString(Constant.MATURITY_DOMAIN)
-						.replace("'", "''"));
+				mesText.setDomain(rs.getString(Constant.MATURITY_DOMAIN).replace("'", "''"));
 				mesText.setDescription("");
 				mesText.setLanguage(this.analysis.getLanguage());
 
 				// else: measure description exist: measure description text
 				// exists in the language
 				// of the analysis -> NO
-			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc,
-					this.analysis.getLanguage())) {
+			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc, this.analysis.getLanguage())) {
 
 				// create new measure description text
 				mesText = new MeasureDescriptionText();
@@ -2459,10 +2296,8 @@ public class ImportAnalysis {
 				mesText.setMeasureDescription(mesDesc);
 
 				// set data to measure description text
-				mesText.setDomain(rs.getString(Constant.MEASURE_DOMAIN_MEASURE)
-						.replace("'", "''"));
-				mesText.setDescription(rs.getString(
-						Constant.MEASURE_QUESTION_MEASURE).replace("'", "''"));
+				mesText.setDomain(rs.getString(Constant.MEASURE_DOMAIN_MEASURE).replace("'", "''"));
+				mesText.setDescription(rs.getString(Constant.MEASURE_QUESTION_MEASURE).replace("'", "''"));
 				mesText.setLanguage(this.analysis.getLanguage());
 			}
 
@@ -2475,8 +2310,7 @@ public class ImportAnalysis {
 				// ****************************************************************
 
 				// get chapter as integer (stored in database as integer)
-				chapterValue = Integer.valueOf(chapter.substring(2,
-						chapter.length()));
+				chapterValue = Integer.valueOf(chapter.substring(2, chapter.length()));
 
 				// ****************************************************************
 				// * select phase number for the chapter
@@ -2548,9 +2382,7 @@ public class ImportAnalysis {
 			status = rs.getString(Constant.MEASURE_STATUS);
 
 			// set status and by default not applicable (NA)
-			if ((!status.equals(Constant.MEASURE_STATUS_APPLICABLE))
-					&& (!status.equals(Constant.MEASURE_STATUS_MANDATORY))
-					&& (!status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))) {
+			if ((!status.equals(Constant.MEASURE_STATUS_APPLICABLE)) && (!status.equals(Constant.MEASURE_STATUS_MANDATORY)) && (!status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))) {
 
 				// set default status
 				status = Constant.MEASURE_STATUS_NOT_APPLICABLE;
@@ -2560,28 +2392,15 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			// check if status is not NA -> YES
-			if ((rs.getString(Constant.MEASURE_STATUS).replace("'", "''")
-					.equals(Constant.MEASURE_STATUS_APPLICABLE))
-					|| (rs.getString(Constant.MEASURE_STATUS)
-							.replace("'", "''")
-							.equals(Constant.MEASURE_STATUS_MANDATORY))) {
+			if ((rs.getString(Constant.MEASURE_STATUS).replace("'", "''").equals(Constant.MEASURE_STATUS_APPLICABLE))
+				|| (rs.getString(Constant.MEASURE_STATUS).replace("'", "''").equals(Constant.MEASURE_STATUS_MANDATORY))) {
 
 				// calculate cost
-				cost = Analysis
-						.computeCost(
-								this.analysis
-										.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE),
-								this.analysis
-										.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
-								this.analysis
-										.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT),
-								this.analysis
-										.getParameter(Constant.PARAMETER_MAINTENANCE_DEFAULT),
-								rs.getInt(Constant.MATURITY_INTWL), rs
-										.getInt(Constant.MATURITY_EXTWL), rs
-										.getInt(Constant.MATURITY_INVESTMENT),
-								rs.getInt(Constant.MEASURE_LIFETIME), rs
-										.getInt(Constant.MEASURE_MAINTENANCE));
+				cost =
+					Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
+							this.analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), this.analysis.getParameter(Constant.PARAMETER_MAINTENANCE_DEFAULT), rs
+									.getInt(Constant.MATURITY_INTWL), rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT), rs.getInt(Constant.MEASURE_LIFETIME), rs
+									.getInt(Constant.MEASURE_MAINTENANCE));
 			} else {
 
 				// check if status is not NA -> NO
@@ -2607,10 +2426,7 @@ public class ImportAnalysis {
 				// System.out.println(parameter.getType().getLabel());
 
 				// find implementation rate parameter and wanted value
-				if (parameter
-						.getType()
-						.getLabel()
-						.equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
+				if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
 					if (parameter.getValue() == implementationRate) {
 						// retrieve object
 						implementationRateParameter = parameter;
@@ -2622,23 +2438,17 @@ public class ImportAnalysis {
 			// create maturity measure with data
 			maturityMeasure = new MaturityMeasure();
 			maturityMeasure.setMeasureDescription(mesDesc);
-			maturityMeasure.setComment(rs.getString(Constant.MEASURE_COMMENT)
-					.replace("'", "''"));
+			maturityMeasure.setComment(rs.getString(Constant.MEASURE_COMMENT).replace("'", "''"));
 			maturityMeasure.setCost(cost);
 			maturityMeasure.setInternalWL(rs.getInt(Constant.MATURITY_INTWL));
 			maturityMeasure.setExternalWL(rs.getInt(Constant.MATURITY_EXTWL));
 			maturityMeasure.setImplementationRate(implementationRateParameter);
-			maturityMeasure.setInvestment(rs
-					.getDouble(Constant.MATURITY_INVESTMENT));
+			maturityMeasure.setInvestment(rs.getDouble(Constant.MATURITY_INVESTMENT));
 			maturityMeasure.setLifetime(rs.getInt(Constant.MEASURE_LIFETIME));
-			maturityMeasure.setMaintenance(rs
-					.getInt(Constant.MEASURE_MAINTENANCE));
-			maturityMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS)
-					.replace("'", "''"));
-			maturityMeasure.setToDo(rs.getString(Constant.MEASURE_TODO)
-					.replace("'", "''"));
-			maturityMeasure.setReachedLevel(rs
-					.getInt(Constant.MATURITY_REACHED));
+			maturityMeasure.setMaintenance(rs.getInt(Constant.MEASURE_MAINTENANCE));
+			maturityMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS).replace("'", "''"));
+			maturityMeasure.setToDo(rs.getString(Constant.MEASURE_TODO).replace("'", "''"));
+			maturityMeasure.setReachedLevel(rs.getInt(Constant.MATURITY_REACHED));
 			maturityMeasure.setSML1Cost(rs.getInt(Constant.MATURITY_SML1));
 			maturityMeasure.setSML2Cost(rs.getInt(Constant.MATURITY_SML2));
 			maturityMeasure.setSML3Cost(rs.getInt(Constant.MATURITY_SML3));
@@ -2713,8 +2523,7 @@ public class ImportAnalysis {
 
 			// add date of the comment
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			tempHist.setDate(dateFormat.parse(rs
-					.getString(Constant.HISTORY_DATE)));
+			tempHist.setDate(dateFormat.parse(rs.getString(Constant.HISTORY_DATE)));
 
 			// add author
 			tempHist.setAuthor(rs.getString(Constant.HISTORY_AUTHOR));
@@ -2738,20 +2547,17 @@ public class ImportAnalysis {
 	 * Scenario categories are: <br>
 	 * <ul>
 	 * <li>Direct: d1, d2, d3, d4, d5, d6, d6.1, d6.2, d6.3, d6.4, d7</li>
-	 * <li>Indirect: i1, i2, i3, i4, i5, i6, i7, i8, i8.1, i8.2, i8.3, i8.4, i9,
-	 * i10</li>
+	 * <li>Indirect: i1, i2, i3, i4, i5, i6, i7, i8, i8.1, i8.2, i8.3, i8.4, i9, i10</li>
 	 * </ul>
 	 * 
 	 * @param criteria
-	 *            The scenario or measure object to set the categories with
-	 *            values
+	 *            The scenario or measure object to set the categories with values
 	 * @param resultSet
 	 *            The ResultSet from where the categorie values come from
 	 * 
 	 * @throws Exception
 	 */
-	private void setAllCriteriaCSSFCategories(SecurityCriteria criteria,
-			ResultSet resultSet) throws Exception {
+	private void setAllCriteriaCSSFCategories(SecurityCriteria criteria, ResultSet resultSet) throws Exception {
 
 		// set the list of SQLite keys that represent the categories
 
@@ -2761,8 +2567,7 @@ public class ImportAnalysis {
 		// parse each category from SQLight and set the corresponding category
 		// with a value
 		for (String category : keys)
-			criteria.setCategoryValue(category, resultSet
-					.getInt(CategoryConverter.getSQLiteFromType(category)));
+			criteria.setCategoryValue(category, resultSet.getInt(CategoryConverter.getSQLiteFromType(category)));
 	}
 
 	/**
@@ -2776,8 +2581,7 @@ public class ImportAnalysis {
 	 * 
 	 * @throws Exception
 	 */
-	private void setScenarioAssetValues(Scenario scenario, ResultSet rs)
-			throws Exception {
+	private void setScenarioAssetValues(Scenario scenario, ResultSet rs) throws Exception {
 
 		// retrive Asset Type Values
 		final String[] keys = Constant.ASSET_TYPES.split(",");
@@ -2802,8 +2606,7 @@ public class ImportAnalysis {
 			}
 
 			// add asset type values to scenario
-			scenario.addAssetTypeValue(new AssetTypeValue(assetType, rs
-					.getInt(key)));
+			scenario.addAssetTypeValue(new AssetTypeValue(assetType, rs.getInt(key)));
 		}
 	}
 
@@ -2838,8 +2641,7 @@ public class ImportAnalysis {
 
 	/**
 	 * convertImpactToDouble: <br>
-	 * Takes a string value (value from SQLite file) and converts it into a
-	 * valid double value.
+	 * Takes a string value (value from SQLite file) and converts it into a valid double value.
 	 * 
 	 * @param impact
 	 *            The impact value as string
@@ -2867,10 +2669,8 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			for (int i = 0; i < this.analysis.getParameters().size(); i++) {
-				if (this.analysis.getAParameter(i).getType().getLabel()
-						.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)) {
-					if (((ExtendedParameter) this.analysis.getAParameter(i))
-							.getAcronym().equals(String.valueOf(impact))) {
+				if (this.analysis.getAParameter(i).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)) {
+					if (((ExtendedParameter) this.analysis.getAParameter(i)).getAcronym().equals(String.valueOf(impact))) {
 						result = this.analysis.getAParameter(i).getValue();
 						break;
 					}
@@ -2914,8 +2714,8 @@ public class ImportAnalysis {
 
 	/**
 	 * createAssetTypeDefaultValuesInDatabase: <br>
-	 * This method Inserts the Default Asset Type Values from the Sqlite File.
-	 * Values of -1 are changed into 101 (still illegal value).
+	 * This method Inserts the Default Asset Type Values from the Sqlite File. Values of -1 are
+	 * changed into 101 (still illegal value).
 	 * 
 	 * @throws Exception
 	 */
@@ -2955,16 +2755,13 @@ public class ImportAnalysis {
 			// rs.getString(Constant.MEASURE_REF_MEASURE) + ":::" +
 			// rs.getInt(Constant.ASSET_ID_TYPE_ASSET));
 
-			measure = (NormMeasure) measures.get(rs
-					.getString(Constant.MEASURE_ID_NORM)
-					+ rs.getString(Constant.MEASURE_REF_MEASURE));
+			measure = (NormMeasure) measures.get(rs.getString(Constant.MEASURE_ID_NORM) + rs.getString(Constant.MEASURE_REF_MEASURE));
 
 			// ****************************************************************
 			// * retrieve asset type label for the instance creation
 			// ****************************************************************
 
-			assetType = daoAssetType.get(rs
-					.getInt(Constant.ASSET_ID_TYPE_ASSET));
+			assetType = daoAssetType.get(rs.getInt(Constant.ASSET_ID_TYPE_ASSET));
 			assetTypeValue.setAssetType(assetType);
 			assetTypeValue.setValue(rs.getInt(Constant.VALUE_SPEC));
 
@@ -2978,8 +2775,7 @@ public class ImportAnalysis {
 	/**
 	 * updateAssetTypeValue: <br>
 	 * <ul>
-	 * <li>Update a given Asset Type Value for a given Measure in a given
-	 * AnalysisNorm</li>
+	 * <li>Update a given Asset Type Value for a given Measure in a given AnalysisNorm</li>
 	 * </ul>
 	 * 
 	 * @param newMeasureNorm
@@ -2991,8 +2787,7 @@ public class ImportAnalysis {
 	 * 
 	 * @throws Exception
 	 */
-	private void updateAssetTypeValue(NormMeasure normMeasure,
-			AssetTypeValue assetTypeValue) throws Exception {
+	private void updateAssetTypeValue(NormMeasure normMeasure, AssetTypeValue assetTypeValue) throws Exception {
 
 		// ****************************************************************
 		// * initialise variables
@@ -3059,8 +2854,7 @@ public class ImportAnalysis {
 
 			// parse measures of the same norm
 
-			prevNormMeasure = (NormMeasure) measures.get(normName
-					+ previousLevel);
+			prevNormMeasure = (NormMeasure) measures.get(normName + previousLevel);
 
 			// check if the reference met the reference that was built above ->
 			// YES
@@ -3073,19 +2867,15 @@ public class ImportAnalysis {
 				// *****************************************************
 
 				// parse assettypevalues
-				for (AssetTypeValue assetTypeValue2 : prevNormMeasure
-						.getAssetTypeValues()) {
+				for (AssetTypeValue assetTypeValue2 : prevNormMeasure.getAssetTypeValues()) {
 
 					// check if the assettype is the same AND check if the value
 					// of it is not
 					// 101 (usable)
 
-					if (assetTypeValue2.getAssetType().equals(
-							assetTypeValue.getAssetType())) {
+					if (assetTypeValue2.getAssetType().equals(assetTypeValue.getAssetType())) {
 
-						if (assetTypeValue2.getValue() != -1
-								|| prevNormMeasure.getMeasureDescription()
-										.getLevel() == 1) {
+						if (assetTypeValue2.getValue() != -1 || prevNormMeasure.getMeasureDescription().getLevel() == 1) {
 
 							// *********************************************
 							// * valid value was found update object and
@@ -3098,8 +2888,7 @@ public class ImportAnalysis {
 							// set value when previous value was not -1 or if
 							// level is -1 and still
 							// -1
-							value = assetTypeValue2.getValue() == -1 ? 100
-									: assetTypeValue2.getValue();
+							value = assetTypeValue2.getValue() == -1 ? 100 : assetTypeValue2.getValue();
 
 							// *********************************************
 							// * set new value for the object
@@ -3115,8 +2904,7 @@ public class ImportAnalysis {
 				// initialise reference variable
 				previousLevel = "";
 			} else
-				throw new Exception("Error level"
-						+ normMeasure.getMeasureDescription().getReference());
+				throw new Exception("Error level" + normMeasure.getMeasureDescription().getReference());
 		} while (!hasFound);
 	}
 
@@ -3208,8 +2996,7 @@ public class ImportAnalysis {
 	 * @param daoMeasureDescription
 	 *            the daoMeasureDescription to set
 	 */
-	public void setDaoMeasureDescription(
-			DAOMeasureDescription daoMeasureDescription) {
+	public void setDaoMeasureDescription(DAOMeasureDescription daoMeasureDescription) {
 		this.daoMeasureDescription = daoMeasureDescription;
 	}
 
@@ -3217,8 +3004,7 @@ public class ImportAnalysis {
 	 * @param daoMeasureDescriptionText
 	 *            the daoMeasureDescriptionText to set
 	 */
-	public void setDaoMeasureDescriptionText(
-			DAOMeasureDescriptionText daoMeasureDescriptionText) {
+	public void setDaoMeasureDescriptionText(DAOMeasureDescriptionText daoMeasureDescriptionText) {
 		this.daoMeasureDescriptionText = daoMeasureDescriptionText;
 	}
 
