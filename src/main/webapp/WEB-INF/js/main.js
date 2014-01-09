@@ -1259,17 +1259,27 @@ function duplicateAnalysis(form, analyisId) {
 		aync : true,
 		data : $("#" + form).serialize(),
 		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			if ((error = $(doc).find("#addHistoryModal")).length) {
-				$("#addHistoryModal .modal-body").html(
-						$(error).find(".modal-body"));
+			var alert = $("#addHistoryModal .alert");
+			if (alert.length)
+				alert.remove();
+			if (response["success"] != undefined) {
+				$(".progress-striped").hide();
+				showSuccess($("#addHistoryModal .modal-body")[0],
+						response["success"]);
+				setTimeout(location.reload(), 2000);
+			} else if (response["error"]) {
+				$(".progress-striped").hide();
+				showError($("#addHistoryModal .modal-body")[0],
+						response["error"]);
 				return false;
-				;
 			} else {
-				$("#addHistoryModal").modal("hide");
-				$("body").html($(doc).find("body").html());
-				return false;
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(response, "text/html");
+				if ((error = $(doc).find("#addHistoryModal")).length) {
+					$("#addHistoryModal .modal-body").html(
+							$(error).find(".modal-body"));
+					return false;
+				}
 			}
 		}
 	});
@@ -1307,6 +1317,21 @@ function showError(parent, text) {
 	error.appendChild(close);
 	error.appendChild(document.createTextNode(text));
 	parent.insertBefore(error, parent.firstChild);
+	return false;
+}
+
+function showSuccess(parent, text) {
+	var success = document.createElement("div");
+	var close = document.createElement("a");
+	close.setAttribute("class", "close");
+	close.setAttribute("href", "#");
+	close.setAttribute("data-dismiss", "alert");
+	success.setAttribute("class", "alert alert-success");
+	success.setAttribute("aria-hidden", "true");
+	close.appendChild(document.createTextNode("x"));
+	success.appendChild(close);
+	success.appendChild(document.createTextNode(text));
+	parent.insertBefore(success, parent.firstChild);
 	return false;
 }
 
@@ -1988,10 +2013,12 @@ $(function() {
  * Content Navigation
  */
 $(function() {
-	
-	if($('#confirm-dialog').length)
-		$('#confirm-dialog').on('hidden.bs.modal', function() {$("#confirm-dialog .btn-danger").unbind("click");});
-	
+
+	if ($('#confirm-dialog').length)
+		$('#confirm-dialog').on('hidden.bs.modal', function() {
+			$("#confirm-dialog .btn-danger").unbind("click");
+		});
+
 	var $window = $(window);
 	var previewScrollTop = $window.scrollTop();
 	if (!$(".navbar-custom").length)

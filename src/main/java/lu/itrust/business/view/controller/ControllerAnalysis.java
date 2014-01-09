@@ -19,6 +19,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.component.Duplicator;
+import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceActionPlanType;
@@ -37,14 +38,15 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -126,16 +128,16 @@ public class ControllerAnalysis {
 		return "analysis/analysis";
 	}
 
-	@RequestMapping("/{analysisId}/Duplicate")
-	public String createNewVersion(@ModelAttribute History history,
-			@PathVariable Integer analysisId, HttpSession session,
+	@RequestMapping(value="/{analysisId}/Duplicate",  headers = "Accept=application/json")
+	public @ResponseBody
+	String createNewVersion(@ModelAttribute History history,
+			@PathVariable int analysisId, Model model, HttpSession session,
 			RedirectAttributes attributes, Locale locale) throws Exception {
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null) {
-			attributes.addFlashAttribute("error", messageSource.getMessage(
+			return JsonMessage.Error(messageSource.getMessage(
 					"error.analysis.not_found", null,
 					"Analysis cannot be found!", locale));
-			return "redirect:/Analysis";
 		}
 		try {
 			history.setDate(new Date(System.currentTimeMillis()));
@@ -146,23 +148,21 @@ public class ControllerAnalysis {
 			copy.setLabel(history.getComment());
 			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
 			serviceAnalysis.saveOrUpdate(copy);
-			attributes.addFlashAttribute("success", messageSource.getMessage(
+			session.setAttribute("selectedAnalysis", copy.getId());
+			return JsonMessage.Success(messageSource.getMessage(
 					"success.analysis.duplicate", null,
-					"Analysis cannot be found!", locale));
-			return "redirect:/Analysis/" + copy.getId() + "/Select";
+					"Analysis was successfully duplicated", locale));
 		} catch (CloneNotSupportedException e) {
-			attributes.addAttribute("error", messageSource.getMessage(
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(
 					"error.analysis.duplicate", null,
 					"Analysis cannot be duplicate!", locale));
+		} catch (Exception e) {
 			e.printStackTrace();
-			return "redirect:/Analysis";
-		} catch (DataIntegrityViolationException e) {
-			attributes.addAttribute("error", messageSource.getMessage(
-					"error.version.duplicate", null, "Version already exists",
-					locale));
-			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.analysis.duplicate.unknown", null,
+					"An unknown error occurred during copying", locale));
 		}
-		return "analysis/components/widgets/historyForm";
 
 	}
 
