@@ -488,20 +488,24 @@ function AssessmentFieldEditor(element) {
 									+ that.fieldType + '"}',
 							contentType : "application/json",
 							success : function(response) {
+								console.log(response);
 								if (response["success"] != undefined) {
-
 									if (application.modal["AssessmentViewer"] != undefined)
 										application.modal["AssessmentViewer"]
 												.Load();
 									else {
 										$("#info-dialog .modal-body").html(
 												response["success"]);
+										$("#info-dialog").prop("style", "z-index:1070");
 										$("#info-dialog").modal("toggle");
+										
 									}
 								} else {
 									$("#alert-dialog .modal-body").html(
 											response["error"]);
+									$("#alert-dialog").prop("style", "z-index:1070");
 									$("#alert-dialog").modal("toggle");
+									
 								}
 								return true;
 							},
@@ -1256,7 +1260,7 @@ function saveField(element, controller, id, field, type) {
 function duplicateAnalysis(form, analyisId) {
 	$(".progress-striped").show();
 	return $.ajax({
-		url : context + "/History/Analysis/" + analyisId + "/History/NewVersion/Save",
+		url : context + "/History/Analysis/" + analyisId + "/NewVersion/Save",
 		type : "post",
 		aync : true,
 		data : $("#" + form).serialize(),

@@ -10,6 +10,7 @@ import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.ParameterType;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOParameter;
+
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
@@ -266,6 +267,51 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 			parameters.get(i).setType(Initialise(parameters.get(i).getType()));
 		}
 		return parameters;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> findAcronymByAnalysis(int idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select parameter.acronym "
+								+ "From Analysis as analysis inner join analysis.parameters as parameter "
+								+ "where analysis.id = :idAnalysis "
+								+ "and (parameter.type.label = :impact or parameter.type.label = :proba ) "
+								+ "order by parameter.level")
+				.setParameter("idAnalysis", idAnalysis)
+				.setString("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)
+				.setString("proba",
+						Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> findAcronymByAnalysisAndType(int idAnalysis, String type) {
+		return getSession()
+				.createQuery(
+						"Select parameter.acronym "
+								+ "From Analysis as analysis inner join analysis.parameters as parameter "
+								+ "where analysis.id = :idAnalysis "
+								+ "and parameter.type.label = :type "
+								+ "order by parameter.level")
+				.setParameter("idAnalysis", idAnalysis)
+				.setString("type", type).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> findAcronymByAnalysisAndType(int idAnalysis,
+			ParameterType type) {
+		return getSession()
+				.createQuery(
+						"Select parameter.acronym "
+								+ "From Analysis as analysis inner join analysis.parameters as parameter"
+								+ "where analysis.id = :idAnalysis "
+								+ "and parameter.type = :type "
+								+ "order by parameter.level")
+				.setParameter("idAnalysis", idAnalysis)
+				.setParameter("type", type).list();
 	}
 
 }

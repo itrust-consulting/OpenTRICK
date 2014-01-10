@@ -24,6 +24,12 @@ public interface ServiceParameter {
 	List<Parameter> findAll(int pageIndex, int pageSize);
 
 	List<Parameter> findByAnalysis(int idAnalysis, int pageIndex, int pageSize);
+	
+	List<String> findAcronymByAnalysis(int idAnalysis);
+
+	List<String> findAcronymByAnalysisAndType(int idAnalysis, String type);
+	
+	List<String> findAcronymByAnalysisAndType(int idAnalysis, ParameterType type);
 
 	List<ExtendedParameter> findImpactByAnalysisAndType(int idAnalysis);
 

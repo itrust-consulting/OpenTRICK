@@ -26,9 +26,9 @@
 					<table class="table">
 						<thead>
 							<tr>
-								<th><spring:message
+								<th colspan="2"><spring:message
 										code="label.itemInformation.description" text="Description" /></th>
-								<th><spring:message code="label.itemInformation.value"
+								<th colspan="1"><spring:message code="label.itemInformation.value"
 										text="Value" /></th>
 							</tr>
 						</thead>
@@ -37,8 +37,8 @@
 								var="itemInformation">
 								<tr trick-class="ItemInformation"
 									trick-id="${itemInformation.id}">
-									<td>${itemInformation.description}</td>
-									<td trick-field="value" trick-field-type="string" class="success"
+									<td colspan="2"><spring:message code="label.itemInformation.${itemInformation.description}" text="${itemInformation.description}"/> </td>
+									<td colspan="1" trick-field="value" trick-field-type="string" class="success"
 										ondblclick="return editField(this);">${itemInformation.value}</td>
 								</tr>
 							</c:forEach>
@@ -58,9 +58,9 @@
 					<table class="table">
 						<thead>
 							<tr>
-								<th><spring:message
+								<th colspan="2"><spring:message
 										code="label.itemInformation.description" text="Description" /></th>
-								<th><spring:message code="label.itemInformation.value"
+								<th  colspan="1"><spring:message code="label.itemInformation.value"
 										text="Value" /></th>
 							</tr>
 						</thead>
@@ -69,8 +69,8 @@
 								var="itemInformation">
 								<tr trick-class="ItemInformation"
 									trick-id="${itemInformation.id}">
-									<td>${itemInformation.description}</td>
-									<td trick-field="value" trick-field-trype="string" class="success"
+									<td colspan="2"><spring:message code="label.itemInformation.${itemInformation.description}" text="${itemInformation.description}"/> </td>
+									<td colspan="1" trick-field="value" trick-field-type="string" class="success"
 										ondblclick="return editField(this);">${itemInformation.value}</td>
 								</tr>
 							</c:forEach>

@@ -29,11 +29,16 @@ import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.component.ParameterManager;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssessment;
+import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceHistory;
 import lu.itrust.business.service.ServiceItemInformation;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceParameter;
 import lu.itrust.business.service.ServicePhase;
+import lu.itrust.business.validator.AssessmentValidator;
+import lu.itrust.business.validator.ExtendedParameterValidator;
+import lu.itrust.business.validator.ParameterValidator;
+import lu.itrust.business.validator.Validator;
 import lu.itrust.business.view.model.FieldEditor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +78,9 @@ public class ControllerEditField {
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
+	private ServiceDataValidation serviceDataValidation;
+
+	@Autowired
 	private ServiceMeasure serviceMeasure;
 
 	@Autowired
@@ -99,6 +107,32 @@ public class ControllerEditField {
 		} else
 			return false;
 		return true;
+	}
+
+	private Object value(FieldEditor fieldEditor, String pattern) {
+		try {
+			if (fieldEditor.getType().equalsIgnoreCase("string"))
+				return (String) fieldEditor.getValue();
+			else if (fieldEditor.getType().equalsIgnoreCase("integer"))
+				return Integer.parseInt(fieldEditor.getValue());
+			else if (fieldEditor.getType().equalsIgnoreCase("double"))
+				return Double.parseDouble(fieldEditor.getValue());
+			else if (fieldEditor.getType().equalsIgnoreCase("float"))
+				return Float.parseFloat(fieldEditor.getValue());
+			else if (fieldEditor.getType().equalsIgnoreCase("boolean"))
+				return Boolean.parseBoolean(fieldEditor.getValue());
+			else if (fieldEditor.getType().equalsIgnoreCase("date")) {
+				DateFormat format = new SimpleDateFormat(
+						pattern == null ? "yyyy-MM-dd hh:mm:ss" : pattern);
+				return format.parse(fieldEditor.getValue());
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+
 	}
 
 	@RequestMapping(value = "/ItemInformation", method = RequestMethod.POST, headers = "Accept=application/json")
@@ -146,11 +180,22 @@ public class ControllerEditField {
 	String parameter(@RequestBody FieldEditor fieldEditor, Locale locale) {
 		try {
 			Parameter parameter = serviceParameter.get(fieldEditor.getId());
-
 			if (parameter == null)
 				return JsonMessage.Error(messageSource.getMessage(
 						"error.parameter.not_found", null,
 						"Parameter cannot be found", locale));
+
+			Validator validator = serviceDataValidation.findByClass(parameter
+					.getClass());
+			if (validator == null)
+				serviceDataValidation.register(new ParameterValidator());
+
+			Object value = value(fieldEditor, null);
+			String error = serviceDataValidation.validate(parameter,
+					fieldEditor.getFieldName(), value);
+			if (error != null)
+				return JsonMessage.Error(serviceDataValidation.ParseError(
+						error, messageSource, locale));
 			Field field = parameter.getClass().getDeclaredField(
 					fieldEditor.getFieldName());
 			field.setAccessible(true);
@@ -200,6 +245,17 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage(
 						"error.parameter.not_found", null,
 						"Parameter cannot be found", locale));
+			Validator validator = serviceDataValidation.findByClass(parameter
+					.getClass());
+			if (validator == null)
+				serviceDataValidation
+						.register(new ExtendedParameterValidator());
+			Object value = value(fieldEditor, null);
+			String error = serviceDataValidation.validate(parameter,
+					fieldEditor.getFieldName(), value);
+			if (error != null)
+				return JsonMessage.Error(serviceDataValidation.ParseError(
+						error, messageSource, locale));
 			Field field = null;
 			if ("value id type description"
 					.contains(fieldEditor.getFieldName()))
@@ -277,19 +333,46 @@ public class ControllerEditField {
 						"error.assessment.not_found", null,
 						"Assessment cannot be found", locale));
 
-			Field field = assessment.getClass().getDeclaredField(
-					fieldEditor.getFieldName());
-			field.setAccessible(true);
-			if (!setFieldData(field, assessment, fieldEditor, null))
-				return JsonMessage.Error(messageSource.getMessage(
-						"error.edit.type.field", null,
-						"Data cannot be updated", locale));
 			Integer id = (Integer) session.getAttribute("selectedAnalysis");
 
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage(
 						"error.analysis.no_selected", null,
 						"No selected analysis", locale));
+
+			Validator validator = serviceDataValidation.findByClass(assessment
+					.getClass());
+			if (validator == null)
+				serviceDataValidation.register(new AssessmentValidator());
+
+			Object value = value(fieldEditor, null);
+
+			List<String> chooses = null;
+
+			if ("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor
+					.getFieldName()))
+				chooses = serviceParameter.findAcronymByAnalysisAndType(id,
+						Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+			else if ("likelihood".equals(fieldEditor.getFieldName()))
+				chooses = serviceParameter.findAcronymByAnalysisAndType(id,
+						Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
+			
+			System.out.println(chooses);
+
+			String error = serviceDataValidation.validate(assessment,
+					fieldEditor.getFieldName(), value, chooses.toArray());
+			if (error != null)
+				return JsonMessage.Error(serviceDataValidation.ParseError(
+						error, messageSource, locale));
+
+			Field field = assessment.getClass().getDeclaredField(
+					fieldEditor.getFieldName());
+
+			field.setAccessible(true);
+			if (!setFieldData(field, assessment, fieldEditor, null))
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.edit.type.field", null,
+						"Data cannot be updated", locale));
 
 			Map<String, ExtendedParameter> parameters = new LinkedHashMap<>();
 
