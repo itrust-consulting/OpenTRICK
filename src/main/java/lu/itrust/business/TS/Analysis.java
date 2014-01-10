@@ -19,11 +19,10 @@ import lu.itrust.business.TS.usermanagment.User;
 
 /**
  * Analysis: <br>
- * This class represents an analysis and all its data of TRICK Service. This
- * class is used to store analysis data such as assets, scenarios, security
- * measures, item information, risk information, the version, parameters and
- * phases. After the data is stored, the action plan can be computed within this
- * class as well as the Action Plan Summary.
+ * This class represents an analysis and all its data of TRICK Service. This class is used to store
+ * analysis data such as assets, scenarios, security measures, item information, risk information,
+ * the version, parameters and phases. After the data is stored, the action plan can be computed
+ * within this class as well as the Action Plan Summary.
  * <ul>
  * <li>import Analysis from SQLite file</li>
  * <li>store analysis in java object to use during the calculations</li>
@@ -63,13 +62,13 @@ public class Analysis implements Serializable, Cloneable {
 
 	/** Analysis owner (the one that created or imported it) */
 	private User owner;
-	
+
 	/** List of users and their access rights */
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
 
 	/** Based on analysis */
 	private Analysis basedOnAnalysis;
-	
+
 	/** The Label of this Analysis */
 	private String label;
 
@@ -132,34 +131,31 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * computeActionPlan: <br>
-	 * Computes the Action Plans and stores the Result into the Database and
-	 * inside the ActionPlan Lists.
+	 * Computes the Action Plans and stores the Result into the Database and inside the ActionPlan
+	 * Lists.
 	 * 
-	 * @return A MessageHandler Object containing either a Exception or null
-	 *         (Error or no Error)
+	 * @return A MessageHandler Object containing either a Exception or null (Error or no Error)
 	 */
 	/*
 	 * public MessageHandler computeActionPlan() {
 	 * 
-	 * // create object ActionPlanComputation actionPlanComputation = new
-	 * ActionPlanComputation( this);
+	 * // create object ActionPlanComputation actionPlanComputation = new ActionPlanComputation(
+	 * this);
 	 * 
-	 * // perform computation return
-	 * actionPlanComputation.calculateActionPlans(); }
+	 * // perform computation return actionPlanComputation.calculateActionPlans(); }
 	 */
 
 	/**
 	 * computeRiskRegister: <br>
 	 * Computes the Risk Register and stores the result in the MySQL Database
 	 * 
-	 * @return A MessageHandler Object containing either a Exception or null
-	 *         (Error or no Error)
+	 * @return A MessageHandler Object containing either a Exception or null (Error or no Error)
 	 */
 	/*
 	 * public MessageHandler computeRiskRegister() {
 	 * 
-	 * // create object RiskRegisterComputation riskcomputation = new
-	 * RiskRegisterComputation( this);
+	 * // create object RiskRegisterComputation riskcomputation = new RiskRegisterComputation(
+	 * this);
 	 * 
 	 * // compute the risk register and store to database return
 	 * riskcomputation.computeRiskRegister(); }
@@ -200,8 +196,7 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getLatestVersion: <br>
-	 * Parse all history entries to find latest version (version has to be of
-	 * format xx.xx.xx)
+	 * Parse all history entries to find latest version (version has to be of format xx.xx.xx)
 	 * 
 	 * @return
 	 */
@@ -215,9 +210,7 @@ public class Analysis implements Serializable, Cloneable {
 			Integer t = 0;
 			String version = histories.get(i).getVersion();
 			String[] splittedVerison = version.split("\\.");
-			t = (Integer.valueOf(splittedVerison[0]))
-					+ (Integer.valueOf(splittedVerison[1]))
-					+ (Integer.valueOf(splittedVerison[2]));
+			t = (Integer.valueOf(splittedVerison[0])) + (Integer.valueOf(splittedVerison[1])) + (Integer.valueOf(splittedVerison[2]));
 			if (v < t) {
 				v = t;
 				finalVersion = version;
@@ -254,9 +247,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * calculateRRF: <br>
-	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a
-	 * given measure, given Scenario and given Asset (asset and scenario
-	 * together: assessment) values.
+	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a given measure, given
+	 * Scenario and given Asset (asset and scenario together: assessment) values.
 	 * 
 	 * @param tmpAssessment
 	 *            The Assessment to take Values to calculate
@@ -267,8 +259,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @return The Calculated RRF
 	 */
-	public static double calculateRRF(Assessment tmpAssessment,
-			List<Parameter> parameters, NormMeasure measure) {
+	public static double calculateRRF(Assessment tmpAssessment, List<Parameter> parameters, NormMeasure measure) {
 
 		// ****************************************************************
 		// * initialise variables
@@ -289,10 +280,7 @@ public class Analysis implements Serializable, Cloneable {
 		for (int i = 0; i < parameters.size(); i++) {
 
 			// check if parameter is tuning -> YES
-			if ((parameters.get(i).getType().getLabel()
-					.equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME))
-					&& (parameters.get(i).getDescription()
-							.equals(Constant.PARAMETER_TUNING))) {
+			if ((parameters.get(i).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)) && (parameters.get(i).getDescription().equals(Constant.PARAMETER_TUNING))) {
 
 				// ****************************************************************
 				// * store tuning value
@@ -313,8 +301,7 @@ public class Analysis implements Serializable, Cloneable {
 		for (int atvc = 0; atvc < measure.getAssetTypeValues().size(); atvc++) {
 
 			// check if asset type of measure matches asset type of assessment
-			if (measure.getAssetTypeValue(atvc).getAssetType().getType()
-					.equals(tmpAssessment.getAsset().getAssetType().getType())) {
+			if (measure.getAssetTypeValue(atvc).getAssetType().getType().equals(tmpAssessment.getAsset().getAssetType().getType())) {
 
 				// ****************************************************************
 				// * store assetTypevalue
@@ -339,57 +326,45 @@ public class Analysis implements Serializable, Cloneable {
 		// ****************************************************************
 		// * Category calculation
 		// ****************************************************************
-		category = calculateRRFCategory(measure.getMeasurePropertyList(),
-				tmpAssessment.getScenario());
+		category = calculateRRFCategory(measure.getMeasurePropertyList(), tmpAssessment.getScenario());
 
 		// ****************************************************************
 		// * Type calculation
 		// ****************************************************************
-		type = ((measure.getMeasurePropertyList().getLimitative() * tmpAssessment
-				.getScenario().getLimitative())
-				+ (measure.getMeasurePropertyList().getPreventive() * tmpAssessment
-						.getScenario().getPreventive())
-				+ (measure.getMeasurePropertyList().getDetective() * tmpAssessment
-						.getScenario().getDetective()) + (measure
-				.getMeasurePropertyList().getCorrective() * tmpAssessment
-				.getScenario().getCorrective())) / 4.;
+		type =
+			((measure.getMeasurePropertyList().getLimitative() * tmpAssessment.getScenario().getLimitative())
+				+ (measure.getMeasurePropertyList().getPreventive() * tmpAssessment.getScenario().getPreventive())
+				+ (measure.getMeasurePropertyList().getDetective() * tmpAssessment.getScenario().getDetective()) + (measure.getMeasurePropertyList().getCorrective() * tmpAssessment
+					.getScenario().getCorrective())) / 4.;
 
 		// ****************************************************************
 		// * Source calculation
 		// ****************************************************************
-		source = (measure.getMeasurePropertyList().getIntentional() * tmpAssessment
-				.getScenario().getIntentional())
-				+ (measure.getMeasurePropertyList().getAccidental() * tmpAssessment
-						.getScenario().getAccidental())
-				+ (measure.getMeasurePropertyList().getEnvironmental() * tmpAssessment
-						.getScenario().getEnvironmental())
-				+ (measure.getMeasurePropertyList().getInternalThreat() * tmpAssessment
-						.getScenario().getInternalThreat())
-				+ (measure.getMeasurePropertyList().getExternalThreat() * tmpAssessment
-						.getScenario().getExternalThreat());
+		source =
+			(measure.getMeasurePropertyList().getIntentional() * tmpAssessment.getScenario().getIntentional())
+				+ (measure.getMeasurePropertyList().getAccidental() * tmpAssessment.getScenario().getAccidental())
+				+ (measure.getMeasurePropertyList().getEnvironmental() * tmpAssessment.getScenario().getEnvironmental())
+				+ (measure.getMeasurePropertyList().getInternalThreat() * tmpAssessment.getScenario().getInternalThreat())
+				+ (measure.getMeasurePropertyList().getExternalThreat() * tmpAssessment.getScenario().getExternalThreat());
 
-		source = source
-				/ (4. * (double) (tmpAssessment.getScenario().getIntentional()
-						+ tmpAssessment.getScenario().getAccidental()
-						+ tmpAssessment.getScenario().getEnvironmental()
-						+ tmpAssessment.getScenario().getInternalThreat() + tmpAssessment
-						.getScenario().getExternalThreat()));
+		source =
+			source
+				/ (4. * (double) (tmpAssessment.getScenario().getIntentional() + tmpAssessment.getScenario().getAccidental() + tmpAssessment.getScenario().getEnvironmental()
+					+ tmpAssessment.getScenario().getInternalThreat() + tmpAssessment.getScenario().getExternalThreat()));
 
 		// ****************************************************************
 		// * RRF completion :
 		// * (((Asset_Measure/100)*Strength*CID*Type*Source) / 500) * tuning
 		// ****************************************************************
 
-		RRF = ((assetTypeValue / 100. * strength * category * type * source) / 500.)
-				* tuning;
+		RRF = ((assetTypeValue / 100. * strength * category * type * source) / 500.) * tuning;
 
 		/*
-		 * System.out.println("Measure: " +
-		 * measure.getMeasureDescription().getReference() + "Asset: " +
-		 * tmpAssessment.getAsset().getName() + "Scenario: " +
-		 * tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" +
-		 * assetTypeValue + ", strength=" + strength + ", Category=" + category
-		 * + ", type=" + type + ", source=" + source + ", tuning=" + tuning);
+		 * System.out.println("Measure: " + measure.getMeasureDescription().getReference() +
+		 * "Asset: " + tmpAssessment.getAsset().getName() + "Scenario: " +
+		 * tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" + assetTypeValue +
+		 * ", strength=" + strength + ", Category=" + category + ", type=" + type + ", source=" +
+		 * source + ", tuning=" + tuning);
 		 */
 
 		// ****************************************************************
@@ -401,8 +376,8 @@ public class Analysis implements Serializable, Cloneable {
 	/**
 	 * calculateRRFCategory: <br>
 	 * RRF Category calculation Returns SUM(Rm*RiS)/4*SUM(Rs): R =
-	 * RISK(CONFIDENTIALITY,AVAILABILITY,INTEGRITY,Direct[1-7], Indirect[1-10]),
-	 * M=MeasureProperties and S=scenario
+	 * RISK(CONFIDENTIALITY,AVAILABILITY,INTEGRITY,Direct[1-7], Indirect[1-10]), M=MeasureProperties
+	 * and S=scenario
 	 * 
 	 * @param properties
 	 *            MeasureProperties
@@ -411,17 +386,14 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @return The Calculated RRF Category value
 	 */
-	public static double calculateRRFCategory(MeasureProperties properties,
-			Scenario scenario) {
+	public static double calculateRRFCategory(MeasureProperties properties, Scenario scenario) {
 
 		// check if properties and scenario are not null to avoid failures
 		if (properties == null)
-			throw new IllegalArgumentException(
-					"error.rrf.compute.properties_null");
+			throw new IllegalArgumentException("error.rrf.compute.properties_null");
 
 		if (scenario == null)
-			throw new IllegalArgumentException(
-					"error.rrf.compute.scenario_null");
+			throw new IllegalArgumentException("error.rrf.compute.scenario_null");
 
 		// **************************************************************
 		// * intialise variables
@@ -439,8 +411,7 @@ public class Analysis implements Serializable, Cloneable {
 		for (String risk : keys) {
 
 			// calculate: Category of Measure * Category of Scenario
-			categoryNumerator += properties.getCategoryValue(risk)
-					* scenario.getCategoryValue(risk);
+			categoryNumerator += properties.getCategoryValue(risk) * scenario.getCategoryValue(risk);
 
 			// calculate: sum of Scenario Category
 			categoryDenominator += scenario.getCategoryValue(risk);
@@ -448,8 +419,7 @@ public class Analysis implements Serializable, Cloneable {
 
 		// check if not Division by 0
 		if (categoryDenominator == 0) {
-			throw new ArithmeticException(
-					"error.rrf.compute.arithmetic_denominator_zero");
+			throw new ArithmeticException("error.rrf.compute.arithmetic_denominator_zero");
 		}
 
 		// **************************************************************
@@ -494,8 +464,7 @@ public class Analysis implements Serializable, Cloneable {
 		for (int i = 0; i < this.getParameters().size(); i++) {
 
 			// check if parameter is Internal Setup Rate -> YES
-			if (this.getAParameter(i).getDescription()
-					.equals(Constant.PARAMETER_INTERNAL_SETUP_RATE)) {
+			if (this.getAParameter(i).getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE)) {
 
 				// ****************************************************************
 				// * set internal Setup rate
@@ -503,9 +472,7 @@ public class Analysis implements Serializable, Cloneable {
 				internalSetupValue = this.getAParameter(i).getValue();
 
 				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1)
-						&& (lifetimeDefault != -1)
-						&& (maintenanceDefault != -1)) {
+				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
 
 					// leave loop
 					break;
@@ -513,8 +480,7 @@ public class Analysis implements Serializable, Cloneable {
 			}
 
 			// check if parameter is External Setup Rate -> YES
-			if (this.getAParameter(i).getDescription()
-					.equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE)) {
+			if (this.getAParameter(i).getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE)) {
 
 				// ****************************************************************
 				// * set external setup rate
@@ -522,9 +488,7 @@ public class Analysis implements Serializable, Cloneable {
 				externalSetupValue = this.getAParameter(i).getValue();
 
 				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1)
-						&& (lifetimeDefault != -1)
-						&& (maintenanceDefault != -1)) {
+				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
 
 					// leave loop
 					break;
@@ -532,8 +496,7 @@ public class Analysis implements Serializable, Cloneable {
 			}
 
 			// check if parameter is default lifetime -> YES
-			if (this.getAParameter(i).getDescription()
-					.equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
+			if (this.getAParameter(i).getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
 
 				// ****************************************************************
 				// * set default lifetime
@@ -541,9 +504,7 @@ public class Analysis implements Serializable, Cloneable {
 				lifetimeDefault = this.getAParameter(i).getValue();
 
 				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1)
-						&& (lifetimeDefault != -1)
-						&& (maintenanceDefault != -1)) {
+				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
 
 					// leave loop
 					break;
@@ -551,8 +512,7 @@ public class Analysis implements Serializable, Cloneable {
 			}
 
 			// check if parameter is default maintenance -> YES
-			if (this.getAParameter(i).getDescription()
-					.equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
+			if (this.getAParameter(i).getDescription().equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
 
 				// ****************************************************************
 				// * set default maintenance
@@ -560,9 +520,7 @@ public class Analysis implements Serializable, Cloneable {
 				maintenanceDefault = this.getAParameter(i).getValue();
 
 				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1)
-						&& (lifetimeDefault != -1)
-						&& (maintenanceDefault != -1)) {
+				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
 
 					// leave loop
 					break;
@@ -571,10 +529,9 @@ public class Analysis implements Serializable, Cloneable {
 		}
 
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue,
-				lifetimeDefault, maintenanceDefault, measure.getInternalWL(),
-				measure.getExternalWL(), measure.getInvestment(),
-				measure.getLifetime(), measure.getMaintenance());
+		cost =
+			Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(),
+					measure.getLifetime(), measure.getMaintenance());
 
 		// return calculated cost
 		return cost;
@@ -591,8 +548,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param lifetimeDefault
 	 *            The Default LifeTime in Years
 	 * @param maintenanceDefault
-	 *            The Default Maintenance in Percentage (0,00 - 1,00 WHERE 0,00
-	 *            = 0% and 0,1 = 100%)
+	 *            The Default Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%)
 	 * @param internalWorkLoad
 	 *            The Internal Workload in Man Days
 	 * @param externalWorkLoad
@@ -602,16 +558,12 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param lifetime
 	 *            The Lifetime in Years
 	 * @param maintenance
-	 *            The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and
-	 *            0,1 = 100%)
+	 *            The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%)
 	 * 
 	 * @return The Calculated Cost
 	 */
-	public static final double computeCost(double internalSetup,
-			double externalSetup, double lifetimeDefault,
-			double maintenanceDefault, double internalWorkLoad,
-			double externalWorkLoad, double investment, double lifetime,
-			double maintenance) {
+	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double internalWorkLoad, double externalWorkLoad,
+			double investment, double lifetime, double maintenance) {
 
 		// ****************************************************************
 		// * variable initialisation
@@ -742,8 +694,7 @@ public class Analysis implements Serializable, Cloneable {
 						for (int k = 0; k < tmpPhases.size(); k++) {
 
 							// try to find current phase
-							if (tmpPhases.get(k).getNumber() == maturityMeasure
-									.getPhase().getNumber()) {
+							if (tmpPhases.get(k).getNumber() == maturityMeasure.getPhase().getNumber()) {
 
 								// phase was found
 								phaseFound = true;
@@ -792,8 +743,7 @@ public class Analysis implements Serializable, Cloneable {
 					for (int k = 0; k < tmpPhases.size(); k++) {
 
 						// try to find current phase
-						if (tmpPhases.get(k).getNumber() == normMeasure
-								.getPhase().getNumber()) {
+						if (tmpPhases.get(k).getNumber() == normMeasure.getPhase().getNumber()) {
 
 							// phase was found
 							phaseFound = true;
@@ -882,9 +832,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getYearsDifferenceBetweenTwoDates: <br>
-	 * This method Calculates an Double Value that Indicates the Difference
-	 * between two Dates. It is used to Calculate the Size of the Phase in
-	 * Years.
+	 * This method Calculates an Double Value that Indicates the Difference between two Dates. It is
+	 * used to Calculate the Size of the Phase in Years.
 	 * 
 	 * @param beginDate
 	 *            begin date (should be smallest date)
@@ -892,8 +841,7 @@ public class Analysis implements Serializable, Cloneable {
 	 *            end date (should be biggest date)
 	 * @return
 	 */
-	public static final double getYearsDifferenceBetweenTwoDates(
-			Date beginDate, Date endDate) {
+	public static final double getYearsDifferenceBetweenTwoDates(Date beginDate, Date endDate) {
 
 		// ****************************************************************
 		// * initialise variables
@@ -926,9 +874,7 @@ public class Analysis implements Serializable, Cloneable {
 		calendarEndDate.setTime(endDate);
 
 		// calculate difference between two dates
-		result = Math
-				.abs((calendarEndDate.getTimeInMillis() - calendarBeginDate
-						.getTimeInMillis()) / yearInMiliseconds);
+		result = Math.abs((calendarEndDate.getTimeInMillis() - calendarBeginDate.getTimeInMillis()) / yearInMiliseconds);
 
 		// ****************************************************************
 		// * return difference of two dates in years
@@ -942,8 +888,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @param parameter
 	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or -1 if the parameter
-	 *         was not found
+	 * @return The Value of the Parameter if it exists, or -1 if the parameter was not found
 	 */
 	public double getParameter(String parameter) {
 
@@ -970,9 +915,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * computeParameterScales: <br>
-	 * This method will calculate the bounds of the extended parameters from and
-	 * to values. Since CSSF implementation, impact and probability values need
-	 * to be calculated using bounds.
+	 * This method will calculate the bounds of the extended parameters from and to values. Since
+	 * CSSF implementation, impact and probability values need to be calculated using bounds.
 	 */
 	public void computeParameterScales() {
 
@@ -992,16 +936,13 @@ public class Analysis implements Serializable, Cloneable {
 			// ****************************************************************
 
 			// check if the parameter is of type impact
-			if (getAParameter(i).getType().getLabel()
-					.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)) {
+			if (getAParameter(i).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)) {
 
 				// store current parameter
 				currentParam = (ExtendedParameter) getAParameter(i);
 
 				// check if this is the last impact -> NO
-				if ((i + 1 < parameters.size())
-						&& (getAParameter(i + 1).getType().getLabel()
-								.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))) {
+				if ((i + 1 < parameters.size()) && (getAParameter(i + 1).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))) {
 
 					// store next impact parameter
 					nextParam = (ExtendedParameter) getAParameter(i + 1);
@@ -1010,8 +951,7 @@ public class Analysis implements Serializable, Cloneable {
 					// current and next values
 					// if previousImpactBounds are null, the value 0 will be
 					// used.
-					currentParam.getBounds().updateBounds(previousImpactBounds,
-							currentParam.getValue(), nextParam.getValue());
+					currentParam.getBounds().updateBounds(previousImpactBounds, currentParam.getValue(), nextParam.getValue());
 
 					// store current bounds for next turn's previous bounds
 					previousImpactBounds = currentParam.getBounds();
@@ -1020,8 +960,7 @@ public class Analysis implements Serializable, Cloneable {
 					// check if this is the last impact -> YES
 
 					// update bounds with infinitive next value
-					currentParam.getBounds().updateBounds(previousImpactBounds,
-							currentParam.getValue(), Constant.DOUBLE_MAX_VALUE);
+					currentParam.getBounds().updateBounds(previousImpactBounds, currentParam.getValue(), Constant.DOUBLE_MAX_VALUE);
 				}
 			}
 
@@ -1030,16 +969,13 @@ public class Analysis implements Serializable, Cloneable {
 			// ****************************************************************
 
 			// check if the parameter is of type probability
-			if (getAParameter(i).getType().equals(
-					Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
+			if (getAParameter(i).getType().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
 
 				// store current probability parameter
 				currentParam = (ExtendedParameter) getAParameter(i);
 
 				// check if this is the last probability -> NO
-				if ((i + 1 < parameters.size())
-						&& (getAParameter(i + 1).getType()
-								.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
+				if ((i + 1 < parameters.size()) && (getAParameter(i + 1).getType().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
 
 					// store next probability parameter
 					nextParam = (ExtendedParameter) getAParameter(i + 1);
@@ -1048,8 +984,7 @@ public class Analysis implements Serializable, Cloneable {
 					// current and next values
 					// if previousImpactBounds are null, the value 0 will be
 					// used.
-					currentParam.getBounds().updateBounds(previousProbaBounds,
-							currentParam.getValue(), nextParam.getValue());
+					currentParam.getBounds().updateBounds(previousProbaBounds, currentParam.getValue(), nextParam.getValue());
 
 					// store current bounds for next turn's previous bounds
 					previousProbaBounds = currentParam.getBounds();
@@ -1058,8 +993,7 @@ public class Analysis implements Serializable, Cloneable {
 					// check if this is the last probability -> YES
 
 					// update bounds with infinitive next value
-					currentParam.getBounds().updateBounds(previousProbaBounds,
-							currentParam.getValue(), Constant.DOUBLE_MAX_VALUE);
+					currentParam.getBounds().updateBounds(previousProbaBounds, currentParam.getValue(), Constant.DOUBLE_MAX_VALUE);
 				}
 			}
 		}
@@ -1252,8 +1186,7 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getAnItemInformtation: <br>
-	 * Returns a Single Item Information from the List of Item Information at
-	 * the postion "index"
+	 * Returns a Single Item Information from the List of Item Information at the postion "index"
 	 * 
 	 * @param index
 	 *            The Position in the List to retrieve the Item Information
@@ -1390,8 +1323,7 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getARiskInformation: <br>
-	 * Returns a Risk Information from the List of Risk Information at position
-	 * "index"
+	 * Returns a Risk Information from the List of Risk Information at position "index"
 	 * 
 	 * @param index
 	 *            The Position to retrieve the Object
@@ -1696,8 +1628,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @return history
 	 */
 	public History getHistory(int index) {
-		return histories == null || histories.isEmpty() ? null : histories
-				.get(index);
+		return histories == null || histories.isEmpty() ? null : histories.get(index);
 	}
 
 	/**
@@ -1707,8 +1638,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @return last history
 	 */
 	public History getLastHistory() {
-		return histories == null || histories.isEmpty() ? null : histories
-				.get(histories.size() - 1);
+		return histories == null || histories.isEmpty() ? null : histories.get(histories.size() - 1);
 	}
 
 	/**
@@ -1744,8 +1674,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan
-	 *         Type
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> getActionPlans() {
 		return this.actionPlans;
@@ -1758,15 +1687,13 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan
-	 *         Type
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(ActionPlanMode mode) {
 
 		List<ActionPlanEntry> ape = new ArrayList<ActionPlanEntry>();
 		for (int i = 0; i < this.actionPlans.size(); i++) {
-			if (this.actionPlans.get(i).getActionPlanType().getId() == mode
-					.getValue()) {
+			if (this.actionPlans.get(i).getActionPlanType().getId() == mode.getValue()) {
 				ape.add(this.actionPlans.get(i));
 			}
 		}
@@ -1781,11 +1708,9 @@ public class Analysis implements Serializable, Cloneable {
 		splits[2] = new ArrayList<MaturityParameter>();
 		for (Parameter parameter : parameters) {
 			if (parameter instanceof ExtendedParameter)
-				((List<ExtendedParameter>) splits[1])
-						.add((ExtendedParameter) parameter);
+				((List<ExtendedParameter>) splits[1]).add((ExtendedParameter) parameter);
 			else if (parameter instanceof MaturityParameter)
-				((List<MaturityParameter>) splits[2])
-						.add((MaturityParameter) parameter);
+				((List<MaturityParameter>) splits[2]).add((MaturityParameter) parameter);
 			else
 				((List<Parameter>) splits[0]).add(parameter);
 		}
@@ -1793,8 +1718,7 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Parameter>[] SplitSimpleParameters(
-			List<Parameter> parameters) {
+	public static List<Parameter>[] SplitSimpleParameters(List<Parameter> parameters) {
 		List<?>[] splits = new List<?>[3];
 		splits[0] = new ArrayList<Parameter>();
 		splits[1] = new ArrayList<ExtendedParameter>();
@@ -1811,8 +1735,7 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Parameter>[] SplitExtendedParameters(
-			List<Parameter> parameters) {
+	public static List<Parameter>[] SplitExtendedParameters(List<Parameter> parameters) {
 		List<?>[] splits = new List<?>[2];
 		splits[0] = new ArrayList<Parameter>();
 		splits[1] = new ArrayList<ExtendedParameter>();
@@ -1826,8 +1749,7 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<ItemInformation>[] SplitItemInformations(
-			List<ItemInformation> itemInformations) {
+	public static List<ItemInformation>[] SplitItemInformations(List<ItemInformation> itemInformations) {
 		List<?>[] splits = new List<?>[2];
 		splits[0] = new ArrayList<ItemInformation>();
 		splits[1] = new ArrayList<ItemInformation>();
@@ -1892,8 +1814,7 @@ public class Analysis implements Serializable, Cloneable {
 		List<SummaryStage> sums = new ArrayList<SummaryStage>();
 
 		for (int i = 0; i < this.summaries.size(); i++) {
-			if (this.summaries.get(i).getActionPlanType().getId() == mode
-					.getValue()) {
+			if (this.summaries.get(i).getActionPlanType().getId() == mode.getValue()) {
 				sums.add(this.summaries.get(i));
 			}
 		}
@@ -1922,17 +1843,10 @@ public class Analysis implements Serializable, Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "Analysis [id=" + id + ", customer=" + customer
-				+ ", identifier=" + identifier + ", version=" + version
-				+ ", creationDate=" + creationDate + ", label=" + label
-				+ ", histories=" + histories + ", language=" + language
-				+ ", empty=" + empty + ", itemInformations=" + itemInformations
-				+ ", parameters=" + parameters + ", assets=" + assets
-				+ ", riskInformations=" + riskInformations + ", scenarios="
-				+ scenarios + ", assessments=" + assessments
-				+ ", analysisNorm=" + analysisNorms + ", usedphases="
-				+ usedPhases + ", actionPlans=" + actionPlans + ", summaries="
-				+ summaries + ", riskRegisters=" + riskRegisters + "]";
+		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label
+			+ ", histories=" + histories + ", language=" + language + ", empty=" + empty + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets
+			+ ", riskInformations=" + riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisNorm=" + analysisNorms + ", usedphases=" + usedPhases
+			+ ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}
 
 	/**
@@ -1945,18 +1859,16 @@ public class Analysis implements Serializable, Cloneable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((creationDate == null) ? 0 : creationDate.hashCode());
-		result = prime * result
-				+ ((identifier == null) ? 0 : identifier.hashCode());
+		result = prime * result + ((creationDate == null) ? 0 : creationDate.hashCode());
+		result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
 		result = prime * result + ((version == null) ? 0 : version.hashCode());
 		return result;
 	}
 
 	/**
 	 * equals: <br>
-	 * Method to identify if this object equals another. Equal means the fields
-	 * identifier, version and creationDate are the same.
+	 * Method to identify if this object equals another. Equal means the fields identifier, version
+	 * and creationDate are the same.
 	 * 
 	 * @param obj
 	 *            The other object to check
@@ -2051,8 +1963,7 @@ public class Analysis implements Serializable, Cloneable {
 				int assetId = assessment.getAsset().getId();
 				List<Assessment> assessments = assessmentSorted.get(assetId);
 				if (assessments == null)
-					assessmentSorted.put(assetId,
-							assessments = new ArrayList<Assessment>());
+					assessmentSorted.put(assetId, assessments = new ArrayList<Assessment>());
 				assessments.add(assessment);
 			}
 		}
@@ -2068,7 +1979,8 @@ public class Analysis implements Serializable, Cloneable {
 		return assets;
 	}
 
-	/** getOwner: <br>
+	/**
+	 * getOwner: <br>
 	 * Returns the owner field value.
 	 * 
 	 * @return The value of the owner field
@@ -2077,17 +1989,19 @@ public class Analysis implements Serializable, Cloneable {
 		return owner;
 	}
 
-	/** setOwner: <br>
+	/**
+	 * setOwner: <br>
 	 * Sets the Field "owner" with a value.
 	 * 
-	 * @param owner 
-	 * 			The Value to set the owner field
+	 * @param owner
+	 *            The Value to set the owner field
 	 */
 	public void setOwner(User owner) {
 		this.owner = owner;
 	}
 
-	/** getBasedOnAnalysis: <br>
+	/**
+	 * getBasedOnAnalysis: <br>
 	 * Returns the basedOnAnalysis field value.
 	 * 
 	 * @return The value of the basedOnAnalysis field
@@ -2096,17 +2010,19 @@ public class Analysis implements Serializable, Cloneable {
 		return basedOnAnalysis;
 	}
 
-	/** setBasedOnAnalysis: <br>
+	/**
+	 * setBasedOnAnalysis: <br>
 	 * Sets the Field "basedOnAnalysis" with a value.
 	 * 
-	 * @param basedOnAnalysis 
-	 * 			The Value to set the basedOnAnalysis field
+	 * @param basedOnAnalysis
+	 *            The Value to set the basedOnAnalysis field
 	 */
 	public void setBasedOnAnalysis(Analysis basedOnAnalysis) {
 		this.basedOnAnalysis = basedOnAnalysis;
 	}
 
-	/** getUserRights: <br>
+	/**
+	 * getUserRights: <br>
 	 * Returns the userRights field value.
 	 * 
 	 * @return The value of the userRights field
@@ -2115,16 +2031,17 @@ public class Analysis implements Serializable, Cloneable {
 		return userRights;
 	}
 
-	/** setUserRights: <br>
+	/**
+	 * setUserRights: <br>
 	 * Sets the Field "userRights" with a value.
 	 * 
-	 * @param userRights 
-	 * 			The Value to set the userRights field
+	 * @param userRights
+	 *            The Value to set the userRights field
 	 */
 	public void setUserRights(List<UserAnalysisRight> userRights) {
 		this.userRights = userRights;
 	}
-	
+
 	/**
 	 * addUserRights: <br>
 	 * Description
@@ -2134,7 +2051,7 @@ public class Analysis implements Serializable, Cloneable {
 	public void addUserRight(UserAnalysisRight userRight) {
 		this.userRights.add(userRight);
 	}
-	
+
 	/**
 	 * addUserRights: <br>
 	 * Description
@@ -2144,18 +2061,18 @@ public class Analysis implements Serializable, Cloneable {
 	public void addUserRight(User user, AnalysisRight right) {
 		this.userRights.add(new UserAnalysisRight(user, this, right));
 	}
-	
+
 	public UserAnalysisRight getRightsforUser(User user) {
-		
+
 		for (UserAnalysisRight userRight : userRights) {
 			if (userRight.getUser().equals(user)) {
 				return userRight;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * editUserRight: <br>
 	 * Description
@@ -2166,7 +2083,7 @@ public class Analysis implements Serializable, Cloneable {
 	public void editUserRight(User user, AnalysisRight newRight) {
 		userRights.get(userRights.indexOf(getRightsforUser(user))).setRight(newRight);
 	}
-	
+
 	/**
 	 * removeRights: <br>
 	 * Description
@@ -2175,16 +2092,34 @@ public class Analysis implements Serializable, Cloneable {
 	 * @return
 	 */
 	public boolean removeRights(User user) {
-		
+
 		UserAnalysisRight userRight = getRightsforUser(user);
-		
-		if (userRight !=null) {
-		userRights.remove(userRight);
-		return true;
+
+		if (userRight != null) {
+			userRights.remove(userRight);
+			return true;
 		} else {
 			return false;
 		}
-		
+
 	}
-	
+
+	/**
+	 * userIsAuthorized: <br>
+	 * checks if a given user has the given right on the current analysis
+	 * 
+	 * @param user
+	 * @param right
+	 * @return
+	 */
+	public boolean isUserAuthorized(User user, AnalysisRight right) {
+
+		for (UserAnalysisRight uar : userRights) {
+			if (uar.getUser().equals(user)) {
+				return UserAnalysisRight.userIsAuthorized(uar, right);
+			}
+		}
+		return false;
+	}
+
 }

@@ -9,12 +9,11 @@ package lu.itrust.business.TS;
  * @since Jan 9, 2014
  */
 public enum AnalysisRight {
-	CALCULATE_ACTIONPLAN,
-	CALCULATE_RISK_REGISTER,
-	CREATE_VERSION,
+	ALL,
 	DELETE,
-	EXPORT,
-	OWNER,
+	CALCULATE_RISK_REGISTER,
+	CALCULATE_ACTIONPLAN,
 	MODIFY,
-	READ 
+	EXPORT,
+	READ
 }

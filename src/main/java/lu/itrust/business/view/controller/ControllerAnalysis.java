@@ -5,6 +5,8 @@ import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -13,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
@@ -46,6 +49,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -64,7 +68,7 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceUser serviceUser;
-	
+
 	@Autowired
 	private ServiceActionPlanType serviceActionPlanType;
 
@@ -118,24 +122,35 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String displayAll(Map<String, Object> model, HttpSession session, Locale Locale) throws Exception {
+	public String displayAll(Principal principal, Map<String, Object> model, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 		if (selected != null) {
-			model.put("assettypes", serviceAssetType.loadAll());
-			model.put("analysis", serviceAnalysis.get(selected));
-			model.put("locale", Locale);
+			if (serviceAnalysis.isUserAuthorized(serviceAnalysis.get(selected), serviceUser.get(principal.getName()), AnalysisRight.READ)) {
+				model.put("assettypes", serviceAssetType.loadAll());
+				model.put("analysis", serviceAnalysis.get(selected));
+				model.put("locale", locale);
+			} else {
+				attributes.addFlashAttribute("errors", messageSource.getMessage("error.notAuthorized", null, "Insufficient permissions!", locale));
+			}
 		} else
-			model.put("analyses", serviceAnalysis.loadAll());
+			model.put("analyses", serviceAnalysis.loadAllFromUser(serviceUser.get(principal.getName())));
 		return "analysis/analysis";
 	}
 
 	@RequestMapping("/{analysisId}/Duplicate")
-	public String createNewVersion(@ModelAttribute History history, @PathVariable Integer analysisId, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
+	public String createNewVersion(@ModelAttribute History history, @PathVariable Integer analysisId, Principal principal, HttpSession session, RedirectAttributes attributes, Locale locale)
+			throws Exception {
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null) {
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 			return "redirect:/Analysis";
 		}
+
+		if (!serviceAnalysis.isUserAuthorized(analysis, serviceUser.get(principal.getName()), AnalysisRight.MODIFY)) {
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.notauthorized", null, "Insufficient permissions!", locale));
+			return "redirect:/Analysis";
+		}
+
 		try {
 			history.setDate(new Date(System.currentTimeMillis()));
 			Duplicator duplicator = new Duplicator();
@@ -149,11 +164,11 @@ public class ControllerAnalysis {
 			attributes.addFlashAttribute("success", messageSource.getMessage("success.analysis.duplicate", null, "Analysis cannot be found!", locale));
 			return "redirect:/Analysis/" + copy.getId() + "/Select";
 		} catch (CloneNotSupportedException e) {
-			attributes.addAttribute("error", messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicate!", locale));
+			attributes.addAttribute("errors", messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicate!", locale));
 			e.printStackTrace();
 			return "redirect:/Analysis";
 		} catch (DataIntegrityViolationException e) {
-			attributes.addAttribute("error", messageSource.getMessage("error.version.duplicate", null, "Version already exists", locale));
+			attributes.addAttribute("errors", messageSource.getMessage("error.version.duplicate", null, "Version already exists", locale));
 			e.printStackTrace();
 		}
 		return "analysis/components/widgets/historyForm";
@@ -170,17 +185,24 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisId}/Select")
-	public String selectAnalysis(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, RedirectAttributes attributes) throws Exception {
+	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, RedirectAttributes attributes,
+			Locale locale) throws Exception {
 
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 
-		if (selected != null && selected.intValue() == analysisId)
-			session.removeAttribute("selectedAnalysis");
-		else if (serviceAnalysis.exist(analysisId))
-			session.setAttribute("selectedAnalysis", analysisId);
-		else {
-			session.removeAttribute("selectedAnalysis");
-			attributes.addFlashAttribute("error", "Analysis not recognized!");
+		if (selected != null && serviceAnalysis.isUserAuthorized(serviceAnalysis.get(selected), serviceUser.get(principal.getName()), AnalysisRight.READ)) {
+
+			if (selected.intValue() == analysisId)
+				session.removeAttribute("selectedAnalysis");
+			else if (serviceAnalysis.exist(analysisId))
+				session.setAttribute("selectedAnalysis", analysisId);
+			else {
+				session.removeAttribute("selectedAnalysis");
+				attributes.addFlashAttribute("error", "Analysis not recognized!");
+			}
+
+		} else {
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.notauthorized", null, "Insufficient permissions!", locale));
 		}
 		return "redirect:/Analysis";
 	}
@@ -196,20 +218,30 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Edit/{analysisId}")
-	public String requestEditAnalysis(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model) throws Exception {
+	public String requestEditAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, RedirectAttributes attributes, Locale locale)
+			throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
 
-		model.put("languages", serviceLanguage.loadAll());
+		if (analysis == null) {
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.notfound", null, "Could not find analysis to edit!", locale));
+			return "analysis/editAnalysis";
+		}
 
-		model.put("customers", serviceCustomer.loadAll());
+		if (serviceAnalysis.isUserAuthorized(analysis, serviceUser.get(principal.getName()), AnalysisRight.MODIFY)) {
 
-		if (analysis == null)
-			model.put("Error", "label.error.analysis.notExist");
-		else
+			model.put("languages", serviceLanguage.loadAll());
+
+			model.put("customers", serviceCustomer.loadAll());
+
 			model.put("analysis", analysis);
 
+		} else {
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.notauthorized", null, "Insufficient permissions!", locale));
+		}
+		
 		return "analysis/editAnalysis";
+		
 	}
 
 	/**
@@ -223,27 +255,19 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Edit/{analysisId}/Save")
-	public String performEditAnalysis(@PathVariable("analysisId") Integer analysisId, @ModelAttribute("analysis") @Valid Analysis analysis, RedirectAttributes attributes,
-			BindingResult result) throws Exception {
-
-		analysis.setId(Integer.valueOf(result.getFieldValue("id").toString()));
-
-		analysis.setIdentifier(result.getFieldValue("identifier").toString());
-
-		analysis.setVersion(result.getFieldValue("version").toString());
-
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-
-		Timestamp timestamp = new Timestamp(format.parse(result.getFieldValue("creationDate").toString()).getTime());
-
-		analysis.setCreationDate(timestamp);
-
-		serviceAnalysis.saveOrUpdate(analysis);
-
-		attributes.addFlashAttribute("success", "Analysis updated");
-
-		return "redirect:/Analysis";
+	@RequestMapping("/Save")
+	public @ResponseBody
+	List<String[]> performEditAnalysis(@ModelAttribute("analysis") @Valid Analysis analysis, Locale locale) throws Exception {
+		
+		List<String[]> errors = new LinkedList<>();
+		
+		try {
+			serviceAnalysis.saveOrUpdate(analysis);
+			return errors;
+		} catch (Exception e) {
+			errors.add(new String[] { "error", messageSource.getMessage("error.analysis.update.failed", null, "Analysis could not be updated!", locale) });
+			return errors;
+		}
 	}
 
 	/**
@@ -266,7 +290,7 @@ public class ControllerAnalysis {
 			attributes.addFlashAttribute("errors", message);
 			e.printStackTrace();
 		}
-		return "redirect:/Analysis";
+		return "analysis/analysis";
 	}
 
 	/**

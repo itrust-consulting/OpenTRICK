@@ -216,7 +216,7 @@ public class WorkerAnalysisImport implements Worker {
 			Analysis analysis = new Analysis();
 			analysis.setCustomer(customer);
 			analysis.setOwner(owner);
-			UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.OWNER);
+			UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
 			
 			analysis.addUserRight(uar);
 			

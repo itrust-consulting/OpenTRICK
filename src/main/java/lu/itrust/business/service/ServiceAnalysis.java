@@ -7,7 +7,9 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.usermanagment.User;
 
 /**
  * @author oensuifudine
@@ -31,6 +33,8 @@ public interface ServiceAnalysis {
 
 	public List<Analysis> loadAllFromCustomer(Customer customer) throws Exception;
 
+	public List<Analysis> loadAllFromUser(User user) throws Exception;
+	
 	public List<Analysis> loadAll() throws Exception;
 
 	public List<Analysis> loadAllNotEmpty() throws Exception;
@@ -43,8 +47,6 @@ public interface ServiceAnalysis {
 
 	public void remove(Integer analysisId) throws Exception;
 
-	
-
-	
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception;
 
 }

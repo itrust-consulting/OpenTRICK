@@ -501,7 +501,7 @@ public class ImportAnalysis {
 				analysis.setLanguage(this.analysis.getLanguage());
 				analysis.setCustomer(this.analysis.getCustomer());
 				analysis.setOwner(this.analysis.getOwner());
-				analysis.addUserRight(new UserAnalysisRight(this.analysis.getOwner(),analysis,AnalysisRight.OWNER));
+				analysis.addUserRight(new UserAnalysisRight(this.analysis.getOwner(),analysis,AnalysisRight.ALL));
 				if (i==0) {
 					analysis.setBasedOnAnalysis(null);
 				} else {
