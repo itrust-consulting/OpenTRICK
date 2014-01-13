@@ -30,4 +30,5 @@ public interface ServiceAssessment {
 	List<Assessment> findByAssetAndSelected(Asset asset);
 	List<Assessment> findByScenarioAndSelected(Scenario scenario);
 	List<Assessment> findByScenarioAndUnselected(Scenario scenario);
+	List<Assessment> findByAnalysisAndAcronym(int idAnalysis, String acronym);
 }

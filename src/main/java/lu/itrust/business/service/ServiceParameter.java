@@ -16,6 +16,9 @@ import lu.itrust.business.TS.ParameterType;
 public interface ServiceParameter {
 
 	Parameter get(int id);
+	
+	Parameter findByIdAndAnalysis(
+			int idParameter, Integer idAnalysis);
 
 	List<Parameter> findAll();
 
@@ -60,5 +63,7 @@ public interface ServiceParameter {
 	void delete(Parameter parameter);
 
 	void delete(int id);
+
+	
 
 }

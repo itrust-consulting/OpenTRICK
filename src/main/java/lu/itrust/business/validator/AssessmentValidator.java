@@ -116,36 +116,36 @@ public class AssessmentValidator extends ValidatorImpl {
 		case "impactRep":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.assessment.impactRep.null::Impact reputation cannot be empty";
-			else if (!(toNumeric(candidate.toString()) != Double.NaN || Contains(
-					choose, candidate)))
+			else if (Double.isNaN(toNumeric(candidate.toString()))
+					&& !Contains(choose, candidate))
 				return "error.assessment.invalid.impactRep::Impact reputation is not valid";
 			break;
 		case "impactOp":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.assessment.impactOp.null::Impact operationnel cannot be empty";
-			else if (!(toNumeric(candidate.toString()) != Double.NaN || Contains(
-					choose, candidate)))
+			else if (Double.isNaN(toNumeric(candidate.toString()))
+					&& !Contains(choose, candidate))
 				return "error.assessment.invalid.impactOp::Impact operationnel is not valid";
 			break;
 		case "impactLeg":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.assessment.impactLeg.null::Impact legal cannot be empty";
-			else if (!(toNumeric(candidate.toString()) != Double.NaN || Contains(
-					choose, candidate)))
+			else if (Double.isNaN(toNumeric(candidate.toString()))
+					&& !Contains(choose, candidate))
 				return "error.assessment.invalid.impactLeg::Impact legal is not valid";
 			break;
 		case "impactFin":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.assessment.impactFin.null::Impact financial cannot be empty";
-			else if (!(toNumeric(candidate.toString()) != Double.NaN || Contains(
-					choose, candidate)))
+			else if (Double.isNaN(toNumeric(candidate.toString()))
+					&& !Contains(choose, candidate))
 				return "error.assessment.invalid.impactFin::Impact financial is not valid";
 			break;
 		case "likelihood":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.assessment.likelihood.null::Probabilty cannot be empty";
-			else if (!(toNumeric(candidate.toString()) != Double.NaN || Contains(
-					choose, candidate)))
+			else if (Double.isNaN(toNumeric(candidate.toString()))
+					&& !Contains(choose, candidate))
 				return "error.assessment.invalid.likelihood::Probabilty is not valid";
 			break;
 		}

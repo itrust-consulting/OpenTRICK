@@ -13,6 +13,7 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.ExtendedParameter;
+import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.component.ALE;
 import lu.itrust.business.component.AssessmentManager;
@@ -281,6 +282,55 @@ public class ControllerAssessment {
 			return null;
 		}
 
+	}
+
+	@RequestMapping(value = "/Update/Acronym/{idParameter}/{acronym}", method = RequestMethod.GET, headers = "Accept=application/json")
+	public @ResponseBody
+	String updateAcromyn(@PathVariable int idParameter, @PathVariable String acronym, HttpSession session,
+			Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		if (idAnalysis == null)
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.analysis.no_selected", null, "No selected analysis",
+					locale));
+		Parameter parameter = serviceParameter.findByIdAndAnalysis(idParameter,
+				idAnalysis);
+		if (parameter == null || !(parameter instanceof ExtendedParameter))
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.parameter.not_found", null,
+					"Parameter cannot be found", locale));
+		ExtendedParameter extendedParameter = (ExtendedParameter) parameter;
+		try {
+			List<Assessment> assessments = serviceAssessment
+					.findByAnalysisAndAcronym(idAnalysis, acronym);
+			for (Assessment assessment : assessments) {
+				if (acronym.equals(assessment.getImpactFin()))
+					assessment.setImpactFin(extendedParameter.getAcronym());
+				else if (acronym.equals(assessment.getImpactLeg()))
+					assessment.setImpactLeg(extendedParameter.getAcronym());
+				else if (acronym.equals(assessment.getImpactOp()))
+					assessment.setImpactOp(extendedParameter.getAcronym());
+				else if (acronym.equals(assessment.getImpactRep()))
+					assessment.setImpactRep(extendedParameter.getAcronym());
+				else if (acronym.equals(assessment.getLikelihood()))
+					assessment.setLikelihood(extendedParameter.getAcronym());
+				serviceAssessment.saveOrUpdate(assessment);
+			}
+			return JsonMessage.Success(messageSource.getMessage(
+					"success.assessment.acronym.updated", new String[] {
+							acronym, extendedParameter.getAcronym() },
+					"Assessment acronym (" + acronym
+							+ ") was successfully updated with ("
+							+ extendedParameter.getAcronym() + ")", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.assessment.acronym.updated", new String[] { acronym,
+							extendedParameter.getAcronym() },
+					"Assessment acronym (" + acronym + ") cannot be updated to ("
+							+ extendedParameter.getAcronym() + ")", locale));
+		}
+		
 	}
 
 	@RequestMapping(value = "/Scenario/{scenarioId}", method = RequestMethod.GET, headers = "Accept=application/json")

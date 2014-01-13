@@ -34,6 +34,13 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	public Assessment get(int id) throws Exception {
 		return daoAssessment.get(id);
 	}
+	
+	@Override
+	public List<Assessment> findByAnalysisAndAcronym(int idAnalysis,
+			String acronym) {
+		
+		return daoAssessment.findByAnalysisAndAcronym(idAnalysis,acronym);
+	}
 
 	/*
 	 * (non-Javadoc)

@@ -52,7 +52,7 @@
 								<tr trick-class="ExtendedParameter" trick-id="${parameter.id}">
 									<!--<td>${itemInformation.id}</td>-->
 									<td>${parameter.level}</td>
-									<td trick-field="acronym" trick-field-type="string" class="success"
+									<td trick-field="acronym" trick-field-type="string" class="success" trick-callback="updateAssessmentAcronym('${parameter.id}')"
 										ondblclick="return editField(this);">${parameter.acronym}</td>
 									<td trick-field="description" trick-field-type="string" class="success"
 										ondblclick="return editField(this);">${parameter.description}</td>
@@ -108,7 +108,7 @@
 								<tr trick-class="ExtendedParameter" trick-id="${parameter.id}">
 									<!--<td>${itemInformation.id}</td>-->
 									<td>${parameter.level}</td>
-									<td trick-field="acronym" trick-field-type="string" class="success"
+									<td trick-field="acronym" trick-field-type="string" class="success" trick-callback="updateAssessmentAcronym('${parameter.id}')"
 										ondblclick="return editField(this);">${parameter.acronym}</td>
 									<td trick-field="description" trick-field-type="string" class="success"
 										ondblclick="return editField(this);">${parameter.description}</td>

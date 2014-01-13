@@ -201,6 +201,11 @@ public class ServiceParameterImpl implements ServiceParameter {
 		return daoParameter.findAcronymByAnalysisAndType(idAnalysis, type);
 	}
 
+	@Override
+	public Parameter findByIdAndAnalysis(int idParameter, Integer idAnalysis) {
+		return daoParameter.findByIdAndAnalysis(idParameter,idAnalysis);
+	}
+
 	
 
 }

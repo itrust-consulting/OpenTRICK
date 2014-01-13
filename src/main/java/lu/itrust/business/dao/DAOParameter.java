@@ -17,6 +17,8 @@ import lu.itrust.business.TS.ParameterType;
 public interface DAOParameter {
 
 	Parameter get(int id);
+	
+	Parameter findByIdAndAnalysis(int idParameter, Integer idAnalysis);
 
 	List<Parameter> findAll();
 

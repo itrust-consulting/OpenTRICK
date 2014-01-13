@@ -18,6 +18,7 @@ import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceActionPlan;
@@ -46,6 +47,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,6 +92,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceRiskRegister serviceRiskRegister;
+
+	@Autowired
+	private AssessmentManager assessmentManager;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -168,6 +173,34 @@ public class ControllerAnalysis {
 					"error.analysis.duplicate.unknown", null,
 					"An unknown error occurred during copying", locale));
 		}
+
+	}
+
+	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json")
+	public @ResponseBody
+	String update(HttpSession session, Locale locale) {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		if (idAnalysis == null)
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.analysis.no_selected", null,
+					"There is no selected analysis", locale));
+		try {
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			if (analysis == null)
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.analysis.not_found", null,
+						"Analysis cannot be found!", locale));
+			assessmentManager.UpdateAssetALE(analysis);
+			return JsonMessage.Success(messageSource.getMessage(
+					"success.analysis.ale.update", null, "ALE was successfully updated",
+					locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(
+					"error.analysis.ale.update", null, "ALE cannot be updated",
+					locale));
+		}
+		
 
 	}
 

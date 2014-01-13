@@ -306,12 +306,24 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 		return getSession()
 				.createQuery(
 						"Select parameter.acronym "
-								+ "From Analysis as analysis inner join analysis.parameters as parameter"
+								+ "From Analysis as analysis inner join analysis.parameters as parameter "
 								+ "where analysis.id = :idAnalysis "
 								+ "and parameter.type = :type "
 								+ "order by parameter.level")
 				.setParameter("idAnalysis", idAnalysis)
 				.setParameter("type", type).list();
+	}
+
+	@Override
+	public Parameter findByIdAndAnalysis(int idParameter, Integer idAnalysis) {
+		return (Parameter) getSession()
+				.createQuery(
+						"Select parameter "
+								+ "From Analysis as analysis inner join analysis.parameters as parameter "
+								+ "where analysis.id = :idAnalysis "
+								+ "and parameter.id = :idParameter")
+				.setParameter("idAnalysis", idAnalysis)
+				.setParameter("idParameter", idParameter).uniqueResult();
 	}
 
 }

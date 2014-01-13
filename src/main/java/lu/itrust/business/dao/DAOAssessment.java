@@ -32,4 +32,6 @@ public interface DAOAssessment {
 	public List<Assessment> findByScenarioAndSelected(Scenario scenario);
 	public List<Assessment> findByScenarioAndUnselected(Scenario scenario);
 	public List<Assessment> findByAnalysisAndSelectedScenario(Integer idAnalysis);
+	public List<Assessment> findByAnalysisAndAcronym(int idAnalysis,
+			String acronym);
 }

@@ -434,6 +434,10 @@ function ExtendedFieldEditor(element) {
 							contentType : "application/json",
 							success : function(response) {
 								if (response["success"] != undefined) {
+									if (that.fieldName == "acronym")
+										setTimeout("updateAssessmentAcronym('"
+												+ that.classId + "', '"
+												+ that.defaultValue + "')", 100);
 									return reloadSection("section_parameter");
 								} else {
 									$("#alert-dialog .modal-body").html(
@@ -496,16 +500,18 @@ function AssessmentFieldEditor(element) {
 									else {
 										$("#info-dialog .modal-body").html(
 												response["success"]);
-										$("#info-dialog").prop("style", "z-index:1070");
+										$("#info-dialog").prop("style",
+												"z-index:1070");
 										$("#info-dialog").modal("toggle");
-										
+
 									}
 								} else {
 									$("#alert-dialog .modal-body").html(
 											response["error"]);
-									$("#alert-dialog").prop("style", "z-index:1070");
+									$("#alert-dialog").prop("style",
+											"z-index:1070");
 									$("#alert-dialog").modal("toggle");
-									
+
 								}
 								return true;
 							},
@@ -1157,6 +1163,52 @@ function AssessmentScenarioViewer(scenarioId) {
 	};
 }
 
+function updateALE() {
+	return $.ajax({
+		url : context + "/Analysis/Update/ALE",
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			alert(response);
+			if (response["success"] != undefined) {
+				$("#info-dialog .modal-body").html(response["success"]);
+				$("#info-dialog").modal("toggle");
+			} else if (response["error"] != undefined) {
+				$("#alert-dialog .modal-body").html(response["error"]);
+				$("#alert-dialog").modal("toggle");
+			}
+			return false;
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return true;
+		}
+	});
+}
+
+function updateAssessmentAcronym(idParameter, acronym) {
+
+	return $.ajax({
+		url : context + "/Assessment/Update/Acronym/" + idParameter + "/"
+				+ acronym,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			if (response["success"] != undefined) {
+				$("#info-dialog .modal-body").html(response["success"]);
+				$("#info-dialog").modal("toggle");
+				setTimeout("updateALE()",2000);
+			} else if (response["error"] != undefined) {
+				$("#alert-dialog .modal-body").html(response["error"]);
+				$("#alert-dialog").modal("toggle");
+			}
+			return false;
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return true;
+		}
+	});
+}
+
 function post(url, data, refraich) {
 	$.ajax({
 		url : url,
@@ -1187,10 +1239,13 @@ function addNewRole(id) {
 function addHistory(analysisId, oldVersion) {
 	return $
 			.ajax({
-				url : context + "/History/Analysis/"+ analysisId+"/NewVersion" ,
+				url : context + "/History/Analysis/" + analysisId
+						+ "/NewVersion",
 				type : "get",
 				contentType : "application/json",
-				data: {"oldVersion":oldVersion},
+				data : {
+					"oldVersion" : oldVersion
+				},
 				success : function(response) {
 					var parser = new DOMParser();
 					var doc = parser.parseFromString(response, "text/html");

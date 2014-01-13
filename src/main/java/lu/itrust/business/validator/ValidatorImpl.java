@@ -16,10 +16,12 @@ import java.util.Map;
 public abstract class ValidatorImpl implements Validator {
 
 	protected static boolean Contains(Object[] objects, Object element) {
-		for (Object object : objects)
+		for (Object object : objects){
+			System.out.println(object+" : "+element);
 			if (object == null && element == null || object != null
 					&& object.equals(element))
 				return true;
+		}
 		return false;
 	}
 
