@@ -3,6 +3,7 @@ package lu.itrust.business.dao;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.usermanagment.User;
 
@@ -33,4 +34,11 @@ public interface DAOUserAnalysisRight {
 		void delete(UserAnalysisRight userAnalysisRight)throws Exception;
 		
 		void delete(long id)throws Exception;
+
+		public UserAnalysisRight getUserAnalysisRight(Analysis analysis, User user) throws Exception;
+
+		public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception;
+		
+		public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception;
+		
 }

@@ -3,10 +3,14 @@ package lu.itrust.business.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.dao.DAOAnalysis;
+import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.dao.DAOUserAnalysisRight;
 import lu.itrust.business.service.ServiceUserAnalysisRight;
 
@@ -18,13 +22,28 @@ import lu.itrust.business.service.ServiceUserAnalysisRight;
  * @version
  * @since Jan 9, 2014
  */
+@Service
 public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 
 	@Autowired
-	private DAOUserAnalysisRight userAnalysisRight;
+	private DAOUserAnalysisRight daoUserAnalysisRight;
+	
+	@Autowired
+	private DAOAnalysis daoAnalysis;
+	
+	@Autowired
+	private DAOUser daoUser;
+	
+	public void setDAOUser(DAOUser dao) {
+		this.daoUser=dao;
+	}
+	
+	public void setDAOAnalysis(DAOAnalysis dao) {
+		this.daoAnalysis=dao;
+	}
 	
 	public void setDAOUserAnalysisRight(DAOUserAnalysisRight daoUAR) {
-		this.userAnalysisRight=daoUAR;
+		this.daoUserAnalysisRight=daoUAR;
 	}
 	
 	/**
@@ -35,7 +54,7 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 */
 	@Override
 	public UserAnalysisRight get(long id) throws Exception {
-		return userAnalysisRight.get(id);
+		return daoUserAnalysisRight.get(id);
 	}
 
 	/**
@@ -46,7 +65,7 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 */
 	@Override
 	public List<UserAnalysisRight> getAllByUser(String login) throws Exception {
-		return userAnalysisRight.getAllByUser(login);
+		return daoUserAnalysisRight.getAllByUser(login);
 	}
 
 	/**
@@ -57,7 +76,7 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 */
 	@Override
 	public List<UserAnalysisRight> getAllByUser(User user) throws Exception {
-		return userAnalysisRight.getAllByUser(user);
+		return daoUserAnalysisRight.getAllByUser(user);
 	}
 
 	/**
@@ -68,7 +87,7 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 */
 	@Override
 	public List<UserAnalysisRight> getAllByUniqueAnalysis(Analysis analysis) throws Exception {
-		return userAnalysisRight.getAllByUniqueAnalysis(analysis);
+		return daoUserAnalysisRight.getAllByUniqueAnalysis(analysis);
 
 	}
 
@@ -80,9 +99,41 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 */
 	@Override
 	public List<UserAnalysisRight> getAllByAnalysisIdentifier(String identifier) throws Exception {
-		return userAnalysisRight.getAllByAnalysisIdentifier(identifier);
+		return daoUserAnalysisRight.getAllByAnalysisIdentifier(identifier);
 	}
 
+	/**
+	 * isUserAuthorized: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.service.ServiceUserAnalysisRight#isUserAuthorized(lu.itrust.business.TS.Analysis, lu.itrust.business.TS.usermanagment.User, lu.itrust.business.TS.AnalysisRight)
+	 */
+	@Override
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception {
+		return daoUserAnalysisRight.isUserAuthorized(analysis, user, right);
+	}
+
+	/**
+	 * isUserAuthorized: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.service.ServiceUserAnalysisRight#isUserAuthorized(java.lang.Integer, java.lang.Integer, lu.itrust.business.TS.AnalysisRight)
+	 */
+	@Override
+	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) throws Exception {
+		return daoUserAnalysisRight.isUserAuthorized(daoAnalysis.get(analysisId), daoUser.get(userId), right);
+	}
+	
+	@Override
+	public UserAnalysisRight getUserAnalysisRight(Analysis analysis, User user) throws Exception {
+		return daoUserAnalysisRight.getUserAnalysisRight(analysis, user);
+	}
+	
+	@Override
+	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception {
+		return daoUserAnalysisRight.getAnalysisRightOfUser(analysis, user);
+	}
+	
 	/**
 	 * save: <br>
 	 * Description
@@ -91,7 +142,7 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 */
 	@Override
 	public void save(UserAnalysisRight userAnalysisRight) throws Exception {
-		this.userAnalysisRight.save(userAnalysisRight);
+		this.daoUserAnalysisRight.save(userAnalysisRight);
 	}
 
 	/**
@@ -102,7 +153,7 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 */
 	@Override
 	public void saveOrUpdate(UserAnalysisRight userAnalysisRight) throws Exception {
-		this.userAnalysisRight.saveOrUpdate(userAnalysisRight);
+		this.daoUserAnalysisRight.saveOrUpdate(userAnalysisRight);
 	}
 
 	/**
@@ -113,7 +164,7 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 */
 	@Override
 	public void delete(UserAnalysisRight userAnalysisRight) throws Exception {
-		this.userAnalysisRight.delete(userAnalysisRight);
+		this.daoUserAnalysisRight.delete(userAnalysisRight);
 	}
 
 	/**
@@ -124,6 +175,6 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 */
 	@Override
 	public void delete(long id) throws Exception {
-		this.userAnalysisRight.delete(get(id));
+		this.daoUserAnalysisRight.delete(get(id));
 	}
 }

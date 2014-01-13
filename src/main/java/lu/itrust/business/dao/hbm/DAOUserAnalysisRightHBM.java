@@ -4,12 +4,23 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.dao.DAOUserAnalysisRight;
 
+/**
+ * DAOUserAnalysisRightHBM.java: <br>
+ * Detailed description...
+ *
+ * @author smenghi, itrust consulting s.à.rl. :
+ * @version 
+ * @since Jan 13, 2014
+ */
+@Repository
 public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAnalysisRight {
 
 	/**
@@ -133,4 +144,20 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 		getSession().delete(get(id));
 	}
 
+	@Override
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception {
+		return analysis.isUserAuthorized(user, right);
+	}
+	
+	@Override
+	public UserAnalysisRight getUserAnalysisRight(Analysis analysis, User user) throws Exception {
+		return analysis.getRightsforUser(user);
+	}
+	
+	@Override
+	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception {
+		return analysis.getRightsforUser(user).getRight();
+	}
+
+	
 }

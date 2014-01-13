@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.dao.DAOAnalysis;
@@ -217,10 +216,5 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public List<Analysis> loadAllFromUser(User user) throws Exception {
 		return getSession().createQuery("SELECT uar.analysis FROM UserAnalysisRight uar WHERE uar.user = :user").setParameter("user", user).list();
-	}
-
-	@Override
-	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception {
-		return analysis.isUserAuthorized(user, right);
 	}
 }

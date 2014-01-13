@@ -31,7 +31,7 @@
 					<c:when test="${menu.startsWith('Analysis') and not menu.startsWith('Analysis/Import')}">
 						<c:choose>
 							<c:when test="${!empty(sessionScope.selectedAnalysis)}">
-								<li tabindex="-1" class="dropdown-submenu active">
+								<li tabindex="-1" class="dropdown-submenu">
 									<a href="${pageContext.request.contextPath}/Analysis" class="dropdown-toggle" data-toggle="dropdown"> 
 										<spring:message code="label.menu.analysis.all" text="Analysis" /><span class="caret"></span>
 									</a>

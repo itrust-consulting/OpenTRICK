@@ -2062,6 +2062,13 @@ public class Analysis implements Serializable, Cloneable {
 		this.userRights.add(new UserAnalysisRight(user, this, right));
 	}
 
+	/**
+	 * getRightsforUser: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @return
+	 */
 	public UserAnalysisRight getRightsforUser(User user) {
 
 		for (UserAnalysisRight userRight : userRights) {
@@ -2073,6 +2080,24 @@ public class Analysis implements Serializable, Cloneable {
 		return null;
 	}
 
+	/**
+	 * getRightsforUser: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public UserAnalysisRight getRightsforUserString(String login) {
+
+		for (UserAnalysisRight userRight : userRights) {
+			if (userRight.getUser().getLogin().equals(login)) {
+				return userRight;
+			}
+		}
+
+		return null;
+	}
+	
 	/**
 	 * editUserRight: <br>
 	 * Description
@@ -2113,7 +2138,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @return
 	 */
 	public boolean isUserAuthorized(User user, AnalysisRight right) {
-
+	
 		for (UserAnalysisRight uar : userRights) {
 			if (uar.getUser().equals(user)) {
 				return UserAnalysisRight.userIsAuthorized(uar, right);

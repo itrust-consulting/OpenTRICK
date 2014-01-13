@@ -3,7 +3,6 @@ package lu.itrust.business.view.controller;
 import java.io.File;
 import java.security.Principal;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +31,7 @@ import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceRiskRegister;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
+import lu.itrust.business.service.ServiceUserAnalysisRight;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerAnalysisImport;
@@ -44,7 +44,6 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,6 +73,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
@@ -125,7 +127,7 @@ public class ControllerAnalysis {
 	public String displayAll(Principal principal, Map<String, Object> model, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 		if (selected != null) {
-			if (serviceAnalysis.isUserAuthorized(serviceAnalysis.get(selected), serviceUser.get(principal.getName()), AnalysisRight.READ)) {
+			if (serviceUserAnalysisRight.isUserAuthorized(serviceAnalysis.get(selected), serviceUser.get(principal.getName()), AnalysisRight.READ)) {
 				model.put("assettypes", serviceAssetType.loadAll());
 				model.put("analysis", serviceAnalysis.get(selected));
 				model.put("locale", locale);
@@ -134,6 +136,14 @@ public class ControllerAnalysis {
 			}
 		} else
 			model.put("analyses", serviceAnalysis.loadAllFromUser(serviceUser.get(principal.getName())));
+		model.put("login", principal.getName());
+		model.put("deleteRight", AnalysisRight.DELETE.ordinal());
+		model.put("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
+		model.put("calcActionPlanRight", AnalysisRight.CALCULATE_ACTIONPLAN.ordinal());
+		model.put("modifyRight", AnalysisRight.MODIFY.ordinal());
+		model.put("exportRight", AnalysisRight.EXPORT.ordinal());
+		model.put("readRight", AnalysisRight.READ.ordinal());
+
 		return "analysis/analysis";
 	}
 
@@ -142,13 +152,12 @@ public class ControllerAnalysis {
 			throws Exception {
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null) {
-			attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis could not be found!", locale));
 			return "redirect:/Analysis";
 		}
 
-		if (!serviceAnalysis.isUserAuthorized(analysis, serviceUser.get(principal.getName()), AnalysisRight.MODIFY)) {
-			attributes.addFlashAttribute("errors", messageSource.getMessage("error.notauthorized", null, "Insufficient permissions!", locale));
-			return "redirect:/Analysis";
+		if (!serviceUserAnalysisRight.isUserAuthorized(analysis, serviceUser.get(principal.getName()), AnalysisRight.MODIFY)) {
+			return "/errors/403";
 		}
 
 		try {
@@ -190,11 +199,11 @@ public class ControllerAnalysis {
 
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 
-		if (selected != null && serviceAnalysis.isUserAuthorized(serviceAnalysis.get(selected), serviceUser.get(principal.getName()), AnalysisRight.READ)) {
+		if (serviceUserAnalysisRight.isUserAuthorized(serviceAnalysis.get(analysisId), serviceUser.get(principal.getName()), AnalysisRight.READ)) {
 
-			if (selected.intValue() == analysisId)
+			if (selected != null && selected.intValue() == analysisId) {
 				session.removeAttribute("selectedAnalysis");
-			else if (serviceAnalysis.exist(analysisId))
+			} else if (serviceAnalysis.exist(analysisId))
 				session.setAttribute("selectedAnalysis", analysisId);
 			else {
 				session.removeAttribute("selectedAnalysis");
@@ -202,9 +211,32 @@ public class ControllerAnalysis {
 			}
 
 		} else {
-			attributes.addFlashAttribute("errors", messageSource.getMessage("error.notauthorized", null, "Insufficient permissions!", locale));
+			return "/errors/403";
 		}
 		return "redirect:/Analysis";
+	}
+
+	/**
+	 * newAnalysis: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param model
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/New")
+	public String requestnewAnalysis(Principal principal, Map<String, Object> model, RedirectAttributes attributes, Locale locale) throws Exception {
+
+		model.put("languages", serviceLanguage.loadAll());
+
+		model.put("customers", serviceCustomer.loadAll());
+
+		model.put("author", principal.getName());
+		
+		return "analysis/newAnalysis";
+
 	}
 
 	/**
@@ -228,7 +260,7 @@ public class ControllerAnalysis {
 			return "analysis/editAnalysis";
 		}
 
-		if (serviceAnalysis.isUserAuthorized(analysis, serviceUser.get(principal.getName()), AnalysisRight.MODIFY)) {
+		if (serviceUserAnalysisRight.isUserAuthorized(analysis, serviceUser.get(principal.getName()), AnalysisRight.MODIFY)) {
 
 			model.put("languages", serviceLanguage.loadAll());
 
@@ -237,11 +269,11 @@ public class ControllerAnalysis {
 			model.put("analysis", analysis);
 
 		} else {
-			attributes.addFlashAttribute("errors", messageSource.getMessage("error.notauthorized", null, "Insufficient permissions!", locale));
+			return "/errors/403";
 		}
-		
+
 		return "analysis/editAnalysis";
-		
+
 	}
 
 	/**
@@ -258,9 +290,9 @@ public class ControllerAnalysis {
 	@RequestMapping("/Save")
 	public @ResponseBody
 	List<String[]> performEditAnalysis(@ModelAttribute("analysis") @Valid Analysis analysis, Locale locale) throws Exception {
-		
+
 		List<String[]> errors = new LinkedList<>();
-		
+
 		try {
 			serviceAnalysis.saveOrUpdate(analysis);
 			return errors;

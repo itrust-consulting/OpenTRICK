@@ -7,7 +7,6 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.dao.DAOAnalysis;
@@ -167,10 +166,5 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public List<Analysis> loadAllFromUser(User user) throws Exception {
 		return daoAnalysis.loadAllFromUser(user);
-	}
-
-	@Override
-	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception {
-		return daoAnalysis.isUserAuthorized(analysis, user, right);
 	}
 }

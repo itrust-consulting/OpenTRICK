@@ -134,7 +134,7 @@ public class UserAnalysisRight {
 	 * @return true if th euser has the right or false if not.
 	 */
 	public static final boolean userIsAuthorized(UserAnalysisRight uar, AnalysisRight right) {
-
+		
 		return (uar.getRight().ordinal() <= right.ordinal() ? true : false);
 
 	}
