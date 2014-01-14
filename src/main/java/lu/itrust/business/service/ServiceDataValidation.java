@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.springframework.context.MessageSource;
 
-import lu.itrust.business.validator.Validator;
+import lu.itrust.business.validator.field.ValidatorField;
 
 /**
  * @author eomar
@@ -17,15 +17,15 @@ import lu.itrust.business.validator.Validator;
  * 
  */
 public interface ServiceDataValidation {
-	boolean register(Validator validator);
+	boolean register(ValidatorField validator);
 
 	boolean deregister(Class<?> clazz);
 
 	boolean isRegistred(Class<?> clazz);
 
-	boolean isRegistred(Validator validator);
+	boolean isRegistred(ValidatorField validator);
 
-	Validator findByClass(Class<?> clazz);
+	ValidatorField findByClass(Class<?> clazz);
 
 	Map<String, String> validate(Object object);
 

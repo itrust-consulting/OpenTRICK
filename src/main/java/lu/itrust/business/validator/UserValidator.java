@@ -38,6 +38,11 @@ public class UserValidator implements Validator {
 		else if(user.getPassword().trim().length()<6)
 			errors.rejectValue("password", "errors.user.password.short");
 		
+		if(user.getRepeatPassword() == null)
+			errors.rejectValue("repeatPassword", "errors.user.repeatPassword.empty", "Repeat password cannot be empty");
+		else if(!user.getRepeatPassword().equals(user.getPassword()) )
+			errors.rejectValue("repeatPassword", "errors.user.repeatPassword.not_same", "Passwords are not same");
+			
 		if(user.getFirstName()==null || user.getFirstName().trim().isEmpty())
 			errors.rejectValue("firstName", "errors.user.firstName.empty");
 		

@@ -1122,7 +1122,6 @@ function updateALE() {
 		contentType : "application/json",
 		async : true,
 		success : function(response) {
-			alert(response);
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);
 				$("#info-dialog").modal("toggle");
@@ -1276,7 +1275,7 @@ function duplicateAnalysis(form, analyisId) {
 				$(".progress-striped").hide();
 				showSuccess($("#addHistoryModal .modal-body")[0],
 						response["success"]);
-				setTimeout(location.reload(), 2000);
+				setTimeout("location.reload()", 2000);
 			} else if (response["error"]) {
 				$(".progress-striped").hide();
 				showError($("#addHistoryModal .modal-body")[0],

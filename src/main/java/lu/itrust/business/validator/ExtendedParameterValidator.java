@@ -29,17 +29,6 @@ public class ExtendedParameterValidator extends ParameterValidator {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.validator.ParameterValidator#supports(java.lang.Class)
-	 */
-	@Override
-	public boolean supports(Class<?> clazz) {
-		return ExtendedParameter.class.isAssignableFrom(clazz);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
 	 * lu.itrust.business.validator.ParameterValidator#validate(java.lang.Object
 	 * , java.lang.String, java.lang.Object)
 	 */

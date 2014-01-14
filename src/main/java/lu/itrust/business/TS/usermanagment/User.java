@@ -23,6 +23,8 @@ public class User implements Serializable {
 	private String login = null;
 
 	private String password = null;
+	
+	private String repeatPassword = null;
 
 	private String firstName = null;
 
@@ -230,6 +232,20 @@ public class User implements Serializable {
 		enable = roles != null && !roles.isEmpty();
 
 		return role;
+	}
+
+	/**
+	 * @return the repeatPassword
+	 */
+	public String getRepeatPassword() {
+		return repeatPassword;
+	}
+
+	/**
+	 * @param repeatPassword the repeatPassword to set
+	 */
+	public void setRepeatPassword(String repeatPassword) {
+		this.repeatPassword = repeatPassword;
 	}
 
 }

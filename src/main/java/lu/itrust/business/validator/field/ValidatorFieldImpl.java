@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.validator;
+package lu.itrust.business.validator.field;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -13,11 +13,11 @@ import java.util.Map;
  * @author eomar
  * 
  */
-public abstract class ValidatorImpl implements Validator {
+public abstract class ValidatorFieldImpl implements ValidatorField {
 
 	protected static boolean Contains(Object[] objects, Object element) {
-		for (Object object : objects){
-			System.out.println(object+" : "+element);
+		for (Object object : objects) {
+			System.out.println(object + " : " + element);
 			if (object == null && element == null || object != null
 					&& object.equals(element))
 				return true;
@@ -41,6 +41,11 @@ public abstract class ValidatorImpl implements Validator {
 		} catch (Exception e) {
 		}
 		return false;
+	}
+
+	@Override
+	public boolean supports(Class<?> arg0) {
+		return supported().isAssignableFrom(arg0);
 	}
 
 	/*
@@ -112,4 +117,5 @@ public abstract class ValidatorImpl implements Validator {
 		}
 		return errors;
 	}
+
 }
