@@ -18,6 +18,8 @@ public interface DAOMeasure {
 	
 	List<Measure> findByAnalysis(int idAnalysis);
 	
+	Measure findByIdAndAnalysis(Integer id, Integer idAnalysis);
+	
 	List<Measure> findByAnalysisAndNorm(int idAnalysis, int idNorm);
 	
 	List<Measure> findByAnalysisAndNorm(int idAnalysis, String norm);
@@ -33,4 +35,6 @@ public interface DAOMeasure {
 	void delete(Measure measure);
 	
 	void delete(int id);
+
+	
 }

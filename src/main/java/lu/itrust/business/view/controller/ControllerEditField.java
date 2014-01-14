@@ -353,7 +353,7 @@ public class ControllerEditField {
 			else if ("likelihood".equals(fieldEditor.getFieldName()))
 				chooses = serviceParameter.findAcronymByAnalysisAndType(id,
 						Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
-			
+
 			String error = serviceDataValidation.validate(assessment,
 					fieldEditor.getFieldName(), value, chooses.toArray());
 			if (error != null)
@@ -451,9 +451,18 @@ public class ControllerEditField {
 
 	@RequestMapping(value = "/Measure", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	String measure(@RequestBody FieldEditor fieldEditor, Locale locale) {
+	String measure(@RequestBody FieldEditor fieldEditor, HttpSession session,
+			Locale locale) {
 		try {
-			Measure measure = serviceMeasure.findOne(fieldEditor.getId());
+			Integer idAnalysis = (Integer) session
+					.getAttribute("selectedAnalysis");
+			if (idAnalysis == null)
+				return JsonMessage.Error(messageSource.getMessage(
+						"error.analysis.not_found", null,
+						"Analysis cannot be found", locale));
+
+			Measure measure = serviceMeasure.findByIdAndAnalysis(
+					fieldEditor.getId(), idAnalysis);
 			if (measure == null)
 				return JsonMessage.Error(messageSource.getMessage(
 						"error.measure.not_found", null,
@@ -461,15 +470,30 @@ public class ControllerEditField {
 			Field field = measure.getClass().getSuperclass()
 					.getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
-			if (setFieldData(field, measure, fieldEditor, null)) {
-				serviceMeasure.saveOrUpdate(measure);
-				return JsonMessage.Success(messageSource.getMessage(
-						"success.measure.updated", null,
-						"Measure was successfully updated", locale));
-			} else
+			if (fieldEditor.getFieldName().equals("phase")) {
+				Integer number = 0;
+				if (!fieldEditor.getValue().equalsIgnoreCase("NA"))
+					number = (Integer) value(fieldEditor, null);
+				if (number == null)
+					return JsonMessage.Error(messageSource.getMessage(
+							"error.edit.type.field", null,
+							"Data cannot be updated", locale));
+				Phase phase = servicePhase.loadFromPhaseNumberAnalysis(number,
+						idAnalysis);
+				if (phase == null)
+					return JsonMessage.Error(messageSource.getMessage(
+							"error.phase.not_found", null,
+							"Phase cannot be found", locale));
+				measure.setPhase(phase);
+
+			} else if (!setFieldData(field, measure, fieldEditor, null))
 				return JsonMessage.Error(messageSource.getMessage(
 						"error.edit.type.field", null,
 						"Data cannot be updated", locale));
+			serviceMeasure.saveOrUpdate(measure);
+			return JsonMessage.Success(messageSource.getMessage(
+					"success.measure.updated", null,
+					"Measure was successfully updated", locale));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -518,7 +542,7 @@ public class ControllerEditField {
 						"error.edit.type.field", null,
 						"Data cannot be updated", locale));
 			} else
-				measure(fieldEditor, locale);
+				measure(fieldEditor, session, locale);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

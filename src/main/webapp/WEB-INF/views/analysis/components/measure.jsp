@@ -99,8 +99,8 @@
 									ondblclick="return editField(this);"><fmt:formatNumber
 										value="${measure.cost}" maxFractionDigits="0" /></td>
 								<td class="success" trick-field="phase"
-									trick-field-type="intger" ondblclick="return editField(this);"
-									trick-load-choose="extractPhase()"
+									trick-field-type="integer" ondblclick="return editField(this);"
+									trick-callback-pre="extractPhase(this)"
 									trick-real-value='${measure.phase.number}'><c:choose>
 										<c:when test="${measure.phase.number == 0}">
 										NA

@@ -45,7 +45,11 @@ function MessageResolver(code, defaulttext, params) {
 function extract(data) {
 	var parser = new DOMParser();
 	var doc = parser.parseFromString(data, "text/html");
-	$("#content").html(doc.getElementById("login") == null ? doc.getElementById("content").innerHTML : doc.getElementById("login").outerHTML);
+	$("#content")
+			.html(
+					doc.getElementById("login") == null ? doc
+							.getElementById("content").innerHTML : doc
+							.getElementById("login").outerHTML);
 	return false;
 }
 
@@ -162,8 +166,10 @@ function TrickCarousel(table) {
 		this.theader = $(this.table).find("th");
 		this.tdata = $(this.table).find("td");
 		this.count = $(this.table).find("th[trick-table-part]").length - 1;
-		this.navLeft = $($(this.table).parent()).find("a[control-trick-table='left']");
-		this.navRight = $($(this.table).parent()).find("a[control-trick-table='right']");
+		this.navLeft = $($(this.table).parent()).find(
+				"a[control-trick-table='left']");
+		this.navRight = $($(this.table).parent()).find(
+				"a[control-trick-table='right']");
 		this.showGroup(1);
 		var that = this;
 
@@ -212,6 +218,16 @@ function TrickCarousel(table) {
 	};
 }
 
+function extractPhase(that) {
+	var phases = $("#section_phase *[trick-class='Phase']>*:first-child");
+	if (!$(phases).length)
+		return true;
+	that.choose.push("NA");
+	for (var i = 0; i < phases.length; i++)
+		that.choose.push($(phases[i]).text());
+	return false;
+}
+
 function FieldEditor(element, validator) {
 	this.element = element;
 	this.validator = validator;
@@ -226,13 +242,15 @@ function FieldEditor(element, validator) {
 	this.callback = null;
 
 	FieldEditor.prototype.GenerateInputField = function() {
-		if ($(this.element).find("input").length)
+		if ($(this.element).find("input").length
+				|| $(this.element).find("select").length)
 			return true;
 		if (!this.LoadData())
 			return true;
 		if (!this.choose.length) {
 			this.inputField = document.createElement("input");
-			this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
+			this.realValue = this.element.hasAttribute("real-value") ? $(
+					this.element).attr("real-value") : null;
 		} else {
 			this.inputField = document.createElement("select");
 			for (var i = 0; i < this.choose.length; i++) {
@@ -246,7 +264,9 @@ function FieldEditor(element, validator) {
 		}
 		var that = this;
 		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		this.inputField.setAttribute("placeholder", this.realValue != null
+				&& this.realValue != undefined ? this.realValue
+				: this.defaultValue);
 		$(this.inputField).blur(function() {
 			return that.Save(that);
 		});
@@ -259,6 +279,7 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.Initialise = function() {
+		
 		if (!this.GenerateInputField()) {
 			this.controllor = this.__findControllor(this.element);
 			this.classId = this.__findClassId(this.element);
@@ -304,12 +325,25 @@ function FieldEditor(element, validator) {
 			return null;
 	};
 
+	FieldEditor.prototype.__findCallbackPreExec = function(element) {
+		if ($(element).attr("trick-callback-pre") != undefined)
+			return $(element).attr("trick-callback-pre");
+		else if ($(element).parent().prop("tagName") != "BODY") {
+			console.log($(element).parent().prop("tagName"));
+			return this.__findCallback($(element).parent());
+		} else
+			return null;
+	};
+
 	FieldEditor.prototype.Show = function() {
 		if (this.inputField == null || this.inputField == undefined)
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
-		$(this.inputField).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
+		$(this.inputField).prop(
+				"value",
+				this.realValue != null ? this.realValue : $(this.element)
+						.text().trim());
 		$(this.element).html(this.inputField);
 		$(this.inputField).focus();
 		return false;
@@ -320,7 +354,11 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.LoadData = function() {
-		this.choose = this.__findChoose(this.element);
+		var callback = this.__findCallbackPreExec(this.element);
+		if (callback != null)
+			eval(callback);
+		if(!this.choose.length)
+			this.choose = this.__findChoose(this.element);
 		return true;
 	};
 
@@ -340,31 +378,43 @@ function FieldEditor(element, validator) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
-				$.ajax({
-					url : context + "/EditField/" + that.controllor,
-					type : "post",
-					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
-					success : function(response) {
-						if (response["success"] != undefined) {
-							that.UpdateUI();
-							$("#info-dialog .modal-body").html(response["success"]);
-							$("#info-dialog").modal("toggle");
-							if (that.callback != null && that.callback != undefined)
-								setTimeout(that.callback, 10);
-						} else {
-							$("#alert-dialog .modal-body").html(response["error"]);
-							$("#alert-dialog").modal("toggle");
-						}
-						return true;
-					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						$("#alert-dialog .modal-body").text(jqXHR.responseText);
-						$("#alert-dialog").modal("toggle");
-					},
-				});
+				$
+						.ajax({
+							url : context + "/EditField/" + that.controllor,
+							type : "post",
+							async : true,
+							data : '{"id":'
+									+ that.classId
+									+ ', "fieldName":"'
+									+ that.fieldName
+									+ '", "value":"'
+									+ defaultValueByType($(that.inputField)
+											.prop("value"), that.fieldType,
+											true) + '", "type": "'
+									+ that.fieldType + '"}',
+							contentType : "application/json",
+							success : function(response) {
+								if (response["success"] != undefined) {
+									that.UpdateUI();
+									$("#info-dialog .modal-body").html(
+											response["success"]);
+									$("#info-dialog").modal("toggle");
+									if (that.callback != null
+											&& that.callback != undefined)
+										setTimeout(that.callback, 10);
+								} else {
+									$("#alert-dialog .modal-body").html(
+											response["error"]);
+									$("#alert-dialog").modal("toggle");
+								}
+								return true;
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								$("#alert-dialog .modal-body").text(
+										jqXHR.responseText);
+								$("#alert-dialog").modal("toggle");
+							},
+						});
 			} else {
 				that.Rollback();
 				return false;
@@ -535,7 +585,9 @@ function MaturityMeasureFieldEditor(element) {
 			return true;
 		this.inputField = document.createElement("select");
 		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		this.inputField.setAttribute("placeholder", this.realValue != null
+				&& this.realValue != undefined ? this.realValue
+				: this.defaultValue);
 		for ( var i in this.implementations) {
 			var option = document.createElement("option");
 			option.setAttribute("value", this.implementations[i].value);
@@ -547,7 +599,8 @@ function MaturityMeasureFieldEditor(element) {
 		}
 
 		var that = this;
-		this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
+		this.realValue = this.element.hasAttribute("real-value") ? $(
+				this.element).attr("real-value") : null;
 		$(this.inputField).blur(function() {
 			return that.Save(that);
 		});
@@ -610,7 +663,8 @@ function Modal() {
 			button_head_close.setAttribute("class", "close");
 			button_head_close.setAttribute("data-dismiss", "modal");
 			$(button_head_close).html("&times;");
-			this.modal_header.insertBefore(button_head_close, this.modal_header.firstChild);
+			this.modal_header.insertBefore(button_head_close,
+					this.modal_header.firstChild);
 		} else
 			this.__addHeadButton();
 
@@ -647,7 +701,8 @@ function Modal() {
 		});
 
 		for ( var button in this.modal_head_buttons)
-			this.modal_header.insertBefore(this.modal_head_buttons[button], this.modal_header.firstChild);
+			this.modal_header.insertBefore(this.modal_head_buttons[button],
+					this.modal_header.firstChild);
 		return false;
 	};
 
@@ -718,7 +773,8 @@ function ProgressBar() {
 		this.infoText = document.createElement("span");
 		// design progressbar
 		this.progress.setAttribute("class", "progress progress-striped active");
-		this.progressbar.setAttribute("class", "progress-bar progress-bar-info");
+		this.progressbar
+				.setAttribute("class", "progress-bar progress-bar-info");
 		this.progressbar.setAttribute("role", "progressbar");
 		this.progressbar.setAttribute("aria-valuenow", "100");
 		this.progressbar.setAttribute("aria-valuemin", "0");
@@ -741,7 +797,8 @@ function ProgressBar() {
 
 	ProgressBar.prototype.Increment = function(value) {
 		if (value == null)
-			value = parseInt($(this.progressbar).attr("aria-valuenow")) + this.incrementStep;
+			value = parseInt($(this.progressbar).attr("aria-valuenow"))
+					+ this.incrementStep;
 		else
 			value += $(this.progressbar).attr("aria-valuenow");
 
@@ -875,7 +932,8 @@ function TaskManager() {
 					return false;
 				else if (reponse.length) {
 					for (var int = 0; int < reponse.length; int++) {
-						if ($.isNumeric(reponse[int]) && !(reponse[int] in instance.tasks)) {
+						if ($.isNumeric(reponse[int])
+								&& !(reponse[int] in instance.tasks)) {
 							instance.tasks.push(reponse[int]);
 							instance.UpdateStatus(reponse[int]);
 						}
@@ -932,11 +990,14 @@ function TaskManager() {
 			success : function(reponse) {
 				if (reponse == null || reponse.flag == undefined)
 					return false;
-				if (instance.progressBars[taskId] == null || instance.progressBars[taskId] == undefined) {
-					instance.progressBars[taskId] = instance.createProgressBar(taskId);
+				if (instance.progressBars[taskId] == null
+						|| instance.progressBars[taskId] == undefined) {
+					instance.progressBars[taskId] = instance
+							.createProgressBar(taskId);
 				}
 				if (reponse.message != null) {
-					instance.progressBars[taskId].Update(reponse.progress, reponse.message);
+					instance.progressBars[taskId].Update(reponse.progress,
+							reponse.message);
 				}
 				if (reponse.flag < 5) {
 					setTimeout(function() {
@@ -958,17 +1019,22 @@ function AssessmentViewer() {
 		var instance = this;
 
 		this.modal_footer_buttons["update"] = document.createElement("button");
-		this.modal_footer_buttons["update"].setAttribute("class", "btn btn-warning");
+		this.modal_footer_buttons["update"].setAttribute("class",
+				"btn btn-warning");
 
 		this.modal_footer_buttons["close"] = document.createElement("button");
-		this.modal_footer_buttons["close"].setAttribute("class", "btn btn-default");
+		this.modal_footer_buttons["close"].setAttribute("class",
+				"btn btn-default");
 
 		$(this.modal_footer_buttons["close"]).click(function() {
 			return instance.Distroy();
 		});
 
-		$(this.modal_footer_buttons["close"]).html(MessageResolver("label.action.cloase", "Close"));
-		$(this.modal_footer_buttons["update"]).html(MessageResolver("label.assessment.recompute", "Update assessments"));
+		$(this.modal_footer_buttons["close"]).html(
+				MessageResolver("label.action.cloase", "Close"));
+		$(this.modal_footer_buttons["update"]).html(
+				MessageResolver("label.assessment.recompute",
+						"Update assessments"));
 
 		$(this.modal_footer_buttons["close"]).click(function() {
 			return instance.Distroy();
@@ -979,7 +1045,8 @@ function AssessmentViewer() {
 		});
 
 		Modal.prototype.Intialise.call(this);
-		$(this.modal_dialog).prop("style", "width: 95%; min-width:1170px; max-width:1300px;");
+		$(this.modal_dialog).prop("style",
+				"width: 95%; min-width:1170px; max-width:1300px;");
 
 		return false;
 
@@ -1022,7 +1089,8 @@ function AssessmentAssetViewer(assetId) {
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_asset_assessment']");
+				var assessments = $(doc).find(
+						"*[id='section_asset_assessment']");
 				if (!assessments.length)
 					return true;
 				$(instance.modal_body).html($(assessments).html());
@@ -1039,24 +1107,27 @@ function AssessmentAssetViewer(assetId) {
 
 	AssessmentAssetViewer.prototype.Update = function() {
 		var instance = this;
-		return $.ajax({
-			url : context + "/Assessment/Asset/" + instance.assetId + "/Update",
-			contentType : "application/json",
-			async : false,
-			success : function(reponse) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_asset_assessment']");
-				if (!assessments.length)
-					return true;
-				$(instance.modal_body).html($(assessments).html());
-				instance.setTitle($(assessments).attr("trick-name"));
-				return false;
-			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return true;
-			}
-		});
+		return $
+				.ajax({
+					url : context + "/Assessment/Asset/" + instance.assetId
+							+ "/Update",
+					contentType : "application/json",
+					async : false,
+					success : function(reponse) {
+						var parser = new DOMParser();
+						var doc = parser.parseFromString(reponse, "text/html");
+						var assessments = $(doc).find(
+								"*[id='section_asset_assessment']");
+						if (!assessments.length)
+							return true;
+						$(instance.modal_body).html($(assessments).html());
+						instance.setTitle($(assessments).attr("trick-name"));
+						return false;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						return true;
+					}
+				});
 	};
 }
 
@@ -1078,7 +1149,8 @@ function AssessmentScenarioViewer(scenarioId) {
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_scenario_assessment']");
+				var assessments = $(doc).find(
+						"*[id='section_scenario_assessment']");
 				if (!assessments.length)
 					return true;
 				$(instance.modal_body).html($(assessments).html());
@@ -1096,13 +1168,15 @@ function AssessmentScenarioViewer(scenarioId) {
 	AssessmentScenarioViewer.prototype.Update = function() {
 		var instance = this;
 		return $.ajax({
-			url : context + "/Assessment/Scenario/" + instance.scenarioId + "/Update",
+			url : context + "/Assessment/Scenario/" + instance.scenarioId
+					+ "/Update",
 			contentType : "application/json",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_scenario_assessment']");
+				var assessments = $(doc).find(
+						"*[id='section_scenario_assessment']");
 				if (!assessments.length)
 					return true;
 				$(instance.modal_body).html($(assessments).html());
@@ -1148,7 +1222,7 @@ function updateAssessmentAcronym(idParameter, acronym) {
 			if (response["success"] != undefined) {
 				$("#info-dialog .modal-body").html(response["success"]);
 				$("#info-dialog").modal("toggle");
-				setTimeout("updateALE()",2000);
+				setTimeout("updateALE()", 2000);
 			} else if (response["error"] != undefined) {
 				$("#alert-dialog .modal-body").html(response["error"]);
 				$("#alert-dialog").modal("toggle");
@@ -1205,9 +1279,9 @@ function addHistory(analysisId, oldVersion) {
 			return result;
 		},
 	});
-	
+
 	return false;
-	
+
 }
 
 function defaultValueByType(value, type, protect) {
@@ -1238,7 +1312,9 @@ function saveField(element, controller, id, field, type) {
 			url : context + "/editField/" + controller,
 			type : "post",
 			async : true,
-			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"' + defaultValueByType($(element).prop("value"), type, true) + '", "type": "' + type + '"}',
+			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"'
+					+ defaultValueByType($(element).prop("value"), type, true)
+					+ '", "type": "' + type + '"}',
 			contentType : "application/json",
 			success : function(response) {
 				if (response == "" || response == null) {
@@ -1320,7 +1396,9 @@ function showError(parent, text) {
 	close.setAttribute("data-dismiss", "alert");
 	error.setAttribute("class", "alert alert-error");
 	error.setAttribute("aria-hidden", "true");
-	error.setAttribute("style", "background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
+	error
+			.setAttribute("style",
+					"background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
 	close.appendChild(document.createTextNode("x"));
 	error.appendChild(close);
 	error.appendChild(document.createTextNode(text));
@@ -1376,7 +1454,8 @@ function callbackBySection(section) {
 function sectionPretreatment(section) {
 	var pretreatment = {
 		"section_assessment" : function(data) {
-			var trickCarousel = new TrickCarousel($(data).find("table[trick-table]"));
+			var trickCarousel = new TrickCarousel($(data).find(
+					"table[trick-table]"));
 			trickCarousel.initialise();
 		}
 	};
@@ -1391,29 +1470,31 @@ function reloadSection(section) {
 		var controller = controllerBySection(section);
 		if (controller == null || controller == undefined)
 			return false;
-		$.ajax({
-			url : context + controller,
-			type : "get",
-			async : true,
-			contentType : "application/json",
-			success : function(response) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				newSection = $(doc).find("*[id = '" + section + "']");
-				pretreatment = sectionPretreatment(section);
-				if ($.isFunction(pretreatment))
-					pretreatment(newSection);
-				oldSection = $(document.body).find("*[id = '" + section + "']");
-				$(oldSection).html($(newSection).html());
-				var callback = callbackBySection(section);
-				if ($.isFunction(callback))
-					callback();
-				return false;
-			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return false;
-			},
-		});
+		$
+				.ajax({
+					url : context + controller,
+					type : "get",
+					async : true,
+					contentType : "application/json",
+					success : function(response) {
+						var parser = new DOMParser();
+						var doc = parser.parseFromString(response, "text/html");
+						newSection = $(doc).find("*[id = '" + section + "']");
+						pretreatment = sectionPretreatment(section);
+						if ($.isFunction(pretreatment))
+							pretreatment(newSection);
+						oldSection = $(document.body).find(
+								"*[id = '" + section + "']");
+						$(oldSection).html($(newSection).html());
+						var callback = callbackBySection(section);
+						if ($.isFunction(callback))
+							callback();
+						return false;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						return false;
+					},
+				});
 	}
 }
 /* Asset */
@@ -1439,7 +1520,8 @@ function findAllAssetType(selector) {
 			var option = document.createElement("option");
 			option.setAttribute("value", -1);
 			element.innerHTML = "";
-			option.appendChild(document.createTextNode(MessageResolver("label.asset.type.default", "Select assettype")));
+			option.appendChild(document.createTextNode(MessageResolver(
+					"label.asset.type.default", "Select assettype")));
 			element.appendChild(option);
 			for (var int = 0; int < reponse.length; int++) {
 				var assettype = reponse[int];
@@ -1466,7 +1548,9 @@ function selectAsset(assetId, selectVaue) {
 }
 
 function deleteAsset(assetId) {
-	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.asset", "Are you sure, you want to delete this asset"));
+	$("#confirm-dialog .modal-body").text(
+			MessageResolver("confirm.delete.asset",
+					"Are you sure, you want to delete this asset"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Asset/Delete/" + assetId,
@@ -1517,7 +1601,8 @@ function saveAsset(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
 			if (result) {
 				$("#addAssetModel").modal("hide");
 				reloadSection("section_asset");
@@ -1560,7 +1645,8 @@ function findAllScenarioType(selector) {
 			var option = document.createElement("option");
 			option.setAttribute("value", -1);
 			element.innerHTML = "";
-			option.appendChild(document.createTextNode(MessageResolver("label.scenario.type.default", "Select scenario type")));
+			option.appendChild(document.createTextNode(MessageResolver(
+					"label.scenario.type.default", "Select scenario type")));
 			element.appendChild(option);
 			for (var int = 0; int < reponse.length; int++) {
 				var scenariotype = reponse[int];
@@ -1568,7 +1654,8 @@ function findAllScenarioType(selector) {
 					continue;
 				var option = document.createElement("option");
 				option.setAttribute("value", scenariotype.id);
-				option.appendChild(document.createTextNode(scenariotype.typeName));
+				option.appendChild(document
+						.createTextNode(scenariotype.typeName));
 				element.appendChild(option);
 			}
 		}
@@ -1576,7 +1663,8 @@ function findAllScenarioType(selector) {
 }
 
 function clearScenarioFormData() {
-	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario"));
+	$("#addScenarioModal #addScenarioModel-title").html(
+			MessageResolver("label.scenario.add", "Add new scenario"));
 	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
 
@@ -1594,7 +1682,9 @@ function selectScenario(assetId, selectVaue) {
 }
 
 function deleteScenario(assetId) {
-	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario"));
+	$("#confirm-dialog .modal-body").text(
+			MessageResolver("confirm.delete.scenario",
+					"Are you sure, you want to delete this scenario"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Scenario/Delete/" + assetId,
@@ -1612,22 +1702,23 @@ function deleteScenario(assetId) {
 }
 
 function editScenarioRow(rowTrickId) {
-	$.ajax({
-		url : context + "/Scenario/Edit/" + rowTrickId,
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			if ((addAssetModel = doc.getElementById("addScenarioModal")) == null)
-				return false;
-			var parent = $("#addScenarioModal").parent();
-			$("#addScenarioModel").remove();
-			parent[0].insertBefore(addAssetModel, parent[0].firstChild);
-			$('#addScenarioModal').modal("toggle");
-			return false;
-		}
-	});
+	$
+			.ajax({
+				url : context + "/Scenario/Edit/" + rowTrickId,
+				contentType : "application/json",
+				async : true,
+				success : function(response) {
+					var parser = new DOMParser();
+					var doc = parser.parseFromString(response, "text/html");
+					if ((addAssetModel = doc.getElementById("addScenarioModal")) == null)
+						return false;
+					var parent = $("#addScenarioModal").parent();
+					$("#addScenarioModel").remove();
+					parent[0].insertBefore(addAssetModel, parent[0].firstChild);
+					$('#addScenarioModal').modal("toggle");
+					return false;
+				}
+			});
 	return false;
 }
 
@@ -1645,7 +1736,8 @@ function saveScenario(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
 			if (result) {
 				$("#addScenarioModal").modal("hide");
 				reloadSection("section_scenario");
@@ -1676,7 +1768,8 @@ function savePhase(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
 			if (result) {
 				$("#addPhaseModel").modal("hide");
 				reloadSection("section_phase");
@@ -1690,7 +1783,9 @@ function savePhase(form) {
 }
 
 function deletePhase(idPhase) {
-	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase"));
+	$("#confirm-dialog .modal-body").text(
+			MessageResolver("confirm.delete.phase",
+					"Are you sure, you want to delete this phase"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Phase/Delete/" + idPhase,
@@ -1747,265 +1842,338 @@ $(function() {
 	var deleteElement = $contextMenu.find("li[name='delete'] a");
 	var showMeasures = $contextMenu.find("li[name='show_measures'] a");
 
-	$("#section_analysis").on("contextmenu", "table tbody tr", function(e) {
-		
-		// get rights values
-		var deleteRight = $("#deleteRight").text();
-		var calcRickRegisterRight = $("#calcRickRegisterRight").text();
-		var calcActionPlanRight = $("#calcActionPlanRight").text();
-		var modifyRight = $("#modifyRight").text();
-		var exportRight = $("#exportRight").text();
-		var readRight = $("#readRight").text();
+	$("#section_analysis").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
 
-		// get missing elements
-		
-		var duplicateanalysis = $contextMenu.find("li[name='duplicate'] a");
-		
-		var computeactionplan = $contextMenu.find("li[name='cActionPlan'] a");
-		var cactionplandivider = $contextMenu.find("li[name='divider_1'] a");
+				// get rights values
+				var deleteRight = $("#deleteRight").text();
+				var calcRickRegisterRight = $("#calcRickRegisterRight").text();
+				var calcActionPlanRight = $("#calcActionPlanRight").text();
+				var modifyRight = $("#modifyRight").text();
+				var exportRight = $("#exportRight").text();
+				var readRight = $("#readRight").text();
 
-		var computeriskregister = $contextMenu.find("li[name='cRiskRegister'] a");
-		var criskregisterdivider = $contextMenu.find("li[name='divider_2'] a");
-		
-		var exportanalysis = $contextMenu.find("li[name='export'] a");
-		var exportanalysisdivider = $contextMenu.find("li[name='divider_3'] a");
-			
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		var rowTrickVersion = $(e.currentTarget).find("td[trick-version]").attr("trick-version");
-		var rowRights = $(e.currentTarget).attr('trick-rights-id');
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-			
-		// select
+				// get missing elements
 
-		if (rowRights <= readRight) {
-				
-			select.removeAttr("hidden");
-			select.attr("onclick", "javascript:return selectAnalysis(" + rowTrickId + ");");
-		} else {
-			select.attr("hidden", "true");
-			select.removeAttr("onclick");
-		}
-		
-		// edit
-		
-		if (rowRights <= modifyRight) {				
-			editRow.removeAttr("hidden");
-			editRow.attr("onclick", "javascript:return editSingleAnalysis(" + rowTrickId + ");");
-			duplicateanalysis.removeAttr("hidden");
-			duplicateanalysis.attr("onclick", "javascript:return addHistory("+rowTrickId+", '"+rowTrickVersion+"')");
-		} else {
-			editRow.attr("hidden", "true");
-			editRow.removeAttr("onclick");
-			duplicateanalysis.attr("hidden", "true");
-			duplicateanalysis.removeAttr("onclick");
-		}	
-		
-		// compute action plan
-		
-		if (rowRights <= calcActionPlanRight) {
-			
-			computeactionplan.removeAttr("hidden");
-			computeactionplan.attr("onclick", "javascript:return calculateActionPlan(" + rowTrickId + ");");
-			cactionplandivider.removeAttr("hidden","true");
-		} else {
-			computeactionplan.attr("hidden", "true");
-			computeactionplan.removeAttr("onclick");
-			cactionplandivider.attr("hidden","true");
-		}
-		
-		// compute risk register
-		
-		if (rowRights <= calcRickRegisterRight) {
-			
-			computeriskregister.removeAttr("hidden");
-			computeriskregister.attr("onclick", "javascript:return calculateRiskRegister(" + rowTrickId + ");");
-			criskregisterdivider.removeAttr("hidden","true");
-		} else {
-			computeriskregister.attr("hidden", "true");
-			computeriskregister.removeAttr("onclick");
-			criskregisterdivider.attr("hidden","true");
-		}
-		
-		// export
-		
-		if (rowRights <= exportRight) {
-			
-			exportanalysis.removeAttr("hidden");
-			exportanalysis.attr("onclick", "javascript:return exportAnalysis(" + rowTrickId + ");");
-			exportanalysisdivider.removeAttr("hidden","true");
-		} else {
-			exportanalysis.attr("hidden", "true");
-			exportanalysis.removeAttr("onclick");
-			exportanalysisdivider.attr("hidden","true");
-		}
-		
-		// delete
-		
-		if (rowRights <= deleteRight) {
-			
-			deleteElement.removeAttr("hidden");
-			deleteElement.attr("onclick", "javascript:return deleteAnalysis(" + rowTrickId + ");");
-		} else {
-			deleteElement.attr("hidden", "true");
-			deleteElement.removeAttr("onclick");
-		}
-		
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
+				var duplicateanalysis = $contextMenu
+						.find("li[name='duplicate'] a");
 
-	$("#section_asset").on("contextmenu", "table tbody tr", function(e) {
-		contextMenuHide($contextMenu);
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		select.attr("onclick", "return selectAsset('" + rowTrickId + "','true');");
-		unSelect.attr("onclick", "return selectAsset('" + rowTrickId + "','false');");
-		editRow.attr("onclick", "return editAssetRow('" + rowTrickId + "');");
-		deleteElement.attr("onclick", "return deleteAsset('" + rowTrickId + "');");
-		editRow.attr("href", "#addAssetModel");
+				var computeactionplan = $contextMenu
+						.find("li[name='cActionPlan'] a");
+				var cactionplandivider = $contextMenu
+						.find("li[name='divider_1'] a");
 
-		if ($(e.currentTarget).attr('trick-selected') == "true") {
-			unSelect.parent().attr("hidden", false);
-			var assessment = $contextMenu.find("li[name='assessment'] a");
-			$(assessment).parent().attr("hidden", false);
-			$(assessment).unbind();
-			var assessmentViewer = new AssessmentAssetViewer(rowTrickId);
-			application.modal["AssessmentViewer"] = assessmentViewer;
-			$(assessment).click(function() {
-				assessmentViewer.Show();
-				$($contextMenu).hide();
+				var computeriskregister = $contextMenu
+						.find("li[name='cRiskRegister'] a");
+				var criskregisterdivider = $contextMenu
+						.find("li[name='divider_2'] a");
+
+				var exportanalysis = $contextMenu.find("li[name='export'] a");
+				var exportanalysisdivider = $contextMenu
+						.find("li[name='divider_3'] a");
+
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				var rowTrickVersion = $(e.currentTarget).find(
+						"td[trick-version]").attr("trick-version");
+				var rowRights = $(e.currentTarget).attr('trick-rights-id');
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+
+				// select
+
+				if (rowRights <= readRight) {
+
+					select.removeAttr("hidden");
+					select.attr("onclick", "javascript:return selectAnalysis("
+							+ rowTrickId + ");");
+				} else {
+					select.attr("hidden", "true");
+					select.removeAttr("onclick");
+				}
+
+				// edit
+
+				if (rowRights <= modifyRight) {
+					editRow.removeAttr("hidden");
+					editRow.attr("onclick",
+							"javascript:return editSingleAnalysis("
+									+ rowTrickId + ");");
+					duplicateanalysis.removeAttr("hidden");
+					duplicateanalysis.attr("onclick",
+							"javascript:return addHistory(" + rowTrickId
+									+ ", '" + rowTrickVersion + "')");
+				} else {
+					editRow.attr("hidden", "true");
+					editRow.removeAttr("onclick");
+					duplicateanalysis.attr("hidden", "true");
+					duplicateanalysis.removeAttr("onclick");
+				}
+
+				// compute action plan
+
+				if (rowRights <= calcActionPlanRight) {
+
+					computeactionplan.removeAttr("hidden");
+					computeactionplan.attr("onclick",
+							"javascript:return calculateActionPlan("
+									+ rowTrickId + ");");
+					cactionplandivider.removeAttr("hidden", "true");
+				} else {
+					computeactionplan.attr("hidden", "true");
+					computeactionplan.removeAttr("onclick");
+					cactionplandivider.attr("hidden", "true");
+				}
+
+				// compute risk register
+
+				if (rowRights <= calcRickRegisterRight) {
+
+					computeriskregister.removeAttr("hidden");
+					computeriskregister.attr("onclick",
+							"javascript:return calculateRiskRegister("
+									+ rowTrickId + ");");
+					criskregisterdivider.removeAttr("hidden", "true");
+				} else {
+					computeriskregister.attr("hidden", "true");
+					computeriskregister.removeAttr("onclick");
+					criskregisterdivider.attr("hidden", "true");
+				}
+
+				// export
+
+				if (rowRights <= exportRight) {
+
+					exportanalysis.removeAttr("hidden");
+					exportanalysis.attr("onclick",
+							"javascript:return exportAnalysis(" + rowTrickId
+									+ ");");
+					exportanalysisdivider.removeAttr("hidden", "true");
+				} else {
+					exportanalysis.attr("hidden", "true");
+					exportanalysis.removeAttr("onclick");
+					exportanalysisdivider.attr("hidden", "true");
+				}
+
+				// delete
+
+				if (rowRights <= deleteRight) {
+
+					deleteElement.removeAttr("hidden");
+					deleteElement.attr("onclick",
+							"javascript:return deleteAnalysis(" + rowTrickId
+									+ ");");
+				} else {
+					deleteElement.attr("hidden", "true");
+					deleteElement.removeAttr("onclick");
+				}
+
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
 				return false;
 			});
-		} else
-			select.parent().attr("hidden", false);
 
-		$(editRow).parent().attr("hidden", false);
+	$("#section_asset")
+			.on(
+					"contextmenu",
+					"table tbody tr",
+					function(e) {
+						contextMenuHide($contextMenu);
+						var rowTrickId = $(e.currentTarget).attr('trick-id');
+						$contextMenu.attr("trick-selected-id", rowTrickId);
+						select.attr("onclick", "return selectAsset('"
+								+ rowTrickId + "','true');");
+						unSelect.attr("onclick", "return selectAsset('"
+								+ rowTrickId + "','false');");
+						editRow.attr("onclick", "return editAssetRow('"
+								+ rowTrickId + "');");
+						deleteElement.attr("onclick", "return deleteAsset('"
+								+ rowTrickId + "');");
+						editRow.attr("href", "#addAssetModel");
 
-		$(deleteElement).parent().attr("hidden", false);
+						if ($(e.currentTarget).attr('trick-selected') == "true") {
+							unSelect.parent().attr("hidden", false);
+							var assessment = $contextMenu
+									.find("li[name='assessment'] a");
+							$(assessment).parent().attr("hidden", false);
+							$(assessment).unbind();
+							var assessmentViewer = new AssessmentAssetViewer(
+									rowTrickId);
+							application.modal["AssessmentViewer"] = assessmentViewer;
+							$(assessment).click(function() {
+								assessmentViewer.Show();
+								$($contextMenu).hide();
+								return false;
+							});
+						} else
+							select.parent().attr("hidden", false);
 
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
+						$(editRow).parent().attr("hidden", false);
 
-	$("#section_scenario").on("contextmenu", "table tbody tr", function(e) {
-		contextMenuHide($contextMenu);
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		select.attr("onclick", "return selectScenario('" + rowTrickId + "',true);");
-		unSelect.attr("onclick", "return selectScenario('" + rowTrickId + "',false);");
-		editRow.attr("onclick", "return editScenarioRow('" + rowTrickId + "');");
-		deleteElement.attr("onclick", "return deleteScenario('" + rowTrickId + "');");
-		editRow.attr("href", "#addScenarioModel");
-		if ($(e.currentTarget).attr('trick-selected') == "true") {
-			unSelect.parent().attr("hidden", false);
-			var assessment = $contextMenu.find("li[name='assessment'] a");
-			$(assessment).parent().attr("hidden", false);
-			$(assessment).unbind();
-			var assessmentViewer = new AssessmentScenarioViewer(rowTrickId);
-			application.modal["AssessmentViewer"] = assessmentViewer;
-			$(assessment).click(function() {
-				assessmentViewer.Show();
-				$($contextMenu).hide();
+						$(deleteElement).parent().attr("hidden", false);
+
+						$contextMenu.css({
+							display : "block",
+							left : e.pageX,
+							top : $(e.target).position().top + 20
+						});
+						return false;
+					});
+
+	$("#section_scenario").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				contextMenuHide($contextMenu);
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				select.attr("onclick", "return selectScenario('" + rowTrickId
+						+ "',true);");
+				unSelect.attr("onclick", "return selectScenario('" + rowTrickId
+						+ "',false);");
+				editRow.attr("onclick", "return editScenarioRow('" + rowTrickId
+						+ "');");
+				deleteElement.attr("onclick", "return deleteScenario('"
+						+ rowTrickId + "');");
+				editRow.attr("href", "#addScenarioModel");
+				if ($(e.currentTarget).attr('trick-selected') == "true") {
+					unSelect.parent().attr("hidden", false);
+					var assessment = $contextMenu
+							.find("li[name='assessment'] a");
+					$(assessment).parent().attr("hidden", false);
+					$(assessment).unbind();
+					var assessmentViewer = new AssessmentScenarioViewer(
+							rowTrickId);
+					application.modal["AssessmentViewer"] = assessmentViewer;
+					$(assessment).click(function() {
+						assessmentViewer.Show();
+						$($contextMenu).hide();
+						return false;
+					});
+				} else
+					select.parent().attr("hidden", false);
+
+				$(editRow).parent().attr("hidden", false);
+
+				$(deleteElement).parent().attr("hidden", false);
+
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
 				return false;
 			});
-		} else
-			select.parent().attr("hidden", false);
 
-		$(editRow).parent().attr("hidden", false);
+	$("#section_customer")
+			.on(
+					"contextmenu",
+					"table tbody tr",
+					function(e) {
+						var rowTrickId = $(e.currentTarget).attr('trick-id');
+						var organisation = $(e.currentTarget)
+								.children(":first").text();
+						$contextMenu.attr("trick-selected-id", rowTrickId);
+						editRow.attr("onclick",
+								"javascript:return editSingleCustomer("
+										+ rowTrickId + ");");
+						deleteElement.attr("onclick",
+								"javascript:return deleteCustomer("
+										+ rowTrickId + ",'" + organisation
+										+ "');");
+						showMeasures.parent().attr("hidden", true);
+						$contextMenu.css({
+							display : "block",
+							left : e.pageX,
+							top : $(e.target).position().top + 20
+						});
+						return false;
+					});
 
-		$(deleteElement).parent().attr("hidden", false);
+	$("#section_language").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				var langname = $(e.currentTarget).children(":eq(1)").text();
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				editRow.attr("onclick", "javascript:return editSingleLanguage("
+						+ rowTrickId + ");");
+				deleteElement.attr("onclick",
+						"javascript:return deleteLanguage(" + rowTrickId + ",'"
+								+ langname + "');");
+				showMeasures.parent().attr("hidden", true);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
+				return false;
+			});
 
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
+	$("#section_norm").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				var normname = $(e.currentTarget).children(":first").text();
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				editRow.attr("onclick", "javascript:return editSingleNorm("
+						+ rowTrickId + ");");
+				deleteElement.attr("onclick", "javascript:return deleteNorm("
+						+ rowTrickId + ",'" + normname + "');");
+				showMeasures.attr("onclick", "javascript:return showMeasures("
+						+ rowTrickId + ", 1);");
+				showMeasures.parent().attr("hidden", false);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
+				return false;
+			});
 
-	$("#section_customer").on("contextmenu", "table tbody tr", function(e) {
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		var organisation = $(e.currentTarget).children(":first").text();
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		editRow.attr("onclick", "javascript:return editSingleCustomer(" + rowTrickId + ");");
-		deleteElement.attr("onclick", "javascript:return deleteCustomer(" + rowTrickId + ",'" + organisation + "');");
-		showMeasures.parent().attr("hidden", true);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
+	$("#section_user").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				var user = $(e.currentTarget).children(":first").text();
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				editRow.attr("onclick", "javascript:return editSingleUser("
+						+ rowTrickId + ");");
+				deleteElement.attr("onclick", "javascript:return deleteUser("
+						+ rowTrickId + ",'" + user + "');");
+				showMeasures.parent().attr("hidden", true);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
+				return false;
+			});
 
-	$("#section_language").on("contextmenu", "table tbody tr", function(e) {
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		var langname = $(e.currentTarget).children(":eq(1)").text();
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		editRow.attr("onclick", "javascript:return editSingleLanguage(" + rowTrickId + ");");
-		deleteElement.attr("onclick", "javascript:return deleteLanguage(" + rowTrickId + ",'" + langname + "');");
-		showMeasures.parent().attr("hidden", true);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
-
-	$("#section_norm").on("contextmenu", "table tbody tr", function(e) {
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		var normname = $(e.currentTarget).children(":first").text();
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		editRow.attr("onclick", "javascript:return editSingleNorm(" + rowTrickId + ");");
-		deleteElement.attr("onclick", "javascript:return deleteNorm(" + rowTrickId + ",'" + normname + "');");
-		showMeasures.attr("onclick", "javascript:return showMeasures(" + rowTrickId + ", 1);");
-		showMeasures.parent().attr("hidden", false);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
-
-	$("#section_user").on("contextmenu", "table tbody tr", function(e) {
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		var user = $(e.currentTarget).children(":first").text();
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		editRow.attr("onclick", "javascript:return editSingleUser(" + rowTrickId + ");");
-		deleteElement.attr("onclick", "javascript:return deleteUser(" + rowTrickId + ",'" + user + "');");
-		showMeasures.parent().attr("hidden", true);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
-
-	$("#section_phase").on("contextmenu", "table tbody tr", function(e) {
-		contextMenuHide($contextMenu);
-		$contextMenu.find("li[name='divider_0']").attr("hidden", true);
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		deleteElement.attr("onclick", "return deletePhase('" + rowTrickId + "');");
-		$(deleteElement).parent().attr("hidden", false);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
+	$("#section_phase").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				contextMenuHide($contextMenu);
+				$contextMenu.find("li[name='divider_0']").attr("hidden", true);
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				deleteElement.attr("onclick", "return deletePhase('"
+						+ rowTrickId + "');");
+				$(deleteElement).parent().attr("hidden", false);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
+				return false;
+			});
 	$contextMenu.on("click", "a", function() {
 		$contextMenu.hide();
 	});
@@ -2028,31 +2196,34 @@ $(function() {
 	$.fn.serializeJSON = function() {
 		var json = {};
 		var form = $(this);
-		form.find('input, select, textarea').each(function() {
-			var val;
-			if (!this.name)
-				return;
+		form.find('input, select, textarea').each(
+				function() {
+					var val;
+					if (!this.name)
+						return;
 
-			if ('radio' === this.type) {
-				if (json[this.name]) {
-					return;
-				}
+					if ('radio' === this.type) {
+						if (json[this.name]) {
+							return;
+						}
 
-				json[this.name] = this.checked ? this.value : '';
-			} else if ('checkbox' === this.type) {
-				val = json[this.name];
+						json[this.name] = this.checked ? this.value : '';
+					} else if ('checkbox' === this.type) {
+						val = json[this.name];
 
-				if (!this.checked) {
-					if (!val) {
-						json[this.name] = '';
+						if (!this.checked) {
+							if (!val) {
+								json[this.name] = '';
+							}
+						} else {
+							json[this.name] = typeof val === 'string' ? [ val,
+									this.value ] : $.isArray(val) ? $.merge(
+									val, [ this.value ]) : this.value;
+						}
+					} else {
+						json[this.name] = this.value;
 					}
-				} else {
-					json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
-				}
-			} else {
-				json[this.name] = this.value;
-			}
-		});
+				});
 		return json;
 	};
 
@@ -2073,14 +2244,17 @@ $(function() {
 	if (!$(".navbar-custom").length)
 		return false;
 	var startPosition = $(".navbar-custom").position().top;
-	var previewPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
+	var previewPosition = $(".navbar-custom").offset().top
+			- $(".navbar-fixed-top").offset().top;
 	if (previewScrollTop != 0)
 		$(".navbar-custom").addClass("affix");
 
 	$window.scroll(function() {
-		var currentPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
+		var currentPosition = $(".navbar-custom").offset().top
+				- $(".navbar-fixed-top").offset().top;
 		var scrollTop = $window.scrollTop();
-		if (previewPosition > 0 && currentPosition <= 50 && scrollTop > previewScrollTop) {
+		if (previewPosition > 0 && currentPosition <= 50
+				&& scrollTop > previewScrollTop) {
 			$(".navbar-custom").addClass("affix");
 		} else if (scrollTop < startPosition && scrollTop < previewScrollTop)
 			$(".navbar-custom").removeClass("affix");

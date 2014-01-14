@@ -143,4 +143,9 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 
 	}
 
+	@Override
+	public Measure findByIdAndAnalysis(Integer id, Integer idAnalysis) {
+		return daoMeasure.findByIdAndAnalysis(id,idAnalysis);
+	}
+
 }

@@ -99,4 +99,16 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 		delete(findOne(id));
 	}
 
+	@Override
+	public Measure findByIdAndAnalysis(Integer id, Integer idAnalysis) {
+		return (Measure) getSession()
+				.createQuery(
+						"Select measure "
+								+ "From AnalysisNorm as analysisNorm "
+								+ "inner join analysisNorm.measures as measure "
+								+ "where analysisNorm.analysis.id = :analysis and measure.id = :id")
+				.setParameter("analysis", idAnalysis)
+				.setParameter("id", id).uniqueResult();
+	}
+
 }

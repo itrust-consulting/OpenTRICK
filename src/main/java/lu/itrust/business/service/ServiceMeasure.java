@@ -15,6 +15,8 @@ import lu.itrust.business.TS.Norm;
 public interface ServiceMeasure {
 
 	Measure findOne(int id);
+	
+	Measure findByIdAndAnalysis(Integer id, Integer idAnalysis);
 
 	List<Measure> findByAnalysis(int idAnalysis);
 
@@ -33,5 +35,7 @@ public interface ServiceMeasure {
 	void delete(Measure measure);
 
 	void delete(int id);
+
+	
 
 }

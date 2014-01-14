@@ -34,8 +34,12 @@
 						<c:if test="${phase.number>0}">
 							<tr trick-id='${phase.id}' trick-class="Phase">
 								<td><spring:message text="${phase.number}" /></td>
-								<td class="success" trick-field="beginDate" trick-field-type="date" ondblclick="editField(this);"><spring:message text="${phase.beginDate}" /></td>
-								<td class="success" trick-field="endDate" trick-field-type="date" ondblclick="editField(this);"><spring:message text="${phase.endDate}" /></td>
+								<td class="success" trick-field="beginDate"
+									trick-field-type="date" ondblclick="editField(this);"><spring:message
+										text="${phase.beginDate}" /></td>
+								<td class="success" trick-field="endDate"
+									trick-field-type="date" ondblclick="editField(this);"><spring:message
+										text="${phase.endDate}" /></td>
 							</tr>
 						</c:if>
 					</c:forEach>
