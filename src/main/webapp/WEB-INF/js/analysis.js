@@ -12,7 +12,7 @@ function saveAnalysis(form) {
 			result = data == "" ? true : showError(document.getElementById(form), data);
 			if (result) {
 				$("#addAnalysisModel").modal("hide");
-				// TODO reload analysis
+				reloadSection("section_analysis");
 			}
 			return result;
 
@@ -29,11 +29,7 @@ function deleteAnAnalysis(analysisId) {
 		type : "POST",
 		contentType : "application/json",
 		success : function(response) {
-			if (response == false) {
-				// TODO 
-			} else {
-				// TODO
-			}
+			reloadSection("section_analysis");
 			return false;
 		}
 	});
@@ -42,7 +38,7 @@ function deleteAnAnalysis(analysisId) {
 
 function deleteAnalysis(analysisId) {
 	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis")+"?");
-	$("#deleteanalysisbuttonYes").attr("onclick", "deleteAAnalysis(" + analysisId + ")");
+	$("#deleteanalysisbuttonYes").attr("onclick", "deleteAnAnalysis(" + analysisId + ")");
 	$("#deleteAnalysisModel").modal('toggle');
 	return false;
 }

@@ -1763,15 +1763,21 @@ $(function() {
 		var duplicateanalysis = $contextMenu.find("li[name='duplicate'] a");
 		
 		var computeactionplan = $contextMenu.find("li[name='cActionPlan'] a");
-		var cactionplandivider = $contextMenu.find("li[name='divider_1'] a");
+		var cactionplandivider = $contextMenu.find("li[name='divider_1']");
 
 		var computeriskregister = $contextMenu.find("li[name='cRiskRegister'] a");
-		var criskregisterdivider = $contextMenu.find("li[name='divider_2'] a");
+		var criskregisterdivider = $contextMenu.find("li[name='divider_2']");
 		
 		var exportanalysis = $contextMenu.find("li[name='export'] a");
-		var exportanalysisdivider = $contextMenu.find("li[name='divider_3'] a");
+		var exportanalysisdivider = $contextMenu.find("li[name='divider_3']");
 			
 		var rowTrickId = $(e.currentTarget).attr('trick-id');
+		var data = $(e.currentTarget).attr('data');
+		
+		if(data=="true") {
+			alert(data);
+		}
+		
 		var rowTrickVersion = $(e.currentTarget).find("td[trick-version]").attr("trick-version");
 		var rowRights = $(e.currentTarget).attr('trick-rights-id');
 		$contextMenu.attr("trick-selected-id", rowTrickId);
@@ -1780,49 +1786,49 @@ $(function() {
 
 		if (rowRights <= readRight) {
 				
-			select.removeAttr("hidden");
+			select.parent().removeAttr("hidden");
 			select.attr("onclick", "javascript:return selectAnalysis(" + rowTrickId + ");");
 		} else {
-			select.attr("hidden", "true");
+			select.parent().attr("hidden", "true");
 			select.removeAttr("onclick");
 		}
 		
 		// edit
 		
 		if (rowRights <= modifyRight) {				
-			editRow.removeAttr("hidden");
+			editRow.parent().removeAttr("hidden");
 			editRow.attr("onclick", "javascript:return editSingleAnalysis(" + rowTrickId + ");");
-			duplicateanalysis.removeAttr("hidden");
+			duplicateanalysis.parent().removeAttr("hidden");
 			duplicateanalysis.attr("onclick", "javascript:return addHistory("+rowTrickId+", '"+rowTrickVersion+"')");
 		} else {
-			editRow.attr("hidden", "true");
+			editRow.parent().attr("hidden", "true");
 			editRow.removeAttr("onclick");
-			duplicateanalysis.attr("hidden", "true");
+			duplicateanalysis.parent().attr("hidden", "true");
 			duplicateanalysis.removeAttr("onclick");
 		}	
 		
 		// compute action plan
 		
-		if (rowRights <= calcActionPlanRight) {
+		if (rowRights <= calcActionPlanRight && data == "true") {
 			
-			computeactionplan.removeAttr("hidden");
+			computeactionplan.parent().removeAttr("hidden");
 			computeactionplan.attr("onclick", "javascript:return calculateActionPlan(" + rowTrickId + ");");
 			cactionplandivider.removeAttr("hidden","true");
 		} else {
-			computeactionplan.attr("hidden", "true");
+			computeactionplan.parent().attr("hidden", "true");
 			computeactionplan.removeAttr("onclick");
 			cactionplandivider.attr("hidden","true");
 		}
 		
 		// compute risk register
 		
-		if (rowRights <= calcRickRegisterRight) {
+		if (rowRights <= calcRickRegisterRight && data == "true") {
 			
-			computeriskregister.removeAttr("hidden");
+			computeriskregister.parent().removeAttr("hidden");
 			computeriskregister.attr("onclick", "javascript:return calculateRiskRegister(" + rowTrickId + ");");
 			criskregisterdivider.removeAttr("hidden","true");
 		} else {
-			computeriskregister.attr("hidden", "true");
+			computeriskregister.parent().attr("hidden", "true");
 			computeriskregister.removeAttr("onclick");
 			criskregisterdivider.attr("hidden","true");
 		}
