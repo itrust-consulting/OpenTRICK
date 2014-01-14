@@ -31,7 +31,7 @@
 		<label for="basedOnAnalysis" class="col-sm-2 control-label"> <spring:message code="label.analysis.basedOnAnalysis" text="Based On Analysis Version" />
 		</label>
 		<div class="col-sm-10">
-			<input name="basedOnAnalysis" id="analysis_basedOnAnalysis" class="form-control" type="text" value="${analysis.basedOnAnalysis.version}" readonly />
+			<input name="basedOnAnalysis" id="analysis_basedOnAnalysis" class="form-control" type="text" value="${analysis.basedOnAnalysis!=null?analysis.basedOnAnalysis.version:'None'}" readonly />
 		</div>
 	</div>
 	<div class="form-group">
@@ -42,10 +42,10 @@
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="empty" class="col-sm-2 control-label"> <spring:message code="label.analysis.empty" text="Empty" />
+		<label for="hasData" class="col-sm-2 control-label"> <spring:message code="label.analysis.hasData" text="Has Data" />
 		</label>
 		<div class="col-sm-10">
-			<input name="empty" id="analysis_empty" class="form-control" type="checkbox" ${analysis.isEmpty()?"checked='checked'":""} disabled="disabled" />
+			<input name="hasData" id="analysis_hasData" class="form-control" type="checkbox" ${analysis.hasData()?"checked='checked'":""} disabled="disabled" />
 		</div>
 	</div>
 	<div class="form-group">

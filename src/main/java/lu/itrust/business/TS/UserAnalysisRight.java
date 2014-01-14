@@ -10,7 +10,7 @@ import lu.itrust.business.TS.usermanagment.User;
  * @version 0.1
  * @since Jan 9, 2014
  */
-public class UserAnalysisRight {
+public class UserAnalysisRight implements Cloneable {
 
 	/** id */
 	private long id = -1;
@@ -139,4 +139,25 @@ public class UserAnalysisRight {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public UserAnalysisRight clone() throws CloneNotSupportedException {
+		return (UserAnalysisRight) super.clone();
+	}
+
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
+	public UserAnalysisRight duplicate()throws CloneNotSupportedException{
+		UserAnalysisRight copy = (UserAnalysisRight) super.clone();
+		copy.setId(-1);
+		return copy;
+	}
+	
 }

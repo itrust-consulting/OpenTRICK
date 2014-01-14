@@ -91,7 +91,7 @@
 									</thead>
 									<tbody>
 										<c:forEach items="${analyses}" var="analysis">
-											<tr trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}" empty="${analysis.isEmpty() }">
+											<tr trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}" data="${analysis.hasData() }">
 												<td>${analysis.identifier}</td>
 												<td>${analysis.customer.organisation}</td>
 												<td>${analysis.label}</td>

@@ -23,6 +23,7 @@ import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.TS.Scenario;
+import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.springframework.stereotype.Component;
@@ -47,6 +48,13 @@ public class Duplicator {
 		try {
 			Analysis copy = analysis.duplicate();
 
+			copy.setUserRights(new ArrayList<UserAnalysisRight>(analysis.getUserRights().size()));
+			for (UserAnalysisRight uar: analysis.getUserRights()){
+				UserAnalysisRight uarcopy = uar.duplicate();
+				uarcopy.setAnalysis(copy);
+				copy.addUserRight(uarcopy);
+			}
+			
 			copy.setHistories(new ArrayList<History>(analysis.getHistories().size()));
 			for (History history : analysis.getHistories())
 				copy.getHistories().add(history.duplicate());

@@ -63,24 +63,24 @@ public class Analysis implements Serializable, Cloneable {
 	/** Analysis owner (the one that created or imported it) */
 	private User owner;
 
-	/** List of users and their access rights */
-	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
-
 	/** Based on analysis */
 	private Analysis basedOnAnalysis;
 
 	/** The Label of this Analysis */
 	private String label;
 
-	/** List of History data of the Analysis */
-	private List<History> histories = new ArrayList<History>();
-
 	/** Language object of the Analysis */
 	private Language language;
 
-	/** Empty Analysis Identifier */
-	private boolean empty;
+	/** flag to determine if analysis has data */
+	private boolean data;
 
+	/** List of users and their access rights */
+	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
+	
+	/** List of History data of the Analysis */
+	private List<History> histories = new ArrayList<History>();
+	
 	/** List of Item Information */
 	private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
 
@@ -1598,24 +1598,34 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	/**
-	 * isEmpty: <br>
-	 * Returns the "empty" field Value
+	 * getData: <br>
+	 * Returns the "hasData" field Value
 	 * 
-	 * @return The Empty Analysis Flag
+	 * @return The hasData Analysis Flag
 	 */
-	public boolean isEmpty() {
-		return empty;
+	public boolean getData() {
+		return data;
+	}
+	
+	/**
+	 * hasData: <br>
+	 * Returns the "hasData" field Value
+	 * 
+	 * @return The hasData Analysis Flag
+	 */
+	public boolean hasData() {
+		return data;
 	}
 
 	/**
-	 * setEmpty: <br>
-	 * Sets the "empty" field with a value
+	 * sethasData: <br>
+	 * Sets the "hasData" field with a value
 	 * 
-	 * @param empty
-	 *            The value to set the Empty Analysis Flag
+	 * @param hasData
+	 *            The value to set the hasData Analysis Flag
 	 */
-	public void setEmpty(boolean empty) {
-		this.empty = empty;
+	public void setData(boolean data) {
+		this.data = data;
 	}
 
 	/**
@@ -1844,7 +1854,7 @@ public class Analysis implements Serializable, Cloneable {
 	@Override
 	public String toString() {
 		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label
-			+ ", histories=" + histories + ", language=" + language + ", empty=" + empty + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets
+			+ ", histories=" + histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets
 			+ ", riskInformations=" + riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisNorm=" + analysisNorms + ", usedphases=" + usedPhases
 			+ ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}

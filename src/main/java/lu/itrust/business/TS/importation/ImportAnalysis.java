@@ -461,7 +461,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// last history is not empty (after hisotry loop)
-		this.analysis.setEmpty(false);
+		this.analysis.setData(true);
 
 		// set analysis creationdate
 		this.analysis.setCreationDate(new Timestamp(System.currentTimeMillis()));
@@ -517,7 +517,7 @@ public class ImportAnalysis {
 				}
 
 				// set empty analysis or filled analysis
-				analysis.setEmpty(true);
+				analysis.setData(false);
 
 				// save analysis into database
 				daoAnalysis.saveOrUpdate(analysis);
@@ -532,12 +532,12 @@ public class ImportAnalysis {
 		if (analysis != null) {
 
 			// check if the analysis has already data -> YES
-			if (analysis.isEmpty()) {
+			if (!analysis.hasData()) {
 
-				// fill the analysis with data and change flag of empty analysis
+				// fill the analysis with data and change flag of hasData analysis
 				System.err.println("Your file has already been imported without data");
 				this.analysis = analysis;
-				this.analysis.setEmpty(false);
+				this.analysis.setData(true);
 			} else {
 
 				// analysis had already been imported and has data

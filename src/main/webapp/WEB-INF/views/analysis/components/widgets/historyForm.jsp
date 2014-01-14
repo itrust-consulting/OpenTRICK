@@ -36,7 +36,7 @@
 						<label for=basedOnVersion class="col-sm-2 control-label"> <spring:message code="label.history.basedOn" text="Based on Version" />
 						</label>
 						<div class="col-sm-10">
-							<input class="form-control" value="${oldVersion}" />
+							<input class="form-control" value="${oldVersion}" readonly />
 						</div>
 					</div>
 					<div class="form-group">

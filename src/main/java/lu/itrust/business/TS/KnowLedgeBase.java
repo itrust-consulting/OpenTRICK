@@ -354,7 +354,7 @@ public class KnowLedgeBase {
 			// ****************************************************************
 			// * check if analysis has data to export -> YES
 			// ****************************************************************
-			if (!analysis.isEmpty()) {
+			if (analysis.hasData()) {
 				
 				// ****************************************************************
 				// * create file object

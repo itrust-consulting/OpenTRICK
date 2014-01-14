@@ -1,25 +1,33 @@
 package lu.itrust.business.view.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.security.Principal;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.naming.directory.InvalidAttributesException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisRight;
+import lu.itrust.business.TS.Asset;
+import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.History;
+import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
@@ -36,8 +44,12 @@ import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerAnalysisImport;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
@@ -46,7 +58,9 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -147,43 +161,6 @@ public class ControllerAnalysis {
 		return "analysis/analysis";
 	}
 
-	@RequestMapping("/{analysisId}/Duplicate")
-	public String createNewVersion(@ModelAttribute History history, @PathVariable Integer analysisId, Principal principal, HttpSession session, RedirectAttributes attributes, Locale locale)
-			throws Exception {
-		Analysis analysis = serviceAnalysis.get(analysisId);
-		if (analysis == null) {
-			attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis could not be found!", locale));
-			return "redirect:/Analysis";
-		}
-
-		if (!serviceUserAnalysisRight.isUserAuthorized(analysis, serviceUser.get(principal.getName()), AnalysisRight.MODIFY)) {
-			return "/errors/403";
-		}
-
-		try {
-			history.setDate(new Date(System.currentTimeMillis()));
-			Duplicator duplicator = new Duplicator();
-			Analysis copy = duplicator.duplicate(analysis);
-			copy.setBasedOnAnalysis(analysis);
-			copy.addAHistory(history);
-			copy.setVersion(history.getVersion());
-			copy.setLabel(history.getComment());
-			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
-			serviceAnalysis.saveOrUpdate(copy);
-			attributes.addFlashAttribute("success", messageSource.getMessage("success.analysis.duplicate", null, "Analysis cannot be found!", locale));
-			return "redirect:/Analysis/" + copy.getId() + "/Select";
-		} catch (CloneNotSupportedException e) {
-			attributes.addAttribute("errors", messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicate!", locale));
-			e.printStackTrace();
-			return "redirect:/Analysis";
-		} catch (DataIntegrityViolationException e) {
-			attributes.addAttribute("errors", messageSource.getMessage("error.version.duplicate", null, "Version already exists", locale));
-			e.printStackTrace();
-		}
-		return "analysis/components/widgets/historyForm";
-
-	}
-
 	/**
 	 * loadAll: <br>
 	 * Description
@@ -234,7 +211,7 @@ public class ControllerAnalysis {
 		model.put("customers", serviceCustomer.loadAll());
 
 		model.put("author", principal.getName());
-		
+
 		return "analysis/newAnalysis";
 
 	}
@@ -276,6 +253,66 @@ public class ControllerAnalysis {
 
 	}
 
+	private boolean buildAnalysis(List<String[]> errors, User owner, String source, Locale locale) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+			Analysis analysis = null;
+			int id = jsonNode.get("id").asInt();
+			Customer customer = serviceCustomer.get(jsonNode.get("analysiscustomer").asInt());
+			Language language = serviceLanguage.get(jsonNode.get("analysislanguage").asInt());
+			String label = jsonNode.get("label").asText();
+			String author = "";
+			String version = jsonNode.get("version").asText();
+			Date date = new Date();
+			Timestamp creationDate = new Timestamp(date.getTime());
+			String ts = new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(creationDate);
+			String identifier = language.getAlpha3() + "_" + ts;
+			String comment = messageSource.getMessage("label.analysis.newHistoryComment", null, "Analysis creation.", locale);
+			if (id > 0) {
+				analysis = serviceAnalysis.get(id);
+				analysis.setLabel(label);
+				analysis.setCustomer(customer);
+				analysis.setLanguage(language);
+				serviceAnalysis.saveOrUpdate(analysis);
+			} else {
+				author = jsonNode.get("author").asText();
+				analysis = new Analysis();
+				analysis.setBasedOnAnalysis(null);
+				analysis.setCreationDate(creationDate);
+				analysis.setCustomer(customer);
+				analysis.setData(false);
+				analysis.setIdentifier(identifier);
+				analysis.setLabel(label);
+				analysis.setLanguage(language);
+				analysis.setOwner(owner);
+				analysis.setVersion(version);
+
+				History history = new History(version, date, author, comment);
+
+				analysis.addAHistory(history);
+
+				// TODO populate measures and default scenarios
+
+				UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
+				
+				analysis.addUserRight(uar);
+				
+				serviceAnalysis.save(analysis);
+
+			}
+
+			return true;
+
+		} catch (Exception e) {
+
+			errors.add(new String[] { "errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			e.printStackTrace();	
+			return false;
+
+		}
+	}
+
 	/**
 	 * saveAnalysis: <br>
 	 * Description
@@ -287,18 +324,20 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Save")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	List<String[]> performEditAnalysis(@ModelAttribute("analysis") @Valid Analysis analysis, Locale locale) throws Exception {
-
+	List<String[]> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
 		List<String[]> errors = new LinkedList<>();
-
 		try {
-			serviceAnalysis.saveOrUpdate(analysis);
+
+			buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale);
 			return errors;
+
 		} catch (Exception e) {
-			errors.add(new String[] { "error", messageSource.getMessage("error.analysis.update.failed", null, "Analysis could not be updated!", locale) });
+			errors.add(new String[] { "errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			e.printStackTrace();
 			return errors;
+
 		}
 	}
 
@@ -323,6 +362,56 @@ public class ControllerAnalysis {
 			e.printStackTrace();
 		}
 		return "analysis/analysis";
+	}
+
+	/**
+	 * createNewVersion: <br>
+	 * Description
+	 * 
+	 * @param history
+	 * @param analysisId
+	 * @param principal
+	 * @param session
+	 * @param attributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/{analysisId}/Duplicate")
+	public String createNewVersion(@ModelAttribute History history, @PathVariable Integer analysisId, Principal principal, HttpSession session, RedirectAttributes attributes, Locale locale)
+			throws Exception {
+		Analysis analysis = serviceAnalysis.get(analysisId);
+		if (analysis == null) {
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis could not be found!", locale));
+			return "redirect:/Analysis";
+		}
+
+		if (!serviceUserAnalysisRight.isUserAuthorized(analysis, serviceUser.get(principal.getName()), AnalysisRight.MODIFY)) {
+			return "/errors/403";
+		}
+
+		try {
+			history.setDate(new Date(System.currentTimeMillis()));
+			Duplicator duplicator = new Duplicator();
+			Analysis copy = duplicator.duplicate(analysis);
+			copy.setBasedOnAnalysis(analysis);
+			copy.addAHistory(history);
+			copy.setVersion(history.getVersion());
+			copy.setLabel(analysis.getLabel());
+			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
+			serviceAnalysis.saveOrUpdate(copy);
+			attributes.addFlashAttribute("success", messageSource.getMessage("success.analysis.duplicate", null, "Analysis cannot be found!", locale));
+			return "redirect:/Analysis/" + copy.getId() + "/Select";
+		} catch (CloneNotSupportedException e) {
+			attributes.addAttribute("errors", messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicate!", locale));
+			e.printStackTrace();
+			return "redirect:/Analysis";
+		} catch (DataIntegrityViolationException e) {
+			attributes.addAttribute("errors", messageSource.getMessage("error.version.duplicate", null, "Version already exists", locale));
+			e.printStackTrace();
+		}
+		return "analysis/components/widgets/historyForm";
+
 	}
 
 	/**
