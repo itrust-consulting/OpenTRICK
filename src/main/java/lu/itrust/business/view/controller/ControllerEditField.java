@@ -37,8 +37,9 @@ import lu.itrust.business.service.ServiceParameter;
 import lu.itrust.business.service.ServicePhase;
 import lu.itrust.business.validator.AssessmentValidator;
 import lu.itrust.business.validator.ExtendedParameterValidator;
+import lu.itrust.business.validator.HistoryValidator;
 import lu.itrust.business.validator.ParameterValidator;
-import lu.itrust.business.validator.Validator;
+import lu.itrust.business.validator.field.ValidatorField;
 import lu.itrust.business.view.model.FieldEditor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,8 +186,8 @@ public class ControllerEditField {
 						"error.parameter.not_found", null,
 						"Parameter cannot be found", locale));
 
-			Validator validator = serviceDataValidation.findByClass(parameter
-					.getClass());
+			ValidatorField validator = serviceDataValidation
+					.findByClass(parameter.getClass());
 			if (validator == null)
 				serviceDataValidation.register(new ParameterValidator());
 
@@ -245,9 +246,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage(
 						"error.parameter.not_found", null,
 						"Parameter cannot be found", locale));
-			Validator validator = serviceDataValidation.findByClass(parameter
-					.getClass());
-			if (validator == null)
+			if (!serviceDataValidation.isRegistred(parameter.getClass()))
 				serviceDataValidation
 						.register(new ExtendedParameterValidator());
 			Object value = value(fieldEditor, null);
@@ -340,9 +339,7 @@ public class ControllerEditField {
 						"error.analysis.no_selected", null,
 						"No selected analysis", locale));
 
-			Validator validator = serviceDataValidation.findByClass(assessment
-					.getClass());
-			if (validator == null)
+			if (!serviceDataValidation.isRegistred(assessment.getClass()))
 				serviceDataValidation.register(new AssessmentValidator());
 
 			Object value = value(fieldEditor, null);
@@ -357,8 +354,6 @@ public class ControllerEditField {
 				chooses = serviceParameter.findAcronymByAnalysisAndType(id,
 						Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
 			
-			System.out.println(chooses);
-
 			String error = serviceDataValidation.validate(assessment,
 					fieldEditor.getFieldName(), value, chooses.toArray());
 			if (error != null)
@@ -403,6 +398,17 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage(
 						"error.history.not_found", null,
 						"History cannot be found", locale));
+			if (!serviceDataValidation.isRegistred(history.getClass()))
+				serviceDataValidation.register(new HistoryValidator());
+
+			Object value = value(fieldEditor, null);
+
+			String error = serviceDataValidation.validate(history,
+					fieldEditor.getFieldName(), value);
+
+			if (error != null)
+				return JsonMessage.Error(serviceDataValidation.ParseError(
+						error, messageSource, locale));
 
 			Field field = history.getClass().getDeclaredField(
 					fieldEditor.getFieldName());

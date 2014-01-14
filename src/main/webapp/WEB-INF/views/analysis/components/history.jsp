@@ -29,8 +29,7 @@
 					<c:forEach items="${histories}" var="history">
 						<tr trick-class="History" trick-id="${history.id}">
 							<td>${history.version}</td>
-							<td trick-field="date" trick-field-type="date" class="success"
-								ondblclick="editField(this);">${history.date}</td>
+							<td><fmt:formatDate value="${history.date}" pattern="dd/MM/yyyy"/> </td>
 							<td trick-field="author" trick-field-type="string" class="success"
 								ondblclick="editField(this);">${history.author}</td>
 							<td trick-field="comment" trick-field-type="string" class="success"

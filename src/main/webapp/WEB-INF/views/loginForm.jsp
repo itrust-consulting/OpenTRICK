@@ -36,19 +36,28 @@
 				<jsp:include page="successErrors.jsp" />
 				<form method="post"
 					action="<c:url value='${pageContext.request.contextPath}/j_spring_security_check'/>">
-					<input name="j_username"
-						value="${(!empty (j_username))? j_username : ''}"
-						placeholder="<spring:message code='label.signin.login' />"
-						class="form-control" /> <input name="j_password"
-						value="${(!empty (j_password))? j_password : ''}" type="password"
-						class="form-control"
-						placeholder="<spring:message code='label.signin.password' />" />
-					<label class="checkbox"><spring:message
-							code="label.signin.rememberMe" text="Remember me" /> <input
-						type='checkbox' name='_spring_security_remember_me' /></label>
-					<button type="submit" class="btn btn-default navbar-btn">
-						<spring:message code="label.signin.connect" text="Sign in" />
-					</button>
+					<div class="form-group">
+						<input name="j_username"
+							value="${(!empty (j_username))? j_username : ''}"
+							placeholder="<spring:message code='label.signin.login' />" required="required"
+							class="form-control" />
+					</div>
+					<div class="form-group">
+						<input name="j_password"
+							value="${(!empty (j_password))? j_password : ''}" type="password"
+							class="form-control"
+							placeholder="<spring:message code='label.signin.password' />" required="required"/>
+					</div>
+					<div class="checkbox">
+						<label><spring:message code="label.signin.rememberMe"
+								text="Remember me" /> <input type='checkbox'
+							name='_spring_security_remember_me' /></label>
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-default navbar-btn">
+							<spring:message code="label.signin.connect" text="Sign in" />
+						</button>
+					</div>
 				</form>
 			</div>
 

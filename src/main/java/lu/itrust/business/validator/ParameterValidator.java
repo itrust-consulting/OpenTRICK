@@ -7,12 +7,13 @@ import java.util.List;
 
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.ParameterType;
+import lu.itrust.business.validator.field.ValidatorFieldImpl;
 
 /**
  * @author eomar
  * 
  */
-public class ParameterValidator extends ValidatorImpl {
+public class ParameterValidator extends ValidatorFieldImpl {
 
 	protected static final String ERROR_EXTENDED_PARAMETER_VALUE_NULL = "error.extendedParameter.value.null::Value should be a numeric";
 	protected static final String VALUE = "value";
@@ -23,15 +24,6 @@ public class ParameterValidator extends ValidatorImpl {
 	private static final String ERROR_UNSUPPORTED_DATA_DESCRIPTION_DESCRIPTION_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data:description:Description value is not supported";
 	private static final String ERROR_PARAMETER_DESCRIPTION_NULL_OR_EMPTY = "error.parameter.description.null::Description cannot be empty";
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.validator.Validator#supports(java.lang.Class)
-	 */
-	@Override
-	public boolean supports(Class<?> clazz) {
-		return Parameter.class.isAssignableFrom(clazz);
-	}
 
 	/*
 	 * (non-Javadoc)

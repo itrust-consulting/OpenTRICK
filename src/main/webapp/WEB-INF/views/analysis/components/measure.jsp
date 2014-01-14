@@ -17,16 +17,16 @@
 		var="measureSplited" />
 	<c:forEach items="${measureSplited.keySet()}" var="norm">
 
-		<div class="panel panel-default" id="Measure_${norm}">
+		<div class="panel panel-default" id="Measure_${norm}" >
 			<div class="panel-heading">
 				<spring:message code="label.measure.${norm}" text="${norm}" />
 			</div>
-			<div class="panel-body">
+			<div class="panel-body" style="max-height: 700px; overflow: auto;">
 				<table class="table">
 					<thead>
 						<tr>
-							<td><spring:message code="label.measure.reference"
-									text="Ref." /></td>
+							<td><spring:message code="label.table.index"
+									text="#" /></td>
 							<td colspan="2"><spring:message code="label.measure.domain"
 									text="Domain" /></td>
 							<td><spring:message code="label.measure.st" text="Status" /></td>
@@ -39,6 +39,7 @@
 							<td><spring:message code="label.measure.mt" text="MT (%)" /></td>
 							<td><spring:message code="label.measure.cs" text="CS" />
 								(k&euro;)</td>
+							<td><spring:message code="label.measure.phase" text="Phase" /></td>
 							<td colspan="2"><spring:message code="label.measure.comment"
 									text="Comment" /></td>
 							<td colspan="2"><spring:message code="label.measure.todo"
@@ -96,6 +97,9 @@
 								<td class="success" trick-field="cost" trick-field-type="double"
 									ondblclick="return editField(this);"><fmt:formatNumber
 										value="${measure.cost}" maxFractionDigits="0" /></td>
+								<td class="success" trick-field="phase" trick-field-type="intger" ondblclick="return editField(this);" trick-load-choose="extractPhase()">
+								${measure.phase.number}
+								</td>
 								<td colspan="2" class="success" trick-field="comment"
 									trick-field-type="string" ondblclick="return editField(this);"><spring:message
 										text="${measure.comment}" /></td>

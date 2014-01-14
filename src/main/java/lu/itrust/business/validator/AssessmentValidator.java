@@ -8,22 +8,13 @@ import java.util.List;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Scenario;
+import lu.itrust.business.validator.field.ValidatorFieldImpl;
 
 /**
  * @author eomar
  * 
  */
-public class AssessmentValidator extends ValidatorImpl {
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.validator.Validator#supports(java.lang.Class)
-	 */
-	@Override
-	public boolean supports(Class<?> clazz) {
-		return Assessment.class.isAssignableFrom(clazz);
-	}
+public class AssessmentValidator extends ValidatorFieldImpl {
 
 	protected double toNumeric(String value) {
 		try {

@@ -1,9 +1,9 @@
-package lu.itrust.business.validator;
+package lu.itrust.business.validator.field;
 
 import java.util.List;
 import java.util.Map;
 
-public interface Validator {
+public interface ValidatorField {
 	
 	boolean supports(Class<?> clazz);
 

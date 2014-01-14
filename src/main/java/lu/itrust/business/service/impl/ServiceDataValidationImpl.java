@@ -12,7 +12,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import lu.itrust.business.service.ServiceDataValidation;
-import lu.itrust.business.validator.Validator;
+import lu.itrust.business.validator.field.ValidatorField;
 
 /**
  * @author eomar
@@ -21,10 +21,10 @@ import lu.itrust.business.validator.Validator;
 @Service
 public class ServiceDataValidationImpl implements ServiceDataValidation {
 
-	private Map<Class<?>, Validator> validators = new LinkedHashMap<Class<?>, Validator>();
+	private Map<Class<?>, ValidatorField> validators = new LinkedHashMap<Class<?>, ValidatorField>();
 
 	@Override
-	public boolean register(Validator validator) {
+	public boolean register(ValidatorField validator) {
 		if (!validators.containsKey(validator.supported()))
 			validators.put(validator.supported(), validator);
 		return validators.containsKey(validator.supported());
@@ -38,13 +38,13 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	}
 
 	@Override
-	public Validator findByClass(Class<?> clazz) {
+	public ValidatorField findByClass(Class<?> clazz) {
 		return validators.get(clazz);
 	}
 
 	@Override
 	public Map<String, String> validate(Object object) {
-		Validator validator = findByClass(object.getClass());
+		ValidatorField validator = findByClass(object.getClass());
 		if (validator == null)
 			return null;
 		return validator.validate(object);
@@ -53,7 +53,7 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	@Override
 	public String validate( Object object, String fieldName,
 			Object data) {
-		Validator validator = findByClass(object.getClass());
+		ValidatorField validator = findByClass(object.getClass());
 		if (validator == null)
 			return null;
 		return validator.validate(object, fieldName, data);
@@ -81,14 +81,14 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	}
 
 	@Override
-	public boolean isRegistred(Validator validator) {
+	public boolean isRegistred(ValidatorField validator) {
 		return validators.containsValue(validator);
 	}
 
 	@Override
 	public String validate(Object o, String fieldName, Object candidate,
 			Object[] choose) {
-		Validator validator = findByClass(o.getClass());
+		ValidatorField validator = findByClass(o.getClass());
 		if (validator == null)
 			return null;
 		return validator.validate(o, fieldName, candidate,choose);
@@ -97,7 +97,7 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 	@Override
 	public String validate(Object o, String fieldName, Object candidate,
 			List<Object> choose) {
-		Validator validator = findByClass(o.getClass());
+		ValidatorField validator = findByClass(o.getClass());
 		if (validator == null)
 			return null;
 		return validator.validate(o, fieldName, candidate,choose);
@@ -105,7 +105,7 @@ public class ServiceDataValidationImpl implements ServiceDataValidation {
 
 	@Override
 	public Map<String, String> validate(Object o, Map<Object, Object> choose) {
-		Validator validator = findByClass(o.getClass());
+		ValidatorField validator = findByClass(o.getClass());
 		if (validator == null)
 			return null;
 		return validator.validate(o,choose);
