@@ -9,10 +9,10 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.validator.UserValidator;
-import lu.itrust.business.view.model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;

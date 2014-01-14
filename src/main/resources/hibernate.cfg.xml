@@ -23,7 +23,7 @@
   <mapping resource="lu/itrust/business/TS/Measure.hbm.xml"/>
   <mapping resource="lu/itrust/business/TS/Norm.hbm.xml"/>
   <mapping resource="lu/itrust/business/TS/ItemInformation.hbm.xml"/>
-  <mapping resource="lu/itrust/business/view/model/User.hbm.xml"/>
-  <mapping resource="lu/itrust/business/view/model/Role.hbm.xml"/>
+  <mapping resource="lu/itrust/business/TS/usermanagment/User.hbm.xml"/>
+  <mapping resource="lu/itrust/business/TS/usermanagment/Role.hbm.xml"/>
  </session-factory>
 </hibernate-configuration>

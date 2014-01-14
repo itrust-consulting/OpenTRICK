@@ -57,7 +57,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 
 		Query query = getSession().createQuery("From MeasureDescription where norm = :norm and reference = :reference");
 		query.setParameter("norm", norm);
-		query.setString("reference", reference);
+		query.setString("reference", reference);		
 		return (MeasureDescription) query.uniqueResult();
 
 	}

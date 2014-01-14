@@ -1,7 +1,5 @@
 package lu.itrust.business.TS.messagehandler;
 
-import lu.itrust.business.view.model.TaskName;
-import lu.itrust.business.view.model.TaskStatus;
 
 /** 
  * MessageHandler: <br>

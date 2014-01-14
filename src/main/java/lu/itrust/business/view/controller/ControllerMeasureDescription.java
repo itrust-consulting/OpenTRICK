@@ -114,7 +114,6 @@ public class ControllerMeasureDescription {
 				ObjectMapper mapper = new ObjectMapper();
 				JsonNode jsonNode = mapper.readTree(value);
 				id = jsonNode.get("languageId").asInt();
-				// System.out.println(id);
 			}
 			Language lang = null;
 			if (id != 0) {

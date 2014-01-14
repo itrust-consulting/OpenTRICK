@@ -7,12 +7,14 @@ import java.io.File;
 import java.io.IOException;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.importation.ImportAnalysis;
+import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
-import lu.itrust.business.view.model.User;
 
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +67,7 @@ public class WorkerAnalysisImport implements Worker {
 		setCustomer(customer);
 		setFileName(importFile.getCanonicalPath());
 		setImportAnalysis(new ImportAnalysis());
+		
 		importAnalysis.setServiceTaskFeedback(serviceTaskFeedback);
 		importAnalysis.setSessionFactory(sessionFactory);
 	}
@@ -213,7 +216,10 @@ public class WorkerAnalysisImport implements Worker {
 			Analysis analysis = new Analysis();
 			analysis.setCustomer(customer);
 			analysis.setOwner(owner);
-			analysis.setBasedOnAnalysis(analysis);
+			UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
+			
+			analysis.addUserRight(uar);
+			
 			importAnalysis.setAnalysis(analysis);
 			importAnalysis.setIdTask(getId());
 			importAnalysis.setDatabaseHandler(DatabaseHandler);

@@ -5,6 +5,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.dao.DAOAnalysis;
 
 import org.hibernate.Query;
@@ -44,16 +45,12 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#get(long, java.lang.String,
-	 *      java.sql.Date)
+	 * @see lu.itrust.business.dao.DAOAnalysis#get(long, java.lang.String, java.sql.Date)
 	 */
 	@Override
-	public Analysis get(int id, String identifier, String version,
-			String creationDate) throws Exception {
+	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception {
 
-		Query query = getSession()
-				.createQuery(
-						"From Analysis where id = :id identifier = :identifier and version = :version and creationDate = :creationDate");
+		Query query = getSession().createQuery("From Analysis where id = :id identifier = :identifier and version = :version and creationDate = :creationDate");
 
 		query.setInteger("id", id);
 
@@ -71,21 +68,17 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#get(java.lang.String,
-	 *      java.lang.String, java.sql.Date)
+	 * @see lu.itrust.business.dao.DAOAnalysis#get(java.lang.String, java.lang.String,
+	 *      java.sql.Date)
 	 */
 	@Override
-	public Analysis get(int id, String identifier, String version,
-			Timestamp creationDate) throws Exception {
+	public Analysis get(int id, String identifier, String version, Timestamp creationDate) throws Exception {
 		return get(id, identifier, version, creationDate);
 	}
 
 	@Override
-	public Analysis getFromIdentifierVersion(String identifier, String version)
-			throws Exception {
-		Query query = getSession()
-				.createQuery(
-						"From Analysis where identifier = :identifier and version = :version");
+	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception {
+		Query query = getSession().createQuery("From Analysis where identifier = :identifier and version = :version");
 
 		query.setString("identifier", identifier);
 
@@ -98,15 +91,11 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * analysisExist: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#analysisExist(java.lang.String,
-	 *      java.lang.String)
+	 * @see lu.itrust.business.dao.DAOAnalysis#analysisExist(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public boolean analysisExist(String identifier, String version)
-			throws Exception {
-		Query query = getSession()
-				.createQuery(
-						"select count(*) From Analysis where identifier = :identifier and version = :version");
+	public boolean analysisExist(String identifier, String version) throws Exception {
+		Query query = getSession().createQuery("select count(*) From Analysis where identifier = :identifier and version = :version");
 
 		query.setString("identifier", identifier);
 
@@ -124,13 +113,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> loadAllFromCustomerIdentifierVersion(
-			Customer customer, String identifier, String version)
-			throws Exception {
+	public List<Analysis> loadAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception {
 
-		Query query = getSession()
-				.createQuery(
-						"From Analysis where customer = :customer and version = :version");
+		Query query = getSession().createQuery("From Analysis where customer = :customer and version = :version");
 
 		query.setParameter("customer", customer);
 
@@ -148,10 +133,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> loadAllFromCustomer(Customer customer)
-			throws Exception {
-		Query query = getSession().createQuery(
-				"From Analysis where customer = :customer");
+	public List<Analysis> loadAllFromCustomer(Customer customer) throws Exception {
+		Query query = getSession().createQuery("From Analysis where customer = :customer");
 
 		query.setParameter("customer", customer);
 
@@ -221,16 +204,17 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> loadAllNotEmpty() throws Exception {
-		return getSession()
-				.createQuery(
-						"From Analysis as analysis where analysis.empty = :empty")
-				.setBoolean("empty", false).list();
+		return getSession().createQuery("From Analysis as analysis where analysis.empty = :empty").setBoolean("empty", false).list();
 	}
 
 	@Override
 	public boolean exist(int id) {
-		return ((Long) getSession()
-				.createQuery("Select count(*) From Analysis where id = :id")
-				.setInteger("id", id).uniqueResult()).intValue() > 0;
+		return ((Long) getSession().createQuery("Select count(*) From Analysis where id = :id").setInteger("id", id).uniqueResult()).intValue() > 0;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> loadAllFromUser(User user) throws Exception {
+		return getSession().createQuery("SELECT uar.analysis FROM UserAnalysisRight uar WHERE uar.user = :user").setParameter("user", user).list();
 	}
 }
