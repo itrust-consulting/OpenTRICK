@@ -18,13 +18,7 @@
 		<jsp:include page="../menu.jsp" />
 		<div class="container">
 			<!-- #################################################################### Content ################################################################### -->
-			<div class="page-header">
-				<h1>
-					<spring:message code="label.analysis.title" text="Analyses" />
-				</h1>
-				<jsp:include page="../successErrors.jsp" />
-			</div>
-			<div class="content" id="content" role="main" data-spy="scroll">
+			<div class="row nav-container" id="nav-container">
 				<!-- #################################################################### Analysis Menu ################################################################### -->
 				<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 					<jsp:include page="analysisMenu.jsp" />
@@ -49,25 +43,19 @@
 					</div>
 				</c:if>
 				<c:if test="${!empty analyses and empty(sessionScope.selectedAnalysis)}">
+					<div class="page-header">
+						<h1>
+							<spring:message code="label.analysis.title" text="Analyses" />
+						</h1>
+						<jsp:include page="../successErrors.jsp" />
+					</div>
 					<div class="section" id="section_analysis">
-						<div id="deleteRight" hidden="true">
-							${deleteRight}
-						</div>
-						<div id="calcRickRegisterRight" hidden="true">
-							${calcRickRegisterRight}
-						</div>
-						<div id="calcActionPlanRight" hidden="true">
-							${calcActionPlanRight}
-						</div>
-						<div id="modifyRight" hidden="true">
-							${modifyRight}
-						</div>
-						<div id="exportRight" hidden="true">
-							${exportRight}
-						</div>
-						<div id="readRight" hidden="true">
-							${readRight}
-						</div>
+						<div id="deleteRight" hidden="true">${deleteRight}</div>
+						<div id="calcRickRegisterRight" hidden="true">${calcRickRegisterRight}</div>
+						<div id="calcActionPlanRight" hidden="true">${calcActionPlanRight}</div>
+						<div id="modifyRight" hidden="true">${modifyRight}</div>
+						<div id="exportRight" hidden="true">${exportRight}</div>
+						<div id="readRight" hidden="true">${readRight}</div>
 						<div class="panel panel-default">
 							<div class="panel-heading">
 								<button class="btn btn-default" onclick="newAnalysis();">

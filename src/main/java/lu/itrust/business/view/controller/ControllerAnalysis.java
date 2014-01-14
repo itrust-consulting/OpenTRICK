@@ -312,6 +312,16 @@ public class ControllerAnalysis {
 
 	}
 
+	/**
+	 * buildAnalysis: <br>
+	 * Description
+	 * 
+	 * @param errors
+	 * @param owner
+	 * @param source
+	 * @param locale
+	 * @return
+	 */
 	private boolean buildAnalysis(List<String[]> errors, User owner, String source, Locale locale) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();

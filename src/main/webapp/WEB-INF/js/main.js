@@ -1191,7 +1191,7 @@ function addNewRole(id) {
 /* History */
 function addHistory(analysisId, oldVersion) {
 
-	return $.ajax({
+	$.ajax({
 		url : context + "/History/Analysis/" + analysisId + "/NewVersion",
 		type : "get",
 		contentType : "application/json",
@@ -1199,17 +1199,16 @@ function addHistory(analysisId, oldVersion) {
 			"oldVersion" : oldVersion
 		},
 		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			if ((addAssetModel = doc.getElementById("addHistoryModal")) == null)
-				return false;
-			var parent = $("#addHistoryModal").parent();
-			$("#addHistoryModal").remove();
-			parent[0].insertBefore(addAssetModel, parent[0].firstChild);
+			$("#addHistoryModal").replaceWith(response);
 			$('#addHistoryModal').modal("toggle");
-			return false;
-		}
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
 	});
+	
+	return false;
+	
 }
 
 function defaultValueByType(value, type, protect) {
@@ -1776,11 +1775,11 @@ $(function() {
 		var rowTrickVersion = $(e.currentTarget).find("td[trick-version]").attr("trick-version");
 		var rowRights = $(e.currentTarget).attr('trick-rights-id');
 		$contextMenu.attr("trick-selected-id", rowTrickId);
-		
-		// select
-		
-		if (rowRights >= readRight) {
 			
+		// select
+
+		if (rowRights <= readRight) {
+				
 			select.removeAttr("hidden");
 			select.attr("onclick", "javascript:return selectAnalysis(" + rowTrickId + ");");
 		} else {
@@ -1790,7 +1789,7 @@ $(function() {
 		
 		// edit
 		
-		if (rowRights >= modifyRight) {				
+		if (rowRights <= modifyRight) {				
 			editRow.removeAttr("hidden");
 			editRow.attr("onclick", "javascript:return editSingleAnalysis(" + rowTrickId + ");");
 			duplicateanalysis.removeAttr("hidden");
@@ -1804,7 +1803,7 @@ $(function() {
 		
 		// compute action plan
 		
-		if (rowRights >= calcActionPlanRight) {
+		if (rowRights <= calcActionPlanRight) {
 			
 			computeactionplan.removeAttr("hidden");
 			computeactionplan.attr("onclick", "javascript:return calculateActionPlan(" + rowTrickId + ");");
@@ -1817,7 +1816,7 @@ $(function() {
 		
 		// compute risk register
 		
-		if (rowRights >= calcRickRegisterRight) {
+		if (rowRights <= calcRickRegisterRight) {
 			
 			computeriskregister.removeAttr("hidden");
 			computeriskregister.attr("onclick", "javascript:return calculateRiskRegister(" + rowTrickId + ");");
@@ -1830,7 +1829,7 @@ $(function() {
 		
 		// export
 		
-		if (rowRights >= exportRight) {
+		if (rowRights <= exportRight) {
 			
 			exportanalysis.removeAttr("hidden");
 			exportanalysis.attr("onclick", "javascript:return exportAnalysis(" + rowTrickId + ");");
@@ -1843,7 +1842,7 @@ $(function() {
 		
 		// delete
 		
-		if (rowRights >= deleteRight) {
+		if (rowRights <= deleteRight) {
 			
 			deleteElement.removeAttr("hidden");
 			deleteElement.attr("onclick", "javascript:return deleteAnalysis(" + rowTrickId + ");");
