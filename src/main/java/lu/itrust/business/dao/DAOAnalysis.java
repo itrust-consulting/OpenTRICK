@@ -5,12 +5,13 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.usermanagment.User;
 
 /** 
  * DAOAnalysis.java: <br>
  * Detailed description...
  *
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version 
  * @since 16 janv. 2013
  */
@@ -28,6 +29,8 @@ public interface DAOAnalysis {
 	
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception;
 	
+	public List<Analysis> loadAllFromUser(User user) throws Exception;
+	
 	public List<Analysis> loadAllFromCustomerIdentifierVersion(Customer customer,String identifier, String  version) throws Exception;
 	
 	public List<Analysis> loadAllFromCustomer(Customer customer) throws Exception;
@@ -43,7 +46,4 @@ public interface DAOAnalysis {
 	public void remove(Integer analysisId) throws Exception;
 
 	public List<Analysis> loadAllNotEmpty() throws Exception;
-
-	
-
 }

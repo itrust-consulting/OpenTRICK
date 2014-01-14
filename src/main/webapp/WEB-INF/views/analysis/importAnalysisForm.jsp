@@ -53,7 +53,7 @@
 								<form:option value="-1">
 									<spring:message code="label.action.choose" />
 								</form:option>
-								<form:options items="${customers}" itemLabel="contactPerson"
+								<form:options items="${customers}" itemLabel="organisation"
 									itemValue="id" />
 							</form:select>
 						</div>

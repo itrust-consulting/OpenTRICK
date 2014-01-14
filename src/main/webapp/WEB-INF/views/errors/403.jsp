@@ -2,34 +2,37 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec"
-	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<!-- ################################################################ Set Page Title ################################################################ -->
+<c:set scope="request" var="title">
+	<spring:message code="label.title.403" text="Error 403: Access denied" />
+</c:set>
+<!-- ###################################################################### HTML #################################################################### -->
 <html>
-<head>
-<title><spring:message code="label.title.403"
-		text="Error 403: Access denied" /></title>
-<link rel="stylesheet" type="text/css"
-	href='<spring:url value="/css/main.css" />' />
-<META HTTP-EQUIV="refresh"
-	CONTENT="<spring:message code='label.error.403.redirect.value' text='3' />;${pageContext.request.contextPath}/index">
-</head>
+<!-- Include Header -->
+<jsp:include page="../header.jsp" />
+<!-- ################################################################# Start Container ############################################################## -->
 <body>
-	<div class="container">
-		<div class="content" id="content">
-			<c:choose>
-				<c:when
-					test="${'XMLHttpRequest' != request.getHeader('X-Requested-With')}">
-					<spring:message
-						code="errors.403.access.denied label.redirect label.error.403.redirect.value label.error.403.redirect.unit"
-						text="Access denied, You will be redirected in 3 seconds" />
-				</c:when>
-				<c:otherwise>
-					<spring:message code="errors.403.access.denied" text="Access denied" />
-				</c:otherwise>
-			</c:choose>
+	<div id="wrap">
+		<!-- ################################################################### Nav Menu ################################################################### -->
+		<jsp:include page="../menu.jsp" />
+		<div class="container">
+			<jsp:include page="../successErrors.jsp" />
+			<!-- #################################################################### Content ################################################################### -->
+			<div class="page-header">
+				<h1>
+					<spring:message code="error.403" text="403: Permission denied" />
+				</h1>
+			</div>
+			<div class="content" id="content" role="main" data-spy="scroll">
+				<spring:message code="errors.403.access.denied" text="You do not have the nessesary permissions to perform this action!" />
+			</div>
+			<!-- ################################################################ End Container ################################################################# -->
 		</div>
-		<div class="footer"><jsp:include page="../footer.jsp" /></div>
+		<!-- ################################################################ Include Footer ################################################################ -->
+		<jsp:include page="../footer.jsp" />
+		<jsp:include page="../scripts.jsp" />
 	</div>
-	<jsp:include page="../scripts.jsp" />
 </body>
+<!-- ################################################################### End HTML ################################################################### -->
 </html>

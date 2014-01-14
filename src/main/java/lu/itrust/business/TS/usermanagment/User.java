@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.view.model;
+package lu.itrust.business.TS.usermanagment;
 
 import java.io.Serializable;
 import java.util.ArrayList;

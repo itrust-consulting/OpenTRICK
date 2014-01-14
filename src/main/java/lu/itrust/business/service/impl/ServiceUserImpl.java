@@ -5,10 +5,10 @@ package lu.itrust.business.service.impl;
 
 import java.util.List;
 
+import lu.itrust.business.TS.usermanagment.Role;
+import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.service.ServiceUser;
-import lu.itrust.business.view.model.Role;
-import lu.itrust.business.view.model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -76,7 +76,7 @@ public class ServiceUserImpl implements ServiceUser {
 	 * addRole: <br>
 	 * Description
 	 *
-	 * @see lu.itrust.business.service.ServiceUser#addRole(lu.itrust.business.view.model.User, lu.itrust.business.view.model.Role)
+	 * @see lu.itrust.business.service.ServiceUser#addRole(lu.itrust.business.TS.usermanagment.User, lu.itrust.business.TS.usermanagment.Role)
 	 */
 	public boolean addRole(User user, Role role) throws Exception{
 		return daoUser.addRole(user, role);
@@ -86,7 +86,7 @@ public class ServiceUserImpl implements ServiceUser {
 	 * removeRole: <br>
 	 * Description
 	 *
-	 * @see lu.itrust.business.service.ServiceUser#removeRole(lu.itrust.business.view.model.User, lu.itrust.business.view.model.Role)
+	 * @see lu.itrust.business.service.ServiceUser#removeRole(lu.itrust.business.TS.usermanagment.User, lu.itrust.business.TS.usermanagment.Role)
 	 */
 	public boolean removeRole(User user, Role role) throws Exception{
 		return daoUser.removeRole(user, role);

@@ -1,8 +1,8 @@
 package TS;
 import junit.framework.TestCase;
-import lu.itrust.business.view.model.Role;
-import lu.itrust.business.view.model.RoleType;
-import lu.itrust.business.view.model.User;
+import lu.itrust.business.TS.usermanagment.Role;
+import lu.itrust.business.TS.usermanagment.RoleType;
+import lu.itrust.business.TS.usermanagment.User;
 
 /**
  * 

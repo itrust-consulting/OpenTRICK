@@ -5,9 +5,9 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
+import lu.itrust.business.TS.usermanagment.Role;
+import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.dao.DAOUser;
-import lu.itrust.business.view.model.Role;
-import lu.itrust.business.view.model.User;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -100,7 +100,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * addRole: <br>
 	 * Description
 	 *
-	 * @see lu.itrust.business.dao.DAOUser#addRole(lu.itrust.business.view.model.Role)
+	 * @see lu.itrust.business.dao.DAOUser#addRole(lu.itrust.business.TS.usermanagment.Role)
 	 */
 	public boolean addRole(User user, Role role) throws Exception {
 		boolean result = false;
@@ -119,7 +119,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * removeRole: <br>
 	 * Description
 	 *
-	 * @see lu.itrust.business.dao.DAOUser#removeRole(lu.itrust.business.view.model.Role)
+	 * @see lu.itrust.business.dao.DAOUser#removeRole(lu.itrust.business.TS.usermanagment.Role)
 	 */
 	public boolean removeRole(User user, Role role) throws Exception {
 		boolean result = false;

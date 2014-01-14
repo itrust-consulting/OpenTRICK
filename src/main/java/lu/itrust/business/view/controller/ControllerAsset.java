@@ -67,8 +67,7 @@ public class ControllerAsset {
 	@Autowired
 	private ChartGenerator chartGenerator;
 
-	private boolean buildAsset(List<String[]> errors, Asset asset,
-			String source, Locale locale) {
+	private boolean buildAsset(List<String[]> errors, Asset asset, String source, Locale locale) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
@@ -83,46 +82,27 @@ public class ControllerAsset {
 			JsonNode node = jsonNode.get("assetType");
 			AssetType assetType = serviceAssetType.get(node.get("id").asInt());
 			if (assetType == null) {
-				errors.add(new String[] {
-						"assetType",
-						messageSource.getMessage("error.assettype.not_found",
-								null, "Selected asset type cannot be found",
-								locale) });
+				errors.add(new String[] { "assetType", messageSource.getMessage("error.assettype.not_found", null, "Selected asset type cannot be found", locale) });
 				return false;
 			}
 			asset.setAssetType(assetType);
 			return true;
 
 		} catch (JsonProcessingException e) {
-			errors.add(new String[] {
-					"asset",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		} catch (IOException e) {
-			errors.add(new String[] {
-					"asset",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		} catch (InvalidAttributesException e) {
-			errors.add(new String[] {
-					"asset",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			errors.add(new String[] {
-					"asset",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			errors.add(new String[] {
-					"asset",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		}
 		return false;
@@ -134,34 +114,21 @@ public class ControllerAsset {
 		try {
 			Asset asset = serviceAsset.get(id);
 			if (asset == null)
-				return new String[] {
-						"error",
-						messageSource.getMessage("error.asset.not_found", null,
-								"Asset cannot be found", locale) };
+				return new String[] { "error", messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", locale) };
 
 			if (asset.isSelected())
 				assessmentManager.unSelectAsset(asset);
 			else
 				assessmentManager.selectAsset(asset);
 
-			return new String[] {
-					"error",
-					messageSource.getMessage(
-							"success.asset.update.successfully", null,
-							"Asset was updated successfully", locale) };
+			return new String[] { "error", messageSource.getMessage("success.asset.update.successfully", null, "Asset was updated successfully", locale) };
 		} catch (InvalidAttributesException e) {
 			e.printStackTrace();
-			return new String[] {
-					"error",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) };
+			return new String[] { "error", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) };
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new String[] {
-					"error",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) };
+			return new String[] { "error", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) };
 		}
 	}
 
@@ -170,17 +137,10 @@ public class ControllerAsset {
 	String[] delete(@PathVariable int id, Principal principal, Locale locale) {
 		try {
 			customDelete.deleteAsset(serviceAsset.get(id));
-			return new String[] {
-					"success",
-					messageSource.getMessage(
-							"success.asset.delete.successfully", null,
-							"Asset was deleted successfully", locale) };
+			return new String[] { "success", messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale) };
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new String[] {
-					"error",
-					messageSource.getMessage("error.asset.delete.failed", null,
-							"Asset cannot be deleted", locale) };
+			return new String[] { "error", messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale) };
 		}
 	}
 
@@ -202,26 +162,17 @@ public class ControllerAsset {
 
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	List<String[]> save(@RequestBody String value, HttpSession session,
-			Principal principal, Locale locale) {
+	List<String[]> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
 		List<String[]> errors = new LinkedList<>();
 		try {
-			Integer idAnalysis = (Integer) session
-					.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis == null) {
-				errors.add(new String[] {
-						"analysis",
-						messageSource.getMessage("error.analysis.no_selected",
-								null, "There is no selected analysis", locale) });
+				errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale) });
 				return errors;
 			}
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				errors.add(new String[] {
-						"analysis",
-						messageSource.getMessage("error.analysis.not_found",
-								null, "Selected analysis cannot be found",
-								locale) });
+				errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.not_found", null, "Selected analysis cannot be found", locale) });
 				return errors;
 			}
 
@@ -238,23 +189,14 @@ public class ControllerAsset {
 					assessmentManager.unSelectAsset(asset);
 			}
 		} catch (ConstraintViolationException e) {
-			errors.add(new String[] {
-					"assetType",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "assetType", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 		} catch (IllegalArgumentException e) {
-			errors.add(new String[] {
-					"asset",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		}
 
 		catch (Exception e) {
-			errors.add(new String[] {
-					"asset",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		}
 		return errors;
@@ -268,7 +210,7 @@ public class ControllerAsset {
 			return null;
 		return chartGenerator.aleByAsset(idAnalysis, locale);
 	}
-	
+
 	@RequestMapping("/Chart/AssetType/Ale")
 	public @ResponseBody
 	String assetByALE(HttpSession session, Model model, Locale locale) {
@@ -277,6 +219,5 @@ public class ControllerAsset {
 			return null;
 		return chartGenerator.aleByAssetType(idAnalysis, locale);
 	}
-
 
 }

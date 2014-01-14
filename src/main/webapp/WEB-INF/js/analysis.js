@@ -1,0 +1,108 @@
+function saveAnalysis(form) {
+	result = "";
+	return $.ajax({
+		url : context + "/Analysis/Save",
+		type : "post",
+		data : serializeForm(form),
+		contentType : "application/json",
+		success : function(response) {
+			var data = "";
+			for ( var error in response)
+				data += response[error][1] + "\n";
+			result = data == "" ? true : showError(document.getElementById(form), data);
+			if (result) {
+				$("#addAnalysisModel").modal("hide");
+				// TODO reload analysis
+			}
+			return result;
+
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
+	});
+}
+
+function deleteAnAnalysis(analysisId) {
+	$.ajax({
+		url : context + "/Analysis/Delete/" + analysisId,
+		type : "POST",
+		contentType : "application/json",
+		success : function(response) {
+			if (response == false) {
+				// TODO 
+			} else {
+				// TODO
+			}
+			return false;
+		}
+	});
+	return false;
+}
+
+function deleteAnalysis(analysisId) {
+	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis")+"?");
+	$("#deleteanalysisbuttonYes").attr("onclick", "deleteAAnalysis(" + analysisId + ")");
+	$("#deleteAnalysisModel").modal('toggle');
+	return false;
+}
+
+function newAnalysis() {
+	
+	$.ajax({
+		url : context + "/Analysis/New",
+		type : "get",
+		contentType : "application/json",
+		success : function(response) {
+				$("#analysis_form").html(response);
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
+	});
+	
+	$("#addAnalysisModel-title").text(MessageResolver("title.Administration.Analysis.Add", "Create a new Analysis"));
+	$("#addAnalysisButton").text(MessageResolver("label.action.create", "Create"));
+	$("#analysis_form").prop("action", "/Save");
+	$("#addAnalysisModel").modal('toggle');
+	return false;
+}
+
+function editSingleAnalysis(analysisId) {
+	$.ajax({
+		url : context + "/Analysis/Edit/"+analysisId,
+		type : "get",
+		contentType : "application/json",
+		success : function(response) {
+				$("#analysis_form").html(response);
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
+	});
+	
+	$("#addAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
+	$("#addAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
+	$("#analysis_form").prop("action", "/Save");
+	$("#addAnalysisModel").modal('toggle');
+	return false;
+}
+
+function selectAnalysis(analysisId) {
+	window.location.replace(context + "/Analysis/"+analysisId+"/Select");
+}
+
+function calculateActionPlan(analysisId) {
+	href="${pageContext.request.contextPath}/analysis/${analysis.id}/compute/actionPlan";
+	// TODO
+}
+
+function calculateRiskRegister(analysisId) {
+	href="${pageContext.request.contextPath}/analysis/${analysis.id}/compute/riskRegister";
+	// TODO
+}
+
+function exportAnalysis(analysisId) {
+	href="${pageContext.request.contextPath}/export/analysis/${analysis.id}";
+	// TODO	
+}

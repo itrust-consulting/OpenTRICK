@@ -10,11 +10,11 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagment.Role;
+import lu.itrust.business.TS.usermanagment.RoleType;
+import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
-import lu.itrust.business.view.model.Role;
-import lu.itrust.business.view.model.RoleType;
-import lu.itrust.business.view.model.User;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
