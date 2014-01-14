@@ -17,7 +17,7 @@
 		var="measureSplited" />
 	<c:forEach items="${measureSplited.keySet()}" var="norm">
 
-		<div class="panel panel-default" id="Measure_${norm}" >
+		<div class="panel panel-default" id="Measure_${norm}">
 			<div class="panel-heading">
 				<spring:message code="label.measure.${norm}" text="${norm}" />
 			</div>
@@ -25,8 +25,7 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<td><spring:message code="label.table.index"
-									text="#" /></td>
+							<td><spring:message code="label.table.index" text="#" /></td>
 							<td colspan="2"><spring:message code="label.measure.domain"
 									text="Domain" /></td>
 							<td><spring:message code="label.measure.st" text="Status" /></td>
@@ -68,14 +67,16 @@
 									</c:when>
 									<c:when test="${norm.equalsIgnoreCase('Maturity')==false}">
 										<td class="success" trick-field="implementationRate"
-											trick-field-type="double" trick-callback="compliance('${norm}')"
+											trick-field-type="double"
+											trick-callback="compliance('${norm}')"
 											ondblclick="return editField(this);"><spring:message
 												text="${measure.getImplementationRateValue()}" /></td>
 									</c:when>
 									<c:otherwise>
 										<td class="success" trick-field="implementationRate"
 											trick-field-type="double"
-											ondblclick="return editField(this);" trick-class="MaturityMeasure" trick-id="${measure.id}"><spring:message
+											ondblclick="return editField(this);"
+											trick-class="MaturityMeasure" trick-id="${measure.id}"><spring:message
 												text="${measure.getImplementationRateValue()}" /></td>
 									</c:otherwise>
 								</c:choose>
@@ -97,9 +98,17 @@
 								<td class="success" trick-field="cost" trick-field-type="double"
 									ondblclick="return editField(this);"><fmt:formatNumber
 										value="${measure.cost}" maxFractionDigits="0" /></td>
-								<td class="success" trick-field="phase" trick-field-type="intger" ondblclick="return editField(this);" trick-load-choose="extractPhase()">
+								<td class="success" trick-field="phase"
+									trick-field-type="intger" ondblclick="return editField(this);"
+									trick-load-choose="extractPhase()"
+									trick-real-value='${measure.phase.number}'><c:choose>
+										<c:when test="${measure.phase.number == 0}">
+										NA
+								</c:when>
+										<c:otherwise>
 								${measure.phase.number}
-								</td>
+								</c:otherwise>
+									</c:choose></td>
 								<td colspan="2" class="success" trick-field="comment"
 									trick-field-type="string" ondblclick="return editField(this);"><spring:message
 										text="${measure.comment}" /></td>
