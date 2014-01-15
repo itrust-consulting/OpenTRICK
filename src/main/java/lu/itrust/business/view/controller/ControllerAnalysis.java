@@ -19,7 +19,6 @@ import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.UserAnalysisRight;
-import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagment.User;
@@ -40,6 +39,7 @@ import lu.itrust.business.service.ServiceUserAnalysisRight;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerAnalysisImport;
+import lu.itrust.business.task.WorkerComputeActionPlan;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -484,23 +484,19 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisId}/Compute/ActionPlan")
-	public String computeActionPlan(@PathVariable("analysisId") Integer analysisId, RedirectAttributes attributes) throws Exception {
+	public @ResponseBody
+	String computeActionPlan(@PathVariable("analysisId") Integer analysisId, Principal principal, Locale locale) throws Exception {
 
-		Analysis analysis = serviceAnalysis.get(analysisId);
+		if (!serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.CALCULATE_ACTIONPLAN))
+			return JsonMessage.Error(messageSource.getMessage("errors.403.access.denied", null, "You do not have the nessesary permissions to perform this action!", locale));
+		Worker worker = new WorkerComputeActionPlan(serviceActionPlanSummary, serviceActionPlanType, serviceActionPlan, serviceAnalysis, serviceTaskFeedback, analysisId);
+		worker.setPoolManager(workersPoolManager);
 
-		if (analysis == null) {
-			return "redirect:/Analysis";
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+			executor.execute(worker);
+			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
 		}
-
-		initAnalysis(analysis);
-
-		MessageHandler handler = computeActionPlan(analysis);
-
-		if (handler != null) {
-			attributes.addFlashAttribute("errors", handler.getException().getMessage());
-		}
-
-		return "redirect:/Analysis";
+		return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
 	}
 
 	// ******************************************************************************************************************
@@ -592,62 +588,6 @@ public class ControllerAnalysis {
 		Hibernate.initialize(analysis.getSummaries());
 		Hibernate.initialize(analysis.getUsedPhases());
 		Hibernate.initialize(analysis.getRiskRegisters());
-	}
-
-	/**
-	 * computeActionPlan: <br>
-	 * Description
-	 * 
-	 * @param analysis
-	 * @return
-	 * @throws Exception
-	 */
-	private MessageHandler computeActionPlan(Analysis analysis) throws Exception {
-
-		deleteActionPlan(analysis);
-
-		// ****************************************************************
-		// Calculate Action Plan - BEGIN
-		// ****************************************************************
-		ActionPlanComputation actionPlanComputation = new ActionPlanComputation(serviceActionPlanType, analysis);
-
-		MessageHandler handler = actionPlanComputation.calculateActionPlans();
-
-		if (handler == null) {
-
-			// System.out.println("Saving Action Plans...");
-
-			serviceAnalysis.saveOrUpdate(actionPlanComputation.getAnalysis());
-
-			// System.out.println("Computing Action Plans Done!");
-
-			// ****************************************************************
-			// * Calculate Action Plan - END
-			// ****************************************************************
-
-			// ****************************************************************
-			// Calculate RiskRegister - BEGIN
-			// ****************************************************************
-		}
-
-		return handler;
-
-	}
-
-	/**
-	 * deleteActionPlan: <br>
-	 * Description
-	 * 
-	 * @param analysis
-	 * @throws Exception
-	 */
-	private void deleteActionPlan(Analysis analysis) throws Exception {
-
-		while (!analysis.getSummaries().isEmpty())
-			serviceActionPlanSummary.remove(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
-
-		while (!analysis.getActionPlans().isEmpty())
-			serviceActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
 	}
 
 	/**
