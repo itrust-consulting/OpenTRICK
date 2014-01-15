@@ -7,7 +7,6 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.service.ServiceAnalysis;

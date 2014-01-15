@@ -148,6 +148,7 @@ public class ControllerAnalysis {
 				model.put("assettypes", serviceAssetType.loadAll());
 				model.put("analysis", analysis);
 				model.put("language", analysis.getLanguage());
+
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.notAuthorized", null, "Insufficient permissions!", locale));
 				return "redirect:/Error/403";
@@ -171,9 +172,8 @@ public class ControllerAnalysis {
 			throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
-		if (analysis == null) {
+		if (analysis == null)
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
-		}
 		try {
 			history.setDate(new Date(System.currentTimeMillis()));
 			Duplicator duplicator = new Duplicator();
@@ -192,7 +192,6 @@ public class ControllerAnalysis {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.duplicate.unknown", null, "An unknown error occurred during copying", locale));
 		}
-
 	}
 
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json")
@@ -225,24 +224,20 @@ public class ControllerAnalysis {
 	@RequestMapping("/{analysisId}/Select")
 	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session,
 			RedirectAttributes attributes, Locale locale) throws Exception {
-
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
-
-		if (serviceUserAnalysisRight.isUserAuthorized(serviceAnalysis.get(analysisId), serviceUser.get(principal.getName()), AnalysisRight.READ)) {
-
-			if (selected != null && selected.intValue() == analysisId) {
-				session.removeAttribute("selectedAnalysis");
-			} else if (serviceAnalysis.exist(analysisId))
+		if (selected != null && selected.intValue() == analysisId)
+			session.removeAttribute("selectedAnalysis");
+		else if (serviceAnalysis.exist(analysisId)) {
+			if (serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.READ))
 				session.setAttribute("selectedAnalysis", analysisId);
-			else {
-				session.removeAttribute("selectedAnalysis");
-				attributes.addFlashAttribute("error", "Analysis not recognized!");
-			}
-
+			else
+				return "redirect:/Error/403";
 		} else {
-			return "/errors/403";
+			session.removeAttribute("selectedAnalysis");
+			attributes.addFlashAttribute("error", "Analysis not recognized!");
 		}
 		return "redirect:/Analysis";
+
 	}
 
 	/**
@@ -282,27 +277,18 @@ public class ControllerAnalysis {
 	public String requestEditAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, RedirectAttributes attributes, Locale locale)
 			throws Exception {
 
-		Analysis analysis = serviceAnalysis.get(analysisId);
-
-		if (analysis == null) {
-			attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.notfound", null, "Could not find analysis to edit!", locale));
-			return "analysis/editAnalysis";
-		}
-
-		if (serviceUserAnalysisRight.isUserAuthorized(analysis, serviceUser.get(principal.getName()), AnalysisRight.MODIFY)) {
-
-			model.put("languages", serviceLanguage.loadAll());
-
-			model.put("customers", serviceCustomer.loadAll());
-
-			model.put("analysis", analysis);
-
-		} else {
+		if (!serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.MODIFY))
 			return "/errors/403";
-		}
+		Analysis analysis = serviceAnalysis.get(analysisId);
+		if (analysis == null)
+			return "redirect:/Error/404";
+		model.put("languages", serviceLanguage.loadAll());
+
+		model.put("customers", serviceCustomer.loadAll());
+
+		model.put("analysis", analysis);
 
 		return "analysis/editAnalysis";
-
 	}
 
 	/**
@@ -315,7 +301,7 @@ public class ControllerAnalysis {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildAnalysis(List<String[]> errors, User owner, String source, Locale locale) {
+	private boolean buildAnalysis(List<String> errors, User owner, String source, Locale locale) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
@@ -361,14 +347,11 @@ public class ControllerAnalysis {
 				analysis.addUserRight(uar);
 
 				serviceAnalysis.save(analysis);
-
 			}
-
 			return true;
 
 		} catch (Exception e) {
-
-			errors.add(new String[] { "errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale)));
 			e.printStackTrace();
 			return false;
 
@@ -388,17 +371,15 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	List<String[]> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
-		List<String[]> errors = new LinkedList<>();
+	List<String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
+		List<String> errors = new LinkedList<>();
 		try {
 			buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale);
-			return errors;
 		} catch (Exception e) {
-			errors.add(new String[] { "errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale)));
 			e.printStackTrace();
-			return errors;
-
 		}
+		return errors;
 	}
 
 	/**
@@ -412,27 +393,16 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/Delete/{analysisId}")
 	public @ResponseBody
-	String[] deleteAnalysis(@PathVariable("analysisId") Integer analysisId, RedirectAttributes attributes, Locale locale, Principal principal) throws Exception {
+	String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal) throws Exception {
 		try {
-
-			Analysis analysis = serviceAnalysis.get(analysisId);
-
-			User user = serviceUser.get(principal.getName());
-
-			if (serviceUserAnalysisRight.isUserAuthorized(analysis, user, AnalysisRight.DELETE)) {
-
+			if (serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.DELETE)) {
 				serviceAnalysis.remove(analysisId);
-				return new String[] { "success", messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale) };
-
-			} else {
-				return new String[] { "errors", messageSource.getMessage("error.notAutorized", null, "Permission denied!", locale) };
+				return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
 			}
-
+			return JsonMessage.Error(messageSource.getMessage("error.notAutorized", null, "Permission denied!", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-
-			return new String[] { "errors", messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale) };
-
+			return JsonMessage.Error(messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));
 		}
 	}
 
@@ -450,18 +420,15 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisId}/Duplicate")
-	public String createNewVersion(@ModelAttribute History history, @PathVariable Integer analysisId, Principal principal, HttpSession session, RedirectAttributes attributes,
+	public String createNewVersion(@ModelAttribute History history, @PathVariable int analysisId, Principal principal, HttpSession session, RedirectAttributes attributes,
 			Locale locale) throws Exception {
-		Analysis analysis = serviceAnalysis.get(analysisId);
-		if (analysis == null) {
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
-		}
 
-		if (!serviceUserAnalysisRight.isUserAuthorized(analysis, serviceUser.get(principal.getName()), AnalysisRight.MODIFY)) {
+		if (!serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.MODIFY))
 			return JsonMessage.Error(messageSource.getMessage("error.notAuthorized", null, "Permission denied!", locale));
-		}
-
 		try {
+			Analysis analysis = serviceAnalysis.get(analysisId);
+			if (analysis == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 			history.setDate(new Date(System.currentTimeMillis()));
 			Duplicator duplicator = new Duplicator();
 			Analysis copy = duplicator.duplicate(analysis);
@@ -516,7 +483,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/{analysisId}/compute/actionPlan")
+	@RequestMapping("/{analysisId}/Compute/ActionPlan")
 	public String computeActionPlan(@PathVariable("analysisId") Integer analysisId, RedirectAttributes attributes) throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
@@ -530,7 +497,7 @@ public class ControllerAnalysis {
 		MessageHandler handler = computeActionPlan(analysis);
 
 		if (handler != null) {
-			attributes.addFlashAttribute("error", handler.getException().getMessage());
+			attributes.addFlashAttribute("errors", handler.getException().getMessage());
 		}
 
 		return "redirect:/Analysis";

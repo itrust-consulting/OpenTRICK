@@ -243,6 +243,8 @@ public class AssessmentManager {
 				ale = alep = aleo = 0;
 				List<Assessment> assessments = assessmentsByAsset.get(asset
 						.getId());
+				if(assessments==null)
+					continue;
 				for (Assessment assessment : assessments) {
 					ComputeAlE(assessment, parametersMapping);
 					ale += assessment.getALE();

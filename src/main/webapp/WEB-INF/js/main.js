@@ -397,9 +397,6 @@ function FieldEditor(element, validator) {
 							success : function(response) {
 								if (response["success"] != undefined) {
 									that.UpdateUI();
-									/*$("#info-dialog .modal-body").html(
-											response["success"]);
-									$("#info-dialog").modal("toggle");*/
 									if (that.callback != null
 											&& that.callback != undefined)
 										setTimeout(that.callback, 10);
@@ -886,6 +883,14 @@ function ProgressBar() {
 		return false;
 	};
 
+}
+
+function parseJson(data){
+	try {
+		return JSON.parse(data);
+	} catch (e) {
+		return undefined;
+	}
 }
 
 function TaskManager() {

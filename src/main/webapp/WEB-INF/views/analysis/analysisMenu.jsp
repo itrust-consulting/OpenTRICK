@@ -8,8 +8,7 @@
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
 <c:set var="url">
-	<%=request
-						.getAttribute("javax.servlet.forward.request_uri")%>
+	<%=request.getAttribute("javax.servlet.forward.request_uri")%>
 </c:set>
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
@@ -82,6 +81,9 @@
 						text="Action" /><span class="caret"></span>
 			</a>
 				<ul class="dropdown-menu">
+					<li><a href="#" onclick="return updateALE();"> <spring:message
+								code="label.analysis.update.ale" text="Update ALE" />
+					</a></li>
 					<li><a href="#" onclick="return computeAssessment();"> <spring:message
 								code="label.assessment.generate.missing"
 								text="Update Assessment" />

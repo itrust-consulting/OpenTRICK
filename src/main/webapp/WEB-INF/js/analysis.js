@@ -7,9 +7,16 @@ function saveAnalysis(form) {
 		contentType : "application/json",
 		success : function(response) {
 			var data = "";
-			for ( var error in response)
-				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
+			var alert = $("#addAnalysisModel .alert");
+			if (alert.length)
+				alert.remove();
+			for ( var error in response){
+					errorMessage = parseJson(response[error]);
+					if (errorMessage.error != undefined)
+						data += errorMessage.error + "\n";
+			}
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
 			if (result) {
 				$("#addAnalysisModel").modal("hide");
 				reloadSection("section_analysis");
@@ -37,28 +44,35 @@ function deleteAnAnalysis(analysisId) {
 }
 
 function deleteAnalysis(analysisId) {
-	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis")+"?");
-	$("#deleteanalysisbuttonYes").attr("onclick", "deleteAnAnalysis(" + analysisId + ")");
+	$("#deleteAnalysisBody").html(
+			MessageResolver("label.analysis.question.delete",
+					"Are you sure that you want to delete the analysis")
+					+ "?");
+	$("#deleteanalysisbuttonYes").attr("onclick",
+			"deleteAnAnalysis(" + analysisId + ")");
 	$("#deleteAnalysisModel").modal('toggle');
 	return false;
 }
 
 function newAnalysis() {
-	
+
 	$.ajax({
 		url : context + "/Analysis/New",
 		type : "get",
 		contentType : "application/json",
 		success : function(response) {
-				$("#analysis_form").html(response);
+			$("#analysis_form").html(response);
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return result;
 		},
 	});
-	
-	$("#addAnalysisModel-title").text(MessageResolver("title.Administration.Analysis.Add", "Create a new Analysis"));
-	$("#addAnalysisButton").text(MessageResolver("label.action.create", "Create"));
+
+	$("#addAnalysisModel-title").text(
+			MessageResolver("title.Administration.Analysis.Add",
+					"Create a new Analysis"));
+	$("#addAnalysisButton").text(
+			MessageResolver("label.action.create", "Create"));
 	$("#analysis_form").prop("action", "/Save");
 	$("#addAnalysisModel").modal('toggle');
 	return false;
@@ -66,18 +80,19 @@ function newAnalysis() {
 
 function editSingleAnalysis(analysisId) {
 	$.ajax({
-		url : context + "/Analysis/Edit/"+analysisId,
+		url : context + "/Analysis/Edit/" + analysisId,
 		type : "get",
 		contentType : "application/json",
 		success : function(response) {
-				$("#analysis_form").html(response);
+			$("#analysis_form").html(response);
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return result;
 		},
 	});
-	
-	$("#addAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
+
+	$("#addAnalysisModel-title").text(
+			MessageResolver("title.analysis.Update", "Update an Analysis"));
 	$("#addAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#analysis_form").prop("action", "/Save");
 	$("#addAnalysisModel").modal('toggle');
@@ -85,20 +100,20 @@ function editSingleAnalysis(analysisId) {
 }
 
 function selectAnalysis(analysisId) {
-	window.location.replace(context + "/Analysis/"+analysisId+"/Select");
+	window.location.replace(context + "/Analysis/" + analysisId + "/Select");
 }
 
 function calculateActionPlan(analysisId) {
-	href="${pageContext.request.contextPath}/analysis/${analysis.id}/compute/actionPlan";
-	// TODO
+	href = context+"/Analysis/"+analysisId+"/Compute/ActionPlan";
+	
 }
 
 function calculateRiskRegister(analysisId) {
-	href="${pageContext.request.contextPath}/analysis/${analysis.id}/compute/riskRegister";
+	href = "${pageContext.request.contextPath}/analysis/${analysis.id}/compute/riskRegister";
 	// TODO
 }
 
 function exportAnalysis(analysisId) {
-	href="${pageContext.request.contextPath}/export/analysis/${analysis.id}";
-	// TODO	
+	href = "${pageContext.request.contextPath}/export/analysis/${analysis.id}";
+	// TODO
 }
