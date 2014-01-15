@@ -32,7 +32,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @version
  * @since Oct 11, 2013
  */
-@Secured("ROLE_USER")
+@Secured("ROLE_CONSULTANT")
 @Controller
 @RequestMapping("/KnowledgeBase/Language")
 public class ControllerLanguage {

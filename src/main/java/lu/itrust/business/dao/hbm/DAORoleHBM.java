@@ -5,8 +5,8 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.usermanagment.Role;
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAORole;
 
 import org.hibernate.Session;

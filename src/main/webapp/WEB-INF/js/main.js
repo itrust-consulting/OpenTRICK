@@ -79,7 +79,6 @@ function cancelTask(taskId) {
 		async : true,
 		contentType : "application/json",
 		success : function(reponse) {
-			Alert(reponse);
 			$("#task_" + taskId).remove();
 		}
 	});
@@ -116,7 +115,6 @@ function computeAssessment() {
 		error : function(jqXHR, textStatus, errorThrown) {
 			console.log(textStatus);
 			console.log(errorThrown);
-			alert(jqXHR.responseText);
 			return false;
 		},
 	});
@@ -142,7 +140,6 @@ function wipeAssessment() {
 		error : function(jqXHR, textStatus, errorThrown) {
 			console.log(textStatus);
 			console.log(errorThrown);
-			alert(jqXHR.responseText);
 			return false;
 		},
 	});
@@ -1773,10 +1770,6 @@ $(function() {
 		var rowTrickId = $(e.currentTarget).attr('trick-id');
 		var data = $(e.currentTarget).attr('data');
 		
-		if(data=="true") {
-			alert(data);
-		}
-		
 		var rowTrickVersion = $(e.currentTarget).find("td[trick-version]").attr("trick-version");
 		var rowRights = $(e.currentTarget).attr('trick-rights-id');
 		$contextMenu.attr("trick-selected-id", rowTrickId);
@@ -1836,23 +1829,23 @@ $(function() {
 		
 		if (rowRights <= exportRight) {
 			
-			exportanalysis.removeAttr("hidden");
+			exportanalysis.parent().removeAttr("hidden");
 			exportanalysis.attr("onclick", "javascript:return exportAnalysis(" + rowTrickId + ");");
 			exportanalysisdivider.removeAttr("hidden","true");
 		} else {
-			exportanalysis.attr("hidden", "true");
+			exportanalysis.parent().attr("hidden", "true");
 			exportanalysis.removeAttr("onclick");
-			exportanalysisdivider.attr("hidden","true");
+			exportanalysisdivider.parent().attr("hidden","true");
 		}
 		
 		// delete
 		
 		if (rowRights <= deleteRight) {
 			
-			deleteElement.removeAttr("hidden");
+			deleteElement.parent().removeAttr("hidden");
 			deleteElement.attr("onclick", "javascript:return deleteAnalysis(" + rowTrickId + ");");
 		} else {
-			deleteElement.attr("hidden", "true");
+			deleteElement.parent().attr("hidden", "true");
 			deleteElement.removeAttr("onclick");
 		}
 		

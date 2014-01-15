@@ -33,7 +33,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @version 0.1
  * @since Oct 14, 2013
  */
-@Secured("ROLE_USER")
+@Secured("ROLE_CONSULTANT")
 @Controller
 @RequestMapping("/KnowledgeBase/Norm")
 public class ControllerNorm {

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.usermanagment;
+package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
 

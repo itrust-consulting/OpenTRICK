@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.UserAnalysisRight;
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOUserAnalysisRight;
 
 /**
@@ -65,7 +65,7 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 	 * getAllByUser: <br>
 	 * Description
 	 *
-	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByUser(lu.itrust.business.TS.usermanagment.User)
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByUser(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override

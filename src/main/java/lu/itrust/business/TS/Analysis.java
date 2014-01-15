@@ -15,7 +15,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * Analysis: <br>

@@ -5,8 +5,8 @@ package lu.itrust.business.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.usermanagment.Role;
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author oensuifudine
@@ -19,7 +19,7 @@ public interface DAORole {
 	List<Role> getFromUser(String login) throws Exception;
 	
 	List<Role> getFromUser(User user) throws Exception;
-		
+
 	List<Role> loadAll() throws Exception;
 	
 	void save(Role role)throws Exception;

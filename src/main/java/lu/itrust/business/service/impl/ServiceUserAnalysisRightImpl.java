@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.UserAnalysisRight;
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.dao.DAOUserAnalysisRight;
@@ -72,7 +72,7 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * getAllByUser: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceUserAnalysisRight#getAllByUser(lu.itrust.business.TS.usermanagment.User)
+	 * @see lu.itrust.business.service.ServiceUserAnalysisRight#getAllByUser(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
 	public List<UserAnalysisRight> getAllByUser(User user) throws Exception {
@@ -106,7 +106,7 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * isUserAuthorized: <br>
 	 * Description
 	 *
-	 * @see lu.itrust.business.service.ServiceUserAnalysisRight#isUserAuthorized(lu.itrust.business.TS.Analysis, lu.itrust.business.TS.usermanagment.User, lu.itrust.business.TS.AnalysisRight)
+	 * @see lu.itrust.business.service.ServiceUserAnalysisRight#isUserAuthorized(lu.itrust.business.TS.Analysis, lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.AnalysisRight)
 	 */
 	@Override
 	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception {

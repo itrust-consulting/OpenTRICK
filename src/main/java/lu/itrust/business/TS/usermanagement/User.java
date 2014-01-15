@@ -1,11 +1,13 @@
 /**
  * 
  */
-package lu.itrust.business.TS.usermanagment;
+package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import lu.itrust.business.TS.Customer;
 
 /**
  * @author oensuifudine
@@ -23,7 +25,7 @@ public class User implements Serializable {
 	private String login = null;
 
 	private String password = null;
-	
+
 	private String repeatPassword = null;
 
 	private String firstName = null;
@@ -34,7 +36,9 @@ public class User implements Serializable {
 
 	private boolean enable = true;
 
-	private List<Role> roles = null;
+	private List<Role> roles = new ArrayList<Role>();
+
+	private List<UserCustomer> customers = new ArrayList<UserCustomer>();
 
 	/**
 	 * @param login
@@ -166,13 +170,13 @@ public class User implements Serializable {
 	/**
 	 * disable: <br>
 	 * Removes all accounts and disables it.
-	 *
+	 * 
 	 */
 	public void disable() {
 		this.roles.clear();
 		enable = !roles.isEmpty();
 	}
-	
+
 	public List<Role> getRoles() {
 		return roles;
 	}
@@ -242,10 +246,125 @@ public class User implements Serializable {
 	}
 
 	/**
-	 * @param repeatPassword the repeatPassword to set
+	 * @param repeatPassword
+	 *            the repeatPassword to set
 	 */
 	public void setRepeatPassword(String repeatPassword) {
 		this.repeatPassword = repeatPassword;
 	}
 
+	/**
+	 * hasRole: <br>
+	 * Description
+	 * 
+	 * @param role
+	 * @return
+	 */
+	public boolean hasRole(RoleType roleType) {
+		for (Role role : roles) {
+			if (role.getType().equals(roleType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * getCustomers: <br>
+	 * Returns the customers field value.
+	 * 
+	 * @return The value of the customers field
+	 */
+	public List<UserCustomer> getUserCustomers() {
+		return customers;
+	}
+
+	/**
+	 * getCustomers: <br>
+	 * Returns the customers field value.
+	 * 
+	 * @return The value of the customers field
+	 */
+	public List<Customer> getCustomers() {
+		List<Customer> customerlist = new ArrayList<Customer>();
+		for (UserCustomer uc : customers) {
+			customerlist.add(uc.getCustomer());
+		}
+		return customerlist;
+	}
+
+	/**
+	 * setUserCustomer: <br>
+	 * Sets the Field "customers" with a value.
+	 * 
+	 * @param customers
+	 *            The Value to set the customers field
+	 */
+	public void setCustomers(List<UserCustomer> customers) {
+		this.customers = customers;
+	}
+
+	/**
+	 * addCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 */
+	public boolean addUserCustomer(UserCustomer customer) {
+		return this.customers.add(customer);
+	}
+
+	/**
+	 * addCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 */
+	public boolean addCustomer(Customer customer) {
+		return this.customers.add(new UserCustomer(this, customer));
+	}
+
+	/**
+	 * removeCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 */
+	public boolean removeUserCustomer(UserCustomer customer) {
+
+		return this.customers.remove(customer);
+	}
+
+	/**
+	 * hasCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 */
+	boolean hasUserCustomer(UserCustomer customer) {
+
+		return customers.contains(customer);
+	}
+
+	/**
+	 * hasCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 */
+	boolean hasCustomer(Customer customer) {
+
+		for (UserCustomer uc : customers) {
+			if (uc.getCustomer().equals(customer)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

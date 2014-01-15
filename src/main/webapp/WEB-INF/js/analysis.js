@@ -89,16 +89,16 @@ function selectAnalysis(analysisId) {
 }
 
 function calculateActionPlan(analysisId) {
-	href="${pageContext.request.contextPath}/analysis/${analysis.id}/compute/actionPlan";
+	href="${pageContext.request.contextPath}/Analysis/${analysis.id}/Compute/ActionPlan";
 	// TODO
 }
 
 function calculateRiskRegister(analysisId) {
-	href="${pageContext.request.contextPath}/analysis/${analysis.id}/compute/riskRegister";
+	href="${pageContext.request.contextPath}/Analysis/${analysis.id}/Compute/RiskRegister";
 	// TODO
 }
 
 function exportAnalysis(analysisId) {
-	href="${pageContext.request.contextPath}/export/analysis/${analysis.id}";
+	href="${pageContext.request.contextPath}/Analysis/${analysis.id}/Export";
 	// TODO	
 }

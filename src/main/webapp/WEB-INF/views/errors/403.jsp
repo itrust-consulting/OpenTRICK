@@ -5,7 +5,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <!-- ################################################################ Set Page Title ################################################################ -->
 <c:set scope="request" var="title">
-	<spring:message code="label.title.403" text="Error 403: Access denied" />
+	title.403
 </c:set>
 <!-- ###################################################################### HTML #################################################################### -->
 <html>
