@@ -105,7 +105,7 @@ function selectAnalysis(analysisId) {
 
 function calculateActionPlan(analysisId) {
 	href = context+"/Analysis/"+analysisId+"/Compute/ActionPlan";
-	
+	//TODO
 }
 
 function calculateRiskRegister(analysisId) {
@@ -114,6 +114,6 @@ function calculateRiskRegister(analysisId) {
 }
 
 function exportAnalysis(analysisId) {
-	href = "${pageContext.request.contextPath}/export/analysis/${analysis.id}";
-	// TODO
+	href="${pageContext.request.contextPath}/Analysis/${analysis.id}/Export";
+	// TODO	
 }

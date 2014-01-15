@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.validator;
 
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.User;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;

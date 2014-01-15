@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
 
@@ -35,14 +35,13 @@ public class ControllerHome {
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
-	
+
 	@Autowired
 	private MessageSource messageSource;
-	
+
 	@Secured("ROLE_USER")
 	@RequestMapping("/home")
-	public String home(HttpSession session, Principal principal)
-			throws Exception {
+	public String home(HttpSession session, Principal principal) throws Exception {
 		User user = (User) session.getAttribute("user");
 		if (user == null) {
 			user = serviceUser.get(principal.getName());
@@ -56,12 +55,12 @@ public class ControllerHome {
 
 	@Secured("ROLE_USER")
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.GET, headers = "Accept=application/json")
-    public @ResponseBody
-    String resolveMessage(Locale locale, HttpServletRequest request) {
+	public @ResponseBody
+	String resolveMessage(Locale locale, HttpServletRequest request) {
 		String code = request.getParameter("code");
 		String defaultText = request.getParameter("default");
-        return messageSource.getMessage(code, null,defaultText,locale);
-    }
+		return messageSource.getMessage(code, null, defaultText, locale);
+	}
 
 	@Secured("ROLE_USER")
 	@RequestMapping("/feedback")

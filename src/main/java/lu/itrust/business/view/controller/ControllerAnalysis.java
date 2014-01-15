@@ -22,8 +22,8 @@ import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.component.AssessmentManager;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceActionPlan;
@@ -166,34 +166,6 @@ public class ControllerAnalysis {
 		return "analysis/analysis";
 	}
 
-	@RequestMapping(value = "/{analysisId}/Duplicate", headers = "Accept=application/json")
-	public @ResponseBody
-	String createNewVersion(@ModelAttribute History history, @PathVariable int analysisId, Model model, HttpSession session, RedirectAttributes attributes, Locale locale)
-			throws Exception {
-
-		Analysis analysis = serviceAnalysis.get(analysisId);
-		if (analysis == null)
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
-		try {
-			history.setDate(new Date(System.currentTimeMillis()));
-			Duplicator duplicator = new Duplicator();
-			Analysis copy = duplicator.duplicate(analysis);
-			copy.addAHistory(history);
-			copy.setVersion(history.getVersion());
-			copy.setLabel(history.getComment());
-			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
-			serviceAnalysis.saveOrUpdate(copy);
-			session.setAttribute("selectedAnalysis", copy.getId());
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.duplicate", null, "Analysis was successfully duplicated", locale));
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicate!", locale));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.duplicate.unknown", null, "An unknown error occurred during copying", locale));
-		}
-	}
-
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
 	String update(HttpSession session, Locale locale) {
@@ -307,6 +279,15 @@ public class ControllerAnalysis {
 			JsonNode jsonNode = mapper.readTree(source);
 			Analysis analysis = null;
 			int id = jsonNode.get("id").asInt();
+			
+			if (jsonNode.get("analysiscustomer").asInt() == -1) {
+				throw new IllegalArgumentException("error.customer.null");
+			}
+			
+			if (jsonNode.get("analysislanguage").asInt() == -1) {
+				throw new IllegalArgumentException("error.language.null");
+			}
+			
 			Customer customer = serviceCustomer.get(jsonNode.get("analysiscustomer").asInt());
 			Language language = serviceLanguage.get(jsonNode.get("analysislanguage").asInt());
 			String label = jsonNode.get("label").asText();

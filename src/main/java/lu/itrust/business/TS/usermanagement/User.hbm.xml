@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 12, 2013 5:51:35 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.TS.usermanagement">
+	<class name="User" table="user">
+		<id name="id" type="long" unsaved-value="-1">
+			<column name="idUser" />
+			<generator class="increment" />
+		</id>
+		<property generated="never" lazy="false" name="login" type="java.lang.String">
+			<column name="dtLogin" />
+		</property>
+		<property generated="never" lazy="false" name="password" type="java.lang.String">
+			<column name="dtPassword" />
+		</property>
+		<property generated="never" lazy="false" name="firstName" type="java.lang.String">
+			<column name="dtFirstName" />
+		</property>
+		<property generated="never" lazy="false" name="lastName" type="java.lang.String">
+			<column name="dtLastName" />
+		</property>
+		<property generated="never" lazy="false" name="email" type="java.lang.String">
+			<column name="dtEmail" />
+		</property>
+		<property generated="never" lazy="false" name="enable" type="boolean">
+			<column name="dtEnable" />
+		</property>
+		<bag cascade="all" name="roles" lazy="false" table="userRole">
+			<key column="idUser" not-null="true" />
+			<many-to-many class="Role" column="idRole" unique="false" />
+		</bag>
+		<bag name="customers" table="userCustomer" cascade="all" access="field" inverse="true">
+			<key column="fiUser" not-null="true" />
+			<one-to-many class="UserCustomer" />
+		</bag>
+
+	</class>
+
+	<class name="UserCustomer" table="userCustomer">
+		<id column="idUserCustomer" name="id" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<properties name="unique_index" unique="true">
+			<many-to-one name="user" column="fiUser" not-null="true" cascade="save-update" />
+			<many-to-one name="customer" column="fiCustomer" not-null="true" cascade="save-update" />
+		</properties>
+	</class>
+
+</hibernate-mapping>

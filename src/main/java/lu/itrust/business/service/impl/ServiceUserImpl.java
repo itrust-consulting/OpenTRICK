@@ -5,8 +5,8 @@ package lu.itrust.business.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.usermanagment.Role;
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.service.ServiceUser;
 
@@ -76,7 +76,7 @@ public class ServiceUserImpl implements ServiceUser {
 	 * addRole: <br>
 	 * Description
 	 *
-	 * @see lu.itrust.business.service.ServiceUser#addRole(lu.itrust.business.TS.usermanagment.User, lu.itrust.business.TS.usermanagment.Role)
+	 * @see lu.itrust.business.service.ServiceUser#addRole(lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.usermanagement.Role)
 	 */
 	public boolean addRole(User user, Role role) throws Exception{
 		return daoUser.addRole(user, role);
@@ -86,7 +86,7 @@ public class ServiceUserImpl implements ServiceUser {
 	 * removeRole: <br>
 	 * Description
 	 *
-	 * @see lu.itrust.business.service.ServiceUser#removeRole(lu.itrust.business.TS.usermanagment.User, lu.itrust.business.TS.usermanagment.Role)
+	 * @see lu.itrust.business.service.ServiceUser#removeRole(lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.usermanagement.Role)
 	 */
 	public boolean removeRole(User user, Role role) throws Exception{
 		return daoUser.removeRole(user, role);
@@ -141,9 +141,13 @@ public class ServiceUserImpl implements ServiceUser {
 	}
 
 	@Override
-	public boolean isEmpty() throws Exception {
-		// TODO Auto-generated method stub
-		return daoUser.isEmpty();
+	public boolean hasUsers() throws Exception {
+		return daoUser.hasUsers();
+	}
+
+	@Override
+	public boolean hasRole(User user, Role role) throws Exception {
+		return daoUser.hasRole(user, role);
 	}
 
 }

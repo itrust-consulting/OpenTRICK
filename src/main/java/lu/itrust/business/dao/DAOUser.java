@@ -5,8 +5,8 @@ package lu.itrust.business.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.usermanagment.Role;
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author oensuifudine
@@ -30,6 +30,8 @@ public interface DAOUser {
 	
 	boolean removeRole(User user, Role role) throws Exception;
 	
+	boolean hasRole(User user, Role role) throws Exception;
+	
 	void save(User user)throws Exception;
 	
 	void saveOrUpdate(User user)throws Exception;
@@ -38,5 +40,5 @@ public interface DAOUser {
 	
 	void delete(long id)throws Exception;
 
-	boolean isEmpty()throws Exception;
+	boolean hasUsers()throws Exception;
 }

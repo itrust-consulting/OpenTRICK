@@ -5,9 +5,9 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import lu.itrust.business.TS.usermanagment.Role;
-import lu.itrust.business.TS.usermanagment.RoleType;
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.validator.UserValidator;
@@ -65,7 +65,7 @@ public class ControllerRegister {
 			PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 			user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
 			Role role = null;
-			if (serviceUser.isEmpty()) {
+			if (!serviceUser.hasUsers()) {
 				role = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
 				if (role == null) {
 					role = new Role(RoleType.ROLE_ADMIN);

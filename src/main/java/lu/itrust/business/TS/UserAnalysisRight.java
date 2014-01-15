@@ -1,6 +1,6 @@
 package lu.itrust.business.TS;
 
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * UserAnalysisRight.java: <br>
