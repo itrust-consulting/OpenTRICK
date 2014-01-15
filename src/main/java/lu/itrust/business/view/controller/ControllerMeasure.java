@@ -7,9 +7,11 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasure;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,15 +44,18 @@ public class ControllerMeasure {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
+	
+	@Autowired
+	private ServiceLanguage serviceLanguage;
 
 	@RequestMapping("/Section")
 	public String section(HttpSession session, Model model,
-			RedirectAttributes attributes, Locale locale) {
+			RedirectAttributes attributes) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
 		model.addAttribute("measure", serviceMeasure.findByAnalysis(idAnalysis));
-		model.addAttribute("locale", locale);
+		model.addAttribute("language", serviceLanguage.findByAnalysis(idAnalysis));
 		return "analysis/components/measure";
 	}
 

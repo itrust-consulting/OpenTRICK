@@ -2,26 +2,26 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
-
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.usermanagment.User;
 import lu.itrust.business.dao.DAOUserAnalysisRight;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /**
  * DAOUserAnalysisRightHBM.java: <br>
  * Detailed description...
- *
+ * 
  * @author smenghi, itrust consulting s.à.rl. :
- * @version 
+ * @version
  * @since Jan 13, 2014
  */
 @Repository
-public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAnalysisRight {
+public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnalysisRight {
 
 	/**
 	 * Constructor
@@ -31,16 +31,17 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 
 	/**
 	 * Constructor
+	 * 
 	 * @param session
 	 */
 	public DAOUserAnalysisRightHBM(Session session) {
 		super(session);
 	}
-	
+
 	/**
 	 * get: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#get(long)
 	 */
 	@Override
@@ -51,7 +52,7 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 	/**
 	 * getAllByUser: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByUser(java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
@@ -64,7 +65,7 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 	/**
 	 * getAllByUser: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByUser(lu.itrust.business.TS.usermanagment.User)
 	 */
 	@SuppressWarnings("unchecked")
@@ -77,7 +78,7 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 	/**
 	 * getAllByUniqueAnalysis: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByUniqueAnalysis(lu.itrust.business.TS.Analysis)
 	 */
 	@SuppressWarnings("unchecked")
@@ -90,7 +91,7 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 	/**
 	 * getAllByAnalysisIdentifier: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByAnalysisIdentifier(java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
@@ -103,7 +104,7 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 	/**
 	 * save: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#save(lu.itrust.business.TS.UserAnalysisRight)
 	 */
 	@Override
@@ -114,7 +115,7 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 	/**
 	 * saveOrUpdate: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#saveOrUpdate(lu.itrust.business.TS.UserAnalysisRight)
 	 */
 	@Override
@@ -125,7 +126,7 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 	/**
 	 * delete: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#delete(lu.itrust.business.TS.UserAnalysisRight)
 	 */
 	@Override
@@ -136,7 +137,7 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 	/**
 	 * delete: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#delete(long)
 	 */
 	@Override
@@ -148,16 +149,33 @@ public class DAOUserAnalysisRightHBM  extends DAOHibernate implements DAOUserAna
 	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception {
 		return analysis.isUserAuthorized(user, right);
 	}
-	
+
 	@Override
 	public UserAnalysisRight getUserAnalysisRight(Analysis analysis, User user) throws Exception {
 		return analysis.getRightsforUser(user);
 	}
-	
+
 	@Override
 	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception {
 		return analysis.getRightsforUser(user).getRight();
 	}
 
-	
+	@Override
+	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) {
+		AnalysisRight analysisRight = (AnalysisRight) getSession()
+				.createQuery(
+						"Select userAnalysisRight.right From UserAnalysisRight as userAnalysisRight where userAnalysisRight.analysis.id = :idAnalysis and userAnalysisRight.user.login = :login")
+				.setParameter("idAnalysis", idAnalysis).setParameter("login", username).uniqueResult();
+		return analysisRight == null ? false : analysisRight.ordinal() <= right.ordinal();
+	}
+
+	@Override
+	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) {
+		AnalysisRight analysisRight = (AnalysisRight) getSession()
+				.createQuery(
+						"Select userAnalysisRight.right From UserAnalysisRight as userAnalysisRight where userAnalysisRight.analysis.id = :idAnalysis and userAnalysisRight.user.id = :idUser")
+				.setParameter("idAnalysis", analysisId).setParameter("idUser", userId).uniqueResult();
+		return analysisRight == null ? false : analysisRight.ordinal() <= right.ordinal();
+	}
+
 }

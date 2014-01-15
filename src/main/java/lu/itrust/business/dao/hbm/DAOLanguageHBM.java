@@ -122,4 +122,9 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 		query.executeUpdate();
 	}
 
+	@Override
+	public Language findByAnalysis(Integer idAnalysis) {
+		return (Language) getSession().createQuery("Select analysis.language from Analysis analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis).uniqueResult();
+	}
+
 }

@@ -61,20 +61,30 @@ public class MeasureDescription implements Cloneable {
 	}
 
 	public MeasureDescriptionText getMeasureDescriptionText(Locale locale) {
+		return getMeasureDescriptionText(locale.getISO3Language());
+	}
+
+	public MeasureDescriptionText getMeasureDescriptionText(Language language) {
+		return getMeasureDescriptionText(language.getAlpha3());
+	}
+
+	public MeasureDescriptionText getMeasureDescriptionText(String alpha3) {
 
 		MeasureDescriptionText descriptionText = null;
+		MeasureDescriptionText descriptionTextEnglish = null;
 
 		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts) {
 			if (measureDescriptionText.getLanguage().getAlpha3()
-					.equalsIgnoreCase(locale.getISO3Language()))
+					.equalsIgnoreCase(alpha3))
 				return measureDescriptionText;
 			else if (measureDescriptionText.getLanguage().getAlpha3()
 					.equalsIgnoreCase("eng"))
-				descriptionText = measureDescriptionText;
+				descriptionTextEnglish = measureDescriptionText;
 		}
 
-		return descriptionText == null && measureDescriptionTexts.size() > 1 ? measureDescriptionTexts
-				.get(0) : descriptionText;
+		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish
+				: descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts
+						.get(0) : descriptionText;
 	}
 
 	/**

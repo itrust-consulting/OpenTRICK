@@ -20,7 +20,7 @@
 				<spring:message code="label.asset.add" text="Add new asset" />
 			</button>
 		</div>
-		<div class="panel-body">
+		<div class="panel-body" style="max-height: 700px; overflow: auto;">
 			<table class="table">
 				<thead>
 					<tr>

@@ -14,8 +14,8 @@
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading">&nbsp;</div>
-		<div class="panel-body">
-			<table class="table">
+		<div class="panel-body" style="max-height: 700px; overflow: auto;">
+			<table class="table" >
 				<thead>
 					<tr>
 						<!--  <th><spring:message code="label.history.id" /></th>-->

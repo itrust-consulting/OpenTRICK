@@ -47,75 +47,101 @@
 					</thead>
 					<tbody>
 						<c:forEach items="${measureSplited.get(norm)}" var="measure">
-							<tr trick-class="Measure" trick-id="${measure.id}">
-								<td><spring:message
-										text="${measure.measureDescription.reference}" /></td>
+							<c:choose>
+								<c:when test="${measure.measureDescription.level<3 }">
+									<tr ${measure.measureDescription.level<2? "class='danger'" : "class='warning'" }>
+										<td><spring:message
+												text="${measure.measureDescription.reference}" /></td>
 
-								<c:set var="measureDescriptionText"
-									value="${measure.measureDescription.getMeasureDescriptionText(locale)}" />
-								<td colspan="2"><spring:message
-										text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-								<td class="success" trick-field="status" trick-choose="M,AP,NA"
-									trick-field-type="string" ondblclick="return editField(this);"><spring:message
-										text="${measure.status}" htmlEscape="true" /></td>
-								<c:choose>
-									<c:when test="${norm.equalsIgnoreCase('Custom')==true}">
-										<td class="success" trick-field="implementationRate"
+										<c:set var="measureDescriptionText"
+											value="${measure.measureDescription.getMeasureDescriptionText(language)}" />
+										<td  colspan="14"><spring:message
+												text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+									
+									</tr>
+								</c:when>
+								<c:otherwise>
+									<tr trick-class="Measure" trick-id="${measure.id}">
+										<td><spring:message
+												text="${measure.measureDescription.reference}" /></td>
+										<c:set var="measureDescriptionText"
+											value="${measure.measureDescription.getMeasureDescriptionText(language)}" />
+										<td colspan="2"><spring:message
+												text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+
+										<td class="success" trick-field="status"
+											trick-choose="M,AP,NA" trick-field-type="string"
+											ondblclick="return editField(this);"><spring:message
+												text="${measure.status}" htmlEscape="true" /></td>
+										<c:choose>
+											<c:when test="${norm.equalsIgnoreCase('Custom')==true}">
+												<td class="success" trick-field="implementationRate"
+													trick-field-type="double"
+													ondblclick="return editField(this);"><spring:message
+														text="${measure.getImplementationRateValue()}" /></td>
+											</c:when>
+											<c:when test="${norm.equalsIgnoreCase('Maturity')==false}">
+												<td class="success" trick-field="implementationRate"
+													trick-field-type="double"
+													trick-callback="compliance('${norm}')"
+													ondblclick="return editField(this);"><spring:message
+														text="${measure.getImplementationRateValue()}" /></td>
+											</c:when>
+											<c:otherwise>
+												<td class="success" trick-field="implementationRate"
+													trick-field-type="double"
+													ondblclick="return editField(this);"
+													trick-class="MaturityMeasure" trick-id="${measure.id}"><spring:message
+														text="${measure.getImplementationRateValue()}" /></td>
+											</c:otherwise>
+										</c:choose>
+										<td class="success" trick-field="internalWL"
 											trick-field-type="double"
 											ondblclick="return editField(this);"><spring:message
-												text="${measure.getImplementationRateValue()}" /></td>
-									</c:when>
-									<c:when test="${norm.equalsIgnoreCase('Maturity')==false}">
-										<td class="success" trick-field="implementationRate"
+												text="${measure.internalWL}" /></td>
+										<td class="success" trick-field="externalWL"
 											trick-field-type="double"
-											trick-callback="compliance('${norm}')"
 											ondblclick="return editField(this);"><spring:message
-												text="${measure.getImplementationRateValue()}" /></td>
-									</c:when>
-									<c:otherwise>
-										<td class="success" trick-field="implementationRate"
+												text="${measure.externalWL}" /></td>
+										<td class="success" trick-field="investment"
 											trick-field-type="double"
+											ondblclick="return editField(this);"><spring:message
+												text="${measure.investment}" /></td>
+										<td class="success" trick-field="lifetime"
+											trick-field-type="double"
+											ondblclick="return editField(this);"><spring:message
+												text="${measure.lifetime}" /></td>
+										<td class="success" trick-field="maintenance"
+											trick-field-type="double"
+											ondblclick="return editField(this);"><spring:message
+												text="${measure.maintenance}" /></td>
+										<td class="success" trick-field="cost"
+											trick-field-type="double"
+											ondblclick="return editField(this);"><fmt:formatNumber
+												value="${measure.cost}" maxFractionDigits="0" /></td>
+										<td class="success" trick-field="phase"
+											trick-field-type="integer"
 											ondblclick="return editField(this);"
-											trick-class="MaturityMeasure" trick-id="${measure.id}"><spring:message
-												text="${measure.getImplementationRateValue()}" /></td>
-									</c:otherwise>
-								</c:choose>
-								<td class="success" trick-field="internalWL"
-									trick-field-type="double" ondblclick="return editField(this);"><spring:message
-										text="${measure.internalWL}" /></td>
-								<td class="success" trick-field="externalWL"
-									trick-field-type="double" ondblclick="return editField(this);"><spring:message
-										text="${measure.externalWL}" /></td>
-								<td class="success" trick-field="investment"
-									trick-field-type="double" ondblclick="return editField(this);"><spring:message
-										text="${measure.investment}" /></td>
-								<td class="success" trick-field="lifetime"
-									trick-field-type="double" ondblclick="return editField(this);"><spring:message
-										text="${measure.lifetime}" /></td>
-								<td class="success" trick-field="maintenance"
-									trick-field-type="double" ondblclick="return editField(this);"><spring:message
-										text="${measure.maintenance}" /></td>
-								<td class="success" trick-field="cost" trick-field-type="double"
-									ondblclick="return editField(this);"><fmt:formatNumber
-										value="${measure.cost}" maxFractionDigits="0" /></td>
-								<td class="success" trick-field="phase"
-									trick-field-type="integer" ondblclick="return editField(this);"
-									trick-callback-pre="extractPhase(this)"
-									trick-real-value='${measure.phase.number}'><c:choose>
-										<c:when test="${measure.phase.number == 0}">
+											trick-callback-pre="extractPhase(this)"
+											trick-real-value='${measure.phase.number}'><c:choose>
+												<c:when test="${measure.phase.number == 0}">
 										NA
 								</c:when>
-										<c:otherwise>
+												<c:otherwise>
 								${measure.phase.number}
 								</c:otherwise>
-									</c:choose></td>
-								<td colspan="2" class="success" trick-field="comment"
-									trick-field-type="string" ondblclick="return editField(this);"><spring:message
-										text="${measure.comment}" /></td>
-								<td colspan="2" class="success" trick-field="toDo"
-									trick-field-type="string" ondblclick="return editField(this);"><spring:message
-										text="${measure.toDo}" /></td>
-							</tr>
+											</c:choose></td>
+										<td colspan="2" class="success" trick-field="comment"
+											trick-field-type="string"
+											ondblclick="return editField(this);"><spring:message
+												text="${measure.comment}" /></td>
+										<td colspan="2" class="success" trick-field="toDo"
+											trick-field-type="string"
+											ondblclick="return editField(this);"><spring:message
+												text="${measure.toDo}" /></td>
+									</tr>
+								</c:otherwise>
+							</c:choose>
 						</c:forEach>
 					</tbody>
 				</table>

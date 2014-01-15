@@ -22,8 +22,8 @@ import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceActionPlan;
@@ -139,28 +139,36 @@ public class ControllerAnalysis {
 	public String displayAll(Principal principal, Map<String, Object> model, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 		if (selected != null) {
-			if (serviceUserAnalysisRight.isUserAuthorized(serviceAnalysis.get(selected), serviceUser.get(principal.getName()), AnalysisRight.READ)) {
+			if (serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.READ)) {
+				Analysis analysis = serviceAnalysis.get(selected);
+				if (analysis == null) {
+					attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+					return "redirect:/Error/404";
+				}
 				model.put("assettypes", serviceAssetType.loadAll());
-				model.put("analysis", serviceAnalysis.get(selected));
-				model.put("locale", locale);
+				model.put("analysis", analysis);
+				model.put("language", analysis.getLanguage());
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.notAuthorized", null, "Insufficient permissions!", locale));
+				return "redirect:/Error/403";
 			}
-		} else
+		} else {
 			model.put("analyses", serviceAnalysis.loadAllFromUser(serviceUser.get(principal.getName())));
-		model.put("login", principal.getName());
-		model.put("deleteRight", AnalysisRight.DELETE.ordinal());
-		model.put("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
-		model.put("calcActionPlanRight", AnalysisRight.CALCULATE_ACTIONPLAN.ordinal());
-		model.put("modifyRight", AnalysisRight.MODIFY.ordinal());
-		model.put("exportRight", AnalysisRight.EXPORT.ordinal());
-		model.put("readRight", AnalysisRight.READ.ordinal());
+			model.put("login", principal.getName());
+			model.put("deleteRight", AnalysisRight.DELETE.ordinal());
+			model.put("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
+			model.put("calcActionPlanRight", AnalysisRight.CALCULATE_ACTIONPLAN.ordinal());
+			model.put("modifyRight", AnalysisRight.MODIFY.ordinal());
+			model.put("exportRight", AnalysisRight.EXPORT.ordinal());
+			model.put("readRight", AnalysisRight.READ.ordinal());
+		}
 		return "analysis/analysis";
 	}
 
 	@RequestMapping(value = "/{analysisId}/Duplicate", headers = "Accept=application/json")
 	public @ResponseBody
-	String createNewVersion(@ModelAttribute History history, @PathVariable int analysisId, Model model, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
+	String createNewVersion(@ModelAttribute History history, @PathVariable int analysisId, Model model, HttpSession session, RedirectAttributes attributes, Locale locale)
+			throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null) {
@@ -215,8 +223,8 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisId}/Select")
-	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, RedirectAttributes attributes,
-			Locale locale) throws Exception {
+	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session,
+			RedirectAttributes attributes, Locale locale) throws Exception {
 
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 
@@ -442,8 +450,8 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisId}/Duplicate")
-	public String createNewVersion(@ModelAttribute History history, @PathVariable Integer analysisId, Principal principal, HttpSession session, RedirectAttributes attributes, Locale locale)
-			throws Exception {
+	public String createNewVersion(@ModelAttribute History history, @PathVariable Integer analysisId, Principal principal, HttpSession session, RedirectAttributes attributes,
+			Locale locale) throws Exception {
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null) {
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
@@ -559,8 +567,8 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Import/Execute")
-	public Object importAnalysisSave(final Principal principal, final @RequestParam(value = "customerId") Integer customerId, final HttpServletRequest request, final @RequestParam(
-			value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
+	public Object importAnalysisSave(final Principal principal, final @RequestParam(value = "customerId") Integer customerId, final HttpServletRequest request,
+			final @RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
 
 		Customer customer = serviceCustomer.get(customerId);
 

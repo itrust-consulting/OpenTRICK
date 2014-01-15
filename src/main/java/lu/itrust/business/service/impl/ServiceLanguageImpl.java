@@ -113,4 +113,9 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 		this.daoLanguage = daoLanguage;
 	}
 
+	@Override
+	public Language findByAnalysis(Integer idAnalysis) {
+		return this.daoLanguage.findByAnalysis(idAnalysis);
+	}
+
 }

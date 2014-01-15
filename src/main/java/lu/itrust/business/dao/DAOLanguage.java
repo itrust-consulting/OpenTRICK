@@ -18,6 +18,8 @@ public interface DAOLanguage {
 	
 	public Language loadFromAlpha3(String alpha3) throws Exception;
 	
+	public Language findByAnalysis(Integer idAnalysis);
+	
 	public Language loadFromName(String name) throws Exception;
 	
 	public Language loadFromAlternativeName(String alternativeName) throws Exception;

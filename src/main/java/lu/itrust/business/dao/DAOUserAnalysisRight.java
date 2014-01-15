@@ -40,5 +40,9 @@ public interface DAOUserAnalysisRight {
 		public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception;
 		
 		public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception;
+
+		boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right);
+
+		boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right);
 		
 }

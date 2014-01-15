@@ -19,7 +19,7 @@
 				<spring:message code="label.action.add.phase" text="Add new phase" />
 			</button>
 		</div>
-		<div class="panel-body">
+		<div class="panel-body" style="max-height: 700px; overflow: auto;">
 			<table class="table">
 				<thead>
 					<tr>

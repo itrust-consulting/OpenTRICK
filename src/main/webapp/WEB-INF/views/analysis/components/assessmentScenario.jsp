@@ -8,7 +8,7 @@
 <div class="section" id="section_scenario_assessment"
 	trick-name="<spring:message code="label.assessment.for.scenario" text="Assessment for ${scenario.name}" arguments="${scenario.name}" htmlEscape="true" />">
 	<div class="panel panel-default">
-		<div class="panel-body">
+		<div class="panel-body" style="max-height: 700px; overflow: auto;">
 			<table class="table table-responsive">
 				<thead>
 					<tr>

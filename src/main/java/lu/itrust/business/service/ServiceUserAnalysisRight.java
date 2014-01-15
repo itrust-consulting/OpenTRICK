@@ -18,6 +18,8 @@ public interface ServiceUserAnalysisRight {
 
 	List<UserAnalysisRight> getAllByAnalysisIdentifier(String identifier) throws Exception;
 	
+	boolean isUserAuthorized(Integer selected, String name, AnalysisRight read);
+	
 	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception;
 
 	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) throws Exception;
@@ -33,4 +35,6 @@ public interface ServiceUserAnalysisRight {
 	void delete(UserAnalysisRight userAnalysisRight) throws Exception;
 
 	void delete(long id) throws Exception;
+
+	
 }

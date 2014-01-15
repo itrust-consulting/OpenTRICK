@@ -21,7 +21,7 @@
 				<div class="panel-heading">
 					<spring:message code="label.itemInformation.scope" text="Scopes" />
 				</div>
-				<div class="panel-body">
+				<div class="panel-body" style="max-height: 700px; overflow: auto;">
 
 					<table class="table">
 						<thead>
@@ -53,7 +53,7 @@
 					<spring:message code="label.itemInformation.organisation"
 						text="Organisations" />
 				</div>
-				<div class="panel-body">
+				<div class="panel-body" style="max-height: 700px; overflow: auto;">
 
 					<table class="table">
 						<thead>

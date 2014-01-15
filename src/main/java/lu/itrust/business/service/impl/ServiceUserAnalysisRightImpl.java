@@ -34,18 +34,6 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	@Autowired
 	private DAOUser daoUser;
 	
-	public void setDAOUser(DAOUser dao) {
-		this.daoUser=dao;
-	}
-	
-	public void setDAOAnalysis(DAOAnalysis dao) {
-		this.daoAnalysis=dao;
-	}
-	
-	public void setDAOUserAnalysisRight(DAOUserAnalysisRight daoUAR) {
-		this.daoUserAnalysisRight=daoUAR;
-	}
-	
 	/**
 	 * get: <br>
 	 * Description
@@ -121,7 +109,7 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 */
 	@Override
 	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) throws Exception {
-		return daoUserAnalysisRight.isUserAuthorized(daoAnalysis.get(analysisId), daoUser.get(userId), right);
+		return daoUserAnalysisRight.isUserAuthorized(analysisId, userId, right);
 	}
 	
 	@Override
@@ -176,5 +164,10 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	@Override
 	public void delete(long id) throws Exception {
 		this.daoUserAnalysisRight.delete(get(id));
+	}
+
+	@Override
+	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) {
+		return this.daoUserAnalysisRight.isUserAuthorized(idAnalysis,username,right );
 	}
 }
