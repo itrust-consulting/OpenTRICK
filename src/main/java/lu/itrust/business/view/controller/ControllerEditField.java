@@ -470,6 +470,9 @@ public class ControllerEditField {
 			Field field = measure.getClass().getSuperclass()
 					.getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
+			List<Parameter> parameters = serviceParameter
+					.findByAnalysisAndType(idAnalysis,
+							Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
 			if (fieldEditor.getFieldName().equals("phase")) {
 				Integer number = 0;
 				if (!fieldEditor.getValue().equalsIgnoreCase("NA"))
@@ -490,6 +493,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage(
 						"error.edit.type.field", null,
 						"Data cannot be updated", locale));
+			Measure.ComputeCost(measure, parameters);
 			serviceMeasure.saveOrUpdate(measure);
 			return JsonMessage.Success(messageSource.getMessage(
 					"success.measure.updated", null,
@@ -526,12 +530,17 @@ public class ControllerEditField {
 				List<Parameter> parameters = serviceParameter
 						.findByAnalysisAndType(idAnalysis,
 								Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+				
+				List<Parameter> simpleParameters = serviceParameter
+						.findByAnalysisAndType(idAnalysis,
+								Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
 
 				double value = Double.parseDouble(fieldEditor.getValue());
 
 				for (Parameter parameter : parameters) {
 					if (Math.abs(parameter.getValue() - value) < 1e-5) {
 						measure.setImplementationRate(parameter);
+						Measure.ComputeCost(measure, simpleParameters);
 						serviceMeasure.saveOrUpdate(measure);
 						return JsonMessage.Success(messageSource.getMessage(
 								"success.measure.updated", null,

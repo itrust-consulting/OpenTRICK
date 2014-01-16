@@ -476,7 +476,6 @@ public class ControllerAnalysis {
 			return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
-
 	}
 
 	// ******************************************************************************************************************

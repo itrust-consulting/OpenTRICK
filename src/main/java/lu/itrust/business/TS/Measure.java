@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 
@@ -448,6 +449,97 @@ public abstract class Measure implements Serializable, Cloneable {
 			return false;
 		}
 		return true;
+	}
+	
+	public static void ComputeCost(Measure measure, List<Parameter> parameters) {
+		// ****************************************************************
+		// * variable initialisation
+		// ****************************************************************
+		double cost = 0;
+		double externalSetupValue = -1;
+		double internalSetupValue = -1;
+		double lifetimeDefault = -1;
+		double maintenanceDefault = -1;
+
+		// ****************************************************************
+		// * select external and internal setup rate from parameters
+		// ****************************************************************
+
+		// parse parameters
+		for (Parameter parameter : parameters) {
+
+			// check if parameter is Internal Setup Rate -> YES
+			if (parameter.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE)) {
+
+				// ****************************************************************
+				// * set internal Setup rate
+				// ****************************************************************
+				internalSetupValue = parameter.getValue();
+
+				// check if all parameters are set -> YES
+				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
+
+					// leave loop
+					break;
+				}
+			}
+
+			// check if parameter is External Setup Rate -> YES
+			if (parameter.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE)) {
+
+				// ****************************************************************
+				// * set external setup rate
+				// ****************************************************************
+				externalSetupValue = parameter.getValue();
+
+				// check if all parameters are set -> YES
+				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
+
+					// leave loop
+					break;
+				}
+			}
+
+			// check if parameter is default lifetime -> YES
+			if (parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
+
+				// ****************************************************************
+				// * set default lifetime
+				// ****************************************************************
+				lifetimeDefault = parameter.getValue();
+
+				// check if all parameters are set -> YES
+				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
+
+					// leave loop
+					break;
+				}
+			}
+
+			// check if parameter is default maintenance -> YES
+			if (parameter.getDescription().equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
+
+				// ****************************************************************
+				// * set default maintenance
+				// ****************************************************************
+				maintenanceDefault = parameter.getValue();
+
+				// check if all parameters are set -> YES
+				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
+
+					// leave loop
+					break;
+				}
+			}
+		}
+
+		// calculate the cost
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getInternalWL(), measure.getExternalWL(),
+				measure.getInvestment(), measure.getLifetime(), measure.getMaintenance());
+		// return calculated cost
+		if (cost >= 0)
+			measure.setCost(cost);
+		System.out.println(cost);
 	}
 
 	/* (non-Javadoc)
