@@ -19,6 +19,8 @@ import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.dao.DAOActionPlanType;
+import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.service.ServiceActionPlanType;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceTaskFeedback;
@@ -47,10 +49,10 @@ public class ActionPlanComputation {
 	 **********************************************************************************************/
 
 	@Autowired
-	private ServiceActionPlanType serviceActionPlanType;
+	private DAOActionPlanType serviceActionPlanType;
 	
 	@Autowired
-	private ServiceAnalysis sericeAnalysis;
+	private DAOAnalysis sericeAnalysis;
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
@@ -88,7 +90,7 @@ public class ActionPlanComputation {
 	 * @param sericeAnalysis
 	 * @param analysis
 	 */
-	public ActionPlanComputation(ServiceActionPlanType serviceActionPlanType, ServiceAnalysis sericeAnalysis, Analysis analysis) {
+	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, DAOAnalysis sericeAnalysis, Analysis analysis) {
 		this.serviceActionPlanType = serviceActionPlanType;
 		this.sericeAnalysis = sericeAnalysis;
 		this.analysis = analysis;
@@ -101,7 +103,7 @@ public class ActionPlanComputation {
 	 * @param idTask
 	 * @param analysis
 	 */
-	public ActionPlanComputation(ServiceActionPlanType serviceActionPlanType, ServiceAnalysis sericeAnalysis, ServiceTaskFeedback serviceTaskFeedback, Long idTask,
+	public ActionPlanComputation(DAOActionPlanType serviceActionPlanType, DAOAnalysis sericeAnalysis, ServiceTaskFeedback serviceTaskFeedback, Long idTask,
 			Analysis analysis) {
 		this.serviceActionPlanType = serviceActionPlanType;
 		this.sericeAnalysis = sericeAnalysis;
@@ -290,11 +292,11 @@ public class ActionPlanComputation {
 
 			return null;
 
+		
 		} catch (Exception e) {
 			System.out.println("Action Plan saving failed! ");
 			MessageHandler messageHandler = new MessageHandler(e.getMessage(), "Action Plan saving failed", e);
 			serviceTaskFeedback.send(idTask, messageHandler);
-			// print error message
 			e.printStackTrace();
 			return messageHandler;
 		}
@@ -2323,6 +2325,8 @@ public class ActionPlanComputation {
 		boolean byPhase = false;
 		double phasetime = 0;
 		List<ActionPlanEntry> actionPlan = this.analysis.getActionPlan(mode);
+		if(actionPlan.isEmpty())
+			throw new IllegalArgumentException("error.actionPlanEntry.empty");
 		ActionPlanType apt = actionPlan.get(0).getActionPlanType();
 
 		// ****************************************************************

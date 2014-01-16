@@ -89,7 +89,7 @@
 								text="Update Assessment" />
 					</a></li>
 					<li class="divider"></li>
-					<li><a href="#"> <spring:message
+					<li><a href="#" onclick="return calculateActionPlan('${analysis.id}')"> <spring:message
 								code="label.analysis.compute.actionPlan"
 								text="Compute ActionPlan" />
 					</a></li>

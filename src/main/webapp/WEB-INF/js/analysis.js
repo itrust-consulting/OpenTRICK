@@ -10,10 +10,10 @@ function saveAnalysis(form) {
 			var alert = $("#addAnalysisModel .alert");
 			if (alert.length)
 				alert.remove();
-			for ( var error in response){
-					errorMessage = parseJson(response[error]);
-					if (errorMessage.error != undefined)
-						data += errorMessage.error + "\n";
+			for ( var error in response) {
+				errorMessage = parseJson(response[error]);
+				if (errorMessage.error != undefined)
+					data += errorMessage.error + "\n";
 			}
 			result = data == "" ? true : showError(document
 					.getElementById(form), data);
@@ -104,8 +104,28 @@ function selectAnalysis(analysisId) {
 }
 
 function calculateActionPlan(analysisId) {
-	href = context+"/Analysis/"+analysisId+"/Compute/ActionPlan";
-	
+	$.ajax({
+		url : context + "/Analysis/" + analysisId + "/Compute/ActionPlan",
+		type : "get",
+		async:true,
+		contentType : "application/json",
+		success : function(response) {
+			var message = parseJson(response);
+			if (message["success"] != undefined) {
+				if (taskManager == undefined)
+					taskManager = new TaskManager();
+				taskManager.Start();
+			} else if (message["error"]) {
+				$("#alert-dialog .modal-body").html(message["error"]);
+				$("#alert-dialog").modal("toggle");
+			}
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
+	});
+	return false;
+
 }
 
 function calculateRiskRegister(analysisId) {

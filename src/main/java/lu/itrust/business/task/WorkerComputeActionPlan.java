@@ -3,19 +3,23 @@
  */
 package lu.itrust.business.task;
 
-import java.io.File;
-
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.service.ServiceActionPlan;
-import lu.itrust.business.service.ServiceActionPlanSummary;
-import lu.itrust.business.service.ServiceActionPlanType;
-import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.dao.DAOActionPlan;
+import lu.itrust.business.dao.DAOActionPlanSummary;
+import lu.itrust.business.dao.DAOActionPlanType;
+import lu.itrust.business.dao.DAOAnalysis;
+import lu.itrust.business.dao.hbm.DAOActionPlanHBM;
+import lu.itrust.business.dao.hbm.DAOActionPlanSummaryHBM;
+import lu.itrust.business.dao.hbm.DAOActionPlanTypeHBM;
+import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 
-import org.springframework.transaction.annotation.Transactional;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 /**
  * @author eomar
@@ -33,34 +37,39 @@ public class WorkerComputeActionPlan implements Worker {
 
 	private WorkersPoolManager poolManager;
 
-	private ServiceActionPlanSummary serviceActionPlanSummary;
+	private DAOActionPlanSummary daoActionPlanSummary;
 
-	private ServiceActionPlanType serviceActionPlanType;
+	private DAOActionPlanType daoActionPlanType;
 
-	private ServiceActionPlan serviceActionPlan;
+	private DAOActionPlan daoActionPlan;
 
-	private ServiceAnalysis serviceAnalysis;
+	private DAOAnalysis daoAnalysis;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
+
+	private SessionFactory sessionFactory;
 
 	private int idAnalysis;
 
 	/**
-	 * @param serviceActionPlanSummary
-	 * @param serviceActionPlanType
-	 * @param serviceActionPlan
-	 * @param serviceAnalysis
+	 * @param daoActionPlanSummary
+	 * @param daoActionPlanType
+	 * @param daoActionPlan
+	 * @param daoAnalysis
 	 * @param serviceTaskFeedback
 	 * @param idAnalysis
 	 */
-	public WorkerComputeActionPlan(ServiceActionPlanSummary serviceActionPlanSummary, ServiceActionPlanType serviceActionPlanType, ServiceActionPlan serviceActionPlan,
-			ServiceAnalysis serviceAnalysis, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis) {
-		this.serviceActionPlanSummary = serviceActionPlanSummary;
-		this.serviceActionPlanType = serviceActionPlanType;
-		this.serviceActionPlan = serviceActionPlan;
-		this.serviceAnalysis = serviceAnalysis;
+	public WorkerComputeActionPlan(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis) {
+		this.sessionFactory = sessionFactory;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idAnalysis = idAnalysis;
+	}
+
+	private void initialiseDAO(Session session) {
+		daoActionPlan = new DAOActionPlanHBM(session);
+		daoActionPlanSummary = new DAOActionPlanSummaryHBM(session);
+		daoActionPlanType = new DAOActionPlanTypeHBM(session);
+		daoAnalysis = new DAOAnalysisHBM(session);
 	}
 
 	/**
@@ -72,13 +81,9 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @param serviceTaskFeedback
 	 * @param idAnalysis
 	 */
-	public WorkerComputeActionPlan(WorkersPoolManager poolManager, ServiceActionPlanSummary serviceActionPlanSummary, ServiceActionPlanType serviceActionPlanType,
-			ServiceActionPlan serviceActionPlan, ServiceAnalysis serviceAnalysis, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis) {
+	public WorkerComputeActionPlan(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis) {
+		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
-		this.serviceActionPlanSummary = serviceActionPlanSummary;
-		this.serviceActionPlanType = serviceActionPlanType;
-		this.serviceActionPlan = serviceActionPlan;
-		this.serviceAnalysis = serviceAnalysis;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idAnalysis = idAnalysis;
 	}
@@ -88,9 +93,9 @@ public class WorkerComputeActionPlan implements Worker {
 	 * 
 	 * @see java.lang.Runnable#run()
 	 */
-	@Transactional
 	@Override
 	public void run() {
+		Session session = null;
 		try {
 			synchronized (this) {
 				if (poolManager != null && !poolManager.exist(getId()))
@@ -100,20 +105,45 @@ public class WorkerComputeActionPlan implements Worker {
 					return;
 				working = true;
 			}
+			session = sessionFactory.openSession();
+			initialiseDAO(session);
 			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", null));
-			Analysis analysis = this.serviceAnalysis.get(idAnalysis);
+			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
 				return;
 			}
+			session.beginTransaction();
 			deleteActionPlan(analysis);
-			ActionPlanComputation computation = new ActionPlanComputation(serviceActionPlanType, serviceAnalysis, serviceTaskFeedback, id, analysis);
-			computation.calculateActionPlans();
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis);
+			if (computation.calculateActionPlans() == null)
+				session.getTransaction().commit();
+			else
+				session.getTransaction().rollback();
 		} catch (InterruptedException e) {
-			canceled = true;
+			try {
+				canceled = true;
+				if (session!=null && session.getTransaction().isInitiator())
+					session.getTransaction().rollback();
+			} catch (HibernateException e1) {
+				e1.printStackTrace();
+			}
 		} catch (Exception e) {
-			serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", e));
+			try {
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", e));
+				e.printStackTrace();
+				if (session!=null && session.getTransaction().isInitiator())
+					session.getTransaction().rollback();
+			} catch (HibernateException e1) {
+				e1.printStackTrace();
+			}
 		} finally {
+			try {
+				if(session!=null)
+					session.close();
+			} catch (HibernateException e) {
+				e.printStackTrace();
+			}
 			synchronized (this) {
 				working = false;
 			}
@@ -134,12 +164,12 @@ public class WorkerComputeActionPlan implements Worker {
 		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan summary is deleting", null));
 
 		while (!analysis.getSummaries().isEmpty())
-			serviceActionPlanSummary.remove(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
+			daoActionPlanSummary.remove(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
 
 		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan is deleting", null));
 
 		while (!analysis.getActionPlans().isEmpty())
-			serviceActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
+			daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));
 	}
 
 	/*

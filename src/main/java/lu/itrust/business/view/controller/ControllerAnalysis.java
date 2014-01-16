@@ -489,14 +489,13 @@ public class ControllerAnalysis {
 
 		if (!serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.CALCULATE_ACTIONPLAN))
 			return JsonMessage.Error(messageSource.getMessage("errors.403.access.denied", null, "You do not have the nessesary permissions to perform this action!", locale));
-		Worker worker = new WorkerComputeActionPlan(serviceActionPlanSummary, serviceActionPlanType, serviceActionPlan, serviceAnalysis, serviceTaskFeedback, analysisId);
+		Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId);
 		worker.setPoolManager(workersPoolManager);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
 
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
-			executor.execute(worker);
-			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
-		}
-		return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
 	}
 
 	// ******************************************************************************************************************
