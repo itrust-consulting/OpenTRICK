@@ -21,8 +21,6 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOActionPlanType;
 import lu.itrust.business.dao.DAOAnalysis;
-import lu.itrust.business.service.ServiceActionPlanType;
-import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceTaskFeedback;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -245,7 +243,7 @@ public class ActionPlanComputation {
 			 * // * create summary for pessimistic action plan summary //
 			 * ****************************************************************
 			 */// computeSummary(ActionPlanMode.PESSIMISTIC);
-			/*
+			/*o
 			 * / //
 			 * ****************************************************************
 			 * // * create summary for normal phase action plan summary //

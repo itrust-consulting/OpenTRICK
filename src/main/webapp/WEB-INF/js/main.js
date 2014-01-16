@@ -991,8 +991,11 @@ function TaskManager() {
 			async : true,
 			contentType : "application/json",
 			success : function(reponse) {
-				if (reponse == null || reponse.flag == undefined)
+				if (reponse == null || reponse.flag == undefined){
+					if(!instance.progressBars.length)
+						instance.Remove(taskId);
 					return false;
+				}
 				if (instance.progressBars[taskId] == null
 						|| instance.progressBars[taskId] == undefined) {
 					instance.progressBars[taskId] = instance
@@ -1007,10 +1010,7 @@ function TaskManager() {
 						instance.UpdateStatus(taskId);
 					}, reponse.flag == 4 ? 1500 : 3000);
 				} else {
-					instance.progressBars[taskId].Distroy();
-					var index = instance.progressBars.indexOf(taskId);
-					if(index>-1)
-						instance.progressBars.splice(index, 1);
+					instance.Remove(taskId);
 					if(reponse.flag == 4)
 						reloadSection("section_analysis");
 				}
