@@ -83,7 +83,6 @@ function cancelTask(taskId) {
 		async : true,
 		contentType : "application/json",
 		success : function(reponse) {
-			Alert(reponse);
 			$("#task_" + taskId).remove();
 		}
 	});
@@ -120,7 +119,6 @@ function computeAssessment() {
 		error : function(jqXHR, textStatus, errorThrown) {
 			console.log(textStatus);
 			console.log(errorThrown);
-			alert(jqXHR.responseText);
 			return false;
 		},
 	});
@@ -146,7 +144,6 @@ function wipeAssessment() {
 		error : function(jqXHR, textStatus, errorThrown) {
 			console.log(textStatus);
 			console.log(errorThrown);
-			alert(jqXHR.responseText);
 			return false;
 		},
 	});
@@ -1848,10 +1845,125 @@ $(function() {
 	var deleteElement = $contextMenu.find("li[name='delete'] a");
 	var showMeasures = $contextMenu.find("li[name='show_measures'] a");
 
+<<<<<<< HEAD
 	$("#section_analysis").on(
 			"contextmenu",
 			"table tbody tr",
 			function(e) {
+=======
+	$("#section_analysis").on("contextmenu", "table tbody tr", function(e) {
+		
+		// get rights values
+		var deleteRight = $("#deleteRight").text();
+		var calcRickRegisterRight = $("#calcRickRegisterRight").text();
+		var calcActionPlanRight = $("#calcActionPlanRight").text();
+		var modifyRight = $("#modifyRight").text();
+		var exportRight = $("#exportRight").text();
+		var readRight = $("#readRight").text();
+
+		// get missing elements
+		
+		var duplicateanalysis = $contextMenu.find("li[name='duplicate'] a");
+		
+		var computeactionplan = $contextMenu.find("li[name='cActionPlan'] a");
+		var cactionplandivider = $contextMenu.find("li[name='divider_1']");
+
+		var computeriskregister = $contextMenu.find("li[name='cRiskRegister'] a");
+		var criskregisterdivider = $contextMenu.find("li[name='divider_2']");
+		
+		var exportanalysis = $contextMenu.find("li[name='export'] a");
+		var exportanalysisdivider = $contextMenu.find("li[name='divider_3']");
+			
+		var rowTrickId = $(e.currentTarget).attr('trick-id');
+		var data = $(e.currentTarget).attr('data');
+		
+		var rowTrickVersion = $(e.currentTarget).find("td[trick-version]").attr("trick-version");
+		var rowRights = $(e.currentTarget).attr('trick-rights-id');
+		$contextMenu.attr("trick-selected-id", rowTrickId);
+			
+		// select
+
+		if (rowRights <= readRight) {
+				
+			select.parent().removeAttr("hidden");
+			select.attr("onclick", "javascript:return selectAnalysis(" + rowTrickId + ");");
+		} else {
+			select.parent().attr("hidden", "true");
+			select.removeAttr("onclick");
+		}
+		
+		// edit
+		
+		if (rowRights <= modifyRight) {				
+			editRow.parent().removeAttr("hidden");
+			editRow.attr("onclick", "javascript:return editSingleAnalysis(" + rowTrickId + ");");
+			duplicateanalysis.parent().removeAttr("hidden");
+			duplicateanalysis.attr("onclick", "javascript:return addHistory("+rowTrickId+", '"+rowTrickVersion+"')");
+		} else {
+			editRow.parent().attr("hidden", "true");
+			editRow.removeAttr("onclick");
+			duplicateanalysis.parent().attr("hidden", "true");
+			duplicateanalysis.removeAttr("onclick");
+		}	
+		
+		// compute action plan
+		
+		if (rowRights <= calcActionPlanRight && data == "true") {
+			
+			computeactionplan.parent().removeAttr("hidden");
+			computeactionplan.attr("onclick", "javascript:return calculateActionPlan(" + rowTrickId + ");");
+			cactionplandivider.removeAttr("hidden","true");
+		} else {
+			computeactionplan.parent().attr("hidden", "true");
+			computeactionplan.removeAttr("onclick");
+			cactionplandivider.attr("hidden","true");
+		}
+		
+		// compute risk register
+		
+		if (rowRights <= calcRickRegisterRight && data == "true") {
+			
+			computeriskregister.parent().removeAttr("hidden");
+			computeriskregister.attr("onclick", "javascript:return calculateRiskRegister(" + rowTrickId + ");");
+			criskregisterdivider.removeAttr("hidden","true");
+		} else {
+			computeriskregister.parent().attr("hidden", "true");
+			computeriskregister.removeAttr("onclick");
+			criskregisterdivider.attr("hidden","true");
+		}
+		
+		// export
+		
+		if (rowRights <= exportRight) {
+			
+			exportanalysis.parent().removeAttr("hidden");
+			exportanalysis.attr("onclick", "javascript:return exportAnalysis(" + rowTrickId + ");");
+			exportanalysisdivider.removeAttr("hidden","true");
+		} else {
+			exportanalysis.parent().attr("hidden", "true");
+			exportanalysis.removeAttr("onclick");
+			exportanalysisdivider.parent().attr("hidden","true");
+		}
+		
+		// delete
+		
+		if (rowRights <= deleteRight) {
+			
+			deleteElement.parent().removeAttr("hidden");
+			deleteElement.attr("onclick", "javascript:return deleteAnalysis(" + rowTrickId + ");");
+		} else {
+			deleteElement.parent().attr("hidden", "true");
+			deleteElement.removeAttr("onclick");
+		}
+		
+		$contextMenu.css({
+			display : "block",
+			left : e.pageX,
+			top : $(e.target).position().top + 20
+		});
+		return false;
+	});
+>>>>>>> analysis_user_rights
 
 				// get rights values
 				var deleteRight = $("#deleteRight").text();

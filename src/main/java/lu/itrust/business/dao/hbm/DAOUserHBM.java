@@ -5,8 +5,8 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.usermanagment.Role;
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOUser;
 
 import org.hibernate.Session;
@@ -23,7 +23,6 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * 
 	 */
 	public DAOUserHBM() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -100,7 +99,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * addRole: <br>
 	 * Description
 	 *
-	 * @see lu.itrust.business.dao.DAOUser#addRole(lu.itrust.business.TS.usermanagment.Role)
+	 * @see lu.itrust.business.dao.DAOUser#addRole(lu.itrust.business.TS.usermanagement.Role)
 	 */
 	public boolean addRole(User user, Role role) throws Exception {
 		boolean result = false;
@@ -119,7 +118,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * removeRole: <br>
 	 * Description
 	 *
-	 * @see lu.itrust.business.dao.DAOUser#removeRole(lu.itrust.business.TS.usermanagment.Role)
+	 * @see lu.itrust.business.dao.DAOUser#removeRole(lu.itrust.business.TS.usermanagement.Role)
 	 */
 	public boolean removeRole(User user, Role role) throws Exception {
 		boolean result = false;
@@ -176,8 +175,18 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	}
 
 	@Override
-	public boolean isEmpty() throws Exception {
-		// TODO Auto-generated method stub
-		return ((Long) getSession().createQuery("Select count(*) From User").uniqueResult()).intValue() == 0;
+	public boolean hasUsers() throws Exception {
+		return ((Long) getSession().createQuery("Select count(*) From User").uniqueResult()).intValue() > 0;
+	}
+
+	/**
+	 * hasRole: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOUser#hasRole(lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.usermanagement.Role)
+	 */
+	@Override
+	public boolean hasRole(User user, Role role) throws Exception {
+		return user.hasRole(role.getType());
 	}
 }

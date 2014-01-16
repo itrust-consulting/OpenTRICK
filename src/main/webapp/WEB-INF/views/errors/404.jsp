@@ -2,34 +2,36 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec"
-	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<!-- ################################################################ Set Page Title ################################################################ -->
+<c:set scope="request" var="title">
+	title.404
+</c:set>
+<!-- ###################################################################### HTML #################################################################### -->
 <html>
-<head>
-<title><spring:message code="label.title.404"
-		text="Error 404: Not Found" /></title>
-<link rel="stylesheet" type="text/css"
-	href='<spring:url value="/css/main.css" />' />
-<META HTTP-EQUIV="refresh"
-	CONTENT="<spring:message code='label.error.404.redirect.value' text='3' />;${pageContext.request.contextPath}/home">
-</head>
+<!-- Include Header -->
+<jsp:include page="../header.jsp" />
+<!-- ################################################################# Start Container ############################################################## -->
 <body>
-	<div class="container">
-		<div class="content" id="content">
-			<c:choose>
-				<c:when
-					test="${'XMLHttpRequest' != request.getHeader('X-Requested-With')}">
-					<spring:message
-						code="errors.404.not.found label.redirect error.404.not.found.redirect.value error.404.not.found.redirect.unit"
-						text="Not Found, You will be redirected in 3 seconds" />
-				</c:when>
-				<c:otherwise>
-					<spring:message code="errors.404.not.found" text="Not Found" />
-				</c:otherwise>
-			</c:choose>
+	<div id="wrap">
+		<!-- ################################################################### Nav Menu ################################################################### -->
+		<jsp:include page="../menu.jsp" />
+		<div class="container">
+			<jsp:include page="../successErrors.jsp" />
+			<!-- #################################################################### Content ################################################################### -->
+			<div class="page-header">
+				<h1>
+					<spring:message code="error.404" text="404: Page not found" />
+				</h1>
+			</div>
+			<div class="content" id="content" data-spy="scroll">
+				<spring:message code="error.404.PageNotFound" text="The page you trying to access could not be found!" />
+			</div>
+			<!-- ################################################################ End Container ################################################################# -->
 		</div>
-		<div class="footer"><jsp:include page="../footer.jsp" /></div>
+		<!-- ################################################################ Include Footer ################################################################ -->
+		<jsp:include page="../footer.jsp" />
 	</div>
-	<jsp:include page="../scripts.jsp" />
 </body>
+<!-- ################################################################### End HTML ################################################################### -->
 </html>

@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @version
  * @since Oct 15, 2013
  */
-@Secured("ROLE_USER")
+@Secured("ROLE_CONSULTANT")
 @Controller
 public class ControllerMeasureDescription {
 

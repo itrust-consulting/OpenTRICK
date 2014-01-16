@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @since Oct 10, 2013
  */
 
-@Secured("ROLE_USER")
+@Secured("ROLE_CONSULTANT")
 @RequestMapping("/KnowledgeBase")
 @Controller
 public class ControllerKnowledgeBase {

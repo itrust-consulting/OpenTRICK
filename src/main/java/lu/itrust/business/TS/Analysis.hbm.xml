@@ -22,7 +22,7 @@
 			<column name="fiBasedOnAnalysis" />
 		</many-to-one>
 
-		<many-to-one name="owner" class="lu.itrust.business.TS.usermanagment.User">
+		<many-to-one name="owner" class="lu.itrust.business.TS.usermanagement.User">
 			<column name="fiOwner" not-null="true" />
 		</many-to-one>
 

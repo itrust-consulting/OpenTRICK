@@ -3,13 +3,14 @@
  */
 package lu.itrust.business.view.controller;
 
+import java.security.Principal;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.validator.UserValidator;
@@ -51,8 +52,17 @@ public class ControllerUser {
 		binder.replaceValidators(new UserValidator());
 	}
 
+	@RequestMapping
+	public String profile(Principal principal, HttpSession session, Map<String, Object> model) throws Exception {
+		User user = (User) session.getAttribute("user");
+		if (user == null)
+			user = serviceUser.get(principal.getName());
+		model.put("userProfil", user);
+		return "userProfile";
+	}
+	
 	@RequestMapping("/{userId}")
-	public String profil(@PathVariable("userId") Long userId, HttpSession session, Map<String, Object> model) throws Exception {
+	public String e(@PathVariable("userId") Long userId, HttpSession session, Map<String, Object> model) throws Exception {
 		User user = (User) session.getAttribute("user");
 		if (user == null || user.getId() != userId)
 			user = serviceUser.get(userId);

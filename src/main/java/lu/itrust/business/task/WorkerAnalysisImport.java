@@ -12,7 +12,7 @@ import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.importation.ImportAnalysis;
-import lu.itrust.business.TS.usermanagment.User;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 
