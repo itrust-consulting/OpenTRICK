@@ -9,7 +9,7 @@
 	trick-name="<spring:message code="label.assessment.for.asset" text="Assessment for ${asset.name}" arguments="${asset.name}" htmlEscape="true" />">
 	<div class="panel panel-default">
 		<div class="panel-body" style="max-height: 700px; overflow: auto;">
-			<table class="table table-responsive">
+			<table class="table table-hover">
 				<thead>
 					<tr>
 						<th colspan="3"><spring:message

@@ -15,7 +15,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">&nbsp;</div>
 		<div class="panel-body" style="max-height: 700px; overflow: auto;">
-			<table class="table" >
+			<table class="table table-hover" >
 				<thead>
 					<tr>
 						<!--  <th><spring:message code="label.history.id" /></th>-->

@@ -21,6 +21,7 @@ import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
@@ -43,12 +44,11 @@ import lu.itrust.business.task.WorkerComputeActionPlan;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -68,7 +68,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @version
  * @since Oct 22, 2013
  */
-@Secured("ROLE_USER")
+@PreAuthorize(Constant.ROLE_USER_ONLY)
 @Controller
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
@@ -190,18 +190,16 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/{analysisId}/Select")
-	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session,
-			RedirectAttributes attributes, Locale locale) throws Exception {
+	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, RedirectAttributes attributes,
+			Locale locale) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 		if (selected != null && selected.intValue() == analysisId)
 			session.removeAttribute("selectedAnalysis");
-		else if (serviceAnalysis.exist(analysisId)) {
-			if (serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.READ))
+		else if (serviceAnalysis.exist(analysisId))
 				session.setAttribute("selectedAnalysis", analysisId);
-			else
-				return "redirect:/Error/403";
-		} else {
+		else {
 			session.removeAttribute("selectedAnalysis");
 			attributes.addFlashAttribute("error", "Analysis not recognized!");
 		}
@@ -276,15 +274,15 @@ public class ControllerAnalysis {
 			JsonNode jsonNode = mapper.readTree(source);
 			Analysis analysis = null;
 			int id = jsonNode.get("id").asInt();
-			
+
 			if (jsonNode.get("analysiscustomer").asInt() == -1) {
 				throw new IllegalArgumentException("error.customer.null");
 			}
-			
+
 			if (jsonNode.get("analysislanguage").asInt() == -1) {
 				throw new IllegalArgumentException("error.language.null");
 			}
-			
+
 			Customer customer = serviceCustomer.get(jsonNode.get("analysiscustomer").asInt());
 			Language language = serviceLanguage.get(jsonNode.get("analysislanguage").asInt());
 			String label = jsonNode.get("label").asText();
@@ -318,7 +316,7 @@ public class ControllerAnalysis {
 
 				analysis.addAHistory(history);
 
-				// TODO populate measures and default scenarios
+				// TODO populate measures, default scenarios and parameters
 
 				UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
 
@@ -332,7 +330,6 @@ public class ControllerAnalysis {
 			errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale)));
 			e.printStackTrace();
 			return false;
-
 		}
 	}
 
@@ -400,7 +397,6 @@ public class ControllerAnalysis {
 	@RequestMapping(value="/{analysisId}/Duplicate", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody String createNewVersion(@ModelAttribute History history, @PathVariable int analysisId, Principal principal, HttpSession session, RedirectAttributes attributes,
 			Locale locale) throws Exception {
-
 		if (!serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.MODIFY))
 			return JsonMessage.Error(messageSource.getMessage("error.notAuthorized", null, "Permission denied!", locale));
 		try {
@@ -506,8 +502,8 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Import/Execute")
-	public Object importAnalysisSave(final Principal principal, final @RequestParam(value = "customerId") Integer customerId, final HttpServletRequest request,
-			final @RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
+	public Object importAnalysisSave(final Principal principal, final @RequestParam(value = "customerId") Integer customerId, final HttpServletRequest request, final @RequestParam(
+			value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
 
 		Customer customer = serviceCustomer.get(customerId);
 
@@ -542,29 +538,6 @@ public class ControllerAnalysis {
 	// ******************************************************************************************************************
 	// * Actions
 	// ******************************************************************************************************************
-
-	/**
-	 * initAnalysis: <br>
-	 * Description
-	 * 
-	 * @param analysis
-	 */
-	private void initAnalysis(Analysis analysis) {
-		Hibernate.initialize(analysis);
-		Hibernate.initialize(analysis.getAssets());
-		Hibernate.initialize(analysis.getActionPlans());
-		Hibernate.initialize(analysis.getAnalysisNorms());
-		Hibernate.initialize(analysis.getAssessments());
-		Hibernate.initialize(analysis.getScenarios());
-		Hibernate.initialize(analysis.getHistories());
-		Hibernate.initialize(analysis.getItemInformations());
-		Hibernate.initialize(analysis.getLanguage());
-		Hibernate.initialize(analysis.getParameters());
-		Hibernate.initialize(analysis.getRiskInformations());
-		Hibernate.initialize(analysis.getSummaries());
-		Hibernate.initialize(analysis.getUsedPhases());
-		Hibernate.initialize(analysis.getRiskRegisters());
-	}
 
 	/**
 	 * deleteRiskRegister: <br>

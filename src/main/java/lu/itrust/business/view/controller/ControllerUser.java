@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
@@ -17,7 +18,7 @@ import lu.itrust.business.validator.UserValidator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -33,7 +34,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author oensuifudine
  * 
  */
-@Secured("ROLE_USER")
+@PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/Profile")
 @Controller
 public class ControllerUser {

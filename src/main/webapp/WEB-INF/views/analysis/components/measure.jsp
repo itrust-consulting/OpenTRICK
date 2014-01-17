@@ -22,7 +22,7 @@
 				<spring:message code="label.measure.${norm}" text="${norm}" />
 			</div>
 			<div class="panel-body" style="max-height: 700px; overflow: auto;">
-				<table class="table">
+				<table class="table table-hover">
 					<thead>
 						<tr>
 							<td><spring:message code="label.table.index" text="#" /></td>
@@ -61,7 +61,7 @@
 									</tr>
 								</c:when>
 								<c:otherwise>
-									<tr trick-class="Measure" trick-id="${measure.id}" trick-callback="reloadSection('section_measure','${norm}')">
+									<tr trick-class="Measure" trick-id="${measure.id}" trick-callback="reloadMeasureRow('${measure.id}','${norm}')">
 										<td><spring:message
 												text="${measure.measureDescription.reference}" /></td>
 										<c:set var="measureDescriptionText"
@@ -83,7 +83,7 @@
 											<c:when test="${norm.equalsIgnoreCase('Maturity')==false}">
 												<td class="success" trick-field="implementationRate"
 													trick-field-type="double"
-													trick-callback="reloadMeausreAndCompliance('${norm}')"
+													trick-callback="reloadMeausreAndCompliance('${norm}','${measure.id}')"
 													ondblclick="return editField(this);"><spring:message
 														text="${measure.getImplementationRateValue()}" /></td>
 											</c:when>
@@ -115,8 +115,8 @@
 											trick-field-type="double"
 											ondblclick="return editField(this);"><spring:message
 												text="${measure.maintenance}" /></td>
-										<td ${measure.cost == 0? "class='danger'" : "" }><fmt:formatNumber
-												value="${measure.cost}" maxFractionDigits="0" /></td>
+										<td ${measure.cost == 0? "class='danger'" : "" } title="${measure.cost}" ><fmt:formatNumber
+												value="${measure.cost*0.001}" maxFractionDigits="0" /></td>
 										<td class="success" trick-field="phase"
 											trick-field-type="integer"
 											ondblclick="return editField(this);"

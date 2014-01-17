@@ -2,11 +2,13 @@ package lu.itrust.business.view.controller;
 
 import java.util.Map;
 
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceNorm;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @since Oct 10, 2013
  */
 
-@Secured("ROLE_CONSULTANT")
+@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
 @RequestMapping("/KnowledgeBase")
 @Controller
 public class ControllerKnowledgeBase {

@@ -64,7 +64,7 @@
 								</button>
 							</div>
 							<div class="panel-body">
-								<table class="table">
+								<table class="table table-hover">
 									<thead>
 										<tr>
 											<th><spring:message code="label.analysis.identifier" /></th>

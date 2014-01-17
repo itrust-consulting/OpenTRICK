@@ -1683,7 +1683,10 @@ function deleteScenario(assetId) {
 function editScenario(rowTrickId) {
 	$
 			.ajax({
-				url : context + (rowTrickId==null || rowTrickId==undefined ||rowTrickId<1? "/Scenario/Add" :  "/Scenario/Edit/" + rowTrickId),
+				url : context
+						+ (rowTrickId == null || rowTrickId == undefined
+								|| rowTrickId < 1 ? "/Scenario/Add"
+								: "/Scenario/Edit/" + rowTrickId),
 				contentType : "application/json",
 				async : true,
 				success : function(response) {
@@ -2251,8 +2254,31 @@ $(function() {
 
 });
 
-function reloadMeausreAndCompliance(norm) {
-	reloadSection("section_measure", norm);
+function reloadMeasureRow(idMeasure, norm) {
+	$.ajax({
+		url : context + "/Measure/Section/" + norm,
+		type : "get",
+		async : true,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			var $measure = $(doc).find(
+					"#section_measure_" + norm + " tr[trick-id='" + idMeasure
+							+ "']");
+			if (!$measure.length)
+				return false;
+			$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']")
+					.html($measure.html());
+			return false;
+		}
+	});
+	return false;
+}
+
+function reloadMeausreAndCompliance(norm, idMeasure) {
+	reloadMeasureRow(idMeasure, norm);
 	compliance(norm);
 	return false;
 }

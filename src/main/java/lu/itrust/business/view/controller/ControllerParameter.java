@@ -16,7 +16,7 @@ import lu.itrust.business.service.ServiceParameter;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author eom
  * 
  */
-@Secured("ROLE_USER")
+@PreAuthorize(Constant.ROLE_MIN_USER)
 @Controller
 @RequestMapping("/Parameter")
 public class ControllerParameter {

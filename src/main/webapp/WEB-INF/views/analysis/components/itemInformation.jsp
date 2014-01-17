@@ -23,7 +23,7 @@
 				</div>
 				<div class="panel-body" style="max-height: 700px; overflow: auto;">
 
-					<table class="table">
+					<table class="table table-hover">
 						<thead>
 							<tr>
 								<th colspan="2"><spring:message
@@ -55,7 +55,7 @@
 				</div>
 				<div class="panel-body" style="max-height: 700px; overflow: auto;">
 
-					<table class="table">
+					<table class="table table-hover">
 						<thead>
 							<tr>
 								<th colspan="2"><spring:message

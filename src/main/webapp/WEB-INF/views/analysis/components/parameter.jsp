@@ -29,7 +29,7 @@
 						text="Impact of thread" />
 				</div>
 				<div class="panel-body">
-					<table class="table">
+					<table class="table table-hover">
 						<thead>
 							<tr>
 								<th><spring:message code="label.parameter.level"
@@ -85,7 +85,7 @@
 						text="Probability of threat occurence" />
 				</div>
 				<div class="panel-body">
-					<table class="table">
+					<table class="table table-hover">
 						<thead>
 							<tr>
 								<th><spring:message code="label.parameter.level"
@@ -141,7 +141,7 @@
 						text="Implementation scale of SMT" />
 				</div>
 				<div class="panel-body">
-					<table class="table">
+					<table class="table table-hover">
 						<thead>
 							<tr>
 								<th><spring:message code="label.parameter.Level"
@@ -173,7 +173,7 @@
 						text="Various parameters" />
 				</div>
 				<div class="panel-body">
-					<table class="table">
+					<table class="table table-hover">
 						<thead>
 							<tr>
 								<th><spring:message
@@ -221,7 +221,7 @@
 						text="Maximal efficiency rate per security maturity level" />
 				</div>
 				<div class="panel-body">
-					<table class="table">
+					<table class="table table-hover">
 						<thead>
 							<tr>
 								<th><spring:message code="label.parameter.simple.sml0"

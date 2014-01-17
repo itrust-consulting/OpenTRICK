@@ -20,7 +20,7 @@
 			</button>
 		</div>
 		<div class="panel-body" style="max-height: 700px; overflow: auto;">
-			<table class="table">
+			<table class="table table-hover">
 				<thead>
 					<tr>
 						<th><spring:message code="label.phase.number" text="Number" /></th>
