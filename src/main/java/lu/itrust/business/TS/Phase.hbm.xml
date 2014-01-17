@@ -8,10 +8,10 @@
 			<generator class="increment" />
 		</id>
 		<properties name="index_unique" unique="true">
-			<many-to-one name="analysis" column="fiAnalysis" not-null="true" access="field"/>
-			<property name="number" column="dtNumber" not-null="true" access="field"/>
+			<many-to-one name="analysis" column="fiAnalysis" not-null="true" access="field" lazy="false" />
+			<property name="number" column="dtNumber" not-null="true" lazy="false" access="field"/>
 		</properties>
-		<property column="dtBeginDate" name="beginDate" />
-		<property column="dtEndDate" name="endDate" />
+		<property column="dtBeginDate" name="beginDate" lazy="false" access="field" />
+		<property column="dtEndDate" name="endDate" lazy="false" access="field" />
 	</class>
 </hibernate-mapping>

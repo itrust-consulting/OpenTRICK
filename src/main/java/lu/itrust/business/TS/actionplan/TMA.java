@@ -97,6 +97,9 @@ public class TMA {
 
 		// the calculated RRF
 		this.RRF = RRF;
+		
+		//System.out.println("Measure: "+measure.getAnalysisNorm().getNorm().getLabel()+ "/"+ measure.getMeasureDescription().getReference()+":: Assessment: "+assessment.getScenario().getName()+"/"+assessment.getAsset().getName()+ "RRF: "+ RRF);
+		
 	}
 
 	/***********************************************************************************************
@@ -114,10 +117,10 @@ public class TMA {
 				* RRF
 				* ((1. - (this.measure.getImplementationRateValue() / 100.)) / (1. - RRF
 					* (this.measure.getImplementationRateValue() / 100.)));
-		/*if(deltaALE==0)
-		{
-			System.out.println("ALE: "+this.ALE+" RRF: "+RRF+" part1ImpRate: "+this.measure.getImplementationRate());
-		}*/
+		//if(deltaALE==0)
+	//	{
+	//		System.out.println("ALE: "+this.ALE+" RRF: "+RRF+" part1ImpRate: "+this.measure.getImplementationRate());
+	//	}
 	}
 
 	/**

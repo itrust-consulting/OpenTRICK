@@ -1473,6 +1473,15 @@ public class Analysis implements Serializable, Cloneable {
 	public AnalysisNorm getAnalysisNorm(int index) {
 		return analysisNorms.get(index);
 	}
+	
+	public AnalysisNorm getAnalysisNormByLabel(String label) {
+		for (AnalysisNorm anorm : this.analysisNorms) {
+			if (anorm.getNorm().getLabel().equals(label)) {
+				return anorm;
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * getNorms: <br>
