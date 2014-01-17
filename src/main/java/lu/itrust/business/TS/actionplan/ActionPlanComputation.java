@@ -276,15 +276,11 @@ public class ActionPlanComputation {
 						+ ape.getMeasure().getMeasureDescription().getReference() + "|" + ape.getTotalALE() + "|" + ape.getROI() + "|" + ape.getCost());
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", 80));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", 90));
 			
 			sericeAnalysis.saveOrUpdate(analysis);
 
 			System.out.println("Saving Action Plans...");
-
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.done", "Computing Action Plans Done", 90));
-
-			System.out.println("Computing Action Plans Done!");
 
 			return null;
 

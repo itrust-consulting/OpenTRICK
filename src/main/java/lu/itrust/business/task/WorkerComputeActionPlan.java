@@ -118,8 +118,11 @@ public class WorkerComputeActionPlan implements Worker {
 			initAnalysis(analysis);
 			deleteActionPlan(analysis);
 			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis);
-			if (computation.calculateActionPlans() == null)
+			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
+				serviceTaskFeedback.send(id, new MessageHandler("info.info.action_plan.done", "Computing Action Plans Done", 100));
+				System.out.println("Computing Action Plans Done!");
+			}
 			else
 				session.getTransaction().rollback();
 		} catch (InterruptedException e) {
