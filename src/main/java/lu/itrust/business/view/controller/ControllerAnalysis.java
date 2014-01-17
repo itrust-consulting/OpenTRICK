@@ -22,6 +22,7 @@ import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.component.AssessmentManager;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
@@ -46,9 +47,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Scope;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -69,7 +68,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @version
  * @since Oct 22, 2013
  */
-@Secured("ROLE_USER")
+@PreAuthorize(Constant.ROLE_USER_ONLY)
 @Controller
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
@@ -193,7 +192,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.isUserAuthorized(analysisId, principal, AnalysisRight.READ, session.getAttribute('selectedAnalysis'))")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/{analysisId}/Select")
 	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, RedirectAttributes attributes,
 			Locale locale) throws Exception {
@@ -201,6 +200,8 @@ public class ControllerAnalysis {
 		if (selected != null && selected.intValue() == analysisId)
 			session.removeAttribute("selectedAnalysis");
 		else if (serviceAnalysis.exist(analysisId)) {
+			
+			
 			//if (serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.READ))
 				session.setAttribute("selectedAnalysis", analysisId);
 			//else

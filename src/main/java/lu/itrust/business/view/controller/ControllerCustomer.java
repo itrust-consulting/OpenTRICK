@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceCustomer;
 
 import org.codehaus.jackson.JsonNode;
@@ -16,6 +17,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +35,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @version
  * @since Oct 11, 2013
  */
-@Secured("ROLE_CONSULTANT")
+@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
 @Controller
 @RequestMapping("/KnowledgeBase/Customer")
 public class ControllerCustomer {

@@ -18,6 +18,36 @@ package lu.itrust.business.TS.tsconstant;
 public class Constant {
 
 	/***********************************************************************************************
+	 * List of Role and permissions (for controllers) - BEGIN
+	 **********************************************************************************************/
+	
+	/** Role user */
+	public static final String ROLE_USER_ONLY = "hasRole('ROLE_USER')";
+		
+	/** Role consultant */
+	public static final String ROLE_CONSULTANT_ONLY = "hasRole('ROLE_CONSULTANT')";
+	
+	/** Role admin */
+	public static final String ROLE_ADMIN_ONLY = "hasRole('ROLE_ADMIN')";
+	
+	/** Role supervisor */
+	public static final String ROLE_SUPERVISOR_ONLY = "hasRole('ROLE_SUPERVISOR')";
+	
+	/** Role at least consultant */
+	public static final String ROLE_MIN_USER = "hasAnyRole('ROLE_CONSULTANT', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')";
+	
+	/** Role at least consultant */
+	public static final String ROLE_MIN_CONSULTANT = "hasAnyRole('ROLE_CONSULTANT', 'ROLE_ADMIN', 'ROLE_SUPERVISOR')";
+	
+	/** Role supervisor */
+	public static final String ROLE_MIN_ADMIN = "hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')";
+	
+	
+	/***********************************************************************************************
+	 * List of Role and permissions (for controllers)s - BEGIN
+	 **********************************************************************************************/
+	
+	/***********************************************************************************************
 	 * List of Regular Expressions - BEGIN
 	 **********************************************************************************************/
 

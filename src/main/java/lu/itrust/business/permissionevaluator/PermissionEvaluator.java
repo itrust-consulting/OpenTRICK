@@ -12,9 +12,9 @@ import lu.itrust.business.TS.AnalysisRight;
  * @version 
  * @since Jan 16, 2014
  */
-public interface PermissionEvaluator {
+public interface PermissionEvaluator extends org.springframework.security.access.PermissionEvaluator {
 
-	public boolean userIsAuthorized(int analysisId, Principal principal, AnalysisRight right) throws Exception;
+	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception;
 
 	boolean userIsAuthorized(int analysisId, Principal principal, AnalysisRight right, Integer selectedAnalysis) throws Exception;
 	

@@ -11,13 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,7 +40,8 @@ public class ControllerHome {
 	@Autowired
 	private MessageSource messageSource;
 
-	@Secured("ROLE_USER")
+	//@Secured("ROLE_USER")
+	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/home")
 	public String home(HttpSession session, Principal principal) throws Exception {
 		User user = (User) session.getAttribute("user");
@@ -53,7 +55,8 @@ public class ControllerHome {
 		return "index";
 	}
 
-	@Secured("ROLE_USER")
+//	@Secured("ROLE_USER")
+	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
 	String resolveMessage(Locale locale, HttpServletRequest request) {
@@ -62,7 +65,7 @@ public class ControllerHome {
 		return messageSource.getMessage(code, null, defaultText, locale);
 	}
 
-	@Secured("ROLE_USER")
+	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/feedback")
 	public @ResponseBody
 	List<MessageHandler> revice(Principal principal) {

@@ -4,7 +4,10 @@
            http://www.springframework.org/schema/security
            http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
-	<global-method-security secured-annotations="enabled" access-decision-manager-ref="accessDecisionManager" pre-post-annotations="enabled"  />
+	<!-- access-decision-manager-ref="methodSecurityExpressionHandler"  -->
+	<global-method-security pre-post-annotations="enabled">
+		<expression-handler ref="methodSecurityExpressionHandler"/>
+	</global-method-security>
 
 	<http auto-config="true">
 		<intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
@@ -26,6 +29,8 @@
 			</password-encoder>
 		</authentication-provider>
 	</authentication-manager>
+	
+	
 	<beans:bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
 		<beans:constructor-arg value="256" />
 	</beans:bean>
@@ -44,15 +49,19 @@
 		</beans:property>
 	</beans:bean>
 
-	<beans:bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
-		<beans:constructor-arg name="decisionVoters">
+	<beans:bean id="methodSecurityExpressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+		<!-- <beans:constructor-arg name="decisionVoters">
 			<beans:list>
-				<!-- <beans:ref bean="roleVoter" /> -->
-				<beans:ref bean="authenticatedVoter" />
-				<beans:ref bean="roleHierarchyVoter" />
-			</beans:list>
-		</beans:constructor-arg>
+				<beans:ref bean="roleVoter" /> 
+				<beans:ref bean="authenticatedVoter" />-->
+				<beans:property name="roleHierarchy" ref="roleHierarchy"/>
+				<beans:property name="permissionEvaluator" ref="permissionEvaluator"/>
+							<!-- </beans:list>
+		</beans:constructor-arg> -->
 	</beans:bean>
+
+	<beans:bean id="permissionEvaluator" class="lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl" />
+		
 
 	<beans:bean id="roleHierarchyVoter" class="org.springframework.security.access.vote.RoleHierarchyVoter">
 		<beans:constructor-arg ref="roleHierarchy" />

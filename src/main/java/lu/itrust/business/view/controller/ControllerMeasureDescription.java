@@ -12,6 +12,7 @@ import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasureDescription;
 import lu.itrust.business.service.ServiceMeasureDescriptionText;
@@ -22,6 +23,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @version
  * @since Oct 15, 2013
  */
-@Secured("ROLE_CONSULTANT")
+@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
 @Controller
 public class ControllerMeasureDescription {
 
