@@ -17,7 +17,7 @@
 		var="measureSplited" />
 	<c:forEach items="${measureSplited.keySet()}" var="norm">
 
-		<div class="panel panel-default" id="Measure_${norm}">
+		<div class="panel panel-default" id="section_measure_${norm}">
 			<div class="panel-heading">
 				<spring:message code="label.measure.${norm}" text="${norm}" />
 			</div>
@@ -61,7 +61,7 @@
 									</tr>
 								</c:when>
 								<c:otherwise>
-									<tr trick-class="Measure" trick-id="${measure.id}">
+									<tr trick-class="Measure" trick-id="${measure.id}" trick-callback="reloadSection('section_measure','${norm}')">
 										<td><spring:message
 												text="${measure.measureDescription.reference}" /></td>
 										<c:set var="measureDescriptionText"
@@ -83,7 +83,7 @@
 											<c:when test="${norm.equalsIgnoreCase('Maturity')==false}">
 												<td class="success" trick-field="implementationRate"
 													trick-field-type="double"
-													trick-callback="compliance('${norm}')"
+													trick-callback="reloadMeausreAndCompliance('${norm}')"
 													ondblclick="return editField(this);"><spring:message
 														text="${measure.getImplementationRateValue()}" /></td>
 											</c:when>
@@ -115,9 +115,7 @@
 											trick-field-type="double"
 											ondblclick="return editField(this);"><spring:message
 												text="${measure.maintenance}" /></td>
-										<td class="success" trick-field="cost"
-											trick-field-type="double"
-											ondblclick="return editField(this);"><fmt:formatNumber
+										<td ${measure.cost == 0? "class='danger'" : "" }><fmt:formatNumber
 												value="${measure.cost}" maxFractionDigits="0" /></td>
 										<td class="success" trick-field="phase"
 											trick-field-type="integer"

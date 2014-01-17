@@ -17,6 +17,7 @@ import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -114,10 +115,14 @@ public class WorkerComputeActionPlan implements Worker {
 				return;
 			}
 			session.beginTransaction();
+			initAnalysis(analysis);
 			deleteActionPlan(analysis);
 			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis);
-			if (computation.calculateActionPlans() == null)
+			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
+				serviceTaskFeedback.send(id, new MessageHandler("info.info.action_plan.done", "Computing Action Plans Done", 100));
+				System.out.println("Computing Action Plans Done!");
+			}
 			else
 				session.getTransaction().rollback();
 		} catch (InterruptedException e) {
@@ -152,6 +157,32 @@ public class WorkerComputeActionPlan implements Worker {
 		}
 	}
 
+	/**
+	 * initAnalysis: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 */
+	private void initAnalysis(Analysis analysis) {
+		Hibernate.initialize(analysis);
+		Hibernate.initialize(analysis.getLanguage());
+		Hibernate.initialize(analysis.getHistories());
+		Hibernate.initialize(analysis.getAssets());
+		Hibernate.initialize(analysis.getScenarios());
+		Hibernate.initialize(analysis.getAssessments());
+		Hibernate.initialize(analysis.getItemInformations());
+		Hibernate.initialize(analysis.getRiskInformations());
+		Hibernate.initialize(analysis.getParameters());
+		Hibernate.initialize(analysis.getUsedPhases());
+//		for (int i = 0; i < analysis.getUsedPhases().size(); i++)
+	//		Hibernate.initialize(analysis.getAPhase(i));
+		Hibernate.initialize(analysis.getAnalysisNorms());
+		//Hibernate.initialize(analysis.getActionPlans());
+		//Hibernate.initialize(analysis.getSummaries());
+		
+		//Hibernate.initialize(analysis.getRiskRegisters());
+	}
+	
 	/**
 	 * deleteActionPlan: <br>
 	 * Description

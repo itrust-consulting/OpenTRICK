@@ -31,12 +31,14 @@ public class MeasureManager {
 		}
 		return mappingMeasures;
 	}
-	
-	public static List<Measure> ConcatMeasure(List<AnalysisNorm> analysisNorms){
+
+	public static List<Measure> ConcatMeasure(List<AnalysisNorm> analysisNorms) {
 		List<Measure> measures = new LinkedList<>();
 		for (AnalysisNorm analysisNorm : analysisNorms)
 			measures.addAll(analysisNorm.getMeasures());
 		return measures;
 	}
+
+	
 
 }

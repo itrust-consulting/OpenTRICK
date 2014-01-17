@@ -94,7 +94,6 @@ public class ControllerTask {
 			if (asyncResult.getFlag() == 5 || asyncResult.getFlag() < 3
 					&& !serviceTaskFeedback.hasMessage(id)){
 				serviceTaskFeedback.deregisterTask(principal.getName(), id);
-				System.out.println("deregister: "+id);
 			}
 		}
 		return asyncResult;

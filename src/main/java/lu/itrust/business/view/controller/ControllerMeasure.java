@@ -53,7 +53,18 @@ public class ControllerMeasure {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
-		model.addAttribute("measure", serviceMeasure.findByAnalysis(idAnalysis));
+		model.addAttribute("measures", serviceMeasure.findByAnalysis(idAnalysis));
+		model.addAttribute("language", serviceLanguage.findByAnalysis(idAnalysis));
+		return "analysis/components/measure";
+	}
+	
+	@RequestMapping("/Section/{norm}")
+	public String sectionNorm(@PathVariable String norm, HttpSession session, Model model,
+			RedirectAttributes attributes) {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		if (idAnalysis == null)
+			return null;
+		model.addAttribute("measures", serviceMeasure.findByAnalysisAndNorm(idAnalysis, norm));
 		model.addAttribute("language", serviceLanguage.findByAnalysis(idAnalysis));
 		return "analysis/components/measure";
 	}

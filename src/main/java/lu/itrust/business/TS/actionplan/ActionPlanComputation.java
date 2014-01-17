@@ -21,8 +21,6 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOActionPlanType;
 import lu.itrust.business.dao.DAOAnalysis;
-import lu.itrust.business.service.ServiceActionPlanType;
-import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceTaskFeedback;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,16 +142,16 @@ public class ActionPlanComputation {
 	 */
 	public MessageHandler calculateActionPlans() {
 
-		serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", null, "Computing Action Plans"));
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", "Computing Action Plans", 10));
 
 		System.out.println("Computing Action Plans...");
 
 		// ****************************************************************
 		// * initialise phases and order phases ascending
 		// ****************************************************************
-		this.analysis.initialisePhases();
+		//this.analysis.initialisePhases();
 
-		serviceTaskFeedback.send(idTask, new MessageHandler("success.phase.initialise", null, "Phases ware initialised successfully"));
+		//serviceTaskFeedback.send(idTask, new MessageHandler("success.phase.initialise", null, "Phases ware initialised successfully"));
 
 		// ****************************************************************
 		// * Begin transaction
@@ -196,14 +194,14 @@ public class ActionPlanComputation {
 			 * ****************************************************************
 			 */System.out.println("compute Action Plan - normal mode - Phase");
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.normal_mode", null, "Compute Action Plan - normal mode - Phase"));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.normal_mode", "Compute Action Plan - normal mode - Phase", 20));
 
 			computePhaseActionPlan(ActionPlanMode.PHASE_NORMAL);
 
 			// ****************************************************************
 			// * compute Action Plan - optimistic mode - Phase
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", null, "Compute Action Plan - optimistic mode - Phase"));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", 30));
 
 			System.out.println("compute Action Plan - optimistic mode - Phase");
 			computePhaseActionPlan(ActionPlanMode.PHASE_OPTIMISTIC);
@@ -212,17 +210,17 @@ public class ActionPlanComputation {
 			// * compute Action Plan - pessimistic mode - Phase
 			// ****************************************************************
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", null, "Compute Action Plan - optimistic mode - Phase"));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", 40));
 
 			System.out.println("compute Action Plan - pessimistic mode - Phase");
 
 			computePhaseActionPlan(ActionPlanMode.PHASE_PESSIMISTIC);
 
 			// ****************************************************************
-			// * set positions relative to normal action plan for all action
+			// * set positions relative to normal action plan for all action 
 			// * plans
 			// ****************************************************************
-			// determinePositions();
+			 determinePositions();
 
 			// ****************************************************************
 			// * Compute summary of action plans
@@ -245,28 +243,26 @@ public class ActionPlanComputation {
 			 * // * create summary for pessimistic action plan summary //
 			 * ****************************************************************
 			 */// computeSummary(ActionPlanMode.PESSIMISTIC);
-			/*
+			/*o
 			 * / //
 			 * ****************************************************************
 			 * // * create summary for normal phase action plan summary //
 			 * ****************************************************************
 			 */
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", null, "Create summary for normal phase action plan summary"));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 50));
 			computeSummary(ActionPlanMode.PHASE_NORMAL);
 
 			// ****************************************************************
 			// * create summary for optimistic phase action plan summary
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.optimistic_phase", null,
-					"Create summary for optimistic phase action plan summary"));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.optimistic_phase", "Create summary for optimistic phase action plan summary", 60));
 			computeSummary(ActionPlanMode.PHASE_OPTIMISTIC);
 
 			// ****************************************************************
 			// * create summary for pessimistic phase action plan summary
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", null,
-					"Create summary for pessimistic phase action plan summary"));
-			computeSummary(ActionPlanMode.PHASE_PESSIMISTIC);
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", "Create summary for pessimistic phase action plan summary", 70));
+			//computeSummary(ActionPlanMode.PHASE_PESSIMISTIC);
 
 			// ****************************************************************
 			// * Store action plans into database
@@ -280,15 +276,11 @@ public class ActionPlanComputation {
 						+ ape.getMeasure().getMeasureDescription().getReference() + "|" + ape.getTotalALE() + "|" + ape.getROI() + "|" + ape.getCost());
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", null, "Saving Action Plans"));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", 90));
 			
 			sericeAnalysis.saveOrUpdate(analysis);
 
 			System.out.println("Saving Action Plans...");
-
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.done", null, "Computing Action Plans Done"));
-
-			System.out.println("Computing Action Plans Done!");
 
 			return null;
 
@@ -726,12 +718,16 @@ public class ActionPlanComputation {
 				// clone TMAList for ALE values
 				@SuppressWarnings("unchecked")
 				List<TMA> tmpTMAList = (List<TMA>) ((ArrayList<TMA>) TMAList).clone();
+				
+				//System.out.println("generate TMA for phase: "+ phase);
 
 				// ****************************************************************
 				// * generate the TMAList
 				// ****************************************************************
 				TMAList = generateTMAList(this.analysis, usedMeasures, mode, this.analysis.getAPhase(phase).getNumber(), false);
 
+				//System.out.println("generated TMA for phase: "+ phase);
+				
 				// ****************************************************************
 				// * update the created TMAList with previous values (ALE
 				// values)
@@ -2332,8 +2328,15 @@ public class ActionPlanComputation {
 		// ****************************************************************
 		// * retrieve internal rate and external rate
 		// ****************************************************************
-		for (int i = 0; i < this.analysis.getParameters().size(); i++) {
+		
+		er = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+		
+		ir = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+		
+		/*for (int i = 0; i < this.analysis.getParameters().size(); i++) {
 			if (this.analysis.getAParameter(i).getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE)) {
+				
+				
 
 				// set external setup rate parameter
 				er = this.analysis.getAParameter(i).getValue();
@@ -2360,14 +2363,14 @@ public class ActionPlanComputation {
 					}
 				}
 			}
-		}
+		}*/
 
 		// ****************************************************************
 		// * store 27001 and 27002 norm in objects
 		// ****************************************************************
 
 		// parse norms
-		for (int i = 0; i < this.analysis.getAnalysisNorms().size(); i++) {
+		/*for (int i = 0; i < this.analysis.getAnalysisNorms().size(); i++) {
 
 			// ****************************************************************
 			// * check if 27001 -> YES
@@ -2393,8 +2396,13 @@ public class ActionPlanComputation {
 					break;
 				}
 			}
-		}
+		}*/
 
+		tmpval.norm27001 = (MeasureNorm) this.analysis.getAnalysisNormByLabel(Constant.NORM_27001);
+		
+		tmpval.norm27002 = (MeasureNorm) this.analysis.getAnalysisNormByLabel(Constant.NORM_27002);
+
+		
 		// Comparator<Measure> comparator = new ComparatorMeasure();
 
 		// if (tmpval.norm27001 != null) {
@@ -2469,6 +2477,7 @@ public class ActionPlanComputation {
 					// * calculate values for next run
 					// ****************************************************************
 					setValuesForNextEntry(tmpval, ape, ir, er, phasetime);
+									
 				} else {
 
 					// check if entry is in current phase -> NO
@@ -2671,8 +2680,19 @@ public class ActionPlanComputation {
 		// update ROSI
 		tmpval.ROSI += ape.getROI();
 
+		//System.out.println("Relative ROSI:"+tmpval.relativeROSI+"="+"ROSI: "+tmpval.ROSI+" / measureCost: "+tmpval.measureCost);
+		
 		// calculate relative ROSI
-		tmpval.relativeROSI = tmpval.ROSI / tmpval.measureCost;
+		
+		if (tmpval.measureCost == 0) {
+			tmpval.relativeROSI = 0;
+		} else {
+			tmpval.relativeROSI = tmpval.ROSI / tmpval.measureCost;	
+		}
+		
+		
+		
+		
 
 		// ****************************************************************
 		// * update resource planning values
@@ -3060,7 +3080,13 @@ public class ActionPlanComputation {
 		aStage.setExternalMaintenance(tmpval.externalMaintenance);
 		aStage.setRecurrentCost(tmpval.recurrentCost);
 		aStage.setTotalCostofStage(tmpval.totalCost);
-
+		
+		System.out.println("stage: "+aStage.getStage()+ ":: conformance27001: "+ aStage.getConformance27001()+ ":: conformance27002: "+ aStage.getConformance27002()+":: totalALE: "+ 
+							aStage.getTotalALE()+":: deltaALE: "+ aStage.getDeltaALE()+":: cost of measures: "+ aStage.getCostOfMeasures()+":: ROSI: "+ aStage.getROSI()+":: relative ROSI: "+
+							aStage.getRelativeROSI()+":: internal workload: "+ aStage.getInternalWorkload()+":: external workload: "+ aStage.getExternalWorkload()+":: investment: "+ 
+							aStage.getInvestment()+":: internal maintenance: "+ aStage.getInternalMaintenance()+":: external maintenance: "+ aStage.getExternalMaintenance()+
+							":: recurrent cost: "+ aStage.getRecurrentCost()+":: total cost of stage: "+ aStage.getTotalCostofStage());
+		
 		// ****************************************************************
 		// * add summary stage to list of summary stages
 		// ****************************************************************

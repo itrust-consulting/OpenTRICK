@@ -75,7 +75,7 @@
 			<one-to-many class="AnalysisNorm" />
 		</bag>
 
-		<bag name="usedPhases" table="phase" cascade="all" inverse="true" access="field">
+		<bag name="usedPhases" table="phase" cascade="all" inverse="true" access="field" order-by="number asc">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Phase" />
 		</bag>

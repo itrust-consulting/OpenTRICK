@@ -316,20 +316,18 @@ function FieldEditor(element, validator) {
 	FieldEditor.prototype.__findCallback = function(element) {
 		if ($(element).attr("trick-callback") != undefined)
 			return $(element).attr("trick-callback");
-		else if ($(element).parent().prop("tagName") != "BODY") {
-			console.log($(element).parent().prop("tagName"));
+		else if ($(element).parent().prop("tagName") != "BODY")
 			return this.__findCallback($(element).parent());
-		} else
+		else
 			return null;
 	};
 
 	FieldEditor.prototype.__findCallbackPreExec = function(element) {
 		if ($(element).attr("trick-callback-pre") != undefined)
 			return $(element).attr("trick-callback-pre");
-		else if ($(element).parent().prop("tagName") != "BODY") {
-			console.log($(element).parent().prop("tagName"));
-			return this.__findCallback($(element).parent());
-		} else
+		else if ($(element).parent().prop("tagName") != "BODY") 
+			return this.__findCallbackPreExec($(element).parent());
+		else
 			return null;
 	};
 
@@ -882,7 +880,7 @@ function ProgressBar() {
 
 }
 
-function parseJson(data){
+function parseJson(data) {
 	try {
 		return JSON.parse(data);
 	} catch (e) {
@@ -974,9 +972,11 @@ function TaskManager() {
 		var index = this.tasks.indexOf(taskId);
 		if (index > -1)
 			this.tasks.splice(index, 1);
-		index = this.progressBars.indexOf(this.progressBars[taskId]);
-		if (index != -1)
-			this.progressBars.splice(index, 1);
+		if (this.progressBars[taskId] != undefined
+				&& this.progressBars[taskId] != null) {
+			this.progressBars[taskId].Remove();
+			this.progressBars.splice(taskId, 1);
+		}
 		if (this.isEmpty())
 			this.Distroy();
 		return false;
@@ -991,8 +991,11 @@ function TaskManager() {
 			async : true,
 			contentType : "application/json",
 			success : function(reponse) {
-				if (reponse == null || reponse.flag == undefined)
+				if (reponse == null || reponse.flag == undefined) {
+					if (!instance.progressBars.length)
+						instance.Remove(taskId);
 					return false;
+				}
 				if (instance.progressBars[taskId] == null
 						|| instance.progressBars[taskId] == undefined) {
 					instance.progressBars[taskId] = instance
@@ -1002,12 +1005,17 @@ function TaskManager() {
 					instance.progressBars[taskId].Update(reponse.progress,
 							reponse.message);
 				}
-				if (reponse.flag < 5) {
+				if (reponse.flag == 3) {
 					setTimeout(function() {
 						instance.UpdateStatus(taskId);
 					}, reponse.flag == 4 ? 1500 : 3000);
-				} else
-					reloadSection("section_analysis");
+				} else {
+					setTimeout(function() {
+						instance.Remove(taskId);
+					}, 3000);
+					if (reponse.flag == 4)
+						reloadSection("section_analysis");
+				}
 				return true;
 			}
 		});
@@ -1424,7 +1432,7 @@ function showSuccess(parent, text) {
 	return false;
 }
 
-function controllerBySection(section) {
+function controllerBySection(section, subSection) {
 	var controllers = {
 		"section_asset" : "/Asset/Section",
 		"section_parameter" : "/Parameter/Section",
@@ -1432,12 +1440,17 @@ function controllerBySection(section) {
 		"section_assessment" : "/Assessment/Section",
 		"section_phase" : "/Phase/Section",
 		"section_analysis" : "/Analysis",
+		"section_measure" : "/Measure/Section",
 		"section_customer" : "/KnowledgeBase/Customer/Section",
 		"section_language" : "/KnowledgeBase/Language/Section",
 		"section_norm" : "/KnowledgeBase/Norm/Section",
 		"section_user" : "/Admin/User/Section",
 	};
-	return controllers[section];
+
+	if (subSection == null || subSection == undefined)
+		return controllers[section];
+	else
+		return controllers[section] + "/" + subSection;
 }
 
 function callbackBySection(section) {
@@ -1465,12 +1478,16 @@ function sectionPretreatment(section) {
 	return pretreatment[section];
 }
 
-function reloadSection(section) {
+function reloadSection(section, subSection) {
 	if (Array.isArray(section)) {
-		for (var int = 0; int < section.length; int++)
-			reloadSection(section[int]);
+		for (var int = 0; int < section.length; int++) {
+			if (Array.isArray(section[int]))
+				reloadSection(section[int][0], section[int][1]);
+			else
+				reloadSection(section[int]);
+		}
 	} else {
-		var controller = controllerBySection(section);
+		var controller = controllerBySection(section, subSection);
 		if (controller == null || controller == undefined)
 			return false;
 		$
@@ -1482,6 +1499,8 @@ function reloadSection(section) {
 					success : function(response) {
 						var parser = new DOMParser();
 						var doc = parser.parseFromString(response, "text/html");
+						if (subSection != null && subSection != undefined)
+							section += "_" + subSection;
 						newSection = $(doc).find("*[id = '" + section + "']");
 						pretreatment = sectionPretreatment(section);
 						if ($.isFunction(pretreatment))
@@ -1500,6 +1519,7 @@ function reloadSection(section) {
 				});
 	}
 }
+
 /* Asset */
 function serializeAssetForm(formId) {
 	var form = $("#" + formId);
@@ -1845,125 +1865,10 @@ $(function() {
 	var deleteElement = $contextMenu.find("li[name='delete'] a");
 	var showMeasures = $contextMenu.find("li[name='show_measures'] a");
 
-<<<<<<< HEAD
 	$("#section_analysis").on(
 			"contextmenu",
 			"table tbody tr",
 			function(e) {
-=======
-	$("#section_analysis").on("contextmenu", "table tbody tr", function(e) {
-		
-		// get rights values
-		var deleteRight = $("#deleteRight").text();
-		var calcRickRegisterRight = $("#calcRickRegisterRight").text();
-		var calcActionPlanRight = $("#calcActionPlanRight").text();
-		var modifyRight = $("#modifyRight").text();
-		var exportRight = $("#exportRight").text();
-		var readRight = $("#readRight").text();
-
-		// get missing elements
-		
-		var duplicateanalysis = $contextMenu.find("li[name='duplicate'] a");
-		
-		var computeactionplan = $contextMenu.find("li[name='cActionPlan'] a");
-		var cactionplandivider = $contextMenu.find("li[name='divider_1']");
-
-		var computeriskregister = $contextMenu.find("li[name='cRiskRegister'] a");
-		var criskregisterdivider = $contextMenu.find("li[name='divider_2']");
-		
-		var exportanalysis = $contextMenu.find("li[name='export'] a");
-		var exportanalysisdivider = $contextMenu.find("li[name='divider_3']");
-			
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		var data = $(e.currentTarget).attr('data');
-		
-		var rowTrickVersion = $(e.currentTarget).find("td[trick-version]").attr("trick-version");
-		var rowRights = $(e.currentTarget).attr('trick-rights-id');
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-			
-		// select
-
-		if (rowRights <= readRight) {
-				
-			select.parent().removeAttr("hidden");
-			select.attr("onclick", "javascript:return selectAnalysis(" + rowTrickId + ");");
-		} else {
-			select.parent().attr("hidden", "true");
-			select.removeAttr("onclick");
-		}
-		
-		// edit
-		
-		if (rowRights <= modifyRight) {				
-			editRow.parent().removeAttr("hidden");
-			editRow.attr("onclick", "javascript:return editSingleAnalysis(" + rowTrickId + ");");
-			duplicateanalysis.parent().removeAttr("hidden");
-			duplicateanalysis.attr("onclick", "javascript:return addHistory("+rowTrickId+", '"+rowTrickVersion+"')");
-		} else {
-			editRow.parent().attr("hidden", "true");
-			editRow.removeAttr("onclick");
-			duplicateanalysis.parent().attr("hidden", "true");
-			duplicateanalysis.removeAttr("onclick");
-		}	
-		
-		// compute action plan
-		
-		if (rowRights <= calcActionPlanRight && data == "true") {
-			
-			computeactionplan.parent().removeAttr("hidden");
-			computeactionplan.attr("onclick", "javascript:return calculateActionPlan(" + rowTrickId + ");");
-			cactionplandivider.removeAttr("hidden","true");
-		} else {
-			computeactionplan.parent().attr("hidden", "true");
-			computeactionplan.removeAttr("onclick");
-			cactionplandivider.attr("hidden","true");
-		}
-		
-		// compute risk register
-		
-		if (rowRights <= calcRickRegisterRight && data == "true") {
-			
-			computeriskregister.parent().removeAttr("hidden");
-			computeriskregister.attr("onclick", "javascript:return calculateRiskRegister(" + rowTrickId + ");");
-			criskregisterdivider.removeAttr("hidden","true");
-		} else {
-			computeriskregister.parent().attr("hidden", "true");
-			computeriskregister.removeAttr("onclick");
-			criskregisterdivider.attr("hidden","true");
-		}
-		
-		// export
-		
-		if (rowRights <= exportRight) {
-			
-			exportanalysis.parent().removeAttr("hidden");
-			exportanalysis.attr("onclick", "javascript:return exportAnalysis(" + rowTrickId + ");");
-			exportanalysisdivider.removeAttr("hidden","true");
-		} else {
-			exportanalysis.parent().attr("hidden", "true");
-			exportanalysis.removeAttr("onclick");
-			exportanalysisdivider.parent().attr("hidden","true");
-		}
-		
-		// delete
-		
-		if (rowRights <= deleteRight) {
-			
-			deleteElement.parent().removeAttr("hidden");
-			deleteElement.attr("onclick", "javascript:return deleteAnalysis(" + rowTrickId + ");");
-		} else {
-			deleteElement.parent().attr("hidden", "true");
-			deleteElement.removeAttr("onclick");
-		}
-		
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
->>>>>>> analysis_user_rights
 
 				// get rights values
 				var deleteRight = $("#deleteRight").text();
@@ -2064,27 +1969,27 @@ $(function() {
 
 				if (rowRights <= exportRight) {
 
-					exportanalysis.removeAttr("hidden");
+					exportanalysis.parent().removeAttr("hidden");
 					exportanalysis.attr("onclick",
 							"javascript:return exportAnalysis(" + rowTrickId
 									+ ");");
 					exportanalysisdivider.removeAttr("hidden", "true");
 				} else {
-					exportanalysis.attr("hidden", "true");
+					exportanalysis.parent().attr("hidden", "true");
 					exportanalysis.removeAttr("onclick");
-					exportanalysisdivider.attr("hidden", "true");
+					exportanalysisdivider.parent().attr("hidden", "true");
 				}
 
 				// delete
 
 				if (rowRights <= deleteRight) {
 
-					deleteElement.removeAttr("hidden");
+					deleteElement.parent().removeAttr("hidden");
 					deleteElement.attr("onclick",
 							"javascript:return deleteAnalysis(" + rowTrickId
 									+ ");");
 				} else {
-					deleteElement.attr("hidden", "true");
+					deleteElement.parent().attr("hidden", "true");
 					deleteElement.removeAttr("onclick");
 				}
 
@@ -2385,10 +2290,16 @@ $(function() {
 
 });
 
+function reloadMeausreAndCompliance(norm){
+	reloadSection("section_measure", norm);
+	compliance(norm);
+	return false;
+}
+
 function compliance(norm) {
 	if (!$('#chart_compliance_' + norm).length)
 		return false;
-	$.ajax({
+	return $.ajax({
 		url : context + "/Measure/Compliance/" + norm,
 		type : "get",
 		async : true,
