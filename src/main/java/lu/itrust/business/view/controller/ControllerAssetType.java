@@ -6,10 +6,12 @@ package lu.itrust.business.view.controller;
 import java.util.List;
 
 import lu.itrust.business.TS.AssetType;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceAssetType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author eom
  *
  */
-@Secured("ROLE_USER")
+@PreAuthorize(Constant.ROLE_MIN_USER)
 @Controller
 @RequestMapping("/AssetType")
 public class ControllerAssetType {

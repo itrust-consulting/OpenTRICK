@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Phase;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServicePhase;
@@ -27,6 +28,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,8 +41,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author eomar
  * 
  */
+@PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/Phase")
-@Secured("ROLE_USER")
 @Controller
 public class ControllerPhase {
 

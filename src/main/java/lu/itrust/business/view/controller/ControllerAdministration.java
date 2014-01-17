@@ -21,6 +21,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -39,7 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @version
  * @since Dec 13, 2013
  */
-@Secured("ROLE_ADMIN")
+@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 @Controller
 @RequestMapping("/Admin")
 public class ControllerAdministration {
@@ -244,7 +245,6 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@Secured("ROLE_ADMIN")
 	@RequestMapping("/User/Delete/{userId}")
 	public @ResponseBody Boolean delete(@PathVariable("userId") Long userId, Principal principal) throws Exception {
 		try {

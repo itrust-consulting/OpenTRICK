@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
@@ -16,6 +17,7 @@ import lu.itrust.business.view.model.AsyncResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 @RequestMapping("/Task")
-@Secured("ROLE_USER")
+@PreAuthorize(Constant.ROLE_MIN_USER)
 public class ControllerTask {
 
 	@Autowired
