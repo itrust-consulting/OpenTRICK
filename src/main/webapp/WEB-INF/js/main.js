@@ -316,20 +316,18 @@ function FieldEditor(element, validator) {
 	FieldEditor.prototype.__findCallback = function(element) {
 		if ($(element).attr("trick-callback") != undefined)
 			return $(element).attr("trick-callback");
-		else if ($(element).parent().prop("tagName") != "BODY") {
-			console.log($(element).parent().prop("tagName"));
+		else if ($(element).parent().prop("tagName") != "BODY")
 			return this.__findCallback($(element).parent());
-		} else
+		else
 			return null;
 	};
 
 	FieldEditor.prototype.__findCallbackPreExec = function(element) {
 		if ($(element).attr("trick-callback-pre") != undefined)
 			return $(element).attr("trick-callback-pre");
-		else if ($(element).parent().prop("tagName") != "BODY") {
-			console.log($(element).parent().prop("tagName"));
-			return this.__findCallback($(element).parent());
-		} else
+		else if ($(element).parent().prop("tagName") != "BODY") 
+			return this.__findCallbackPreExec($(element).parent());
+		else
 			return null;
 	};
 
@@ -1434,7 +1432,7 @@ function showSuccess(parent, text) {
 	return false;
 }
 
-function controllerBySection(section) {
+function controllerBySection(section, subSection) {
 	var controllers = {
 		"section_asset" : "/Asset/Section",
 		"section_parameter" : "/Parameter/Section",
@@ -1442,12 +1440,17 @@ function controllerBySection(section) {
 		"section_assessment" : "/Assessment/Section",
 		"section_phase" : "/Phase/Section",
 		"section_analysis" : "/Analysis",
+		"section_measure" : "/Measure/Section",
 		"section_customer" : "/KnowledgeBase/Customer/Section",
 		"section_language" : "/KnowledgeBase/Language/Section",
 		"section_norm" : "/KnowledgeBase/Norm/Section",
 		"section_user" : "/Admin/User/Section",
 	};
-	return controllers[section];
+
+	if (subSection == null || subSection == undefined)
+		return controllers[section];
+	else
+		return controllers[section] + "/" + subSection;
 }
 
 function callbackBySection(section) {
@@ -1475,12 +1478,16 @@ function sectionPretreatment(section) {
 	return pretreatment[section];
 }
 
-function reloadSection(section) {
+function reloadSection(section, subSection) {
 	if (Array.isArray(section)) {
-		for (var int = 0; int < section.length; int++)
-			reloadSection(section[int]);
+		for (var int = 0; int < section.length; int++) {
+			if (Array.isArray(section[int]))
+				reloadSection(section[int][0], section[int][1]);
+			else
+				reloadSection(section[int]);
+		}
 	} else {
-		var controller = controllerBySection(section);
+		var controller = controllerBySection(section, subSection);
 		if (controller == null || controller == undefined)
 			return false;
 		$
@@ -1492,6 +1499,8 @@ function reloadSection(section) {
 					success : function(response) {
 						var parser = new DOMParser();
 						var doc = parser.parseFromString(response, "text/html");
+						if (subSection != null && subSection != undefined)
+							section += "_" + subSection;
 						newSection = $(doc).find("*[id = '" + section + "']");
 						pretreatment = sectionPretreatment(section);
 						if ($.isFunction(pretreatment))
@@ -1510,6 +1519,7 @@ function reloadSection(section) {
 				});
 	}
 }
+
 /* Asset */
 function serializeAssetForm(formId) {
 	var form = $("#" + formId);
@@ -2280,10 +2290,16 @@ $(function() {
 
 });
 
+function reloadMeausreAndCompliance(norm){
+	reloadSection("section_measure", norm);
+	compliance(norm);
+	return false;
+}
+
 function compliance(norm) {
 	if (!$('#chart_compliance_' + norm).length)
 		return false;
-	$.ajax({
+	return $.ajax({
 		url : context + "/Measure/Compliance/" + norm,
 		type : "get",
 		async : true,
