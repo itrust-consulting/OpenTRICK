@@ -9,7 +9,7 @@
 			<generator class="increment" />
 		</id>
 		<property generated="never" lazy="false" name="login" type="java.lang.String">
-			<column name="dtLogin" />
+			<column name="dtLogin" unique="true"/>
 		</property>
 		<property generated="never" lazy="false" name="password" type="java.lang.String">
 			<column name="dtPassword" />
@@ -20,8 +20,8 @@
 		<property generated="never" lazy="false" name="lastName" type="java.lang.String">
 			<column name="dtLastName" />
 		</property>
-		<property generated="never" lazy="false" name="email" type="java.lang.String">
-			<column name="dtEmail" />
+		<property generated="never" lazy="false" name="email" unique="true" type="java.lang.String">
+			<column name="dtEmail" unique="true" />
 		</property>
 		<property generated="never" lazy="false" name="enable" type="boolean">
 			<column name="dtEnable" />

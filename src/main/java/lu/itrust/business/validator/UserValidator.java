@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.validator;
 
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.springframework.validation.Errors;
@@ -49,7 +50,7 @@ public class UserValidator implements Validator {
 		if(user.getLastName()==null || user.getLastName().trim().isEmpty())
 			errors.rejectValue("lastName", "errors.user.lastName.empty");
 		
-		if(user.getEmail()==null || user.getEmail().trim().isEmpty())
+		if(user.getEmail()==null || user.getEmail().trim().isEmpty() || !user.getEmail().matches(Constant.REGEXP_VALID_EMAIL))
 			errors.rejectValue("email", "errors.user.email.empty");
 	}
 

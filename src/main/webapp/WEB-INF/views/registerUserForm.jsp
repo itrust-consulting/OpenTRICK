@@ -92,7 +92,7 @@
 						<spring:message code="label.user.email" />
 					</form:label>
 					<div class="col-sm-9">
-						<form:input path="email" cssClass="form-control" htmlEscape="true" required='true' />
+						<form:input path="email" cssClass="form-control" htmlEscape="true" required='true' pattern='^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$' />
 						<form:errors path="email" cssClass="label label-danger"
 							element="span" />
 					</div>
