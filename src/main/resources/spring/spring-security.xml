@@ -4,7 +4,7 @@
            http://www.springframework.org/schema/security
            http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
-	<global-method-security secured-annotations="enabled" access-decision-manager-ref="accessDecisionManager" />
+	<global-method-security secured-annotations="enabled" access-decision-manager-ref="accessDecisionManager" pre-post-annotations="enabled"  />
 
 	<http auto-config="true">
 		<intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
