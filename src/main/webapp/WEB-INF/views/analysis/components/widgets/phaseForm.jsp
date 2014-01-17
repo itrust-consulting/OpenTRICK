@@ -5,7 +5,8 @@
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
 <div class="modal fade" id="addPhaseModel" tabindex="-1" role="dialog"
-	aria-labelledby="phaseModalForm" aria-hidden="true">
+	aria-labelledby="phaseModalForm" aria-hidden="true"
+	data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">

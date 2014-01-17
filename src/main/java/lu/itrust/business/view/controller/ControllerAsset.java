@@ -159,6 +159,12 @@ public class ControllerAsset {
 		model.addAttribute("asset", serviceAsset.get(id));
 		return "analysis/components/widgets/assetForm";
 	}
+	
+	@RequestMapping("/Add")
+	public String edit(Model model) throws Exception {
+		model.addAttribute("assettypes", serviceAssetType.loadAll());
+		return "analysis/components/widgets/assetForm";
+	}
 
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody

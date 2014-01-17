@@ -71,7 +71,5 @@
 			</div>
 		</div>
 	</div>
-	<jsp:include page="widgets/assetForm.jsp" />
-	<jsp:include page="widgets/scenarioForm.jsp" />
 	<jsp:include page="widgets/phaseForm.jsp" />
 </div>

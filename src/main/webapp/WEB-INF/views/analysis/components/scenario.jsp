@@ -14,9 +14,8 @@
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			<button class="btn btn-default" data-toggle="modal"
-				onclick="findAllScenarioType('scenario_scenariotype_id');"
-				data-target="#addScenarioModal">
+			<button class="btn btn-default"
+				onclick="return editScenario();">
 				<spring:message code="label.scenario.add" text="Add new scenario" />
 			</button>
 		</div>
@@ -42,7 +41,7 @@
 							</c:set>
 						<tr trick-id="${scenario.id}"
 							trick-selected="${scenario.selected}"
-							ondblclick="return editScenarioRow(${scenario.id})">
+							ondblclick="return editScenario(${scenario.id})">
 							<td>${status.index+1}</td>
 							<td class="${cssClass}" colspan="2">${scenario.name}</td>
 							<td class="${cssClass}">${scenario.type.getTypeName()}</td>

@@ -4,8 +4,9 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="addAssetModel" tabindex="-1" role="dialog"
-	aria-labelledby="addNewAsset" aria-hidden="true">
+<div class="modal fade" id="addAssetModal" tabindex="-1" role="dialog"
+	aria-labelledby="addNewAsset" aria-hidden="true" data-backdrop="static"
+	data-keyboard="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">

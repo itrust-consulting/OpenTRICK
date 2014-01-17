@@ -21,8 +21,8 @@ import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceActionPlan;
@@ -50,7 +50,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -147,8 +146,6 @@ public class ControllerAnalysis {
 				}
 				model.put("assettypes", serviceAssetType.loadAll());
 				model.put("analysis", analysis);
-				model.put("language", analysis.getLanguage());
-
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.notAuthorized", null, "Insufficient permissions!", locale));
 				return "redirect:/Error/403";
@@ -400,8 +397,8 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/{analysisId}/Duplicate")
-	public String createNewVersion(@ModelAttribute History history, @PathVariable int analysisId, Principal principal, HttpSession session, RedirectAttributes attributes,
+	@RequestMapping(value="/{analysisId}/Duplicate", method = RequestMethod.GET, headers = "Accept=application/json")
+	public @ResponseBody String createNewVersion(@ModelAttribute History history, @PathVariable int analysisId, Principal principal, HttpSession session, RedirectAttributes attributes,
 			Locale locale) throws Exception {
 
 		if (!serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.MODIFY))

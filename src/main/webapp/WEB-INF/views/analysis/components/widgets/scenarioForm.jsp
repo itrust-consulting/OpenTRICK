@@ -5,7 +5,8 @@
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
 <div class="modal fade" id="addScenarioModal" tabindex="-1"
-	role="dialog" aria-labelledby="addNewScenario" aria-hidden="true">
+	role="dialog" aria-labelledby="addNewScenario" aria-hidden="true"
+	data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -79,52 +80,50 @@
 							<c:when test="${!empty(scenario)}">
 								<thead>
 									<tr>
-									<c:forEach items="${scenario.assetTypeValues }"
-										var="assetTypeValue" varStatus="status">
-										<td>
-										<spring:message
-											code="label.assettype.${assetTypeValue.assetType.type}"
-											text="${assetTypeValue.assetType.type}" htmlEscape="true"/></td>
+										<c:forEach items="${scenario.assetTypeValues }"
+											var="assetTypeValue" varStatus="status">
+											<td><spring:message
+													code="label.assettype.${assetTypeValue.assetType.type}"
+													text="${assetTypeValue.assetType.type}" htmlEscape="true" /></td>
 
-									</c:forEach>
+										</c:forEach>
 									</tr>
 								</thead>
 								<tbody>
 									<tr>
 										<c:forEach items="${scenario.assetTypeValues }"
-										var="assetTypeValue" varStatus="status">
-										<td>
-										
-										<input type="checkbox" ${assetTypeValue.value>0? 'checked' : ''} value="1" name="<spring:message
+											var="assetTypeValue" varStatus="status">
+											<td><input type="checkbox"
+												${assetTypeValue.value>0? 'checked' : ''} value="1"
+												name="<spring:message
 											text="${assetTypeValue.assetType.type}" htmlEscape="true"/>" />
-										</td>
+											</td>
 
-									</c:forEach>
+										</c:forEach>
 									</tr>
 								</tbody>
 							</c:when>
 							<c:when test="${!empty(assettypes)}">
 								<thead>
 									<tr>
-									<c:forEach items="${assettypes }"
-										var="assetType" varStatus="status">
-										<td>
-										<spring:message
-											code="label.assettype.${assetType.type}"
-											text="${assetType.type}" htmlEscape="true"/></td>
+										<c:forEach items="${assettypes }" var="assetType"
+											varStatus="status">
+											<td><spring:message
+													code="label.assettype.${assetType.type}"
+													text="${assetType.type}" htmlEscape="true" /></td>
 
-									</c:forEach>
+										</c:forEach>
 									</tr>
 								</thead>
 								<tbody>
 									<tr>
-										<c:forEach items="${assettypes}"
-										var="assetType" varStatus="status">
-										<td>
-										<input type="checkbox" name="<spring:message
-											text="${assetType.type}" htmlEscape="true"/>" value="1"/>
-										</td>
-									</c:forEach>
+										<c:forEach items="${assettypes}" var="assetType"
+											varStatus="status">
+											<td><input type="checkbox"
+												name="<spring:message
+											text="${assetType.type}" htmlEscape="true"/>"
+												value="1" /></td>
+										</c:forEach>
 									</tr>
 								</tbody>
 							</c:when>

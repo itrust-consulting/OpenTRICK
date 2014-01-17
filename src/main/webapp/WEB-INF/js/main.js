@@ -325,7 +325,7 @@ function FieldEditor(element, validator) {
 	FieldEditor.prototype.__findCallbackPreExec = function(element) {
 		if ($(element).attr("trick-callback-pre") != undefined)
 			return $(element).attr("trick-callback-pre");
-		else if ($(element).parent().prop("tagName") != "BODY") 
+		else if ($(element).parent().prop("tagName") != "BODY")
 			return this.__findCallbackPreExec($(element).parent());
 		else
 			return null;
@@ -631,10 +631,11 @@ function Modal() {
 		var modal_content = document.createElement("div");
 
 		// design modal
-		this.modal.setAttribute("id", "progressBarTest");
+		this.modal.setAttribute("id", "modalBox");
 		this.modal.setAttribute("class", "modal fade in");
 		this.modal.setAttribute("role", "dialog");
 		this.modal.setAttribute("tabindex", "-1");
+		this.modal.setAttribute("aria-hidden", "true");
 		this.modal.setAttribute("aria-hidden", "true");
 		this.modal_dialog.setAttribute("class", "modal-dialog");
 		modal_content.setAttribute("class", "modal-content");
@@ -1013,7 +1014,7 @@ function TaskManager() {
 					setTimeout(function() {
 						instance.Remove(taskId);
 					}, 3000);
-					if (reponse.flag == 4)
+					if (reponse.flag == 5)
 						reloadSection("section_analysis");
 				}
 				return true;
@@ -1533,30 +1534,6 @@ function serializeAssetForm(formId) {
 	return JSON.stringify(data);
 }
 
-function findAllAssetType(selector) {
-	var element = document.getElementById(selector);
-	$.ajax({
-		url : context + "/AssetType/All",
-		async : true,
-		contentType : "application/json",
-		success : function(reponse) {
-			var option = document.createElement("option");
-			option.setAttribute("value", -1);
-			element.innerHTML = "";
-			option.appendChild(document.createTextNode(MessageResolver(
-					"label.asset.type.default", "Select assettype")));
-			element.appendChild(option);
-			for (var int = 0; int < reponse.length; int++) {
-				var assettype = reponse[int];
-				var option = document.createElement("option");
-				option.setAttribute("value", assettype.id);
-				option.appendChild(document.createTextNode(assettype.type));
-				element.appendChild(option);
-			}
-		}
-	});
-}
-
 function selectAsset(assetId, selectVaue) {
 	$.ajax({
 		url : context + "/Asset/Select/" + assetId,
@@ -1590,23 +1567,30 @@ function deleteAsset(assetId) {
 
 }
 
-function editAssetRow(rowTrickId) {
-	$.ajax({
-		url : context + "/Asset/Edit/" + rowTrickId,
-		async : true,
-		contentType : "application/json",
-		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			if ((addAssetModel = doc.getElementById("addAssetModel")) == null)
-				return false;
-			var parent = $("#addAssetModel").parent();
-			$("#addAssetModel").remove();
-			parent[0].insertBefore(addAssetModel, parent[0].firstChild);
-			$('#addAssetModel').modal("toggle");
-			return false;
-		}
-	});
+function editAsset(rowTrickId) {
+	$
+			.ajax({
+				url : context
+						+ ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Asset/Add"
+								: "/Asset/Edit/" + rowTrickId),
+				async : true,
+				contentType : "application/json",
+				success : function(response) {
+					var parser = new DOMParser();
+					var doc = parser.parseFromString(response, "text/html");
+					if ((addAssetModal = doc.getElementById("addAssetModal")) == null)
+						return false;
+					if ($("#addAssetModal").length)
+						$("#addAssetModal").html($(addAssetModal).html());
+					else
+						$(addAssetModal).appendTo($("#widget"));
+					$('#addAssetModal').on('hidden.bs.modal', function() {
+						$('#addAssetModal').remove();
+					});
+					$("#addAssetModal").modal("toggle");
+					return false;
+				}
+			});
 	return false;
 }
 
@@ -1657,34 +1641,6 @@ function serializeScenarioForm(formId) {
 	return JSON.stringify(data);
 }
 
-function findAllScenarioType(selector) {
-	clearScenarioFormData();
-	var element = document.getElementById(selector);
-	$.ajax({
-		url : context + "/ScenarioType/All",
-		async : true,
-		contentType : "application/json",
-		success : function(reponse) {
-			var option = document.createElement("option");
-			option.setAttribute("value", -1);
-			element.innerHTML = "";
-			option.appendChild(document.createTextNode(MessageResolver(
-					"label.scenario.type.default", "Select scenario type")));
-			element.appendChild(option);
-			for (var int = 0; int < reponse.length; int++) {
-				var scenariotype = reponse[int];
-				if (scenariotype.typeName == undefined)
-					continue;
-				var option = document.createElement("option");
-				option.setAttribute("value", scenariotype.id);
-				option.appendChild(document
-						.createTextNode(scenariotype.typeName));
-				element.appendChild(option);
-			}
-		}
-	});
-}
-
 function clearScenarioFormData() {
 	$("#addScenarioModal #addScenarioModel-title").html(
 			MessageResolver("label.scenario.add", "Add new scenario"));
@@ -1724,21 +1680,26 @@ function deleteScenario(assetId) {
 
 }
 
-function editScenarioRow(rowTrickId) {
+function editScenario(rowTrickId) {
 	$
 			.ajax({
-				url : context + "/Scenario/Edit/" + rowTrickId,
+				url : context + (rowTrickId==null || rowTrickId==undefined ||rowTrickId<1? "/Scenario/Add" :  "/Scenario/Edit/" + rowTrickId),
 				contentType : "application/json",
 				async : true,
 				success : function(response) {
 					var parser = new DOMParser();
 					var doc = parser.parseFromString(response, "text/html");
-					if ((addAssetModel = doc.getElementById("addScenarioModal")) == null)
+					if ((addScenarioModal = doc
+							.getElementById("addScenarioModal")) == null)
 						return false;
-					var parent = $("#addScenarioModal").parent();
-					$("#addScenarioModel").remove();
-					parent[0].insertBefore(addAssetModel, parent[0].firstChild);
-					$('#addScenarioModal').modal("toggle");
+					if ($("#addScenarioModal").length)
+						$("#addScenarioModal").html($(addScenarioModal).html());
+					else
+						$(addScenarioModal).appendTo($("#widget"));
+					$('#addScenarioModal').on('hidden.bs.modal', function() {
+						$('#addScenarioModal').remove();
+					});
+					$("#addScenarioModal").modal("toggle");
 					return false;
 				}
 			});
@@ -2013,7 +1974,7 @@ $(function() {
 								+ rowTrickId + "','true');");
 						unSelect.attr("onclick", "return selectAsset('"
 								+ rowTrickId + "','false');");
-						editRow.attr("onclick", "return editAssetRow('"
+						editRow.attr("onclick", "return editAsset('"
 								+ rowTrickId + "');");
 						deleteElement.attr("onclick", "return deleteAsset('"
 								+ rowTrickId + "');");
@@ -2058,7 +2019,7 @@ $(function() {
 						+ "',true);");
 				unSelect.attr("onclick", "return selectScenario('" + rowTrickId
 						+ "',false);");
-				editRow.attr("onclick", "return editScenarioRow('" + rowTrickId
+				editRow.attr("onclick", "return editScenario('" + rowTrickId
 						+ "');");
 				deleteElement.attr("onclick", "return deleteScenario('"
 						+ rowTrickId + "');");
@@ -2290,7 +2251,7 @@ $(function() {
 
 });
 
-function reloadMeausreAndCompliance(norm){
+function reloadMeausreAndCompliance(norm) {
 	reloadSection("section_measure", norm);
 	compliance(norm);
 	return false;

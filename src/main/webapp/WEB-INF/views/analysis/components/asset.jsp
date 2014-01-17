@@ -14,9 +14,8 @@
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			<button class="btn btn-default" data-toggle="modal"
-				onclick="findAllAssetType('asset_assettype_id');"
-				data-target="#addAssetModel">
+			<button class="btn btn-default"
+				onclick="return editAsset();">
 				<spring:message code="label.asset.add" text="Add new asset" />
 			</button>
 		</div>
@@ -40,7 +39,7 @@
 				</thead>
 				<tbody>
 					<c:forEach items="${assets}" var="asset" varStatus="status">
-						<tr  trick-id="${asset.id}" trick-selected="${asset.selected}" ondblclick="return editAssetRow('${asset.id}');">
+						<tr  trick-id="${asset.id}" trick-selected="${asset.selected}" ondblclick="return editAsset('${asset.id}');">
 							<c:set var="cssClass">
 								${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}
 							</c:set>

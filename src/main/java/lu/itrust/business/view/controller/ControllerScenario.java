@@ -202,6 +202,14 @@ public class ControllerScenario {
 				serviceScenario.loadAllFromAnalysisID(integer));
 		return "analysis/components/scenario";
 	}
+	
+	
+	@RequestMapping("/Add")
+	public String add(Model model) throws Exception {
+		model.addAttribute("scenariotypes", serviceScenarioType.loadAll());
+		return "analysis/components/widgets/scenarioForm";
+	}
+
 
 	@RequestMapping("/Edit/{id}")
 	public String edit(@PathVariable Integer id, Model model) throws Exception {
