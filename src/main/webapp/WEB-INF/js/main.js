@@ -1534,16 +1534,48 @@ function serializeAssetForm(formId) {
 	return JSON.stringify(data);
 }
 
-function selectAsset(assetId, selectVaue) {
-	$.ajax({
-		url : context + "/Asset/Select/" + assetId,
-		async : true,
-		contentType : "application/json",
-		success : function(reponse) {
-			reloadSection("section_asset");
+function selectAsset(assetId, value) {
+	if (assetId == undefined) {
+		var selectedItem = findSelectItemIdBySection("section_asset");
+		if (!selectedItem.length)
 			return false;
+		for (var i = 0; i < selectedItem.length; i++) {
+			var selected = $(
+					"#section_asset tbody tr[trick-id='" + selectedItem[i]
+							+ "']").attr("trick-selected");
+			if (value != selected) {
+				$.ajax({
+					url : context + "/Asset/Select/" + selectedItem[i],
+					contentType : "application/json",
+					success : function(reponse) {
+						return false;
+					}
+				});
+			}
 		}
-	});
+		setTimeout(function() {
+			reloadSection('section_asset');
+			var items = $("#section_asset tbody tr");
+			for (var i = 0; i < items.length; i++) {
+				var item = $(items[i]).find("input");
+				$(item)
+						.prop(
+								"checked",
+								selectedItem.indexOf($(items[i]).attr(
+										"trick-id")) != -1);
+			}
+		}, 100);
+	} else {
+		$.ajax({
+			url : context + "/Asset/Select/" + assetId,
+			async : true,
+			contentType : "application/json",
+			success : function(reponse) {
+				reloadSection("section_asset");
+				return false;
+			}
+		});
+	}
 	return false;
 }
 
@@ -1567,7 +1599,15 @@ function deleteAsset(assetId) {
 
 }
 
-function editAsset(rowTrickId) {
+function editAsset(rowTrickId, isAdd) {
+	if (isAdd)
+		rowTrickId = undefined;
+	else if (rowTrickId == null || rowTrickId == undefined) {
+		var selectedScenario = $("#section_asset :checked");
+		if (selectedScenario.length != 1)
+			return false;
+		rowTrickId = findTrickID(selectedScenario[0]);
+	}
 	$
 			.ajax({
 				url : context
@@ -1647,26 +1687,118 @@ function clearScenarioFormData() {
 	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
 
-function selectScenario(assetId, selectVaue) {
-	$.ajax({
-		url : context + "/Scenario/Select/" + assetId,
-		async : true,
-		contentType : "application/json",
-		success : function(reponse) {
-			reloadSection("section_scenario");
+function selectScenario(scenarioId, value) {
+	if (scenarioId == undefined) {
+		var selectedItem = findSelectItemIdBySection("section_scenario");
+		if (!selectedItem.length)
 			return false;
+		for (var i = 0; i < selectedItem.length; i++) {
+			var selected = $(
+					"#section_scenario tbody tr[trick-id='" + selectedItem[i]
+							+ "']").attr("trick-selected");
+			if (value != selected) {
+				console.log(selected + " " + value);
+				$.ajax({
+					url : context + "/Scenario/Select/" + selectedItem[i],
+					contentType : "application/json",
+					success : function(reponse) {
+						return false;
+					}
+				});
+			}
 		}
-	});
+		setTimeout(function() {
+			reloadSection('section_scenario');
+			var items = $("#section_scenario tbody tr");
+			for (var i = 0; i < items.length; i++) {
+				var item = $(items[i]).find("input");
+				$(item)
+						.prop(
+								"checked",
+								selectedItem.indexOf($(items[i]).attr(
+										"trick-id")) != -1);
+			}
+		}, 100);
+	} else {
+		$.ajax({
+			url : context + "/Scenario/Select/" + scenarioId,
+			async : true,
+			contentType : "application/json",
+			success : function(reponse) {
+				reloadSection("section_scenario");
+				return false;
+			}
+		});
+	}
 	return false;
 }
 
-function deleteScenario(assetId) {
+function displayAssessmentByScenario() {
+	var selectedItem = findSelectItemIdBySection("section_scenario");
+	if (selectedItem.length != 1)
+		return false;
+	new AssessmentScenarioViewer(selectedItem[0]).Show();
+	return false;
+}
+
+function displayAssessmentByAsset(){
+	var selectedItem = findSelectItemIdBySection("section_asset");
+	if (selectedItem.length != 1)
+		return false;
+	new AssessmentAssetViewer(selectedItem[0]).Show();
+	return false;
+}
+
+function findSelectItemIdBySection(section) {
+	var selectedItem = [];
+	var $item = $("#" + section + " tbody :checked");
+	for (var i = 0; i < $item.length; i++) {
+		trickId = findTrickID($($item[i])[0]);
+		if (trickId == null || trickId == undefined)
+			return false;
+		selectedItem.push(trickId);
+	}
+	return selectedItem;
+}
+
+function deleteScenario(scenarioId) {
+	if (scenarioId == null || scenarioId == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_scenario"));
+		if (!selectedScenario.length)
+			return false;
+		while (selectedScenario.length) {
+			rowTrickId = selectedScenario.pop();
+			$.ajax({
+				url : context + "/Scenario/Delete/" + rowTrickId,
+				contentType : "application/json",
+				async : true,
+				success : function(response) {
+					var trickSelect = parseJson(response);
+					if (trickSelect != undefined
+							&& trickSelect["success"] != undefined) {
+						var row = $("#section_scenario tr[trick-id='"
+								+ rowTrickId + "']");
+						var checked = $("#section_scenario tr[trick-id='"
+								+ rowTrickId + "'] :checked");
+						if (checked.length)
+							$(checked).removeAttr("checked");
+						if (row.length)
+							$(row).remove();
+					}
+					return false;
+				}
+			});
+		}
+		setTimeout("reloadSection('section_scenario')", 100);
+		return false;
+	}
+
 	$("#confirm-dialog .modal-body").text(
 			MessageResolver("confirm.delete.scenario",
 					"Are you sure, you want to delete this scenario"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
-			url : context + "/Scenario/Delete/" + assetId,
+			url : context + "/Scenario/Delete/" + scenarioId,
 			contentType : "application/json",
 			async : true,
 			success : function(reponse) {
@@ -1680,7 +1812,25 @@ function deleteScenario(assetId) {
 
 }
 
-function editScenario(rowTrickId) {
+function findTrickID(element) {
+	if ($(element).attr("trick-id") != undefined)
+		return $(element).attr("trick-id");
+	else if ($(element).parent().prop("tagName") != "BODY")
+		return findTrickID($(element).parent());
+	else
+		return null;
+}
+
+function editScenario(rowTrickId, isAdd) {
+	if (isAdd)
+		rowTrickId = undefined;
+	else if (rowTrickId == null || rowTrickId == undefined) {
+		var selectedScenario = $("#section_scenario :checked");
+		if (selectedScenario.length != 1)
+			return false;
+		rowTrickId = findTrickID(selectedScenario[0]);
+	}
+
 	$
 			.ajax({
 				url : context
@@ -1828,7 +1978,6 @@ $(function() {
 	var editRow = $contextMenu.find("li[name='edit_row'] a");
 	var deleteElement = $contextMenu.find("li[name='delete'] a");
 	var showMeasures = $contextMenu.find("li[name='show_measures'] a");
-
 	$("#section_analysis").on(
 			"contextmenu",
 			"table tbody tr",
@@ -2175,6 +2324,41 @@ $(function() {
 		event.stopPropagation();
 	});
 });
+
+function checkControlChange(checkbox, sectionName) {
+	var items = $("#section_" + sectionName + " tbody tr td:first-child input");
+	for (var i = 0; i < items.length; i++)
+		$(items[i]).prop("checked", $(checkbox).is(":checked"));
+	updateMenu("#section_" + sectionName, "#menu_" + sectionName);
+	return false;
+}
+
+function updateMenu(idsection, idMenu) {
+	var checkedCount = $(idsection + " tbody :checked").length;
+	if (checkedCount == 1) {
+		var $lis = $(idMenu + " li");
+		for (var i = 0; i < $lis.length; i++)
+			$($lis[i]).removeClass("disabled");
+	} else if (checkedCount > 1) {
+		var $lis = $(idMenu + " li");
+		for (var i = 0; i < $lis.length; i++) {
+			if ($($lis[i]).attr("trick-selectable") == undefined
+					|| $($lis[i]).attr("trick-selectable") === "multi")
+				$($lis[i]).removeClass("disabled");
+			else
+				$($lis[i]).addClass("disabled");
+		}
+	} else {
+		var $lis = $(idMenu + " li");
+		for (var i = 0; i < $lis.length; i++) {
+			if ($($lis[i]).attr("trick-selectable") != undefined)
+				$($lis[i]).addClass("disabled");
+			else
+				$($lis[i]).removeClass("disabled");
+		}
+	}
+	return false;
+}
 
 /**
  * Serialize form fields into JSON

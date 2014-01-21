@@ -2,7 +2,6 @@ package lu.itrust.business.TS;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 
@@ -58,10 +57,6 @@ public class MeasureDescription implements Cloneable {
 	public MeasureDescription(String maturityRef, Norm norm) {
 		this.norm = norm;
 		this.reference = maturityRef;
-	}
-
-	public MeasureDescriptionText getMeasureDescriptionText(Locale locale) {
-		return getMeasureDescriptionText(locale.getISO3Language());
 	}
 
 	public MeasureDescriptionText getMeasureDescriptionText(Language language) {

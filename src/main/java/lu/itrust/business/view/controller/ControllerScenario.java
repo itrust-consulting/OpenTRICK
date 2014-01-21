@@ -20,6 +20,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
+import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceScenario;
@@ -60,7 +61,7 @@ public class ControllerScenario {
 
 	@Autowired
 	private ServiceAssetType serviceAssetType;
-	
+
 	@Autowired
 	private ChartGenerator chartGenerator;
 
@@ -73,8 +74,7 @@ public class ControllerScenario {
 	@Autowired
 	private AssessmentManager assessmentManager;
 
-	private boolean buildAsset(List<String[]> errors, Scenario scenario,
-			List<AssetType> assetTypes, String source, Locale locale) {
+	private boolean buildAsset(List<String[]> errors, Scenario scenario, List<AssetType> assetTypes, String source, Locale locale) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
@@ -82,53 +82,31 @@ public class ControllerScenario {
 			scenario.setSelected(jsonNode.get("selected").asBoolean());
 			scenario.setDescription(jsonNode.get("description").asText());
 			JsonNode node = jsonNode.get("scenarioType");
-			ScenarioType scenarioType = serviceScenarioType.get(node.get("id")
-					.asInt());
+			ScenarioType scenarioType = serviceScenarioType.get(node.get("id").asInt());
 			for (AssetType assetType : assetTypes)
-				scenario.setAssetTypeValue(assetType,
-						jsonNode.get(assetType.getType()).asInt());
+				scenario.setAssetTypeValue(assetType, jsonNode.get(assetType.getType()).asInt());
 			if (scenarioType == null) {
-				errors.add(new String[] {
-						"assetType",
-						messageSource.getMessage(
-								"error.scenariotype.not_found", null,
-								"Selected scenario type cannot be found",
-								locale) });
+				errors.add(new String[] { "assetType", messageSource.getMessage("error.scenariotype.not_found", null, "Selected scenario type cannot be found", locale) });
 				return false;
 			}
 			scenario.setType(scenarioType);
 			return true;
 
 		} catch (JsonProcessingException e) {
-			errors.add(new String[] {
-					"scenario",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		} catch (IOException e) {
-			errors.add(new String[] {
-					"scenario",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		} catch (InvalidAttributesException e) {
-			errors.add(new String[] {
-					"scenario",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			errors.add(new String[] {
-					"scenario",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		} catch (Exception e) {
 
-			errors.add(new String[] {
-					"scenario",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		}
 		return false;
@@ -147,70 +125,48 @@ public class ControllerScenario {
 
 	@RequestMapping(value = "/Select/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
-	String[] select(@PathVariable int id, Principal principal, Locale locale) {
+	String select(@PathVariable int id, Principal principal, Locale locale) {
 		try {
 			Scenario scenario = serviceScenario.get(id);
 			if (scenario == null)
-				return new String[] {
-						"error",
-						messageSource.getMessage("error.scenario.not_found",
-								null, "Scenario cannot be found", locale) };
+				return JsonMessage.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale));
 			if (scenario.isSelected())
 				assessmentManager.unSelectScenario(scenario);
 			else
 				assessmentManager.selectScenario(scenario);
-			return new String[] {
-					"error",
-					messageSource.getMessage(
-							"success.scenario.update.successfully", null,
-							"Scenario was updated successfully", locale) };
+			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.successfully", null, "Scenario was updated successfully", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new String[] {
-					"error",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) };
-
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 		}
 	}
 
 	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
-	String[] delete(@PathVariable int id, Principal principal, Locale locale) {
+	String delete(@PathVariable int id, Principal principal, Locale locale) {
 		try {
 			customDelete.deleteScenario(serviceScenario.get(id));
-			return new String[] {
-					"success",
-					messageSource.getMessage(
-							"success.scenario.delete.successfully", null,
-							"Scenario was deleted successfully", locale) };
+			return JsonMessage.Success(messageSource.getMessage("success.scenario.delete.successfully", null, "Scenario was deleted successfully", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new String[] {
-					"error",
-					messageSource.getMessage("error.scenario.delete.failed",
-							null, "Scenario cannot be deleted", locale) };
+			return JsonMessage.Error(messageSource.getMessage("error.scenario.delete.failed", null, "Scenario cannot be deleted", locale));
 		}
 	}
 
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String section(Model model, HttpSession session, Principal principal)
-			throws Exception {
+	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 		if (integer == null)
 			return null;
-		model.addAttribute("scenarios",
-				serviceScenario.loadAllFromAnalysisID(integer));
+		model.addAttribute("scenarios", serviceScenario.loadAllFromAnalysisID(integer));
 		return "analysis/components/scenario";
 	}
-	
-	
+
 	@RequestMapping("/Add")
 	public String add(Model model) throws Exception {
 		model.addAttribute("scenariotypes", serviceScenarioType.loadAll());
 		return "analysis/components/widgets/scenarioForm";
 	}
-
 
 	@RequestMapping("/Edit/{id}")
 	public String edit(@PathVariable Integer id, Model model) throws Exception {
@@ -221,26 +177,17 @@ public class ControllerScenario {
 
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	List<String[]> save(@RequestBody String value, HttpSession session,
-			Principal principal, Locale locale) {
+	List<String[]> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
 		List<String[]> errors = new LinkedList<>();
 		try {
-			Integer idAnalysis = (Integer) session
-					.getAttribute("selectedAnalysis");
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis == null) {
-				errors.add(new String[] {
-						"analysis",
-						messageSource.getMessage("error.analysis.no_selected",
-								null, "There is no selected analysis", locale) });
+				errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale) });
 				return errors;
 			}
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				errors.add(new String[] {
-						"analysis",
-						messageSource.getMessage("error.analysis.not_found",
-								null, "Selected analysis cannot be found",
-								locale) });
+				errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.not_found", null, "Selected analysis cannot be found", locale) });
 				return errors;
 			}
 
@@ -249,11 +196,7 @@ public class ControllerScenario {
 			if (idScenario > 0) {
 				scenario = serviceScenario.get(idScenario);
 				if (scenario == null) {
-					errors.add(new String[] {
-							"scenario",
-							messageSource.getMessage(
-									"error.scenario.not_found", null,
-									"Scenario cannot be found", locale) });
+					errors.add(new String[] { "scenario", messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale) });
 					return errors;
 				}
 			} else
@@ -273,28 +216,19 @@ public class ControllerScenario {
 					assessmentManager.unSelectScenario(scenario);
 			}
 		} catch (ConstraintViolationException e) {
-			errors.add(new String[] {
-					"assetType",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "assetType", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 		} catch (IllegalArgumentException e) {
-			errors.add(new String[] {
-					"asset",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		}
 
 		catch (Exception e) {
-			errors.add(new String[] {
-					"asset",
-					messageSource.getMessage(e.getMessage(), null,
-							e.getMessage(), locale) });
+			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 		}
 		return errors;
 	}
-	
+
 	@RequestMapping("/Chart/Ale")
 	public @ResponseBody
 	String aleByAsset(HttpSession session, Model model, Locale locale) {
@@ -303,7 +237,7 @@ public class ControllerScenario {
 			return null;
 		return chartGenerator.aleByScenario(idAnalysis, locale);
 	}
-	
+
 	@RequestMapping("/Chart/Type/Ale")
 	public @ResponseBody
 	String assetByALE(HttpSession session, Model model, Locale locale) {
