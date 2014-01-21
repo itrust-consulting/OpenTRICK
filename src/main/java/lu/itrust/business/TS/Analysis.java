@@ -1712,7 +1712,7 @@ public class Analysis implements Serializable, Cloneable {
 
 		List<ActionPlanEntry> ape = new ArrayList<ActionPlanEntry>();
 		for (int i = 0; i < this.actionPlans.size(); i++) {
-			if (this.actionPlans.get(i).getActionPlanType().getId() == mode.getValue()) {
+			if (this.actionPlans.get(i).getActionPlanType().getActionPlanMode() == mode) {
 				ape.add(this.actionPlans.get(i));
 			}
 		}

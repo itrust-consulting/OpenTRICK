@@ -5,6 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.dao.DAOActionPlan;
 
@@ -143,6 +144,27 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	public void delete(ActionPlanEntry actionPlanEntry) throws Exception {
 		getSession().delete(actionPlanEntry);
 
+	}
+
+	@Override
+	public List<ActionPlanEntry> loadByAnalysisActionPlanType(Analysis analysis, ActionPlanMode mode) throws Exception {
+		
+		return analysis.getActionPlan(mode);
+
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ActionPlanEntry> loadByAnalysisActionPlanType(int analysisID, ActionPlanMode mode) throws Exception {
+		
+		return (List<ActionPlanEntry>) getSession().createQuery("FROM ActionPlan WHERE actionPlanType.name = :mode AND analysis.id = :analysisID").setParameter("mode", mode).setParameter("analysisID", analysisID).list();
+		
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ActionPlanEntry> loadAllFromAnalysis(int id) throws Exception {
+		return (List<ActionPlanEntry>) getSession().createQuery("FROM ActionPlan WHERE analysis.id = :analysisID").setParameter("analysisID", id).list();
 	}
 
 }

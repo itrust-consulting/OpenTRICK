@@ -52,9 +52,7 @@
 									<tr ${measure.measureDescription.level<2? "class='danger'" : "class='warning'" }>
 										<td><spring:message
 												text="${measure.measureDescription.reference}" /></td>
-
-										<c:set var="measureDescriptionText"
-											value="${measure.measureDescription.getMeasureDescriptionText(language)}" />
+										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionText(language)}" />
 										<td  colspan="14"><spring:message
 												text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 									

@@ -16,15 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author eomar
- *
+ * 
  */
 @Service
 public class ServicePhaseImpl implements ServicePhase {
 
 	@Autowired
 	private DAOPhase daoPhase;
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServicePhase#get(int)
 	 */
 	@Override
@@ -32,44 +34,53 @@ public class ServicePhaseImpl implements ServicePhase {
 		return daoPhase.get(id);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServicePhase#loadFromPhaseNumberAnalysis(int, lu.itrust.business.TS.Analysis)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.service.ServicePhase#loadFromPhaseNumberAnalysis(int,
+	 * lu.itrust.business.TS.Analysis)
 	 */
 	@Override
-	public Phase loadFromPhaseNumberAnalysis(int number, int analysis)
-			throws Exception {
+	public Phase loadFromPhaseNumberAnalysis(int number, int analysis) throws Exception {
 		return daoPhase.loadFromPhaseNumberAnalysis(number, analysis);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServicePhase#loadByBeginDate(java.sql.Date, lu.itrust.business.TS.Analysis)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.service.ServicePhase#loadByBeginDate(java.sql.Date,
+	 * lu.itrust.business.TS.Analysis)
 	 */
 	@Override
-	public List<Phase> loadByBeginDate(Date beginDate, int analysis)
-			throws Exception {
+	public List<Phase> loadByBeginDate(Date beginDate, int analysis) throws Exception {
 		return daoPhase.loadByEndDate(beginDate, analysis);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServicePhase#loadByEndDate(java.sql.Date, lu.itrust.business.TS.Analysis)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.service.ServicePhase#loadByEndDate(java.sql.Date,
+	 * lu.itrust.business.TS.Analysis)
 	 */
 	@Override
-	public List<Phase> loadByEndDate(Date endDate, int analysis)
-			throws Exception {
+	public List<Phase> loadByEndDate(Date endDate, int analysis) throws Exception {
 		return daoPhase.loadByBeginDate(endDate, analysis);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServicePhase#loadAllFromAnalysis(lu.itrust.business.TS.Analysis)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.service.ServicePhase#loadAllFromAnalysis(lu.itrust.business.TS.Analysis)
 	 */
 	@Override
 	public List<Phase> loadAllFromAnalysis(int analysis) throws Exception {
 		return daoPhase.loadAllFromAnalysis(analysis);
 	}
 
-
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServicePhase#loadAll()
 	 */
 	@Override
@@ -77,7 +88,9 @@ public class ServicePhaseImpl implements ServicePhase {
 		return daoPhase.loadAll();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServicePhase#save(lu.itrust.business.TS.Phase)
 	 */
 	@Transactional
@@ -86,7 +99,9 @@ public class ServicePhaseImpl implements ServicePhase {
 		daoPhase.save(phase);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServicePhase#saveOrUpdate(lu.itrust.business.TS.Phase)
 	 */
 	@Transactional
@@ -95,7 +110,9 @@ public class ServicePhaseImpl implements ServicePhase {
 		daoPhase.saveOrUpdate(phase);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServicePhase#remove(lu.itrust.business.TS.Phase)
 	 */
 	@Transactional
@@ -106,7 +123,7 @@ public class ServicePhaseImpl implements ServicePhase {
 
 	@Override
 	public Phase loadByIdAndIdAnalysis(int idPhase, Integer idAnalysis) {
-		return daoPhase.loadByIdAndIdAnalysis(idPhase,idAnalysis);
+		return daoPhase.loadByIdAndIdAnalysis(idPhase, idAnalysis);
 	}
 
 	@Override

@@ -110,3 +110,7 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 #contextMenu {
 	z-index: 1080;
 }
+
+.actionplanassethidden{
+	display:none;
+}

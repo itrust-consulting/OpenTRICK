@@ -3,10 +3,16 @@ package lu.itrust.business.permissionevaluator;
 import java.io.Serializable;
 import java.security.Principal;
 
+import javax.servlet.http.HttpSession;
+
+import org.apache.catalina.session.StandardSessionFacade;
+
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.service.ServiceUserAnalysisRight;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -50,6 +56,18 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
+	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) throws Exception {
+		
+		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+		
+		if (selected == null) {
+			throw new NotFoundException("No analysis selected!");
+		}
+		
+		return serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), right);
+	}
+	
+	@Override
 	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
 		// TODO Auto-generated method stub
 		return false;
@@ -60,5 +78,4 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
 }

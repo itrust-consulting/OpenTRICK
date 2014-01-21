@@ -39,6 +39,8 @@
 						<jsp:include page="./components/measure.jsp" />
 						<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
 						<jsp:include page="./components/phase.jsp" />
+						<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
+						<jsp:include page="./components/actionplan.jsp" />
 						<jsp:include page="./components/charts.jsp" />
 						<jsp:include page="./components/widgets.jsp" />
 					</div>
