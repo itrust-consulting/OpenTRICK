@@ -72,7 +72,7 @@ public class ActionPlanType {
 	 * @return The value of the name field
 	 */
 	public String getName() {
-		return name.name();
+		return name.getName();
 	}
 	
 	public ActionPlanMode getActionPlanMode() {

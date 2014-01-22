@@ -1708,6 +1708,26 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
+	public List<ActionPlanEntry> getActionPlan(String mode) {
+
+		List<ActionPlanEntry> ape = new ArrayList<ActionPlanEntry>();
+		for (int i = 0; i < this.actionPlans.size(); i++) {
+			if (this.actionPlans.get(i).getActionPlanType().getActionPlanMode().getName().equals(mode)) {
+				ape.add(this.actionPlans.get(i));
+			}
+		}
+		return ape;
+	}
+	
+	/**
+	 * getActionPlan: <br>
+	 * Returns the Action Plan of a given Action Plan Type.
+	 * 
+	 * @param type
+	 *            The Identifier of the Action Plan Type
+	 * 
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
+	 */
 	public List<ActionPlanEntry> getActionPlan(ActionPlanMode mode) {
 
 		List<ActionPlanEntry> ape = new ArrayList<ActionPlanEntry>();

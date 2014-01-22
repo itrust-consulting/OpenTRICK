@@ -89,10 +89,7 @@ public class MeasureNorm extends AnalysisNorm {
 	 */
 	@Override
 	public void setMeasures(List<Measure> measures) {
-		for (Measure measure : measures) {
-			if (!(measure instanceof NormMeasure))
-				throw new IllegalArgumentException("Excepted NormMeasure");
-		}
+			
 		super.setMeasures(measures);
 	}
 

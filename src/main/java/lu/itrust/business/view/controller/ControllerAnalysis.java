@@ -26,6 +26,7 @@ import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceActionPlanType;
@@ -138,7 +139,10 @@ public class ControllerAnalysis {
 	public String displayAll(Principal principal, Map<String, Object> model, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 		if (selected != null) {
-			if (serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.READ)) {
+			
+			PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUserAnalysisRight);
+			
+			if (permissionEvaluator.userIsAuthorized(selected, principal, AnalysisRight.READ)){
 				Analysis analysis = serviceAnalysis.get(selected);
 				if (analysis == null) {
 					attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
@@ -335,15 +339,14 @@ public class ControllerAnalysis {
 	}
 
 	/**
-	 * saveAnalysis: <br>
+	 * save: <br>
 	 * Description
 	 * 
-	 * @param analysisId
-	 * @param analysis
-	 * @param result
+	 * @param value
 	 * @param session
+	 * @param principal
+	 * @param locale
 	 * @return
-	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody

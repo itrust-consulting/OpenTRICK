@@ -2093,7 +2093,7 @@ function reloadMeasureRow(idMeasure, norm) {
 
 function reloadActionPlanEntryRow(idActionPlanEntry, type) {
 	$.ajax({
-		url : context + "/ActionPlan/Section/" + type,
+		url : context + "/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
 		type : "get",
 		async : true,
 		contentType : "application/json",

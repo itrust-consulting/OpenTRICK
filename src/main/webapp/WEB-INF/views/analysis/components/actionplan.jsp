@@ -23,13 +23,13 @@
 						<tr>
 							<th><spring:message code="label.table.index" text="#" /></th>
 							<th><spring:message code="label.measure.norm" text="Norm" /></th>
-							<th><spring:message code="label.measure.reference" text="" /></th>
+							<th><spring:message code="label.measure.reference" text="Reference" /></th>
 							<th><spring:message code="label.actionplan.totalale" text="ALE" /> (k&euro;)</th>
 							<th><spring:message code="label.actionplan.deltaale" text="DeltaALE" /> (k&euro;)</th>
 							<th><spring:message code="label.measure.cs" text="Cost" /> (k&euro;)</th>
 							<th><spring:message code="label.actionplan.roi" text="ROI" /> (k&euro;)</th>
 							<th><spring:message code="label.actionplan.phase" text="Phase" /></th>
-							<spring:eval expression="T(lu.itrust.business.component.ActionPlanManager).getAssetsByActionPlanType(analysis.getActionPlan(apt))" var="actionplanassets" scope="request" />
+							<spring:eval expression="T(lu.itrust.business.component.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
 							
 							<c:forEach items="${actionplanassets}" var="asset">
 								<th class="actionplanassethidden">${asset.name}</th>

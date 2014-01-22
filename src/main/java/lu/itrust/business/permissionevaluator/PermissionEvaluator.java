@@ -4,8 +4,6 @@ import java.security.Principal;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.catalina.session.StandardSessionFacade;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import lu.itrust.business.TS.AnalysisRight;
 

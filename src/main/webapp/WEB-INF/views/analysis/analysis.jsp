@@ -42,7 +42,7 @@
 						<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
 						<jsp:include page="./components/actionplan.jsp" />
 						<jsp:include page="./components/charts.jsp" />
-						<jsp:include page="./components/widgets.jsp" />
+						<jsp:include page="./components/widgets.jsp" /> 
 					</div>
 				</c:if>
 				<c:if test="${!empty analyses and empty(sessionScope.selectedAnalysis)}">

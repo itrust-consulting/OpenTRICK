@@ -16,6 +16,7 @@ import lu.itrust.business.component.ActionPlanManager;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceAsset;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -80,15 +81,15 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping(value = "/Section/{type}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public String section(Map<String, Object> model, HttpSession session, Principal principal, @PathVariable("type") String type) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 		ActionPlanMode mode;
 		try {
-						
+
 			mode = ActionPlanMode.valueOf(ActionPlanMode.getIndex(type));
-			
+
 			List<ActionPlanEntry> actionplans = serviceActionPlan.loadByAnalysisActionPlanType(selected, mode);
 			List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
 			model.put("actionplans", actionplans);
@@ -96,28 +97,31 @@ public class ControllerActionPlan {
 			return "analysis/components/actionplan";
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			return "errors/405";
 		}
 
 	}
 
 	/**
-	 * emptyActionPlan: <br>
+	 * section: <br>
 	 * Description
 	 * 
-	 * @param userId
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @param type
 	 * @return
 	 * @throws Exception
 	 */
-	// TODO implement
-	@RequestMapping("/Analysis/{analysisID}/ActionPlan/Empty")
-	public @ResponseBody
-	Boolean emptyActionPlan(@PathVariable("analysisID") int analysisID, Principal principal) throws Exception {
-		try {
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@RequestMapping(value = "/RetrieveSingleEntry/{entryID}", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String retrieveSingle(@PathVariable("entryID") int entryID, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
+
+		ActionPlanEntry actionplanentry = serviceActionPlan.get(entryID);	
+		model.put("actionplanentry", actionplanentry);
+		return "analysis/components/actionplanentry";
+
 	}
+
 }

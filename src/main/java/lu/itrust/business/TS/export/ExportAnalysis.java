@@ -78,14 +78,9 @@ public class ExportAnalysis {
 
 	/**
 	 * exportAnAnalysis: <br>
-	 * Exports an given Analysis to a given SQLite file.
+	 * Description
 	 * 
-	 * @param analysis
-	 *            The Analysis to take data from
-	 * @param sqlite
-	 *            The SQLite Database Handler to write data
-	 * @param mysql
-	 *            MySQL Database Handler for Data needed from Database
+	 * @return
 	 */
 	public MessageHandler exportAnAnalysis() {
 

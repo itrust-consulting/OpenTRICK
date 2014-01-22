@@ -9,6 +9,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.dao.DAOActionPlan;
 
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
@@ -157,14 +158,18 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	@Override
 	public List<ActionPlanEntry> loadByAnalysisActionPlanType(int analysisID, ActionPlanMode mode) throws Exception {
 		
-		return (List<ActionPlanEntry>) getSession().createQuery("FROM ActionPlan WHERE actionPlanType.name = :mode AND analysis.id = :analysisID").setParameter("mode", mode).setParameter("analysisID", analysisID).list();
-		
+		return (List<ActionPlanEntry>) getSession().createQuery
+		("SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplans where analysis.id = :analysisID and actionplans.actionPlanType.name = :mode")
+		.setParameter("mode", mode)
+		.setParameter("analysisID", analysisID)
+		.list();
+
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ActionPlanEntry> loadAllFromAnalysis(int id) throws Exception {
-		return (List<ActionPlanEntry>) getSession().createQuery("FROM ActionPlan WHERE analysis.id = :analysisID").setParameter("analysisID", id).list();
+		return (List<ActionPlanEntry>) getSession().createQuery("Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID").setParameter("analysisID", id).list();
 	}
 
 }

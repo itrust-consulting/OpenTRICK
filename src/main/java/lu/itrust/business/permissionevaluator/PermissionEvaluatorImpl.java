@@ -30,7 +30,16 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 	
-	public PermissionEvaluatorImpl(){}
+	public PermissionEvaluatorImpl(){
+	}
+	
+	public PermissionEvaluatorImpl(ServiceUserAnalysisRight serviceUserAnalysisRight){
+		this.serviceUserAnalysisRight=serviceUserAnalysisRight;
+	}
+	
+	public void setServiceUserAnalysisRight(ServiceUserAnalysisRight serviceUserAnalysisRight) {
+		this.serviceUserAnalysisRight=serviceUserAnalysisRight;
+	}
 	
 	/**
 	 * userIsAuthorized: <br>
@@ -40,17 +49,14 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	 */
 	@Override
 	public boolean userIsAuthorized(int analysisId, Principal principal, AnalysisRight right, Integer selectedAnalysis) throws Exception {
-		
-		//System.out.println("Selected analysis: " + selectedAnalysis);
-		
+			
 		return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 	}
 
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception {
 		
-		//System.out.println("Selected analysis first: " + analysisId);
-
+		System.out.println("Preauthorize analysis id: " + analysisId);
 		
 		return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 	}
@@ -59,6 +65,8 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) throws Exception {
 		
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+		
+		System.out.println("Preauthorize analysis from selected id: " + selected);
 		
 		if (selected == null) {
 			throw new NotFoundException("No analysis selected!");
