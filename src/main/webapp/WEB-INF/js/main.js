@@ -1584,21 +1584,24 @@ function selectAsset(assetId, value) {
 		var selectedItem = findSelectItemIdBySection("section_asset");
 		if (!selectedItem.length)
 			return false;
+		var requiredUpdate = [];
 		for (var i = 0; i < selectedItem.length; i++) {
 			var selected = $(
 					"#section_asset tbody tr[trick-id='" + selectedItem[i]
 							+ "']").attr("trick-selected");
-			if (value != selected) {
-				$.ajax({
-					url : context + "/Asset/Select/" + selectedItem[i],
-					contentType : "application/json",
-					success : function(reponse) {
-						return false;
-					}
-				});
-			}
+			if (value != selected)
+				requiredUpdate.push(selectedItem[i]);
 		}
-		setTimeout(function() {reloadSection('section_asset');}, 500);
+		$.ajax({
+			url : context + "/Asset/Select",
+			contentType : "application/json",
+			data : JSON.stringify(requiredUpdate, null, 2),
+			type : 'post',
+			success : function(reponse) {
+				reloadSection('section_asset');
+				return false;
+			}
+		});
 	} else {
 		$.ajax({
 			url : context + "/Asset/Select/" + assetId,
@@ -1757,33 +1760,24 @@ function selectScenario(scenarioId, value) {
 		var selectedItem = findSelectItemIdBySection("section_scenario");
 		if (!selectedItem.length)
 			return false;
+		var requiredUpdate = [];
 		for (var i = 0; i < selectedItem.length; i++) {
 			var selected = $(
 					"#section_scenario tbody tr[trick-id='" + selectedItem[i]
 							+ "']").attr("trick-selected");
-			if (value != selected) {
-				console.log(selected + " " + value);
-				$.ajax({
-					url : context + "/Scenario/Select/" + selectedItem[i],
-					contentType : "application/json",
-					success : function(reponse) {
-						return false;
-					}
-				});
-			}
+			if (value != selected)
+				requiredUpdate.push(selectedItem[i]);
 		}
-		setTimeout(function() {
-			reloadSection('section_scenario');
-			var items = $("#section_scenario tbody tr");
-			for (var i = 0; i < items.length; i++) {
-				var item = $(items[i]).find("input");
-				$(item)
-						.prop(
-								"checked",
-								selectedItem.indexOf($(items[i]).attr(
-										"trick-id")) != -1);
+		$.ajax({
+			url : context + "/Scenario/Select",
+			contentType : "application/json",
+			data : JSON.stringify(requiredUpdate, null, 2),
+			type : 'post',
+			success : function(reponse) {
+				reloadSection('section_scenario');
+				return false;
 			}
-		}, 100);
+		});
 	} else {
 		$.ajax({
 			url : context + "/Scenario/Select/" + scenarioId,
@@ -1802,7 +1796,8 @@ function displayAssessmentByScenario() {
 	var selectedItem = findSelectItemIdBySection("section_scenario");
 	if (selectedItem.length != 1)
 		return false;
-	application.modal["AssessmentViewer"]= new AssessmentScenarioViewer(selectedItem[0]);
+	application.modal["AssessmentViewer"] = new AssessmentScenarioViewer(
+			selectedItem[0]);
 	application.modal["AssessmentViewer"].Show();
 	return false;
 }
@@ -1811,7 +1806,8 @@ function displayAssessmentByAsset() {
 	var selectedItem = findSelectItemIdBySection("section_asset");
 	if (selectedItem.length != 1)
 		return false;
-	application.modal["AssessmentViewer"] = new AssessmentAssetViewer(selectedItem[0]);
+	application.modal["AssessmentViewer"] = new AssessmentAssetViewer(
+			selectedItem[0]);
 	application.modal["AssessmentViewer"].Show();
 	return false;
 }
@@ -2041,7 +2037,7 @@ function contextMenuHide(context) {
 	}
 	return true;
 }
-
+/*
 $(function() {
 	var $contextMenu = $("#contextMenu");
 
@@ -2398,7 +2394,7 @@ $(function() {
 		event.stopPropagation();
 	});
 });
-
+*/
 function checkControlChange(checkbox, sectionName) {
 	var items = $("#section_" + sectionName + " tbody tr td:first-child input");
 	for (var i = 0; i < items.length; i++)
@@ -2503,7 +2499,8 @@ $(function() {
 		if (previewPosition > 0 && currentPosition <= 50
 				&& scrollTop > previewScrollTop) {
 			$(".navbar-custom").addClass("affix");
-		} else if (scrollTop < startPosition && scrollTop < previewScrollTop)
+		} else if (scrollTop < startPosition && scrollTop < previewScrollTop
+				&& scrollTop < 50)
 			$(".navbar-custom").removeClass("affix");
 		previewPosition = currentPosition;
 		previewScrollTop = scrollTop;

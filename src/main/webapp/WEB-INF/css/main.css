@@ -68,12 +68,12 @@ html,body {
 }
 
 .nav-container h3 {
-	margin-top: -120px;
+	margin-top: -60px;
 	padding-top: 120px;
 }
 
 .navbar-custom {
-	margin-top: 0px;
+	margin-top: -20px;
 }
 
 .navbar-custom.affix {

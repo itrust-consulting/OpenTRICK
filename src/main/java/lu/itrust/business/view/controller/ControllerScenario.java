@@ -141,6 +141,27 @@ public class ControllerScenario {
 		}
 	}
 
+	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody
+	List<String> select(@RequestBody List<Integer> ids, Principal principal, Locale locale) {
+		List<String> errors = new LinkedList<String>();
+		for (Integer id : ids) {
+			try {
+				Scenario scenario = serviceScenario.get(id);
+				if (scenario == null)
+					errors.add(JsonMessage.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale)));
+				if (scenario.isSelected())
+					assessmentManager.unSelectScenario(scenario);
+				else
+					assessmentManager.selectScenario(scenario);
+			} catch (Exception e) {
+				e.printStackTrace();
+				errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale)));
+			}
+		}
+		return errors;
+	}
+
 	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
 	String delete(@PathVariable int id, Principal principal, Locale locale) {
