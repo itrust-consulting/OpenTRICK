@@ -25,3 +25,4 @@
 	</sec:authorize>
 	
 </script>
+<jsp:include page="alertDialog.jsp"/>

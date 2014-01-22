@@ -21,7 +21,7 @@
 					data-target="#addPhaseModel" onclick="return false"><span
 						class="glyphicon glyphicon-plus primary"></span> <spring:message
 							code="label.phase.add" text="Add" /> </a></li>
-				<li trick-selectable="multi"><a href="#"
+				<li trick-selectable="true"><a href="#"
 					onclick="return deletePhase();"><span
 						class="glyphicon glyphicon-remove"></span> <spring:message
 							code="label.delete.delete" text="Delete" /> </a></li>
@@ -32,6 +32,7 @@
 			<table class="table table-hover">
 				<thead>
 					<tr>
+					
 						<th><input type="checkbox" class="checkbox"
 							onchange="return checkControlChange(this,'phase')"></th>
 						<th><spring:message code="label.phase.number" text="Number" /></th>
