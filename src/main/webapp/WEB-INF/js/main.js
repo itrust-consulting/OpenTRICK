@@ -2194,6 +2194,17 @@ function updateMenu(idsection, idMenu) {
 	return false;
 }
 
+function toggleDisplayAsctionPlanAssets(actionplantable, menu) {
+	$(actionplantable + " .actionplanasset").toggleClass("actionplanassethidden");
+	if ($(actionplantable + " .actionplanasset").hasClass("actionplanassethidden")) {
+		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;"+MessageResolver("action.actionplanassets.show", "Show Assets"));	
+	} else {
+		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;"+MessageResolver("action.actionplanassets.hide", "Hide Assets"));
+	}
+	
+	return false;	
+}
+
 /**
  * Serialize form fields into JSON
  */
