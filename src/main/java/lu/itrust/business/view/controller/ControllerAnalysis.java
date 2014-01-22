@@ -45,6 +45,7 @@ import lu.itrust.business.task.WorkerComputeActionPlan;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -148,7 +149,9 @@ public class ControllerAnalysis {
 					attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 					return "redirect:/Error/404";
 				}
+				Hibernate.initialize(analysis.getLanguage());
 				model.put("assettypes", serviceAssetType.loadAll());
+				model.put("language", analysis.getLanguage().getAlpha3());
 				model.put("analysis", analysis);
 				model.put("language", analysis.getLanguage());
 			} else {

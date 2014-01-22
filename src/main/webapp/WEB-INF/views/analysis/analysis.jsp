@@ -35,7 +35,6 @@
 						<c:set var="scenarios" value="${analysis.scenarios}" scope="request" />
 						<jsp:include page="./components/scenario.jsp" />
 						<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)" var="measures" scope="request" />
-						<c:set value="${analysis.language }" var="language"/>
 						<jsp:include page="./components/measure.jsp" />
 						<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
 						<jsp:include page="./components/phase.jsp" />

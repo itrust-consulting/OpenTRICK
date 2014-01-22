@@ -2,7 +2,6 @@ package lu.itrust.business.TS;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 

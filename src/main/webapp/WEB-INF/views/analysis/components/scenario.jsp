@@ -12,17 +12,39 @@
 			<spring:message code="label.scenario" text="Scenario" />
 		</h3>
 	</div>
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			<button class="btn btn-default"
-				onclick="return editScenario();">
-				<spring:message code="label.scenario.add" text="Add new scenario" />
-			</button>
+	<div class="panel panel-default"
+		onmouseover="if(!$('#menu_scenario').is(':visible')) {updateMenu('#section_scenario', '#menu_scenario');$('#menu_scenario').show();}"
+		onmouseout="$('#menu_scenario').hide();">
+		<div class="panel-heading" style="min-height: 60px">
+			<ul class="nav nav-pills" hidden="true" id="menu_scenario">
+				<li><a href="#"
+					onclick="return editScenario(undefined,true);"><span
+						class="glyphicon glyphicon-plus primary"></span> <spring:message
+							code="label.scenario.add" text="Add" /> </a></li>
+				<li trick-selectable="true"><a href="#" onclick="return editScenario();"><span
+						class="glyphicon glyphicon-edit danger"></span> <spring:message
+							code="label.scenario.edit" text="Edit" /> </a></li>
+				<li trick-selectable="multi"><a href="#" 
+					onclick="return deleteScenario();"><span
+						class="glyphicon glyphicon-remove"></span> <spring:message
+							code="label.scenario.delete" text="Delete" /> </a></li>
+
+				<li trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span
+						class="glyphicon glyphicon-plus-sign"></span> <spring:message
+							code="label.scenario.select" text="Select" /> </a></li>
+				<li trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span
+						class="glyphicon glyphicon-minus-sign "></span> <spring:message
+							code="label.scenario.unselect" text="Unselect" /> </a></li>
+				<li trick-selectable="true"><a href="#" onclick="return displayAssessmentByScenario()"><span
+						class="glyphicon glyphicon-new-window"></span> <spring:message
+							code="label.scenario.assessment" text="Assessment" /> </a></li>
+			</ul>
 		</div>
-		<div class="panel-body" style="max-height: 700px; overflow: auto;">
+		<div class="panel-body" style="max-height: 700px; overflow: auto; padding-bottom: 20px;">
 			<table class="table table-hover">
 				<thead>
 					<tr>
+						<th><input type="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
 						<th><spring:message code="label.row.index" text="#"
 								htmlEscape="true" /></th>
 						<th colspan="2"><spring:message code="label.scenario.name"
@@ -42,6 +64,8 @@
 						<tr trick-id="${scenario.id}"
 							trick-selected="${scenario.selected}"
 							ondblclick="return editScenario(${scenario.id})">
+							<td><input type="checkbox" class="checkbox"
+								onchange="return updateMenu('#section_scenario','#menu_scenario');"></td>
 							<td>${status.index+1}</td>
 							<td class="${cssClass}" colspan="2">${scenario.name}</td>
 							<td class="${cssClass}">${scenario.type.getTypeName()}</td>
