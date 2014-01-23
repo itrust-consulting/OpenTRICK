@@ -18,6 +18,10 @@ public interface DAOActionPlanSummary {
 	
 	public SummaryStage get(int idSummaryStage) throws Exception;
 	
+	public List<SummaryStage> findByAnalysis(Integer idAnalysis);
+	
+	public SummaryStage findByIdAndAnalysis(int id, Integer idAnalysis);
+	
 	public List<SummaryStage> loadAllFromType(ActionPlanType actionPlanType, Analysis analysis) throws Exception;
 	
 	public List<SummaryStage> loadAllFromAnalysis(Analysis analysis) throws Exception;
@@ -31,5 +35,9 @@ public interface DAOActionPlanSummary {
 	public void saveOrUpdate(SummaryStage summaryStage) throws Exception;
 	
 	public void remove(SummaryStage summaryStage) throws Exception;
+
+	
+
+	
 
 }
