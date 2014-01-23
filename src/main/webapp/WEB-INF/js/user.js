@@ -41,7 +41,7 @@ function deleteUser(userId, name) {
 		if (selectedScenario.length != 1)
 			return false;
 		userId = selectedScenario[0];
-		name = $("#section_user tbody tr td:nth-child(3)").txt();
+		name = $("#section_user tbody tr[trick-id='"+userId+"'] td:nth-child(3)").text();
 	}
 	$("#deleteUserBody").html(
 			MessageResolver("label.user.question.delete",
