@@ -24,7 +24,7 @@
 				<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 					<jsp:include page="analysisMenu.jsp" />
 					<jsp:include page="../successErrors.jsp" />
-					<div class="content nav-container" id="content">
+					<div class="content nav-container" id="content" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}"	>
 						<c:set var="histories" value="${analysis.histories}"
 							scope="request" />
 						<jsp:include page="./components/history.jsp" />

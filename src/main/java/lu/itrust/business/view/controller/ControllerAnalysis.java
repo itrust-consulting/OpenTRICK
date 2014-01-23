@@ -150,6 +150,7 @@ public class ControllerAnalysis {
 					return "redirect:/Error/404";
 				}
 				Hibernate.initialize(analysis.getLanguage());
+				model.put("login", principal.getName());
 				model.put("assettypes", serviceAssetType.loadAll());
 				model.put("language", analysis.getLanguage().getAlpha3());
 				model.put("analysis", analysis);

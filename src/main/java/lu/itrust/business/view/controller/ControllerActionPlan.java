@@ -194,4 +194,25 @@ public class ControllerActionPlan {
 		return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
 	}
 
+	/**
+	 * computeActionPlan: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param attributes
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Compute/{analysisID}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
+	public @ResponseBody
+	String computeActionPlanForAnalysis(@PathVariable("analysisID") Integer analysisID, HttpSession session, Principal principal, Locale locale) throws Exception {
+
+		Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisID);
+		worker.setPoolManager(workersPoolManager);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
+	}
 }
