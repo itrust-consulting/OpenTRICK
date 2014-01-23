@@ -5,6 +5,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.usermanagement.User;
 
 /** 
@@ -28,6 +29,8 @@ public interface DAOAnalysis {
 	public boolean analysisExist(String identifier, String version) throws Exception;
 	
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception;
+	
+	public Language getLanguageOfAnalysis(int analysisID) throws Exception;
 	
 	public List<Analysis> loadAllFromUser(User user) throws Exception;
 	

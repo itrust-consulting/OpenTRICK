@@ -35,7 +35,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @version
  * @since Dec 13, 2013
  */
-@PreAuthorize(Constant.ROLE_MIN_USER)
 @Controller
 public class ControllerRegister {
 

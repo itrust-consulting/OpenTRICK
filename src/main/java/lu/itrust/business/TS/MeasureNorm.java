@@ -2,6 +2,8 @@ package lu.itrust.business.TS;
 
 import java.util.List;
 
+import org.hibernate.proxy.HibernateProxy;
+
 /**
  * MeasureNorm: <br>
  * This class represents a MeasureNorm and its data
@@ -74,10 +76,15 @@ public class MeasureNorm extends AnalysisNorm {
 	 */
 	public NormMeasure getMeasure(int index) {
 		if ((index < 0) || (index >= getMeasures().size())) {
-			throw new IndexOutOfBoundsException("Index (" + index + ") needs to be between 0 and "
-				+ (getMeasures().size() - 1));
+			throw new IndexOutOfBoundsException("Index (" + index + ") needs to be between 0 and " + (getMeasures().size() - 1));
 		}
-		return (NormMeasure) getMeasures().get(index);
+
+		if (getMeasures().get(index) instanceof HibernateProxy)
+			return NormMeasure.class.cast(((HibernateProxy) getMeasures().get(index)).getHibernateLazyInitializer().getImplementation());
+		else {
+			return NormMeasure.class.cast(getMeasures().get(index));
+		}
+
 	}
 
 	/**
@@ -87,10 +94,16 @@ public class MeasureNorm extends AnalysisNorm {
 	 * @param measures
 	 *            The Value to set the measures field
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setMeasures(List<Measure> measures) {
-			
-		super.setMeasures(measures);
+
+		if (measures instanceof HibernateProxy) {
+			List<Measure> deproxiedmeasures = (List<Measure>) ((HibernateProxy) measures).getHibernateLazyInitializer().getImplementation();
+			super.setMeasures(deproxiedmeasures);
+		} else {
+			super.setMeasures(measures);
+		}
 	}
 
 	/**

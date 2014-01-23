@@ -105,7 +105,7 @@ function selectAnalysis(analysisId) {
 
 function calculateActionPlan(analysisId) {
 	$.ajax({
-		url : context + "/Analysis/" + analysisId + "/Compute/ActionPlan",
+		url : context + "/ActionPlan/Compute",
 		type : "get",
 		async:true,
 		contentType : "application/json",

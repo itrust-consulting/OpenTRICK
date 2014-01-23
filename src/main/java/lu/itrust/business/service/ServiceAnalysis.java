@@ -8,6 +8,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -27,6 +28,8 @@ public interface ServiceAnalysis {
 	public boolean analysisExist(String identifier, String version) throws Exception;
 
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception;
+	
+	public Language getLanguageFromAnalysis(int analysisID) throws Exception;
 
 	public List<Analysis> loadAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception;
 

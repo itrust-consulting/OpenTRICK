@@ -33,6 +33,24 @@
 			<li><a href="#Scenario"> <spring:message
 						code="menu.analysis.scenario" text="Scenarios" />
 			</a>
+			
+			<li><a href="#RiskInformation"> <spring:message
+						code="menu.analysis.riskinformation" text="Risk Information" /></a></li>
+			
+			<!-- 
+				<ul class="nav">
+					<li><a href="#Threats"> <spring:message
+								code="menu.analysis.threat" text="Threats" />
+					</a></li>
+					<li><a href="#Risks"> <spring:message
+								code="menu.analysis.risk" text="Risks" />
+					</a></li>
+					<li><a href="#Vulnerabilities"> <spring:message
+								code="menu.analysis.vulnerability" text="Vulnerability" />
+					</a></li>
+				</ul>
+				 -->
+			
 			<li class="dropdown"><a href="#Measure" class="dropdown-toggle">
 					<spring:message code="menu.analysis.measure" text="Measures" />
 			</a>
@@ -51,6 +69,10 @@
 					</a></li>
 				</ul></li>
 
+				<li><a href="#ActionPlan"> <spring:message
+						code="menu.analysis.actionplan" text="Action Plans" />
+			</a></li>
+
 			<li><a href="#Phase"> <spring:message
 						code="menu.analysis.phase" text="Phases" />
 			</a></li>
@@ -58,24 +80,6 @@
 			<li><a href="#Charts"> <spring:message
 						code="menu.analysis.chart" text="Charts" /></a></li>
 
-			<li><a href="#RiskInformation"> <spring:message
-						code="menu.analysis.riskinformation" text="Risk Information" />
-			</a> <!-- 
-				<ul class="nav">
-					<li><a href="#Threats"> <spring:message
-								code="menu.analysis.threat" text="Threats" />
-					</a></li>
-					<li><a href="#Risks"> <spring:message
-								code="menu.analysis.risk" text="Risks" />
-					</a></li>
-					<li><a href="#Vulnerabilities"> <spring:message
-								code="menu.analysis.vulnerability" text="Vulnerability" />
-					</a></li>
-				</ul></li>
-				 --></li>
-			<li><a href="#ActionPlan"> <spring:message
-						code="menu.analysis.actionplan" text="Action Plans" />
-			</a></li>
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle"
 				data-toggle="dropdown"> <spring:message code="label.action"
 						text="Action" /><span class="caret"></span>

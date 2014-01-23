@@ -59,9 +59,9 @@ public class MeasureDescription implements Cloneable {
 		this.reference = maturityRef;
 	}
 
-	public MeasureDescriptionText getMeasureDescriptionText(Language language) {
+	/*public MeasureDescriptionText getMeasureDescriptionText(Language language) {
 		return getMeasureDescriptionText(language.getAlpha3());
-	}
+	}*/
 
 	public MeasureDescriptionText getMeasureDescriptionText(String alpha3) {
 

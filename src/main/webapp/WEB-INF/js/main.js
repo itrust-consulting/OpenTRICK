@@ -210,7 +210,7 @@ function TrickCarousel(table) {
 }
 
 function extractPhase(that) {
-	var phases = $("#section_phase *[trick-class='Phase']>*:first-child");
+	var phases = $("#section_phase *[trick-class='Phase']>*:nth-child(2)");
 	if (!$(phases).length)
 		return true;
 	that.choose.push("NA");
@@ -2297,7 +2297,7 @@ function reloadMeasureRow(idMeasure, norm) {
 	return false;
 }
 
-function reloadActionPlanEntryRow(idActionPlanEntry, type) {
+function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
 	$.ajax({
 		url : context + "/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
 		type : "get",
@@ -2305,15 +2305,13 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type) {
 		contentType : "application/json",
 		async : true,
 		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			var $actionplan = $(doc).find("#section_actionplan_" + type + " tr[trick-id='" + idActionPlanEntry + "']");
-			if (!$actionplan.length)
+			if (!response.length)
 				return false;
-			$("#section_actionplan_" + type + " tr[trick-id='" + idActionPlanEntry + "']").html($actionplan.html());
+			$("#section_actionplan_" + type + " tr[trick-id='" + idActionPlanEntry + "']").replaceWith(response);
 			return false;
 		}
 	});
+	reloadMeasureRow(idMeasure, norm);
 	return false;
 }
 

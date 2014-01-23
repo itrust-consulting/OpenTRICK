@@ -31,7 +31,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 						"Select measure "
 								+ "From AnalysisNorm as analysisNorm "
 								+ "inner join analysisNorm.measures as measure "
-								+ "where analysisNorm.analysis.id = :analysis")
+								+ "where analysisNorm.analysis.id = :analysis order by measure.id")
 				.setParameter("analysis", idAnalysis).list();
 	}
 
@@ -43,7 +43,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 						"Select measure "
 								+ "From AnalysisNorm as analysisNorm "
 								+ "inner join analysisNorm.measures as measure "
-								+ "where analysisNorm.norm.id = :norm and analysisNorm.analysis.id = :analysis")
+								+ "where analysisNorm.norm.id = :norm and analysisNorm.analysis.id = :analysis order by measure.id")
 				.setParameter("analysis", idAnalysis)
 				.setParameter("norm", idNorm).list();
 	}
@@ -56,7 +56,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 						"Select measure "
 								+ "From AnalysisNorm as analysisNorm "
 								+ "inner join analysisNorm.measures as measure "
-								+ "where analysisNorm.norm.label = :norm and analysisNorm.analysis.id = :analysis")
+								+ "where analysisNorm.norm.label = :norm and analysisNorm.analysis.id = :analysis order by measure.id")
 				.setParameter("analysis", idAnalysis)
 				.setParameter("norm", norm).list();
 	}
@@ -69,7 +69,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 						"Select measure "
 								+ "From AnalysisNorm as analysisNorm "
 								+ "inner join analysisNorm.measures as measure "
-								+ "where analysisNorm.norm = :norm and analysisNorm.analysis.id = :analysis")
+								+ "where analysisNorm.norm = :norm and analysisNorm.analysis.id = :analysis order by measure.id")
 				.setParameter("analysis", idAnalysis)
 				.setParameter("norm", norm).list();
 	}

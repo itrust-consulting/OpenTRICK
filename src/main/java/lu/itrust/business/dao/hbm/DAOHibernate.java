@@ -44,8 +44,7 @@ public class DAOHibernate {
 	public static <T> T Initialise(T object) {
 		Hibernate.initialize(object);
 		if (object instanceof HibernateProxy) {
-			return (T) ((HibernateProxy) object).getHibernateLazyInitializer()
-					.getImplementation();
+			return (T) ((HibernateProxy) object).getHibernateLazyInitializer().getImplementation();
 		}
 
 		return object;

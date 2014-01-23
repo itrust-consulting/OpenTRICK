@@ -8,6 +8,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.service.ServiceAnalysis;
@@ -166,5 +167,10 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public List<Analysis> loadAllFromUser(User user) throws Exception {
 		return daoAnalysis.loadAllFromUser(user);
+	}
+
+	@Override
+	public Language getLanguageFromAnalysis(int analysisID) throws Exception {
+		return daoAnalysis.getLanguageOfAnalysis(analysisID);
 	}
 }

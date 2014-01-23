@@ -9,10 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.Asset;
-import lu.itrust.business.TS.Measure;
-import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
