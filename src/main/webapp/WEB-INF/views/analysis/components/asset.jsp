@@ -30,7 +30,7 @@
 							code="label.asset.delete" text="Delete" /> </a></li>
 
 				<li trick-selectable="multi"><a href="#"
-					onclick="return selectAsset(undefined, 'true')"><span
+					onclick="return selectAsset(undefined,'true')"><span
 						class="glyphicon glyphicon-plus-sign"></span> <spring:message
 							code="label.asset.select" text="Select" /> </a></li>
 				<li trick-selectable="multi"><a href="#"

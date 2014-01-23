@@ -1,48 +1,56 @@
 function saveCustomer(form) {
 	result = "";
 	return $.ajax({
-					url : context + "/KnowledgeBase/Customer/Save",
-					type : "post",
-					data : serializeForm(form),
-					contentType : "application/json",
-					success : function(response) {
-									var data = "";
-									for ( var error in response)
-										data += response[error][1] + "\n";
-									result = data == "" ? true : showError(document.getElementById(form), data);
-									if (result) {
-										$("#addCustomerModel").modal("hide");
-										reloadSection("section_customer");
-									}
-									return result;
-
-					},
-				    error : function(jqXHR, textStatus, errorThrown) {
-				    	return result;
-				    },
-	});
-}
-
-function deleteACustomer(customerId) {
-	$.ajax({
-		url : context + "/KnowledgeBase/Customer/Delete/" + customerId,
-		type : "POST",
+		url : context + "/KnowledgeBase/Customer/Save",
+		type : "post",
+		data : serializeForm(form),
 		contentType : "application/json",
 		success : function(response) {
-			reloadSection("section_customer");
-			return false;
-		}
+			var data = "";
+			for ( var error in response)
+				data += response[error][1] + "\n";
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
+			if (result) {
+				$("#addCustomerModel").modal("hide");
+				reloadSection("section_customer");
+			}
+			return result;
+
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
 	});
-	return false;
 }
 
 function deleteCustomer(customerId, organisation) {
+	if (customerId == null || customerId == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_customer"));
+		if (selectedScenario.length != 1)
+			return false;
+		customerId = selectedScenario[0];
+		organisation = $(
+				"#section_customer tbody tr[trick-id='" + customerId
+						+ "']>td:nth-child(2)").text();
+	}
 	$("#deleteCustomerBody").html(
 			MessageResolver("label.customer.question.delete",
 					"Are you sure that you want to delete the customer")
 					+ "&nbsp;<strong>" + organisation + "</strong>?");
-	$("#deletecustomerbuttonYes").attr("onclick",
-			"deleteACustomer(" + customerId + ")");
+	$("#deletecustomerbuttonYes").click(function() {
+		$.ajax({
+			url : context + "/KnowledgeBase/Customer/Delete/" + customerId,
+			type : "POST",
+			contentType : "application/json",
+			success : function(response) {
+				reloadSection("section_customer");
+				return false;
+			}
+		});
+		$("#deleteCustomerModel").modal('toggle');
+		return false;
+	});
 	$("#deleteCustomerModel").modal('toggle');
 	return false;
 }
@@ -67,8 +75,14 @@ function newCustomer() {
 }
 
 function editSingleCustomer(customerId) {
+	if (customerId == null || customerId == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_customer"));
+		if (selectedScenario.length != 1)
+			return false;
+		customerId = selectedScenario[0];
+	}
 	var rows = $("#section_customer").find(
-			"tr[trick-id='" + customerId + "'] td");
+			"tr[trick-id='" + customerId + "'] td:not(:first-child)");
 	$("#customer_id").prop("value", customerId);
 	$("#customer_organisation").prop("value", $(rows[0]).text());
 	$("#customer_contactPerson").prop("value", $(rows[1]).text());

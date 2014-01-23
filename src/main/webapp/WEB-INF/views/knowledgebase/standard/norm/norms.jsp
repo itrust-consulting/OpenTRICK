@@ -2,50 +2,64 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec"
+	uri="http://www.springframework.org/security/tags"%>
 <div class="section" id="section_norm">
 	<div class="page-header">
 		<h3 id="Norms">
 			<spring:message code="menu.knowledgebase.norms" />
 		</h3>
 	</div>
-	<c:if test="${!empty norms}">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<button class="btn btn-default" onclick="newNorm();">
-					<spring:message code="label.norm.add.menu" text="Add new Norm" />
-				</button>
-			</div>
-			<div class="panel-body">
-				<table class="table">
-					<thead>
-						<tr>
-							<th><spring:message code="label.norm.label" /></th>
-						</tr>
-					</thead>
-					<tbody>
-						<c:forEach items="${norms}" var="norm">
-							<tr trick-id="${norm.id}">
-								<td>${norm.label}</td>
+	<div class="panel panel-default"
+		onmouseover="if(!$('#menu_norm').is(':visible')) {updateMenu('#section_norm', '#menu_norm');$('#menu_norm').show();}"
+		onmouseout="$('#menu_norm').hide();">
+		<div class="panel-heading" style="min-height: 60px">
+			<ul class="nav nav-pills" hidden="true" id="menu_norm">
+				<li><a href="#" onclick="return newNorm();"><span
+						class="glyphicon glyphicon-plus primary"></span> <spring:message
+							code="label.norm.add" text="Add" /> </a></li>
+				<li trick-selectable="true"><a href="#"
+					onclick="return showMeasures();"><span
+						class="glyphicon glyphicon-new-window"></span> <spring:message
+							code="label.norm.show.measures" text="Show measures" /> </a></li>
+				<li trick-selectable="true"><a href="#"
+					onclick="return editSingleNorm();"><span
+						class="glyphicon glyphicon-edit danger"></span> <spring:message
+							code="label.norm.edit" text="Edit" /> </a></li>
+				<li trick-selectable="true"><a href="#"
+					onclick="return deleteNorm();"><span
+						class="glyphicon glyphicon-remove"></span> <spring:message
+							code="label.norm.delete" text="Delete" /> </a></li>
+			</ul>
+		</div>
+		<div class="panel-body">
+			<c:choose>
+				<c:when test="${!empty norms}">
+					<table class="table">
+						<thead>
+							<tr>
+								<th><input type="checkbox" class="checkbox"
+									onchange="return checkControlChange(this,'norm')"></th>
+								<th><spring:message code="label.norm.label" /></th>
 							</tr>
-						</c:forEach>
-					</tbody>
-				</table>
-			</div>
+						</thead>
+						<tbody>
+							<c:forEach items="${norms}" var="norm">
+								<tr trick-id="${norm.id}">
+									<td><input type="checkbox" class="checkbox"
+										onchange="return updateMenu('#section_norm','#menu_norm');"></td>
+									<td>${norm.label}</td>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
+				</c:when>
+				<c:otherwise>
+					<h4>
+						<spring:message code="label.norm.notexist" />
+					</h4>
+				</c:otherwise>
+			</c:choose>
 		</div>
-	</c:if>
-	<c:if test="${empty norms}">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<button class="btn btn-default" data-toggle="modal" data-target="#addNormModel">
-					<spring:message code="label.norm.add.menu" text="Add new Norm" />
-				</button>
-			</div>
-			<div class="panel-body">
-				<h4>
-					<spring:message code="label.norm.notexist" />
-				</h4>
-			</div>
-		</div>
-	</c:if>
+	</div>
 </div>

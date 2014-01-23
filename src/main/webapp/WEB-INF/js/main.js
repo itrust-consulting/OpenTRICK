@@ -4,6 +4,64 @@
 
 var application = new Application();
 
+var ANALYSIS_RIGHT = {
+	ALL : {
+		value : 0,
+		name : "ALL"
+	},
+	DELETE : {
+		value : 1,
+		name : "DELETE"
+	},
+	CALCULATE_RISK_REGISTER : {
+		value : 2,
+		name : "CALCULATE_RISK_REGISTER"
+	},
+	CALCULATE_ACTIONPLAN : {
+		value : 3,
+		name : "CALCULATE_ACTIONPLAN"
+	},
+	MODIFY : {
+		value : 4,
+		name : "MODIFY"
+	},
+	EXPORT : {
+		value : 5,
+		name : "EXPORT"
+	},
+	READ : {
+		value : 6,
+		name : "READ"
+	}
+};
+
+function permissionError() {
+	$("#alert-dialog .modal-body")
+			.html(
+					MessageResolver("error.notAuthorized",
+							"Insufficient permissions!"));
+	$("#alert-dialog").modal("toggle");
+	return false;
+}
+
+function findRight(idAnalysis) {
+	var right = $("*[trick-id='" + idAnalysis + "'][trick-rights-id]");
+	if (!right.length)
+		return undefined;
+	var idRight = $(right).attr('trick-rights-id');
+	for ( var key in ANALYSIS_RIGHT)
+		if (ANALYSIS_RIGHT[key].value == idRight)
+			return ANALYSIS_RIGHT[key];
+	return undefined;
+}
+
+function userCan(idAnalysis, action) {
+	var right = findRight(idAnalysis);
+	if (right != undefined && action.value != undefined)
+		return right.value <= action.value;
+	return false;
+}
+
 function Application() {
 	this.modal = {};
 	this.data = {};
@@ -59,18 +117,6 @@ function changeDisplay(source) {
 		success : extract
 	});
 	return false;
-}
-
-function createLeftContent() {
-	if (document.getElementById("content_side_left") == null) {
-		var leftContent = document.createElement("div");
-		leftContent.setAttribute("id", "content_side_left");
-		leftContent.setAttribute("class", "content content_side_left");
-		var content = document.getElementById("content");
-		var parent = content.parentNode;
-		parent.insertBefore(leftContent, content);
-	}
-	return true;
 }
 
 function cancelTask(taskId) {
@@ -1453,32 +1499,24 @@ function selectAsset(assetId, value) {
 		var selectedItem = findSelectItemIdBySection("section_asset");
 		if (!selectedItem.length)
 			return false;
+		var requiredUpdate = [];
 		for (var i = 0; i < selectedItem.length; i++) {
 			var selected = $(
 					"#section_asset tbody tr[trick-id='" + selectedItem[i]
 							+ "']").attr("trick-selected");
-			if (value != selected) {
-				$.ajax({
-					url : context + "/Asset/Select/" + selectedItem[i],
-					contentType : "application/json",
-					success : function(reponse) {
-						return false;
-					}
-				});
-			}
+			if (value != selected)
+				requiredUpdate.push(selectedItem[i]);
 		}
-		setTimeout(function() {
-			reloadSection('section_asset');
-			var items = $("#section_asset tbody tr");
-			for (var i = 0; i < items.length; i++) {
-				var item = $(items[i]).find("input");
-				$(item)
-						.prop(
-								"checked",
-								selectedItem.indexOf($(items[i]).attr(
-										"trick-id")) != -1);
+		$.ajax({
+			url : context + "/Asset/Select",
+			contentType : "application/json",
+			data : JSON.stringify(requiredUpdate, null, 2),
+			type : 'post',
+			success : function(reponse) {
+				reloadSection('section_asset');
+				return false;
 			}
-		}, 100);
+		});
 	} else {
 		$.ajax({
 			url : context + "/Asset/Select/" + assetId,
@@ -1494,7 +1532,40 @@ function selectAsset(assetId, value) {
 }
 
 function deleteAsset(assetId) {
-	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.asset", "Are you sure, you want to delete this asset"));
+	if (assetId == null || assetId == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_asset"));
+		if (!selectedScenario.length)
+			return false;
+		while (selectedScenario.length) {
+			rowTrickId = selectedScenario.pop();
+			$.ajax({
+				url : context + "/Asset/Delete/" + rowTrickId,
+				contentType : "application/json",
+				async : true,
+				success : function(response) {
+					var trickSelect = parseJson(response);
+					if (trickSelect != undefined
+							&& trickSelect["success"] != undefined) {
+						var row = $("#section_asset tr[trick-id='" + rowTrickId
+								+ "']");
+						var checked = $("#section_asset tr[trick-id='"
+								+ rowTrickId + "'] :checked");
+						if (checked.length)
+							$(checked).removeAttr("checked");
+						if (row.length)
+							$(row).remove();
+					}
+					return false;
+				}
+			});
+		}
+		setTimeout("reloadSection('section_asset')", 100);
+		return false;
+	}
+
+	$("#confirm-dialog .modal-body").text(
+			MessageResolver("confirm.delete.asset",
+					"Are you sure, you want to delete this asset"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Asset/Delete/" + assetId,
@@ -1554,7 +1625,7 @@ function saveAsset(form) {
 		data : serializeAssetForm(form),
 		contentType : "application/json",
 		success : function(response) {
-			var previewError = $("#addAssetModel .alert");
+			var previewError = $("#addAssetModal .alert");
 			if (previewError.length)
 				previewError.remove();
 			var data = "";
@@ -1562,7 +1633,7 @@ function saveAsset(form) {
 				data += response[error][1] + "\n";
 			result = data == "" ? true : showError(document.getElementById(form), data);
 			if (result) {
-				$("#addAssetModel").modal("hide");
+				$("#addAssetModal").modal("hide");
 				reloadSection("section_asset");
 			}
 			return result;
@@ -1602,33 +1673,24 @@ function selectScenario(scenarioId, value) {
 		var selectedItem = findSelectItemIdBySection("section_scenario");
 		if (!selectedItem.length)
 			return false;
+		var requiredUpdate = [];
 		for (var i = 0; i < selectedItem.length; i++) {
 			var selected = $(
 					"#section_scenario tbody tr[trick-id='" + selectedItem[i]
 							+ "']").attr("trick-selected");
-			if (value != selected) {
-				console.log(selected + " " + value);
-				$.ajax({
-					url : context + "/Scenario/Select/" + selectedItem[i],
-					contentType : "application/json",
-					success : function(reponse) {
-						return false;
-					}
-				});
-			}
+			if (value != selected)
+				requiredUpdate.push(selectedItem[i]);
 		}
-		setTimeout(function() {
-			reloadSection('section_scenario');
-			var items = $("#section_scenario tbody tr");
-			for (var i = 0; i < items.length; i++) {
-				var item = $(items[i]).find("input");
-				$(item)
-						.prop(
-								"checked",
-								selectedItem.indexOf($(items[i]).attr(
-										"trick-id")) != -1);
+		$.ajax({
+			url : context + "/Scenario/Select",
+			contentType : "application/json",
+			data : JSON.stringify(requiredUpdate, null, 2),
+			type : 'post',
+			success : function(reponse) {
+				reloadSection('section_scenario');
+				return false;
 			}
-		}, 100);
+		});
 	} else {
 		$.ajax({
 			url : context + "/Scenario/Select/" + scenarioId,
@@ -1647,15 +1709,20 @@ function displayAssessmentByScenario() {
 	var selectedItem = findSelectItemIdBySection("section_scenario");
 	if (selectedItem.length != 1)
 		return false;
-	new AssessmentScenarioViewer(selectedItem[0]).Show();
+	application.modal["AssessmentViewer"] = new AssessmentScenarioViewer(
+			selectedItem[0]);
+	application.modal["AssessmentViewer"].Show();
 	return false;
 }
 
 function displayAssessmentByAsset(){
+
 	var selectedItem = findSelectItemIdBySection("section_asset");
 	if (selectedItem.length != 1)
 		return false;
-	new AssessmentAssetViewer(selectedItem[0]).Show();
+	application.modal["AssessmentViewer"] = new AssessmentAssetViewer(
+			selectedItem[0]);
+	application.modal["AssessmentViewer"].Show();
 	return false;
 }
 
@@ -1801,7 +1868,7 @@ function saveScenario(form) {
  * @returns
  */
 function savePhase(form) {
-	return $.ajax({
+	$.ajax({
 		url : context + "/Phase/Save",
 		type : "post",
 		async : true,
@@ -1822,13 +1889,23 @@ function savePhase(form) {
 			return result;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
+			return false;
 		},
 	});
+	return false;
 }
 
 function deletePhase(idPhase) {
-	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase"));
+
+	if (idPhase == null || idPhase == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_phase"));
+		if (selectedScenario.length != 1)
+			return false;
+		idPhase = selectedScenario[0];
+	}
+	$("#confirm-dialog .modal-body").text(
+			MessageResolver("confirm.delete.phase",
+					"Are you sure, you want to delete this phase"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Phase/Delete/" + idPhase,
@@ -1873,7 +1950,7 @@ function contextMenuHide(context) {
 	}
 	return true;
 }
-
+/*
 $(function() {
 	var $contextMenu = $("#contextMenu");
 
@@ -2158,7 +2235,7 @@ $(function() {
 		event.stopPropagation();
 	});
 });
-
+*/
 function checkControlChange(checkbox, sectionName) {
 	var items = $("#section_" + sectionName + " tbody tr td:first-child input");
 	for (var i = 0; i < items.length; i++)
@@ -2268,7 +2345,8 @@ $(function() {
 		var scrollTop = $window.scrollTop();
 		if (previewPosition > 0 && currentPosition <= 50 && scrollTop > previewScrollTop) {
 			$(".navbar-custom").addClass("affix");
-		} else if (scrollTop < startPosition && scrollTop < previewScrollTop)
+		} else if (scrollTop < startPosition && scrollTop < previewScrollTop
+				&& scrollTop < 50)
 			$(".navbar-custom").removeClass("affix");
 		previewPosition = currentPosition;
 		previewScrollTop = scrollTop;

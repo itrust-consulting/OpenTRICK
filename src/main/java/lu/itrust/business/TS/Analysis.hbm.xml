@@ -65,7 +65,7 @@
 			<one-to-many class="Assessment" />
 		</bag>
 
-		<bag name="scenarios" table="scenario" cascade="all" access="field" order-by="selected desc, name asc">
+		<bag name="scenarios" table="scenario" cascade="all" access="field" order-by="(type.type) asc, name asc">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Scenario" />
 		</bag>

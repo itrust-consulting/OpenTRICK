@@ -9,7 +9,8 @@ function saveNorm(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
 			if (result) {
 				$("#addNormModel").modal("hide");
 				reloadSection("section_norm");
@@ -23,22 +24,33 @@ function saveNorm(form) {
 	});
 }
 
-function deleteANorm(normId) {
-	$.ajax({
-		url : context + "/KnowledgeBase/Norm/Delete/" + normId,
-		type : "POST",
-		contentType : "application/json",
-		success : function(response) {
-			reloadSection("section_norm");
-			return false;
-		}
-	});
-	return false;
-}
-
 function deleteNorm(normId, name) {
-	$("#deleteNormBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the norm") + "&nbsp;<strong>" + name + "</strong>?");
-	$("#deletenormbuttonYes").attr("onclick", "deleteANorm(" + normId + ")");
+	if (normId == null || normId == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_norm"));
+		if (selectedScenario.length != 1)
+			return false;
+		normId = selectedScenario[0];
+		name = $(
+				"#section_norm tbody tr[trick-id='" + normId
+						+ "']>td:nth-child(2)").text();
+	}
+	$("#deleteNormBody").html(
+			MessageResolver("label.norm.question.delete",
+					"Are you sure that you want to delete the norm")
+					+ "&nbsp;<strong>" + name + "</strong>?");
+	$("#deletenormbuttonYes").click(function() {
+		$.ajax({
+			url : context + "/KnowledgeBase/Norm/Delete/" + normId,
+			type : "POST",
+			contentType : "application/json",
+			success : function(response) {
+				reloadSection("section_norm");
+				return false;
+			}
+		});
+		$("#deleteNormModel").modal('toggle');
+		return false;
+	});
 	$("#deleteNormModel").modal('toggle');
 	return false;
 }
@@ -46,7 +58,8 @@ function deleteNorm(normId, name) {
 function newNorm() {
 	$("#norm_id").prop("value", "-1");
 	$("#norm_label").prop("value", "");
-	$("#addNormModel-title").text(MessageResolver("title.knowledgebase.Norm.Add", "Add a new Norm"));
+	$("#addNormModel-title").text(
+			MessageResolver("title.knowledgebase.Norm.Add", "Add a new Norm"));
 	$("#addnormbutton").text(MessageResolver("label.action.add", "Add"));
 	$("#norm_form").prop("action", "/Save");
 	$("#addNormModel").modal('toggle');
@@ -54,10 +67,19 @@ function newNorm() {
 }
 
 function editSingleNorm(normId) {
-	var rows = $("#section_norm").find("tr[trick-id='" + normId + "'] td");
+	if (normId == null || normId == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_norm"));
+		if (selectedScenario.length != 1)
+			return false;
+		normId = selectedScenario[0];
+	}
+	var rows = $("#section_norm").find("tr[trick-id='" + normId + "'] td:not(:first-child)");
 	$("#norm_id").prop("value", normId);
 	$("#norm_label").prop("value", $(rows[0]).text());
-	$("#addNormModel-title").text(MessageResolver("title.knowledgebase.Norm.Update", "Update a Norm"));
+	$("#addNormModel-title")
+			.text(
+					MessageResolver("title.knowledgebase.Norm.Update",
+							"Update a Norm"));
 	$("#addnormbutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#norm_form").prop("action", "/Save");
 	$("#addNormModel").modal('toggle');

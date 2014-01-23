@@ -19,6 +19,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
+import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceAssetType;
@@ -111,26 +112,50 @@ public class ControllerAsset {
 
 	@RequestMapping(value = "/Select/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
-	String[] select(@PathVariable int id, Principal principal, Locale locale) {
+	String select(@PathVariable int id, Principal principal, Locale locale) {
 		try {
 			Asset asset = serviceAsset.get(id);
 			if (asset == null)
-				return new String[] { "error", messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", locale) };
+				return JsonMessage.Error(messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", locale));
 
 			if (asset.isSelected())
 				assessmentManager.unSelectAsset(asset);
 			else
 				assessmentManager.selectAsset(asset);
 
-			return new String[] { "error", messageSource.getMessage("success.asset.update.successfully", null, "Asset was updated successfully", locale) };
+			return JsonMessage.Success(messageSource.getMessage("success.asset.update.successfully", null, "Asset was updated successfully", locale));
 		} catch (InvalidAttributesException e) {
 			e.printStackTrace();
-			return new String[] { "error", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) };
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new String[] { "error", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) };
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 		}
+	}
+
+	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody
+	List<String> select(@RequestBody List<Integer> ids, Principal principal, Locale locale) {
+		List<String> errors = new LinkedList<String>();
+		for (Integer id : ids) {
+			try {
+				Asset asset = serviceAsset.get(id);
+				if (asset == null)
+					errors.add(JsonMessage.Error(messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", locale)));
+				if (asset.isSelected())
+					assessmentManager.unSelectAsset(asset);
+				else
+					assessmentManager.selectAsset(asset);
+			} catch (InvalidAttributesException e) {
+				e.printStackTrace();
+				errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale)));
+			} catch (Exception e) {
+				e.printStackTrace();
+				errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale)));
+			}
+		}
+		return errors;
 	}
 
 	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
@@ -160,7 +185,7 @@ public class ControllerAsset {
 		model.addAttribute("asset", serviceAsset.get(id));
 		return "analysis/components/widgets/assetForm";
 	}
-	
+
 	@RequestMapping("/Add")
 	public String edit(Model model) throws Exception {
 		model.addAttribute("assettypes", serviceAssetType.loadAll());
