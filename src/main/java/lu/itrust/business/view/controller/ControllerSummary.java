@@ -10,10 +10,13 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceActionPlanSummary;
+import lu.itrust.business.service.ServicePhase;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -38,13 +41,20 @@ public class ControllerSummary {
 	private ServiceActionPlanSummary serviceActionPlanSummary;
 
 	@Autowired
+	private ServicePhase servicePhase;
+
+	@Autowired
 	private MessageSource messageSource;
 
+	@Autowired
+	private ChartGenerator chartGenerator;
+
 	@RequestMapping("/Section")
-	public String section(HttpSession session, Principal principal, Model model, Locale locale) {
+	public String section(HttpSession session, Principal principal, Model model, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
+		model.addAttribute("phases", servicePhase.loadAllFromAnalysis(idAnalysis));
 		model.addAttribute("summaries", serviceActionPlanSummary.findByAnalysis(idAnalysis));
 		return "analysis/components/summary";
 	}
@@ -84,5 +94,15 @@ public class ControllerSummary {
 			}
 		}
 		return errors;
+	}
+
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@RequestMapping(value = "/Evolution/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json")
+	public @ResponseBody
+	String chartEvolutionProfitabityCompliance(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		List<Phase> phases = servicePhase.loadAllFromAnalysis(idAnalysis);
+		List<SummaryStage> summaryStages = serviceActionPlanSummary.findByAnalysisAndActionPlanType(idAnalysis, actionPlanType);
+		return chartGenerator.evolutionProfitabilityCompliance(summaryStages, phases, locale);
 	}
 }

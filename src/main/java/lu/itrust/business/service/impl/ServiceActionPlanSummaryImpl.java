@@ -112,4 +112,9 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 		return daoActionPlanSummary.findByAnalysis(idAnalysis);
 	}
 
+	@Override
+	public List<SummaryStage> findByAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) {
+		return daoActionPlanSummary.findByAnalysisAndActionPlanType(idAnalysis,actionPlanType);
+	}
+
 }

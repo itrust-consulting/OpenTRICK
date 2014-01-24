@@ -23,6 +23,8 @@ public interface ServiceActionPlanSummary {
 	public List<SummaryStage> loadAllFromType(ActionPlanType actionPlanType, Analysis analysis) throws Exception;
 
 	public List<SummaryStage> findByAnalysis(Integer idAnalysis);
+	
+	public List<SummaryStage> findByAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType);
 
 	public List<SummaryStage> loadAllFromAnalysis(Analysis analysis) throws Exception;
 
@@ -35,7 +37,5 @@ public interface ServiceActionPlanSummary {
 	public void saveOrUpdate(SummaryStage summaryStage) throws Exception;
 
 	public void remove(SummaryStage summaryStage) throws Exception;
-
-	
 
 }

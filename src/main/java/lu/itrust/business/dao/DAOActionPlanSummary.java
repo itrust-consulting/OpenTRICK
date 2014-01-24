@@ -36,6 +36,8 @@ public interface DAOActionPlanSummary {
 	
 	public void remove(SummaryStage summaryStage) throws Exception;
 
+	public List<SummaryStage> findByAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType);
+
 	
 
 	

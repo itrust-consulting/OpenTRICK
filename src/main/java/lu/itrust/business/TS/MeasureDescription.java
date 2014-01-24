@@ -60,10 +60,10 @@ public class MeasureDescription implements Cloneable {
 	}
 
 	public MeasureDescriptionText getMeasureDescriptionText(Language language) {
-		return getMeasureDescriptionText(language.getAlpha3());
+		return getMeasureDescriptionTextByAlpha3(language.getAlpha3());
 	}
 
-	public MeasureDescriptionText getMeasureDescriptionText(String alpha3) {
+	public MeasureDescriptionText getMeasureDescriptionTextByAlpha3(String alpha3) {
 
 		MeasureDescriptionText descriptionText = null;
 		MeasureDescriptionText descriptionTextEnglish = null;
