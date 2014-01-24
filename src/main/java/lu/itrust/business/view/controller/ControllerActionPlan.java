@@ -53,7 +53,7 @@ public class ControllerActionPlan {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-	
+
 	@Autowired
 	private ServiceAsset serviceAsset;
 
@@ -112,24 +112,15 @@ public class ControllerActionPlan {
 	 * @throws Exception
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	@RequestMapping(value = "/Section/{type}", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String section(Map<String, Object> model, HttpSession session, Principal principal, @PathVariable("type") String type) throws Exception {
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String section(Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
-		ActionPlanMode mode;
-		try {
 
-			mode = ActionPlanMode.valueOf(ActionPlanMode.getIndex(type));
-
-			List<ActionPlanEntry> actionplans = serviceActionPlan.loadByAnalysisActionPlanType(selected, mode);
-			List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
-			model.put("actionplans", actionplans);
-			model.put("assets", assets);
-			return "analysis/components/actionplan";
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "errors/405";
-		}
+		List<ActionPlanEntry> actionplans = serviceActionPlan.loadAllFromAnalysis(selected);
+		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
+		model.put("actionplans", actionplans);
+		model.put("assets", assets);
+		return "analysis/components/actionplans";
 
 	}
 
@@ -152,18 +143,17 @@ public class ControllerActionPlan {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping(value = "/RetrieveSingleEntry/{entryID}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public String retrieveSingle(@PathVariable("entryID") int entryID, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
-		
+
 		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
-		
+
 		String alpha3 = serviceAnalysis.getLanguageFromAnalysis(analysisID).getAlpha3();
-		
+
 		// retrieve actionplan entry from the given entryID
 		ActionPlanEntry actionplanentry = serviceActionPlan.get(entryID);
 
 		// prepare model
 		model.put("actionplanentry", actionplanentry);
 		model.put("language", alpha3);
-	
 
 		// return view
 		return "analysis/components/actionplanentry";

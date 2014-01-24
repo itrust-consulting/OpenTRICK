@@ -117,10 +117,7 @@ public class TMA {
 				* RRF
 				* ((1. - (this.measure.getImplementationRateValue() / 100.)) / (1. - RRF
 					* (this.measure.getImplementationRateValue() / 100.)));
-		//if(deltaALE==0)
-	//	{
-	//		System.out.println("ALE: "+this.ALE+" RRF: "+RRF+" part1ImpRate: "+this.measure.getImplementationRate());
-	//	}
+		
 	}
 
 	/**

@@ -70,9 +70,9 @@
 			<one-to-many class="Scenario" />
 		</bag>
 
-		<bag name="analysisNorms" table="analysisNorm" cascade="all" inverse="true" access="field">
+		<bag name="analysisNorms" table="analysisNorm" cascade="all" inverse="true" access="field" order-by="norm.id asc">
 			<key column="fiAnalysis" not-null="true" />
-			<one-to-many class="AnalysisNorm" />
+			<one-to-many class="AnalysisNorm"/>
 		</bag>
 
 		<bag name="usedPhases" table="phase" cascade="all" inverse="true" access="field" order-by="number asc">
