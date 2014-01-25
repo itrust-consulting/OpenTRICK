@@ -15,8 +15,7 @@ function saveAnalysis(form) {
 				if (errorMessage.error != undefined)
 					data += errorMessage.error + "\n";
 			}
-			result = data == "" ? true : showError(document
-					.getElementById(form), data);
+			result = data == "" ? true : showError(document.getElementById(form), data);
 			if (result) {
 				$("#addAnalysisModel").modal("hide");
 				reloadSection("section_analysis");
@@ -44,12 +43,8 @@ function deleteAnAnalysis(analysisId) {
 }
 
 function deleteAnalysis(analysisId) {
-	$("#deleteAnalysisBody").html(
-			MessageResolver("label.analysis.question.delete",
-					"Are you sure that you want to delete the analysis")
-					+ "?");
-	$("#deleteanalysisbuttonYes").attr("onclick",
-			"deleteAnAnalysis(" + analysisId + ")");
+	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis") + "?");
+	$("#deleteanalysisbuttonYes").attr("onclick", "deleteAnAnalysis(" + analysisId + ")");
 	$("#deleteAnalysisModel").modal('toggle');
 	return false;
 }
@@ -68,11 +63,8 @@ function newAnalysis() {
 		},
 	});
 
-	$("#addAnalysisModel-title").text(
-			MessageResolver("title.Administration.Analysis.Add",
-					"Create a new Analysis"));
-	$("#addAnalysisButton").text(
-			MessageResolver("label.action.create", "Create"));
+	$("#addAnalysisModel-title").text(MessageResolver("title.Administration.Analysis.Add", "Create a new Analysis"));
+	$("#addAnalysisButton").text(MessageResolver("label.action.create", "Create"));
 	$("#analysis_form").prop("action", "/Save");
 	$("#addAnalysisModel").modal('toggle');
 	return false;
@@ -91,8 +83,7 @@ function editSingleAnalysis(analysisId) {
 		},
 	});
 
-	$("#addAnalysisModel-title").text(
-			MessageResolver("title.analysis.Update", "Update an Analysis"));
+	$("#addAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
 	$("#addAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#analysis_form").prop("action", "/Save");
 	$("#addAnalysisModel").modal('toggle');
@@ -104,16 +95,18 @@ function selectAnalysis(analysisId) {
 }
 
 function calculateActionPlan(analysisId) {
+
 	$.ajax({
 		url : context + "/ActionPlan/Compute",
 		type : "get",
-		async:true,
+		async : true,
 		contentType : "application/json",
 		success : function(response) {
 			var message = parseJson(response);
 			if (message["success"] != undefined) {
-				if (taskManager == undefined)
+				if (taskManager == undefined) {
 					taskManager = new TaskManager();
+				}
 				taskManager.Start();
 			} else if (message["error"]) {
 				$("#alert-dialog .modal-body").html(message["error"]);
@@ -133,6 +126,6 @@ function calculateRiskRegister(analysisId) {
 }
 
 function exportAnalysis(analysisId) {
-	href="${pageContext.request.contextPath}/Analysis/${analysis.id}/Export";
-	// TODO	
+	href = "${pageContext.request.contextPath}/Analysis/${analysis.id}/Export";
+	// TODO
 }

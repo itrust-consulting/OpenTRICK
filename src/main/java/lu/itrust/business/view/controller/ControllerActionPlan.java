@@ -7,20 +7,27 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ActionPlanManager;
 import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.permissionevaluator.PermissionEvaluator;
+import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAnalysisNorm;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceTaskFeedback;
+import lu.itrust.business.service.ServiceUser;
+import lu.itrust.business.service.ServiceUserAnalysisRight;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerComputeActionPlan;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -28,6 +35,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -50,6 +58,15 @@ public class ControllerActionPlan {
 
 	@Autowired
 	private ServiceActionPlan serviceActionPlan;
+
+	@Autowired
+	private ServiceAnalysisNorm serviceAnalysisNorm;
+
+	@Autowired
+	private ServiceUser serviceUser;
+
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
@@ -169,12 +186,31 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Compute")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
-	public @ResponseBody
-	String computeActionPlan(HttpSession session, Principal principal, Locale locale) throws Exception {
+	@RequestMapping(value = "/{analysisID}/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
+	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model, @PathVariable("analysisID") Integer analysisID)
+			throws Exception {
 
-		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
+		model.put("id", analysisID);
+
+		model.put("norms", serviceAnalysisNorm.loadAllFromAnalysis(analysisID));
+
+		return "analysis/components/actionplanoptions";
+	}
+
+	/**
+	 * computeActionPlan: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param attributes
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/{analysisID}/Compute", method = RequestMethod.POST, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
+	public @ResponseBody
+	String computeActionPlan(HttpSession session, Principal principal, Locale locale, @PathVariable("analysisID") Integer analysisID) throws Exception {
 
 		Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisID);
 		worker.setPoolManager(workersPoolManager);

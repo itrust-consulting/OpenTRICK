@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.naming.directory.InvalidAttributesException;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
@@ -59,6 +60,10 @@ public class ActionPlanComputation {
 
 	/** Analysis Object */
 	private Analysis analysis = null;
+	
+	private List<AnalysisNorm> norms = null;
+	
+	private boolean uncertainty = false;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -172,7 +177,7 @@ public class ActionPlanComputation {
 			// ****************************************************************
 			// * compute Action Plan - optimistic mode - Phase
 			// ****************************************************************
-		/*	serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", 30));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", 30));
 
 			System.out.println("compute Action Plan - optimistic mode - Phase");
 			computePhaseActionPlan(ActionPlanMode.PHASE_OPTIMISTIC);
@@ -210,19 +215,11 @@ public class ActionPlanComputation {
 			// * create summary for pessimistic phase action plan summary
 			// ****************************************************************
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", "Create summary for pessimistic phase action plan summary", 70));
-			computeSummary(ActionPlanMode.PHASE_PESSIMISTIC);*/
+			computeSummary(ActionPlanMode.PHASE_PESSIMISTIC);
 
 			// ****************************************************************
 			// * Store action plans into database
 			// ****************************************************************
-
-			for (int i = 0; i < this.analysis.getActionPlan(ActionPlanMode.PHASE_NORMAL).size(); i++) {
-
-				ActionPlanEntry ape = this.analysis.getActionPlan(ActionPlanMode.PHASE_NORMAL).get(i);
-
-				System.out.println(ape.getPosition() + "|" + ape.getMeasure().getAnalysisNorm().getNorm().getLabel() + "|"
-						+ ape.getMeasure().getMeasureDescription().getReference() + "|" + ape.getTotalALE() + "|" + ape.getROI() + "|" + ape.getCost());
-			}
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", 90));
 			
@@ -241,10 +238,6 @@ public class ActionPlanComputation {
 			return messageHandler;
 		}
 	}
-
-	
-
-	
 
 	/**
 	 * determinePositions: <br>
@@ -987,7 +980,7 @@ public class ActionPlanComputation {
 								// ****************************************************************
 								// * update the object's ALE value
 								// ****************************************************************
-								tmpAssets.get(ac).setCurrentALE(tmpAssets.get(ac).getCurrentALE() + ALE);
+								tmpAssets.get(ac).setCurrentALE(ALE);
 							}
 						}
 
@@ -1470,13 +1463,13 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						TMAList.get(j).calculateDeltaALE();
 
-						if(TMAList.get(j).getMeasure().getMeasureDescription().getReference().equals("A.9.2.2"))
+						/*if(TMAList.get(j).getMeasure().getMeasureDescription().getReference().equals("A.9.2.2"))
 						{
 							
 							
 							
 							System.out.println("ALE: "+TMAList.get(j).getALE()+" RRF: "+TMAList.get(j).getRRF()+" asset/scenario: "+TMAList.get(j).getAssessment().getAsset().getName()+"/"+TMAList.get(j).getAssessment().getScenario().getName()+"::"+TMAList.get(j).getMeasure().getMeasureDescription().getReference());	
-						}
+						}*/
 						
 						// if the measure is from 27002 -> YES
 						if (TMAList.get(j).getNorm().getLabel().equals(Constant.NORM_27002)) {
@@ -3071,6 +3064,44 @@ public class ActionPlanComputation {
 	public void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback2) {
 		this.serviceTaskFeedback = serviceTaskFeedback2;
 
+	}
+
+	/** getNorms: <br>
+	 * Returns the norms field value.
+	 * 
+	 * @return The value of the norms field
+	 */
+	public List<AnalysisNorm> getNorms() {
+		return norms;
+	}
+
+	/** setNorms: <br>
+	 * Sets the Field "norms" with a value.
+	 * 
+	 * @param norms 
+	 * 			The Value to set the norms field
+	 */
+	public void setNorms(List<AnalysisNorm> norms) {
+		this.norms = norms;
+	}
+
+	/** isUncertainty: <br>
+	 * Returns the uncertainty field value.
+	 * 
+	 * @return The value of the uncertainty field
+	 */
+	public boolean isUncertainty() {
+		return uncertainty;
+	}
+
+	/** setUncertainty: <br>
+	 * Sets the Field "uncertainty" with a value.
+	 * 
+	 * @param uncertainty 
+	 * 			The Value to set the uncertainty field
+	 */
+	public void setUncertainty(boolean uncertainty) {
+		this.uncertainty = uncertainty;
 	}
 
 	/***********************************************************************************************

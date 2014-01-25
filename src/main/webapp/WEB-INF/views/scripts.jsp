@@ -19,8 +19,7 @@
 <script type="text/javascript">
 	<sec:authorize ifNotGranted="ROLE_ANONYMOUS" >
 	<!--
-		var taskManager = new TaskManager();
-		taskManager.Start();
+		var taskManager = null;
 	-->
 	</sec:authorize>
 	

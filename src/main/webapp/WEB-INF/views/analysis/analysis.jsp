@@ -41,8 +41,9 @@
 						<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
 						<jsp:include page="./components/actionplan.jsp" />
 						<jsp:include page="./components/charts.jsp" />
-						<jsp:include page="./components/widgets.jsp" /> 
+						<jsp:include page="./components/widgets.jsp" />
 					</div>
+					<script type="text/javascript" src="<spring:url value="js/actionplan.js" />"></script>
 				</c:if>
 				<c:if test="${!empty analyses and empty(sessionScope.selectedAnalysis)}">
 					<div class="page-header">
@@ -122,6 +123,7 @@
 					</div>
 					<jsp:include page="widgetContent.jsp" />
 					<jsp:include page="components/widgets/historyForm.jsp" />
+					<script type="text/javascript" src="<spring:url value="js/analysis.js" />"></script>
 				</c:if>
 				<!-- ################################################################ Include Footer ################################################################ -->
 			</div>
@@ -129,7 +131,6 @@
 		<!-- ################################################################ End Container ################################################################# -->
 		<jsp:include page="../footer.jsp" />
 		<jsp:include page="../scripts.jsp" />
-		<script type="text/javascript" src="<spring:url value="js/analysis.js" />"></script>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

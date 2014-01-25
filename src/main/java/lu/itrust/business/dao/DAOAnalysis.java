@@ -8,42 +8,42 @@ import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.usermanagement.User;
 
-/** 
+/**
  * DAOAnalysis.java: <br>
  * Detailed description...
- *
+ * 
  * @author itrust consulting s.�.rl. :
- * @version 
+ * @version
  * @since 16 janv. 2013
  */
 public interface DAOAnalysis {
-	
+
 	public Analysis get(int id) throws Exception;
-	
+
 	public boolean exist(int id);
-	
-	public Analysis get(int id, String identifier, String  version, String creationDate) throws Exception;
-	
-	public Analysis get(int id, String identifier, String  version, Timestamp creationDate) throws Exception;
-	
+
+	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception;
+
+	public Analysis get(int id, String identifier, String version, Timestamp creationDate) throws Exception;
+
 	public boolean analysisExist(String identifier, String version) throws Exception;
-	
+
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception;
-	
+
 	public Language getLanguageOfAnalysis(int analysisID) throws Exception;
-	
+
 	public List<Analysis> loadAllFromUser(User user) throws Exception;
-	
-	public List<Analysis> loadAllFromCustomerIdentifierVersion(Customer customer,String identifier, String  version) throws Exception;
-	
+
+	public List<Analysis> loadAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception;
+
 	public List<Analysis> loadAllFromCustomer(Customer customer) throws Exception;
-	
+
 	public List<Analysis> loadAll() throws Exception;
-	
+
 	public void save(Analysis analysis) throws Exception;
-	
+
 	public void saveOrUpdate(Analysis analysis) throws Exception;
-	
+
 	public void remove(Analysis analysis) throws Exception;
 
 	public void remove(Integer analysisId) throws Exception;
