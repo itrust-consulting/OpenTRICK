@@ -2412,7 +2412,7 @@ function compliance(norm) {
 	});
 }
 
-function evolutionProfitabilityCompliance(actionPlanType) {
+function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 	if (!$('#chart_evolution_profitability_compliance_' + actionPlanType).length)
 		return false;
 	return $.ajax({
@@ -2428,15 +2428,32 @@ function evolutionProfitabilityCompliance(actionPlanType) {
 	});
 }
 
-function chartEvolutionProfitabilityCompliance() {
+function budgetByActionPlanType(actionPlanType) {
+	if (!$('#chart_budget_' + actionPlanType).length)
+		return false;
+	return $.ajax({
+		url : context + "/ActionPlanSummary/Budget/" + actionPlanType,
+		type : "get",
+		async : true,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			$('#chart_budget_' + actionPlanType).highcharts(response);
+		}
+	});
+}
+
+function summaryCharts() {
 	var actionPlanTypes = $("#section_summary *[trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
-			evolutionProfitabilityCompliance($(actionPlanTypes[i]).attr(
-					"trick-nav-control"));
+			actionPlanType = $(actionPlanTypes[i]).attr("trick-nav-control");
+			evolutionProfitabilityComplianceByActionPlanType(actionPlanType);
+			budgetByActionPlanType(actionPlanType);
 		} catch (e) {
 			console.log(e);
 		}
+
 	}
 	return false;
 }
@@ -2445,7 +2462,7 @@ $(function() {
 	chartALE();
 	compliance('27001');
 	compliance('27002');
-	chartEvolutionProfitabilityCompliance();
+	summaryCharts();
 });
 
 function chartALE() {

@@ -46,7 +46,17 @@
 		<div class="panel-body">
 			<div id="chart_evolution_profitability_compliance_APPN"></div>
 			<div id="chart_evolution_profitability_compliance_APPO"></div>
-			<div id="chart_evolution_profitability_compliance_APPO"></div>
+			<div id="chart_evolution_profitability_compliance_APPP"></div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<spring:message code="label.chart.title.budget" text="Budget" />
+		</div>
+		<div class="panel-body">
+			<div id="chart_budget_APPN"></div>
+			<div id="chart_budget_APPO"></div>
+			<div id="chart_budget_APPP"></div>
 		</div>
 	</div>
 </div>

@@ -103,6 +103,16 @@ public class ControllerSummary {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		List<Phase> phases = servicePhase.loadAllFromAnalysis(idAnalysis);
 		List<SummaryStage> summaryStages = serviceActionPlanSummary.findByAnalysisAndActionPlanType(idAnalysis, actionPlanType);
-		return chartGenerator.evolutionProfitabilityCompliance(summaryStages, phases, locale);
+		return chartGenerator.evolutionProfitabilityCompliance(summaryStages, phases, actionPlanType, locale);
+	}
+
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@RequestMapping(value = "/Budget/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json")
+	public @ResponseBody
+	String chartBudget(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		List<Phase> phases = servicePhase.loadAllFromAnalysis(idAnalysis);
+		List<SummaryStage> summaryStages = serviceActionPlanSummary.findByAnalysisAndActionPlanType(idAnalysis, actionPlanType);
+		return chartGenerator.budget(summaryStages, phases, actionPlanType, locale);
 	}
 }

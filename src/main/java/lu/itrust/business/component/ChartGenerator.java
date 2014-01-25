@@ -391,17 +391,17 @@ public class ChartGenerator {
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}";
 	}
 
-	public String evolutionProfitabilityCompliance(List<SummaryStage> summaryStages, List<Phase> phases, Locale locale) {
+	public String evolutionProfitabilityCompliance(List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale) {
 
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
 
 		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": false}";
 
 		String title = "\"title\": {\"text\":\""
-				+ messageSource.getMessage("label.title.chart.evolution_profitability_compliance", null, "Evolution of profitability and ISO compliance", locale) + "\"}";
+				+ messageSource.getMessage("label.title.chart.evolution_profitability_compliance."+actionPlanType, null, "Evolution of profitability and ISO compliance for "+actionPlanType, locale) + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";
-
+ 
 		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
@@ -473,10 +473,12 @@ public class ChartGenerator {
 		if (categories.endsWith(","))
 			categories = categories.substring(0, categories.length() - 1);
 		categories += "]";
+		
+		String keuroByYear = messageSource.getMessage("label.metric.keuro_by_year", null, "k&euro;/y", locale);
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"useHTML\": true }";
+		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f}"+keuroByYear+" </b></td></tr>\",\"footerFormat\": \"</table>\", \"useHTML\": true }";
 
-		String yAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} k&euro;/a\",\"useHTML\": true}, \"title\": {\"title\":\""
+		String yAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} "+keuroByYear+"\",\"useHTML\": true}, \"title\": {\"title\":\""
 				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale)
 				+ "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}%\"}, \"title\":{\"text\":\""
 				+ messageSource.getMessage("label.summary.compliance", null, "Compliance", locale) + "\"}, \"opposite\": true} ]";
@@ -499,14 +501,14 @@ public class ChartGenerator {
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}";
 	}
 	
-	public String budget(List<SummaryStage> summaryStages, List<Phase> phases, Locale locale) {
+	public String budget(List<SummaryStage> summaryStages, List<Phase> phases,String actionPlanType , Locale locale) {
 
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
 
 		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": false}";
 
 		String title = "\"title\": {\"text\":\""
-				+ messageSource.getMessage("label.title.chart.budget", null, "Budget", locale) + "\"}";
+				+ messageSource.getMessage("label.title.chart.budget."+actionPlanType, null, "Budget for "+actionPlanType, locale) + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";
 
@@ -523,19 +525,19 @@ public class ChartGenerator {
 
 		String categories = "[";
 
-		String compliance27001 = "[";
+		String internalWorkload = "[";
 
-		String compliance27002 = "[";
+		String externalWorkload = "[";
 
-		String ale = "[";
+		String internalMaintenace = "[";
 
-		String riskReduction = "[";
+		String externalMaintenance = "[";
 
-		String rosi = "[";
+		String investment = "[";
 
-		String relatifRosi = "[";
+		String currentCost = "[";
 
-		String phaseAnnualCost = "[";
+		String totalPhaseCost = "[";
 
 		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(phases, ActionPlanSummaryManager.extractPhaseRow(summaryStages));
 
@@ -559,23 +561,23 @@ public class ChartGenerator {
 		int size = dataInternalMaintenace.size() - 1;
 
 		for (int i = 0; i < dataInternalWorkload.size(); i++) {
-			compliance27001 += dataInternalWorkload.get(i) + (size != i ? "," : "]");
-			compliance27002 += dataExternalWorkload.get(i) + (size != i ? "," : "]");
-			ale += dataInternalMaintenace.get(i) + (size != i ? "," : "]");
-			riskReduction += dataExternalMaintenance.get(i) + (size != i ? "," : "]");
-			rosi += dataInvestment.get(i) + (size != i ? "," : "]");
-			relatifRosi += dataCurrentCost.get(i) + (size != i ? "," : "]");
-			phaseAnnualCost += dataTotalPhaseCost + (size != i ? "," : "]");
+			internalWorkload += dataInternalWorkload.get(i) + (size != i ? "," : "]");
+			externalWorkload += dataExternalWorkload.get(i) + (size != i ? "," : "]");
+			internalMaintenace += dataInternalMaintenace.get(i) + (size != i ? "," : "]");
+			externalMaintenance += dataExternalMaintenance.get(i) + (size != i ? "," : "]");
+			investment += dataInvestment.get(i) + (size != i ? "," : "]");
+			currentCost += dataCurrentCost.get(i) + (size != i ? "," : "]");
+			totalPhaseCost += dataTotalPhaseCost + (size != i ? "," : "]");
 		}
 
-		if (!compliance27001.endsWith("]")) {
-			compliance27001 += "]";
-			compliance27002 += "]";
-			ale += "]";
-			riskReduction += "]";
-			rosi += "]";
-			relatifRosi += "]";
-			phaseAnnualCost += "]";
+		if (!internalWorkload.endsWith("]")) {
+			internalWorkload += "]";
+			externalWorkload += "]";
+			internalMaintenace += "]";
+			externalMaintenance += "]";
+			investment += "]";
+			currentCost += "]";
+			totalPhaseCost += "]";
 		}
 
 		if (categories.endsWith(","))
@@ -584,25 +586,28 @@ public class ChartGenerator {
 
 		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"useHTML\": true }";
 
-		String yAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} k&euro;/a\",\"useHTML\": true}, \"title\": {\"title\":\""
+		String manDay = messageSource.getMessage("label.metric.man_day", null, "md", locale);
+		
+		String yAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}, \"title\": {\"title\":\""
 				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale)
-				+ "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}%\"}, \"title\":{\"text\":\""
+				+ "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}"+manDay+"\"}, \"title\":{\"text\":\""
 				+ messageSource.getMessage("label.summary.compliance", null, "Compliance", locale) + "\"}, \"opposite\": true} ]";
+		
 
 		xAxis = "\"xAxis\":{\"categories\":" + categories + "}";
-		series += "\"series\":[{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001, null, "Compliance 27001", locale)
-				+ "\", \"data\":" + compliance27001 + ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1, \"tooltip\": {\"valueSuffix\": \"%\"}}, {\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27002, null, "Compliance 27002", locale) + "\", \"data\":" + compliance27002
-				+ ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1 ,  \"tooltip\": {\"valueSuffix\": \"%\"}},{\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE", locale) + "\", \"data\":" + ale
+		series += "\"series\":[{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD, null, "Internal workload", locale)
+				+ "\", \"data\":" + internalWorkload + ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1, \"tooltip\": {\"valueSuffix\": \""+manDay+"\"}}, {\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, null, "External workload", locale) + "\", \"data\":" + externalWorkload
+				+ ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1 ,  \"tooltip\": {\"valueSuffix\": \""+manDay+"\"}},{\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, null, "Internal maintenance", locale) + "\", \"data\":" + internalMaintenace
 				+ ",\"valueDecimals\": 0,\"type\": \"line\" , " + tooltip + "},  {\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale) + "\", \"data\":" + riskReduction
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, null, "External maintenance", locale) + "\", \"data\":" + externalMaintenance
 				+ ",\"valueDecimals\": 0,\"type\": \"line\" ,  " + tooltip + "},{\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_PHASE_ANNUAL_COST, null, "Phase annual cost", locale) + "\", \"data\":" + phaseAnnualCost
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale) + "\", \"data\":" + totalPhaseCost
 				+ ",\"valueDecimals\": 0,\"type\": \"line\" ,  " + tooltip + "},{\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale) + "\", \"data\":" + rosi
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, null, "Investment", locale) + "\", \"data\":" + investment
 				+ ",\"valueDecimals\": 0,\"type\": \"line\" , " + tooltip + "},{\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale) + "\", \"data\":" + relatifRosi
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_CURRENT_COST, null, "Current cost", locale) + "\", \"data\":" + currentCost
 				+ ",\"valueDecimals\": 0,\"type\": \"line\", " + tooltip + "}]";
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}";
 	}
