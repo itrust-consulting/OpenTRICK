@@ -1,14 +1,17 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Asset;
+import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ActionPlanManager;
@@ -28,6 +31,7 @@ import lu.itrust.business.task.WorkerComputeActionPlan;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -207,17 +211,41 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{analysisID}/Compute", method = RequestMethod.POST, headers = "Accept=application/json")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
+	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	String computeActionPlan(HttpSession session, Principal principal, Locale locale, @PathVariable("analysisID") Integer analysisID) throws Exception {
+	String computeActionPlan(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 
-		Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisID);
-		worker.setPoolManager(workersPoolManager);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-			return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
-		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
+		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
+
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode jsonNode = mapper.readTree(value);
+
+		int analysisId = jsonNode.get("id").asInt();
+
+		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_ACTIONPLAN)) {
+
+			boolean uncertainty = jsonNode.get("uncertainty").asBoolean();
+
+			List<AnalysisNorm> anorms = serviceAnalysisNorm.loadAllFromAnalysis(analysisId);
+
+			List<AnalysisNorm> norms = new ArrayList<AnalysisNorm>();
+
+			for (AnalysisNorm anorm : anorms) {
+				if (jsonNode.get("norm_" + anorm.getId()) != null)
+					if (jsonNode.get("norm_" + anorm.getId()).asBoolean())
+						norms.add(anorm);
+
+			}
+
+			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, norms, uncertainty);
+			worker.setPoolManager(workersPoolManager);
+			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+				return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
+			executor.execute(worker);
+			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
+		} else {
+			return JsonMessage.Success(messageSource.getMessage("error.permissiondenied", null, "Permission denied!", locale));
+		}
 	}
 
 }

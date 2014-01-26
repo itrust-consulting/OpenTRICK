@@ -45,14 +45,35 @@ function removeModal(modalpopup) {
 
 function calculateActionPlanWithOptions(analysisId, modalBox) {
 		
-	var data = $(modalBox+" #actionplancomputationoptionsform").serializeArray();
+	var form = $(modalBox+" #actionplancomputationoptionsform");
 	
-	removeModal(modalBox);
+	var data= {};
+	
+	data["id"] = analysisId;
+	
+	var uncertainty = form.find(" input[name='uncertainty']").is(":checked");
+	
+	data["uncertainty"] = uncertainty;
+			
+	form.find("input[name^='norm_']").each(function() {
+		
+		var name = $(this).attr("name");
+		
+		var value = $(this).is(":checked");
+		
+		data[name] = value;
+				
+	});
+	
+	var jsonarray = JSON.stringify(data);
+
+
+	//removeModal(modalBox);
 	
 	$.ajax({
-		url : context + "/ActionPlan/"+analysisId+"/Compute",
+		url : context + "/ActionPlan/Compute",
 		type : "post",
-		data: data,
+		data: jsonarray,
 		async : true,
 		contentType : "application/json",
 		success : function(response) {

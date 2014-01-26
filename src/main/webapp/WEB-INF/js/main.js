@@ -964,7 +964,7 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					}, 3000);
 					if (reponse.flag == 5)
-						reloadSection("section_analysis");
+						reloadSection("section_actionplans");
 					
 				}
 				return true;
