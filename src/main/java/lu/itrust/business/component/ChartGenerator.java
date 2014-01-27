@@ -16,12 +16,16 @@ import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
+import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.dao.DAOActionPlan;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
 import lu.itrust.business.dao.DAOMeasure;
+import lu.itrust.business.dao.DAOPhase;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
@@ -36,6 +40,12 @@ public class ChartGenerator {
 	@Autowired
 	private DAOAsset daoAsset;
 
+	@Autowired
+	private DAOActionPlan daoActionPlan;
+	
+	@Autowired
+	private DAOPhase daoPhase;
+	
 	@Autowired
 	private DAOMeasure daoMeasure;
 
@@ -59,7 +69,8 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
+		String tooltip =
+			"\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
 
 		if (assets.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
@@ -131,22 +142,6 @@ public class ChartGenerator {
 		return assets2;
 	}
 
-	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, String norm) {
-		Map<String, Object[]> compliances = new LinkedHashMap<String, Object[]>();
-		for (Measure measure : measures) {
-			if (measure.getAnalysisNorm().getNorm().getLabel().equals(norm) && measure.getMeasureDescription().getLevel() >= 3
-					&& !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
-				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
-				Object[] compliance = compliances.get(chapter);
-				if (compliance == null)
-					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
-				compliance[0] = (Integer) compliance[0] + 1;
-				compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue();
-			}
-		}
-		return compliances;
-	}
-
 	public String aleByAssetType(int idAnalysis, Locale locale) {
 
 		List<Asset> assets = assetByType(daoAsset.findByAnalysisAndSelectedOderByALE(idAnalysis));
@@ -161,7 +156,8 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
+		String tooltip =
+			"\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
 
 		if (assets.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
@@ -203,18 +199,70 @@ public class ChartGenerator {
 
 		xAxis = "\"xAxis\":{\"categories\":" + categories + " ,\"min\":0}";
 		series += "\"series\":[{\"name\":\"ALEO\", \"data\":" + dataALEOs + ",\"valueDecimals\": 0 },{\"name\":\"ALE\", \"data\":" + dataALEs
+
 				+ ",\"valueDecimals\": 0 },{\"name\":\"ALEP\", \"data\":" + dataALEPs + ",\"valueDecimals\": 0}]";
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}";
 	}
 
-	public String compliance(int idAnalysis, String norm, Locale locale) {
+	public static Map<String, Object[]> ComputeComplianceBefore(List<Measure> measures, String norm) {
+		Map<String, Object[]> compliances = new LinkedHashMap<String, Object[]>();
+		for (Measure measure : measures) {
+			if (measure.getAnalysisNorm().getNorm().getLabel().equals(norm) && measure.getMeasureDescription().getLevel() >= 3
+				&& !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
+				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
+				Object[] compliance = compliances.get(chapter);
+				if (compliance == null)
+					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
+				compliance[0] = (Integer) compliance[0] + 1;
+				compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue();
+			}
+		}
+		return compliances;
+	}
+	
+	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, String norm, List<Measure> actionplanmeasures, List<Measure> actionplanmeasuresnottoimpl, Phase phase, Map<String, Object[]> previouscompliences) {
+		Map<String, Object[]> compliances = previouscompliences;
+		
+		
+		for (Measure measure : measures) {
+						
+			//System.out.println(measure.getPhase().getNumber() + "::" + phase.getNumber());
+			
+			String normname = measure.getAnalysisNorm().getNorm().getLabel();
+			
+			Integer measureLevel = measure.getMeasureDescription().getLevel();
+			
+			String status = measure.getStatus();
+							
+			Boolean goodPhase = measure.getPhase().getNumber() == phase.getNumber();
+			
+			if (normname.equals(norm) && measureLevel >= Constant.MEASURE_LEVEL_3 && !status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && goodPhase) {
+				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
+				Object[] compliance = compliances.get(chapter);
+				if (compliance == null)
+					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
+				//compliance[0] = (Integer) compliance[0] + 1;
+
+				Boolean onActionPlan = actionplanmeasures.contains(measure) && !actionplanmeasuresnottoimpl.contains(measure);
+				
+				if (onActionPlan) {
+					compliance[1] = (Double) compliance[1] + Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE;
+					compliance[1] = (Double) compliance[1] - measure.getImplementationRateValue();
+				}
+				
+			}
+		}
+		return compliances;
+	}
+	
+	public String compliance(int idAnalysis, String norm, Locale locale) throws Exception {
 		List<Measure> measures = daoMeasure.findByAnalysis(idAnalysis);
-		Map<String, Object[]> compliances = ComputeCompliance(measures, norm);
+		
+		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, norm);
 
 		String chart = "\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30},  \"scrollbar\": {\"enabled\": false}";
 
-		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { norm }, norm + " measure compliance", locale)
-				+ "\"}";
+		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { norm }, norm + " measure compliance", locale) + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";
 
@@ -222,12 +270,14 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:70px;'><b>{point.y:.1f} %</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
+		String tooltip =
+			"\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:70px;'><b>{point.y:.1f} %</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
 
-		if (compliances.isEmpty())
+
+		if (previouscompliances.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
 
-		String series = "";
+		String series = "\"series\":[";
 
 		String xAxis = "";
 
@@ -236,9 +286,9 @@ public class ChartGenerator {
 		String categories = "[";
 
 		String data = "[";
-
-		for (String key : compliances.keySet()) {
-			Object[] compliance = compliances.get(key);
+		
+		for (String key : previouscompliances.keySet()) {
+			Object[] compliance = previouscompliances.get(key);
 			categories += "\"" + key + "\",";
 			data += ((Double) compliance[1]) / (Integer) compliance[0] + ",";
 		}
@@ -254,8 +304,67 @@ public class ChartGenerator {
 
 		xAxis = "\"xAxis\":{\"categories\":" + categories + "}";
 
-		series += "\"series\":[{\"name\":\"" + messageSource.getMessage("label.chart.series.chapter", null, "Chapter", locale) + "\", \"data\":" + data + ",\"valueDecimals\": 0}]";
+		String serie = "";
+		
+		serie = "{\"name\":\"" + messageSource.getMessage("label.chart.series.currentlevel", null, "Current Level", locale) + "\", \"data\":" + data + ",\"valueDecimals\": 0}";
+		
+		series += serie;
+	
+		List<Measure> actionplanmeasures = daoActionPlan.loadMeasuresFromAnalysisActionPlan(idAnalysis, ActionPlanMode.PHASE_NORMAL);
 
+		List<Measure> actionplanmeasuresnottoimplement = daoActionPlan.loadMeasuresFromAnalysisActionPlanNotToImplement(idAnalysis, ActionPlanMode.PHASE_NORMAL);
+
+		
+		List<Phase> phases = daoPhase.loadAllFromAnalysis(idAnalysis);
+		
+		Hibernate.initialize(phases);
+		
+		if (actionplanmeasures != null && actionplanmeasures.size()>0) {
+				
+			for (Phase phase : phases) {
+										
+				Hibernate.initialize(phase);
+				
+				if (phase.getNumber() == Constant.PHASE_NOT_USABLE)
+					continue;
+				
+				Map<String, Object[]> compliances = null; 
+				
+				/*for (String key : previouscompliances.keySet()) {
+					Object[] compliance = previouscompliances.get(key);
+					compliance[0] = 0;
+				}*/
+				
+				compliances = ComputeCompliance(measures, norm, actionplanmeasures, actionplanmeasuresnottoimplement, phase, previouscompliances);
+								
+				previouscompliances = compliances;
+								
+				if (compliances.size() == 0) 
+					continue;
+
+				data = "[";
+				
+				for (String key : compliances.keySet()) {
+					Object[] compliance = compliances.get(key);
+					data += ((Double) compliance[1]) / (Integer) compliance[0] + ",";
+				}
+		
+				data = data.substring(0, data.length() - 1);
+				
+				data += "]";
+				
+				serie = "";
+				
+				serie = "{\"name\":\"" + messageSource.getMessage("label.phase", null, "Phase", locale) + " "+ phase.getNumber() +"\", \"data\":" + data + ",\"valueDecimals\": 0}";
+
+				series += ","+serie;
+			
+			}
+					
+		}
+		
+		series += "]";
+		
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}";
 	}
 
@@ -283,7 +392,8 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
+		String tooltip =
+			"\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
 
 		if (ales2.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
@@ -349,7 +459,8 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
+		String tooltip =
+			"\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
 
 		if (ales2.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";

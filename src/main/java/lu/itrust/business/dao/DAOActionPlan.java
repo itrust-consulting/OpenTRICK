@@ -3,6 +3,7 @@ package lu.itrust.business.dao;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
@@ -30,9 +31,15 @@ public interface DAOActionPlan {
 
 	public List<ActionPlanEntry> loadByAnalysisActionPlanType(int analysisID, ActionPlanMode mode) throws Exception;
 	
+	public List<Measure> loadMeasuresFromAnalysisActionPlan(int id, ActionPlanMode apm) throws Exception;
+	
+	public List<Measure> loadMeasuresFromAnalysisActionPlanNotToImplement(int id, ActionPlanMode apm) throws Exception;
+	
 	public List<ActionPlanEntry> loadAllFromAnalysis(int id) throws Exception;
 	
 	public List<ActionPlanEntry> loadAllFromAnalysis(int identifier, String version, String creationDate) throws Exception;
+	
+	public List<Asset> loadAssetsByAnalysisOrderByALE(int analysisID) throws Exception;
 
 	public List<ActionPlanEntry> loadAll() throws Exception;
 	

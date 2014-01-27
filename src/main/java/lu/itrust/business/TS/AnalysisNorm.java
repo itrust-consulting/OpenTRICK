@@ -195,4 +195,55 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 		return analysisNorm;
 	}
 
+	/**
+	 * hashCode:<br>
+	 * Used inside equals method.
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result =
+			prime * result + ((norm == null) ? 0 : norm.hashCode());
+		result = prime * result + id;
+		return result;
+	}
+
+	/**
+	 * equals: <br>
+	 * Check if this object equals another object of the same type. Equal means: the field id,
+	 * description, domain and reference.
+	 * 
+	 * @param obj
+	 *            The other object to check on
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		AnalysisNorm other = (AnalysisNorm) obj;
+		if (norm == null) {
+			if (other.norm != null) {
+				return false;
+			}
+		} else if (!norm.equals(other.norm)) {
+			return false;
+		}
+		if (id != other.id) {
+			return false;
+		}
+		return true;
+	}
+	
 }

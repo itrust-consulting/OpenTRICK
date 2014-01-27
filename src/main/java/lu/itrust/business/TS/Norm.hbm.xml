@@ -15,7 +15,7 @@
 		</id>
 		<discriminator column="dtDiscriminator" not-null="true" />
 		<properties name="unique_index" unique="true">
-			<many-to-one name="norm" column="fiNorm" not-null="true"/>
+			<many-to-one name="norm" column="fiNorm" not-null="true" lazy="false"/>
 			<many-to-one name="analysis" column="fiAnalysis" not-null="true" cascade="save-update"/>
 		</properties>
 		<bag name="measures" table="measure" cascade="all" inverse="true">
@@ -23,6 +23,6 @@
 			<one-to-many class="Measure" />
 		</bag>
 	</class>
-	<subclass name="MeasureNorm" extends="AnalysisNorm" discriminator-value="MeasureNorm" />
+	<subclass name="MeasureNorm" extends="AnalysisNorm" discriminator-value="MeasureNorm"/>
 	<subclass name="MaturityNorm" extends="AnalysisNorm" discriminator-value="MaturityNorm" />
 </hibernate-mapping>

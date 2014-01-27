@@ -32,5 +32,7 @@ public AnalysisNorm get(int id) throws Exception;
 	
 	public DAOAnalysisNorm getDaoAnalysisNorm();
 
+	public List<AnalysisNorm> loadAllFromAnalysis(Integer analysisID) throws Exception;
+
 
 }

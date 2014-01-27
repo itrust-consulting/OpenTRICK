@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
  * DAOPhaseHBM.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since Feb 1, 2013
  */

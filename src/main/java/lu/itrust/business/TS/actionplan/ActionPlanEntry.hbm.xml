@@ -15,7 +15,7 @@
 		<property column="dtDeltaALE" generated="never" lazy="false" name="deltaALE" type="double" not-null="true" />
 		<property column="dtCost" generated="never" lazy="false" name="cost" type="double" not-null="true" access="field" />
 		<property column="dtROI" generated="never" lazy="false" name="ROI" type="double" not-null="true" />
-		<bag  name="actionPlanAssets" table="actionPlanAsset" inverse="true" cascade="all">
+		<bag  name="actionPlanAssets" table="actionPlanAsset" inverse="true" cascade="all" order-by="currentALE DESC">
 			<key column="fiActionPlanCalculation"/>
 			<one-to-many class="lu.itrust.business.TS.actionplan.ActionPlanAsset" />
 		</bag>

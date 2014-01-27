@@ -359,13 +359,17 @@ public class Analysis implements Serializable, Cloneable {
 
 		RRF = ((assetTypeValue / 100. * strength * category * type * source) / 500.) * tuning;
 
-		/*
-		 * System.out.println("Measure: " + measure.getMeasureDescription().getReference() +
-		 * "Asset: " + tmpAssessment.getAsset().getName() + "Scenario: " +
-		 * tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" + assetTypeValue +
-		 * ", strength=" + strength + ", Category=" + category + ", type=" + type + ", source=" +
-		 * source + ", tuning=" + tuning);
-		 */
+		
+//		if ((measure.getMeasureDescription().getReference().equals("A.9.2.2"))) {
+//			System.out.println("Measure: " + measure.getMeasureDescription().getReference() +
+//					 "Asset: " + tmpAssessment.getAsset().getName() + "Scenario: " +
+//					 tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" + assetTypeValue +
+//					 ", strength=" + strength + ", Category=" + category + ", type=" + type + ", source=" +
+//					 source + ", tuning=" + tuning);
+//		}
+		
+		 
+		 
 
 		// ****************************************************************
 		// * return the value
