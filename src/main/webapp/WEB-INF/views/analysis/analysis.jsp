@@ -24,30 +24,30 @@
 					<jsp:include page="analysisMenu.jsp" />
 					<jsp:include page="../successErrors.jsp" />
 					<div class="content nav-container" id="section_analysis" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}"></div>
+					<c:set var="histories" value="${analysis.histories}" scope="request" />
+					<div class="content nav-container" id="section_analysis">
 						<c:set var="histories" value="${analysis.histories}" scope="request" />
-						<div class="content nav-container" id="section_analysis">
-							<c:set var="histories" value="${analysis.histories}" scope="request" />
-							<jsp:include page="./components/history.jsp" />
-							<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
-							<jsp:include page="./components/itemInformation.jsp" />
-							<c:set var="parameters" value="${analysis.parameters}" scope="request" />
-							<jsp:include page="./components/parameter.jsp" />
-							<c:set var="assets" value="${analysis.assets}" scope="request" />
-							<jsp:include page="./components/asset.jsp" />
-							<c:set var="scenarios" value="${analysis.scenarios}" scope="request" />
-							<jsp:include page="./components/scenario.jsp" />
-							<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)" var="measures" scope="request" />
-							<jsp:include page="./components/measure.jsp" />
-							<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
-							<jsp:include page="./components/phase.jsp" />
-							<c:set var="summaries" scope="request" value="${analysis.summaries}" />
-							<jsp:include page="./components/summary.jsp" />
-							<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
-							<jsp:include page="./components/actionplan.jsp" />
-							<jsp:include page="./components/charts.jsp" />
-							<jsp:include page="./components/widgets.jsp" />
-						</div>
-						<script type="text/javascript" src="<spring:url value="js/actionplan.js" />"></script>
+						<jsp:include page="./components/history.jsp" />
+						<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
+						<jsp:include page="./components/itemInformation.jsp" />
+						<c:set var="parameters" value="${analysis.parameters}" scope="request" />
+						<jsp:include page="./components/parameter.jsp" />
+						<c:set var="assets" value="${analysis.assets}" scope="request" />
+						<jsp:include page="./components/asset.jsp" />
+						<c:set var="scenarios" value="${analysis.scenarios}" scope="request" />
+						<jsp:include page="./components/scenario.jsp" />
+						<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)" var="measures" scope="request" />
+						<jsp:include page="./components/measure.jsp" />
+						<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
+						<jsp:include page="./components/phase.jsp" />
+						<c:set var="summaries" scope="request" value="${analysis.summaries}" />
+						<jsp:include page="./components/summary.jsp" />
+						<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
+						<jsp:include page="./components/actionplan.jsp" />
+						<jsp:include page="./components/charts.jsp" />
+						<jsp:include page="./components/widgets.jsp" />
+					</div>
+					<script type="text/javascript" src="<spring:url value="js/actionplan.js" />"></script>
 				</c:if>
 				<c:if test="${!empty analyses and empty(sessionScope.selectedAnalysis)}">
 					<div class="page-header">
@@ -67,13 +67,14 @@
 							onmouseout="$('#menu_analysis').hide();">
 							<div class="panel-heading" style="min-height: 60px">
 								<ul class="nav nav-pills" hidden="true" id="menu_analysis">
-									<li><a href="#" onclick="return newAnalysis();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.analysis.add" text="Add" /> </a></li>
+									<li><a href="#" onclick="return newAnalysis();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.analysis.add"
+												text="New analysis" /> </a></li>
 									<li trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"><span class="glyphicon glyphicon-pushpin"></span> <spring:message
-												code="label.analysis.pin" text="Pin analysis" /> </a></li>
+												code="label.analysis.pin" text="Edit Analysis" /> </a></li>
 									<li trick-selectable="true"><a href="#" onclick="return createAnalysisVersion()"><span class="glyphicon glyphicon-new-window"></span> <spring:message
 												code="label.analysis.create.new_version" text="Create new version" /> </a></li>
 									<li trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
-												code="label.analysis.edit" text="Edit" /> </a></li>
+												code="label.analysis.editInfo" text="Edit info" /> </a></li>
 									<li trick-selectable="true"><a href="#" onclick="return deleteAnalysis();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 												code="label.analysis.delete" text="Delete" /> </a></li>
 									<li trick-selectable="true"><a href="#" onclick="return exportAnalysis()"><span class="glyphicon glyphicon-download-alt"></span> <spring:message

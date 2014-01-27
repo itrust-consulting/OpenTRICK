@@ -153,7 +153,6 @@ public class ControllerAnalysis {
 				model.put("assettypes", serviceAssetType.loadAll());
 				model.put("language", analysis.getLanguage().getAlpha3());
 				model.put("analysis", analysis);
-				//model.put("language", analysis.getLanguage());
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.notAuthorized", null, "Insufficient permissions!", locale));
 				return "redirect:/Error/403";

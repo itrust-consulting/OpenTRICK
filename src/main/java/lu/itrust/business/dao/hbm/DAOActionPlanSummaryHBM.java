@@ -6,6 +6,7 @@ package lu.itrust.business.dao.hbm;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.dao.DAOActionPlanSummary;
@@ -155,7 +156,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 		return getSession()
 				.createQuery(
 						"Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.actionPlanType.name = :actionPlanType order by summary.id")
-				.setParameter("idAnalysis", idAnalysis).setParameter("actionPlanType", actionPlanType.trim()).list();
+				.setParameter("idAnalysis", idAnalysis).setParameter("actionPlanType", ActionPlanMode.getByName(actionPlanType.trim())).list();
 	}
 
 }

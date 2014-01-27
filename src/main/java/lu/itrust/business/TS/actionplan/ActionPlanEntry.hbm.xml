@@ -29,6 +29,7 @@
 			<type name="org.hibernate.type.EnumType">
 				<param name="type">12</param>
 				<param name="useNamed">true</param>
+				<param name=""></param>
 				<param name="enumClass">lu.itrust.business.TS.actionplan.ActionPlanMode</param>
 			</type>
 		</property>
