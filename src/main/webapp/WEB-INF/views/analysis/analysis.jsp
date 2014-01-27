@@ -73,11 +73,11 @@
 								<ul class="nav nav-pills" hidden="true" id="menu_analysis">
 									<li><a href="#" onclick="return newAnalysis();"><span
 											class="glyphicon glyphicon-plus primary"></span> <spring:message
-												code="label.analysis.add" text="Add" /> </a></li>
+												code="label.analysis.add" text="New analysis" /> </a></li>
 									<li trick-selectable="true"><a href="#"
 										onclick="return selectAnalysis(undefined, 'true')"><span
 											class="glyphicon glyphicon-pushpin"></span> <spring:message
-												code="label.analysis.pin" text="Pin analysis" /> </a></li>
+												code="label.analysis.edit" text="Edit analysis" /> </a></li>
 									<li trick-selectable="true"><a href="#"
 										onclick="return createAnalysisVersion()"><span
 											class="glyphicon glyphicon-new-window"></span> <spring:message
@@ -85,7 +85,7 @@
 									<li trick-selectable="true"><a href="#"
 										onclick="return editSingleAnalysis();"><span
 											class="glyphicon glyphicon-edit danger"></span> <spring:message
-												code="label.analysis.edit" text="Edit" /> </a></li>
+												code="label.analysis.editInfo" text="Edit info" /> </a></li>
 									<li trick-selectable="true"><a href="#"
 										onclick="return deleteAnalysis();"><span
 											class="glyphicon glyphicon-remove"></span> <spring:message
