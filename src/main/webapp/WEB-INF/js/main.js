@@ -1439,6 +1439,10 @@ function callbackBySection(section) {
 		"section_scenario" : function() {
 			chartALE();
 			return false;
+		},
+		"section_analysis" : function() {
+			reloadCharts();
+			return false;
 		}
 	};
 	return callbacks[section];
