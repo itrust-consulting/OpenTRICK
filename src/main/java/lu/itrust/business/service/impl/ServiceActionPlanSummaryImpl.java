@@ -100,14 +100,21 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 	@Override
 	public void remove(SummaryStage summaryStage) throws Exception {
 		daoActionPlanSummary.remove(summaryStage);
-
 	}
 
-	/**
-	 * @param daoActionPlanSummary the daoActionPlanSummary to set
-	 */
-	public void setDaoActionPlanSummary(DAOActionPlanSummary daoActionPlanSummary) {
-		this.daoActionPlanSummary = daoActionPlanSummary;
+	@Override
+	public SummaryStage findByIdAndAnalysis(int id, Integer idAnalysis) {
+		return daoActionPlanSummary.findByIdAndAnalysis(id, idAnalysis);
+	}
+
+	@Override
+	public List<SummaryStage> findByAnalysis(Integer idAnalysis) {
+		return daoActionPlanSummary.findByAnalysis(idAnalysis);
+	}
+
+	@Override
+	public List<SummaryStage> findByAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) {
+		return daoActionPlanSummary.findByAnalysisAndActionPlanType(idAnalysis,actionPlanType);
 	}
 
 }

@@ -1950,7 +1950,7 @@ function contextMenuHide(context) {
 	}
 	return true;
 }
-/*
+
 $(function() {
 	var $contextMenu = $("#contextMenu");
 
@@ -2235,7 +2235,7 @@ $(function() {
 		event.stopPropagation();
 	});
 });
-*/
+
 function checkControlChange(checkbox, sectionName) {
 	var items = $("#section_" + sectionName + " tbody tr td:first-child input");
 	for (var i = 0; i < items.length; i++)
@@ -2267,6 +2267,26 @@ function updateMenu(idsection, idMenu) {
 			else
 				$($lis[i]).removeClass("disabled");
 		}
+	}
+	return false;
+}
+
+function navToogled(section, navSelected) {
+	var currentMenu = $("#" + section + " *[trick-nav-control='" + navSelected
+			+ "']");
+	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
+		return false;
+	var controls = $("#" + section + " *[trick-nav-control]");
+	var data = $("#" + section + " *[trick-nav-data]");
+	for (var i = 0; i < controls.length; i++) {
+		if ($(controls[i]).attr("trick-nav-control") == navSelected)
+			$(controls[i]).addClass("disabled");
+		else
+			$(controls[i]).removeClass("disabled");
+		if ($(data[i]).attr("trick-nav-data") != navSelected)
+			$(data[i]).hide();
+		else
+			$(data[i]).show();
 	}
 	return false;
 }
@@ -2415,11 +2435,57 @@ function compliance(norm) {
 	});
 }
 
+function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
+	if (!$('#chart_evolution_profitability_compliance_' + actionPlanType).length)
+		return false;
+	return $.ajax({
+		url : context + "/ActionPlanSummary/Evolution/" + actionPlanType,
+		type : "get",
+		async : true,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			$('#chart_evolution_profitability_compliance_' + actionPlanType)
+					.highcharts(response);
+		}
+	});
+}
+
+function budgetByActionPlanType(actionPlanType) {
+	if (!$('#chart_budget_' + actionPlanType).length)
+		return false;
+	return $.ajax({
+		url : context + "/ActionPlanSummary/Budget/" + actionPlanType,
+		type : "get",
+		async : true,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			$('#chart_budget_' + actionPlanType).highcharts(response);
+		}
+	});
+}
+
+function summaryCharts() {
+	var actionPlanTypes = $("#section_summary *[trick-nav-control]");
+	for (var i = 0; i < actionPlanTypes.length; i++) {
+		try {
+			actionPlanType = $(actionPlanTypes[i]).attr("trick-nav-control");
+			evolutionProfitabilityComplianceByActionPlanType(actionPlanType);
+			budgetByActionPlanType(actionPlanType);
+		} catch (e) {
+			console.log(e);
+		}
+
+	}
+	return false;
+}
+
 $(function() {
 	chartALE();
 	compliance('27001');
 	compliance('27002');
-
+	summaryCharts();
 });
 
 function chartALE() {

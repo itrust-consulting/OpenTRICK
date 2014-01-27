@@ -54,7 +54,7 @@ public class ControllerMeasure {
 		if (idAnalysis == null)
 			return null;
 		model.addAttribute("measures", serviceMeasure.findByAnalysis(idAnalysis));
-		model.addAttribute("language", serviceLanguage.findByAnalysis(idAnalysis));
+		model.addAttribute("language", serviceLanguage.findByAnalysis(idAnalysis).getAlpha3());
 		return "analysis/components/measure";
 	}
 	

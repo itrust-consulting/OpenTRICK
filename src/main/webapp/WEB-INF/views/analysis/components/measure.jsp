@@ -52,10 +52,10 @@
 									<tr ${measure.measureDescription.level<2? "class='danger'" : "class='warning'" }>
 										<td><spring:message
 												text="${measure.measureDescription.reference}" /></td>
-										<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionText(language)}" />
+										<c:set var="measureDescriptionText"
+											value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 										<td  colspan="14"><spring:message
 												text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-									
 									</tr>
 								</c:when>
 								<c:otherwise>
@@ -63,7 +63,7 @@
 										<td><spring:message
 												text="${measure.measureDescription.reference}" /></td>
 										<c:set var="measureDescriptionText"
-											value="${measure.measureDescription.getMeasureDescriptionText(language)}" />
+											value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 										<td colspan="2"><spring:message
 												text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 

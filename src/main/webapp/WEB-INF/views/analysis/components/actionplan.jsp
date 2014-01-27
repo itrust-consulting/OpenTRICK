@@ -59,7 +59,7 @@
 								<td><spring:message text="${ape.position}" /></td>
 								<td><spring:message text="${ape.measure.analysisNorm.norm.label}" /></td>
 								<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
-								<td><b><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionText(language).getDomain()}" /></b> <br /> <spring:message
+								<td><b><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionTextByAlpha3(language).getDomain()}" /></b> <br /> <spring:message
 										text="${ape.measure.getToDo()}" /></td>
 								<td ${ape.totalALE == 0? "class='danger'" : "" } title="${ape.totalALE}"><fmt:formatNumber value="${ape.totalALE*0.001}" maxFractionDigits="0" /></td>
 								<td ${ape.deltaALE == 0? "class='danger'" : "" } title="${ape.deltaALE}"><fmt:formatNumber value="${ape.deltaALE*0.001}" maxFractionDigits="0" /></td>
