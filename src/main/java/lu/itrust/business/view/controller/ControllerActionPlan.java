@@ -11,7 +11,6 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Asset;
-import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ActionPlanManager;
@@ -31,7 +30,6 @@ import lu.itrust.business.task.WorkerComputeActionPlan;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -135,13 +133,22 @@ public class ControllerActionPlan {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
 	public String section(Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
+
+		// retrieve analysis ID
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 
+		// load all actionplans from the selected analysis
 		List<ActionPlanEntry> actionplans = serviceActionPlan.loadAllFromAnalysis(selected);
+
+		// load all affected assets of the actionplans (unique assets used)
 		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
+
+		// prepare model
 		model.put("actionplans", actionplans);
 		model.put("assets", assets);
-		return "analysis/components/actionplans";
+
+		// return view
+		return "analysis/components/actionplan";
 
 	}
 

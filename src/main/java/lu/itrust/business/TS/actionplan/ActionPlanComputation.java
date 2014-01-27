@@ -16,7 +16,6 @@ import lu.itrust.business.TS.MaturityMeasure;
 import lu.itrust.business.TS.MaturityNorm;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureNorm;
-import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -24,8 +23,6 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOActionPlanType;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.service.ServiceTaskFeedback;
-
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

@@ -23,7 +23,7 @@
 				<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 					<jsp:include page="analysisMenu.jsp" />
 					<jsp:include page="../successErrors.jsp" />
-					<div class="content nav-container" id="content">
+					<div class="content nav-container" id="section_analysis">
 						<c:set var="histories" value="${analysis.histories}" scope="request" />
 						<jsp:include page="./components/history.jsp" />
 						<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
@@ -131,6 +131,11 @@
 		<!-- ################################################################ End Container ################################################################# -->
 		<jsp:include page="../footer.jsp" />
 		<jsp:include page="../scripts.jsp" />
+		<c:if test="${!empty(sessionScope.selectedAnalysis)}">
+			<script type="text/javascript">
+				reloadCharts();
+			</script>
+		</c:if>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

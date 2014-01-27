@@ -964,7 +964,7 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					}, 3000);
 					if (reponse.flag == 5)
-						reloadSection("section_actionplans");
+						reloadSection("section_analysis");
 					
 				}
 				return true;
@@ -1375,6 +1375,7 @@ function controllerBySection(section, subSection) {
 		"section_language" : "/KnowledgeBase/Language/Section",
 		"section_norm" : "/KnowledgeBase/Norm/Section",
 		"section_user" : "/Admin/User/Section",
+		"section_actionplans" : "/ActionPlan/Section",
 	};
 
 	if (subSection == null || subSection == undefined)
@@ -2355,6 +2356,12 @@ function reloadCharts() {
 	compliance('27002');
 
 };
+
+function reloadActionPlansAndCharts(){
+	reloadSection('section_actionplans');
+	compliance('27001');
+	compliance('27002');
+}
 
 function chartALE() {
 	if ($('#chart_ale_scenario_type').length) {
