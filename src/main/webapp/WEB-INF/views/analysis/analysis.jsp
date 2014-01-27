@@ -24,7 +24,9 @@
 				<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 					<jsp:include page="analysisMenu.jsp" />
 					<jsp:include page="../successErrors.jsp" />
-					<div class="content nav-container" id="content" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}"	>
+					<div class="content nav-container" id="content"
+						trick-id="${analysis.id}"
+						trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}">
 						<c:set var="histories" value="${analysis.histories}"
 							scope="request" />
 						<jsp:include page="./components/history.jsp" />
@@ -45,12 +47,14 @@
 						<jsp:include page="./components/measure.jsp" />
 						<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
 						<jsp:include page="./components/phase.jsp" />
-						<c:set var="summaries" scope="request" value="${analysis.summaries}" />
+						<c:set var="summaries" scope="request"
+							value="${analysis.summaries}" />
 						<jsp:include page="./components/summary.jsp" />
-						<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
+						<c:set var="actionplans" scope="request"
+							value="${analysis.actionPlans}" />
 						<jsp:include page="./components/actionplan.jsp" />
 						<jsp:include page="./components/charts.jsp" />
-						<jsp:include page="./components/widgets.jsp" /> 
+						<jsp:include page="./components/widgets.jsp" />
 					</div>
 				</c:if>
 				<c:if
@@ -83,7 +87,8 @@
 									<li trick-selectable="true"><a href="#"
 										onclick="return createAnalysisVersion()"><span
 											class="glyphicon glyphicon-new-window"></span> <spring:message
-												code="label.analysis.create.new_version" text="Create new version" /> </a></li>
+												code="label.analysis.create.new_version"
+												text="Create new version" /> </a></li>
 									<li trick-selectable="true"><a href="#"
 										onclick="return editSingleAnalysis();"><span
 											class="glyphicon glyphicon-edit danger"></span> <spring:message

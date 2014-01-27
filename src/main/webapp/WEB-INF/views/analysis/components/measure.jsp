@@ -56,7 +56,6 @@
 											value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 										<td  colspan="14"><spring:message
 												text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-									
 									</tr>
 								</c:when>
 								<c:otherwise>
