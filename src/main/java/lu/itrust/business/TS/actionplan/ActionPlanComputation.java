@@ -3108,19 +3108,19 @@ public class ActionPlanComputation {
 		aStage.setRecurrentCost(tmpval.recurrentCost);
 		aStage.setTotalCostofStage(tmpval.totalCost);
 
-		/*
-		 * System.out.println("stage: "+aStage.getStage()+ ":: conformance27001: "+
-		 * aStage.getConformance27001()+ ":: conformance27002: "+
-		 * aStage.getConformance27002()+":: totalALE: "+ aStage.getTotalALE()+":: deltaALE: "+
-		 * aStage.getDeltaALE()+":: cost of measures: "+ aStage.getCostOfMeasures()+":: ROSI: "+
-		 * aStage.getROSI()+":: relative ROSI: "+ aStage.getRelativeROSI()+":: internal workload: "+
-		 * aStage.getInternalWorkload()+":: external workload: "+
-		 * aStage.getExternalWorkload()+":: investment: "+
-		 * aStage.getInvestment()+":: internal maintenance: "+
-		 * aStage.getInternalMaintenance()+":: external maintenance: "+
-		 * aStage.getExternalMaintenance()+ ":: recurrent cost: "+
-		 * aStage.getRecurrentCost()+":: total cost of stage: "+ aStage.getTotalCostofStage());
-		 */
+		
+		 System.out.println("stage: "+aStage.getStage()+ ":: conformance27001: "+
+		 aStage.getConformance27001()+ ":: conformance27002: "+
+		 aStage.getConformance27002()+":: totalALE: "+ aStage.getTotalALE()+":: deltaALE: "+
+		 aStage.getDeltaALE()+":: cost of measures: "+ aStage.getCostOfMeasures()+":: ROSI: "+
+		 aStage.getROSI()+":: relative ROSI: "+ aStage.getRelativeROSI()+":: internal workload: "+
+		 aStage.getInternalWorkload()+":: external workload: "+
+		 aStage.getExternalWorkload()+":: investment: "+
+		 aStage.getInvestment()+":: internal maintenance: "+
+		 aStage.getInternalMaintenance()+":: external maintenance: "+
+		 aStage.getExternalMaintenance()+ ":: recurrent cost: "+
+		 aStage.getRecurrentCost()+":: total cost of stage: "+ aStage.getTotalCostofStage());
+		 
 
 		// ****************************************************************
 		// * add summary stage to list of summary stages

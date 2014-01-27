@@ -231,7 +231,10 @@ public class ControllerActionPlan {
 
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_ACTIONPLAN)) {
 
-			boolean uncertainty = jsonNode.get("uncertainty").asBoolean();
+			boolean uncertainty = false;
+			
+			if (jsonNode.get("uncertainty") != null)
+				uncertainty = jsonNode.get("uncertainty").asBoolean();
 
 			List<AnalysisNorm> anorms = serviceAnalysisNorm.loadAllFromAnalysis(analysisId);
 

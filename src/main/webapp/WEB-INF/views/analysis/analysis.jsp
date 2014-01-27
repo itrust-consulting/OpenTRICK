@@ -23,9 +23,8 @@
 				<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 					<jsp:include page="analysisMenu.jsp" />
 					<jsp:include page="../successErrors.jsp" />
-					<div class="content nav-container" id="section_analysis" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}"></div>
-					<c:set var="histories" value="${analysis.histories}" scope="request" />
-					<div class="content nav-container" id="section_analysis">
+					<div class="content nav-container" id="section_analysis" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}">
+						<c:set var="histories" value="${analysis.histories}" scope="request" />
 						<c:set var="histories" value="${analysis.histories}" scope="request" />
 						<jsp:include page="./components/history.jsp" />
 						<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
@@ -40,10 +39,10 @@
 						<jsp:include page="./components/measure.jsp" />
 						<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
 						<jsp:include page="./components/phase.jsp" />
-						<c:set var="summaries" scope="request" value="${analysis.summaries}" />
-						<jsp:include page="./components/summary.jsp" />
 						<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
 						<jsp:include page="./components/actionplan.jsp" />
+						<c:set var="summaries" scope="request" value="${analysis.summaries}" />
+						<jsp:include page="./components/summary.jsp" />
 						<jsp:include page="./components/charts.jsp" />
 						<jsp:include page="./components/widgets.jsp" />
 					</div>

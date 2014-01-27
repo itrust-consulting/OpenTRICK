@@ -147,15 +147,19 @@ function calculateActionPlan(analysisId) {
 	}
 
 	if (userCan(analysisID, ANALYSIS_RIGHT.CALCULATE_ACTIONPLAN)) {
+		
+		var data = {};
+		
+		data["id"] = analysisID;
+		
 		$.ajax({
 			url : context + "/ActionPlan/Compute",
 			type : "post",
-			data : JSON.stringify({"id":analysisId}),
+			data : JSON.stringify(data),
 			async : true,
 			contentType : "application/json",
 			success : function(response) {
-				var message = parseJson(response);
-				if (message["success"] != undefined) {
+				if (response["success"] != undefined) {
 					if (taskManager == undefined)
 						taskManager = new TaskManager();
 					taskManager.Start();

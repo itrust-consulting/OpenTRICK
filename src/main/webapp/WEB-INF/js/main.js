@@ -2498,6 +2498,7 @@ function reloadCharts() {
 	chartALE();
 	compliance('27001');
 	compliance('27002');
+	summaryCharts();
 
 };
 
@@ -2505,6 +2506,7 @@ function reloadActionPlansAndCharts(){
 	reloadSection('section_actionplans');
 	compliance('27001');
 	compliance('27002');
+	summaryCharts();
 }
 
 function chartALE() {
