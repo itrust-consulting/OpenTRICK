@@ -3,7 +3,11 @@
  */
 package lu.itrust.business.task;
 
+import java.util.List;
+
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.dao.DAOActionPlan;
@@ -51,6 +55,10 @@ public class WorkerComputeActionPlan implements Worker {
 	private SessionFactory sessionFactory;
 
 	private int idAnalysis;
+	
+	private List<AnalysisNorm> norms = null;
+	
+	private Boolean uncertainty = false;
 
 	/**
 	 * @param daoActionPlanSummary
@@ -60,10 +68,12 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @param serviceTaskFeedback
 	 * @param idAnalysis
 	 */
-	public WorkerComputeActionPlan(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis) {
+	public WorkerComputeActionPlan(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisNorm> norms, Boolean uncertainty) {
 		this.sessionFactory = sessionFactory;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idAnalysis = idAnalysis;
+		this.norms = norms;
+		this.uncertainty = uncertainty;
 	}
 
 	private void initialiseDAO(Session session) {
@@ -82,11 +92,13 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @param serviceTaskFeedback
 	 * @param idAnalysis
 	 */
-	public WorkerComputeActionPlan(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis) {
+	public WorkerComputeActionPlan(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisNorm> norms, Boolean uncertainty) {
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idAnalysis = idAnalysis;
+		this.norms = norms;
+		this.uncertainty = uncertainty;
 	}
 
 	/*
@@ -108,6 +120,9 @@ public class WorkerComputeActionPlan implements Worker {
 			}
 			session = sessionFactory.openSession();
 			initialiseDAO(session);
+			
+			System.out.println("Loading Analysis...");
+			
 			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
@@ -116,12 +131,15 @@ public class WorkerComputeActionPlan implements Worker {
 			}
 			session.beginTransaction();
 			initAnalysis(analysis);
+			
+			System.out.println("Delete previous action plan and summary...");
+			
 			deleteActionPlan(analysis);
-			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis);
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, this.norms, this.uncertainty);
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
-				serviceTaskFeedback.send(id, new MessageHandler("info.info.action_plan.done", "Computing Action Plans Done", 100));
-				System.out.println("Computing Action Plans Done!");
+				serviceTaskFeedback.send(id, new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100));
+				System.out.println("Computing Action Plans Complete!");
 			}
 			else
 				session.getTransaction().rollback();
@@ -177,6 +195,9 @@ public class WorkerComputeActionPlan implements Worker {
 //		for (int i = 0; i < analysis.getUsedPhases().size(); i++)
 	//		Hibernate.initialize(analysis.getAPhase(i));
 		Hibernate.initialize(analysis.getAnalysisNorms());
+		Hibernate.initialize(this.norms);
+		for (int i = 0; i < this.norms.size(); i++)
+				Hibernate.initialize(this.norms.get(i).getNorm());
 		//Hibernate.initialize(analysis.getActionPlans());
 		//Hibernate.initialize(analysis.getSummaries());
 		

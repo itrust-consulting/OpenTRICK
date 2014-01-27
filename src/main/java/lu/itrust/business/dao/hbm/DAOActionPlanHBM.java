@@ -3,6 +3,7 @@ package lu.itrust.business.dao.hbm;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
@@ -159,7 +160,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	public List<ActionPlanEntry> loadByAnalysisActionPlanType(int analysisID, ActionPlanMode mode) throws Exception {
 		
 		return (List<ActionPlanEntry>) getSession().createQuery
-		("SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplans where analysis.id = :analysisID and actionplans.actionPlanType.name = :mode")
+		("SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplans where analysis.id = :analysisID and actionplans.actionPlanType.name = :mode ORDER BY actionplan.actionPlanType.id, actionplan.ROI")
 		.setParameter("mode", mode)
 		.setParameter("analysisID", analysisID)
 		.list();
@@ -169,7 +170,35 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ActionPlanEntry> loadAllFromAnalysis(int id) throws Exception {
-		return (List<ActionPlanEntry>) getSession().createQuery("Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID").setParameter("analysisID", id).list();
+		return (List<ActionPlanEntry>) getSession().createQuery("Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.actionPlanType.id, actionplan.ROI").setParameter("analysisID", id).list();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Measure> loadMeasuresFromAnalysisActionPlan(int id, ActionPlanMode apm) throws Exception {
+		return (List<Measure>) getSession().createQuery
+				("Select actionplan.measure From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID and actionplan.actionPlanType.name = :apm")
+				.setParameter("analysisID", id)
+				.setParameter("apm", apm)
+				.list();
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Measure> loadMeasuresFromAnalysisActionPlanNotToImplement(int id, ActionPlanMode apm) throws Exception {
+		return (List<Measure>) getSession().createQuery
+				("Select actionplan.measure From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID and actionplan.actionPlanType.name = :apm and actionplan.ROI <= 0.0")
+				.setParameter("analysisID", id)
+				.setParameter("apm", apm)
+				.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Asset> loadAssetsByAnalysisOrderByALE(int analysisID) throws Exception {
+
+		return (List<Asset>) getSession().createQuery
+				("SELECT DISTINCT apa.asset FROM Analysis a INNER JOIN ActionPlanAsset apa WHERE a.id= : analysisID").list();
+		}
 }

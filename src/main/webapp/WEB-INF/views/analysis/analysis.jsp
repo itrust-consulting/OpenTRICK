@@ -24,9 +24,11 @@
 				<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 					<jsp:include page="analysisMenu.jsp" />
 					<jsp:include page="../successErrors.jsp" />
-					<div class="content nav-container" id="content"
+					<div class="content nav-container" id="section_analysis"
 						trick-id="${analysis.id}"
 						trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}">
+						<c:set var="histories" value="${analysis.histories}"
+							scope="request" />
 						<c:set var="histories" value="${analysis.histories}"
 							scope="request" />
 						<jsp:include page="./components/history.jsp" />
@@ -47,15 +49,17 @@
 						<jsp:include page="./components/measure.jsp" />
 						<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
 						<jsp:include page="./components/phase.jsp" />
-						<c:set var="summaries" scope="request"
-							value="${analysis.summaries}" />
-						<jsp:include page="./components/summary.jsp" />
 						<c:set var="actionplans" scope="request"
 							value="${analysis.actionPlans}" />
 						<jsp:include page="./components/actionplan.jsp" />
+						<c:set var="summaries" scope="request"
+							value="${analysis.summaries}" />
+						<jsp:include page="./components/summary.jsp" />
 						<jsp:include page="./components/charts.jsp" />
 						<jsp:include page="./components/widgets.jsp" />
 					</div>
+					<script type="text/javascript"
+						src="<spring:url value="js/actionplan.js" />"></script>
 				</c:if>
 				<c:if
 					test="${!empty analyses and empty(sessionScope.selectedAnalysis)}">
@@ -79,11 +83,11 @@
 								<ul class="nav nav-pills" hidden="true" id="menu_analysis">
 									<li><a href="#" onclick="return newAnalysis();"><span
 											class="glyphicon glyphicon-plus primary"></span> <spring:message
-												code="label.analysis.add" text="Add" /> </a></li>
+												code="label.analysis.add" text="New analysis" /> </a></li>
 									<li trick-selectable="true"><a href="#"
 										onclick="return selectAnalysis(undefined, 'true')"><span
 											class="glyphicon glyphicon-pushpin"></span> <spring:message
-												code="label.analysis.pin" text="Pin analysis" /> </a></li>
+												code="label.analysis.pin" text="Edit Analysis" /> </a></li>
 									<li trick-selectable="true"><a href="#"
 										onclick="return addHistory()"><span
 											class="glyphicon glyphicon-new-window"></span> <spring:message
@@ -92,7 +96,7 @@
 									<li trick-selectable="true"><a href="#"
 										onclick="return editSingleAnalysis();"><span
 											class="glyphicon glyphicon-edit danger"></span> <spring:message
-												code="label.analysis.edit" text="Edit" /> </a></li>
+												code="label.analysis.editInfo" text="Edit info" /> </a></li>
 									<li trick-selectable="true"><a href="#"
 										onclick="return deleteAnalysis();"><span
 											class="glyphicon glyphicon-remove"></span> <spring:message
@@ -137,8 +141,7 @@
 												trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}"
 												data="${analysis.hasData() }">
 												<td><input type="checkbox" class="checkbox"
-													onchange="return updateMenu('#section_analysis','#menu_analysis');">
-												</td>
+													onchange="return updateMenu('#section_analysis','#menu_analysis');"></td>
 												<td>${analysis.identifier}</td>
 												<td>${analysis.customer.organisation}</td>
 												<td>${analysis.label}</td>
@@ -192,6 +195,8 @@
 					</div>
 					<jsp:include page="widgetContent.jsp" />
 					<jsp:include page="components/widgets/historyForm.jsp" />
+					<script type="text/javascript"
+						src="<spring:url value="js/analysis.js" />"></script>
 				</c:if>
 				<!-- ################################################################ Include Footer ################################################################ -->
 			</div>
@@ -199,8 +204,11 @@
 		<!-- ################################################################ End Container ################################################################# -->
 		<jsp:include page="../footer.jsp" />
 		<jsp:include page="../scripts.jsp" />
-		<script type="text/javascript"
-			src="<spring:url value="js/analysis.js" />"></script>
+		<c:if test="${!empty(sessionScope.selectedAnalysis)}">
+			<script type="text/javascript">
+				reloadCharts();
+			</script>
+		</c:if>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

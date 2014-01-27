@@ -124,56 +124,42 @@ function selectAnalysis(analysisId) {
 }
 
 function calculateActionPlan(analysisId) {
-
-	console.log(analysisId);
+	
+	var analysisID = -1;
 	
 	if (analysisId == null || analysisId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_analysis"));
-		if (!selectedScenario.length)
+		
+		
+	
+		var selectedAnalysis = findSelectItemIdBySection(("section_analysis"));
+		if (!selectedAnalysis.length)
 			return false;
-		var success = 0;
-		while (selectedScenario.length) {
-			rowTrickId = selectedScenario.pop();
+		while (selectedAnalysis.length) {
+			rowTrickId = selectedAnalysis.pop();
 			if (userCan(rowTrickId, ANALYSIS_RIGHT.CALCULATE_ACTIONPLAN)) {
-				$.ajax({
-					url : context + "/ActionPlan/Compute/" + rowTrickId,
-					type : "get",
-					async : true,
-					contentType : "application/json",
-					success : function(response) {
-						var message = parseJson(response);
-						if (message["success"] != undefined)
-							success++;
-						else if (message["error"]) {
-							$("#alert-dialog .modal-body").html(message["error"]);
-							$("#alert-dialog").modal("toggle");
-						}
-					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						return result;
-					},
-				});
+				analysisID = rowTrickId;
 			} else
 				permissionError();
 		}
-		setTimeout(function() {
-			if (success) {
-				if (taskManager == undefined)
-					taskManager = new TaskManager();
-				taskManager.Start();
-			}
-		}, 100);
-		return false;
+	
+	} else {
+		analysisID = analysisId;
 	}
-	if (userCan(analysisId, ANALYSIS_RIGHT.CALCULATE_ACTIONPLAN)) {
+
+	if (userCan(analysisID, ANALYSIS_RIGHT.CALCULATE_ACTIONPLAN)) {
+		
+		var data = {};
+		
+		data["id"] = analysisID;
+		
 		$.ajax({
 			url : context + "/ActionPlan/Compute",
-			type : "get",
+			type : "post",
+			data : JSON.stringify(data),
 			async : true,
 			contentType : "application/json",
 			success : function(response) {
-				var message = parseJson(response);
-				if (message["success"] != undefined) {
+				if (response["success"] != undefined) {
 					if (taskManager == undefined)
 						taskManager = new TaskManager();
 					taskManager.Start();

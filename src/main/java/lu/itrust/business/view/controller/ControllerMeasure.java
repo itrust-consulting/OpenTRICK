@@ -43,13 +43,12 @@ public class ControllerMeasure {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-	
+
 	@Autowired
 	private ServiceLanguage serviceLanguage;
 
 	@RequestMapping("/Section")
-	public String section(HttpSession session, Model model,
-			RedirectAttributes attributes) {
+	public String section(HttpSession session, Model model, RedirectAttributes attributes) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
@@ -57,10 +56,9 @@ public class ControllerMeasure {
 		model.addAttribute("language", serviceLanguage.findByAnalysis(idAnalysis).getAlpha3());
 		return "analysis/components/measure";
 	}
-	
+
 	@RequestMapping("/Section/{norm}")
-	public String sectionNorm(@PathVariable String norm, HttpSession session, Model model,
-			RedirectAttributes attributes) {
+	public String sectionNorm(@PathVariable String norm, HttpSession session, Model model, RedirectAttributes attributes) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
@@ -71,13 +69,16 @@ public class ControllerMeasure {
 
 	@RequestMapping("/Compliance/{norm}")
 	@ResponseBody
-	String compliance(@PathVariable String norm, HttpSession session,
-			Locale locale) {
+	String compliance(@PathVariable String norm, HttpSession session, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		if (idAnalysis == null)
+
+		try {
+		
+			return (norm.equals(Constant.NORM_27001) || norm.equals(Constant.NORM_27002)) ? chartGenerator.compliance(idAnalysis, norm, locale) : null;
+		
+		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
-		return (norm.equals(Constant.NORM_27001) || norm
-				.equals(Constant.NORM_27002)) ? chartGenerator.compliance(
-				idAnalysis, norm, locale) : null;
+		}
 	}
 }

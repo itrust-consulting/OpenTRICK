@@ -22,6 +22,7 @@ import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
@@ -41,7 +42,6 @@ import lu.itrust.business.service.ServiceUserAnalysisRight;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerAnalysisImport;
-
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.Hibernate;
@@ -140,7 +140,7 @@ public class ControllerAnalysis {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 		if (selected != null) {
 
-			PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUserAnalysisRight);
+			PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
 
 			if (permissionEvaluator.userIsAuthorized(selected, principal, AnalysisRight.READ)) {
 				Analysis analysis = serviceAnalysis.get(selected);
@@ -158,7 +158,14 @@ public class ControllerAnalysis {
 				return "redirect:/Error/403";
 			}
 		} else {
-			model.put("analyses", serviceAnalysis.loadAllFromUser(serviceUser.get(principal.getName())));
+			User user = serviceUser.get(principal.getName());
+			
+			if (user.hasRole(RoleType.ROLE_ADMIN)) {
+				model.put("analyses", serviceAnalysis.loadAll());			
+			} else {
+				model.put("analyses", serviceAnalysis.loadAllFromUser(user));
+			}
+			
 			model.put("login", principal.getName());
 			model.put("deleteRight", AnalysisRight.DELETE.ordinal());
 			model.put("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
@@ -373,14 +380,12 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Delete/{analysisId}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
 	String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal) throws Exception {
 		try {
-			if (serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.DELETE)) {
 				serviceAnalysis.remove(analysisId);
 				return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
-			}
-			return JsonMessage.Error(messageSource.getMessage("error.notAutorized", null, "Permission denied!", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));

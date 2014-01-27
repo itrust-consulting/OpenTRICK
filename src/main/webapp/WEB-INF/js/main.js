@@ -678,6 +678,12 @@ function Modal() {
 		return false;
 	};
 
+	Modal.prototype.setBody = function(body) {
+		if (this.modal_body != null)
+			$(this.modal_body).html(body);
+		return false;
+	};
+	
 	Modal.prototype.__addHeadButton = function() {
 		if (this.modal_header == null)
 			return false;
@@ -720,6 +726,7 @@ function Modal() {
 	Modal.prototype.Distroy = function() {
 		var instance = this;
 		instance.Hide();
+		instance.modal.remove();
 		setTimeout(function() {
 			delete instance;
 		}, 10);
@@ -843,6 +850,7 @@ function ProgressBar() {
 	};
 
 	ProgressBar.prototype.Anchor = function(anchor) {
+				
 		if (anchor != null && anchor != undefined)
 			anchor.insertBefore(this.progress, anchor.firstChild);
 		return false;
@@ -878,11 +886,13 @@ function parseJson(data) {
 	}
 }
 
-function TaskManager() {
+function TaskManager(title) {
+	
 	this.tasks = [];
 	this.progressBars = [];
+	this.title = title;
 	this.view = null;
-
+	
 	TaskManager.prototype.Start = function() {
 		var instance = this;
 		setTimeout(function() {
@@ -891,15 +901,15 @@ function TaskManager() {
 	};
 
 	TaskManager.prototype.__CreateView = function() {
-		this.view = new Modal();
-		this.view.Intialise();
-		this.view.setTitle("Tasks");
+			this.view = new Modal();
+			this.view.Intialise();
+			this.view.setTitle(this.title);			
 	};
 
 	TaskManager.prototype.Show = function() {
-		if (this.view == null || this.view == undefined)
-			this.__CreateView();
-		this.view.Show();
+			if (this.view == null || this.view == undefined)
+				this.__CreateView();
+			this.view.Show();
 	};
 
 	TaskManager.prototype.isEmpty = function() {
@@ -928,6 +938,7 @@ function TaskManager() {
 							instance.UpdateStatus(reponse[int]);
 						}
 					}
+					
 					if (!instance.isEmpty())
 						instance.Show();
 				}
@@ -952,6 +963,7 @@ function TaskManager() {
 			setTimeout(function() {
 				progressBar.Distroy();
 				instance.Remove(taskId);
+				instance.Distroy();
 			}, 10000);
 		});
 		return progressBar;
@@ -965,8 +977,7 @@ function TaskManager() {
 			this.progressBars[taskId].Remove();
 			this.progressBars.splice(taskId, 1);
 		}
-		if (this.isEmpty())
-			this.Distroy();
+		this.Distroy();
 		return false;
 	};
 
@@ -1000,6 +1011,7 @@ function TaskManager() {
 					}, 3000);
 					if (reponse.flag == 5)
 						reloadSection("section_analysis");
+					
 				}
 				return true;
 			}
@@ -1417,6 +1429,7 @@ function controllerBySection(section, subSection) {
 		"section_language" : "/KnowledgeBase/Language/Section",
 		"section_norm" : "/KnowledgeBase/Norm/Section",
 		"section_user" : "/Admin/User/Section",
+		"section_actionplans" : "/ActionPlan/Section",
 	};
 
 	if (subSection == null || subSection == undefined)
@@ -2489,12 +2502,20 @@ function summaryCharts() {
 	return false;
 }
 
-$(function() {
+function reloadCharts() {
 	chartALE();
 	compliance('27001');
 	compliance('27002');
 	summaryCharts();
-});
+
+};
+
+function reloadActionPlansAndCharts(){
+	reloadSection('section_actionplans');
+	compliance('27001');
+	compliance('27002');
+	summaryCharts();
+}
 
 function chartALE() {
 	if ($('#chart_ale_scenario_type').length) {

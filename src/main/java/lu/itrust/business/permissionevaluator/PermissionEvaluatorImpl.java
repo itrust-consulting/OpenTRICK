@@ -8,6 +8,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.catalina.session.StandardSessionFacade;
 
 import lu.itrust.business.TS.AnalysisRight;
+import lu.itrust.business.TS.usermanagement.RoleType;
+import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.ServiceUserAnalysisRight;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +32,19 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 	
+	@Autowired
+	private ServiceUser serviceUser;
+	
 	public PermissionEvaluatorImpl(){
 	}
 	
-	public PermissionEvaluatorImpl(ServiceUserAnalysisRight serviceUserAnalysisRight){
+	public PermissionEvaluatorImpl(ServiceUser serviceUser, ServiceUserAnalysisRight serviceUserAnalysisRight){
+		this.serviceUser=serviceUser;
 		this.serviceUserAnalysisRight=serviceUserAnalysisRight;
+	}
+	
+	public void setServiceUser(ServiceUser serviceUser) {
+		this.serviceUser=serviceUser;
 	}
 	
 	public void setServiceUserAnalysisRight(ServiceUserAnalysisRight serviceUserAnalysisRight) {
@@ -57,6 +67,10 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception {
 		
 		//System.out.println("Preauthorize analysis id: " + analysisId);
+		
+		if (serviceUser.get(principal.getName()).hasRole(RoleType.ROLE_ADMIN)) {
+			return true;
+		}
 		
 		return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 	}

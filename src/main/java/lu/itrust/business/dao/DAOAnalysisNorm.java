@@ -10,7 +10,7 @@ import lu.itrust.business.TS.Norm;
  * DAOAnalysisNorm.java: <br>
  * Detailed description...
  *
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version 
  * @since 24 janv. 2013
  */
@@ -29,4 +29,6 @@ public interface DAOAnalysisNorm {
 	public void saveOrUpdate(AnalysisNorm analysisNorm) throws Exception;
 	
 	public void remove(AnalysisNorm analysisNorm)throws Exception;
+
+	public List<AnalysisNorm> loadAllFromAnalysis(Integer analysisID)throws Exception;
 }
