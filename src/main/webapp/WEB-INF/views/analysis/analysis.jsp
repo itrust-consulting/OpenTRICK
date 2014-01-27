@@ -85,7 +85,7 @@
 											class="glyphicon glyphicon-pushpin"></span> <spring:message
 												code="label.analysis.pin" text="Pin analysis" /> </a></li>
 									<li trick-selectable="true"><a href="#"
-										onclick="return createAnalysisVersion()"><span
+										onclick="return addHistory()"><span
 											class="glyphicon glyphicon-new-window"></span> <spring:message
 												code="label.analysis.create.new_version"
 												text="Create new version" /> </a></li>

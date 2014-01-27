@@ -115,7 +115,7 @@ public enum ActionPlanMode {
 	public static ActionPlanMode getByName(String name) {
 		for (int i = 0; i < NAMES.length; i++)
 			if (NAMES[i].equalsIgnoreCase(name))
-				return ActionPlanMode.valueOf(i);
+				return ActionPlanMode.valueOf(i+1);
 		throw new IllegalArgumentException("Name should be APN, APO, APP, APPN, APPO or APPP");
 	}
 	

@@ -105,7 +105,6 @@ public class ControllerHistory {
 		model.put("history", history);
 		model.put("oldVersion", oldVersion);
 		model.put("analysisId", analysisId);
-		
 		return "analysis/components/widgets/historyForm";
 	}
 
