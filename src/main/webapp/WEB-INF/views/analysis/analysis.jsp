@@ -24,7 +24,7 @@
 				<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 					<jsp:include page="analysisMenu.jsp" />
 					<jsp:include page="../successErrors.jsp" />
-					<div class="content nav-container" id="content">
+					<div class="content nav-container" id="content" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}"	>
 						<c:set var="histories" value="${analysis.histories}"
 							scope="request" />
 						<jsp:include page="./components/history.jsp" />
@@ -47,8 +47,10 @@
 						<jsp:include page="./components/phase.jsp" />
 						<c:set var="summaries" scope="request" value="${analysis.summaries}" />
 						<jsp:include page="./components/summary.jsp" />
+						<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
+						<jsp:include page="./components/actionplan.jsp" />
 						<jsp:include page="./components/charts.jsp" />
-						<jsp:include page="./components/widgets.jsp" />
+						<jsp:include page="./components/widgets.jsp" /> 
 					</div>
 				</c:if>
 				<c:if

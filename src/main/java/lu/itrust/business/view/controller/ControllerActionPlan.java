@@ -1,0 +1,218 @@
+package lu.itrust.business.view.controller;
+
+import java.security.Principal;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import lu.itrust.business.TS.Asset;
+import lu.itrust.business.TS.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.ActionPlanManager;
+import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.service.ServiceActionPlan;
+import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAsset;
+import lu.itrust.business.service.ServiceTaskFeedback;
+import lu.itrust.business.service.WorkersPoolManager;
+import lu.itrust.business.task.Worker;
+import lu.itrust.business.task.WorkerComputeActionPlan;
+
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+/**
+ * ControllerAdministration.java: <br>
+ * Detailed description...
+ * 
+ * @author smenghi, itrust consulting s.à.rl. :
+ * @version
+ * @since Dec 13, 2013
+ */
+@PreAuthorize(Constant.ROLE_MIN_USER)
+@RequestMapping("/ActionPlan")
+@Controller
+public class ControllerActionPlan {
+
+	@Autowired
+	private MessageSource messageSource;
+
+	@Autowired
+	private ServiceActionPlan serviceActionPlan;
+
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
+	
+	@Autowired
+	private ServiceAsset serviceAsset;
+
+	@Autowired
+	private TaskExecutor executor;
+
+	@Autowired
+	private SessionFactory sessionFactory;
+
+	@Autowired
+	private WorkersPoolManager workersPoolManager;
+
+	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+
+	/**
+	 * showActionPlan: <br>
+	 * dispaly all actionplans of an analysis
+	 * 
+	 * @param session
+	 * @param model
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@RequestMapping
+	public String showActionPlan(HttpSession session, Map<String, Object> model, Principal principal) throws Exception {
+
+		// retrieve analysis ID
+		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+
+		// load all actionplans from the selected analysis
+		List<ActionPlanEntry> actionplans = serviceActionPlan.loadAllFromAnalysis(selected);
+
+		// load all affected assets of the actionplans (unique assets used)
+		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
+
+		// prepare model
+		model.put("actionplans", actionplans);
+		model.put("assets", assets);
+
+		// return view
+		return "analysis/components/actionplan";
+	}
+
+	/**
+	 * section: <br>
+	 * reload the section of a given actionplan type
+	 * 
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @param type
+	 * @return
+	 * @throws Exception
+	 */
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@RequestMapping(value = "/Section/{type}", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String section(Map<String, Object> model, HttpSession session, Principal principal, @PathVariable("type") String type) throws Exception {
+		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+		ActionPlanMode mode;
+		try {
+
+			mode = ActionPlanMode.valueOf(ActionPlanMode.getIndex(type));
+
+			List<ActionPlanEntry> actionplans = serviceActionPlan.loadByAnalysisActionPlanType(selected, mode);
+			List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
+			model.put("actionplans", actionplans);
+			model.put("assets", assets);
+			return "analysis/components/actionplan";
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "errors/405";
+		}
+
+	}
+
+	/**
+	 * retrieveSingle: <br>
+	 * Description
+	 * 
+	 * @param entryID
+	 *            : The actionplanentry id
+	 * @param model
+	 *            : model to be used inside view
+	 * @param session
+	 *            : user session containing the selectedAnalysis id
+	 * @param principal
+	 *            : user principal (user of the session)
+	 * @return a html formated table line (tr < td) containing the single requested entry (with
+	 *         javascript)
+	 * @throws Exception
+	 */
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@RequestMapping(value = "/RetrieveSingleEntry/{entryID}", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String retrieveSingle(@PathVariable("entryID") int entryID, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
+		
+		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
+		
+		String alpha3 = serviceAnalysis.getLanguageFromAnalysis(analysisID).getAlpha3();
+		
+		// retrieve actionplan entry from the given entryID
+		ActionPlanEntry actionplanentry = serviceActionPlan.get(entryID);
+
+		// prepare model
+		model.put("actionplanentry", actionplanentry);
+		model.put("language", alpha3);
+	
+
+		// return view
+		return "analysis/components/actionplanentry";
+
+	}
+
+	/**
+	 * computeActionPlan: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param attributes
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Compute")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
+	public @ResponseBody
+	String computeActionPlan(HttpSession session, Principal principal, Locale locale) throws Exception {
+
+		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
+
+		Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisID);
+		worker.setPoolManager(workersPoolManager);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
+	}
+
+	/**
+	 * computeActionPlan: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param attributes
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Compute/{analysisID}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
+	public @ResponseBody
+	String computeActionPlanForAnalysis(@PathVariable("analysisID") Integer analysisID, HttpSession session, Principal principal, Locale locale) throws Exception {
+
+		Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisID);
+		worker.setPoolManager(workersPoolManager);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+			return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
+	}
+}

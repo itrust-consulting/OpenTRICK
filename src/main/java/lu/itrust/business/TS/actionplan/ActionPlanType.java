@@ -4,7 +4,7 @@ package lu.itrust.business.TS.actionplan;
  * ActionPlanType: <br>
  * Represents the actionplan type by name.
  * 
- * @author itrust consulting s.à.rl. : EOM, BJA, SME
+ * @author itrust consulting s.ï¿½.rl. : EOM, BJA, SME
  * @version 0.1
  * @since 28 janv. 2013
  */
@@ -18,7 +18,7 @@ public class ActionPlanType {
 	private int id = -1;
 
 	/** ActionplanType name */
-	private String name = "";
+	private ActionPlanMode name;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -29,8 +29,9 @@ public class ActionPlanType {
 	 * 
 	 * @param name
 	 */
-	public ActionPlanType(String name) {
-		this.name = name;
+	public ActionPlanType(ActionPlanMode mode) {
+		this.id = mode.getValue();
+		this.name = mode;
 	}
 
 	/**
@@ -71,9 +72,17 @@ public class ActionPlanType {
 	 * @return The value of the name field
 	 */
 	public String getName() {
-		return name;
+		return name.getName();
+	}
+	
+	public ActionPlanMode getActionPlanMode() {
+		return this.name;
 	}
 
+	public void setActionPlanMode(ActionPlanMode mode) {
+		this.name = mode;
+	}
+	
 	/**
 	 * setName: <br>
 	 * Sets the Field "name" with a value.
@@ -82,6 +91,6 @@ public class ActionPlanType {
 	 *            The Value to set the name field
 	 */
 	public void setName(String name) {
-		this.name = name;
+		this.name = ActionPlanMode.getByName(name);
 	}
 }

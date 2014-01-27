@@ -29,9 +29,7 @@ public class ActionPlanEntry implements Serializable {
 	/** The ID of the entry */
 	private int id = -1;
 
-	/** id unsaved value = null */
-	private Analysis analysis = null;
-
+	/** */
 	private ActionPlanType actionPlanType = null;
 
 	/** The Measure object reference */
@@ -409,27 +407,6 @@ public class ActionPlanEntry implements Serializable {
 			this.actionPlanAssets.get(i).setActionPlanEntry(this);
 	}
 	
-	/**
-	 * getAnalysis: <br>
-	 * Returns the analysis field value.
-	 * 
-	 * @return The value of the analysis field
-	 */
-	public Analysis getAnalysis() {
-		return analysis;
-	}
-
-	/**
-	 * setAnalysis: <br>
-	 * Sets the Field "analysis" with a value.
-	 * 
-	 * @param analysis
-	 *            The Value to set the analysis field
-	 */
-	public void setAnalysis(Analysis analysis) {
-		this.analysis = analysis;
-	}
-
 	/**
 	 * getActionPlanType: <br>
 	 * Returns the actionPlanType field value.

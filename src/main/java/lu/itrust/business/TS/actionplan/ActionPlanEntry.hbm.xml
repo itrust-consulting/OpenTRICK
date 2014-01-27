@@ -24,7 +24,14 @@
 		<id column="idActionPlanType" name="id" unsaved-value="-1">
 			<generator class="assigned" />
 		</id>
-		<property column="dtLabel" generated="never" lazy="false" name="name" not-null="true" unique="true" />
+		<property generated="never" lazy="false" name="name" not-null="true" unique="true" access="field">
+			<column name="dtLabel" />
+			<type name="org.hibernate.type.EnumType">
+				<param name="type">12</param>
+				<param name="useNamed">true</param>
+				<param name="enumClass">lu.itrust.business.TS.actionplan.ActionPlanMode</param>
+			</type>
+		</property>
 	</class>
 	<class name="lu.itrust.business.TS.actionplan.ActionPlanAsset" table="actionPlanAsset">
 		<id column="idActionPlanAssetCalculation" name="id" unsaved-value="-1">

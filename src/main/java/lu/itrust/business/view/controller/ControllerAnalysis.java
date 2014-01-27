@@ -26,6 +26,7 @@ import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceActionPlanType;
@@ -139,16 +140,21 @@ public class ControllerAnalysis {
 	public String displayAll(Principal principal, Map<String, Object> model, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 		if (selected != null) {
-			if (serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.READ)) {
+
+			PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUserAnalysisRight);
+
+			if (permissionEvaluator.userIsAuthorized(selected, principal, AnalysisRight.READ)) {
 				Analysis analysis = serviceAnalysis.get(selected);
 				if (analysis == null) {
 					attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 					return "redirect:/Error/404";
 				}
 				Hibernate.initialize(analysis.getLanguage());
+				model.put("login", principal.getName());
 				model.put("assettypes", serviceAssetType.loadAll());
 				model.put("language", analysis.getLanguage().getAlpha3());
 				model.put("analysis", analysis);
+				//model.put("language", analysis.getLanguage());
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.notAuthorized", null, "Insufficient permissions!", locale));
 				return "redirect:/Error/403";
@@ -201,7 +207,7 @@ public class ControllerAnalysis {
 		if (selected != null && selected.intValue() == analysisId)
 			session.removeAttribute("selectedAnalysis");
 		else if (serviceAnalysis.exist(analysisId))
-				session.setAttribute("selectedAnalysis", analysisId);
+			session.setAttribute("selectedAnalysis", analysisId);
 		else {
 			session.removeAttribute("selectedAnalysis");
 			attributes.addFlashAttribute("error", "Analysis not recognized!");
@@ -337,15 +343,14 @@ public class ControllerAnalysis {
 	}
 
 	/**
-	 * saveAnalysis: <br>
+	 * save: <br>
 	 * Description
 	 * 
-	 * @param analysisId
-	 * @param analysis
-	 * @param result
+	 * @param value
 	 * @param session
+	 * @param principal
+	 * @param locale
 	 * @return
-	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
@@ -397,9 +402,10 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/{analysisId}/Duplicate", method = RequestMethod.GET, headers = "Accept=application/json")
-	public @ResponseBody String createNewVersion(@ModelAttribute History history, @PathVariable int analysisId, Principal principal, HttpSession session, RedirectAttributes attributes,
-			Locale locale) throws Exception {
+	@RequestMapping(value = "/{analysisId}/Duplicate", method = RequestMethod.GET, headers = "Accept=application/json")
+	public @ResponseBody
+	String createNewVersion(@ModelAttribute History history, @PathVariable int analysisId, Principal principal, HttpSession session, RedirectAttributes attributes, Locale locale)
+			throws Exception {
 		if (!serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.MODIFY))
 			return JsonMessage.Error(messageSource.getMessage("error.notAuthorized", null, "Permission denied!", locale));
 		try {
@@ -449,29 +455,6 @@ public class ControllerAnalysis {
 			attributes.addFlashAttribute("error", handler.getException().getMessage());
 		}
 		return "redirect:Analysis";
-	}
-
-	/**
-	 * computeActionPlan: <br>
-	 * Description
-	 * 
-	 * @param analysisId
-	 * @param attributes
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/{analysisId}/Compute/ActionPlan")
-	public @ResponseBody
-	String computeActionPlan(@PathVariable("analysisId") Integer analysisId, Principal principal, Locale locale) throws Exception {
-
-		if (!serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), AnalysisRight.CALCULATE_ACTIONPLAN))
-			return JsonMessage.Error(messageSource.getMessage("errors.403.access.denied", null, "You do not have the nessesary permissions to perform this action!", locale));
-		Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId);
-		worker.setPoolManager(workersPoolManager);
-		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-			return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
-		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
 	}
 
 	// ******************************************************************************************************************

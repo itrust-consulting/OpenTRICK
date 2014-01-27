@@ -8,7 +8,7 @@
 			<generator class="increment" />
 		</id>
 		<many-to-one name="analysisNorm" column="fiAnalysisNorm" cascade="save-update" not-null="true" />
-		<many-to-one cascade="save-update" name="measureDescription" column="fiMeasureDescription" not-null="true" />
+		<many-to-one cascade="save-update" name="measureDescription" column="fiMeasureDescription" not-null="true" lazy="false" access="field" />
 		<many-to-one name="phase" column="fiPhase" cascade="save-update" not-null="true" access="field" />
 		<property name="status" column="dtStatus" not-null="true" />
 		<property name="internalWL" column="dtInternalWorkLoad" not-null="true" access="field" />
@@ -32,7 +32,7 @@
 		<joined-subclass name="NormMeasure" extends="Measure" table="normMeasure">
 			<key column="idNormMeasure" not-null="true" />
 			<many-to-one name="measurePropertyList" column="fiMeasureProperties" cascade="all" not-null="true" />
-			<property name="implementationRate" column="dtImplementationRate" not-null="true" />
+			<property name="implementationRate" access="field" column="dtImplementationRate" not-null="true" />
 			<property name="toCheck" column="dtToCheck" />
 			<bag name="assetTypeValues" table="measureAssetTypeValue" cascade="all">
 				<key column="idNormMeasure" not-null="true" />

@@ -2,6 +2,9 @@ package lu.itrust.business.permissionevaluator;
 
 import java.security.Principal;
 
+import javax.servlet.http.HttpSession;
+
+
 import lu.itrust.business.TS.AnalysisRight;
 
 /** 
@@ -16,6 +19,9 @@ public interface PermissionEvaluator extends org.springframework.security.access
 
 	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception;
 
-	boolean userIsAuthorized(int analysisId, Principal principal, AnalysisRight right, Integer selectedAnalysis) throws Exception;
+	public boolean userIsAuthorized(int analysisId, Principal principal, AnalysisRight right, Integer selectedAnalysis) throws Exception;
+	
+	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) throws Exception;
+
 	
 }

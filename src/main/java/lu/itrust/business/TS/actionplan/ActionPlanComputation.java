@@ -534,7 +534,7 @@ public class ActionPlanComputation {
 
 		// check if actionplantype exists, when not add to database
 		if (actionPlanType == null) {
-			actionPlanType = new ActionPlanType(mode.getName());
+			actionPlanType = new ActionPlanType(mode);
 			serviceActionPlanType.save(actionPlanType);
 		}
 
@@ -681,9 +681,8 @@ public class ActionPlanComputation {
 		ActionPlanType actionPlanType = serviceActionPlanType.get(mode.getValue());
 
 		if (actionPlanType == null) {
-			actionPlanType = new ActionPlanType(mode.getName());
-			actionPlanType.setId(mode.getValue());
-			serviceActionPlanType.merge(actionPlanType);
+			actionPlanType = new ActionPlanType(mode);
+			serviceActionPlanType.save(actionPlanType);
 		}
 
 		// ****************************************************************
@@ -1057,8 +1056,6 @@ public class ActionPlanComputation {
 				// ****************************************************************
 				actionPlanEntry = new ActionPlanEntry(normMeasure, actionPlanType, tmpAssets, totalALE, deltaALE);
 
-				actionPlanEntry.setAnalysis(this.analysis);
-
 				// ****************************************************************
 				// * add ActionPlanEntry to list of temporary action plan
 				// ****************************************************************
@@ -1104,8 +1101,6 @@ public class ActionPlanComputation {
 				// * generate object with delta ALE to 0
 				// ****************************************************************
 				actionPlanEntry = new ActionPlanEntry(maturityMeasure, 0);
-
-				actionPlanEntry.setAnalysis(this.analysis);
 
 				// ****************************************************************
 				// * add object to temporary action plan

@@ -14,9 +14,9 @@
 			<property type="timestamp" column="dtCreationDate" generated="never" lazy="false" name="creationDate" not-null="true" />
 		</properties>
 
-		<many-to-one class="Customer" column="fiCustomer" name="customer" not-null="true" />
+		<many-to-one class="Customer" column="fiCustomer" name="customer" not-null="true" lazy="false" access="field" />
 
-		<many-to-one class="Language" column="fiLanguage" name="language" not-null="true" />
+		<many-to-one class="Language" column="fiLanguage" name="language" not-null="true" lazy="false" access="field" />
 
 		<many-to-one name="basedOnAnalysis" class="Analysis" not-null="false" cascade="save-update">
 			<column name="fiBasedOnAnalysis" />
