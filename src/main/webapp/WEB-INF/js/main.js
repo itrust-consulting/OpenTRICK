@@ -1257,7 +1257,14 @@ function addNewRole(id) {
 
 /* History */
 function addHistory(analysisId, oldVersion) {
-
+	if (analysisId == null || analysisId == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_analysis"));
+		if (selectedScenario.length != 1)
+			return false;
+		analysisId = selectedScenario[0];
+		oldVersion = $("#section_analysis tr[trick-id='"+analysisId+"']>td:nth-child(6)").text();
+		console.log(oldVersion);
+	}
 	$.ajax({
 		url : context + "/History/Analysis/" + analysisId + "/NewVersion",
 		type : "get",
@@ -1275,7 +1282,6 @@ function addHistory(analysisId, oldVersion) {
 	});
 
 	return false;
-
 }
 
 function defaultValueByType(value, type, protect) {
@@ -1329,6 +1335,7 @@ function saveField(element, controller, id, field, type) {
 }
 
 function duplicateAnalysis(form, analyisId) {
+	var oldVersion = $("#history_oldVersion").prop("value");
 	$(".progress-striped").show();
 	return $.ajax({
 		url : context + "/History/Analysis/" + analyisId + "/NewVersion/Save",
@@ -1345,14 +1352,15 @@ function duplicateAnalysis(form, analyisId) {
 				setTimeout("location.reload()", 2000);
 			} else if (response["error"]) {
 				$(".progress-striped").hide();
+				$("#history_oldVersion").prop("value" ,oldVersion);
 				showError($("#addHistoryModal .modal-body")[0], response["error"]);
-
 				return false;
 			} else {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
 				if ((error = $(doc).find("#addHistoryModal")).length) {
 					$("#addHistoryModal .modal-body").html($(error).find(".modal-body"));
+					$("#history_oldVersion").prop("value" ,oldVersion);
 					return false;
 				}
 			}

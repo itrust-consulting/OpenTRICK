@@ -13,7 +13,7 @@
 </c:set>
 <div class="navbar navbar-default navbar-static-top navbar-custom">
 	<div id="analysismenu" class="container" role="navigation">
-		<a class="navbar-brand" href="#">${analysis.customer.organisation } | ${analysis.getVersion()}</a>
+		<a class="navbar-brand" href="#" style="white-space:nowrap; width:8em; overflow:hidden;">${analysis.customer.organisation } | ${analysis.getVersion()}</a>
 		<ul class="nav navbar-nav">
 			<li class="active"><a href="#History"> <spring:message code="menu.analysis.history" text="History" />
 			</a></li>

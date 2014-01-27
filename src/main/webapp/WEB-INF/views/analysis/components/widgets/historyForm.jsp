@@ -47,7 +47,7 @@
 								text="Based on Version" />
 						</label>
 						<div class="col-sm-10">
-							<input class="form-control" value="${oldVersion}" readonly />
+							<input id="history_oldVersion" class="form-control" value="${oldVersion}" readonly />
 						</div>
 					</div>
 					<div class="form-group">
