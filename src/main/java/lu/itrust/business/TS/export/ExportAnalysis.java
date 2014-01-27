@@ -29,8 +29,13 @@ import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.service.ServiceAssetType;
-import lu.itrust.business.service.ServiceScenarioType;
+import lu.itrust.business.dao.DAOAssetType;
+import lu.itrust.business.dao.DAOScenarioType;
+import lu.itrust.business.dao.hbm.DAOAssetTypeHBM;
+import lu.itrust.business.dao.hbm.DAOScenarioTypeHBM;
+import lu.itrust.business.service.ServiceTaskFeedback;
+
+import org.hibernate.Session;
 
 /**
  * ExportAnalysis: <br>
@@ -50,12 +55,16 @@ public class ExportAnalysis {
 	/** SQLite Database Handler */
 	private DatabaseHandler sqlite = null;
 
+	private long idTask = 0;
+
 	/** Analysis object */
 	private Analysis analysis = null;
 
-	private ServiceAssetType serviceAssetType;
+	private ServiceTaskFeedback serviceTaskFeedback;
 
-	private ServiceScenarioType serviceScenarioType;
+	private DAOAssetType serviceAssetType;
+
+	private DAOScenarioType serviceScenarioType;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -70,10 +79,13 @@ public class ExportAnalysis {
 		this.sqlite = sqlite2;
 	}
 
-	public ExportAnalysis(ServiceAssetType serviceAssetType,
-			ServiceScenarioType serviceScenarioType) {
-		this.setServiceAssetType(serviceAssetType);
-		this.setServiceScenarioType(serviceScenarioType);
+	public ExportAnalysis(ServiceTaskFeedback serviceTaskFeedback, Session session, DatabaseHandler sqlite2, Analysis analysis, long idTask) {
+		this.serviceAssetType = new DAOAssetTypeHBM(session);
+		this.serviceScenarioType = new DAOScenarioTypeHBM(session);
+		this.serviceTaskFeedback = serviceTaskFeedback;
+		this.sqlite = sqlite2;
+		this.analysis = analysis;
+		this.idTask = idTask;
 	}
 
 	/**
@@ -88,83 +100,110 @@ public class ExportAnalysis {
 
 		try {
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.identifier", "Export identifier", 10));
+
 			// ****************************************************************
 			// * export Identifier
 			// ****************************************************************
 			exportIdentifier();
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.history", "Export histories", 15));
 
 			// ****************************************************************
 			// * export History
 			// ****************************************************************
 			exportHistory();
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_information", "Export risk information", 20));
+
 			// ****************************************************************
 			// * export risk information
 			// ****************************************************************
 			exportRiskInformation();
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.item_information", "Export item information", 25));
 
 			// ****************************************************************
 			// * export item information
 			// ****************************************************************
 			exportItemInformation();
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.parameters", "Export Parameters", 30));
+
 			// ****************************************************************
 			// * export simple parameters
 			// ****************************************************************
 			exportParameters();
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.assets", "Export assets", 40));
 
 			// ****************************************************************
 			// * export assets
 			// ****************************************************************
 			exportAssets();
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.scenarios", "Export scenarios", 50));
+
 			// ****************************************************************
 			// * export scenarios
 			// ****************************************************************
 			exportScenarios();
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.assessments", "Export assessments", 60));
 
 			// ****************************************************************
 			// * export assessments
 			// ****************************************************************
 			exportAssessments();
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.measures", "Export measures", 70));
+
 			// ****************************************************************
 			// * export all measures
 			// ****************************************************************
 			exportMeasuresAndMaturity();
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.phases", "Export phases", 75));
 
 			// ****************************************************************
 			// * export phase
 			// ****************************************************************
 			exportPhase();
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.action_plan", "Export action plans", 80));
+
 			// ****************************************************************
 			// * export action plans
 			// ****************************************************************
 			exportActionPlans();
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.summaries", "Export summaries", 85));
 
 			// ****************************************************************
 			// * export summary
 			// ****************************************************************
 			exportActionPlanSummaries(this.analysis.getSummaries());
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.export.risk_register", "Export risk registers", 90));
+
 			// ****************************************************************
 			// * export Risk Register
 			// ****************************************************************
 			exportRiskRegister();
+
+			serviceTaskFeedback.send(idTask, new MessageHandler("success.export.analysis", "Export done successfully", 95));
 
 			System.out.println("Export Done!");
 
 			return null;
 
 		} catch (Exception e) {
-
 			// ****************************************************************
 			// * Display error message
 			// ****************************************************************
+			serviceTaskFeedback.send(idTask, new MessageHandler("error.export.success", "Error while exporting", e));
 			System.out.println("Error while exporting!");
 			e.printStackTrace();
-
 			return new MessageHandler(e);
 			// set return value exception
 
@@ -243,8 +282,7 @@ public class ExportAnalysis {
 					if (riskcounter + 6 >= 999) {
 
 						// remove UNION from query
-						riskquery = riskquery.substring(0,
-								riskquery.length() - 6);
+						riskquery = riskquery.substring(0, riskquery.length() - 6);
 
 						// execute query
 						sqlite.query(riskquery, riskparams);
@@ -307,8 +345,7 @@ public class ExportAnalysis {
 					if (threatcounter + 6 >= 999) {
 
 						// execute query
-						threatquery = threatquery.substring(0,
-								threatquery.length() - 6);
+						threatquery = threatquery.substring(0, threatquery.length() - 6);
 						sqlite.query(threatquery, threatparams);
 
 						// clear parameters
@@ -417,8 +454,7 @@ public class ExportAnalysis {
 
 		if (!threatquery.isEmpty()) {
 			if (threatquery.endsWith("UNION"))
-				threatquery = threatquery
-						.substring(0, threatquery.length() - 6);
+				threatquery = threatquery.substring(0, threatquery.length() - 6);
 			// execute last risk, threat and vulnerability values
 			sqlite.query(threatquery, threatparams);
 		}
@@ -468,8 +504,7 @@ public class ExportAnalysis {
 			// ****************************************************************
 
 			// check if orgsanisation -> YES
-			if (information.getType().equals(
-					Constant.ITEMINFORMATION_ORGANISATION)) {
+			if (information.getType().equals(Constant.ITEMINFORMATION_ORGANISATION)) {
 
 				// ****************************************************************
 				// create query to send multiple inserts in the least number of
@@ -510,8 +545,7 @@ public class ExportAnalysis {
 				if (scopecounter + 1 >= 999) {
 
 					// execute query
-					scopequery = scopequery.substring(0,
-							scopequery.length() - 1);
+					scopequery = scopequery.substring(0, scopequery.length() - 1);
 					sqlite.query(scopequery, scopeparams);
 
 					// clean parameters
@@ -586,8 +620,7 @@ public class ExportAnalysis {
 			// add parameters
 			params.clear();
 			params.add(this.analysis.getAPhase(i).getNumber());
-			params.add(String
-					.valueOf(this.analysis.getAPhase(i).getBeginDate()));
+			params.add(String.valueOf(this.analysis.getAPhase(i).getBeginDate()));
 			params.add(String.valueOf(this.analysis.getAPhase(i).getEndDate()));
 
 			// execute the query
@@ -705,8 +738,7 @@ public class ExportAnalysis {
 			// ****************************************************************
 
 			// check if max efficiency -> YES
-			if (this.analysis.getAParameter(index).getType().getLabel()
-					.equals(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME)) {
+			if (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME)) {
 
 				// ****************************************************************
 				// * export parameter
@@ -716,13 +748,11 @@ public class ExportAnalysis {
 				parameter = (Parameter) this.analysis.getAParameter(index);
 
 				// build query
-				query = DatabaseHandler.generateInsertQuery("maturity_max_eff",
-						2);
+				query = DatabaseHandler.generateInsertQuery("maturity_max_eff", 2);
 
 				// add parameters
 				params.clear();
-				params.add(parameter.getDescription().substring(
-						parameter.getDescription().length() - 1));
+				params.add(parameter.getDescription().substring(parameter.getDescription().length() - 1));
 				params.add(parameter.getValue() / 100.);
 
 				// execute the query
@@ -734,11 +764,7 @@ public class ExportAnalysis {
 			// ****************************************************************
 
 			// check if implementation rate -> YES
-			if (this.analysis
-					.getAParameter(index)
-					.getType()
-					.getLabel()
-					.equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
+			if (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
 
 				// ****************************************************************
 				// * export parameter
@@ -752,8 +778,7 @@ public class ExportAnalysis {
 
 				// add parameters
 				params.clear();
-				params.add(parameter.getDescription().substring(
-						parameter.getDescription().length() - 1));
+				params.add(parameter.getDescription().substring(parameter.getDescription().length() - 1));
 				params.add(parameter.getValue() / 100.);
 
 				// execute the query
@@ -765,8 +790,7 @@ public class ExportAnalysis {
 			// ****************************************************************
 
 			// check if single parameter -> YES
-			if (this.analysis.getAParameter(index).getType().getLabel()
-					.equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)) {
+			if (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)) {
 
 				// store parameter in object
 				parameter = (Parameter) this.analysis.getAParameter(index);
@@ -812,14 +836,11 @@ public class ExportAnalysis {
 		for (int index = 0; index < this.analysis.getParameters().size(); index++) {
 
 			// check if impact OR propability -> YES
-			if ((this.analysis.getAParameter(index).getType().getLabel()
-					.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-					|| (this.analysis.getAParameter(index).getType().getLabel()
-							.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
+			if ((this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+					|| (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
 
 				// store parameter in object
-				extendedParameter = (ExtendedParameter) this.analysis
-						.getAParameter(index);
+				extendedParameter = (ExtendedParameter) this.analysis.getAParameter(index);
 
 				// ****************************************************************
 				// * export parameter
@@ -828,12 +849,10 @@ public class ExportAnalysis {
 				// build query
 
 				// check if propability -> YES
-				if (this.analysis.getAParameter(index).getType().getLabel()
-						.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
+				if (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME)) {
 
 					// build the query
-					query = DatabaseHandler.generateInsertQuery("potentiality",
-							7);
+					query = DatabaseHandler.generateInsertQuery("potentiality", 7);
 
 				} else {
 
@@ -884,15 +903,10 @@ public class ExportAnalysis {
 		for (int index = 0; index < this.analysis.getParameters().size(); index++) {
 
 			// check if ILPS
-			if (this.analysis
-					.getAParameter(index)
-					.getType()
-					.getLabel()
-					.equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME)) {
+			if (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME)) {
 
 				// store maturity parameter
-				maturityParameter = (MaturityParameter) this.analysis
-						.getAParameter(index);
+				maturityParameter = (MaturityParameter) this.analysis.getAParameter(index);
 
 				// ****************************************************************
 				// * export parameter
@@ -943,8 +957,7 @@ public class ExportAnalysis {
 
 				// add parameters
 				params.add(maturityParameter.getDescription());
-				params.add(getLinefromMaturityCategory(maturityParameter
-						.getDescription()));
+				params.add(getLinefromMaturityCategory(maturityParameter.getDescription()));
 				params.add(maturityParameter.getSMLLevel());
 				params.add(maturityParameter.getValue());
 			}
@@ -1051,8 +1064,7 @@ public class ExportAnalysis {
 			} else {
 				params.add(Constant.EMPTY_STRING);
 			}
-			params.add(this.analysis.getALEOfAsset(this.analysis
-					.getAnAsset(index)));
+			params.add(this.analysis.getALEOfAsset(this.analysis.getAnAsset(index)));
 
 			// execute query
 			sqlite.query(query, params);
@@ -1123,8 +1135,7 @@ public class ExportAnalysis {
 			}
 
 			// insert Asset Type values for the current scneario
-			insertScenarioAssetTypeValues(params,
-					this.analysis.getAScenario(index).getAssetTypeValues());
+			insertScenarioAssetTypeValues(params, this.analysis.getAScenario(index).getAssetTypeValues());
 
 			// save Risk data
 			insertCategories(params, this.analysis.getAScenario(index));
@@ -1166,11 +1177,9 @@ public class ExportAnalysis {
 
 			Integer key = assessment.getAsset().getId();
 
-			double ale = assessment.getImpactReal()
-					* assessment.getLikelihoodReal();
+			double ale = assessment.getImpactReal() * assessment.getLikelihoodReal();
 
-			double totalALE = (totalALEs.containsKey(key) ? totalALEs.get(key)
-					+ ale : ale);
+			double totalALE = (totalALEs.containsKey(key) ? totalALEs.get(key) + ale : ale);
 
 			totalALEs.put(key, totalALE);
 		}
@@ -1192,10 +1201,8 @@ public class ExportAnalysis {
 			if (query.equals(Constant.EMPTY_STRING)) {
 
 				// build query
-				query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? "
-						+ "as impact_reputation,? as impact_operational, ? as impact_legal, ? as "
-						+ "impact_financial,? as impact_hidden,? as potentiality,? as "
-						+ "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as "
+				query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as "
+						+ "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as "
 						+ "uncertainty UNION";
 
 				// set ? limit
@@ -1217,10 +1224,8 @@ public class ExportAnalysis {
 					// reset query
 					// build query
 					query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? "
-							+ "as impact_reputation,? as impact_operational, ? as impact_legal, ? as "
-							+ "impact_financial,? as impact_hidden,? as potentiality,? as "
-							+ "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as "
-							+ "uncertainty UNION";
+							+ "as impact_reputation,? as impact_operational, ? as impact_legal, ? as " + "impact_financial,? as impact_hidden,? as potentiality,? as "
+							+ "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
 
 					// set ? limit
 					counter = 14;
@@ -1236,14 +1241,11 @@ public class ExportAnalysis {
 				}
 			}
 
-			Integer key = this.analysis.getAnAssessment(index).getAsset()
-					.getId();
+			Integer key = this.analysis.getAnAssessment(index).getAsset().getId();
 			// add parameters
 			params.add(this.analysis.getAnAssessment(index).getAsset().getId());
-			params.add(this.analysis.getAnAssessment(index).getScenario()
-					.getId());
-			params.add(this.analysis.getAnAssessment(index).isSelected() ? Constant.ASSESSMENT_SELECTED
-					: Constant.EMPTY_STRING);
+			params.add(this.analysis.getAnAssessment(index).getScenario().getId());
+			params.add(this.analysis.getAnAssessment(index).isSelected() ? Constant.ASSESSMENT_SELECTED : Constant.EMPTY_STRING);
 			params.add(this.analysis.getAnAssessment(index).getImpactRep());
 			params.add(this.analysis.getAnAssessment(index).getImpactOp());
 			params.add(this.analysis.getAnAssessment(index).getImpactLeg());
@@ -1296,8 +1298,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 
 		// parse norms
-		for (int indexNorm = 0; indexNorm < this.analysis.getAnalysisNorms()
-				.size(); indexNorm++) {
+		for (int indexNorm = 0; indexNorm < this.analysis.getAnalysisNorms().size(); indexNorm++) {
 
 			// ****************************************************************
 			// * retrieve norm that is not maturity
@@ -1309,8 +1310,7 @@ public class ExportAnalysis {
 			if (this.analysis.getAnalysisNorm(indexNorm) instanceof MeasureNorm) {
 
 				// store norm as measurenorm
-				measNorm = (MeasureNorm) this.analysis
-						.getAnalysisNorm(indexNorm);
+				measNorm = (MeasureNorm) this.analysis.getAnalysisNorm(indexNorm);
 
 				// ****************************************************************
 				// * parse measures of this norm
@@ -1367,8 +1367,7 @@ public class ExportAnalysis {
 						if (measurecounter + 59 >= 999) {
 
 							// execute query
-							measurequery = measurequery.substring(0,
-									measurequery.length() - 6);
+							measurequery = measurequery.substring(0, measurequery.length() - 6);
 							sqlite.query(measurequery, measureparams);
 
 							// clean parameters
@@ -1415,8 +1414,7 @@ public class ExportAnalysis {
 					// ****************************************************************
 
 					// check if norm is custom -> YES
-					if (measNorm.getNorm().getLabel()
-							.startsWith(Constant.NORM_CUSTOM)) {
+					if (measNorm.getNorm().getLabel().startsWith(Constant.NORM_CUSTOM)) {
 
 						// set custom norm name
 						measureparams.add(Constant.NORM_CUSTOM);
@@ -1427,75 +1425,47 @@ public class ExportAnalysis {
 						// set all other norm name
 						measureparams.add(measNorm.getNorm().getLabel());
 					}
-					measureparams.add(measure.getMeasureDescription()
-							.getReference());
-					measureparams.add(measure
-							.getMeasureDescription()
-							.getAMeasureDescriptionText(
-									this.analysis.getLanguage()).getDomain());
-					measureparams.add(measure
-							.getMeasureDescription()
-							.getAMeasureDescriptionText(
-									this.analysis.getLanguage())
-							.getDescription());
-					measureparams.add(measure.getMeasureDescription()
-							.getLevel());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getFMeasure());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getFSectoral());
-					insertCategories(measureparams,
-							measure.getMeasurePropertyList());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getPreventive());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getDetective());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getLimitative());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getCorrective());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getIntentional());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getAccidental());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getEnvironmental());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getInternalThreat());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getExternalThreat());
+					measureparams.add(measure.getMeasureDescription().getReference());
+					measureparams.add(measure.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage()).getDomain());
+					measureparams.add(measure.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage()).getDescription());
+					measureparams.add(measure.getMeasureDescription().getLevel());
+					measureparams.add(measure.getMeasurePropertyList().getFMeasure());
+					measureparams.add(measure.getMeasurePropertyList().getFSectoral());
+					insertCategories(measureparams, measure.getMeasurePropertyList());
+					measureparams.add(measure.getMeasurePropertyList().getPreventive());
+					measureparams.add(measure.getMeasurePropertyList().getDetective());
+					measureparams.add(measure.getMeasurePropertyList().getLimitative());
+					measureparams.add(measure.getMeasurePropertyList().getCorrective());
+					measureparams.add(measure.getMeasurePropertyList().getIntentional());
+					measureparams.add(measure.getMeasurePropertyList().getAccidental());
+					measureparams.add(measure.getMeasurePropertyList().getEnvironmental());
+					measureparams.add(measure.getMeasurePropertyList().getInternalThreat());
+					measureparams.add(measure.getMeasurePropertyList().getExternalThreat());
 					measureparams.add(measure.getInternalWL());
 					measureparams.add(measure.getExternalWL());
 					measureparams.add(measure.getInvestment());
 					measureparams.add(measure.getLifetime());
-					//getMaintenance() == -1 -> ""
-					measureparams.add((measure.getMaintenance() == -1 ? ""
-							: measure.getMaintenance()));
+					// getMaintenance() == -1 -> ""
+					measureparams.add((measure.getMaintenance() == -1 ? "" : measure.getMaintenance()));
 					measureparams.add(measure.getImplementationRate());
 					measureparams.add(measure.getStatus());
 					measureparams.add(measure.getComment());
 					measureparams.add(measure.getToDo());
 					measureparams.add(measure.getToCheck());
 					measureparams.add(measure.getPhase().getNumber());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getSoaReference());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getSoaRisk());
-					measureparams.add(measure.getMeasurePropertyList()
-							.getSoaComment());
-					measureparams.add(generateIndexOfReference(measure
-							.getMeasureDescription().getReference()));
+					measureparams.add(measure.getMeasurePropertyList().getSoaReference());
+					measureparams.add(measure.getMeasurePropertyList().getSoaRisk());
+					measureparams.add(measure.getMeasurePropertyList().getSoaComment());
+					measureparams.add(generateIndexOfReference(measure.getMeasureDescription().getReference()));
 
 					// ****************************************************************
 					// * export asset type values
 					// ****************************************************************
 
-					for (int indexAssetTypeValue = 0; indexAssetTypeValue < measure
-							.getAssetTypeValues().size(); indexAssetTypeValue++) {
+					for (int indexAssetTypeValue = 0; indexAssetTypeValue < measure.getAssetTypeValues().size(); indexAssetTypeValue++) {
 
 						// store asset type value object
-						assetTypeValue = measure
-								.getAssetTypeValue(indexAssetTypeValue);
+						assetTypeValue = measure.getAssetTypeValue(indexAssetTypeValue);
 
 						// ****************************************************************
 						// * export asset type value into
@@ -1524,10 +1494,8 @@ public class ExportAnalysis {
 							if (specdefaultcounter + 4 >= 999) {
 
 								// execute query
-								specdefaultquery = specdefaultquery.substring(
-										0, specdefaultquery.length() - 6);
-								sqlite.query(specdefaultquery,
-										defaultspecparams);
+								specdefaultquery = specdefaultquery.substring(0, specdefaultquery.length() - 6);
+								sqlite.query(specdefaultquery, defaultspecparams);
 
 								// reset parameters
 								defaultspecparams.clear();
@@ -1552,12 +1520,10 @@ public class ExportAnalysis {
 						}
 
 						// add parameters
-						defaultspecparams.add(assetTypeValue.getAssetType()
-								.getId());
+						defaultspecparams.add(assetTypeValue.getAssetType().getId());
 
 						// check if norm is custom -> YES
-						if (measNorm.getNorm().getLabel()
-								.startsWith(Constant.NORM_CUSTOM)) {
+						if (measNorm.getNorm().getLabel().startsWith(Constant.NORM_CUSTOM)) {
 
 							// set custom norm name
 							defaultspecparams.add(Constant.NORM_CUSTOM);
@@ -1566,11 +1532,9 @@ public class ExportAnalysis {
 							// check if norm is custom -> NO
 
 							// set all other norm name
-							defaultspecparams
-									.add(measNorm.getNorm().getLabel());
+							defaultspecparams.add(measNorm.getNorm().getLabel());
 						}
-						defaultspecparams.add(measure.getMeasureDescription()
-								.getReference());
+						defaultspecparams.add(measure.getMeasureDescription().getReference());
 
 						if (assetTypeValue.getValue() == 101)
 							defaultspecparams.add(-1);
@@ -1604,8 +1568,7 @@ public class ExportAnalysis {
 								if (speccounter + 4 >= 999) {
 
 									// execute query
-									specquery = specquery.substring(0,
-											specquery.length() - 6);
+									specquery = specquery.substring(0, specquery.length() - 6);
 									sqlite.query(specquery, specparams);
 
 									// reset parameters
@@ -1631,12 +1594,10 @@ public class ExportAnalysis {
 							}
 
 							// add parameters
-							specparams.add(assetTypeValue.getAssetType()
-									.getId());
+							specparams.add(assetTypeValue.getAssetType().getId());
 
 							// check if norm is custom -> YES
-							if (measNorm.getNorm().getLabel()
-									.startsWith(Constant.NORM_CUSTOM)) {
+							if (measNorm.getNorm().getLabel().startsWith(Constant.NORM_CUSTOM)) {
 
 								// set custom norm name
 								specparams.add(Constant.NORM_CUSTOM);
@@ -1647,8 +1608,7 @@ public class ExportAnalysis {
 								// set all other norm name
 								specparams.add(measNorm.getNorm().getLabel());
 							}
-							specparams.add(measure.getMeasureDescription()
-									.getReference());
+							specparams.add(measure.getMeasureDescription().getReference());
 							if (assetTypeValue.getValue() == 101)
 								specparams.add(-1);
 							else
@@ -1663,11 +1623,9 @@ public class ExportAnalysis {
 				// ****************************************************************
 
 				// remove UNION from queries
-				measurequery = measurequery.substring(0,
-						measurequery.length() - 6);
+				measurequery = measurequery.substring(0, measurequery.length() - 6);
 				specquery = specquery.substring(0, specquery.length() - 6);
-				specdefaultquery = specdefaultquery.substring(0,
-						specdefaultquery.length() - 6);
+				specdefaultquery = specdefaultquery.substring(0, specdefaultquery.length() - 6);
 
 				// execute the query
 				sqlite.query(measurequery, measureparams);
@@ -1685,8 +1643,7 @@ public class ExportAnalysis {
 				// ****************************************************************
 
 				// store maturity norm
-				matNorm = (MaturityNorm) this.analysis
-						.getAnalysisNorm(indexNorm);
+				matNorm = (MaturityNorm) this.analysis.getAnalysisNorm(indexNorm);
 
 				// ****************************************************************
 				// * parse all maturity measures
@@ -1731,8 +1688,7 @@ public class ExportAnalysis {
 						if (measurecounter + 19 >= 999) {
 
 							// execute query
-							measurequery = measurequery.substring(0,
-									measurequery.length() - 6);
+							measurequery = measurequery.substring(0, measurequery.length() - 6);
 							sqlite.query(measurequery, measureparams);
 
 							// clean parameters
@@ -1761,17 +1717,11 @@ public class ExportAnalysis {
 					}
 
 					// add parameters
-					measureparams.add(maturity.getMeasureDescription()
-							.getReference());
-					measureparams.add(maturity
-							.getMeasureDescription()
-							.getAMeasureDescriptionText(
-									this.analysis.getLanguage()).getDomain());
-					measureparams.add(maturity.getMeasureDescription()
-							.getLevel());
+					measureparams.add(maturity.getMeasureDescription().getReference());
+					measureparams.add(maturity.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage()).getDomain());
+					measureparams.add(maturity.getMeasureDescription().getLevel());
 					measureparams.add(maturity.getStatus());
-					measureparams
-							.add(maturity.getImplementationRateValue() / 100.0);
+					measureparams.add(maturity.getImplementationRateValue() / 100.0);
 					measureparams.add(maturity.getInternalWL());
 					measureparams.add(maturity.getExternalWL());
 					measureparams.add(maturity.getInvestment());
@@ -1784,8 +1734,7 @@ public class ExportAnalysis {
 					measureparams.add(maturity.getSML3Cost());
 					measureparams.add(maturity.getSML4Cost());
 					measureparams.add(maturity.getSML5Cost());
-					measureparams.add(generateIndexOfReference(maturity
-							.getMeasureDescription().getReference()));
+					measureparams.add(generateIndexOfReference(maturity.getMeasureDescription().getReference()));
 					measureparams.add(maturity.getReachedLevel());
 
 					// ****************************************************************
@@ -1800,22 +1749,12 @@ public class ExportAnalysis {
 						// ****************************************************************
 
 						// build query
-						specquery = DatabaseHandler.generateInsertQuery(
-								"maturity_phase", 2);
+						specquery = DatabaseHandler.generateInsertQuery("maturity_phase", 2);
 
 						// add parameters
 						specparams.clear();
-						specparams
-								.add(maturity
-										.getMeasureDescription()
-										.getReference()
-										.substring(
-												maturity.getMeasureDescription()
-														.getReference()
-														.indexOf(".") + 1,
-												maturity.getMeasureDescription()
-														.getReference()
-														.length()));
+						specparams.add(maturity.getMeasureDescription().getReference()
+								.substring(maturity.getMeasureDescription().getReference().indexOf(".") + 1, maturity.getMeasureDescription().getReference().length()));
 						specparams.add(maturity.getPhase().getNumber());
 
 						// execute the query
@@ -1829,8 +1768,7 @@ public class ExportAnalysis {
 
 				if (measurequery.endsWith("UNION"))
 					// remove UNION from query
-					measurequery = measurequery.substring(0,
-							measurequery.length() - 6);
+					measurequery = measurequery.substring(0, measurequery.length() - 6);
 
 				if (!measurequery.isEmpty())
 					// execute the query
@@ -1853,10 +1791,8 @@ public class ExportAnalysis {
 		// ****************************************************************
 		// * export action plan types
 		// ****************************************************************
-		sqlite.query(
-				"INSERT INTO ActionPlanType SELECT 1 as 'idActionPlanType','APN' as 'dtLabel'"
-						+ "UNION SELECT 2,'APO' UNION SELECT 3,'APP' UNION SELECT 4,'APPN' UNION "
-						+ "SELECT 5,'APPO' UNION SELECT 6,'APPP'", null);
+		sqlite.query("INSERT INTO ActionPlanType SELECT 1 as 'idActionPlanType','APN' as 'dtLabel'" + "UNION SELECT 2,'APO' UNION SELECT 3,'APP' UNION SELECT 4,'APPN' UNION "
+				+ "SELECT 5,'APPO' UNION SELECT 6,'APPP'", null);
 
 		// ****************************************************************
 		// * export action plans
@@ -1876,8 +1812,7 @@ public class ExportAnalysis {
 	 * 
 	 * @throws Exception
 	 */
-	private void exportActionPlanAssets(ActionPlanEntry actionPlanEntry)
-			throws Exception {
+	private void exportActionPlanAssets(ActionPlanEntry actionPlanEntry) throws Exception {
 
 		// ****************************************************************
 		// * initialise variables
@@ -1886,8 +1821,7 @@ public class ExportAnalysis {
 		String assetquery = "";
 		int assetcounter = 0;
 
-		for (int indexAssets = 0; indexAssets < actionPlanEntry
-				.getActionPlanAssets().size(); indexAssets++) {
+		for (int indexAssets = 0; indexAssets < actionPlanEntry.getActionPlanAssets().size(); indexAssets++) {
 
 			// ****************************************************************
 			// * export ALE value for entry
@@ -1914,8 +1848,7 @@ public class ExportAnalysis {
 				if (assetcounter + 8 >= 999) {
 
 					// execute query
-					assetquery = assetquery.substring(0,
-							assetquery.length() - 6);
+					assetquery = assetquery.substring(0, assetquery.length() - 6);
 					sqlite.query(assetquery, assetparams);
 
 					// reset parameters
@@ -1942,22 +1875,18 @@ public class ExportAnalysis {
 			}
 
 			// add parameters
-			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets)
-					.getId());
+			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets).getId());
 			assetparams.add(actionPlanEntry.getId());
 			assetparams.add(actionPlanEntry.getActionPlanType().getId());
 			assetparams.add(actionPlanEntry.getMeasure().getAnalysisNorm().getNorm().getLabel());
-			assetparams.add(actionPlanEntry.getMeasure()
-					.getMeasureDescription().getReference());
-//			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets)
-//					.getAssessment().getAsset().getId());
-			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets)
-					.getAsset().getId());
-//			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets)
-//					.getAssessment().getScenario().getId());
-			assetparams.add(-1);			
-			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets)
-					.getCurrentALE());
+			assetparams.add(actionPlanEntry.getMeasure().getMeasureDescription().getReference());
+			// assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets)
+			// .getAssessment().getAsset().getId());
+			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets).getAsset().getId());
+			// assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets)
+			// .getAssessment().getScenario().getId());
+			assetparams.add(-1);
+			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets).getCurrentALE());
 		}
 
 		// action plan asset ALE values
@@ -1976,8 +1905,7 @@ public class ExportAnalysis {
 	 * 
 	 * @throws Exception
 	 */
-	private void exportActionPlanSummaries(List<SummaryStage> summaryStages)
-			throws Exception {
+	private void exportActionPlanSummaries(List<SummaryStage> summaryStages) throws Exception {
 
 		// ****************************************************************
 		// * initialise variables
@@ -1994,8 +1922,7 @@ public class ExportAnalysis {
 			// ****************************************************************
 
 			// build query
-			query = DatabaseHandler
-					.generateInsertQuery("ActionPlanSummary", 19);
+			query = DatabaseHandler.generateInsertQuery("ActionPlanSummary", 19);
 
 			// add parameters
 			params.clear();
@@ -2035,8 +1962,7 @@ public class ExportAnalysis {
 	 * 
 	 * @throws Exception
 	 */
-	private void exportActionPlan(List<ActionPlanEntry> actionPlanEntries)
-			throws Exception {
+	private void exportActionPlan(List<ActionPlanEntry> actionPlanEntries) throws Exception {
 
 		// ****************************************************************
 		// * initialise variables
@@ -2103,10 +2029,8 @@ public class ExportAnalysis {
 			// add parameters
 			params.add(actionPlanEntry.getId());
 			params.add(actionPlanEntry.getActionPlanType().getId());
-			params.add(actionPlanEntry.getMeasure().getAnalysisNorm().getNorm()
-					.getLabel());
-			params.add(actionPlanEntry.getMeasure().getMeasureDescription()
-					.getReference());
+			params.add(actionPlanEntry.getMeasure().getAnalysisNorm().getNorm().getLabel());
+			params.add(actionPlanEntry.getMeasure().getMeasureDescription().getReference());
 			params.add(actionPlanEntry.getPosition());
 			params.add(actionPlanEntry.getMeasure().getCost());
 			params.add(actionPlanEntry.getROI());
@@ -2158,28 +2082,18 @@ public class ExportAnalysis {
 
 			// add parameters for the current Risk Register Item
 			params.clear();
-			params.add(this.analysis.getARiskRegisterEntry(i).getScenario()
-					.getId());
+			params.add(this.analysis.getARiskRegisterEntry(i).getScenario().getId());
 			params.add(this.analysis.getARiskRegisterEntry(i).getAsset().getId());
 			params.add(this.analysis.getARiskRegisterEntry(i).getPosition());
-			params.add(this.analysis.getARiskRegisterEntry(i)
-					.getRawEvaluation().getProbability());
-			params.add(this.analysis.getARiskRegisterEntry(i)
-					.getRawEvaluation().getImpact());
-			params.add(this.analysis.getARiskRegisterEntry(i)
-					.getRawEvaluation().getImportance());
-			params.add(this.analysis.getARiskRegisterEntry(i)
-					.getNetEvaluation().getProbability());
-			params.add(this.analysis.getARiskRegisterEntry(i)
-					.getNetEvaluation().getImpact());
-			params.add(this.analysis.getARiskRegisterEntry(i)
-					.getNetEvaluation().getImportance());
-			params.add(this.analysis.getARiskRegisterEntry(i)
-					.getExpectedImportance().getProbability());
-			params.add(this.analysis.getARiskRegisterEntry(i)
-					.getExpectedImportance().getImpact());
-			params.add(this.analysis.getARiskRegisterEntry(i)
-					.getExpectedImportance().getImportance());
+			params.add(this.analysis.getARiskRegisterEntry(i).getRawEvaluation().getProbability());
+			params.add(this.analysis.getARiskRegisterEntry(i).getRawEvaluation().getImpact());
+			params.add(this.analysis.getARiskRegisterEntry(i).getRawEvaluation().getImportance());
+			params.add(this.analysis.getARiskRegisterEntry(i).getNetEvaluation().getProbability());
+			params.add(this.analysis.getARiskRegisterEntry(i).getNetEvaluation().getImpact());
+			params.add(this.analysis.getARiskRegisterEntry(i).getNetEvaluation().getImportance());
+			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedImportance().getProbability());
+			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedImportance().getImpact());
+			params.add(this.analysis.getARiskRegisterEntry(i).getExpectedImportance().getImportance());
 			params.add(this.analysis.getARiskRegisterEntry(i).getStrategy());
 
 			// execute query
@@ -2214,8 +2128,7 @@ public class ExportAnalysis {
 	 * @param assetTypeValueList
 	 *            The List of Scenario Asset Type Values
 	 */
-	private void insertScenarioAssetTypeValues(List<Object> params,
-			List<AssetTypeValue> assetTypeValueList) {
+	private void insertScenarioAssetTypeValues(List<Object> params, List<AssetTypeValue> assetTypeValueList) {
 
 		// set Asset Type keys
 		final String[] keys = Constant.ASSET_TYPES.split(",");
@@ -2227,8 +2140,7 @@ public class ExportAnalysis {
 			for (int i = 0; i < assetTypeValueList.size(); i++) {
 
 				// key matches item in the list -> YES
-				if (assetTypeValueList.get(i).getAssetType().getType()
-						.equalsIgnoreCase(key)) {
+				if (assetTypeValueList.get(i).getAssetType().getType().equalsIgnoreCase(key)) {
 
 					// add the asset type value to the list of parameters
 					params.add(assetTypeValueList.get(i).getValue());
@@ -2267,8 +2179,7 @@ public class ExportAnalysis {
 		if (split.length > 0) {
 
 			// Case of 27001 and Maturity -> YES
-			if (split[0].equals(Constant.NORM27001_FIRSTCHAR_REFERENCE)
-					|| split[0].equals(Constant.MATURITY_FIRSTCHAR_REFERENCE)) {
+			if (split[0].equals(Constant.NORM27001_FIRSTCHAR_REFERENCE) || split[0].equals(Constant.MATURITY_FIRSTCHAR_REFERENCE)) {
 
 				// create index for 27001 and maturity
 				for (int i = 1; i < split.length; i++) {
@@ -2330,16 +2241,13 @@ public class ExportAnalysis {
 
 			if (split[0].equals(Constant.PARAMETER_MATURITY_TASK_POLICY)) {
 				first = 0;
-			} else if (split[0]
-					.equals(Constant.PARAMETER_MATURITY_TASK_PROCEDURE)) {
+			} else if (split[0].equals(Constant.PARAMETER_MATURITY_TASK_PROCEDURE)) {
 				first = 6;
-			} else if (split[0]
-					.equals(Constant.PARAMETER_MATURITY_TASK_IMPLEMENTATION)) {
+			} else if (split[0].equals(Constant.PARAMETER_MATURITY_TASK_IMPLEMENTATION)) {
 				first = 11;
 			} else if (split[0].equals(Constant.PARAMETER_MATURITY_TASK_TEST)) {
 				first = 14;
-			} else if (split[0]
-					.equals(Constant.PARAMETER_MATURITY_TASK_INTEGRATION)) {
+			} else if (split[0].equals(Constant.PARAMETER_MATURITY_TASK_INTEGRATION)) {
 				first = 22;
 			}
 
@@ -2383,21 +2291,5 @@ public class ExportAnalysis {
 	 */
 	public void setAnalysis(Analysis analysis) {
 		this.analysis = analysis;
-	}
-
-	public ServiceAssetType getServiceAssetType() {
-		return serviceAssetType;
-	}
-
-	public void setServiceAssetType(ServiceAssetType serviceAssetType) {
-		this.serviceAssetType = serviceAssetType;
-	}
-
-	public ServiceScenarioType getServiceScenarioType() {
-		return serviceScenarioType;
-	}
-
-	public void setServiceScenarioType(ServiceScenarioType serviceScenarioType) {
-		this.serviceScenarioType = serviceScenarioType;
 	}
 }

@@ -7,7 +7,6 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
-import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.dao.DAOActionPlan;

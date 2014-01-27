@@ -5,8 +5,6 @@ import java.security.Principal;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.catalina.session.StandardSessionFacade;
-
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.service.ServiceUser;
@@ -14,7 +12,6 @@ import lu.itrust.business.service.ServiceUserAnalysisRight;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.NotFoundException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 

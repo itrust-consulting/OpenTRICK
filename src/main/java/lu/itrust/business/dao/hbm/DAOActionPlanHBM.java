@@ -10,7 +10,6 @@ import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.dao.DAOActionPlan;
 
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
@@ -29,7 +28,6 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * 
 	 */
 	public DAOActionPlanHBM() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**

@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author oensuifudine
  *
  */
-@Transactional
 @Service
 public class ServiceUserImpl implements ServiceUser {
 
