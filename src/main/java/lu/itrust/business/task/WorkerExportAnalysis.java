@@ -33,6 +33,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.util.FileCopyUtils;
 
 /**
  * @author eomar
@@ -81,18 +82,26 @@ public class WorkerExportAnalysis implements Worker {
 	public void run() {
 		Session session = null;
 		try {
+			synchronized (this) {
+				if (poolManager != null && !poolManager.exist(getId()))
+					if (!poolManager.add(this))
+						return;
+				if (canceled || working)
+					return;
+				working = true;
+			}
 			session = sessionFactory.openSession();
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			serviceTaskFeedback.send(id, new MessageHandler("info.export.load.analysis", "Load analysis to export", 0));
 			Analysis analysis = daoAnalysis.get(idAnalysis);
 			if (analysis == null)
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
-			else if (analysis.hasData())
+			else if (!analysis.hasData())
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.export.not_allow", "Empty analysis cannot be exported", null));
 			else {
 				sqllite = new File(servletContext.getRealPath("/WEB-INF/tmp/" + id + "_" + principal.getName()));
 				System.out.println(sqllite.getCanonicalPath());
-				if(!sqllite.exists())
+				if (!sqllite.exists())
 					sqllite.createNewFile();
 				DatabaseHandler databaseHandler = new DatabaseHandler(sqllite.getCanonicalPath());
 				serviceTaskFeedback.send(id, new MessageHandler("info.export.build.structure", "Build sqlLite structure", 2));
@@ -117,7 +126,7 @@ public class WorkerExportAnalysis implements Worker {
 			} catch (HibernateException e) {
 				e.printStackTrace();
 			}
-			if (error != null && sqllite != null && sqllite.exists())
+			if (sqllite != null && sqllite.exists())
 				sqllite.delete();
 			synchronized (this) {
 				working = false;
@@ -138,16 +147,17 @@ public class WorkerExportAnalysis implements Worker {
 				serviceTaskFeedback.send(id, new MessageHandler("error.export.user.not_found", "User cannot be found", null));
 				return;
 			}
-			if (error == null || sqllite == null || !sqllite.exists()) {
+			if (error != null || sqllite == null || !sqllite.exists()) {
 				serviceTaskFeedback.send(id, new MessageHandler("error.export.save.file.abort", "File cannot be save", null));
 				return;
 			}
-			UserSqlLite userSqlLite = new UserSqlLite(sqllite.getName(), user);
+			UserSqlLite userSqlLite = new UserSqlLite(sqllite.getName(), user, FileCopyUtils.copyToByteArray(sqllite));
 			transaction = session.beginTransaction();
 			daoUserSqlLite.saveOrUpdate(userSqlLite);
 			transaction.commit();
 			serviceTaskFeedback.send(id, new MessageHandler("success.export.save.file", "File was successfully saved", 100));
 		} catch (Exception e) {
+			e.printStackTrace();
 			try {
 				if (transaction != null)
 					transaction.rollback();

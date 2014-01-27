@@ -77,6 +77,7 @@ public class ServiceUserImpl implements ServiceUser {
 	 *
 	 * @see lu.itrust.business.service.ServiceUser#addRole(lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.usermanagement.Role)
 	 */
+	@Transactional
 	public boolean addRole(User user, Role role) throws Exception{
 		return daoUser.addRole(user, role);
 	}
@@ -87,6 +88,7 @@ public class ServiceUserImpl implements ServiceUser {
 	 *
 	 * @see lu.itrust.business.service.ServiceUser#removeRole(lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.usermanagement.Role)
 	 */
+	@Transactional
 	public boolean removeRole(User user, Role role) throws Exception{
 		return daoUser.removeRole(user, role);
 	}
@@ -128,7 +130,6 @@ public class ServiceUserImpl implements ServiceUser {
 	@Override
 	public void delete(long id) throws Exception {
 		daoUser.delete(id);
-
 	}
 
 	public DAOUser getDaoUser() {

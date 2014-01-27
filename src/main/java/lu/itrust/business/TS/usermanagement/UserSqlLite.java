@@ -7,37 +7,39 @@ import java.sql.Timestamp;
 
 /**
  * @author eomar
- *
+ * 
  */
 public class UserSqlLite {
-	
+
 	private long id = -1;
-	
+
 	private String fileName = null;
-	
+
 	private User user = null;
-	
+
+	private byte[] sqlLite;
+
 	private Timestamp exportTime = null;
-	
+
 	private Timestamp deleteTime = null;
-	
-	
+
 	/**
 	 * 
 	 */
 	public UserSqlLite() {
 	}
-	
+
 	/**
 	 * @param fileName
 	 * @param user
 	 * @param exportDate
 	 */
-	public UserSqlLite(String fileName, User user) {
+	public UserSqlLite(String fileName, User user, byte[] file) {
 		this.fileName = fileName;
 		this.user = user;
+		this.sqlLite = file;
 		this.setExportTime(new Timestamp(System.currentTimeMillis()));
-		this.setDeleteTime(new Timestamp(System.currentTimeMillis()+86400000));
+		this.setDeleteTime(new Timestamp(System.currentTimeMillis() + 86400000));
 	}
 
 	/**
@@ -48,7 +50,8 @@ public class UserSqlLite {
 	}
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(long id) {
 		this.id = id;
@@ -62,7 +65,8 @@ public class UserSqlLite {
 	}
 
 	/**
-	 * @param fileName the fileName to set
+	 * @param fileName
+	 *            the fileName to set
 	 */
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
@@ -76,7 +80,8 @@ public class UserSqlLite {
 	}
 
 	/**
-	 * @param user the user to set
+	 * @param user
+	 *            the user to set
 	 */
 	public void setUser(User user) {
 		this.user = user;
@@ -90,7 +95,8 @@ public class UserSqlLite {
 	}
 
 	/**
-	 * @param deleteTime the deleteTime to set
+	 * @param deleteTime
+	 *            the deleteTime to set
 	 */
 	public void setDeleteTime(Timestamp deleteTime) {
 		this.deleteTime = deleteTime;
@@ -104,11 +110,26 @@ public class UserSqlLite {
 	}
 
 	/**
-	 * @param exportTime the exportTime to set
+	 * @param exportTime
+	 *            the exportTime to set
 	 */
 	public void setExportTime(Timestamp exportTime) {
 		this.exportTime = exportTime;
 	}
-	
+
+	/**
+	 * @return the sqlLite
+	 */
+	public byte[] getSqlLite() {
+		return sqlLite;
+	}
+
+	/**
+	 * @param sqlLite
+	 *            the sqlLite to set
+	 */
+	public void setSqlLite(byte[] sqlLite) {
+		this.sqlLite = sqlLite;
+	}
 
 }

@@ -8,43 +8,52 @@
 			<column name="idUser" />
 			<generator class="increment" />
 		</id>
-		<property generated="never" lazy="false" name="login" type="java.lang.String">
-			<column name="dtLogin" unique="true"/>
+		<property generated="never" name="login" type="java.lang.String">
+			<column name="dtLogin" unique="true" />
 		</property>
-		<property generated="never" lazy="false" name="password" type="java.lang.String">
+		<property generated="never" name="password" type="java.lang.String">
 			<column name="dtPassword" />
 		</property>
-		<property generated="never" lazy="false" name="firstName" type="java.lang.String">
+		<property generated="never" name="firstName" type="java.lang.String">
 			<column name="dtFirstName" />
 		</property>
-		<property generated="never" lazy="false" name="lastName" type="java.lang.String">
+		<property generated="never" name="lastName" type="java.lang.String">
 			<column name="dtLastName" />
 		</property>
-		<property generated="never" lazy="false" name="email" unique="true" type="java.lang.String">
+		<property generated="never" name="email" unique="true"
+			type="java.lang.String">
 			<column name="dtEmail" unique="true" />
 		</property>
-		<property generated="never" lazy="false" name="enable" type="boolean">
+		<property generated="never" name="enable" type="boolean">
 			<column name="dtEnable" />
 		</property>
-		<bag cascade="all" name="roles" lazy="false" table="userRole">
+		<bag cascade="all" name="roles" table="userRole">
 			<key column="idUser" not-null="true" />
 			<many-to-many class="Role" column="idRole" unique="false" />
 		</bag>
-		<bag name="customers" table="userCustomer" cascade="all" access="field" inverse="true">
+		<bag name="customers" table="customer" cascade="all" access="field">
 			<key column="fiUser" not-null="true" />
-			<one-to-many class="UserCustomer" />
+			<one-to-many class="lu.itrust.business.TS.Customer" />
 		</bag>
-
 	</class>
 
-	<class name="UserCustomer" table="userCustomer">
-		<id column="idUserCustomer" name="id" unsaved-value="-1">
+	<class name="UserSqlLite" table="userSqlLite">
+		<id name="id" type="long" unsaved-value="-1">
+			<column name="idUserSqlLite" />
 			<generator class="increment" />
 		</id>
-		<properties name="unique_index" unique="true">
-			<many-to-one name="user" column="fiUser" not-null="true" cascade="save-update" />
-			<many-to-one name="customer" column="fiCustomer" not-null="true" cascade="save-update" />
-		</properties>
+		<property name="fileName" type="java.lang.String">
+			<column name="dtFileName" unique="true" not-null="true"/>
+		</property>
+		<property generated="never" name="exportTime">
+			<column name="dtExportTime" not-null="true"/>
+		</property>
+		<property name="deleteTime">
+			<column name="dtDeleteTime" not-null="true"/>
+		</property>
+		<property name="sqlLite" type="binary" >
+			<column name="dtSqlLite" not-null="true" sql-type="mediumblob"/>
+		</property>
 	</class>
 
 </hibernate-mapping>

@@ -19,7 +19,6 @@ import lu.itrust.business.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -77,7 +76,7 @@ public class ControllerUser {
 		try {
 			if (result.hasErrors())
 				return "profilUser";
-			PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 			user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
 			this.serviceUser.saveOrUpdate(user);
 			attributes.addFlashAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));

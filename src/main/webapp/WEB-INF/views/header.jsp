@@ -6,7 +6,6 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <head>
-<spring:htmlEscape defaultHtmlEscape="true" />
 <title><spring:message code="${title}" text="TRICK Service" /></title>
 <!--<link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.css" />' /> -->
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.min.css" />' />

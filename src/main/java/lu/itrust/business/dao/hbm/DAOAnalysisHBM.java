@@ -102,7 +102,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 		query.setString("version", version);
 
-		return ((Long) query.uniqueResult()) == 1;
+		return ((Long) query.uniqueResult()) != 0;
 	}
 
 	/**
