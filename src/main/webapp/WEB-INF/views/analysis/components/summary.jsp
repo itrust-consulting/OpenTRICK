@@ -29,12 +29,12 @@
 					<h4 class="text-center">
 						<spring:message code="label.actionPlanType.${actionPlanType.name}" text="${actionPlanType.name}" htmlEscape="true" />
 					</h4>
-					<table class="table table-hover">
+					<table class="table table-hover" >
 						<thead>
 							<tr>
 								<th><spring:message code="label.characteristic" text="Phase characteristic" /></th>
 								<c:forEach items='${summaryStages.get("label.characteristic")}' var="phase">
-									<th><spring:message text="${phase}" /></th>
+									<th class="text-right"><spring:message text="${phase}" /></th>
 								</c:forEach>
 								<c:set var="rowCount" value="${summaryStages.get('label.characteristic').size()}" />
 							</tr>
@@ -45,12 +45,12 @@
 									<tr>
 										<c:choose>
 											<c:when test="${empty summaryStages.get(key)}">
-												<td colspan="${rowCount+1}"><spring:message code="${key}" text="${key}" /></td>
+												<td colspan="${rowCount+1}"><strong><spring:message code="${key}" text="${key}" /></strong></td>
 											</c:when>
 											<c:otherwise>
 												<td><spring:message code="${key}" text="${key}" /></td>
 												<c:forEach items="${summaryStages.get(key)}" var="value">
-													<td><spring:message text="${value}" htmlEscape="true" /></td>
+													<c:choose><c:when test="${status.index > 0 }"><td class="text-right"><spring:message text="${value}" htmlEscape="true" /></td></c:when><c:otherwise><td><spring:message text="${value}" htmlEscape="true" /></td></c:otherwise></c:choose>
 												</c:forEach>
 											</c:otherwise>
 										</c:choose>
