@@ -43,12 +43,12 @@
 						<c:set var="scenarios" value="${analysis.scenarios}"
 							scope="request" />
 						<jsp:include page="./components/scenario.jsp" />
+						<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
+						<jsp:include page="./components/phase.jsp" />
 						<spring:eval
 							expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)"
 							var="measures" scope="request" />
 						<jsp:include page="./components/measure.jsp" />
-						<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
-						<jsp:include page="./components/phase.jsp" />
 						<c:set var="actionplans" scope="request"
 							value="${analysis.actionPlans}" />
 						<jsp:include page="./components/actionplan.jsp" />
