@@ -16,6 +16,8 @@ public class UserSqlLite {
 	private String fileName = null;
 
 	private User user = null;
+	
+	private long size = 0;
 
 	private byte[] sqlLite;
 
@@ -130,6 +132,17 @@ public class UserSqlLite {
 	 */
 	public void setSqlLite(byte[] sqlLite) {
 		this.sqlLite = sqlLite;
+	}
+
+	public long getSize() {
+		return this.size;
+	}
+
+	/**
+	 * @param size the size to set
+	 */
+	public void setSize(long size) {
+		this.size = size;
 	}
 
 }

@@ -7,22 +7,24 @@ import lu.itrust.business.TS.messagehandler.TaskName;
 
 /**
  * @author eom
- *
+ * 
  */
 
 public class AsyncResult {
-	
+
 	private Long taskID;
-	
+
 	private int flag = 0;
-	
+
 	private TaskName taskName;
-	
+
 	private String status;
-	
+
 	private String message;
 	
-	private int progress=0;
+	private AsyncCallback asyncCallback = null;
+
+	private int progress = 0;
 
 	/**
 	 * @param taskID
@@ -30,7 +32,7 @@ public class AsyncResult {
 	public AsyncResult(Long taskID) {
 		this.taskID = taskID;
 	}
-	
+
 	/**
 	 * @param status
 	 * @param taskID
@@ -46,8 +48,7 @@ public class AsyncResult {
 	 * @param taskID
 	 * @param message
 	 */
-	public AsyncResult(TaskName taskName, String status, Long taskID,
-			String message) {
+	public AsyncResult(TaskName taskName, String status, Long taskID, String message) {
 		this.taskName = taskName;
 		this.status = status;
 		this.taskID = taskID;
@@ -62,7 +63,8 @@ public class AsyncResult {
 	}
 
 	/**
-	 * @param taskName the taskName to set
+	 * @param taskName
+	 *            the taskName to set
 	 */
 	public void setTaskName(TaskName taskName) {
 		this.taskName = taskName;
@@ -76,7 +78,8 @@ public class AsyncResult {
 	}
 
 	/**
-	 * @param status the status to set
+	 * @param status
+	 *            the status to set
 	 */
 	public void setStatus(String status) {
 		this.status = status;
@@ -90,7 +93,8 @@ public class AsyncResult {
 	}
 
 	/**
-	 * @param taskID the taskID to set
+	 * @param taskID
+	 *            the taskID to set
 	 */
 	public void setTaskID(Long taskID) {
 		this.taskID = taskID;
@@ -104,7 +108,8 @@ public class AsyncResult {
 	}
 
 	/**
-	 * @param message the message to set
+	 * @param message
+	 *            the message to set
 	 */
 	public void setMessage(String message) {
 		this.message = message;
@@ -118,7 +123,8 @@ public class AsyncResult {
 	}
 
 	/**
-	 * @param flag the flag to set
+	 * @param flag
+	 *            the flag to set
 	 */
 	public void setFlag(int flag) {
 		this.flag = flag;
@@ -132,10 +138,25 @@ public class AsyncResult {
 	}
 
 	/**
-	 * @param progress the progress to set
+	 * @param progress
+	 *            the progress to set
 	 */
 	public void setProgress(int progress) {
 		this.progress = progress;
+	}
+
+	/**
+	 * @return the asyncCallback
+	 */
+	public AsyncCallback getAsyncCallback() {
+		return asyncCallback;
+	}
+
+	/**
+	 * @param asyncCallback the asyncCallback to set
+	 */
+	public void setAsyncCallback(AsyncCallback asyncCallback) {
+		this.asyncCallback = asyncCallback;
 	}
 
 }

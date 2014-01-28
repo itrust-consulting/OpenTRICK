@@ -52,6 +52,12 @@ public class DAOUserSqlLiteHBM extends DAOHibernate implements DAOUserSqlLite {
 		return (UserSqlLite) getSession().createQuery("From UserSqlLite where fileName = :fileName").setParameter("fileName", fileName).uniqueResult();
 	}
 
+	@Override
+	public UserSqlLite findByIdAndUser(long idFile, String username) {
+		return (UserSqlLite) getSession().createQuery("From UserSqlLite where id = :idFile and user.login = :username").setParameter("idFile", idFile)
+				.setParameter("username", username).uniqueResult();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 

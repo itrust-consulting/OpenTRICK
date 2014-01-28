@@ -16,6 +16,8 @@ public interface ServiceUserSqlLite {
 	UserSqlLite findOne(long id);
 
 	UserSqlLite findByFileName(String fileName);
+	
+	UserSqlLite findByIdAndUser(long idFile, String username);
 
 	List<UserSqlLite> findByUser(String username);
 
@@ -32,5 +34,7 @@ public interface ServiceUserSqlLite {
 	void delete(long idUserSqlLite);
 
 	void delete(String fileName);
+
+	
 
 }

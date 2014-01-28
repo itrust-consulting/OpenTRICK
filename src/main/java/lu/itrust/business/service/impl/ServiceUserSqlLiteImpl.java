@@ -144,4 +144,9 @@ public class ServiceUserSqlLiteImpl implements ServiceUserSqlLite {
 		daoUserSqlLite.delete(fileName);
 	}
 
+	@Override
+	public UserSqlLite findByIdAndUser(long idFile, String username) {
+		return daoUserSqlLite.findByIdAndUser(idFile, username);
+	}
+
 }

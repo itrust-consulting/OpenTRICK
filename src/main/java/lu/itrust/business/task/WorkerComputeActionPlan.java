@@ -19,6 +19,7 @@ import lu.itrust.business.dao.hbm.DAOActionPlanTypeHBM;
 import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
+import lu.itrust.business.view.model.AsyncCallback;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -137,7 +138,9 @@ public class WorkerComputeActionPlan implements Worker {
 			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, this.norms, this.uncertainty);
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
-				serviceTaskFeedback.send(id, new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100));
+				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
+				messageHandler.setAsyncCallback(new AsyncCallback("", null));
+				serviceTaskFeedback.send(id, messageHandler);
 				System.out.println("Computing Action Plans Complete!");
 			}
 			else

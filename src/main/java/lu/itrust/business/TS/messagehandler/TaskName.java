@@ -11,22 +11,22 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public enum TaskName {
 	
-	IMPORT_ANALYSIS("label.import.analysis", "/Analysis/Display"), COMPUTE_ACTION_PLAN("label.compute.analysis","/Analysis/Display"), COMPUTE_RISK_REGISTER("label.compute.risk_register","/Analysis/Display");
+	IMPORT_ANALYSIS("label.import.analysis", "reloadSection(\"section_analysis\")"), EXPORT_ANALYSIS("label.compute.risk_register","\"downloadExportedSqlLite()\""), COMPUTE_ACTION_PLAN("label.compute.actionPlan","\"reloadSection(\"section_actionplans\")\""), COMPUTE_RISK_REGISTER("label.compute.risk_register","\"reloadSection(\"section_riskregisters\")\"");
 	
 	@JsonProperty
 	private String name;
 	
 	@JsonProperty
-	private String redirect;
+	private String action;
 	
 	TaskName(String name){
 		this.setName(name);
-		this.setRedirect(null);
+		this.setAction(null);
 	}
 	
 	TaskName(String name, String redirect){
 		this.setName(name);
-		this.setRedirect(redirect);
+		this.setAction(redirect);
 	}
 
 	/**
@@ -44,16 +44,16 @@ public enum TaskName {
 	}
 
 	/**
-	 * @return the redirect
+	 * @return the action
 	 */
-	public String getRedirect() {
-		return redirect;
+	public String getAction() {
+		return action;
 	}
 
 	/**
-	 * @param redirect the redirect to set
+	 * @param action the redirect to set
 	 */
-	public void setRedirect(String redirect) {
-		this.redirect = redirect;
+	public void setAction(String action) {
+		this.action = action;
 	}
 }

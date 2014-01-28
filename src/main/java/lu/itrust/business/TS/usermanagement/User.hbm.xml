@@ -38,21 +38,33 @@
 	</class>
 
 	<class name="UserSqlLite" table="userSqlLite">
+
 		<id name="id" type="long" unsaved-value="-1">
 			<column name="idUserSqlLite" />
 			<generator class="increment" />
 		</id>
+
+		<many-to-one name="user" column="fiUser" not-null="true"
+			access="field" />
+			
 		<property name="fileName" type="java.lang.String">
-			<column name="dtFileName" unique="true" not-null="true"/>
+			<column name="dtFileName" unique="true" not-null="true" />
 		</property>
+
+		<property generated="never" name="size">
+			<column name="dtSize" not-null="true" />
+		</property>
+
 		<property generated="never" name="exportTime">
-			<column name="dtExportTime" not-null="true"/>
+			<column name="dtExportTime" not-null="true" />
 		</property>
+
 		<property name="deleteTime">
-			<column name="dtDeleteTime" not-null="true"/>
+			<column name="dtDeleteTime" not-null="true" />
 		</property>
-		<property name="sqlLite" type="binary" >
-			<column name="dtSqlLite" not-null="true" sql-type="mediumblob"/>
+
+		<property name="sqlLite" type="binary">
+			<column name="dtSqlLite" not-null="true" sql-type="mediumblob" />
 		</property>
 	</class>
 

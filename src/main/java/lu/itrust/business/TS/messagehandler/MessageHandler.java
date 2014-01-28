@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.messagehandler;
 
+import lu.itrust.business.view.model.AsyncCallback;
+
 
 /** 
  * MessageHandler: <br>
@@ -18,6 +20,8 @@ public class MessageHandler {
 	private TaskStatus taskStatus;
 	
 	private TaskName taskName = null;
+	
+	private AsyncCallback asyncCallback = null;
 	
 	private String code = null;
 	
@@ -198,5 +202,19 @@ public class MessageHandler {
 	 */
 	public void setProgress(int progress) {
 		this.progress = progress;
+	}
+
+	/**
+	 * @return the asyncCallback
+	 */
+	public AsyncCallback getAsyncCallback() {
+		return asyncCallback;
+	}
+
+	/**
+	 * @param asyncCallback the asyncCallback to set
+	 */
+	public void setAsyncCallback(AsyncCallback asyncCallback) {
+		this.asyncCallback = asyncCallback;
 	}
 }

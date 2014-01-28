@@ -28,6 +28,7 @@ import lu.itrust.business.dao.hbm.DAOUserHBM;
 import lu.itrust.business.dao.hbm.DAOUserSqlLiteHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
+import lu.itrust.business.view.model.AsyncCallback;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -100,7 +101,6 @@ public class WorkerExportAnalysis implements Worker {
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.export.not_allow", "Empty analysis cannot be exported", null));
 			else {
 				sqllite = new File(servletContext.getRealPath("/WEB-INF/tmp/" + id + "_" + principal.getName()));
-				System.out.println(sqllite.getCanonicalPath());
 				if (!sqllite.exists())
 					sqllite.createNewFile();
 				DatabaseHandler databaseHandler = new DatabaseHandler(sqllite.getCanonicalPath());
@@ -152,10 +152,13 @@ public class WorkerExportAnalysis implements Worker {
 				return;
 			}
 			UserSqlLite userSqlLite = new UserSqlLite(sqllite.getName(), user, FileCopyUtils.copyToByteArray(sqllite));
+			userSqlLite.setSize(sqllite.length());
 			transaction = session.beginTransaction();
 			daoUserSqlLite.saveOrUpdate(userSqlLite);
 			transaction.commit();
-			serviceTaskFeedback.send(id, new MessageHandler("success.export.save.file", "File was successfully saved", 100));
+			MessageHandler messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", 100);
+			messageHandler.setAsyncCallback(new AsyncCallback("downloadExportedSqlLite(\"" + userSqlLite.getId() + "\")", null));
+			serviceTaskFeedback.send(id, messageHandler);
 		} catch (Exception e) {
 			e.printStackTrace();
 			try {

@@ -1,6 +1,7 @@
 package lu.itrust.business.view.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -25,6 +26,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.TS.usermanagement.UserSqlLite;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
@@ -55,6 +57,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -226,6 +229,23 @@ public class ControllerAnalysis {
 		}
 		return "redirect:/Analysis";
 
+	}
+	
+	@RequestMapping("/Download/{idFile}")
+	public String download(@PathVariable long idFile,Principal principal, HttpServletRequest request, HttpServletResponse response) throws IOException{
+		UserSqlLite userSqlLite = serviceUserSqlLite.findByIdAndUser(idFile, principal.getName());
+		if(userSqlLite==null)
+			return "errors/404";
+		response.setContentType("sqllite");
+		response.setHeader(
+				"Content-Disposition",
+				"attachment; filename=\"Analyse.sqllite\"");
+
+		response.setContentLength((int)userSqlLite.getSize());
+
+		FileCopyUtils.copy(userSqlLite.getSqlLite(),
+				response.getOutputStream());
+		return null;
 	}
 
 	/**
