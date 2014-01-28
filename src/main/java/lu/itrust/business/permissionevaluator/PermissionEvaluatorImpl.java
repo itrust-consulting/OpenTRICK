@@ -3,10 +3,6 @@ package lu.itrust.business.permissionevaluator;
 import java.io.Serializable;
 import java.security.Principal;
 
-import javax.servlet.http.HttpSession;
-
-import org.apache.catalina.session.StandardSessionFacade;
-
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.service.ServiceUser;
@@ -14,7 +10,6 @@ import lu.itrust.business.service.ServiceUserAnalysisRight;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.NotFoundException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -50,43 +45,25 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	public void setServiceUserAnalysisRight(ServiceUserAnalysisRight serviceUserAnalysisRight) {
 		this.serviceUserAnalysisRight=serviceUserAnalysisRight;
 	}
-	
-	/**
-	 * userIsAuthorized: <br>
-	 * Description
-	 *
-	 * @see lu.itrust.business.permissionevaluator.PermissionEvaluator#userIsAuthorized(int, java.lang.String, lu.itrust.business.TS.AnalysisRight)
-	 */
-	@Override
-	public boolean userIsAuthorized(int analysisId, Principal principal, AnalysisRight right, Integer selectedAnalysis) throws Exception {
-			
-		return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
-	}
 
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception {
 		
-		//System.out.println("Preauthorize analysis id: " + analysisId);
+		try {
 		
-		if (serviceUser.get(principal.getName()).hasRole(RoleType.ROLE_ADMIN)) {
-			return true;
-		}
-		
+			if (analysisId == null || analysisId <= 0) {
+				throw new NotFoundException("No analysis selected!");
+			}
+			
+			if (serviceUser.get(principal.getName()).hasRole(RoleType.ROLE_ADMIN)) {
+				return true;
+			}
+			
 		return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
-	}
-
-	@Override
-	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) throws Exception {
-		
-		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
-		
-		//System.out.println("Preauthorize analysis from selected id: " + selected);
-		
-		if (selected == null) {
-			throw new NotFoundException("No analysis selected!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
 		}
-		
-		return serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), right);
 	}
 	
 	@Override
