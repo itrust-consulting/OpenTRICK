@@ -7,7 +7,14 @@
 		<id name="id" column="idNorm" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
-		<property name="label" column="dtLabel" not-null="true" unique="true" />
+		
+		<properties name="unique_index" unique="true">
+			<property name="label" column="dtLabel" not-null="true" />
+			<property name="version" column="dtVersion" not-null="true" />
+		</properties>
+		<property name="description" column="dtDescription" not-null="true" />
+		<property name="computable" column="dtComputable" not-null="true" />
+	
 	</class>
 	<class name="AnalysisNorm" table="analysisNorm" abstract="true">
 		<id name="id" column="idAnalysisNorm" unsaved-value="-1">

@@ -159,7 +159,16 @@ public class ControllerNorm {
 				norm.setId(jsonNode.get("id").asInt());
 
 			norm.setLabel(jsonNode.get("label").asText());
-
+			
+			norm.setDescription(jsonNode.get("description").asText());
+			
+			norm.setVersion(jsonNode.get("version").asInt());
+			
+			if (jsonNode.get("computable") != null && (jsonNode.get("computable").asText()=="on")) {
+				norm.setComputable(true);
+			} else {
+				norm.setComputable(false);
+			}
 			return true;
 
 		} catch (Exception e) {

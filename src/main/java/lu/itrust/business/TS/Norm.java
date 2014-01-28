@@ -26,6 +26,15 @@ public class Norm implements Serializable, Cloneable {
 
 	/** Norm Name */
 	private String label = "";
+	
+	/** the norm verison */
+	private int version = 2013;
+	
+	/** description of the norm*/
+	private String description  = "";
+	
+	/** norm available for actionplan computation */
+	private boolean computable = true;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -47,6 +56,42 @@ public class Norm implements Serializable, Cloneable {
 		this.setLabel(label);
 	}
 
+	/**
+	 * Constructor:<br>
+	 * 
+	 * @param label
+	 *            The Norm Name
+	 */
+	public Norm(String label, int version) {
+		this.setLabel(label);
+		this.setVersion(version);
+	}
+	
+	/**
+	 * Constructor:<br>
+	 * 
+	 * @param label
+	 *            The Norm Name
+	 */
+	public Norm(String label, int version, String description) {
+		this.setLabel(label);
+		this.setVersion(version);
+		this.setDescription(description);
+	}
+	
+	/**
+	 * Constructor:<br>
+	 * 
+	 * @param label
+	 *            The Norm Name
+	 */
+	public Norm(String label, int version, String description, boolean computable) {
+		this.setLabel(label);
+		this.setVersion(version);
+		this.setDescription(description);
+		this.setComputable(computable);
+	}
+	
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
@@ -166,6 +211,63 @@ public class Norm implements Serializable, Cloneable {
 		if (norm.label.equalsIgnoreCase(Constant.NORM_CUSTOM))
 			norm.id = -1;
 		return norm;
+	}
+
+	/** getVersion: <br>
+	 * Returns the version field value.
+	 * 
+	 * @return The value of the version field
+	 */
+	public int getVersion() {
+		return version;
+	}
+
+	/** setVersion: <br>
+	 * Sets the Field "version" with a value.
+	 * 
+	 * @param version 
+	 * 			The Value to set the version field
+	 */
+	public void setVersion(int version) {
+		this.version = version;
+	}
+
+	/** isComputable: <br>
+	 * Returns the computable field value.
+	 * 
+	 * @return The value of the computable field
+	 */
+	public boolean isComputable() {
+		return computable;
+	}
+
+	/** setComputable: <br>
+	 * Sets the Field "computable" with a value.
+	 * 
+	 * @param computable 
+	 * 			The Value to set the computable field
+	 */
+	public void setComputable(boolean computable) {
+		this.computable = computable;
+	}
+
+	/** getDescription: <br>
+	 * Returns the description field value.
+	 * 
+	 * @return The value of the description field
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/** setDescription: <br>
+	 * Sets the Field "description" with a value.
+	 * 
+	 * @param description 
+	 * 			The Value to set the description field
+	 */
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }

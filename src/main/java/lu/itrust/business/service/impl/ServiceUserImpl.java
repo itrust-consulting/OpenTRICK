@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author oensuifudine
  *
  */
-@Transactional
 @Service
 public class ServiceUserImpl implements ServiceUser {
 
@@ -95,7 +94,6 @@ public class ServiceUserImpl implements ServiceUser {
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.service.ServiceUser#save(lu.itrust.business.TS.User)
 	 */
-	@Transactional
 	@Override
 	public void save(User user) throws Exception {
 		daoUser.save(user);
@@ -105,7 +103,6 @@ public class ServiceUserImpl implements ServiceUser {
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.service.ServiceUser#saveOrUpdate(lu.itrust.business.TS.User)
 	 */
-	@Transactional
 	@Override
 	public void saveOrUpdate(User user) throws Exception {
 		daoUser.saveOrUpdate(user);
@@ -115,7 +112,6 @@ public class ServiceUserImpl implements ServiceUser {
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.service.ServiceUser#delete(lu.itrust.business.TS.User)
 	 */
-	@Transactional
 	@Override
 	public void delete(User user) throws Exception {
 		daoUser.delete(user);
@@ -125,7 +121,6 @@ public class ServiceUserImpl implements ServiceUser {
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.service.ServiceUser#delete(long)
 	 */
-	@Transactional
 	@Override
 	public void delete(long id) throws Exception {
 		daoUser.delete(id);

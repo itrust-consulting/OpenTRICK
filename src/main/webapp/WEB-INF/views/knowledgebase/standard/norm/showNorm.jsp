@@ -32,6 +32,14 @@
 								<td><spring:message code="label.norm.label" /></td>
 								<td>${norm.label}</td>
 							</tr>
+							<tr>
+								<td><spring:message code="label.norm.version" /></td>
+								<td>${norm.version}</td>
+							</tr>
+							<tr>
+								<td><spring:message code="label.norm.Computable" /></td>
+								<td>${norm.computable?'Yes':'No'}</td>
+							</tr>
 						</table>
 					</c:if>
 				</div>

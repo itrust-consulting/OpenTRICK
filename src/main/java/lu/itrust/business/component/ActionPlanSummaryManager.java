@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Hibernate;
+
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.TS.actionplan.SummaryStage;
@@ -78,10 +80,14 @@ public class ActionPlanSummaryManager {
 
 	public static Map<String, Phase> buildPhase(List<Phase> phases,List<String> extractedPhases) {
 		Map<String, Phase> phaseStages = new LinkedHashMap<String, Phase>();
+		
+		Phase tmpphase = new Phase(0);
+		
+		phaseStages.put("Start(P0)", tmpphase);
+		
 		for (Phase phase : phases) {
-			String stage = "Phase " + phase.getNumber();
-			if (phase.getNumber() == 0)
-				stage = "Start(P0)";
+			Hibernate.initialize(phase);
+			String stage = "Phase " + phase.getNumber();				
 			if(extractedPhases.contains(stage))
 				phaseStages.put(stage, phase);
 		}

@@ -189,7 +189,6 @@ public class ImportAnalysis {
 
 			System.out.println("Importing...");
 
-			
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.importing", "Importing", 0));
 
 			// ****************************************************************
@@ -455,7 +454,7 @@ public class ImportAnalysis {
 		Analysis analysis = null;
 
 		History history = null;
-		
+
 		// ****************************************************************
 		// * add analysis and / or version if not exists
 		// ****************************************************************
@@ -481,9 +480,9 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			history = this.analysis.getAHistory(i);
-			
+
 			// check if analysis with this version does NOT already exist -> YES
-			if (!daoAnalysis.analysisExist(this.analysis.getIdentifier(), history.getVersion() )) {
+			if (!daoAnalysis.analysisExist(this.analysis.getIdentifier(), history.getVersion())) {
 
 				// ****************************************************************
 				// * store analysis with history entries to the current version
@@ -501,11 +500,11 @@ public class ImportAnalysis {
 				analysis.setLanguage(this.analysis.getLanguage());
 				analysis.setCustomer(this.analysis.getCustomer());
 				analysis.setOwner(this.analysis.getOwner());
-				analysis.addUserRight(new UserAnalysisRight(this.analysis.getOwner(),analysis,AnalysisRight.ALL));
-				if (i==0) {
+				analysis.addUserRight(new UserAnalysisRight(this.analysis.getOwner(), analysis, AnalysisRight.ALL));
+				if (i == 0) {
 					analysis.setBasedOnAnalysis(null);
 				} else {
-					analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), this.analysis.getAHistory(i-1).getVersion()));
+					analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), this.analysis.getAHistory(i - 1).getVersion()));
 				}
 
 				// add history entries to this history entry
@@ -544,9 +543,9 @@ public class ImportAnalysis {
 				throw new IllegalArgumentException("Your file has already been imported, whether it is a new version, do not forget to increase version");
 			}
 		}
-		
+
 		this.analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), history.getVersion()));
-		
+
 	}
 
 	/**
@@ -1684,7 +1683,7 @@ public class ImportAnalysis {
 		// * retrieve maturity phases from maturity_phase table
 		// ****************************************************************
 
-		currentSqliteTable = "measures";
+		currentSqliteTable = "maturity_phase";
 		// build and execute query
 		query = "SELECT DISTINCT m.phase AS MeasurePhase, ma.phase AS MaturityPhase FROM measures m, maturity_phase ma";
 
@@ -1719,6 +1718,25 @@ public class ImportAnalysis {
 	}
 
 	/**
+	 * columnExists: <br>
+	 * Description
+	 * 
+	 * @param rs
+	 * @param columnname
+	 * @return
+	 */
+	private static boolean columnExists(ResultSet rs, String columnname) {
+		try {
+			rs.findColumn(Constant.MEASURE_VERSION_NORM);
+			return true;
+		} catch (SQLException e) {
+			return false;
+		}	
+	}
+	
+	
+	
+	/**
 	 * importNormMeasures: <br>
 	 * <ul>
 	 * <li>Imports all AnalysisNorm Measures (27001,27002,custom) except maturity</li>
@@ -1748,6 +1766,10 @@ public class ImportAnalysis {
 		AnalysisNorm analysisNorm = null;
 		Norm norm = null;
 		String idMeasureNorm = "";
+		String description = "";
+		int normversion = 2005;
+		boolean normcomputable = false;
+		boolean measurecomputable = false;
 		int phaseNumber = 0;
 		String measureRefMeasure = "";
 		MeasureDescription mesDesc = null;
@@ -1768,6 +1790,7 @@ public class ImportAnalysis {
 		// retrieve results
 		while (rs.next()) {
 
+			
 			// measureID = rs.getInt("rowid");
 
 			// ****************************************************************
@@ -1778,34 +1801,30 @@ public class ImportAnalysis {
 
 			idMeasureNorm = rs.getString(Constant.MEASURE_ID_NORM);
 
-			// Norm norm =
-			// daoNormHBM.loadSingleNormFromAnalysisByName(idMeasureNorm);
-
-			// ****************************************************************
-			// * check if norm was not found: -> YES
-			// * create instance and add it to list of norms
-			// ****************************************************************
-
-			// get norm from map
-			norm = norms.get(idMeasureNorm);
-
-			if (norm == null) {
-				// ****************************************************************
-				// * create norm instance
-				// ****************************************************************
-
-				// check if norm in database
-				norm = daoNorm.loadSingleNormByName(idMeasureNorm);
-
-				// norm is not in database create new norm and save in into
-				// database for future
-				if (norm == null) {
-					norm = new Norm(idMeasureNorm);
-					daoNorm.save(norm);
+			if (columnExists(rs, Constant.MEASURE_VERSION_NORM)) {
+				normversion = rs.getInt(Constant.MEASURE_VERSION_NORM);
+				normcomputable = rs.getBoolean(Constant.MEASURE_NORM_COMPUTABLE);
+				measurecomputable = rs.getBoolean(Constant.MEASURE_MEASURE_COMPUTABLE);
+				description = rs.getString(Constant.MEASURE_NORM_DESCRIPTION);
+			} else {
+				normversion = 2005;
+				normcomputable = true;
+				description = "old norm (before 2013)";
+				if (rs.getInt(Constant.MEASURE_LEVEL) == Constant.MEASURE_LEVEL_3) {
+					measurecomputable = true;
+				} else {
+					measurecomputable = false;
 				}
-
+			}
+			
+			norm = daoNorm.loadSingleNormByNameAndVersion(idMeasureNorm, normversion);
+			// norm is not in database create new norm and save in into
+			// database for future
+			if (norm == null) {
+				norm = new Norm(idMeasureNorm, normversion, description, normcomputable);
+				daoNorm.save(norm);
 				// add norm to map
-				norms.put(idMeasureNorm, norm);
+				norms.put(norm.getLabel()+"_"+norm.getVersion(), norm);
 			}
 
 			// retrieve analysisnorm of the norm
@@ -1923,7 +1942,8 @@ public class ImportAnalysis {
 			normMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS));
 			normMeasure.setToCheck(rs.getString(Constant.MEASURE_REVISION));
 			normMeasure.setToDo(rs.getString(Constant.MEASURE_TODO));
-
+			normMeasure.setComputable(measurecomputable);
+			
 			// calculate cost
 			cost =
 				Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE), this.analysis
@@ -1975,7 +1995,7 @@ public class ImportAnalysis {
 			((MeasureNorm) analysisNorm).addMeasure(normMeasure);
 
 			// add measure to map
-			measures.put(idMeasureNorm + measureRefMeasure, normMeasure);
+			measures.put(idMeasureNorm + "_" + normversion + "_" + measureRefMeasure, normMeasure);
 		}
 		// close result
 		rs.close();
@@ -2771,7 +2791,13 @@ public class ImportAnalysis {
 			// rs.getString(Constant.MEASURE_REF_MEASURE) + ":::" +
 			// rs.getInt(Constant.ASSET_ID_TYPE_ASSET));
 
-			measure = (NormMeasure) measures.get(rs.getString(Constant.MEASURE_ID_NORM) + rs.getString(Constant.MEASURE_REF_MEASURE));
+			int normversion = 2005;
+			
+			if (columnExists(rs, Constant.MEASURE_VERSION_NORM)) {
+				normversion = rs.getInt(Constant.MEASURE_VERSION_NORM);
+			}
+			
+			measure = (NormMeasure) measures.get(rs.getString(Constant.MEASURE_ID_NORM) + "_" + normversion + "_" + rs.getString(Constant.MEASURE_REF_MEASURE));
 
 			// ****************************************************************
 			// * retrieve asset type label for the instance creation
@@ -2813,6 +2839,7 @@ public class ImportAnalysis {
 		String previousLevel = "";
 		String level = normMeasure.getMeasureDescription().getReference();
 		String normName = normMeasure.getAnalysisNorm().getNorm().getLabel();
+		int normVersion = normMeasure.getAnalysisNorm().getNorm().getVersion();
 		NormMeasure prevNormMeasure = null;
 		int value = -1;
 
@@ -2870,7 +2897,7 @@ public class ImportAnalysis {
 
 			// parse measures of the same norm
 
-			prevNormMeasure = (NormMeasure) measures.get(normName + previousLevel);
+			prevNormMeasure = (NormMeasure) measures.get(normName + "_" + normVersion + "_" + previousLevel);
 
 			// check if the reference met the reference that was built above ->
 			// YES
@@ -2959,7 +2986,6 @@ public class ImportAnalysis {
 		setDaoParameterType(new DAOParameterTypeHBM(session));
 		setDaoScenarioType(new DAOScenarioTypeHBM(session));
 	}
-
 
 	/**
 	 * @param serviceTaskFeedback

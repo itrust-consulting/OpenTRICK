@@ -22,6 +22,27 @@
 							<input name="label" id="norm_label" class="form-control" type="text" />
 						</div>
 					</div>
+					<div class="form-group">
+						<label for="version" class="col-sm-2 control-label"> <spring:message code="label.norm.version" text="Version" />
+						</label>
+						<div class="col-sm-10">
+							<input name="version" id="norm_version" class="form-control" type="text" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="description" class="col-sm-2 control-label"> <spring:message code="label.norm.description" text="Description" />
+						</label>
+						<div class="col-sm-10">
+							<input name="description" id="norm_description" class="form-control" type="text" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="computable" class="col-sm-2 control-label"> <spring:message code="label.norm.computable" text="Computable" />
+						</label>
+						<div class="col-sm-10">
+							<input name="computable" id="norm_computable" class="form-control" type="checkbox" />
+						</div>
+					</div>
 				</form>
 			</div>
 			<div class="modal-footer">

@@ -35,12 +35,15 @@
 		<div class="panel-body">
 			<c:choose>
 				<c:when test="${!empty norms}">
-					<table class="table">
+					<table class="table text-left">
 						<thead>
 							<tr>
 								<th><input type="checkbox" class="checkbox"
 									onchange="return checkControlChange(this,'norm')"></th>
 								<th><spring:message code="label.norm.label" /></th>
+								<th><spring:message code="label.norm.version" text = "Version" /></th>
+								<th><spring:message code="label.norm.description" text = "Description" /></th>
+								<th><spring:message code="label.norm.computable" text = "Computable" /></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -49,6 +52,9 @@
 									<td><input type="checkbox" class="checkbox"
 										onchange="return updateMenu('#section_norm','#menu_norm');"></td>
 									<td>${norm.label}</td>
+									<td>${norm.version}</td>
+									<td>${norm.description}</td>
+									<td computable="${norm.computable?'Yes':'No'}"><spring:message code="label.${norm.computable?'Yes':'No'}" text = "${norm.computable?'Yes':'No'}" /></td>
 								</tr>
 							</c:forEach>
 						</tbody>

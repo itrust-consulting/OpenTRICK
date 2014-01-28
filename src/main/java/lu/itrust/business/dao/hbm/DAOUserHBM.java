@@ -11,6 +11,7 @@ import lu.itrust.business.dao.DAOUser;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author oensuifudine
@@ -101,6 +102,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 *
 	 * @see lu.itrust.business.dao.DAOUser#addRole(lu.itrust.business.TS.usermanagement.Role)
 	 */
+	@Transactional
 	public boolean addRole(User user, Role role) throws Exception {
 		boolean result = false;
 		try {
@@ -120,6 +122,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 *
 	 * @see lu.itrust.business.dao.DAOUser#removeRole(lu.itrust.business.TS.usermanagement.Role)
 	 */
+	@Transactional
 	public boolean removeRole(User user, Role role) throws Exception {
 		boolean result = false;
 		try {
@@ -138,10 +141,11 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * 
 	 * @see lu.itrust.business.dao.DAOUser#save(lu.itrust.business.TS.User)
 	 */
+	@Transactional
 	@Override
 	public void save(User user) throws Exception {
 		getSession().save(user);
-
+		getSession().flush();
 	}
 
 	/*
@@ -149,9 +153,26 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * 
 	 * @see lu.itrust.business.dao.DAOUser#saveOrUpdate(lu.itrust.business.TS.User)
 	 */
+	@Transactional
 	@Override
 	public void saveOrUpdate(User user) throws Exception {
+				
 		getSession().saveOrUpdate(user);
+		
+		getSession().flush();
+		
+		/*SQLQuery tmp = getSession().createSQLQuery("INSERT INTO user (idUser, dtLogin, dtPassword, dtFirstName, dtLastName, dtEmail, dtEnable) VALUES (:id, :login, :password, :first, :last, :email, :enable)");		
+		tmp.setParameter("id", 1);
+		tmp.setParameter("login", user.getLogin());
+		tmp.setParameter("password", user.getPassword());
+		tmp.setParameter("first", user.getFirstName());
+		tmp.setParameter("last", user.getLastName());
+		tmp.setParameter("email", user.getEmail());
+		tmp.setParameter("enable", user.isEnable());
+		tmp.executeUpdate();*/
+		
+		
+		
 	}
 
 	/*
@@ -159,6 +180,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * 
 	 * @see lu.itrust.business.dao.DAOUser#delete(lu.itrust.business.TS.User)
 	 */
+	@Transactional
 	@Override
 	public void delete(User user) throws Exception {
 		getSession().delete(user);
@@ -169,12 +191,14 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * 
 	 * @see lu.itrust.business.dao.DAOUser#delete(long)
 	 */
+	@Transactional
 	@Override
 	public void delete(long id) throws Exception {
 		delete(get(id));
 	}
 
 	@Override
+	@Transactional
 	public boolean hasUsers() throws Exception {
 		return ((Long) getSession().createQuery("Select count(*) From User").uniqueResult()).intValue() > 0;
 	}
@@ -185,6 +209,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 *
 	 * @see lu.itrust.business.dao.DAOUser#hasRole(lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.usermanagement.Role)
 	 */
+	@Transactional
 	@Override
 	public boolean hasRole(User user, Role role) throws Exception {
 		return user.hasRole(role.getType());

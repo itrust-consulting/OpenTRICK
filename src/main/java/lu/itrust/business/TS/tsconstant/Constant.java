@@ -562,6 +562,10 @@ public class Constant {
 	public static final String MEASURE_LEVEL = "level";
 	public static final String MEASURE_REF_MEASURE = "ref_measure";
 	public static final String MEASURE_ID_NORM = "id_norme";
+	public static final String MEASURE_VERSION_NORM = "version_norme";
+	public static final String MEASURE_NORM_COMPUTABLE = "norme_computable";
+	public static final String MEASURE_MEASURE_COMPUTABLE = "measure_computable";
+	public static final String MEASURE_NORM_DESCRIPTION = "norme_description";
 	public static final String MEASURE_EXTERNAL_THREAT = "external_threat";
 	public static final String MEASURE_DESCRIPTION_LEVEL = "level";
 	public static final String MEASURE_DESCRIPTION_REF = "ref";

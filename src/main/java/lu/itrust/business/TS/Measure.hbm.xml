@@ -10,6 +10,7 @@
 		<many-to-one name="analysisNorm" column="fiAnalysisNorm" cascade="save-update" not-null="true" />
 		<many-to-one cascade="save-update" name="measureDescription" column="fiMeasureDescription" not-null="true" lazy="false" access="field" />
 		<many-to-one name="phase" column="fiPhase" cascade="save-update" not-null="true" access="field" />
+		<property name="computable" column="dtComputable" not-null="true" />
 		<property name="status" column="dtStatus" not-null="true" />
 		<property name="internalWL" column="dtInternalWorkLoad" not-null="true" access="field" />
 		<property name="externalWL" column="dtExternalWorkLoad" not-null="true" access="field" />

@@ -10,6 +10,7 @@ import lu.itrust.business.dao.DAONorm;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
+
 @Repository
 public class DAONormHBM extends DAOHibernate implements DAONorm {
 
@@ -17,7 +18,6 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 	 * 
 	 */
 	public DAONormHBM() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -35,8 +35,7 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 	@Override
 	public Norm loadNotCustomNormByName(String label) throws Exception {
 
-		Query query =
-			getSession().createQuery("from Norm where label = :label and label != :custom");
+		Query query = getSession().createQuery("from Norm where label = :label and label != :custom");
 		query.setString("label", label);
 		query.setString("custom", Constant.NORM_CUSTOM);
 		return (Norm) query.uniqueResult();
@@ -52,6 +51,16 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 
 	}
 
+	@Override
+	public Norm loadSingleNormByNameAndVersion(String label, int version) throws Exception {
+	
+		Query query = getSession().createQuery("from Norm where label = :label and version = :version");
+		query.setParameter("label", label);
+		query.setParameter("version", version);
+		return (Norm) query.uniqueResult();
+
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Norm> loadAllFromAnalysis(Analysis analysis) throws Exception {
@@ -63,8 +72,7 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Norm> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier,
-			String version, String creationDate) throws Exception {
+	public List<Norm> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier, String version, String creationDate) throws Exception {
 
 		Query query = getSession().createQuery("From Norm");
 		return (List<Norm>) query.list();

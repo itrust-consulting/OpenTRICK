@@ -8,8 +8,10 @@
 	<div id="measures_header" class="page-header">
 		<h3 id="Measures">
 			<spring:message code="label.measure.measures" />
-			: ${norm.label} <input type="hidden" id="normId" value="${norm.id}" />
+			: ${norm.label} - ${norm.version} - ${norm.description} 
+			<input type="hidden" id="normId" value="${norm.id}" />
 			<input type="hidden" id="normLabel" value="${norm.label}" />
+			<input type="hidden" id="normVersion" value="${norm.version}" />
 		</h3>
 	</div>
 	<div id="measures_body" class="content" role="main" data-spy="scroll">
