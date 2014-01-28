@@ -155,15 +155,15 @@ public class ActionPlanSummaryManager {
 					summary.add(index, phase.getBeginDate() + "");
 
 					summary = summaries.get(LABEL_PHASE_END_DATE);
-					summary.add(index, phase.getBeginDate() + "");
+					summary.add(index, phase.getEndDate() + "");
 				}
 			}
 
 			summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE_27001);
-			summary.add(index, (int) summaryStage.getConformance27001() * 100 + "");
+			summary.add(index, (int) (summaryStage.getConformance27001() * 100) + "");
 
 			summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE_27002);
-			summary.add(index, (int) summaryStage.getConformance27002() * 100 + "");
+			summary.add(index, (int) (summaryStage.getConformance27002() * 100) + "");
 
 			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
 			summary.add(index, summaryStage.getMeasureCount() + "");
@@ -175,10 +175,10 @@ public class ActionPlanSummaryManager {
 			summary.add(index, Math.floor(summaryStage.getTotalALE() * 0.001) + "");
 
 			summary = summaries.get(LABEL_PROFITABILITY_RISK_REDUCTION);
-			summary.add(index, Math.floor(summaryStage.getCostOfMeasures() * 0.001) + "");
+			summary.add(index, Math.floor(summaryStage.getDeltaALE() * 0.001) + "");
 
 			summary = summaries.get(LABEL_PROFITABILITY_PHASE_ANNUAL_COST);
-			summary.add(index, Math.floor(summaryStage.getDeltaALE() * 0.001) + "");
+			summary.add(index, Math.floor(summaryStage.getCostOfMeasures() * 0.001) + "");
 
 			summary = summaries.get(LABEL_PROFITABILITY_ROSI);
 			summary.add(index, Math.floor(summaryStage.getROSI() * 0.001) + "");

@@ -2813,7 +2813,7 @@ public class ActionPlanComputation {
 
 			tmpval.implementedCount = 0;
 		}
-
+		
 		tmpval.measureCount = 0;
 		tmpval.conf27001 = 0;
 		tmpval.conf27002 = 0;
@@ -2822,263 +2822,275 @@ public class ActionPlanComputation {
 		// * check compliance for norm 27001: retrieve implementation rates
 		// ****************************************************************
 
-		if (tmpval.norm27001 != null && tmpval.norm27001.getMeasures() != null) {
-
-			Map<String, Object[]> chapters = new HashMap<String, Object[]>();
-			// parse measures of 27001
-			for (int j = 0; j < tmpval.norm27001.getMeasures().size(); j++) {
-
-				// temporary store measure of 27001
-				normMeasure = tmpval.norm27001.getMeasure(j);
-
-				// check if measure applicable or mandatory and level 3 -> YES
-				if ((!normMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normMeasure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_3)) {
-
-					// ****************************************************************
-					// * calculate sum of implementation rates and number of
-					// measures
-					// * after the loop divide the implementation rates by the
-					// number
-					// * of measures
-					// ****************************************************************
-
-					String chapterName = extractMainChapter(normMeasure.getMeasureDescription().getReference());
-
-					Object[] chapter = chapters.containsKey(chapterName) ? chapters.get(chapterName) : new Object[] { 0.0, new Integer(0), new Integer(0) };
-
-					Double numerator = (Double) chapter[0];// rates for 2700x
-															// conformance
-
-					Integer denominator = (Integer) chapter[1];// increment
-																// measure
-																// counter
-
-					Integer implementation = (Integer) chapter[2];// increment
-																	// implemented
-																	// counter
-
-					// increment measure counter
-					denominator++;
-
-					// check if it is the first stage -> YES
-					if (firstStage) {
-
-						tmpval.measureCount++;
-						// check if measure is already implemented -> YES
-						if (normMeasure.getImplementationRate() == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) {
-
-							// increment implemented counter
-							implementation++;
-						}
-
-						// in each case add the implementation rate to the sum
-						// of
-						// implementation
-						// rates for 2700x conformance
-						numerator += (normMeasure.getImplementationRate() / 100.);
-					} else {
-
-						// check if it is the first stage -> NO
-
-						// in each case add the implementation rate to the sum
-						// of
-						// implementation
-						// rates for 27001 conformance
-						numerator += (normMeasure.getImplementationRate() / 100.);
-
-						// check if measure was already implemented then add
-						// implementation rate of 100%
-						// after that, the value inserted above needs to be
-						// removed
-						for (int k = 0; k < tmpval.conformance27001measures.size(); k++) {
-							if (normMeasure.equals((NormMeasure) tmpval.conformance27001measures.get(k))) {
-
-								// remove added value and add measure
+		for (int index=0; index<this.norms.size();index++)
+		{
+			if (this.norms.get(index).getNorm().getLabel().equals("27001"))
+			{	
+		
+				if (tmpval.norm27001 != null && tmpval.norm27001.getMeasures() != null) {
+		
+					Map<String, Object[]> chapters = new HashMap<String, Object[]>();
+					// parse measures of 27001
+					for (int j = 0; j < tmpval.norm27001.getMeasures().size(); j++) {
+		
+						// temporary store measure of 27001
+						normMeasure = tmpval.norm27001.getMeasure(j);
+		
+						// check if measure applicable or mandatory and level 3 -> YES
+						if ((!normMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normMeasure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_3)) {
+		
+							// ****************************************************************
+							// * calculate sum of implementation rates and number of
+							// measures
+							// * after the loop divide the implementation rates by the
+							// number
+							// * of measures
+							// ****************************************************************
+		
+							String chapterName = extractMainChapter(normMeasure.getMeasureDescription().getReference());
+		
+							Object[] chapter = chapters.containsKey(chapterName) ? chapters.get(chapterName) : new Object[] { 0.0, new Integer(0), new Integer(0) };
+		
+							Double numerator = (Double) chapter[0];// rates for 2700x
+																	// conformance
+		
+							Integer denominator = (Integer) chapter[1];// increment
+																		// measure
+																		// counter
+		
+							Integer implementation = (Integer) chapter[2];// increment
+																			// implemented
+																			// counter
+		
+							// increment measure counter
+							denominator++;
+		
+							// check if it is the first stage -> YES
+							if (firstStage) {
+		
+								//tmpval.measureCount++;
+								// check if measure is already implemented -> YES
+								if (normMeasure.getImplementationRate() == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) {
+		
+									// increment implemented counter
+									implementation++;
+								}
+		
+								// in each case add the implementation rate to the sum
+								// of
 								// implementation
-								// value as finished
-								numerator += (1.) - (normMeasure.getImplementationRate() / 100.);
-
-								// leave loop
-								break;
+								// rates for 2700x conformance
+								numerator += (normMeasure.getImplementationRate() / 100.);
+							} else {
+		
+								// check if it is the first stage -> NO
+								tmpval.measureCount++;
+								// in each case add the implementation rate to the sum
+								// of
+								// implementation
+								// rates for 27001 conformance
+								numerator += (normMeasure.getImplementationRate() / 100.);
+		
+								// check if measure was already implemented then add
+								// implementation rate of 100%
+								// after that, the value inserted above needs to be
+								// removed
+								for (int k = 0; k < tmpval.conformance27001measures.size(); k++) {
+									if (normMeasure.equals((NormMeasure) tmpval.conformance27001measures.get(k))) {
+		
+										// remove added value and add measure
+										// implementation
+										// value as finished
+										numerator += (1.) - (normMeasure.getImplementationRate() / 100.);
+		
+										// leave loop
+										break;
+									}
+								}
 							}
+		
+							chapters.put(chapterName, new Object[] { numerator, denominator, implementation });
 						}
 					}
-
-					chapters.put(chapterName, new Object[] { numerator, denominator, implementation });
-				}
-			}
-
-			// ****************************************************************
-			// * check compliance for norm 27001: calculate percentage of
-			// * conformance
-			// ****************************************************************
-
-			for (String key : chapters.keySet()) {
-
-				Object[] chapter = chapters.get(key);
-
-				Double numerator = (Double) chapter[0];// rates for 2700x
-														// conformance
-
-				Integer denominator = (Integer) chapter[1];// increment measure
-															// counter
-
-				tmpval.conf27001 += (numerator / (double) denominator);
-
-				/*-------------------------------------------------------------*/
-				Integer implementation = (Integer) chapter[2];// increment
-																// implemented
-																// counter
-
-				// System.out.println("Chapter: " + (numerator / (double)
-				// denominator));
-
-				tmpval.implementedCount += implementation;
-
-				tmpval.measureCount += denominator;
-			}
-
-			if (chapters.size() > 0)
-				tmpval.conf27001 /= (double) chapters.size();
-			else
-				tmpval.conf27001 = 0;
-
-			chapters.clear();
-
-		}
-
-		// ****************************************************************
-		// check compliance for norm 27002: retrieve implementation rates
-		// ****************************************************************
-
-		if (tmpval.norm27002 != null && tmpval.norm27002.getMeasures() != null) {
-
-			Map<String, Object[]> chapters = new HashMap<String, Object[]>();
-			// parse norm 27002 measures
-			for (int j = 0; j < tmpval.norm27002.getMeasures().size(); j++) {
-
-				// temporary store measure of 27002
-				normMeasure = tmpval.norm27002.getMeasure(j);
-
-				// check if applicable or mandatory and level 3
-				if ((!normMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normMeasure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_3)) {
-
+		
 					// ****************************************************************
-					// * calculate sum of implementation rates and number of
-					// measures
-					// * after the loop divide the implementation rates by the
-					// number
-					// * of measures
+					// * check compliance for norm 27001: calculate percentage of
+					// * conformance
 					// ****************************************************************
-					// check if this is the first stage -> YES
-
-					String chapterName = extractMainChapter(normMeasure.getMeasureDescription().getReference());
-
-					Object[] chapter = chapters.containsKey(chapterName) ? chapters.get(chapterName) : new Object[] { 0.0, new Integer(0), new Integer(0) };
-
-					Double numerator = (Double) chapter[0];// rates for 2700x
-															// conformance
-
-					Integer denominator = (Integer) chapter[1];// increment
-																// measure
-																// counter
-
-					Integer implementation = (Integer) chapter[2];// increment
-																	// implemented
+		
+					for (String key : chapters.keySet()) {
+		
+						Object[] chapter = chapters.get(key);
+		
+						Double numerator = (Double) chapter[0];// rates for 2700x
+																// conformance
+		
+						Integer denominator = (Integer) chapter[1];// increment measure
 																	// counter
-					// increment measure counter
-					denominator++;
-
-					if (firstStage) {
-
-						tmpval.measureCount++;
-
-						// check if measure is already implemented
-						if (normMeasure.getImplementationRate() == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) {
-
-							// increment implemented counter
-							implementation++;
-						}
-
-						// in each case add the implementation rate to the sum
-						// of
-						// implementation
-						// rates for 27002 conformance
-						numerator += (normMeasure.getImplementationRate() / 100.);
-					} else {
-
-						// check if this is the first stage -> NO
-
-						// in each case add the implementation rate to the sum
-						// of
-						// implementation
-						// rates for 27002 conformance
-						numerator += (normMeasure.getImplementationRate() / 100.);
-
-						// in each case add the implementation rate to the sum
-						// of
-						// implementation
-						// rates for 27001 conformance
-
-						// check if measure was already implemented then add
-						// implementation rate of 100%
-						// after that, the value inserted above needs to be
-						// removed
-						for (int k = 0; k < tmpval.conformance27002measures.size(); k++) {
-
-							// check if measure was already implemented -> YES
-							if (normMeasure.equals((NormMeasure) tmpval.conformance27002measures.get(k))) {
-
-								// remove implementation rate and add completed
-								// implementation rate
-								numerator += (1.) - (normMeasure.getImplementationRate() / 100.);
-
-								// leave loop
-								break;
-							}
-						}
+		
+						tmpval.conf27001 += (numerator / (double) denominator);
+		
+						/*-------------------------------------------------------------*/
+						Integer implementation = (Integer) chapter[2];// increment
+																		// implemented
+																		// counter
+		
+						// System.out.println("Chapter: " + (numerator / (double)
+						// denominator));
+		
+						tmpval.implementedCount += implementation;
+						
+						//if (!firstStage)
+							//tmpval.measureCount += denominator;
 					}
-
-					chapters.put(chapterName, new Object[] { numerator, denominator, implementation });
+		
+					if (chapters.size() > 0)
+						tmpval.conf27001 /= (double) chapters.size();
+					else
+						tmpval.conf27001 = 0;
+		
+					chapters.clear();
+		
 				}
 			}
+			
+			if (this.norms.get(index).getNorm().getLabel().equals("27002"))
+			{
 
-			// ****************************************************************
-			// * check compliance for norm 27002: calculate percentage of
-			// * conformance
-			// ****************************************************************
-
-			for (String key : chapters.keySet()) {
-
-				Object[] chapter = chapters.get(key);
-
-				Double numerator = (Double) chapter[0];// rates for 2700x
-														// conformance
-
-				Integer denominator = (Integer) chapter[1];// increment measure
-															// counter
-
-				tmpval.conf27002 += (numerator / (double) denominator);
-
-				/*-------------------------------------------------------------*/
-				Integer implementation = (Integer) chapter[2];// increment
-																// implemented
-				// counter
-
-				// System.out.println("Chapter: " + (numerator / (double)
-				// denominator));
-
-				tmpval.implementedCount += implementation;
+				// ****************************************************************
+				// check compliance for norm 27002: retrieve implementation rates
+				// ****************************************************************
+		
+				if (tmpval.norm27002 != null && tmpval.norm27002.getMeasures() != null) {
+		
+					Map<String, Object[]> chapters = new HashMap<String, Object[]>();
+					// parse norm 27002 measures
+					for (int j = 0; j < tmpval.norm27002.getMeasures().size(); j++) {
+		
+						// temporary store measure of 27002
+						normMeasure = tmpval.norm27002.getMeasure(j);
+		
+						// check if applicable or mandatory and level 3
+						if ((!normMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normMeasure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_3)) {
+		
+							// ****************************************************************
+							// * calculate sum of implementation rates and number of
+							// measures
+							// * after the loop divide the implementation rates by the
+							// number
+							// * of measures
+							// ****************************************************************
+							// check if this is the first stage -> YES
+		
+							String chapterName = extractMainChapter(normMeasure.getMeasureDescription().getReference());
+		
+							Object[] chapter = chapters.containsKey(chapterName) ? chapters.get(chapterName) : new Object[] { 0.0, new Integer(0), new Integer(0) };
+		
+							Double numerator = (Double) chapter[0];// rates for 2700x
+																	// conformance
+		
+							Integer denominator = (Integer) chapter[1];// increment
+																		// measure
+																		// counter
+		
+							Integer implementation = (Integer) chapter[2];// increment
+																			// implemented
+																			// counter
+							// increment measure counter
+							denominator++;
+		
+							if (firstStage) {
+		
+								//tmpval.measureCount++;
+		
+								// check if measure is already implemented
+								if (normMeasure.getImplementationRate() == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) {
+		
+									// increment implemented counter
+									implementation++;
+								}
+		
+								// in each case add the implementation rate to the sum
+								// of
+								// implementation
+								// rates for 27002 conformance
+								numerator += (normMeasure.getImplementationRate() / 100.);
+							} else {
+		
+								// check if this is the first stage -> NO
+								tmpval.measureCount++;
+								// in each case add the implementation rate to the sum
+								// of
+								// implementation
+								// rates for 27002 conformance
+								numerator += (normMeasure.getImplementationRate() / 100.);
+		
+								// in each case add the implementation rate to the sum
+								// of
+								// implementation
+								// rates for 27001 conformance
+		
+								// check if measure was already implemented then add
+								// implementation rate of 100%
+								// after that, the value inserted above needs to be
+								// removed
+								for (int k = 0; k < tmpval.conformance27002measures.size(); k++) {
+		
+									// check if measure was already implemented -> YES
+									if (normMeasure.equals((NormMeasure) tmpval.conformance27002measures.get(k))) {
+		
+										// remove implementation rate and add completed
+										// implementation rate
+										numerator += (1.) - (normMeasure.getImplementationRate() / 100.);
+		
+										// leave loop
+										break;
+									}
+								}
+							}
+		
+							chapters.put(chapterName, new Object[] { numerator, denominator, implementation });
+						}
+					}
+		
+					// ****************************************************************
+					// * check compliance for norm 27002: calculate percentage of
+					// * conformance
+					// ****************************************************************
+		
+					for (String key : chapters.keySet()) {
+		
+						Object[] chapter = chapters.get(key);
+		
+						Double numerator = (Double) chapter[0];// rates for 2700x
+																// conformance
+		
+						Integer denominator = (Integer) chapter[1];// increment measure
+																	// counter
+		
+						tmpval.conf27002 += (numerator / (double) denominator);
+		
+						/*-------------------------------------------------------------*/
+						Integer implementation = (Integer) chapter[2];// increment
+																		// implemented
+						// counter
+		
+						// System.out.println("Chapter: " + (numerator / (double)
+						// denominator));
+		
+						tmpval.implementedCount += implementation;
+					}
+		
+					// System.out.println("tmpval.conf27002:" +
+					// tmpval.conf27002+" :"+chapters.size());
+					if (chapters.size() > 0)
+						tmpval.conf27002 /= (double) chapters.size();
+					else
+						tmpval.conf27002 = 0;
+		
+					chapters.clear();
+				}
 			}
-
-			// System.out.println("tmpval.conf27002:" +
-			// tmpval.conf27002+" :"+chapters.size());
-			if (chapters.size() > 0)
-				tmpval.conf27002 /= (double) chapters.size();
-			else
-				tmpval.conf27002 = 0;
-
-			chapters.clear();
 		}
 
 		// ****************************************************************
