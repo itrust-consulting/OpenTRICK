@@ -7,7 +7,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <script src="<spring:url value="/js/jquery-2.0.js" />"></script>
 <script src="<spring:url value="/js/jquery-ui.js" />"></script>
-<!-- <script src="<spring:url value="/js/bootstrap.js" />"></script> -->
+<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script> 
 <script src="<spring:url value="/js/bootstrap.min.js" />"></script>
 <script src="<spring:url value="/js/bootbox.min.js" />"></script>
 <script src="<spring:url value="/js/dom-parser.js" />"></script>

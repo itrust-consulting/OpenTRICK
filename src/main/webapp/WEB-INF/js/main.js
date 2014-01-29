@@ -103,7 +103,11 @@ function MessageResolver(code, defaulttext, params) {
 function extract(data) {
 	var parser = new DOMParser();
 	var doc = parser.parseFromString(data, "text/html");
-	$("#content").html(doc.getElementById("login") == null ? doc.getElementById("content").innerHTML : doc.getElementById("login").outerHTML);
+	$("#content")
+			.html(
+					doc.getElementById("login") == null ? doc
+							.getElementById("content").innerHTML : doc
+							.getElementById("login").outerHTML);
 	return false;
 }
 
@@ -205,8 +209,10 @@ function TrickCarousel(table) {
 		this.theader = $(this.table).find("th");
 		this.tdata = $(this.table).find("td");
 		this.count = $(this.table).find("th[trick-table-part]").length - 1;
-		this.navLeft = $($(this.table).parent()).find("a[control-trick-table='left']");
-		this.navRight = $($(this.table).parent()).find("a[control-trick-table='right']");
+		this.navLeft = $($(this.table).parent()).find(
+				"a[control-trick-table='left']");
+		this.navRight = $($(this.table).parent()).find(
+				"a[control-trick-table='right']");
 		this.showGroup(1);
 		var that = this;
 
@@ -279,13 +285,15 @@ function FieldEditor(element, validator) {
 	this.callback = null;
 
 	FieldEditor.prototype.GenerateInputField = function() {
-		if ($(this.element).find("input").length || $(this.element).find("select").length)
+		if ($(this.element).find("input").length
+				|| $(this.element).find("select").length)
 			return true;
 		if (!this.LoadData())
 			return true;
 		if (!this.choose.length) {
 			this.inputField = document.createElement("input");
-			this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
+			this.realValue = this.element.hasAttribute("real-value") ? $(
+					this.element).attr("real-value") : null;
 		} else {
 			this.inputField = document.createElement("select");
 			this.inputField.setAttribute("style", "min-width:60px;");
@@ -300,7 +308,9 @@ function FieldEditor(element, validator) {
 		}
 		var that = this;
 		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		this.inputField.setAttribute("placeholder", this.realValue != null
+				&& this.realValue != undefined ? this.realValue
+				: this.defaultValue);
 		$(this.inputField).blur(function() {
 			return that.Save(that);
 		});
@@ -372,7 +382,10 @@ function FieldEditor(element, validator) {
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
-		$(this.inputField).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
+		$(this.inputField).prop(
+				"value",
+				this.realValue != null ? this.realValue : $(this.element)
+						.text().trim());
 		$(this.element).html(this.inputField);
 		$(this.inputField).focus();
 		return false;
@@ -407,29 +420,40 @@ function FieldEditor(element, validator) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
-				$.ajax({
-					url : context + "/EditField/" + that.controllor,
-					type : "post",
-					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
-					success : function(response) {
-						if (response["success"] != undefined) {
-							that.UpdateUI();
-							if (that.callback != null && that.callback != undefined)
-								setTimeout(that.callback, 10);
-						} else {
-							$("#alert-dialog .modal-body").html(response["error"]);
-							$("#alert-dialog").modal("toggle");
-						}
-						return true;
-					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						$("#alert-dialog .modal-body").text(jqXHR.responseText);
-						$("#alert-dialog").modal("toggle");
-					},
-				});
+				$
+						.ajax({
+							url : context + "/EditField/" + that.controllor,
+							type : "post",
+							async : true,
+							data : '{"id":'
+									+ that.classId
+									+ ', "fieldName":"'
+									+ that.fieldName
+									+ '", "value":"'
+									+ defaultValueByType($(that.inputField)
+											.prop("value"), that.fieldType,
+											true) + '", "type": "'
+									+ that.fieldType + '"}',
+							contentType : "application/json",
+							success : function(response) {
+								if (response["success"] != undefined) {
+									that.UpdateUI();
+									if (that.callback != null
+											&& that.callback != undefined)
+										setTimeout(that.callback, 10);
+								} else {
+									$("#alert-dialog .modal-body").html(
+											response["error"]);
+									$("#alert-dialog").modal("toggle");
+								}
+								return true;
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								$("#alert-dialog .modal-body").text(
+										jqXHR.responseText);
+								$("#alert-dialog").modal("toggle");
+							},
+						});
 			} else {
 				that.Rollback();
 				return false;
@@ -458,29 +482,41 @@ function ExtendedFieldEditor(element) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
-				$.ajax({
-					url : context + "/EditField/" + that.controllor,
-					type : "post",
-					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
-					success : function(response) {
-						if (response["success"] != undefined) {
-							if (that.fieldName == "acronym")
-								setTimeout("updateAssessmentAcronym('" + that.classId + "', '" + that.defaultValue + "')", 100);
-							return reloadSection("section_parameter");
-						} else {
-							$("#alert-dialog .modal-body").html(response["error"]);
-							$("#alert-dialog").modal("toggle");
-						}
-						return true;
-					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						$("#alert-dialog .modal-body").text(jqXHR.responseText);
-						$("#alert-dialog").modal("toggle");
-					},
-				});
+				$
+						.ajax({
+							url : context + "/EditField/" + that.controllor,
+							type : "post",
+							async : true,
+							data : '{"id":'
+									+ that.classId
+									+ ', "fieldName":"'
+									+ that.fieldName
+									+ '", "value":"'
+									+ defaultValueByType($(that.inputField)
+											.prop("value"), that.fieldType,
+											true) + '", "type": "'
+									+ that.fieldType + '"}',
+							contentType : "application/json",
+							success : function(response) {
+								if (response["success"] != undefined) {
+									if (that.fieldName == "acronym")
+										setTimeout("updateAssessmentAcronym('"
+												+ that.classId + "', '"
+												+ that.defaultValue + "')", 100);
+									return reloadSection("section_parameter");
+								} else {
+									$("#alert-dialog .modal-body").html(
+											response["error"]);
+									$("#alert-dialog").modal("toggle");
+								}
+								return true;
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								$("#alert-dialog .modal-body").text(
+										jqXHR.responseText);
+								$("#alert-dialog").modal("toggle");
+							},
+						});
 			} else {
 				that.Rollback();
 				return false;
@@ -505,37 +541,51 @@ function AssessmentFieldEditor(element) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
-				$.ajax({
-					url : context + "/EditField/" + that.controllor,
-					type : "post",
-					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
-					success : function(response) {
-						console.log(response);
-						if (response["success"] != undefined) {
-							if (application.modal["AssessmentViewer"] != undefined)
-								application.modal["AssessmentViewer"].Load();
-							else {
-								$("#info-dialog .modal-body").html(response["success"]);
-								$("#info-dialog").prop("style", "z-index:1070");
-								$("#info-dialog").modal("toggle");
+				$
+						.ajax({
+							url : context + "/EditField/" + that.controllor,
+							type : "post",
+							async : true,
+							data : '{"id":'
+									+ that.classId
+									+ ', "fieldName":"'
+									+ that.fieldName
+									+ '", "value":"'
+									+ defaultValueByType($(that.inputField)
+											.prop("value"), that.fieldType,
+											true) + '", "type": "'
+									+ that.fieldType + '"}',
+							contentType : "application/json",
+							success : function(response) {
+								console.log(response);
+								if (response["success"] != undefined) {
+									if (application.modal["AssessmentViewer"] != undefined)
+										application.modal["AssessmentViewer"]
+												.Load();
+									else {
+										$("#info-dialog .modal-body").html(
+												response["success"]);
+										$("#info-dialog").prop("style",
+												"z-index:1070");
+										$("#info-dialog").modal("toggle");
 
-							}
-						} else {
-							$("#alert-dialog .modal-body").html(response["error"]);
-							$("#alert-dialog").prop("style", "z-index:1070");
-							$("#alert-dialog").modal("toggle");
+									}
+								} else {
+									$("#alert-dialog .modal-body").html(
+											response["error"]);
+									$("#alert-dialog").prop("style",
+											"z-index:1070");
+									$("#alert-dialog").modal("toggle");
 
-						}
-						return true;
-					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						$("#alert-dialog .modal-body").text(jqXHR.responseText);
-						$("#alert-dialog").modal("toggle");
-					},
-				});
+								}
+								return true;
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								$("#alert-dialog .modal-body").text(
+										jqXHR.responseText);
+								$("#alert-dialog").modal("toggle");
+							},
+						});
 
 			} else {
 				that.Rollback();
@@ -574,7 +624,9 @@ function MaturityMeasureFieldEditor(element) {
 			return true;
 		this.inputField = document.createElement("select");
 		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		this.inputField.setAttribute("placeholder", this.realValue != null
+				&& this.realValue != undefined ? this.realValue
+				: this.defaultValue);
 		for ( var i in this.implementations) {
 			var option = document.createElement("option");
 			option.setAttribute("value", this.implementations[i].value);
@@ -586,7 +638,8 @@ function MaturityMeasureFieldEditor(element) {
 		}
 
 		var that = this;
-		this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
+		this.realValue = this.element.hasAttribute("real-value") ? $(
+				this.element).attr("real-value") : null;
 		$(this.inputField).blur(function() {
 			return that.Save(that);
 		});
@@ -625,6 +678,7 @@ function Modal() {
 
 		// design modal
 		this.modal.setAttribute("id", "modalBox");
+		this.modal.setAttribute("data-backdrop", "static");
 		this.modal.setAttribute("class", "modal fade in");
 		this.modal.setAttribute("role", "dialog");
 		this.modal.setAttribute("tabindex", "-1");
@@ -650,7 +704,8 @@ function Modal() {
 			button_head_close.setAttribute("class", "close");
 			button_head_close.setAttribute("data-dismiss", "modal");
 			$(button_head_close).html("&times;");
-			this.modal_header.insertBefore(button_head_close, this.modal_header.firstChild);
+			this.modal_header.insertBefore(button_head_close,
+					this.modal_header.firstChild);
 		} else
 			this.__addHeadButton();
 
@@ -683,7 +738,7 @@ function Modal() {
 			$(this.modal_body).html(body);
 		return false;
 	};
-	
+
 	Modal.prototype.__addHeadButton = function() {
 		if (this.modal_header == null)
 			return false;
@@ -693,7 +748,8 @@ function Modal() {
 		});
 
 		for ( var button in this.modal_head_buttons)
-			this.modal_header.insertBefore(this.modal_head_buttons[button], this.modal_header.firstChild);
+			this.modal_header.insertBefore(this.modal_head_buttons[button],
+					this.modal_header.firstChild);
 		return false;
 	};
 
@@ -765,7 +821,8 @@ function ProgressBar() {
 		this.infoText = document.createElement("span");
 		// design progressbar
 		this.progress.setAttribute("class", "progress progress-striped active");
-		this.progressbar.setAttribute("class", "progress-bar progress-bar-info");
+		this.progressbar
+				.setAttribute("class", "progress-bar progress-bar-info");
 		this.progressbar.setAttribute("role", "progressbar");
 		this.progressbar.setAttribute("aria-valuenow", "100");
 		this.progressbar.setAttribute("aria-valuemin", "0");
@@ -788,7 +845,8 @@ function ProgressBar() {
 
 	ProgressBar.prototype.Increment = function(value) {
 		if (value == null)
-			value = parseInt($(this.progressbar).attr("aria-valuenow")) + this.incrementStep;
+			value = parseInt($(this.progressbar).attr("aria-valuenow"))
+					+ this.incrementStep;
 		else
 			value += $(this.progressbar).attr("aria-valuenow");
 
@@ -850,7 +908,7 @@ function ProgressBar() {
 	};
 
 	ProgressBar.prototype.Anchor = function(anchor) {
-				
+
 		if (anchor != null && anchor != undefined)
 			anchor.insertBefore(this.progress, anchor.firstChild);
 		return false;
@@ -886,13 +944,20 @@ function parseJson(data) {
 	}
 }
 
+
+function downloadExportedSqLite(idFile){
+	$.fileDownload(context+'/Analysis/Download/'+idFile)
+    .done(function () { alert('File download a success!'); })
+    .fail(function () { alert('File download failed!'); });
+	return false;
+}
 function TaskManager(title) {
-	
+
 	this.tasks = [];
 	this.progressBars = [];
 	this.title = title;
 	this.view = null;
-	
+
 	TaskManager.prototype.Start = function() {
 		var instance = this;
 		setTimeout(function() {
@@ -901,15 +966,15 @@ function TaskManager(title) {
 	};
 
 	TaskManager.prototype.__CreateView = function() {
-			this.view = new Modal();
-			this.view.Intialise();
-			this.view.setTitle(this.title);			
+		this.view = new Modal();
+		this.view.Intialise();
+		this.view.setTitle(this.title);
 	};
 
 	TaskManager.prototype.Show = function() {
-			if (this.view == null || this.view == undefined)
-				this.__CreateView();
-			this.view.Show();
+		if (this.view == null || this.view == undefined)
+			this.__CreateView();
+		this.view.Show();
 	};
 
 	TaskManager.prototype.isEmpty = function() {
@@ -933,12 +998,13 @@ function TaskManager(title) {
 					return false;
 				else if (reponse.length) {
 					for (var int = 0; int < reponse.length; int++) {
-						if ($.isNumeric(reponse[int]) && !(reponse[int] in instance.tasks)) {
+						if ($.isNumeric(reponse[int])
+								&& !(reponse[int] in instance.tasks)) {
 							instance.tasks.push(reponse[int]);
 							instance.UpdateStatus(reponse[int]);
 						}
 					}
-					
+
 					if (!instance.isEmpty())
 						instance.Show();
 				}
@@ -973,7 +1039,8 @@ function TaskManager(title) {
 		var index = this.tasks.indexOf(taskId);
 		if (index > -1)
 			this.tasks.splice(index, 1);
-		if (this.progressBars[taskId] != undefined && this.progressBars[taskId] != null) {
+		if (this.progressBars[taskId] != undefined
+				&& this.progressBars[taskId] != null) {
 			this.progressBars[taskId].Remove();
 			this.progressBars.splice(taskId, 1);
 		}
@@ -995,25 +1062,31 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					return false;
 				}
-				if (instance.progressBars[taskId] == null || instance.progressBars[taskId] == undefined) {
-					instance.progressBars[taskId] = instance.createProgressBar(taskId);
+				if (instance.progressBars[taskId] == null
+						|| instance.progressBars[taskId] == undefined) {
+					instance.progressBars[taskId] = instance
+							.createProgressBar(taskId);
 				}
 				if (reponse.message != null) {
-					instance.progressBars[taskId].Update(reponse.progress, reponse.message);
+					instance.progressBars[taskId].Update(reponse.progress,
+							reponse.message);
 				}
 				if (reponse.flag == 3) {
 					setTimeout(function() {
 						instance.UpdateStatus(taskId);
-					}, reponse.flag == 4 ? 1500 : 3000);
+					}, 1500);
 				} else {
 					setTimeout(function() {
 						instance.Remove(taskId);
 					}, 3000);
-					if (reponse.flag == 5)
-						reloadSection("section_analysis");
-					
+					if (reponse.asyncCallback != undefined
+							&& reponse.asyncCallback != null)
+						eval(reponse.asyncCallback.action);
+					else if (reponse.taskName != null
+							&& reponse.taskName != undefined)
+						eval(reponse.taskName.action);
 				}
-				return true;
+				return false;
 			}
 		});
 	};
@@ -1027,17 +1100,22 @@ function AssessmentViewer() {
 		var instance = this;
 
 		this.modal_footer_buttons["update"] = document.createElement("button");
-		this.modal_footer_buttons["update"].setAttribute("class", "btn btn-warning");
+		this.modal_footer_buttons["update"].setAttribute("class",
+				"btn btn-warning");
 
 		this.modal_footer_buttons["close"] = document.createElement("button");
-		this.modal_footer_buttons["close"].setAttribute("class", "btn btn-default");
+		this.modal_footer_buttons["close"].setAttribute("class",
+				"btn btn-default");
 
 		$(this.modal_footer_buttons["close"]).click(function() {
 			return instance.Distroy();
 		});
 
-		$(this.modal_footer_buttons["close"]).html(MessageResolver("label.action.cloase", "Close"));
-		$(this.modal_footer_buttons["update"]).html(MessageResolver("label.assessment.recompute", "Update assessments"));
+		$(this.modal_footer_buttons["close"]).html(
+				MessageResolver("label.action.cloase", "Close"));
+		$(this.modal_footer_buttons["update"]).html(
+				MessageResolver("label.assessment.recompute",
+						"Update assessments"));
 
 		$(this.modal_footer_buttons["close"]).click(function() {
 			return instance.Distroy();
@@ -1048,7 +1126,8 @@ function AssessmentViewer() {
 		});
 
 		Modal.prototype.Intialise.call(this);
-		$(this.modal_dialog).prop("style", "width: 95%; min-width:1170px; max-width:1300px;");
+		$(this.modal_dialog).prop("style",
+				"width: 95%; min-width:1170px; max-width:1300px;");
 
 		return false;
 
@@ -1091,7 +1170,8 @@ function AssessmentAssetViewer(assetId) {
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_asset_assessment']");
+				var assessments = $(doc).find(
+						"*[id='section_asset_assessment']");
 				if (!assessments.length)
 					return true;
 				$(instance.modal_body).html($(assessments).html());
@@ -1108,24 +1188,27 @@ function AssessmentAssetViewer(assetId) {
 
 	AssessmentAssetViewer.prototype.Update = function() {
 		var instance = this;
-		return $.ajax({
-			url : context + "/Assessment/Asset/" + instance.assetId + "/Update",
-			contentType : "application/json",
-			async : false,
-			success : function(reponse) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_asset_assessment']");
-				if (!assessments.length)
-					return true;
-				$(instance.modal_body).html($(assessments).html());
-				instance.setTitle($(assessments).attr("trick-name"));
-				return false;
-			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return true;
-			}
-		});
+		return $
+				.ajax({
+					url : context + "/Assessment/Asset/" + instance.assetId
+							+ "/Update",
+					contentType : "application/json",
+					async : false,
+					success : function(reponse) {
+						var parser = new DOMParser();
+						var doc = parser.parseFromString(reponse, "text/html");
+						var assessments = $(doc).find(
+								"*[id='section_asset_assessment']");
+						if (!assessments.length)
+							return true;
+						$(instance.modal_body).html($(assessments).html());
+						instance.setTitle($(assessments).attr("trick-name"));
+						return false;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						return true;
+					}
+				});
 	};
 }
 
@@ -1147,7 +1230,8 @@ function AssessmentScenarioViewer(scenarioId) {
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_scenario_assessment']");
+				var assessments = $(doc).find(
+						"*[id='section_scenario_assessment']");
 				if (!assessments.length)
 					return true;
 				$(instance.modal_body).html($(assessments).html());
@@ -1165,13 +1249,15 @@ function AssessmentScenarioViewer(scenarioId) {
 	AssessmentScenarioViewer.prototype.Update = function() {
 		var instance = this;
 		return $.ajax({
-			url : context + "/Assessment/Scenario/" + instance.scenarioId + "/Update",
+			url : context + "/Assessment/Scenario/" + instance.scenarioId
+					+ "/Update",
 			contentType : "application/json",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find("*[id='section_scenario_assessment']");
+				var assessments = $(doc).find(
+						"*[id='section_scenario_assessment']");
 				if (!assessments.length)
 					return true;
 				$(instance.modal_body).html($(assessments).html());
@@ -1209,7 +1295,8 @@ function updateALE() {
 function updateAssessmentAcronym(idParameter, acronym) {
 
 	return $.ajax({
-		url : context + "/Assessment/Update/Acronym/" + idParameter + "/" + acronym,
+		url : context + "/Assessment/Update/Acronym/" + idParameter + "/"
+				+ acronym,
 		contentType : "application/json",
 		async : true,
 		success : function(response) {
@@ -1262,7 +1349,9 @@ function addHistory(analysisId, oldVersion) {
 		if (selectedScenario.length != 1)
 			return false;
 		analysisId = selectedScenario[0];
-		oldVersion = $("#section_analysis tr[trick-id='"+analysisId+"']>td:nth-child(6)").text();
+		oldVersion = $(
+				"#section_analysis tr[trick-id='" + analysisId
+						+ "']>td:nth-child(6)").text();
 		console.log(oldVersion);
 	}
 	$.ajax({
@@ -1312,7 +1401,9 @@ function saveField(element, controller, id, field, type) {
 			url : context + "/editField/" + controller,
 			type : "post",
 			async : true,
-			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"' + defaultValueByType($(element).prop("value"), type, true) + '", "type": "' + type + '"}',
+			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"'
+					+ defaultValueByType($(element).prop("value"), type, true)
+					+ '", "type": "' + type + '"}',
 			contentType : "application/json",
 			success : function(response) {
 				if (response == "" || response == null) {
@@ -1348,19 +1439,22 @@ function duplicateAnalysis(form, analyisId) {
 				alert.remove();
 			if (response["success"] != undefined) {
 				$(".progress-striped").hide();
-				showSuccess($("#addHistoryModal .modal-body")[0], response["success"]);
+				showSuccess($("#addHistoryModal .modal-body")[0],
+						response["success"]);
 				setTimeout("location.reload()", 2000);
 			} else if (response["error"]) {
 				$(".progress-striped").hide();
-				$("#history_oldVersion").prop("value" ,oldVersion);
-				showError($("#addHistoryModal .modal-body")[0], response["error"]);
+				$("#history_oldVersion").prop("value", oldVersion);
+				showError($("#addHistoryModal .modal-body")[0],
+						response["error"]);
 				return false;
 			} else {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
 				if ((error = $(doc).find("#addHistoryModal")).length) {
-					$("#addHistoryModal .modal-body").html($(error).find(".modal-body"));
-					$("#history_oldVersion").prop("value" ,oldVersion);
+					$("#addHistoryModal .modal-body").html(
+							$(error).find(".modal-body"));
+					$("#history_oldVersion").prop("value", oldVersion);
 					return false;
 				}
 			}
@@ -1393,7 +1487,9 @@ function showError(parent, text) {
 	close.setAttribute("data-dismiss", "alert");
 	error.setAttribute("class", "alert alert-error");
 	error.setAttribute("aria-hidden", "true");
-	error.setAttribute("style", "background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
+	error
+			.setAttribute("style",
+					"background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
 	close.appendChild(document.createTextNode("x"));
 	error.appendChild(close);
 	error.appendChild(document.createTextNode(text));
@@ -1449,9 +1545,12 @@ function callbackBySection(section) {
 			return false;
 		},
 		"section_analysis" : function() {
+		},
+		"section_actionplans" : function() {
 			reloadCharts();
 			return false;
 		}
+		
 	};
 	return callbacks[section];
 }
@@ -1459,7 +1558,8 @@ function callbackBySection(section) {
 function sectionPretreatment(section) {
 	var pretreatment = {
 		"section_assessment" : function(data) {
-			var trickCarousel = new TrickCarousel($(data).find("table[trick-table]"));
+			var trickCarousel = new TrickCarousel($(data).find(
+					"table[trick-table]"));
 			trickCarousel.initialise();
 		}
 	};
@@ -1478,31 +1578,33 @@ function reloadSection(section, subSection) {
 		var controller = controllerBySection(section, subSection);
 		if (controller == null || controller == undefined)
 			return false;
-		$.ajax({
-			url : context + controller,
-			type : "get",
-			async : true,
-			contentType : "application/json",
-			success : function(response) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				if (subSection != null && subSection != undefined)
-					section += "_" + subSection;
-				newSection = $(doc).find("*[id = '" + section + "']");
-				pretreatment = sectionPretreatment(section);
-				if ($.isFunction(pretreatment))
-					pretreatment(newSection);
-				oldSection = $(document.body).find("*[id = '" + section + "']");
-				$(oldSection).html($(newSection).html());
-				var callback = callbackBySection(section);
-				if ($.isFunction(callback))
-					callback();
-				return false;
-			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return false;
-			},
-		});
+		$
+				.ajax({
+					url : context + controller,
+					type : "get",
+					async : true,
+					contentType : "application/json",
+					success : function(response) {
+						var parser = new DOMParser();
+						var doc = parser.parseFromString(response, "text/html");
+						if (subSection != null && subSection != undefined)
+							section += "_" + subSection;
+						newSection = $(doc).find("*[id = '" + section + "']");
+						pretreatment = sectionPretreatment(section);
+						if ($.isFunction(pretreatment))
+							pretreatment(newSection);
+						oldSection = $(document.body).find(
+								"*[id = '" + section + "']");
+						$(oldSection).replaceWith(response);
+						var callback = callbackBySection(section);
+						if ($.isFunction(callback))
+							callback();
+						return false;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						return false;
+					},
+				});
 	}
 }
 
@@ -1638,7 +1740,7 @@ function editAsset(rowTrickId, isAdd) {
 					$("#addAssetModal").modal("toggle");
 					return false;
 				}
-	});
+			});
 	return false;
 }
 
@@ -1656,7 +1758,8 @@ function saveAsset(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
 			if (result) {
 				$("#addAssetModal").modal("hide");
 				reloadSection("section_asset");
@@ -1689,7 +1792,8 @@ function serializeScenarioForm(formId) {
 }
 
 function clearScenarioFormData() {
-	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario"));
+	$("#addScenarioModal #addScenarioModel-title").html(
+			MessageResolver("label.scenario.add", "Add new scenario"));
 	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
 
@@ -1740,7 +1844,7 @@ function displayAssessmentByScenario() {
 	return false;
 }
 
-function displayAssessmentByAsset(){
+function displayAssessmentByAsset() {
 
 	var selectedItem = findSelectItemIdBySection("section_asset");
 	if (selectedItem.length != 1)
@@ -1875,7 +1979,8 @@ function saveScenario(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
 			if (result) {
 				$("#addScenarioModal").modal("hide");
 				reloadSection("section_scenario");
@@ -1906,7 +2011,8 @@ function savePhase(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
 			if (result) {
 				$("#addPhaseModel").modal("hide");
 				reloadSection("section_phase");
@@ -1987,267 +2093,340 @@ $(function() {
 	var deleteElement = $contextMenu.find("li[name='delete'] a");
 	var showMeasures = $contextMenu.find("li[name='show_measures'] a");
 
-	$("#section_analysis").on("contextmenu", "table tbody tr", function(e) {
+	$("#section_analysis").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
 
-		// get rights values
-		var deleteRight = $("#deleteRight").text();
-		var calcRickRegisterRight = $("#calcRickRegisterRight").text();
-		var calcActionPlanRight = $("#calcActionPlanRight").text();
-		var modifyRight = $("#modifyRight").text();
-		var exportRight = $("#exportRight").text();
-		var readRight = $("#readRight").text();
+				// get rights values
+				var deleteRight = $("#deleteRight").text();
+				var calcRickRegisterRight = $("#calcRickRegisterRight").text();
+				var calcActionPlanRight = $("#calcActionPlanRight").text();
+				var modifyRight = $("#modifyRight").text();
+				var exportRight = $("#exportRight").text();
+				var readRight = $("#readRight").text();
 
-		// get missing elements
+				// get missing elements
 
-		var duplicateanalysis = $contextMenu.find("li[name='duplicate'] a");
+				var duplicateanalysis = $contextMenu
+						.find("li[name='duplicate'] a");
 
-		var computeactionplan = $contextMenu.find("li[name='cActionPlan'] a");
-		var cactionplandivider = $contextMenu.find("li[name='divider_1']");
+				var computeactionplan = $contextMenu
+						.find("li[name='cActionPlan'] a");
+				var cactionplandivider = $contextMenu
+						.find("li[name='divider_1']");
 
-		var computeriskregister = $contextMenu.find("li[name='cRiskRegister'] a");
-		var criskregisterdivider = $contextMenu.find("li[name='divider_2']");
+				var computeriskregister = $contextMenu
+						.find("li[name='cRiskRegister'] a");
+				var criskregisterdivider = $contextMenu
+						.find("li[name='divider_2']");
 
-		var exportanalysis = $contextMenu.find("li[name='export'] a");
-		var exportanalysisdivider = $contextMenu.find("li[name='divider_3']");
+				var exportanalysis = $contextMenu.find("li[name='export'] a");
+				var exportanalysisdivider = $contextMenu
+						.find("li[name='divider_3']");
 
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		var data = $(e.currentTarget).attr('data');
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				var data = $(e.currentTarget).attr('data');
 
-		var rowTrickVersion = $(e.currentTarget).find("td[trick-version]").attr("trick-version");
-		var rowRights = $(e.currentTarget).attr('trick-rights-id');
-		$contextMenu.attr("trick-selected-id", rowTrickId);
+				var rowTrickVersion = $(e.currentTarget).find(
+						"td[trick-version]").attr("trick-version");
+				var rowRights = $(e.currentTarget).attr('trick-rights-id');
+				$contextMenu.attr("trick-selected-id", rowTrickId);
 
-		// select
+				// select
 
-		if (rowRights <= readRight) {
+				if (rowRights <= readRight) {
 
-			select.parent().removeAttr("hidden");
-			select.attr("onclick", "javascript:return selectAnalysis(" + rowTrickId + ");");
-		} else {
-			select.parent().attr("hidden", "true");
-			select.removeAttr("onclick");
-		}
+					select.parent().removeAttr("hidden");
+					select.attr("onclick", "javascript:return selectAnalysis("
+							+ rowTrickId + ");");
+				} else {
+					select.parent().attr("hidden", "true");
+					select.removeAttr("onclick");
+				}
 
-		// edit
+				// edit
 
-		if (rowRights <= modifyRight) {
-			editRow.parent().removeAttr("hidden");
-			editRow.attr("onclick", "javascript:return editSingleAnalysis(" + rowTrickId + ");");
-			duplicateanalysis.parent().removeAttr("hidden");
-			duplicateanalysis.attr("onclick", "javascript:return addHistory(" + rowTrickId + ", '" + rowTrickVersion + "')");
-		} else {
-			editRow.parent().attr("hidden", "true");
-			editRow.removeAttr("onclick");
-			duplicateanalysis.parent().attr("hidden", "true");
-			duplicateanalysis.removeAttr("onclick");
-		}
+				if (rowRights <= modifyRight) {
+					editRow.parent().removeAttr("hidden");
+					editRow.attr("onclick",
+							"javascript:return editSingleAnalysis("
+									+ rowTrickId + ");");
+					duplicateanalysis.parent().removeAttr("hidden");
+					duplicateanalysis.attr("onclick",
+							"javascript:return addHistory(" + rowTrickId
+									+ ", '" + rowTrickVersion + "')");
+				} else {
+					editRow.parent().attr("hidden", "true");
+					editRow.removeAttr("onclick");
+					duplicateanalysis.parent().attr("hidden", "true");
+					duplicateanalysis.removeAttr("onclick");
+				}
 
-		// compute action plan
+				// compute action plan
 
-		if (rowRights <= calcActionPlanRight && data == "true") {
+				if (rowRights <= calcActionPlanRight && data == "true") {
 
-			computeactionplan.parent().removeAttr("hidden");
-			computeactionplan.attr("onclick", "javascript:return calculateActionPlan(" + rowTrickId + ");");
-			cactionplandivider.removeAttr("hidden", "true");
-		} else {
-			computeactionplan.parent().attr("hidden", "true");
-			computeactionplan.removeAttr("onclick");
-			cactionplandivider.attr("hidden", "true");
-		}
+					computeactionplan.parent().removeAttr("hidden");
+					computeactionplan.attr("onclick",
+							"javascript:return calculateActionPlan("
+									+ rowTrickId + ");");
+					cactionplandivider.removeAttr("hidden", "true");
+				} else {
+					computeactionplan.parent().attr("hidden", "true");
+					computeactionplan.removeAttr("onclick");
+					cactionplandivider.attr("hidden", "true");
+				}
 
-		// compute risk register
+				// compute risk register
 
-		if (rowRights <= calcRickRegisterRight && data == "true") {
+				if (rowRights <= calcRickRegisterRight && data == "true") {
 
-			computeriskregister.parent().removeAttr("hidden");
-			computeriskregister.attr("onclick", "javascript:return calculateRiskRegister(" + rowTrickId + ");");
-			criskregisterdivider.removeAttr("hidden", "true");
-		} else {
-			computeriskregister.parent().attr("hidden", "true");
-			computeriskregister.removeAttr("onclick");
-			criskregisterdivider.attr("hidden", "true");
-		}
+					computeriskregister.parent().removeAttr("hidden");
+					computeriskregister.attr("onclick",
+							"javascript:return calculateRiskRegister("
+									+ rowTrickId + ");");
+					criskregisterdivider.removeAttr("hidden", "true");
+				} else {
+					computeriskregister.parent().attr("hidden", "true");
+					computeriskregister.removeAttr("onclick");
+					criskregisterdivider.attr("hidden", "true");
+				}
 
-		// export
+				// export
 
-		if (rowRights <= exportRight) {
+				if (rowRights <= exportRight) {
 
-			exportanalysis.parent().removeAttr("hidden");
-			exportanalysis.attr("onclick", "javascript:return exportAnalysis(" + rowTrickId + ");");
-			exportanalysisdivider.removeAttr("hidden", "true");
-		} else {
-			exportanalysis.parent().attr("hidden", "true");
-			exportanalysis.removeAttr("onclick");
-			exportanalysisdivider.parent().attr("hidden", "true");
-		}
+					exportanalysis.parent().removeAttr("hidden");
+					exportanalysis.attr("onclick",
+							"javascript:return exportAnalysis(" + rowTrickId
+									+ ");");
+					exportanalysisdivider.removeAttr("hidden", "true");
+				} else {
+					exportanalysis.parent().attr("hidden", "true");
+					exportanalysis.removeAttr("onclick");
+					exportanalysisdivider.parent().attr("hidden", "true");
+				}
 
-		// delete
+				// delete
 
-		if (rowRights <= deleteRight) {
+				if (rowRights <= deleteRight) {
 
-			deleteElement.parent().removeAttr("hidden");
-			deleteElement.attr("onclick", "javascript:return deleteAnalysis(" + rowTrickId + ");");
-		} else {
-			deleteElement.parent().attr("hidden", "true");
-			deleteElement.removeAttr("onclick");
-		}
+					deleteElement.parent().removeAttr("hidden");
+					deleteElement.attr("onclick",
+							"javascript:return deleteAnalysis(" + rowTrickId
+									+ ");");
+				} else {
+					deleteElement.parent().attr("hidden", "true");
+					deleteElement.removeAttr("onclick");
+				}
 
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
-
-	$("#section_asset").on("contextmenu", "table tbody tr", function(e) {
-		contextMenuHide($contextMenu);
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		select.attr("onclick", "return selectAsset('" + rowTrickId + "','true');");
-		unSelect.attr("onclick", "return selectAsset('" + rowTrickId + "','false');");
-		editRow.attr("onclick", "return editAsset('" + rowTrickId + "');");
-		deleteElement.attr("onclick", "return deleteAsset('" + rowTrickId + "');");
-		editRow.attr("href", "#addAssetModel");
-
-		if ($(e.currentTarget).attr('trick-selected') == "true") {
-			unSelect.parent().attr("hidden", false);
-			var assessment = $contextMenu.find("li[name='assessment'] a");
-			$(assessment).parent().attr("hidden", false);
-			$(assessment).unbind();
-			var assessmentViewer = new AssessmentAssetViewer(rowTrickId);
-			application.modal["AssessmentViewer"] = assessmentViewer;
-			$(assessment).click(function() {
-				assessmentViewer.Show();
-				$($contextMenu).hide();
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
 				return false;
 			});
-		} else
-			select.parent().attr("hidden", false);
 
-		$(editRow).parent().attr("hidden", false);
+	$("#section_asset")
+			.on(
+					"contextmenu",
+					"table tbody tr",
+					function(e) {
+						contextMenuHide($contextMenu);
+						var rowTrickId = $(e.currentTarget).attr('trick-id');
+						$contextMenu.attr("trick-selected-id", rowTrickId);
+						select.attr("onclick", "return selectAsset('"
+								+ rowTrickId + "','true');");
+						unSelect.attr("onclick", "return selectAsset('"
+								+ rowTrickId + "','false');");
+						editRow.attr("onclick", "return editAsset('"
+								+ rowTrickId + "');");
+						deleteElement.attr("onclick", "return deleteAsset('"
+								+ rowTrickId + "');");
+						editRow.attr("href", "#addAssetModel");
 
-		$(deleteElement).parent().attr("hidden", false);
+						if ($(e.currentTarget).attr('trick-selected') == "true") {
+							unSelect.parent().attr("hidden", false);
+							var assessment = $contextMenu
+									.find("li[name='assessment'] a");
+							$(assessment).parent().attr("hidden", false);
+							$(assessment).unbind();
+							var assessmentViewer = new AssessmentAssetViewer(
+									rowTrickId);
+							application.modal["AssessmentViewer"] = assessmentViewer;
+							$(assessment).click(function() {
+								assessmentViewer.Show();
+								$($contextMenu).hide();
+								return false;
+							});
+						} else
+							select.parent().attr("hidden", false);
 
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
+						$(editRow).parent().attr("hidden", false);
 
-	$("#section_scenario").on("contextmenu", "table tbody tr", function(e) {
-		contextMenuHide($contextMenu);
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		select.attr("onclick", "return selectScenario('" + rowTrickId + "',true);");
-		unSelect.attr("onclick", "return selectScenario('" + rowTrickId + "',false);");
-		editRow.attr("onclick", "return editScenario('" + rowTrickId + "');");
-		deleteElement.attr("onclick", "return deleteScenario('" + rowTrickId + "');");
-		editRow.attr("href", "#addScenarioModel");
-		if ($(e.currentTarget).attr('trick-selected') == "true") {
-			unSelect.parent().attr("hidden", false);
-			var assessment = $contextMenu.find("li[name='assessment'] a");
-			$(assessment).parent().attr("hidden", false);
-			$(assessment).unbind();
-			var assessmentViewer = new AssessmentScenarioViewer(rowTrickId);
-			application.modal["AssessmentViewer"] = assessmentViewer;
-			$(assessment).click(function() {
-				assessmentViewer.Show();
-				$($contextMenu).hide();
+						$(deleteElement).parent().attr("hidden", false);
+
+						$contextMenu.css({
+							display : "block",
+							left : e.pageX,
+							top : $(e.target).position().top + 20
+						});
+						return false;
+					});
+
+	$("#section_scenario").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				contextMenuHide($contextMenu);
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				select.attr("onclick", "return selectScenario('" + rowTrickId
+						+ "',true);");
+				unSelect.attr("onclick", "return selectScenario('" + rowTrickId
+						+ "',false);");
+				editRow.attr("onclick", "return editScenario('" + rowTrickId
+						+ "');");
+				deleteElement.attr("onclick", "return deleteScenario('"
+						+ rowTrickId + "');");
+				editRow.attr("href", "#addScenarioModel");
+				if ($(e.currentTarget).attr('trick-selected') == "true") {
+					unSelect.parent().attr("hidden", false);
+					var assessment = $contextMenu
+							.find("li[name='assessment'] a");
+					$(assessment).parent().attr("hidden", false);
+					$(assessment).unbind();
+					var assessmentViewer = new AssessmentScenarioViewer(
+							rowTrickId);
+					application.modal["AssessmentViewer"] = assessmentViewer;
+					$(assessment).click(function() {
+						assessmentViewer.Show();
+						$($contextMenu).hide();
+						return false;
+					});
+				} else
+					select.parent().attr("hidden", false);
+
+				$(editRow).parent().attr("hidden", false);
+
+				$(deleteElement).parent().attr("hidden", false);
+
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
 				return false;
 			});
-		} else
-			select.parent().attr("hidden", false);
 
-		$(editRow).parent().attr("hidden", false);
+	$("#section_customer")
+			.on(
+					"contextmenu",
+					"table tbody tr",
+					function(e) {
+						var rowTrickId = $(e.currentTarget).attr('trick-id');
+						var organisation = $(e.currentTarget)
+								.children(":first").text();
+						$contextMenu.attr("trick-selected-id", rowTrickId);
+						editRow.attr("onclick",
+								"javascript:return editSingleCustomer("
+										+ rowTrickId + ");");
+						deleteElement.attr("onclick",
+								"javascript:return deleteCustomer("
+										+ rowTrickId + ",'" + organisation
+										+ "');");
+						showMeasures.parent().attr("hidden", true);
+						$contextMenu.css({
+							display : "block",
+							left : e.pageX,
+							top : $(e.target).position().top + 20
+						});
+						return false;
+					});
 
-		$(deleteElement).parent().attr("hidden", false);
+	$("#section_language").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				var langname = $(e.currentTarget).children(":eq(1)").text();
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				editRow.attr("onclick", "javascript:return editSingleLanguage("
+						+ rowTrickId + ");");
+				deleteElement.attr("onclick",
+						"javascript:return deleteLanguage(" + rowTrickId + ",'"
+								+ langname + "');");
+				showMeasures.parent().attr("hidden", true);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
+				return false;
+			});
 
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
+	$("#section_norm").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				var normname = $(e.currentTarget).children(":first").text();
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				editRow.attr("onclick", "javascript:return editSingleNorm("
+						+ rowTrickId + ");");
+				deleteElement.attr("onclick", "javascript:return deleteNorm("
+						+ rowTrickId + ",'" + normname + "');");
+				showMeasures.attr("onclick", "javascript:return showMeasures("
+						+ rowTrickId + ", 1);");
+				showMeasures.parent().attr("hidden", false);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
+				return false;
+			});
 
-	$("#section_customer").on("contextmenu", "table tbody tr", function(e) {
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		var organisation = $(e.currentTarget).children(":first").text();
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		editRow.attr("onclick", "javascript:return editSingleCustomer(" + rowTrickId + ");");
-		deleteElement.attr("onclick", "javascript:return deleteCustomer(" + rowTrickId + ",'" + organisation + "');");
-		showMeasures.parent().attr("hidden", true);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
+	$("#section_user").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				var user = $(e.currentTarget).children(":first").text();
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				editRow.attr("onclick", "javascript:return editSingleUser("
+						+ rowTrickId + ");");
+				deleteElement.attr("onclick", "javascript:return deleteUser("
+						+ rowTrickId + ",'" + user + "');");
+				showMeasures.parent().attr("hidden", true);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
+				return false;
+			});
 
-	$("#section_language").on("contextmenu", "table tbody tr", function(e) {
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		var langname = $(e.currentTarget).children(":eq(1)").text();
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		editRow.attr("onclick", "javascript:return editSingleLanguage(" + rowTrickId + ");");
-		deleteElement.attr("onclick", "javascript:return deleteLanguage(" + rowTrickId + ",'" + langname + "');");
-		showMeasures.parent().attr("hidden", true);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
-
-	$("#section_norm").on("contextmenu", "table tbody tr", function(e) {
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		var normname = $(e.currentTarget).children(":first").text();
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		editRow.attr("onclick", "javascript:return editSingleNorm(" + rowTrickId + ");");
-		deleteElement.attr("onclick", "javascript:return deleteNorm(" + rowTrickId + ",'" + normname + "');");
-		showMeasures.attr("onclick", "javascript:return showMeasures(" + rowTrickId + ", 1);");
-		showMeasures.parent().attr("hidden", false);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
-
-	$("#section_user").on("contextmenu", "table tbody tr", function(e) {
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		var user = $(e.currentTarget).children(":first").text();
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		editRow.attr("onclick", "javascript:return editSingleUser(" + rowTrickId + ");");
-		deleteElement.attr("onclick", "javascript:return deleteUser(" + rowTrickId + ",'" + user + "');");
-		showMeasures.parent().attr("hidden", true);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
-
-	$("#section_phase").on("contextmenu", "table tbody tr", function(e) {
-		contextMenuHide($contextMenu);
-		$contextMenu.find("li[name='divider_0']").attr("hidden", true);
-		var rowTrickId = $(e.currentTarget).attr('trick-id');
-		$contextMenu.attr("trick-selected-id", rowTrickId);
-		deleteElement.attr("onclick", "return deletePhase('" + rowTrickId + "');");
-		$(deleteElement).parent().attr("hidden", false);
-		$contextMenu.css({
-			display : "block",
-			left : e.pageX,
-			top : $(e.target).position().top + 20
-		});
-		return false;
-	});
+	$("#section_phase").on(
+			"contextmenu",
+			"table tbody tr",
+			function(e) {
+				contextMenuHide($contextMenu);
+				$contextMenu.find("li[name='divider_0']").attr("hidden", true);
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				deleteElement.attr("onclick", "return deletePhase('"
+						+ rowTrickId + "');");
+				$(deleteElement).parent().attr("hidden", false);
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : $(e.target).position().top + 20
+				});
+				return false;
+			});
 	$contextMenu.on("click", "a", function() {
 		$contextMenu.hide();
 	});
@@ -2317,14 +2496,22 @@ function navToogled(section, navSelected) {
 }
 
 function toggleDisplayAsctionPlanAssets(actionplantable, menu) {
-	$(actionplantable + " .actionplanasset").toggleClass("actionplanassethidden");
-	if ($(actionplantable + " .actionplanasset").hasClass("actionplanassethidden")) {
-		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;"+MessageResolver("action.actionplanassets.show", "Show Assets"));	
+	$(actionplantable + " .actionplanasset").toggleClass(
+			"actionplanassethidden");
+	if ($(actionplantable + " .actionplanasset").hasClass(
+			"actionplanassethidden")) {
+		$(menu + " a").html(
+				"<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;"
+						+ MessageResolver("action.actionplanassets.show",
+								"Show Assets"));
 	} else {
-		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;"+MessageResolver("action.actionplanassets.hide", "Hide Assets"));
+		$(menu + " a").html(
+				"<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;"
+						+ MessageResolver("action.actionplanassets.hide",
+								"Hide Assets"));
 	}
-	
-	return false;	
+
+	return false;
 }
 
 /**
@@ -2336,31 +2523,34 @@ function toggleDisplayAsctionPlanAssets(actionplantable, menu) {
 	$.fn.serializeJSON = function() {
 		var json = {};
 		var form = $(this);
-		form.find('input, select, textarea').each(function() {
-			var val;
-			if (!this.name)
-				return;
+		form.find('input, select, textarea').each(
+				function() {
+					var val;
+					if (!this.name)
+						return;
 
-			if ('radio' === this.type) {
-				if (json[this.name]) {
-					return;
-				}
+					if ('radio' === this.type) {
+						if (json[this.name]) {
+							return;
+						}
 
-				json[this.name] = this.checked ? this.value : '';
-			} else if ('checkbox' === this.type) {
-				val = json[this.name];
+						json[this.name] = this.checked ? this.value : '';
+					} else if ('checkbox' === this.type) {
+						val = json[this.name];
 
-				if (!this.checked) {
-					if (!val) {
-						json[this.name] = '';
+						if (!this.checked) {
+							if (!val) {
+								json[this.name] = '';
+							}
+						} else {
+							json[this.name] = typeof val === 'string' ? [ val,
+									this.value ] : $.isArray(val) ? $.merge(
+									val, [ this.value ]) : this.value;
+						}
+					} else {
+						json[this.name] = this.value;
 					}
-				} else {
-					json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
-				}
-			} else {
-				json[this.name] = this.value;
-			}
-		});
+				});
 		return json;
 	};
 
@@ -2381,14 +2571,17 @@ $(function() {
 	if (!$(".navbar-custom").length)
 		return false;
 	var startPosition = $(".navbar-custom").position().top;
-	var previewPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
+	var previewPosition = $(".navbar-custom").offset().top
+			- $(".navbar-fixed-top").offset().top;
 	if (previewScrollTop != 0)
 		$(".navbar-custom").addClass("affix");
 
 	$window.scroll(function() {
-		var currentPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
+		var currentPosition = $(".navbar-custom").offset().top
+				- $(".navbar-fixed-top").offset().top;
 		var scrollTop = $window.scrollTop();
-		if (previewPosition > 0 && currentPosition <= 50 && scrollTop > previewScrollTop) {
+		if (previewPosition > 0 && currentPosition <= 50
+				&& scrollTop > previewScrollTop) {
 			$(".navbar-custom").addClass("affix");
 		} else if (scrollTop < startPosition && scrollTop < previewScrollTop
 				&& scrollTop < 50)
@@ -2410,10 +2603,13 @@ function reloadMeasureRow(idMeasure, norm) {
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
-			var $measure = $(doc).find("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']");
+			var $measure = $(doc).find(
+					"#section_measure_" + norm + " tr[trick-id='" + idMeasure
+							+ "']");
 			if (!$measure.length)
 				return false;
-			$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']").html($measure.html());
+			$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']")
+					.html($measure.html());
 			return false;
 		}
 	});
@@ -2430,7 +2626,9 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
 		success : function(response) {
 			if (!response.length)
 				return false;
-			$("#section_actionplan_" + type + " tr[trick-id='" + idActionPlanEntry + "']").replaceWith(response);
+			$(
+					"#section_actionplan_" + type + " tr[trick-id='"
+							+ idActionPlanEntry + "']").replaceWith(response);
 			return false;
 		}
 	});
@@ -2514,11 +2712,8 @@ function reloadCharts() {
 
 };
 
-function reloadActionPlansAndCharts(){
+function reloadActionPlansAndCharts() {
 	reloadSection('section_actionplans');
-	compliance('27001');
-	compliance('27002');
-	summaryCharts();
 }
 
 function chartALE() {

@@ -82,6 +82,9 @@ public class ControllerTask {
 						messageHandler.getParameters(),
 						messageHandler.getMessage(), locale));
 				asyncResult.setProgress(messageHandler.getProgress());
+				asyncResult.setTaskName(messageHandler.getTaskName());
+				asyncResult.setAsyncCallback(messageHandler.getAsyncCallback());
+				
 				if ( messageHandler.getProgress() == 100 || asyncResult.getFlag() == 0
 						&& messageHandler.getException() == null) {
 					asyncResult.setStatus(messageSource.getMessage(

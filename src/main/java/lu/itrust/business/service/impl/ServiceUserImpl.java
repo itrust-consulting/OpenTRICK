@@ -153,7 +153,6 @@ public class ServiceUserImpl implements ServiceUser {
 	@Override
 	public void delete(long id) throws Exception {
 		daoUser.delete(id);
-
 	}
 
 	/**

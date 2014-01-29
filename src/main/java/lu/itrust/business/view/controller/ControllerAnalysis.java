@@ -1,6 +1,7 @@
 package lu.itrust.business.view.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -11,6 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Analysis;
@@ -24,6 +26,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.TS.usermanagement.UserSqLite;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
@@ -39,9 +42,12 @@ import lu.itrust.business.service.ServiceRiskRegister;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.ServiceUserAnalysisRight;
+import lu.itrust.business.service.ServiceUserSqLite;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerAnalysisImport;
+import lu.itrust.business.task.WorkerExportAnalysis;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.Hibernate;
@@ -51,6 +57,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -108,6 +115,9 @@ public class ControllerAnalysis {
 	private AssessmentManager assessmentManager;
 
 	@Autowired
+	private ServiceUserSqLite serviceUserSqLite;
+
+	@Autowired
 	private TaskExecutor executor;
 
 	@Autowired
@@ -159,13 +169,13 @@ public class ControllerAnalysis {
 			}
 		} else {
 			User user = serviceUser.get(principal.getName());
-			
+
 			if (user.hasRole(RoleType.ROLE_ADMIN)) {
-				model.put("analyses", serviceAnalysis.loadAll());			
+				model.put("analyses", serviceAnalysis.loadAll());
 			} else {
 				model.put("analyses", serviceAnalysis.loadAllFromUser(user));
 			}
-			
+
 			model.put("login", principal.getName());
 			model.put("deleteRight", AnalysisRight.DELETE.ordinal());
 			model.put("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
@@ -206,8 +216,8 @@ public class ControllerAnalysis {
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/{analysisId}/Select")
-	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, RedirectAttributes attributes,
-			Locale locale) throws Exception {
+	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session,
+			RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 		if (selected != null && selected.intValue() == analysisId)
 			session.removeAttribute("selectedAnalysis");
@@ -219,6 +229,26 @@ public class ControllerAnalysis {
 		}
 		return "redirect:/Analysis";
 
+	}
+	
+	@RequestMapping("/Download/{idFile}")
+	public String download(@PathVariable long idFile,Principal principal, HttpServletRequest request, HttpServletResponse response) throws IOException{
+		UserSqLite userSqLite = serviceUserSqLite.findByIdAndUser(idFile, principal.getName());
+		if(userSqLite==null)
+			return "errors/404";
+		response.setContentType("sqlite");
+		
+		String identifierName = userSqLite.getAnalysisIdentifier();
+
+		response.setHeader(
+				"Content-Disposition",
+				"attachment; filename=\""+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) +".sqlite\"");
+
+		response.setContentLength((int)userSqLite.getSize());
+
+		FileCopyUtils.copy(userSqLite.getSqLite(),
+				response.getOutputStream());
+		return null;
 	}
 
 	/**
@@ -384,8 +414,8 @@ public class ControllerAnalysis {
 	public @ResponseBody
 	String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal) throws Exception {
 		try {
-				serviceAnalysis.remove(analysisId);
-				return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
+			serviceAnalysis.remove(analysisId);
+			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));
@@ -491,8 +521,8 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Import/Execute")
-	public Object importAnalysisSave(final Principal principal, final @RequestParam(value = "customerId") Integer customerId, final HttpServletRequest request, final @RequestParam(
-			value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
+	public Object importAnalysisSave(final Principal principal, final @RequestParam(value = "customerId") Integer customerId, final HttpServletRequest request,
+			final @RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
 
 		Customer customer = serviceCustomer.get(customerId);
 
@@ -522,6 +552,29 @@ public class ControllerAnalysis {
 		attributes.addFlashAttribute(typeMessage, message);
 
 		return "redirect:/Analysis";
+	}
+
+	/**
+	 * importAnalysisSave: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param customerId
+	 * @param file
+	 * @param redirectAttributes
+	 * @return
+	 * @throws Exception
+	 */
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
+	@RequestMapping(value = "/Export/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json")
+	public @ResponseBody
+	String exportAnalysis(@PathVariable int analysisId, Principal principal, HttpServletRequest request, HttpServletResponse response, Locale locale) throws Exception {
+		Worker worker = new WorkerExportAnalysis(serviceTaskFeedback, sessionFactory, principal, request.getServletContext(), workersPoolManager, analysisId);
+		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+			executor.execute(worker);
+			return JsonMessage.Success(messageSource.getMessage("success.start.export.analysis", null, "Analysis export was started successfully", locale));
+		} else
+			return JsonMessage.Error(messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
 	}
 
 	// ******************************************************************************************************************

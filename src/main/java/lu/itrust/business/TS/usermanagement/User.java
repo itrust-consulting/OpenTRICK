@@ -37,8 +37,9 @@ public class User implements Serializable {
 	private boolean enable = true;
 
 	private List<Role> roles = new ArrayList<Role>();
+	
+	private List<Customer> customers = new ArrayList<Customer>();
 
-	private List<UserCustomer> customers = new ArrayList<UserCustomer>();
 
 	/**
 	 * @param login
@@ -270,101 +271,38 @@ public class User implements Serializable {
 	}
 
 	/**
-	 * getCustomers: <br>
-	 * Returns the customers field value.
-	 * 
-	 * @return The value of the customers field
+	 * @return the customers
 	 */
-	public List<UserCustomer> getUserCustomers() {
+	public List<Customer> getCustomers() {
 		return customers;
 	}
 
 	/**
-	 * getCustomers: <br>
-	 * Returns the customers field value.
-	 * 
-	 * @return The value of the customers field
+	 * @param customers the customers to set
 	 */
-	public List<Customer> getCustomers() {
-		List<Customer> customerlist = new ArrayList<Customer>();
-		for (UserCustomer uc : customers) {
-			customerlist.add(uc.getCustomer());
-		}
-		return customerlist;
-	}
-
-	/**
-	 * setUserCustomer: <br>
-	 * Sets the Field "customers" with a value.
-	 * 
-	 * @param customers
-	 *            The Value to set the customers field
-	 */
-	public void setCustomers(List<UserCustomer> customers) {
+	public void setCustomers(List<Customer> customers) {
 		this.customers = customers;
 	}
 
 	/**
-	 * addCustomer: <br>
-	 * Description
-	 * 
-	 * @param customer
+	 * @param arg0
 	 * @return
+	 * @see java.util.List#add(java.lang.Object)
 	 */
-	public boolean addUserCustomer(UserCustomer customer) {
-		return this.customers.add(customer);
+	public boolean add(Customer arg0) {
+		if(!contains(arg0))
+			return customers.add(arg0);
+		return true;
 	}
 
 	/**
-	 * addCustomer: <br>
-	 * Description
-	 * 
-	 * @param customer
+	 * @param arg0
 	 * @return
+	 * @see java.util.List#contains(java.lang.Object)
 	 */
-	public boolean addCustomer(Customer customer) {
-		return this.customers.add(new UserCustomer(this, customer));
+	public boolean contains(Object arg0) {
+		return customers.contains(arg0);
 	}
-
-	/**
-	 * removeCustomer: <br>
-	 * Description
-	 * 
-	 * @param customer
-	 * @return
-	 */
-	public boolean removeUserCustomer(UserCustomer customer) {
-
-		return this.customers.remove(customer);
-	}
-
-	/**
-	 * hasCustomer: <br>
-	 * Description
-	 * 
-	 * @param customer
-	 * @return
-	 */
-	boolean hasUserCustomer(UserCustomer customer) {
-
-		return customers.contains(customer);
-	}
-
-	/**
-	 * hasCustomer: <br>
-	 * Description
-	 * 
-	 * @param customer
-	 * @return
-	 */
-	boolean hasCustomer(Customer customer) {
-
-		for (UserCustomer uc : customers) {
-			if (uc.getCustomer().equals(customer)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
+	
+	
 }

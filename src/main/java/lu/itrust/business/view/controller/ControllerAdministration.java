@@ -21,7 +21,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -157,7 +156,7 @@ public class ControllerAdministration {
 			
 			if (!jsonNode.get("password").asText().equals(Constant.EMPTY_STRING)) {
 				user.setPassword(jsonNode.get("password").asText());
-				PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
 			}
 						

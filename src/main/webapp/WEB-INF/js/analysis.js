@@ -15,7 +15,8 @@ function saveAnalysis(form) {
 				if (errorMessage.error != undefined)
 					data += errorMessage.error + "\n";
 			}
-			result = data == "" ? true : showError(document.getElementById(form), data);
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
 			if (result) {
 				$("#addAnalysisModel").modal("hide");
 				reloadSection("section_analysis");
@@ -38,7 +39,10 @@ function deleteAnalysis(analysisId) {
 	}
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.DELETE)) {
-		$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis") + "?");
+		$("#deleteAnalysisBody").html(
+				MessageResolver("label.analysis.question.delete",
+						"Are you sure that you want to delete the analysis")
+						+ "?");
 		$("#deleteanalysisbuttonYes").click(function() {
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
@@ -71,8 +75,11 @@ function newAnalysis() {
 		},
 	});
 
-	$("#addAnalysisModel-title").text(MessageResolver("title.Administration.Analysis.Add", "Create a new Analysis"));
-	$("#addAnalysisButton").text(MessageResolver("label.action.create", "Create"));
+	$("#addAnalysisModel-title").text(
+			MessageResolver("title.Administration.Analysis.Add",
+					"Create a new Analysis"));
+	$("#addAnalysisButton").text(
+			MessageResolver("label.action.create", "Create"));
 	$("#analysis_form").prop("action", "/Save");
 	$("#addAnalysisModel").modal('toggle');
 	return false;
@@ -99,8 +106,10 @@ function editSingleAnalysis(analysisId) {
 			},
 		});
 
-		$("#addAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
-		$("#addAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
+		$("#addAnalysisModel-title").text(
+				MessageResolver("title.analysis.Update", "Update an Analysis"));
+		$("#addAnalysisButton").text(
+				MessageResolver("label.action.edit", "Edit"));
 		$("#analysis_form").prop("action", "/Save");
 		$("#addAnalysisModel").modal('toggle');
 	} else
@@ -118,19 +127,18 @@ function selectAnalysis(analysisId) {
 	}
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.READ))
-		window.location.replace(context + "/Analysis/" + analysisId + "/Select");
+		window.location
+				.replace(context + "/Analysis/" + analysisId + "/Select");
 	else
 		permissionError();
 }
 
 function calculateActionPlan(analysisId) {
-	
+
 	var analysisID = -1;
-	
+
 	if (analysisId == null || analysisId == undefined) {
-		
-		
-	
+
 		var selectedAnalysis = findSelectItemIdBySection(("section_analysis"));
 		if (!selectedAnalysis.length)
 			return false;
@@ -141,17 +149,17 @@ function calculateActionPlan(analysisId) {
 			} else
 				permissionError();
 		}
-	
+
 	} else {
 		analysisID = analysisId;
 	}
 
 	if (userCan(analysisID, ANALYSIS_RIGHT.CALCULATE_ACTIONPLAN)) {
-		
+
 		var data = {};
-		
+
 		data["id"] = analysisID;
-		
+
 		$.ajax({
 			url : context + "/ActionPlan/Compute",
 			type : "post",
@@ -185,7 +193,8 @@ function calculateRiskRegister(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	if (userCan(analysisId, ANALYSIS_RIGHT.CALCULATE_RISK_REGISTER)) {
-		href = "${pageContext.request.contextPath}/analysis/" + analysisId + "/compute/riskRegister";
+		href = "${pageContext.request.contextPath}/analysis/" + analysisId
+				+ "/compute/riskRegister";
 	} else
 		permissionError();
 }
@@ -198,7 +207,26 @@ function exportAnalysis(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
-		href = "${pageContext.request.contextPath}/Analysis/${analysis.id}/Export";
+		$.ajax({
+			url : context + "/Analysis/Export/" + analysisId,
+			type : "get",
+			async : true,
+			contentType : "application/json",
+			success : function(response) {
+				if (response["success"] != undefined) {
+					if (taskManager == undefined)
+						taskManager = new TaskManager();
+					taskManager.Start();
+				} else if (message["error"]) {
+					$("#alert-dialog .modal-body").html(message["error"]);
+					$("#alert-dialog").modal("toggle");
+				}
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				return result;
+			},
+		});
 	} else
 		permissionError();
+	return false;
 }

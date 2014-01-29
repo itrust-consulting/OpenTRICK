@@ -2,7 +2,6 @@ package lu.itrust.business.permissionevaluator;
 
 import java.io.Serializable;
 import java.security.Principal;
-
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.service.ServiceUser;

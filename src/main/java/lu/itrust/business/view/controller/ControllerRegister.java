@@ -15,7 +15,6 @@ import lu.itrust.business.validator.UserValidator;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -62,7 +61,7 @@ public class ControllerRegister {
 		try {
 			if (result.hasErrors())
 				return "registerUserForm";
-			PasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 			user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
 			Role role = null;
 			if (!serviceUser.hasUsers()) {

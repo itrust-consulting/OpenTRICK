@@ -8,18 +8,18 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
+import lu.itrust.business.service.ServiceUserSqLite;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -39,19 +39,14 @@ public class ControllerHome {
 
 	@Autowired
 	private MessageSource messageSource;
+	
+	@Autowired
+	private ServiceUserSqLite serviceUserSqLite;
 
-	//@Secured("ROLE_USER")
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/home")
-	public String home(HttpSession session, Principal principal) throws Exception {
-		User user = (User) session.getAttribute("user");
-		if (user == null) {
-			user = serviceUser.get(principal.getName());
-			if (user != null)
-				session.setAttribute("user", user);
-			else
-				return "redirect:/logout";
-		}
+	public String home(Model model, Principal principal) throws Exception {
+		model.addAttribute("userSqLites", serviceUserSqLite.findByFileName(principal.getName()));
 		return "index";
 	}
 

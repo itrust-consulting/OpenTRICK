@@ -43,12 +43,12 @@
 						<c:set var="scenarios" value="${analysis.scenarios}"
 							scope="request" />
 						<jsp:include page="./components/scenario.jsp" />
+						<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
+						<jsp:include page="./components/phase.jsp" />
 						<spring:eval
 							expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)"
 							var="measures" scope="request" />
 						<jsp:include page="./components/measure.jsp" />
-						<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
-						<jsp:include page="./components/phase.jsp" />
 						<c:set var="actionplans" scope="request"
 							value="${analysis.actionPlans}" />
 						<jsp:include page="./components/actionplan.jsp" />
@@ -84,9 +84,7 @@
 									<li><a href="#" onclick="return newAnalysis();"><span
 											class="glyphicon glyphicon-plus primary"></span> <spring:message
 												code="label.analysis.add" text="New analysis" /> </a></li>
-									<li trick-selectable="true"><a href="#"
-										onclick="return selectAnalysis(undefined, 'true')"><span
-											class="glyphicon glyphicon-pushpin"></span> <spring:message
+									<li trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"><span class="glyphicon glyphicon-pushpin"></span> <spring:message
 												code="label.analysis.pin" text="Edit Analysis" /> </a></li>
 									<li trick-selectable="true"><a href="#"
 										onclick="return addHistory()"><span
