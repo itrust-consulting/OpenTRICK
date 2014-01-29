@@ -46,7 +46,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#get(long, java.lang.String, java.sql.Date)
+	 * @see lu.itrust.business.dao.DAOAnalysis#get(long, java.lang.String,
+	 *      java.sql.Date)
 	 */
 	@Override
 	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception {
@@ -69,8 +70,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#get(java.lang.String, java.lang.String,
-	 *      java.sql.Date)
+	 * @see lu.itrust.business.dao.DAOAnalysis#get(java.lang.String,
+	 *      java.lang.String, java.sql.Date)
 	 */
 	@Override
 	public Analysis get(int id, String identifier, String version, Timestamp creationDate) throws Exception {
@@ -92,7 +93,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * analysisExist: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#analysisExist(java.lang.String, java.lang.String)
+	 * @see lu.itrust.business.dao.DAOAnalysis#analysisExist(java.lang.String,
+	 *      java.lang.String)
 	 */
 	@Override
 	public boolean analysisExist(String identifier, String version) throws Exception {
@@ -224,4 +226,24 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		return (Language) getSession().createQuery("SELECT language FROM Analysis analysis WHERE analysis.id = :analysisID").setParameter("analysisID", analysisID).uniqueResult();
 
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> loadByUserAndCustomer(String login, String customer) {
+		System.out.println(login + " "+customer);
+		return getSession()
+				.createQuery(
+						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.organisation = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
+				.setParameter("username", login).setParameter("customer", customer).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> loadByUserAndCustomer(String login, String customer, int pageIndex, int pageSize) {
+		return getSession()
+				.createQuery(
+						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.organisation = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
+				.setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
+	}
+
 }

@@ -32,4 +32,6 @@ public interface DAOCustomer {
 
 	public void remove(Integer customerId) throws Exception;
 
+	public List<Customer> loadByUser(String username);
+
 }

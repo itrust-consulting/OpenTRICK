@@ -31,6 +31,10 @@ public interface DAOAnalysis {
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception;
 
 	public Language getLanguageOfAnalysis(int analysisID) throws Exception;
+	
+	public List<Analysis> loadByUserAndCustomer(String login, String customer);
+	
+	public List<Analysis> loadByUserAndCustomer(String login, String customer, int pageIndex, int pageSize);
 
 	public List<Analysis> loadAllFromUser(User user) throws Exception;
 
@@ -49,4 +53,6 @@ public interface DAOAnalysis {
 	public void remove(Integer analysisId) throws Exception;
 
 	public List<Analysis> loadAllNotEmpty() throws Exception;
+
+	
 }

@@ -1504,8 +1504,7 @@ function reloadSection(section, subSection) {
 				pretreatment = sectionPretreatment(section);
 				if ($.isFunction(pretreatment))
 					pretreatment(newSection);
-				oldSection = $(document.body).find("*[id = '" + section + "']");
-				$(oldSection).replaceWith(response);
+				$("#"+section).replaceWith(newSection);
 				var callback = callbackBySection(section);
 				if ($.isFunction(callback))
 					callback();
@@ -2511,6 +2510,27 @@ function reloadCharts() {
 
 function reloadActionPlansAndCharts() {
 	reloadSection('section_actionplans');
+}
+
+function customerChange(selector){
+	var customer = $(selector).find("option:selected").text();
+	$.ajax({
+		url : context + "/Analysis/Section/"+customer+"/0",
+		type : "get",
+		async : true,
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			newSection = $(doc).find("*[id ='section_analysis']");
+			pretreatment = sectionPretreatment('section_analysis');
+			if ($.isFunction(pretreatment))
+				pretreatment(newSection);
+			$("#section_analysis").replaceWith(newSection);
+		}
+	});
+	return false;
 }
 
 function chartALE() {
