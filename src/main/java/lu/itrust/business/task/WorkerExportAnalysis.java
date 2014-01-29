@@ -110,7 +110,7 @@ public class WorkerExportAnalysis implements Worker {
 				MessageHandler messageHandler = exportAnalysis.exportAnAnalysis();
 				if (messageHandler != null)
 					error = messageHandler.getException();
-				saveSqLite(session);
+				saveSqLite(session, analysis.getIdentifier());
 			}
 		} catch (HibernateException e) {
 			this.error = e;
@@ -137,7 +137,7 @@ public class WorkerExportAnalysis implements Worker {
 
 	}
 
-	private void saveSqLite(Session session) {
+	private void saveSqLite(Session session, String analysisIdentifier) {
 		DAOUser daoUser = new DAOUserHBM(session);
 		DAOUserSqLite daoUserSqLite = new DAOUserSqLiteHBM(session);
 		Transaction transaction = null;
@@ -153,6 +153,7 @@ public class WorkerExportAnalysis implements Worker {
 			}
 			UserSqLite userSqLite = new UserSqLite(sqlite.getName(), user, FileCopyUtils.copyToByteArray(sqlite));
 			userSqLite.setSize(sqlite.length());
+			userSqLite.setAnalysisIdentifier(analysisIdentifier);
 			transaction = session.beginTransaction();
 			daoUserSqLite.saveOrUpdate(userSqLite);
 			transaction.commit();

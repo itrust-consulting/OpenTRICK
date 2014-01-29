@@ -51,6 +51,10 @@
 			<column name="dtFileName" unique="true" not-null="true" />
 		</property>
 
+		<property name="analysisIdentifier" type="java.lang.String">
+			<column name="dtAnalysisIdentifier" unique="false" not-null="true" />
+		</property>
+
 		<property generated="never" name="size">
 			<column name="dtSize" not-null="true" />
 		</property>

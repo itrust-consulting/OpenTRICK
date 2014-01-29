@@ -14,6 +14,8 @@ public class UserSqLite {
 	private long id = -1;
 
 	private String fileName = null;
+	
+	private String analysisIdentifier = null;
 
 	private User user = null;
 	
@@ -143,6 +145,20 @@ public class UserSqLite {
 	 */
 	public void setSize(long size) {
 		this.size = size;
+	}
+
+	/**
+	 * @return the analysisIdentifier
+	 */
+	public String getAnalysisIdentifier() {
+		return analysisIdentifier;
+	}
+
+	/**
+	 * @param analysisIdentifier the analysisIdentifier to set
+	 */
+	public void setAnalysisIdentifier(String analysisIdentifier) {
+		this.analysisIdentifier = analysisIdentifier;
 	}
 
 }

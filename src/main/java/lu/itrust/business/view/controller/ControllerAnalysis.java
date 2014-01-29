@@ -237,9 +237,12 @@ public class ControllerAnalysis {
 		if(userSqLite==null)
 			return "errors/404";
 		response.setContentType("sqlite");
+		
+		String identifierName = userSqLite.getAnalysisIdentifier();
+
 		response.setHeader(
 				"Content-Disposition",
-				"attachment; filename=\"Analyse.sqlite\"");
+				"attachment; filename=\""+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) +".sqlite\"");
 
 		response.setContentLength((int)userSqLite.getSize());
 
