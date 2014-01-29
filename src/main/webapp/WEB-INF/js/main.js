@@ -49,6 +49,8 @@ function findRight(idAnalysis) {
 	if (!right.length)
 		return undefined;
 	var idRight = $(right).attr('trick-rights-id');
+	if (!$.trim(idRight).length)
+		return undefined;
 	for ( var key in ANALYSIS_RIGHT)
 		if (ANALYSIS_RIGHT[key].value == idRight)
 			return ANALYSIS_RIGHT[key];
@@ -944,11 +946,12 @@ function parseJson(data) {
 	}
 }
 
-
-function downloadExportedSqLite(idFile){
-	$.fileDownload(context+'/Analysis/Download/'+idFile)
-    .done(function () { alert('File download a success!'); })
-    .fail(function () { alert('File download failed!'); });
+function downloadExportedSqLite(idFile) {
+	$.fileDownload(context + '/Analysis/Download/' + idFile).done(function() {
+		alert('File download a success!');
+	}).fail(function() {
+		alert('File download failed!');
+	});
 	return false;
 }
 function TaskManager(title) {
@@ -1550,7 +1553,7 @@ function callbackBySection(section) {
 			reloadCharts();
 			return false;
 		}
-		
+
 	};
 	return callbacks[section];
 }

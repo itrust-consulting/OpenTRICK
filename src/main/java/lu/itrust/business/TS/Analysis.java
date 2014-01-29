@@ -2131,13 +2131,11 @@ public class Analysis implements Serializable, Cloneable {
 	 * @return
 	 */
 	public UserAnalysisRight getRightsforUserString(String login) {
-
 		for (UserAnalysisRight userRight : userRights) {
 			if (userRight.getUser().getLogin().equals(login)) {
 				return userRight;
 			}
 		}
-
 		return null;
 	}
 	
