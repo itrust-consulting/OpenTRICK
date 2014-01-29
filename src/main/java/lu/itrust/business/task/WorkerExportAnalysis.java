@@ -19,13 +19,13 @@ import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.export.ExportAnalysis;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.TS.usermanagement.UserSqlLite;
+import lu.itrust.business.TS.usermanagement.UserSqLite;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOUser;
-import lu.itrust.business.dao.DAOUserSqlLite;
+import lu.itrust.business.dao.DAOUserSqLite;
 import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.dao.hbm.DAOUserHBM;
-import lu.itrust.business.dao.hbm.DAOUserSqlLiteHBM;
+import lu.itrust.business.dao.hbm.DAOUserSqLiteHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.view.model.AsyncCallback;
@@ -52,7 +52,7 @@ public class WorkerExportAnalysis implements Worker {
 
 	private int idAnalysis = 0;
 
-	private File sqllite = null;
+	private File sqlite = null;
 
 	private Principal principal = null;
 
@@ -100,17 +100,17 @@ public class WorkerExportAnalysis implements Worker {
 			else if (!analysis.hasData())
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.export.not_allow", "Empty analysis cannot be exported", null));
 			else {
-				sqllite = new File(servletContext.getRealPath("/WEB-INF/tmp/" + id + "_" + principal.getName()));
-				if (!sqllite.exists())
-					sqllite.createNewFile();
-				DatabaseHandler databaseHandler = new DatabaseHandler(sqllite.getCanonicalPath());
-				serviceTaskFeedback.send(id, new MessageHandler("info.export.build.structure", "Build sqlLite structure", 2));
+				sqlite = new File(servletContext.getRealPath("/WEB-INF/tmp/" + id + "_" + principal.getName()));
+				if (!sqlite.exists())
+					sqlite.createNewFile();
+				DatabaseHandler databaseHandler = new DatabaseHandler(sqlite.getCanonicalPath());
+				serviceTaskFeedback.send(id, new MessageHandler("info.export.build.structure", "Build sqLite structure", 2));
 				buildSQLiteStructure(servletContext, databaseHandler);
 				ExportAnalysis exportAnalysis = new ExportAnalysis(serviceTaskFeedback, session, databaseHandler, analysis, id);
 				MessageHandler messageHandler = exportAnalysis.exportAnAnalysis();
 				if (messageHandler != null)
 					error = messageHandler.getException();
-				saveSqlLite(session);
+				saveSqLite(session);
 			}
 		} catch (HibernateException e) {
 			this.error = e;
@@ -126,8 +126,8 @@ public class WorkerExportAnalysis implements Worker {
 			} catch (HibernateException e) {
 				e.printStackTrace();
 			}
-			if (sqllite != null && sqllite.exists())
-				sqllite.delete();
+			if (sqlite != null && sqlite.exists())
+				sqlite.delete();
 			synchronized (this) {
 				working = false;
 			}
@@ -137,9 +137,9 @@ public class WorkerExportAnalysis implements Worker {
 
 	}
 
-	private void saveSqlLite(Session session) {
+	private void saveSqLite(Session session) {
 		DAOUser daoUser = new DAOUserHBM(session);
-		DAOUserSqlLite daoUserSqlLite = new DAOUserSqlLiteHBM(session);
+		DAOUserSqLite daoUserSqLite = new DAOUserSqLiteHBM(session);
 		Transaction transaction = null;
 		try {
 			User user = daoUser.get(principal.getName());
@@ -147,17 +147,17 @@ public class WorkerExportAnalysis implements Worker {
 				serviceTaskFeedback.send(id, new MessageHandler("error.export.user.not_found", "User cannot be found", null));
 				return;
 			}
-			if (error != null || sqllite == null || !sqllite.exists()) {
+			if (error != null || sqlite == null || !sqlite.exists()) {
 				serviceTaskFeedback.send(id, new MessageHandler("error.export.save.file.abort", "File cannot be save", null));
 				return;
 			}
-			UserSqlLite userSqlLite = new UserSqlLite(sqllite.getName(), user, FileCopyUtils.copyToByteArray(sqllite));
-			userSqlLite.setSize(sqllite.length());
+			UserSqLite userSqLite = new UserSqLite(sqlite.getName(), user, FileCopyUtils.copyToByteArray(sqlite));
+			userSqLite.setSize(sqlite.length());
 			transaction = session.beginTransaction();
-			daoUserSqlLite.saveOrUpdate(userSqlLite);
+			daoUserSqLite.saveOrUpdate(userSqLite);
 			transaction.commit();
 			MessageHandler messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", 100);
-			messageHandler.setAsyncCallback(new AsyncCallback("downloadExportedSqlLite(\"" + userSqlLite.getId() + "\")", null));
+			messageHandler.setAsyncCallback(new AsyncCallback("downloadExportedSqLite(\"" + userSqLite.getId() + "\")", null));
 			serviceTaskFeedback.send(id, messageHandler);
 		} catch (Exception e) {
 			e.printStackTrace();

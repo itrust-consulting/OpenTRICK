@@ -13,7 +13,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
-import lu.itrust.business.service.ServiceUserSqlLite;
+import lu.itrust.business.service.ServiceUserSqLite;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -41,12 +41,12 @@ public class ControllerHome {
 	private MessageSource messageSource;
 	
 	@Autowired
-	private ServiceUserSqlLite serviceUserSqlLite;
+	private ServiceUserSqLite serviceUserSqLite;
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/home")
 	public String home(Model model, Principal principal) throws Exception {
-		model.addAttribute("userSqlLites", serviceUserSqlLite.findByFileName(principal.getName()));
+		model.addAttribute("userSqLites", serviceUserSqLite.findByFileName(principal.getName()));
 		return "index";
 	}
 

@@ -9,7 +9,7 @@ import java.sql.Timestamp;
  * @author eomar
  * 
  */
-public class UserSqlLite {
+public class UserSqLite {
 
 	private long id = -1;
 
@@ -19,7 +19,7 @@ public class UserSqlLite {
 	
 	private long size = 0;
 
-	private byte[] sqlLite;
+	private byte[] sqLite;
 
 	private Timestamp exportTime = null;
 
@@ -28,7 +28,7 @@ public class UserSqlLite {
 	/**
 	 * 
 	 */
-	public UserSqlLite() {
+	public UserSqLite() {
 	}
 
 	/**
@@ -36,10 +36,10 @@ public class UserSqlLite {
 	 * @param user
 	 * @param exportDate
 	 */
-	public UserSqlLite(String fileName, User user, byte[] file) {
+	public UserSqLite(String fileName, User user, byte[] file) {
 		this.fileName = fileName;
 		this.user = user;
-		this.sqlLite = file;
+		this.sqLite = file;
 		this.setExportTime(new Timestamp(System.currentTimeMillis()));
 		this.setDeleteTime(new Timestamp(System.currentTimeMillis() + 86400000));
 	}
@@ -120,18 +120,18 @@ public class UserSqlLite {
 	}
 
 	/**
-	 * @return the sqlLite
+	 * @return the sqLite
 	 */
-	public byte[] getSqlLite() {
-		return sqlLite;
+	public byte[] getSqLite() {
+		return sqLite;
 	}
 
 	/**
-	 * @param sqlLite
-	 *            the sqlLite to set
+	 * @param sqLite
+	 *            the sqLite to set
 	 */
-	public void setSqlLite(byte[] sqlLite) {
-		this.sqlLite = sqlLite;
+	public void setSqLite(byte[] sqLite) {
+		this.sqLite = sqLite;
 	}
 
 	public long getSize() {

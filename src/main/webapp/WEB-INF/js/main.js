@@ -945,7 +945,7 @@ function parseJson(data) {
 }
 
 
-function downloadExportedSqlLite(idFile){
+function downloadExportedSqLite(idFile){
 	$.fileDownload(context+'/Analysis/Download/'+idFile)
     .done(function () { alert('File download a success!'); })
     .fail(function () { alert('File download failed!'); });

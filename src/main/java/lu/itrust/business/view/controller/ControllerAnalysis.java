@@ -26,7 +26,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.TS.usermanagement.UserSqlLite;
+import lu.itrust.business.TS.usermanagement.UserSqLite;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
@@ -42,7 +42,7 @@ import lu.itrust.business.service.ServiceRiskRegister;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.ServiceUserAnalysisRight;
-import lu.itrust.business.service.ServiceUserSqlLite;
+import lu.itrust.business.service.ServiceUserSqLite;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerAnalysisImport;
@@ -115,7 +115,7 @@ public class ControllerAnalysis {
 	private AssessmentManager assessmentManager;
 
 	@Autowired
-	private ServiceUserSqlLite serviceUserSqlLite;
+	private ServiceUserSqLite serviceUserSqLite;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -233,17 +233,17 @@ public class ControllerAnalysis {
 	
 	@RequestMapping("/Download/{idFile}")
 	public String download(@PathVariable long idFile,Principal principal, HttpServletRequest request, HttpServletResponse response) throws IOException{
-		UserSqlLite userSqlLite = serviceUserSqlLite.findByIdAndUser(idFile, principal.getName());
-		if(userSqlLite==null)
+		UserSqLite userSqLite = serviceUserSqLite.findByIdAndUser(idFile, principal.getName());
+		if(userSqLite==null)
 			return "errors/404";
-		response.setContentType("sqllite");
+		response.setContentType("sqlite");
 		response.setHeader(
 				"Content-Disposition",
-				"attachment; filename=\"Analyse.sqllite\"");
+				"attachment; filename=\"Analyse.sqlite\"");
 
-		response.setContentLength((int)userSqlLite.getSize());
+		response.setContentLength((int)userSqLite.getSize());
 
-		FileCopyUtils.copy(userSqlLite.getSqlLite(),
+		FileCopyUtils.copy(userSqLite.getSqLite(),
 				response.getOutputStream());
 		return null;
 	}
