@@ -14,7 +14,7 @@
 	<spring:eval expression="T(lu.itrust.business.component.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
 	<div class="panel panel-default" onmouseover="if(!$('#menu_actionplan').is(':visible')) {$('#menu_actionplan').show();}" onmouseout="$('#menu_actionplan').hide();">
 		<div class="panel-heading" style="min-height: 60px;">
-			<div class="col-md-6">
+			<div class="col-md-10">
 				<ul class="nav nav-pills">
 					<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 						<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${apt}"><a href="#" onclick="return navToogled('section_actionplans','${apt}')">
