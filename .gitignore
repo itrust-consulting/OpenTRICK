@@ -1,4 +1,3 @@
 /target
-/.settings*
-/src/main/webapp/WEB-INF/jdbc.properties
-/.classpath
+/src/main/webapp/WEB-INF/my.jdbc.properties
+/src/main/webapp/WEB-INF/ts.jdbc.properties
