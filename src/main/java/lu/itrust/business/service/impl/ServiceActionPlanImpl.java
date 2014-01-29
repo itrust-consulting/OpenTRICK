@@ -6,10 +6,8 @@ package lu.itrust.business.service.impl;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.dao.DAOActionPlan;
 import lu.itrust.business.service.ServiceActionPlan;
 
@@ -33,42 +31,6 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	@Override
 	public ActionPlanEntry get(int id) throws Exception {
 		return daoActionPlan.get(id);
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceActionPlan#get(lu.itrust.business.TS.actionplan.ActionPlanType, lu.itrust.business.TS.Measure)
-	 */
-	@Override
-	public ActionPlanEntry get(ActionPlanType actionPlanType, Measure measure)
-			throws Exception {
-		return daoActionPlan.get(actionPlanType, measure);
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceActionPlan#findByActionPlanType(lu.itrust.business.TS.actionplan.ActionPlanType)
-	 */
-	@Override
-	public List<ActionPlanEntry> findByActionPlanType(
-			ActionPlanType actionPlanType) throws Exception {
-		return daoActionPlan.findByActionPlanType(actionPlanType);
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceActionPlan#findByAnalysis(lu.itrust.business.TS.Analysis)
-	 */
-	@Override
-	public List<ActionPlanEntry> findByAnalysis(Analysis analysis)
-			throws Exception {
-		return daoActionPlan.findByAnalysis(analysis);
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceActionPlan#loadAllFromAnalysis(int, java.lang.String, java.lang.String)
-	 */
-	@Override
-	public List<ActionPlanEntry> loadAllFromAnalysis(int identifier,
-			String version, String creationDate) throws Exception {
-		return daoActionPlan.loadAllFromAnalysis(identifier, version, creationDate);
 	}
 
 	/* (non-Javadoc)

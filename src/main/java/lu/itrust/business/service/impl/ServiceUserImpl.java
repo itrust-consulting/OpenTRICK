@@ -16,14 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author oensuifudine
- *
+ * 
  */
 @Service
 public class ServiceUserImpl implements ServiceUser {
 
 	@Autowired
 	private DAOUser daoUser;
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#get(long)
 	 */
 	@Override
@@ -31,7 +34,9 @@ public class ServiceUserImpl implements ServiceUser {
 		return daoUser.get(id);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#get(java.lang.String)
 	 */
 	@Override
@@ -39,7 +44,9 @@ public class ServiceUserImpl implements ServiceUser {
 		return daoUser.get(login);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#get(java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -47,7 +54,9 @@ public class ServiceUserImpl implements ServiceUser {
 		return daoUser.get(login, password);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#loadAll()
 	 */
 	@Override
@@ -55,7 +64,9 @@ public class ServiceUserImpl implements ServiceUser {
 		return daoUser.loadAll();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#loadByName(java.lang.String)
 	 */
 	@Override
@@ -63,7 +74,9 @@ public class ServiceUserImpl implements ServiceUser {
 		return daoUser.loadByName(name);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#loadByCountry(java.lang.String)
 	 */
 	@Override
@@ -74,57 +87,100 @@ public class ServiceUserImpl implements ServiceUser {
 	/**
 	 * addRole: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.service.ServiceUser#addRole(lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.usermanagement.Role)
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#addRole(lu.itrust.business.TS.usermanagement.User,
+	 *      lu.itrust.business.TS.usermanagement.Role)
 	 */
-	public boolean addRole(User user, Role role) throws Exception{
+	@Transactional
+	public boolean addRole(User user, Role role) throws Exception {
 		return daoUser.addRole(user, role);
 	}
-	
+
 	/**
 	 * removeRole: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.service.ServiceUser#removeRole(lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.usermanagement.Role)
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#removeRole(lu.itrust.business.TS.usermanagement.User,
+	 *      lu.itrust.business.TS.usermanagement.Role)
 	 */
-	public boolean removeRole(User user, Role role) throws Exception{
+	@Transactional
+	public boolean removeRole(User user, Role role) throws Exception {
 		return daoUser.removeRole(user, role);
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#save(lu.itrust.business.TS.User)
 	 */
+	@Transactional
 	@Override
 	public void save(User user) throws Exception {
 		daoUser.save(user);
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#saveOrUpdate(lu.itrust.business.TS.User)
 	 */
+	@Transactional
 	@Override
 	public void saveOrUpdate(User user) throws Exception {
 		daoUser.saveOrUpdate(user);
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#delete(lu.itrust.business.TS.User)
 	 */
+	@Transactional
 	@Override
 	public void delete(User user) throws Exception {
 		daoUser.delete(user);
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#delete(long)
 	 */
+	@Transactional
 	@Override
 	public void delete(long id) throws Exception {
 		daoUser.delete(id);
 
+	}
+
+	/**
+	 * 
+	 * hasUsers: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#hasUsers()
+	 */
+	@Transactional
+	@Override
+	public boolean hasUsers() throws Exception {
+		return daoUser.hasUsers();
+	}
+
+	/**
+	 * 
+	 * hasRole: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#hasRole(lu.itrust.business.TS.usermanagement.User,
+	 *      lu.itrust.business.TS.usermanagement.Role)
+	 */
+	@Transactional
+	@Override
+	public boolean hasRole(User user, Role role) throws Exception {
+		return daoUser.hasRole(user, role);
 	}
 
 	public DAOUser getDaoUser() {
@@ -133,16 +189,6 @@ public class ServiceUserImpl implements ServiceUser {
 
 	public void setDaoUser(DAOUser daoUser) {
 		this.daoUser = daoUser;
-	}
-
-	@Override
-	public boolean hasUsers() throws Exception {
-		return daoUser.hasUsers();
-	}
-
-	@Override
-	public boolean hasRole(User user, Role role) throws Exception {
-		return daoUser.hasRole(user, role);
 	}
 
 }

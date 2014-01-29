@@ -7,7 +7,6 @@ import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.actionplan.ActionPlanType;
 
 /** 
  * DAOActionPlan.java: <br>
@@ -20,13 +19,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanType;
 public interface DAOActionPlan {
 	
 	public ActionPlanEntry get(int id) throws Exception;
-	
-	public ActionPlanEntry get(ActionPlanType actionPlanType, Measure measure) throws Exception;
-	
-	public List<ActionPlanEntry> findByActionPlanType(ActionPlanType actionPlanType) throws Exception;
-	
-	public List<ActionPlanEntry> findByAnalysis(Analysis analysis) throws Exception;
-	
+			
 	public List<ActionPlanEntry> loadByAnalysisActionPlanType(Analysis analysis, ActionPlanMode mode) throws Exception;
 
 	public List<ActionPlanEntry> loadByAnalysisActionPlanType(int analysisID, ActionPlanMode mode) throws Exception;
@@ -36,9 +29,7 @@ public interface DAOActionPlan {
 	public List<Measure> loadMeasuresFromAnalysisActionPlanNotToImplement(int id, ActionPlanMode apm) throws Exception;
 	
 	public List<ActionPlanEntry> loadAllFromAnalysis(int id) throws Exception;
-	
-	public List<ActionPlanEntry> loadAllFromAnalysis(int identifier, String version, String creationDate) throws Exception;
-	
+		
 	public List<Asset> loadAssetsByAnalysisOrderByALE(int analysisID) throws Exception;
 
 	public List<ActionPlanEntry> loadAll() throws Exception;

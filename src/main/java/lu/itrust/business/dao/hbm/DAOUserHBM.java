@@ -11,17 +11,20 @@ import lu.itrust.business.dao.DAOUser;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author oensuifudine
- * 
+ * DAOUserHBM.java: <br>
+ * Detailed description...
+ *
+ * @author oensuifudine, itrust consulting s.à.rl. :
+ * @version 
+ * @since Feb , 2013
  */
 @Repository
 public class DAOUserHBM extends DAOHibernate implements DAOUser {
 
 	/**
-	 * 
+	 * constructor
 	 */
 	public DAOUserHBM() {
 	}
@@ -33,8 +36,9 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		super(session);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOUser#get(long)
 	 */
@@ -43,8 +47,9 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		return (User) getSession().get(User.class, id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String)
 	 */
@@ -53,8 +58,9 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		return (User) getSession().createQuery("From User where login = :login").setString("login", login).uniqueResult();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String, java.lang.String)
 	 */
@@ -63,8 +69,9 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		return (User) getSession().createQuery("From User where login = :login and password = :password").setString("login", login).setString("password", password).uniqueResult();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * loadAll: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOUser#loadAll()
 	 */
@@ -74,8 +81,9 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		return getSession().createQuery("From User").list();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * loadByName: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOUser#loadByName(java.lang.String)
 	 */
@@ -85,8 +93,9 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		return getSession().createQuery("From User where firstName = :name").setString("name", name).list();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * loadByCountry: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOUser#loadByCountry(java.lang.String)
 	 */
@@ -99,10 +108,9 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	/**
 	 * addRole: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUser#addRole(lu.itrust.business.TS.usermanagement.Role)
 	 */
-	@Transactional
 	public boolean addRole(User user, Role role) throws Exception {
 		boolean result = false;
 		try {
@@ -111,18 +119,17 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 			result = true;
 		} catch (Exception e) {
 			e.printStackTrace();
-			result=false;
+			result = false;
 		}
 		return result;
 	}
-	
+
 	/**
 	 * removeRole: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUser#removeRole(lu.itrust.business.TS.usermanagement.Role)
 	 */
-	@Transactional
 	public boolean removeRole(User user, Role role) throws Exception {
 		boolean result = false;
 		try {
@@ -131,74 +138,64 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 			result = true;
 		} catch (Exception e) {
 			e.printStackTrace();
-			result=false;
+			result = false;
 		}
 		return result;
 	}
-	
-	/*
-	 * (non-Javadoc)
+
+	/**
+	 * save: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#save(lu.itrust.business.TS.User)
+	 * @see lu.itrust.business.dao.DAOUser#save(lu.itrust.business.TS.usermanagement.User)
 	 */
-	@Transactional
 	@Override
 	public void save(User user) throws Exception {
 		getSession().save(user);
-		getSession().flush();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#saveOrUpdate(lu.itrust.business.TS.User)
+	 * @see lu.itrust.business.dao.DAOUser#saveOrUpdate(lu.itrust.business.TS.usermanagement.User)
 	 */
-	@Transactional
 	@Override
 	public void saveOrUpdate(User user) throws Exception {
-				
+
 		getSession().saveOrUpdate(user);
-		
-		getSession().flush();
-		
-		/*SQLQuery tmp = getSession().createSQLQuery("INSERT INTO user (idUser, dtLogin, dtPassword, dtFirstName, dtLastName, dtEmail, dtEnable) VALUES (:id, :login, :password, :first, :last, :email, :enable)");		
-		tmp.setParameter("id", 1);
-		tmp.setParameter("login", user.getLogin());
-		tmp.setParameter("password", user.getPassword());
-		tmp.setParameter("first", user.getFirstName());
-		tmp.setParameter("last", user.getLastName());
-		tmp.setParameter("email", user.getEmail());
-		tmp.setParameter("enable", user.isEnable());
-		tmp.executeUpdate();*/
-		
-		
-		
+
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#delete(lu.itrust.business.TS.User)
+	 * @see lu.itrust.business.dao.DAOUser#delete(lu.itrust.business.TS.usermanagement.User)
 	 */
-	@Transactional
 	@Override
 	public void delete(User user) throws Exception {
 		getSession().delete(user);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOUser#delete(long)
 	 */
-	@Transactional
 	@Override
 	public void delete(long id) throws Exception {
 		delete(get(id));
 	}
 
+	/**
+	 * hasUsers: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#hasUsers()
+	 */
 	@Override
-	@Transactional
 	public boolean hasUsers() throws Exception {
 		return ((Long) getSession().createQuery("Select count(*) From User").uniqueResult()).intValue() > 0;
 	}
@@ -206,10 +203,10 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	/**
 	 * hasRole: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.dao.DAOUser#hasRole(lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.usermanagement.Role)
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#hasRole(lu.itrust.business.TS.usermanagement.User,
+	 *      lu.itrust.business.TS.usermanagement.Role)
 	 */
-	@Transactional
 	@Override
 	public boolean hasRole(User user, Role role) throws Exception {
 		return user.hasRole(role.getType());
