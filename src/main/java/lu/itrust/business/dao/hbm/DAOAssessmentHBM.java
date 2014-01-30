@@ -46,17 +46,13 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOAssessment#loadAllFromScenario(lu.itrust.business
+	 * @see lu.itrust.business.dao.DAOAssessment#loadAllFromScenario(lu.itrust.business
 	 * .TS.Scenario)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> loadAllFromScenario(Scenario scenario)
-			throws Exception {
-		return getSession()
-				.createQuery("From Assessment where scenario = :scenario")
-				.setParameter("scenario", scenario).list();
+	public List<Assessment> loadAllFromScenario(Scenario scenario) throws Exception {
+		return getSession().createQuery("From Assessment where scenario = :scenario").setParameter("scenario", scenario).list();
 	}
 
 	/*
@@ -66,25 +62,19 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> loadAllFromScenarioId(int scenarioID)
-			throws Exception {
-		return getSession()
-				.createQuery("From Assessment where scenario.id = :scenarioId")
-				.setParameter("scenarioId", scenarioID).list();
+	public List<Assessment> loadAllFromScenarioId(int scenarioID) throws Exception {
+		return getSession().createQuery("From Assessment where scenario.id = :scenarioId").setParameter("scenarioId", scenarioID).list();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOAssessment#loadAllFromAsset(lu.itrust.business
-	 * .TS.Asset)
+	 * @see lu.itrust.business.dao.DAOAssessment#loadAllFromAsset(lu.itrust.business .TS.Asset)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> loadAllFromAsset(Asset asset) throws Exception {
-		return getSession().createQuery("From Assessment where asset = :asset")
-				.setParameter("asset", asset).list();
+		return getSession().createQuery("From Assessment where asset = :asset").setParameter("asset", asset).list();
 	}
 
 	/*
@@ -95,9 +85,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> loadAllFromAssetId(int assetID) throws Exception {
-		return getSession()
-				.createQuery("From Assessment where asset.id = :assetID")
-				.setParameter("assetID", assetID).list();
+		return getSession().createQuery("From Assessment where asset.id = :assetID").setParameter("assetID", assetID).list();
 	}
 
 	/*
@@ -107,12 +95,9 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> loadAllFromAnalysisID(int idAnalysis)
-			throws Exception {
-		return getSession()
-				.createQuery(
-						"Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis")
-				.setParameter("idAnalysis", idAnalysis).list();
+	public List<Assessment> loadAllFromAnalysisID(int idAnalysis) throws Exception {
+		return getSession().createQuery("Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis").setParameter(
+				"idAnalysis", idAnalysis).list();
 	}
 
 	/*
@@ -129,9 +114,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOAssessment#save(lu.itrust.business.TS.Assessment
-	 * )
+	 * @see lu.itrust.business.dao.DAOAssessment#save(lu.itrust.business.TS.Assessment )
 	 */
 	@Override
 	public void save(Assessment assessment) throws Exception {
@@ -141,9 +124,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOAssessment#saveOrUpdate(lu.itrust.business.
-	 * TS.Assessment)
+	 * @see lu.itrust.business.dao.DAOAssessment#saveOrUpdate(lu.itrust.business. TS.Assessment)
 	 */
 	@Override
 	public void saveOrUpdate(Assessment assessment) throws Exception {
@@ -153,9 +134,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOAssessment#remove(lu.itrust.business.TS.Assessment
-	 * )
+	 * @see lu.itrust.business.dao.DAOAssessment#remove(lu.itrust.business.TS.Assessment )
 	 */
 	@Override
 	public void remove(Assessment assessment) throws Exception {
@@ -172,57 +151,50 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> findByAssetAndUnselected(Asset asset) {
-		return getSession()
-				.createQuery(
-						"From Assessment where asset = :asset and selected = false")
-				.setParameter("asset", asset).list();
+		return getSession().createQuery("From Assessment where asset = :asset and selected = false").setParameter("asset", asset).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> findByAssetAndSelected(Asset asset) {
-		return getSession()
-				.createQuery(
-						"From Assessment where asset = :asset and selected = true")
-				.setParameter("asset", asset).list();
+		return getSession().createQuery("From Assessment where asset = :asset and selected = true").setParameter("asset", asset).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> findByScenarioAndSelected(Scenario scenario) {
-		return getSession()
-				.createQuery(
-						"From Assessment where scenario = :scenario and selected = true")
-				.setParameter("scenario", scenario).list();
+		return getSession().createQuery("From Assessment where scenario = :scenario and selected = true").setParameter("scenario", scenario).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> findByScenarioAndUnselected(Scenario scenario) {
-		return getSession()
-				.createQuery(
-						"From Assessment where scenario = :scenario and selected = false")
-				.setParameter("scenario", scenario).list();
+		return getSession().createQuery("From Assessment where scenario = :scenario and selected = false").setParameter("scenario", scenario).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Assessment> findByAnalysisAndSelectedScenario(Integer idAnalysis) {
-		return getSession()
-				.createQuery(
-						"Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.scenario.selected = true")
+		return getSession().createQuery(
+				"Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.scenario.selected = true")
 				.setParameter("idAnalysis", idAnalysis).list();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> findByAnalysisAndAcronym(int idAnalysis,
-			String acronym) {
+	public List<Assessment> findByAnalysisAndSelectedAsset(Integer idAnalysis) {
+		return getSession().createQuery(
+				"Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.asset.selected = true")
+				.setParameter("idAnalysis", idAnalysis).list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Assessment> findByAnalysisAndAcronym(int idAnalysis, String acronym) {
 		return getSession()
 				.createQuery(
 						"Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and (assessment.impactRep = :acronym or assessment.impactOp = :acronym or assessment.impactLeg = :acronym or assessment.impactFin = :acronym or assessment.likelihood = :acronym)")
-				.setParameter("idAnalysis", idAnalysis)
-				.setParameter("acronym", acronym).list();
+				.setParameter("idAnalysis", idAnalysis).setParameter("acronym", acronym).list();
 	}
 
 }

@@ -1217,7 +1217,7 @@ function updateALE() {
 
 function updateAssessmentAcronym(idParameter, acronym) {
 
-	return $.ajax({
+	$.ajax({
 		url : context + "/Assessment/Update/Acronym/" + idParameter + "/" + acronym,
 		contentType : "application/json",
 		async : true,
@@ -1236,6 +1236,7 @@ function updateAssessmentAcronym(idParameter, acronym) {
 			return true;
 		}
 	});
+	return false;
 }
 
 function post(url, data, refraich) {
@@ -1439,6 +1440,7 @@ function controllerBySection(section, subSection) {
 		"section_norm" : "/KnowledgeBase/Norm/Section",
 		"section_user" : "/Admin/User/Section",
 		"section_actionplans" : "/ActionPlan/Section",
+		"section_summary" : "/ActionPlanSummary/Section"
 	};
 
 	if (subSection == null || subSection == undefined)
@@ -1460,6 +1462,7 @@ function callbackBySection(section) {
 		"section_analysis" : function() {
 		},
 		"section_actionplans" : function() {
+			reloadSection("section_summary");
 			reloadCharts();
 			return false;
 		}
@@ -2442,7 +2445,7 @@ function reloadMeausreAndCompliance(norm, idMeasure) {
 function compliance(norm) {
 	if (!$('#chart_compliance_' + norm).length)
 		return false;
-	return $.ajax({
+	$.ajax({
 		url : context + "/Measure/Compliance/" + norm,
 		type : "get",
 		async : true,
@@ -2453,6 +2456,7 @@ function compliance(norm) {
 
 		}
 	});
+	return false;
 }
 
 function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
@@ -2505,7 +2509,7 @@ function reloadCharts() {
 	compliance('27001');
 	compliance('27002');
 	summaryCharts();
-
+	return false;
 };
 
 function reloadActionPlansAndCharts() {
@@ -2583,4 +2587,5 @@ function chartALE() {
 			}
 		});
 	}
+	return false;
 }

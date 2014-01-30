@@ -236,7 +236,7 @@ public class ControllerAsset {
 
 	@RequestMapping("/Chart/Ale")
 	public @ResponseBody
-	String aleByAsset(HttpSession session, Model model, Locale locale) {
+	String aleByAsset(HttpSession session, Model model, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;

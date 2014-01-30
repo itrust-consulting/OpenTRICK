@@ -226,6 +226,14 @@ public class AssessmentManager {
 		}
 	}
 
+	/**
+	 * UpdateAssetALE: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 * @throws Exception
+	 */
+	@Transactional
 	public void UpdateAssetALE(Analysis analysis) throws Exception {
 		List<ExtendedParameter> extendedParameters = analysis
 				.findExtendedByAnalysis();
@@ -256,6 +264,7 @@ public class AssessmentManager {
 				asset.setALEP(alep);
 				assessments.clear();
 			}
+			daoAnalysis.saveOrUpdate(analysis);
 		} finally {
 			assets.clear();
 			assessmentsByAsset.clear();

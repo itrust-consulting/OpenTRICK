@@ -48,12 +48,11 @@ public class ControllerSummary {
 
 	@Autowired
 	private ChartGenerator chartGenerator;
-
+	
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/Section")
 	public String section(HttpSession session, Principal principal, Model model, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		if (idAnalysis == null)
-			return null;
 		model.addAttribute("phases", servicePhase.loadAllFromAnalysis(idAnalysis));
 		model.addAttribute("summaries", serviceActionPlanSummary.findByAnalysis(idAnalysis));
 		return "analysis/components/summary";

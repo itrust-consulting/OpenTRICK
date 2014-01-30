@@ -37,8 +37,12 @@ import org.hibernate.Transaction;
 import org.springframework.util.FileCopyUtils;
 
 /**
- * @author eomar
- * 
+ * WorkerExportAnalysis.java: <br>
+ * Detailed description...
+ *
+ * @author eomar, itrust consulting s.à.rl. :
+ * @version 
+ * @since Jan 30, 2014
  */
 public class WorkerExportAnalysis implements Worker {
 
@@ -65,9 +69,15 @@ public class WorkerExportAnalysis implements Worker {
 	private WorkersPoolManager poolManager;
 
 	/**
+	 * WorkerExportAnalysis:
+	 * desc
+	 * 
 	 * @param serviceTaskFeedback
 	 * @param sessionFactory
+	 * @param principal
+	 * @param servletContext
 	 * @param poolManager
+	 * @param idAnalysis
 	 */
 	public WorkerExportAnalysis(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, Principal principal, ServletContext servletContext,
 			WorkersPoolManager poolManager, int idAnalysis) {

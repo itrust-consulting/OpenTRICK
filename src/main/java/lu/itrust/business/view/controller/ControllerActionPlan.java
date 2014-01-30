@@ -2,6 +2,7 @@ package lu.itrust.business.view.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -30,6 +31,7 @@ import lu.itrust.business.task.WorkerComputeActionPlan;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -107,7 +109,10 @@ public class ControllerActionPlan {
 
 		// load all actionplans from the selected analysis
 		List<ActionPlanEntry> actionplans = serviceActionPlan.loadAllFromAnalysis(selected);
+		
 
+		
+		
 		// load all affected assets of the actionplans (unique assets used)
 		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
 
@@ -143,6 +148,13 @@ public class ControllerActionPlan {
 		// load all affected assets of the actionplans (unique assets used)
 		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
 
+		Collections.reverse(actionplans);
+		
+		for (ActionPlanEntry ape: actionplans) {
+			Hibernate.initialize(ape);
+			Hibernate.initialize(ape.getMeasure().getMeasureDescription().getMeasureDescriptionTexts());
+		}
+		
 		// prepare model
 		model.put("actionplans", actionplans);
 		model.put("assets", assets);

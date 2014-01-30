@@ -150,7 +150,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	public List<Customer> loadByUser(String username) {
 		return getSession()
 				.createQuery(
-						"Select customer From User as user inner join user.customers as customer where user.login = :username order by customer.organisation asc, customer.contactPerson asc")
+				"Select customer From User as user inner join user.customers as customer where user.login = :username order by customer.organisation asc, customer.contactPerson asc")
 				.setParameter("username", username).list();
 	}
 
