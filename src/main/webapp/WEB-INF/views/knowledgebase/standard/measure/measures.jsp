@@ -69,7 +69,7 @@
 								<tbody>
 									<c:forEach items="${measureDescriptions}"
 										var="measureDescription">
-										<tr trick-id="${measureDescription.id}">
+										<tr trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${norm.id}');">
 											<td><input type="checkbox" class="checkbox"
 												onchange="return updateMenu('#section_measure_description','#menu_measure_description');"></td>
 											<td>${measureDescription.level}</td>

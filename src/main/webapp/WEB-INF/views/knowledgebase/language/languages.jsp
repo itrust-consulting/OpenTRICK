@@ -43,7 +43,7 @@
 						</thead>
 						<tbody>
 							<c:forEach items="${languages}" var="language">
-								<tr trick-id="${language.id}">
+								<tr trick-id="${language.id}" ondblclick="return editSingleLanguage('${language.id}');">
 									<td><input type="checkbox" class="checkbox"
 										onchange="return updateMenu('#section_language','#menu_language');"></td>
 									<td><spring:message text="${language.alpha3}"

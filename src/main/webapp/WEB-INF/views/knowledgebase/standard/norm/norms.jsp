@@ -48,7 +48,7 @@
 						</thead>
 						<tbody>
 							<c:forEach items="${norms}" var="norm">
-								<tr trick-id="${norm.id}">
+								<tr trick-id="${norm.id}" ondblclick="return editSingleNorm('${norm.id}');">
 									<td><input type="checkbox" class="checkbox"
 										onchange="return updateMenu('#section_norm','#menu_norm');"></td>
 									<td>${norm.label}</td>
