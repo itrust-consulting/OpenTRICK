@@ -11,11 +11,9 @@
 <!--<link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.css" />' /> -->
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/js/datatables/media/css/jquery.dataTables.css" />' />
-<!--<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.css" />' />  -->
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.min.css" />' />
-<!--  <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.css" />' />-->
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.min.css" />' />
-<!--  <link rel="stylesheet" type="text/css" href='<spring:url value="/css/navigation.css" />' />-->
+<<link rel="stylesheet" type="text/css" href='<spring:url value="/css/theme.bootstrap.css" />' /> 
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/main.css" />' />
 <script type="text/javascript">
 <!--

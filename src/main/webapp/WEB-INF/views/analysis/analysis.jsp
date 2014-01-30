@@ -129,21 +129,30 @@
 											</c:forEach>
 										</select>
 									</div>
-									<table class="table table-hover">
+									<table
+										class="table table-hover tablesorter-bootstrap" style="max-width: ">
 										<thead>
-											<tr>
+											<tr class="tablesorter-headerRow" >
 												<th><input type="checkbox" class="checkbox"
 													onchange="return checkControlChange(this,'analysis')"></th>
-												<th><spring:message code="label.analysis.identifier" /></th>
-												<th><spring:message code="label.analysis.customer" /></th>
-												<th><spring:message code="label.analysis.label" /></th>
-												<th><spring:message code="label.analysis.creationDate" /></th>
-												<th><spring:message code="label.analysis.version" /></th>
-												<th><spring:message code="label.analysis.author" /></th>
-												<th><spring:message
+												<th class="tablesorter-header bootstrap-header"><spring:message
+														code="label.analysis.identifier" /></th>
+												<th class="tablesorter-header bootstrap-header"><spring:message
+														code="label.analysis.customer" /></th>
+												<th class="tablesorter-header bootstrap-header"><spring:message
+														code="label.analysis.label" /></th>
+												<th class="tablesorter-header bootstrap-header"><spring:message
+														code="label.analysis.creationDate" /></th>
+												<th class="tablesorter-header bootstrap-header"><spring:message
+														code="label.analysis.version" /></th>
+												<th class="tablesorter-header bootstrap-header"><spring:message
+														code="label.analysis.author" /></th>
+												<th class="tablesorter-header bootstrap-header"><spring:message
 														code="label.analysis.basedOnAnalysis" /></th>
-												<th><spring:message code="label.analysis.language" /></th>
-												<th><spring:message code="label.analysis.rights" /></th>
+												<th class="tablesorter-header bootstrap-header"><spring:message
+														code="label.analysis.language" /></th>
+												<th class="tablesorter-header bootstrap-header"><spring:message
+														code="label.analysis.rights" /></th>
 											</tr>
 										</thead>
 										<tbody>
