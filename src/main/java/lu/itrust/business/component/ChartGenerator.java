@@ -589,7 +589,7 @@ public class ChartGenerator {
 
 		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f}"+keuroByYear+" </b></td></tr>\",\"footerFormat\": \"</table>\", \"useHTML\": true }";
 
-		String yAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} "+keuroByYear+"\",\"useHTML\": true}, \"title\": {\"title\":\""
+		String yAxis = "\"yAxis\": [{\"labels\":{\"format\": \"{value} "+keuroByYear+"\",\"useHTML\": true}, \"title\": {\"title\":\""
 				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale)
 				+ "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}%\"}, \"title\":{\"text\":\""
 				+ messageSource.getMessage("label.summary.compliance", null, "Compliance", locale) + "\"}, \"opposite\": true} ]";

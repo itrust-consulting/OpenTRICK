@@ -1,10 +1,14 @@
 package lu.itrust.business.view.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.security.Principal;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Norm;
@@ -12,6 +16,10 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.service.ServiceNorm;
 
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +31,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -130,7 +140,6 @@ public class ControllerNorm {
 	@RequestMapping(value = "/Delete/{normId}", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
 	String[] deleteNorm(@PathVariable("normId") Integer normId, Locale locale) throws Exception {
-		
 		try {
 			customDelete.deleteNorm(serviceNorm.getNormByID(normId));
 			return new String[] {"success",messageSource.getMessage("success.norm.delete.successfully", null, "Norm was deleted successfully", locale) };
@@ -139,7 +148,42 @@ public class ControllerNorm {
 			return new String[] { "error", messageSource.getMessage("error.norm.delete.successfully", null, "Norm was not deleted. Make sure it is not used in an analysis", locale) };
 		}
 	}
-
+	
+	
+	/**
+	 * 
+	 * Upload new norm file
+	 * 
+	 * */
+	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = "Accept=application/json")
+	public String UploadNorm() throws Exception {
+		return "knowledgebase/standard/norm/uploadForm";
+	}	
+	
+	
+	/**
+	 * importNewNorm: <br>
+	 * Description
+	 */
+	@RequestMapping(value="/Import")
+	public Object importNewNorm( @RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request,
+			 RedirectAttributes attributes, Locale locale) throws Exception {
+		System.out.println("test2=" + file.getOriginalFilename() + principal.getName());
+		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
+		file.transferTo(importFile);
+		FileInputStream file2 = new FileInputStream(importFile);
+		
+		//Get the workbook instance for XLS file
+		XSSFWorkbook workbook = new XSSFWorkbook(file2);
+		
+		//Get first sheet from the workbook
+		XSSFSheet sheet = workbook.getSheetAt(0);
+		
+		System.out.println(sheet.getSheetName());
+		
+		return "redirect:/Analysis";
+	}
+	
 	/**
 	 * buildLanguage: <br>
 	 * Description

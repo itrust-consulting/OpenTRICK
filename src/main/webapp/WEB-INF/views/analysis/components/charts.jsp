@@ -18,6 +18,7 @@
 		</div>
 		<div class="panel-body">
 			<div id="chart_ale_asset"></div>
+			<hr style="margin: 30px 0;" />
 			<div id="chart_ale_asset_type"></div>
 		</div>
 	</div>
@@ -27,6 +28,7 @@
 		</div>
 		<div class="panel-body">
 			<div id="chart_ale_scenario"></div>
+			<hr style="margin: 30px 0;" />
 			<div id="chart_ale_scenario_type"></div>
 		</div>
 	</div>
@@ -36,6 +38,7 @@
 		</div>
 		<div class="panel-body">
 			<div id="chart_compliance_27001"></div>
+			<hr style="margin: 30px 0;" />
 			<div id="chart_compliance_27002"></div>
 		</div>
 	</div>
@@ -45,7 +48,9 @@
 		</div>
 		<div class="panel-body">
 			<div id="chart_evolution_profitability_compliance_APPN"></div>
+			<hr style="margin: 30px 0;" />
 			<div id="chart_evolution_profitability_compliance_APPO"></div>
+			<hr style="margin: 30px 0;" />
 			<div id="chart_evolution_profitability_compliance_APPP"></div>
 		</div>
 	</div>
@@ -55,7 +60,9 @@
 		</div>
 		<div class="panel-body">
 			<div id="chart_budget_APPN"></div>
+			<hr style="margin: 30px 0;" />
 			<div id="chart_budget_APPO"></div>
+			<hr style="margin: 30px 0;" />
 			<div id="chart_budget_APPP"></div>
 		</div>
 	</div>
