@@ -1,5 +1,6 @@
 package lu.itrust.business.view.controller;
 
+import java.security.Principal;
 import java.util.Map;
 
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -40,8 +41,8 @@ public class ControllerKnowledgeBase {
 	
 	
 	@RequestMapping
-	public String displayKowledgeBase(Map<String, Object> model) throws Exception  {
-		model.put("customers",serviceCustomer.loadAll());
+	public String displayKowledgeBase(Map<String, Object> model , Principal principal) throws Exception  {
+		model.put("customers",serviceCustomer.loadByUserAndProfile(principal.getName()));
 		model.put("languages", serviceLanguage.loadAll());
 		model.put("norms", serviceNorm.loadAll());
 		return "knowledgebase/knowledgebase";

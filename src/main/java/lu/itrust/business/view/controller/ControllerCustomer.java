@@ -10,7 +10,9 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceCustomer;
+import lu.itrust.business.service.ServiceUser;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -45,6 +47,9 @@ public class ControllerCustomer {
 	@Autowired
 	private MessageSource messageSource;
 
+	@Autowired
+	private ServiceUser serviceUser;
+
 	/**
 	 * 
 	 * Display all customers
@@ -67,19 +72,19 @@ public class ControllerCustomer {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String section(Model model, HttpSession session, Principal principal) throws Exception{
+	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("customers", serviceCustomer.loadAll());
 		return "knowledgebase/customer/customers";
 	}
-	
+
 	/**
 	 * 
 	 * Display single customer
 	 * 
 	 * */
 	@RequestMapping("/{customerId}")
-	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
-			throws Exception {
+	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
+			Locale locale) throws Exception {
 		Customer customer = (Customer) session.getAttribute("customer");
 		if (customer == null || customer.getId() != customerId)
 			customer = serviceCustomer.get(customerId);
@@ -102,18 +107,27 @@ public class ControllerCustomer {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	List<String[]> save(@RequestBody String value, Locale locale) {
+	List<String[]> save(@RequestBody String value, Principal principal, Locale locale) {
 		List<String[]> errors = new LinkedList<>();
 		try {
-
 			Customer customer = new Customer();
 			if (!buildCustomer(errors, customer, value, locale))
 				return errors;
+			User user = serviceUser.get(principal.getName());
+			System.out.println(serviceCustomer.hasUser(customer.getId()));
 			if (customer.getId() < 1) {
-				serviceCustomer.save(customer);
-			} else {
+				if (customer.isCanBeUsed()) {
+					user.add(customer);
+					serviceUser.saveOrUpdate(user);
+				} else if (!serviceCustomer.hasProfileCustomer())
+					serviceCustomer.save(customer);
+				else
+					errors.add(new String[] { "customer", messageSource.getMessage("error.customer.profile.duplicate", null, "A customer profile already exists", locale) });
+			} else if (!(serviceCustomer.hasUser(customer.getId()) || customer.isCanBeUsed()))
 				serviceCustomer.saveOrUpdate(customer);
-			}
+			else
+				errors.add(new String[] { "customer",
+						messageSource.getMessage("error.customer.profile.attach.user", null, "Only a customer who is not attached to a user can be used as profile", locale) });
 		} catch (Exception e) {
 			errors.add(new String[] { "customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
@@ -127,14 +141,11 @@ public class ControllerCustomer {
 	 * 
 	 * */
 	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = "Accept=application/json")
-	public @ResponseBody String[] deleteCustomer(@PathVariable("customerId") Integer customerId, Locale locale) throws Exception {
-		serviceCustomer.remove(customerId);		
-		return new String[] {
-			"error",
-			messageSource.getMessage("success.customer.delete.successfully", null,
-					"Customer was deleted successfully", locale) 
-		};
-		
+	public @ResponseBody
+	String[] deleteCustomer(@PathVariable("customerId") Integer customerId, Locale locale) throws Exception {
+		serviceCustomer.remove(customerId);
+		return new String[] { "error", messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale) };
+
 	}
 
 	/**
@@ -154,7 +165,6 @@ public class ControllerCustomer {
 			int id = jsonNode.get("id").asInt();
 			if (id > 0)
 				customer.setId(jsonNode.get("id").asInt());
-			
 			customer.setOrganisation(jsonNode.get("organisation").asText());
 			customer.setContactPerson(jsonNode.get("contactPerson").asText());
 			customer.setTelephoneNumber(jsonNode.get("telephoneNumber").asText());
@@ -163,18 +173,14 @@ public class ControllerCustomer {
 			customer.setCity(jsonNode.get("city").asText());
 			customer.setZIPCode(jsonNode.get("ZIPCode").asText());
 			customer.setCountry(jsonNode.get("country").asText());
+			customer.setCanBeUsed(jsonNode.get("canBeUsed") == null ? true : !jsonNode.get("canBeUsed").asText().equals("on"));
 			return true;
-
 		} catch (Exception e) {
 
 			errors.add(new String[] { "customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 			return false;
 		}
-		
-	}
 
-	public void setServiceCustomer(ServiceCustomer serviceCustomer) {
-		this.serviceCustomer = serviceCustomer;
 	}
 }

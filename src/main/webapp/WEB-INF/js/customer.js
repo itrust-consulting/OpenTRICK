@@ -65,6 +65,8 @@ function newCustomer() {
 	$("#customer_city").prop("value", "");
 	$("#customer_ZIPCode").prop("value", "");
 	$("#customer_country").prop("value", "");
+	if ($("#customer_canBeUsed").length)
+		$("#customer_canBeUsed").prop("checked", false);
 	$("#addCustomerModel-title").text(
 			MessageResolver("title.knowledgebase.Customer.Add",
 					"Add a new Customer"));
@@ -92,6 +94,8 @@ function editSingleCustomer(customerId) {
 	$("#customer_city").prop("value", $(rows[5]).text());
 	$("#customer_ZIPCode").prop("value", $(rows[6]).text());
 	$("#customer_country").prop("value", $(rows[7]).text());
+	if ($("#customer_canBeUsed").length)
+		$("#customer_canBeUsed").prop("checked", $(rows[8]) == "true");
 	$("#addCustomerModel-title").text(
 			MessageResolver("title.knowledgebase.Customer.Update",
 					"Update a Customer"));

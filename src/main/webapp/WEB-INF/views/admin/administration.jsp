@@ -38,7 +38,7 @@
 				</div>
 				<div class="content" id="content" role="main" data-spy="scroll">
 							<div id="messages"></div>
-				
+					<jsp:include page="user/users.jsp" />
 					<jsp:include page="user/users.jsp" />
 					<jsp:include page="widget.jsp" />
 				</div>

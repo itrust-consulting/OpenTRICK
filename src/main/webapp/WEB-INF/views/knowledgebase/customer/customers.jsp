@@ -44,22 +44,29 @@
 								<th><spring:message code="label.customer.city" /></th>
 								<th><spring:message code="label.customer.ZIPCode" /></th>
 								<th><spring:message code="label.customer.country" /></th>
+								<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+									<th><spring:message code="label.customer.can_be_used" text="Profile only" /></th>
+								</sec:authorize>
 							</tr>
 						</thead>
 						<tbody>
 							<c:forEach items="${customers}" var="customer">
-								<tr trick-id="${customer.id}" ondblclick="return editSingleCustomer('${customer.id}');">
+								<tr trick-id="${customer.id}"
+									ondblclick="return editSingleCustomer('${customer.id}');">
 									<td><input type="checkbox" class="checkbox"
 										onchange="return updateMenu('#section_customer','#menu_customer');">
 									</td>
-									<td>${customer.organisation}</td>
-									<td>${customer.contactPerson}</td>
-									<td>${customer.telephoneNumber}</td>
-									<td>${customer.email}</td>
-									<td>${customer.address}</td>
-									<td>${customer.city}</td>
-									<td>${customer.ZIPCode}</td>
-									<td>${customer.country}</td>
+									<td><spring:message text="${customer.organisation}" /></td>
+									<td><spring:message text="${customer.contactPerson}" /></td>
+									<td><spring:message text="${customer.telephoneNumber}" /></td>
+									<td><spring:message text="${customer.email}" /></td>
+									<td><spring:message text="${customer.address}" /></td>
+									<td><spring:message text="${customer.city}" /></td>
+									<td><spring:message text="${customer.ZIPCode}" /></td>
+									<td><spring:message text="${customer.country}" /></td>
+									<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+										<td><spring:message code="label.yes_no.${!customer.canBeUsed}" text="${!customer.canBeUsed}" /></td>
+									</sec:authorize>
 								</tr>
 							</c:forEach>
 						</tbody>

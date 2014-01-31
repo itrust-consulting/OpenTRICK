@@ -37,7 +37,6 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	}
 
 
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -45,7 +44,6 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 */
 	@Override
 	public Customer get(int id) throws Exception {
-		// TODO Auto-generated method stub
 		return daoCustomer.get(id);
 	}
 
@@ -58,7 +56,6 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 */
 	@Override
 	public Customer loadByCustomerName(String fullName) throws Exception {
-		// TODO Auto-generated method stub
 		return daoCustomer.loadByCustomerName(fullName);
 	}
 
@@ -72,7 +69,6 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	@Override
 	public List<Customer> loadByOrganasition(String organisation)
 			throws Exception {
-		// TODO Auto-generated method stub
 		return daoCustomer.loadByOrganasition(organisation);
 	}
 
@@ -85,7 +81,6 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 */
 	@Override
 	public List<Customer> loadByCountry(String city) throws Exception {
-		// TODO Auto-generated method stub
 		return daoCustomer.loadByCountry(city);
 	}
 
@@ -96,7 +91,6 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 */
 	@Override
 	public List<Customer> loadAll() throws Exception {
-		// TODO Auto-generated method stub
 		return daoCustomer.loadAll();
 	}
 
@@ -111,7 +105,6 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	@Override
 	public void save(Customer customer) throws Exception {
 		daoCustomer.save(customer);
-
 	}
 
 	/*
@@ -125,7 +118,6 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	@Transactional
 	public void saveOrUpdate(Customer customer) throws Exception {
 		daoCustomer.saveOrUpdate(customer);
-
 	}
 
 	/*
@@ -145,14 +137,36 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	@Override
 	public void remove(Integer customerId)throws Exception {
 		daoCustomer.remove(customerId);
-		
+	}
+
+	@Override
+	public List<Customer> loadByUser(String username) {
+		return daoCustomer.loadByUser(username);
+	}
+
+
+	@Override
+	public Customer loadProfileCustomer() {
+		return daoCustomer.loadProfileCustomer();
+	}
+
+	@Override
+	public boolean hasProfileCustomer() {
+		return daoCustomer.hasProfileCustomer();
 	}
 
 
 
 	@Override
-	public List<Customer> loadByUser(String username) {
-		return daoCustomer.loadByUser(username);
+	public List<Customer> loadByUserAndProfile(String username) {
+		return daoCustomer.loadByUserAndProfile(username);
+	}
+
+
+
+	@Override
+	public boolean hasUser(int idCustomer) {
+		return daoCustomer.hasUser(idCustomer);
 	}
 
 }

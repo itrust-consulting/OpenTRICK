@@ -43,7 +43,6 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	@Override
 	public Customer get(int id) throws Exception {
 		return (Customer) getSession().get(Customer.class, id);
-
 	}
 
 	/**
@@ -57,7 +56,16 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 		Query query = getSession().createQuery("From Customer where contactPerson = :contactPerson");
 		query.setString("contactPerson", fullName);
 		return (Customer) query.uniqueResult();
+	}
 
+	@Override
+	public boolean hasProfileCustomer() {
+		return ((Long) getSession().createQuery("Select count(*) From Customer as customer where customer.canBeUsed = false").uniqueResult()).intValue() != 0;
+	}
+
+	@Override
+	public Customer loadProfileCustomer() {
+		return (Customer) getSession().createQuery("Select customer From Customer as customer where customer.canBeUsed = false").uniqueResult();
 	}
 
 	/**
@@ -150,8 +158,25 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	public List<Customer> loadByUser(String username) {
 		return getSession()
 				.createQuery(
-				"Select customer From User as user inner join user.customers as customer where user.login = :username order by customer.organisation asc, customer.contactPerson asc")
+						"Select customer From User as user inner join user.customers as customer where user.login = :username and customer.canBeUsed = true order by customer.organisation asc, customer.contactPerson asc")
 				.setParameter("username", username).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> loadByUserAndProfile(String username) {
+		return getSession()
+				.createQuery(
+						"Select customer From User as user inner join user.customers as customer where user.login = :username or customer.canBeUsed = false order by customer.organisation asc, customer.contactPerson asc")
+				.setParameter("username", username).list();
+	}
+
+	@Override
+	public boolean hasUser(int idCustomer) {
+		return ((Long) getSession()
+				.createQuery(
+						"Select count(customer) From User as user inner join user.customers as customer where customer.id = :idCustomer")
+				.setParameter("idCustomer", idCustomer).uniqueResult()).intValue() != 0;
 	}
 
 }
