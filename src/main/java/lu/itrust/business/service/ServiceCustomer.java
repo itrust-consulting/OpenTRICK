@@ -20,6 +20,8 @@ public interface ServiceCustomer {
 
 	public List<Customer> loadByOrganasition(String organisation)
 			throws Exception;
+	
+	public List<Customer> loadByUser(String name);
 
 	public List<Customer> loadByCountry(String city) throws Exception;
 
@@ -34,5 +36,7 @@ public interface ServiceCustomer {
 	public void remove(Integer customerId) throws Exception;
 	
 	public DAOCustomer getDaoCustomer();
+
+	
 
 }

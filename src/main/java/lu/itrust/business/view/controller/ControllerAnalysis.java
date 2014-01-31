@@ -24,7 +24,6 @@ import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSqLite;
 import lu.itrust.business.component.AssessmentManager;
@@ -57,6 +56,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -146,7 +146,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String displayAll(Principal principal, Map<String, Object> model, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
+	public String displayAll(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 		if (selected != null) {
 
@@ -159,32 +159,43 @@ public class ControllerAnalysis {
 					return "redirect:/Error/404";
 				}
 				Hibernate.initialize(analysis.getLanguage());
-				model.put("login", principal.getName());
-				model.put("assettypes", serviceAssetType.loadAll());
-				model.put("language", analysis.getLanguage().getAlpha3());
-				model.put("analysis", analysis);
+				model.addAttribute("login", principal.getName());
+				model.addAttribute("assettypes", serviceAssetType.loadAll());
+				model.addAttribute("language", analysis.getLanguage().getAlpha3());
+				model.addAttribute("analysis", analysis);
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.notAuthorized", null, "Insufficient permissions!", locale));
 				return "redirect:/Error/403";
 			}
 		} else {
-			User user = serviceUser.get(principal.getName());
-
-			if (user.hasRole(RoleType.ROLE_ADMIN)) {
-				model.put("analyses", serviceAnalysis.loadAll());
-			} else {
-				model.put("analyses", serviceAnalysis.loadAllFromUser(user));
-			}
-
-			model.put("login", principal.getName());
-			model.put("deleteRight", AnalysisRight.DELETE.ordinal());
-			model.put("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
-			model.put("calcActionPlanRight", AnalysisRight.CALCULATE_ACTIONPLAN.ordinal());
-			model.put("modifyRight", AnalysisRight.MODIFY.ordinal());
-			model.put("exportRight", AnalysisRight.EXPORT.ordinal());
-			model.put("readRight", AnalysisRight.READ.ordinal());
+			List<Customer> customers = serviceCustomer.loadByUser(principal.getName());
+			String customer = (String) session.getAttribute("currentCustomer");
+			if (customer == null && !customers.isEmpty())
+				session.setAttribute("currentCustomer", customer = customers.get(0).getOrganisation());
+			if (customer != null)
+				section(customer, 0, principal.getName(), model, customers);
 		}
 		return "analysis/analysis";
+	}
+
+	@RequestMapping("/Section/{customer}/{pageIndex}")
+	public String section(@PathVariable String customer, @PathVariable int pageIndex, HttpSession session, Principal principal, Model model) {
+		session.setAttribute("currentCustomer", customer);
+		section(customer, pageIndex, principal.getName(), model, serviceCustomer.loadByUser(principal.getName()));
+		return "analysis/analysis";
+	}
+
+	private void section(String customer, int pageIndex, String userName, Model model, List<Customer> customers) {
+		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(userName, customer, pageIndex, 20));
+		model.addAttribute("customer", customer);
+		model.addAttribute("customers", serviceCustomer.loadByUser(userName));
+		model.addAttribute("login", userName);
+		model.addAttribute("deleteRight", AnalysisRight.DELETE.ordinal());
+		model.addAttribute("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
+		model.addAttribute("calcActionPlanRight", AnalysisRight.CALCULATE_ACTIONPLAN.ordinal());
+		model.addAttribute("modifyRight", AnalysisRight.MODIFY.ordinal());
+		model.addAttribute("exportRight", AnalysisRight.EXPORT.ordinal());
+		model.addAttribute("readRight", AnalysisRight.READ.ordinal());
 	}
 
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json")
@@ -230,24 +241,22 @@ public class ControllerAnalysis {
 		return "redirect:/Analysis";
 
 	}
-	
+
 	@RequestMapping("/Download/{idFile}")
-	public String download(@PathVariable long idFile,Principal principal, HttpServletRequest request, HttpServletResponse response) throws IOException{
+	public String download(@PathVariable long idFile, Principal principal, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		UserSqLite userSqLite = serviceUserSqLite.findByIdAndUser(idFile, principal.getName());
-		if(userSqLite==null)
+		if (userSqLite == null)
 			return "errors/404";
 		response.setContentType("sqlite");
-		
+
 		String identifierName = userSqLite.getAnalysisIdentifier();
 
-		response.setHeader(
-				"Content-Disposition",
-				"attachment; filename=\""+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) +".sqlite\"");
+		response.setHeader("Content-Disposition", "attachment; filename=\""
+				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
 
-		response.setContentLength((int)userSqLite.getSize());
+		response.setContentLength((int) userSqLite.getSize());
 
-		FileCopyUtils.copy(userSqLite.getSqLite(),
-				response.getOutputStream());
+		FileCopyUtils.copy(userSqLite.getSqLite(), response.getOutputStream());
 		return null;
 	}
 
@@ -503,9 +512,9 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Import")
-	public String importAnalysis(Map<String, Object> model) throws Exception {
+	public String importAnalysis(Principal principal, Map<String, Object> model) throws Exception {
 		model.put("customerId", -1);
-		model.put("customers", serviceCustomer.loadAll());
+		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
 		return "analysis/importAnalysisForm";
 	}
 
@@ -528,6 +537,8 @@ public class ControllerAnalysis {
 
 		if (customer == null || file.isEmpty())
 			return "analysis/importAnalysisForm";
+
+		request.getSession().setAttribute("currentCustomer", customer.getOrganisation());
 
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 

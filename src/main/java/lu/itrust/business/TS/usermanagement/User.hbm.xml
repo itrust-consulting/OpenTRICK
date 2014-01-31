@@ -24,17 +24,21 @@
 			type="java.lang.String">
 			<column name="dtEmail" unique="true" />
 		</property>
+		
 		<property generated="never" name="enable" type="boolean">
 			<column name="dtEnable" />
 		</property>
+		
 		<bag cascade="all" name="roles" table="userRole">
 			<key column="idUser" not-null="true" />
 			<many-to-many class="Role" column="idRole" unique="false" />
 		</bag>
-		<bag name="customers" table="customer" cascade="all" access="field">
+		
+		<bag name="customers" table="userCustomer" cascade="all" access="field">
 			<key column="fiUser" not-null="true" />
-			<one-to-many class="lu.itrust.business.TS.Customer" />
+			<many-to-many class="lu.itrust.business.TS.Customer" column="fiCustomer" order-by="organisation, contactPerson"/>
 		</bag>
+		
 	</class>
 
 	<class name="UserSqLite" table="userSqLite">

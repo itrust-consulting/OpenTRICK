@@ -148,4 +148,11 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 		
 	}
 
+
+
+	@Override
+	public List<Customer> loadByUser(String username) {
+		return daoCustomer.loadByUser(username);
+	}
+
 }

@@ -173,4 +173,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public Language getLanguageFromAnalysis(int analysisID) throws Exception {
 		return daoAnalysis.getLanguageOfAnalysis(analysisID);
 	}
+
+	@Override
+	public List<Analysis> loadByUserAndCustomer(String login, String customer) {
+		return daoAnalysis.loadByUserAndCustomer(login, customer);
+	}
+
+	@Override
+	public List<Analysis> loadByUserAndCustomer(String login, String customer, int pageIndex, int pageSize) {
+		return daoAnalysis.loadByUserAndCustomer(login, customer,pageIndex, pageSize );
+	}
 }

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
-	
+
 	/**
 	 * 
 	 */
@@ -143,6 +143,15 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 		query = getSession().createQuery("delete from Customer where id = :customerId");
 		query.setParameter("customerId", customerId);
 		query.executeUpdate();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> loadByUser(String username) {
+		return getSession()
+				.createQuery(
+				"Select customer From User as user inner join user.customers as customer where user.login = :username order by customer.organisation asc, customer.contactPerson asc")
+				.setParameter("username", username).list();
 	}
 
 }

@@ -1338,33 +1338,23 @@ public class ExportAnalysis {
 					if (measurequery.equals(Constant.EMPTY_STRING)) {
 
 						// build query
-						measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as ";
-						measurequery += "'ref_measure',? as 'domain_measure',? as ";
-						measurequery += "'question_measure',? as 'level',? as 'strength_measure',?";
-						measurequery += " as 'strength_sectoral',? as 'confidentiality',? as ";
-						measurequery += "'integrity',? as 'availability',? as 'd1', ? as 'd2',? as 'd3',";
-						measurequery += "? as 'd4',? as 'd5',? as 'd6',? as 'd61',? as 'd62',? as 'd63',? as ";
-						measurequery += "'d64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',? as 'i5', ";
-						measurequery += "? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83',";
-						measurequery += "? as 'i84',? as 'i9',? as 'i10', ? as 'preventive', ";
-						measurequery += "? as 'detective',? as 'limiting',? as 'corrective', ";
-						measurequery += "? as'intentional',? as 'accidental',? as 'environmental',";
-						measurequery += "? as 'internal_threat',? as 'external_threat',";
-						measurequery += "? as 'internal_setup',? as 'external_setup',";
-						measurequery += "? as 'investment', ? as 'lifetime',? as 'maintenance',";
-						measurequery += "? as 'implmentation_rate',? as 'status',? as 'comment',";
-						measurequery += "? as 'todo',? as 'revision',? as 'phase',";
-						measurequery += "? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',";
-						measurequery += "? as 'index2' UNION";
+						measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'version_norme',? as 'norme_computable',? as 'norme_description',? as 'ref_measure',? as ";
+						measurequery += "'measure_computable',? as 'domain_measure',? as 'question_measure',? as 'level',? as 'strength_measure',?as 'strength_sectoral',? as ";
+						measurequery += "'confidentiality',? as 'integrity',? as 'availability',? as 'd1', ? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',? as 'd61',? as 'd62',? as ";
+						measurequery += "'d63',? as 'd64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',? as 'i5', ? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83', ? ";
+						measurequery += "as 'i84',? as 'i9',? as 'i10', ? as 'preventive', ? as 'detective',? as 'limiting',? as 'corrective', ? as'intentional',? as 'accidental',? as";
+						measurequery += " 'environmental',? as 'internal_threat',? as 'external_threat',? as 'internal_setup',? as 'external_setup',? as 'investment', ? as 'lifetime',? as";
+						measurequery += " 'maintenance',? as 'implmentation_rate',? as 'status',? as 'comment',? as 'todo',? as 'revision',? as 'phase',? as 'soa_reference',? as ";
+						measurequery += "'soa_risk',? as 'soa_comment',? as 'index2' UNION";
 
 						// set ? limit
-						measurecounter = 59;
+						measurecounter = 63;
 					} else {
 
 						// check if first part of query -> NO
 
 						// limit reached ? -> YES
-						if (measurecounter + 59 >= 999) {
+						if (measurecounter + 63 >= 999) {
 
 							// execute query
 							measurequery = measurequery.substring(0, measurequery.length() - 6);
@@ -1374,58 +1364,42 @@ public class ExportAnalysis {
 							measureparams.clear();
 
 							// reset query
-							measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as ";
-							measurequery += "'ref_measure',? as 'domain_measure',? as ";
-							measurequery += "'question_measure',? as 'level',? as 'strength_measure',?";
-							measurequery += " as 'strength_sectoral',? as 'confidentiality',? as ";
-							measurequery += "'integrity',? as 'availability',? as 'd1', ? as 'd2',? as 'd3',";
-							measurequery += "? as 'd4',? as 'd5',? as 'd6',? as 'd61',? as 'd62',? as 'd63',? as ";
-							measurequery += "'d64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',? as 'i5', ";
-							measurequery += "? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83',";
-							measurequery += "? as 'i84',? as 'i9',? as 'i10', ? as 'preventive', ";
-							measurequery += "? as 'detective',? as 'limiting',? as 'corrective', ";
-							measurequery += "? as'intentional',? as 'accidental',? as 'environmental',";
-							measurequery += "? as 'internal_threat',? as 'external_threat',";
-							measurequery += "? as 'internal_setup',? as 'external_setup',";
-							measurequery += "? as 'investment', ? as 'lifetime',? as 'maintenance',";
-							measurequery += "? as 'implmentation_rate',? as 'status',? as 'comment',";
-							measurequery += "? as 'todo',? as 'revision',? as 'phase',";
-							measurequery += "? as 'soa_reference',? as 'soa_risk',? as 'soa_comment',";
-							measurequery += "? as 'index2' UNION";
+							measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'version_norme',? as 'norme_computable',? as 'norme_description',? as 'ref_measure',? as ";
+							measurequery += "'measure_computable',? as 'domain_measure',? as 'question_measure',? as 'level',? as 'strength_measure',?as 'strength_sectoral',? as ";
+							measurequery += "'confidentiality',? as 'integrity',? as 'availability',? as 'd1', ? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',? as 'd61',? as 'd62',? as ";
+							measurequery += "'d63',? as 'd64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',? as 'i5', ? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83', ? ";
+							measurequery += "as 'i84',? as 'i9',? as 'i10', ? as 'preventive', ? as 'detective',? as 'limiting',? as 'corrective', ? as'intentional',? as 'accidental',? as";
+							measurequery += " 'environmental',? as 'internal_threat',? as 'external_threat',? as 'internal_setup',? as 'external_setup',? as 'investment', ? as 'lifetime',? as";
+							measurequery += " 'maintenance',? as 'implmentation_rate',? as 'status',? as 'comment',? as 'todo',? as 'revision',? as 'phase',? as 'soa_reference',? as ";
+							measurequery += "'soa_risk',? as 'soa_comment',? as 'index2' UNION";
 
 							// reset limit counter
-							measurecounter = 59;
+							measurecounter = 63;
 						} else {
 
 							// limit reached ? -> NO
 
 							// add data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?";
-							measurequery += ",?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,";
-							measurequery += "?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
-							measurecounter += 59;
+							measurecounter += 63;
 						}
 					}
 
 					// ****************************************************************
 					// * add params to query
 					// ****************************************************************
-
-					// check if norm is custom -> YES
-					if (measNorm.getNorm().getLabel().startsWith(Constant.NORM_CUSTOM)) {
-
-						// set custom norm name
-						measureparams.add(Constant.NORM_CUSTOM);
-					} else {
-
-						// check if norm is custom -> NO
-
-						// set all other norm name
-						measureparams.add(measNorm.getNorm().getLabel());
-					}
+					
+					// for norm
+					measureparams.add(measNorm.getNorm().getLabel());
+					measureparams.add(measNorm.getNorm().getVersion());
+					measureparams.add(measNorm.getNorm().getDescription());
+					measureparams.add(measNorm.getNorm().isComputable());
+									
+					// for measure
 					measureparams.add(measure.getMeasureDescription().getReference());
+					measureparams.add(measure.isComputable());
 					measureparams.add(measure.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage()).getDomain());
 					measureparams.add(measure.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage()).getDescription());
 					measureparams.add(measure.getMeasureDescription().getLevel());
@@ -1670,22 +1644,19 @@ public class ExportAnalysis {
 					if (measurequery.equals(Constant.EMPTY_STRING)) {
 
 						// set query
-						measurequery = "INSERT INTO maturities SELECT ? as 'ref',? as ";
-						measurequery += "'domain',? as 'level',? as 'status',? as 'rate',";
-						measurequery += "? as 'intwl',? as 'extwl',? as 'investment',? as ";
-						measurequery += "'lifetime',? as 'maintenance',? as 'comment',? as 'todo',";
-						measurequery += "? as 'sml1',? as 'sml2',? as 'sml3',? as 'sml4',? as ";
-						measurequery += "'sml5',? as 'index2',? as 'reached' UNION";
+						measurequery = "INSERT INTO maturities SELECT ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
+						measurequery += " 'domain',? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime',? as 'maintenance',? as 'comment',? ";
+						measurequery += "as 'todo',? as 'sml1',? as 'sml2',? as 'sml3',? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
 						// set limit
-						measurecounter = 19;
+						measurecounter = 23;
 
 					} else {
 
 						// check if first part -> NO
 
 						// check if limit reached -> YES
-						if (measurecounter + 19 >= 999) {
+						if (measurecounter + 23 >= 999) {
 
 							// execute query
 							measurequery = measurequery.substring(0, measurequery.length() - 6);
@@ -1695,29 +1666,31 @@ public class ExportAnalysis {
 							measureparams.clear();
 
 							// reset query
-							measurequery = "INSERT INTO maturities SELECT ? as 'ref',? as ";
-							measurequery += "'domain',? as 'level',? as 'status',? as 'rate',";
-							measurequery += "? as 'intwl',? as 'extwl',? as 'investment',? as ";
-							measurequery += "'lifetime',? as 'maintenance',? as 'comment',? as ";
-							measurequery += "'todo',? as 'sml1',? as 'sml2',? as 'sml3',? as ";
-							measurequery += "'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
+							measurequery = "INSERT INTO maturities SELECT ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
+							measurequery += " 'domain',? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime',? as 'maintenance',? as 'comment',? ";
+							measurequery += "as 'todo',? as 'sml1',? as 'sml2',? as 'sml3',? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
+
 
 							// reset limit
-							measurecounter = 19;
+							measurecounter = 23;
 						} else {
 
 							// limit reached -> NO
 
 							// add insert data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
-							measurecounter += 19;
+							measurecounter += 23;
 						}
 					}
 
 					// add parameters
+					measureparams.add(maturity.getAnalysisNorm().getNorm().getVersion());
+					measureparams.add(maturity.getAnalysisNorm().getNorm().getDescription());
+					measureparams.add(maturity.getAnalysisNorm().getNorm().isComputable());
 					measureparams.add(maturity.getMeasureDescription().getReference());
+					measureparams.add(maturity.isComputable());
 					measureparams.add(maturity.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage()).getDomain());
 					measureparams.add(maturity.getMeasureDescription().getLevel());
 					measureparams.add(maturity.getStatus());
@@ -1976,6 +1949,10 @@ public class ExportAnalysis {
 		// * export entry after entry
 		// ****************************************************************
 
+		
+		if (actionPlanEntries.size()==0) 
+			return;
+		
 		for (int index = 0; index < actionPlanEntries.size(); index++) {
 
 			// store entry

@@ -1,9 +1,5 @@
-/**
- * 
- */
 package lu.itrust.business.component;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -12,7 +8,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import lu.itrust.business.TS.Assessment;
-import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
@@ -31,8 +26,12 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 /**
- * @author eomar
- * 
+ * ChartGenerator.java: <br>
+ * Detailed description...
+ *
+ * @author eomar, itrust consulting s.à.rl. :
+ * @version 
+ * @since Jan 30, 2014
  */
 @Component
 public class ChartGenerator {
@@ -55,9 +54,29 @@ public class ChartGenerator {
 	@Autowired
 	private DAOAssessment daoAssessment;
 
-	public String aleByAsset(int idAnalysis, Locale locale) {
+	/**
+	 * aleByAsset: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	public String aleByAsset(int idAnalysis, Locale locale) throws Exception {
 
-		List<Asset> assets = daoAsset.findByAnalysisAndSelectedOderByALE(idAnalysis);
+		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedAsset(idAnalysis);
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getAsset().getId());
+			if (ale == null) {
+				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
 
 		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
 
@@ -72,12 +91,12 @@ public class ChartGenerator {
 		String tooltip =
 			"\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
 
-		if (assets.isEmpty())
+		if (ales2.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
 
-		Asset assetMax = assets.get(assets.size() - 1);
+		ALE assetMax = ales2.get(0);
 
-		double max = Math.max(assetMax.getALEO(), Math.max(assetMax.getALE(), assetMax.getALEP()));
+		double max = assetMax.getValue();
 
 		String xAxis = "";
 
@@ -87,66 +106,56 @@ public class ChartGenerator {
 
 		String dataALEs = "[";
 
-		String dataALEOs = "[";
-
-		String dataALEPs = "[";
-
 		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"}}";
 
-		Collections.reverse(assets);
-
-		for (Asset asset : assets) {
-			categories += "\"" + asset.getName() + "\",";
-			dataALEs += asset.getALE() + ",";
-			dataALEOs += asset.getALEO() + ",";
-			dataALEPs += asset.getALEP() + ",";
+		for (ALE ale : ales2) {
+			categories += "\"" + ale.getAssetName() + "\",";
+			dataALEs += ale.getValue() + ",";
 		}
 
 		if (categories.endsWith(",")) {
 			categories = categories.substring(0, categories.length() - 1);
 			dataALEs = dataALEs.substring(0, dataALEs.length() - 1);
-			dataALEOs = dataALEOs.substring(0, dataALEOs.length() - 1);
-			dataALEPs = dataALEPs.substring(0, dataALEPs.length() - 1);
 		}
 		categories += "]";
 		dataALEs += "]";
-		dataALEOs += "]";
-		dataALEPs += "]";
+		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":" + ales2.size() % 10 + "}";
+		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + ",\"valueDecimals\": 0}]";
 
-		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\": " + assets.size() % 10 + "}";
-		series += "\"series\":[{\"name\":\"ALEO\", \"data\":" + dataALEOs + ",\"valueDecimals\": 0},{\"name\":\"ALE\", \"data\":" + dataALEs
-				+ ",\"valueDecimals\": 0},{\"name\":\"ALEP\", \"data\":" + dataALEPs + ",\"valueDecimals\": 0}]";
+		ales.clear();
+
+		ales2.clear();
+
+		assessments.clear();
+
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}";
+		
 	}
 
-	private List<Asset> assetByType(List<Asset> assets) {
-		Map<Integer, Asset> assetbytypes = new LinkedHashMap<Integer, Asset>();
-		for (Asset asset : assets) {
-			Asset asset2 = assetbytypes.get(asset.getAssetType().getId());
-			if (asset2 == null) {
-				assetbytypes.put(asset.getAssetType().getId(), asset2 = new Asset());
-				asset2.setAssetType(asset.getAssetType());
-				asset2.setName(asset.getAssetType().getType());
-			}
-			asset2.setALE(asset2.getALE() + asset.getALE());
-			asset2.setALEO(asset2.getALEO() + asset.getALEO());
-			asset2.setALEP(asset2.getALEP() + asset.getALEP());
-			asset2.setValue(asset2.getValue() + asset.getValue());
-		}
-
-		List<Asset> assets2 = new ArrayList<Asset>(assetbytypes.size());
-
-		for (Asset asset : assetbytypes.values())
-			assets2.add(asset);
-
-		return assets2;
-	}
-
+	/**
+	 * aleByAssetType: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param locale
+	 * @return
+	 */
 	public String aleByAssetType(int idAnalysis, Locale locale) {
 
-		List<Asset> assets = assetByType(daoAsset.findByAnalysisAndSelectedOderByALE(idAnalysis));
+		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedAsset(idAnalysis);
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
+			if (ale == null) {
+				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": false}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale) + "\"}";
 
@@ -159,10 +168,12 @@ public class ChartGenerator {
 		String tooltip =
 			"\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
 
-		if (assets.isEmpty())
+		if (ales2.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
 
-		double max = 0;
+		ALE assetMax = ales2.get(0);
+
+		double max = assetMax.getValue();
 
 		String xAxis = "";
 
@@ -172,38 +183,39 @@ public class ChartGenerator {
 
 		String dataALEs = "[";
 
-		String dataALEOs = "[";
+		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"}}";
 
-		String dataALEPs = "[";
-
-		for (Asset asset : assets) {
-			categories += "\"" + asset.getName() + "\",";
-			dataALEs += asset.getALE() + ",";
-			dataALEOs += asset.getALEO() + ",";
-			dataALEPs += asset.getALEP() + ",";
-			max = Math.max(asset.getALEO(), Math.max(asset.getALE(), Math.max(asset.getALEP(), max)));
+		for (ALE ale : ales2) {
+			categories += "\"" + ale.getAssetName() + "\",";
+			dataALEs += ale.getValue() + ",";
 		}
 
 		if (categories.endsWith(",")) {
 			categories = categories.substring(0, categories.length() - 1);
 			dataALEs = dataALEs.substring(0, dataALEs.length() - 1);
-			dataALEOs = dataALEOs.substring(0, dataALEOs.length() - 1);
-			dataALEPs = dataALEPs.substring(0, dataALEPs.length() - 1);
 		}
 		categories += "]";
 		dataALEs += "]";
-		dataALEOs += "]";
-		dataALEPs += "]";
+		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":" + ales2.size() % 3 + "}";
+		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + ",\"valueDecimals\": 0}]";
 
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"}}";
+		ales.clear();
 
-		xAxis = "\"xAxis\":{\"categories\":" + categories + " ,\"min\":0}";
-		series += "\"series\":[{\"name\":\"ALEO\", \"data\":" + dataALEOs + ",\"valueDecimals\": 0 },{\"name\":\"ALE\", \"data\":" + dataALEs
+		ales2.clear();
 
-				+ ",\"valueDecimals\": 0 },{\"name\":\"ALEP\", \"data\":" + dataALEPs + ",\"valueDecimals\": 0}]";
+		assessments.clear();
+
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}";
 	}
 
+	/**
+	 * ComputeComplianceBefore: <br>
+	 * Description
+	 * 
+	 * @param measures
+	 * @param norm
+	 * @return
+	 */
 	public static Map<String, Object[]> ComputeComplianceBefore(List<Measure> measures, String norm) {
 		Map<String, Object[]> compliances = new LinkedHashMap<String, Object[]>();
 		for (Measure measure : measures) {
@@ -220,6 +232,18 @@ public class ChartGenerator {
 		return compliances;
 	}
 	
+	/**
+	 * ComputeCompliance: <br>
+	 * Description
+	 * 
+	 * @param measures
+	 * @param norm
+	 * @param actionplanmeasures
+	 * @param actionplanmeasuresnottoimpl
+	 * @param phase
+	 * @param previouscompliences
+	 * @return
+	 */
 	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, String norm, List<Measure> actionplanmeasures, List<Measure> actionplanmeasuresnottoimpl, Phase phase, Map<String, Object[]> previouscompliences) {
 		Map<String, Object[]> compliances = previouscompliences;
 		
@@ -255,6 +279,16 @@ public class ChartGenerator {
 		return compliances;
 	}
 	
+	/**
+	 * compliance: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param norm
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	public String compliance(int idAnalysis, String norm, Locale locale) throws Exception {
 		List<Measure> measures = daoMeasure.findByAnalysis(idAnalysis);
 		
@@ -368,6 +402,14 @@ public class ChartGenerator {
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}";
 	}
 
+	/**
+	 * aleByScenarioType: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param locale
+	 * @return
+	 */
 	public String aleByScenarioType(Integer idAnalysis, Locale locale) {
 		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedScenario(idAnalysis);
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
@@ -435,6 +477,14 @@ public class ChartGenerator {
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}";
 	}
 
+	/**
+	 * aleByScenario: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param locale
+	 * @return
+	 */
 	public String aleByScenario(Integer idAnalysis, Locale locale) {
 		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedScenario(idAnalysis);
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
@@ -502,6 +552,16 @@ public class ChartGenerator {
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}";
 	}
 
+	/**
+	 * evolutionProfitabilityCompliance: <br>
+	 * Description
+	 * 
+	 * @param summaryStages
+	 * @param phases
+	 * @param actionPlanType
+	 * @param locale
+	 * @return
+	 */
 	public String evolutionProfitabilityCompliance(List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale) {
 
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
@@ -612,6 +672,16 @@ public class ChartGenerator {
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}";
 	}
 	
+	/**
+	 * budget: <br>
+	 * Description
+	 * 
+	 * @param summaryStages
+	 * @param phases
+	 * @param actionPlanType
+	 * @param locale
+	 * @return
+	 */
 	public String budget(List<SummaryStage> summaryStages, List<Phase> phases,String actionPlanType , Locale locale) {
 
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
@@ -703,8 +773,6 @@ public class ChartGenerator {
 				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale)
 				+ "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}"+manDay+"\"}, \"title\":{\"text\":\""
 				+ messageSource.getMessage("label.summary.compliance", null, "Compliance", locale) + "\"}, \"opposite\": true} ]";
-		
-
 		xAxis = "\"xAxis\":{\"categories\":" + categories + "}";
 		series += "\"series\":[{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD, null, "Internal workload", locale)
 				+ "\", \"data\":" + internalWorkload + ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1, \"tooltip\": {\"valueSuffix\": \""+manDay+"\"}}, {\"name\":\""

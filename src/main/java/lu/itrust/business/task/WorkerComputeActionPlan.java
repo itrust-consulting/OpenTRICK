@@ -139,7 +139,7 @@ public class WorkerComputeActionPlan implements Worker {
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
 				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
-				messageHandler.setAsyncCallback(new AsyncCallback("", null));
+				messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_actionplans\")", null));
 				serviceTaskFeedback.send(id, messageHandler);
 				System.out.println("Computing Action Plans Complete!");
 			}
