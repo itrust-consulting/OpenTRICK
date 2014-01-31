@@ -30,6 +30,14 @@
 					onclick="return deleteNorm();"><span
 						class="glyphicon glyphicon-remove"></span> <spring:message
 							code="label.norm.delete" text="Delete" /> </a></li>
+				<li><a href="#"
+					onclick="return getImportNormTemplate();"><span
+						class="glyphicon glyphicon-file"></span> <spring:message
+							code="label.norm.get.ImportNormTemplate" text="Get Import Template" /> </a></li>							
+				<li><a href="#"
+					onclick="return uploadImportNormFile();"><span
+						class="glyphicon glyphicon-import"></span> <spring:message
+							code="label.norm.import" text="Import Norm" /> </a></li>							
 			</ul>
 		</div>
 		<div class="panel-body">

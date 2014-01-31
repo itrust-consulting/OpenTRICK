@@ -9,7 +9,8 @@ function saveNorm(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
+			result = data == "" ? true : showError(document
+					.getElementById(form), data);
 			if (result) {
 				$("#addNormModel").modal("hide");
 				reloadSection("section_norm");
@@ -29,9 +30,14 @@ function deleteNorm(normId, name) {
 		if (selectedScenario.length != 1)
 			return false;
 		normId = selectedScenario[0];
-		name = $("#section_norm tbody tr[trick-id='" + normId + "']>td:nth-child(2)").text();
+		name = $(
+				"#section_norm tbody tr[trick-id='" + normId
+						+ "']>td:nth-child(2)").text();
 	}
-	$("#deleteNormBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the norm") + "&nbsp;<strong>" + name + "</strong>?");
+	$("#deleteNormBody").html(
+			MessageResolver("label.norm.question.delete",
+					"Are you sure that you want to delete the norm")
+					+ "&nbsp;<strong>" + name + "</strong>?");
 	$("#deletenormbuttonYes").click(function() {
 		$.ajax({
 			url : context + "/KnowledgeBase/Norm/Delete/" + normId,
@@ -49,13 +55,72 @@ function deleteNorm(normId, name) {
 	return false;
 }
 
+function uploadImportNormFile() {
+
+	$
+			.ajax({
+				url : context + "/KnowledgeBase/Norm/Upload",
+				async : true,
+				contentType : "application/json",
+				success : function(response) {
+					var parser = new DOMParser();
+					var doc = parser.parseFromString(response, "text/html");
+					if ((uploadNormModal = doc
+							.getElementById("uploadNormModal")) == null)
+						return false;
+					if ($("#uploadNormModal").length)
+						$("#uploadNormModal").html($(uploadNormModal).html());
+					else
+						$(uploadNormModal).appendTo($("#widget"));
+					$('#uploadNormModal').on('hidden.bs.modal', function() {
+						$('#uploadNormModal').remove();
+					});
+					$("#uploadNormModal").modal("toggle");
+					return false;
+				}
+			});
+	return false;
+}
+
+function importNewNorm(button) {
+
+	var formData = new FormData($('#uploadNorm_form')[0]);
+	$.ajax({
+		url : context + "/KnowledgeBase/Norm/Import",
+		type : 'POST',
+		xhr : function() { // Custom XMLHttpRequest
+			var myXhr = $.ajaxSettings.xhr();
+			/*if (myXhr.upload) { // Check if upload property exists
+				myXhr.upload.addEventListener('progress',
+						progressHandlingFunction, false); // For handling the
+															// progress of the
+															// upload
+			}*/
+			return myXhr;
+		},
+		// Ajax events
+		//beforeSend : beforeSendHandler,
+		//success : completeHandler,
+		//error : errorHandler,
+		// Form data
+		data : formData,
+		// Options to tell jQuery not to process data or worry about
+		// content-type.
+		cache : false,
+		contentType : false,
+		processData : false
+
+	});
+}
+
 function newNorm() {
 	$("#norm_id").prop("value", "-1");
 	$("#norm_label").prop("value", "");
 	$("#norm_version").prop("value", "");
 	$("#norm_description").prop("value", "");
 	$("#norm_computable").prop("checked", false);
-	$("#addNormModel-title").text(MessageResolver("title.knowledgebase.Norm.Add", "Add a new Norm"));
+	$("#addNormModel-title").text(
+			MessageResolver("title.knowledgebase.Norm.Add", "Add a new Norm"));
 	$("#addnormbutton").text(MessageResolver("label.action.add", "Add"));
 	$("#norm_form").prop("action", "/Save");
 	$("#addNormModel").modal('toggle');
@@ -69,18 +134,32 @@ function editSingleNorm(normId) {
 			return false;
 		normId = selectedScenario[0];
 	}
-	var rows = $("#section_norm").find("tr[trick-id='" + normId + "'] td:not(:first-child)");
+	var rows = $("#section_norm").find(
+			"tr[trick-id='" + normId + "'] td:not(:first-child)");
 	$("#norm_id").prop("value", normId);
 	$("#norm_label").prop("value", $(rows[0]).text());
 	$("#norm_version").prop("value", $(rows[1]).text());
 	$("#norm_description").prop("value", $(rows[2]).text());
-	
-	$("#norm_computable").prop("checked", $(rows[3]).attr("computable")=='Yes'?"checked":"");
-	
-	
-	$("#addNormModel-title").text(MessageResolver("title.knowledgebase.Norm.Update", "Update a Norm"));
+
+	$("#norm_computable").prop("checked",
+			$(rows[3]).attr("computable") == 'Yes' ? "checked" : "");
+
+	$("#addNormModel-title")
+			.text(
+					MessageResolver("title.knowledgebase.Norm.Update",
+							"Update a Norm"));
 	$("#addnormbutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#norm_form").prop("action", "/Save");
 	$("#addNormModel").modal('toggle');
+	return false;
+}
+
+function getImportNormTemplate() {
+	$.fileDownload(context + '/data/TL_TRICKService_NormImport_V0.1.xlsx')
+			.done(function() {
+				alert('File download a success!');
+			}).fail(function() {
+				alert('File download failed!');
+			});
 	return false;
 }
