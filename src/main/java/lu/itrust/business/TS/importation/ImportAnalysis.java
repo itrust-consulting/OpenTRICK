@@ -534,7 +534,7 @@ public class ImportAnalysis {
 			if (!analysis.hasData()) {
 
 				// fill the analysis with data and change flag of hasData analysis
-				System.err.println("Your file has already been imported without data");
+				System.out.println("Your file has already been imported without data");
 				this.analysis = analysis;
 				this.analysis.setData(true);
 			} else {
@@ -544,7 +544,13 @@ public class ImportAnalysis {
 			}
 		}
 
-		this.analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), history.getVersion()));
+		if (history == null) {
+			this.analysis.setBasedOnAnalysis(null);	
+		} else {
+			this.analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), history.getVersion()));
+		}
+		
+		
 
 	}
 
@@ -1883,6 +1889,7 @@ public class ImportAnalysis {
 				mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
 
 				// fill measure description text with data
+				//System.out.println(rs.getString(Constant.MEASURE_DOMAIN_MEASURE));
 				mesText.setDomain(rs.getString(Constant.MEASURE_DOMAIN_MEASURE));
 				mesText.setDescription(rs.getString(Constant.MEASURE_QUESTION_MEASURE));
 
@@ -2957,7 +2964,7 @@ public class ImportAnalysis {
 				// initialise reference variable
 				previousLevel = "";
 			} else
-				throw new Exception("Error level" + normMeasure.getMeasureDescription().getReference());
+				throw new Exception("Error level " + normMeasure.getMeasureDescription().getReference());
 		} while (!hasFound);
 	}
 
