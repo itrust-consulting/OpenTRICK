@@ -45,7 +45,7 @@
 					</thead>
 					<tbody>
 						<c:forEach items="${users}" var="user">
-							<tr trick-id="${user.id}">
+							<tr trick-id="${user.id}" ondblclick="return editSingleUser(${user.id});">
 								<td><input type="checkbox" class="checkbox"
 									onchange="return updateMenu('#section_user','#menu_user');">
 								</td>

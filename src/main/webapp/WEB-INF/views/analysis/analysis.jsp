@@ -136,7 +136,7 @@
 									<tbody>
 										<c:forEach items="${analyses}" var="analysis">
 											<tr trick-id="${analysis.id}"
-												trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}"
+												trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}" ondblclick="editSingleAnalysis(${analysis.id});"
 												data="${analysis.hasData() }">
 												<td><input type="checkbox" class="checkbox"
 													onchange="return updateMenu('#section_analysis','#menu_analysis');"></td>
