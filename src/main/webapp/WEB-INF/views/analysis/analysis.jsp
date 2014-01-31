@@ -108,28 +108,36 @@
 								<div class="panel-body">
 									<p class="text-center">
 										<spring:message code="label.analysis.filter.customer" text="Analyses filtered by customer: " />
-										<div class="col-md-offset-5 col-md-2 text-center ">
-										<select class="form-control" onchange="return customerChange(this)">
+										<div class="col-md-offset-5 col-md-2">
+										<select class="form-control" onchange="return customerChange(this)" style="margin-bottom: 10px">
 											<c:forEach items="${customers}" var="icustomer">
 												<option value="${icustomer.id}" ${icustomer.organisation == customer? 'selected':'' }><spring:message text="${icustomer.organisation}" /></option>
 											</c:forEach>
 										</select>
 											</div>
 									</p>
-									
-									<table class="table table-hover">
+									<table
+										class="table table-hover">
 										<thead>
-											<tr>
-												<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'analysis')"></th>
-												<th><spring:message code="label.analysis.identifier" /></th>
-												<th><spring:message code="label.analysis.customer" /></th>
-												<th><spring:message code="label.analysis.label" /></th>
-												<th><spring:message code="label.analysis.creationDate" /></th>
-												<th><spring:message code="label.analysis.version" /></th>
-												<th><spring:message code="label.analysis.author" /></th>
-												<th><spring:message code="label.analysis.basedOnAnalysis" /></th>
-												<th><spring:message code="label.analysis.language" /></th>
-												<th><spring:message code="label.analysis.rights" /></th>
+											<tr class="tablesorter-headerRow" >
+												<th><input type="checkbox" class="checkbox"
+													onchange="return checkControlChange(this,'analysis')"></th>
+												<th><spring:message
+														code="label.analysis.identifier" /></th>
+												<th><spring:message
+														code="label.analysis.label" /></th>
+												<th><spring:message
+														code="label.analysis.creationDate" /></th>
+												<th><spring:message
+														code="label.analysis.version" /></th>
+												<th><spring:message
+														code="label.analysis.author" /></th>
+												<th><spring:message
+														code="label.analysis.basedOnAnalysis" /></th>
+												<th><spring:message
+														code="label.analysis.language" /></th>
+												<th><spring:message
+														code="label.analysis.rights" /></th>
 											</tr>
 										</thead>
 										<tbody>
@@ -137,7 +145,6 @@
 												<tr trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}" data="${analysis.hasData() }">
 													<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_analysis','#menu_analysis');"></td>
 													<td>${analysis.identifier}</td>
-													<td>${analysis.customer.organisation}</td>
 													<td>${analysis.label}</td>
 													<td>${analysis.creationDate}</td>
 													<td trick-version="${analysis.version}">${analysis.version}</td>
