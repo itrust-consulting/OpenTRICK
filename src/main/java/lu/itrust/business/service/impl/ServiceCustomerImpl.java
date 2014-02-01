@@ -169,4 +169,11 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 		return daoCustomer.hasUser(idCustomer);
 	}
 
+
+
+	@Override
+	public boolean isProfile(int id) {
+		return daoCustomer.isProfile(id);
+	}
+
 }

@@ -42,6 +42,6 @@ public interface DAOCustomer {
 
 	public List<Customer> loadByUser(String username);
 
-	
+	public boolean isProfile(int id);
 
 }

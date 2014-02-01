@@ -167,16 +167,22 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	public List<Customer> loadByUserAndProfile(String username) {
 		return getSession()
 				.createQuery(
-						"Select customer From User as user inner join user.customers as customer where user.login = :username or customer.canBeUsed = false order by customer.organisation asc, customer.contactPerson asc")
+						"Select customer From Customer as customer where customer.canBeUsed = false or customer in (select customer1 From User as user inner join user.customers as customer1 where user.login = :username)  order by customer.organisation asc, customer.contactPerson asc")
 				.setParameter("username", username).list();
 	}
 
 	@Override
 	public boolean hasUser(int idCustomer) {
-		return ((Long) getSession()
-				.createQuery(
-						"Select count(customer) From User as user inner join user.customers as customer where customer.id = :idCustomer")
+		return ((Long) getSession().createQuery("Select count(customer) From User as user inner join user.customers as customer where customer.id = :idCustomer")
 				.setParameter("idCustomer", idCustomer).uniqueResult()).intValue() != 0;
+	}
+
+	@Override
+	public boolean isProfile(int idCustomer) {
+		Boolean boolean1 = (Boolean) getSession().createQuery("Select customer.canBeUsed From Customer as customer where customer.id = :idCustomer")
+				.setParameter("idCustomer", idCustomer).uniqueResult();
+		return boolean1 == null ? false : !boolean1;
+
 	}
 
 }

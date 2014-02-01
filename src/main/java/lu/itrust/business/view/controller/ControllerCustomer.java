@@ -114,7 +114,6 @@ public class ControllerCustomer {
 			if (!buildCustomer(errors, customer, value, locale))
 				return errors;
 			User user = serviceUser.get(principal.getName());
-			System.out.println(serviceCustomer.hasUser(customer.getId()));
 			if (customer.getId() < 1) {
 				if (customer.isCanBeUsed()) {
 					user.add(customer);
@@ -123,7 +122,8 @@ public class ControllerCustomer {
 					serviceCustomer.save(customer);
 				else
 					errors.add(new String[] { "customer", messageSource.getMessage("error.customer.profile.duplicate", null, "A customer profile already exists", locale) });
-			} else if (!(serviceCustomer.hasUser(customer.getId()) || customer.isCanBeUsed()))
+			} else if (serviceCustomer.hasUser(customer.getId()) && customer.isCanBeUsed() || !(serviceCustomer.hasUser(customer.getId()) || customer.isCanBeUsed())
+					&& (!serviceCustomer.hasProfileCustomer() || serviceCustomer.isProfile(customer.getId())))
 				serviceCustomer.saveOrUpdate(customer);
 			else
 				errors.add(new String[] { "customer",

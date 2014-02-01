@@ -44,6 +44,8 @@ public interface ServiceCustomer {
 
 	public DAOCustomer getDaoCustomer();
 
+	public boolean isProfile(int id);
+
 	
 
 	

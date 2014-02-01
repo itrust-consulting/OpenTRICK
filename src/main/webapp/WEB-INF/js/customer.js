@@ -95,7 +95,7 @@ function editSingleCustomer(customerId) {
 	$("#customer_ZIPCode").prop("value", $(rows[6]).text());
 	$("#customer_country").prop("value", $(rows[7]).text());
 	if ($("#customer_canBeUsed").length)
-		$("#customer_canBeUsed").prop("checked", $(rows[8]) == "true");
+		$("#customer_canBeUsed").prop("checked", $(rows[8]).attr("trick-real-value") == "false");
 	$("#addCustomerModel-title").text(
 			MessageResolver("title.knowledgebase.Customer.Update",
 					"Update a Customer"));
