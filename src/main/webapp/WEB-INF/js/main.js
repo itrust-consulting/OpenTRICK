@@ -1346,7 +1346,7 @@ function saveField(element, controller, id, field, type) {
 function duplicateAnalysis(form, analyisId) {
 	var oldVersion = $("#history_oldVersion").prop("value");
 	$(".progress-striped").show();
-	return $.ajax({
+	$.ajax({
 		url : context + "/History/Analysis/" + analyisId + "/NewVersion/Save",
 		type : "post",
 		aync : true,
@@ -1375,6 +1375,7 @@ function duplicateAnalysis(form, analyisId) {
 			}
 		}
 	});
+	return false;
 }
 
 function editField(element, controller, id, field, type) {
@@ -1887,7 +1888,7 @@ function savePhase(form) {
 		url : context + "/Phase/Save",
 		type : "post",
 		async : true,
-		data : serializeAssetForm(form),
+		data : JSON.stringify($(form).serializeJSON()),
 		contentType : "application/json",
 		success : function(response) {
 			var previewError = $("#addPhaseModel .alert");

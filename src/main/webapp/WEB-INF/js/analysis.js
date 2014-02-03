@@ -62,6 +62,68 @@ function deleteAnalysis(analysisId) {
 	return false;
 }
 
+function createAnalysisProfile(analysisId) {
+	if (analysisId == null || analysisId == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_analysis"));
+		if (selectedScenario.length != 1)
+			return false;
+		analysisId = selectedScenario[0];
+	}
+	$
+			.ajax({
+				url : context + "/Analysis/Profile/New/" + analysisId,
+				type : "get",
+				contentType : "application/json",
+				success : function(response) {
+					var parser = new DOMParser();
+					var doc = parser.parseFromString(response, "text/html");
+					if ((analysisProfile = doc
+							.getElementById("analysisProfileModal")) == null)
+						return false;
+					$(analysisProfile).appendTo("#wrap");
+					$(analysisProfile).on('hidden.bs.modal', function() {
+						$(analysisProfile).remove();
+					});
+					$(analysisProfile).modal("toggle");
+
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					return false;
+				},
+			});
+	return false;
+}
+
+function saveAnalysisProfile(form) {
+	$.ajax({
+		url : context + "/Analysis/Profile/Save",
+		type : "post",
+		aync : true,
+		data : $("#" + form).serialize(),
+		success : function(response) {
+			var alert = $("#analysisProfileModal .alert");
+			if (alert.length)
+				alert.remove();
+			if (response["success"] != undefined) {
+				showSuccess($("#analysisProfileModal .modal-body")[0],
+						response["success"]);
+			} else if (response["error"]) {
+				showError($("#analysisProfileModal .modal-body")[0],
+						response["error"]);
+				return false;
+			} else {
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(response, "text/html");
+				if ((error = $(doc).find("#analysisProfileModal")).length) {
+					$("#analysisProfileModal .modal-body").html(
+							$(error).find(".modal-body"));
+					return false;
+				}
+			}
+		}
+	});
+}
+
 function newAnalysis() {
 	$.ajax({
 		url : context + "/Analysis/New",

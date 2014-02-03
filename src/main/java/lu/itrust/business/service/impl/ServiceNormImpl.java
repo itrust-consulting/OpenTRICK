@@ -134,4 +134,9 @@ public class ServiceNormImpl implements ServiceNorm {
 	public void setDaoNorm(DAONorm daoNorm) {
 		this.daoNorm = daoNorm;
 	}
+
+	@Override
+	public List<Norm> loadAllFromAnalysis(int analysisId) {
+		return daoNorm.loadAllFromAnalysis(analysisId);
+	}
 }

@@ -137,9 +137,6 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@Override
 	public void remove(Customer customer) throws Exception {
-		Query query = getSession().createQuery("delete from Analysis where Customer = :customer");
-		query.setParameter("customer", customer);
-		query.executeUpdate();
 		getSession().delete(customer);
 	}
 
@@ -167,7 +164,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	public List<Customer> loadByUserAndProfile(String username) {
 		return getSession()
 				.createQuery(
-						"Select customer From Customer as customer where customer.canBeUsed = false or customer in (select customer1 From User as user inner join user.customers as customer1 where user.login = :username)  order by customer.organisation asc, customer.contactPerson asc")
+						"Select customer From Customer as customer where customer.canBeUsed = false or customer in (select customer1 From User as user inner join user.customers as customer1 where user.login = :username)  order by customer.canBeUsed asc, customer.organisation asc, customer.contactPerson asc")
 				.setParameter("username", username).list();
 	}
 

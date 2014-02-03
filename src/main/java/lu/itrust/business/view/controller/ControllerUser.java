@@ -89,12 +89,4 @@ public class ControllerUser {
 			
 		}
 	}
-
-	public ServiceUser getServiceUser() {
-		return serviceUser;
-	}
-
-	public void setServiceUser(ServiceUser serviceUser) {
-		this.serviceUser = serviceUser;
-	}
 }

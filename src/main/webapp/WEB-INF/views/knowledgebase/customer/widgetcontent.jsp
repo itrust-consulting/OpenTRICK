@@ -94,17 +94,20 @@
 								type="text" />
 						</div>
 					</div>
-					<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-						<div class="form-group">
-							<label for="country" class="col-sm-2 control-label"> <spring:message
-									code="label.customer.can_be_used" text="Profile only" />
-							</label>
-							<div class="col-md-offset-6" style="margin-top: 10px;">
-								<input name="canBeUsed" id="customer_canBeUsed" class="checkbox"
-									type="checkbox" />
+					<c:if test="${!empty(adminView)}">
+						<sec:authorize
+							access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+							<div class="form-group">
+								<label for="country" class="col-sm-2 control-label"> <spring:message
+										code="label.customer.can_be_used" text="Profile only" />
+								</label>
+								<div class="col-md-offset-6" style="margin-top: 10px;">
+									<input name="canBeUsed" id="customer_canBeUsed"
+										class="checkbox" type="checkbox" />
+								</div>
 							</div>
-						</div>
-					</sec:authorize>
+						</sec:authorize>
+					</c:if>
 				</form>
 			</div>
 			<div class="modal-footer">

@@ -6,11 +6,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.component.CustomDelete;
+import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceUser;
 
@@ -43,6 +47,9 @@ public class ControllerCustomer {
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
+	
+	@Autowired
+	private CustomDelete customDelete;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -56,8 +63,8 @@ public class ControllerCustomer {
 	 * 
 	 * */
 	@RequestMapping
-	public String loadAllCustomers(Map<String, Object> model) throws Exception {
-		model.put("customers", serviceCustomer.loadAll());
+	public String loadAllCustomers(Principal principal, Map<String, Object> model) throws Exception {
+		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
 		return "knowledgebase/customer/customers";
 	}
 
@@ -72,8 +79,17 @@ public class ControllerCustomer {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String section(Model model, HttpSession session, Principal principal) throws Exception {
-		model.addAttribute("customers", serviceCustomer.loadAll());
+	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request) throws Exception {
+		String referer = request.getHeader("Referer");
+		if (referer != null && referer.contains("/trickservice/Admin")) {
+			User user = serviceUser.get(principal.getName());
+			if (user.isAutorise(RoleType.ROLE_ADMIN)) {
+				model.addAttribute("adminView", true);
+				model.addAttribute("customers", serviceCustomer.loadByUserAndProfile(principal.getName()));
+			} else
+				model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
+		} else
+			model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
 		return "knowledgebase/customer/customers";
 	}
 
@@ -142,9 +158,17 @@ public class ControllerCustomer {
 	 * */
 	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	String[] deleteCustomer(@PathVariable("customerId") Integer customerId, Locale locale) throws Exception {
-		serviceCustomer.remove(customerId);
-		return new String[] { "error", messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale) };
+	String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, Locale locale) throws Exception {
+		try {
+			Customer customer = serviceCustomer.get(customerId);
+			if(customer==null)
+				return JsonMessage.Error(messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
+			customDelete.deleteCustomerByUser(customer,principal.getName());
+			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.customer.delete", null, "Customer cannot be deleted", locale));
+		}
 
 	}
 

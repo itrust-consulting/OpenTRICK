@@ -53,6 +53,4 @@ public interface DAOAnalysis {
 	public void remove(Integer analysisId) throws Exception;
 
 	public List<Analysis> loadAllNotEmpty() throws Exception;
-
-	
 }

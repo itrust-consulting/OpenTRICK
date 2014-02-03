@@ -21,7 +21,9 @@ public interface DAONorm {
 	
 	public Norm loadSingleNormByName(String norm) throws Exception;
 	
-	public Norm loadSingleNormByNameAndVersion(String label, int version) throws Exception; 
+	public Norm loadSingleNormByNameAndVersion(String label, int version) throws Exception;
+	
+	public List<Norm> loadAllFromAnalysis(int analysisId);
 	
 	public List<Norm> loadAllFromAnalysis(Analysis analysis) throws Exception;
 	

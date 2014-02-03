@@ -76,8 +76,11 @@
 										<li trick-selectable="true"><a href="#" onclick="return addHistory()"> <span class="glyphicon glyphicon-new-window"></span> <spring:message
 													code="label.analysis.create.new_version" text="Create new version" />
 										</a></li>
-										<li trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-edit danger"></span> <spring:message
+										<li trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-edit"></span> <spring:message
 													code="label.analysis.editInfo" text="Edit info" />
+										</a></li>
+										<li trick-selectable="true"><a href="#" onclick="return createAnalysisProfile();"> <span class="glyphicon glyphicon-file"></span> <spring:message
+													code="label.analysis.createAnalysisProfile" text="Create new profile" />
 										</a></li>
 										<li trick-selectable="true"><a href="#" onclick="return deleteAnalysis();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
 													code="label.analysis.delete" text="Delete" />

@@ -44,9 +44,13 @@
 								<th><spring:message code="label.customer.city" /></th>
 								<th><spring:message code="label.customer.ZIPCode" /></th>
 								<th><spring:message code="label.customer.country" /></th>
-								<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-									<th><spring:message code="label.customer.can_be_used" text="Profile only" /></th>
-								</sec:authorize>
+								<c:if test="${!empty(adminView)}">
+									<sec:authorize
+										access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+										<th><spring:message code="label.customer.can_be_used"
+												text="Profile only" /></th>
+									</sec:authorize>
+								</c:if>
 							</tr>
 						</thead>
 						<tbody>
@@ -64,9 +68,14 @@
 									<td><spring:message text="${customer.city}" /></td>
 									<td><spring:message text="${customer.ZIPCode}" /></td>
 									<td><spring:message text="${customer.country}" /></td>
-									<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-										<td trick-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${!customer.canBeUsed}" text="${!customer.canBeUsed}" /></td>
-									</sec:authorize>
+									<c:if test="${!empty(adminView)}">
+										<sec:authorize
+											access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+											<td trick-real-value="${customer.canBeUsed}"><spring:message
+													code="label.yes_no.${!customer.canBeUsed}"
+													text="${!customer.canBeUsed}" /></td>
+										</sec:authorize>
+									</c:if>
 								</tr>
 							</c:forEach>
 						</tbody>

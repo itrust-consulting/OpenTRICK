@@ -300,7 +300,7 @@ public class User implements Serializable {
 	 * @return
 	 * @see java.util.List#contains(java.lang.Object)
 	 */
-	public boolean contains(Object arg0) {
+	public boolean contains(Customer arg0) {
 		return customers.contains(arg0);
 	}
 	

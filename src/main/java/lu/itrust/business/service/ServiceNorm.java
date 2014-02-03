@@ -20,6 +20,8 @@ public interface ServiceNorm {
 	public Norm loadNotCustomNormByName(String norm) throws Exception;
 
 	public Norm loadSingleNormByName(String norm) throws Exception;
+	
+	public List<Norm> loadAllFromAnalysis(int analysisId);
 
 	public List<Norm> loadAllFromAnalysis(Analysis analysis) throws Exception;
 
@@ -34,5 +36,7 @@ public interface ServiceNorm {
 	public void remove(Norm norm) throws Exception;
 
 	public DAONorm getDaoNorm();
+
+	
 
 }
