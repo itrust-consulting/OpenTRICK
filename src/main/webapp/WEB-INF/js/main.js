@@ -1194,27 +1194,6 @@ function AssessmentScenarioViewer(scenarioId) {
 	};
 }
 
-function updateALE() {
-	return $.ajax({
-		url : context + "/Analysis/Update/ALE",
-		contentType : "application/json",
-		async : true,
-		success : function(response) {
-			if (response["success"] != undefined) {
-				$("#info-dialog .modal-body").html(response["success"]);
-				$("#info-dialog").modal("toggle");
-			} else if (response["error"] != undefined) {
-				$("#alert-dialog .modal-body").html(response["error"]);
-				$("#alert-dialog").modal("toggle");
-			}
-			return false;
-		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return true;
-		}
-	});
-}
-
 function updateAssessmentAcronym(idParameter, acronym) {
 	$.ajax({
 		url : context + "/Assessment/Update/Acronym/" + idParameter + "/" + acronym,

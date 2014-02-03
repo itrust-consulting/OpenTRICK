@@ -59,8 +59,6 @@
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.action" text="Action" /><span class="caret"></span>
 			</a>
 				<ul class="dropdown-menu">
-					<li><a href="#" onclick="return updateALE();"> <spring:message code="label.analysis.update.ale" text="Update ALE" />
-					</a></li>
 					<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.assessment.generate.missing" text="Update Assessment" />
 					</a></li>
 					<li class="divider"></li>
