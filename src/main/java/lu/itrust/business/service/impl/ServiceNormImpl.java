@@ -134,4 +134,15 @@ public class ServiceNormImpl implements ServiceNorm {
 	public void setDaoNorm(DAONorm daoNorm) {
 		this.daoNorm = daoNorm;
 	}
+
+	@Override
+	public Norm loadSingleNormByNameAndVersion(String label, int version) throws Exception {
+		return daoNorm.loadSingleNormByNameAndVersion(label, version);
+	}
+
+	@Override
+	public boolean exists(String label, int version) {
+		// TODO Auto-generated method stub
+		return daoNorm.exists(label, version);
+	}
 }

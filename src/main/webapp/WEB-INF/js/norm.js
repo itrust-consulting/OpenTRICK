@@ -100,7 +100,19 @@ function importNewNorm(button) {
 		},
 		// Ajax events
 		//beforeSend : beforeSendHandler,
-		//success : completeHandler,
+		success : function (response){
+			if (response["success"] != undefined) {
+				if (taskManager == undefined)
+					taskManager = new TaskManager();
+				$("#uploadNormModal").modal("toggle");
+				taskManager.Start();
+			} else if (message["error"]) {
+				$("#alert-dialog .modal-body").html(message["error"]);
+				$("#alert-dialog").modal("toggle");
+				
+			}
+			
+		},
 		//error : errorHandler,
 		// Form data
 		data : formData,

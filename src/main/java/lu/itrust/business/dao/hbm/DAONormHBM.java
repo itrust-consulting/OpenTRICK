@@ -104,4 +104,12 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 
 	}
 
+	@Override
+	public boolean exists(String label, int version) {
+		Query query = getSession().createQuery("select count(*) from Norm where label = :label and version = :version");
+		query.setParameter("label", label);
+		query.setParameter("version", version);
+		return ((Long)query.uniqueResult()).intValue()!=0;
+	}
+
 }

@@ -1,0 +1,343 @@
+package lu.itrust.business.task;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.ServletContext;
+
+import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.MeasureDescription;
+import lu.itrust.business.TS.MeasureDescriptionText;
+import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.dao.DAOLanguage;
+import lu.itrust.business.dao.DAOMeasureDescription;
+import lu.itrust.business.dao.DAONorm;
+import lu.itrust.business.dao.hbm.DAOLanguageHBM;
+import lu.itrust.business.dao.hbm.DAOMeasureDescriptionHBM;
+import lu.itrust.business.dao.hbm.DAONormHBM;
+import lu.itrust.business.service.ServiceTaskFeedback;
+import lu.itrust.business.service.WorkersPoolManager;
+import lu.itrust.business.view.model.AsyncCallback;
+
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFTable;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+
+public class WorkerImportNorm implements Worker {
+
+	private long id = System.nanoTime();
+
+	private Exception error;
+
+	private boolean working = false;
+
+	private boolean canceled = false;
+
+	private ServiceTaskFeedback serviceTaskFeedback;
+
+	private SessionFactory sessionFactory;
+
+	private WorkersPoolManager poolManager;
+	
+	private DAONorm daoNorm;
+	
+	private DAOMeasureDescription daoMeasureDescription;
+	
+	private DAOLanguage daoLanguage;
+	
+	private File importFile;
+	
+	
+	
+	public WorkerImportNorm(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, WorkersPoolManager poolManager, File importFile) {
+		super();
+		this.serviceTaskFeedback = serviceTaskFeedback;
+		this.sessionFactory = sessionFactory;
+		this.poolManager = poolManager;
+		this.importFile = importFile;
+	}
+
+
+	public void initialiseDAO(Session session)
+	{
+		daoLanguage = new DAOLanguageHBM(session);
+		daoNorm  = new DAONormHBM(session);
+		daoMeasureDescription = new DAOMeasureDescriptionHBM(session);
+	}
+	
+	
+	@Override
+	public void run() {
+		Session session = null;
+		Transaction transaction = null;
+		try {
+			synchronized (this) {
+				if (poolManager != null && !poolManager.exist(getId()))
+					if (!poolManager.add(this))
+						return;
+				if (canceled || working)
+					return;
+				working = true;
+			}
+			session = sessionFactory.openSession();
+			initialiseDAO(session);
+			
+			transaction = session.beginTransaction();
+			
+			importNewNorm();
+			
+			transaction.commit();
+			
+			MessageHandler messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", 100);
+			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_norm\")", null));
+			serviceTaskFeedback.send(id, messageHandler);
+			
+		} catch (Exception e) {
+			this.error = e;
+			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", e));
+			e.printStackTrace();
+			try {
+				if (transaction!=null)
+					session.getTransaction().rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			
+		} finally {
+			try {
+				if (session != null)
+					session.close();
+			} catch (HibernateException e) {
+				e.printStackTrace();
+			}
+			if (importFile!=null && importFile.exists())
+				importFile.delete();
+			synchronized (this) {
+				working = false;
+			}
+			if (poolManager != null)
+				poolManager.remove(getId());
+			
+		}
+
+	}
+	
+	
+	/**
+	 * importNewNorm: <br>
+	 * Description
+	 */
+	public Object importNewNorm() throws Exception {
+
+		FileInputStream fileToOpen = new FileInputStream(importFile);
+
+		// Get the workbook instance for XLS file
+		XSSFWorkbook workbook = new XSSFWorkbook(fileToOpen);
+		XSSFSheet sheet = null;
+		XSSFTable table = null;
+
+		Language lang;
+		Pattern pattern;
+		Matcher matcher;
+		String[] listOfLanguages = null;
+		// ArrayList<String> listOfLanguages = new ArrayList<>();
+
+		Norm newNorm = new Norm();
+		List<MeasureDescription> measureDescriptions = new ArrayList<MeasureDescription>();
+		MeasureDescription measureDescription;
+
+		ArrayList<MeasureDescriptionText> measureDescriptionTexts;
+		MeasureDescriptionText measureDescriptionText;
+
+		short startColSheet, endColSheet;
+		int startRowSheet, endRowSheet;
+
+		int sheetNumber = workbook.getNumberOfSheets();
+
+		for (int indexSheet = 0; indexSheet < sheetNumber; indexSheet++) {
+
+			sheet = workbook.getSheetAt(indexSheet);
+
+			if (sheet.getSheetName().equals("NormInfo")) {
+
+				for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
+
+					table = sheet.getTables().get(indexTable);
+
+					if (table.getName().equals("TableNormInfo")) {
+						startColSheet = table.getStartCellReference().getCol();
+						endColSheet = table.getEndCellReference().getCol();
+						startRowSheet = table.getStartCellReference().getRow();
+						endRowSheet = table.getEndCellReference().getRow();
+
+						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
+							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
+								newNorm.setLabel(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue());
+								newNorm.setVersion((int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
+								newNorm.setDescription(sheet.getRow(indexRow).getCell(startColSheet + 2).getStringCellValue());
+								newNorm.setComputable(sheet.getRow(indexRow).getCell(startColSheet + 3).getBooleanCellValue());
+
+								if (daoNorm.exists(newNorm.getLabel(), newNorm.getVersion()))
+								{
+									MessageHandler messageHandler = new MessageHandler("error.import.norm.exists", new Object[] { newNorm.getLabel(), newNorm.getVersion() }, "Norm label (" + newNorm.getLabel() + ") and version (" + newNorm.getVersion() + ") already exist");
+									serviceTaskFeedback.send(id, messageHandler);
+								}
+								else
+									daoNorm.save(newNorm);
+							}
+					}
+
+				}
+
+				System.out.println(newNorm.getLabel() + " " + newNorm.getVersion() + " " + newNorm.getDescription() + " " + newNorm.isComputable());
+
+			}
+
+			if (sheet.getSheetName().equals("NormData")) {
+
+				for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
+
+					table = sheet.getTables().get(indexTable);
+
+					if (table.getName().equals("TableNormData")) {
+						startColSheet = table.getStartCellReference().getCol();
+						endColSheet = table.getEndCellReference().getCol();
+						startRowSheet = table.getStartCellReference().getRow();
+						endRowSheet = table.getEndCellReference().getRow();
+
+						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
+							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
+								measureDescription = new MeasureDescription();
+								measureDescription.setLevel((int) sheet.getRow(indexRow).getCell(0).getNumericCellValue());
+								System.out.println(sheet.getRow(indexRow).getCell(3).getStringCellValue());
+								measureDescription.setReference(sheet.getRow(indexRow).getCell(1).getStringCellValue());
+								measureDescription.setNorm(newNorm);
+
+								if (startColSheet + 3 <= endColSheet) {
+
+									measureDescriptionTexts = new ArrayList<>();
+
+									for (int indexCol = startColSheet + 3; indexCol <= endColSheet; indexCol++) {
+										System.out.println("Header=" + sheet.getRow(startRowSheet).getCell(indexCol).getStringCellValue());
+										pattern = Pattern.compile("(Domain|Description)_(\\w{3})");
+										matcher = pattern.matcher(sheet.getRow(startRowSheet).getCell(indexCol).getStringCellValue());
+										if (matcher.matches()) {
+
+											if ((indexCol - startColSheet) % 2 == 1) {
+												measureDescriptionText = new MeasureDescriptionText();
+
+												measureDescriptionText.setMeasureDescription(measureDescription);
+												System.out.println(sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() + "|" + sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue());
+												measureDescriptionText.setDomain(sheet.getRow(indexRow).getCell(indexCol).getStringCellValue());
+												measureDescriptionText.setDescription(sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue());
+
+												lang = daoLanguage.loadFromAlpha3(matcher.group(2).trim().toLowerCase());
+
+												if (lang == null) {
+													lang = new Language();
+													lang.setAlpha3(matcher.group(2));
+												}
+
+												measureDescriptionText.setLanguage(lang);
+												measureDescriptionTexts.add(measureDescriptionText);
+											}
+
+											if (indexCol == endColSheet) {
+
+												measureDescription.setMeasureDescriptionTexts(measureDescriptionTexts);
+											}
+										}
+									}
+								}
+
+								daoMeasureDescription.saveOrUpdate(measureDescription);
+
+							}
+					}
+				}
+			}
+		}
+
+		return "redirect:/KnowledgeBase";
+	}
+	
+	
+
+	@Override
+	public boolean isWorking() {
+		// TODO Auto-generated method stub
+		return working;
+	}
+
+	@Override
+	public boolean isCanceled() {
+		// TODO Auto-generated method stub
+		return canceled;
+	}
+
+	@Override
+	public Exception getError() {
+		// TODO Auto-generated method stub
+		return error;
+	}
+
+	@Override
+	public void setId(Long id) {
+		// TODO Auto-generated method stub
+		this.id = id;
+
+	}
+
+	@Override
+	public void setPoolManager(WorkersPoolManager poolManager) {
+		// TODO Auto-generated method stub
+		this.poolManager = poolManager;
+	}
+
+	@Override
+	public Long getId() {
+		// TODO Auto-generated method stub
+		return id;
+	}
+
+	@Override
+	public synchronized void start() {
+		run();
+	}
+
+	@Override
+	public void cancel() {
+		try {
+			synchronized (this) {
+				if (working) {
+					Thread.currentThread().interrupt();
+					canceled = true;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			error = e;
+		} finally {
+			if (importFile!=null && importFile.exists())
+				importFile.delete();
+			synchronized (this) {
+				working = false;
+			}
+			if (poolManager != null)
+				poolManager.remove(getId());
+		}
+	}
+
+	
+	
+}
