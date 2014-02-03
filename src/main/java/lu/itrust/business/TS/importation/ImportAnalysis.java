@@ -2067,7 +2067,7 @@ public class ImportAnalysis {
 					// ****************************************************************
 
 					// check if value is 101 and level 3 -> YES
-					if ((assetTypeValue.getValue() == -1) && (normMeasure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_3)) {
+					if ((assetTypeValue.getValue() == -1) && (normMeasure.isComputable())) {
 
 						// set this asset type value with a valid value
 						updateAssetTypeValue(normMeasure, assetTypeValue);
