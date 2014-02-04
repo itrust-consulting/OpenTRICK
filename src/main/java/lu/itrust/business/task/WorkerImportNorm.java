@@ -25,9 +25,11 @@ import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.view.model.AsyncCallback;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hamcrest.core.IsNull;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -48,17 +50,23 @@ public class WorkerImportNorm implements Worker {
 	private SessionFactory sessionFactory;
 
 	private WorkersPoolManager poolManager;
-	
+
 	private DAONorm daoNorm;
-	
+
 	private DAOMeasureDescription daoMeasureDescription;
-	
+
 	private DAOLanguage daoLanguage;
-	
+
 	private File importFile;
-	
-	
-	
+
+	private int sheetNumber;
+
+	private XSSFWorkbook workbook;
+
+	private Norm newNorm;
+
+	private MessageHandler messageHandler;
+
 	public WorkerImportNorm(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, WorkersPoolManager poolManager, File importFile) {
 		super();
 		this.serviceTaskFeedback = serviceTaskFeedback;
@@ -67,15 +75,12 @@ public class WorkerImportNorm implements Worker {
 		this.importFile = importFile;
 	}
 
-
-	public void initialiseDAO(Session session)
-	{
+	public void initialiseDAO(Session session) {
 		daoLanguage = new DAOLanguageHBM(session);
-		daoNorm  = new DAONormHBM(session);
+		daoNorm = new DAONormHBM(session);
 		daoMeasureDescription = new DAOMeasureDescriptionHBM(session);
 	}
-	
-	
+
 	@Override
 	public void run() {
 		Session session = null;
@@ -91,28 +96,28 @@ public class WorkerImportNorm implements Worker {
 			}
 			session = sessionFactory.openSession();
 			initialiseDAO(session);
-			
+
 			transaction = session.beginTransaction();
-			
+
 			importNewNorm();
-			
+
 			transaction.commit();
-			
-			MessageHandler messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", 100);
+
+			messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", 100);
 			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_norm\")", null));
 			serviceTaskFeedback.send(id, messageHandler);
-			
+
 		} catch (Exception e) {
 			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", e));
+			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of norm failed! Error message is: " + e.getMessage(), e));
 			e.printStackTrace();
 			try {
-				if (transaction!=null)
+				if (transaction != null)
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-			
+
 		} finally {
 			try {
 				if (session != null)
@@ -120,19 +125,18 @@ public class WorkerImportNorm implements Worker {
 			} catch (HibernateException e) {
 				e.printStackTrace();
 			}
-			if (importFile!=null && importFile.exists())
+			if (importFile != null && importFile.exists())
 				importFile.delete();
 			synchronized (this) {
 				working = false;
 			}
 			if (poolManager != null)
 				poolManager.remove(getId());
-			
+
 		}
 
 	}
-	
-	
+
 	/**
 	 * importNewNorm: <br>
 	 * Description
@@ -142,27 +146,39 @@ public class WorkerImportNorm implements Worker {
 		FileInputStream fileToOpen = new FileInputStream(importFile);
 
 		// Get the workbook instance for XLS file
-		XSSFWorkbook workbook = new XSSFWorkbook(fileToOpen);
+		workbook = new XSSFWorkbook(fileToOpen);
+
+		sheetNumber = workbook.getNumberOfSheets();
+
+		newNorm = null;
+
+		getNorm();
+
+		if (newNorm != null)
+			getMeasures();
+		else {
+			System.out.println("e");
+			messageHandler = new MessageHandler("error.import.norm.malformedExcelFile", null, "The Excel file containing Norm to import is malformed. Please check its content!");
+			serviceTaskFeedback.send(id, messageHandler);
+		}
+
+		return "redirect:/KnowledgeBase";
+	}
+
+	/**
+	 * getNorm: <br>
+	 * This function browse sheet (NormInfo) and table (TableNormInfo) of the
+	 * Excel <br/>
+	 * workbook and get information of the norm to import
+	 * 
+	 */
+	public void getNorm() throws Exception {
+
 		XSSFSheet sheet = null;
 		XSSFTable table = null;
 
-		Language lang;
-		Pattern pattern;
-		Matcher matcher;
-		String[] listOfLanguages = null;
-		// ArrayList<String> listOfLanguages = new ArrayList<>();
-
-		Norm newNorm = new Norm();
-		List<MeasureDescription> measureDescriptions = new ArrayList<MeasureDescription>();
-		MeasureDescription measureDescription;
-
-		ArrayList<MeasureDescriptionText> measureDescriptionTexts;
-		MeasureDescriptionText measureDescriptionText;
-
 		short startColSheet, endColSheet;
 		int startRowSheet, endRowSheet;
-
-		int sheetNumber = workbook.getNumberOfSheets();
 
 		for (int indexSheet = 0; indexSheet < sheetNumber; indexSheet++) {
 
@@ -182,17 +198,17 @@ public class WorkerImportNorm implements Worker {
 
 						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
 							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
+								newNorm = new Norm();
 								newNorm.setLabel(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue());
 								newNorm.setVersion((int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
 								newNorm.setDescription(sheet.getRow(indexRow).getCell(startColSheet + 2).getStringCellValue());
 								newNorm.setComputable(sheet.getRow(indexRow).getCell(startColSheet + 3).getBooleanCellValue());
 
-								if (daoNorm.exists(newNorm.getLabel(), newNorm.getVersion()))
-								{
-									MessageHandler messageHandler = new MessageHandler("error.import.norm.exists", new Object[] { newNorm.getLabel(), newNorm.getVersion() }, "Norm label (" + newNorm.getLabel() + ") and version (" + newNorm.getVersion() + ") already exist");
+								if (daoNorm.exists(newNorm.getLabel(), newNorm.getVersion())) {
+									messageHandler = new MessageHandler("error.import.norm.exists", new Object[] { newNorm.getLabel(), newNorm.getVersion() }, "Norm label (" + newNorm.getLabel() + ") and version (" + newNorm.getVersion() + ") already exist");
 									serviceTaskFeedback.send(id, messageHandler);
-								}
-								else
+									return;
+								} else
 									daoNorm.save(newNorm);
 							}
 					}
@@ -202,6 +218,35 @@ public class WorkerImportNorm implements Worker {
 				System.out.println(newNorm.getLabel() + " " + newNorm.getVersion() + " " + newNorm.getDescription() + " " + newNorm.isComputable());
 
 			}
+		}
+	}
+
+	/**
+	 * getMeasures: <br>
+	 * This function browse sheet (NormData) and table (TableNormData) of the
+	 * Excel <br/>
+	 * workbook and get information of the measures to import
+	 * 
+	 */
+	public void getMeasures() throws Exception {
+		XSSFSheet sheet = null;
+		XSSFTable table = null;
+
+		short startColSheet, endColSheet;
+		int startRowSheet, endRowSheet;
+
+		Language lang;
+		Pattern pattern;
+		Matcher matcher;
+
+		MeasureDescription measureDescription = null;
+
+		ArrayList<MeasureDescriptionText> measureDescriptionTexts = null;
+		MeasureDescriptionText measureDescriptionText = null;
+
+		for (int indexSheet = 0; indexSheet < sheetNumber; indexSheet++) {
+
+			sheet = workbook.getSheetAt(indexSheet);
 
 			if (sheet.getSheetName().equals("NormData")) {
 
@@ -265,13 +310,15 @@ public class WorkerImportNorm implements Worker {
 							}
 					}
 				}
+
+				if (measureDescription == null || measureDescriptionText == null || measureDescriptionTexts == null) {
+					messageHandler = new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!");
+					serviceTaskFeedback.send(id, messageHandler);
+					return;
+				}
 			}
 		}
-
-		return "redirect:/KnowledgeBase";
 	}
-	
-	
 
 	@Override
 	public boolean isWorking() {
@@ -328,7 +375,7 @@ public class WorkerImportNorm implements Worker {
 			e.printStackTrace();
 			error = e;
 		} finally {
-			if (importFile!=null && importFile.exists())
+			if (importFile != null && importFile.exists())
 				importFile.delete();
 			synchronized (this) {
 				working = false;
@@ -338,6 +385,4 @@ public class WorkerImportNorm implements Worker {
 		}
 	}
 
-	
-	
 }
