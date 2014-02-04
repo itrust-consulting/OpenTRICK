@@ -167,7 +167,7 @@ function editSingleNorm(normId) {
 }
 
 function getImportNormTemplate() {
-	$.fileDownload(context + '/data/TL_TRICKService_NormImport_V1.0.xlsx')
+	$.fileDownload(context + '/data/TL_TRICKService_NormImport_V1.1.xlsx')
 			.done(function() {
 				alert('File download a success!');
 			}).fail(function() {
