@@ -1244,22 +1244,17 @@ function addNewRole(id) {
 }
 
 /* History */
-function addHistory(analysisId, oldVersion) {
+function addHistory(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_analysis"));
-		if (selectedScenario.length != 1)
+		var selectedAnalysis = findSelectItemIdBySection(("section_analysis"));
+		if (selectedAnalysis.length != 1)
 			return false;
-		analysisId = selectedScenario[0];
-		oldVersion = $("#section_analysis tr[trick-id='" + analysisId + "']>td:nth-child(6)").text();
-		console.log(oldVersion);
+		analysisId = selectedAnalysis[0];
 	}
 	$.ajax({
 		url : context + "/History/Analysis/" + analysisId + "/NewVersion",
 		type : "get",
 		contentType : "application/json",
-		data : {
-			"oldVersion" : oldVersion
-		},
 		success : function(response) {
 			$("#addHistoryModal").replaceWith(response);
 			$('#addHistoryModal').modal("toggle");
@@ -1441,8 +1436,13 @@ function callbackBySection(section) {
 			return analysisTableSortable();
 		},
 		"section_actionplans" : function() {
+			compliance('27001');
+			compliance('27002');
 			reloadSection("section_summary");
-			reloadCharts();
+			return false;
+		},
+		"section_summary" : function() {
+			summaryCharts();
 			return false;
 		}
 
@@ -1483,9 +1483,9 @@ function reloadSection(section, subSection) {
 				if (subSection != null && subSection != undefined)
 					section += "_" + subSection;
 				newSection = $(doc).find("*[id = '" + section + "']");
-				pretreatment = sectionPretreatment(section);
+				/*pretreatment = sectionPretreatment(section);
 				if ($.isFunction(pretreatment))
-					pretreatment(newSection);
+					pretreatment(newSection);*/
 				$("#" + section).replaceWith(newSection);
 				var callback = callbackBySection(section);
 				if ($.isFunction(callback))
@@ -2086,7 +2086,6 @@ $(function() {
 		var rowTrickId = $(e.currentTarget).attr('trick-id');
 		var data = $(e.currentTarget).attr('data');
 
-		var rowTrickVersion = $(e.currentTarget).find("td[trick-version]").attr("trick-version");
 		var rowRights = $(e.currentTarget).attr('trick-rights-id');
 		$contextMenu.attr("trick-selected-id", rowTrickId);
 
@@ -2107,7 +2106,7 @@ $(function() {
 			editRow.parent().removeAttr("hidden");
 			editRow.attr("onclick", "javascript:return editSingleAnalysis(" + rowTrickId + ");");
 			duplicateanalysis.parent().removeAttr("hidden");
-			duplicateanalysis.attr("onclick", "javascript:return addHistory(" + rowTrickId + ", '" + rowTrickVersion + "')");
+			duplicateanalysis.attr("onclick", "javascript:return addHistory(" + rowTrickId + ")");
 		} else {
 			editRow.parent().attr("hidden", "true");
 			editRow.removeAttr("onclick");
@@ -2660,7 +2659,7 @@ function chartALE() {
 	}
 	if ($('#chart_ale_asset_type').length) {
 		$.ajax({
-			url : context + "/Asset/Chart/AssetType/Ale",
+			url : context + "/Asset/Chart/Type/Ale",
 			type : "get",
 			async : true,
 			contentType : "application/json",

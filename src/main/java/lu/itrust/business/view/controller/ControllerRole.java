@@ -3,7 +3,9 @@
  */
 package lu.itrust.business.view.controller;
 
-import org.springframework.security.access.annotation.Secured;
+import lu.itrust.business.TS.tsconstant.Constant;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -11,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author oensuifudine
  * 
  */
-@Secured("ROLE_USER")
+@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 @RequestMapping("/role")
 @Controller
 public class ControllerRole {

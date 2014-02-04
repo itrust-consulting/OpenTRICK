@@ -48,6 +48,7 @@ public class CustomDelete {
 	private DAOScenario daoScenario;
 	
 	@Transactional
+	// TODO check if actionplan needs to be cleared
 	public void deleteAsset(Asset asset) throws Exception {
 		List<Assessment> assessments = daoAssessment.loadAllFromAsset(asset);
 		for (Assessment assessment : assessments)

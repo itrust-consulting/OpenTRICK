@@ -26,6 +26,8 @@ public interface DAOAnalysis {
 
 	public Analysis get(int id, String identifier, String version, Timestamp creationDate) throws Exception;
 
+	public String getVersionOfAnalysis(int id) throws Exception;
+	
 	public boolean analysisExist(String identifier, String version) throws Exception;
 
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception;

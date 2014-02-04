@@ -14,6 +14,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisRight;
@@ -37,6 +38,7 @@ import lu.itrust.business.service.ServiceActionPlanType;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceCustomer;
+import lu.itrust.business.service.ServiceHistory;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceRiskRegister;
 import lu.itrust.business.service.ServiceTaskFeedback;
@@ -60,6 +62,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -133,6 +136,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private MessageSource messageSource;
+
+	@Autowired
+	private ServiceHistory serviceHistory;
 
 	// ******************************************************************************************************************
 	// * Request mappers
@@ -432,19 +438,96 @@ public class ControllerAnalysis {
 	// *****************************************************************
 
 	/**
+	 * addHistory: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param model
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public String addHistory(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Principal principal, HttpSession session) throws Exception {
+
+		// create history
+		History history = new History();
+
+		// retrieve user
+		User user = serviceUser.get(principal.getName());
+
+		// retrieve version
+		String version = serviceAnalysis.getVersionOfAnalysis(analysisId);
+
+		// set user name and lastname
+		history.setAuthor(user.getFirstName() + " " + user.getLastName());
+
+		// add data to model
+		model.put("history", history);
+		model.put("oldVersion", version);
+		model.put("analysisId", analysisId);
+
+		return "analysis/components/widgets/historyForm";
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param history
+	 * @param result
+	 * @param analysisId
+	 * @param session
+	 * @param attributes
+	 * @return
+	 */
+	@RequestMapping(value = "/{analysisId}/NewVersion/Save", method = RequestMethod.POST)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public String save(@ModelAttribute @Valid History history, BindingResult result, @PathVariable Integer analysisId, HttpSession session, RedirectAttributes attributes, Locale locale,
+			Principal principal) {
+
+		// check if hisotry has errors
+		if (result.hasFieldErrors())
+
+			// return to form
+			return "analysis/components/widgets/historyForm";
+
+		try {
+
+			// retrieve analysis version
+			String version = serviceAnalysis.getVersionOfAnalysis(analysisId);
+			
+			// check if version is less or equal the current version
+			if (History.VersionComparator(history.getVersion(), version) != 1) {
+				
+				// retrun error
+				result.rejectValue("version", "error.history.version.less_current", "Version of History entry must be greater than last Version of Analysis!");
+				return "analysis/components/widgets/historyForm";
+			}
+			
+			// continue to duplicate the analysis
+			return createNewVersion(history, analysisId, principal, locale);
+		} catch (Exception e) {
+			
+			// return errors
+			e.printStackTrace();
+			result.reject(e.getMessage());
+			return "analysis/components/widgets/historyForm";
+		}
+	}
+
+	/**
 	 * createNewVersion: <br>
 	 * Description
 	 * 
 	 * @param history
 	 * @param analysisId
 	 * @param principal
-	 * @param session
-	 * @param attributes
 	 * @param locale
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{analysisId}/Duplicate", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
 	String createNewVersion(@ModelAttribute History history, @PathVariable int analysisId, Principal principal, Locale locale) throws Exception {
 

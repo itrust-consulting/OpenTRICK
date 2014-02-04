@@ -8,13 +8,15 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import lu.itrust.business.TS.History;
+import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceHistory;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.validator.HistoryValidator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -22,7 +24,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -33,7 +34,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @version
  * @since Oct 22, 2013
  */
-@Secured("ROLE_USER")
+@PreAuthorize(Constant.ROLE_MIN_USER)
 @Controller
 @RequestMapping("/History")
 public class ControllerHistory {
@@ -47,114 +48,88 @@ public class ControllerHistory {
 	@Autowired
 	private MessageSource messageSource;
 
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
+
+	/**
+	 * initBinder: <br>
+	 * Description
+	 * 
+	 * @param binder
+	 */
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
 		binder.replaceValidators(new HistoryValidator());
 	}
 
 	/**
-	 * setServiceHistory: <br>
+	 * display: <br>
 	 * Description
 	 * 
-	 * @param serviceHistory
+	 * @param analysisId
+	 * @param model
+	 * @return
+	 * @throws Exception
 	 */
-	public void setServiceHistory(ServiceHistory serviceHistory) {
-		this.serviceHistory = serviceHistory;
-	}
-
-	/**
-	 * 
-	 * Display all history of analysis
-	 * 
-	 * */
 	@RequestMapping("/Analysis/{analysisId}")
-	public String display(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model) throws Exception {
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String display(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
+
+		// load all of analysis
 		model.put("histories", serviceHistory.getAllFromAnalysis(analysisId));
+
 		return "analysis/history/histories";
 	}
 
 	/**
+	 * displayHistory: <br>
+	 * Description
 	 * 
-	 * Display single history
-	 * 
-	 * */
-	@RequestMapping("/Analysis/{analysisId}/History/{historyid}")
-	public String displayHistory(@PathVariable("historyId") Integer historyId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
-			throws Exception {
-		History history = (History) session.getAttribute("history");
-		if (history == null || history.getId() != historyId)
-			history = serviceHistory.get(historyId);
+	 * @param historyId
+	 * @param session
+	 * @param model
+	 * @param redirectAttributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/{historyid}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String displayHistory(@PathVariable("historyId") Integer historyId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale,
+			Principal principal) throws Exception {
+
+		History history = serviceHistory.get(historyId);
 		if (history == null) {
+			
+			// return error message and redirect to analysis page
 			String msg = messageSource.getMessage("errors.history.notexist", null, "History does not exist", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
-			return "redirect:/History";
-		}
-		model.put("history", history);
-		return "analysis/history/showHistory";
-	}
-
-	/**
-	 * 
-	 * Request add new history
-	 * 
-	 * */
-	@RequestMapping(value = "Analysis/{analysisId}/NewVersion", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String addHistory(@PathVariable("analysisId") Integer analysisId, String oldVersion, Map<String, Object> model,  Principal principal) throws Exception {
-		History history = new History();
-		history.setAuthor(principal.getName()); 
-		model.put("history", history);
-		model.put("oldVersion", oldVersion);
-		model.put("analysisId", analysisId);
-		return "analysis/components/widgets/historyForm";
-	}
-
-	@RequestMapping(value = "Analysis/{analysisId}/NewVersion/Save", method = RequestMethod.POST)
-	public String save(@ModelAttribute @Valid History history, BindingResult result, @PathVariable Integer analysisId, HttpSession session, RedirectAttributes attributes) {
-		if (result.hasFieldErrors())
-			return "analysis/components/widgets/historyForm";
-		for (String version : serviceHistory.findVersionByAnalysis(analysisId)) {
-			if (History.VersionComparator(history.getVersion(), version) != 1) {
-				result.rejectValue("version", "error.history.version.less_current", "Version of History entry must be greater than last Version of Analysis!");
-				return "analysis/components/widgets/historyForm";
-			}
-		}
-		attributes.addFlashAttribute("history", history);
-		return "redirect:/Analysis/{analysisId}/Duplicate";
-	}
-
-	/**
-	 * 
-	 * Perform add new History
-	 * 
-	 * */
-/*	@RequestMapping("Analysis/{analysisId}/History/Create")
-	public String createHistory(@PathVariable("analysisId") Integer analysisId, @ModelAttribute("history") @Valid History history, BindingResult result,
-			RedirectAttributes redirectAttributes, Locale locale) throws Exception {
-		if (!this.serviceHistory.versionExists(analysisId, history.getVersion())) {
-			try {
-				this.serviceHistory.save(analysisId, history);
-			} catch (Exception e) {
-				String msg = messageSource.getMessage("errors.history.wrongversion", null, e.getMessage(), locale);
-				redirectAttributes.addFlashAttribute("errors", msg);
-				return "redirect:../History/Add";
-			}
-			String msg = messageSource.getMessage("success.history.added", null, "History sucessfully added!", locale);
-			redirectAttributes.addFlashAttribute("errors", msg);
-			return "redirect:../History/Display";
+			return "redirect:/Analysis";
 		} else {
-			String msg = messageSource.getMessage("errors.history.versionexists", null, "History with this version already exists!", locale);
-			redirectAttributes.addFlashAttribute("errors", msg);
-			return "redirect:../History/Add";
+			
+			// add history object to model
+			model.put("history", history);
+			
+			return "analysis/history/showHistory";
 		}
+	}
 
-	}*/
+
 
 	/**
+	 * editHistory: <br>
+	 * Description
 	 * 
-	 * Request edit single history
-	 * 
-	 * */
-	@RequestMapping("Analysis/{analysisId}/History/Edit/{historyId}")
+	 * @param analysisId
+	 * @param historyId
+	 * @param session
+	 * @param model
+	 * @param redirectAttributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	//@RequestMapping("Analysis/{analysisId}/History/Edit/{historyId}")
 	public String editHistory(@PathVariable("analysisId") Integer analysisId, @PathVariable("historyId") Integer historyId, HttpSession session, Map<String, Object> model,
 			RedirectAttributes redirectAttributes, Locale locale) throws Exception {
 		History history = (History) session.getAttribute("history");
@@ -170,12 +145,20 @@ public class ControllerHistory {
 	}
 
 	/**
+	 * updateHistory: <br>
+	 * Description
 	 * 
-	 * Perform edit single customer
-	 * 
-	 * */
-	@RequestMapping("Analysis/{analysisId}/History/Update/{historyId}")
-	public String updateCustomer(@PathVariable("analysisId") Integer analysisId, @PathVariable("historyId") Integer historyId, @ModelAttribute("history") @Valid History history,
+	 * @param analysisId
+	 * @param historyId
+	 * @param history
+	 * @param result
+	 * @param redirectAttributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	//@RequestMapping("Analysis/{analysisId}/History/Update/{historyId}")
+	public String updateHistory(@PathVariable("analysisId") Integer analysisId, @PathVariable("historyId") Integer historyId, @ModelAttribute("history") @Valid History history,
 			BindingResult result, RedirectAttributes redirectAttributes, Locale locale) throws Exception {
 		if (history == null || history.getId() != historyId) {
 			String msg = messageSource.getMessage("errors.history.update.notrecognized", null, "History not recognized", locale);
@@ -192,16 +175,4 @@ public class ControllerHistory {
 		}
 		return "redirect:/Analysis/" + analysisId + "/History/Display";
 	}
-
-	/**
-	 * 
-	 * Delete single customer
-	 * 
-	 * */
-	@RequestMapping("Analysis/{analysisId}/History/Delete/{historyId}")
-	public String deleteCustomer(@PathVariable("historyId") Integer historyId) throws Exception {
-		serviceHistory.delete(serviceHistory.getDAOHistory().get(historyId));
-		return "redirect:../Display";
-	}
-
 }

@@ -108,7 +108,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 
 		return (List<ActionPlanEntry>) getSession()
 				.createQuery(
-						"SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplans where analysis.id = :analysisID and actionplans.actionPlanType.name = :mode ORDER BY actionplan.actionPlanType.id, actionplan.ROI")
+						"SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplans where analysis.id = :analysisID and actionplans.actionPlanType.name = :mode ORDER BY actionplan.actionPlanType.id ASC, actionplan.measure.phase.number ASC, actionplan.ROI ASC")
 				.setParameter("mode", mode).setParameter("analysisID", analysisID).list();
 
 	}
@@ -117,7 +117,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	@Override
 	public List<ActionPlanEntry> loadAllFromAnalysis(int id) throws Exception {
 		return (List<ActionPlanEntry>) getSession().createQuery(
-				"Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.actionPlanType.id, actionplan.ROI").setParameter(
+				"Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.actionPlanType.id ASC, actionplan.measure.phase.number ASC, actionplan.ROI ASC").setParameter(
 				"analysisID", id).list();
 	}
 

@@ -246,4 +246,13 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 				.setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
 	}
 
+	@Override
+	public String getVersionOfAnalysis(int id) throws Exception {
+		Query query = getSession().createQuery("SELECT version From Analysis where id = :id");
+
+		query.setInteger("id", id);
+
+		return (String) query.uniqueResult();
+	}
+
 }
