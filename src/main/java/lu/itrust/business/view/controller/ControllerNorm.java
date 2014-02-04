@@ -3,18 +3,35 @@ package lu.itrust.business.view.controller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.MeasureDescription;
+import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.CustomDelete;
+import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.service.ServiceLanguage;
+import lu.itrust.business.service.ServiceMeasureDescription;
+import lu.itrust.business.service.ServiceMeasureDescriptionText;
 import lu.itrust.business.service.ServiceNorm;
+import lu.itrust.business.service.ServiceTaskFeedback;
+import lu.itrust.business.service.WorkersPoolManager;
+import lu.itrust.business.task.Worker;
+import lu.itrust.business.task.WorkerAnalysisImport;
+import lu.itrust.business.task.WorkerImportNorm;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -23,9 +40,11 @@ import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.hibernate.SessionFactory;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -53,6 +72,27 @@ public class ControllerNorm {
 
 	@Autowired
 	private ServiceNorm serviceNorm;
+
+	@Autowired
+	private ServiceMeasureDescription serviceMeasureDescription;
+
+	@Autowired
+	private ServiceMeasureDescriptionText serviceMeasureDescriptionText;
+
+	@Autowired
+	private ServiceLanguage serviceLanguage;
+	
+	@Autowired
+	private TaskExecutor executor;
+	
+	@Autowired
+	private SessionFactory sessionFactory;
+	
+	@Autowired
+	private ServiceTaskFeedback serviceTaskFeedback;
+	
+	@Autowired
+	private WorkersPoolManager workersPoolManager;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -164,63 +204,21 @@ public class ControllerNorm {
 	 * importNewNorm: <br>
 	 * Description
 	 */
-	@RequestMapping(value = "/Import")
-	public Object importNewNorm(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale) throws Exception {
+	@RequestMapping(value = "/Import", headers = "Accept=application/json")
+	public @ResponseBody Object importNewNorm(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale) throws Exception {
 
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 		file.transferTo(importFile);
 
-		FileInputStream fileToOpen = new FileInputStream(importFile);
+		Worker worker = new WorkerImportNorm(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
 
-		// Get the workbook instance for XLS file
-		XSSFWorkbook workbook = new XSSFWorkbook(fileToOpen);
-		XSSFSheet sheet = null;
-		XSSFTable table = null;
 
-		Norm newNorm = new Norm();
 
-		short startColSheet, endColSheet;
-		int startRowSheet, endRowSheet;
-
-		int sheetNumber = workbook.getNumberOfSheets();
-
-		for (int indexSheet = 0; indexSheet < sheetNumber; indexSheet++) {
-
-			sheet = workbook.getSheetAt(indexSheet);
-
-			if (sheet.getSheetName().equals("NormInfo")) {
-
-				for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
-
-					table = sheet.getTables().get(indexTable);
-
-					if (table.getName().equals("TableNormInfo")) {
-						startColSheet = table.getStartCellReference().getCol();
-						endColSheet = table.getEndCellReference().getCol();
-						startRowSheet = table.getStartCellReference().getRow();
-						endRowSheet = table.getEndCellReference().getRow();
-
-						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
-							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
-								newNorm.setLabel(sheet.getRow(indexRow).getCell(0).getStringCellValue());
-								newNorm.setVersion((int) sheet.getRow(indexRow).getCell(1).getNumericCellValue());
-								newNorm.setDescription(sheet.getRow(indexRow).getCell(2).getStringCellValue());
-								newNorm.setComputable(sheet.getRow(indexRow).getCell(3).getBooleanCellValue());
-								
-							}
-					}
-
-				}
-
-				System.out.println(newNorm.getLabel() + " " + newNorm.getVersion() + " " + newNorm.getDescription() + " " + newNorm.isComputable());
-
-				System.out.println(sheet.getTables().get(0).getStartCellReference() + " " + sheet.getTables().get(0).getEndCellReference());
-
-			}
-
-		}
-
-		return "redirect:/Analysis";
+		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+			executor.execute(worker);
+			return JsonMessage.Success(messageSource.getMessage("success.start.export.analysis", null, "Analysis export was started successfully", locale));
+		} else
+			return JsonMessage.Error(messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
 	}
 
 	/**

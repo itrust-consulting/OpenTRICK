@@ -35,4 +35,6 @@ public interface DAONorm {
 	
 	public void remove(Norm Norm)throws Exception;
 
+	public boolean exists(String label, int version);
+
 }

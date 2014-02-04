@@ -100,7 +100,19 @@ function importNewNorm(button) {
 		},
 		// Ajax events
 		//beforeSend : beforeSendHandler,
-		//success : completeHandler,
+		success : function (response){
+			if (response["success"] != undefined) {
+				if (taskManager == undefined)
+					taskManager = new TaskManager();
+				$("#uploadNormModal").modal("toggle");
+				taskManager.Start();
+			} else if (message["error"]) {
+				$("#alert-dialog .modal-body").html(message["error"]);
+				$("#alert-dialog").modal("toggle");
+				
+			}
+			
+		},
 		//error : errorHandler,
 		// Form data
 		data : formData,
@@ -155,7 +167,7 @@ function editSingleNorm(normId) {
 }
 
 function getImportNormTemplate() {
-	$.fileDownload(context + '/data/TL_TRICKService_NormImport_V0.1.xlsx')
+	$.fileDownload(context + '/data/TL_TRICKService_NormImport_V1.0.xlsx')
 			.done(function() {
 				alert('File download a success!');
 			}).fail(function() {
