@@ -47,6 +47,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/** Analysis id unsaved value = -1 */
 	private int id = -1;
+	
+	private boolean profile = false;
 
 	/** The Customer object */
 	private Customer customer;
@@ -2186,6 +2188,20 @@ public class Analysis implements Serializable, Cloneable {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * @return the profile
+	 */
+	public boolean isProfile() {
+		return profile;
+	}
+
+	/**
+	 * @param profile the profile to set
+	 */
+	public void setProfile(boolean profile) {
+		this.profile = profile;
 	}
 
 }

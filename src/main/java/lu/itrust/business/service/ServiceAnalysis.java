@@ -20,6 +20,10 @@ public interface ServiceAnalysis {
 	public Analysis get(int id) throws Exception;
 
 	public boolean exist(int id);
+	
+	public boolean isProfile(String name);
+	
+	public Analysis findProfileByName(String name);
 
 	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception;
 
@@ -52,5 +56,7 @@ public interface ServiceAnalysis {
 	public void remove(Analysis analysis) throws Exception;
 
 	public void remove(Integer analysisId) throws Exception;
+
+	
 
 }

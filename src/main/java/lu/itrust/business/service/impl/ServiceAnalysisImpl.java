@@ -183,4 +183,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<Analysis> loadByUserAndCustomer(String login, String customer, int pageIndex, int pageSize) {
 		return daoAnalysis.loadByUserAndCustomer(login, customer,pageIndex, pageSize );
 	}
+
+	@Override
+	public boolean isProfile(String name) {
+		return daoAnalysis.isProfile(name);
+	}
+
+	@Override
+	public Analysis findProfileByName(String name) {
+		return daoAnalysis.findProfileByName(name);
+	}
 }

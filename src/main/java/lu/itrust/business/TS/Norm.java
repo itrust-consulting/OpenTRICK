@@ -26,13 +26,13 @@ public class Norm implements Serializable, Cloneable {
 
 	/** Norm Name */
 	private String label = "";
-	
+
 	/** the norm verison */
 	private int version = 2013;
-	
-	/** description of the norm*/
-	private String description  = "";
-	
+
+	/** description of the norm */
+	private String description = "";
+
 	/** norm available for actionplan computation */
 	private boolean computable = true;
 
@@ -66,7 +66,7 @@ public class Norm implements Serializable, Cloneable {
 		this.setLabel(label);
 		this.setVersion(version);
 	}
-	
+
 	/**
 	 * Constructor:<br>
 	 * 
@@ -78,7 +78,7 @@ public class Norm implements Serializable, Cloneable {
 		this.setVersion(version);
 		this.setDescription(description);
 	}
-	
+
 	/**
 	 * Constructor:<br>
 	 * 
@@ -91,7 +91,7 @@ public class Norm implements Serializable, Cloneable {
 		this.setDescription(description);
 		this.setComputable(computable);
 	}
-	
+
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
@@ -140,9 +140,8 @@ public class Norm implements Serializable, Cloneable {
 		this.label = label;
 	}
 
-	/**
-	 * hashCode: <br>
-	 * Description
+	/*
+	 * (non-Javadoc)
 	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -150,14 +149,16 @@ public class Norm implements Serializable, Cloneable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + (computable ? 1231 : 1237);
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + id;
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
+		result = prime * result + version;
 		return result;
 	}
 
-	/**
-	 * equals: <br>
-	 * Description
+	/*
+	 * (non-Javadoc)
 	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -171,24 +172,24 @@ public class Norm implements Serializable, Cloneable {
 			return false;
 		Norm other = (Norm) obj;
 		if (id != other.id)
-			return false;
+			if (id == -1 && other.id != -1)
+				return false;
 		if (label == null) {
 			if (other.label != null)
 				return false;
 		} else if (!label.equals(other.label))
 			return false;
+		if (version != other.version)
+			return false;
 		return true;
 	}
 
-	/**
-	 * toString: <br>
-	 * Description
-	 * 
+	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "Norm [id=" + id + ", label=" + label + "]";
+		return "Norm [id=" + id + ", label=" + label + ", version=" + version + ", description=" + description + ", computable=" + computable + "]";
 	}
 
 	/*
@@ -213,7 +214,8 @@ public class Norm implements Serializable, Cloneable {
 		return norm;
 	}
 
-	/** getVersion: <br>
+	/**
+	 * getVersion: <br>
 	 * Returns the version field value.
 	 * 
 	 * @return The value of the version field
@@ -222,17 +224,19 @@ public class Norm implements Serializable, Cloneable {
 		return version;
 	}
 
-	/** setVersion: <br>
+	/**
+	 * setVersion: <br>
 	 * Sets the Field "version" with a value.
 	 * 
-	 * @param version 
-	 * 			The Value to set the version field
+	 * @param version
+	 *            The Value to set the version field
 	 */
 	public void setVersion(int version) {
 		this.version = version;
 	}
 
-	/** isComputable: <br>
+	/**
+	 * isComputable: <br>
 	 * Returns the computable field value.
 	 * 
 	 * @return The value of the computable field
@@ -241,17 +245,19 @@ public class Norm implements Serializable, Cloneable {
 		return computable;
 	}
 
-	/** setComputable: <br>
+	/**
+	 * setComputable: <br>
 	 * Sets the Field "computable" with a value.
 	 * 
-	 * @param computable 
-	 * 			The Value to set the computable field
+	 * @param computable
+	 *            The Value to set the computable field
 	 */
 	public void setComputable(boolean computable) {
 		this.computable = computable;
 	}
 
-	/** getDescription: <br>
+	/**
+	 * getDescription: <br>
 	 * Returns the description field value.
 	 * 
 	 * @return The value of the description field
@@ -260,11 +266,12 @@ public class Norm implements Serializable, Cloneable {
 		return description;
 	}
 
-	/** setDescription: <br>
+	/**
+	 * setDescription: <br>
 	 * Sets the Field "description" with a value.
 	 * 
-	 * @param description 
-	 * 			The Value to set the description field
+	 * @param description
+	 *            The Value to set the description field
 	 */
 	public void setDescription(String description) {
 		this.description = description;

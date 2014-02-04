@@ -20,15 +20,17 @@ public class AnalysisProfile {
 
 	private List<Norm> norms = new ArrayList<Norm>();
 
-	private boolean parameter;
+	private boolean parameter = true;
 
-	private boolean itemInformation;
+	private boolean itemInformation = true;
 
-	private boolean riskInformation;
+	private boolean riskInformation = true;
 
-	private boolean scenario;
+	private boolean scenario = true;
 
 	private boolean asset;
+	
+	private String comment;
 
 	/**
 	 * 
@@ -159,6 +161,20 @@ public class AnalysisProfile {
 	 */
 	public void setItemInformation(boolean itemInformation) {
 		this.itemInformation = itemInformation;
+	}
+
+	/**
+	 * @return the comment
+	 */
+	public String getComment() {
+		return comment;
+	}
+
+	/**
+	 * @param comment the comment to set
+	 */
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 }

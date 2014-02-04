@@ -20,7 +20,6 @@ import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.Language;
-import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -30,7 +29,6 @@ import lu.itrust.business.TS.usermanagement.UserSqLite;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
-import lu.itrust.business.component.helper.AnalysisProfile;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
@@ -61,7 +59,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -167,7 +164,6 @@ public class ControllerAnalysis {
 				}
 				Hibernate.initialize(analysis.getLanguage());
 				model.addAttribute("login", principal.getName());
-				/* model.addAttribute("assettypes", serviceAssetType.loadAll()); */
 				model.addAttribute("language", analysis.getLanguage().getAlpha3());
 				model.addAttribute("analysis", analysis);
 			} else {
@@ -291,58 +287,7 @@ public class ControllerAnalysis {
 
 	}
 
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	@RequestMapping("/Profile/New/{analysisId}")
-	public String createProfile(@PathVariable int analysisId, Model model, Principal principal) {
-		List<Norm> norms = serviceNorm.loadAllFromAnalysis(analysisId);
-		AnalysisProfile analysisProfile = new AnalysisProfile(analysisId);
-		model.addAttribute("norms", norms);
-		model.addAttribute("analysisProfile", analysisProfile);
-		return "analysis/components/widgets/analysisProfileForm";
-	}
-
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisProfile.idAnalysis, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	@RequestMapping("/Profile/Save")
-	public String saveProfile(@ModelAttribute AnalysisProfile analysisProfile, BindingResult result, Principal principal) throws Exception {
-		Analysis analysis = serviceAnalysis.get(analysisProfile.getIdAnalysis());
-		Customer customer = serviceCustomer.loadProfileCustomer();
-		if (customer == null)
-			return "analysis/components/widgets/analysisProfileForm";
-		Duplicator duplicator = new Duplicator();
-		Analysis copy = duplicator.duplicate(analysis);
-		
-		copy.setHistories(null);
-		
-		copy.setAssessments(null);
-		
-		copy.setBasedOnAnalysis(null);
-		
-		if (!analysisProfile.isAsset())
-			copy.setAssets(null);
-
-		if (!analysisProfile.isItemInformation())
-			copy.setItemInformations(null);
-		
-		if(!analysisProfile.isScenario())
-			copy.setScenarios(null);
-		
-		if(!analysisProfile.isRiskInformation())
-			copy.setRiskInformations(null);
-		
-		if(!analysisProfile.isParameter())
-			copy.setParameters(null);
-		
-		copy.setCustomer(customer);
-		
-		copy.setIdentifier(analysisProfile.getName());
-		
-		copy.setLabel(analysisProfile.getName());
-		copy.setVersion("0.0.1");
-		copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
-		serviceAnalysis.saveOrUpdate(copy);
-
-		return "redirect:/Analysis";
-	}
+	
 
 	/**
 	 * editAnalysis: <br>

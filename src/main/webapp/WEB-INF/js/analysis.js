@@ -71,7 +71,7 @@ function createAnalysisProfile(analysisId) {
 	}
 	$
 			.ajax({
-				url : context + "/Analysis/Profile/New/" + analysisId,
+				url : context + "/AnalysisProfile/Add/" + analysisId,
 				type : "get",
 				contentType : "application/json",
 				success : function(response) {
@@ -95,33 +95,48 @@ function createAnalysisProfile(analysisId) {
 }
 
 function saveAnalysisProfile(form) {
-	$.ajax({
-		url : context + "/Analysis/Profile/Save",
-		type : "post",
-		aync : true,
-		data : $("#" + form).serialize(),
-		success : function(response) {
-			var alert = $("#analysisProfileModal .alert");
-			if (alert.length)
-				alert.remove();
-			if (response["success"] != undefined) {
-				showSuccess($("#analysisProfileModal .modal-body")[0],
-						response["success"]);
-			} else if (response["error"]) {
-				showError($("#analysisProfileModal .modal-body")[0],
-						response["error"]);
-				return false;
-			} else {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				if ((error = $(doc).find("#analysisProfileModal")).length) {
-					$("#analysisProfileModal .modal-body").html(
-							$(error).find(".modal-body"));
-					return false;
+	$
+			.ajax({
+				url : context + "/AnalysisProfile/Save",
+				type : "post",
+				aync : true,
+				data : $("#" + form).serialize(),
+				success : function(response) {
+					if (response.flag != undefined) {
+						var progressBar = new ProgressBar();
+						progressBar.Initialise();
+						$(progressBar.progress)
+								.appendTo($("#" + form).parent());
+						callback = {
+							failed : function() {
+								progressBar.Distroy();
+								$("#analysisProfileModal").modal("toggle");
+								$("#alert-dialog .modal-body")
+										.html(
+												MessageResolver(
+														"error.unknown.task.execution",
+														"An unknown error occurred during the execution of the task"));
+							},
+							success : function() {
+								progressBar.Distroy();
+								$("#analysisProfileModal").modal("toggle");
+							}
+						};
+						progressBar.OnComplete(callback.success);
+						updateStatus(progressBar, response.taskID, callback,
+								response);
+					} else {
+						var parser = new DOMParser();
+						var doc = parser.parseFromString(response, "text/html");
+						if ((error = $(doc).find("#analysisProfileModal")).length) {
+							$("#analysisProfileModal .modal-body").html(
+									$(error).find(".modal-body"));
+							return false;
+						}
+					}
 				}
-			}
-		}
-	});
+			});
+	return false;
 }
 
 function newAnalysis() {
@@ -133,7 +148,7 @@ function newAnalysis() {
 			$("#analysis_form").html(response);
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
+			return false;
 		},
 	});
 
@@ -164,7 +179,7 @@ function editSingleAnalysis(analysisId) {
 				$("#analysis_form").html(response);
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
-				return result;
+				return fase;
 			},
 		});
 

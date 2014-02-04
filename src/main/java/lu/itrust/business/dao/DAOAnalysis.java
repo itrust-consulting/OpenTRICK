@@ -21,6 +21,10 @@ public interface DAOAnalysis {
 	public Analysis get(int id) throws Exception;
 
 	public boolean exist(int id);
+	
+	public boolean isProfile(String name);
+	
+	public Analysis findProfileByName(String name);
 
 	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception;
 
@@ -53,4 +57,8 @@ public interface DAOAnalysis {
 	public void remove(Integer analysisId) throws Exception;
 
 	public List<Analysis> loadAllNotEmpty() throws Exception;
+
+	
+
+	
 }
