@@ -3,12 +3,8 @@ package lu.itrust.business.task;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.servlet.ServletContext;
 
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
@@ -25,11 +21,9 @@ import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.view.model.AsyncCallback;
 
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hamcrest.core.IsNull;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -141,7 +135,7 @@ public class WorkerImportNorm implements Worker {
 	 * importNewNorm: <br>
 	 * Description
 	 */
-	public Object importNewNorm() throws Exception {
+	public void importNewNorm() throws Exception {
 
 		FileInputStream fileToOpen = new FileInputStream(importFile);
 
@@ -157,12 +151,9 @@ public class WorkerImportNorm implements Worker {
 		if (newNorm != null)
 			getMeasures();
 		else {
-			System.out.println("e");
 			messageHandler = new MessageHandler("error.import.norm.malformedExcelFile", null, "The Excel file containing Norm to import is malformed. Please check its content!");
 			serviceTaskFeedback.send(id, messageHandler);
 		}
-
-		return "redirect:/KnowledgeBase";
 	}
 
 	/**
@@ -215,7 +206,7 @@ public class WorkerImportNorm implements Worker {
 
 				}
 
-				System.out.println(newNorm.getLabel() + " " + newNorm.getVersion() + " " + newNorm.getDescription() + " " + newNorm.isComputable());
+				//System.out.println(newNorm.getLabel() + " " + newNorm.getVersion() + " " + newNorm.getDescription() + " " + newNorm.isComputable());
 
 			}
 		}
@@ -264,7 +255,7 @@ public class WorkerImportNorm implements Worker {
 							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
 								measureDescription = new MeasureDescription();
 								measureDescription.setLevel((int) sheet.getRow(indexRow).getCell(0).getNumericCellValue());
-								System.out.println(sheet.getRow(indexRow).getCell(3).getStringCellValue());
+								//System.out.println(sheet.getRow(indexRow).getCell(3).getStringCellValue());
 								measureDescription.setReference(sheet.getRow(indexRow).getCell(1).getStringCellValue());
 								measureDescription.setNorm(newNorm);
 
@@ -273,7 +264,7 @@ public class WorkerImportNorm implements Worker {
 									measureDescriptionTexts = new ArrayList<>();
 
 									for (int indexCol = startColSheet + 3; indexCol <= endColSheet; indexCol++) {
-										System.out.println("Header=" + sheet.getRow(startRowSheet).getCell(indexCol).getStringCellValue());
+										//System.out.println("Header=" + sheet.getRow(startRowSheet).getCell(indexCol).getStringCellValue());
 										pattern = Pattern.compile("(Domain|Description)_(\\w{3})");
 										matcher = pattern.matcher(sheet.getRow(startRowSheet).getCell(indexCol).getStringCellValue());
 										if (matcher.matches()) {
@@ -282,7 +273,7 @@ public class WorkerImportNorm implements Worker {
 												measureDescriptionText = new MeasureDescriptionText();
 
 												measureDescriptionText.setMeasureDescription(measureDescription);
-												System.out.println(sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() + "|" + sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue());
+												//System.out.println(sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() + "|" + sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue());
 												measureDescriptionText.setDomain(sheet.getRow(indexRow).getCell(indexCol).getStringCellValue());
 												measureDescriptionText.setDescription(sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue());
 

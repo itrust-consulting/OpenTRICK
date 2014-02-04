@@ -100,8 +100,8 @@
 			<version>1.6.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.directory.studio</groupId>
-			<artifactId>org.antlr.antlr</artifactId>
+			<groupId>antlr</groupId>
+			<artifactId>antlr</artifactId>
 			<version>2.7.7</version>
 		</dependency>
 		<dependency>
@@ -170,8 +170,6 @@
 		</dependency>
 
 		<!-- POI (Generate Office document) -->
-
-
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
