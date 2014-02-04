@@ -836,8 +836,7 @@ public class ExportAnalysis {
 		for (int index = 0; index < this.analysis.getParameters().size(); index++) {
 
 			// check if impact OR propability -> YES
-			if ((this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-					|| (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
+			if ((this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)) || (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
 
 				// store parameter in object
 				extendedParameter = (ExtendedParameter) this.analysis.getAParameter(index);
@@ -1201,9 +1200,7 @@ public class ExportAnalysis {
 			if (query.equals(Constant.EMPTY_STRING)) {
 
 				// build query
-				query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as "
-						+ "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as "
-						+ "uncertainty UNION";
+				query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as " + "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
 
 				// set ? limit
 				counter = 14;
@@ -1223,9 +1220,7 @@ public class ExportAnalysis {
 
 					// reset query
 					// build query
-					query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? "
-							+ "as impact_reputation,? as impact_operational, ? as impact_legal, ? as " + "impact_financial,? as impact_hidden,? as potentiality,? as "
-							+ "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
+					query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as " + "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
 
 					// set ? limit
 					counter = 14;
@@ -1390,13 +1385,13 @@ public class ExportAnalysis {
 					// ****************************************************************
 					// * add params to query
 					// ****************************************************************
-					
+
 					// for norm
 					measureparams.add(measNorm.getNorm().getLabel());
 					measureparams.add(measNorm.getNorm().getVersion());
 					measureparams.add(measNorm.getNorm().getDescription());
 					measureparams.add(measNorm.getNorm().isComputable());
-									
+
 					// for measure
 					measureparams.add(measure.getMeasureDescription().getReference());
 					measureparams.add(measure.isComputable());
@@ -1670,7 +1665,6 @@ public class ExportAnalysis {
 							measurequery += " 'domain',? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime',? as 'maintenance',? as 'comment',? ";
 							measurequery += "as 'todo',? as 'sml1',? as 'sml2',? as 'sml3',? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
-
 							// reset limit
 							measurecounter = 23;
 						} else {
@@ -1726,8 +1720,7 @@ public class ExportAnalysis {
 
 						// add parameters
 						specparams.clear();
-						specparams.add(maturity.getMeasureDescription().getReference()
-								.substring(maturity.getMeasureDescription().getReference().indexOf(".") + 1, maturity.getMeasureDescription().getReference().length()));
+						specparams.add(maturity.getMeasureDescription().getReference().substring(maturity.getMeasureDescription().getReference().indexOf(".") + 1, maturity.getMeasureDescription().getReference().length()));
 						specparams.add(maturity.getPhase().getNumber());
 
 						// execute the query
@@ -1764,8 +1757,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 		// * export action plan types
 		// ****************************************************************
-		sqlite.query("INSERT INTO ActionPlanType SELECT 1 as 'idActionPlanType','APN' as 'dtLabel'" + "UNION SELECT 2,'APO' UNION SELECT 3,'APP' UNION SELECT 4,'APPN' UNION "
-				+ "SELECT 5,'APPO' UNION SELECT 6,'APPP'", null);
+		sqlite.query("INSERT INTO ActionPlanType SELECT 1 as 'idActionPlanType','APN' as 'dtLabel'" + "UNION SELECT 2,'APO' UNION SELECT 3,'APP' UNION SELECT 4,'APPN' UNION " + "SELECT 5,'APPO' UNION SELECT 6,'APPP'", null);
 
 		// ****************************************************************
 		// * export action plans
@@ -1949,10 +1941,9 @@ public class ExportAnalysis {
 		// * export entry after entry
 		// ****************************************************************
 
-		
-		if (actionPlanEntries.size()==0) 
+		if (actionPlanEntries.size() == 0)
 			return;
-		
+
 		for (int index = 0; index < actionPlanEntries.size(); index++) {
 
 			// store entry
@@ -2144,8 +2135,13 @@ public class ExportAnalysis {
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		final int[] multi = { 1000000, 1000, 1 };
 		String[] split = reference.split("\\.");
+
+		final int[] multi = new int[split.length];
+
+		for (int indexMulti = (split.length - 1); indexMulti >= 0; indexMulti--)
+			multi[indexMulti] = (int) Math.pow(1000., indexMulti);
+
 		int index = 0;
 
 		// ****************************************************************
@@ -2173,7 +2169,7 @@ public class ExportAnalysis {
 
 				// create index for 27002 and custom
 				for (int i = 0; i < split.length; i++) {
-
+					
 					// ****************************************************************
 					// * set index
 					// ****************************************************************
