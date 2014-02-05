@@ -214,7 +214,6 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		return user.hasRole(role.getType());
 	}
 
-<<<<<<< HEAD
 	/**
 	 * loadByCustomer: <br>
 	 * Description
@@ -241,13 +240,6 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		
 		// return list of user with this particular customer
 		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer = :customer").setParameter("customer", customer).list();
+		//return getSession().createQuery("Select user From User user where :customer in user.customers").setParameter("customer", customer).list();
 	}
 }
-=======
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<User> loadByCustomer(Customer customer) {
-		return getSession().createQuery("Select user From User user where :customer in user.customers").setParameter("customer", customer).list();
-	}
-}
->>>>>>> 60be6bfaff03f951ebe2aed09f423f4035d158b3

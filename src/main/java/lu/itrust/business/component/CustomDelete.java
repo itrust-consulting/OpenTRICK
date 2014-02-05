@@ -115,7 +115,7 @@ public class CustomDelete {
 		}
 
 		user.getCustomers().remove(customer);
-		if (!user.contains(customer))
+		if (!user.containsCustomer(customer))
 			daoUser.saveOrUpdate(user);
 
 		if (!daoCustomer.hasUser(customer.getId()) && analyses.isEmpty())
