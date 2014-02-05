@@ -48,70 +48,171 @@ public class ControllerSummary {
 
 	@Autowired
 	private ChartGenerator chartGenerator;
-	
+
+	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param principal
+	 * @param model
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/Section")
 	public String section(HttpSession session, Principal principal, Model model, Locale locale) throws Exception {
+
+		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+		// add phases of analysis
 		model.addAttribute("phases", servicePhase.loadAllFromAnalysis(idAnalysis));
+
+		// add actionplan summaries
 		model.addAttribute("summaries", serviceActionPlanSummary.findByAnalysis(idAnalysis));
+
 		return "analysis/components/summary";
 	}
 
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @param principal
+	 * @param session
+	 * @param locale
+	 * @return
+	 */
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
 	String delete(@PathVariable int id, Principal principal, HttpSession session, Locale locale) {
+
+		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+		// retrieve a single actionplansummary entry of analysis
 		SummaryStage summaryStage = serviceActionPlanSummary.findByIdAndAnalysis(id, idAnalysis);
 		if (summaryStage == null)
 			return JsonMessage.Error(messageSource.getMessage("error.summary.not_found", null, "Summary cannot be found", locale));
 		else
 			try {
+
+				// delete entry
 				serviceActionPlanSummary.remove(summaryStage);
+
+				// return success message
 				return JsonMessage.Success(messageSource.getMessage("success.summary.delete", null, "Summary was successfully deleted", locale));
 			} catch (Exception e) {
+
+				// returen error message
 				e.printStackTrace();
 				return JsonMessage.Error(messageSource.getMessage("error.internal.summary.delete", null, "An error occurred during the summary deleting", locale));
 			}
 	}
 
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param principal
+	 * @param session
+	 * @param locale
+	 * @return
+	 */
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	@RequestMapping(value = "/Delete", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
 	List<String> delete(Principal principal, HttpSession session, Locale locale) {
+
+		// create errors list
 		List<String> errors = new LinkedList<String>();
+
+		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+		// get summaries
 		List<SummaryStage> summaryStages = serviceActionPlanSummary.findByAnalysis(idAnalysis);
-		for (SummaryStage summaryStage : summaryStages) {
-			try {
+
+		try {
+
+			// parse stages
+			for (SummaryStage summaryStage : summaryStages) {
+				// remove current
 				serviceActionPlanSummary.remove(summaryStage);
-				errors.add(JsonMessage.Success(messageSource.getMessage("success.summary.delete", null, "Summary was successfully deleted", locale)));
-			} catch (Exception e) {
-				e.printStackTrace();
-				errors.add(JsonMessage.Error(messageSource.getMessage("error.internal.summary.delete", null, "An error occurred during the summary deleting", locale)));
 			}
+
+			// add success message
+			errors.add(JsonMessage.Success(messageSource.getMessage("success.summary.delete", null, "Summary was successfully deleted", locale)));
+
+			// return empty errors -> success
+			return errors;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			errors.add(JsonMessage.Error(messageSource.getMessage("error.internal.summary.delete", null, "An error occurred during the summary deleting", locale)));
+			return errors;
 		}
-		return errors;
 	}
 
+	/**
+	 * chartEvolutionProfitabityCompliance: <br>
+	 * Description
+	 * 
+	 * @param actionPlanType
+	 * @param principal
+	 * @param session
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping(value = "/Evolution/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
 	String chartEvolutionProfitabityCompliance(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
+
+		// retireve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+		// load all phases of analysis
 		List<Phase> phases = servicePhase.loadAllFromAnalysis(idAnalysis);
+
+		// load all summaries of analysis
 		List<SummaryStage> summaryStages = serviceActionPlanSummary.findByAnalysisAndActionPlanType(idAnalysis, actionPlanType);
+
+		// generate chart
 		return chartGenerator.evolutionProfitabilityCompliance(summaryStages, phases, actionPlanType, locale);
 	}
 
+	/**
+	 * chartBudget: <br>
+	 * Description
+	 * 
+	 * @param actionPlanType
+	 * @param principal
+	 * @param session
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping(value = "/Budget/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
 	String chartBudget(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
+
+		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+		// retrieve phases
 		List<Phase> phases = servicePhase.loadAllFromAnalysis(idAnalysis);
+
+		// retrieve summaries
 		List<SummaryStage> summaryStages = serviceActionPlanSummary.findByAnalysisAndActionPlanType(idAnalysis, actionPlanType);
+
+		// return chart
 		return chartGenerator.budget(summaryStages, phases, actionPlanType, locale);
 	}
 }
