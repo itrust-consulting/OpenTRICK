@@ -38,7 +38,9 @@ public class ServiceNormImpl implements ServiceNorm {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.service.ServiceNorm#loadNotCustomNormByName(java.lang .String)
+	 * @see
+	 * lu.itrust.business.service.ServiceNorm#loadNotCustomNormByName(java.lang
+	 * .String)
 	 */
 	@Override
 	public Norm loadNotCustomNormByName(String norm) throws Exception {
@@ -48,7 +50,9 @@ public class ServiceNormImpl implements ServiceNorm {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.service.ServiceNorm#loadSingleNormByName(java.lang .String)
+	 * @see
+	 * lu.itrust.business.service.ServiceNorm#loadSingleNormByName(java.lang
+	 * .String)
 	 */
 	@Override
 	public Norm loadSingleNormByName(String norm) throws Exception {
@@ -58,7 +62,8 @@ public class ServiceNormImpl implements ServiceNorm {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.service.ServiceNorm#loadAllFromAnalysis(lu.itrust.
+	 * @see
+	 * lu.itrust.business.service.ServiceNorm#loadAllFromAnalysis(lu.itrust.
 	 * business.TS.Analysis)
 	 */
 	@Override
@@ -70,7 +75,8 @@ public class ServiceNormImpl implements ServiceNorm {
 	 * (non-Javadoc)
 	 * 
 	 * @see lu.itrust.business.service.ServiceNorm#
-	 * loadAllFromAnalysisIdentifierVersionCreationDate(int, java.lang.String, java.lang.String)
+	 * loadAllFromAnalysisIdentifierVersionCreationDate(int, java.lang.String,
+	 * java.lang.String)
 	 */
 	@Override
 	public List<Norm> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier, String version, String creationDate) throws Exception {
@@ -90,7 +96,8 @@ public class ServiceNormImpl implements ServiceNorm {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.service.ServiceNorm#save(lu.itrust.business.TS.Norm)
+	 * @see
+	 * lu.itrust.business.service.ServiceNorm#save(lu.itrust.business.TS.Norm)
 	 */
 	@Transactional
 	@Override
@@ -101,7 +108,9 @@ public class ServiceNormImpl implements ServiceNorm {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.service.ServiceNorm#saveOrUpdate(lu.itrust.business .TS.Norm)
+	 * @see
+	 * lu.itrust.business.service.ServiceNorm#saveOrUpdate(lu.itrust.business
+	 * .TS.Norm)
 	 */
 	@Transactional
 	@Override
@@ -112,7 +121,8 @@ public class ServiceNormImpl implements ServiceNorm {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.service.ServiceNorm#remove(lu.itrust.business.TS.Norm)
+	 * @see
+	 * lu.itrust.business.service.ServiceNorm#remove(lu.itrust.business.TS.Norm)
 	 */
 	@Transactional
 	@Override
@@ -144,5 +154,9 @@ public class ServiceNormImpl implements ServiceNorm {
 	public boolean exists(String label, int version) {
 		// TODO Auto-generated method stub
 		return daoNorm.exists(label, version);
+	}
+
+	public List<Norm> loadAllFromAnalysis(int analysisId) {
+		return daoNorm.loadAllFromAnalysis(analysisId);
 	}
 }

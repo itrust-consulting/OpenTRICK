@@ -6,11 +6,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.RoleType;
+import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.component.CustomDelete;
+import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.service.ServiceCustomer;
+import lu.itrust.business.service.ServiceUser;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -41,24 +47,24 @@ public class ControllerCustomer {
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
+	
+	@Autowired
+	private CustomDelete customDelete;
 
 	@Autowired
 	private MessageSource messageSource;
 
+	@Autowired
+	private ServiceUser serviceUser;
+
 	/**
-	 * loadAllCustomers: <br>
-	 * Description
 	 * 
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
+	 * Display all customers
+	 * 
+	 * */
 	@RequestMapping
-	public String loadAllCustomers(Map<String, Object> model, Principal principal) throws Exception {
-
-		// load only customers of this user
+	public String loadAllCustomers(Principal principal, Map<String, Object> model) throws Exception {
 		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
-
 		return "knowledgebase/customer/customers";
 	}
 
@@ -73,29 +79,28 @@ public class ControllerCustomer {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String section(Model model, HttpSession session, Principal principal) throws Exception {
-
-		// load only customers of this user
-		model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
-
+	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request) throws Exception {
+		String referer = request.getHeader("Referer");
+		if (referer != null && referer.contains("/trickservice/Admin")) {
+			User user = serviceUser.get(principal.getName());
+			if (user.isAutorise(RoleType.ROLE_ADMIN)) {
+				model.addAttribute("adminView", true);
+				model.addAttribute("customers", serviceCustomer.loadByUserAndProfile(principal.getName()));
+			} else
+				model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
+		} else
+			model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
 		return "knowledgebase/customer/customers";
 	}
 
 	/**
-	 * loadSingleCustomer: <br>
-	 * Description
 	 * 
-	 * @param customerId
-	 * @param session
-	 * @param model
-	 * @param redirectAttributes
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
+	 * Display single customer
+	 * 
+	 * */
 	@RequestMapping("/{customerId}")
-	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
-			throws Exception {
+	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
+			Locale locale) throws Exception {
 		Customer customer = (Customer) session.getAttribute("customer");
 		if (customer == null || customer.getId() != customerId)
 			customer = serviceCustomer.get(customerId);
@@ -118,70 +123,53 @@ public class ControllerCustomer {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	List<String[]> save(@RequestBody String value, Locale locale) {
-
-		// create errors list
+	List<String[]> save(@RequestBody String value, Principal principal, Locale locale) {
 		List<String[]> errors = new LinkedList<>();
-
 		try {
-
-			// create empty customer object
 			Customer customer = new Customer();
-
-			// build customer
 			if (!buildCustomer(errors, customer, value, locale))
-
-				// return errors on failure
 				return errors;
-
-			// check if user is to save or to update
+			User user = serviceUser.get(principal.getName());
 			if (customer.getId() < 1) {
-
-				// save
-				serviceCustomer.save(customer);
-			} else {
-
-				// update
+				if (customer.isCanBeUsed()) {
+					user.add(customer);
+					serviceUser.saveOrUpdate(user);
+				} else if (!serviceCustomer.hasProfileCustomer())
+					serviceCustomer.save(customer);
+				else
+					errors.add(new String[] { "customer", messageSource.getMessage("error.customer.profile.duplicate", null, "A customer profile already exists", locale) });
+			} else if (serviceCustomer.hasUser(customer.getId()) && customer.isCanBeUsed() || !(serviceCustomer.hasUser(customer.getId()) || customer.isCanBeUsed())
+					&& (!serviceCustomer.hasProfileCustomer() || serviceCustomer.isProfile(customer.getId())))
 				serviceCustomer.saveOrUpdate(customer);
-			}
-
-			// return success message (errors are empty -> no errors)
-			return errors;
+			else
+				errors.add(new String[] { "customer",
+						messageSource.getMessage("error.customer.profile.attach.user", null, "Only a customer who is not attached to a user can be used as profile", locale) });
 		} catch (Exception e) {
-
-			// return errors
 			errors.add(new String[] { "customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
-			return errors;
 		}
+		return errors;
 	}
 
 	/**
-	 * deleteCustomer: <br>
-	 * Description
 	 * 
-	 * @param customerId
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
+	 * Delete single customer
+	 * 
+	 * */
 	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	String[] deleteCustomer(@PathVariable("customerId") Integer customerId, Locale locale) throws Exception {
-
+	String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, Locale locale) throws Exception {
 		try {
-
-			// try to delete the customer
-			serviceCustomer.remove(customerId);
-
-			// return success message
-			return new String[] { "success", messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale) };
+			Customer customer = serviceCustomer.get(customerId);
+			if(customer==null)
+				return JsonMessage.Error(messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
+			customDelete.deleteCustomerByUser(customer,principal.getName());
+			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
 		} catch (Exception e) {
-
-			// return error message
 			e.printStackTrace();
-			return new String[] { "error", messageSource.getMessage("success.customer.delete.failed", null, "Customer deletion failed", locale) };
+			return JsonMessage.Error(messageSource.getMessage("error.customer.delete", null, "Customer cannot be deleted", locale));
 		}
+
 	}
 
 	/**
@@ -195,21 +183,12 @@ public class ControllerCustomer {
 	 * @return
 	 */
 	private boolean buildCustomer(List<String[]> errors, Customer customer, String source, Locale locale) {
-
 		try {
-
-			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
-
-			// retrieve customer id node
 			int id = jsonNode.get("id").asInt();
-
-			// check if id is to be created (new) or to update
 			if (id > 0)
 				customer.setId(jsonNode.get("id").asInt());
-
-			// add data
 			customer.setOrganisation(jsonNode.get("organisation").asText());
 			customer.setContactPerson(jsonNode.get("contactPerson").asText());
 			customer.setTelephoneNumber(jsonNode.get("telephoneNumber").asText());
@@ -218,15 +197,14 @@ public class ControllerCustomer {
 			customer.setCity(jsonNode.get("city").asText());
 			customer.setZIPCode(jsonNode.get("ZIPCode").asText());
 			customer.setCountry(jsonNode.get("country").asText());
-
-			// return success message
+			customer.setCanBeUsed(jsonNode.get("canBeUsed") == null ? true : !jsonNode.get("canBeUsed").asText().equals("on"));
 			return true;
-
 		} catch (Exception e) {
 
-			// return error message
+			errors.add(new String[] { "customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 			return false;
 		}
+
 	}
 }

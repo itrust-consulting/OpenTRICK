@@ -20,6 +20,10 @@ public interface ServiceAnalysis {
 	public Analysis get(int id) throws Exception;
 
 	public boolean exist(int id);
+	
+	public boolean isProfile(String name);
+	
+	public Analysis findProfileByName(String name);
 
 	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception;
 
@@ -32,6 +36,8 @@ public interface ServiceAnalysis {
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception;
 
 	public Language getLanguageFromAnalysis(int analysisID) throws Exception;
+	
+	public List<Analysis> loadProfiles();
 
 	public List<Analysis> loadByUserAndCustomer(String login, String customer);
 	
@@ -54,5 +60,9 @@ public interface ServiceAnalysis {
 	public void remove(Analysis analysis) throws Exception;
 
 	public void remove(Integer analysisId) throws Exception;
+
+	
+
+	
 
 }

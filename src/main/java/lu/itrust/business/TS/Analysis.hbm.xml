@@ -13,6 +13,8 @@
 			<property length="12" type="string" column="dtVersion" generated="never" lazy="false" name="version" not-null="true" />
 			<property type="timestamp" column="dtCreationDate" generated="never" lazy="false" name="creationDate" not-null="true" />
 		</properties>
+		
+		<property name="profile" column="dtProfile" access="field" not-null="true"/>
 
 		<many-to-one class="Customer" column="fiCustomer" name="customer" not-null="true" lazy="false" access="field" />
 

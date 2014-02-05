@@ -5,6 +5,7 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
+import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOUser;
@@ -15,9 +16,9 @@ import org.springframework.stereotype.Repository;
 /**
  * DAOUserHBM.java: <br>
  * Detailed description...
- *
+ * 
  * @author oensuifudine, itrust consulting s.à.rl. :
- * @version 
+ * @version
  * @since Feb , 2013
  */
 @Repository
@@ -62,7 +63,8 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String, java.lang.String)
+	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String,
+	 *      java.lang.String)
 	 */
 	@Override
 	public User get(String login, String password) throws Exception {
@@ -210,5 +212,11 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	@Override
 	public boolean hasRole(User user, Role role) throws Exception {
 		return user.hasRole(role.getType());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> loadByCustomer(Customer customer) {
+		return getSession().createQuery("Select user From User user where :customer in user.customers").setParameter("customer", customer).list();
 	}
 }

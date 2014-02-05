@@ -16,7 +16,15 @@ public interface DAOCustomer {
 	
 	public Customer get(int id) throws Exception;
 	
+	public Customer loadProfileCustomer();
+
+	public boolean hasProfileCustomer();
+	
+	public boolean hasUser(int idCustomer);
+	
 	public Customer loadByCustomerName(String fullName) throws Exception;
+	
+	public List<Customer> loadByUserAndProfile(String username);
 	
 	public List<Customer> loadByOrganasition(String organisation) throws Exception;
 	
@@ -33,5 +41,7 @@ public interface DAOCustomer {
 	public void remove(Integer customerId) throws Exception;
 
 	public List<Customer> loadByUser(String username);
+
+	public boolean isProfile(int id);
 
 }

@@ -230,7 +230,6 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> loadByUserAndCustomer(String login, String customer) {
-		System.out.println(login + " "+customer);
 		return getSession()
 				.createQuery(
 						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.organisation = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
@@ -253,6 +252,24 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		query.setInteger("id", id);
 
 		return (String) query.uniqueResult();
+	}
+
+	public boolean isProfile(String name) {
+		Boolean result = (Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.identifier = :identifier")
+				.setParameter("identifier", name).uniqueResult();
+		return result == null ? false : result;
+	}
+
+	@Override
+	public Analysis findProfileByName(String name) {
+		return (Analysis) getSession().createQuery("Select analysis From Analysis as analysis where analysis.identifier = :identifier and analysis.profile = true")
+				.setParameter("identifier", name).uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> loadProfiles() {
+		return getSession().createQuery("Select analysis From Analysis as analysis where analysis.profile = true").list();
 	}
 
 }

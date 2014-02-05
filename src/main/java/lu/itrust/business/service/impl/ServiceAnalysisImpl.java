@@ -185,7 +185,21 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
+
 	public String getVersionOfAnalysis(int id) throws Exception {
 		return daoAnalysis.getVersionOfAnalysis(id);
+	}
+	public boolean isProfile(String name) {
+		return daoAnalysis.isProfile(name);
+	}
+
+	@Override
+	public Analysis findProfileByName(String name) {
+		return daoAnalysis.findProfileByName(name);
+	}
+
+	@Override
+	public List<Analysis> loadProfiles() {
+		return daoAnalysis.loadProfiles();
 	}
 }

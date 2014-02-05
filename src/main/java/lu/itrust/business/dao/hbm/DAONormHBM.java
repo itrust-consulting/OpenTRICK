@@ -53,14 +53,14 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 
 	@Override
 	public Norm loadSingleNormByNameAndVersion(String label, int version) throws Exception {
-	
+
 		Query query = getSession().createQuery("from Norm where label = :label and version = :version");
 		query.setParameter("label", label);
 		query.setParameter("version", version);
 		return (Norm) query.uniqueResult();
 
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Norm> loadAllFromAnalysis(Analysis analysis) throws Exception {
@@ -104,12 +104,18 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 
 	}
 
+
 	@Override
 	public boolean exists(String label, int version) {
 		Query query = getSession().createQuery("select count(*) from Norm where label = :label and version = :version");
 		query.setParameter("label", label);
 		query.setParameter("version", version);
 		return ((Long)query.uniqueResult()).intValue()!=0;
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Norm> loadAllFromAnalysis(int analysisId) {
+		return getSession().createQuery("Select analysisNorm.norm From AnalysisNorm as analysisNorm where analysisNorm.analysis.id = :analysisId").setParameter("analysisId", analysisId).list();
 	}
 
 }
