@@ -49,6 +49,8 @@ public class Customer implements Serializable {
 
 	/** The Email of the Contact Person or Organisation */
 	private String email = "";
+	
+	private boolean canBeUsed = true; 
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -267,6 +269,20 @@ public class Customer implements Serializable {
 			throw new IllegalArgumentException("Customer Email field cannot be null or empty and needs to be valid!");
 		}
 		this.email = email;
+	}
+	
+	/**
+	 * @return the canBeUsed
+	 */
+	public boolean isCanBeUsed() {
+		return canBeUsed;
+	}
+
+	/**
+	 * @param canBeUsed the canBeUsed to set
+	 */
+	public void setCanBeUsed(boolean canBeUsed) {
+		this.canBeUsed = canBeUsed;
 	}
 
 	/**

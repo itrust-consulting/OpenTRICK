@@ -21,6 +21,8 @@ public interface ServiceNorm {
 	
 	public Norm loadSingleNormByNameAndVersion(String label, int version) throws Exception; 
 	
+	public List<Norm> loadAllFromAnalysis(int analysisId);
+
 	public List<Norm> loadAllFromAnalysis(Analysis analysis) throws Exception;
 	
 	public List<Norm> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier, String version, String creationDate) throws Exception;
@@ -35,5 +37,7 @@ public interface ServiceNorm {
 
 	public boolean exists(String label, int version);
 
+
+	
 
 }

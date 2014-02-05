@@ -71,6 +71,17 @@
 							<input name="country" id="customer_country" class="form-control" type="text" />
 						</div>
 					</div>
+					<c:if test="${!empty(adminView)}">
+						<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+							<div class="form-group">
+								<label for="country" class="col-sm-2 control-label"> <spring:message code="label.customer.can_be_used" text="Profile only" />
+								</label>
+								<div class="col-md-offset-6" style="margin-top: 10px;">
+									<input name="canBeUsed" id="customer_canBeUsed" class="checkbox" type="checkbox" />
+								</div>
+							</div>
+						</sec:authorize>
+					</c:if>
 				</form>
 			</div>
 			<div class="modal-footer">
@@ -90,9 +101,7 @@
 					<spring:message code="label.customer.manage.users" text="Manage customer users" />
 				</h4>
 			</div>
-			<div class="modal-body" id="customerusersbody">
-			
-			</div>
+			<div class="modal-body" id="customerusersbody"></div>
 			<div class="modal-footer">
 				<button id="customerusersbutton" type="button" class="btn btn-primary" onclick="">
 					<spring:message code="label.submit.update" text="Update" />

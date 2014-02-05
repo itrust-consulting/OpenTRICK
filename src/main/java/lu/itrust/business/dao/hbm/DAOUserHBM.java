@@ -63,7 +63,8 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String, java.lang.String)
+	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String,
+	 *      java.lang.String)
 	 */
 	@Override
 	public User get(String login, String password) throws Exception {
@@ -213,6 +214,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		return user.hasRole(role.getType());
 	}
 
+<<<<<<< HEAD
 	/**
 	 * loadByCustomer: <br>
 	 * Description
@@ -241,3 +243,11 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer = :customer").setParameter("customer", customer).list();
 	}
 }
+=======
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> loadByCustomer(Customer customer) {
+		return getSession().createQuery("Select user From User user where :customer in user.customers").setParameter("customer", customer).list();
+	}
+}
+>>>>>>> 60be6bfaff03f951ebe2aed09f423f4035d158b3

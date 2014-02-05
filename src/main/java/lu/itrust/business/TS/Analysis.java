@@ -19,10 +19,11 @@ import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * Analysis: <br>
- * This class represents an analysis and all its data of TRICK Service. This class is used to store
- * analysis data such as assets, scenarios, security measures, item information, risk information,
- * the version, parameters and phases. After the data is stored, the action plan can be computed
- * within this class as well as the Action Plan Summary.
+ * This class represents an analysis and all its data of TRICK Service. This
+ * class is used to store analysis data such as assets, scenarios, security
+ * measures, item information, risk information, the version, parameters and
+ * phases. After the data is stored, the action plan can be computed within this
+ * class as well as the Action Plan Summary.
  * <ul>
  * <li>import Analysis from SQLite file</li>
  * <li>store analysis in java object to use during the calculations</li>
@@ -47,6 +48,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/** Analysis id unsaved value = -1 */
 	private int id = -1;
+
+	private boolean profile = false;
 
 	/** The Customer object */
 	private Customer customer;
@@ -77,10 +80,10 @@ public class Analysis implements Serializable, Cloneable {
 
 	/** List of users and their access rights */
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
-	
+
 	/** List of History data of the Analysis */
 	private List<History> histories = new ArrayList<History>();
-	
+
 	/** List of Item Information */
 	private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
 
@@ -131,31 +134,34 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * computeActionPlan: <br>
-	 * Computes the Action Plans and stores the Result into the Database and inside the ActionPlan
-	 * Lists.
+	 * Computes the Action Plans and stores the Result into the Database and
+	 * inside the ActionPlan Lists.
 	 * 
-	 * @return A MessageHandler Object containing either a Exception or null (Error or no Error)
+	 * @return A MessageHandler Object containing either a Exception or null
+	 *         (Error or no Error)
 	 */
 	/*
 	 * public MessageHandler computeActionPlan() {
 	 * 
-	 * // create object ActionPlanComputation actionPlanComputation = new ActionPlanComputation(
-	 * this);
+	 * // create object ActionPlanComputation actionPlanComputation = new
+	 * ActionPlanComputation( this);
 	 * 
-	 * // perform computation return actionPlanComputation.calculateActionPlans(); }
+	 * // perform computation return
+	 * actionPlanComputation.calculateActionPlans(); }
 	 */
 
 	/**
 	 * computeRiskRegister: <br>
 	 * Computes the Risk Register and stores the result in the MySQL Database
 	 * 
-	 * @return A MessageHandler Object containing either a Exception or null (Error or no Error)
+	 * @return A MessageHandler Object containing either a Exception or null
+	 *         (Error or no Error)
 	 */
 	/*
 	 * public MessageHandler computeRiskRegister() {
 	 * 
-	 * // create object RiskRegisterComputation riskcomputation = new RiskRegisterComputation(
-	 * this);
+	 * // create object RiskRegisterComputation riskcomputation = new
+	 * RiskRegisterComputation( this);
 	 * 
 	 * // compute the risk register and store to database return
 	 * riskcomputation.computeRiskRegister(); }
@@ -196,7 +202,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getLatestVersion: <br>
-	 * Parse all history entries to find latest version (version has to be of format xx.xx.xx)
+	 * Parse all history entries to find latest version (version has to be of
+	 * format xx.xx.xx)
 	 * 
 	 * @return
 	 */
@@ -247,8 +254,9 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * calculateRRF: <br>
-	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a given measure, given
-	 * Scenario and given Asset (asset and scenario together: assessment) values.
+	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a
+	 * given measure, given Scenario and given Asset (asset and scenario
+	 * together: assessment) values.
 	 * 
 	 * @param tmpAssessment
 	 *            The Assessment to take Values to calculate
@@ -331,26 +339,23 @@ public class Analysis implements Serializable, Cloneable {
 		// ****************************************************************
 		// * Type calculation
 		// ****************************************************************
-		type =
-			((measure.getMeasurePropertyList().getLimitative() * tmpAssessment.getScenario().getLimitative())
+		type = ((measure.getMeasurePropertyList().getLimitative() * tmpAssessment.getScenario().getLimitative())
 				+ (measure.getMeasurePropertyList().getPreventive() * tmpAssessment.getScenario().getPreventive())
 				+ (measure.getMeasurePropertyList().getDetective() * tmpAssessment.getScenario().getDetective()) + (measure.getMeasurePropertyList().getCorrective() * tmpAssessment
-					.getScenario().getCorrective())) / 4.;
+				.getScenario().getCorrective())) / 4.;
 
 		// ****************************************************************
 		// * Source calculation
 		// ****************************************************************
-		source =
-			(measure.getMeasurePropertyList().getIntentional() * tmpAssessment.getScenario().getIntentional())
+		source = (measure.getMeasurePropertyList().getIntentional() * tmpAssessment.getScenario().getIntentional())
 				+ (measure.getMeasurePropertyList().getAccidental() * tmpAssessment.getScenario().getAccidental())
 				+ (measure.getMeasurePropertyList().getEnvironmental() * tmpAssessment.getScenario().getEnvironmental())
 				+ (measure.getMeasurePropertyList().getInternalThreat() * tmpAssessment.getScenario().getInternalThreat())
 				+ (measure.getMeasurePropertyList().getExternalThreat() * tmpAssessment.getScenario().getExternalThreat());
 
-		source =
-			source
+		source = source
 				/ (4. * (double) (tmpAssessment.getScenario().getIntentional() + tmpAssessment.getScenario().getAccidental() + tmpAssessment.getScenario().getEnvironmental()
-					+ tmpAssessment.getScenario().getInternalThreat() + tmpAssessment.getScenario().getExternalThreat()));
+						+ tmpAssessment.getScenario().getInternalThreat() + tmpAssessment.getScenario().getExternalThreat()));
 
 		// ****************************************************************
 		// * RRF completion :
@@ -359,17 +364,18 @@ public class Analysis implements Serializable, Cloneable {
 
 		RRF = ((assetTypeValue / 100. * strength * category * type * source) / 500.) * tuning;
 
-		
-//		if ((measure.getMeasureDescription().getReference().equals("A.9.2.2"))) {
-//			System.out.println("Measure: " + measure.getMeasureDescription().getReference() +
-//					 "Asset: " + tmpAssessment.getAsset().getName() + "Scenario: " +
-//					 tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" + assetTypeValue +
-//					 ", strength=" + strength + ", Category=" + category + ", type=" + type + ", source=" +
-//					 source + ", tuning=" + tuning);
-//		}
-		
-		 
-		 
+		// if
+		// ((measure.getMeasureDescription().getReference().equals("A.9.2.2")))
+		// {
+		// System.out.println("Measure: " +
+		// measure.getMeasureDescription().getReference() +
+		// "Asset: " + tmpAssessment.getAsset().getName() + "Scenario: " +
+		// tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" +
+		// assetTypeValue +
+		// ", strength=" + strength + ", Category=" + category + ", type=" +
+		// type + ", source=" +
+		// source + ", tuning=" + tuning);
+		// }
 
 		// ****************************************************************
 		// * return the value
@@ -380,8 +386,8 @@ public class Analysis implements Serializable, Cloneable {
 	/**
 	 * calculateRRFCategory: <br>
 	 * RRF Category calculation Returns SUM(Rm*RiS)/4*SUM(Rs): R =
-	 * RISK(CONFIDENTIALITY,AVAILABILITY,INTEGRITY,Direct[1-7], Indirect[1-10]), M=MeasureProperties
-	 * and S=scenario
+	 * RISK(CONFIDENTIALITY,AVAILABILITY,INTEGRITY,Direct[1-7], Indirect[1-10]),
+	 * M=MeasureProperties and S=scenario
 	 * 
 	 * @param properties
 	 *            MeasureProperties
@@ -533,9 +539,8 @@ public class Analysis implements Serializable, Cloneable {
 		}
 
 		// calculate the cost
-		cost =
-			Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(),
-					measure.getLifetime(), measure.getMaintenance());
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getInternalWL(), measure.getExternalWL(),
+				measure.getInvestment(), measure.getLifetime(), measure.getMaintenance());
 
 		// return calculated cost
 		return cost;
@@ -552,7 +557,8 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param lifetimeDefault
 	 *            The Default LifeTime in Years
 	 * @param maintenanceDefault
-	 *            The Default Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%)
+	 *            The Default Maintenance in Percentage (0,00 - 1,00 WHERE 0,00
+	 *            = 0% and 0,1 = 100%)
 	 * @param internalWorkLoad
 	 *            The Internal Workload in Man Days
 	 * @param externalWorkLoad
@@ -562,12 +568,13 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param lifetime
 	 *            The Lifetime in Years
 	 * @param maintenance
-	 *            The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%)
+	 *            The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and
+	 *            0,1 = 100%)
 	 * 
 	 * @return The Calculated Cost
 	 */
-	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double internalWorkLoad, double externalWorkLoad,
-			double investment, double lifetime, double maintenance) {
+	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double internalWorkLoad,
+			double externalWorkLoad, double investment, double lifetime, double maintenance) {
 
 		// ****************************************************************
 		// * variable initialisation
@@ -836,8 +843,9 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getYearsDifferenceBetweenTwoDates: <br>
-	 * This method Calculates an Double Value that Indicates the Difference between two Dates. It is
-	 * used to Calculate the Size of the Phase in Years.
+	 * This method Calculates an Double Value that Indicates the Difference
+	 * between two Dates. It is used to Calculate the Size of the Phase in
+	 * Years.
 	 * 
 	 * @param beginDate
 	 *            begin date (should be smallest date)
@@ -892,7 +900,8 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @param parameter
 	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or -1 if the parameter was not found
+	 * @return The Value of the Parameter if it exists, or -1 if the parameter
+	 *         was not found
 	 */
 	public double getParameter(String parameter) {
 
@@ -919,8 +928,9 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * computeParameterScales: <br>
-	 * This method will calculate the bounds of the extended parameters from and to values. Since
-	 * CSSF implementation, impact and probability values need to be calculated using bounds.
+	 * This method will calculate the bounds of the extended parameters from and
+	 * to values. Since CSSF implementation, impact and probability values need
+	 * to be calculated using bounds.
 	 */
 	public void computeParameterScales() {
 
@@ -1190,7 +1200,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getAnItemInformtation: <br>
-	 * Returns a Single Item Information from the List of Item Information at the postion "index"
+	 * Returns a Single Item Information from the List of Item Information at
+	 * the postion "index"
 	 * 
 	 * @param index
 	 *            The Position in the List to retrieve the Item Information
@@ -1327,7 +1338,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getARiskInformation: <br>
-	 * Returns a Risk Information from the List of Risk Information at position "index"
+	 * Returns a Risk Information from the List of Risk Information at position
+	 * "index"
 	 * 
 	 * @param index
 	 *            The Position to retrieve the Object
@@ -1477,7 +1489,7 @@ public class Analysis implements Serializable, Cloneable {
 	public AnalysisNorm getAnalysisNorm(int index) {
 		return analysisNorms.get(index);
 	}
-	
+
 	public AnalysisNorm getAnalysisNormByLabel(String label) {
 		for (AnalysisNorm anorm : this.analysisNorms) {
 			if (anorm.getNorm().getLabel().equals(label)) {
@@ -1619,7 +1631,7 @@ public class Analysis implements Serializable, Cloneable {
 	public boolean getData() {
 		return data;
 	}
-	
+
 	/**
 	 * hasData: <br>
 	 * Returns the "hasData" field Value
@@ -1697,7 +1709,8 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan Type
+	 * @return The List of Action Plan Entries for the requested Action Plan
+	 *         Type
 	 */
 	public List<ActionPlanEntry> getActionPlans() {
 		return this.actionPlans;
@@ -1710,7 +1723,8 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan Type
+	 * @return The List of Action Plan Entries for the requested Action Plan
+	 *         Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(String mode) {
 
@@ -1722,7 +1736,7 @@ public class Analysis implements Serializable, Cloneable {
 		}
 		return ape;
 	}
-	
+
 	/**
 	 * getActionPlan: <br>
 	 * Returns the Action Plan of a given Action Plan Type.
@@ -1730,7 +1744,8 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan Type
+	 * @return The List of Action Plan Entries for the requested Action Plan
+	 *         Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(ActionPlanMode mode) {
 
@@ -1887,9 +1902,9 @@ public class Analysis implements Serializable, Cloneable {
 	@Override
 	public String toString() {
 		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label
-			+ ", histories=" + histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets
-			+ ", riskInformations=" + riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisNorm=" + analysisNorms + ", usedphases=" + usedPhases
-			+ ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
+				+ ", histories=" + histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets="
+				+ assets + ", riskInformations=" + riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisNorm=" + analysisNorms
+				+ ", usedphases=" + usedPhases + ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}
 
 	/**
@@ -1910,8 +1925,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Method to identify if this object equals another. Equal means the fields identifier, version
-	 * and creationDate are the same.
+	 * Method to identify if this object equals another. Equal means the fields
+	 * identifier, version and creationDate are the same.
 	 * 
 	 * @param obj
 	 *            The other object to check
@@ -2138,7 +2153,7 @@ public class Analysis implements Serializable, Cloneable {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * editUserRight: <br>
 	 * Description
@@ -2179,13 +2194,49 @@ public class Analysis implements Serializable, Cloneable {
 	 * @return
 	 */
 	public boolean isUserAuthorized(User user, AnalysisRight right) {
-	
+
 		for (UserAnalysisRight uar : userRights) {
 			if (uar.getUser().equals(user)) {
 				return UserAnalysisRight.userIsAuthorized(uar, right);
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * @return the profile
+	 */
+	public boolean isProfile() {
+		return profile;
+	}
+
+	/**
+	 * @param profile
+	 *            the profile to set
+	 */
+	public void setProfile(boolean profile) {
+		this.profile = profile;
+	}
+
+	public Analysis duplicateTo(Analysis copy) throws CloneNotSupportedException {
+		if (copy == null)
+			copy = (Analysis) super.clone();
+		else {
+			copy.data = data;
+			copy.creationDate = creationDate;
+			copy.customer = customer;
+			copy.identifier = identifier;
+			copy.label = label;
+			copy.language = language;
+			copy.owner = owner;
+			copy.profile = profile;
+			copy.version = version;
+		}
+		copy.actionPlans = new ArrayList<>();
+		copy.riskRegisters = new ArrayList<>();
+		copy.summaries = new ArrayList<>();
+		copy.id = -1;
+		return copy;
 	}
 
 }

@@ -11,13 +11,14 @@ import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author oensuifudine
- *
+ * 
  */
 public interface DAOUser {
-	
+
 	User get(long id) throws Exception;
-	
+
 	User get(String login) throws Exception;
+<<<<<<< HEAD
 	
 	User get(String login,String password) throws Exception;
 	
@@ -31,11 +32,25 @@ public interface DAOUser {
 	
 	List<User> loadByCustomer(Customer customer) throws Exception;
 	
+=======
+
+	User get(String login, String password) throws Exception;
+
+	List<User> loadAll() throws Exception;
+
+	List<User> loadByCustomer(Customer customer);
+
+	List<User> loadByName(String name) throws Exception;
+
+	List<User> loadByCountry(String name) throws Exception;
+
+>>>>>>> 60be6bfaff03f951ebe2aed09f423f4035d158b3
 	boolean addRole(User user, Role role) throws Exception;
-	
+
 	boolean removeRole(User user, Role role) throws Exception;
-	
+
 	boolean hasRole(User user, Role role) throws Exception;
+<<<<<<< HEAD
 	
 	void save(User user)throws Exception;
 	
@@ -47,4 +62,17 @@ public interface DAOUser {
 
 	boolean hasUsers()throws Exception;
 		
+=======
+
+	void save(User user) throws Exception;
+
+	void saveOrUpdate(User user) throws Exception;
+
+	void delete(User user) throws Exception;
+
+	void delete(long id) throws Exception;
+
+	boolean hasUsers() throws Exception;
+
+>>>>>>> 60be6bfaff03f951ebe2aed09f423f4035d158b3
 }
