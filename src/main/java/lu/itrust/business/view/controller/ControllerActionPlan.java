@@ -100,7 +100,7 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping
 	public String showActionPlan(HttpSession session, Map<String, Object> model, Principal principal) throws Exception {
 
@@ -109,9 +109,6 @@ public class ControllerActionPlan {
 
 		// load all actionplans from the selected analysis
 		List<ActionPlanEntry> actionplans = serviceActionPlan.loadAllFromAnalysis(selected);
-		
-
-		
 		
 		// load all affected assets of the actionplans (unique assets used)
 		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
@@ -234,15 +231,20 @@ public class ControllerActionPlan {
 	public @ResponseBody
 	String computeActionPlan(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 
+		// prepare permission verifier
 		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
 
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNode = mapper.readTree(value);
 
+		// retrieve analysis id to compute
 		int analysisId = jsonNode.get("id").asInt();
 
+		// verify if user is authorized to compute the actionplan
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_ACTIONPLAN)) {
 
+			// retrieve options selected by the user
+			
 			boolean uncertainty = false;
 			
 			if (jsonNode.get("uncertainty") != null)
@@ -259,10 +261,14 @@ public class ControllerActionPlan {
 
 			}
 
+			// prepare asynchronous worker
 			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, norms, uncertainty);
 			worker.setPoolManager(workersPoolManager);
+			
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 				return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
+			
+			// execute task
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
 		} else {

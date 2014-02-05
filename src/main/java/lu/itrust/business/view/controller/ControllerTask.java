@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
@@ -23,8 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * @author eom
+ * ControllerTask.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.à.rl. :
+ * @version
+ * @since Feb 5, 2014
  */
 @Controller
 @RequestMapping("/Task")
@@ -40,96 +41,128 @@ public class ControllerTask {
 	@Autowired
 	private MessageSource messageSource;
 
+	/**
+	 * status: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @param principal
+	 * @param locale
+	 * @return
+	 */
 	@RequestMapping("/Status/{id}")
 	public @ResponseBody
 	AsyncResult status(@PathVariable Long id, Principal principal, Locale locale) {
+
+		// create result
 		AsyncResult asyncResult = new AsyncResult(id);
+
+		// check if task exists
 		if (!serviceTaskFeedback.hasTask(principal.getName(), id))
 			return null;
 		else {
+
+			// load worker of task
 			Worker worker = workersPoolManager.get(id);
+
+			// set worker status
+
 			if (worker == null) {
-				asyncResult.setStatus(messageSource.getMessage(
-						"label.task_status.delete", null, "Deleted", locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.delete", null, "Deleted", locale));
 				asyncResult.setFlag(0);
 			} else if (worker.isCanceled()) {
-				asyncResult.setStatus(messageSource.getMessage(
-						"label.task_status.abort", null, "Aborted", locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.abort", null, "Aborted", locale));
 				asyncResult.setFlag(1);
 			} else if (worker.getError() != null) {
-				asyncResult.setStatus(messageSource.getMessage(
-						"label.task_status.failed", null, "Failed", locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.failed", null, "Failed", locale));
 				asyncResult.setFlag(2);
 			} else if (worker.isWorking()) {
-				asyncResult.setStatus(messageSource
-						.getMessage("label.task_status.process", null,
-								"Processing", locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.process", null, "Processing", locale));
 				asyncResult.setFlag(3);
 			} else if (serviceTaskFeedback.messageCount(id) > 1) {
-				asyncResult.setStatus(messageSource.getMessage(
-						"label.task_status.success", null, "Success", locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
 				asyncResult.setFlag(4);
 			} else {
-				asyncResult.setStatus(messageSource.getMessage(
-						"label.task_status.success", null, "Success", locale));
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
 				asyncResult.setFlag(5);
 			}
 
+			// retrieve last feedback message
 			MessageHandler messageHandler = serviceTaskFeedback.reciveLast(id);
+
+			// check if message exists or set null
 			if (messageHandler != null) {
-				asyncResult.setMessage(messageSource.getMessage(
-						messageHandler.getCode(),
-						messageHandler.getParameters(),
-						messageHandler.getMessage(), locale));
+				asyncResult.setMessage(messageSource.getMessage(messageHandler.getCode(), messageHandler.getParameters(), messageHandler.getMessage(), locale));
 				asyncResult.setProgress(messageHandler.getProgress());
 				asyncResult.setTaskName(messageHandler.getTaskName());
 				asyncResult.setAsyncCallback(messageHandler.getAsyncCallback());
-				
-				if ( messageHandler.getProgress() == 100 || asyncResult.getFlag() == 0
-						&& messageHandler.getException() == null) {
-					asyncResult.setStatus(messageSource.getMessage(
-							"label.task_status.success", null, "Success",
-							locale));
+
+				// check if task is already done ansd set data
+				if (messageHandler.getProgress() == 100 || asyncResult.getFlag() == 0 && messageHandler.getException() == null) {
+					asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
 					asyncResult.setFlag(5);
 				}
 			} else
 				asyncResult.setMessage(null);
 
-			if (asyncResult.getFlag() == 5 || asyncResult.getFlag() < 3
-					&& !serviceTaskFeedback.hasMessage(id)){
+			// unrgister task when done or errors
+			if (asyncResult.getFlag() == 5 || asyncResult.getFlag() < 3 && !serviceTaskFeedback.hasMessage(id)) {
 				serviceTaskFeedback.deregisterTask(principal.getName(), id);
 			}
 		}
+
+		// return
 		return asyncResult;
 	}
 
 	@RequestMapping("/Stop/{id}")
 	public @ResponseBody
 	String stop(@PathVariable Long id, Principal principal, Locale locale) {
+
+		// check if user has the task with given id
 		if (serviceTaskFeedback.hasTask(principal.getName(), id)) {
+
+			// retireve worker of task
 			Worker worker = workersPoolManager.get(id);
+
+			// check if worker is running
 			if (worker != null && worker.isWorking()) {
+
+				// stop worker
 				worker.cancel();
-				return messageSource.getMessage("success.task.canceled", null,
-						"Task was canceled successfully", locale);
+
+				// return success messages
+				return messageSource.getMessage("success.task.canceled", null, "Task was canceled successfully", locale);
 			} else
-				return messageSource.getMessage("failed.task.canceled", null,
-						"Sorry, Task is not running", locale);
+
+				// return task not running
+				return messageSource.getMessage("failed.task.canceled", null, "Sorry, Task is not running", locale);
 		} else
-			return messageSource.getMessage("error.task.not_found", null,
-					"Sorry, task cannot be found", locale);
+
+			// return task not found
+			return messageSource.getMessage("error.task.not_found", null, "Sorry, task cannot be found", locale);
 	}
 
+	/**
+	 * processing: <br>
+	 * Description
+	 * 
+	 * @param principal
+	 * @return
+	 */
 	@RequestMapping("/InProcessing")
 	public @ResponseBody
 	List<Long> processing(Principal principal) {
+
+		// get tasks of this user
 		return serviceTaskFeedback.tasks(principal.getName());
 	}
 
 	@RequestMapping("/Exist")
 	public @ResponseBody
 	boolean hasTask(Principal principal) {
+		
+		// check if user has a task
 		return serviceTaskFeedback.userHasTask(principal.getName());
 	}
-
 }

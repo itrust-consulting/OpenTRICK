@@ -55,7 +55,7 @@
 			<one-to-many class="lu.itrust.business.TS.actionplan.SummaryStage" />
 		</bag>
 
-		<bag name="actionPlans" table="actionplan" cascade="all" access="field">
+		<bag name="actionPlans" table="actionplan" cascade="all" access="field" order-by="id, (measure.phase.number) ASC, ROI ASC">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="lu.itrust.business.TS.actionplan.ActionPlanEntry" />
 		</bag>

@@ -1,25 +1,13 @@
 package lu.itrust.business.view.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import lu.itrust.business.TS.AnalysisNorm;
-import lu.itrust.business.TS.Language;
-import lu.itrust.business.TS.MeasureDescription;
-import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
-import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.JsonMessage;
@@ -30,18 +18,10 @@ import lu.itrust.business.service.ServiceNorm;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
-import lu.itrust.business.task.WorkerAnalysisImport;
 import lu.itrust.business.task.WorkerImportNorm;
-
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFTable;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.SessionFactory;
-import org.openxmlformats.schemas.drawingml.x2006.main.CTTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
@@ -101,13 +81,19 @@ public class ControllerNorm {
 	private CustomDelete customDelete;
 
 	/**
+	 * displayAll: <br>
+	 * Description
 	 * 
-	 * Display all Norms
-	 * 
-	 * */
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping
-	public String displayAll(Map<String, Object> model) throws Exception {
-		model.put("norms", serviceNorm.loadAll());
+	public String displayAll(Model model) throws Exception {
+
+		// load all norms to model
+
+		model.addAttribute("norms", serviceNorm.loadAll());
 		return "knowledgebase/standard/norm/norms";
 	}
 
@@ -121,26 +107,39 @@ public class ControllerNorm {
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
 	public String section(Model model) throws Exception {
-		model.addAttribute("norms", serviceNorm.loadAll());
-		return "knowledgebase/standard/norm/norms";
+
+		// call default
+		return displayAll(model);
 	}
 
 	/**
+	 * loadSingleNorm: <br>
+	 * Description
 	 * 
-	 * Display single Norm
-	 * 
-	 * */
+	 * @param normId
+	 * @param session
+	 * @param model
+	 * @param redirectAttributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/{normId}")
-	public String loadSingleNorm(@PathVariable("normId") String normId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale) throws Exception {
-		Norm norm = (Norm) session.getAttribute("norm");
-		if (norm == null || norm.getLabel() != normId)
-			norm = serviceNorm.loadSingleNormByName(normId);
+	public String loadSingleNorm(@PathVariable("normId") String normId, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale) throws Exception {
+
+		// load norm object
+		Norm norm = serviceNorm.loadSingleNormByName(normId);
 		if (norm == null) {
+
+			// retrun error if norm does not exist
 			String msg = messageSource.getMessage("errors.norm.notexist", null, "Norm does not exist", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
 			return "redirect:/KnowLedgeBase/Norm";
 		}
+
+		// load norm to model
 		model.put("norm", norm);
+
 		return "knowledgebase/standard/norm/showNorm";
 	}
 
@@ -155,36 +154,63 @@ public class ControllerNorm {
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
 	List<String[]> save(@RequestBody String value, Locale locale) {
+
+		// init errors list
 		List<String[]> errors = new LinkedList<>();
+
 		try {
 
+			// create new empty object
 			Norm norm = new Norm();
-			if (!buildNorm(errors, norm, value, locale))
-				return errors;
+
+			// build norm object
+			buildNorm(errors, norm, value, locale);
+
+			// check if norm has to be create (new) or updated
 			if (norm.getId() < 1) {
+
+				// save
 				serviceNorm.save(norm);
 			} else {
+
+				// update
 				serviceNorm.saveOrUpdate(norm);
 			}
+
+			// errors
+			return errors;
 		} catch (Exception e) {
+
+			// return errors
 			errors.add(new String[] { "norm", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
+			return errors;
 		}
-		return errors;
 	}
 
 	/**
+	 * deleteNorm: <br>
+	 * Description
 	 * 
-	 * Delete single norm
-	 * 
-	 * */
+	 * @param normId
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/Delete/{normId}", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
 	String[] deleteNorm(@PathVariable("normId") Integer normId, Locale locale) throws Exception {
+
 		try {
+			
+			// try to delete the norm
 			customDelete.deleteNorm(serviceNorm.getNormByID(normId));
+
+			// return success message
 			return new String[] { "success", messageSource.getMessage("success.norm.delete.successfully", null, "Norm was deleted successfully", locale) };
 		} catch (Exception e) {
+			
+			// return error message
 			e.printStackTrace();
 			return new String[] { "error", messageSource.getMessage("error.norm.delete.successfully", null, "Norm was not deleted. Make sure it is not used in an analysis", locale) };
 		}
@@ -222,53 +248,54 @@ public class ControllerNorm {
 	}
 
 	/**
-	 * buildLanguage: <br>
+	 * buildNorm: <br>
 	 * Description
 	 * 
 	 * @param errors
-	 * @param language
+	 * @param norm
 	 * @param source
 	 * @param locale
 	 * @return
 	 */
 	private boolean buildNorm(List<String[]> errors, Norm norm, String source, Locale locale) {
+		
 		try {
+			
+			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
+			
+			// load norm id
 			int id = jsonNode.get("id").asInt();
+			
+			// check if norm has to be updated
 			if (id > 0)
+				
+				// init id
 				norm.setId(jsonNode.get("id").asInt());
 
+			// set data
 			norm.setLabel(jsonNode.get("label").asText());
 
 			norm.setDescription(jsonNode.get("description").asText());
-
 			norm.setVersion(jsonNode.get("version").asInt());
 
-			if (jsonNode.get("computable") != null && (jsonNode.get("computable").asText() == "on")) {
+			// set computable flag
+			if (jsonNode.get("computable").asText().equals("on")) {
 				norm.setComputable(true);
 			} else {
 				norm.setComputable(false);
 			}
+			
+			// return success
 			return true;
 
 		} catch (Exception e) {
 
+			// return error
 			errors.add(new String[] { "norm", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
 			return false;
 		}
-
 	}
-
-	/**
-	 * setServiceNorm: <br>
-	 * Description
-	 * 
-	 * @param serviceNorm
-	 */
-	public void setServiceNorm(ServiceNorm serviceNorm) {
-		this.serviceNorm = serviceNorm;
-	}
-
 }

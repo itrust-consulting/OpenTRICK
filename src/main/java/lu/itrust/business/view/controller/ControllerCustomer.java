@@ -46,13 +46,19 @@ public class ControllerCustomer {
 	private MessageSource messageSource;
 
 	/**
+	 * loadAllCustomers: <br>
+	 * Description
 	 * 
-	 * Display all customers
-	 * 
-	 * */
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping
-	public String loadAllCustomers(Map<String, Object> model) throws Exception {
-		model.put("customers", serviceCustomer.loadAll());
+	public String loadAllCustomers(Map<String, Object> model, Principal principal) throws Exception {
+
+		// load only customers of this user
+		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
+
 		return "knowledgebase/customer/customers";
 	}
 
@@ -67,16 +73,26 @@ public class ControllerCustomer {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String section(Model model, HttpSession session, Principal principal) throws Exception{
-		model.addAttribute("customers", serviceCustomer.loadAll());
+	public String section(Model model, HttpSession session, Principal principal) throws Exception {
+
+		// load only customers of this user
+		model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
+
 		return "knowledgebase/customer/customers";
 	}
-	
+
 	/**
+	 * loadSingleCustomer: <br>
+	 * Description
 	 * 
-	 * Display single customer
-	 * 
-	 * */
+	 * @param customerId
+	 * @param session
+	 * @param model
+	 * @param redirectAttributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/{customerId}")
 	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
 			throws Exception {
@@ -103,38 +119,69 @@ public class ControllerCustomer {
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
 	List<String[]> save(@RequestBody String value, Locale locale) {
+
+		// create errors list
 		List<String[]> errors = new LinkedList<>();
+
 		try {
 
+			// create empty customer object
 			Customer customer = new Customer();
+
+			// build customer
 			if (!buildCustomer(errors, customer, value, locale))
+
+				// return errors on failure
 				return errors;
+
+			// check if user is to save or to update
 			if (customer.getId() < 1) {
+
+				// save
 				serviceCustomer.save(customer);
 			} else {
+
+				// update
 				serviceCustomer.saveOrUpdate(customer);
 			}
+
+			// return success message (errors are empty -> no errors)
+			return errors;
 		} catch (Exception e) {
+
+			// return errors
 			errors.add(new String[] { "customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
+			return errors;
 		}
-		return errors;
 	}
 
 	/**
+	 * deleteCustomer: <br>
+	 * Description
 	 * 
-	 * Delete single customer
-	 * 
-	 * */
+	 * @param customerId
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = "Accept=application/json")
-	public @ResponseBody String[] deleteCustomer(@PathVariable("customerId") Integer customerId, Locale locale) throws Exception {
-		serviceCustomer.remove(customerId);		
-		return new String[] {
-			"error",
-			messageSource.getMessage("success.customer.delete.successfully", null,
-					"Customer was deleted successfully", locale) 
-		};
-		
+	public @ResponseBody
+	String[] deleteCustomer(@PathVariable("customerId") Integer customerId, Locale locale) throws Exception {
+
+		try {
+
+			// try to delete the customer
+			serviceCustomer.remove(customerId);
+
+			// return success message
+			return new String[] { "success", messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale) };
+		} catch (Exception e) {
+
+			// return error message
+			e.printStackTrace();
+			return new String[] { "error", messageSource.getMessage("success.customer.delete.failed", null, "Customer deletion failed", locale) };
+		}
 	}
 
 	/**
@@ -148,13 +195,21 @@ public class ControllerCustomer {
 	 * @return
 	 */
 	private boolean buildCustomer(List<String[]> errors, Customer customer, String source, Locale locale) {
+
 		try {
+
+			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
+
+			// retrieve customer id node
 			int id = jsonNode.get("id").asInt();
+
+			// check if id is to be created (new) or to update
 			if (id > 0)
 				customer.setId(jsonNode.get("id").asInt());
-			
+
+			// add data
 			customer.setOrganisation(jsonNode.get("organisation").asText());
 			customer.setContactPerson(jsonNode.get("contactPerson").asText());
 			customer.setTelephoneNumber(jsonNode.get("telephoneNumber").asText());
@@ -163,18 +218,15 @@ public class ControllerCustomer {
 			customer.setCity(jsonNode.get("city").asText());
 			customer.setZIPCode(jsonNode.get("ZIPCode").asText());
 			customer.setCountry(jsonNode.get("country").asText());
+
+			// return success message
 			return true;
 
 		} catch (Exception e) {
 
-			errors.add(new String[] { "customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			// return error message
 			e.printStackTrace();
 			return false;
 		}
-		
-	}
-
-	public void setServiceCustomer(ServiceCustomer serviceCustomer) {
-		this.serviceCustomer = serviceCustomer;
 	}
 }

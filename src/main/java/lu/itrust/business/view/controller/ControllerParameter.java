@@ -35,25 +35,53 @@ public class ControllerParameter {
 	@Autowired
 	private ServiceParameter serviceParameter;
 
+	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String section(Model model, HttpSession session, Principal principal)
-			throws Exception {
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String section(Model model, HttpSession session, Principal principal) throws Exception {
+		
+		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
-		model.addAttribute("parameters",
-				serviceParameter.findByAnalysis(idAnalysis));
+		
+		// add parameters to model
+		model.addAttribute("parameters", serviceParameter.findByAnalysis(idAnalysis));
+		
 		return "analysis/components/parameter";
 	}
 
+	/**
+	 * maturityImplementationRate: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param session
+	 * @return
+	 * @throws JsonGenerationException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	@RequestMapping(value = "/Maturity/ImplementationRate", method = RequestMethod.GET, headers = "Accept=application/json")
-	public @ResponseBody List<Parameter> maturityImplementationRate(Model model,
-			HttpSession session) throws JsonGenerationException,
-			JsonMappingException, IOException {
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public @ResponseBody
+	List<Parameter> maturityImplementationRate(Model model, HttpSession session, Principal principal) throws JsonGenerationException, JsonMappingException, IOException {
+		
+		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
-		return serviceParameter.findByAnalysisAndTypeAndNoLazy(idAnalysis,
-				Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+		
+		// load parameters of analysis
+		return serviceParameter.findByAnalysisAndTypeAndNoLazy(idAnalysis, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
 	}
 }

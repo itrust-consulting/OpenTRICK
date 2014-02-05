@@ -183,4 +183,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<Analysis> loadByUserAndCustomer(String login, String customer, int pageIndex, int pageSize) {
 		return daoAnalysis.loadByUserAndCustomer(login, customer,pageIndex, pageSize );
 	}
+
+	@Override
+	public String getVersionOfAnalysis(int id) throws Exception {
+		return daoAnalysis.getVersionOfAnalysis(id);
+	}
 }
