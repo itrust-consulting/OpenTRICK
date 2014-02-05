@@ -35,6 +35,12 @@ var ANALYSIS_RIGHT = {
 	}
 };
 
+function log(msg) {
+    setTimeout(function() {
+        throw new Error(msg);
+    }, 0);
+}
+
 function permissionError() {
 	$("#alert-dialog .modal-body").html(MessageResolver("error.notAuthorized", "Insufficient permissions!"));
 	$("#alert-dialog").modal("toggle");
@@ -498,8 +504,193 @@ function AssessmentFieldEditor(element) {
 	this.defaultValue = $(element).text();
 
 	AssessmentFieldEditor.prototype.constructor = AssessmentFieldEditor;
+	
 
 	AssessmentFieldEditor.prototype.Save = function(that) {
+		if (!that.Validate()) {
+			that.Rollback();
+		} else {
+			if (that.HasChanged()) {
+				$.ajax({
+					url : context + "/EditField/" + that.controllor,
+					type : "post",
+					async : true,
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
+							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
+					contentType : "application/json",
+					success : function(response) {
+						console.log(response);
+						if (response["success"] != undefined) {
+							if (application.modal["AssessmentViewer"] != undefined)
+								application.modal["AssessmentViewer"].Load();
+							else {
+								$("#info-dialog .modal-body").html(response["success"]);
+								$("#info-dialog").prop("style", "z-index:1070");
+								$("#info-dialog").modal("toggle");
+
+							}
+						} else {
+							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog").prop("style", "z-index:1070");
+							$("#alert-dialog").modal("toggle");
+
+						}
+						return true;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						$("#alert-dialog .modal-body").text(jqXHR.responseText);
+						$("#alert-dialog").modal("toggle");
+					},
+				});
+
+			} else {
+				that.Rollback();
+				return false;
+			}
+		}
+		return false;
+	};
+}
+
+
+AssessmentImpactFieldEditor.prototype = new AssessmentFieldEditor();
+
+function AssessmentImpactFieldEditor(element) {
+
+	this.element = element;
+
+	this.defaultValue = $(element).text();
+
+	AssessmentImpactFieldEditor.prototype.constructor = AssessmentImpactFieldEditor;
+	
+
+	AssessmentImpactFieldEditor.prototype.Save = function(that) {
+		if (!that.Validate()) {
+			that.Rollback();
+		} else {
+			if (that.HasChanged()) {
+				$.ajax({
+					url : context + "/EditField/" + that.controllor,
+					type : "post",
+					async : true,
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
+							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
+					contentType : "application/json",
+					success : function(response) {
+						console.log(response);
+						if (response["success"] != undefined) {
+							if (application.modal["AssessmentViewer"] != undefined)
+								application.modal["AssessmentViewer"].Load();
+							else {
+								$("#info-dialog .modal-body").html(response["success"]);
+								$("#info-dialog").prop("style", "z-index:1070");
+								$("#info-dialog").modal("toggle");
+
+							}
+						} else {
+							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog").prop("style", "z-index:1070");
+							$("#alert-dialog").modal("toggle");
+
+						}
+						return true;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						$("#alert-dialog .modal-body").text(jqXHR.responseText);
+						$("#alert-dialog").modal("toggle");
+					},
+				});
+
+			} else {
+				that.Rollback();
+				return false;
+			}
+		}
+		return false;
+	};
+}
+
+function test()
+{
+	log('d');
+}
+
+AssessmentProbaFieldEditor.prototype = new AssessmentFieldEditor();
+
+function AssessmentProbaFieldEditor(element) {
+
+	this.element = element;
+
+	this.defaultValue = $(element).text();
+	this.probaAcros = [];
+
+	AssessmentProbaFieldEditor.prototype.constructor = AssessmentProbaFieldEditor;
+	
+	
+	AssessmentProbaFieldEditor.prototype.GenerateInputField = function() {
+		if ($(this.element).find("select").length)
+			return true;
+		if (this.LoadData())
+			return true;
+		
+		this.inputField = document.createElement("select");
+		this.inputField.setAttribute("class", "combobox");
+		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		var option = document.createElement("option");
+		$(option).text("");
+		$(option).appendTo($(this.inputField));
+		for ( var i in this.probaAcros) {
+			
+			option = document.createElement("option");
+			option.setAttribute("value", this.probaAcros[i].id);
+			if (this.defaultValue==this.probaAcros[i].id)
+				option.setAttribute("selected", "selected");
+
+			$(option).text(this.probaAcros[i].id);// + " (" + this.probaAcros[i].value + ")");
+			$(option).appendTo($(this.inputField));
+
+		}		log('tptp0');
+		return false;
+	};
+	
+	AssessmentProbaFieldEditor.prototype.LoadData = function() {
+		
+		var $probaAcronyms = $("#Scale_Probability td[trick-field='acronym']");
+		var $probaAcronymsValue = $("#Scale_Probability td[trick-field='value']");
+		
+		if (!$probaAcronyms.length && !$probaAcronymsValue.length && $probaAcronyms.length!=$probaAcronymsValue.length)
+			return true;
+		
+		for (var i = 0; i < $probaAcronyms.length; i++)
+		{
+			this.probaAcros[i] = {
+				'id' : $($probaAcronyms[i]).text(),
+				'value' : $($probaAcronymsValue[i]).text()
+			};
+			
+		}
+		return !this.probaAcros.length;
+		
+	};
+	
+	AssessmentProbaFieldEditor.prototype.Show = function() {
+		if (this.inputField == null || this.inputField == undefined)
+			return false;
+		if (this.element == null || this.element == undefined)
+			return false;
+		//$(this.inputField).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
+		var that = this;
+		$(this.element).html(this.inputField);
+		log('tptp');
+		$(this.inputField).combobox();
+		log('tptp2');
+		$(this.inputField).focus();
+
+		return false;
+	};
+
+	AssessmentProbaFieldEditor.prototype.Save = function(that) {
+		log('test');
 		if (!that.Validate()) {
 			that.Rollback();
 		} else {
@@ -1384,7 +1575,21 @@ function editField(element, controller, id, field, type) {
 	if (controller == "ExtendedParameter")
 		fieldEditor = new ExtendedFieldEditor(element);
 	else if (controller == "Assessment")
-		fieldEditor = new AssessmentFieldEditor(element);
+	{
+		field = $(element).attr("trick-field");
+		var fieldImpact = ["impactRep","impactLeg","impactOp", "impactFin"];
+		var fieldProba = "likelihood";
+		
+		if (fieldImpact.indexOf(field)!=-1)
+			fieldEditor = new AssessmentImpactFieldEditor(element);
+		else if (field==fieldProba)
+		{
+			
+			fieldEditor = new AssessmentProbaFieldEditor(element);
+		}
+		else 		
+			fieldEditor = new AssessmentFieldEditor(element);
+	}
 	else if (controller == "MaturityMeasure")
 		fieldEditor = new MaturityMeasureFieldEditor(element);
 	else

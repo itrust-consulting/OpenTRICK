@@ -79,7 +79,7 @@
 			</div>
 		</div>
 		<div class="col-md-6">
-			<div class="panel panel-primary">
+			<div class="panel panel-primary"  id="Scale_Probability">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.probability"
 						text="Probability of threat occurence" />
