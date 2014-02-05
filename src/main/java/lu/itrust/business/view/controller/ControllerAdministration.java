@@ -68,7 +68,7 @@ public class ControllerAdministration {
 	public String showAdministration(Principal principal, Map<String, Object> model) throws Exception {
 		model.put("adminView", true);
 		model.put("users", serviceUser.loadAll());
-		model.put("customers", serviceCustomer.loadByUserAndProfile(principal.getName()));
+		model.put("customers", serviceCustomer.loadAll());
 		return "admin/administration";
 	}
 

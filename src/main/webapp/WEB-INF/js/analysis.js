@@ -179,6 +179,8 @@ function saveAnalysisProfile(form) {
 }
 
 function newAnalysis() {
+	$("#addAnalysisModel .progress").hide();
+	$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
 	$
 			.ajax({
 				url : context + "/Analysis/New",
@@ -225,6 +227,8 @@ function editSingleAnalysis(analysisId) {
 	}
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
+		$("#addAnalysisModel .progress").hide();
+		$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
 		$
 				.ajax({
 					url : context + "/Analysis/Edit/" + analysisId,

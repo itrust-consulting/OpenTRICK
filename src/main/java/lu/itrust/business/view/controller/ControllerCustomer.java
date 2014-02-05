@@ -11,7 +11,6 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.CustomDelete;
@@ -79,6 +78,7 @@ public class ControllerCustomer {
 	 * @return
 	 * @throws Exception
 	 */
+	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 	@RequestMapping("/{customerID}/Users")
 	public String loadCustomerUsers(@PathVariable("customerID") int customerID, Model model, Principal principal) throws Exception {
 		model.addAttribute("customer", serviceCustomer.get(customerID));
@@ -97,6 +97,7 @@ public class ControllerCustomer {
 	 * @return
 	 * @throws Exception
 	 */
+	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 	@RequestMapping(value = "/{customerID}/Users/Update", method = RequestMethod.POST, headers = "Accept=application/json")
 	public String updateCustomerUsers(@RequestBody String value, @PathVariable("customerID") int customerID, Model model, Principal principal, Locale locale, RedirectAttributes redirectAttributes) throws Exception {
 		// create errors list

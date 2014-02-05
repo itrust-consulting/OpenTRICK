@@ -300,8 +300,8 @@ public class ControllerAnalysis {
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/{analysisId}/Select")
-	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session,
-			RedirectAttributes attributes, Locale locale) throws Exception {
+	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, RedirectAttributes attributes,
+			Locale locale) throws Exception {
 
 		// retrieve selected analysis
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
@@ -410,8 +410,9 @@ public class ControllerAnalysis {
 	 */
 
 	// initialise list of return messages
-
-	public Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody
+	Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
 
@@ -526,8 +527,8 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/{analysisId}/NewVersion/Save", method = RequestMethod.POST)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String save(@ModelAttribute @Valid History history, BindingResult result, @PathVariable Integer analysisId, HttpSession session, RedirectAttributes attributes,
-			Locale locale, Principal principal) {
+	public String save(@ModelAttribute @Valid History history, BindingResult result, @PathVariable Integer analysisId, HttpSession session, RedirectAttributes attributes, Locale locale,
+			Principal principal) {
 
 		// check if hisotry has errors
 		if (result.hasFieldErrors())
@@ -839,7 +840,7 @@ public class ControllerAnalysis {
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""
-				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+			+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) userSqLite.getSize());

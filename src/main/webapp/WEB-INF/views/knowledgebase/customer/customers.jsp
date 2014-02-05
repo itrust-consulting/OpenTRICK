@@ -9,7 +9,6 @@
 			<spring:message code="menu.knowledgebase.customers" />
 		</h3>
 	</div>
-	<<<<<<< HEAD
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_customer">
@@ -18,8 +17,12 @@
 							code="label.customer.edit" text="Edit" /> </a></li>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 							code="label.customer.delete" text="Delete" /> </a></li>
-				<li class="disabled" trick-selectable="true"><a href="#" onclick="return manageUsers();"><span class="glyphicon glyphicon-remove"></span> <spring:message
-							code="label.customer.manage.users" text="Manage user access" /> </a></li>
+				<c:if test="${!empty(adminView)}">
+					<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+						<li class="disabled" trick-selectable="true"><a href="#" onclick="return manageUsers();"><span class="glyphicon glyphicon-remove"></span> <spring:message
+									code="label.customer.manage.users" text="Manage user access" /> </a></li>
+					</sec:authorize>
+				</c:if>
 			</ul>
 		</div>
 		<div class="panel-body">
