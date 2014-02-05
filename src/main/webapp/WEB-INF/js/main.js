@@ -1523,7 +1523,7 @@ function controllerBySection(section, subSection) {
 		"section_scenario" : "/Scenario/Section",
 		"section_assessment" : "/Assessment/Section",
 		"section_phase" : "/Phase/Section",
-		"section_analysis" : "/Analysis",
+		"section_analysis" : "/Analysis/Section",
 		"section_measure" : "/Measure/Section",
 		"section_customer" : "/KnowledgeBase/Customer/Section",
 		"section_language" : "/KnowledgeBase/Language/Section",

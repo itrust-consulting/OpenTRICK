@@ -11,10 +11,9 @@
 		</h3>
 	</div>
 	<div class="panel panel-default"
-		onmouseover="if(!$('#menu_customer').is(':visible')) {updateMenu('#section_customer', '#menu_customer');$('#menu_customer').show();}"
-		onmouseout="$('#menu_customer').hide();">
+		onload="updateMenu('#section_customer', '#menu_customer');">
 		<div class="panel-heading" style="min-height: 60px">
-			<ul class="nav nav-pills" hidden="true" id="menu_customer">
+			<ul class="nav nav-pills" id="menu_customer">
 				<li><a href="#" onclick="return newCustomer();"><span
 						class="glyphicon glyphicon-plus primary"></span> <spring:message
 							code="label.customer.add" text="Add" /> </a></li>

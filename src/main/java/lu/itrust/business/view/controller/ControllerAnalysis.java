@@ -6,7 +6,7 @@ import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -181,19 +181,56 @@ public class ControllerAnalysis {
 		return "analysis/analysis";
 	}
 
+	@RequestMapping("/Section")
+	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
+		String referer = request.getHeader("Referer");
+		if (referer != null && referer.contains("/trickservice/KnowledgeBase")) {
+			model.addAttribute("analyses", serviceAnalysis.loadAllFromCustomer(serviceCustomer.loadProfileCustomer()));
+			model.addAttribute("login", principal.getName());
+			model.addAttribute("deleteRight", AnalysisRight.DELETE.ordinal());
+			model.addAttribute("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
+			model.addAttribute("calcActionPlanRight", AnalysisRight.CALCULATE_ACTIONPLAN.ordinal());
+			model.addAttribute("modifyRight", AnalysisRight.MODIFY.ordinal());
+			model.addAttribute("exportRight", AnalysisRight.EXPORT.ordinal());
+			model.addAttribute("readRight", AnalysisRight.READ.ordinal());
+			model.addAttribute("KowledgeBaseView", true);
+		} else {
+			String customer = (String) request.getSession().getAttribute("currentCustomer");
+			if (customer == null) {
+				List<Customer> customers = serviceCustomer.loadByUser(principal.getName());
+				if (!customers.isEmpty())
+					request.getSession().setAttribute("currentCustomer", customer = customers.get(0).getOrganisation());
+			}
+			section(customer, 0, principal.getName(), model, serviceCustomer.loadByUser(principal.getName()));
+		}
+		return "analysis/components/analyses";
+	}
+
 	@RequestMapping("/Section/{customer}/{pageIndex}")
-	public String section(@PathVariable String customer, @PathVariable int pageIndex, HttpSession session, Principal principal, Model model) {
-		session.setAttribute("currentCustomer", customer);
-		section(customer, pageIndex, principal.getName(), model, serviceCustomer.loadByUser(principal.getName()));
-		return "analysis/analysis";
+	public String section(@PathVariable String customer, @PathVariable int pageIndex, HttpServletRequest request, Principal principal, Model model) throws Exception {
+		String referer = request.getHeader("Referer");
+		if (referer != null && referer.contains("/trickservice/KnowledgeBase")) {
+			model.addAttribute("analyses", serviceAnalysis.loadAllFromCustomer(serviceCustomer.loadProfileCustomer()));
+			model.addAttribute("login", principal.getName());
+			model.addAttribute("deleteRight", AnalysisRight.DELETE.ordinal());
+			model.addAttribute("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
+			model.addAttribute("calcActionPlanRight", AnalysisRight.CALCULATE_ACTIONPLAN.ordinal());
+			model.addAttribute("modifyRight", AnalysisRight.MODIFY.ordinal());
+			model.addAttribute("exportRight", AnalysisRight.EXPORT.ordinal());
+			model.addAttribute("readRight", AnalysisRight.READ.ordinal());
+			return "knowledgebase/analysis";
+		} else {
+			request.getSession().setAttribute("currentCustomer", customer);
+			section(customer, pageIndex, principal.getName(), model, serviceCustomer.loadByUser(principal.getName()));
+			return "analysis/analysis";
+		}
 	}
 
 	private void section(String customer, int pageIndex, String userName, Model model, List<Customer> customers) {
-		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(userName, customer, pageIndex, 20));
+		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(userName, customer));
 		model.addAttribute("customer", customer);
 		model.addAttribute("customers", customers);
 		model.addAttribute("login", userName);
-		model.addAttribute("analysis", userName);
 		model.addAttribute("deleteRight", AnalysisRight.DELETE.ordinal());
 		model.addAttribute("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
 		model.addAttribute("calcActionPlanRight", AnalysisRight.CALCULATE_ACTIONPLAN.ordinal());
@@ -279,15 +316,15 @@ public class ControllerAnalysis {
 
 		model.put("languages", serviceLanguage.loadAll());
 
-		model.put("customers", serviceCustomer.loadAll());
+		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
+
+		model.put("profiles", serviceAnalysis.loadProfiles());
 
 		model.put("author", principal.getName());
 
 		return "analysis/newAnalysis";
 
 	}
-
-	
 
 	/**
 	 * editAnalysis: <br>
@@ -327,66 +364,88 @@ public class ControllerAnalysis {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildAnalysis(List<String> errors, User owner, String source, Locale locale) {
+	private boolean buildAnalysis(Map<String, String> errors, User owner, String source, Locale locale) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 			Analysis analysis = null;
 			int id = jsonNode.get("id").asInt();
+			int idCustomer = jsonNode.has("analysiscustomer")? jsonNode.get("analysiscustomer").asInt() : -1;
+			int idLanguage = jsonNode.has("analysislanguage")? jsonNode.get("analysislanguage").asInt() : -1;
+			int idProfile = jsonNode.has("profile") ? jsonNode.get("profile").asInt() : -1;
+			String comment = jsonNode.has("label") ? jsonNode.get("label").asText() : "";
+			String author = jsonNode.has("author") ? jsonNode.get("author").asText() : "";
+			String version = jsonNode.has("version") ? jsonNode.get("version").asText() : "";
+			if (idCustomer < 1)
+				errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
+			if (idLanguage < 1)
+				errors.put("analysislanguage", messageSource.getMessage("error.language.null", null, "Language cannot be empty", locale));
+			if (comment.trim().isEmpty())
+				errors.put("comment", messageSource.getMessage("error.comment.null", null, "Comment cannot be empty", locale));
+			if (author.trim().isEmpty())
+				errors.put("author", messageSource.getMessage("error.author.null", null, "Author cannot be empty", locale));
 
-			if (jsonNode.get("analysiscustomer").asInt() == -1) {
-				throw new IllegalArgumentException("error.customer.null");
-			}
+			if (version.trim().isEmpty())
+				errors.put("version", messageSource.getMessage("error.version.null", null, "Version cannot be empty", locale));
+			else if (!version.matches(Constant.REGEXP_VALID_ANALYSIS_VERSION))
+				errors.put("version", messageSource.getMessage("error.version.invalid", null, "Invalid version format, Please respect this format (0.0.1)", locale));
 
-			if (jsonNode.get("analysislanguage").asInt() == -1) {
-				throw new IllegalArgumentException("error.language.null");
-			}
+			if (!errors.isEmpty())
+				return false;
 
 			Customer customer = serviceCustomer.get(jsonNode.get("analysiscustomer").asInt());
 			Language language = serviceLanguage.get(jsonNode.get("analysislanguage").asInt());
 			String label = jsonNode.get("label").asText();
-			String author = "";
-			String version = jsonNode.get("version").asText();
 			Date date = new Date();
 			Timestamp creationDate = new Timestamp(date.getTime());
 			String ts = new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(creationDate);
 			String identifier = language.getAlpha3() + "_" + ts;
-			String comment = messageSource.getMessage("label.analysis.newHistoryComment", null, "Analysis creation.", locale);
 			if (id > 0) {
 				analysis = serviceAnalysis.get(id);
+
+				if (analysis == null) {
+					errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+					return false;
+				}
+
 				analysis.setLabel(label);
 				analysis.setCustomer(customer);
 				analysis.setLanguage(language);
 				serviceAnalysis.saveOrUpdate(analysis);
 			} else {
-				author = jsonNode.get("author").asText();
-				analysis = new Analysis();
+				analysis = null;
+				if (idProfile > 1) {
+					Analysis profile = serviceAnalysis.get(idProfile);
+					if (profile == null) {
+						errors.put("profile", messageSource.getMessage("error.analysis.profile.not_found", null, "Selected profile cannot be found", locale));
+						return false;
+					}
+					analysis = new Duplicator().duplicate(profile, null);
+					analysis.setProfile(false);
+				} else{
+					analysis = new Analysis();
+					analysis.setData(true);
+				}
 				analysis.setBasedOnAnalysis(null);
 				analysis.setCreationDate(creationDate);
 				analysis.setCustomer(customer);
-				analysis.setData(false);
-				analysis.setIdentifier(identifier);
+				
+				analysis.setIdentifier(identifier.toUpperCase());
 				analysis.setLabel(label);
 				analysis.setLanguage(language);
 				analysis.setOwner(owner);
 				analysis.setVersion(version);
-
 				History history = new History(version, date, author, comment);
-
 				analysis.addAHistory(history);
-
 				// TODO populate measures, default scenarios and parameters
-
 				UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
-
 				analysis.addUserRight(uar);
-
 				serviceAnalysis.save(analysis);
 			}
 			return true;
 
 		} catch (Exception e) {
-			errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale)));
+			errors.put("analysis", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
 		}
@@ -404,12 +463,12 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	List<String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
-		List<String> errors = new LinkedList<>();
+	Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
+		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
 			buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale);
 		} catch (Exception e) {
-			errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale)));
+			errors.put("ower", messageSource.getMessage("error.user.not_found", null, "User cannot be found", locale));
 			e.printStackTrace();
 		}
 		return errors;
@@ -424,7 +483,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Delete/{analysisId}")
+	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
 	String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal) throws Exception {
@@ -462,7 +521,7 @@ public class ControllerAnalysis {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 			history.setDate(new Date(System.currentTimeMillis()));
 			Duplicator duplicator = new Duplicator();
-			Analysis copy = duplicator.duplicate(analysis);
+			Analysis copy = duplicator.duplicate(analysis, null);
 			copy.setBasedOnAnalysis(analysis);
 			copy.addAHistory(history);
 			copy.setVersion(history.getVersion());

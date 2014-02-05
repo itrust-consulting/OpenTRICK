@@ -3,7 +3,8 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec"
+	uri="http://www.springframework.org/security/tags"%>
 <div id="widget">
 	<div class="modal fade" id="addAnalysisModel" tabindex="-1"
 		role="dialog" aria-labelledby="addNewAnalysis" aria-hidden="true">
@@ -20,6 +21,10 @@
 				<div class="modal-body">
 					<form name="analysis" action="Analysis/Save"
 						class="form-horizontal" id="analysis_form"></form>
+					<div class="progress progress-striped active" hidden="true">
+						<div class="progress-bar" role="progressbar" aria-valuenow="100"
+							aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button id="addAnalysisButton" type="button"

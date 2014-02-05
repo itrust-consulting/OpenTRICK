@@ -20,9 +20,9 @@
 			<div class="modal-body">
 				<spring:hasBindErrors name="*">
 					<spring:bind path="*">
-						<c:foreach items="${status.errorMessages}" var="error">
+						<c:forEach items="${status.errorMessages}" var="error">
         						${error}<br />
-						</c:foreach>
+						</c:forEach>
 					</spring:bind>
 				</spring:hasBindErrors>
 				<form:form commandName="analysisProfile">

@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class Duplicator {
 
-	public Analysis duplicate(Analysis analysis) throws CloneNotSupportedException {
+	public Analysis duplicate(Analysis analysis, Analysis copy) throws CloneNotSupportedException {
 
 		Map<Integer, Phase> phases = new LinkedHashMap<>();
 
@@ -50,7 +50,7 @@ public class Duplicator {
 		Map<Integer, Parameter> parameters = new LinkedHashMap<>(analysis.getParameters().size());
 
 		try {
-			Analysis copy = analysis.duplicate();
+			copy = analysis.duplicateTo(copy);
 
 			copy.setUserRights(new ArrayList<UserAnalysisRight>(analysis.getUserRights().size()));
 			for (UserAnalysisRight uar : analysis.getUserRights()) {
@@ -173,12 +173,14 @@ public class Duplicator {
 
 			copy.setVersion("0.0.1");
 
+			copy.setBasedOnAnalysis(null);
+
 			copy.setIdentifier(analysisProfile.getName());
 
 			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
 
 			copy.setLabel(analysisProfile.getComment());
-			
+
 			copy.setProfile(true);
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.history", "Delete analysis histories", 3));
@@ -188,6 +190,10 @@ public class Duplicator {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.right", "Delete analysis rigths", 4));
 
 			copy.setUserRights(null);
+
+			copy.setData(analysis.getData()
+					&& (analysisProfile.isAsset() || analysisProfile.isItemInformation() || analysisProfile.isParameter() || analysisProfile.isRiskInformation()
+							|| analysisProfile.isScenario() || analysisProfile.getNorms() != null && !analysisProfile.getNorms().isEmpty()));
 
 			if (analysisProfile.isItemInformation()) {
 				serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.itemInformation", "Copy item information", 10));
@@ -272,7 +278,7 @@ public class Duplicator {
 				for (AnalysisNorm analysisNorm : analysis.getAnalysisNorms()) {
 					if (analysisProfile.getNorms().contains(analysisNorm.getNorm()))
 						copy.addAnalysisNorm(duplicate(analysisNorm, phases, customNorm, parameters));
-					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy mesaures", (copyCount++ / diviser)*50+45));
+					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy mesaures", (copyCount++ / diviser) * 50 + 45));
 				}
 			}
 			return copy;

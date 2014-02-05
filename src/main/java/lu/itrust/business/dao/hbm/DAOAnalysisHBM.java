@@ -258,4 +258,11 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 				.setParameter("identifier", name).uniqueResult();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> loadProfiles() {
+		return  getSession().createQuery("Select analysis From Analysis as analysis where analysis.profile = true")
+		.list();
+	}
+
 }
