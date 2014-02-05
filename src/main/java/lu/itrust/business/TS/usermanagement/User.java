@@ -20,7 +20,7 @@ public class User implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private long id = -1;
+	private Integer id = -1;
 
 	private String login = null;
 
@@ -37,9 +37,8 @@ public class User implements Serializable {
 	private boolean enable = true;
 
 	private List<Role> roles = new ArrayList<Role>();
-	
-	private List<Customer> customers = new ArrayList<Customer>();
 
+	private List<Customer> customers = new ArrayList<Customer>();
 
 	/**
 	 * @param login
@@ -66,7 +65,7 @@ public class User implements Serializable {
 	/**
 	 * @return the id
 	 */
-	public long getId() {
+	public Integer getId() {
 		return id;
 	}
 
@@ -74,7 +73,7 @@ public class User implements Serializable {
 	 * @param id
 	 *            the id to set
 	 */
-	public void setId(long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -278,31 +277,47 @@ public class User implements Serializable {
 	}
 
 	/**
-	 * @param customers the customers to set
+	 * @param customers
+	 *            the customers to set
 	 */
 	public void setCustomers(List<Customer> customers) {
 		this.customers = customers;
 	}
 
 	/**
+	 * addCustomer: <br>
+	 * Description
+	 * 
 	 * @param arg0
 	 * @return
-	 * @see java.util.List#add(java.lang.Object)
 	 */
-	public boolean add(Customer arg0) {
-		if(!contains(arg0))
-			return customers.add(arg0);
+	public boolean addCustomer(Customer customer) {
+		if (!containsCustomer(customer))
+			return customers.add(customer);
 		return true;
 	}
 
 	/**
+	 * containsCustomer: <br>
+	 * Description
+	 * 
 	 * @param arg0
 	 * @return
-	 * @see java.util.List#contains(java.lang.Object)
 	 */
-	public boolean contains(Object arg0) {
-		return customers.contains(arg0);
+	public boolean containsCustomer(Customer customer) {
+		return customers.contains(customer);
 	}
 	
-	
+	/**
+	 * removeCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 */
+	public boolean removeCustomer(Customer customer) {
+		if (customers.contains(customer))
+			return customers.remove(customer);
+		return true;
+	}
 }

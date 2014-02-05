@@ -81,6 +81,26 @@
 		</div>
 	</div>
 </div>
+<div class="modal fade" id="manageCustomerUserModel" tabindex="-1" role="dialog" aria-labelledby="manageCustomerUserModel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="addCustomerModel-title">
+					<spring:message code="label.customer.manage.users" text="Manage customer users" />
+				</h4>
+			</div>
+			<div class="modal-body" id="customerusersbody">
+			
+			</div>
+			<div class="modal-footer">
+				<button id="customerusersbutton" type="button" class="btn btn-primary" onclick="">
+					<spring:message code="label.submit.update" text="Update" />
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
 <div class="modal fade" id="deleteCustomerModel" tabindex="-1" aria-hidden="true" aria-labelledby="deleteCustomer" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">

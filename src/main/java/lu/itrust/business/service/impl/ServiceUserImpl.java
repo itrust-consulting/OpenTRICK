@@ -5,6 +5,7 @@ package lu.itrust.business.service.impl;
 
 import java.util.List;
 
+import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOUser;
@@ -190,4 +191,13 @@ public class ServiceUserImpl implements ServiceUser {
 		this.daoUser = daoUser;
 	}
 
+	@Override
+	public List<User> loadByCustomer(int customer) throws Exception {
+		return daoUser.loadByCustomer(customer);
+	}
+
+	@Override
+	public List<User> loadByCustomer(Customer customer) throws Exception {
+		return daoUser.loadByCustomer(customer);
+	}
 }

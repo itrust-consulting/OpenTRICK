@@ -7,7 +7,6 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Norm;
-import lu.itrust.business.dao.DAONorm;
 
 /**
  * @author oensuifudine

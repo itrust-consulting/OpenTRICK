@@ -2,30 +2,23 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec"
-	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="section" id="section_customer">
 	<div class="page-header">
 		<h3 id="Customers">
 			<spring:message code="menu.knowledgebase.customers" />
 		</h3>
 	</div>
-	<div class="panel panel-default"
-		onmouseover="if(!$('#menu_customer').is(':visible')) {updateMenu('#section_customer', '#menu_customer');$('#menu_customer').show();}"
-		onmouseout="$('#menu_customer').hide();">
+	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px">
-			<ul class="nav nav-pills" hidden="true" id="menu_customer">
-				<li><a href="#" onclick="return newCustomer();"><span
-						class="glyphicon glyphicon-plus primary"></span> <spring:message
-							code="label.customer.add" text="Add" /> </a></li>
-				<li trick-selectable="true"><a href="#"
-					onclick="return editSingleCustomer();"><span
-						class="glyphicon glyphicon-edit danger"></span> <spring:message
+			<ul class="nav nav-pills" id="menu_customer">
+				<li><a href="#" onclick="return newCustomer();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.customer.add" text="Add" /> </a></li>
+				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleCustomer();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 							code="label.customer.edit" text="Edit" /> </a></li>
-				<li trick-selectable="true"><a href="#"
-					onclick="return deleteCustomer();"><span
-						class="glyphicon glyphicon-remove"></span> <spring:message
+				<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 							code="label.customer.delete" text="Delete" /> </a></li>
+				<li class="disabled" trick-selectable="true"><a href="#" onclick="return manageUsers();"><span class="glyphicon glyphicon-remove"></span> <spring:message
+							code="label.customer.manage.users" text="Manage user access" /> </a></li>
 			</ul>
 		</div>
 		<div class="panel-body">
@@ -34,8 +27,7 @@
 					<table class="table">
 						<thead>
 							<tr>
-								<th><input type="checkbox" class="checkbox"
-									onchange="return checkControlChange(this,'customer')"></th>
+								<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'customer')"></th>
 								<th><spring:message code="label.customer.organisation" /></th>
 								<th><spring:message code="label.customer.contactPerson" /></th>
 								<th><spring:message code="label.customer.telephoneNumber" /></th>
@@ -49,9 +41,7 @@
 						<tbody>
 							<c:forEach items="${customers}" var="customer">
 								<tr trick-id="${customer.id}" ondblclick="return editSingleCustomer('${customer.id}');">
-									<td><input type="checkbox" class="checkbox"
-										onchange="return updateMenu('#section_customer','#menu_customer');">
-									</td>
+									<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_customer','#menu_customer');"></td>
 									<td>${customer.organisation}</td>
 									<td>${customer.contactPerson}</td>
 									<td>${customer.telephoneNumber}</td>

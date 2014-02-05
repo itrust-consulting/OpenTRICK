@@ -4,7 +4,7 @@
 <!-- Generated Mar 12, 2013 5:51:35 PM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS.usermanagement">
 	<class name="User" table="user">
-		<id name="id" type="long" unsaved-value="-1">
+		<id name="id" type="integer" unsaved-value="-1">
 			<column name="idUser" />
 			<generator class="increment" />
 		</id>
@@ -34,9 +34,9 @@
 			<many-to-many class="Role" column="idRole" unique="false" />
 		</bag>
 		
-		<bag name="customers" table="userCustomer" cascade="all" access="field">
+		<bag cascade="all" name="customers" table="userCustomer" access="field">
 			<key column="fiUser" not-null="true" />
-			<many-to-many class="lu.itrust.business.TS.Customer" column="fiCustomer" order-by="organisation, contactPerson"/>
+			<many-to-many class="lu.itrust.business.TS.Customer" column="fiCustomer" order-by="organisation, contactPerson" />
 		</bag>
 		
 	</class>

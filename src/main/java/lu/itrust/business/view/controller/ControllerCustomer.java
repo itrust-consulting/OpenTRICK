@@ -10,7 +10,9 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceCustomer;
+import lu.itrust.business.service.ServiceUser;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -43,6 +45,9 @@ public class ControllerCustomer {
 	private ServiceCustomer serviceCustomer;
 
 	@Autowired
+	private ServiceUser serviceUser;
+
+	@Autowired
 	private MessageSource messageSource;
 
 	/**
@@ -60,6 +65,81 @@ public class ControllerCustomer {
 		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
 
 		return "knowledgebase/customer/customers";
+	}
+
+	/**
+	 * loadCustomerUsers: <br>
+	 * Description
+	 * 
+	 * @param customerID
+	 * @param model
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/{customerID}/Users")
+	public String loadCustomerUsers(@PathVariable("customerID") int customerID, Model model, Principal principal) throws Exception {
+		model.addAttribute("customer", serviceCustomer.get(customerID));
+		model.addAttribute("users", serviceUser.loadAll());
+		model.addAttribute("customerusers", serviceUser.loadByCustomer(customerID));
+		return "knowledgebase/customer/customerusers";
+	}
+
+	/**
+	 * updateCustomerUsers: <br>
+	 * Description
+	 * 
+	 * @param customerID
+	 * @param model
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/{customerID}/Users/Update", method = RequestMethod.POST, headers = "Accept=application/json")
+	public String updateCustomerUsers(@RequestBody String value, @PathVariable("customerID") int customerID, Model model, Principal principal, Locale locale, RedirectAttributes redirectAttributes) throws Exception {
+		// create errors list
+
+		try {
+
+			Customer customer = serviceCustomer.get(customerID);
+
+			// create json parser
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(value);
+
+			List<User> users = serviceUser.loadAll();
+
+			
+			
+			List<User> customerusers = serviceUser.loadByCustomer(customerID);
+			
+			
+			
+			for (User user : users) {
+				boolean userhasaccess = jsonNode.get("user_"+user.getId()).asBoolean();
+				if (userhasaccess)
+					user.addCustomer(customer);
+				else
+					user.removeCustomer(customer);
+				
+				serviceUser.saveOrUpdate(user);
+			}
+			
+			model.addAttribute("users", users);
+			
+			model.addAttribute("customerusers",customerusers);
+			
+			model.addAttribute("customer", serviceCustomer.get(customerID));
+			
+			model.addAttribute("success", messageSource.getMessage("label.customer.manage.users.success", null, "Customer users successfully updated!", locale));
+			
+			return loadCustomerUsers(customerID, model, principal);
+		} catch (Exception e) {
+			// return errors
+			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			e.printStackTrace();
+			return loadCustomerUsers(customerID, model, principal);
+		}
 	}
 
 	/**

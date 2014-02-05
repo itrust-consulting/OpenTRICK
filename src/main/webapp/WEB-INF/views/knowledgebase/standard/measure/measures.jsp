@@ -2,52 +2,36 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec"
-	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="section_measure" class="section">
 	<div id="measures_header" class="page-header">
 		<h3 id="Measures">
 			<spring:message code="label.measure.measures" />
-			: ${norm.label} - ${norm.version} - ${norm.description} 
-			<input type="hidden" id="normId" value="${norm.id}" />
-			<input type="hidden" id="normLabel" value="${norm.label}" />
-			<input type="hidden" id="normVersion" value="${norm.version}" />
+			: ${norm.label} - ${norm.version} - ${norm.description} <input type="hidden" id="normId" value="${norm.id}" /> <input type="hidden" id="normLabel" value="${norm.label}" /> <input
+				type="hidden" id="normVersion" value="${norm.version}" />
 		</h3>
 	</div>
 	<div id="measures_body" class="content" role="main" data-spy="scroll">
 		<div id="section_measure_description" class="section">
-			<div class="panel panel-default"
-				onmouseover="if(!$('#menu_measure_description').is(':visible')) {updateMenu('#section_measure_description', '#menu_measure_description');$('#menu_measure_description').show();}"
-				onmouseout="$('#menu_measure_description').hide();">
+			<div class="panel panel-default">
 				<div class="panel-heading" style="min-height: 60px">
 					<div class="row">
 						<c:if test="${!empty languages}">
 							<div class="col-md-1">
-								<select id="languageselect" class="form-control"
-									style="width: auto;">
+								<select id="languageselect" class="form-control" style="width: auto;">
 									<c:forEach items="${languages}" var="language">
-										<option
-											${language.id == selectedLanguage.id?'selected="selected"':""}
-											value="${language.id}">${language.name}</option>
+										<option ${language.id == selectedLanguage.id?'selected="selected"':""} value="${language.id}">${language.name}</option>
 									</c:forEach>
 								</select>
 							</div>
 						</c:if>
 						<div class="col-md-11">
-							<ul class="nav nav-pills" hidden="true"
-								id="menu_measure_description">
-
-								<li><a href="#" onclick="return newMeasure();"><span
-										class="glyphicon glyphicon-plus primary"></span> <spring:message
-											code="label.norm.add" text="Add" /> </a></li>
-								<li trick-selectable="true"><a href="#"
-									onclick="return editSingleMeasure();"><span
-										class="glyphicon glyphicon-edit danger"></span> <spring:message
+							<ul class="nav nav-pills" id="menu_measure_description">
+								<li><a href="#" onclick="return newMeasure();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.norm.add" text="Add" /> </a></li>
+								<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleMeasure();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 											code="label.norm.edit" text="Edit" /> </a></li>
-								<li trick-selectable="true"><a href="#"
-									onclick="return deleteMeasure();"><span
-										class="glyphicon glyphicon-remove"></span> <spring:message
-											code="label.norm.delete" text="Delete" /> </a></li>
+								<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteMeasure();"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.norm.delete"
+											text="Delete" /> </a></li>
 							</ul>
 						</div>
 					</div>
@@ -58,8 +42,7 @@
 							<table id="measurestable">
 								<thead>
 									<tr>
-										<th><input type="checkbox" class="checkbox"
-											onchange="return checkControlChange(this,'measure_description')"></th>
+										<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'measure_description')"></th>
 										<th><spring:message code="label.measure.level" /></th>
 										<th><spring:message code="label.measure.reference" /></th>
 										<th><spring:message code="label.measure.domain" /></th>
@@ -67,11 +50,9 @@
 									</tr>
 								</thead>
 								<tbody>
-									<c:forEach items="${measureDescriptions}"
-										var="measureDescription">
+									<c:forEach items="${measureDescriptions}" var="measureDescription">
 										<tr trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${norm.id}');">
-											<td><input type="checkbox" class="checkbox"
-												onchange="return updateMenu('#section_measure_description','#menu_measure_description');"></td>
+											<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_measure_description','#menu_measure_description');"></td>
 											<td>${measureDescription.level}</td>
 											<td>${measureDescription.reference}</td>
 											<td>${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:"&nbsp;"}</td>

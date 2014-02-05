@@ -5,6 +5,7 @@ package lu.itrust.business.service;
 
 import java.util.List;
 
+import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -25,6 +26,10 @@ public interface ServiceUser {
 	List<User> loadByName(String name)throws Exception;
 	
 	List<User> loadByCountry(String name)throws Exception;
+	
+	List<User> loadByCustomer(int customer)throws Exception;
+	
+	List<User> loadByCustomer(Customer customer)throws Exception;
 	
 	boolean addRole(User user, Role role) throws Exception;
 	

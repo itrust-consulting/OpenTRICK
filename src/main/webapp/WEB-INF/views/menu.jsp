@@ -60,7 +60,7 @@
 				</c:choose>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">
-				<sec:authorize access="hasRole('ROLE_USER')">
+				<sec:authorize access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_SUPERVISOR', 'ROLE_CONSULTANT')">
 					<li ${menu.equals("Profile")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Profile"> <spring:message code="label.profile" text="Profile" /></a></li>
 				</sec:authorize>
 				<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">

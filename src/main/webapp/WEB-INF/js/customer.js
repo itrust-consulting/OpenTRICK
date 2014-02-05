@@ -100,3 +100,64 @@ function editSingleCustomer(customerId) {
 	$("#addCustomerModel").modal('toggle');
 	return false;
 }
+
+function manageUsers(customerID) {
+	
+	if (customerID == null || customerID == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_customer"));
+		if (selectedScenario.length != 1)
+			return false;
+		customerID = selectedScenario[0];
+	}
+	
+	$.ajax({
+		url : context + "/KnowledgeBase/Customer/" + customerID + "/Users",
+		type : "get",
+		contentType : "application/json",
+		success : function(response) {
+
+			$("#customerusersbody").html(response);
+			$("#customerusersform").prop("action", "Customer/"+customerID+"/Users/Update");
+			$("#customerusersbutton").attr("onclick","updateManageUsers("+customerID+",'#customerusersform')");
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
+	});
+	$("#manageCustomerUserModel").modal('toggle');
+	return false;
+}
+
+function updateManageUsers(customerID, form) {
+	
+	var data= {};
+			
+	$(form).find("select[name='usercustomer'] option").each(function() {
+		
+		var name = $(this).attr("value");
+		
+		var value = $(this).is(":checked");
+		
+		data[name] = value;
+				
+	});
+	
+	var jsonarray = JSON.stringify(data);
+	
+	$.ajax({
+		url : context + "/KnowledgeBase/Customer/" + customerID + "/Users/Update",
+		type : "post",
+		data: jsonarray,
+		contentType : "application/json",
+		success : function(response) {
+			
+			$("#customerusersbody").html(response);
+			/*$("#customerusersform").prop("action", "Customer/"+customerID+"/Users/Update");
+			$("#customerusersbutton").attr("onclick","updateManageUsers("+customerID+",'#customerusersform')");*/
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
+	});
+	return false;
+}

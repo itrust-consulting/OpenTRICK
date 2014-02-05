@@ -5,6 +5,7 @@ package lu.itrust.business.dao;
 
 import java.util.List;
 
+import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -26,6 +27,10 @@ public interface DAOUser {
 	
 	List<User> loadByCountry(String name)throws Exception;
 	
+	List<User> loadByCustomer(int customer) throws Exception;
+	
+	List<User> loadByCustomer(Customer customer) throws Exception;
+	
 	boolean addRole(User user, Role role) throws Exception;
 	
 	boolean removeRole(User user, Role role) throws Exception;
@@ -41,4 +46,5 @@ public interface DAOUser {
 	void delete(long id)throws Exception;
 
 	boolean hasUsers()throws Exception;
+		
 }
