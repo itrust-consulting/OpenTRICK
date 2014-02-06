@@ -24,9 +24,10 @@
 						<jsp:include page="analysisMenu.jsp" />
 						<jsp:include page="../successErrors.jsp" />
 						<div class="content nav-container" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}">
-							<c:set var="histories" value="${analysis.histories}" scope="request" />
-							<c:set var="histories" value="${analysis.histories}" scope="request" />
-							<jsp:include page="./components/history.jsp" />
+							<c:if test="${!KowledgeBaseView}">
+								<c:set var="histories" value="${analysis.histories}" scope="request" />
+								<jsp:include page="./components/history.jsp" />
+							</c:if>
 							<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
 							<jsp:include page="./components/itemInformation.jsp" />
 							<c:set var="parameters" value="${analysis.parameters}" scope="request" />
@@ -39,17 +40,19 @@
 							<jsp:include page="./components/phase.jsp" />
 							<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)" var="measures" scope="request" />
 							<jsp:include page="./components/measure.jsp" />
-							<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
-							<jsp:include page="./components/actionplan.jsp" />
-							<c:set var="summaries" scope="request" value="${analysis.summaries}" />
-							<jsp:include page="./components/summary.jsp" />
-							<jsp:include page="./components/charts.jsp" />
-							<jsp:include page="./components/widgets.jsp" />
+							<c:if test="${!KowledgeBaseView }">
+								<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
+								<jsp:include page="./components/actionplan.jsp" />
+								<c:set var="summaries" scope="request" value="${analysis.summaries}" />
+								<jsp:include page="./components/summary.jsp" />
+								<jsp:include page="./components/charts.jsp" />
+								<jsp:include page="./components/widgets.jsp" />
+								<script type="text/javascript" src="<spring:url value="js/actionplan.js" />"></script>
+							</c:if>
 						</div>
-						<script type="text/javascript" src="<spring:url value="js/actionplan.js" />"></script>
 					</c:when>
 					<c:otherwise>
-						<jsp:include page="components/analyses.jsp" />
+						<jsp:include page="analyses.jsp" />
 					</c:otherwise>
 				</c:choose>
 				<!-- ################################################################ Include Footer ################################################################ -->
@@ -63,6 +66,11 @@
 				reloadCharts();
 			</script>
 		</c:if>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$("input[type='checkbox']").removeAttr("checked");
+			});
+		</script>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

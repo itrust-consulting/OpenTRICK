@@ -45,7 +45,6 @@ public class ControllerKnowledgeBase {
 	@RequestMapping
 	public String displayKowledgeBase(Map<String, Object> model, Principal principal) throws Exception {
 		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
-		model.put("KowledgeBaseView", true);
 		model.put("languages", serviceLanguage.loadAll());
 		model.put("norms", serviceNorm.loadAll());
 		model.put("analyses", serviceAnalysis.loadProfiles());

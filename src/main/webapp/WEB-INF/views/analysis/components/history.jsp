@@ -3,9 +3,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@ taglib prefix="sec"
-	uri="http://www.springframework.org/security/tags"%>
-<spring:htmlEscape defaultHtmlEscape="true" />
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="section" id="section_history">
 	<div class="page-header">
 		<h3 id="History">
@@ -15,7 +13,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading">&nbsp;</div>
 		<div class="panel-body" style="max-height: 700px; overflow: auto;">
-			<table class="table table-hover" >
+			<table class="table table-hover">
 				<thead>
 					<tr>
 						<!--  <th><spring:message code="label.history.id" /></th>-->
@@ -29,11 +27,9 @@
 					<c:forEach items="${histories}" var="history">
 						<tr trick-class="History" trick-id="${history.id}">
 							<td>${history.version}</td>
-							<td><fmt:formatDate value="${history.date}" pattern="dd/MM/yyyy"/> </td>
-							<td trick-field="author" trick-field-type="string" class="success"
-								ondblclick="editField(this);">${history.author}</td>
-							<td trick-field="comment" trick-field-type="string" class="success"
-								ondblclick="editField(this);">${history.comment}</td>
+							<td><fmt:formatDate value="${history.date}" pattern="dd/MM/yyyy" /></td>
+							<td trick-field="author" trick-field-type="string" class="success" ondblclick="editField(this);">${history.author}</td>
+							<td trick-field="comment" trick-field-type="string" class="success" ondblclick="editField(this);">${history.comment}</td>
 						</tr>
 					</c:forEach>
 				</tbody>

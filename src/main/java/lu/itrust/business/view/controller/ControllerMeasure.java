@@ -115,7 +115,7 @@ public class ControllerMeasure {
 	@RequestMapping("/Compliance/{norm}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@ResponseBody
-	String compliance(@PathVariable String norm, HttpSession session, Locale locale) {
+	String compliance(@PathVariable String norm, HttpSession session, Locale locale, Principal principal) {
 		
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");

@@ -82,7 +82,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @version
  * @since Oct 22, 2013
  */
-@PreAuthorize(Constant.ROLE_USER_ONLY)
+@PreAuthorize(Constant.ROLE_MIN_USER)
 @Controller
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
@@ -191,6 +191,7 @@ public class ControllerAnalysis {
 				model.addAttribute("login", principal.getName());
 				model.addAttribute("language", analysis.getLanguage().getAlpha3());
 				model.addAttribute("analysis", analysis);
+				model.addAttribute("KowledgeBaseView", analysis.isProfile());
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.notAuthorized", null, "Insufficient permissions!", locale));
 				return "redirect:/Error/403";
@@ -242,7 +243,7 @@ public class ControllerAnalysis {
 			}
 			section(customer, 0, principal.getName(), model, serviceCustomer.loadByUser(principal.getName()));
 		}
-		return "analysis/components/analyses";
+		return "analysis/analyses";
 	}
 
 	/**
@@ -260,7 +261,7 @@ public class ControllerAnalysis {
 	public String section(@PathVariable String customerSection, @PathVariable int pageIndex, HttpSession session, Principal principal, Model model) throws Exception {
 		session.setAttribute("currentCustomer", customerSection);
 		section(customerSection, pageIndex, principal.getName(), model, serviceCustomer.loadByUser(principal.getName()));
-		return "analysis/components/analyses";
+		return "analysis/analyses";
 	}
 
 	// *****************************************************************
@@ -300,7 +301,7 @@ public class ControllerAnalysis {
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/{analysisId}/Select")
-	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, RedirectAttributes attributes,
+	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Model model, HttpSession session, RedirectAttributes attributes,
 			Locale locale) throws Exception {
 
 		// retrieve selected analysis
@@ -315,11 +316,11 @@ public class ControllerAnalysis {
 			session.removeAttribute("selectedAnalysis");
 
 		// check if analysis exists -> YES
-		else if (serviceAnalysis.exist(analysisId))
+		else if (serviceAnalysis.exist(analysisId)) {
 
-			// select the analysis
+			// select the analysis			
 			session.setAttribute("selectedAnalysis", analysisId);
-		else {
+		} else {
 
 			// deselect the analysis
 			session.removeAttribute("selectedAnalysis");
@@ -460,12 +461,17 @@ public class ControllerAnalysis {
 	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
-	String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal) throws Exception {
+	String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session) throws Exception {
 		try {
 
 			// delete the analysis
 			serviceAnalysis.remove(analysisId);
 
+			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			
+			if (selectedAnalysis == analysisId)
+				session.removeAttribute("selectedAnalysis");
+			
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
 		} catch (Exception e) {
@@ -918,6 +924,8 @@ public class ControllerAnalysis {
 				serviceAnalysis.saveOrUpdate(analysis);
 			} else {
 				analysis = null;
+				
+				// populate measures, default scenarios and parameters
 				if (idProfile > 1) {
 					Analysis profile = serviceAnalysis.get(idProfile);
 					if (profile == null) {
@@ -941,7 +949,7 @@ public class ControllerAnalysis {
 				analysis.setVersion(version);
 				History history = new History(version, date, author, comment);
 				analysis.addAHistory(history);
-				// TODO populate measures, default scenarios and parameters
+				
 				UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
 				analysis.addUserRight(uar);
 				serviceAnalysis.save(analysis);

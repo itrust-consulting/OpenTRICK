@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -10,7 +10,7 @@
 <script src="<spring:url value="/js/jquery.tablesorter.min.js" />"></script>
 <script src="<spring:url value="/js/jquery.tablesorter.widgets.js" />"></script>
 <script src="<spring:url value="/js/jquery.tablesorter.pager.js" />"></script>
-<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script> 
+<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
 <script src="<spring:url value="/js/bootstrap.min.js" />"></script>
 <script src="<spring:url value="/js/bootbox.min.js" />"></script>
 <script src="<spring:url value="/js/dom-parser.js" />"></script>
@@ -22,10 +22,9 @@
 <script type="text/javascript">
 	<sec:authorize ifNotGranted="ROLE_ANONYMOUS" >
 	<!--
-		var taskManager = new TaskManager();
-		taskManager.Start();
+	var taskManager = new TaskManager();
+	taskManager.Start();
 	-->
 	</sec:authorize>
-	
 </script>
-<jsp:include page="alertDialog.jsp"/>
+<jsp:include page="alertDialog.jsp" />

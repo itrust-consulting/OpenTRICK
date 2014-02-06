@@ -11,19 +11,17 @@
 		</h3>
 	</div>
 	<c:if test="${!empty users}">
-		<div class="panel panel-default"
-			onmouseover="if(!$('#menu_user').is(':visible')) {updateMenu('#section_user', '#menu_user');$('#menu_user').show();}"
-			onmouseout="$('#menu_user').hide();">
+		<div class="panel panel-default">
 			<div class="panel-heading" style="min-height: 60px">
-				<ul class="nav nav-pills" hidden="true" id="menu_user">
+				<ul class="nav nav-pills" id="menu_user">
 					<li><a href="#" onclick="return newUser();"><span
 							class="glyphicon glyphicon-plus primary"></span> <spring:message
 								code="label.action.add" text="Add" /> </a></li>
-					<li trick-selectable="true"><a href="#"
+					<li class="disabled" trick-selectable="true"><a href="#"
 						onclick="return editSingleUser();"><span
 							class="glyphicon glyphicon-edit danger"></span> <spring:message
 								code="label.action.edit" text="Edit" /> </a></li>
-					<li trick-selectable="true"><a href="#"
+					<li class="disabled" trick-selectable="true"><a href="#"
 						onclick="return deleteUser();"><span
 							class="glyphicon glyphicon-remove"></span> <spring:message
 								code="label.action.delete" text="Delete" /> </a></li>
