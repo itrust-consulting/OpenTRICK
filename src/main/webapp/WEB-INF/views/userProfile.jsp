@@ -47,11 +47,9 @@
 						</tr>
 						<tr>
 							<td><spring:message code="label.user.roles" /></td>
-							<td>
-								<c:forEach items="${userProfil.roles}" var="role">
+							<td><c:forEach items="${userProfil.roles}" var="role">
 									<spring:message code="label.role.${role.type}" />
-								</c:forEach>
-							</td>
+								</c:forEach></td>
 						</tr>
 					</table>
 				</c:if>

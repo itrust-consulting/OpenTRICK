@@ -189,6 +189,20 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public String getVersionOfAnalysis(int id) throws Exception {
 		return daoAnalysis.getVersionOfAnalysis(id);
 	}
+	
+	/**
+	 * isProfile: <br>
+	 * Description
+	 * 
+	 * @param analysisid
+	 * @return
+	 */
+	@Override
+	public boolean isProfile(int analysisid) {
+		return daoAnalysis.isProfile(analysisid);
+	}
+	
+	@Override
 	public boolean isProfile(String name) {
 		return daoAnalysis.isProfile(name);
 	}

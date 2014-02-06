@@ -4,7 +4,6 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<spring:htmlEscape defaultHtmlEscape="true" />
 <div class="section" id="section_actionplans">
 	<div class="page-header">
 		<h3 id="ActionPlan">
@@ -26,9 +25,11 @@
 			</div>
 			<div class="col-md-2">
 				<ul class="nav nav-pills" id="menu_actionplan">
-					<li><a href="#" onclick="return toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');"> <span class="glyphicon glyphicon-chevron-down"></span>&nbsp;<spring:message
-								code="action.actionplanassets.show" text="Show Assets" />
-					</a></li>
+					<c:if test="${!actionplansplitted.isEmpty()}">
+						<li><a href="#" onclick="return toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');"> <span class="glyphicon glyphicon-chevron-down"></span>&nbsp;<spring:message
+									code="action.actionplanassets.show" text="Show Assets" />
+						</a></li>
+					</c:if>
 				</ul>
 			</div>
 		</div>

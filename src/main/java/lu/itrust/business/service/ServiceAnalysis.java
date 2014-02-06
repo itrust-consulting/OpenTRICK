@@ -21,6 +21,8 @@ public interface ServiceAnalysis {
 
 	public boolean exist(int id);
 	
+	public boolean isProfile(int analysisid);
+	
 	public boolean isProfile(String name);
 	
 	public Analysis findProfileByName(String name);

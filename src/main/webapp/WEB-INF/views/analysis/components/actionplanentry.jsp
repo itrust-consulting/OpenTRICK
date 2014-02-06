@@ -9,10 +9,14 @@
 	<td><spring:message text="${actionplanentry.position}" /></td>
 	<td><spring:message text="${actionplanentry.measure.analysisNorm.norm.label}" /></td>
 	<td><spring:message text="${actionplanentry.measure.measureDescription.reference}" /></td>
-	<td><b><spring:message text="${actionplanentry.measure.measureDescription.getMeasureDescriptionText(language).getDomain()}" /></b> <br /> <spring:message text="${actionplanentry.measure.getToDo()}" /></td>
-	<td ${actionplanentry.totalALE == 0? "class='danger'" : "" } title="${actionplanentry.totalALE}"><fmt:formatNumber value="${actionplanentry.totalALE*0.001}" maxFractionDigits="0" /></td>
-	<td ${actionplanentry.deltaALE == 0? "class='danger'" : "" } title="${actionplanentry.deltaALE}"><fmt:formatNumber value="${actionplanentry.deltaALE*0.001}" maxFractionDigits="0" /></td>
-	<td ${actionplanentry.measure.cost == 0? "class='danger'" : "" } title="${actionplanentry.measure.cost}"><fmt:formatNumber value="${actionplanentry.measure.cost*0.001}" maxFractionDigits="0" /></td>
+	<td><b><spring:message text="${actionplanentry.measure.measureDescription.getMeasureDescriptionText(language).getDomain()}" /></b> <br /> <spring:message
+			text="${actionplanentry.measure.getToDo()}" /></td>
+	<td ${actionplanentry.totalALE == 0? "class='danger'" : "" } title="${actionplanentry.totalALE}"><fmt:formatNumber value="${actionplanentry.totalALE*0.001}"
+			maxFractionDigits="0" /></td>
+	<td ${actionplanentry.deltaALE == 0? "class='danger'" : "" } title="${actionplanentry.deltaALE}"><fmt:formatNumber value="${actionplanentry.deltaALE*0.001}"
+			maxFractionDigits="0" /></td>
+	<td ${actionplanentry.measure.cost == 0? "class='danger'" : "" } title="${actionplanentry.measure.cost}"><fmt:formatNumber value="${actionplanentry.measure.cost*0.001}"
+			maxFractionDigits="0" /></td>
 	<td ${actionplanentry.ROI == 0? "class='danger'" : "" } title="${actionplanentry.ROI}"><fmt:formatNumber value="${actionplanentry.ROI*0.001}" maxFractionDigits="0" /></td>
 	<td class="success" trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)"
 		trick-real-value='${actionplanentry.measure.phase.number}'>${actionplanentry.measure.phase.number}</td>

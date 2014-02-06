@@ -46,8 +46,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#get(long, java.lang.String,
-	 *      java.sql.Date)
+	 * @see lu.itrust.business.dao.DAOAnalysis#get(long, java.lang.String, java.sql.Date)
 	 */
 	@Override
 	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception {
@@ -70,8 +69,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#get(java.lang.String,
-	 *      java.lang.String, java.sql.Date)
+	 * @see lu.itrust.business.dao.DAOAnalysis#get(java.lang.String, java.lang.String,
+	 *      java.sql.Date)
 	 */
 	@Override
 	public Analysis get(int id, String identifier, String version, Timestamp creationDate) throws Exception {
@@ -93,8 +92,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * analysisExist: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#analysisExist(java.lang.String,
-	 *      java.lang.String)
+	 * @see lu.itrust.business.dao.DAOAnalysis#analysisExist(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public boolean analysisExist(String identifier, String version) throws Exception {
@@ -254,16 +252,22 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		return (String) query.uniqueResult();
 	}
 
+	public boolean isProfile(int analysisid) {
+		Boolean result =
+			(Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.id = :identifier").setParameter("identifier", analysisid).uniqueResult();
+		return result == null ? false : result;
+	}
+
 	public boolean isProfile(String name) {
-		Boolean result = (Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.identifier = :identifier")
-				.setParameter("identifier", name).uniqueResult();
+		Boolean result =
+			(Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.identifier = :identifier").setParameter("identifier", name).uniqueResult();
 		return result == null ? false : result;
 	}
 
 	@Override
 	public Analysis findProfileByName(String name) {
-		return (Analysis) getSession().createQuery("Select analysis From Analysis as analysis where analysis.identifier = :identifier and analysis.profile = true")
-				.setParameter("identifier", name).uniqueResult();
+		return (Analysis) getSession().createQuery("Select analysis From Analysis as analysis where analysis.identifier = :identifier and analysis.profile = true").setParameter(
+				"identifier", name).uniqueResult();
 	}
 
 	@SuppressWarnings("unchecked")

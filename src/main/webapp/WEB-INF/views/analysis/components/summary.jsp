@@ -4,7 +4,6 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<spring:htmlEscape defaultHtmlEscape="true" />
 <div class="section" id="section_summary">
 	<div class="page-header">
 		<h3 id="Phase">
@@ -29,7 +28,7 @@
 					<h4 class="text-center">
 						<spring:message code="label.actionPlanType.${actionPlanType.name}" text="${actionPlanType.name}" htmlEscape="true" />
 					</h4>
-					<table class="table table-hover" >
+					<table class="table table-hover">
 						<thead>
 							<tr>
 								<th><spring:message code="label.characteristic" text="Phase characteristic" /></th>
@@ -50,7 +49,14 @@
 											<c:otherwise>
 												<td><spring:message code="${key}" text="${key}" /></td>
 												<c:forEach items="${summaryStages.get(key)}" var="value">
-													<c:choose><c:when test="${status.index > 0 }"><td class="text-right"><spring:message text="${value}" htmlEscape="true" /></td></c:when><c:otherwise><td><spring:message text="${value}" htmlEscape="true" /></td></c:otherwise></c:choose>
+													<c:choose>
+														<c:when test="${status.index > 0 }">
+															<td class="text-right"><spring:message text="${value}" htmlEscape="true" /></td>
+														</c:when>
+														<c:otherwise>
+															<td><spring:message text="${value}" htmlEscape="true" /></td>
+														</c:otherwise>
+													</c:choose>
 												</c:forEach>
 											</c:otherwise>
 										</c:choose>

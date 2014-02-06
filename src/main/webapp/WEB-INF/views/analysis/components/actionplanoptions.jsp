@@ -10,7 +10,8 @@
 	<h3>
 		<spring:message code="title.norms" text="Norms" />
 	</h3>
-	<spring:message code="title.options.selectnorm" text="<p>Select a norm to compute the action plan</p><p>(No options given means: all norms will be used to compute)</p>" htmlEscape="false"></spring:message>
+	<spring:message code="title.options.selectnorm" text="<p>Select a norm to compute the action plan</p><p>(No options given means: all norms will be used to compute)</p>"
+		htmlEscape="false"></spring:message>
 	<table class="table text-center">
 		<c:choose>
 			<c:when test="${!empty(norms)}">
@@ -37,7 +38,7 @@
 	<table class="table">
 		<tbody>
 			<tr>
-				<td><spring:message code="title.options.uncertainty" text="<p>Optimistic and pessimistic computation</p>"  htmlEscape="false" /></td>
+				<td><spring:message code="title.options.uncertainty" text="<p>Optimistic and pessimistic computation</p>" htmlEscape="false" /></td>
 				<td><input type="checkbox" name="<spring:message text="uncertainty" htmlEscape="true"/>" value="1" /></td>
 			</tr>
 		</tbody>

@@ -12,7 +12,7 @@
 </c:if>
 <c:if test="${!empty(errors)}">
 	<div class="alert alert-danger" id="error">
-		 <a href="#" class="close" data-dismiss="alert">×</a>
+		<a href="#" class="close" data-dismiss="alert">×</a>
 		<spring:message code="${errors}" text="${errors}" />
 	</div>
 </c:if>

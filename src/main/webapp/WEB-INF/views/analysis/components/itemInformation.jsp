@@ -3,18 +3,14 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@ taglib prefix="sec"
-	uri="http://www.springframework.org/security/tags"%>
-<spring:htmlEscape defaultHtmlEscape="true" />
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="section" id="section_itemInformation">
 	<div class="page-header">
 		<h3 id="ItemInformation">
 			<spring:message code="label.itemInformation" text="Item Information" />
 		</h3>
 	</div>
-	<spring:eval
-		expression="T(lu.itrust.business.TS.Analysis).SplitItemInformations(itemInformations)"
-		var="itemInformationsSplited" />
+	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitItemInformations(itemInformations)" var="itemInformationsSplited" />
 	<div class="row">
 		<div class="col-md-12">
 			<div class="panel panel-info">
@@ -22,24 +18,18 @@
 					<spring:message code="label.itemInformation.scope" text="Scopes" />
 				</div>
 				<div class="panel-body" style="max-height: 700px; overflow: auto;">
-
 					<table class="table table-hover">
 						<thead>
 							<tr>
-								<th colspan="2"><spring:message
-										code="label.itemInformation.description" text="Description" /></th>
-								<th colspan="1"><spring:message code="label.itemInformation.value"
-										text="Value" /></th>
+								<th colspan="2"><spring:message code="label.itemInformation.description" text="Description" /></th>
+								<th colspan="1"><spring:message code="label.itemInformation.value" text="Value" /></th>
 							</tr>
 						</thead>
 						<tbody>
-							<c:forEach items="${itemInformationsSplited[0]}"
-								var="itemInformation">
-								<tr trick-class="ItemInformation"
-									trick-id="${itemInformation.id}">
-									<td colspan="2"><spring:message code="label.itemInformation.${itemInformation.description}" text="${itemInformation.description}"/> </td>
-									<td colspan="1" trick-field="value" trick-field-type="string" class="success"
-										ondblclick="return editField(this);">${itemInformation.value}</td>
+							<c:forEach items="${itemInformationsSplited[0]}" var="itemInformation">
+								<tr trick-class="ItemInformation" trick-id="${itemInformation.id}">
+									<td colspan="2"><spring:message code="label.itemInformation.${itemInformation.description}" text="${itemInformation.description}" /></td>
+									<td colspan="1" trick-field="value" trick-field-type="string" class="success" ondblclick="return editField(this);">${itemInformation.value}</td>
 								</tr>
 							</c:forEach>
 						</tbody>
@@ -50,28 +40,21 @@
 		<div class="col-md-12">
 			<div class="panel panel-info">
 				<div class="panel-heading">
-					<spring:message code="label.itemInformation.organisation"
-						text="Organisations" />
+					<spring:message code="label.itemInformation.organisation" text="Organisations" />
 				</div>
 				<div class="panel-body" style="max-height: 700px; overflow: auto;">
-
 					<table class="table table-hover">
 						<thead>
 							<tr>
-								<th colspan="2"><spring:message
-										code="label.itemInformation.description" text="Description" /></th>
-								<th  colspan="1"><spring:message code="label.itemInformation.value"
-										text="Value" /></th>
+								<th colspan="2"><spring:message code="label.itemInformation.description" text="Description" /></th>
+								<th colspan="1"><spring:message code="label.itemInformation.value" text="Value" /></th>
 							</tr>
 						</thead>
 						<tbody>
-							<c:forEach items="${itemInformationsSplited[1]}"
-								var="itemInformation">
-								<tr trick-class="ItemInformation"
-									trick-id="${itemInformation.id}">
-									<td colspan="2"><spring:message code="label.itemInformation.${itemInformation.description}" text="${itemInformation.description}"/> </td>
-									<td colspan="1" trick-field="value" trick-field-type="string" class="success"
-										ondblclick="return editField(this);">${itemInformation.value}</td>
+							<c:forEach items="${itemInformationsSplited[1]}" var="itemInformation">
+								<tr trick-class="ItemInformation" trick-id="${itemInformation.id}">
+									<td colspan="2"><spring:message code="label.itemInformation.${itemInformation.description}" text="${itemInformation.description}" /></td>
+									<td colspan="1" trick-field="value" trick-field-type="string" class="success" ondblclick="return editField(this);">${itemInformation.value}</td>
 								</tr>
 							</c:forEach>
 						</tbody>

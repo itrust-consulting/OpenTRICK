@@ -111,7 +111,7 @@ public class ControllerUser {
 	 */
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 	@RequestMapping("/{userId}")
-	public String profileOfUser(@PathVariable("userId") Long userId, HttpSession session, Map<String, Object> model) throws Exception {
+	public String profileOfUser(@PathVariable("userId") int userId, HttpSession session, Map<String, Object> model) throws Exception {
 
 		// retireve profile
 		User user = serviceUser.get(userId);

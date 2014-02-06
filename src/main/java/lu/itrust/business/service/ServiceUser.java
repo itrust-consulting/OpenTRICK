@@ -15,7 +15,7 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 public interface ServiceUser {
 	
-	User get(long id) throws Exception;
+	User get(int id) throws Exception;
 	
 	User get(String login) throws Exception;
 	
@@ -43,7 +43,7 @@ public interface ServiceUser {
 	
 	void delete(User user)throws Exception;
 	
-	void delete(long id)throws Exception;
+	void delete(int id)throws Exception;
 
 	boolean hasUsers() throws Exception;
 }

@@ -150,6 +150,13 @@ public class ControllerAsset {
 		return errors;
 	}
 
+	@RequestMapping("/Add")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public String edit(Model model, HttpSession session, Principal principal) throws Exception {
+		model.addAttribute("assettypes", serviceAssetType.loadAll());
+		return "analysis/components/widgets/assetForm";
+	}
+	
 	/**
 	 * delete: <br>
 	 * Description
