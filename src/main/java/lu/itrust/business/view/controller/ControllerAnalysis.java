@@ -217,6 +217,56 @@ public class ControllerAnalysis {
 		return "analysis/analysis";
 	}
 
+	/**
+	 * manageaccessrights: <br>
+	 * Description
+	 * 
+	 * @param analysisID
+	 * @param principal
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/{analysisID}/ManageAccess")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
+	public String manageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model) throws Exception {
+
+		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
+
+		List<UserAnalysisRight> uars =serviceUserAnalysisRight.getAllByUniqueAnalysis(analysisID); 
+		
+		for (UserAnalysisRight uar : uars) {
+			userrights.put(uar.getUser(), uar.getRight());
+		}
+
+		for (User user : serviceUser.loadAll()) {
+			if (!userrights.containsKey(user))
+					userrights.put(user, null);
+		}
+
+		model.addAttribute("analysisRigths", AnalysisRight.values());
+		model.addAttribute("analysis", serviceAnalysis.get(analysisID));
+		model.addAttribute("userrights", userrights);
+		return "analysis/manageuseranalysisrights";
+	}
+
+	/**
+	 * updatemanageaccessrights: <br>
+	 * Description
+	 * 
+	 * @param analysisID
+	 * @param principal
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/{analysisID}/ManageAccess/Update")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
+	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model) throws Exception {
+		model.addAttribute("analysisrights", serviceUserAnalysisRight.getAllByUniqueAnalysis(analysisID));
+		return "analysis/manageuseranalysisrights";
+	}
+
 	// *****************************************************************
 	// * reload customer section by pageindex
 	// *****************************************************************
@@ -227,12 +277,6 @@ public class ControllerAnalysis {
 		if (referer != null && referer.contains("/trickservice/KnowledgeBase")) {
 			model.addAttribute("analyses", serviceAnalysis.loadProfiles());
 			model.addAttribute("login", principal.getName());
-			model.addAttribute("deleteRight", AnalysisRight.DELETE.ordinal());
-			model.addAttribute("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
-			model.addAttribute("calcActionPlanRight", AnalysisRight.CALCULATE_ACTIONPLAN.ordinal());
-			model.addAttribute("modifyRight", AnalysisRight.MODIFY.ordinal());
-			model.addAttribute("exportRight", AnalysisRight.EXPORT.ordinal());
-			model.addAttribute("readRight", AnalysisRight.READ.ordinal());
 			model.addAttribute("KowledgeBaseView", true);
 		} else {
 			String customer = (String) request.getSession().getAttribute("currentCustomer");
@@ -268,7 +312,16 @@ public class ControllerAnalysis {
 	// * select or deselect analysis
 	// *****************************************************************
 
+	/**
+	 * update: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param locale
+	 * @return
+	 */
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String update(HttpSession session, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -301,8 +354,8 @@ public class ControllerAnalysis {
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/{analysisId}/Select")
-	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Model model, HttpSession session, RedirectAttributes attributes,
-			Locale locale) throws Exception {
+	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Model model, HttpSession session, RedirectAttributes attributes, Locale locale)
+			throws Exception {
 
 		// retrieve selected analysis
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
@@ -318,7 +371,7 @@ public class ControllerAnalysis {
 		// check if analysis exists -> YES
 		else if (serviceAnalysis.exist(analysisId)) {
 
-			// select the analysis			
+			// select the analysis
 			session.setAttribute("selectedAnalysis", analysisId);
 		} else {
 
@@ -409,8 +462,6 @@ public class ControllerAnalysis {
 	 * @param locale
 	 * @return
 	 */
-
-	// initialise list of return messages
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
 	Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
@@ -468,10 +519,10 @@ public class ControllerAnalysis {
 			serviceAnalysis.remove(analysisId);
 
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-			
+
 			if (selectedAnalysis == analysisId)
 				session.removeAttribute("selectedAnalysis");
-			
+
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
 		} catch (Exception e) {
@@ -924,7 +975,7 @@ public class ControllerAnalysis {
 				serviceAnalysis.saveOrUpdate(analysis);
 			} else {
 				analysis = null;
-				
+
 				// populate measures, default scenarios and parameters
 				if (idProfile > 1) {
 					Analysis profile = serviceAnalysis.get(idProfile);
@@ -949,7 +1000,7 @@ public class ControllerAnalysis {
 				analysis.setVersion(version);
 				History history = new History(version, date, author, comment);
 				analysis.addAHistory(history);
-				
+
 				UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
 				analysis.addUserRight(uar);
 				serviceAnalysis.save(analysis);

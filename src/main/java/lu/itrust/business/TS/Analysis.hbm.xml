@@ -28,7 +28,7 @@
 			<column name="fiOwner" not-null="true" />
 		</many-to-one>
 
-		<property length="255" type="string" column="dtLabel" generated="never" lazy="false" not-null="true" name="label" />
+		<property length="255" type="string" column="dtLabel" generated="never" lazy="false" not-null="true" name="label" access="field" />
 
 		<property column="dtData" generated="never" lazy="false" name="data" not-null="true" />
 

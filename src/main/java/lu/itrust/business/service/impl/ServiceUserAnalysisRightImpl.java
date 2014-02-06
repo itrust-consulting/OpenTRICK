@@ -74,6 +74,18 @@ public class ServiceUserAnalysisRightImpl implements ServiceUserAnalysisRight {
 	 * @see lu.itrust.business.service.ServiceUserAnalysisRight#getAllByUniqueAnalysis(lu.itrust.business.TS.Analysis)
 	 */
 	@Override
+	public List<UserAnalysisRight> getAllByUniqueAnalysis(int analysisid) throws Exception {
+		return daoUserAnalysisRight.getAllByUniqueAnalysis(analysisid);
+
+	}
+	
+	/**
+	 * getAllByUniqueAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceUserAnalysisRight#getAllByUniqueAnalysis(lu.itrust.business.TS.Analysis)
+	 */
+	@Override
 	public List<UserAnalysisRight> getAllByUniqueAnalysis(Analysis analysis) throws Exception {
 		return daoUserAnalysisRight.getAllByUniqueAnalysis(analysis);
 

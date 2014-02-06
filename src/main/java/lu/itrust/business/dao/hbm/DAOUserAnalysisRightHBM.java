@@ -83,6 +83,19 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
+	public List<UserAnalysisRight> getAllByUniqueAnalysis(int analysisid) throws Exception {
+		Query query = getSession().createQuery("From UserAnalysisRight WHERE analysis.id = :analysis").setParameter("analysis", analysisid);
+		return (List<UserAnalysisRight>) query.list();
+	}
+	
+	/**
+	 * getAllByUniqueAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByUniqueAnalysis(lu.itrust.business.TS.Analysis)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
 	public List<UserAnalysisRight> getAllByUniqueAnalysis(Analysis analysis) throws Exception {
 		Query query = getSession().createQuery("From UserAnalysisRight WHERE analysis = :analysis").setParameter("analysis", analysis);
 		return (List<UserAnalysisRight>) query.list();
