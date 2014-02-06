@@ -46,31 +46,97 @@
 						expression="T(lu.itrust.business.component.AssessmentManager).Sort(assessments)"
 						var="sortedAssessments" />
 					<c:forEach items="${sortedAssessments}" var="assessment">
-						<tr trick-class="Assessment" trick-id="${assessment.id}" trick-callback="chartALE()">
+						<tr trick-class="Assessment" trick-id="${assessment.id}"
+							trick-callback="chartALE()">
 							<td colspan="3">${assessment.scenario.name}</td>
-							<td trick-field="impactRep" trick-field-type="string" class="success"
-								ondblclick="return editField(this);"><spring:message
-									text="${assessment.impactRep}" htmlEscape="true" /></td>
-							<td trick-field="impactOp" trick-field-type="string" class="success"
-								ondblclick="return editField(this);"><spring:message
-									text="${assessment.impactOp}" htmlEscape="true" /></td>
-							<td trick-field="impactLeg" trick-field-type="string" class="success"
-								ondblclick="return editField(this);"><spring:message
-									text="${assessment.impactLeg}" htmlEscape="true" /></td>
-							<td trick-field="impactFin" trick-field-type="string" class="success"
-								ondblclick="return editField(this);"><spring:message
-									text="${assessment.impactFin}" htmlEscape="true" /></td>
-							<td trick-field="likelihood" trick-field-type="string" class="success"
-								ondblclick="return editField(this);"><spring:message
-									text="${assessment.likelihood}" htmlEscape="true" /></td>
-							<td trick-field="uncertainty" trick-field-type="double" class="success"
-								trick-real-value="${assessment.uncertainty}"
+							<c:choose>
+								<c:when test="${parameters.containsKey(assessment.impactRep)}">
+									<td trick-field="impactRep" trick-field-type="string"
+										class="success"
+										title='<fmt:formatNumber value="${parameters.get(assessment.impactRep)*0.001}" />'
+										ondblclick="return editField(this);"><spring:message
+											text="${assessment.impactRep}" htmlEscape="true" /></td>
+								</c:when>
+								<c:otherwise>
+									<td trick-field="impactRep" trick-field-type="string"
+										class="success" ondblclick="return editField(this);"><spring:message
+											text="${assessment.impactRep}" htmlEscape="true" /></td>
+								</c:otherwise>
+							</c:choose>	
+							<c:choose>
+								<c:when test="${parameters.containsKey(assessment.impactOp)}">
+									<td trick-field="impactOp" trick-field-type="string"
+										class="success"
+										title='<fmt:formatNumber value="${parameters.get(assessment.impactOp)*0.001}" />'
+										ondblclick="return editField(this);"><spring:message
+											text="${assessment.impactOp}" htmlEscape="true" /></td>
+								</c:when>
+								<c:otherwise>
+									<td trick-field="impactOp" trick-field-type="string"
+										class="success" ondblclick="return editField(this);"><spring:message
+											text="${assessment.impactOp}" htmlEscape="true" /></td>
+								</c:otherwise>
+							</c:choose>	
+							<c:choose>
+								<c:when test="${parameters.containsKey(assessment.impactLeg)}">
+									<td trick-field="impactLeg" trick-field-type="string"
+										class="success"
+										title='<fmt:formatNumber value="${parameters.get(assessment.impactLeg)*0.001}" />'
+										ondblclick="return editField(this);"><spring:message
+											text="${assessment.impactLeg}" htmlEscape="true" /></td>
+								</c:when>
+								<c:otherwise>
+									<td trick-field="impactLeg" trick-field-type="string"
+										class="success" ondblclick="return editField(this);"><spring:message
+											text="${assessment.impactLeg}" htmlEscape="true" /></td>
+								</c:otherwise>
+							</c:choose>									
+							<c:choose>
+								<c:when test="${parameters.containsKey(assessment.impactFin)}">
+									<td trick-field="impactFin" trick-field-type="string"
+										class="success"
+										title='<fmt:formatNumber value="${parameters.get(assessment.impactFin)*0.001}" />'
+										ondblclick="return editField(this);"><spring:message
+											text="${assessment.impactFin}" htmlEscape="true" /></td>
+								</c:when>
+								<c:otherwise>
+									<td trick-field="impactFin" trick-field-type="string"
+										class="success" ondblclick="return editField(this);"><spring:message
+											text="${assessment.impactFin}" htmlEscape="true" /></td>
+								</c:otherwise>
+							</c:choose>
+							<c:choose>
+								<c:when test="${parameters.containsKey(assessment.likelihood)}">
+									<td trick-field="likelihood" trick-field-type="string"
+										class="success"
+										title='<fmt:formatNumber value="${parameters.get(assessment.likelihood)}" />'
+										ondblclick="return editField(this);"><spring:message
+											text="${assessment.likelihood}" htmlEscape="true" /></td>
+								</c:when>
+								<c:otherwise>
+									<td trick-field="likelihood" trick-field-type="string"
+										class="success" ondblclick="return editField(this);"><spring:message
+											text="${assessment.likelihood}" htmlEscape="true" /></td>
+								</c:otherwise>
+							</c:choose>
+							
+							<td trick-field="uncertainty" trick-field-type="double"
+								class="success" trick-real-value="${assessment.uncertainty}"
 								ondblclick="return editField(this);"><fmt:formatNumber
 									value="${assessment.uncertainty}" maxFractionDigits="3"
 									minFractionDigits="1" /></td>
-							<td title="${assessment.ALEP}"><fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="3" minFractionDigits="3" /></td>
-							<td title="${assessment.ALE}"><fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="3" minFractionDigits="3" /></td>
-							<td title="${assessment.ALEO}"><fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="3" minFractionDigits="3" /></td>
+							<td
+								title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="3" minFractionDigits="3" />"><fmt:formatNumber
+									value="${assessment.ALEP}" maxFractionDigits="0"
+									minFractionDigits="0" /></td>
+							<td
+								title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="3" minFractionDigits="3" />"><fmt:formatNumber
+									value="${assessment.ALE}" maxFractionDigits="0"
+									minFractionDigits="0" /></td>
+							<td
+								title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="3" minFractionDigits="3" />"><fmt:formatNumber
+									value="${assessment.ALEO}" maxFractionDigits="0"
+									minFractionDigits="0" /></td>
 							<td trick-field="comment" trick-field-type="string" colspan="3"
 								ondblclick="return editField(this);">${assessment.comment}</td>
 							<td trick-field="hiddenComment" trick-field-type="string"
@@ -78,18 +144,27 @@
 						</tr>
 						<c:set var="prevAsset" value="${assessment.asset}" />
 					</c:forEach>
-					<tr class="panel-footer" style="font-weight:bold;">
+					<tr class="panel-footer" style="font-weight: bold;">
 						<td colspan="9"><spring:message
 								code="label.assessment.total.ale" text="Total" /></td>
-						<td><spring:htmlEscape defaultHtmlEscape="true">
-						<fmt:formatNumber value="${alep.value}" maxFractionDigits="3" minFractionDigits="3" />
-					</spring:htmlEscape></td>
-						<td><spring:htmlEscape defaultHtmlEscape="true">
-						<fmt:formatNumber value="${ale.value}" maxFractionDigits="3" minFractionDigits="3" />
-					</spring:htmlEscape></td>
-						<td><spring:htmlEscape defaultHtmlEscape="true">
-						<fmt:formatNumber value="${aleo.value}" maxFractionDigits="3" minFractionDigits="3" />
-					</spring:htmlEscape></td>
+						<td
+							title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="3" minFractionDigits="3" />"><spring:htmlEscape
+								defaultHtmlEscape="true">
+								<fmt:formatNumber value="${alep.value}" maxFractionDigits="0"
+									minFractionDigits="0" />
+							</spring:htmlEscape></td>
+						<td
+							title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="3" minFractionDigits="3" />"><spring:htmlEscape
+								defaultHtmlEscape="true">
+								<fmt:formatNumber value="${ale.value}" maxFractionDigits="0"
+									minFractionDigits="0" />
+							</spring:htmlEscape></td>
+						<td
+							title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="3" minFractionDigits="3" />"><spring:htmlEscape
+								defaultHtmlEscape="true">
+								<fmt:formatNumber value="${aleo.value}" maxFractionDigits="0"
+									minFractionDigits="0" />
+							</spring:htmlEscape></td>
 						<td colspan="6" />
 					</tr>
 				</tbody>

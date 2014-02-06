@@ -4,8 +4,10 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -66,13 +68,11 @@ public class ControllerAssessment {
 	private MessageSource messageSource;
 
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String section(Model model, HttpSession session, Principal principal)
-			throws Exception {
+	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 		if (integer == null)
 			return null;
-		model.addAttribute("assessments",
-				serviceAssessment.loadAllFromAnalysisID(integer));
+		model.addAttribute("assessments", serviceAssessment.loadAllFromAnalysisID(integer));
 		return "analysis/components/assessment";
 	}
 
@@ -80,116 +80,78 @@ public class ControllerAssessment {
 	public @ResponseBody
 	String update(HttpSession session, Locale locale) {
 		try {
-			Integer integer = (Integer) session
-					.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
 			if (integer == null)
-				return new String("{\"error\":\""
-						+ messageSource.getMessage(
-								"error.analysis.no_selected", null,
-								"No selected analysis", locale) + "\" }");
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale) + "\" }");
 			Analysis analysis = serviceAnalysis.get(integer);
 			if (analysis == null)
-				return new String("{\"error\":\""
-						+ messageSource.getMessage("error.analysis.not_found",
-								null, "Analysis cannot be found", locale)
-						+ "\" }");
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
 
 			assessmentManager.UpdateAssessment(analysis);
 
-			return new String("{\"success\":\""
-					+ messageSource.getMessage("success.assessment.update",
-							null, "Assessments were successfully updated",
-							locale) + "\"}");
+			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", locale) + "\"}");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new String("{\"error\":\""
-				+ messageSource.getMessage(
-						"error.internal.assessment.generation", null,
-						"An error occurred during the generation", locale)
-				+ "\"}");
+		return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
 	}
 
 	@RequestMapping(value = "/Wipe", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
 	String delete(HttpSession session, Locale locale) {
 		try {
-			Integer integer = (Integer) session
-					.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
 			if (integer == null)
-				return new String("{\"error\":\""
-						+ messageSource.getMessage(
-								"error.analysis.no_selected", null,
-								"No selected analysis", locale) + "\" }");
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale) + "\" }");
 			Analysis analysis = serviceAnalysis.get(integer);
 			if (analysis == null)
-				return new String("{\"error\":\""
-						+ messageSource.getMessage("error.analysis.not_found",
-								null, "Analysis cannot be found", locale)
-						+ "\" }");
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
 
 			assessmentManager.WipeAssessment(analysis);
 
-			return new String("{\"success\":\""
-					+ messageSource.getMessage("success.assessment.wipe", null,
-							"Assessments were successfully deleted", locale)
-					+ "\"}");
+			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.wipe", null, "Assessments were successfully deleted", locale) + "\"}");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new String("{\"error\":\""
-				+ messageSource.getMessage("error.internal.assessment.delete",
-						null, "An error occurred during deletion", locale)
-				+ "\"}");
+		return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.delete", null, "An error occurred during deletion", locale) + "\"}");
 	}
 
 	@RequestMapping(value = "/Asset/{assetId}/Update", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String update(@PathVariable int assetId, Model model,
-			HttpSession session, Locale locale) {
+	public String update(@PathVariable int assetId, Model model, HttpSession session, Locale locale) {
 
 		try {
-			Integer integer = (Integer) session
-					.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
 			if (integer == null)
-				return JsonMessage.Error(messageSource.getMessage(
-						"error.analysis.no_selected", null,
-						"No selected analysis", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Asset asset = serviceAsset.get(assetId);
 			if (asset == null)
 				return null;
 
-			List<ExtendedParameter> parameters = serviceParameter
-					.findExtendedByAnalysis(integer);
+			List<ExtendedParameter> parameters = serviceParameter.findExtendedByAnalysis(integer);
 
-			List<Assessment> assessments = serviceAssessment
-					.findByAssetAndSelected(asset);
+			List<Assessment> assessments = serviceAssessment.findByAssetAndSelected(asset);
 
 			for (Assessment assessment : assessments) {
-				if (assessment.getImpactFin() == null
-						|| assessment.getImpactFin().trim().isEmpty())
+				if (assessment.getImpactFin() == null || assessment.getImpactFin().trim().isEmpty())
 					assessment.setImpactFin("0");
-				if (assessment.getImpactOp() == null
-						|| assessment.getImpactOp().trim().isEmpty())
+				if (assessment.getImpactOp() == null || assessment.getImpactOp().trim().isEmpty())
 					assessment.setImpactOp("0");
-				if (assessment.getImpactLeg() == null
-						|| assessment.getImpactLeg().trim().isEmpty())
+				if (assessment.getImpactLeg() == null || assessment.getImpactLeg().trim().isEmpty())
 					assessment.setImpactLeg("0");
-				if (assessment.getImpactRep() == null
-						|| assessment.getImpactRep().trim().isEmpty())
+				if (assessment.getImpactRep() == null || assessment.getImpactRep().trim().isEmpty())
 					assessment.setImpactRep("0");
-				if (assessment.getLikelihood() == null
-						|| assessment.getLikelihood().trim().isEmpty())
+				if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
 					assessment.setLikelihood("0");
 			}
 
 			AssessmentManager.ComputeAlE(assessments, parameters);
 			serviceAssessment.saveOrUpdate(assessments);
 
-			return assessmentByAsset(model, asset, assessments);
+			return assessmentByAsset(model, asset, assessments, integer);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -199,8 +161,7 @@ public class ControllerAssessment {
 	}
 
 	@RequestMapping(value = "/Asset/{assetId}", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String loadByAsset(@PathVariable Integer assetId, Model model,
-			HttpSession session) throws Exception {
+	public String loadByAsset(@PathVariable Integer assetId, Model model, HttpSession session) throws Exception {
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 		if (integer == null)
 			return null;
@@ -211,12 +172,16 @@ public class ControllerAssessment {
 		if (!analysis.getAssets().contains(asset))
 			return null;
 
-		return assessmentByAsset(model, asset,
-				serviceAssessment.findByAssetAndSelected(asset));
+		return assessmentByAsset(model, asset, serviceAssessment.findByAssetAndSelected(asset), integer);
 	}
 
-	private String assessmentByAsset(Model model, Asset asset,
-			List<Assessment> assessments) {
+	private String assessmentByAsset(Model model, Asset asset, List<Assessment> assessments, int idAnalysis) {
+		Map<String, Double> mapParameters = new LinkedHashMap<>();
+		List<ExtendedParameter> extendedParameters = serviceParameter.findExtendedByAnalysis(idAnalysis);
+
+		for (ExtendedParameter extendedParameter : extendedParameters)
+			mapParameters.put(extendedParameter.getAcronym(), extendedParameter.getValue());
+
 		ALE ale = new ALE(asset.getName(), 0);
 		ALE aleo = new ALE(asset.getName(), 0);
 		ALE alep = new ALE(asset.getName(), 0);
@@ -224,8 +189,8 @@ public class ControllerAssessment {
 		model.addAttribute("aleo", aleo);
 		model.addAttribute("alep", alep);
 		model.addAttribute("asset", asset);
-		model.addAttribute("assessments",
-				AssessmentManager.Sort(assessments, ale, alep, aleo));
+		model.addAttribute("parameters", mapParameters);
+		model.addAttribute("assessments", AssessmentManager.Sort(assessments, ale, alep, aleo));
 		asset.setALE(ale.getValue());
 		asset.setALEO(aleo.getValue());
 		asset.setALEP(alep.getValue());
@@ -234,43 +199,32 @@ public class ControllerAssessment {
 	}
 
 	@RequestMapping(value = "/Scenario/{scenarioId}/Update", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String updateByScenario(@PathVariable int scenarioId, Model model,
-			HttpSession session, Locale locale) {
+	public String updateByScenario(@PathVariable int scenarioId, Model model, HttpSession session, Locale locale) {
 
 		try {
-			Integer integer = (Integer) session
-					.getAttribute("selectedAnalysis");
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
 			if (integer == null)
-				return JsonMessage.Error(messageSource.getMessage(
-						"error.analysis.no_selected", null,
-						"No selected analysis", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Scenario scenario = serviceScenario.get(scenarioId);
 			if (scenario == null)
 				return null;
 
-			List<ExtendedParameter> parameters = serviceParameter
-					.findExtendedByAnalysis(integer);
+			List<ExtendedParameter> parameters = serviceParameter.findExtendedByAnalysis(integer);
 
-			List<Assessment> assessments = serviceAssessment
-					.findByScenarioAndSelected(scenario);
+			List<Assessment> assessments = serviceAssessment.findByScenarioAndSelected(scenario);
 
 			for (Assessment assessment : assessments) {
-				if (assessment.getImpactFin() == null
-						|| assessment.getImpactFin().trim().isEmpty())
+				if (assessment.getImpactFin() == null || assessment.getImpactFin().trim().isEmpty())
 					assessment.setImpactFin("0");
-				if (assessment.getImpactOp() == null
-						|| assessment.getImpactOp().trim().isEmpty())
+				if (assessment.getImpactOp() == null || assessment.getImpactOp().trim().isEmpty())
 					assessment.setImpactOp("0");
-				if (assessment.getImpactLeg() == null
-						|| assessment.getImpactLeg().trim().isEmpty())
+				if (assessment.getImpactLeg() == null || assessment.getImpactLeg().trim().isEmpty())
 					assessment.setImpactLeg("0");
-				if (assessment.getImpactRep() == null
-						|| assessment.getImpactRep().trim().isEmpty())
+				if (assessment.getImpactRep() == null || assessment.getImpactRep().trim().isEmpty())
 					assessment.setImpactRep("0");
-				if (assessment.getLikelihood() == null
-						|| assessment.getLikelihood().trim().isEmpty())
+				if (assessment.getLikelihood() == null || assessment.getLikelihood().trim().isEmpty())
 					assessment.setLikelihood("0");
 			}
 
@@ -287,23 +241,16 @@ public class ControllerAssessment {
 
 	@RequestMapping(value = "/Update/Acronym/{idParameter}/{acronym}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
-	String updateAcromyn(@PathVariable int idParameter, @PathVariable String acronym, HttpSession session,
-			Locale locale) {
+	String updateAcromyn(@PathVariable int idParameter, @PathVariable String acronym, HttpSession session, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
-			return JsonMessage.Error(messageSource.getMessage(
-					"error.analysis.no_selected", null, "No selected analysis",
-					locale));
-		Parameter parameter = serviceParameter.findByIdAndAnalysis(idParameter,
-				idAnalysis);
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+		Parameter parameter = serviceParameter.findByIdAndAnalysis(idParameter, idAnalysis);
 		if (parameter == null || !(parameter instanceof ExtendedParameter))
-			return JsonMessage.Error(messageSource.getMessage(
-					"error.parameter.not_found", null,
-					"Parameter cannot be found", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
 		ExtendedParameter extendedParameter = (ExtendedParameter) parameter;
 		try {
-			List<Assessment> assessments = serviceAssessment
-					.findByAnalysisAndAcronym(idAnalysis, acronym);
+			List<Assessment> assessments = serviceAssessment.findByAnalysisAndAcronym(idAnalysis, acronym);
 			for (Assessment assessment : assessments) {
 				if (acronym.equals(assessment.getImpactFin()))
 					assessment.setImpactFin(extendedParameter.getAcronym());
@@ -317,26 +264,16 @@ public class ControllerAssessment {
 					assessment.setLikelihood(extendedParameter.getAcronym());
 				serviceAssessment.saveOrUpdate(assessment);
 			}
-			return JsonMessage.Success(messageSource.getMessage(
-					"success.assessment.acronym.updated", new String[] {
-							acronym, extendedParameter.getAcronym() },
-					"Assessment acronym (" + acronym
-							+ ") was successfully updated with ("
-							+ extendedParameter.getAcronym() + ")", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym (" + acronym + ") was successfully updated with (" + extendedParameter.getAcronym() + ")", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage(
-					"error.assessment.acronym.updated", new String[] { acronym,
-							extendedParameter.getAcronym() },
-					"Assessment acronym (" + acronym + ") cannot be updated to ("
-							+ extendedParameter.getAcronym() + ")", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym (" + acronym + ") cannot be updated to (" + extendedParameter.getAcronym() + ")", locale));
 		}
-		
+
 	}
 
 	@RequestMapping(value = "/Scenario/{scenarioId}", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String loadByScenario(@PathVariable Integer scenarioId, Model model,
-			HttpSession session) throws Exception {
+	public String loadByScenario(@PathVariable Integer scenarioId, Model model, HttpSession session) throws Exception {
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 		if (integer == null)
 			return null;
@@ -347,12 +284,10 @@ public class ControllerAssessment {
 		if (!analysis.getScenarios().contains(scenario))
 			return null;
 
-		return assessmentByScenario(model, scenario,
-				serviceAssessment.findByScenarioAndSelected(scenario));
+		return assessmentByScenario(model, scenario, serviceAssessment.findByScenarioAndSelected(scenario));
 	}
 
-	private String assessmentByScenario(Model model, Scenario scenario,
-			List<Assessment> assessments) {
+	private String assessmentByScenario(Model model, Scenario scenario, List<Assessment> assessments) {
 		ALE ale = new ALE(scenario.getName(), 0);
 		ALE aleo = new ALE(scenario.getName(), 0);
 		ALE alep = new ALE(scenario.getName(), 0);
@@ -360,8 +295,7 @@ public class ControllerAssessment {
 		model.addAttribute("aleo", aleo);
 		model.addAttribute("alep", alep);
 		model.addAttribute("scenario", scenario);
-		model.addAttribute("assessments",
-				AssessmentManager.Sort(assessments, ale, alep, aleo));
+		model.addAttribute("assessments", AssessmentManager.Sort(assessments, ale, alep, aleo));
 		return "analysis/components/assessmentScenario";
 	}
 

@@ -297,7 +297,7 @@ public class ControllerEditField {
 			else if ("likelihood".equals(fieldEditor.getFieldName()))
 				chooses = serviceParameter.findAcronymByAnalysisAndType(id, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
 
-			String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value, chooses.toArray());
+			String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value, chooses!=null? chooses.toArray():null);
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 

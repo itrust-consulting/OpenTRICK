@@ -23,7 +23,7 @@
 		var="extendedParameters" />
 	<div class="row">
 		<div class="col-md-6">
-			<div class="panel panel-primary">
+			<div class="panel panel-primary" id="Scale_Impact">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.impact"
 						text="Impact of thread" />
