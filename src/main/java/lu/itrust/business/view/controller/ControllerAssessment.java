@@ -417,14 +417,14 @@ public class ControllerAssessment {
 				serviceAssessment.saveOrUpdate(assessment);
 			}
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym ("
-				+ acronym + ") was successfully updated with (" + extendedParameter.getAcronym() + ")", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() },
+					"Assessment acronym (" + acronym + ") was successfully updated with (" + extendedParameter.getAcronym() + ")", locale));
 		} catch (Exception e) {
 
 			// return error message
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym (" + acronym
-				+ ") cannot be updated to (" + extendedParameter.getAcronym() + ")", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym ("
+					+ acronym + ") cannot be updated to (" + extendedParameter.getAcronym() + ")", locale));
 		}
 
 	}

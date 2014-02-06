@@ -2192,7 +2192,6 @@ $(function() {
 				var rowTrickId = $(e.currentTarget).attr('trick-id');
 				var data = $(e.currentTarget).attr('data');
 
-
 				var rowTrickVersion = $(e.currentTarget).find(
 						"td[trick-version]").attr("trick-version");
 				var rowRights = $(e.currentTarget).attr('trick-rights-id');
