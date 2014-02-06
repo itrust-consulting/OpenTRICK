@@ -778,7 +778,7 @@ public class ControllerAnalysis {
 		// add return message
 		attributes.addFlashAttribute(typeMessage, message);
 
-		return "redirect:/Analysis/importAnalysisForm";
+		return "redirect:/Analysis/Import";
 	}
 
 	// *****************************************************************

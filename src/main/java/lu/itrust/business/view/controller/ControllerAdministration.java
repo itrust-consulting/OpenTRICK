@@ -118,7 +118,7 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/User/Roles/{userId}", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String getUserRoles(@PathVariable("userId") Long userId, Map<String, Object> model, HttpSession session) throws Exception {
+	public String getUserRoles(@PathVariable("userId") int userId, Map<String, Object> model, HttpSession session) throws Exception {
 
 		List<Role> userRoles = serviceRole.getByUser(serviceUser.get(userId));
 
@@ -251,7 +251,7 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping("/User/Delete/{userId}")
 	public @ResponseBody
-	Boolean delete(@PathVariable("userId") Long userId, Principal principal) throws Exception {
+	Boolean delete(@PathVariable("userId") int userId, Principal principal) throws Exception {
 		try {
 
 			User user = serviceUser.get(userId);

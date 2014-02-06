@@ -44,7 +44,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.dao.DAOUser#get(long)
 	 */
 	@Override
-	public User get(long id) throws Exception {
+	public User get(int id) throws Exception {
 		return (User) getSession().get(User.class, id);
 	}
 
@@ -187,7 +187,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.dao.DAOUser#delete(long)
 	 */
 	@Override
-	public void delete(long id) throws Exception {
+	public void delete(int id) throws Exception {
 		delete(get(id));
 	}
 

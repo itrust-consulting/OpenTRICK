@@ -1324,33 +1324,6 @@ function addNewRole(id) {
 	return false;
 }
 
-/* History */
-function addHistory(analysisId) {
-	if (analysisId == null || analysisId == undefined) {
-		var selectedAnalysis = findSelectItemIdBySection(("section_analysis"));
-		if (selectedAnalysis.length != 1)
-			return false;
-		analysisId = selectedScenario[0];
-		oldVersion = $(
-				"#section_analysis tr[trick-id='" + analysisId
-						+ "']>td:nth-child(6)").text();
-	}
-	$.ajax({
-		url : context + "/History/Analysis/" + analysisId + "/NewVersion",
-		type : "get",
-		contentType : "application/json",
-		success : function(response) {
-			$("#addHistoryModal").replaceWith(response);
-			$('#addHistoryModal').modal("toggle");
-		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
-		},
-	});
-
-	return false;
-}
-
 function defaultValueByType(value, type, protect) {
 	if (value.length == 0) {
 		if (type == "int" || type == "integer")
@@ -1987,7 +1960,7 @@ function savePhase(form) {
 		url : context + "/Phase/Save",
 		type : "post",
 		async : true,
-		data : JSON.stringify($(form).serializeJSON()),
+		data : serializeForm(form),
 		contentType : "application/json",
 		success : function(response) {
 			var previewError = $("#addPhaseModel .alert");

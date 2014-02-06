@@ -31,7 +31,7 @@ public class ServiceUserImpl implements ServiceUser {
 	 * @see lu.itrust.business.service.ServiceUser#get(long)
 	 */
 	@Override
-	public User get(long id) throws Exception {
+	public User get(int id) throws Exception {
 		return daoUser.get(id);
 	}
 
@@ -152,7 +152,7 @@ public class ServiceUserImpl implements ServiceUser {
 	 */
 	@Transactional
 	@Override
-	public void delete(long id) throws Exception {
+	public void delete(int id) throws Exception {
 		daoUser.delete(id);
 	}
 

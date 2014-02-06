@@ -220,6 +220,33 @@ function newAnalysis() {
 	return false;
 }
 
+/* History */
+function addHistory(analysisId) {
+	if (analysisId == null || analysisId == undefined) {
+		var selectedAnalysis = findSelectItemIdBySection(("section_analysis"));
+		if (selectedAnalysis.length != 1)
+			return false;
+		analysisId = selectedAnalysis[0];
+		oldVersion = $(
+				"#section_analysis tr[trick-id='" + analysisId
+						+ "']>td:nth-child(6)").text();
+	}
+	$.ajax({
+		url : context + "/Analysis/" + analysisId + "/NewVersion",
+		type : "get",
+		contentType : "application/json",
+		success : function(response) {
+			$("#addHistoryModal").replaceWith(response);
+			$('#addHistoryModal').modal("toggle");
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return result;
+		},
+	});
+
+	return false;
+}
+
 function editSingleAnalysis(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");
