@@ -35,6 +35,12 @@ var ANALYSIS_RIGHT = {
 	}
 };
 
+function log(msg) {
+	setTimeout(function() {
+		throw new Error(msg);
+	}, 0);
+}
+
 function permissionError() {
 	$("#alert-dialog .modal-body")
 			.html(
@@ -598,6 +604,281 @@ function AssessmentFieldEditor(element) {
 	};
 }
 
+AssessmentImpactFieldEditor.prototype = new AssessmentFieldEditor();
+
+function AssessmentImpactFieldEditor(element) {
+
+	this.element = element;
+
+	this.defaultValue = $(element).text();
+	this.impactAcros = [];
+
+	AssessmentImpactFieldEditor.prototype.constructor = AssessmentImpactFieldEditor;
+
+	AssessmentImpactFieldEditor.prototype.GenerateInputField = function() {
+		if ($(this.element).find("select").length)
+			return true;
+		if (this.LoadData())
+			return true;
+
+		this.inputField = document.createElement("input");
+		this.inputField.setAttribute("id", "tag_impact");
+		this.inputField.setAttribute("placeholder", this.defaultValue);
+		this.inputField.setAttribute("value", this.defaultValue);
+		this.realValue = this.element.hasAttribute("real-value") ? $(
+				this.element).attr("real-value") : null;
+
+		var that = this;
+		this.inputField.setAttribute("class", "form-control");
+		this.inputField.setAttribute("placeholder", this.realValue != null
+				&& this.realValue != undefined ? this.realValue
+				: this.defaultValue);
+		$(this.inputField).blur(function() {
+			return that.Save(that);
+		});
+
+		return false;
+	};
+
+	AssessmentImpactFieldEditor.prototype.LoadData = function() {
+
+		var $impactAcronyms = $("#Scale_Impact td[trick-field='acronym']");
+		// var $probaAcronymsValue = $("#Scale_Probability
+		// td[trick-field='value']");
+		//		
+		// if (!$probaAcronyms.length && !$probaAcronymsValue.length &&
+		// $probaAcronyms.length!=$probaAcronymsValue.length)
+		// return true;
+		//		
+		for (var i = 0; i < $impactAcronyms.length; i++) {
+			this.impactAcros[i] = $($impactAcronyms[i]).text();
+			// log($($probAcronyms[i]).text() + " " + this.probaAcros[i]);
+
+		}
+
+		return !this.impactAcros.length;
+
+	};
+
+	AssessmentImpactFieldEditor.prototype.Show = function() {
+		if (this.inputField == null || this.inputField == undefined)
+			return false;
+		if (this.element == null || this.element == undefined)
+			return false;
+		// $(this.inputField).prop("value", this.realValue != null ?
+		// this.realValue : $(this.element).text().trim());
+		var that = this;
+		$(this.element).html(this.inputField);
+
+		log('d');
+		$("#tag_impact").autocomplete({
+			source : this.impactAcros
+		});
+		log('e');
+		$(this.inputField).focus();
+		return false;
+	};
+
+	AssessmentImpactFieldEditor.prototype.Save = function(that) {
+		if (!that.Validate()) {
+			that.Rollback();
+		} else {
+			if (that.HasChanged()) {
+				$
+						.ajax({
+							url : context + "/EditField/" + that.controllor,
+							type : "post",
+							async : true,
+							data : '{"id":'
+									+ that.classId
+									+ ', "fieldName":"'
+									+ that.fieldName
+									+ '", "value":"'
+									+ defaultValueByType($(that.inputField)
+											.prop("value"), that.fieldType,
+											true) + '", "type": "'
+									+ that.fieldType + '"}',
+							contentType : "application/json",
+							success : function(response) {
+								console.log(response);
+								if (response["success"] != undefined) {
+									if (application.modal["AssessmentViewer"] != undefined)
+										application.modal["AssessmentViewer"]
+												.Load();
+									else {
+										$("#info-dialog .modal-body").html(
+												response["success"]);
+										$("#info-dialog").prop("style",
+												"z-index:1070");
+										$("#info-dialog").modal("toggle");
+
+									}
+								} else {
+									$("#alert-dialog .modal-body").html(
+											response["error"]);
+									$("#alert-dialog").prop("style",
+											"z-index:1070");
+									$("#alert-dialog").modal("toggle");
+
+								}
+								return true;
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								$("#alert-dialog .modal-body").text(
+										jqXHR.responseText);
+								$("#alert-dialog").modal("toggle");
+							},
+						});
+
+			} else {
+				that.Rollback();
+				return false;
+			}
+		}
+		return false;
+	};
+}
+
+function test() {
+	log('d');
+}
+
+AssessmentProbaFieldEditor.prototype = new AssessmentFieldEditor();
+
+function AssessmentProbaFieldEditor(element) {
+
+	this.element = element;
+
+	this.defaultValue = $(element).text();
+	this.probaAcros = [];
+
+	AssessmentProbaFieldEditor.prototype.constructor = AssessmentProbaFieldEditor;
+
+	AssessmentProbaFieldEditor.prototype.GenerateInputField = function() {
+		if ($(this.element).find("select").length)
+			return true;
+		if (this.LoadData())
+			return true;
+
+		this.inputField = document.createElement("input");
+		this.inputField.setAttribute("id", "tag_proba");
+		this.inputField.setAttribute("placeholder", this.defaultValue);
+		this.inputField.setAttribute("value", this.defaultValue);
+		this.realValue = this.element.hasAttribute("real-value") ? $(
+				this.element).attr("real-value") : null;
+
+		var that = this;
+		this.inputField.setAttribute("class", "form-control");
+		this.inputField.setAttribute("placeholder", this.realValue != null
+				&& this.realValue != undefined ? this.realValue
+				: this.defaultValue);
+		$(this.inputField).blur(function() {
+			return that.Save(that);
+		});
+
+		return false;
+	};
+
+	AssessmentProbaFieldEditor.prototype.LoadData = function() {
+
+		var $probAcronyms = $("#Scale_Probability td[trick-field='acronym']");
+		// var $probaAcronymsValue = $("#Scale_Probability
+		// td[trick-field='value']");
+		//		
+		// if (!$probaAcronyms.length && !$probaAcronymsValue.length &&
+		// $probaAcronyms.length!=$probaAcronymsValue.length)
+		// return true;
+		//		
+		for (var i = 0; i < $probAcronyms.length; i++) {
+			this.probaAcros[i] = $($probAcronyms[i]).text();
+			// log($($probAcronyms[i]).text() + " " + this.probaAcros[i]);
+
+		}
+
+		return !this.probaAcros.length;
+
+	};
+
+	AssessmentProbaFieldEditor.prototype.Show = function() {
+		if (this.inputField == null || this.inputField == undefined)
+			return false;
+		if (this.element == null || this.element == undefined)
+			return false;
+		// $(this.inputField).prop("value", this.realValue != null ?
+		// this.realValue : $(this.element).text().trim());
+		var that = this;
+		$(this.element).html(this.inputField);
+
+		log('d');
+		$("#tag_proba").autocomplete({
+			source : this.probaAcros
+		});
+		log('e');
+		$(this.inputField).focus();
+		return false;
+	};
+
+	AssessmentProbaFieldEditor.prototype.Save = function(that) {
+		log('test');
+		if (!that.Validate()) {
+			that.Rollback();
+		} else {
+			if (that.HasChanged()) {
+				$
+						.ajax({
+							url : context + "/EditField/" + that.controllor,
+							type : "post",
+							async : true,
+							data : '{"id":'
+									+ that.classId
+									+ ', "fieldName":"'
+									+ that.fieldName
+									+ '", "value":"'
+									+ defaultValueByType($(that.inputField)
+											.prop("value"), that.fieldType,
+											true) + '", "type": "'
+									+ that.fieldType + '"}',
+							contentType : "application/json",
+							success : function(response) {
+								console.log(response);
+								if (response["success"] != undefined) {
+									if (application.modal["AssessmentViewer"] != undefined)
+										application.modal["AssessmentViewer"]
+												.Load();
+									else {
+										$("#info-dialog .modal-body").html(
+												response["success"]);
+										$("#info-dialog").prop("style",
+												"z-index:1070");
+										$("#info-dialog").modal("toggle");
+
+									}
+								} else {
+									$("#alert-dialog .modal-body").html(
+											response["error"]);
+									$("#alert-dialog").prop("style",
+											"z-index:1070");
+									$("#alert-dialog").modal("toggle");
+
+								}
+								return true;
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								$("#alert-dialog .modal-body").text(
+										jqXHR.responseText);
+								$("#alert-dialog").modal("toggle");
+							},
+						});
+
+			} else {
+				that.Rollback();
+				return false;
+			}
+		}
+		return false;
+	};
+}
+
 MaturityMeasureFieldEditor.prototype = new FieldEditor();
 
 function MaturityMeasureFieldEditor(element) {
@@ -668,6 +949,30 @@ function Modal() {
 
 	};
 
+	Modal.prototype.DefaultHeaderButton = function() {
+		var button_head_close = document.createElement("button");
+		button_head_close.setAttribute("class", "close");
+		button_head_close.setAttribute("data-dismiss", "modal");
+		$(button_head_close).html("&times;");
+		this.modal_header.insertBefore(button_head_close,
+				this.modal_header.firstChild);
+		return false;
+	};
+
+	Modal.prototype.DefaultFooterButton = function() {
+		var button_footer_OK = document.createElement("button");
+		var button_footer_cancel = document.createElement("button");
+		button_footer_OK.setAttribute("class", "btn btn-default");
+		button_footer_OK.setAttribute("data-dismiss", "modal");
+		button_footer_cancel.setAttribute("class", "btn btn-default");
+		button_footer_cancel.setAttribute("data-dismiss", "modal");
+		$(button_footer_OK).html("OK");
+		$(button_footer_cancel).html("Cancel");
+		this.modal_footer.appendChild(button_footer_OK);
+		this.modal_footer.appendChild(button_footer_cancel);
+		return false;
+	};
+
 	Modal.prototype.__Create = function() {
 		// declare modal
 		this.modal = document.createElement("div");
@@ -701,28 +1006,14 @@ function Modal() {
 		modal_content.appendChild(this.modal_body);
 		modal_content.appendChild(this.modal_footer);
 
-		if (!this.Size(this.modal_head_buttons)) {
-			var button_head_close = document.createElement("button");
-			button_head_close.setAttribute("class", "close");
-			button_head_close.setAttribute("data-dismiss", "modal");
-			$(button_head_close).html("&times;");
-			this.modal_header.insertBefore(button_head_close,
-					this.modal_header.firstChild);
-		} else
+		if (!this.Size(this.modal_head_buttons))
+			this.DefaultHeaderButton();
+		else
 			this.__addHeadButton();
 
-		if (!this.Size(this.modal_footer_buttons)) {
-			var button_footer_OK = document.createElement("button");
-			var button_footer_cancel = document.createElement("button");
-			button_footer_OK.setAttribute("class", "btn btn-default");
-			button_footer_OK.setAttribute("data-dismiss", "modal");
-			button_footer_cancel.setAttribute("class", "btn btn-default");
-			button_footer_cancel.setAttribute("data-dismiss", "modal");
-			$(button_footer_OK).html("OK");
-			$(button_footer_cancel).html("Cancel");
-			this.modal_footer.appendChild(button_footer_OK);
-			this.modal_footer.appendChild(button_footer_cancel);
-		} else
+		if (!this.Size(this.modal_footer_buttons))
+			this.DefaultFooterButton();
+		else
 			this.__addFooterButton();
 
 		return false;
@@ -1100,40 +1391,15 @@ AssessmentViewer.prototype = new Modal();
 function AssessmentViewer() {
 
 	AssessmentViewer.prototype.Intialise = function() {
-		var instance = this;
-
-		this.modal_footer_buttons["update"] = document.createElement("button");
-		this.modal_footer_buttons["update"].setAttribute("class",
-				"btn btn-warning");
-
-		this.modal_footer_buttons["close"] = document.createElement("button");
-		this.modal_footer_buttons["close"].setAttribute("class",
-				"btn btn-default");
-
-		$(this.modal_footer_buttons["close"]).click(function() {
-			return instance.Distroy();
-		});
-
-		$(this.modal_footer_buttons["close"]).html(
-				MessageResolver("label.action.cloase", "Close"));
-		$(this.modal_footer_buttons["update"]).html(
-				MessageResolver("label.assessment.recompute",
-						"Update assessments"));
-
-		$(this.modal_footer_buttons["close"]).click(function() {
-			return instance.Distroy();
-		});
-
-		$(this.modal_footer_buttons["update"]).click(function() {
-			return instance.Update();
-		});
-
 		Modal.prototype.Intialise.call(this);
 		$(this.modal_dialog).prop("style",
 				"width: 95%; min-width:1170px; max-width:1300px;");
-
 		return false;
 
+	};
+
+	AssessmentViewer.prototype.DefaultFooterButton = function() {
+		return false;
 	};
 
 	AssessmentViewer.prototype.Show = function() {
@@ -1420,9 +1686,19 @@ function editField(element, controller, id, field, type) {
 		controller = FieldEditor.prototype.__findControllor(element);
 	if (controller == "ExtendedParameter")
 		fieldEditor = new ExtendedFieldEditor(element);
-	else if (controller == "Assessment")
-		fieldEditor = new AssessmentFieldEditor(element);
-	else if (controller == "MaturityMeasure")
+	else if (controller == "Assessment") {
+		field = $(element).attr("trick-field");
+		var fieldImpact = [ "impactRep", "impactLeg", "impactOp", "impactFin" ];
+		var fieldProba = "likelihood";
+
+		if (fieldImpact.indexOf(field) != -1)
+			fieldEditor = new AssessmentImpactFieldEditor(element);
+		else if (field == fieldProba) {
+
+			fieldEditor = new AssessmentProbaFieldEditor(element);
+		} else
+			fieldEditor = new AssessmentFieldEditor(element);
+	} else if (controller == "MaturityMeasure")
 		fieldEditor = new MaturityMeasureFieldEditor(element);
 	else
 		fieldEditor = new FieldEditor(element);
@@ -1549,10 +1825,6 @@ function reloadSection(section, subSection) {
 				if (subSection != null && subSection != undefined)
 					section += "_" + subSection;
 				newSection = $(doc).find("*[id = '" + section + "']");
-				/*
-				 * pretreatment = sectionPretreatment(section); if
-				 * ($.isFunction(pretreatment)) pretreatment(newSection);
-				 */
 				$("#" + section).replaceWith(newSection);
 				var callback = callbackBySection(section);
 				if ($.isFunction(callback))

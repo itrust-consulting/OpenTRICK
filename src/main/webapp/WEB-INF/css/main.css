@@ -109,3 +109,19 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 .actionplanassethidden{
 	display:none;
 }
+
+.ui-autocomplete{
+	z-index: 1080;
+}
+
+
+.tooltip {
+	display:none;
+	position:absolute;
+	border:1px solid #333;
+	background-color:#161616;
+	border-radius:5px;
+	padding:10px;
+	color:#fff;
+	font-size:12px Arial;
+}

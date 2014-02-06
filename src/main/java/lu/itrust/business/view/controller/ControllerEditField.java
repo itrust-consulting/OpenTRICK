@@ -398,7 +398,7 @@ public class ControllerEditField {
 				chooses = serviceParameter.findAcronymByAnalysisAndType(id, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
 
 			// validate new value
-			String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value, chooses.toArray());
+			String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value, chooses != null ? chooses.toArray() : null);
 			if (error != null)
 
 				// return error message
