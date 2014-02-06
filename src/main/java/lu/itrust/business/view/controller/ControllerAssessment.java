@@ -1,8 +1,10 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -188,12 +190,12 @@ public class ControllerAssessment {
 	public String loadAssessmentsOfAsset(@PathVariable Integer assetId, Model model, HttpSession session, Principal principal) throws Exception {
 
 		// get analysis id
-		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
-		if (integer == null)
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		if (idAnalysis == null)
 			return null;
 
 		// load analysis object
-		Analysis analysis = serviceAnalysis.get(integer);
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		if (analysis == null)
 			return null;
 
@@ -203,7 +205,7 @@ public class ControllerAssessment {
 			return null;
 
 		// load assessments by asset into model
-		return assessmentByAsset(model, asset, serviceAssessment.findByAssetAndSelected(asset));
+		return assessmentByAsset(model, asset, serviceAssessment.findByAssetAndSelected(asset), idAnalysis);
 	}
 
 	/**
@@ -223,8 +225,8 @@ public class ControllerAssessment {
 		try {
 
 			// retrieve analysis id
-			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
-			if (integer == null)
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			// retrieve asset by id
@@ -233,7 +235,7 @@ public class ControllerAssessment {
 				return null;
 
 			// retrieve extended paramters of analysis
-			List<ExtendedParameter> parameters = serviceParameter.findExtendedByAnalysis(integer);
+			List<ExtendedParameter> parameters = serviceParameter.findExtendedByAnalysis(idAnalysis);
 
 			// retrieve assessments of analysis
 			List<Assessment> assessments = serviceAssessment.findByAssetAndSelected(asset);
@@ -259,7 +261,7 @@ public class ControllerAssessment {
 			serviceAssessment.saveOrUpdate(assessments);
 
 			// add assessments of asset to model
-			return assessmentByAsset(model, asset, assessments);
+			return assessmentByAsset(model, asset, assessments, idAnalysis);
 
 		} catch (Exception e) {
 
@@ -285,12 +287,12 @@ public class ControllerAssessment {
 	public String loadByScenario(@PathVariable Integer scenarioId, Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
-		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
-		if (integer == null)
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		if (idAnalysis == null)
 			return null;
 
 		// retrieve analysis object
-		Analysis analysis = serviceAnalysis.get(integer);
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		if (analysis == null)
 			return null;
 
@@ -300,7 +302,7 @@ public class ControllerAssessment {
 			return null;
 
 		// load all assessments by scenario to model
-		return assessmentByScenario(model, scenario, serviceAssessment.findByScenarioAndSelected(scenario));
+		return assessmentByScenario(model, scenario, serviceAssessment.findByScenarioAndSelected(scenario), idAnalysis);
 	}
 
 	/**
@@ -320,8 +322,8 @@ public class ControllerAssessment {
 		try {
 
 			// load analysis id
-			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
-			if (integer == null)
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			// load scenario
@@ -330,7 +332,7 @@ public class ControllerAssessment {
 				return null;
 
 			// load extended parameters
-			List<ExtendedParameter> parameters = serviceParameter.findExtendedByAnalysis(integer);
+			List<ExtendedParameter> parameters = serviceParameter.findExtendedByAnalysis(idAnalysis);
 
 			// load assessments
 			List<Assessment> assessments = serviceAssessment.findByScenarioAndSelected(scenario);
@@ -356,7 +358,7 @@ public class ControllerAssessment {
 			serviceAssessment.saveOrUpdate(assessments);
 
 			// load assessments of scenario to model
-			return assessmentByScenario(model, scenario, assessments);
+			return assessmentByScenario(model, scenario, assessments, idAnalysis);
 
 		} catch (Exception e) {
 
@@ -417,15 +419,24 @@ public class ControllerAssessment {
 				serviceAssessment.saveOrUpdate(assessment);
 			}
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym ("
-				+ acronym + ") was successfully updated with (" + extendedParameter.getAcronym() + ")", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() },
+					"Assessment acronym (" + acronym + ") was successfully updated with (" + extendedParameter.getAcronym() + ")", locale));
 		} catch (Exception e) {
 
 			// return error message
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym (" + acronym
-				+ ") cannot be updated to (" + extendedParameter.getAcronym() + ")", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym ("
+					+ acronym + ") cannot be updated to (" + extendedParameter.getAcronym() + ")", locale));
 		}
+
+	}
+
+	private Map<String, Double> generateAcronymValueMatching(int idAnalysis) {
+		List<ExtendedParameter> extendedParameters = serviceParameter.findExtendedByAnalysis(idAnalysis);
+		Map<String, Double> matchingParameters = new LinkedHashMap<String, Double>(extendedParameters.size());
+		for (ExtendedParameter extendedParameter : extendedParameters)
+			matchingParameters.put(extendedParameter.getAcronym(), extendedParameter.getValue());
+		return matchingParameters;
 
 	}
 
@@ -438,7 +449,7 @@ public class ControllerAssessment {
 	 * @param assessments
 	 * @return
 	 */
-	private String assessmentByAsset(Model model, Asset asset, List<Assessment> assessments) {
+	private String assessmentByAsset(Model model, Asset asset, List<Assessment> assessments, int idAnalysis) {
 		ALE ale = new ALE(asset.getName(), 0);
 		ALE aleo = new ALE(asset.getName(), 0);
 		ALE alep = new ALE(asset.getName(), 0);
@@ -446,6 +457,7 @@ public class ControllerAssessment {
 		model.addAttribute("aleo", aleo);
 		model.addAttribute("alep", alep);
 		model.addAttribute("asset", asset);
+		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
 		model.addAttribute("assessments", AssessmentManager.Sort(assessments, ale, alep, aleo));
 		asset.setALE(ale.getValue());
 		asset.setALEO(aleo.getValue());
@@ -463,7 +475,7 @@ public class ControllerAssessment {
 	 * @param assessments
 	 * @return
 	 */
-	private String assessmentByScenario(Model model, Scenario scenario, List<Assessment> assessments) {
+	private String assessmentByScenario(Model model, Scenario scenario, List<Assessment> assessments, int idAnalysis) {
 		ALE ale = new ALE(scenario.getName(), 0);
 		ALE aleo = new ALE(scenario.getName(), 0);
 		ALE alep = new ALE(scenario.getName(), 0);
@@ -471,6 +483,7 @@ public class ControllerAssessment {
 		model.addAttribute("aleo", aleo);
 		model.addAttribute("alep", alep);
 		model.addAttribute("scenario", scenario);
+		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
 		model.addAttribute("assessments", AssessmentManager.Sort(assessments, ale, alep, aleo));
 		return "analysis/components/assessmentScenario";
 	}

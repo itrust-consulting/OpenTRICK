@@ -15,7 +15,7 @@
 	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitExtendedParameters(parametersSplited[1])" var="extendedParameters" />
 	<div class="row">
 		<div class="col-md-6">
-			<div class="panel panel-primary">
+			<div class="panel panel-primary" id="Scale_Impact">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.impact" text="Impact of thread" />
 				</div>
@@ -57,7 +57,7 @@
 			</div>
 		</div>
 		<div class="col-md-6">
-			<div class="panel panel-primary">
+			<div class="panel panel-primary"  id="Scale_Probability">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.probability" text="Probability of threat occurence" />
 				</div>

@@ -398,7 +398,7 @@ public class ControllerEditField {
 				chooses = serviceParameter.findAcronymByAnalysisAndType(id, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
 
 			// validate new value
-			String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value, chooses.toArray());
+			String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value, chooses != null ? chooses.toArray() : null);
 			if (error != null)
 
 				// return error message
@@ -541,9 +541,9 @@ public class ControllerEditField {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String measure(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
-		
+
 		try {
-			
+
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis == null)
@@ -553,17 +553,17 @@ public class ControllerEditField {
 			Measure measure = serviceMeasure.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
 			if (measure == null)
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
-			
+
 			// set field
 			Field field = measure.getClass().getSuperclass().getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
-			
+
 			// retrieve parameters
 			List<Parameter> parameters = serviceParameter.findByAnalysisAndType(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
-			
+
 			// check if field is a phase
 			if (fieldEditor.getFieldName().equals("phase")) {
-				
+
 				// retireve phase
 				Integer number = 0;
 				if (!fieldEditor.getValue().equalsIgnoreCase("NA"))
@@ -573,25 +573,25 @@ public class ControllerEditField {
 				Phase phase = servicePhase.loadFromPhaseNumberAnalysis(number, idAnalysis);
 				if (phase == null)
 					return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
-				
+
 				// set new phase number
 				measure.setPhase(phase);
 
 				// set field data
 			} else if (!setFieldData(field, measure, fieldEditor, null))
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
-			
+
 			// compute new cost
 			Measure.ComputeCost(measure, parameters);
-			
+
 			// update measure
 			serviceMeasure.saveOrUpdate(measure);
-			
+
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
 
 		} catch (Exception e) {
-			
+
 			// return error
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
@@ -611,14 +611,14 @@ public class ControllerEditField {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String maturityMeasure(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
-		
+
 		try {
-			
+
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-			
+
 			// retrieve measure
 			Measure measure = serviceMeasure.findOne(fieldEditor.getId());
 			if (measure == null)
@@ -626,7 +626,7 @@ public class ControllerEditField {
 
 			// check if field is implementationrate
 			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
-				
+
 				// retrieve parameters
 				List<Parameter> parameters = serviceParameter.findByAnalysisAndType(idAnalysis, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
 
@@ -638,36 +638,36 @@ public class ControllerEditField {
 
 				// parse parameters
 				for (Parameter parameter : parameters) {
-					
+
 					// TODO CHECK ???
 					if (Math.abs(parameter.getValue() - value) < 1e-5) {
-						
+
 						// set new implementation rate
 						measure.setImplementationRate(parameter);
-						
+
 						// recompute cost
 						Measure.ComputeCost(measure, simpleParameters);
-						
+
 						// update measure
 						serviceMeasure.saveOrUpdate(measure);
-						
+
 						// return success message
 						return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
 					}
 				}
-				
+
 				// return error message
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			} else
-				
+
 				// update as if it would be a normal measure
 				return measure(fieldEditor, session, locale, principal);
 		} catch (Exception e) {
-			
+
 			// return error
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));	
-		}	
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		}
 	}
 
 	/**
@@ -782,7 +782,8 @@ public class ControllerEditField {
 	protected boolean setFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) throws IllegalArgumentException, IllegalAccessException, ParseException,
 			NumberFormatException {
 
-		// check for data type to set field with data with cast to correct data type
+		// check for data type to set field with data with cast to correct data
+		// type
 		if (fieldEditor.getType().equalsIgnoreCase("string"))
 			field.set(object, (String) fieldEditor.getValue());
 		else if (fieldEditor.getType().equalsIgnoreCase("integer"))
