@@ -233,19 +233,21 @@ public class ControllerAnalysis {
 
 		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
 
-		List<UserAnalysisRight> uars =serviceUserAnalysisRight.getAllByUniqueAnalysis(analysisID); 
+		Analysis analysis = serviceAnalysis.get(analysisID);
 		
+		List<UserAnalysisRight> uars = analysis.getUserRights();
+
 		for (UserAnalysisRight uar : uars) {
 			userrights.put(uar.getUser(), uar.getRight());
 		}
 
 		for (User user : serviceUser.loadAll()) {
 			if (!userrights.containsKey(user))
-					userrights.put(user, null);
+				userrights.put(user, null);
 		}
 
 		model.addAttribute("analysisRigths", AnalysisRight.values());
-		model.addAttribute("analysis", serviceAnalysis.get(analysisID));
+		model.addAttribute("analysis", analysis);
 		model.addAttribute("userrights", userrights);
 		return "analysis/manageuseranalysisrights";
 	}
@@ -261,10 +263,72 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisID}/ManageAccess/Update")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
-	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model) throws Exception {
-		model.addAttribute("analysisrights", serviceUserAnalysisRight.getAllByUniqueAnalysis(analysisID));
-		return "analysis/manageuseranalysisrights";
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
+	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale) throws Exception {
+
+		try {
+
+			Map<User, UserAnalysisRight> userrights = new LinkedHashMap<>();
+
+			Analysis analysis = serviceAnalysis.get(analysisID);
+			
+			List<UserAnalysisRight> uars = analysis.getUserRights();
+
+			
+			for (UserAnalysisRight uar : uars) {
+				userrights.put(uar.getUser(), uar);
+			}
+
+			// create json parser
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(value);
+
+			for (User user : serviceUser.loadAll()) {
+
+				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
+
+				if (userrights.containsKey(user)){
+					UserAnalysisRight uar = userrights.get(user);
+					if (useraccess==-1) {
+						analysis.removeRights(user);
+						serviceUserAnalysisRight.delete(uar);
+						serviceAnalysis.saveOrUpdate(analysis);
+						userrights.remove(user);
+					} else {
+						uar.setRight(AnalysisRight.valueOf(useraccess));
+						serviceUserAnalysisRight.saveOrUpdate(uar);
+						serviceAnalysis.saveOrUpdate(analysis);
+					}
+				} else {
+					
+					if (!user.getCustomers().contains(analysis.getCustomer()))
+							user.addCustomer(analysis.getCustomer());
+					
+					if (useraccess!=-1){
+						UserAnalysisRight uar = new UserAnalysisRight(user, analysis, AnalysisRight.valueOf(useraccess));
+						userrights.put(user, uar);
+						serviceUserAnalysisRight.save(uar);
+						serviceAnalysis.saveOrUpdate(analysis);
+					}
+						
+				}
+			}
+
+			
+			
+			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights users successfully updated!", locale));
+			
+			model.addAttribute("analysisRigths", AnalysisRight.values());
+			model.addAttribute("analysis", analysis);
+			model.addAttribute("userrights", userrights);
+
+			return manageaccessrights(analysisID, principal, model);
+		} catch (Exception e) {
+			// return errors
+			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			e.printStackTrace();
+			return manageaccessrights(analysisID, principal, model);
+		}
 	}
 
 	// *****************************************************************

@@ -21,7 +21,7 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button id="addAnalysisButton" type="button" class="btn btn-primary" onclick="saveAnalysis('analysis_form')">
+					<button id="addAnalysisButton" type="button" class="btn btn-primary" onclick="saveAnalysis('analysis_form', 'section_admin_analysis')">
 						<spring:message code="label.analysis.add.form" text="Add Analysis" />
 					</button>
 				</div>
@@ -41,32 +41,6 @@
 				<div class="modal-footer">
 					<button id="manageAnalysisAccessModelButton" type="button" class="btn btn-primary" onclick="updatemanageAnalysisAccess('userrightsform')">
 						<spring:message code="label.analysis.update" text="Update" />
-					</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="modal fade" id="deleteAnalysisModel" tabindex="-1" aria-hidden="true" aria-labelledby="deleteAnalysis" role="dialog">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="deleteAnalysisModel-title">
-						<spring:message code="title.analysis.delete" text="Delete an analysis" />
-					</h4>
-				</div>
-				<div class="modal-body">
-					<div id="deleteAnalysisBody">Your question here...</div>
-				</div>
-				<div id="deleteprogressbar" class="progress progress-striped active" hidden="true" style="width: 50%">
-					<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-				</div>
-				<div class="modal-footer">
-					<button id="deleteanalysisbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
-						<spring:message code="label.answer.yes" text="Yes" />
-					</button>
-					<button id="deleteanalysisbuttonCancel" type="button" class="btn" data-dismiss="modal">
-						<spring:message code="label.answer.cancel" text="Cancel" />
 					</button>
 				</div>
 			</div>

@@ -25,9 +25,11 @@
 			<div class="content" id="content" role="main" data-spy="scroll">
 				<div id="messages"></div>
 				<jsp:include page="user/users.jsp" />
-				<jsp:include page="../knowledgebase/customer/customers.jsp" />
-				<jsp:include page="../knowledgebase/customer/widgetcontent.jsp" />
-				<jsp:include page="widget.jsp" />
+				<jsp:include page="user/widgetcontent.jsp" />
+				<jsp:include page="./customer/customers.jsp" />
+				<jsp:include page="./customer/widgetcontent.jsp" />
+				<jsp:include page="./analysis/analyses.jsp" />
+				<jsp:include page="./analysis/widgetContent.jsp" />
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>

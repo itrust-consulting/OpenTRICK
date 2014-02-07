@@ -4,16 +4,13 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div>
-	<h3>
-		<spring:message code="label.manage.analysisaccess" text="Manage access of analysis" />
-		:
-	</h3>
 	<p>
 		<spring:message text="Description: ${analysis.label}, Version: ${analysis.version}, Customer: ${analysis.customer.organisation}" />
 	</p>
+	<jsp:include page="../successErrors.jsp" />
 	<c:if test="${!empty userrights}">
 		<spring:message code="label.select.user" text="Select a user: " />
-		<select id="userselect" name="userselect">
+		<select id="userselect" name="userselect" class="form-control">
 			<c:forEach items="${userrights.keySet()}" var="user" varStatus="status">
 				<option value="${user.id}">${user.firstName}&nbsp;${user.lastName}</option>
 			</c:forEach>
@@ -32,15 +29,18 @@
 				previous = this.value;
 			});
 		</script>
+		<form id="userrightsform" name="userrightsform" action="" method="post">
+		<input name="analysis" type="hidden" value="${analysis.id}" />
 		<c:forEach items="${userrights.keySet()}" var="user" varStatus="status">
 			<div id="user_${user.id}" ${status.index != 0?"hidden=true":""}>
 				<c:set var="analysisRight" value="${userrights.get(user)}" scope="request" />
-				<input type="radio" value="-1" name="analysisRight_${user.id}">NONE<br>
+				<input type="radio" value="-1" name="analysisRight_${user.id}" ${analysisRight == null?'checked="checked"':'' }>&nbsp;NONE<br>
 				<c:forEach items="${analysisRigths}" var="right">
-					<input type="radio" ${analysisRight == right?'checked="checked"':'' } value="${right.ordinal()}" name="analysisRight_${user.id}" />${right}
+					<input type="radio" ${analysisRight == right?'checked="checked"':'' } value="${right.ordinal()}" name="analysisRight_${user.id}" />&nbsp;${right}
 					<br>
 				</c:forEach>
 			</div>
 		</c:forEach>
+		</form>
 	</c:if>
 </div>
