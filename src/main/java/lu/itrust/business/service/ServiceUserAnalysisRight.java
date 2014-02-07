@@ -14,6 +14,8 @@ public interface ServiceUserAnalysisRight {
 
 	List<UserAnalysisRight> getAllByUser(User user) throws Exception;
 
+	List<UserAnalysisRight> getAllByUniqueAnalysis(int analysisid) throws Exception;
+	
 	List<UserAnalysisRight> getAllByUniqueAnalysis(Analysis analysis) throws Exception;
 
 	List<UserAnalysisRight> getAllByAnalysisIdentifier(String identifier) throws Exception;
