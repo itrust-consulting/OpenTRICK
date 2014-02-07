@@ -135,18 +135,23 @@ function deleteAnalysis(analysisId) {
 	}
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.DELETE)) {
-		$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis") + "?");
+		$("#deleteAnalysisBody").html(
+				MessageResolver("label.analysis.question.delete",
+						"Are you sure that you want to delete the analysis")
+						+ "?");
+		
 		$("#deleteanalysisbuttonYes").click(function() {
-			$("#deleteprogressbar").removeAttr("hidden");
-			$("#deleteanalysisbuttonYes").attr("disabled", "disabled");
+			$("#deleteAnalysisModel .modal-header > .close").hide();
+			$("#deleteprogressbar").show();
+			$("#deleteanalysisbuttonYes").prop("disabled", true);
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
 				type : "GET",
 				contentType : "application/json",
 				success : function(response) {
-					$("#deleteprogressbar").attr("hidden", true);
-					$("#deleteanalysisbuttonYes").removeAttr("disabled");
-					$("#deleteAnalysisModel").modal('hide');
+					$("#deleteprogressbar").hide();
+					$("#deleteanalysisbuttonYes").prop("disabled",false);
+					$("#deleteAnalysisModel").modal('toggle');
 					if (response.success != undefined) {
 						reloadSection("section_analysis");
 					} else if (response.error != undefined) {
@@ -158,6 +163,8 @@ function deleteAnalysis(analysisId) {
 			});
 			return false;
 		});
+		$("#deleteanalysisbuttonYes").prop("disabled",false);
+		$("#deleteAnalysisModel .modal-header > .close").show();
 		$("#deleteAnalysisModel").modal('show');
 	} else
 		permissionError();
@@ -434,5 +441,95 @@ function exportAnalysis(analysisId) {
 		});
 	} else
 		permissionError();
+	return false;
+}
+
+function hasErrors(errors, targetName) {
+	var targets = {
+		history : function() {
+			for ( var error in errors) {
+				switch (error) {
+				case "error":
+				case "author":
+				case "version":
+				case "comment":
+				case "date":
+					return true;
+				}
+			}
+			return false;
+		}
+	};
+	if ($.isFunction(targets[targetName]))
+		return targets[targetName]();
+	return false;
+}
+
+function duplicateAnalysis(form, analyisId) {
+	var oldVersion = $("#history_oldVersion").prop("value");
+	$(".progress-striped").show();
+	$("#history_submit_button").prop("disabled", true);
+	$
+			.ajax({
+				url : context + "/Analysis/Duplicate/" + analyisId,
+				type : "post",
+				aync : true,
+				data : $("#" + form).serialize(),
+				success : function(response) {
+					var alerts = $("#addHistoryModal .label-danger");
+					if (alerts.length)
+						alerts.remove();
+					if (response["success"] != undefined) {
+						showSuccess($("#addHistoryModal .modal-body")[0],
+								response["success"]);
+						setTimeout("location.reload()", 2000);
+					} else if (hasErrors(response, "history")) {
+						$(".progress-striped").hide();
+						$("#history_submit_button").prop("disabled", false);
+						$("#history_oldVersion").prop("value", oldVersion);
+						for ( var error in response) {
+							var label = document.createElement("label");
+							$(label).attr("class", "label label-danger");
+							$(label).text(response[error]);
+							switch (error) {
+							case "date":
+							case "error":
+								$(label).appendTo(
+										$("#addHistoryModal .modal-body"));
+								break;
+							case "author":
+								$(label)
+										.appendTo(
+												$(
+														"#addHistoryModal input[name='author']")
+														.parent());
+								break;
+							case "version":
+								$(label)
+										.appendTo(
+												$(
+														"#addHistoryModal input[name='version']")
+														.parent());
+								break;
+							case "comment":
+								$(label)
+										.appendTo(
+												$(
+														"#addHistoryModal textarea[name='comment']")
+														.parent());
+								break;
+							}
+						}
+						return false;
+					} else {
+						$("#alert-dialog .modal-body")
+								.html(
+										MessageResolver(
+												"error.unknown.data.loading",
+												"An unknown error occurred during data loading"));
+						$("#alert-dialog").modal("toggle");
+					}
+				}
+			});
 	return false;
 }

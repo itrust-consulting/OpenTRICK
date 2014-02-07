@@ -10,11 +10,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisRight;
@@ -25,6 +25,7 @@ import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSqLite;
 import lu.itrust.business.component.AssessmentManager;
@@ -38,6 +39,7 @@ import lu.itrust.business.service.ServiceActionPlanType;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceCustomer;
+import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceHistory;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceNorm;
@@ -50,6 +52,7 @@ import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerAnalysisImport;
 import lu.itrust.business.task.WorkerExportAnalysis;
+import lu.itrust.business.validator.HistoryValidator;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -143,6 +146,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceHistory serviceHistory;
+
+	@Autowired
+	private ServiceDataValidation serviceDataValidation;
 
 	// ******************************************************************************************************************
 	// * Request mappers
@@ -339,6 +345,9 @@ public class ControllerAnalysis {
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
 		String referer = request.getHeader("Referer");
 		if (referer != null && referer.contains("/trickservice/KnowledgeBase")) {
+			User user = serviceUser.get(principal.getName());
+			if (!user.isAutorise(RoleType.ROLE_CONSULTANT))
+				return "errors/403";
 			model.addAttribute("analyses", serviceAnalysis.loadProfiles());
 			model.addAttribute("login", principal.getName());
 			model.addAttribute("KowledgeBaseView", true);
@@ -546,7 +555,7 @@ public class ControllerAnalysis {
 			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)) {
 
 				// create/update analysis object and set access rights
-				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale);
+				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
 			} else {
 
 				// throw error
@@ -584,11 +593,11 @@ public class ControllerAnalysis {
 
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
-			if (selectedAnalysis == analysisId)
+			if (selectedAnalysis != null && selectedAnalysis == analysisId)
 				session.removeAttribute("selectedAnalysis");
 
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));
 		} catch (Exception e) {
 
 			// return error message
@@ -636,52 +645,6 @@ public class ControllerAnalysis {
 	}
 
 	/**
-	 * save: <br>
-	 * Description
-	 * 
-	 * @param history
-	 * @param result
-	 * @param analysisId
-	 * @param session
-	 * @param attributes
-	 * @return
-	 */
-	@RequestMapping(value = "/{analysisId}/NewVersion/Save", method = RequestMethod.POST)
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String save(@ModelAttribute @Valid History history, BindingResult result, @PathVariable Integer analysisId, HttpSession session, RedirectAttributes attributes, Locale locale,
-			Principal principal) {
-
-		// check if hisotry has errors
-		if (result.hasFieldErrors())
-
-			// return to form
-			return "analysis/components/widgets/historyForm";
-
-		try {
-
-			// retrieve analysis version
-			String version = serviceAnalysis.getVersionOfAnalysis(analysisId);
-
-			// check if version is less or equal the current version
-			if (History.VersionComparator(history.getVersion(), version) != 1) {
-
-				// retrun error
-				result.rejectValue("version", "error.history.version.less_current", "Version of History entry must be greater than last Version of Analysis!");
-				return "analysis/components/widgets/historyForm";
-			}
-
-			// continue to duplicate the analysis
-			return createNewVersion(history, analysisId, principal, locale);
-		} catch (Exception e) {
-
-			// return errors
-			e.printStackTrace();
-			result.reject(e.getMessage());
-			return "analysis/components/widgets/historyForm";
-		}
-	}
-
-	/**
 	 * createNewVersion: <br>
 	 * Description
 	 * 
@@ -692,17 +655,40 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
+	@RequestMapping(value = "/Duplicate/{analysisId}", headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String createNewVersion(@ModelAttribute History history, @PathVariable int analysisId, Principal principal, Locale locale) throws Exception {
-
-		// prepare permission verifier
-		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
-
-		// check if user is authorized to duplicate the analysis
-		if (!permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY))
-			return JsonMessage.Error(messageSource.getMessage("error.notAuthorized", null, "Permission denied!", locale));
-
+	String createNewVersion(@ModelAttribute History history, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale) throws Exception {
 		try {
+
+			Map<String, String> errors = new LinkedHashMap<String, String>();
+
+			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(history.getClass());
+
+			if (validator == null)
+				serviceDataValidation.register(validator = new HistoryValidator());
+
+			history.setDate(new Date(System.currentTimeMillis()));
+
+			for (Entry<String, String> entry : validator.validate(history).entrySet())
+				errors.put(entry.getKey(), serviceDataValidation.ParseError(entry.getValue(), messageSource, locale));
+
+			if (!errors.containsKey("version")) {
+
+				// retrieve analysis version
+				String version = serviceAnalysis.getVersionOfAnalysis(analysisId);
+
+				// check if version is less or equal the current version
+				if (History.VersionComparator(history.getVersion(), version) != 1)
+					// retrun error
+					errors.put("version",
+							messageSource.getMessage("error.history.version.less_current", null, "Version of History entry must be greater than last Version of Analysis!", locale));
+			}
+
+			if (!errors.isEmpty()) {
+				ObjectMapper mapper = new ObjectMapper();
+				return mapper.writeValueAsString(errors);
+			}
 
 			// retrieve analysis object
 			Analysis analysis = serviceAnalysis.get(analysisId);
@@ -730,7 +716,6 @@ public class ControllerAnalysis {
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.duplicate", null, "Analysis was successfully duplicated", locale));
 		} catch (CloneNotSupportedException e) {
-
 			// return dubplicate error message
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicate!", locale));
@@ -961,7 +946,7 @@ public class ControllerAnalysis {
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""
-			+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) userSqLite.getSize());
@@ -987,9 +972,11 @@ public class ControllerAnalysis {
 	 * @param owner
 	 * @param source
 	 * @param locale
+	 * @param session
+	 *            TODO
 	 * @return
 	 */
-	private boolean buildAnalysis(Map<String, String> errors, User owner, String source, Locale locale) {
+	private boolean buildAnalysis(Map<String, String> errors, User owner, String source, Locale locale, HttpSession session) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
@@ -1069,6 +1056,9 @@ public class ControllerAnalysis {
 				analysis.addUserRight(uar);
 				serviceAnalysis.save(analysis);
 			}
+			if (session != null)
+				session.setAttribute("currentCustomer", customer.getOrganisation());
+
 			return true;
 
 		} catch (Exception e) {

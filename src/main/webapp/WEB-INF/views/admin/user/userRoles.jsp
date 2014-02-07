@@ -12,7 +12,7 @@
 				</c:forEach>
 			</tr>
 			<c:forEach items="${roles}" var="role">
-				<td><input id="${role}" name="${role}" class="form-control" type="checkbox" ${userRoles.contains(role)?"checked":""}/></td>
+				<td><input id="${role}" name="${role}" class="form-control" type="checkbox" ${userRoles.contains(role)?"checked":""} /></td>
 			</c:forEach>
 		</tbody>
 	</table>

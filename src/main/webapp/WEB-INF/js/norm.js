@@ -48,6 +48,7 @@ function deleteNorm(normId, name) {
 				return false;
 			}
 		});
+		$("#deletenormbuttonYes").unbind( "click" );
 		$("#deleteNormModel").modal('toggle');
 		return false;
 	});
@@ -90,17 +91,17 @@ function importNewNorm(button) {
 		type : 'POST',
 		xhr : function() { // Custom XMLHttpRequest
 			var myXhr = $.ajaxSettings.xhr();
-			/*if (myXhr.upload) { // Check if upload property exists
-				myXhr.upload.addEventListener('progress',
-						progressHandlingFunction, false); // For handling the
-															// progress of the
-															// upload
-			}*/
+			/*
+			 * if (myXhr.upload) { // Check if upload property exists
+			 * myXhr.upload.addEventListener('progress',
+			 * progressHandlingFunction, false); // For handling the // progress
+			 * of the // upload }
+			 */
 			return myXhr;
 		},
 		// Ajax events
-		//beforeSend : beforeSendHandler,
-		success : function (response){
+		// beforeSend : beforeSendHandler,
+		success : function(response) {
 			if (response["success"] != undefined) {
 				if (taskManager == undefined)
 					taskManager = new TaskManager();
@@ -109,11 +110,11 @@ function importNewNorm(button) {
 			} else if (message["error"]) {
 				$("#alert-dialog .modal-body").html(message["error"]);
 				$("#alert-dialog").modal("toggle");
-				
+
 			}
-			
+
 		},
-		//error : errorHandler,
+		// error : errorHandler,
 		// Form data
 		data : formData,
 		// Options to tell jQuery not to process data or worry about

@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceHistory;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.validator.HistoryValidator;
@@ -51,6 +52,9 @@ public class ControllerHistory {
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
+	@Autowired
+	private ServiceDataValidation serviceDataValidation;
+
 	/**
 	 * initBinder: <br>
 	 * Description
@@ -59,7 +63,9 @@ public class ControllerHistory {
 	 */
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
-		binder.replaceValidators(new HistoryValidator());
+		HistoryValidator historyValidator = new HistoryValidator();
+		serviceDataValidation.register(historyValidator);
+		binder.replaceValidators(historyValidator);
 	}
 
 	/**
@@ -95,26 +101,24 @@ public class ControllerHistory {
 	 */
 	@RequestMapping("/{historyid}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String displayHistory(@PathVariable("historyId") Integer historyId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale,
-			Principal principal) throws Exception {
+	public String displayHistory(@PathVariable("historyId") Integer historyId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
+			Locale locale, Principal principal) throws Exception {
 
 		History history = serviceHistory.get(historyId);
 		if (history == null) {
-			
+
 			// return error message and redirect to analysis page
 			String msg = messageSource.getMessage("errors.history.notexist", null, "History does not exist", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
 			return "redirect:/Analysis";
 		} else {
-			
+
 			// add history object to model
 			model.put("history", history);
-			
+
 			return "analysis/history/showHistory";
 		}
 	}
-
-
 
 	/**
 	 * editHistory: <br>
@@ -129,7 +133,7 @@ public class ControllerHistory {
 	 * @return
 	 * @throws Exception
 	 */
-	//@RequestMapping("Analysis/{analysisId}/History/Edit/{historyId}")
+	// @RequestMapping("Analysis/{analysisId}/History/Edit/{historyId}")
 	public String editHistory(@PathVariable("analysisId") Integer analysisId, @PathVariable("historyId") Integer historyId, HttpSession session, Map<String, Object> model,
 			RedirectAttributes redirectAttributes, Locale locale) throws Exception {
 		History history = (History) session.getAttribute("history");
@@ -157,7 +161,7 @@ public class ControllerHistory {
 	 * @return
 	 * @throws Exception
 	 */
-	//@RequestMapping("Analysis/{analysisId}/History/Update/{historyId}")
+	// @RequestMapping("Analysis/{analysisId}/History/Update/{historyId}")
 	public String updateHistory(@PathVariable("analysisId") Integer analysisId, @PathVariable("historyId") Integer historyId, @ModelAttribute("history") @Valid History history,
 			BindingResult result, RedirectAttributes redirectAttributes, Locale locale) throws Exception {
 		if (history == null || history.getId() != historyId) {

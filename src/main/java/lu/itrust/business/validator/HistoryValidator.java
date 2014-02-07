@@ -40,7 +40,7 @@ public class HistoryValidator extends ValidatorFieldImpl implements Validator {
 		if (history.getVersion() == null)
 			arg1.rejectValue("version", "error.history.version.null",
 					"Version is required");
-		else if (!history.getVersion().matches(
+		else if (!arg1.hasFieldErrors("version") && !history.getVersion().matches(
 				Constant.REGEXP_VALID_ANALYSIS_VERSION))
 			arg1.rejectValue("version", "error.history.version.not_meet_regex",
 					"History version not acceptable");
@@ -52,12 +52,10 @@ public class HistoryValidator extends ValidatorFieldImpl implements Validator {
 
 	@Override
 	public String validate(Object o, String fieldName, Object candidate) {
-		System.out.println(o);
 		if (o == null || !supports(o.getClass()) || fieldName == null
 				|| fieldName.trim().isEmpty())
 			return null;
 		History history = (History) o;
-		System.out.println(candidate);
 		switch (fieldName) {
 		case "date":
 			if (history.getId() > 1 && history.getDate() != null

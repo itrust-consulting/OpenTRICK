@@ -147,17 +147,23 @@
 					<tr class="panel-footer" style="font-weight: bold;">
 						<td colspan="9"><spring:message
 								code="label.assessment.total.ale" text="Total" /></td>
-						<td><spring:htmlEscape defaultHtmlEscape="true">
-								<fmt:formatNumber value="${alep.value}" maxFractionDigits="3"
-									minFractionDigits="3" />
+						<td
+							title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="3" minFractionDigits="3" />"><spring:htmlEscape
+								defaultHtmlEscape="true">
+								<fmt:formatNumber value="${alep.value}" maxFractionDigits="0"
+									minFractionDigits="0" />
 							</spring:htmlEscape></td>
-						<td><spring:htmlEscape defaultHtmlEscape="true">
-								<fmt:formatNumber value="${ale.value}" maxFractionDigits="3"
-									minFractionDigits="3" />
+						<td
+							title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="3" minFractionDigits="3" />"><spring:htmlEscape
+								defaultHtmlEscape="true">
+								<fmt:formatNumber value="${ale.value}" maxFractionDigits="0"
+									minFractionDigits="0" />
 							</spring:htmlEscape></td>
-						<td><spring:htmlEscape defaultHtmlEscape="true">
-								<fmt:formatNumber value="${aleo.value}" maxFractionDigits="3"
-									minFractionDigits="3" />
+						<td
+							title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="3" minFractionDigits="3" />"><spring:htmlEscape
+								defaultHtmlEscape="true">
+								<fmt:formatNumber value="${aleo.value}" maxFractionDigits="0"
+									minFractionDigits="0" />
 							</spring:htmlEscape></td>
 						<td colspan="6" />
 					</tr>

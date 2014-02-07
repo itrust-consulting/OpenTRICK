@@ -72,5 +72,4 @@
 		</div>
 	</div>
 </div>
-<jsp:include page="widgetContent.jsp" />
 <script type="text/javascript" src="<spring:url value="js/analysis.js" />"></script>
