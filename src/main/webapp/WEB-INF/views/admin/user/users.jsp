@@ -13,16 +13,10 @@
 		<div class="panel panel-default">
 			<div class="panel-heading" style="min-height: 60px">
 				<ul class="nav nav-pills" id="menu_user">
-					<li><a href="#" onclick="return newUser();"><span
-							class="glyphicon glyphicon-plus primary"></span> <spring:message
-								code="label.action.add" text="Add" /> </a></li>
-					<li class="disabled" trick-selectable="true"><a href="#"
-						onclick="return editSingleUser();"><span
-							class="glyphicon glyphicon-edit danger"></span> <spring:message
+					<li><a href="#" onclick="return newUser();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" text="Add" /> </a></li>
+					<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleUser();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 								code="label.action.edit" text="Edit" /> </a></li>
-					<li class="disabled" trick-selectable="true"><a href="#"
-						onclick="return deleteUser();"><span
-							class="glyphicon glyphicon-remove"></span> <spring:message
+					<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteUser();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 								code="label.action.delete" text="Delete" /> </a></li>
 				</ul>
 			</div>
@@ -30,8 +24,7 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th><input type="checkbox" class="checkbox"
-							onchange="return checkControlChange(this,'user')"></th>
+							<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'user')"></th>
 							<th><spring:message code="label.user.login" /></th>
 							<th><spring:message code="label.user.firstName" /></th>
 							<th><spring:message code="label.user.lastName" /></th>
@@ -43,15 +36,12 @@
 					<tbody>
 						<c:forEach items="${users}" var="user">
 							<tr trick-id="${user.id}" ondblclick="return editSingleUser(${user.id});">
-								<td><input type="checkbox" class="checkbox"
-									onchange="return updateMenu('#section_user','#menu_user');">
-								</td>
+								<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_user','#menu_user');"></td>
 								<td>${user.login}</td>
 								<td>${user.firstName}</td>
 								<td>${user.lastName}</td>
 								<td>${user.email}</td>
 								<td><spring:message code="label.user.enable.${user.enable}" /></td>
-
 								<td><c:forEach items="${user.roles}" var="role">
 										<spring:message code="label.role.${role.type}" />
 									</c:forEach></td>

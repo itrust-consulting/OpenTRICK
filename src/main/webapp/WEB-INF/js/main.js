@@ -42,10 +42,7 @@ function log(msg) {
 }
 
 function permissionError() {
-	$("#alert-dialog .modal-body")
-			.html(
-					MessageResolver("error.notAuthorized",
-							"Insufficient permissions!"));
+	$("#alert-dialog .modal-body").html(MessageResolver("error.notAuthorized", "Insufficient permissions!"));
 	$("#alert-dialog").modal("toggle");
 	return false;
 }
@@ -111,11 +108,7 @@ function MessageResolver(code, defaulttext, params) {
 function extract(data) {
 	var parser = new DOMParser();
 	var doc = parser.parseFromString(data, "text/html");
-	$("#content")
-			.html(
-					doc.getElementById("login") == null ? doc
-							.getElementById("content").innerHTML : doc
-							.getElementById("login").outerHTML);
+	$("#content").html(doc.getElementById("login") == null ? doc.getElementById("content").innerHTML : doc.getElementById("login").outerHTML);
 	return false;
 }
 
@@ -217,10 +210,8 @@ function TrickCarousel(table) {
 		this.theader = $(this.table).find("th");
 		this.tdata = $(this.table).find("td");
 		this.count = $(this.table).find("th[trick-table-part]").length - 1;
-		this.navLeft = $($(this.table).parent()).find(
-				"a[control-trick-table='left']");
-		this.navRight = $($(this.table).parent()).find(
-				"a[control-trick-table='right']");
+		this.navLeft = $($(this.table).parent()).find("a[control-trick-table='left']");
+		this.navRight = $($(this.table).parent()).find("a[control-trick-table='right']");
 		this.showGroup(1);
 		var that = this;
 
@@ -293,15 +284,13 @@ function FieldEditor(element, validator) {
 	this.callback = null;
 
 	FieldEditor.prototype.GenerateInputField = function() {
-		if ($(this.element).find("input").length
-				|| $(this.element).find("select").length)
+		if ($(this.element).find("input").length || $(this.element).find("select").length)
 			return true;
 		if (!this.LoadData())
 			return true;
 		if (!this.choose.length) {
 			this.inputField = document.createElement("input");
-			this.realValue = this.element.hasAttribute("real-value") ? $(
-					this.element).attr("real-value") : null;
+			this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
 		} else {
 			this.inputField = document.createElement("select");
 			this.inputField.setAttribute("style", "min-width:60px;");
@@ -316,9 +305,7 @@ function FieldEditor(element, validator) {
 		}
 		var that = this;
 		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null
-				&& this.realValue != undefined ? this.realValue
-				: this.defaultValue);
+		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 		$(this.inputField).blur(function() {
 			return that.Save(that);
 		});
@@ -390,10 +377,7 @@ function FieldEditor(element, validator) {
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
-		$(this.inputField).prop(
-				"value",
-				this.realValue != null ? this.realValue : $(this.element)
-						.text().trim());
+		$(this.inputField).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
 		$(this.element).html(this.inputField);
 		$(this.inputField).focus();
 		return false;
@@ -428,40 +412,29 @@ function FieldEditor(element, validator) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
-				$
-						.ajax({
-							url : context + "/EditField/" + that.controllor,
-							type : "post",
-							async : true,
-							data : '{"id":'
-									+ that.classId
-									+ ', "fieldName":"'
-									+ that.fieldName
-									+ '", "value":"'
-									+ defaultValueByType($(that.inputField)
-											.prop("value"), that.fieldType,
-											true) + '", "type": "'
-									+ that.fieldType + '"}',
-							contentType : "application/json",
-							success : function(response) {
-								if (response["success"] != undefined) {
-									that.UpdateUI();
-									if (that.callback != null
-											&& that.callback != undefined)
-										setTimeout(that.callback, 10);
-								} else {
-									$("#alert-dialog .modal-body").html(
-											response["error"]);
-									$("#alert-dialog").modal("toggle");
-								}
-								return true;
-							},
-							error : function(jqXHR, textStatus, errorThrown) {
-								$("#alert-dialog .modal-body").text(
-										jqXHR.responseText);
-								$("#alert-dialog").modal("toggle");
-							},
-						});
+				$.ajax({
+					url : context + "/EditField/" + that.controllor,
+					type : "post",
+					async : true,
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
+							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
+					contentType : "application/json",
+					success : function(response) {
+						if (response["success"] != undefined) {
+							that.UpdateUI();
+							if (that.callback != null && that.callback != undefined)
+								setTimeout(that.callback, 10);
+						} else {
+							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog").modal("toggle");
+						}
+						return true;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						$("#alert-dialog .modal-body").text(jqXHR.responseText);
+						$("#alert-dialog").modal("toggle");
+					},
+				});
 			} else {
 				that.Rollback();
 				return false;
@@ -490,41 +463,29 @@ function ExtendedFieldEditor(element) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
-				$
-						.ajax({
-							url : context + "/EditField/" + that.controllor,
-							type : "post",
-							async : true,
-							data : '{"id":'
-									+ that.classId
-									+ ', "fieldName":"'
-									+ that.fieldName
-									+ '", "value":"'
-									+ defaultValueByType($(that.inputField)
-											.prop("value"), that.fieldType,
-											true) + '", "type": "'
-									+ that.fieldType + '"}',
-							contentType : "application/json",
-							success : function(response) {
-								if (response["success"] != undefined) {
-									if (that.fieldName == "acronym")
-										setTimeout("updateAssessmentAcronym('"
-												+ that.classId + "', '"
-												+ that.defaultValue + "')", 100);
-									return reloadSection("section_parameter");
-								} else {
-									$("#alert-dialog .modal-body").html(
-											response["error"]);
-									$("#alert-dialog").modal("toggle");
-								}
-								return true;
-							},
-							error : function(jqXHR, textStatus, errorThrown) {
-								$("#alert-dialog .modal-body").text(
-										jqXHR.responseText);
-								$("#alert-dialog").modal("toggle");
-							},
-						});
+				$.ajax({
+					url : context + "/EditField/" + that.controllor,
+					type : "post",
+					async : true,
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
+							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
+					contentType : "application/json",
+					success : function(response) {
+						if (response["success"] != undefined) {
+							if (that.fieldName == "acronym")
+								setTimeout("updateAssessmentAcronym('" + that.classId + "', '" + that.defaultValue + "')", 100);
+							return reloadSection("section_parameter");
+						} else {
+							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog").modal("toggle");
+						}
+						return true;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						$("#alert-dialog .modal-body").text(jqXHR.responseText);
+						$("#alert-dialog").modal("toggle");
+					},
+				});
 			} else {
 				that.Rollback();
 				return false;
@@ -549,51 +510,37 @@ function AssessmentFieldEditor(element) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
-				$
-						.ajax({
-							url : context + "/EditField/" + that.controllor,
-							type : "post",
-							async : true,
-							data : '{"id":'
-									+ that.classId
-									+ ', "fieldName":"'
-									+ that.fieldName
-									+ '", "value":"'
-									+ defaultValueByType($(that.inputField)
-											.prop("value"), that.fieldType,
-											true) + '", "type": "'
-									+ that.fieldType + '"}',
-							contentType : "application/json",
-							success : function(response) {
-								console.log(response);
-								if (response["success"] != undefined) {
-									if (application.modal["AssessmentViewer"] != undefined)
-										application.modal["AssessmentViewer"]
-												.Load();
-									else {
-										$("#info-dialog .modal-body").html(
-												response["success"]);
-										$("#info-dialog").prop("style",
-												"z-index:1070");
-										$("#info-dialog").modal("toggle");
+				$.ajax({
+					url : context + "/EditField/" + that.controllor,
+					type : "post",
+					async : true,
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
+							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
+					contentType : "application/json",
+					success : function(response) {
+						console.log(response);
+						if (response["success"] != undefined) {
+							if (application.modal["AssessmentViewer"] != undefined)
+								application.modal["AssessmentViewer"].Load();
+							else {
+								$("#info-dialog .modal-body").html(response["success"]);
+								$("#info-dialog").prop("style", "z-index:1070");
+								$("#info-dialog").modal("toggle");
 
-									}
-								} else {
-									$("#alert-dialog .modal-body").html(
-											response["error"]);
-									$("#alert-dialog").prop("style",
-											"z-index:1070");
-									$("#alert-dialog").modal("toggle");
+							}
+						} else {
+							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog").prop("style", "z-index:1070");
+							$("#alert-dialog").modal("toggle");
 
-								}
-								return true;
-							},
-							error : function(jqXHR, textStatus, errorThrown) {
-								$("#alert-dialog .modal-body").text(
-										jqXHR.responseText);
-								$("#alert-dialog").modal("toggle");
-							},
-						});
+						}
+						return true;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						$("#alert-dialog .modal-body").text(jqXHR.responseText);
+						$("#alert-dialog").modal("toggle");
+					},
+				});
 
 			} else {
 				that.Rollback();
@@ -625,14 +572,11 @@ function AssessmentImpactFieldEditor(element) {
 		this.inputField.setAttribute("id", "tag_impact");
 		this.inputField.setAttribute("placeholder", this.defaultValue);
 		this.inputField.setAttribute("value", this.defaultValue);
-		this.realValue = this.element.hasAttribute("real-value") ? $(
-				this.element).attr("real-value") : null;
+		this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
 
 		var that = this;
 		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null
-				&& this.realValue != undefined ? this.realValue
-				: this.defaultValue);
+		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 		$(this.inputField).blur(function() {
 			return that.Save(that);
 		});
@@ -684,51 +628,37 @@ function AssessmentImpactFieldEditor(element) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
-				$
-						.ajax({
-							url : context + "/EditField/" + that.controllor,
-							type : "post",
-							async : true,
-							data : '{"id":'
-									+ that.classId
-									+ ', "fieldName":"'
-									+ that.fieldName
-									+ '", "value":"'
-									+ defaultValueByType($(that.inputField)
-											.prop("value"), that.fieldType,
-											true) + '", "type": "'
-									+ that.fieldType + '"}',
-							contentType : "application/json",
-							success : function(response) {
-								console.log(response);
-								if (response["success"] != undefined) {
-									if (application.modal["AssessmentViewer"] != undefined)
-										application.modal["AssessmentViewer"]
-												.Load();
-									else {
-										$("#info-dialog .modal-body").html(
-												response["success"]);
-										$("#info-dialog").prop("style",
-												"z-index:1070");
-										$("#info-dialog").modal("toggle");
+				$.ajax({
+					url : context + "/EditField/" + that.controllor,
+					type : "post",
+					async : true,
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
+							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
+					contentType : "application/json",
+					success : function(response) {
+						console.log(response);
+						if (response["success"] != undefined) {
+							if (application.modal["AssessmentViewer"] != undefined)
+								application.modal["AssessmentViewer"].Load();
+							else {
+								$("#info-dialog .modal-body").html(response["success"]);
+								$("#info-dialog").prop("style", "z-index:1070");
+								$("#info-dialog").modal("toggle");
 
-									}
-								} else {
-									$("#alert-dialog .modal-body").html(
-											response["error"]);
-									$("#alert-dialog").prop("style",
-											"z-index:1070");
-									$("#alert-dialog").modal("toggle");
+							}
+						} else {
+							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog").prop("style", "z-index:1070");
+							$("#alert-dialog").modal("toggle");
 
-								}
-								return true;
-							},
-							error : function(jqXHR, textStatus, errorThrown) {
-								$("#alert-dialog .modal-body").text(
-										jqXHR.responseText);
-								$("#alert-dialog").modal("toggle");
-							},
-						});
+						}
+						return true;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						$("#alert-dialog .modal-body").text(jqXHR.responseText);
+						$("#alert-dialog").modal("toggle");
+					},
+				});
 
 			} else {
 				that.Rollback();
@@ -764,14 +694,11 @@ function AssessmentProbaFieldEditor(element) {
 		this.inputField.setAttribute("id", "tag_proba");
 		this.inputField.setAttribute("placeholder", this.defaultValue);
 		this.inputField.setAttribute("value", this.defaultValue);
-		this.realValue = this.element.hasAttribute("real-value") ? $(
-				this.element).attr("real-value") : null;
+		this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
 
 		var that = this;
 		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null
-				&& this.realValue != undefined ? this.realValue
-				: this.defaultValue);
+		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 		$(this.inputField).blur(function() {
 			return that.Save(that);
 		});
@@ -824,51 +751,37 @@ function AssessmentProbaFieldEditor(element) {
 			that.Rollback();
 		} else {
 			if (that.HasChanged()) {
-				$
-						.ajax({
-							url : context + "/EditField/" + that.controllor,
-							type : "post",
-							async : true,
-							data : '{"id":'
-									+ that.classId
-									+ ', "fieldName":"'
-									+ that.fieldName
-									+ '", "value":"'
-									+ defaultValueByType($(that.inputField)
-											.prop("value"), that.fieldType,
-											true) + '", "type": "'
-									+ that.fieldType + '"}',
-							contentType : "application/json",
-							success : function(response) {
-								console.log(response);
-								if (response["success"] != undefined) {
-									if (application.modal["AssessmentViewer"] != undefined)
-										application.modal["AssessmentViewer"]
-												.Load();
-									else {
-										$("#info-dialog .modal-body").html(
-												response["success"]);
-										$("#info-dialog").prop("style",
-												"z-index:1070");
-										$("#info-dialog").modal("toggle");
+				$.ajax({
+					url : context + "/EditField/" + that.controllor,
+					type : "post",
+					async : true,
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
+							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
+					contentType : "application/json",
+					success : function(response) {
+						console.log(response);
+						if (response["success"] != undefined) {
+							if (application.modal["AssessmentViewer"] != undefined)
+								application.modal["AssessmentViewer"].Load();
+							else {
+								$("#info-dialog .modal-body").html(response["success"]);
+								$("#info-dialog").prop("style", "z-index:1070");
+								$("#info-dialog").modal("toggle");
 
-									}
-								} else {
-									$("#alert-dialog .modal-body").html(
-											response["error"]);
-									$("#alert-dialog").prop("style",
-											"z-index:1070");
-									$("#alert-dialog").modal("toggle");
+							}
+						} else {
+							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog").prop("style", "z-index:1070");
+							$("#alert-dialog").modal("toggle");
 
-								}
-								return true;
-							},
-							error : function(jqXHR, textStatus, errorThrown) {
-								$("#alert-dialog .modal-body").text(
-										jqXHR.responseText);
-								$("#alert-dialog").modal("toggle");
-							},
-						});
+						}
+						return true;
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						$("#alert-dialog .modal-body").text(jqXHR.responseText);
+						$("#alert-dialog").modal("toggle");
+					},
+				});
 
 			} else {
 				that.Rollback();
@@ -907,9 +820,7 @@ function MaturityMeasureFieldEditor(element) {
 			return true;
 		this.inputField = document.createElement("select");
 		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null
-				&& this.realValue != undefined ? this.realValue
-				: this.defaultValue);
+		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 		for ( var i in this.implementations) {
 			var option = document.createElement("option");
 			option.setAttribute("value", this.implementations[i].value);
@@ -921,8 +832,7 @@ function MaturityMeasureFieldEditor(element) {
 		}
 
 		var that = this;
-		this.realValue = this.element.hasAttribute("real-value") ? $(
-				this.element).attr("real-value") : null;
+		this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
 		$(this.inputField).blur(function() {
 			return that.Save(that);
 		});
@@ -954,8 +864,7 @@ function Modal() {
 		button_head_close.setAttribute("class", "close");
 		button_head_close.setAttribute("data-dismiss", "modal");
 		$(button_head_close).html("&times;");
-		this.modal_header.insertBefore(button_head_close,
-				this.modal_header.firstChild);
+		this.modal_header.insertBefore(button_head_close, this.modal_header.firstChild);
 		return false;
 	};
 
@@ -1041,8 +950,7 @@ function Modal() {
 		});
 
 		for ( var button in this.modal_head_buttons)
-			this.modal_header.insertBefore(this.modal_head_buttons[button],
-					this.modal_header.firstChild);
+			this.modal_header.insertBefore(this.modal_head_buttons[button], this.modal_header.firstChild);
 		return false;
 	};
 
@@ -1114,8 +1022,7 @@ function ProgressBar() {
 		this.infoText = document.createElement("span");
 		// design progressbar
 		this.progress.setAttribute("class", "progress progress-striped active");
-		this.progressbar
-				.setAttribute("class", "progress-bar progress-bar-info");
+		this.progressbar.setAttribute("class", "progress-bar progress-bar-info");
 		this.progressbar.setAttribute("role", "progressbar");
 		this.progressbar.setAttribute("aria-valuenow", "100");
 		this.progressbar.setAttribute("aria-valuemin", "0");
@@ -1138,8 +1045,7 @@ function ProgressBar() {
 
 	ProgressBar.prototype.Increment = function(value) {
 		if (value == null)
-			value = parseInt($(this.progressbar).attr("aria-valuenow"))
-					+ this.incrementStep;
+			value = parseInt($(this.progressbar).attr("aria-valuenow")) + this.incrementStep;
 		else
 			value += $(this.progressbar).attr("aria-valuenow");
 
@@ -1292,8 +1198,7 @@ function TaskManager(title) {
 					return false;
 				else if (reponse.length) {
 					for (var int = 0; int < reponse.length; int++) {
-						if ($.isNumeric(reponse[int])
-								&& !(reponse[int] in instance.tasks)) {
+						if ($.isNumeric(reponse[int]) && !(reponse[int] in instance.tasks)) {
 							instance.tasks.push(reponse[int]);
 							instance.UpdateStatus(reponse[int]);
 						}
@@ -1333,8 +1238,7 @@ function TaskManager(title) {
 		var index = this.tasks.indexOf(taskId);
 		if (index > -1)
 			this.tasks.splice(index, 1);
-		if (this.progressBars[taskId] != undefined
-				&& this.progressBars[taskId] != null) {
+		if (this.progressBars[taskId] != undefined && this.progressBars[taskId] != null) {
 			this.progressBars[taskId].Remove();
 			this.progressBars.splice(taskId, 1);
 		}
@@ -1356,14 +1260,11 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					return false;
 				}
-				if (instance.progressBars[taskId] == null
-						|| instance.progressBars[taskId] == undefined) {
-					instance.progressBars[taskId] = instance
-							.createProgressBar(taskId);
+				if (instance.progressBars[taskId] == null || instance.progressBars[taskId] == undefined) {
+					instance.progressBars[taskId] = instance.createProgressBar(taskId);
 				}
 				if (reponse.message != null) {
-					instance.progressBars[taskId].Update(reponse.progress,
-							reponse.message);
+					instance.progressBars[taskId].Update(reponse.progress, reponse.message);
 				}
 				if (reponse.flag == 3) {
 					setTimeout(function() {
@@ -1373,11 +1274,9 @@ function TaskManager(title) {
 					setTimeout(function() {
 						instance.Remove(taskId);
 					}, 3000);
-					if (reponse.asyncCallback != undefined
-							&& reponse.asyncCallback != null)
+					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null)
 						eval(reponse.asyncCallback.action);
-					else if (reponse.taskName != null
-							&& reponse.taskName != undefined)
+					else if (reponse.taskName != null && reponse.taskName != undefined)
 						eval(reponse.taskName.action);
 				}
 				return false;
@@ -1392,8 +1291,7 @@ function AssessmentViewer() {
 
 	AssessmentViewer.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
-		$(this.modal_dialog).prop("style",
-				"width: 95%; min-width:1170px; max-width:1300px;");
+		$(this.modal_dialog).prop("style", "width: 95%; min-width:1170px; max-width:1300px;");
 		return false;
 
 	};
@@ -1439,8 +1337,7 @@ function AssessmentAssetViewer(assetId) {
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find(
-						"*[id='section_asset_assessment']");
+				var assessments = $(doc).find("*[id='section_asset_assessment']");
 				if (!assessments.length)
 					return true;
 				$(instance.modal_body).html($(assessments).html());
@@ -1457,27 +1354,24 @@ function AssessmentAssetViewer(assetId) {
 
 	AssessmentAssetViewer.prototype.Update = function() {
 		var instance = this;
-		return $
-				.ajax({
-					url : context + "/Assessment/Asset/" + instance.assetId
-							+ "/Update",
-					contentType : "application/json",
-					async : false,
-					success : function(reponse) {
-						var parser = new DOMParser();
-						var doc = parser.parseFromString(reponse, "text/html");
-						var assessments = $(doc).find(
-								"*[id='section_asset_assessment']");
-						if (!assessments.length)
-							return true;
-						$(instance.modal_body).html($(assessments).html());
-						instance.setTitle($(assessments).attr("trick-name"));
-						return false;
-					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						return true;
-					}
-				});
+		return $.ajax({
+			url : context + "/Assessment/Asset/" + instance.assetId + "/Update",
+			contentType : "application/json",
+			async : false,
+			success : function(reponse) {
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(reponse, "text/html");
+				var assessments = $(doc).find("*[id='section_asset_assessment']");
+				if (!assessments.length)
+					return true;
+				$(instance.modal_body).html($(assessments).html());
+				instance.setTitle($(assessments).attr("trick-name"));
+				return false;
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				return true;
+			}
+		});
 	};
 }
 
@@ -1499,8 +1393,7 @@ function AssessmentScenarioViewer(scenarioId) {
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find(
-						"*[id='section_scenario_assessment']");
+				var assessments = $(doc).find("*[id='section_scenario_assessment']");
 				if (!assessments.length)
 					return true;
 				$(instance.modal_body).html($(assessments).html());
@@ -1518,15 +1411,13 @@ function AssessmentScenarioViewer(scenarioId) {
 	AssessmentScenarioViewer.prototype.Update = function() {
 		var instance = this;
 		return $.ajax({
-			url : context + "/Assessment/Scenario/" + instance.scenarioId
-					+ "/Update",
+			url : context + "/Assessment/Scenario/" + instance.scenarioId + "/Update",
 			contentType : "application/json",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(reponse, "text/html");
-				var assessments = $(doc).find(
-						"*[id='section_scenario_assessment']");
+				var assessments = $(doc).find("*[id='section_scenario_assessment']");
 				if (!assessments.length)
 					return true;
 				$(instance.modal_body).html($(assessments).html());
@@ -1542,8 +1433,7 @@ function AssessmentScenarioViewer(scenarioId) {
 
 function updateAssessmentAcronym(idParameter, acronym) {
 	$.ajax({
-		url : context + "/Assessment/Update/Acronym/" + idParameter + "/"
-				+ acronym,
+		url : context + "/Assessment/Update/Acronym/" + idParameter + "/" + acronym,
 		contentType : "application/json",
 		async : true,
 		success : function(response) {
@@ -1618,9 +1508,7 @@ function saveField(element, controller, id, field, type) {
 			url : context + "/editField/" + controller,
 			type : "post",
 			async : true,
-			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"'
-					+ defaultValueByType($(element).prop("value"), type, true)
-					+ '", "type": "' + type + '"}',
+			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"' + defaultValueByType($(element).prop("value"), type, true) + '", "type": "' + type + '"}',
 			contentType : "application/json",
 			success : function(response) {
 				if (response == "" || response == null) {
@@ -1641,7 +1529,6 @@ function saveField(element, controller, id, field, type) {
 		return false;
 	}
 }
-
 
 function editField(element, controller, id, field, type) {
 	var fieldEditor = null;
@@ -1678,9 +1565,7 @@ function showError(parent, text) {
 	close.setAttribute("data-dismiss", "alert");
 	error.setAttribute("class", "alert alert-error");
 	error.setAttribute("aria-hidden", "true");
-	error
-			.setAttribute("style",
-					"background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
+	error.setAttribute("style", "background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
 	close.appendChild(document.createTextNode("x"));
 	error.appendChild(close);
 	error.appendChild(document.createTextNode(text));
@@ -1757,8 +1642,7 @@ function callbackBySection(section) {
 function sectionPretreatment(section) {
 	var pretreatment = {
 		"section_assessment" : function(data) {
-			var trickCarousel = new TrickCarousel($(data).find(
-					"table[trick-table]"));
+			var trickCarousel = new TrickCarousel($(data).find("table[trick-table]"));
 			trickCarousel.initialise();
 		}
 	};
@@ -1821,9 +1705,7 @@ function selectAsset(assetId, value) {
 			return false;
 		var requiredUpdate = [];
 		for (var i = 0; i < selectedItem.length; i++) {
-			var selected = $(
-					"#section_asset tbody tr[trick-id='" + selectedItem[i]
-							+ "']").attr("trick-selected");
+			var selected = $("#section_asset tbody tr[trick-id='" + selectedItem[i] + "']").attr("trick-selected");
 			if (value != selected)
 				requiredUpdate.push(selectedItem[i]);
 		}
@@ -1864,12 +1746,9 @@ function deleteAsset(assetId) {
 				async : true,
 				success : function(response) {
 					var trickSelect = parseJson(response);
-					if (trickSelect != undefined
-							&& trickSelect["success"] != undefined) {
-						var row = $("#section_asset tr[trick-id='" + rowTrickId
-								+ "']");
-						var checked = $("#section_asset tr[trick-id='"
-								+ rowTrickId + "'] :checked");
+					if (trickSelect != undefined && trickSelect["success"] != undefined) {
+						var row = $("#section_asset tr[trick-id='" + rowTrickId + "']");
+						var checked = $("#section_asset tr[trick-id='" + rowTrickId + "'] :checked");
 						if (checked.length)
 							$(checked).removeAttr("checked");
 						if (row.length)
@@ -1883,9 +1762,7 @@ function deleteAsset(assetId) {
 		return false;
 	}
 
-	$("#confirm-dialog .modal-body").text(
-			MessageResolver("confirm.delete.asset",
-					"Are you sure, you want to delete this asset"));
+	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.asset", "Are you sure, you want to delete this asset"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Asset/Delete/" + assetId,
@@ -1911,29 +1788,26 @@ function editAsset(rowTrickId, isAdd) {
 			return false;
 		rowTrickId = findTrickID(selectedScenario[0]);
 	}
-	$
-			.ajax({
-				url : context
-						+ ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Asset/Add"
-								: "/Asset/Edit/" + rowTrickId),
-				async : true,
-				contentType : "application/json",
-				success : function(response) {
-					var parser = new DOMParser();
-					var doc = parser.parseFromString(response, "text/html");
-					if ((addAssetModal = doc.getElementById("addAssetModal")) == null)
-						return false;
-					if ($("#addAssetModal").length)
-						$("#addAssetModal").html($(addAssetModal).html());
-					else
-						$(addAssetModal).appendTo($("#widget"));
-					$('#addAssetModal').on('hidden.bs.modal', function() {
-						$('#addAssetModal').remove();
-					});
-					$("#addAssetModal").modal("toggle");
-					return false;
-				}
+	$.ajax({
+		url : context + ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Asset/Add" : "/Asset/Edit/" + rowTrickId),
+		async : true,
+		contentType : "application/json",
+		success : function(response) {
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			if ((addAssetModal = doc.getElementById("addAssetModal")) == null)
+				return false;
+			if ($("#addAssetModal").length)
+				$("#addAssetModal").html($(addAssetModal).html());
+			else
+				$(addAssetModal).appendTo($("#widget"));
+			$('#addAssetModal').on('hidden.bs.modal', function() {
+				$('#addAssetModal').remove();
 			});
+			$("#addAssetModal").modal("toggle");
+			return false;
+		}
+	});
 	return false;
 }
 
@@ -1951,8 +1825,7 @@ function saveAsset(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document
-					.getElementById(form), data);
+			result = data == "" ? true : showError(document.getElementById(form), data);
 			if (result) {
 				$("#addAssetModal").modal("hide");
 				reloadSection("section_asset");
@@ -1985,8 +1858,7 @@ function serializeScenarioForm(formId) {
 }
 
 function clearScenarioFormData() {
-	$("#addScenarioModal #addScenarioModel-title").html(
-			MessageResolver("label.scenario.add", "Add new scenario"));
+	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario"));
 	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
 
@@ -1997,9 +1869,7 @@ function selectScenario(scenarioId, value) {
 			return false;
 		var requiredUpdate = [];
 		for (var i = 0; i < selectedItem.length; i++) {
-			var selected = $(
-					"#section_scenario tbody tr[trick-id='" + selectedItem[i]
-							+ "']").attr("trick-selected");
+			var selected = $("#section_scenario tbody tr[trick-id='" + selectedItem[i] + "']").attr("trick-selected");
 			if (value != selected)
 				requiredUpdate.push(selectedItem[i]);
 		}
@@ -2031,8 +1901,7 @@ function displayAssessmentByScenario() {
 	var selectedItem = findSelectItemIdBySection("section_scenario");
 	if (selectedItem.length != 1)
 		return false;
-	application.modal["AssessmentViewer"] = new AssessmentScenarioViewer(
-			selectedItem[0]);
+	application.modal["AssessmentViewer"] = new AssessmentScenarioViewer(selectedItem[0]);
 	application.modal["AssessmentViewer"].Show();
 	return false;
 }
@@ -2042,8 +1911,7 @@ function displayAssessmentByAsset() {
 	var selectedItem = findSelectItemIdBySection("section_asset");
 	if (selectedItem.length != 1)
 		return false;
-	application.modal["AssessmentViewer"] = new AssessmentAssetViewer(
-			selectedItem[0]);
+	application.modal["AssessmentViewer"] = new AssessmentAssetViewer(selectedItem[0]);
 	application.modal["AssessmentViewer"].Show();
 	return false;
 }
@@ -2073,12 +1941,9 @@ function deleteScenario(scenarioId) {
 				async : true,
 				success : function(response) {
 					var trickSelect = parseJson(response);
-					if (trickSelect != undefined
-							&& trickSelect["success"] != undefined) {
-						var row = $("#section_scenario tr[trick-id='"
-								+ rowTrickId + "']");
-						var checked = $("#section_scenario tr[trick-id='"
-								+ rowTrickId + "'] :checked");
+					if (trickSelect != undefined && trickSelect["success"] != undefined) {
+						var row = $("#section_scenario tr[trick-id='" + rowTrickId + "']");
+						var checked = $("#section_scenario tr[trick-id='" + rowTrickId + "'] :checked");
 						if (checked.length)
 							$(checked).removeAttr("checked");
 						if (row.length)
@@ -2092,9 +1957,7 @@ function deleteScenario(scenarioId) {
 		return false;
 	}
 
-	$("#confirm-dialog .modal-body").text(
-			MessageResolver("confirm.delete.scenario",
-					"Are you sure, you want to delete this scenario"));
+	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Scenario/Delete/" + scenarioId,
@@ -2130,31 +1993,26 @@ function editScenario(rowTrickId, isAdd) {
 		rowTrickId = findTrickID(selectedScenario[0]);
 	}
 
-	$
-			.ajax({
-				url : context
-						+ (rowTrickId == null || rowTrickId == undefined
-								|| rowTrickId < 1 ? "/Scenario/Add"
-								: "/Scenario/Edit/" + rowTrickId),
-				contentType : "application/json",
-				async : true,
-				success : function(response) {
-					var parser = new DOMParser();
-					var doc = parser.parseFromString(response, "text/html");
-					if ((addScenarioModal = doc
-							.getElementById("addScenarioModal")) == null)
-						return false;
-					if ($("#addScenarioModal").length)
-						$("#addScenarioModal").html($(addScenarioModal).html());
-					else
-						$(addScenarioModal).appendTo($("#widget"));
-					$('#addScenarioModal').on('hidden.bs.modal', function() {
-						$('#addScenarioModal').remove();
-					});
-					$("#addScenarioModal").modal("toggle");
-					return false;
-				}
+	$.ajax({
+		url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Scenario/Add" : "/Scenario/Edit/" + rowTrickId),
+		contentType : "application/json",
+		async : true,
+		success : function(response) {
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			if ((addScenarioModal = doc.getElementById("addScenarioModal")) == null)
+				return false;
+			if ($("#addScenarioModal").length)
+				$("#addScenarioModal").html($(addScenarioModal).html());
+			else
+				$(addScenarioModal).appendTo($("#widget"));
+			$('#addScenarioModal').on('hidden.bs.modal', function() {
+				$('#addScenarioModal').remove();
 			});
+			$("#addScenarioModal").modal("toggle");
+			return false;
+		}
+	});
 	return false;
 }
 
@@ -2172,8 +2030,7 @@ function saveScenario(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document
-					.getElementById(form), data);
+			result = data == "" ? true : showError(document.getElementById(form), data);
 			if (result) {
 				$("#addScenarioModal").modal("hide");
 				reloadSection("section_scenario");
@@ -2204,8 +2061,7 @@ function savePhase(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document
-					.getElementById(form), data);
+			result = data == "" ? true : showError(document.getElementById(form), data);
 			if (result) {
 				$("#addPhaseModel").modal("hide");
 				reloadSection("section_phase");
@@ -2227,9 +2083,7 @@ function deletePhase(idPhase) {
 			return false;
 		idPhase = selectedScenario[0];
 	}
-	$("#confirm-dialog .modal-body").text(
-			MessageResolver("confirm.delete.phase",
-					"Are you sure, you want to delete this phase"));
+	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase"));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Phase/Delete/" + idPhase,
@@ -2318,8 +2172,11 @@ function analysisTableSortable() {
 
 	// check if datatable has to be initialised
 	var tables = $("#section_analysis table");
-	if (!tables.length)
-		return false;
+	if (!tables.length) {
+		tables =  $("#section_admin_analysis table");
+			if (!tables.length)
+				return false;
+	}
 
 	// define sort order of text
 	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
@@ -2381,7 +2238,6 @@ $(function() {
 	analysisTableSortable();
 });
 
-
 function checkControlChange(checkbox, sectionName) {
 	var items = $("#section_" + sectionName + " tbody tr td:first-child input");
 	for (var i = 0; i < items.length; i++)
@@ -2399,8 +2255,7 @@ function updateMenu(idsection, idMenu) {
 	} else if (checkedCount > 1) {
 		var $lis = $(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			if ($($lis[i]).attr("trick-selectable") == undefined
-					|| $($lis[i]).attr("trick-selectable") === "multi")
+			if ($($lis[i]).attr("trick-selectable") == undefined || $($lis[i]).attr("trick-selectable") === "multi")
 				$($lis[i]).removeClass("disabled");
 			else
 				$($lis[i]).addClass("disabled");
@@ -2418,8 +2273,7 @@ function updateMenu(idsection, idMenu) {
 }
 
 function navToogled(section, navSelected) {
-	var currentMenu = $("#" + section + " *[trick-nav-control='" + navSelected
-			+ "']");
+	var currentMenu = $("#" + section + " *[trick-nav-control='" + navSelected + "']");
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
 	var controls = $("#" + section + " *[trick-nav-control]");
@@ -2439,38 +2293,23 @@ function navToogled(section, navSelected) {
 
 function hideActionplanAssets(sectionactionplan, menu) {
 
-	var actionplantype = $(sectionactionplan).find(
-			".disabled[trick-nav-control]").attr("trick-nav-control");
+	var actionplantype = $(sectionactionplan).find(".disabled[trick-nav-control]").attr("trick-nav-control");
 
-	if (!$("#actionplantable_" + actionplantype + " .actionplanasset")
-			.hasClass("actionplanassethidden")) {
-		$("#actionplantable_" + actionplantype + " .actionplanasset")
-				.toggleClass("actionplanassethidden");
-		$(menu + " a").html(
-				"<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;"
-						+ MessageResolver("action.actionplanassets.show",
-								"Show Assets"));
+	if (!$("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
+		$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
+		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
 	}
 }
 
 function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
 
-	var actionplantype = $(sectionactionplan).find(
-			".disabled[trick-nav-control]").attr("trick-nav-control");
+	var actionplantype = $(sectionactionplan).find(".disabled[trick-nav-control]").attr("trick-nav-control");
 
-	$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass(
-			"actionplanassethidden");
-	if ($("#actionplantable_" + actionplantype + " .actionplanasset").hasClass(
-			"actionplanassethidden")) {
-		$(menu + " a").html(
-				"<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;"
-						+ MessageResolver("action.actionplanassets.show",
-								"Show Assets"));
+	$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
+	if ($("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
+		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
 	} else {
-		$(menu + " a").html(
-				"<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;"
-						+ MessageResolver("action.actionplanassets.hide",
-								"Hide Assets"));
+		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;" + MessageResolver("action.actionplanassets.hide", "Hide Assets"));
 	}
 
 	return false;
@@ -2485,34 +2324,31 @@ function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
 	$.fn.serializeJSON = function() {
 		var json = {};
 		var form = $(this);
-		form.find('input, select, textarea').each(
-				function() {
-					var val;
-					if (!this.name)
-						return;
+		form.find('input, select, textarea').each(function() {
+			var val;
+			if (!this.name)
+				return;
 
-					if ('radio' === this.type) {
-						if (json[this.name]) {
-							return;
-						}
+			if ('radio' === this.type) {
+				if (json[this.name]) {
+					return;
+				}
 
-						json[this.name] = this.checked ? this.value : '';
-					} else if ('checkbox' === this.type) {
-						val = json[this.name];
+				json[this.name] = this.checked ? this.value : '';
+			} else if ('checkbox' === this.type) {
+				val = json[this.name];
 
-						if (!this.checked) {
-							if (!val) {
-								json[this.name] = '';
-							}
-						} else {
-							json[this.name] = typeof val === 'string' ? [ val,
-									this.value ] : $.isArray(val) ? $.merge(
-									val, [ this.value ]) : this.value;
-						}
-					} else {
-						json[this.name] = this.value;
+				if (!this.checked) {
+					if (!val) {
+						json[this.name] = '';
 					}
-				});
+				} else {
+					json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
+				}
+			} else {
+				json[this.name] = this.value;
+			}
+		});
 		return json;
 	};
 
@@ -2533,20 +2369,16 @@ $(function() {
 	if (!$(".navbar-custom").length)
 		return false;
 	var startPosition = $(".navbar-custom").position().top;
-	var previewPosition = $(".navbar-custom").offset().top
-			- $(".navbar-fixed-top").offset().top;
+	var previewPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
 	if (previewScrollTop != 0)
 		$(".navbar-custom").addClass("affix");
 
 	$window.scroll(function() {
-		var currentPosition = $(".navbar-custom").offset().top
-				- $(".navbar-fixed-top").offset().top;
+		var currentPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
 		var scrollTop = $window.scrollTop();
-		if (previewPosition > 0 && currentPosition <= 50
-				&& scrollTop > previewScrollTop) {
+		if (previewPosition > 0 && currentPosition <= 50 && scrollTop > previewScrollTop) {
 			$(".navbar-custom").addClass("affix");
-		} else if (scrollTop < startPosition && scrollTop < previewScrollTop
-				&& scrollTop < 50)
+		} else if (scrollTop < startPosition && scrollTop < previewScrollTop && scrollTop < 50)
 			$(".navbar-custom").removeClass("affix");
 		previewPosition = currentPosition;
 		previewScrollTop = scrollTop;
@@ -2565,13 +2397,10 @@ function reloadMeasureRow(idMeasure, norm) {
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
-			var $measure = $(doc).find(
-					"#section_measure_" + norm + " tr[trick-id='" + idMeasure
-							+ "']");
+			var $measure = $(doc).find("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']");
 			if (!$measure.length)
 				return false;
-			$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']")
-					.html($measure.html());
+			$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']").html($measure.html());
 			return false;
 		}
 	});
@@ -2588,9 +2417,7 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
 		success : function(response) {
 			if (!response.length)
 				return false;
-			$(
-					"#section_actionplan_" + type + " tr[trick-id='"
-							+ idActionPlanEntry + "']").replaceWith(response);
+			$("#section_actionplan_" + type + " tr[trick-id='" + idActionPlanEntry + "']").replaceWith(response);
 			return false;
 		}
 	});
@@ -2631,8 +2458,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 		contentType : "application/json",
 		async : true,
 		success : function(response) {
-			$('#chart_evolution_profitability_compliance_' + actionPlanType)
-					.highcharts(response);
+			$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
 		}
 	});
 }
@@ -2706,8 +2532,7 @@ function updateStatus(progressBar, idTask, callback, status) {
 			}, 3000);
 			if (callback.success != undefined)
 				eval(callback.success);
-			else if (status.asyncCallback != undefined
-					&& status.asyncCallback != null)
+			else if (status.asyncCallback != undefined && status.asyncCallback != null)
 				eval(status.asyncCallback.action);
 			else if (status.taskName != null && status.taskName != undefined)
 				eval(status.taskName.action);

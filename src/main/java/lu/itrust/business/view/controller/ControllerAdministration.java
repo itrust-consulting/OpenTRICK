@@ -13,6 +13,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
@@ -55,6 +56,9 @@ public class ControllerAdministration {
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
+	
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
 
 	/**
 	 * loadAll: <br>
@@ -69,6 +73,7 @@ public class ControllerAdministration {
 		model.put("adminView", true);
 		model.put("users", serviceUser.loadAll());
 		model.put("customers", serviceCustomer.loadAll());
+		model.put("analyses", serviceAnalysis.loadAll());
 		return "admin/administration";
 	}
 
