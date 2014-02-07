@@ -48,7 +48,7 @@ function deleteNorm(normId, name) {
 				return false;
 			}
 		});
-		$("#deletenormbuttonYes").unbind( "click" );
+		$("#deletenormbuttonYes").unbind("click");
 		$("#deleteNormModel").modal('toggle');
 		return false;
 	});
@@ -57,7 +57,6 @@ function deleteNorm(normId, name) {
 }
 
 function uploadImportNormFile() {
-
 	$
 			.ajax({
 				url : context + "/KnowledgeBase/Norm/Upload",
@@ -83,47 +82,86 @@ function uploadImportNormFile() {
 	return false;
 }
 
-function importNewNorm(button) {
 
+function onSelectFile(file){
+	$("#upload-file-info").prop("value",$(file).prop("value"));
+	return false;
+}
+
+function importNewNorm() {
+	$("#uploadNormModal .modal-footer .btn").prop("disabled", true);
+	$("#uploadNormModal .modal-header .close").prop("disabled", true);
 	var formData = new FormData($('#uploadNorm_form')[0]);
-	$.ajax({
-		url : context + "/KnowledgeBase/Norm/Import",
-		type : 'POST',
-		xhr : function() { // Custom XMLHttpRequest
-			var myXhr = $.ajaxSettings.xhr();
-			/*
-			 * if (myXhr.upload) { // Check if upload property exists
-			 * myXhr.upload.addEventListener('progress',
-			 * progressHandlingFunction, false); // For handling the // progress
-			 * of the // upload }
-			 */
-			return myXhr;
-		},
-		// Ajax events
-		// beforeSend : beforeSendHandler,
-		success : function(response) {
-			if (response["success"] != undefined) {
-				if (taskManager == undefined)
-					taskManager = new TaskManager();
-				$("#uploadNormModal").modal("toggle");
-				taskManager.Start();
-			} else if (message["error"]) {
-				$("#alert-dialog .modal-body").html(message["error"]);
-				$("#alert-dialog").modal("toggle");
+	$
+			.ajax({
+				url : context + "/KnowledgeBase/Norm/Import",
+				type : 'POST',
+				xhr : function() { // Custom XMLHttpRequest
+					var myXhr = $.ajaxSettings.xhr();
+					/*
+					 * if (myXhr.upload) { // Check if upload property exists
+					 * myXhr.upload.addEventListener('progress',
+					 * progressHandlingFunction, false); // For handling the //
+					 * progress of the // upload }
+					 */
+					return myXhr;
+				},
+				// Ajax events
+				// beforeSend : beforeSendHandler,
+				success : function(response) {
+					if (response.flag != undefined) {
+						var progressBar = new ProgressBar();
+						progressBar.Initialise();
+						$(progressBar.progress).appendTo(
+								$("#uploadNorm_form").parent());
+						callback = {
+							failed : function() {
+								progressBar.Distroy();
+								$("#uploadNormModal").modal("toggle");
+								$("#alert-dialog .modal-body")
+										.html(
+												MessageResolver(
+														"error.unknown.task.execution",
+														"An unknown error occurred during the execution of the task"));
+							},
+							success : function() {
+								progressBar.Distroy();
+								reloadSection('section_norm');
+								$("#uploadNormModal").modal("toggle");
+							}
+						};
+						progressBar.OnComplete(callback.success);
+						updateStatus(progressBar, response.taskID, callback,
+								response);
+					} else {
+						var parser = new DOMParser();
+						var doc = parser.parseFromString(response, "text/html");
+						if ((modalForm = doc.getElementById("uploadNormModal")) == null) {
+							$("#uploadNormModal").modal("toggle");
+							$("#alert-dialog .modal-body")
+									.html(
+											MessageResolver(
+													"error.unknown.file.uploading",
+													"An unknown error occurred during file uploading"));
+						} else{
+							$("#uploadNormModal").replaceWith(
+									$(modalForm).text());
+							$("#uploadNormModal .modal-footer .btn").prop("disabled", false);
+							$("#uploadNormModal .modal-header .close").prop("disabled", false);
+						}
+					}
 
-			}
+				},
+				// error : errorHandler,
+				// Form data
+				data : formData,
+				// Options to tell jQuery not to process data or worry about
+				// content-type.
+				cache : false,
+				contentType : false,
+				processData : false
 
-		},
-		// error : errorHandler,
-		// Form data
-		data : formData,
-		// Options to tell jQuery not to process data or worry about
-		// content-type.
-		cache : false,
-		contentType : false,
-		processData : false
-
-	});
+			});
 }
 
 function newNorm() {

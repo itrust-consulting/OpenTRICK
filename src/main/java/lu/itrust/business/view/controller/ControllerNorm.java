@@ -61,16 +61,16 @@ public class ControllerNorm {
 
 	@Autowired
 	private ServiceLanguage serviceLanguage;
-	
+
 	@Autowired
 	private TaskExecutor executor;
-	
+
 	@Autowired
 	private SessionFactory sessionFactory;
-	
+
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
-	
+
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
@@ -199,20 +199,20 @@ public class ControllerNorm {
 	 */
 	@RequestMapping(value = "/Delete/{normId}", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	String[] deleteNorm(@PathVariable("normId") Integer normId, Locale locale) throws Exception {
+	String deleteNorm(@PathVariable("normId") Integer normId, Locale locale) throws Exception {
 
 		try {
-			
+
 			// try to delete the norm
 			customDelete.deleteNorm(serviceNorm.getNormByID(normId));
 
 			// return success message
-			return new String[] { "success", messageSource.getMessage("success.norm.delete.successfully", null, "Norm was deleted successfully", locale) };
+			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null, "Norm was deleted successfully", locale));
 		} catch (Exception e) {
-			
+
 			// return error message
 			e.printStackTrace();
-			return new String[] { "error", messageSource.getMessage("error.norm.delete.successfully", null, "Norm was not deleted. Make sure it is not used in an analysis", locale) };
+			return JsonMessage.Error(messageSource.getMessage("error.norm.delete.successfully", null, "Norm was not deleted. Make sure it is not used in an analysis", locale));
 		}
 	}
 
@@ -231,20 +231,17 @@ public class ControllerNorm {
 	 * Description
 	 */
 	@RequestMapping(value = "/Import", headers = "Accept=application/json")
-	public @ResponseBody Object importNewNorm(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale) throws Exception {
-
+	public String importNewNorm(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
+			throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 		file.transferTo(importFile);
-
 		Worker worker = new WorkerImportNorm(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
-
-
-
 		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
 			executor.execute(worker);
-			return JsonMessage.Success(messageSource.getMessage("success.start.export.analysis", null, "Analysis export was started successfully", locale));
-		} else
-			return JsonMessage.Error(messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
+			return "redirect:/Task/Status/" + worker.getId();
+		}
+		attributes.addFlashAttribute("errors", messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
+		return "redirect:/KnowledgeBase/Norm/Upload";
 	}
 
 	/**
@@ -258,19 +255,19 @@ public class ControllerNorm {
 	 * @return
 	 */
 	private boolean buildNorm(List<String[]> errors, Norm norm, String source, Locale locale) {
-		
+
 		try {
-			
+
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
-			
+
 			// load norm id
 			int id = jsonNode.get("id").asInt();
-			
+
 			// check if norm has to be updated
 			if (id > 0)
-				
+
 				// init id
 				norm.setId(jsonNode.get("id").asInt());
 
@@ -286,7 +283,7 @@ public class ControllerNorm {
 			} else {
 				norm.setComputable(false);
 			}
-			
+
 			// return success
 			return true;
 

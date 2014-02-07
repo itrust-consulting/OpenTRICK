@@ -499,7 +499,7 @@ public class ControllerAnalysis {
 			}
 
 		} catch (Exception e) {
-			errors.put("ower", messageSource.getMessage("error.user.not_found", null, "User cannot be found", locale));
+			errors.put("owner", messageSource.getMessage("error.user.not_found", null, "User cannot be found", locale));
 			e.printStackTrace();
 		}
 		return errors;
