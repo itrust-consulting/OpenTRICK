@@ -206,7 +206,9 @@ public class WorkerImportNorm implements Worker {
 
 				}
 
-				//System.out.println(newNorm.getLabel() + " " + newNorm.getVersion() + " " + newNorm.getDescription() + " " + newNorm.isComputable());
+				// System.out.println(newNorm.getLabel() + " " +
+				// newNorm.getVersion() + " " + newNorm.getDescription() + " " +
+				// newNorm.isComputable());
 
 			}
 		}
@@ -255,7 +257,6 @@ public class WorkerImportNorm implements Worker {
 							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
 								measureDescription = new MeasureDescription();
 								measureDescription.setLevel((int) sheet.getRow(indexRow).getCell(0).getNumericCellValue());
-								//System.out.println(sheet.getRow(indexRow).getCell(3).getStringCellValue());
 								measureDescription.setReference(sheet.getRow(indexRow).getCell(1).getStringCellValue());
 								measureDescription.setNorm(newNorm);
 
@@ -264,7 +265,6 @@ public class WorkerImportNorm implements Worker {
 									measureDescriptionTexts = new ArrayList<>();
 
 									for (int indexCol = startColSheet + 3; indexCol <= endColSheet; indexCol++) {
-										//System.out.println("Header=" + sheet.getRow(startRowSheet).getCell(indexCol).getStringCellValue());
 										pattern = Pattern.compile("(Domain|Description)_(\\w{3})");
 										matcher = pattern.matcher(sheet.getRow(startRowSheet).getCell(indexCol).getStringCellValue());
 										if (matcher.matches()) {
@@ -273,9 +273,8 @@ public class WorkerImportNorm implements Worker {
 												measureDescriptionText = new MeasureDescriptionText();
 
 												measureDescriptionText.setMeasureDescription(measureDescription);
-												//System.out.println(sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() + "|" + sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue());
-												measureDescriptionText.setDomain(sheet.getRow(indexRow).getCell(indexCol).getStringCellValue());
-												measureDescriptionText.setDescription(sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue());
+												measureDescriptionText.setDomain(sheet.getRow(indexRow).getCell(indexCol)!=null?sheet.getRow(indexRow).getCell(indexCol).getStringCellValue():"");
+												measureDescriptionText.setDescription(sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "");
 
 												lang = daoLanguage.loadFromAlpha3(matcher.group(2).trim().toLowerCase());
 
