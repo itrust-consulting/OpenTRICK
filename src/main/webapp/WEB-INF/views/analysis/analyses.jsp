@@ -27,16 +27,16 @@
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span class="glyphicon glyphicon-pushpin"></span> <spring:message
 							code="label.analysis.pin" text="Edit Analysis" /></a></li>
 				<c:if test="${empty(KowledgeBaseView)}">
-					<li class="disabled profilemenu"><a href="#" onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span class="glyphicon glyphicon-plus primary"></span>
+					<li class="disabled profilemenu" trick-selectable="true"><a href="#" onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span class="glyphicon glyphicon-plus primary"></span>
 						<spring:message code="label.analysis.manage.access" text="Manage Access Rights" /></a></li>
 					<li class="disabled" trick-selectable="true"><a href="#" onclick="return addHistory()"> <span class="glyphicon glyphicon-new-window"></span> <spring:message
-								code="label.analysis.create.new_version" text="Create new version" /></a></li>
+								code="label.analysis.create.new_version" text="New version" /></a></li>
 				</c:if>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-edit"></span> <spring:message
 							code="label.analysis.editInfo" text="Edit info" /></a></li>
 				<c:if test="${empty(KowledgeBaseView)}">
 					<li class="disabled" trick-selectable="true"><a href="#" onclick="return createAnalysisProfile(null, 'section_analysis');"> <span class="glyphicon glyphicon-file"></span>
-							<spring:message code="label.analysis.createAnalysisProfile" text="Create new profile" /></a></li>
+							<spring:message code="label.analysis.createAnalysisProfile" text="New profile" /></a></li>
 				</c:if>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteAnalysis();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
 							code="label.analysis.delete" text="Delete" /></a></li>
@@ -44,9 +44,9 @@
 					<li class="disabled" trick-selectable="true"><a href="#" onclick="return exportAnalysis()"> <span class="glyphicon glyphicon-download-alt"></span> <spring:message
 								code="label.analysis.export" text="Export" /></a></li>
 					<li class="disabled" trick-selectable="multi"><a href="#" onclick="return calculateActionPlan()"> <span class="glyphicon glyphicon-list"></span> <spring:message
-								code="label.analysis.compute.action_plan" text="Compute action plan" /></a></li>
+								code="label.analysis.compute.action_plan" text="Action plan" /></a></li>
 					<li class="disabled" trick-selectable="multi"><a href="#" onclick="return calculateRiskRegister()"> <span class="glyphicon glyphicon-list-alt"></span> <spring:message
-								code="label.analysis.compute.risk_register" text="Compute risk register" /></a></li>
+								code="label.analysis.compute.risk_register" text="Risk register" /></a></li>
 				</c:if>
 			</ul>
 		</div>
