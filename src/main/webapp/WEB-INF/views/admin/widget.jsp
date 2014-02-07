@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="widget">
-	<jsp:include page="user/widgetcontent.jsp" />
-	<jsp:include page="customer/widgetcontent.jsp" />
-	<jsp:include page="analysis/widgetcontent.jsp" />
+	<jsp:include page="./user/widgetcontent.jsp" />
+	<jsp:include page="./customer/widgetcontent.jsp" />
+	<jsp:include page="./analysis/widgetcontent.jsp" />
 </div>
