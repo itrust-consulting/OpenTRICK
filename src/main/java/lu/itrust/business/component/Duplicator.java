@@ -194,17 +194,21 @@ public class Duplicator {
 			copy.setData(analysis.getData()
 					&& (analysisProfile.isAsset() || analysisProfile.isItemInformation() || analysisProfile.isParameter() || analysisProfile.isRiskInformation()
 							|| analysisProfile.isScenario() || analysisProfile.getNorms() != null && !analysisProfile.getNorms().isEmpty()));
-
+			
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.itemInformation", "Copy item information", 10));
+			
 			if (analysisProfile.isItemInformation()) {
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.itemInformation", "Copy item information", 10));
+				
 				copy.setItemInformations(new ArrayList<ItemInformation>(analysis.getItemInformations().size()));
 				for (ItemInformation itemInformation : analysis.getItemInformations())
 					copy.getItemInformations().add(itemInformation.duplicate());
 			} else
 				copy.setItemInformations(null);
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 15));
+			
 			if (analysisProfile.isParameter()) {
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 15));
+				
 				copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
 				for (Parameter parameter : analysis.getParameters()) {
 					parameters.put(parameter.getId(), parameter.duplicate());
@@ -213,16 +217,20 @@ public class Duplicator {
 			} else
 				copy.setParameters(null);
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskInformation", "Copy risk information", 20));
+			
 			if (analysisProfile.isRiskInformation()) {
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskInformation", "Copy risk information", 20));
+				
 				copy.setRiskInformations(new ArrayList<RiskInformation>(analysis.getRiskInformations().size()));
 				for (RiskInformation riskInformation : analysis.getRiskInformations())
 					copy.getRiskInformations().add(riskInformation.duplicate());
 			} else
 				copy.setRiskInformations(null);
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", 25));
+			
 			if (analysisProfile.isScenario()) {
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", 25));
+				
 				copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
 				for (Scenario scenario : analysis.getScenarios()) {
 					scenarios.put(scenario.getId(), scenario.duplicate());
@@ -231,8 +239,10 @@ public class Duplicator {
 			} else
 				copy.setScenarios(null);
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.asset", "Copy assets", 30));
+			
 			if (analysisProfile.isAsset()) {
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.asset", "Copy assets", 30));
+				
 				copy.setAssets(new ArrayList<Asset>(analysis.getAssets().size()));
 				for (Asset asset : analysis.getAssets()) {
 					assets.put(asset.getId(), asset.duplicate());
@@ -241,8 +251,10 @@ public class Duplicator {
 			} else
 				copy.setAssets(null);
 
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment", "Copy assessments", 35));
+			
 			if (analysisProfile.isScenario() && analysisProfile.isAsset()) {
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment", "Copy assessments", 35));
+				
 				copy.setAssessments(new ArrayList<Assessment>(analysis.getAssessments().size()));
 
 				for (Assessment assessment : analysis.getAssessments()) {
@@ -262,7 +274,7 @@ public class Duplicator {
 				copy.addUsedPhase(phases.get(phase.getId()));
 			}
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy mesaures", 45));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy measures", 45));
 
 			int measureSize = analysis.getAnalysisNorms().size();
 
@@ -278,7 +290,7 @@ public class Duplicator {
 				for (AnalysisNorm analysisNorm : analysis.getAnalysisNorms()) {
 					if (analysisProfile.getNorms().contains(analysisNorm.getNorm()))
 						copy.addAnalysisNorm(duplicate(analysisNorm, phases, customNorm, parameters));
-					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy mesaures", (copyCount++ / diviser) * 50 + 45));
+					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy measures", (copyCount++ / diviser) * 50 + 45));
 				}
 			}
 			return copy;
