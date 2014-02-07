@@ -26,7 +26,7 @@
 				<jsp:include page="customer/customers.jsp" />
 				<jsp:include page="language/languages.jsp" />
 				<jsp:include page="standard/norm/norms.jsp" />
-				<jsp:include page="analyses.jsp" />
+				<jsp:include page="../analysis/analyses.jsp" />
 				<jsp:include page="widget.jsp" />
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->

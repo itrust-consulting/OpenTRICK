@@ -25,6 +25,7 @@ import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSqLite;
 import lu.itrust.business.component.AssessmentManager;
@@ -280,6 +281,9 @@ public class ControllerAnalysis {
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
 		String referer = request.getHeader("Referer");
 		if (referer != null && referer.contains("/trickservice/KnowledgeBase")) {
+			User user = serviceUser.get(principal.getName());
+			if (!user.hasRole(RoleType.ROLE_CONSULTANT))
+				return "errors/403.jsp";
 			model.addAttribute("analyses", serviceAnalysis.loadProfiles());
 			model.addAttribute("login", principal.getName());
 			model.addAttribute("KowledgeBaseView", true);
@@ -487,7 +491,7 @@ public class ControllerAnalysis {
 			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)) {
 
 				// create/update analysis object and set access rights
-				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale);
+				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
 			} else {
 
 				// throw error
@@ -599,7 +603,7 @@ public class ControllerAnalysis {
 
 			if (validator == null)
 				serviceDataValidation.register(validator = new HistoryValidator());
-			
+
 			history.setDate(new Date(System.currentTimeMillis()));
 
 			for (Entry<String, String> entry : validator.validate(history).entrySet())
@@ -904,9 +908,11 @@ public class ControllerAnalysis {
 	 * @param owner
 	 * @param source
 	 * @param locale
+	 * @param session
+	 *            TODO
 	 * @return
 	 */
-	private boolean buildAnalysis(Map<String, String> errors, User owner, String source, Locale locale) {
+	private boolean buildAnalysis(Map<String, String> errors, User owner, String source, Locale locale, HttpSession session) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
@@ -986,6 +992,9 @@ public class ControllerAnalysis {
 				analysis.addUserRight(uar);
 				serviceAnalysis.save(analysis);
 			}
+			if (session != null)
+				session.setAttribute("currentCustomer", customer.getOrganisation());
+
 			return true;
 
 		} catch (Exception e) {

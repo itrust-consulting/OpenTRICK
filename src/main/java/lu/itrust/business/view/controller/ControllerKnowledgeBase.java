@@ -47,6 +47,8 @@ public class ControllerKnowledgeBase {
 		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
 		model.put("languages", serviceLanguage.loadAll());
 		model.put("norms", serviceNorm.loadAll());
+		model.put("norms", serviceNorm.loadAll());
+		model.put("KowledgeBaseView", true);
 		model.put("analyses", serviceAnalysis.loadProfiles());
 		return "knowledgebase/knowledgebase";
 	}
