@@ -1642,43 +1642,6 @@ function saveField(element, controller, id, field, type) {
 	}
 }
 
-function duplicateAnalysis(form, analyisId) {
-	var oldVersion = $("#history_oldVersion").prop("value");
-	$(".progress-striped").show();
-	$.ajax({
-		url : context + "/History/Analysis/" + analyisId + "/NewVersion/Save",
-		type : "post",
-		aync : true,
-		data : $("#" + form).serialize(),
-		success : function(response) {
-			var alert = $("#addHistoryModal .alert");
-			if (alert.length)
-				alert.remove();
-			if (response["success"] != undefined) {
-				$(".progress-striped").hide();
-				showSuccess($("#addHistoryModal .modal-body")[0],
-						response["success"]);
-				setTimeout("location.reload()", 2000);
-			} else if (response["error"]) {
-				$(".progress-striped").hide();
-				$("#history_oldVersion").prop("value", oldVersion);
-				showError($("#addHistoryModal .modal-body")[0],
-						response["error"]);
-				return false;
-			} else {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				if ((error = $(doc).find("#addHistoryModal")).length) {
-					$("#addHistoryModal .modal-body").html(
-							$(error).find(".modal-body"));
-					$("#history_oldVersion").prop("value", oldVersion);
-					return false;
-				}
-			}
-		}
-	});
-	return false;
-}
 
 function editField(element, controller, id, field, type) {
 	var fieldEditor = null;
