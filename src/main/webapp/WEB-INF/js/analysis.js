@@ -219,6 +219,7 @@ function saveAnalysisProfile(form) {
 						progressBar.Distroy();
 						$("#analysisProfileModal").modal("toggle");
 						$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
+						$("#alert-dialog").modal("toggle");
 					},
 					success : function() {
 						progressBar.Distroy();

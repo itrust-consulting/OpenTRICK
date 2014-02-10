@@ -176,4 +176,11 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 		return daoCustomer.isProfile(id);
 	}
 
+
+
+	@Override
+	public boolean exist(String organisation) {
+		return daoCustomer.exist(organisation);
+	}
+
 }

@@ -104,12 +104,16 @@ public class ControllerPhase {
 		if (!servicePhase.canBeDeleted(idPhase))
 			return JsonMessage.Error(messageSource.getMessage("error.phase.cannot_delete", null, "Phase cannot be deleted", locale));
 
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		
 		// retrieve phases of analysis
-		List<Phase> phases = servicePhase.loadAllFromAnalysis(idAnalysis);
+		List<Phase> phases = analysis.getUsedPhases();
 
 		// first phases cannot be deleted (0 and 1)
 		if (phases.size() < 2)
 			return JsonMessage.Error(messageSource.getMessage("error.phase.on_required", null, "This phase cannot be deleted", locale));
+		
+		
 
 		// iterate through phases
 		Phase phase = null;
@@ -119,15 +123,13 @@ public class ControllerPhase {
 			// set next phase
 			if (phase == null) {
 				phase = iterator.next();
-
 				// delete phase
 				if (phase.getId() == idPhase) {
-					servicePhase.remove(phase);
 					iterator.remove();
+					servicePhase.remove(phase);
 				} else
 					phase = null;
 			} else {
-
 				// update phase number of other phases
 				Phase phase2 = iterator.next();
 				phase2.setNumber(phase2.getNumber() - 1);

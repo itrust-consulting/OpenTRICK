@@ -25,6 +25,8 @@ public interface ServiceCustomer {
 	public boolean hasProfileCustomer();
 	
 	public boolean hasUser(int idCustomer);
+	
+	public boolean exist(String organisation);
 
 	public List<Customer> loadByUser(String username);
 	
@@ -45,6 +47,8 @@ public interface ServiceCustomer {
 	public DAOCustomer getDaoCustomer();
 
 	public boolean isProfile(int id);
+
+	
 
 	
 
