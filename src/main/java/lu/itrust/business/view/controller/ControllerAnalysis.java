@@ -240,7 +240,7 @@ public class ControllerAnalysis {
 		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
 
 		Analysis analysis = serviceAnalysis.get(analysisID);
-		
+
 		List<UserAnalysisRight> uars = analysis.getUserRights();
 
 		for (UserAnalysisRight uar : uars) {
@@ -277,10 +277,9 @@ public class ControllerAnalysis {
 			Map<User, UserAnalysisRight> userrights = new LinkedHashMap<>();
 
 			Analysis analysis = serviceAnalysis.get(analysisID);
-			
+
 			List<UserAnalysisRight> uars = analysis.getUserRights();
 
-			
 			for (UserAnalysisRight uar : uars) {
 				userrights.put(uar.getUser(), uar);
 			}
@@ -293,9 +292,9 @@ public class ControllerAnalysis {
 
 				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
 
-				if (userrights.containsKey(user)){
+				if (userrights.containsKey(user)) {
 					UserAnalysisRight uar = userrights.get(user);
-					if (useraccess==-1) {
+					if (useraccess == -1) {
 						analysis.removeRights(user);
 						serviceUserAnalysisRight.delete(uar);
 						serviceAnalysis.saveOrUpdate(analysis);
@@ -306,24 +305,22 @@ public class ControllerAnalysis {
 						serviceAnalysis.saveOrUpdate(analysis);
 					}
 				} else {
-					
+
 					if (!user.getCustomers().contains(analysis.getCustomer()))
-							user.addCustomer(analysis.getCustomer());
-					
-					if (useraccess!=-1){
+						user.addCustomer(analysis.getCustomer());
+
+					if (useraccess != -1) {
 						UserAnalysisRight uar = new UserAnalysisRight(user, analysis, AnalysisRight.valueOf(useraccess));
 						userrights.put(user, uar);
 						serviceUserAnalysisRight.save(uar);
 						serviceAnalysis.saveOrUpdate(analysis);
 					}
-						
+
 				}
 			}
 
-			
-			
 			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights users successfully updated!", locale));
-			
+
 			model.addAttribute("analysisRigths", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
@@ -481,10 +478,10 @@ public class ControllerAnalysis {
 
 		model.put("profiles", serviceAnalysis.loadProfiles());
 		// set author as the username
-		
+
 		User user = serviceUser.get(principal.getName());
-		
-		model.put("author", user.getFirstName()+" "+user.getLastName());
+
+		model.put("author", user.getFirstName() + " " + user.getLastName());
 
 		return "analysis/newAnalysis";
 	}
@@ -991,13 +988,13 @@ public class ControllerAnalysis {
 			String comment = jsonNode.has("label") ? jsonNode.get("label").asText() : "";
 			String author = jsonNode.has("author") ? jsonNode.get("author").asText() : "";
 			String version = jsonNode.has("version") ? jsonNode.get("version").asText() : "";
-			if (idCustomer < 1)
+			if (idCustomer < 1 && id < 1)
 				errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
 			if (idLanguage < 1)
 				errors.put("analysislanguage", messageSource.getMessage("error.language.null", null, "Language cannot be empty", locale));
 			if (comment.trim().isEmpty())
 				errors.put("comment", messageSource.getMessage("error.comment.null", null, "Comment cannot be empty", locale));
-			if (author.trim().isEmpty())
+			if (author.trim().isEmpty() && id < 1)
 				errors.put("author", messageSource.getMessage("error.author.null", null, "Author cannot be empty", locale));
 
 			if (version.trim().isEmpty())
@@ -1008,8 +1005,8 @@ public class ControllerAnalysis {
 			if (!errors.isEmpty())
 				return false;
 
-			Customer customer = serviceCustomer.get(jsonNode.get("analysiscustomer").asInt());
-			Language language = serviceLanguage.get(jsonNode.get("analysislanguage").asInt());
+			Customer customer = serviceCustomer.get(idCustomer);
+			Language language = serviceLanguage.get(idLanguage);
 			String label = jsonNode.get("label").asText();
 			Date date = new Date();
 			Timestamp creationDate = new Timestamp(date.getTime());
@@ -1024,7 +1021,8 @@ public class ControllerAnalysis {
 				}
 
 				analysis.setLabel(label);
-				analysis.setCustomer(customer);
+				if (!analysis.isProfile())
+					analysis.setCustomer(customer);
 				analysis.setLanguage(language);
 				serviceAnalysis.saveOrUpdate(analysis);
 			} else {

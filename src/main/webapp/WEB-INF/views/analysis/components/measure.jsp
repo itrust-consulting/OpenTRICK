@@ -22,7 +22,7 @@
 				<spring:message code="label.measure.${norm}" text="${norm}" />
 			</div>
 			<div class="panel-body" style="max-height: 700px; overflow: auto;">
-				<table class="table table-hover">
+				<table class="table table-hover table-fixed-header">
 					<thead>
 						<tr>
 							<td><spring:message code="label.table.index" text="#" /></td>
