@@ -22,6 +22,8 @@ public interface DAOCustomer {
 	
 	public boolean hasUser(int idCustomer);
 	
+	public boolean exist(String organisation);
+	
 	public Customer loadByCustomerName(String fullName) throws Exception;
 	
 	public List<Customer> loadByUserAndProfile(String username);
@@ -43,5 +45,7 @@ public interface DAOCustomer {
 	public List<Customer> loadByUser(String username);
 
 	public boolean isProfile(int id);
+
+	
 
 }

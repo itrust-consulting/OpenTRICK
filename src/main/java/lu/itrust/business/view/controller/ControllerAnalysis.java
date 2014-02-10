@@ -481,7 +481,10 @@ public class ControllerAnalysis {
 
 		model.put("profiles", serviceAnalysis.loadProfiles());
 		// set author as the username
-		model.put("author", principal.getName());
+		
+		User user = serviceUser.get(principal.getName());
+		
+		model.put("author", user.getFirstName()+" "+user.getLastName());
 
 		return "analysis/newAnalysis";
 	}

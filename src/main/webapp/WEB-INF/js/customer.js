@@ -1,27 +1,109 @@
 function saveCustomer(form) {
+	$("#addCustomerModel #addcustomerbutton").prop("disabled", true);
 	result = "";
-	return $.ajax({
-		url : context + "/KnowledgeBase/Customer/Save",
-		type : "post",
-		data : serializeForm(form),
-		contentType : "application/json",
-		success : function(response) {
-			var data = "";
-			for ( var error in response)
-				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document
-					.getElementById(form), data);
-			if (result) {
-				$("#addCustomerModel").modal("hide");
-				reloadSection("section_customer");
-			}
-			return result;
+	return $
+			.ajax({
+				url : context + "/KnowledgeBase/Customer/Save",
+				type : "post",
+				data : serializeForm(form),
+				contentType : "application/json",
+				success : function(response) {
+					$("#addCustomerModel #addcustomerbutton").prop("disabled",
+							false);
+					var alert = $("#addCustomerModel .label-danger");
+					if (alert.length)
+						alert.remove();
+					for ( var error in response) {
+						var errorElement = document.createElement("label");
+						errorElement
+								.setAttribute("class", "label label-danger");
 
-		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
-		},
-	});
+						$(errorElement).text(response[error]);
+						switch (error) {
+						case "organisation":
+							$(errorElement).appendTo(
+									$("#customer_form #customer_organisation")
+											.parent());
+							break;
+						case "address":
+							$(errorElement).appendTo(
+									$("#customer_form #customer_address")
+											.parent());
+							break;
+
+						case "email":
+							$(errorElement).appendTo(
+									$("#customer_form #customer_email")
+											.parent());
+							break;
+
+						case "city":
+							$(errorElement)
+									.appendTo(
+											$("#customer_form #customer_city")
+													.parent());
+							break;
+						case "ZIPCode":
+							$(errorElement).appendTo(
+									$("#customer_form #customer_ZIPCode")
+											.parent());
+							break;
+
+						case "country":
+							$(errorElement).appendTo(
+									$("#customer_form #customer_country")
+											.parent());
+							break;
+
+						case "contactPerson":
+							$(errorElement).appendTo(
+									$("#customer_form #customer_contactPerson")
+											.parent());
+							break;
+
+						case "telephoneNumber":
+							$(errorElement)
+									.appendTo(
+											$(
+													"#customer_form #customer_telephoneNumber")
+													.parent());
+							break;
+						case "canBeUsed":
+							$(errorElement).appendTo(
+									$("#customer_form #customer_canBeUsed")
+											.parent());
+							break;
+						case "customer":
+							$(errorElement).appendTo(
+									$("#addCustomerModel .modal-body"));
+							break;
+						}
+					}
+					if (!$("#addCustomerModel .label-danger").length) {
+						$("#addCustomerModel").modal("toggle");
+						reloadSection("section_customer");
+					}
+					return false;
+
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					var alert = $("#addCustomerModel .label-danger");
+					if (alert.length)
+						alert.remove();
+					$("#addCustomerModel #addcustomerbutton").prop("disabled",
+							false);
+					var errorElement = document.createElement("label");
+					errorElement.setAttribute("class", "label label-danger");
+					$(errorElement)
+							.text(
+									MessageResolver(
+											"error.unknown.add.customer",
+											"An unknown error occurred during adding customer"));
+					$(errorElement)
+							.appendTo($("#addCustomerModel .modal-body"));
+					return false;
+				},
+			});
 }
 
 function deleteCustomer(customerId, organisation) {
@@ -56,6 +138,7 @@ function deleteCustomer(customerId, organisation) {
 }
 
 function newCustomer() {
+	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
 	$("#customer_id").prop("value", "-1");
 	$("#customer_organisation").prop("value", "");
 	$("#customer_contactPerson").prop("value", "");
@@ -83,6 +166,7 @@ function editSingleCustomer(customerId) {
 			return false;
 		customerId = selectedScenario[0];
 	}
+	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
 	var rows = $("#section_customer").find(
 			"tr[trick-id='" + customerId + "'] td:not(:first-child)");
 	$("#customer_id").prop("value", customerId);
@@ -95,7 +179,8 @@ function editSingleCustomer(customerId) {
 	$("#customer_ZIPCode").prop("value", $(rows[6]).text());
 	$("#customer_country").prop("value", $(rows[7]).text());
 	if ($("#customer_canBeUsed").length)
-		$("#customer_canBeUsed").prop("checked", $(rows[8]).attr("trick-real-value") == "false");
+		$("#customer_canBeUsed").prop("checked",
+				$(rows[8]).attr("trick-real-value") == "false");
 	$("#addCustomerModel-title").text(
 			MessageResolver("title.knowledgebase.Customer.Update",
 					"Update a Customer"));
@@ -106,14 +191,14 @@ function editSingleCustomer(customerId) {
 }
 
 function manageUsers(customerID) {
-	
+
 	if (customerID == null || customerID == undefined) {
 		var selectedScenario = findSelectItemIdBySection(("section_customer"));
 		if (selectedScenario.length != 1)
 			return false;
 		customerID = selectedScenario[0];
 	}
-	
+
 	$.ajax({
 		url : context + "/KnowledgeBase/Customer/" + customerID + "/Users",
 		type : "get",
@@ -121,8 +206,12 @@ function manageUsers(customerID) {
 		success : function(response) {
 
 			$("#customerusersbody").html(response);
-			$("#customerusersform").prop("action", "Customer/"+customerID+"/Users/Update");
-			$("#customerusersbutton").attr("onclick","updateManageUsers("+customerID+",'#customerusersform')");
+			$("#customerusersform").prop("action",
+					"Customer/" + customerID + "/Users/Update");
+			$("#customerusersbutton").attr(
+					"onclick",
+					"updateManageUsers(" + customerID
+							+ ",'#customerusersform')");
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return result;
@@ -133,31 +222,35 @@ function manageUsers(customerID) {
 }
 
 function updateManageUsers(customerID, form) {
-	
-	var data= {};
-			
+
+	var data = {};
+
 	$(form).find("select[name='usercustomer'] option").each(function() {
-		
+
 		var name = $(this).attr("value");
-		
+
 		var value = $(this).is(":checked");
-		
+
 		data[name] = value;
-				
+
 	});
-	
+
 	var jsonarray = JSON.stringify(data);
-	
+
 	$.ajax({
-		url : context + "/KnowledgeBase/Customer/" + customerID + "/Users/Update",
+		url : context + "/KnowledgeBase/Customer/" + customerID
+				+ "/Users/Update",
 		type : "post",
-		data: jsonarray,
+		data : jsonarray,
 		contentType : "application/json",
 		success : function(response) {
-			
+
 			$("#customerusersbody").html(response);
-			/*$("#customerusersform").prop("action", "Customer/"+customerID+"/Users/Update");
-			$("#customerusersbutton").attr("onclick","updateManageUsers("+customerID+",'#customerusersform')");*/
+			/*
+			 * $("#customerusersform").prop("action",
+			 * "Customer/"+customerID+"/Users/Update");
+			 * $("#customerusersbutton").attr("onclick","updateManageUsers("+customerID+",'#customerusersform')");
+			 */
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return result;

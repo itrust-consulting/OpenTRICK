@@ -11,7 +11,7 @@
 				type="hidden" id="normVersion" value="${norm.version}" />
 		</h3>
 	</div>
-	<div id="measures_body" class="content" role="main" data-spy="scroll">
+	<div id="measures_body" class="content" role="main">
 		<div id="section_measure_description" class="section">
 			<div class="panel panel-default">
 				<div class="panel-heading" style="min-height: 60px">

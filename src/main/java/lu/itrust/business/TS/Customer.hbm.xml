@@ -8,7 +8,7 @@
 			<generator class="increment" />
 		</id>
 		<property column="dtOrganisation" name="organisation"
-	not-null="true" access="field" />
+	not-null="true" access="field" unique="true" />
 		<property column="dtAddress" name="address" not-null="true"
 			access="field" />
 		<property column="dtZIP" name="ZIPCode" length="50" not-null="true"

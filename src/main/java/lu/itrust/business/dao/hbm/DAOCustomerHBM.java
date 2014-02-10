@@ -182,4 +182,10 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 
 	}
 
+	@Override
+	public boolean exist(String organisation) {
+		return ((Long) getSession().createQuery("Select count(customer) From Customer as customer where customer.organisation = :organisation")
+				.setParameter("organisation", organisation).uniqueResult()).intValue() > 0;
+	}
+
 }

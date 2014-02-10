@@ -21,6 +21,7 @@
 				<!-- #################################################################### Analysis Menu ################################################################### -->
 				<c:choose>
 					<c:when test="${!empty(sessionScope.selectedAnalysis)}">
+						<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)" var="measures" scope="request" />
 						<jsp:include page="analysisMenu.jsp" />
 						<jsp:include page="../successErrors.jsp" />
 						<div class="content nav-container" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}">
@@ -38,7 +39,6 @@
 							<jsp:include page="./components/scenario.jsp" />
 							<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
 							<jsp:include page="./components/phase.jsp" />
-							<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)" var="measures" scope="request" />
 							<jsp:include page="./components/measure.jsp" />
 							<c:if test="${!KowledgeBaseView }">
 								<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
