@@ -118,9 +118,9 @@ public class ControllerAssessment {
 
 			// update assessments of analysis
 			assessmentManager.UpdateAssessment(analysis);
-
-			// update ALE of assets by parsing assessments
-			assessmentManager.UpdateAssetALE(analysis);
+			
+			// update
+			serviceAnalysis.saveOrUpdate(analysis);
 
 			// return success message
 			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", locale) + "\"}");
@@ -164,6 +164,10 @@ public class ControllerAssessment {
 			// delete all assessments
 			assessmentManager.WipeAssessment(analysis);
 
+			// update
+			serviceAnalysis.saveOrUpdate(analysis);
+
+			
 			// return success message
 			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.wipe", null, "Assessments were successfully deleted", locale) + "\"}");
 		} catch (Exception e) {

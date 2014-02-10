@@ -46,6 +46,7 @@ import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAssetType;
 import lu.itrust.business.dao.DAOLanguage;
@@ -284,9 +285,16 @@ public class ImportAnalysis {
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("import.saving.analysis", "Saving Data to Database", 90));
 
+			AssessmentManager asm = new AssessmentManager();
+
 			// save or update analysis
 			daoAnalysis.save(this.analysis);
 
+			// update ALE of asset objects
+			asm.UpdateAssessment(this.analysis);
+
+			daoAnalysis.saveOrUpdate(this.analysis);
+			
 			if (session != null)
 				session.getTransaction().commit();
 
@@ -545,12 +553,10 @@ public class ImportAnalysis {
 		}
 
 		if (history == null) {
-			this.analysis.setBasedOnAnalysis(null);	
+			this.analysis.setBasedOnAnalysis(null);
 		} else {
 			this.analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), history.getVersion()));
 		}
-		
-		
 
 	}
 
@@ -1737,11 +1743,9 @@ public class ImportAnalysis {
 			return true;
 		} catch (SQLException e) {
 			return false;
-		}	
+		}
 	}
-	
-	
-	
+
 	/**
 	 * importNormMeasures: <br>
 	 * <ul>
@@ -1796,7 +1800,6 @@ public class ImportAnalysis {
 		// retrieve results
 		while (rs.next()) {
 
-			
 			// measureID = rs.getInt("rowid");
 
 			// ****************************************************************
@@ -1822,7 +1825,7 @@ public class ImportAnalysis {
 					measurecomputable = false;
 				}
 			}
-			
+
 			norm = daoNorm.loadSingleNormByNameAndVersion(idMeasureNorm, normversion);
 			// norm is not in database create new norm and save in into
 			// database for future
@@ -1830,7 +1833,7 @@ public class ImportAnalysis {
 				norm = new Norm(idMeasureNorm, normversion, description, normcomputable);
 				daoNorm.save(norm);
 				// add norm to map
-				norms.put(norm.getLabel()+"_"+norm.getVersion(), norm);
+				norms.put(norm.getLabel() + "_" + norm.getVersion(), norm);
 			}
 
 			// retrieve analysisnorm of the norm
@@ -1889,7 +1892,7 @@ public class ImportAnalysis {
 				mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
 
 				// fill measure description text with data
-				//System.out.println(rs.getString(Constant.MEASURE_DOMAIN_MEASURE));
+				// System.out.println(rs.getString(Constant.MEASURE_DOMAIN_MEASURE));
 				mesText.setDomain(rs.getString(Constant.MEASURE_DOMAIN_MEASURE));
 				mesText.setDescription(rs.getString(Constant.MEASURE_QUESTION_MEASURE));
 
@@ -1950,7 +1953,7 @@ public class ImportAnalysis {
 			normMeasure.setToCheck(rs.getString(Constant.MEASURE_REVISION));
 			normMeasure.setToDo(rs.getString(Constant.MEASURE_TODO));
 			normMeasure.setComputable(measurecomputable);
-			
+
 			// calculate cost
 			cost =
 				Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE), this.analysis
@@ -2238,10 +2241,10 @@ public class ImportAnalysis {
 		Parameter implementationRateParameter = null;
 		double implementationRate = 0;
 		MaturityMeasure maturityMeasure = null;
-		Integer normversion  = 2005;
-		boolean normcomputable =true;
+		Integer normversion = 2005;
+		boolean normcomputable = true;
 		boolean measurecomputable = false;
-		String description  = "Old Maturity measure to be used with the 2005 verison of 27001 ISO norm.";
+		String description = "Old Maturity measure to be used with the 2005 verison of 27001 ISO norm.";
 
 		// ****************************************************************
 		// * load each maturity
@@ -2271,7 +2274,7 @@ public class ImportAnalysis {
 					measurecomputable = false;
 				}
 			}
-			
+
 			norm = daoNorm.loadSingleNormByNameAndVersion(Constant.NORM_MATURITY, normversion);
 			// norm is not in database create new norm and save in into
 			// database for future
@@ -2279,7 +2282,7 @@ public class ImportAnalysis {
 				norm = new Norm(Constant.NORM_MATURITY, normversion, description, normcomputable);
 				daoNorm.save(norm);
 				// add norm to map
-				norms.put(norm.getLabel()+"_"+norm.getVersion(), norm);
+				norms.put(norm.getLabel() + "_" + norm.getVersion(), norm);
 			}
 
 			// get analysisNorm from map
@@ -2519,7 +2522,7 @@ public class ImportAnalysis {
 			((MaturityNorm) analysisNorm).addMeasure(maturityMeasure);
 
 			// add measure to measures map
-			measures.put(analysisNorm.getNorm().getLabel() +"_" + analysisNorm.getNorm().getVersion() + "_" + chapter, maturityMeasure);
+			measures.put(analysisNorm.getNorm().getLabel() + "_" + analysisNorm.getNorm().getVersion() + "_" + chapter, maturityMeasure);
 		}
 
 		// close result
@@ -2809,11 +2812,11 @@ public class ImportAnalysis {
 			// rs.getInt(Constant.ASSET_ID_TYPE_ASSET));
 
 			int normversion = 2005;
-			
+
 			if (columnExists(rs, Constant.MEASURE_VERSION_NORM)) {
 				normversion = rs.getInt(Constant.MEASURE_VERSION_NORM);
 			}
-			
+
 			measure = (NormMeasure) measures.get(rs.getString(Constant.MEASURE_ID_NORM) + "_" + normversion + "_" + rs.getString(Constant.MEASURE_REF_MEASURE));
 
 			// ****************************************************************

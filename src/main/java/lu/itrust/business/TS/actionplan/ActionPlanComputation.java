@@ -20,6 +20,7 @@ import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.dao.DAOActionPlanType;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.service.ServiceTaskFeedback;
@@ -223,6 +224,11 @@ public class ActionPlanComputation {
 		System.out.println("Computing Action Plans...");
 
 		try {
+
+			AssessmentManager asm = new AssessmentManager();
+			
+			// update ALE of asset objects
+			asm.UpdateAssessment(this.analysis);
 
 			// ***************************************************************
 			// * compute Action Plan - normal mode - Phase //

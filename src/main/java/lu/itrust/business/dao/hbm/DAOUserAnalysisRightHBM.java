@@ -5,6 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.UserAnalysisRight;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOUserAnalysisRight;
 
@@ -65,7 +66,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	/**
 	 * getAllByUser: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getAllByUser(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@SuppressWarnings("unchecked")
@@ -87,7 +88,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 		Query query = getSession().createQuery("From UserAnalysisRight WHERE analysis.id = :analysis").setParameter("analysis", analysisid);
 		return (List<UserAnalysisRight>) query.list();
 	}
-	
+
 	/**
 	 * getAllByUniqueAnalysis: <br>
 	 * Description
@@ -175,19 +176,30 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 
 	@Override
 	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) {
-		AnalysisRight analysisRight = (AnalysisRight) getSession()
-				.createQuery(
-						"Select userAnalysisRight.right From UserAnalysisRight as userAnalysisRight where userAnalysisRight.analysis.id = :idAnalysis and userAnalysisRight.user.login = :login")
-				.setParameter("idAnalysis", idAnalysis).setParameter("login", username).uniqueResult();
+		AnalysisRight analysisRight =
+			(AnalysisRight) getSession().createQuery(
+					"Select userAnalysisRight.right From UserAnalysisRight as userAnalysisRight where userAnalysisRight.analysis.id = :idAnalysis and userAnalysisRight.user.login = :login")
+					.setParameter("idAnalysis", idAnalysis).setParameter("login", username).uniqueResult();
+		
+		User user = (User) getSession().createQuery("FROM User as user where user.login = :username").setParameter("username", username).uniqueResult();
+		
+		Boolean isProfile = (Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.id = :id").setParameter("id", idAnalysis).uniqueResult();
+		
+		if (isProfile == null)
+			isProfile = false;
+		
+		if(user.hasRole(RoleType.ROLE_CONSULTANT) && isProfile)
+			analysisRight = AnalysisRight.ALL;
+		
 		return analysisRight == null ? false : analysisRight.ordinal() <= right.ordinal();
 	}
 
 	@Override
 	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) {
-		AnalysisRight analysisRight = (AnalysisRight) getSession()
-				.createQuery(
-						"Select userAnalysisRight.right From UserAnalysisRight as userAnalysisRight where userAnalysisRight.analysis.id = :idAnalysis and userAnalysisRight.user.id = :idUser")
-				.setParameter("idAnalysis", analysisId).setParameter("idUser", userId).uniqueResult();
+		AnalysisRight analysisRight =
+			(AnalysisRight) getSession().createQuery(
+					"Select userAnalysisRight.right From UserAnalysisRight as userAnalysisRight where userAnalysisRight.analysis.id = :idAnalysis and userAnalysisRight.user.id = :idUser")
+					.setParameter("idAnalysis", analysisId).setParameter("idUser", userId).uniqueResult();
 		return analysisRight == null ? false : analysisRight.ordinal() <= right.ordinal();
 	}
 
