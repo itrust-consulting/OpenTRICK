@@ -121,7 +121,7 @@ public class ChartGenerator {
 		dataALEs += "]";
 				
 		if (ales2.size() >=10)
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"10\"}";
+			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
 		else
 			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\""+(ales2.size()-1)+"\"}";
 		
@@ -203,7 +203,7 @@ public class ChartGenerator {
 		dataALEs += "]";
 		
 		if (ales2.size() >=10)
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"10\"}";
+			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
 		else
 			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\""+(ales2.size()-1)+"\"}";
 		
@@ -477,7 +477,7 @@ public class ChartGenerator {
 		dataALEs += "]";
 		
 		if (ales2.size() >=10)
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"10\"}";
+			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
 		else
 			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\""+(ales2.size()-1)+"\"}";
 		
@@ -558,12 +558,10 @@ public class ChartGenerator {
 		dataALEs += "]";
 		
 		if (ales2.size() >=10)
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"10\"}";
+			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
 		else
 			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\""+(ales2.size()-1)+"\"}";
 			
-		
-		xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"10\"}";
 		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + ",\"valueDecimals\": 0}]";
 
 		ales.clear();

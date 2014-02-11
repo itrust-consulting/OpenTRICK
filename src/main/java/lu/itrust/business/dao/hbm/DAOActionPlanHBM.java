@@ -117,7 +117,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	@Override
 	public List<ActionPlanEntry> loadAllFromAnalysis(int id) throws Exception {
 		return (List<ActionPlanEntry>) getSession().createQuery(
-				"Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.actionPlanType.id ASC, actionplan.measure.phase.number ASC, actionplan.ROI ASC").setParameter(
+				"Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.id DESC").setParameter(
 				"analysisID", id).list();
 	}
 

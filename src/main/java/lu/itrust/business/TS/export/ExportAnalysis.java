@@ -1437,9 +1437,7 @@ public class ExportAnalysis {
 						assetTypeValue = measure.getAssetTypeValue(indexAssetTypeValue);
 
 						// ****************************************************************
-						// * export asset type value into
-						// spec_default_type_asset_measure
-						// * sqlite table
+						// * export asset type value into spec_default_type_asset_measure sqlite table
 						// ****************************************************************
 
 						// build query
@@ -1448,19 +1446,17 @@ public class ExportAnalysis {
 						if (specdefaultquery.equals(Constant.EMPTY_STRING)) {
 
 							// set query
-							specdefaultquery = "INSERT INTO spec_default_type_asset_measure SELECT";
-							specdefaultquery += " ? as 'id_type_asset', ? as 'id_norme', ? as ";
-							specdefaultquery += "'ref_measure', ? as 'value_spec' UNION";
+							specdefaultquery = "INSERT INTO spec_default_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 							// set limit
-							specdefaultcounter = 4;
+							specdefaultcounter = 5;
 
 						} else {
 
 							// check if first part -> NO
 
 							// check if limit reached -> YES
-							if (specdefaultcounter + 4 >= 999) {
+							if (specdefaultcounter + 5 >= 999) {
 
 								// execute query
 								specdefaultquery = specdefaultquery.substring(0, specdefaultquery.length() - 6);
@@ -1470,21 +1466,19 @@ public class ExportAnalysis {
 								defaultspecparams.clear();
 
 								// reset query
-								specdefaultquery = "INSERT INTO spec_default_type_asset_measure ";
-								specdefaultquery += "SELECT ? as 'id_type_asset', ? as 'id_norme',";
-								specdefaultquery += "? as 'ref_measure', ? as 'value_spec' UNION";
+								specdefaultquery = "INSERT INTO spec_default_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 								// reset limit
-								specdefaultcounter = 4;
+								specdefaultcounter = 5;
 							} else {
 
 								// check if limit reached -> NO
 
 								// add insert data to query
-								specdefaultquery += " SELECT ? , ?, ?, ? UNION";
+								specdefaultquery += " SELECT ?, ?, ?, ?, ? UNION";
 
 								// incrment limit
-								specdefaultcounter += 4;
+								specdefaultcounter += 5;
 							}
 						}
 
@@ -1503,6 +1497,9 @@ public class ExportAnalysis {
 							// set all other norm name
 							defaultspecparams.add(measNorm.getNorm().getLabel());
 						}
+						
+						defaultspecparams.add(measNorm.getNorm().getVersion());
+						
 						defaultspecparams.add(measure.getMeasureDescription().getReference());
 
 						if (assetTypeValue.getValue() == 101)
@@ -1523,18 +1520,16 @@ public class ExportAnalysis {
 							if (specquery.equals(Constant.EMPTY_STRING)) {
 
 								// set query
-								specquery = "INSERT INTO spec_type_asset_measure SELECT ";
-								specquery += "? as 'id_type_asset', ? as 'id_norme', ? as ";
-								specquery += "'ref_measure', ? as 'value_spec' UNION";
+								specquery = "INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme',? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 								// set limit
-								speccounter = 4;
+								speccounter = 5;
 							} else {
 
 								// check if first part -> NO
 
 								// check if limit reached -> YES
-								if (speccounter + 4 >= 999) {
+								if (speccounter + 5 >= 999) {
 
 									// execute query
 									specquery = specquery.substring(0, specquery.length() - 6);
@@ -1544,21 +1539,19 @@ public class ExportAnalysis {
 									specparams.clear();
 
 									// reset query
-									specquery = "INSERT INTO spec_type_asset_measure SELECT ";
-									specquery += "? as 'id_type_asset', ? as 'id_norme', ? as ";
-									specquery += "'ref_measure', ? as 'value_spec' UNION";
+									specquery = "INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme',? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 									// reset limit
-									speccounter = 4;
+									speccounter = 5;
 								} else {
 
 									// check if limit reached -> NO
 
 									// add insert values to query
-									specquery += " SELECT ?,?,?,? UNION";
+									specquery += " SELECT ?,?,?,?,? UNION";
 
 									// increment limit
-									speccounter += 4;
+									speccounter += 5;
 								}
 							}
 
@@ -1577,6 +1570,9 @@ public class ExportAnalysis {
 								// set all other norm name
 								specparams.add(measNorm.getNorm().getLabel());
 							}
+							
+							specparams.add(measNorm.getNorm().getVersion());
+							
 							specparams.add(measure.getMeasureDescription().getReference());
 							if (assetTypeValue.getValue() == 101)
 								specparams.add(-1);
