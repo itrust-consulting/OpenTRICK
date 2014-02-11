@@ -131,6 +131,7 @@ function deleteCustomer(customerId, organisation) {
 			}
 		});
 		$("#deleteCustomerModel").modal('toggle');
+		$("#deletecustomerbuttonYes").unbind();
 		return false;
 	});
 	$("#deleteCustomerModel").modal('toggle');
@@ -138,6 +139,9 @@ function deleteCustomer(customerId, organisation) {
 }
 
 function newCustomer() {
+	var alert = $("#addCustomerModel .label-danger");
+	if (alert.length)
+		alert.remove();
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
 	$("#customer_id").prop("value", "-1");
 	$("#customer_organisation").prop("value", "");
@@ -166,6 +170,9 @@ function editSingleCustomer(customerId) {
 			return false;
 		customerId = selectedScenario[0];
 	}
+	var alert = $("#addCustomerModel .label-danger");
+	if (alert.length)
+		alert.remove();
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
 	var rows = $("#section_customer").find(
 			"tr[trick-id='" + customerId + "'] td:not(:first-child)");
@@ -204,7 +211,6 @@ function manageUsers(customerID) {
 		type : "get",
 		contentType : "application/json",
 		success : function(response) {
-
 			$("#customerusersbody").html(response);
 			$("#customerusersform").prop("action",
 					"Customer/" + customerID + "/Users/Update");
@@ -244,13 +250,7 @@ function updateManageUsers(customerID, form) {
 		data : jsonarray,
 		contentType : "application/json",
 		success : function(response) {
-
 			$("#customerusersbody").html(response);
-			/*
-			 * $("#customerusersform").prop("action",
-			 * "Customer/"+customerID+"/Users/Update");
-			 * $("#customerusersbutton").attr("onclick","updateManageUsers("+customerID+",'#customerusersform')");
-			 */
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return result;

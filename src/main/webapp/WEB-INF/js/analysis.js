@@ -17,7 +17,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 					$("#manageAnalysisAccessModel").modal('toggle');
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
-				return fase;
+				return false;
 			},
 		});
 	} else
@@ -116,8 +116,9 @@ function saveAnalysis(form, reloadaction) {
 			}
 			if (!$("#addAnalysisModel .label-danger").length) {
 				$("#addAnalysisModel").modal("hide");
-				reloadSection(reloadaction);
+				reloadSection("section_analysis");
 			}
+			return false;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return false;
@@ -161,6 +162,7 @@ function deleteAnalysis(analysisId) {
 					return false;
 				}
 			});
+			$("#deleteanalysisbuttonYes").unbind();
 			return false;
 		});
 		$("#deleteanalysisbuttonYes").prop("disabled",false);

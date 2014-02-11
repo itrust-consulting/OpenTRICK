@@ -82,7 +82,7 @@
 				<tbody>
 					<c:forEach items="${analyses}" var="analysis">
 						<tr trick-id="${analysis.id}" trick-rights-id="${empty(KowledgeBaseView)?analysis.getRightsforUserString(login).right.ordinal() : '0'}" data="${analysis.hasData() }"
-							ondblclick="return editSingleAnalysis();">
+							ondblclick="return editSingleAnalysis(${analysis.id});">
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_analysis','#menu_analysis');"></td>
 							<td>${analysis.identifier}</td>
 							<td>${analysis.label}</td>

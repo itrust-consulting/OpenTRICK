@@ -110,7 +110,7 @@ public class Duplicator {
 			copy.setAnalysisNorms(new ArrayList<AnalysisNorm>(analysis.getAnalysisNorms().size()));
 
 			for (AnalysisNorm analysisNorm : analysis.getAnalysisNorms())
-				copy.addAnalysisNorm(duplicate(analysisNorm, phases, customNorm, parameters));
+				copy.addAnalysisNorm(duplicate(analysisNorm, phases, customNorm, parameters, false));
 			return copy;
 		} finally {
 			scenarios.clear();
@@ -120,20 +120,25 @@ public class Duplicator {
 		}
 	}
 
-	public AnalysisNorm duplicate(AnalysisNorm analysisNorm, Map<Integer, Phase> phases, Norm customNorm, Map<Integer, Parameter> parameters) throws CloneNotSupportedException {
+	public AnalysisNorm duplicate(AnalysisNorm analysisNorm, Map<Integer, Phase> phases, Norm customNorm, Map<Integer, Parameter> parameters, boolean anonymize)
+			throws CloneNotSupportedException {
 		AnalysisNorm norm = (AnalysisNorm) analysisNorm.duplicate();
 
 		List<Measure> measures = new ArrayList<>(analysisNorm.getMeasures().size());
 		for (Measure measure : analysisNorm.getMeasures())
-			measures.add(duplicate(measure, phases.get(measure.getPhase().getId()), norm, parameters));
+			measures.add(duplicate(measure, phases.get(measure.getPhase().getId()), norm, parameters, anonymize));
 		norm.setMeasures(measures);
 		return norm;
 	}
 
-	public Measure duplicate(Measure measure, Phase phase, AnalysisNorm norm, Map<Integer, Parameter> parameters) throws CloneNotSupportedException {
+	public Measure duplicate(Measure measure, Phase phase, AnalysisNorm norm, Map<Integer, Parameter> parameters, boolean anonymize) throws CloneNotSupportedException {
 		Measure copy = measure.duplicate();
 		copy.setAnalysisNorm(norm);
 		copy.setPhase(phase);
+		if (anonymize) {
+			copy.setComment("");
+			copy.setToDo("");
+		}
 		if (norm.getNorm().getLabel().equalsIgnoreCase(Constant.NORM_CUSTOM))
 			copy.setMeasureDescription(duplicate(measure.getMeasureDescription(), copy));
 		else if (copy instanceof MaturityMeasure)
@@ -194,21 +199,20 @@ public class Duplicator {
 			copy.setData(analysis.getData()
 					&& (analysisProfile.isAsset() || analysisProfile.isItemInformation() || analysisProfile.isParameter() || analysisProfile.isRiskInformation()
 							|| analysisProfile.isScenario() || analysisProfile.getNorms() != null && !analysisProfile.getNorms().isEmpty()));
-			
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.itemInformation", "Copy item information", 10));
-			
-			if (analysisProfile.isItemInformation()) {
-				
-				copy.setItemInformations(new ArrayList<ItemInformation>(analysis.getItemInformations().size()));
-				for (ItemInformation itemInformation : analysis.getItemInformations())
-					copy.getItemInformations().add(itemInformation.duplicate());
-			} else
-				copy.setItemInformations(null);
+
+			copy.setItemInformations(new ArrayList<ItemInformation>(analysis.getItemInformations().size()));
+			for (ItemInformation itemInformation : analysis.getItemInformations()) {
+				ItemInformation duplicateInformation = itemInformation.duplicate();
+				if (!analysisProfile.isItemInformation())
+					duplicateInformation.setValue("");
+				copy.getItemInformations().add(duplicateInformation);
+			}
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 15));
-			
+
 			if (analysisProfile.isParameter()) {
-				
 				copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
 				for (Parameter parameter : analysis.getParameters()) {
 					parameters.put(parameter.getId(), parameter.duplicate());
@@ -218,9 +222,8 @@ public class Duplicator {
 				copy.setParameters(null);
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskInformation", "Copy risk information", 20));
-			
+
 			if (analysisProfile.isRiskInformation()) {
-				
 				copy.setRiskInformations(new ArrayList<RiskInformation>(analysis.getRiskInformations().size()));
 				for (RiskInformation riskInformation : analysis.getRiskInformations())
 					copy.getRiskInformations().add(riskInformation.duplicate());
@@ -228,9 +231,9 @@ public class Duplicator {
 				copy.setRiskInformations(null);
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", 25));
-			
+
 			if (analysisProfile.isScenario()) {
-				
+
 				copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
 				for (Scenario scenario : analysis.getScenarios()) {
 					scenarios.put(scenario.getId(), scenario.duplicate());
@@ -240,9 +243,9 @@ public class Duplicator {
 				copy.setScenarios(null);
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.asset", "Copy assets", 30));
-			
+
 			if (analysisProfile.isAsset()) {
-				
+
 				copy.setAssets(new ArrayList<Asset>(analysis.getAssets().size()));
 				for (Asset asset : analysis.getAssets()) {
 					assets.put(asset.getId(), asset.duplicate());
@@ -252,9 +255,9 @@ public class Duplicator {
 				copy.setAssets(null);
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment", "Copy assessments", 35));
-			
+
 			if (analysisProfile.isScenario() && analysisProfile.isAsset()) {
-				
+
 				copy.setAssessments(new ArrayList<Assessment>(analysis.getAssessments().size()));
 
 				for (Assessment assessment : analysis.getAssessments()) {
@@ -289,7 +292,7 @@ public class Duplicator {
 			if (analysisProfile.getNorms() != null && !analysisProfile.getNorms().isEmpty()) {
 				for (AnalysisNorm analysisNorm : analysis.getAnalysisNorms()) {
 					if (analysisProfile.getNorms().contains(analysisNorm.getNorm()))
-						copy.addAnalysisNorm(duplicate(analysisNorm, phases, customNorm, parameters));
+						copy.addAnalysisNorm(duplicate(analysisNorm, phases, customNorm, parameters, true));
 					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy measures", (copyCount++ / diviser) * 50 + 45));
 				}
 			}
