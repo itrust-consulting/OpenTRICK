@@ -211,7 +211,6 @@ function manageUsers(customerID) {
 		type : "get",
 		contentType : "application/json",
 		success : function(response) {
-
 			$("#customerusersbody").html(response);
 			$("#customerusersform").prop("action",
 					"Customer/" + customerID + "/Users/Update");
@@ -251,13 +250,7 @@ function updateManageUsers(customerID, form) {
 		data : jsonarray,
 		contentType : "application/json",
 		success : function(response) {
-
 			$("#customerusersbody").html(response);
-			/*
-			 * $("#customerusersform").prop("action",
-			 * "Customer/"+customerID+"/Users/Update");
-			 * $("#customerusersbutton").attr("onclick","updateManageUsers("+customerID+",'#customerusersform')");
-			 */
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return result;
