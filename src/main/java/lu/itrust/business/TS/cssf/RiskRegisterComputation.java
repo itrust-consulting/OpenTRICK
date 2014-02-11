@@ -84,7 +84,7 @@ public class RiskRegisterComputation {
 		for (int i = 0; i < usePhases.size(); i++) {
 			if (usePhases.get(i).getNumber() == 0)
 				continue;
-			tmas.addAll(ActionPlanComputation.generateTMAList(this.analysis, useMeasures, ActionPlanMode.NORMAL, usePhases.get(i).getNumber(), true, true, analysis.getAnalysisNorms()));
+			tmas.addAll(ActionPlanComputation.generateTMAList(this.analysis, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true, analysis.getAnalysisNorms()));
 
 			if (mandatoryPhase == usePhases.get(i).getNumber()) {
 				System.out.println(usePhases.get(i).getNumber());

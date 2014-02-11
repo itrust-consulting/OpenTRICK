@@ -588,7 +588,7 @@ public class ControllerAnalysis {
 	String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session) throws Exception {
 		try {
 
-			// delete the analysis
+			// delete the analysis			
 			serviceAnalysis.remove(analysisId);
 
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");

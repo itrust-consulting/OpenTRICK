@@ -75,16 +75,16 @@ public class TMA {
 
 		// get ALE corresponding to type of computation
 		switch (mode) {
-			case NORMAL:
-			case PHASE_NORMAL:
+			case APN:
+			case APPN:
 				this.ALE = this.assessment.getALE();
 				break;
-			case OPTIMISTIC:
-			case PHASE_OPTIMISTIC:
+			case APO:
+			case APPO:
 				this.ALE = this.assessment.getALEO();
 				break;
-			case PESSIMISTIC:
-			case PHASE_PESSIMISTIC:
+			case APP:
+			case APPP:
 				this.ALE = this.assessment.getALEP();
 				break;
 		}

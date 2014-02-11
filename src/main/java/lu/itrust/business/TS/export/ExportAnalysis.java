@@ -39,8 +39,8 @@ import org.hibernate.Session;
 
 /**
  * ExportAnalysis: <br>
- * This class is used to export a specific Analysis into a SQLite file to be
- * used inside TRICK Light.
+ * This class is used to export a specific Analysis into a SQLite file to be used inside TRICK
+ * Light.
  * 
  * @author itrust consulting s.��� r.l. - SME,BJA,EOM
  * @version 0.1
@@ -212,8 +212,7 @@ public class ExportAnalysis {
 
 	/**
 	 * exportRiskInformation: <br>
-	 * Exports the Risk Information to an Sqlite File using an Sqlite Database
-	 * Handler.
+	 * Exports the Risk Information to an Sqlite File using an Sqlite Database Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -469,8 +468,7 @@ public class ExportAnalysis {
 
 	/**
 	 * exportItemInformation: <br>
-	 * Exports the Item Information to an Sqlite File using an Sqlite Database
-	 * Handler.
+	 * Exports the Item Information to an Sqlite File using an Sqlite Database Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -630,8 +628,7 @@ public class ExportAnalysis {
 
 	/**
 	 * exportIdentifier: <br>
-	 * Exports the identifier to an sqlite file using an sqlite database
-	 * handler.
+	 * Exports the identifier to an sqlite file using an sqlite database handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -712,8 +709,7 @@ public class ExportAnalysis {
 
 	/**
 	 * exportSimpleParameters: <br>
-	 * Export Simple Parameters to an Sqlite File usaing a Sqlite Database
-	 * Hanlder.
+	 * Export Simple Parameters to an Sqlite File usaing a Sqlite Database Hanlder.
 	 * 
 	 * @throws Exception
 	 */
@@ -814,8 +810,7 @@ public class ExportAnalysis {
 
 	/**
 	 * exportExtendedParameters: <br>
-	 * Export Extended Parameters to an Sqlite File using a Sqlite Database
-	 * Handler.
+	 * Export Extended Parameters to an Sqlite File using a Sqlite Database Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -836,7 +831,8 @@ public class ExportAnalysis {
 		for (int index = 0; index < this.analysis.getParameters().size(); index++) {
 
 			// check if impact OR propability -> YES
-			if ((this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME)) || (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
+			if ((this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+				|| (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))) {
 
 				// store parameter in object
 				extendedParameter = (ExtendedParameter) this.analysis.getAParameter(index);
@@ -879,8 +875,7 @@ public class ExportAnalysis {
 
 	/**
 	 * exportMaturityParameters: <br>
-	 * Export Maturity Parameters to an Sqlite File using a Sqlite Database
-	 * Handler.
+	 * Export Maturity Parameters to an Sqlite File using a Sqlite Database Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -973,8 +968,8 @@ public class ExportAnalysis {
 
 	/**
 	 * exportParameters: <br>
-	 * Exports the Simple, Extended and Maturity Parameters to an Sqlite File
-	 * using an Sqlite Database Handler.
+	 * Exports the Simple, Extended and Maturity Parameters to an Sqlite File using an Sqlite
+	 * Database Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -1155,8 +1150,7 @@ public class ExportAnalysis {
 
 	/**
 	 * exportAssessments: <br>
-	 * Exports the Assessments to an Sqlite File using an Sqlite Database
-	 * Handler.
+	 * Exports the Assessments to an Sqlite File using an Sqlite Database Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -1200,7 +1194,9 @@ public class ExportAnalysis {
 			if (query.equals(Constant.EMPTY_STRING)) {
 
 				// build query
-				query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as " + "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
+				query =
+					"INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as "
+						+ "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
 
 				// set ? limit
 				counter = 14;
@@ -1220,7 +1216,9 @@ public class ExportAnalysis {
 
 					// reset query
 					// build query
-					query = "INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as " + "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
+					query =
+						"INSERT INTO Assessment SELECT ? as 'id_asset', ? as id_threat,? as selected,? " + "as impact_reputation,? as impact_operational, ? as impact_legal, ? as "
+							+ "impact_financial,? as impact_hidden,? as potentiality,? as " + "potentiality_hidden,? as comment,? as comment_2,? as total_ALE,? as " + "uncertainty UNION";
 
 					// set ? limit
 					counter = 14;
@@ -1362,9 +1360,11 @@ public class ExportAnalysis {
 							measurequery = "INSERT INTO measures SELECT ? as 'id_norme',? as 'version_norme',? as 'norme_computable',? as 'norme_description',? as 'ref_measure',? as ";
 							measurequery += "'measure_computable',? as 'domain_measure',? as 'question_measure',? as 'level',? as 'strength_measure',?as 'strength_sectoral',? as ";
 							measurequery += "'confidentiality',? as 'integrity',? as 'availability',? as 'd1', ? as 'd2',? as 'd3',? as 'd4',? as 'd5',? as 'd6',? as 'd61',? as 'd62',? as ";
-							measurequery += "'d63',? as 'd64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',? as 'i5', ? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83', ? ";
+							measurequery +=
+								"'d63',? as 'd64',? as 'd7',? as 'i1',? as 'i2',? as 'i3',? as 'i4',? as 'i5', ? as 'i6',? as 'i7',? as 'i8',? as 'i81',? as 'i82',? as 'i83', ? ";
 							measurequery += "as 'i84',? as 'i9',? as 'i10', ? as 'preventive', ? as 'detective',? as 'limiting',? as 'corrective', ? as'intentional',? as 'accidental',? as";
-							measurequery += " 'environmental',? as 'internal_threat',? as 'external_threat',? as 'internal_setup',? as 'external_setup',? as 'investment', ? as 'lifetime',? as";
+							measurequery +=
+								" 'environmental',? as 'internal_threat',? as 'external_threat',? as 'internal_setup',? as 'external_setup',? as 'investment', ? as 'lifetime',? as";
 							measurequery += " 'maintenance',? as 'implmentation_rate',? as 'status',? as 'comment',? as 'todo',? as 'revision',? as 'phase',? as 'soa_reference',? as ";
 							measurequery += "'soa_risk',? as 'soa_comment',? as 'index2' UNION";
 
@@ -1437,7 +1437,8 @@ public class ExportAnalysis {
 						assetTypeValue = measure.getAssetTypeValue(indexAssetTypeValue);
 
 						// ****************************************************************
-						// * export asset type value into spec_default_type_asset_measure sqlite table
+						// * export asset type value into spec_default_type_asset_measure sqlite
+						// table
 						// ****************************************************************
 
 						// build query
@@ -1446,7 +1447,8 @@ public class ExportAnalysis {
 						if (specdefaultquery.equals(Constant.EMPTY_STRING)) {
 
 							// set query
-							specdefaultquery = "INSERT INTO spec_default_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
+							specdefaultquery =
+								"INSERT INTO spec_default_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 							// set limit
 							specdefaultcounter = 5;
@@ -1466,7 +1468,8 @@ public class ExportAnalysis {
 								defaultspecparams.clear();
 
 								// reset query
-								specdefaultquery = "INSERT INTO spec_default_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
+								specdefaultquery =
+									"INSERT INTO spec_default_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 								// reset limit
 								specdefaultcounter = 5;
@@ -1497,9 +1500,9 @@ public class ExportAnalysis {
 							// set all other norm name
 							defaultspecparams.add(measNorm.getNorm().getLabel());
 						}
-						
+
 						defaultspecparams.add(measNorm.getNorm().getVersion());
-						
+
 						defaultspecparams.add(measure.getMeasureDescription().getReference());
 
 						if (assetTypeValue.getValue() == 101)
@@ -1520,7 +1523,8 @@ public class ExportAnalysis {
 							if (specquery.equals(Constant.EMPTY_STRING)) {
 
 								// set query
-								specquery = "INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme',? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
+								specquery =
+									"INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme',? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 								// set limit
 								speccounter = 5;
@@ -1539,7 +1543,8 @@ public class ExportAnalysis {
 									specparams.clear();
 
 									// reset query
-									specquery = "INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme',? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
+									specquery =
+										"INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme',? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 									// reset limit
 									speccounter = 5;
@@ -1570,9 +1575,9 @@ public class ExportAnalysis {
 								// set all other norm name
 								specparams.add(measNorm.getNorm().getLabel());
 							}
-							
+
 							specparams.add(measNorm.getNorm().getVersion());
-							
+
 							specparams.add(measure.getMeasureDescription().getReference());
 							if (assetTypeValue.getValue() == 101)
 								specparams.add(-1);
@@ -1658,7 +1663,8 @@ public class ExportAnalysis {
 
 							// reset query
 							measurequery = "INSERT INTO maturities SELECT ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
-							measurequery += " 'domain',? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime',? as 'maintenance',? as 'comment',? ";
+							measurequery +=
+								" 'domain',? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime',? as 'maintenance',? as 'comment',? ";
 							measurequery += "as 'todo',? as 'sml1',? as 'sml2',? as 'sml3',? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
 							// reset limit
@@ -1716,7 +1722,8 @@ public class ExportAnalysis {
 
 						// add parameters
 						specparams.clear();
-						specparams.add(maturity.getMeasureDescription().getReference().substring(maturity.getMeasureDescription().getReference().indexOf(".") + 1, maturity.getMeasureDescription().getReference().length()));
+						specparams.add(maturity.getMeasureDescription().getReference().substring(maturity.getMeasureDescription().getReference().indexOf(".") + 1,
+								maturity.getMeasureDescription().getReference().length()));
 						specparams.add(maturity.getPhase().getNumber());
 
 						// execute the query
@@ -1741,8 +1748,7 @@ public class ExportAnalysis {
 
 	/**
 	 * exportActionPlans: <br>
-	 * Exports the Action Plans to an Sqlite File using an Sqlite Database
-	 * Handler.
+	 * Exports the Action Plans to an Sqlite File using an Sqlite Database Handler.
 	 * 
 	 * @throws Exception
 	 */
@@ -1753,7 +1759,8 @@ public class ExportAnalysis {
 		// ****************************************************************
 		// * export action plan types
 		// ****************************************************************
-		sqlite.query("INSERT INTO ActionPlanType SELECT 1 as 'idActionPlanType','APN' as 'dtLabel'" + "UNION SELECT 2,'APO' UNION SELECT 3,'APP' UNION SELECT 4,'APPN' UNION " + "SELECT 5,'APPO' UNION SELECT 6,'APPP'", null);
+		sqlite.query("INSERT INTO ActionPlanType SELECT 1 as 'idActionPlanType','APN' as 'dtLabel'" + "UNION SELECT 2,'APO' UNION SELECT 3,'APP' UNION SELECT 4,'APPN' UNION "
+			+ "SELECT 5,'APPO' UNION SELECT 6,'APPP'", null);
 
 		// ****************************************************************
 		// * export action plans
@@ -2118,27 +2125,26 @@ public class ExportAnalysis {
 
 	/**
 	 * generateIndexOfReference: <br>
-	 * Generate Index of Measure or Maturity Reference. This will be used inside
-	 * Measure Export, to set the Field in the Sqlite File to define the Order
-	 * inside TRICK Light.
+	 * Generate Index of Measure or Maturity Reference. This will be used inside Measure Export, to
+	 * set the Field in the Sqlite File to define the Order inside TRICK Light.
 	 * 
 	 * @param reference
 	 *            The Reference of the Measure
 	 * @throws SQLException
 	 */
-	private int generateIndexOfReference(String reference) {
+	private long generateIndexOfReference(String reference) {
 
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
 		String[] split = reference.split("\\.");
 
-		final int[] multi = new int[split.length];
+		final long[] multi = new long[4];
 
-		for (int indexMulti = (split.length - 1); indexMulti >= 0; indexMulti--)
-			multi[indexMulti] = (int) Math.pow(1000., indexMulti);
+		for (int indexMulti = (4 - 1); indexMulti >= 0; indexMulti--)
+			multi[indexMulti] = (long) Math.pow(1000, indexMulti);
 
-		int index = 0;
+		long index = 0;
 
 		// ****************************************************************
 		// * create the index of aperence of reference inside sqlite table
@@ -2150,26 +2156,39 @@ public class ExportAnalysis {
 			// Case of 27001 and Maturity -> YES
 			if (split[0].equals(Constant.NORM27001_FIRSTCHAR_REFERENCE) || split[0].equals(Constant.MATURITY_FIRSTCHAR_REFERENCE)) {
 
+				index = 0;
+
 				// create index for 27001 and maturity
 				for (int i = 1; i < split.length; i++) {
 
 					// ****************************************************************
 					// * set index
 					// ****************************************************************
-					index += (Integer.parseInt(split[i]) * multi[i - 1]);
+					long multiplicator = multi[(multi.length - 1) - i];
+
+					long value = Long.parseLong(split[i]);
+
+					index += (value * multiplicator);
 				}
 
 			} else {
 
 				// Case of 27001 and Maturity -> NO
 
+				index = 0;
+
 				// create index for 27002 and custom
 				for (int i = 0; i < split.length; i++) {
-					
+
 					// ****************************************************************
 					// * set index
 					// ****************************************************************
-					index += (Integer.parseInt(split[i]) * multi[i]);
+
+					long multiplicator = multi[(multi.length - 1) - i];
+
+					long value = Long.parseLong(split[i]);
+
+					index += (value * multiplicator);
 				}
 			}
 		}
@@ -2182,8 +2201,7 @@ public class ExportAnalysis {
 
 	/**
 	 * getLinefromMaturityCategory: <br>
-	 * Get the Line corresponding to the maturity category. If label belongs to
-	 * nothing, return -1.
+	 * Get the Line corresponding to the maturity category. If label belongs to nothing, return -1.
 	 * 
 	 * @throws Exception
 	 */

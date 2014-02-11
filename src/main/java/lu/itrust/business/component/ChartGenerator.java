@@ -354,9 +354,9 @@ public class ChartGenerator {
 		
 		series += serie;
 	
-		List<Measure> actionplanmeasures = daoActionPlan.loadMeasuresFromAnalysisActionPlan(idAnalysis, ActionPlanMode.PHASE_NORMAL);
+		List<Measure> actionplanmeasures = daoActionPlan.loadMeasuresFromAnalysisActionPlan(idAnalysis, ActionPlanMode.APPN);
 
-		List<Measure> actionplanmeasuresnottoimplement = daoActionPlan.loadMeasuresFromAnalysisActionPlanNotToImplement(idAnalysis, ActionPlanMode.PHASE_NORMAL);
+		List<Measure> actionplanmeasuresnottoimplement = daoActionPlan.loadMeasuresFromAnalysisActionPlanNotToImplement(idAnalysis, ActionPlanMode.APPN);
 
 		
 		List<Phase> phases = daoPhase.loadAllFromAnalysis(idAnalysis);

@@ -245,7 +245,7 @@ public class ActionPlanComputation {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.normal_mode", "Compute Action Plan - normal mode - Phase", progress));
 
 			// compute
-			computePhaseActionPlan(ActionPlanMode.PHASE_NORMAL);
+			computePhaseActionPlan(ActionPlanMode.APPN);
 
 			// ****************************************************************
 			// * compute Action Plan - optimistic mode - Phase
@@ -262,7 +262,7 @@ public class ActionPlanComputation {
 				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", progress));
 
 				// compute
-				computePhaseActionPlan(ActionPlanMode.PHASE_OPTIMISTIC);
+				computePhaseActionPlan(ActionPlanMode.APPO);
 
 				// ****************************************************************
 				// * compute Action Plan - pessimistic mode - Phase
@@ -277,7 +277,7 @@ public class ActionPlanComputation {
 				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", 40));
 
 				// compute
-				computePhaseActionPlan(ActionPlanMode.PHASE_PESSIMISTIC);
+				computePhaseActionPlan(ActionPlanMode.APPP);
 			}
 			// *********************************************************************
 			// * set positions relative to normal action plan for all action plans
@@ -313,7 +313,7 @@ public class ActionPlanComputation {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 50));
 
 			// compute
-			computeSummary(ActionPlanMode.PHASE_NORMAL);
+			computeSummary(ActionPlanMode.APPN);
 
 			// check if uncertainty for optimisitc and pessimistic compputations
 			if (uncertainty) {
@@ -332,7 +332,7 @@ public class ActionPlanComputation {
 						progress));
 
 				// compute
-				computeSummary(ActionPlanMode.PHASE_OPTIMISTIC);
+				computeSummary(ActionPlanMode.APPO);
 
 				// update progress
 				progress += 10;
@@ -346,7 +346,7 @@ public class ActionPlanComputation {
 						progress));
 
 				// compute
-				computeSummary(ActionPlanMode.PHASE_PESSIMISTIC);
+				computeSummary(ActionPlanMode.APPP);
 
 			}
 
@@ -393,12 +393,12 @@ public class ActionPlanComputation {
 		// initialise variable
 		// ****************************************************************
 		String position = "";
-		List<ActionPlanEntry> actionPlan = this.analysis.getActionPlan(ActionPlanMode.NORMAL);
-		List<ActionPlanEntry> actionPlanO = this.analysis.getActionPlan(ActionPlanMode.OPTIMISTIC);
-		List<ActionPlanEntry> actionPlanP = this.analysis.getActionPlan(ActionPlanMode.PESSIMISTIC);
-		List<ActionPlanEntry> phaseActionPlan = this.analysis.getActionPlan(ActionPlanMode.PHASE_NORMAL);
-		List<ActionPlanEntry> phaseActionPlanO = this.analysis.getActionPlan(ActionPlanMode.PHASE_OPTIMISTIC);
-		List<ActionPlanEntry> phaseActionPlanP = this.analysis.getActionPlan(ActionPlanMode.PHASE_PESSIMISTIC);
+		List<ActionPlanEntry> actionPlan = this.analysis.getActionPlan(ActionPlanMode.APN);
+		List<ActionPlanEntry> actionPlanO = this.analysis.getActionPlan(ActionPlanMode.APO);
+		List<ActionPlanEntry> actionPlanP = this.analysis.getActionPlan(ActionPlanMode.APP);
+		List<ActionPlanEntry> phaseActionPlan = this.analysis.getActionPlan(ActionPlanMode.APPN);
+		List<ActionPlanEntry> phaseActionPlanO = this.analysis.getActionPlan(ActionPlanMode.APPO);
+		List<ActionPlanEntry> phaseActionPlanP = this.analysis.getActionPlan(ActionPlanMode.APPP);
 
 		// ****************************************************************
 		// * APN - Action Plan Normal
