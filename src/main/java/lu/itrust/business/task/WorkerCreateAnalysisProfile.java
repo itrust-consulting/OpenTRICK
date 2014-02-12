@@ -78,14 +78,14 @@ public class WorkerCreateAnalysisProfile implements Worker {
 
 			Customer customer = daoCustomer.loadProfileCustomer();
 			if (customer == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a customer can be use for your analysis profile", null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a customer profile before you can create your analysis profile", null));
 				return;
 			}
 			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load.norm", "Load standards", 1));
 			reloadNorm(daoNorm);
 			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load", "Load analysis", 2));
 			Analysis analysis = daoAnalysis.get(analysisProfile.getIdAnalysis());
-			Analysis copy = new Duplicator().duplicate(analysis, analysisProfile, serviceTaskFeedback, id);
+			Analysis copy = new Duplicator().createProfile(analysis, analysisProfile, serviceTaskFeedback, id);
 			copy.setCustomer(customer);
 			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.save", "Save analysis profile", 96));
 			transaction = session.beginTransaction();

@@ -63,6 +63,44 @@ public class Constant {
 	 **********************************************************************************************/
 	
 	/***********************************************************************************************
+	 * item information field values - BEGIN
+	 **********************************************************************************************/
+	
+	public static final String TYPE_ORGANISM="type_organism";							
+	public static final String TYPE_PROFIT_ORGANISM="type_profit_organism";				
+	public static final String NAME_ORGANISM="name_organism";							
+	public static final String PRESENTATION_ORGANISM="presentation_organism";			
+	public static final String SECTOR_ORGANISM="sector_organism";						
+	public static final String RESPONSIBLE_ORGANISM="responsible_organism";				
+	public static final String STAFF_ORGANISM="staff_organism";							
+	public static final String ACTIVITIES_ORGANISM="activities_organism";				
+	public static final String EXCLUDED_ASSETS="excluded_assets";						
+	public static final String OCCUPATION="occupation";									
+	public static final String FUNCTIONAL="functional";									
+	public static final String JURIDIC="juridic";										
+	public static final String POL_ORGANISATION="pol_organisation";						
+	public static final String MANAGEMENT_ORGANISATION="management_organisation";		
+	public static final String PREMISES="premises";										
+	public static final String REQUIREMENTS="requirements";								
+	public static final String EXPECTATIONS="expectations";								
+	public static final String ENVIRONMENT="environment ";								
+	public static final String INTERFACE="interface";									
+	public static final String STRATEGIC="strategic";									
+	public static final String PROCESSUS_DEVELOPMENT="processus_development";			
+	public static final String STAKEHOLDER_IDENTIFICATION="stakeholder_identification";	
+	public static final String ROLE_RESPONSABILITY="role_responsability";				
+	public static final String STAKEHOLDER_RELATION="stakeholder_relation";				
+	public static final String ESCALATION_WAY="escalation_way";							
+	public static final String DOCUMENT_CONSERVE="document_conserve";					
+	
+	
+	
+	/***********************************************************************************************
+	 * item information field values - END
+	 **********************************************************************************************/
+	
+	
+	/***********************************************************************************************
 	 * List of Regular Expressions - BEGIN
 	 **********************************************************************************************/
 
@@ -192,7 +230,7 @@ public class Constant {
 
 	/** Phase */
 	public final static int PHASE_NOT_USABLE = 0;
-	public final static int PHASE_DEFAULT = 0;
+	public final static int PHASE_DEFAULT = 1;
 
 	/** Parameter Type Identifiers */
 	public final static int PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML = 1;

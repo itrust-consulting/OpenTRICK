@@ -39,30 +39,14 @@
 					<table class="table">
 						<thead>
 							<tr>
-								<th><form:label path="parameter">
-										<spring:message code="label.analysis.profile.parameter" text="Parameters" />
-									</form:label></th>
-								<th><form:label path="itemInformation">
-										<spring:message code="label.analysis.profile.itemInformation" text="Item information" />
-									</form:label></th>
-								<th><form:label path="riskInformation">
-										<spring:message code="label.analysis.profile.riskInformation" text="Risk information" />
-									</form:label></th>
 								<th><form:label path="scenario">
-										<spring:message code="label.analysis.profile.scenario" text="Scenario" />
-									</form:label></th>
-								<th><form:label path="asset">
-										<spring:message code="label.analysis.profile.asset" text="Asset" />
+										<spring:message code="label.analysis.profile.scenario" text="Scenarios" />
 									</form:label></th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr>
-								<td><form:checkbox path="parameter" /></td>
-								<td><form:checkbox path="itemInformation" /></td>
-								<td><form:checkbox path="riskInformation" /></td>
 								<td><form:checkbox path="scenario" /></td>
-								<td><form:checkbox path="asset" /></td>
 							</tr>
 						</tbody>
 					</table>

@@ -2141,10 +2141,7 @@ public class ImportAnalysis {
 					// ****************************************************************
 					// * create instance
 					// ****************************************************************
-					itemInformation = new ItemInformation();
-					itemInformation.setValue(rs.getString(rsMetaData.getColumnName(i)));
-					itemInformation.setDescription(rsMetaData.getColumnName(i));
-					itemInformation.setType(Constant.ITEMINFORMATION_SCOPE);
+					itemInformation = new ItemInformation(rsMetaData.getColumnName(i),Constant.ITEMINFORMATION_SCOPE, rs.getString(rsMetaData.getColumnName(i)));
 
 					// ****************************************************************
 					// * add instance to list of item information
@@ -2193,10 +2190,7 @@ public class ImportAnalysis {
 				// ****************************************************************
 				// * create instance
 				// ****************************************************************
-				itemInformation = new ItemInformation();
-				itemInformation.setValue(rs.getString(rsMetaData.getColumnName(i)));
-				itemInformation.setDescription(rsMetaData.getColumnName(i));
-				itemInformation.setType(Constant.ITEMINFORMATION_ORGANISATION);
+				itemInformation = new ItemInformation(rsMetaData.getColumnName(i),Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i)));
 
 				// ****************************************************************
 				// * add instance to list of item information

@@ -133,6 +133,73 @@ public class Analysis implements Serializable, Cloneable {
 	 **********************************************************************************************/
 
 	/**
+	 * initialiseEmptyItemInformation: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 */
+	public static final void initialiseEmptyItemInformation(Analysis analysis){
+		
+		if (analysis==null)
+			return;
+		
+		analysis.getItemInformations().clear();
+		ItemInformation iteminfo;
+		iteminfo = new ItemInformation(Constant.TYPE_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.TYPE_PROFIT_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.NAME_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.PRESENTATION_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.SECTOR_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.RESPONSIBLE_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.STAFF_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.ACTIVITIES_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.EXCLUDED_ASSETS, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.OCCUPATION, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.FUNCTIONAL, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.JURIDIC, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.POL_ORGANISATION, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.MANAGEMENT_ORGANISATION, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.PREMISES, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.REQUIREMENTS, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.EXPECTATIONS, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.ENVIRONMENT, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.INTERFACE, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.STRATEGIC, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.PROCESSUS_DEVELOPMENT, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.STAKEHOLDER_IDENTIFICATION, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.ROLE_RESPONSABILITY, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.STAKEHOLDER_RELATION, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.ESCALATION_WAY, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+		iteminfo = new ItemInformation(Constant.DOCUMENT_CONSERVE, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
+		analysis.addAnItemInformation(iteminfo);
+	}
+	
+	/**
 	 * computeActionPlan: <br>
 	 * Computes the Action Plans and stores the Result into the Database and
 	 * inside the ActionPlan Lists.
@@ -1854,7 +1921,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param summaries
 	 *            The Value to set the summaries field
 	 */
-	protected void setSummaries(List<SummaryStage> summaries) {
+	public void setSummaries(List<SummaryStage> summaries) {
 		this.summaries = summaries;
 	}
 

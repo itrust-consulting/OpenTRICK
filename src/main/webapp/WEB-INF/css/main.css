@@ -125,3 +125,5 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	color:#fff;
 	font-size:12px Arial;
 }
+
+.tablesorter thead tr.tablesorter-filter-row {display: none}

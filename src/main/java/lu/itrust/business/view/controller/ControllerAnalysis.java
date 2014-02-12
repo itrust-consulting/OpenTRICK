@@ -702,7 +702,7 @@ public class ControllerAnalysis {
 
 			// duplicate analysis
 			Duplicator duplicator = new Duplicator();
-			Analysis copy = duplicator.duplicate(analysis, null);
+			Analysis copy = duplicator.duplicateAnalysis(analysis, null);
 			// attribute new values to new analysis
 			copy.setBasedOnAnalysis(analysis);
 			copy.addAHistory(history);
@@ -1035,11 +1035,17 @@ public class ControllerAnalysis {
 						errors.put("profile", messageSource.getMessage("error.analysis.profile.not_found", null, "Selected profile cannot be found", locale));
 						return false;
 					}
-					analysis = new Duplicator().duplicate(profile, null);
+					analysis = new Duplicator().duplicateAnalysis(profile, null);
+					Analysis.initialiseEmptyItemInformation(analysis);
 					analysis.setProfile(false);
+					if((analysis.getAssets().size()>0) && (analysis.getScenarios().size()>0) && (analysis.getAnalysisNorms().size()>0))
+						analysis.setData(true);
+					else
+						analysis.setData(false);
 				} else {
 					analysis = new Analysis();
-					analysis.setData(true);
+					analysis.setData(false);
+					Analysis.initialiseEmptyItemInformation(analysis);
 				}
 				analysis.setBasedOnAnalysis(null);
 				analysis.setCreationDate(creationDate);

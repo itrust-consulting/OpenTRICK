@@ -68,7 +68,7 @@ public class ControllerAnalysisProfile {
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/Add/{analysisId}")
-	public String createProfile(@PathVariable int analysisId, Model model, Principal principal) {
+	public String createProfile(@PathVariable int analysisId, Model model, Principal principal) throws Exception {
 		List<Norm> norms = serviceNorm.loadAllFromAnalysis(analysisId);
 		AnalysisProfile analysisProfile = new AnalysisProfile(analysisId);
 		model.addAttribute("norms", norms);

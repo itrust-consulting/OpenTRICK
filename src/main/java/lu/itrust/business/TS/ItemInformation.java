@@ -30,6 +30,20 @@ public class ItemInformation implements Cloneable {
 	/** The Item Information Type */
 	private String type = "";
 
+	public ItemInformation(){}
+	
+	/**
+	 * Constructor: <br>
+	 * @param description
+	 * @param type
+	 * @param value
+	 */
+	public ItemInformation(String description, String type, String value){
+		this.description = description;
+		this.type = type;
+		this.value = value;
+	}
+	
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/

@@ -2226,22 +2226,40 @@ function analysisTableSortable() {
 			},
 			1 : {
 				sorter : false,
+				filter : false,
 				width : "10%",
 			},
 			2 : {
 				sorter : false,
+				filter : false,
 			},
 			3 : {
-				sorter : "text"
+				sorter : "text",
+				filter : false,
 			},
 			4 : {
-				sorter : "text"
+				sorter : "text",
+				filter : false,
 			},
 			5 : {
-				sorter : "text"
+				sorter : "text",
+				filter : false,
 			},
 			6 : {
-				sorter : "text"
+				sorter : "text",
+				filter : false,
+			},
+			7 : {
+				sorter : "text",
+				filter : false,
+			},
+			8 : {
+				sorter : "text",
+				filter : false,
+			},
+			9 : {
+				sorter : "text",
+				filter : false,
 			},
 		},
 		textSorter : {

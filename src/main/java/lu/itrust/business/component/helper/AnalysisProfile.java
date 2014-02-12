@@ -9,172 +9,137 @@ import java.util.List;
 import lu.itrust.business.TS.Norm;
 
 /**
- * @author eomar
- * 
+ * AnalysisProfile.java: <br>
+ * Detailed description...
+ *
+ * @author eomar, itrust consulting s.à.rl.
+ * @version 
+ * @since Feb 12, 2014
  */
 public class AnalysisProfile {
 
+	/** name */
 	private String name;
 
 	private int idAnalysis;
 
 	private List<Norm> norms = new ArrayList<Norm>();
 
-	private boolean parameter = true;
-
-	private boolean itemInformation = true;
-
-	private boolean riskInformation = true;
-
 	private boolean scenario = true;
-
-	private boolean asset;
 	
 	private String comment;
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public AnalysisProfile() {
 	}
 
+	/**
+	 * Constructor: <br>
+	 * @param analysisId
+	 */
 	public AnalysisProfile(int analysisId) {
 		setIdAnalysis(analysisId);
 	}
 
 	/**
-	 * @return the name
+	 * getName: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
+	 * setName: <br>
+	 * Description
+	 * 
 	 * @param name
-	 *            the name to set
 	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
 	/**
-	 * @return the norms
+	 * getNorms: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public List<Norm> getNorms() {
 		return norms;
 	}
 
 	/**
+	 * setNorms: <br>
+	 * Description
+	 * 
 	 * @param norms
-	 *            the norms to set
 	 */
 	public void setNorms(List<Norm> norms) {
 		this.norms = norms;
 	}
 
 	/**
-	 * @return the idAnalysis
+	 * getIdAnalysis: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public int getIdAnalysis() {
 		return idAnalysis;
 	}
 
 	/**
+	 * setIdAnalysis: <br>
+	 * Description
+	 * 
 	 * @param idAnalysis
-	 *            the idAnalysis to set
 	 */
 	public void setIdAnalysis(int idAnalysis) {
 		this.idAnalysis = idAnalysis;
 	}
 
 	/**
-	 * @return the parameter
-	 */
-	public boolean isParameter() {
-		return parameter;
-	}
-
-	/**
-	 * @param parameter
-	 *            the parameter to set
-	 */
-	public void setParameter(boolean parameter) {
-		this.parameter = parameter;
-	}
-
-	
-
-	/**
-	 * @return the riskInformation
-	 */
-	public boolean isRiskInformation() {
-		return riskInformation;
-	}
-
-	/**
-	 * @param riskInformation
-	 *            the riskInformation to set
-	 */
-	public void setRiskInformation(boolean riskInformation) {
-		this.riskInformation = riskInformation;
-	}
-
-	/**
-	 * @return the scenario
+	 * isScenario: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public boolean isScenario() {
 		return scenario;
 	}
 
 	/**
+	 * setScenario: <br>
+	 * Description
+	 * 
 	 * @param scenario
-	 *            the scenario to set
 	 */
 	public void setScenario(boolean scenario) {
 		this.scenario = scenario;
 	}
 
 	/**
-	 * @return the asset
-	 */
-	public boolean isAsset() {
-		return asset;
-	}
-
-	/**
-	 * @param asset
-	 *            the asset to set
-	 */
-	public void setAsset(boolean asset) {
-		this.asset = asset;
-	}
-
-	/**
-	 * @return the itemInformation
-	 */
-	public boolean isItemInformation() {
-		return itemInformation;
-	}
-
-	/**
-	 * @param itemInformation the itemInformation to set
-	 */
-	public void setItemInformation(boolean itemInformation) {
-		this.itemInformation = itemInformation;
-	}
-
-	/**
-	 * @return the comment
+	 * getComment: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public String getComment() {
 		return comment;
 	}
 
 	/**
-	 * @param comment the comment to set
+	 * setComment: <br>
+	 * Description
+	 * 
+	 * @param comment
 	 */
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
-
 }
