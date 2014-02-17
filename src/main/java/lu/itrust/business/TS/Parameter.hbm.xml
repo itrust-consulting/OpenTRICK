@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS">
-	<class name="Parameter" table="parameter">
+	<class name="Parameter" table="Parameter">
 		<id name="id" column="idParameter" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
@@ -11,12 +11,12 @@
 		<property name="description" column="dtLabel" not-null="true" access="field"/>
 		<property name="value" column="dtValue" not-null="true" access="field"/>
 		<joined-subclass name="MaturityParameter" extends="Parameter"
-			table="maturityParameter">
+			table="MaturityParameter">
 			<key column="idMaturityParameter" not-null="true" />
 			<property name="category" column="dtCategory" not-null="true" access="field"/>
 			<property name="SMLLevel" column="dtSML" not-null="true" access="field"/>
 		</joined-subclass>
-		<joined-subclass name="ExtendedParameter" extends="Parameter" table="extendedParameter">
+		<joined-subclass name="ExtendedParameter" extends="Parameter" table="ExtendedParameter">
 				<key column="idExtendedParameter" not-null="true" />
 				<component name="bounds" access="field">
 					<property name="from" column="dtFrom" not-null="true"
@@ -27,7 +27,7 @@
 				<property name="acronym" column="dtAcronym" not-null="true" access="field"/>
 		</joined-subclass>
 	</class>
-	<class name="ParameterType" table="parameterType">
+	<class name="ParameterType" table="ParameterType">
 		<id name="id" column="idParameterType">
 			<generator class="assigned" />
 		</id>

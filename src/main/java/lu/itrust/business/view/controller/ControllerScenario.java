@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AssetType;
+import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -220,6 +221,7 @@ public class ControllerScenario {
 	@RequestMapping("/Add")
 	public String add(Model model) throws Exception {
 		model.addAttribute("scenariotypes", serviceScenarioType.loadAll());
+		model.addAttribute("scenario", new Scenario(serviceAssetType.loadAll()));
 		return "analysis/components/widgets/scenarioForm";
 	}
 
@@ -292,7 +294,7 @@ public class ControllerScenario {
 
 			List<AssetType> assetTypes = serviceAssetType.loadAll();
 
-			if (!buildAsset(errors, scenario, assetTypes, value, locale))
+			if (!buildScenario(errors, scenario, assetTypes, value, locale))
 				return errors;
 			if (scenario.getId() < 1) {
 				assessmentManager.build(scenario, idAnalysis);
@@ -317,6 +319,15 @@ public class ControllerScenario {
 		return errors;
 	}
 
+	/**
+	 * aleByAsset: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param model
+	 * @param locale
+	 * @return
+	 */
 	@RequestMapping("/Chart/Ale")
 	public @ResponseBody
 	String aleByAsset(HttpSession session, Model model, Locale locale) {
@@ -326,6 +337,15 @@ public class ControllerScenario {
 		return chartGenerator.aleByScenario(idAnalysis, locale);
 	}
 
+	/**
+	 * assetByALE: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param model
+	 * @param locale
+	 * @return
+	 */
 	@RequestMapping("/Chart/Type/Ale")
 	public @ResponseBody
 	String assetByALE(HttpSession session, Model model, Locale locale) {
@@ -335,7 +355,18 @@ public class ControllerScenario {
 		return chartGenerator.aleByScenarioType(idAnalysis, locale);
 	}
 
-	private boolean buildAsset(List<String[]> errors, Scenario scenario, List<AssetType> assetTypes, String source, Locale locale) {
+	/**
+	 * buildScenario: <br>
+	 * Description
+	 * 
+	 * @param errors
+	 * @param scenario
+	 * @param assetTypes
+	 * @param source
+	 * @param locale
+	 * @return
+	 */
+	private boolean buildScenario(List<String[]> errors, Scenario scenario, List<AssetType> assetTypes, String source, Locale locale) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
@@ -344,13 +375,24 @@ public class ControllerScenario {
 			scenario.setDescription(jsonNode.get("description").asText());
 			JsonNode node = jsonNode.get("scenarioType");
 			ScenarioType scenarioType = serviceScenarioType.get(node.get("id").asInt());
-			for (AssetType assetType : assetTypes)
-				scenario.setAssetTypeValue(assetType, jsonNode.get(assetType.getType()).asInt());
 			if (scenarioType == null) {
 				errors.add(new String[] { "assetType", messageSource.getMessage("error.scenariotype.not_found", null, "Selected scenario type cannot be found", locale) });
 				return false;
 			}
 			scenario.setType(scenarioType);
+			for (AssetType assetType : assetTypes){
+				
+				AssetTypeValue atv = scenario.retrieveAssetTypeValue(assetType);
+				
+				int value = 0;
+				if (jsonNode.get(assetType.getType())!=null)
+					value = jsonNode.get(assetType.getType()).asInt();
+				
+				if (atv!=null)
+					atv.setValue(value);
+				else
+					scenario.addAssetTypeValue(new AssetTypeValue(assetType, value));
+			}
 			return true;
 
 		} catch (JsonProcessingException e) {

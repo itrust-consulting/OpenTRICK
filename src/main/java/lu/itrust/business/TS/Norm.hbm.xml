@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS">
-	<class table="norm" name="Norm">
+	<class table="Norm" name="Norm">
 		<id name="id" column="idNorm" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
@@ -16,7 +16,7 @@
 		<property name="computable" column="dtComputable" not-null="true" />
 	
 	</class>
-	<class name="AnalysisNorm" table="analysisNorm" abstract="true">
+	<class name="AnalysisNorm" table="AnalysisNorm" abstract="true">
 		<id name="id" column="idAnalysisNorm" unsaved-value="-1">
 			<generator class="increment" />
 		</id>

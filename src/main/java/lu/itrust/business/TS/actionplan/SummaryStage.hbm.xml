@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 3:41:26 PM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
-	<class name="lu.itrust.business.TS.actionplan.SummaryStage" table="actionplansummary">
+	<class name="lu.itrust.business.TS.actionplan.SummaryStage" table="ActionPlanSummary">
 		<id name="id" type="int" column="idActionPlanSummary" unsaved-value="-1">
 			<generator class="increment" />
 		</id>

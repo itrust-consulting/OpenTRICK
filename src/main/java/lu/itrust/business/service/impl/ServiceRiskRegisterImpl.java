@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.service.impl;
 
+import java.util.List;
+
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.dao.DAORiskRegister;
@@ -14,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author oensuifudine
- *
+ * 
  */
 @Transactional
 @Service
@@ -22,27 +24,41 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 
 	@Autowired
 	private DAORiskRegister daoRiskRegister;
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.service.ServiceRiskRegister#getRiskRegister(int)
 	 */
 	@Override
-	public RiskRegisterItem getRiskRegister(int id) throws Exception {
+	public RiskRegisterItem get(int id) throws Exception {
 		// TODO Auto-generated method stub
-		return daoRiskRegister.getRiskRegister(id);
+		return daoRiskRegister.get(id);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceRiskRegister#getRiskRegisterItem(lu.itrust.business.TS.Scenario)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.service.ServiceRiskRegister#getRiskRegisterItem(lu.itrust.business.TS.
+	 * Scenario)
 	 */
 	@Override
-	public RiskRegisterItem getRiskRegisterItem(Scenario scenario)
-			throws Exception {
+	public RiskRegisterItem getByScenario(Scenario scenario) throws Exception {
 		// TODO Auto-generated method stub
-		return daoRiskRegister.getRiskRegisterItem(scenario);
+		return daoRiskRegister.getByScenario(scenario);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceRiskRegister#save(lu.itrust.business.TS.cssf.RiskRegisterItem)
+	public List<RiskRegisterItem> loadAllFromAnalysis(Integer analysisID) throws Exception {
+		return daoRiskRegister.loadAllFromAnalysis(analysisID);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.service.ServiceRiskRegister#save(lu.itrust.business.TS.cssf.RiskRegisterItem
+	 * )
 	 */
 	@Transactional
 	@Override
@@ -51,19 +67,25 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceRiskRegister#saveOrUpdate(lu.itrust.business.TS.cssf.RiskRegisterItem)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskRegister#saveOrUpdate(lu.itrust.business.TS.cssf.
+	 * RiskRegisterItem)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(RiskRegisterItem riskRegisterItem)
-			throws Exception {
+	public void saveOrUpdate(RiskRegisterItem riskRegisterItem) throws Exception {
 		daoRiskRegister.saveOrUpdate(riskRegisterItem);
 
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceRiskRegister#remove(lu.itrust.business.TS.cssf.RiskRegisterItem)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.service.ServiceRiskRegister#remove(lu.itrust.business.TS.cssf.RiskRegisterItem
+	 * )
 	 */
 	@Transactional
 	@Override

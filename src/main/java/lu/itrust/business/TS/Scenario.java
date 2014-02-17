@@ -35,6 +35,24 @@ public class Scenario extends SecurityCriteria {
 	/** List of Asset Type Values */
 	private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
 
+	/**
+	 * Constructor: <br>
+	 */
+	public Scenario(){
+		
+	}
+	
+	/**
+	 * Constructor: <br>
+	 * @param assettypes
+	 */
+	public Scenario(List<AssetType> assettypes){
+		for(AssetType at : assettypes){
+			AssetTypeValue tmpATV = new AssetTypeValue(at, 0);
+			assetTypeValues.add(tmpATV);
+		}
+	}
+	
 	/***********************************************************************************************
 	 * Setters and Getters
 	 **********************************************************************************************/
@@ -349,6 +367,27 @@ public class Scenario extends SecurityCriteria {
 		assetTypeValues.add(assetTypeValue);
 	}
 
+	/**
+	 * addAssetTypeValue<br />
+	 * Appends the specified element to the end of this list.
+	 * 
+	 * @param assetTypeValue
+	 *            The Object of AssetTypeValue to add to the list
+	 */
+	public AssetTypeValue retrieveAssetTypeValue(AssetType assetType) {
+		
+		AssetTypeValue atvreturn = null;
+		
+		for (AssetTypeValue atv : assetTypeValues){
+			if (atv.getAssetType().equals(assetType)){
+				atvreturn = atv;
+				break;
+			}
+		}
+		
+		return atvreturn;
+	}
+	
 	/**
 	 * getAssetTypeValue<br />
 	 * Returns the AssetTypeValue at the given position in this list.

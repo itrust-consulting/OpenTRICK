@@ -3,6 +3,8 @@
  */
 package lu.itrust.business.dao.hbm;
 
+import java.util.List;
+
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.dao.DAORiskRegister;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister {
-	
+
 	/**
 	 * 
 	 */
@@ -37,7 +39,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.dao.DAORiskRegister#getRiskRegister(int)
 	 */
 	@Override
-	public RiskRegisterItem getRiskRegister(int id) throws Exception {
+	public RiskRegisterItem get(int id) throws Exception {
 		// TODO Auto-generated method stub
 		return (RiskRegisterItem) getSession().get(RiskRegisterItem.class, id);
 	}
@@ -45,24 +47,32 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAORiskRegister#getRiskRegisterItem(lu.itrust.
+	 * @see lu.itrust.business.dao.DAORiskRegister#getRiskRegisterItem(lu.itrust.
 	 * business.TS.Scenario)
 	 */
 	@Override
-	public RiskRegisterItem getRiskRegisterItem(Scenario scenario)
-			throws Exception {
+	public RiskRegisterItem getByScenario(Scenario scenario) throws Exception {
 		// TODO Auto-generated method stub
-		return (RiskRegisterItem) getSession().createQuery(
-				"From RiskRegisterItem where scenario = :scenario")
-				.setParameter("scenario", scenario);
+		return (RiskRegisterItem) getSession().createQuery("From RiskRegisterItem where scenario = :scenario").setParameter("scenario", scenario);
+	}
+
+	/**
+	 * loadAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @param analysisID
+	 * @return
+	 */
+	// TODO
+	@Override
+	public List<RiskRegisterItem> loadAllFromAnalysis(Integer analysisID) throws Exception {
+		return null;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAORiskRegister#save(lu.itrust.business.TS.cssf
+	 * @see lu.itrust.business.dao.DAORiskRegister#save(lu.itrust.business.TS.cssf
 	 * .RiskRegisterItem)
 	 */
 	@Override
@@ -73,21 +83,18 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAORiskRegister#saveOrUpdate(lu.itrust.business
+	 * @see lu.itrust.business.dao.DAORiskRegister#saveOrUpdate(lu.itrust.business
 	 * .TS.cssf.RiskRegisterItem)
 	 */
 	@Override
-	public void saveOrUpdate(RiskRegisterItem riskRegisterItem)
-			throws Exception {
+	public void saveOrUpdate(RiskRegisterItem riskRegisterItem) throws Exception {
 		getSession().saveOrUpdate(riskRegisterItem);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAORiskRegister#remove(lu.itrust.business.TS.cssf
+	 * @see lu.itrust.business.dao.DAORiskRegister#remove(lu.itrust.business.TS.cssf
 	 * .RiskRegisterItem)
 	 */
 	@Override

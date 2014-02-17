@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS">
-	<class name="Measure" table="measure" abstract="true">
+	<class name="Measure" table="Measure" abstract="true">
 		<id name="id" column="idMeasure" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
@@ -20,7 +20,7 @@
 		<property name="cost" column="dtCost" not-null="true" access="field" />
 		<property name="comment" column="dtComment" type="text" />
 		<property name="toDo" column="dtToDo" type="text" />
-		<joined-subclass name="MaturityMeasure" extends="Measure" table="maturityMeasure">
+		<joined-subclass name="MaturityMeasure" extends="Measure" table="MaturityMeasure">
 			<key column="idMaturityMeasure" not-null="true" />
 			<many-to-one name="implementationRate" column="fiImplementationRateParameter" not-null="true" access="field" />
 			<property name="reachedLevel" column="dtReachedLevel" not-null="true" />
@@ -30,12 +30,12 @@
 			<property name="SML4Cost" column="dtSML4Cost" not-null="true" />
 			<property name="SML5Cost" column="dtSML5Cost" not-null="true" />
 		</joined-subclass>
-		<joined-subclass name="NormMeasure" extends="Measure" table="normMeasure">
+		<joined-subclass name="NormMeasure" extends="Measure" table="NormMeasure">
 			<key column="idNormMeasure" not-null="true" />
 			<many-to-one name="measurePropertyList" column="fiMeasureProperties" cascade="all" not-null="true" />
 			<property name="implementationRate" access="field" column="dtImplementationRate" not-null="true" />
 			<property name="toCheck" column="dtToCheck" />
-			<bag name="assetTypeValues" table="measureAssetTypeValue" cascade="all">
+			<bag name="assetTypeValues" table="MeasureAssetTypeValue" cascade="all">
 				<key column="idNormMeasure" not-null="true" />
 				<many-to-many class="AssetTypeValue" column="idMeasureAssetTypeValue" unique="true" />
 			</bag>

@@ -1801,10 +1801,8 @@ public class ExportAnalysis {
 			if (assetquery.equals(Constant.EMPTY_STRING)) {
 
 				// set first part of query
-				assetquery = "INSERT INTO actionplanasset SELECT ? as ";
-				assetquery += "'idActionPlanAssetCalculation',? as 'idActionPlanCalculation',? as ";
-				assetquery += "'idActionPlanType',? as 'idNorm',? as 'idMeasureActionPlan',? as 'idAsset',? as ";
-				assetquery += "'idScenario',? as 'dtCurrentALE' UNION";
+				assetquery = "INSERT INTO actionplanasset SELECT ? as idActionPlanAssetCalculation, ? as idActionPlanCalculation, ? as idActionPlanType, ? as idNorm, ? as dtNormVersion,";
+				assetquery += "? as idMeasureActionPlan, ? as idAsset,? as dtCurrentALE UNION";
 
 				// set limit
 				assetcounter = 8;
@@ -1823,10 +1821,8 @@ public class ExportAnalysis {
 					assetparams.clear();
 
 					// reset first part of query
-					assetquery = "INSERT INTO actionplanasset SELECT ? as ";
-					assetquery += "'idActionPlanAssetCalculation',? as 'idActionPlanCalculation',? as ";
-					assetquery += "'idActionPlanType',? as 'idNorm',? as 'idMeasureActionPlan',? as 'idAsset',? as ";
-					assetquery += "'idScenario',? as 'dtCurrentALE' UNION";
+					assetquery = "INSERT INTO actionplanasset SELECT ? as idActionPlanAssetCalculation, ? as idActionPlanCalculation, ? as idActionPlanType, ? as idNorm, ? as dtNormVersion,";
+					assetquery += "? as idMeasureActionPlan, ? as idAsset,? as dtCurrentALE UNION";
 
 					// reset limit
 					assetcounter = 8;
@@ -1847,13 +1843,9 @@ public class ExportAnalysis {
 			assetparams.add(actionPlanEntry.getId());
 			assetparams.add(actionPlanEntry.getActionPlanType().getId());
 			assetparams.add(actionPlanEntry.getMeasure().getAnalysisNorm().getNorm().getLabel());
+			assetparams.add(actionPlanEntry.getMeasure().getAnalysisNorm().getNorm().getVersion());
 			assetparams.add(actionPlanEntry.getMeasure().getMeasureDescription().getReference());
-			// assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets)
-			// .getAssessment().getAsset().getId());
 			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets).getAsset().getId());
-			// assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets)
-			// .getAssessment().getScenario().getId());
-			assetparams.add(-1);
 			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets).getCurrentALE());
 		}
 

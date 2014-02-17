@@ -6,16 +6,20 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="section" id="section_analysis">
 	<div class="page-header">
-		<h1>
+		
 			<c:choose>
 				<c:when test="${empty(KowledgeBaseView)}">
+				<h1>
 					<spring:message code="label.analysis.title" text="All Analyses" />
+				</h1>
 				</c:when>
 				<c:otherwise>
-					<spring:message code="label.analysis.profile.title" text="All profiles" />
+				<h3>
+					<spring:message code="label.analysis.profile.title" text="Analysis profiles" />
+				</h3>
 				</c:otherwise>
 			</c:choose>
-		</h1>
+		
 		<jsp:include page="../successErrors.jsp" />
 	</div>
 	<div class="panel panel-default">

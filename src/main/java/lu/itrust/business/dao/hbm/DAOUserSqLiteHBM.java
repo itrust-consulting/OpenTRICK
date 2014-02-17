@@ -5,7 +5,7 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.usermanagement.UserSqLite;
+import lu.itrust.business.TS.usermanagement.UserSQLite;
 import lu.itrust.business.dao.DAOUserSqLite;
 
 import org.hibernate.Session;
@@ -37,8 +37,8 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.dao.DAOUserSqLite#findOne(long)
 	 */
 	@Override
-	public UserSqLite findOne(long id) {
-		return (UserSqLite) getSession().get(UserSqLite.class, id);
+	public UserSQLite findOne(long id) {
+		return (UserSQLite) getSession().get(UserSQLite.class, id);
 	}
 
 	/*
@@ -48,13 +48,13 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * lu.itrust.business.dao.DAOUserSqLite#findByFileName(java.lang.String)
 	 */
 	@Override
-	public UserSqLite findByFileName(String fileName) {
-		return (UserSqLite) getSession().createQuery("From UserSqLite where fileName = :fileName").setParameter("fileName", fileName).uniqueResult();
+	public UserSQLite findByFileName(String fileName) {
+		return (UserSQLite) getSession().createQuery("From UserSQLite where fileName = :fileName").setParameter("fileName", fileName).uniqueResult();
 	}
 
 	@Override
-	public UserSqLite findByIdAndUser(long idFile, String username) {
-		return (UserSqLite) getSession().createQuery("From UserSqLite where id = :idFile and user.login = :username").setParameter("idFile", idFile)
+	public UserSQLite findByIdAndUser(long idFile, String username) {
+		return (UserSQLite) getSession().createQuery("From UserSQLite where id = :idFile and user.login = :username").setParameter("idFile", idFile)
 				.setParameter("username", username).uniqueResult();
 	}
 
@@ -65,8 +65,8 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserSqLite> findByUser(String username) {
-		return getSession().createQuery("From UserSqLite where user.login = :username").setParameter("username", username).list();
+	public List<UserSQLite> findByUser(String username) {
+		return getSession().createQuery("From UserSQLite where user.login = :username").setParameter("username", username).list();
 	}
 
 	/*
@@ -77,8 +77,8 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserSqLite> findByUser(String username, int pageIndex, int pageSize) {
-		return getSession().createQuery("From UserSqLite where user.login = :username").setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize)
+	public List<UserSQLite> findByUser(String username, int pageIndex, int pageSize) {
+		return getSession().createQuery("From UserSQLite where user.login = :username").setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize)
 				.setMaxResults(pageSize).list();
 	}
 
@@ -89,8 +89,8 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * usermanagement.UserSqLite)
 	 */
 	@Override
-	public UserSqLite save(UserSqLite userSqLite) {
-		return (UserSqLite) getSession().save(userSqLite);
+	public UserSQLite save(UserSQLite userSqLite) {
+		return (UserSQLite) getSession().save(userSqLite);
 	}
 
 	/*
@@ -101,7 +101,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * .TS.usermanagement.UserSqLite)
 	 */
 	@Override
-	public void saveOrUpdate(UserSqLite userSqLite) {
+	public void saveOrUpdate(UserSQLite userSqLite) {
 		getSession().saveOrUpdate(userSqLite);
 	}
 
@@ -112,8 +112,8 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * usermanagement.UserSqLite)
 	 */
 	@Override
-	public UserSqLite merge(UserSqLite userSqLite) {
-		return (UserSqLite) getSession().merge(userSqLite);
+	public UserSQLite merge(UserSQLite userSqLite) {
+		return (UserSQLite) getSession().merge(userSqLite);
 	}
 
 	/*
@@ -123,7 +123,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * usermanagement.UserSqLite)
 	 */
 	@Override
-	public void delete(UserSqLite userSqLite) {
+	public void delete(UserSQLite userSqLite) {
 		getSession().delete(userSqLite);
 	}
 

@@ -40,6 +40,8 @@ public class WorkerComputeActionPlan implements Worker {
 
 	private boolean canceled = false;
 
+	private boolean reloadSection = false;
+
 	private WorkersPoolManager poolManager;
 
 	private DAOActionPlanSummary daoActionPlanSummary;
@@ -55,9 +57,9 @@ public class WorkerComputeActionPlan implements Worker {
 	private SessionFactory sessionFactory;
 
 	private int idAnalysis;
-	
+
 	private List<AnalysisNorm> norms = null;
-	
+
 	private Boolean uncertainty = false;
 
 	/**
@@ -68,14 +70,22 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @param serviceTaskFeedback
 	 * @param idAnalysis
 	 */
-	public WorkerComputeActionPlan(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisNorm> norms, Boolean uncertainty) {
+	public WorkerComputeActionPlan(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisNorm> norms, Boolean uncertainty,
+			Boolean reloadSection) {
 		this.sessionFactory = sessionFactory;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idAnalysis = idAnalysis;
 		this.norms = norms;
 		this.uncertainty = uncertainty;
+		this.reloadSection = reloadSection;
 	}
 
+	/**
+	 * initialiseDAO: <br>
+	 * Description
+	 * 
+	 * @param session
+	 */
 	private void initialiseDAO(Session session) {
 		daoActionPlan = new DAOActionPlanHBM(session);
 		daoActionPlanSummary = new DAOActionPlanSummaryHBM(session);
@@ -84,21 +94,24 @@ public class WorkerComputeActionPlan implements Worker {
 	}
 
 	/**
+	 * Constructor: <br>
+	 * 
 	 * @param poolManager
-	 * @param serviceActionPlanSummary
-	 * @param serviceActionPlanType
-	 * @param serviceActionPlan
-	 * @param serviceAnalysis
+	 * @param sessionFactory
 	 * @param serviceTaskFeedback
 	 * @param idAnalysis
+	 * @param norms
+	 * @param uncertainty
 	 */
-	public WorkerComputeActionPlan(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisNorm> norms, Boolean uncertainty) {
+	public WorkerComputeActionPlan(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisNorm> norms,
+			Boolean uncertainty, Boolean reloadSection) {
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idAnalysis = idAnalysis;
 		this.norms = norms;
 		this.uncertainty = uncertainty;
+		this.reloadSection = reloadSection;
 	}
 
 	/*
@@ -120,9 +133,9 @@ public class WorkerComputeActionPlan implements Worker {
 			}
 			session = sessionFactory.openSession();
 			initialiseDAO(session);
-			
+
 			System.out.println("Loading Analysis...");
-			
+
 			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
@@ -131,24 +144,24 @@ public class WorkerComputeActionPlan implements Worker {
 			}
 			session.beginTransaction();
 			initAnalysis(analysis);
-			
+
 			System.out.println("Delete previous action plan and summary...");
-			
+
 			deleteActionPlan(analysis);
 			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, this.norms, this.uncertainty);
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
 				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
-				messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_actionplans\")", null));
+				if (reloadSection)
+					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_actionplans\")", null));
 				serviceTaskFeedback.send(id, messageHandler);
 				System.out.println("Computing Action Plans Complete!");
-			}
-			else
+			} else
 				session.getTransaction().rollback();
 		} catch (InterruptedException e) {
 			try {
 				canceled = true;
-				if (session!=null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
 				e1.printStackTrace();
@@ -157,14 +170,14 @@ public class WorkerComputeActionPlan implements Worker {
 			try {
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", e));
 				e.printStackTrace();
-				if (session!=null && session.getTransaction().isInitiator())
+				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
 				e1.printStackTrace();
 			}
 		} finally {
 			try {
-				if(session!=null)
+				if (session != null)
 					session.close();
 			} catch (HibernateException e) {
 				e.printStackTrace();
@@ -194,18 +207,18 @@ public class WorkerComputeActionPlan implements Worker {
 		Hibernate.initialize(analysis.getRiskInformations());
 		Hibernate.initialize(analysis.getParameters());
 		Hibernate.initialize(analysis.getUsedPhases());
-//		for (int i = 0; i < analysis.getUsedPhases().size(); i++)
-	//		Hibernate.initialize(analysis.getAPhase(i));
+		// for (int i = 0; i < analysis.getUsedPhases().size(); i++)
+		// Hibernate.initialize(analysis.getAPhase(i));
 		Hibernate.initialize(analysis.getAnalysisNorms());
 		Hibernate.initialize(this.norms);
 		for (int i = 0; i < this.norms.size(); i++)
-				Hibernate.initialize(this.norms.get(i).getNorm());
-		//Hibernate.initialize(analysis.getActionPlans());
-		//Hibernate.initialize(analysis.getSummaries());
-		
-		//Hibernate.initialize(analysis.getRiskRegisters());
+			Hibernate.initialize(this.norms.get(i).getNorm());
+		// Hibernate.initialize(analysis.getActionPlans());
+		// Hibernate.initialize(analysis.getSummaries());
+
+		// Hibernate.initialize(analysis.getRiskRegisters());
 	}
-	
+
 	/**
 	 * deleteActionPlan: <br>
 	 * Description
@@ -269,8 +282,7 @@ public class WorkerComputeActionPlan implements Worker {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * lu.itrust.business.task.Worker#setPoolManager(lu.itrust.business.service
+	 * @see lu.itrust.business.task.Worker#setPoolManager(lu.itrust.business.service
 	 * .WorkersPoolManager)
 	 */
 	@Override

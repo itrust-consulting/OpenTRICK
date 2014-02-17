@@ -24,7 +24,7 @@
 				<li ${menu.equals("home")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/home"> <spring:message code="label.menu.home" text="Home" /></a></li>
 				<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')">
 					<li ${menu.startsWith("KnowledgeBase")? "class='active'" : ""}><a href="${pageContext.request.contextPath}/KnowledgeBase"> <spring:message
-								code="label.menu.analysis.knowledgebase" text="KnowLedge Base" /></a></li>
+								code="label.menu.analysis.knowledgebase" text="Knowledge Base" /></a></li>
 				</sec:authorize>
 				<c:choose>
 					<c:when test="${menu.startsWith('Analysis') and not menu.startsWith('Analysis/Import')}">

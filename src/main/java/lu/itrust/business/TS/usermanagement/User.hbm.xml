@@ -3,7 +3,7 @@
                                    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Mar 12, 2013 5:51:35 PM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS.usermanagement">
-	<class name="User" table="user">
+	<class name="User" table="User">
 		<id name="id" type="integer" unsaved-value="-1">
 			<column name="idUser" />
 			<generator class="increment" />
@@ -20,37 +20,35 @@
 		<property generated="never" name="lastName" type="java.lang.String">
 			<column name="dtLastName" />
 		</property>
-		<property generated="never" name="email" unique="true"
-			type="java.lang.String">
+		<property generated="never" name="email" unique="true" type="java.lang.String">
 			<column name="dtEmail" unique="true" />
 		</property>
-		
+
 		<property generated="never" name="enable" type="boolean">
 			<column name="dtEnable" />
 		</property>
-		
-		<bag cascade="all" name="roles" table="userRole">
+
+		<bag cascade="all" name="roles" table="UserRole">
 			<key column="idUser" not-null="true" />
 			<many-to-many class="Role" column="idRole" unique="false" />
 		</bag>
-		
-		<bag cascade="all" name="customers" table="userCustomer" access="field">
+
+		<bag cascade="all" name="customers" table="UserCustomer" access="field">
 			<key column="fiUser" not-null="true" />
 			<many-to-many class="lu.itrust.business.TS.Customer" column="fiCustomer" order-by="organisation, contactPerson" />
 		</bag>
-		
+
 	</class>
 
-	<class name="UserSqLite" table="userSqLite">
+	<class name="UserSQLite" table="UserSQLite">
 
 		<id name="id" type="long" unsaved-value="-1">
-			<column name="idUserSqLite" />
+			<column name="idUserSQLite" />
 			<generator class="increment" />
 		</id>
 
-		<many-to-one name="user" column="fiUser" not-null="true"
-			access="field" />
-			
+		<many-to-one name="user" column="fiUser" not-null="true" access="field" />
+
 		<property name="fileName" type="java.lang.String">
 			<column name="dtFileName" unique="true" not-null="true" />
 		</property>
@@ -72,7 +70,7 @@
 		</property>
 
 		<property name="sqLite" type="binary">
-			<column name="dtSqLite" not-null="true" sql-type="mediumblob" />
+			<column name="dtSQLite" not-null="true" sql-type="mediumblob" />
 		</property>
 	</class>
 

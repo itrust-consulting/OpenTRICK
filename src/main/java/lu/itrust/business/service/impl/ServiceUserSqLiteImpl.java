@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.usermanagement.UserSqLite;
+import lu.itrust.business.TS.usermanagement.UserSQLite;
 import lu.itrust.business.dao.DAOUserSqLite;
 import lu.itrust.business.service.ServiceUserSqLite;
 
@@ -29,7 +29,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @see lu.itrust.business.service.ServiceUserSqLite#findOne(long)
 	 */
 	@Override
-	public UserSqLite findOne(long id) {
+	public UserSQLite findOne(long id) {
 		return daoUserSqLite.findOne(id);
 	}
 
@@ -41,7 +41,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * .String)
 	 */
 	@Override
-	public UserSqLite findByFileName(String fileName) {
+	public UserSQLite findByFileName(String fileName) {
 		return daoUserSqLite.findByFileName(fileName);
 	}
 
@@ -53,7 +53,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * )
 	 */
 	@Override
-	public List<UserSqLite> findByUser(String username) {
+	public List<UserSQLite> findByUser(String username) {
 		return daoUserSqLite.findByUser(username);
 	}
 
@@ -65,7 +65,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * , int, int)
 	 */
 	@Override
-	public List<UserSqLite> findByUser(String username, int pageIndex, int pageSize) {
+	public List<UserSQLite> findByUser(String username, int pageIndex, int pageSize) {
 		return daoUserSqLite.findByUser(username, pageIndex, pageSize);
 	}
 
@@ -78,7 +78,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 */
 	@Transactional
 	@Override
-	public UserSqLite save(UserSqLite userSqLite) {
+	public UserSQLite save(UserSQLite userSqLite) {
 		return daoUserSqLite.save(userSqLite);
 	}
 
@@ -91,7 +91,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(UserSqLite userSqLite) {
+	public void saveOrUpdate(UserSQLite userSqLite) {
 		daoUserSqLite.saveOrUpdate(userSqLite);
 	}
 
@@ -104,7 +104,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 */
 	@Transactional
 	@Override
-	public UserSqLite merge(UserSqLite userSqLite) {
+	public UserSQLite merge(UserSQLite userSqLite) {
 		return daoUserSqLite.merge(userSqLite);
 	}
 
@@ -117,7 +117,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 */
 	@Transactional
 	@Override
-	public void delete(UserSqLite userSqLite) {
+	public void delete(UserSQLite userSqLite) {
 		daoUserSqLite.delete(userSqLite);
 	}
 
@@ -145,7 +145,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	}
 
 	@Override
-	public UserSqLite findByIdAndUser(long idFile, String username) {
+	public UserSQLite findByIdAndUser(long idFile, String username) {
 		return daoUserSqLite.findByIdAndUser(idFile, username);
 	}
 

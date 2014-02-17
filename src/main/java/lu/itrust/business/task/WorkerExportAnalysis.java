@@ -19,7 +19,7 @@ import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.export.ExportAnalysis;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.TS.usermanagement.UserSqLite;
+import lu.itrust.business.TS.usermanagement.UserSQLite;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.dao.DAOUserSqLite;
@@ -161,7 +161,7 @@ public class WorkerExportAnalysis implements Worker {
 				serviceTaskFeedback.send(id, new MessageHandler("error.export.save.file.abort", "File cannot be save", null));
 				return;
 			}
-			UserSqLite userSqLite = new UserSqLite(sqlite.getName(), user, FileCopyUtils.copyToByteArray(sqlite));
+			UserSQLite userSqLite = new UserSQLite(sqlite.getName(), user, FileCopyUtils.copyToByteArray(sqlite));
 			userSqLite.setSize(sqlite.length());
 			userSqLite.setAnalysisIdentifier(analysisIdentifier);
 			transaction = session.beginTransaction();

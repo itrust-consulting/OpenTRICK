@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 28, 2013 1:19:09 PM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS">
-    <class name="lu.itrust.business.TS.MeasureDescriptionText" table="measureDescriptiontext" lazy="false">
+    <class name="lu.itrust.business.TS.MeasureDescriptionText" table="MeasureDescriptionText" lazy="false">
         <id name="id" type="int" column="idMeasureDescriptionText" unsaved-value="-1">
             <generator class="increment" />
         </id>

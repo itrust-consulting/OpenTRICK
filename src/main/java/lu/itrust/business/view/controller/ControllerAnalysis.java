@@ -27,7 +27,7 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.TS.usermanagement.UserSqLite;
+import lu.itrust.business.TS.usermanagement.UserSQLite;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.JsonMessage;
@@ -728,73 +728,6 @@ public class ControllerAnalysis {
 	}
 
 	// *****************************************************************
-	// * compute risk register TODO place into controllerriskregister
-	// *****************************************************************
-
-	/**
-	 * computeRiskRegister: <br>
-	 * Description
-	 * 
-	 * @param analysisId
-	 * @param attributes
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/{analysisId}/compute/riskRegister")
-	public String computeRiskRegister(@PathVariable("analysisId") Integer analysisId, RedirectAttributes attributes) throws Exception {
-
-		Analysis analysis = serviceAnalysis.get(analysisId);
-
-		if (analysis == null) {
-			return "redirect:/Analysis";
-		}
-
-		MessageHandler handler = computeRiskRegisters(analysis);
-
-		if (handler != null) {
-			attributes.addFlashAttribute("error", handler.getException().getMessage());
-		}
-		return "redirect:Analysis";
-	}
-
-	/**
-	 * deleteRiskRegister: <br>
-	 * Description
-	 * 
-	 * @param analysis
-	 * @throws Exception
-	 */
-	private void deleteRiskRegister(Analysis analysis) throws Exception {
-
-		while (!analysis.getRiskRegisters().isEmpty())
-			serviceRiskRegister.remove(analysis.getRiskRegisters().remove(analysis.getRiskRegisters().size() - 1));
-	}
-
-	/**
-	 * computeRiskRegisters: <br>
-	 * Description
-	 * 
-	 * @param analysis
-	 * @return
-	 * @throws Exception
-	 */
-	private MessageHandler computeRiskRegisters(Analysis analysis) throws Exception {
-
-		deleteRiskRegister(analysis);
-
-		RiskRegisterComputation registerComputation = new RiskRegisterComputation(analysis);
-
-		MessageHandler handler = registerComputation.computeRiskRegister();
-
-		if (handler == null) {
-			System.out.println("Saving Risk Register...");
-			serviceAnalysis.saveOrUpdate(registerComputation.getAnalysis());
-			System.out.println("Saving Risk Register done");
-		}
-		return handler;
-	}
-
-	// *****************************************************************
 	// * import form and import action
 	// *****************************************************************
 
@@ -932,7 +865,7 @@ public class ControllerAnalysis {
 	public String download(@PathVariable long idFile, Principal principal, HttpServletResponse response) throws IOException {
 
 		// get user file by given file id and username
-		UserSqLite userSqLite = serviceUserSqLite.findByIdAndUser(idFile, principal.getName());
+		UserSQLite userSqLite = serviceUserSqLite.findByIdAndUser(idFile, principal.getName());
 
 		// if file could not be found retrun 404 error
 		if (userSqLite == null)

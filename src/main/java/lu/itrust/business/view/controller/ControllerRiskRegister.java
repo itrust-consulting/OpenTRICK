@@ -1,37 +1,30 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AnalysisRight;
-import lu.itrust.business.TS.Asset;
-import lu.itrust.business.TS.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.component.ActionPlanManager;
 import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
-import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAnalysisNorm;
 import lu.itrust.business.service.ServiceAsset;
+import lu.itrust.business.service.ServiceRiskRegister;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.ServiceUserAnalysisRight;
 import lu.itrust.business.service.WorkersPoolManager;
-import lu.itrust.business.task.Worker;
-import lu.itrust.business.task.WorkerComputeActionPlan;
+import lu.itrust.business.task.WorkerComputeRiskRegister;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -45,23 +38,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * ControllerAdministration.java: <br>
+ * ControllerRiskRegister.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.à.rl. :
+ * @author smenghi, itrust consulting s.à.rl.
  * @version
- * @since Dec 13, 2013
+ * @since Feb 17, 2014
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
-@RequestMapping("/ActionPlan")
+@RequestMapping("/RiskRegister")
 @Controller
-public class ControllerActionPlan {
+public class ControllerRiskRegister {
 
 	@Autowired
 	private MessageSource messageSource;
 
 	@Autowired
-	private ServiceActionPlan serviceActionPlan;
+	private ServiceRiskRegister serviceRiskRegister;
 
 	@Autowired
 	private ServiceAnalysisNorm serviceAnalysisNorm;
@@ -102,23 +95,19 @@ public class ControllerActionPlan {
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping
-	public String showActionPlan(HttpSession session, Map<String, Object> model, Principal principal) throws Exception {
+	public String showRiskRegister(HttpSession session, Map<String, Object> model, Principal principal) throws Exception {
 
 		// retrieve analysis ID
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 
 		// load all actionplans from the selected analysis
-		List<ActionPlanEntry> actionplans = serviceActionPlan.loadAllFromAnalysis(selected);
-		
-		// load all affected assets of the actionplans (unique assets used)
-		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
+		List<RiskRegisterItem> riskregister = serviceRiskRegister.loadAllFromAnalysis(selected);
 
 		// prepare model
-		model.put("actionplans", actionplans);
-		model.put("assets", assets);
+		model.put("riskregister", riskregister);
 
 		// return view
-		return "analysis/components/actionplan";
+		return "analysis/components/riskregister";
 	}
 
 	/**
@@ -140,24 +129,13 @@ public class ControllerActionPlan {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 
 		// load all actionplans from the selected analysis
-		List<ActionPlanEntry> actionplans = serviceActionPlan.loadAllFromAnalysis(selected);
+		List<RiskRegisterItem> riskregister = serviceRiskRegister.loadAllFromAnalysis(selected);
 
-		// load all affected assets of the actionplans (unique assets used)
-		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
-
-		Collections.reverse(actionplans);
-		
-		for (ActionPlanEntry ape: actionplans) {
-			Hibernate.initialize(ape);
-			Hibernate.initialize(ape.getMeasure().getMeasureDescription().getMeasureDescriptionTexts());
-		}
-		
 		// prepare model
-		model.put("actionplans", actionplans);
-		model.put("assets", assets);
+		model.put("riskregister", riskregister);
 
 		// return view
-		return "analysis/components/actionplan";
+		return "analysis/components/riskregister";
 
 	}
 
@@ -181,55 +159,35 @@ public class ControllerActionPlan {
 	@RequestMapping(value = "/RetrieveSingleEntry/{entryID}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public String retrieveSingle(@PathVariable("entryID") int entryID, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 
-		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
-
-		String alpha3 = serviceAnalysis.getLanguageFromAnalysis(analysisID).getAlpha3();
-
 		// retrieve actionplan entry from the given entryID
-		ActionPlanEntry actionplanentry = serviceActionPlan.get(entryID);
+		RiskRegisterItem riskregisteritem = serviceRiskRegister.get(entryID);
 
 		// prepare model
-		model.put("actionplanentry", actionplanentry);
-		model.put("language", alpha3);
+		model.put("riskregisteritem", riskregisteritem);
 
 		// return view
-		return "analysis/components/actionplanentry";
+		return "analysis/components/riskregisteritem";
 
 	}
 
-	/**
-	 * computeActionPlan: <br>
-	 * Description
-	 * 
-	 * @param analysisId
-	 * @param attributes
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/{analysisID}/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
-	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model, @PathVariable("analysisID") Integer analysisID)
-			throws Exception {
-
-		model.put("id", analysisID);
-
-		model.put("norms", serviceAnalysisNorm.loadAllFromAnalysis(analysisID));
-
-		return "analysis/components/actionplanoptions";
-	}
+	// *****************************************************************
+	// * compute risk register
+	// *****************************************************************
 
 	/**
-	 * computeActionPlan: <br>
+	 * computeRiskRegister: <br>
 	 * Description
 	 * 
-	 * @param analysisId
-	 * @param attributes
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @param value
 	 * @return
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	String computeActionPlan(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
+	String computeRiskRegister(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 
 		// prepare permission verifier
 		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
@@ -240,40 +198,20 @@ public class ControllerActionPlan {
 		// retrieve analysis id to compute
 		int analysisId = jsonNode.get("id").asInt();
 
-		// verify if user is authorized to compute the actionplan
-		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_ACTIONPLAN)) {
-
-			// retrieve options selected by the user
-			
-			boolean uncertainty = false;
-			
-			if (jsonNode.get("uncertainty") != null)
-				uncertainty = jsonNode.get("uncertainty").asBoolean();
-
-			List<AnalysisNorm> anorms = serviceAnalysisNorm.loadAllFromAnalysis(analysisId);
-
-			List<AnalysisNorm> norms = new ArrayList<AnalysisNorm>();
-
-			for (AnalysisNorm anorm : anorms) {
-				if (jsonNode.get("norm_" + anorm.getId()) != null)
-					if (jsonNode.get("norm_" + anorm.getId()).asBoolean())
-						norms.add(anorm);
-
-			}
-
-			// prepare asynchronous worker
+		// verify if user is authorized to compute the risk register
+		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_RISK_REGISTER)) {
 			
 			boolean reloadSection = session.getAttribute("selectedAnalysis")!=null;
 			
-			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, norms, uncertainty, reloadSection);
-			worker.setPoolManager(workersPoolManager);
-			
+			WorkerComputeRiskRegister worker = new WorkerComputeRiskRegister(workersPoolManager, sessionFactory, serviceTaskFeedback, analysisId, reloadSection);
+
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-				return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
+				return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Risk Register computation was failed", locale));
 			
 			// execute task
 			executor.execute(worker);
-			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.start.compute.riskregister", null, "Risk Register computation was started successfully", locale));
+			
 		} else {
 			return JsonMessage.Success(messageSource.getMessage("error.permissiondenied", null, "Permission denied!", locale));
 		}

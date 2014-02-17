@@ -3,23 +3,16 @@
                                    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS">
-	<class name="RiskInformation" table="riskInformation">
+	<class name="RiskInformation" table="RiskInformation">
 		<id column="idRiskInformation" name="id" type="int" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
-		<property column="dtCategory" generated="never" lazy="false" name="category" type="java.lang.String"
-			not-null="true" />
-		<property column="dtLabel" generated="never" lazy="false" name="label" type="java.lang.String"
-			not-null="true" />
-		<property column="dtAcronym" generated="never" lazy="false" name="acronym" type="java.lang.String"
-			length="15" />
-		<property column="dtChapter" generated="never" lazy="false" name="chapter" type="java.lang.String"
-			not-null="true" />
-		<property column="dtExposed" generated="never" lazy="false" name="exposed" type="java.lang.String"
-			not-null="true" />
-		<property column="dtComment" generated="never" lazy="false" name="comment" type="text"
-			not-null="true" />
-		<property column="dtHiddenComment" generated="never" lazy="false" name="hiddenComment"
-			type="text" not-null="true" />
+		<property column="dtCategory" generated="never" lazy="false" name="category" type="java.lang.String" not-null="true" />
+		<property column="dtLabel" generated="never" lazy="false" name="label" type="java.lang.String" not-null="true" />
+		<property column="dtAcronym" generated="never" lazy="false" name="acronym" type="java.lang.String" length="15" />
+		<property column="dtChapter" generated="never" lazy="false" name="chapter" type="java.lang.String" not-null="true" />
+		<property column="dtExposed" generated="never" lazy="false" name="exposed" type="java.lang.String" not-null="true" />
+		<property column="dtComment" generated="never" lazy="false" name="comment" type="text" not-null="true" />
+		<property column="dtHiddenComment" generated="never" lazy="false" name="hiddenComment" type="text" not-null="true" />
 	</class>
 </hibernate-mapping>

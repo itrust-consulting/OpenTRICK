@@ -35,17 +35,24 @@ public class ActionPlanManager {
 	}
 
 	public static List<Asset> getAssetsByActionPlanType(List<ActionPlanEntry> entries) {
-		ActionPlanEntry ape = null;
-		List<Asset> assets = new ArrayList<Asset>();
-		if (entries != null && entries.size() > 0) {
-			ape = entries.get(0);
-		} else {
-			throw new IllegalArgumentException("Action plan is empty!");
-		}
 
-		for (ActionPlanAsset apa : ape.getActionPlanAssets()) {
-			assets.add(apa.getAsset());
+		try {
+
+			ActionPlanEntry ape = null;
+			List<Asset> assets = new ArrayList<Asset>();
+			if (entries != null && entries.size() > 0) {
+				ape = entries.get(0);
+			} else {
+				throw new IllegalArgumentException("Action plan is empty!");
+			}
+
+			for (ActionPlanAsset apa : ape.getActionPlanAssets()) {
+				assets.add(apa.getAsset());
+			}
+			return assets;
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return null;
 		}
-		return assets;
 	}
 }

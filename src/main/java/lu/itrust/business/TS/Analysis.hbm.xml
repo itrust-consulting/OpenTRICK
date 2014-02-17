@@ -3,7 +3,7 @@
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS">
-	<class name="Analysis" table="analysis">
+	<class name="Analysis" table="Analysis">
 		<id column="idAnalysis" name="id" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
@@ -47,59 +47,59 @@
 			<one-to-many class="ItemInformation" />
 		</bag>
 
-		<bag name="riskRegisters" table="RiskRegisterItem" cascade="all" access="field">
+		<bag name="riskRegisters" table="RiskRegister" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="lu.itrust.business.TS.cssf.RiskRegisterItem" />
 		</bag>
 
-		<bag name="summaries" table="actionplansummary" cascade="all" access="field">
+		<bag name="summaries" table="ActionPlanSummary" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="lu.itrust.business.TS.actionplan.SummaryStage" />
 		</bag>
 
-		<bag name="actionPlans" table="actionplan" cascade="all" access="field" order-by="id, (measure.phase.number) ASC, ROI ASC">
+		<bag name="actionPlans" table="Actionplan" cascade="all" access="field" order-by="id, (measure.phase.number) ASC, ROI ASC">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="lu.itrust.business.TS.actionplan.ActionPlanEntry" />
 		</bag>
 
-		<bag name="assessments" table="assessment" cascade="all" access="field">
+		<bag name="assessments" table="Assessment" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Assessment" />
 		</bag>
 
-		<bag name="scenarios" table="scenario" cascade="all" access="field" order-by="(type.type) asc, name asc">
+		<bag name="scenarios" table="Scenario" cascade="all" access="field" order-by="(type.type) asc, name asc">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Scenario" />
 		</bag>
 
-		<bag name="analysisNorms" table="analysisNorm" cascade="all" inverse="true" access="field" order-by="norm.id asc">
+		<bag name="analysisNorms" table="AnalysisNorm" cascade="all" inverse="true" access="field" order-by="norm.id asc">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="AnalysisNorm"/>
 		</bag>
 
-		<bag name="usedPhases" table="phase" cascade="all" inverse="true" access="field" lazy="false" order-by="number asc">
+		<bag name="usedPhases" table="Phase" cascade="all" inverse="true" access="field" lazy="false" order-by="number asc">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Phase" />
 		</bag>
 
-		<bag name="parameters" table="parameter" cascade="all" access="field">
+		<bag name="parameters" table="Parameter" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Parameter" />
 		</bag>
 
-		<bag name="assets" table="asset" cascade="all" access="field" order-by="value desc, ALE desc , name asc">
+		<bag name="assets" table="Asset" cascade="all" access="field" order-by="value desc, ALE desc , name asc">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Asset" />
 		</bag>
 
-		<bag name="userRights" table="userAnalysisRight" cascade="all" access="field" inverse="true">
+		<bag name="userRights" table="UserAnalysisRight" cascade="all" access="field" inverse="true">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="UserAnalysisRight" />
 		</bag>
 
 	</class>
 
-	<class name="lu.itrust.business.TS.UserAnalysisRight" table="userAnalysisRight">
+	<class name="lu.itrust.business.TS.UserAnalysisRight" table="UserAnalysisRight">
 		<id column="idUserAnalysisRight" name="id" unsaved-value="-1">
 			<generator class="increment" />
 		</id>

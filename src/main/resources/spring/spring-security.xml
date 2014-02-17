@@ -4,9 +4,9 @@
            http://www.springframework.org/schema/security
            http://www.springframework.org/schema/security/spring-security-3.2.xsd">
 
-	<!-- access-decision-manager-ref="methodSecurityExpressionHandler"  -->
+	<!-- access-decision-manager-ref="methodSecurityExpressionHandler" -->
 	<global-method-security pre-post-annotations="enabled">
-		<expression-handler ref="methodSecurityExpressionHandler"/>
+		<expression-handler ref="methodSecurityExpressionHandler" />
 	</global-method-security>
 
 	<http auto-config="true">
@@ -18,19 +18,15 @@
 
 	<authentication-manager>
 		<authentication-provider>
-			<jdbc-user-service 
-				data-source-ref="dataSource" 
-				users-by-username-query="select dtLogin as username,dtPassword as password, dtEnable as enable from user where dtLogin=?"
-				authorities-by-username-query="SELECT user1.dtLogin as username, role1.dtType FROM userRole userRole1, user user1, role role1 
-											   WHERE userRole1.idUser = user1.idUser AND userRole1.idRole = role1.idRole AND user1.dtLogin = ?" 
-			/>
+			<jdbc-user-service data-source-ref="dataSource" users-by-username-query="select dtLogin as username,dtPassword as password, dtEnable as enable from User where dtLogin=?"
+				authorities-by-username-query="SELECT User.dtLogin as username, Role.dtType FROM UserRole, User, Role WHERE UserRole.idUser = User.idUser AND UserRole.idRole = Role.idRole AND User.dtLogin = ?" />
 			<password-encoder ref="passwordEncoder">
 				<salt-source user-property="username" />
 			</password-encoder>
 		</authentication-provider>
 	</authentication-manager>
-	
-	
+
+
 	<beans:bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
 		<beans:constructor-arg value="256" />
 	</beans:bean>
@@ -50,18 +46,14 @@
 	</beans:bean>
 
 	<beans:bean id="methodSecurityExpressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
-		<!-- <beans:constructor-arg name="decisionVoters">
-			<beans:list>
-				<beans:ref bean="roleVoter" /> 
-				<beans:ref bean="authenticatedVoter" />-->
-				<beans:property name="roleHierarchy" ref="roleHierarchy"/>
-				<beans:property name="permissionEvaluator" ref="permissionEvaluator"/>
-							<!-- </beans:list>
-		</beans:constructor-arg> -->
+		<!-- <beans:constructor-arg name="decisionVoters"> <beans:list> <beans:ref bean="roleVoter" /> <beans:ref bean="authenticatedVoter" /> -->
+		<beans:property name="roleHierarchy" ref="roleHierarchy" />
+		<beans:property name="permissionEvaluator" ref="permissionEvaluator" />
+		<!-- </beans:list> </beans:constructor-arg> -->
 	</beans:bean>
 
 	<beans:bean id="permissionEvaluator" class="lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl" />
-		
+
 
 	<beans:bean id="roleHierarchyVoter" class="org.springframework.security.access.vote.RoleHierarchyVoter">
 		<beans:constructor-arg ref="roleHierarchy" />

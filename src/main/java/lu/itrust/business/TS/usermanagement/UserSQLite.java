@@ -9,7 +9,7 @@ import java.sql.Timestamp;
  * @author eomar
  * 
  */
-public class UserSqLite {
+public class UserSQLite {
 
 	private long id = -1;
 
@@ -30,7 +30,7 @@ public class UserSqLite {
 	/**
 	 * 
 	 */
-	public UserSqLite() {
+	public UserSQLite() {
 	}
 
 	/**
@@ -38,7 +38,7 @@ public class UserSqLite {
 	 * @param user
 	 * @param exportDate
 	 */
-	public UserSqLite(String fileName, User user, byte[] file) {
+	public UserSQLite(String fileName, User user, byte[] file) {
 		this.fileName = fileName;
 		this.user = user;
 		this.sqLite = file;

@@ -3,7 +3,7 @@
                                    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
-	<class name="lu.itrust.business.TS.actionplan.ActionPlanEntry" table="actionplan">
+	<class name="lu.itrust.business.TS.actionplan.ActionPlanEntry" table="ActionPlan">
 		<id column="idActionPlanCalculation" name="id" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
@@ -20,7 +20,7 @@
 			<one-to-many class="lu.itrust.business.TS.actionplan.ActionPlanAsset" />
 		</bag>
 	</class>
-	<class name="lu.itrust.business.TS.actionplan.ActionPlanType" table="actionPlanType">
+	<class name="lu.itrust.business.TS.actionplan.ActionPlanType" table="ActionPlanType">
 		<id column="idActionPlanType" name="id" unsaved-value="-1">
 			<generator class="assigned" />
 		</id>
@@ -34,7 +34,7 @@
 			</type>
 		</property>
 	</class>
-	<class name="lu.itrust.business.TS.actionplan.ActionPlanAsset" table="actionPlanAsset">
+	<class name="lu.itrust.business.TS.actionplan.ActionPlanAsset" table="ActionPlanAsset">
 		<id column="idActionPlanAssetCalculation" name="id" unsaved-value="-1">
 			<generator class="increment" />
 		</id>

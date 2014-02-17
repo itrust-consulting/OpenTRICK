@@ -5,7 +5,7 @@ package lu.itrust.business.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.usermanagement.UserSqLite;
+import lu.itrust.business.TS.usermanagement.UserSQLite;
 
 /**
  * @author eomar
@@ -13,23 +13,23 @@ import lu.itrust.business.TS.usermanagement.UserSqLite;
  */
 public interface DAOUserSqLite {
 
-	UserSqLite findOne(long id);
+	UserSQLite findOne(long id);
 
-	UserSqLite findByFileName(String fileName);
+	UserSQLite findByFileName(String fileName);
 
-	UserSqLite findByIdAndUser(long idFile, String username);
+	UserSQLite findByIdAndUser(long idFile, String username);
 
-	List<UserSqLite> findByUser(String username);
+	List<UserSQLite> findByUser(String username);
 
-	List<UserSqLite> findByUser(String username, int pageIndex, int pageSize);
+	List<UserSQLite> findByUser(String username, int pageIndex, int pageSize);
 
-	UserSqLite save(UserSqLite userSqLite);
+	UserSQLite save(UserSQLite userSqLite);
 
-	void saveOrUpdate(UserSqLite userSqLite);
+	void saveOrUpdate(UserSQLite userSqLite);
 
-	UserSqLite merge(UserSqLite userSqLite);
+	UserSQLite merge(UserSQLite userSqLite);
 
-	void delete(UserSqLite userSqLite);
+	void delete(UserSQLite userSqLite);
 
 	void delete(long idUserSqLite);
 
