@@ -425,9 +425,9 @@ public class ChartGenerator {
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getScenario().getType().getId());
+			ALE ale = ales.get(assessment.getScenario().getScenarioType().getId());
 			if (ale == null) {
-				ales.put(assessment.getScenario().getType().getId(), ale = new ALE(assessment.getScenario().getType().getTypeName(), 0));
+				ales.put(assessment.getScenario().getScenarioType().getId(), ale = new ALE(assessment.getScenario().getScenarioType().getName(), 0));
 				ales2.add(ale);
 			}
 			ale.setValue(assessment.getALE() + ale.getValue());

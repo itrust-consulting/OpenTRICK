@@ -1603,7 +1603,8 @@ function controllerBySection(section, subSection) {
 		"section_norm" : "/KnowledgeBase/Norm/Section",
 		"section_user" : "/Admin/User/Section",
 		"section_actionplans" : "/ActionPlan/Section",
-		"section_summary" : "/ActionPlanSummary/Section"
+		"section_summary" : "/ActionPlanSummary/Section",
+		"section_riskregister" : "/RiskRegister/Section"
 	};
 
 	if (subSection == null || subSection == undefined)

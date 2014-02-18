@@ -914,7 +914,7 @@ public class ImportAnalysis {
 			tempScenario.setEnvironmental(rs.getInt(Constant.THREAT_ENVIRONMENTAL));
 			tempScenario.setExternalThreat(rs.getInt(Constant.THREAT_EXTERNAL_THREAT));
 			tempScenario.setInternalThreat(rs.getInt(Constant.THREAT_INTERNAL_THREAT));
-			tempScenario.setType(scenarioTypes.get(rs.getInt(Constant.THREAT_ID_TYPE_THREAT)));
+			tempScenario.setScenarioType(scenarioTypes.get(rs.getInt(Constant.THREAT_ID_TYPE_THREAT)));
 
 			// set scenario asset types
 			setScenarioAssetValues(tempScenario, rs);

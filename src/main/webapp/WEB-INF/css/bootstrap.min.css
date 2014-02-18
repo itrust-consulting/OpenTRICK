@@ -581,7 +581,7 @@ textarea.input-group-sm>.form-control,textarea.input-group-sm>.input-group-addon
 .nav .caret{border-top-color:#428bca;border-bottom-color:#428bca;}
 .nav a:hover .caret{border-top-color:#2a6496;border-bottom-color:#2a6496;}
 .nav-tabs .dropdown-menu{margin-top:-1px;border-top-right-radius:0;border-top-left-radius:0;}
-.navbar{position:relative;min-height:50px;margin-bottom:17px;border:1px solid transparent;}.navbar:before,.navbar:after{content:" ";display:table;}
+.navbar{position:relative;min-height:50px;max-height:50px;margin-bottom:17px;border:1px solid transparent;}.navbar:before,.navbar:after{content:" ";display:table;}
 .navbar:after{clear:both;}
 .navbar:before,.navbar:after{content:" ";display:table;}
 .navbar:after{clear:both;}

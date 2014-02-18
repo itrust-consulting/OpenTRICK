@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="section" id="section_summary">
 	<div class="page-header">
-		<h3 id="Phase">
+		<h3 id="Summary">
 			<spring:message code="label.summaries" text="Summaries" />
 		</h3>
 	</div>

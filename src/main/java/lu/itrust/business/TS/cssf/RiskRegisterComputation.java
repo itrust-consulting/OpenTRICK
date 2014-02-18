@@ -121,7 +121,7 @@ public class RiskRegisterComputation {
 			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis), this.analysis.getParameters()));
 
 			// print risk register into console
-			printRegister(this.analysis.getRiskRegisters());
+			//printRegister(this.analysis.getRiskRegisters());
 
 			return null;
 
@@ -160,7 +160,7 @@ public class RiskRegisterComputation {
 		for (RiskRegisterItem registerItem : registers) {
 			System.out.println("--------------------------------------------------------------------" + "----------------------------------------");
 			System.out.print(registerItem.getId() + " | " + registerItem.getPosition() + " | " + registerItem.getScenario().getId() + " | " + registerItem.getAsset().getId() + " | "
-				+ registerItem.getScenario().getType().getTypeName() + " | " + registerItem.getScenario().getName());
+				+ registerItem.getScenario().getScenarioType().getName() + " | " + registerItem.getScenario().getName());
 			printRiskRegisterItem(registerItem.getRawEvaluation());
 			printRiskRegisterItem(registerItem.getNetEvaluation());
 			printRiskRegisterItem(registerItem.getExpectedImportance());
@@ -223,10 +223,8 @@ public class RiskRegisterComputation {
 	 */
 	public static List<RiskRegisterItem> CSSFComputation(final List<Assessment> assessments, final List<TMA> tmas, final List<Parameter> parameters) {
 
-		// initialise ALE Array (this array will contain all net ALE's of each
-		// Risk)
-		// Integer: Scenario ID, Double: ALE of the Scenario, calculated by
-		// Inet*Pnet)
+		// initialise ALE Array (this array will contain all net ALE's of each Risk)
+		// Integer: Scenario ID, Double: ALE of the Scenario, calculated by Inet*Pnet)
 		Map<String, Double> netALEs = new HashMap<String, Double>();
 
 		// initialise a empty map that contains Impact objects
@@ -256,10 +254,7 @@ public class RiskRegisterComputation {
 		// set register items into three groups direct, indirect and others
 		Map<String, List<RiskRegisterItemGroup>> results = CSSFSort.sortByGroup(riskRegisters);
 
-		// Concatenate direct and indirect using 20 direct and those with
-		// acceptable impact and
-		// probability as well as 5 indirect and those with acceptable impact
-		// and probability
+		// Concatenate direct and indirect using 20 direct and those with acceptable impact and probability as well as 5 indirect and those with acceptable impact and probability
 
 		double acceptableImportace = 0;
 
@@ -362,40 +357,29 @@ public class RiskRegisterComputation {
 			final List<Parameter> parameters) {
 
 		// ********************************************************
-		// * first step: generate the sum of each impact category
-		// * Categories are: reputation , operational , legal, financial
+		// * first step: generate the sum of each impact category Categories are: reputation , operational , legal, financial
 		// ********************************************************
 
-		// set the impacts of each category (this will parse all assessment and
-		// will make a sum of
-		// each impact category (inside the Impact class) for each Scenario)
+		// set the impacts of each category (this will parse all assessment and will make a sum of each impact category (inside the Impact class) for each Scenario)
 		impacts.putAll(computeImpactGeneric(assessments, parameters));
 
 		// ********************************************************
 		// * second step: For each Scenario identify the biggest Impact Category
 		// ********************************************************
 
-		// calculates the ALE inside the netALE array (using the biggest Impact
-		// and probability)
-		// for each Scenario and initialise the netEvaluation result (prepare
-		// the Array with size)
+		// calculates the ALE inside the netALE array (using the biggest Impact and probability) for each Scenario and initialise the netEvaluation result (prepare the Array with size)
 		riskRegisters.putAll(computeNetALE(netALE, impacts, assessments, parameters));
 
 		// ********************************************************
-		// * last step: calculate netALE/maxImpact for each Scenario and store
-		// result as
-		// * NetEvaluation inside netEvaluation array
+		// * last step: calculate netALE/maxImpact for each Scenario and store result as NetEvaluation inside netEvaluation array
 		// ********************************************************
 	}
 
 	/**
 	 * computeImpactGeneric: <br>
-	 * This method will parse all Scenarios inside the Assessments List and will compute the sum of
-	 * each category of impact (operational, financial, legal and reputation). Each Scenario that
-	 * has a CSSF type will be checked inside the Assessments to make a sum of impact of each
-	 * Categoryonly on CSSF scenarios. This computed List (Index: Scenario ID, Value: Impact Class)
-	 * will be returned.Inside this list one can find the sum of Impacts of each CSSF Category of
-	 * allScenarios.
+	 * This method will parse all Scenarios inside the Assessments List and will compute the sum of each category of impact (operational, financial, legal and reputation). Each Scenario that
+	 * has a CSSF type will be checked inside the Assessments to make a sum of impact of each Categoryonly on CSSF scenarios. This computed List (Index: Scenario ID, Value: Impact Class)
+	 * will be returned.Inside this list one can find the sum of Impacts of each CSSF Category of all Scenarios.
 	 * 
 	 * @param assessments
 	 *            The List of Assessments
@@ -406,9 +390,7 @@ public class RiskRegisterComputation {
 	 */
 	protected static Map<String, Impact> computeImpactGeneric(final List<Assessment> assessments, final List<Parameter> parameters) {
 
-		// initialise the result (which is an Array where each Entry is defined
-		// by the Scenario ID
-		// and the Sum of Impacts of each Impact Category)
+		// initialise the result (which is an Array where each Entry is defined by the Scenario ID and the Sum of Impacts of each Impact Category)
 		Map<String, Impact> impacts = new HashMap<String, Impact>();
 
 		// parse all assessments
@@ -428,21 +410,15 @@ public class RiskRegisterComputation {
 
 				String key = scenario.getId() + "_" + assessment.getAsset().getId();
 
-				// retrieve corresponding Impact Object of this Scenario from
-				// the Array
+				// retrieve corresponding Impact Object of this Scenario from the Array
 				Impact impact = impacts.get(key);
 
-				// System.out.println("computeNetEvaluation Scenario: " +
-				// scenario.getName());
+				// System.out.println("computeNetEvaluation Scenario: " + scenario.getName());
 
-				// the following check is done once at the beginning when the
-				// Scenario Key was
-				// not found in the impacts array, if this is the case, the
-				// Scenario will be
-				// added to the Array with an empty Impact Object
+				// the following check is done once at the beginning when the Scenario Key was not found in the impacts array, if this is the case, the Scenario will be added to the Array 
+				// with an empty Impact Object
 
-				// Check if the Impact Object exists (Key exists inside the
-				// Array) -> NO
+				// Check if the Impact Object exists (Key exists inside the Array) -> NO
 				if (impact == null) {
 
 					// create a new object
@@ -452,8 +428,7 @@ public class RiskRegisterComputation {
 					impacts.put(key, impact);
 				}
 
-				// summing impacts (update previous value with the one of the
-				// assessment)
+				// summing impacts (update previous value with the one of the assessment)
 
 				// Reputation
 				impact.setReputation(Impact.convertStringImpactToDouble(assessment.getImpactRep(), parameters) + impact.getRealReputation());
@@ -475,8 +450,7 @@ public class RiskRegisterComputation {
 
 	/**
 	 * computeNetALE: <br>
-	 * Calculate the ALE (Pnet*Inet) of each Scenario and Sum them together to build the nominator
-	 * of the Formula "Pgen=(sum(P*I))/(sum(Imax)))" Reference in the CSSF document section 3.1.1.
+	 * Calculate the ALE (Pnet*Inet) of each Scenario and Sum them together to build the nominator of the Formula "Pgen=(sum(P*I))/(sum(Imax)))" Reference in the CSSF document section 3.1.1.
 	 * 
 	 * @param netALEs
 	 *            The List of netALE's for each Scenario (numerator)
@@ -489,11 +463,9 @@ public class RiskRegisterComputation {
 	 * 
 	 * @return The initialised list of the risk register
 	 */
-	private static Map<String, RiskRegisterItem> computeNetALE(Map<String, Double> netALEs, final Map<String, Impact> impacts, final List<Assessment> assessments,
-			final List<Parameter> parameters) {
+	private static Map<String, RiskRegisterItem> computeNetALE(Map<String, Double> netALEs, final Map<String, Impact> impacts, final List<Assessment> assessments, final List<Parameter> parameters) {
 
-		// initialise the risk register with the size of elements inside the
-		// impacts list
+		// initialise the risk register with the size of elements inside the impacts list
 		Map<String, RiskRegisterItem> riskRegisters = new HashMap<String, RiskRegisterItem>(impacts.size());
 
 		// parse all assessments elements
@@ -509,12 +481,10 @@ public class RiskRegisterComputation {
 				// ", Impact Max index: "
 				// + index + " Real value " + impacts.get(key));
 
-				// get or initialises the netALE value (numerator =
-				// sum(Pnet*Inet))
+				// get or initialises the netALE value (numerator = sum(Pnet*Inet))
 				double netALE = (netALEs.containsKey(key) ? netALEs.get(key) : 0);
 
-				// identify biggest impact and calculate the numerator (ALe
-				// using P*I)
+				// identify biggest impact and calculate the numerator (ALe using P*I)
 				netALE += computeALE(impacts, assessment, parameters);
 
 				// update ALE numerator
@@ -526,8 +496,7 @@ public class RiskRegisterComputation {
 			}
 		}
 
-		// return the resulting riskregister (with size and scenario
-		// initialised)
+		// return the resulting riskregister (with size and scenario initialised)
 		return riskRegisters;
 	}
 
@@ -638,21 +607,21 @@ public class RiskRegisterComputation {
 		// parse parameters array
 		for (Parameter parameter : parameters) {
 
-			// check on the type of the parameter and if the value is in this
-			// bounds
+			// check on the type of the parameter and if the value is in this bounds
 			if (parameter instanceof ExtendedParameter && parameter.getType().getLabel().equals(type) && ((ExtendedParameter) parameter).getBounds().isInRange(value)) {
 				// return the parameter level
 				return ((ExtendedParameter) parameter).getLevel();
 			}
 		}
 
-		// at this time the value could not be found in the parameters and we
-		// asume the level is the
-		// biggest possible: 10
+		// at this time the value could not be found in the parameters and we asume the level is the biggest possible: 10
 		return 10;
 	}
 
 	/**
+	 * levelToValue: <br>
+	 * Description
+	 * 
 	 * @param level
 	 * @param type
 	 * @param parameters
@@ -666,19 +635,25 @@ public class RiskRegisterComputation {
 		// parse parameters array
 		for (Parameter parameter : parameters) {
 
-			// check on the type of the parameter and if the value is in this
-			// bounds
+			// check on the type of the parameter and if the value is in this bounds
 			if (parameter instanceof ExtendedParameter && parameter.getType().getLabel().equals(type) && ((ExtendedParameter) parameter).getLevel() == level) {
 				// return the parameter level
 				return ((ExtendedParameter) parameter).getValue();
 			}
 		}
-		// at this time the value could not be found in the parameters and we
-		// asume the level is the
-		// biggest possible: 10
+		// at this time the value could not be found in the parameters and we asume the level is the biggest possible: 10
 		return Constant.DOUBLE_MAX_VALUE;
 	}
 
+	/**
+	 * computeALE: <br>
+	 * Description
+	 * 
+	 * @param impacts
+	 * @param assessment
+	 * @param parameters
+	 * @return
+	 */
 	private static double computeALE(Map<String, Impact> impacts, Assessment assessment, List<Parameter> parameters) {
 
 		String key = assessment.getScenario().getId() + "_" + assessment.getAsset().getId();
@@ -688,13 +663,11 @@ public class RiskRegisterComputation {
 		// ", Impact Max index: "
 		// + index + " Real value " + impacts.get(key));
 
-		// get or initialises the netALE value (numerator =
-		// sum(Pnet*Inet))
+		// get or initialises the netALE value (numerator = sum(Pnet*Inet))
 
 		double ALE = 0;
 
-		// identify biggest impact and calculate the numerator (ALe
-		// using P*I)
+		// identify biggest impact and calculate the numerator (ALe using P*I)
 
 		switch (index) {
 
@@ -718,6 +691,9 @@ public class RiskRegisterComputation {
 	}
 
 	/**
+	 * impactLevelToValue: <br>
+	 * Description
+	 * 
 	 * @param level
 	 * @param parameters
 	 * @return
@@ -751,8 +727,7 @@ public class RiskRegisterComputation {
 		// parse the parameters
 		for (Parameter parameter : parameters) {
 
-			// check if the parameter is of type probability and if the acronym
-			// equals the parameter
+			// check if the parameter is of type probability and if the acronym equals the parameter
 			if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME) && ((ExtendedParameter) parameter).getAcronym().equalsIgnoreCase(likelihood)) {
 
 				// return the value found on this parameter
@@ -810,10 +785,12 @@ public class RiskRegisterComputation {
 
 			// store scenario
 			Scenario scenario = tma.getAssessment().getScenario();
+			
 			// determine category
 			String category = CategoryConverter.getTypeFromScenario(scenario);
 
 			NormMeasure measure = (NormMeasure) tma.getMeasure();
+			
 			// check if measure influences this scenario category -> YES
 			if (measure.getMeasurePropertyList().hasInfluenceOnCategory(category)) {
 
@@ -821,13 +798,12 @@ public class RiskRegisterComputation {
 
 				String key = scenario.getId() + "_" + asset.getId();
 
-				// Integer: The Scenario ID, Integer : Code that defines the
-				// biggest Category
-				// 0: reputation, 1: operational, 2: legal, 3: financial
+				// Integer: The Scenario ID, Integer : Code that defines the biggest Category 0: reputation, 1: operational, 2: legal, 3: financial
 
 				double ALE = computeALE(impacts, tma.getAssessment(), parameters);
 
 				// System.out.println("Scenario id: "+scenario.getName());
+				
 				// compute deltaALE
 				computeDeltaALEs(deltaALEs, ALE, tma, parameters);
 
@@ -866,9 +842,7 @@ public class RiskRegisterComputation {
 
 		double currentDeltaALE = TMA.calculateDeltaALE(ALE, tma.getRRF(), tma.getMeasure());
 
-		// retireve existing summed value of this scneario and add current
-		// deltaALE, if none exist
-		// use the current as new value
+		// retireve existing summed value of this scneario and add current deltaALE, if none exist use the current as new value
 
 		double deltaALE = deltaALEs.containsKey(key) ? deltaALEs.get(key) + currentDeltaALE : currentDeltaALE;
 
@@ -896,13 +870,10 @@ public class RiskRegisterComputation {
 		// retrieve scenario ID
 		String key = tma.getAssessment().getScenario().getId() + "_" + tma.getAssessment().getAsset().getId();
 
-		// Retrieve current rawALE of the scenario ID if it does not exist take
-		// the start value of
-		// the netALE of this scenario
+		// Retrieve current rawALE of the scenario ID if it does not exist take the start value of the netALE of this scenario
 		double rawALE = rawALEs.containsKey(key) ? rawALEs.get(key) : netALEs.get(key);
 
-		// Retrieve implementation rate of the measure and transform it to
-		// percentage
+		// Retrieve implementation rate of the measure and transform it to percentage
 		double ImplementationRate = tma.getMeasure().getImplementationRateValue() * 0.01;
 
 		// calculate new RAW ALE using formula
@@ -967,13 +938,14 @@ public class RiskRegisterComputation {
 
 		// retrieve net impact
 		double netImpact = riskRegisters.getNetEvaluation().getImpact();
+		
 		// retrieve net importance
 		double netProbability = riskRegisters.getNetEvaluation().getProbability();
-		// retrieve net importance
-		// double netImportance =
-		// riskRegisters.getNetEvaluation().getImportance();
+		
+		// retrieve net importance 
+		// double netImportance = riskRegisters.getNetEvaluation().getImportance();
 
-		// compute scale point of importance
+		// compute scale point of importance 
 		// double impScalePoint = netALE / netImportance;
 
 		if (rawALE == null) {
@@ -981,8 +953,7 @@ public class RiskRegisterComputation {
 			return;
 		}
 
-		// compute deltaImportance
-		// double deltaRawImportance = (rawALE - netALE); // / impScalePoint;
+		// compute deltaImportance double deltaRawImportance = (rawALE - netALE); // / impScalePoint;
 
 		// compute raw importance
 		// double rawImportance = rawALE;
@@ -1097,27 +1068,6 @@ public class RiskRegisterComputation {
 		 * 
 		 * System.out.println(riskRegisters.getScenario().getName() + " ExpImportance: " +
 		 * expImportance);
-		 */
-
-		/**
-		 * Computes "Expected Importance" and update riskRegisters.<br />
-		 * Computes X, Pa and Ia:
-		 * <ul>
-		 * <li>
-		 * Key = Scenario id</li>
-		 * <li>
-		 * Pc = riskRegisters[key].netEvaluation.Probability</li>
-		 * <li>
-		 * Ic = riskRegisters[key].netEvaluation.Impact</li>
-		 * <li>
-		 * Ra = expImportance</li>
-		 * <li>
-		 * X = probabilityRelativeImpacts[key][0] /probabilityRelativeImpacts[Key][1]</li>
-		 * <li>
-		 * Pa = Pc*( Ra /( Pc * Ic ) ) ^ X</li>
-		 * <li>
-		 * Ia = Ra / Pa</li>
-		 * </ul>
 		 */
 
 		if (expImportance < 0) {

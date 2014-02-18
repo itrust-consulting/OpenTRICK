@@ -34,6 +34,10 @@ html,body {
 	margin: 20px 0;
 }
 
+.container {
+	width:96%;
+}
+
 #footer>.container {
 	padding-left: 15px;
 	padding-right: 15px;
@@ -67,27 +71,18 @@ html,body {
 	margin-top: -50px;
 }
 
-.nav-container h3 {
-	margin-top: -60px;
+.nav-container h3, .sectionpanel {
+	margin-top: -120px;
 	padding-top: 120px;
 }
 
 .navbar-custom {
-	margin-top: -20px;
+	margin-top: 50px;
+	width:auto;
+	margin-left:auto;
+	margin-right:auto;
 }
 
-.navbar-custom.affix {
-	margin-top: -39px;
-}
-
-.navbar-custom+.nav-container,#success+.nav-container,#error+.nav-container
-	{
-	margin-top: -108px;
-}
-
-.navbar-custom.affix+.nav-container {
-	margin-top: -71px;
-}
 
 .progress-info {
 	color: #FF0033;

@@ -24,7 +24,7 @@ public class Scenario extends SecurityCriteria {
 	private String name = "";
 
 	/** The Scenario Type */
-	private ScenarioType type = new ScenarioType();
+	private ScenarioType scenarioType = new ScenarioType();
 
 	/** The Selected Flag (Selected for calculation) */
 	private boolean selected = false;
@@ -38,21 +38,22 @@ public class Scenario extends SecurityCriteria {
 	/**
 	 * Constructor: <br>
 	 */
-	public Scenario(){
-		
+	public Scenario() {
+
 	}
-	
+
 	/**
 	 * Constructor: <br>
+	 * 
 	 * @param assettypes
 	 */
-	public Scenario(List<AssetType> assettypes){
-		for(AssetType at : assettypes){
+	public Scenario(List<AssetType> assettypes) {
+		for (AssetType at : assettypes) {
 			AssetTypeValue tmpATV = new AssetTypeValue(at, 0);
 			assetTypeValues.add(tmpATV);
 		}
 	}
-	
+
 	/***********************************************************************************************
 	 * Setters and Getters
 	 **********************************************************************************************/
@@ -76,8 +77,7 @@ public class Scenario extends SecurityCriteria {
 	 */
 	public void setName(String name) {
 		if ((name == null) || (name.trim().isEmpty())) {
-			throw new IllegalArgumentException(
-					"Scenario Name cannot be null or empty!");
+			throw new IllegalArgumentException("Scenario Name cannot be null or empty!");
 		}
 		this.name = name;
 	}
@@ -88,8 +88,8 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Type
 	 */
-	public ScenarioType getType() {
-		return type;
+	public ScenarioType getScenarioType() {
+		return scenarioType;
 	}
 
 	/**
@@ -99,13 +99,11 @@ public class Scenario extends SecurityCriteria {
 	 * @param type
 	 *            The value to set the Scenario Type
 	 */
-	public void setType(ScenarioType type) {
-		if ((type == null) || (type.getTypeName() == null)
-				|| (type.getTypeName().trim().isEmpty())) {
-			throw new IllegalArgumentException(
-					"Scenario Type cannot be null or empty!");
+	public void setScenarioType(ScenarioType type) {
+		if ((type == null) || (type.getName() == null) || (type.getName().trim().isEmpty())) {
+			throw new IllegalArgumentException("Scenario Type cannot be null or empty!");
 		}
-		this.type = type;
+		this.scenarioType = type;
 	}
 
 	/**
@@ -126,12 +124,8 @@ public class Scenario extends SecurityCriteria {
 	 *            The value to set the Selected Flag
 	 */
 	public void setSelected(boolean selected) {
-		if (((this.getCorrective() + this.getLimitative() + this.getDetective() + this
-				.getPreventive()) != 1)
-				&& (this.getName().isEmpty())
-				&& (selected)) {
-			throw new IllegalArgumentException(
-					"Scenario Fields have not been correctly initialised in order to be selected!");
+		if (((this.getCorrective() + this.getLimitative() + this.getDetective() + this.getPreventive()) != 1) && (this.getName().isEmpty()) && (selected)) {
+			throw new IllegalArgumentException("Scenario Fields have not been correctly initialised in order to be selected!");
 		}
 		this.selected = selected;
 	}
@@ -163,8 +157,7 @@ public class Scenario extends SecurityCriteria {
 
 	public void setAssetTypeValue(AssetType assetType, int value) {
 		for (AssetTypeValue typeValue : assetTypeValues) {
-			if (typeValue.getAssetType()
-					.equals(assetType)) {
+			if (typeValue.getAssetType().equals(assetType)) {
 				typeValue.setValue(value);
 				return;
 			}
@@ -184,9 +177,8 @@ public class Scenario extends SecurityCriteria {
 
 	public boolean hasInfluenceOnAsset(String assettype) {
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
-			if (assettype.equalsIgnoreCase(assetTypeValue.getAssetType()
-					.getType()))
-				return assetTypeValue.getValue()>0;
+			if (assettype.equalsIgnoreCase(assetTypeValue.getAssetType().getType()))
+				return assetTypeValue.getValue() > 0;
 		return false;
 	}
 
@@ -269,8 +261,7 @@ public class Scenario extends SecurityCriteria {
 	@Override
 	public void setIntentional(int intentional) {
 		if (!isValidValue(intentional)) {
-			throw new IllegalArgumentException(
-					"Intentional needs to be 0 or 1!");
+			throw new IllegalArgumentException("Intentional needs to be 0 or 1!");
 		}
 		super.setIntentional(intentional);
 	}
@@ -302,8 +293,7 @@ public class Scenario extends SecurityCriteria {
 	@Override
 	public void setEnvironmental(int environmental) {
 		if (!isValidValue(environmental)) {
-			throw new IllegalArgumentException(
-					"Environmental needs to be 0 or 1!");
+			throw new IllegalArgumentException("Environmental needs to be 0 or 1!");
 		}
 		super.setEnvironmental(environmental);
 	}
@@ -319,8 +309,7 @@ public class Scenario extends SecurityCriteria {
 	@Override
 	public void setInternalThreat(int internalthreat) {
 		if (!isValidValue(internalthreat)) {
-			throw new IllegalArgumentException(
-					"Internal Threat needs to be 0 or 1!");
+			throw new IllegalArgumentException("Internal Threat needs to be 0 or 1!");
 		}
 		super.setInternalThreat(internalthreat);
 	}
@@ -336,16 +325,14 @@ public class Scenario extends SecurityCriteria {
 	@Override
 	public void setExternalThreat(int externalthreat) {
 		if (!isValidValue(externalthreat)) {
-			throw new IllegalArgumentException(
-					"External Threat needs to be 0 or 1!");
+			throw new IllegalArgumentException("External Threat needs to be 0 or 1!");
 		}
 		super.setExternalThreat(externalthreat);
 	}
 
 	/**
 	 * isValidValue: <br>
-	 * Check if Category value is valid or not. A valid value in scenario is 0
-	 * or 1 or 4.
+	 * Check if Category value is valid or not. A valid value in scenario is 0 or 1 or 4.
 	 * 
 	 * @param value
 	 *            The value to check if valid
@@ -375,19 +362,19 @@ public class Scenario extends SecurityCriteria {
 	 *            The Object of AssetTypeValue to add to the list
 	 */
 	public AssetTypeValue retrieveAssetTypeValue(AssetType assetType) {
-		
+
 		AssetTypeValue atvreturn = null;
-		
-		for (AssetTypeValue atv : assetTypeValues){
-			if (atv.getAssetType().equals(assetType)){
+
+		for (AssetTypeValue atv : assetTypeValues) {
+			if (atv.getAssetType().equals(assetType)) {
 				atvreturn = atv;
 				break;
 			}
 		}
-		
+
 		return atvreturn;
 	}
-	
+
 	/**
 	 * getAssetTypeValue<br />
 	 * Returns the AssetTypeValue at the given position in this list.
@@ -433,19 +420,18 @@ public class Scenario extends SecurityCriteria {
 		int result = 1;
 		result = prime * result + getId();
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((scenarioType == null) ? 0 : scenarioType.hashCode());
 		return result;
 	}
 
 	/**
 	 * equals: <br>
-	 * This method is used to determine if the current object equals another
-	 * object. Fields that identify a Scenario object are: id, name and type.
+	 * This method is used to determine if the current object equals another object. Fields that
+	 * identify a Scenario object are: id, name and type.
 	 * 
 	 * @param obj
 	 *            The object to check
-	 * @return True if the object equals the other object; False if the objects
-	 *         are not the same
+	 * @return True if the object equals the other object; False if the objects are not the same
 	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -471,11 +457,11 @@ public class Scenario extends SecurityCriteria {
 		} else if (!name.equals(other.name)) {
 			return false;
 		}
-		if (type == null) {
-			if (other.type != null) {
+		if (scenarioType == null) {
+			if (other.scenarioType != null) {
 				return false;
 			}
-		} else if (!type.equals(other.type)) {
+		} else if (!scenarioType.equals(other.scenarioType)) {
 			return false;
 		}
 		return true;

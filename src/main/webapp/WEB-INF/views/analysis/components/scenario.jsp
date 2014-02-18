@@ -41,7 +41,7 @@
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_scenario','#menu_scenario');"></td>
 							<td>${status.index+1}</td>
 							<td class="${cssClass}" colspan="2">${scenario.name}</td>
-							<td class="${cssClass}">${scenario.type.getTypeName()}</td>
+							<td class="${cssClass}">${scenario.scenarioType.name}</td>
 							<td class="${cssClass}" colspan="2">${scenario.description}</td>
 						</tr>
 					</c:forEach>

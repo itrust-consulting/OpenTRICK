@@ -1099,7 +1099,7 @@ public class ExportAnalysis {
 			// add parameters
 			params.clear();
 			params.add(scenarioType.getId());
-			params.add(scenarioType.getTypeName());
+			params.add(scenarioType.getName());
 
 			// execute query
 			sqlite.query(query, params);
@@ -1120,7 +1120,7 @@ public class ExportAnalysis {
 			params.add(this.analysis.getAScenario(index).getId());
 			params.add(this.analysis.getAScenario(index).getName());
 			// System.out.println(this.analysis.getAScenario(index).getType()+",");
-			params.add(this.analysis.getAScenario(index).getType().getId());
+			params.add(this.analysis.getAScenario(index).getScenarioType().getId());
 			params.add(this.analysis.getAScenario(index).getDescription());
 			if (this.analysis.getAScenario(index).isSelected()) {
 				params.add(Constant.ASSET_SELECTED);

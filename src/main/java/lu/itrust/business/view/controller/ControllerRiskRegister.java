@@ -84,8 +84,8 @@ public class ControllerRiskRegister {
 	private ServiceTaskFeedback serviceTaskFeedback;
 
 	/**
-	 * showActionPlan: <br>
-	 * dispaly all actionplans of an analysis
+	 * showRiskRegister: <br>
+	 * Description
 	 * 
 	 * @param session
 	 * @param model
@@ -112,7 +112,7 @@ public class ControllerRiskRegister {
 
 	/**
 	 * section: <br>
-	 * reload the section of a given actionplan type
+	 * reload the section of the risk register
 	 * 
 	 * @param model
 	 * @param session
@@ -125,48 +125,7 @@ public class ControllerRiskRegister {
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
 	public String section(Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 
-		// retrieve analysis ID
-		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
-
-		// load all actionplans from the selected analysis
-		List<RiskRegisterItem> riskregister = serviceRiskRegister.loadAllFromAnalysis(selected);
-
-		// prepare model
-		model.put("riskregister", riskregister);
-
-		// return view
-		return "analysis/components/riskregister";
-
-	}
-
-	/**
-	 * retrieveSingle: <br>
-	 * Description
-	 * 
-	 * @param entryID
-	 *            : The actionplanentry id
-	 * @param model
-	 *            : model to be used inside view
-	 * @param session
-	 *            : user session containing the selectedAnalysis id
-	 * @param principal
-	 *            : user principal (user of the session)
-	 * @return a html formated table line (tr < td) containing the single requested entry (with
-	 *         javascript)
-	 * @throws Exception
-	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	@RequestMapping(value = "/RetrieveSingleEntry/{entryID}", method = RequestMethod.GET, headers = "Accept=application/json")
-	public String retrieveSingle(@PathVariable("entryID") int entryID, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
-
-		// retrieve actionplan entry from the given entryID
-		RiskRegisterItem riskregisteritem = serviceRiskRegister.get(entryID);
-
-		// prepare model
-		model.put("riskregisteritem", riskregisteritem);
-
-		// return view
-		return "analysis/components/riskregisteritem";
+		return showRiskRegister(session, model, principal);
 
 	}
 

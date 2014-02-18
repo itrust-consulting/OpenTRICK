@@ -38,7 +38,7 @@
 									<c:when test="${!empty(scenariotypes)}">
 										<option value='-1'><spring:message code="label.scenario.type.select" text="Select the type of scenario" /></option>
 										<c:forEach items="${scenariotypes}" var="scenariotype">
-											<option value="${scenariotype.id}" ${scenario.type == scenariotype?'selected':''}>${scenariotype.typeName}</option>
+											<option value="${scenariotype.id}" ${scenario.scenarioType == scenariotype?'selected':''}>${scenariotype.name}</option>
 										</c:forEach>
 									</c:when>
 									<c:otherwise>

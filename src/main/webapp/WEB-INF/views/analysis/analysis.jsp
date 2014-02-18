@@ -26,8 +26,12 @@
 						<jsp:include page="../successErrors.jsp" />
 						<div class="content nav-container" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}">
 							<c:if test="${!KowledgeBaseView}">
+								<h2> ${analysis.label} | ${ analysis.version } </h2>
 								<c:set var="histories" value="${analysis.histories}" scope="request" />
 								<jsp:include page="./components/history.jsp" />
+							</c:if>
+							<c:if test="${KowledgeBaseView}">
+								<h2> ${analysis.identifier} | ${ analysis.version } </h2>
 							</c:if>
 							<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
 							<jsp:include page="./components/itemInformation.jsp" />
@@ -43,11 +47,15 @@
 							<c:if test="${!KowledgeBaseView }">
 								<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
 								<jsp:include page="./components/actionplan.jsp" />
+								<script type="text/javascript" src="<spring:url value="js/actionplan.js" />"></script>
 								<c:set var="summaries" scope="request" value="${analysis.summaries}" />
 								<jsp:include page="./components/summary.jsp" />
+								<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
+								<jsp:include page="./components/riskregister.jsp" />
+								<script type="text/javascript" src="<spring:url value="js/riskregister.js" />"></script>
 								<jsp:include page="./components/charts.jsp" />
 								<jsp:include page="./components/widgets.jsp" />
-								<script type="text/javascript" src="<spring:url value="js/actionplan.js" />"></script>
+								
 							</c:if>
 						</div>
 					</c:when>

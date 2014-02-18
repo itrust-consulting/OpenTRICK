@@ -130,7 +130,7 @@ public class WorkerComputeRiskRegister implements Worker {
 				session.getTransaction().commit();
 				MessageHandler messageHandler = new MessageHandler("info.info.risk_register.done", "Computing Risk Register Complete!", 100);
 				if (reloadSection)
-					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_riskRegister\")", null));
+					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_riskregister\")", null));
 				serviceTaskFeedback.send(id, messageHandler);
 				System.out.println("Computing Risk Register Complete!");
 			} else
@@ -145,7 +145,7 @@ public class WorkerComputeRiskRegister implements Worker {
 			}
 		} catch (Exception e) {
 			try {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation was failed", e));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed", e));
 				e.printStackTrace();
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();

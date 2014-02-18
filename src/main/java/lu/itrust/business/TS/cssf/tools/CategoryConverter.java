@@ -389,7 +389,7 @@ public class CategoryConverter {
 		}
 
 		// returns the type of the scneario if it is CSSF null when not
-		return  scenarioTypeToType.get(scenario.getType().getTypeName());
+		return  scenarioTypeToType.get(scenario.getScenarioType().getName());
 	}
 
 	/**
@@ -410,7 +410,7 @@ public class CategoryConverter {
 		for (String string : SCENARIO_TYPE_CSSF_KEYS) {
 
 			// scenario type was found in cssf
-			if (string.equals(scenario.getType().getTypeName()))
+			if (string.equals(scenario.getScenarioType().getName()))
 				return true;
 		}
 

@@ -379,7 +379,7 @@ public class ControllerScenario {
 				errors.add(new String[] { "assetType", messageSource.getMessage("error.scenariotype.not_found", null, "Selected scenario type cannot be found", locale) });
 				return false;
 			}
-			scenario.setType(scenarioType);
+			scenario.setScenarioType(scenarioType);
 			for (AssetType assetType : assetTypes){
 				
 				AssetTypeValue atv = scenario.retrieveAssetTypeValue(assetType);

@@ -20,7 +20,7 @@ public class ScenarioType {
 	private int id = -1;
 
 	/** scenario type name */
-	private String type = "";
+	private String name = "";
 
 	/***********************************************************************************************
 	 * Constructors
@@ -42,7 +42,7 @@ public class ScenarioType {
 		//System.out.println(type);
 		if (type == null || !type.matches(Constant.REGEXP_VALID_SCENARIO_TYPE)) 
 			throw new IllegalArgumentException("Scenario Type is not valid!");
-		this.type = type;
+		this.name = type;
 	}
 
 	/***********************************************************************************************
@@ -76,8 +76,8 @@ public class ScenarioType {
 	 * 
 	 * @return The value of the type field
 	 */
-	public String getTypeName() {
-		return type;
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -87,10 +87,10 @@ public class ScenarioType {
 	 * @param type
 	 *            The Value to set the type field
 	 */
-	public void setTypeName(String type) {
+	public void setName(String type) {
 		if (type == null || !type.matches(Constant.REGEXP_VALID_SCENARIO_TYPE)) 
 			throw new IllegalArgumentException("Scenario Type is not valid!");
-		this.type = type;
+		this.name = type;
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class ScenarioType {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -125,11 +125,11 @@ public class ScenarioType {
 			return false;
 		}
 		ScenarioType other = (ScenarioType) obj;
-		if (getTypeName() == null) {
-			if (other.getTypeName() != null) {
+		if (getName() == null) {
+			if (other.getName() != null) {
 				return false;
 			}
-		} else if (!getTypeName().equals(other.getTypeName())) {
+		} else if (!getName().equals(other.getName())) {
 			return false;
 		}
 		return true;
