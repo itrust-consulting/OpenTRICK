@@ -77,7 +77,7 @@ public class ControllerAdministration {
 		List<Customer> customers = serviceCustomer.loadAllNotProfile(); 
 		
 		if (customers != null && customers.size()>0) {
-			model.put("customer", customers.get(0).getOrganisation());
+			model.put("customer", customers.get(0).getId());
 			model.put("customers", customers);
 			model.put("analyses", serviceAnalysis.loadAllFromCustomer(customers.get(0)));
 		}

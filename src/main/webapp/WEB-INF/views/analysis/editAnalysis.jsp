@@ -18,15 +18,17 @@
 					readonly />
 			</div>
 		</div>
-		<div class="form-group">
-			<label for="version" class="col-sm-2 control-label"> <spring:message
-					code="label.analysis.version" text="Version" />
-			</label>
-			<div class="col-sm-10">
-				<input name="version" id="analysis_version" class="form-control"
-					type="text" value="${analysis.version}" readonly />
+		<c:if test="${analysis.profile == false }">
+			<div class="form-group">
+				<label for="version" class="col-sm-2 control-label"> <spring:message
+						code="label.analysis.version" text="Version" />
+				</label>
+				<div class="col-sm-10">
+					<input name="version" id="analysis_version" class="form-control"
+						type="text" value="${analysis.version}" readonly />
+				</div>
 			</div>
-		</div>
+		</c:if>
 		<div class="form-group">
 			<label for="creationDate" class="col-sm-2 control-label"> <spring:message
 					code="label.analysis.creationdate" text="Creation Date" />
@@ -37,37 +39,41 @@
 					readonly />
 			</div>
 		</div>
-		<div class="form-group">
-			<label for="basedOnAnalysis" class="col-sm-2 control-label">
-				<spring:message code="label.analysis.basedOnAnalysis"
-					text="Based On Analysis Version" />
-			</label>
-			<div class="col-sm-10">
-				<input name="basedOnAnalysis" id="analysis_basedOnAnalysis"
-					class="form-control" type="text"
-					value="${analysis.basedOnAnalysis!=null?analysis.basedOnAnalysis.version:'None'}"
-					readonly />
+		<c:if test="${analysis.profile == false }">
+			<div class="form-group">
+				<label for="basedOnAnalysis" class="col-sm-2 control-label">
+					<spring:message code="label.analysis.basedOnAnalysis"
+						text="Based On Analysis Version" />
+				</label>
+				<div class="col-sm-10">
+					<input name="basedOnAnalysis" id="analysis_basedOnAnalysis"
+						class="form-control" type="text"
+						value="${analysis.basedOnAnalysis!=null?analysis.basedOnAnalysis.version:'None'}"
+						readonly />
+				</div>
 			</div>
-		</div>
+		</c:if>
 		<div class="form-group">
 			<label for="owner" class="col-sm-2 control-label"> <spring:message
 					code="label.analysis.owner" text="Owner" />
 			</label>
 			<div class="col-sm-10">
 				<input name="owner" id="analysis_owner" class="form-control"
-					type="text" value="${analysis.owner.login}" readonly />
+					type="text" value="${analysis.owner.firstName}" readonly />
 			</div>
 		</div>
-		<div class="form-group">
-			<label for="hasData" class="col-sm-2 control-label"> <spring:message
-					code="label.analysis.hasData" text="Has Data" />
-			</label>
-			<div class="col-sm-10">
-				<input name="hasData" id="analysis_hasData" class="form-control"
-					type="checkbox" ${analysis.hasData()?"checked='checked'":""}
-					disabled="disabled" />
+		<c:if test="${analysis.profile == false }">
+			<div class="form-group">
+				<label for="hasData" class="col-sm-2 control-label"> <spring:message
+						code="label.analysis.hasData" text="Has Data" />
+				</label>
+				<div class="col-sm-10">
+					<input name="hasData" id="analysis_hasData" class="form-control"
+						type="checkbox" ${analysis.hasData()?"checked='checked'":""}
+						disabled="disabled" />
+				</div>
 			</div>
-		</div>
+		</c:if>
 		<c:if test="${analysis.profile == false }">
 			<div class="form-group">
 				<label for="customer" class="col-sm-2 control-label"> <spring:message
@@ -88,7 +94,7 @@
 					code="label.analysis.language" text="Language" />
 			</label>
 			<div class="col-sm-10" id="analysislanguagecontainer">
-				<select name="analysislanguage">
+				<select name="analysislanguage" class="form-control">
 					<c:forEach items="${languages}" var="language">
 						<option value="${language.id}"
 							${language.equals(analysis.language)?"selected='selected'":""}>${language.name}</option>

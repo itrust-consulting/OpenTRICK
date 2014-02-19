@@ -78,6 +78,9 @@
 			$(document).ready(function() {
 				$("input[type='checkbox']").removeAttr("checked");
 			});
+			$(function() {
+				analysisTableSortable();
+			});
 		</script>
 	</div>
 </body>

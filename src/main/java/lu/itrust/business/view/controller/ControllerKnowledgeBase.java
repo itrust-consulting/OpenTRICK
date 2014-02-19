@@ -3,15 +3,19 @@ package lu.itrust.business.view.controller;
 import java.security.Principal;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceNorm;
+import lu.itrust.business.service.ServiceUser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -42,15 +46,25 @@ public class ControllerKnowledgeBase {
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
+	@Autowired
+	private ServiceUser serviceUser;
+
 	@RequestMapping
 	public String displayKowledgeBase(Map<String, Object> model, Principal principal) throws Exception {
 		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
 		model.put("languages", serviceLanguage.loadAll());
 		model.put("norms", serviceNorm.loadAll());
 		model.put("norms", serviceNorm.loadAll());
-		model.put("KowledgeBaseView", true);
 		model.put("analyses", serviceAnalysis.loadProfiles());
 		return "knowledgebase/knowledgebase";
+	}
+
+	@RequestMapping("/Analysis/Section")
+	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
+		model.addAttribute("analyses", serviceAnalysis.loadProfiles());
+		model.addAttribute("login", principal.getName());
+		model.addAttribute("KowledgeBaseView", true);
+		return "analysis/analyses";
 	}
 
 	public void setServiceLanguage(ServiceLanguage serviceLanguage) {

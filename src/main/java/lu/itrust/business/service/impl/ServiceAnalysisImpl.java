@@ -185,6 +185,11 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
+	public List<Analysis> loadByUserAndCustomer(String login, Integer customer, int pageIndex, int pageSize) {
+		return daoAnalysis.loadByUserAndCustomer(login, customer,pageIndex, pageSize );
+	}
+	
+	@Override
 
 	public String getVersionOfAnalysis(int id) throws Exception {
 		return daoAnalysis.getVersionOfAnalysis(id);
@@ -215,5 +220,10 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public List<Analysis> loadProfiles() {
 		return daoAnalysis.loadProfiles();
+	}
+
+	@Override
+	public List<Analysis> loadByUserAndCustomer(String userName, Integer customerID) throws Exception {
+		return daoAnalysis.loadByUserAndCustomer(userName, customerID);
 	}
 }

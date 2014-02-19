@@ -7,6 +7,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import lu.itrust.business.TS.Norm;
@@ -57,7 +58,7 @@ public class ControllerAnalysisProfile {
 
 	@Autowired
 	private SessionFactory sessionFactory;
-
+	
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
@@ -98,6 +99,13 @@ public class ControllerAnalysisProfile {
 		}
 		result.reject("failed.analysis.duplication.start", "Profile cannot be create");
 		return "analysis/components/widgets/analysisProfileForm";
+	}	
+	
+	@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
+	@RequestMapping("/Section")
+	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
+		model.addAttribute("analyses", serviceAnalysis.loadProfiles());
+		model.addAttribute("login", principal.getName());
+		return "knowledgebase/analysis/analyses";
 	}
-
 }

@@ -22,10 +22,7 @@ import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.UserAnalysisRight;
-import lu.itrust.business.TS.cssf.RiskRegisterComputation;
-import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
 import lu.itrust.business.component.AssessmentManager;
@@ -208,17 +205,20 @@ public class ControllerAnalysis {
 			List<Customer> customers = serviceCustomer.loadByUser(principal.getName());
 
 			// retrieve currently selected customer
-			String customer = (String) session.getAttribute("currentCustomer");
+			Integer customer = (Integer) session.getAttribute("currentCustomer");
 
 			// check if the current customer is set -> no
 			if (customer == null && !customers.isEmpty())
 
 				// use first customer as selected customer
-				session.setAttribute("currentCustomer", customer = customers.get(0).getOrganisation());
+				session.setAttribute("currentCustomer", customer = customers.get(0).getId());
 			if (customer != null)
 
 				// load model with objects by the selected customer
-				section(customer, 0, principal.getName(), model, customers);
+				model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(principal.getName(), customer, 0, 10));
+			model.addAttribute("customer", customer);
+			model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
+			model.addAttribute("login", principal.getName());
 		}
 		return "analysis/analysis";
 	}
@@ -340,23 +340,17 @@ public class ControllerAnalysis {
 
 	@RequestMapping("/Section")
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
-		String referer = request.getHeader("Referer");
-		if (referer != null && referer.contains("/trickservice/KnowledgeBase")) {
-			User user = serviceUser.get(principal.getName());
-			if (!user.isAutorise(RoleType.ROLE_CONSULTANT))
-				return "errors/403";
-			model.addAttribute("analyses", serviceAnalysis.loadProfiles());
-			model.addAttribute("login", principal.getName());
-			model.addAttribute("KowledgeBaseView", true);
-		} else {
-			String customer = (String) request.getSession().getAttribute("currentCustomer");
-			if (customer == null) {
-				List<Customer> customers = serviceCustomer.loadByUser(principal.getName());
-				if (!customers.isEmpty())
-					request.getSession().setAttribute("currentCustomer", customer = customers.get(0).getOrganisation());
-			}
-			section(customer, 0, principal.getName(), model, serviceCustomer.loadByUser(principal.getName()));
+		Integer customer = (Integer) request.getSession().getAttribute("currentCustomer");
+		if (customer == null) {
+			List<Customer> customers = serviceCustomer.loadByUser(principal.getName());
+			if (!customers.isEmpty())
+				request.getSession().setAttribute("currentCustomer", customer = customers.get(0).getId());
 		}
+		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(principal.getName(), customer, 0, 10));
+		model.addAttribute("customer", customer);
+		model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
+		model.addAttribute("login", principal.getName());
+
 		return "analysis/analyses";
 	}
 
@@ -371,10 +365,15 @@ public class ControllerAnalysis {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping("/Section/{customerSection}/{pageIndex}")
-	public String section(@PathVariable String customerSection, @PathVariable int pageIndex, HttpSession session, Principal principal, Model model) throws Exception {
+	@RequestMapping("/DisplayByCustomer/{customerSection}/{pageIndex}")
+	public String section(@PathVariable Integer customerSection, @PathVariable int pageIndex, HttpSession session, Principal principal, Model model) throws Exception {
+
 		session.setAttribute("currentCustomer", customerSection);
-		section(customerSection, pageIndex, principal.getName(), model, serviceCustomer.loadByUser(principal.getName()));
+		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(principal.getName(), customerSection, pageIndex, 10));
+		model.addAttribute("customer", customerSection);
+		model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
+		model.addAttribute("login", principal.getName());
+
 		return "analysis/analyses";
 	}
 
@@ -588,7 +587,7 @@ public class ControllerAnalysis {
 	String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session) throws Exception {
 		try {
 
-			// delete the analysis			
+			// delete the analysis
 			serviceAnalysis.remove(analysisId);
 
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -681,8 +680,8 @@ public class ControllerAnalysis {
 				// check if version is less or equal the current version
 				if (History.VersionComparator(history.getVersion(), version) != 1)
 					// retrun error
-					errors.put("version",
-							messageSource.getMessage("error.history.version.less_current", null, "Version of History entry must be greater than last Version of Analysis!", locale));
+					errors.put("version", messageSource.getMessage("error.history.version.less_current", null, "Version of History entry must be greater than last Version of Analysis!",
+							locale));
 			}
 
 			if (!errors.isEmpty()) {
@@ -879,7 +878,7 @@ public class ControllerAnalysis {
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""
-				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+			+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) userSqLite.getSize());
@@ -906,7 +905,6 @@ public class ControllerAnalysis {
 	 * @param source
 	 * @param locale
 	 * @param session
-	 *            TODO
 	 * @return
 	 */
 	private boolean buildAnalysis(Map<String, String> errors, User owner, String source, Locale locale, HttpSession session) {
@@ -915,50 +913,67 @@ public class ControllerAnalysis {
 			JsonNode jsonNode = mapper.readTree(source);
 			Analysis analysis = null;
 			int id = jsonNode.get("id").asInt();
-			int idCustomer = jsonNode.has("analysiscustomer") ? jsonNode.get("analysiscustomer").asInt() : -1;
+
+			analysis = serviceAnalysis.get(id);
+
 			int idLanguage = jsonNode.has("analysislanguage") ? jsonNode.get("analysislanguage").asInt() : -1;
-			int idProfile = jsonNode.has("profile") ? jsonNode.get("profile").asInt() : -1;
 			String comment = jsonNode.has("label") ? jsonNode.get("label").asText() : "";
-			String author = jsonNode.has("author") ? jsonNode.get("author").asText() : "";
-			String version = jsonNode.has("version") ? jsonNode.get("version").asText() : "";
-			if (idCustomer < 1 && id < 1)
-				errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
-			if (idLanguage < 1)
-				errors.put("analysislanguage", messageSource.getMessage("error.language.null", null, "Language cannot be empty", locale));
-			if (comment.trim().isEmpty())
-				errors.put("comment", messageSource.getMessage("error.comment.null", null, "Comment cannot be empty", locale));
-			if (author.trim().isEmpty() && id < 1)
-				errors.put("author", messageSource.getMessage("error.author.null", null, "Author cannot be empty", locale));
+			int idCustomer = jsonNode.has("analysiscustomer") ? jsonNode.get("analysiscustomer").asInt() : -1;
 
-			if (version.trim().isEmpty())
-				errors.put("version", messageSource.getMessage("error.version.null", null, "Version cannot be empty", locale));
-			else if (!version.matches(Constant.REGEXP_VALID_ANALYSIS_VERSION))
-				errors.put("version", messageSource.getMessage("error.version.invalid", null, "Invalid version format, Please respect this format (0.0.1)", locale));
+			if (analysis != null) {
+				Language lang = serviceLanguage.get(idLanguage);
+				if (analysis.isProfile()) {
 
-			if (!errors.isEmpty())
-				return false;
+					analysis.setLanguage(lang);
+					analysis.setLabel(comment);
+				} else {
+					
 
-			Customer customer = serviceCustomer.get(idCustomer);
-			Language language = serviceLanguage.get(idLanguage);
-			String label = jsonNode.get("label").asText();
-			Date date = new Date();
-			Timestamp creationDate = new Timestamp(date.getTime());
-			String ts = new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(creationDate);
-			String identifier = language.getAlpha3() + "_" + ts;
-			if (id > 0) {
-				analysis = serviceAnalysis.get(id);
+					analysis = serviceAnalysis.get(id);
 
-				if (analysis == null) {
-					errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-					return false;
-				}
+					if (analysis == null) {
+						errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+						return false;
+					}
 
-				analysis.setLabel(label);
-				if (!analysis.isProfile())
+					analysis.setLabel(comment);
+
+					Customer customer = serviceCustomer.get(idCustomer);
 					analysis.setCustomer(customer);
-				analysis.setLanguage(language);
+
+					analysis.setLanguage(lang);
+
+				}
 				serviceAnalysis.saveOrUpdate(analysis);
 			} else {
+				int idProfile = jsonNode.has("profile") ? jsonNode.get("profile").asInt() : -1;
+				String author = jsonNode.has("author") ? jsonNode.get("author").asText() : "";
+				String version = jsonNode.has("version") ? jsonNode.get("version").asText() : "";
+				if (idCustomer < 1)
+					errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
+				if (idLanguage < 1)
+					errors.put("analysislanguage", messageSource.getMessage("error.language.null", null, "Language cannot be empty", locale));
+				if (comment.trim().isEmpty())
+					errors.put("comment", messageSource.getMessage("error.comment.null", null, "Comment cannot be empty", locale));
+				if (author.trim().isEmpty() && id < 1)
+					errors.put("author", messageSource.getMessage("error.author.null", null, "Author cannot be empty", locale));
+
+				if (version.trim().isEmpty())
+					errors.put("version", messageSource.getMessage("error.version.null", null, "Version cannot be empty", locale));
+				else if (!version.matches(Constant.REGEXP_VALID_ANALYSIS_VERSION))
+					errors.put("version", messageSource.getMessage("error.version.invalid", null, "Invalid version format, Please respect this format (0.0.1)", locale));
+
+				if (!errors.isEmpty())
+					return false;
+
+				Customer customer = serviceCustomer.get(idCustomer);
+				Language language = serviceLanguage.get(idLanguage);
+				String label = jsonNode.get("label").asText();
+				Date date = new Date();
+				Timestamp creationDate = new Timestamp(date.getTime());
+				String ts = new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(creationDate);
+				String identifier = language.getAlpha3() + "_" + ts;
+
 				analysis = null;
 
 				// populate measures, default scenarios and parameters
@@ -971,7 +986,7 @@ public class ControllerAnalysis {
 					analysis = new Duplicator().duplicateAnalysis(profile, null);
 					Analysis.initialiseEmptyItemInformation(analysis);
 					analysis.setProfile(false);
-					if((analysis.getAssets().size()>0) && (analysis.getScenarios().size()>0) && (analysis.getAnalysisNorms().size()>0))
+					if ((analysis.getAssets().size() > 0) && (analysis.getScenarios().size() > 0) && (analysis.getAnalysisNorms().size() > 0))
 						analysis.setData(true);
 					else
 						analysis.setData(false);
@@ -995,9 +1010,11 @@ public class ControllerAnalysis {
 				UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
 				analysis.addUserRight(uar);
 				serviceAnalysis.save(analysis);
+
+				if (session != null)
+					session.setAttribute("currentCustomer", customer.getOrganisation());
+
 			}
-			if (session != null)
-				session.setAttribute("currentCustomer", customer.getOrganisation());
 
 			return true;
 
@@ -1006,28 +1023,5 @@ public class ControllerAnalysis {
 			e.printStackTrace();
 			return false;
 		}
-	}
-
-	/**
-	 * section: <br>
-	 * reload section by selected customer
-	 * 
-	 * @param customer
-	 * @param pageIndex
-	 * @param userName
-	 * @param model
-	 * @param customers
-	 */
-	private void section(String customer, int pageIndex, String userName, Model model, List<Customer> customers) {
-		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(userName, customer));
-		model.addAttribute("customer", customer);
-		model.addAttribute("customers", serviceCustomer.loadByUser(userName));
-		model.addAttribute("login", userName);
-		model.addAttribute("deleteRight", AnalysisRight.DELETE.ordinal());
-		model.addAttribute("calcRickRegisterRight", AnalysisRight.CALCULATE_RISK_REGISTER.ordinal());
-		model.addAttribute("calcActionPlanRight", AnalysisRight.CALCULATE_ACTIONPLAN.ordinal());
-		model.addAttribute("modifyRight", AnalysisRight.MODIFY.ordinal());
-		model.addAttribute("exportRight", AnalysisRight.EXPORT.ordinal());
-		model.addAttribute("readRight", AnalysisRight.READ.ordinal());
 	}
 }

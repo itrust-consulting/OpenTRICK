@@ -1597,6 +1597,7 @@ function controllerBySection(section, subSection) {
 		"section_assessment" : "/Assessment/Section",
 		"section_phase" : "/Phase/Section",
 		"section_analysis" : "/Analysis/Section",
+		"section_profile_analysis" : "/AnalysisProfile/Section",
 		"section_measure" : "/Measure/Section",
 		"section_customer" : "/KnowledgeBase/Customer/Section",
 		"section_language" : "/KnowledgeBase/Language/Section",
@@ -2197,98 +2198,6 @@ function versionComparator(version1, version2, order) {
 
 }
 
-/**
- * 
- * @returns {Boolean}
- */
-function analysisTableSortable() {
-
-	// check if datatable has to be initialised
-	var tables = $("#section_analysis table");
-	if (!tables.length) {
-		tables = $("#section_admin_analysis table");
-		if (!tables.length)
-			return false;
-	}
-
-	// define sort order of text
-	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
-
-	// flag to check for case sensitive comparation
-	Array.AlphanumericSortIgnoreCase = true;
-
-	// call the tablesorter plugin and apply the uitheme widget
-	$(tables).tablesorter({
-		headers : {
-			0 : {
-				sorter : false,
-				filter : false,
-				width : "0.5%"
-			},
-			1 : {
-				sorter : "text",
-				filter : false,
-				width : "10%",
-			},
-			2 : {
-				sorter : "text",
-				filter : false,
-			},
-			3 : {
-				sorter : "text",
-				filter : false,
-			},
-			4 : {
-				sorter : "text",
-				filter : false,
-			},
-			5 : {
-				sorter : "text",
-				filter : false,
-			},
-			6 : {
-				sorter : "text",
-				filter : false,
-			},
-			7 : {
-				sorter : "text",
-				filter : false,
-			},
-		},
-		textSorter : {
-			1 : Array.AlphanumericSort,
-			2 : function(a, b, direction, column, table) {
-				if (table.config.sortLocaleCompare)
-					return a.localeCompare(b);
-				return versionComparator(a, b, direction);
-			},
-			3 : $.tablesorter.sortNatural,
-		},
-		theme : "bootstrap",
-		dateFormat : "yyyymmdd",
-		widthFixed : false,
-		headerTemplate : '{content} {icon}',
-		widgets : [ "uitheme", "filter", "zebra" ],
-		widgetOptions : {
-			zebra : [ "even", "odd" ],
-			filter_reset : ".reset"
-		}
-	});
-	$("th[class~='tablesorter-header'][data-column='0']").css({'width':'2px'});
-	$("th[class~='tablesorter-header'][data-column='1']").css({'width':'5%'});
-	//$("th[class~='tablesorter-header'][data-column='2']").css({'width':'2px'});
-	$("th[class~='tablesorter-header'][data-column='3']").css({'width':'11%'});
-	$("th[class~='tablesorter-header'][data-column='4']").css({'width':'15%'});
-	$("th[class~='tablesorter-header'][data-column='5']").css({'width':'6%'});
-	$("th[class~='tablesorter-header'][data-column='6']").css({'width':'5px'});
-	$("th[class~='tablesorter-header'][data-column='7']").css({'width':'5px'});
-	return false;
-}
-
-$(function() {
-	analysisTableSortable();
-});
-
 function checkControlChange(checkbox, sectionName) {
 	var items = $("#section_" + sectionName + " tbody tr td:first-child input");
 	for (var i = 0; i < items.length; i++)
@@ -2624,9 +2533,9 @@ function updateStatus(progressBar, idTask, callback, status) {
 }
 
 function customerChange(selector) {
-	var customer = $(selector).find("option:selected").text();
+	var customer = $(selector).find("option:selected").val()
 	$.ajax({
-		url : context + "/Analysis/Section/" + customer + "/0",
+		url : context + "/Analysis/DisplayByCustomer/" + customer + "/0",
 		type : "get",
 		async : true,
 		contentType : "application/json",

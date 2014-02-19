@@ -43,8 +43,12 @@ public interface ServiceAnalysis {
 
 	public List<Analysis> loadByUserAndCustomer(String login, String customer);
 	
+	public List<Analysis> loadByUserAndCustomer(String userName, Integer customerID)throws Exception;
+	
 	public List<Analysis> loadByUserAndCustomer(String login, String customer, int pageIndex, int pageSize);
 
+	public List<Analysis> loadByUserAndCustomer(String login, Integer customer, int pageIndex, int pageSize);
+	
 	public List<Analysis> loadAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception;
 
 	public List<Analysis> loadAllFromCustomer(Customer customer) throws Exception;
@@ -62,8 +66,6 @@ public interface ServiceAnalysis {
 	public void remove(Analysis analysis) throws Exception;
 
 	public void remove(Integer analysisId) throws Exception;
-
-	
 
 	
 

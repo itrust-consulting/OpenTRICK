@@ -45,6 +45,8 @@ public interface DAOAnalysis {
 	public List<Analysis> loadByUserAndCustomer(String login, String customer);
 	
 	public List<Analysis> loadByUserAndCustomer(String login, String customer, int pageIndex, int pageSize);
+	
+	public List<Analysis> loadByUserAndCustomer(String login, Integer customer, int pageIndex, int pageSize);
 
 	public List<Analysis> loadAllFromUser(User user) throws Exception;
 
@@ -64,9 +66,6 @@ public interface DAOAnalysis {
 
 	public List<Analysis> loadAllNotEmpty() throws Exception;
 
-	
+	public List<Analysis> loadByUserAndCustomer(String userName, Integer customerID) throws Exception;
 
-	
-
-	
 }

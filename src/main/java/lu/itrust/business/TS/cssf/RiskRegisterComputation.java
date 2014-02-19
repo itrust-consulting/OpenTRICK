@@ -121,7 +121,7 @@ public class RiskRegisterComputation {
 			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis), this.analysis.getParameters()));
 
 			// print risk register into console
-			//printRegister(this.analysis.getRiskRegisters());
+			printRegister(this.analysis.getRiskRegisters());
 
 			return null;
 

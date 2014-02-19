@@ -58,22 +58,25 @@
 						<li><a href="#chart_budget"> <spring:message code="label.chart.bufget" text="Budget by Action Plan" /></a></li>
 					</ul>
 				</li>
+			</c:if>
 				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.action" text="Action" /><span class="caret"></span></a>
 					<ul class="dropdown-menu">
 						<li><a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select"> <spring:message code="label.analysis.release" text="Close Analysis" /></a></li>
-						<li class="divider"></li>
-						<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.assessment.generate.missing" text="Update Assessment" /></a></li>
-						<li class="divider"></li>
-						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.analysis.compute.actionPlan" text="Compute ActionPlan" />
-						</a></li>
-						<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <spring:message code="label.analysis.compute.riskRegister" text="Compute Registers" /></a></li>
-						<li class="divider"></li>
-						<li><a href="#" onclick="return wipeAssessment();"> <spring:message code="label.analysis.assessment.wipe" text="Wipe assessments" /></a></li>
-						<li class="divider"></li>
-						<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.analysis.charts.reload" text="Reload Charts" /></a></li>
+						<c:if test="${!KowledgeBaseView }">
+							<li class="divider"></li>
+							<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.assessment.generate.missing" text="Update Assessment" /></a></li>
+							<li class="divider"></li>
+							<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.analysis.compute.actionPlan" text="Compute ActionPlan" />
+							</a></li>
+							<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <spring:message code="label.analysis.compute.riskRegister" text="Compute Registers" /></a></li>
+							<li class="divider"></li>
+							<li><a href="#" onclick="return wipeAssessment();"> <spring:message code="label.analysis.assessment.wipe" text="Wipe assessments" /></a></li>
+							<li class="divider"></li>
+							<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.analysis.charts.reload" text="Reload Charts" /></a></li>
+						</c:if>
 					</ul>
 				</li>
-			</c:if>
+			
 		</ul>
 	</div>
 </div>
