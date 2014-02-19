@@ -22,6 +22,18 @@
 			</ul>
 		</div>
 		<div class="panel-body">
+			<p class="text-center">
+				<spring:message code="label.analysis.filter.customer" text="Analyses filtered by customer: " />
+				<div class="col-md-offset-5 col-md-2">
+					<select class="form-control" onchange="return customerChange(this)" style="margin-bottom: 10px">
+						<c:forEach items="${customers}" var="icustomer">
+							<option value="${icustomer.id}" ${icustomer.organisation == customer? 'selected':'' }>
+								<spring:message text="${icustomer.organisation}" />
+							</option>
+						</c:forEach>
+					</select>
+				</div>
+			</p>
 			<table class="table table-hover">
 				<thead>
 					<tr>

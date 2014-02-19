@@ -48,10 +48,6 @@ public interface ServiceCustomer {
 
 	public boolean isProfile(int id);
 
-	
-
-	
-
-	
+	public List<Customer> loadAllNotProfile() throws Exception;
 
 }

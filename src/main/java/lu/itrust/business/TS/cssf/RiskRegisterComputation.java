@@ -1122,8 +1122,10 @@ public class RiskRegisterComputation {
 		// compute importance repport
 		double rapportImportance = importance / (currentImpact * currentProbability);
 
+		
+		
 		if (Double.isNaN(rapportImportance)) {
-			System.err.println("A nan was detected rapportImportance: " + rapportImportance);
+			System.err.println("A nan was detected rapportImportance: " + importance + "/ ("+currentImpact+"*"+currentProbability+")");
 			return new EvaluationResult(0, 0);
 		}
 

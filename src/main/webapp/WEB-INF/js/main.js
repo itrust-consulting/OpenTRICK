@@ -2226,12 +2226,12 @@ function analysisTableSortable() {
 				width : "0.5%"
 			},
 			1 : {
-				sorter : false,
+				sorter : "text",
 				filter : false,
 				width : "10%",
 			},
 			2 : {
-				sorter : false,
+				sorter : "text",
 				filter : false,
 			},
 			3 : {
@@ -2254,14 +2254,6 @@ function analysisTableSortable() {
 				sorter : "text",
 				filter : false,
 			},
-			8 : {
-				sorter : "text",
-				filter : false,
-			},
-			9 : {
-				sorter : "text",
-				filter : false,
-			},
 		},
 		textSorter : {
 			1 : Array.AlphanumericSort,
@@ -2274,7 +2266,7 @@ function analysisTableSortable() {
 		},
 		theme : "bootstrap",
 		dateFormat : "yyyymmdd",
-		widthFixed : true,
+		widthFixed : false,
 		headerTemplate : '{content} {icon}',
 		widgets : [ "uitheme", "filter", "zebra" ],
 		widgetOptions : {
@@ -2282,6 +2274,14 @@ function analysisTableSortable() {
 			filter_reset : ".reset"
 		}
 	});
+	$("th[class~='tablesorter-header'][data-column='0']").css({'width':'2px'});
+	$("th[class~='tablesorter-header'][data-column='1']").css({'width':'5%'});
+	//$("th[class~='tablesorter-header'][data-column='2']").css({'width':'2px'});
+	$("th[class~='tablesorter-header'][data-column='3']").css({'width':'11%'});
+	$("th[class~='tablesorter-header'][data-column='4']").css({'width':'15%'});
+	$("th[class~='tablesorter-header'][data-column='5']").css({'width':'6%'});
+	$("th[class~='tablesorter-header'][data-column='6']").css({'width':'5px'});
+	$("th[class~='tablesorter-header'][data-column='7']").css({'width':'5px'});
 	return false;
 }
 

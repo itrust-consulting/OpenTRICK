@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
@@ -72,8 +73,15 @@ public class ControllerAdministration {
 	public String showAdministration(Principal principal, Map<String, Object> model) throws Exception {
 		model.put("adminView", true);
 		model.put("users", serviceUser.loadAll());
-		model.put("customers", serviceCustomer.loadAll());
-		model.put("analyses", serviceAnalysis.loadAll());
+		
+		List<Customer> customers = serviceCustomer.loadAllNotProfile(); 
+		
+		if (customers != null && customers.size()>0) {
+			model.put("customer", customers.get(0).getOrganisation());
+			model.put("customers", customers);
+			model.put("analyses", serviceAnalysis.loadAllFromCustomer(customers.get(0)));
+		}
+			
 		return "admin/administration";
 	}
 

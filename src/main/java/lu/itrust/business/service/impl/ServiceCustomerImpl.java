@@ -183,4 +183,11 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 		return daoCustomer.exist(organisation);
 	}
 
+
+
+	@Override
+	public List<Customer> loadAllNotProfile() throws Exception {
+		return daoCustomer.loadAllNotProfile();
+	}
+
 }

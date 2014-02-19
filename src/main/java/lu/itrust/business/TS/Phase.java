@@ -52,7 +52,7 @@ public class Phase implements Serializable, Cloneable {
 	 *            The Phase Number
 	 */
 	public Phase(int number) {
-		this.id = 0;
+		this.id = -1;
 		this.number = number;
 	}
 

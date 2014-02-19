@@ -287,6 +287,8 @@ public class ImportAnalysis {
 
 			AssessmentManager asm = new AssessmentManager();
 
+			System.out.println("Saving Analysis Data...");
+			
 			// save or update analysis
 			daoAnalysis.save(this.analysis);
 
@@ -2253,6 +2255,9 @@ public class ImportAnalysis {
 			currentSqliteTable = "maturities";
 			// retrieve norm from map
 			norm = norms.get(Constant.NORM_MATURITY);
+			
+			tempPhase = null;
+			
 			if (columnExists(rs, Constant.MEASURE_VERSION_NORM)) {
 				normversion = rs.getInt(Constant.MEASURE_VERSION_NORM);
 				normcomputable = rs.getBoolean(Constant.MEASURE_NORM_COMPUTABLE);
@@ -2325,7 +2330,7 @@ public class ImportAnalysis {
 
 				// fill measure description text
 				mesText.setDomain(rs.getString(Constant.MATURITY_DOMAIN).replace("'", "''"));
-				mesText.setDescription("");
+				mesText.setDescription(Constant.EMPTY_STRING);
 				mesText.setLanguage(this.analysis.getLanguage());
 
 				// else: measure description exist: measure description text
@@ -2345,8 +2350,8 @@ public class ImportAnalysis {
 				mesText.setMeasureDescription(mesDesc);
 
 				// set data to measure description text
-				mesText.setDomain(rs.getString(Constant.MEASURE_DOMAIN_MEASURE).replace("'", "''"));
-				mesText.setDescription(rs.getString(Constant.MEASURE_QUESTION_MEASURE).replace("'", "''"));
+				mesText.setDomain(rs.getString(Constant.MATURITY_DOMAIN).replace("'", "''"));
+				mesText.setDescription(Constant.EMPTY_STRING);
 				mesText.setLanguage(this.analysis.getLanguage());
 			}
 
@@ -2413,8 +2418,6 @@ public class ImportAnalysis {
 					tempPhase.setBeginDate(null);
 
 					phases.get(numPhase);
-
-					tempPhase.setAnalysis(analysis);
 
 					phases.put(numPhase, tempPhase);
 

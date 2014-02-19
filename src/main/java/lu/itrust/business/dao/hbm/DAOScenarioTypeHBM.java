@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  * DAOScenarioTypeHBM.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 31 janv. 2013
  */
@@ -41,8 +41,8 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 */
 	@Override
 	public ScenarioType get(int id) throws Exception {
-	
-			return (ScenarioType) getSession().get(ScenarioType.class, id);
+
+		return (ScenarioType) getSession().get(ScenarioType.class, id);
 	}
 
 	/**
@@ -53,9 +53,8 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 */
 	@Override
 	public ScenarioType get(String scenarioTypeName) throws Exception {
-			return (ScenarioType) getSession().createQuery("From ScenarioType where type = :type")
-					.setString("type", scenarioTypeName).uniqueResult();
-		
+		return (ScenarioType) getSession().createQuery("From ScenarioType where name = :type").setString("type", scenarioTypeName).uniqueResult();
+
 	}
 
 	/**
@@ -67,9 +66,9 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ScenarioType> loadAll() throws Exception {
-	
-			return (List<ScenarioType>) getSession().createQuery("From ScenarioType").list();
-		
+
+		return (List<ScenarioType>) getSession().createQuery("From ScenarioType").list();
+
 	}
 
 	/**

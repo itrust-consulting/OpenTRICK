@@ -145,7 +145,7 @@ public class WorkerComputeRiskRegister implements Worker {
 			}
 		} catch (Exception e) {
 			try {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed", e));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: "+e.getMessage(), e));
 				e.printStackTrace();
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
@@ -196,7 +196,7 @@ public class WorkerComputeRiskRegister implements Worker {
 	 */
 	private void deleteRiskRegister(Analysis analysis) throws Exception {
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.riskregister", "Risk Register is deleting", null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.riskregister", "Risk Register is deleting", 50));
 
 		while (!analysis.getRiskRegisters().isEmpty())
 			daoRiskRegister.remove(analysis.getRiskRegisters().remove(analysis.getRiskRegisters().size() - 1));

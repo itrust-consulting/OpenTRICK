@@ -81,7 +81,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 				.createQuery(
 						"Select scenario "
 								+ "from Analysis as analysis inner join analysis.scenarios as scenario "
-								+ "where analysis.id = :analysisId order by scenario.type.type asc, scenario.name asc")
+								+ "where analysis.id = :analysisId order by scenario.scenarioType.name asc, scenario.name asc")
 				.setParameter("analysisId", idAnalysis).list();
 	}
 

@@ -34,6 +34,8 @@ public interface DAOCustomer {
 	
 	public List<Customer> loadAll() throws Exception;
 	
+	public List<Customer> loadAllNotProfile() throws Exception;
+	
 	public void save(Customer customer) throws Exception;
 	
 	public void saveOrUpdate(Customer customer) throws Exception;

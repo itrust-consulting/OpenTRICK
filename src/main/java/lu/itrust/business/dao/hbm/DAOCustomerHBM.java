@@ -188,4 +188,16 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 				.setParameter("organisation", organisation).uniqueResult()).intValue() > 0;
 	}
 
+	/**
+	 * loadAllNotProfile: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOCustomer#loadAllNotProfile()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> loadAllNotProfile() throws Exception {
+		return (List<Customer>) getSession().createQuery("From Customer WHERE canBeUsed=true").list();
+	}
+
 }

@@ -73,10 +73,9 @@
 				<thead>
 					<tr>
 						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'analysis')"></th>
-						<th><spring:message code="label.analysis.identifier" /></th>
+						<th><spring:message code="label.analysis.version" /></th>
 						<th><spring:message code="label.analysis.label" /></th>
 						<th><spring:message code="label.analysis.creationDate" /></th>
-						<th><spring:message code="label.analysis.version" /></th>
 						<th><spring:message code="label.analysis.author" /></th>
 						<th><spring:message code="label.analysis.basedOnAnalysis" /></th>
 						<th><spring:message code="label.analysis.language" /></th>
@@ -88,10 +87,9 @@
 						<tr trick-id="${analysis.id}" trick-rights-id="${empty(KowledgeBaseView)?analysis.getRightsforUserString(login).right.ordinal() : '0'}" data="${analysis.hasData() }"
 							ondblclick="return editSingleAnalysis(${analysis.id});">
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_analysis','#menu_analysis');"></td>
-							<td>${analysis.identifier}</td>
+							<td trick-version="${analysis.version}">${analysis.version}</td>
 							<td>${analysis.label}</td>
 							<td>${analysis.creationDate}</td>
-							<td trick-version="${analysis.version}">${analysis.version}</td>
 							<td>${analysis.getLastHistory().author}</td>
 							<c:choose>
 								<c:when test="${analysis.basedOnAnalysis == null}">
