@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<spring:htmlEscape defaultHtmlEscape="true" />
+<span class="anchor" id="anchorPhase"></span>
 <div class="section" id="section_phase">
 	<div class="page-header">
 		<h3 id="Phase">
@@ -22,7 +22,7 @@
 			<table class="table table-hover">
 				<thead>
 					<tr>
-						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'phase')"></th>
+						<th class="checkboxtableheader"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'phase')"></th>
 						<th><spring:message code="label.phase.number" text="Number" /></th>
 						<th><spring:message code="label.phase.begin.date" text="Begin" /></th>
 						<th><spring:message code="label.phase.end.date" text="End" /></th>
@@ -32,7 +32,7 @@
 					<c:forEach items="${phases}" var="phase">
 						<c:if test="${phase.number>0}">
 							<tr trick-id='${phase.id}' trick-class="Phase">
-								<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_phase','#menu_phase');"></td>
+								<td><input type="checkbox" class="checkbox checkboxselectable" onchange="return updateMenu('#section_phase','#menu_phase');"></td>
 								<td><spring:message text="${phase.number}" /></td>
 								<td class="success" trick-field="beginDate" trick-field-type="date" ondblclick="editField(this);"><spring:message text="${phase.beginDate}" /></td>
 								<td class="success" trick-field="endDate" trick-field-type="date" ondblclick="editField(this);"><spring:message text="${phase.endDate}" /></td>

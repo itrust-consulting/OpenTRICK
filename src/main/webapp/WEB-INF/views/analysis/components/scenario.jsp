@@ -4,6 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<span class="anchor" id="anchorScenario"></span>
 <div class="section" id="section_scenario">
 	<div class="page-header">
 		<h3 id="Scenario">
@@ -25,7 +26,7 @@
 			<table class="table table-hover">
 				<thead>
 					<tr>
-						<th><input type="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
+						<th class="checkboxtableheader"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'scenario')"></th>
 						<th><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
 						<th colspan="2"><spring:message code="label.scenario.name" text="Name" htmlEscape="true" /></th>
 						<th><spring:message code="label.scenario.type" text="Type" htmlEscape="true" /></th>
@@ -38,7 +39,7 @@
 								${scenario.selected? 'success' : ''}
 							</c:set>
 						<tr trick-id="${scenario.id}" trick-selected="${scenario.selected}" ondblclick="return editScenario(${scenario.id})">
-							<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_scenario','#menu_scenario');"></td>
+							<td><input type="checkbox" class="checkbox checkboxselectable" onchange="return updateMenu('#section_scenario','#menu_scenario');"></td>
 							<td>${status.index+1}</td>
 							<td class="${cssClass}" colspan="2">${scenario.name}</td>
 							<td class="${cssClass}">${scenario.scenarioType.name}</td>

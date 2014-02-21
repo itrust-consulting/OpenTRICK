@@ -70,21 +70,52 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String showAdministration(Principal principal, Map<String, Object> model) throws Exception {
+	public String showAdministration(HttpSession session, Principal principal, Map<String, Object> model) throws Exception {
 		model.put("adminView", true);
 		model.put("users", serviceUser.loadAll());
 		
 		List<Customer> customers = serviceCustomer.loadAllNotProfile(); 
 		
+		Integer customerID = (Integer) session.getAttribute("currentCustomer");
+		
+		if (customerID == null) {
+			customerID = customers.get(0).getId();
+			session.setAttribute("currentCustomer", customerID);
+		}
+		
+		customers = serviceCustomer.loadAll(); 
+		
 		if (customers != null && customers.size()>0) {
-			model.put("customer", customers.get(0).getId());
+			
+			model.put("customer", customerID);
 			model.put("customers", customers);
-			model.put("analyses", serviceAnalysis.loadAllFromCustomer(customers.get(0)));
+			model.put("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerID, 0, 10));
 		}
 			
 		return "admin/administration";
 	}
 
+	/**
+	 * section: <br>
+	 * reload customer section by page index
+	 * 
+	 * @param customer
+	 * @param pageIndex
+	 * @param session
+	 * @param principal
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping("/Analysis/DisplayByCustomer/{customerSection}/{pageIndex}")
+	public String section(@PathVariable Integer customerSection, @PathVariable int pageIndex, HttpSession session, Principal principal, Model model) throws Exception {
+
+		session.setAttribute("currentCustomer", customerSection);
+		model.addAttribute("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerSection, pageIndex, 10));
+		model.addAttribute("customer", customerSection);
+		model.addAttribute("customers", serviceCustomer.loadAll());
+		return "admin/analysis/analyses";
+	}
+	
 	/**
 	 * section: <br>
 	 * Description

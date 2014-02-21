@@ -30,7 +30,7 @@
 						<th><spring:message code="label.analysis.identifier" /></th>
 						<th><spring:message code="label.analysis.label" /></th>
 						<th><spring:message code="label.analysis.creationDate" /></th>
-						<th><spring:message code="label.analysis.author" /></th>
+						<th><spring:message code="label.analysis.owner" text="Owner" /></th>
 						<th><spring:message code="label.analysis.language" /></th>
 					</tr>
 				</thead>
@@ -41,7 +41,7 @@
 							<td>${analysis.identifier}</td>
 							<td>${analysis.label}</td>
 							<td>${analysis.creationDate}</td>
-							<td>${analysis.getLastHistory().author}</td>
+							<td>${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}</td>
 							<td>${analysis.language.name}</td>
 						</tr>
 					</c:forEach>

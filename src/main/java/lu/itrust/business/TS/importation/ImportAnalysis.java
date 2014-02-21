@@ -64,6 +64,7 @@ import lu.itrust.business.dao.hbm.DAONormHBM;
 import lu.itrust.business.dao.hbm.DAOParameterTypeHBM;
 import lu.itrust.business.dao.hbm.DAOScenarioTypeHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
+import lu.itrust.business.view.model.AsyncCallback;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -300,8 +301,12 @@ public class ImportAnalysis {
 			if (session != null)
 				session.getTransaction().commit();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("success.analysis.import", "Import Done", 100));
-
+			MessageHandler messageHandler = new MessageHandler("success.analysis.import", "Import Done!", 100);
+			
+			messageHandler.setAsyncCallback(new AsyncCallback("window.location.assign(\"../Analysis\")", null));
+			
+			serviceTaskFeedback.send(idTask, messageHandler);
+			
 			System.out.println("Import Done!");
 		} catch (SQLException e) {
 

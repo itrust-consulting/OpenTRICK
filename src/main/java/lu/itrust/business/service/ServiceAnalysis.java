@@ -67,6 +67,6 @@ public interface ServiceAnalysis {
 
 	public void remove(Integer analysisId) throws Exception;
 
-	
+	public List<Analysis> loadAllFromCustomerAndProfile(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception;
 
 }

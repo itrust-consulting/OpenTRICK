@@ -4,6 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<span class="anchor" id="anchorAsset"></span>
 <div class="section" id="section_asset">
 	<div class="page-header">
 		<h3 id="Asset">
@@ -25,11 +26,11 @@
 			<table class="table table-hover">
 				<thead>
 					<tr>
-						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'asset')"></th>
+						<th class="checkboxtableheader"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'asset')"></th>
 						<th><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
 						<th><spring:message code="label.asset.name" text="Name" htmlEscape="true" /></th>
 						<th><spring:message code="label.asset.type" text="Type" htmlEscape="true" /></th>
-						<th><spring:message code="label.asset.value" text="Value" htmlEscape="true" /></th>
+						<th><spring:message code="label.asset.value" text="Value" htmlEscape="true" /> (k&euro;)</th>
 						<th colspan="3"><spring:message code="label.asset.comment" text="Comment" htmlEscape="true" /></th>
 						<th colspan="3"><spring:message code="label.asset.comment" text="Hidden comment" htmlEscape="true" /></th>
 					</tr>
@@ -40,11 +41,11 @@
 							<c:set var="cssClass">
 								${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}
 							</c:set>
-							<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_asset','#menu_asset');"></td>
+							<td><input type="checkbox" class="checkbox checkboxselectable" onchange="return updateMenu('#section_asset','#menu_asset');"></td>
 							<td>${status.index+1}</td>
 							<td class="${cssClass}">${asset.name}</td>
 							<td class="${cssClass}">${ asset.assetType.type}</td>
-							<td class="${cssClass}">${asset.value}</td>
+							<td class="${cssClass}" title="${asset.value}"><fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="0" /></td>
 							<td class="${cssClass}" colspan="3">${asset.comment}</td>
 							<td class="${cssClass}" colspan="3">${asset.hiddenComment}</td>
 						</tr>

@@ -10,6 +10,7 @@
 			<spring:message code="label.charts" text="Charts" />
 		</h3>
 	</div>
+	<span class="anchor" id="anchorChartAsset"></span>
 	<div id="chart_asset" class="sectionpanel">
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -22,6 +23,7 @@
 			</div>
 		</div>
 	</div>
+	<span class="anchor" id="anchorChartScenario"></span>
 	<div id="chart_scenario" class="sectionpanel">
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -34,6 +36,7 @@
 			</div>
 		</div>
 	</div>
+	<span class="anchor" id="anchorChartCompliance"></span>
 	<div id="chart_compliance" class="sectionpanel">
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -46,6 +49,7 @@
 			</div>
 		</div>
 	</div>
+	<span class="anchor" id="anchorChartEvolution"></span>
 	<div id="chart_evolution" class="sectionpanel">
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -60,6 +64,7 @@
 			</div>
 		</div>
 	</div>
+	<span class="anchor" id="anchorChartBudget"></span>
 	<div id="chart_budget" class="sectionpanel">
 		<div class="panel panel-default">
 			<div class="panel-heading">

@@ -7,6 +7,7 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.helper.AnalysisProfile;
 import lu.itrust.business.dao.DAOAnalysis;
@@ -45,17 +46,20 @@ public class WorkerCreateAnalysisProfile implements Worker {
 
 	private AnalysisProfile analysisProfile;
 
+	private User owner = null;
+	
 	/**
 	 * @param serviceTaskFeedback
 	 * @param sessionFactory
 	 * @param poolManager
 	 * @param analysisProfile
 	 */
-	public WorkerCreateAnalysisProfile(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, WorkersPoolManager poolManager, AnalysisProfile analysisProfile) {
+	public WorkerCreateAnalysisProfile(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, WorkersPoolManager poolManager, AnalysisProfile analysisProfile, User owner) {
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
 		this.analysisProfile = analysisProfile;
+		this.owner = owner;
 	}
 
 	@Override
@@ -87,6 +91,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			Analysis analysis = daoAnalysis.get(analysisProfile.getIdAnalysis());
 			Analysis copy = new Duplicator().createProfile(analysis, analysisProfile, serviceTaskFeedback, id);
 			copy.setCustomer(customer);
+			copy.setOwner(owner);
 			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.save", "Save analysis profile", 96));
 			transaction = session.beginTransaction();
 			daoAnalysis.saveOrUpdate(copy);

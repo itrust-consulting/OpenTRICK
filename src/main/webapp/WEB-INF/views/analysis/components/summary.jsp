@@ -4,6 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<span class="anchor" id="anchorSummary"></span>
 <div class="section" id="section_summary">
 	<div class="page-header">
 		<h3 id="Summary">
@@ -16,19 +17,19 @@
 			<ul class="nav nav-pills">
 				<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 					<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${actionPlanType.name}"><a href="#"
-						onclick="return navToogled('section_summary','${actionPlanType.name}')"><spring:message code="label.actionPlanType.${actionPlanType.name}" text="${actionPlanType.name}"
+						onclick="return navToogled('section_summary','${actionPlanType.name}');initialiseTableFixedHeaderRows('#summarytable_${actionPlanType.name}');"><spring:message code="label.actionPlanType.${actionPlanType.name}" text="${actionPlanType.name}"
 								htmlEscape="true" /></a></li>
 				</c:forEach>
 			</ul>
 		</div>
-		<div class="panel-body" style="max-height: 700px; overflow: auto;">
+		<div class="panel-body panelbodydefinition">
 			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 				<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
 				<div trick-nav-data="${actionPlanType.name}" ${status.index!=0? "hidden='true'" : "" }>
 					<h4 class="text-center">
 						<spring:message code="label.actionPlanType.${actionPlanType.name}" text="${actionPlanType.name}" htmlEscape="true" />
 					</h4>
-					<table class="table table-hover">
+					<table class="fixedheadertable table table-hover" id="summarytable_${actionPlanType.name}">
 						<thead>
 							<tr>
 								<th><spring:message code="label.characteristic" text="Phase characteristic" /></th>

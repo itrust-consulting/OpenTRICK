@@ -4,6 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<span class="anchor" id="anchorActionPlan"></span>
 <div class="section" id="section_actionplans">
 	<div class="page-header">
 		<h3 id="ActionPlan">
@@ -17,7 +18,7 @@
 				<ul class="nav nav-pills">
 					<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 						<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${apt}"><a href="#"
-							onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan');return navToogled('section_actionplans','${apt}')"> <spring:message
+							onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan');return navToogled('section_actionplans','${apt}');initialiseTableFixedHeaderRows('#actionplantable_${apt}');"> <spring:message
 									code="label.actionPlanType.${apt}" text="${apt}" htmlEscape="true" />
 						</a></li>
 					</c:forEach>
@@ -33,13 +34,13 @@
 				</ul>
 			</div>
 		</div>
-		<div class="panel-body" style="max-height: 700px; overflow: auto;">
+		<div class="panel-body panelbodydefinition">
 			<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 				<div trick-nav-data="${apt}" ${status.index!=0? "hidden='true'" : "" }>
 					<h4 class="text-center">
 						<spring:message code="label.actionPlanType.${apt}" text="${apt}" htmlEscape="true" />
 					</h4>
-					<table class="table table-hover" id="actionplantable_${apt}">
+					<table class="fixedheadertable table table-hover" id="actionplantable_${apt}">
 						<thead>
 							<tr>
 								<th><spring:message code="label.table.index" text="#" /></th>

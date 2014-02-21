@@ -68,4 +68,6 @@ public interface DAOAnalysis {
 
 	public List<Analysis> loadByUserAndCustomer(String userName, Integer customerID) throws Exception;
 
+	public List<Analysis> loadAllFromCustomerAndProfile(Integer customerID, Integer pageIndex, Integer pageSize);
+
 }

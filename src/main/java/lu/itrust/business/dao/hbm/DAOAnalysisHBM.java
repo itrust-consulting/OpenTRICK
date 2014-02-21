@@ -293,5 +293,11 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
 				.setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> loadAllFromCustomerAndProfile(Integer customerID, Integer pageIndex, Integer pageSize) {
+		return (List<Analysis>) getSession().createQuery("SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true").setParameter("customer", customerID).setMaxResults(pageSize).setFirstResult((pageIndex) * pageSize).list();
+	}
 	
 }

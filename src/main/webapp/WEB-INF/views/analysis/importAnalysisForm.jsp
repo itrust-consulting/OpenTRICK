@@ -16,31 +16,47 @@
 		<jsp:include page="../menu.jsp" />
 		<div class="container">
 			<!-- #################################################################### Content ################################################################### -->
-			<div class="jumbotron" style="background-color: rgba(0, 0, 0, 0);" id="content">
-				<c:if test="${!empty customers}">
-					<jsp:include page="../successErrors.jsp" />
-					<h2 class="text-muted">
+			<jsp:include page="../successErrors.jsp" />
+			<div class="page-header">
+				<h1>
 						<spring:message code="label.analysis.import.title" text="Import a new Analysis" />
-					</h2>
-					<label class="text-muted"> <spring:message code="label.analysis.import.description" text="Please select a customer, choose a sqlite file and click on submit" />
-					</label>
+					</h1>
+			</div>
+			<div id="content" class="content">
+				<c:if test="${!empty customers}">
+					
+					<h3>
+						<b> <spring:message code="label.analysis.import.description" text="Please select a customer then, choose a sqlite file and click on submit" />
+						</b>
+					</h3>
 					<form id="importform" name="importform" method="post" action="${pageContext.request.contextPath}/Analysis/Import/Execute" enctype="multipart/form-data">
-						<div class="form-group">
-							<span class="text-muted"> 1. <spring:message code="label.analysis.import.select.customer" /></span> <br /> <select id="customerId" name="customerId"
-								onchange="customerChanged()">
-								<option value="-1">
-									<spring:message code="label.action.choose" />
-								</option>
-								<c:forEach items="${customers}" var="customer">
-									<option value="${customer.id}">${customer.organisation}</option>
-								</c:forEach>
-							</select>
+						<div class="row">
+							<div class="col-lg-12" style="margin-bottom: 10px;">
+								<div class="input-group">
+									<div class="row">
+										<h4 class="col-lg-10">
+											1.
+											<spring:message code="label.analysis.import.select.customer" />
+										</h4>
+										<div class="col-lg-10">
+											<select id="customerId" name="customerId" onchange="customerChanged()" class="form-control" style="width: 250px">
+												<option value="-1">
+													<spring:message code="label.action.choose" />
+												</option>
+												<c:forEach items="${customers}" var="customer">
+													<option value="${customer.id}">${customer.organisation}</option>
+												</c:forEach>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 						<div class="row">
 							<div class="col-lg-12" style="margin-bottom: 10px;">
 								<div class="input-group">
 									<div class="row">
-										<h4 class="col-lg-10 text-muted">
+										<h4 class="col-lg-10">
 											2.
 											<spring:message code="label.analysis.import.select.sqlite" />
 										</h4>
@@ -61,6 +77,11 @@
 							</div>
 						</div>
 					</form>
+				</c:if>
+				<c:if test="${empty customers}">
+				<h2>
+					<spring:message code="label.import.no.customer" text="You do not have access to any customers, create a new customer or contact an administrator to get access to you customers!" />
+				</h2>
 				</c:if>
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->

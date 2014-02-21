@@ -779,7 +779,7 @@ public class ControllerAnalysis {
 		}
 
 		// set selected customer, the selected customer of the analysis
-		request.getSession().setAttribute("currentCustomer", customer.getOrganisation());
+		request.getSession().setAttribute("currentCustomer", customer.getId());
 
 		// the file to import
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");

@@ -12,10 +12,12 @@ import javax.validation.Valid;
 
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.helper.AnalysisProfile;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceNorm;
 import lu.itrust.business.service.ServiceTaskFeedback;
+import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerCreateAnalysisProfile;
@@ -53,6 +55,9 @@ public class ControllerAnalysisProfile {
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
+	@Autowired
+	private ServiceUser serviceUser;
+	
 	@Autowired
 	private TaskExecutor executor;
 
@@ -92,7 +97,9 @@ public class ControllerAnalysisProfile {
 			return "analysis/components/widgets/analysisProfileForm";
 		}
 
-		Worker worker = new WorkerCreateAnalysisProfile(serviceTaskFeedback, sessionFactory, workersPoolManager, analysisProfile);
+		User user = serviceUser.get(principal.getName());
+		
+		Worker worker = new WorkerCreateAnalysisProfile(serviceTaskFeedback, sessionFactory, workersPoolManager, analysisProfile, user);
 		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
 			executor.execute(worker);
 			return "redirect:/Task/Status/" + worker.getId();

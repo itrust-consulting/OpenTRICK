@@ -11,20 +11,19 @@
 <!-- Include Header -->
 <jsp:include page="../header.jsp" />
 <!-- ################################################################# Start Container ############################################################## -->
-<body data-spy="scroll" data-target="#nav-container" data-offset="40">
+<body data-spy="scroll" data-target="#analysismenu" data-offset="40">
 	<div id="wrap">
 		<!-- ################################################################### Nav Menu ################################################################### -->
 		<jsp:include page="../menu.jsp" />
 		<div class="container">
 			<!-- #################################################################### Content ################################################################### -->
-			<div class="row nav-container" id="nav-container">
 				<!-- #################################################################### Analysis Menu ################################################################### -->
 				<c:choose>
 					<c:when test="${!empty(sessionScope.selectedAnalysis)}">
 						<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)" var="measures" scope="request" />
 						<jsp:include page="analysisMenu.jsp" />
 						<jsp:include page="../successErrors.jsp" />
-						<div class="content nav-container" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}">
+						<div id="nav-container" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}">
 							<c:if test="${!KowledgeBaseView}">
 								<h2> ${analysis.label} | ${ analysis.version } </h2>
 								<c:set var="histories" value="${analysis.histories}" scope="request" />
@@ -72,17 +71,23 @@
 		<c:if test="${!empty(sessionScope.selectedAnalysis)}">
 			<script type="text/javascript">
 				reloadCharts();
+				
 			</script>
 		</c:if>
 		<script type="text/javascript">
 			$(document).ready(function() {
 				$("input[type='checkbox']").removeAttr("checked");
+				initialiseTableFixedHeaderRows();
 			});
+		
+		</script>
+			<c:if test="${empty(sessionScope.selectedAnalysis)}">
+			<script type="text/javascript">
 			$(function() {
 				analysisTableSortable();
 			});
-		</script>
-	</div>
+			</script>
+			</c:if>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

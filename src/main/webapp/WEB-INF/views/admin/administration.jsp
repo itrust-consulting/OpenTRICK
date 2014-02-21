@@ -37,6 +37,7 @@
 		<script type="text/javascript">
 			$(document).ready(function() {
 				$("input[type='checkbox']").removeAttr("checked");
+					analysisTableSortable();
 			});
 		</script>
 	</div>

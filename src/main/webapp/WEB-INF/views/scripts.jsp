@@ -11,6 +11,7 @@
 <script src="<spring:url value="/js/jquery.tablesorter.widgets.js" />"></script>
 <script src="<spring:url value="/js/jquery.tablesorter.pager.js" />"></script>
 <script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
+<script src="<spring:url value="/js/stickyrows/stickyRows.js"/>"></script>
 <script src="<spring:url value="/js/bootstrap.min.js" />"></script>
 <script src="<spring:url value="/js/bootbox.min.js" />"></script>
 <script src="<spring:url value="/js/dom-parser.js" />"></script>
