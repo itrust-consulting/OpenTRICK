@@ -314,18 +314,18 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip =
-			"\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} %</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
+		/*String tooltip =
+			"\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;min-width:120px;'>{series.name}: </td><td style='padding:0;min-width:60px;'><b>{point.y:.1f} %</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";*/
 
 
 		if (previouscompliances.isEmpty())
-			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
+			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "}";
 
 		String series = "\"series\":[";
 
 		String xAxis = "";
 
-		String yAxis = "\"yAxis\": {\"gridLineInterpolation\": \"polygon\" , \"lineWidth\":0,\"min\":0,\"max\":100}";
+		String yAxis = "\"yAxis\": {\"gridLineInterpolation\": \"polygon\" , \"lineWidth\":0,\"min\":0,\"max\":100, \"tickInterval\": 20, \"labels\":{ \"format\": \"{value}%\"} }";
 
 		String categories = "[";
 
@@ -334,7 +334,7 @@ public class ChartGenerator {
 		for (String key : previouscompliances.keySet()) {
 			Object[] compliance = previouscompliances.get(key);
 			categories += "\"" + key + "\",";
-			data += ((Double) compliance[1]) / (Integer) compliance[0] + ",";
+			data += (int)Math.floor(((Double) compliance[1]) / (Integer) compliance[0]) + ",";
 		}
 
 		if (categories.endsWith(",")) {
@@ -373,12 +373,7 @@ public class ChartGenerator {
 					continue;
 				
 				Map<String, Object[]> compliances = null; 
-				
-				/*for (String key : previouscompliances.keySet()) {
-					Object[] compliance = previouscompliances.get(key);
-					compliance[0] = 0;
-				}*/
-				
+		
 				compliances = ComputeCompliance(measures, norm, actionplanmeasures, actionplanmeasuresnottoimplement, phase, previouscompliances);
 								
 				previouscompliances = compliances;
@@ -390,7 +385,7 @@ public class ChartGenerator {
 				
 				for (String key : compliances.keySet()) {
 					Object[] compliance = compliances.get(key);
-					data += ((Double) compliance[1]) / (Integer) compliance[0] + ",";
+					data += (int)Math.floor(((Double) compliance[1]) / (Integer) compliance[0]) + ",";
 				}
 		
 				data = data.substring(0, data.length() - 1);
@@ -409,7 +404,7 @@ public class ChartGenerator {
 		
 		series += "]";
 		
-		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}";
+		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}";
 	}
 
 	/**
@@ -628,7 +623,7 @@ public class ChartGenerator {
 
 		List<String> dataCompliance27001s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001);
 
-		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001);
+		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27002);
 
 		List<String> dataALEs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
 
@@ -649,7 +644,7 @@ public class ChartGenerator {
 			riskReduction += dataRiskReductions.get(i) + (size != i ? "," : "]");
 			rosi += dataROSIs.get(i) + (size != i ? "," : "]");
 			relatifRosi += dataRelatifROSIs.get(i) + (size != i ? "," : "]");
-			phaseAnnualCost += dataPhaseAnnualCosts + (size != i ? "," : "]");
+			phaseAnnualCost += dataPhaseAnnualCosts.get(i) + (size != i ? "," : "]");
 		}
 
 		if (!compliance27001.endsWith("]")) {
@@ -668,7 +663,7 @@ public class ChartGenerator {
 		
 		String keuroByYear = messageSource.getMessage("label.metric.keuro_by_year", null, "k&euro;/y", locale);
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f}"+keuroByYear+" </b></td></tr>\",\"footerFormat\": \"</table>\", \"useHTML\": true }";
+		String tooltip = "\"tooltip\":{\"pointFormat\": \"{series.name}: <b>{point.y}</b><br/>\", \"valueSuffix\": \""+keuroByYear+"\", \"shared\": true, \"useHTML\": true }";
 
 		String yAxis = "\"yAxis\": [{\"labels\":{\"format\": \"{value} "+keuroByYear+"\",\"useHTML\": true}, \"title\": {\"title\":\""
 				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale)
@@ -769,7 +764,7 @@ public class ChartGenerator {
 			externalMaintenance += dataExternalMaintenance.get(i) + (size != i ? "," : "]");
 			investment += dataInvestment.get(i) + (size != i ? "," : "]");
 			currentCost += dataCurrentCost.get(i) + (size != i ? "," : "]");
-			totalPhaseCost += dataTotalPhaseCost + (size != i ? "," : "]");
+			totalPhaseCost += dataTotalPhaseCost.get(i) + (size != i ? "," : "]");
 		}
 
 		if (!internalWorkload.endsWith("]")) {
