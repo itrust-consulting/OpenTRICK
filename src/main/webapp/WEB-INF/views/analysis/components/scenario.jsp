@@ -14,6 +14,7 @@
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_scenario">
 				<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.scenario.add" text="Add" /> </a></li>
+				<li><a href="#" onclick="return scenrioRRF()"><span class="glyphicon glyphicon-edit"></span> <spring:message code="label.scenario.edit.rrf" text="Edit rrf" /> </a></li>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editScenario();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.scenario.edit" text="Edit" /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return deleteScenario();"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.scenario.delete" text="Delete" /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span class="glyphicon glyphicon-plus-sign"></span> <spring:message code="label.scenario.select" text="Select" /> </a></li>

@@ -97,4 +97,9 @@ public class ServiceScenarioImpl implements ServiceScenario {
 		return daoScenario.findByAnalysisAndSelected(idAnalysis);
 	}
 
+	@Override
+	public Scenario findByIdAndAnalysis(int id, int idAnalysis) {
+		return daoScenario.findByIdAndAnalysis(id, idAnalysis);
+	}
+
 }

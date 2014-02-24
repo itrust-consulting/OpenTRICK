@@ -19,6 +19,7 @@ import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
 import lu.itrust.business.dao.DAOMeasure;
 import lu.itrust.business.dao.DAOPhase;
+import lu.itrust.business.dao.DAOScenario;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,9 @@ public class ChartGenerator {
 
 	@Autowired
 	private DAOAssessment daoAssessment;
+	
+	@Autowired
+	private DAOScenario daoScenario;
 
 	/**
 	 * aleByAsset: <br>
@@ -805,6 +809,11 @@ public class ChartGenerator {
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_CURRENT_COST, null, "Current cost", locale) + "\", \"data\":" + currentCost
 				+ ",\"valueDecimals\": 0,\"type\": \"line\", " + tooltip + "}]";
 		return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}";
+	}
+	
+	public String rrfByScenario(int idScenario, int idAnalysis){
+		
+		return "";
 	}
 
 }

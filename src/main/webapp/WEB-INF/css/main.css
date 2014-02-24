@@ -122,3 +122,12 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 }
 
 .tablesorter thead tr.tablesorter-filter-row {display: none}
+
+.slider-control{
+   	float: left;
+    margin-left: 3px;
+    text-decoration: none;
+}
+.slider-control:HOVER, .slider-control:FOCUS  {
+	text-decoration: none;
+}

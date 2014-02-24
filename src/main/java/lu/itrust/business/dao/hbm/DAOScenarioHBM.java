@@ -126,4 +126,9 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 				.setInteger("idAnalysis", idAnalysis).list();
 	}
 
+	@Override
+	public Scenario findByIdAndAnalysis(int id, int idAnalysis) {
+		return (Scenario) getSession().createQuery("Select scenario From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :idAnalysis and scenario.id = :idScenario").setInteger("idAnalysis", idAnalysis).setInteger("idScenario", id).uniqueResult();
+	}
+
 }

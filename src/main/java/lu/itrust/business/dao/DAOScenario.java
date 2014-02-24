@@ -25,5 +25,6 @@ public interface DAOScenario {
 	public void saveOrUpdate(Scenario scenario) throws Exception;
 	public void remove(Scenario scenario) throws Exception;
 	public Scenario merge(Scenario scenario);
+	public Scenario findByIdAndAnalysis(int id, int idAnalysis);
 	
 }
