@@ -138,11 +138,11 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @param analysis
 	 */
-	public static final void initialiseEmptyItemInformation(Analysis analysis){
-		
-		if (analysis==null)
+	public static final void initialiseEmptyItemInformation(Analysis analysis) {
+
+		if (analysis == null)
 			return;
-		
+
 		analysis.getItemInformations().clear();
 		ItemInformation iteminfo;
 		iteminfo = new ItemInformation(Constant.TYPE_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING);
@@ -198,7 +198,7 @@ public class Analysis implements Serializable, Cloneable {
 		iteminfo = new ItemInformation(Constant.DOCUMENT_CONSERVE, Constant.ITEMINFORMATION_ORGANISATION, Constant.EMPTY_STRING);
 		analysis.addAnItemInformation(iteminfo);
 	}
-	
+
 	/**
 	 * computeActionPlan: <br>
 	 * Computes the Action Plans and stores the Result into the Database and
@@ -423,6 +423,121 @@ public class Analysis implements Serializable, Cloneable {
 		source = source
 				/ (4. * (double) (tmpAssessment.getScenario().getIntentional() + tmpAssessment.getScenario().getAccidental() + tmpAssessment.getScenario().getEnvironmental()
 						+ tmpAssessment.getScenario().getInternalThreat() + tmpAssessment.getScenario().getExternalThreat()));
+
+		// ****************************************************************
+		// * RRF completion :
+		// * (((Asset_Measure/100)*Strength*CID*Type*Source) / 500) * tuning
+		// ****************************************************************
+
+		RRF = ((assetTypeValue / 100. * strength * category * type * source) / 500.) * tuning;
+
+		// if
+		// ((measure.getMeasureDescription().getReference().equals("A.9.2.2")))
+		// {
+		// System.out.println("Measure: " +
+		// measure.getMeasureDescription().getReference() +
+		// "Asset: " + tmpAssessment.getAsset().getName() + "Scenario: " +
+		// tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" +
+		// assetTypeValue +
+		// ", strength=" + strength + ", Category=" + category + ", type=" +
+		// type + ", source=" +
+		// source + ", tuning=" + tuning);
+		// }
+
+		// ****************************************************************
+		// * return the value
+		// ****************************************************************
+		return RRF;
+	}
+
+	/**
+	 * calculateRRF: <br>
+	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a
+	 * given measure, given Scenario and given Asset (asset and scenario
+	 * together: assessment) values.
+	 * 
+	 * @param scenario
+	 *            The scenario to take Values to calculate     
+	 * @param assetType 
+	 * 		The assetType to take Values to calculate
+	 * @param parameter
+	 *            The tuning parameter
+	 * @param measure
+	 *            The Measure to take Values to calculate
+	 * @return The Calculated RRF
+	 */
+	public static double calculateRRF(Scenario scenario, AssetType assetType, Parameter parameter, NormMeasure measure) {
+
+		// ****************************************************************
+		// * initialise variables
+		// ****************************************************************
+		int assetTypeValue = 0;
+		double tuning = 0;
+		double strength = 0;
+		double category = 0;
+		double type = 0;
+		double source = 0;
+		double RRF = 0;
+
+		// ****************************************************************
+		// * retrieve tuning value
+		// ****************************************************************
+
+		if (parameter != null)
+			tuning = parameter.getValue();
+
+		// ****************************************************************
+		// * retrieve asset type value for this asset type
+		// * (inside assessment)
+		// ****************************************************************
+
+		// parse assettype value list from given measure
+		for (int atvc = 0; atvc < measure.getAssetTypeValues().size(); atvc++) {
+
+			// check if asset type of measure matches asset type of assessment
+			if (measure.getAssetTypeValue(atvc).getAssetType().equals(assetType)) {
+
+				// ****************************************************************
+				// * store assetTypevalue
+				// ****************************************************************
+				assetTypeValue = measure.getAssetTypeValue(atvc).getValue();
+				// System.out.println("Measure: " +
+				// measure.getMeasureDescription().getReference() +
+				// ":: Asset Type Value:" + assetTypeValue);
+
+				// leave loop
+				break;
+			}
+		}
+
+		// ****************************************************************
+		// * Strength calculation
+		// ****************************************************************
+		strength = measure.getMeasurePropertyList().getFMeasure();
+		strength = strength * measure.getMeasurePropertyList().getFSectoral();
+		strength = strength / 40.;
+
+		// ****************************************************************
+		// * Category calculation
+		// ****************************************************************
+		category = calculateRRFCategory(measure.getMeasurePropertyList(), scenario);
+
+		// ****************************************************************
+		// * Type calculation
+		// ****************************************************************
+		type = ((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive())
+				+ (measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective())) / 4.;
+
+		// ****************************************************************
+		// * Source calculation
+		// ****************************************************************
+		source = (measure.getMeasurePropertyList().getIntentional() * scenario.getIntentional()) + (measure.getMeasurePropertyList().getAccidental() * scenario.getAccidental())
+				+ (measure.getMeasurePropertyList().getEnvironmental() * scenario.getEnvironmental())
+				+ (measure.getMeasurePropertyList().getInternalThreat() * scenario.getInternalThreat())
+				+ (measure.getMeasurePropertyList().getExternalThreat() * scenario.getExternalThreat());
+
+		source = source
+				/ (4. * (double) (scenario.getIntentional() + scenario.getAccidental() + scenario.getEnvironmental() + scenario.getInternalThreat() + scenario.getExternalThreat()));
 
 		// ****************************************************************
 		// * RRF completion :

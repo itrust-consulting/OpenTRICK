@@ -2550,6 +2550,8 @@ function chartALE() {
 RRFView.prototype = new Modal();
 
 function RRFView(idAnlysis) {
+	
+	this.sliders = {};
 
 	this.idAnalysis = idAnlysis;
 
@@ -2557,16 +2559,32 @@ function RRFView(idAnlysis) {
 
 	RRFView.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
-		$(this.modal_dialog).prop("style", "width: 100%; min-width:1170px; max-width:1367px;");
+		$(this.modal_dialog).prop("style", "width: 98%; min-width:1170px;");
 		return false;
 	};
 	
 	RRFView.prototype.UpdateChart = function(fiedName, value){
 		return false;
 	};
+	
+	RRFView.prototype.ReloadControls = function() {
+		return false;
+	};
+	
+	RRFView.prototype.ReloadChart = function() {
+		false;
+	};
 
 	RRFView.prototype.LoadData = function() {
 		return false;
+	};
+	
+	RRFView.prototype.Onclick = function(element) {
+		var parent = $(element).parent();
+		$(parent).find(".list-group-item").removeClass("active");
+		$(element).addClass("active");
+		this.ReloadControls();
+		return this.ReloadChart();
 	};
 
 	RRFView.prototype.DefaultFooterButton = function() {
@@ -2598,25 +2616,65 @@ function ScenarioRRFView(idAnalysis) {
 	ScenarioRRFView.prototype.constructor = ScenarioRRFView;
 	
 	ScenarioRRFView.prototype.UpdateChart = function(fiedName, value) {
-		var idScenario = $("#section_rrf_scenario .active").attr("trick-id");
+		var that = this;
+		var idScenario = $(this.modal_body).find("#section_rrf_scenario .active").attr("trick-id");
 		$.ajax({
-			url : context + "/Scenario/RRF/"+idScenario+"/Update",
+			url : context + "/Scenario/RRF/Update",
 			type : "post",
 			data : '{"id":' + idScenario + ', "fieldName":"' + fiedName + '", "value":'
 			+ value + ', "type": "numeric"}',
 			contentType : "application/json",
 			success : function(response) {
-				if(response.char!=null && response.char!=undefined)
-					$(chart).highcharts();
+				if(response.chart!=null && response.chart!=undefined)
+					$(that.modal_body).find("#chart_rrf_scenario").highcharts(response);
 				return false;
 			}
 		});
 	};
 	
+	ScenarioRRFView.prototype.ReloadControls = function() {
+		var that = this;
+		var idScenario = $(this.modal_body).find("#section_rrf_scenario .active").attr("trick-id");
+		$.ajax({
+			url : context + "/Scenario/"+idScenario,
+			type : "get",
+			contentType : "application/json",
+			success : function(response) {
+				if(response.scenarioType!=null && response.scenarioType!=undefined){
+					$(that.modal_body).find("#control_rrf_scenario .slider").unbind("slideStop");
+					for (var i=0; i<that.sliders.length; i++){
+						var clone = $(that.sliders[i]).clone();
+						var field = $(clone).prop("name");
+						$(clone).attr("value", response[field]);
+						$(clone).attr("data-slider-value", response[field]);
+						$(that.sliders[i]).parent().replaceWith($(clone));
+						that.sliders[i]=$(clone).slider();
+						that.sliders[i].on("slideStop",function(event){
+							return that.OnSliderChange(event);
+						});
+					}
+				}
+				return false;
+			}
+		});
+	};
 	
-
+	ScenarioRRFView.prototype.ReloadChart = function() {
+		var that = this;
+		var idScenario = $(this.modal_body).find("#section_rrf_scenario .active").attr("trick-id");
+		$.ajax({
+			url : context + "/Scenario/RRF/"+idScenario+"/Load",
+			type : "get",
+			contentType : "application/json",
+			success : function(response) {
+				if(response.chart!=null && response.chart!=undefined)
+					$(that.modal_body).find("#chart_rrf_scenario").highcharts(response);
+				return false;
+			}
+		});
+	};
+	
 	ScenarioRRFView.prototype.LoadData = function() {
-		
 		var that = this;
 		$.ajax({
 			url : context + "/Scenario/RRF",
@@ -2627,10 +2685,13 @@ function ScenarioRRFView(idAnalysis) {
 				var doc = parser.parseFromString(response, "text/html");
 				newSection = $(doc).find("*[id ='section_rrf_scenario']");
 				that.setBody($(newSection)[0].outerHTML);
-				var chart = $(that.modal_body).find("#chart_rrf_scenario");
-				var progressBars = $(that.modal_body).find(".slider");
-				$(chart).highcharts();
-				$(progressBars).slider().on('slideStop', function(event){
+				$(that.modal_body).find("#section_rrf_scenario .list-group-item").on("click", function(event){
+					return that.Onclick(event.target);
+				});
+				var sliders = $(that.modal_body).find(".slider");
+				that.ReloadChart();
+				that.sliders = $(sliders).slider();
+				that.sliders.on('slideStop', function(event){
 					return that.OnSliderChange(event);
 				});
 				return false;

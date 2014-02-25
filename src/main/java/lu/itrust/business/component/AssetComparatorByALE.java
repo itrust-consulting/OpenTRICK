@@ -2,6 +2,8 @@ package lu.itrust.business.component;
 
 import java.util.Comparator;
 
+import lu.itrust.business.component.helper.ALE;
+
 public class AssetComparatorByALE implements Comparator<ALE> {
 
 	@Override

@@ -24,8 +24,8 @@ import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
-import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.component.ParameterManager;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssessment;
@@ -848,11 +848,11 @@ public class ControllerEditField {
 	}
 	
 	public static Field FindField(Class<?> object, String fieldName){
-		for (Field  field: object.getFields())
+		for (Field  field: object.getDeclaredFields())
 			if(field.getName().equals(fieldName))
 				return field;
 		if(!object.equals(Object.class))
-			return FindField(object.getClass().getSuperclass(), fieldName);
+			return FindField(object.getSuperclass(), fieldName);
 		return null;
 	}
 }

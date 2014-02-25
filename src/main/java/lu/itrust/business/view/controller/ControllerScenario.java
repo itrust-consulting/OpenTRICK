@@ -22,7 +22,8 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
-import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.component.helper.JsonMessage;
+import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceScenario;
@@ -32,6 +33,7 @@ import lu.itrust.business.view.model.FieldEditor;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.hibernate.Hibernate;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -211,6 +213,17 @@ public class ControllerScenario {
 		return "analysis/components/scenario";
 	}
 	
+	@RequestMapping(value = "/{idScenario}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody String get(@PathVariable int idScenario, Model model, HttpSession session, Principal principal) throws Exception{
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Scenario scenario =  DAOHibernate.Initialise(serviceScenario.findByIdAndAnalysis(idScenario, idAnalysis));
+		scenario.setScenarioType(DAOHibernate.Initialise(scenario.getScenarioType()));
+		scenario.setAssetTypeValues(null);
+		ObjectMapper mapper = new ObjectMapper();
+		return mapper.writeValueAsString(scenario);
+	}
+	
 	@RequestMapping(value = "/RRF", method = RequestMethod.GET, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String rrf(Model model, HttpSession session, Principal principal) throws Exception{
@@ -221,9 +234,9 @@ public class ControllerScenario {
 	}
 	
 	
-	@RequestMapping(value = "/RRF/{idScenario}/Update", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/RRF/Update", method = RequestMethod.POST, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String updateRRF(@RequestBody FieldEditor fieldEditor, @PathVariable int idScenario, Model model, HttpSession session, Principal principal) throws Exception{
+	public @ResponseBody String updateRRF(@RequestBody FieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception{
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Scenario scenario = serviceScenario.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
 		Field field = ControllerEditField.FindField(Scenario.class, fieldEditor.getFieldName());
@@ -231,9 +244,17 @@ public class ControllerScenario {
 			return null;
 		field.setAccessible(true);
 		field.set(scenario, fieldEditor.getValue());
-		
 		ControllerEditField.SetFieldData(field, scenario, fieldEditor, null);
-		return chartGenerator.rrfByScenario(fieldEditor.getId(), idAnalysis);
+		serviceScenario.saveOrUpdate(scenario);
+		return chartGenerator.rrfByScenario(scenario, idAnalysis, locale);
+	}
+	
+	@RequestMapping(value = "/RRF/{idScenario}/Load", method = RequestMethod.GET, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody String load(@PathVariable int idScenario, Model model, HttpSession session, Principal principal, Locale locale) throws Exception{
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Scenario scenario = serviceScenario.findByIdAndAnalysis(idScenario, idAnalysis);
+		return chartGenerator.rrfByScenario(scenario, idAnalysis, locale);
 	}
 
 	/**

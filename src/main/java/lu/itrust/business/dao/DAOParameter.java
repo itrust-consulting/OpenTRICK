@@ -33,6 +33,8 @@ public interface DAOParameter {
 	List<String> findAcronymByAnalysisAndType(int idAnalysis, String type);
 	
 	List<String> findAcronymByAnalysisAndType(int idAnalysis, ParameterType type);
+	
+	Parameter findByAnalysisAndTypeAndDescription(int idAnalysis,String parametertypeTypeSingleName, String parameterTuning);
 
 	List<ExtendedParameter> findExtendedByAnalysis(int idAnalysis);
 

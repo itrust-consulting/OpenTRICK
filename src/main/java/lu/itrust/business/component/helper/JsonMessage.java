@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.component;
+package lu.itrust.business.component.helper;
 
 /**
  * @author eom
