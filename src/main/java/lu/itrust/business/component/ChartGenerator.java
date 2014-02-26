@@ -22,6 +22,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.component.helper.RRFAssetType;
 import lu.itrust.business.component.helper.RRFMeasure;
+import lu.itrust.business.component.helper.RRFScenarioFilter;
 import lu.itrust.business.dao.DAOActionPlan;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
@@ -844,20 +845,18 @@ public class ChartGenerator {
 		return rrfs;
 	}
 
-	public String rrfByScenario(int idScenario, int idAnalysis, Locale locale) {
+	public String rrfByScenario(int idScenario, int idAnalysis, Locale locale, RRFScenarioFilter filter) {
 		Scenario scenario = daoScenario.findByIdAndAnalysis(idScenario, idAnalysis);
 		if (scenario == null)
 			return null;
-		return rrfByScenario(scenario, idAnalysis, locale);
+		return rrfByScenario(scenario, idAnalysis, locale,filter);
 	}
 
-	public String rrfByScenario(Scenario scenario, int idAnalysis, Locale locale) {
-		long time = System.currentTimeMillis();
+	public String rrfByScenario(Scenario scenario, int idAnalysis, Locale locale, RRFScenarioFilter filter) {
 		try {
-			String chart = "\"chart\":{ \"type\":\"spline\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": true}";
 
 			String title = "\"title\": {\"text\":\""
-					+ messageSource.getMessage("label.title.chart.rff.scenario", new String[] { scenario.getDescription() }, "RRF by scenario (" + scenario.getDescription() + ")",
+					+ messageSource.getMessage("label.title.chart.rff.scenario", new String[] { scenario.getName() }, "RRF by scenario (" + scenario.getName() + ")",
 							locale) + "\"}";
 
 			String pane = "\"pane\": {\"size\": \"100%\"}";
@@ -867,24 +866,17 @@ public class ChartGenerator {
 			String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
 			String series = "\"series\":[";
-			
-			long aux = System.currentTimeMillis();
-
+		
 			List<AssetType> assetTypes = daoAssetType.loadAll();
-			
-			System.out.println("Load assetType: "+(System.currentTimeMillis() - aux));
-			
-			aux = System.currentTimeMillis();
 
-			List<NormMeasure> measures = daoMeasure.findNormMeasureByAnalysisAndComputable(idAnalysis);
+			List<NormMeasure> measures = null;
 			
-			System.out.println("Load Measure: "+(System.currentTimeMillis() - aux));
+			if(filter == null || filter.getMeasures().isEmpty())
+				measures = daoMeasure.findNormMeasureByAnalysisAndComputable(idAnalysis);
+			else 
+				measures = daoMeasure.findByAnalysisContains(idAnalysis,filter.getMeasures());
 			
-			aux = System.currentTimeMillis();
-
 			Map<String, RRFAssetType> rrfs = computeRRFByScenario(scenario, assetTypes, measures, idAnalysis);
-			
-			System.out.println("Compute RRF: "+(System.currentTimeMillis() - aux));
 			
 			for (String key : rrfs.keySet()) {
 				String rrf = "[";
@@ -896,6 +888,8 @@ public class ChartGenerator {
 				rrf += "]";
 				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0},";
 			}
+			
+			String chart = "\"chart\":{ \"type\":\""+(measures.size()==1? "column" : "spline")+"\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": "+(measures.size()>9)+"}";
 
 			if (series.endsWith(","))
 				series = series.substring(0, series.length() - 1);
@@ -922,8 +916,6 @@ public class ChartGenerator {
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}";
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
-			System.out.println("RRF by Scenario: "+(System.currentTimeMillis() - time));
 		}
 		return null;
 	}

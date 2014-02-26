@@ -20,6 +20,7 @@ import lu.itrust.business.TS.export.ExportAnalysis;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
+import lu.itrust.business.component.helper.AsyncCallback;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.dao.DAOUserSqLite;
@@ -28,7 +29,6 @@ import lu.itrust.business.dao.hbm.DAOUserHBM;
 import lu.itrust.business.dao.hbm.DAOUserSqLiteHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
-import lu.itrust.business.view.model.AsyncCallback;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;

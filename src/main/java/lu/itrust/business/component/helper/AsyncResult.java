@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.view.model;
+package lu.itrust.business.component.helper;
 
 import lu.itrust.business.TS.messagehandler.TaskName;
 

@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.messagehandler;
 
-import lu.itrust.business.view.model.AsyncCallback;
+import lu.itrust.business.component.helper.AsyncCallback;
 
 
 /** 

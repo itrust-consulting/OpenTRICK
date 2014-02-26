@@ -25,6 +25,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ParameterManager;
+import lu.itrust.business.component.helper.FieldEditor;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceAnalysis;
@@ -40,7 +41,6 @@ import lu.itrust.business.validator.ExtendedParameterValidator;
 import lu.itrust.business.validator.HistoryValidator;
 import lu.itrust.business.validator.ParameterValidator;
 import lu.itrust.business.validator.field.ValidatorField;
-import lu.itrust.business.view.model.FieldEditor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
