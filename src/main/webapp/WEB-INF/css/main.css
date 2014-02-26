@@ -131,3 +131,9 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 .slider-control:HOVER, .slider-control:FOCUS  {
 	text-decoration: none;
 }
+
+.center-block {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}

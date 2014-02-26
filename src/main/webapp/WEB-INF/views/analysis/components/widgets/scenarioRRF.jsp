@@ -30,12 +30,14 @@
 				id="selectable_rrf_measures_chapter_controls">
 				<c:forEach items="${measures.keySet()}" var="chapter"
 					varStatus="status">
-					<div class="list-group" trick-id="${chapter.norm.id}" trick-value="<spring:message text="${chapter.reference}" />">
+					<div class="list-group" trick-id="${chapter.norm.id}"
+						trick-value="<spring:message text="${chapter.reference}" />">
 						<c:choose>
 							<c:when test="${status.index==0}">
 								<a href="#" onclick="return false;"
 									class="list-group-item active" trick-class="Norm"
-									trick-id="${chapter.norm.id}" trick-value="<spring:message text="${chapter.reference}" />">
+									trick-id="${chapter.norm.id}"
+									trick-value="<spring:message text="${chapter.reference}" />">
 									<h4 class="list-group-item-heading">
 										<spring:message text="${chapter.norm.label}" />
 										-
@@ -46,7 +48,8 @@
 								</a>
 							</c:when>
 							<c:otherwise>
-								<a href="#" onclick="return false;" class="list-group-item" trick-value="<spring:message text="${chapter.reference}" />"
+								<a href="#" onclick="return false;" class="list-group-item"
+									trick-value="<spring:message text="${chapter.reference}" />"
 									trick-class="Norm" trick-id="${chapter.norm.id}"
 									title="${chapter.reference}">
 									<h4 class="list-group-item-heading">
@@ -59,7 +62,8 @@
 								</a>
 							</c:otherwise>
 						</c:choose>
-						<div class="list-group" trick-id="${chapter.norm.id}" trick-value="<spring:message text="${chapter.reference}" />">
+						<div class="list-group" trick-id="${chapter.norm.id}"
+							trick-value="<spring:message text="${chapter.reference}" />">
 							<c:forEach items="${measures.get(chapter)}" var="measure">
 								<a href="#" id="measure_${measure.id}" onclick="return false;"
 									trick-class="Measure" trick-id="${measure.id}"
@@ -84,88 +88,93 @@
 			<div class="col-md-12" id="control_rrf_scenario"
 				style="height: 150px">
 				<c:if test="${!empty(selectedScenario)}">
-					<div class="col-md-1">
-						<input type="text" id="scenario_preventive" class="slider"
-							value="${selectedScenario.preventive}" data-slider-min="0"
-							data-slider-max="1" data-slider-step="0.1"
-							data-slider-value="${selectedScenario.preventive}"
-							data-slider-orientation="vertical" data-slider-selection="after"
-							name="preventive" data-slider-tooltip="show"> <span
-							class="text-center"> <spring:message
-								code="label.scenario.preventive" text="Preventive" /></span>
-					</div>
+					<table class="table">
+						<thead>
+							<tr>
+								<th class="danger"><spring:message code="label.scenario.preventive"
+										text="Preventive" /></th>
+								<th class="danger"><spring:message code="label label.scenario.limitative"
+										text="Limitative" /></th>
+								<th class="danger"><spring:message code="label.scenario.detective"
+										text="Detective" /></th>
+								<th class="danger"><spring:message code="label.scenario.corrective"
+										text="Corrective" /></th>
+								<th class="warning"><spring:message code="label.scenario.intentional"
+										text="Intentional" /></th>
+								<th class="warning"><spring:message code="label.scenario.environmental"
+										text="Environmental" /></th>
+								<th class="warning"><spring:message code="label.scenario.internalThreat"
+										text="Internal-threat" /></th>
+								<th class="warning"><spring:message code="label.scenario.externalThreat"
+										text="External-threat" /></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="danger"><input type="text" id="scenario_preventive"
+									class="slider" value="${selectedScenario.preventive}"
+									data-slider-min="0" data-slider-max="1" data-slider-step="0.1"
+									data-slider-value="${selectedScenario.preventive}"
+									data-slider-orientation="vertical"
+									data-slider-selection="after" name="preventive"
+									data-slider-tooltip="show"></td>
+								<td class="danger"><input type="text" id="scenario_limitative"
+									class="slider" value="${selectedScenario.limitative}"
+									data-slider-min="0" data-slider-max="1" data-slider-step="0.1"
+									data-slider-value="${selectedScenario.limitative}"
+									data-slider-orientation="vertical"
+									data-slider-selection="after" name="limitative"
+									data-slider-tooltip="show"></td>
+								<td class="danger"><input type="text" class="slider"
+									id="scenario_detective" value="${selectedScenario.detective}"
+									data-slider-min="0" data-slider-max="1" data-slider-step="0.1"
+									data-slider-value="${selectedScenario.detective}"
+									name="detective" data-slider-orientation="vertical"
+									data-slider-selection="after" data-slider-tooltip="show">
+								</td>
+								<td class="danger"><input type="text" class="slider"
+									id="scenario_corrective" value="${selectedScenario.corrective}"
+									data-slider-min="0" data-slider-max="1" data-slider-step="0.1"
+									data-slider-value="${selectedScenario.corrective}"
+									name="corrective" data-slider-orientation="vertical"
+									data-slider-selection="after" data-slider-tooltip="show">
+								</td>
+								<td class="warning"><input type="text" class="slider"
+									id="scenario_intentional"
+									value="${selectedScenario.intentional}" data-slider-min="0"
+									data-slider-max="4" data-slider-step="1"
+									data-slider-value="${selectedScenario.intentional}"
+									name="intentional" data-slider-orientation="vertical"
+									data-slider-selection="after" data-slider-tooltip="show">
+								</td>
+								<td class="warning"><input type="text" class="slider"
+									id="scenario_environmental"
+									value="${selectedScenario.environmental}" data-slider-min="0"
+									data-slider-max="4" data-slider-step="2"
+									data-slider-value="${selectedScenario.environmental}"
+									name="environmental" data-slider-orientation="vertical"
+									data-slider-selection="after" data-slider-tooltip="show">
+								</td>
+								<td class="warning"><input type="text" class="slider"
+									id="scenario_internalThreat"
+									value="${selectedScenario.internalThreat}" data-slider-min="0"
+									data-slider-max="4" data-slider-step="1"
+									data-slider-value="${selectedScenario.internalThreat}"
+									name="internalThreat" data-slider-orientation="vertical"
+									data-slider-selection="after" data-slider-tooltip="show">
+								</td>
+								<td class="warning"><input type="text" class="slider"
+									id="scenario_externalThreat"
+									value="${selectedScenario.externalThreat}" data-slider-min="0"
+									data-slider-max="4" data-slider-step="1"
+									data-slider-value="${selectedScenario.externalThreat}"
+									name="externalThreat" data-slider-orientation="vertical"
+									data-slider-selection="after" data-slider-tooltip="show">
+								</td>
 
-					<div class="col-md-1">
-						<input type="text" id="scenario_limitative" class="slider"
-							value="${selectedScenario.limitative}" data-slider-min="0"
-							data-slider-max="1" data-slider-step="0.1"
-							data-slider-value="${selectedScenario.limitative}"
-							data-slider-orientation="vertical" data-slider-selection="after"
-							name="limitative" data-slider-tooltip="show"> <span
-							class="text-center"><spring:message
-								code="label.scenario.limitative" text="Limitative" /></span>
-					</div>
-					<div class="col-md-1">
-						<input type="text" class="slider" id="scenario_detective"
-							value="${selectedScenario.detective}" data-slider-min="0"
-							data-slider-max="1" data-slider-step="0.1"
-							data-slider-value="${selectedScenario.detective}"
-							name="detective" data-slider-orientation="vertical"
-							data-slider-selection="after" data-slider-tooltip="show">
-						<span class="text-center"> <spring:message
-								code="label.scenario.detective" text="detective" /></span>
-					</div>
-
-					<div class="col-md-1">
-						<input type="text" class="slider" id="scenario_corrective"
-							value="${selectedScenario.corrective}" data-slider-min="0"
-							data-slider-max="1" data-slider-step="0.1"
-							data-slider-value="${selectedScenario.corrective}"
-							name="corrective" data-slider-orientation="vertical"
-							data-slider-selection="after" data-slider-tooltip="show">
-						<span class="text-center"> <spring:message
-								code="label.scenario.corrective" text="Corrective" /></span>
-					</div>
-					<div class="col-md-1">
-						<input type="text" class="slider" id="scenario_intentional"
-							value="${selectedScenario.intentional}" data-slider-min="0"
-							data-slider-max="4" data-slider-step="1"
-							data-slider-value="${selectedScenario.intentional}"
-							name="intentional" data-slider-orientation="vertical"
-							data-slider-selection="after" data-slider-tooltip="show">
-						<span class="text-center"><spring:message
-								code="label.scenario.intentional" text="Intentional" /> </span>
-					</div>
-					<div class="col-md-1">
-						<input type="text" class="slider" id="scenario_environmental"
-							value="${selectedScenario.environmental}" data-slider-min="0"
-							data-slider-max="4" data-slider-step="2"
-							data-slider-value="${selectedScenario.environmental}"
-							name="environmental" data-slider-orientation="vertical"
-							data-slider-selection="after" data-slider-tooltip="show">
-						<span class="text-center"> <spring:message
-								code="label.scenario.environmental" text="Environmental" /></span>
-					</div>
-					<div class="col-md-1">
-						<input type="text" class="slider" id="scenario_internalThreat"
-							value="${selectedScenario.internalThreat}" data-slider-min="0"
-							data-slider-max="4" data-slider-step="1"
-							data-slider-value="${selectedScenario.internalThreat}"
-							name="internalThreat" data-slider-orientation="vertical"
-							data-slider-selection="after" data-slider-tooltip="show">
-						<span class="text-center"> <spring:message
-								code="label.scenario.internalThreat" text="InternalThreat" /></span>
-					</div>
-					<div class="col-md-1">
-						<input type="text" class="slider" id="scenario_externalThreat"
-							value="${selectedScenario.externalThreat}" data-slider-min="0"
-							data-slider-max="4" data-slider-step="1"
-							data-slider-value="${selectedScenario.externalThreat}"
-							name="externalThreat" data-slider-orientation="vertical"
-							data-slider-selection="after" data-slider-tooltip="show">
-						<span class="text-center"> <spring:message
-								code="label.scenario.externalThreat" text="ExternalThreat" /></span>
-					</div>
+							</tr>
+						</tbody>
+					</table>
 				</c:if>
 			</div>
 		</div>
