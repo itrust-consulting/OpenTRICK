@@ -17,4 +17,6 @@ public interface DAOAssetType {
 	public void saveOrUpdate(AssetType assetType) throws Exception;
 	
 	public void delete(AssetType assetType) throws Exception;
+
+	public List<AssetType> findByAnalysis(int idAnalysis);
 }

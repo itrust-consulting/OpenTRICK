@@ -867,7 +867,7 @@ public class ChartGenerator {
 
 			String series = "\"series\":[";
 		
-			List<AssetType> assetTypes = daoAssetType.loadAll();
+			List<AssetType> assetTypes = daoAssetType.findByAnalysis(idAnalysis);
 
 			List<NormMeasure> measures = null;
 			
@@ -909,9 +909,9 @@ public class ChartGenerator {
 			String yAxis = "\"yAxis\": {\"min\": 0 , \"max\": 0.25, \"title\": {\"text\": \"RRF\"}}";
 
 			if (measures.size() >= 10)
-				xAxis = "\"xAxis\":{\"categories\":" + measuresData + ", \"min\":\"0\", \"max\":\"9\"}";
+				xAxis = "\"xAxis\":{\"categories\":" + measuresData + ", \"min\":\"0\", \"max\":\"9\" ,  \"title\": {\"text\": \""+messageSource.getMessage("label.measures", null, "Measures", locale)+"\"}}";
 			else
-				xAxis = "\"xAxis\":{\"categories\":" + measuresData + ", \"min\":\"0\", \"max\":\"" + (measures.size() - 1) + "\"}";
+				xAxis = "\"xAxis\":{\"categories\":" + measuresData + ", \"min\":\"0\", \"max\":\"" + (measures.size() - 1) + "\", \"title\": {\"text\": \""+messageSource.getMessage("label.measures", null, "Measures", locale)+"\"}}";
 
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}";
 		} catch (Exception e) {

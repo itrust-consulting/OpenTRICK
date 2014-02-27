@@ -16,6 +16,7 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
+import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.ScenarioType;
@@ -30,6 +31,7 @@ import lu.itrust.business.component.helper.RRFScenarioFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssetType;
+import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceScenario;
 import lu.itrust.business.service.ServiceScenarioType;
@@ -85,6 +87,9 @@ public class ControllerScenario {
 
 	@Autowired
 	private MessageSource messageSource;
+
+	@Autowired
+	private ServiceLanguage serviceLanguage;
 
 	@Autowired
 	private AssessmentManager assessmentManager;
@@ -232,12 +237,15 @@ public class ControllerScenario {
 
 	@RequestMapping(value = "/RRF", method = RequestMethod.GET, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String rrf(Model model, HttpSession session, Principal principal) throws Exception {
+	public String rrf(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		List<NormMeasure> normMeasures = serviceMeasure.findNormMeasureByAnalysisAndComputable(idAnalysis);
 		List<Scenario> scenarios = serviceScenario.loadAllFromAnalysisID(idAnalysis);
 		model.addAttribute("measures", MeasureManager.SplitByChapter(normMeasures));
 		model.addAttribute("scenarios", scenarios);
+		model.addAttribute("assetTypes", serviceAssetType.findByAnalysis(idAnalysis));
+		Language language = serviceLanguage.findByAnalysis(idAnalysis);
+		model.addAttribute("language", language == null ? locale.getISO3Language() : language.getAlpha3());
 		return "analysis/components/widgets/scenarioRRF";
 	}
 
@@ -329,14 +337,12 @@ public class ControllerScenario {
 		}
 
 		try {
-
 			// load analysis
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			if (analysis == null) {
 				errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.not_found", null, "Selected analysis cannot be found", locale) });
 				return errors;
 			}
-
 			int idScenario = retrieveId(value);
 			Scenario scenario = null;
 			if (idScenario > 0) {

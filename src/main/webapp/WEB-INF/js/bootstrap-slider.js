@@ -58,11 +58,20 @@
 			break;
 		}
 
-		this.min = this.element.data('slider-min') || options.min;
-		this.max = this.element.data('slider-max') || options.max;
-		this.step = this.element.data('slider-step') || options.step;
-		this.value = this.element.data('slider-value') || options.value;
+		this.min = this.element.data('slider-min');
+		this.max = this.element.data('slider-max');
+		this.step = this.element.data('slider-step');
+		this.value = this.element.data('slider-value');
 
+		if (this.min == undefined)
+			this.min = options.min;
+		if (this.max == undefined)
+			this.max = options.max;
+		if (this.step == undefined)
+			this.step = options.step;
+		if (this.value == undefined)
+			this.value = options.value;
+		
 		this.range = $.isArray(this.value);
 
 		this.selection = this.element.data('slider-selection') || options.selection;
@@ -329,9 +338,10 @@
 				}
 			}
 			this.diff = this.max - this.min;
-			
+
 			if (this.orientation == 'vertical')
-				this.percentage = [ 100-(this.value[0] - this.min) * 100 / this.diff, this.range? 100-(this.value[1] - this.min) * 100 / this.diff : (this.value[1] - this.min) * 100 / this.diff, this.step * 100 / this.diff ];
+				this.percentage = [ 100 - (this.value[0] - this.min) * 100 / this.diff,
+						this.range ? 100 - (this.value[1] - this.min) * 100 / this.diff : (this.value[1] - this.min) * 100 / this.diff, this.step * 100 / this.diff ];
 			else
 				this.percentage = [ (this.value[0] - this.min) * 100 / this.diff, (this.value[1] - this.min) * 100 / this.diff, this.step * 100 / this.diff ];
 			this.layout();
