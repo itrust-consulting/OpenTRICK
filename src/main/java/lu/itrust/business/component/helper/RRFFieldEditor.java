@@ -7,27 +7,27 @@ package lu.itrust.business.component.helper;
  * @author eomar
  *
  */
-public class RRFScanrioFieldEditor extends FieldEditor {
+public class RRFFieldEditor extends FieldEditor {
 	
-	private RRFScenarioFilter filter;
+	private RRFFilter filter;
 	
 	/**
 	 * 
 	 */
-	public RRFScanrioFieldEditor() {
+	public RRFFieldEditor() {
 	}
 
 	/**
 	 * @return the filter
 	 */
-	public RRFScenarioFilter getFilter() {
+	public RRFFilter getFilter() {
 		return filter;
 	}
 
 	/**
 	 * @param filter the filter to set
 	 */
-	public void setFilter(RRFScenarioFilter filter) {
+	public void setFilter(RRFFilter filter) {
 		this.filter = filter;
 	}
 

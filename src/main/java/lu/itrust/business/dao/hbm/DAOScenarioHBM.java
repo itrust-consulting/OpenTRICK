@@ -40,10 +40,8 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	}
 
 	@Override
-	public Scenario loadFromNameAnalysis(String scenarioName, Analysis analysis)
-			throws Exception {
-		Query query = getSession().createQuery(
-				"From Scenario where name = :name and analysis = :analysis");
+	public Scenario loadFromNameAnalysis(String scenarioName, Analysis analysis) throws Exception {
+		Query query = getSession().createQuery("From Scenario where name = :name and analysis = :analysis");
 		return (Scenario) query.uniqueResult();
 	}
 
@@ -56,14 +54,11 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Scenario> loadAllFromScenarioTypeID(int scenarioTypeID,
-			Analysis analysis) throws Exception {
+	public List<Scenario> loadAllFromScenarioTypeID(int scenarioTypeID, Analysis analysis) throws Exception {
 		return getSession()
 				.createQuery(
-						"Select scenario "
-								+ "from Analysis as analysis inner join analysis.scenarios as scenario "
-								+ "where analysis = :analysis and scenario.type.id = :scenariotypeId")
-				.setParameter("analysis", analysis)
+						"Select scenario " + "from Analysis as analysis inner join analysis.scenarios as scenario "
+								+ "where analysis = :analysis and scenario.type.id = :scenariotypeId").setParameter("analysis", analysis)
 				.setParameter("scenariotypeId", scenarioTypeID).list();
 	}
 
@@ -71,18 +66,15 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * loadAllFromAnalysisID: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOScenario#loadAllFromAnalysisID(int)
+	 * @see lu.itrust.business.dao.DAOScenario#findByAnalysis(int)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Scenario> loadAllFromAnalysisID(int idAnalysis)
-			throws Exception {
+	public List<Scenario> findByAnalysis(int idAnalysis) throws Exception {
 		return getSession()
 				.createQuery(
-						"Select scenario "
-								+ "from Analysis as analysis inner join analysis.scenarios as scenario "
-								+ "where analysis.id = :analysisId order by scenario.scenarioType.name asc, scenario.name asc")
-				.setParameter("analysisId", idAnalysis).list();
+						"Select scenario " + "from Analysis as analysis inner join analysis.scenarios as scenario "
+								+ "where analysis.id = :analysisId order by scenario.scenarioType.name asc, scenario.name asc").setParameter("analysisId", idAnalysis).list();
 	}
 
 	/**
@@ -128,7 +120,18 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 
 	@Override
 	public Scenario findByIdAndAnalysis(int id, int idAnalysis) {
-		return (Scenario) getSession().createQuery("Select scenario From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :idAnalysis and scenario.id = :idScenario").setInteger("idAnalysis", idAnalysis).setInteger("idScenario", id).uniqueResult();
+		return (Scenario) getSession()
+				.createQuery("Select scenario From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :idAnalysis and scenario.id = :idScenario")
+				.setInteger("idAnalysis", idAnalysis).setInteger("idScenario", id).uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Scenario> findByAnalysisContains(int idAnalysis, List<Integer> scenarios) {
+		return getSession()
+				.createQuery(
+						"Select scenario From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :idAnalysis and scenario.id in :idScenarios order by scenario.scenarioType.name asc, scenario.name asc")
+				.setInteger("idAnalysis", idAnalysis).setParameterList("idScenarios", scenarios).list();
 	}
 
 }

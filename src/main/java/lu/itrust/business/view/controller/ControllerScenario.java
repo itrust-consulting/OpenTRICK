@@ -20,14 +20,16 @@ import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.ScenarioType;
+import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.MeasureManager;
+import lu.itrust.business.component.ScenarioManager;
 import lu.itrust.business.component.helper.JsonMessage;
-import lu.itrust.business.component.helper.RRFScanrioFieldEditor;
-import lu.itrust.business.component.helper.RRFScenarioFilter;
+import lu.itrust.business.component.helper.RRFFieldEditor;
+import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssetType;
@@ -242,7 +244,8 @@ public class ControllerScenario {
 		List<NormMeasure> normMeasures = serviceMeasure.findNormMeasureByAnalysisAndComputable(idAnalysis);
 		List<Scenario> scenarios = serviceScenario.loadAllFromAnalysisID(idAnalysis);
 		model.addAttribute("measures", MeasureManager.SplitByChapter(normMeasures));
-		model.addAttribute("scenarios", scenarios);
+		model.addAttribute("categories", CategoryConverter.JAVAKEYS);
+		model.addAttribute("scenarios", ScenarioManager.SplitByType(scenarios));
 		model.addAttribute("assetTypes", serviceAssetType.findByAnalysis(idAnalysis));
 		Language language = serviceLanguage.findByAnalysis(idAnalysis);
 		model.addAttribute("language", language == null ? locale.getISO3Language() : language.getAlpha3());
@@ -252,7 +255,7 @@ public class ControllerScenario {
 	@RequestMapping(value = "/RRF/Update", method = RequestMethod.POST, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String updateRRF(@RequestBody RRFScanrioFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	String updateRRF(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Scenario scenario = serviceScenario.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
 		Field field = ControllerEditField.FindField(Scenario.class, fieldEditor.getFieldName());
@@ -260,7 +263,6 @@ public class ControllerScenario {
 			return null;
 		field.setAccessible(true);
 		field.set(scenario, fieldEditor.getValue());
-		ControllerEditField.SetFieldData(field, scenario, fieldEditor, null);
 		serviceScenario.saveOrUpdate(scenario);
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, locale, fieldEditor.getFilter());
 	}
@@ -268,7 +270,7 @@ public class ControllerScenario {
 	@RequestMapping(value = "/RRF/{idScenario}/Load", method = RequestMethod.POST, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String load(@RequestBody RRFScenarioFilter filter, @PathVariable int idScenario, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	String load(@RequestBody RRFFilter filter, @PathVariable int idScenario, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Scenario scenario = serviceScenario.findByIdAndAnalysis(idScenario, idAnalysis);
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, locale, filter);

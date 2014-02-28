@@ -73,4 +73,14 @@ public class FieldEditor {
 		this.type = type;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "FieldEditor [id=" + id + ", fieldName=" + fieldName + ", type=" + type + ", value=" + value + "]";
+	}
+	
+	
+
 }

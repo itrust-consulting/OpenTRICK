@@ -21,8 +21,8 @@ import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.component.helper.RRFAssetType;
+import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.component.helper.RRFMeasure;
-import lu.itrust.business.component.helper.RRFScenarioFilter;
 import lu.itrust.business.dao.DAOActionPlan;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
@@ -829,7 +829,7 @@ public class ChartGenerator {
 	private Map<String, RRFAssetType> computeRRFByScenario(Scenario scenario, List<AssetType> assetTypes, List<NormMeasure> measures, int idAnalysis) throws Exception {
 		Parameter parameter = daoParameter.findByAnalysisAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		if (assetTypes == null)
-			assetTypes = daoAssetType.loadAll();
+			assetTypes = daoAssetType.findByAnalysis(idAnalysis);
 		if (measures == null)
 			measures = daoMeasure.findNormMeasureByAnalysisAndComputable(idAnalysis);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
@@ -845,19 +845,37 @@ public class ChartGenerator {
 		return rrfs;
 	}
 
-	public String rrfByScenario(int idScenario, int idAnalysis, Locale locale, RRFScenarioFilter filter) {
+	private Map<String, RRFAssetType> computeRRFByMeasure(NormMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
+		Parameter parameter = daoParameter.findByAnalysisAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
+		if (assetTypes == null)
+			assetTypes = daoAssetType.findByAnalysis(idAnalysis);
+		if (scenarios == null)
+			scenarios = daoScenario.findByAnalysis(idAnalysis);
+		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
+		for (AssetType assetType : assetTypes) {
+			RRFAssetType rrfAssetType = new RRFAssetType(assetType.getType());
+			for (Scenario scenario : scenarios) {
+				RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
+				rrfMeasure.setValue(Analysis.calculateRRF(scenario, assetType, parameter, measure));
+				rrfAssetType.getRrfMeasures().add(rrfMeasure);
+			}
+			rrfs.put(rrfAssetType.getLabel(), rrfAssetType);
+		}
+		return rrfs;
+	}
+
+	public String rrfByScenario(int idScenario, int idAnalysis, Locale locale, RRFFilter filter) {
 		Scenario scenario = daoScenario.findByIdAndAnalysis(idScenario, idAnalysis);
 		if (scenario == null)
 			return null;
-		return rrfByScenario(scenario, idAnalysis, locale,filter);
+		return rrfByScenario(scenario, idAnalysis, locale, filter);
 	}
 
-	public String rrfByScenario(Scenario scenario, int idAnalysis, Locale locale, RRFScenarioFilter filter) {
+	public String rrfByScenario(Scenario scenario, int idAnalysis, Locale locale, RRFFilter filter) {
 		try {
-
 			String title = "\"title\": {\"text\":\""
-					+ messageSource.getMessage("label.title.chart.rff.scenario", new String[] { scenario.getName() }, "RRF by scenario (" + scenario.getName() + ")",
-							locale) + "\"}";
+					+ messageSource.getMessage("label.title.chart.rff.scenario", new String[] { scenario.getName() }, "RRF by scenario (" + scenario.getName() + ")", locale)
+					+ "\"}";
 
 			String pane = "\"pane\": {\"size\": \"100%\"}";
 
@@ -866,18 +884,18 @@ public class ChartGenerator {
 			String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
 			String series = "\"series\":[";
-		
+
 			List<AssetType> assetTypes = daoAssetType.findByAnalysis(idAnalysis);
 
 			List<NormMeasure> measures = null;
-			
-			if(filter == null || filter.getMeasures().isEmpty())
+
+			if (filter == null || filter.getMeasures().isEmpty())
 				measures = daoMeasure.findNormMeasureByAnalysisAndComputable(idAnalysis);
-			else 
-				measures = daoMeasure.findByAnalysisContains(idAnalysis,filter.getMeasures());
-			
+			else
+				measures = daoMeasure.findByAnalysisContains(idAnalysis, filter.getMeasures());
+
 			Map<String, RRFAssetType> rrfs = computeRRFByScenario(scenario, assetTypes, measures, idAnalysis);
-			
+
 			for (String key : rrfs.keySet()) {
 				String rrf = "[";
 				RRFAssetType rrfAssetType = rrfs.get(key);
@@ -888,8 +906,9 @@ public class ChartGenerator {
 				rrf += "]";
 				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0},";
 			}
-			
-			String chart = "\"chart\":{ \"type\":\""+(measures.size()==1? "column" : "spline")+"\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": "+(measures.size()>9)+"}";
+
+			String chart = "\"chart\":{ \"type\":\"" + (measures.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": "
+					+ (measures.size() > 9) + "}";
 
 			if (series.endsWith(","))
 				series = series.substring(0, series.length() - 1);
@@ -909,9 +928,86 @@ public class ChartGenerator {
 			String yAxis = "\"yAxis\": {\"min\": 0 , \"max\": 0.25, \"title\": {\"text\": \"RRF\"}}";
 
 			if (measures.size() >= 10)
-				xAxis = "\"xAxis\":{\"categories\":" + measuresData + ", \"min\":\"0\", \"max\":\"9\" ,  \"title\": {\"text\": \""+messageSource.getMessage("label.measures", null, "Measures", locale)+"\"}}";
+				xAxis = "\"xAxis\":{\"categories\":" + measuresData + ", \"min\":\"0\", \"max\":\"9\" ,  \"title\": {\"text\": \""
+						+ messageSource.getMessage("label.measures", null, "Measures", locale) + "\"}}";
 			else
-				xAxis = "\"xAxis\":{\"categories\":" + measuresData + ", \"min\":\"0\", \"max\":\"" + (measures.size() - 1) + "\", \"title\": {\"text\": \""+messageSource.getMessage("label.measures", null, "Measures", locale)+"\"}}";
+				xAxis = "\"xAxis\":{\"categories\":" + measuresData + ", \"min\":\"0\", \"max\":\"" + (measures.size() - 1) + "\", \"title\": {\"text\": \""
+						+ messageSource.getMessage("label.measures", null, "Measures", locale) + "\"}}";
+
+			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}";
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public String rrfByMeasure(int idMeasure, Integer idAnalysis, Locale locale, RRFFilter filter) {
+		NormMeasure normMeasure = (NormMeasure) daoMeasure.findByIdAndAnalysis(idMeasure, idAnalysis);
+		return rrfByMeasure(normMeasure, idAnalysis, locale, filter);
+	}
+
+	public String rrfByMeasure(NormMeasure measure, Integer idAnalysis, Locale locale, RRFFilter filter) {
+		try {
+			String title = "\"title\": {\"text\":\""
+					+ messageSource.getMessage("label.title.chart.rff.measure", new String[] { measure.getMeasureDescription().getReference() }, "RRF by measure ("
+							+ measure.getMeasureDescription().getReference() + ")", locale) + "\"}";
+
+			String pane = "\"pane\": {\"size\": \"100%\"}";
+
+			String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
+
+			String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
+
+			String series = "\"series\":[";
+
+			List<AssetType> assetTypes = daoAssetType.findByAnalysis(idAnalysis);
+
+			List<Scenario> scenarios = null;
+
+			if (filter == null || filter.getScenarios().isEmpty())
+				scenarios = daoScenario.findByAnalysis(idAnalysis);
+			else
+				scenarios = daoScenario.findByAnalysisContains(idAnalysis, filter.getScenarios());
+
+			Map<String, RRFAssetType> rrfs = computeRRFByMeasure(measure, assetTypes, scenarios, idAnalysis);
+
+			for (String key : rrfs.keySet()) {
+				String rrf = "[";
+				RRFAssetType rrfAssetType = rrfs.get(key);
+				for (RRFMeasure rrfMeasure : rrfAssetType.getRrfMeasures())
+					rrf += rrfMeasure.getValue() + ",";
+				if (rrf.endsWith(","))
+					rrf = rrf.substring(0, rrf.length() - 1);
+				rrf += "]";
+				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0},";
+			}
+
+			String chart = "\"chart\":{ \"type\":\"" + (scenarios.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": "
+					+ (scenarios.size() > 9) + "}";
+
+			if (series.endsWith(","))
+				series = series.substring(0, series.length() - 1);
+			series += "]";
+
+			String scenarioData = "[";
+
+			for (Scenario scenario : scenarios)
+				scenarioData += "\"" + scenario.getName() + "\",";
+
+			if (scenarioData.endsWith(","))
+				scenarioData = scenarioData.substring(0, scenarioData.length() - 1);
+			scenarioData += "]";
+
+			String xAxis = null;
+
+			String yAxis = "\"yAxis\": {\"min\": 0 , \"max\": 0.25, \"title\": {\"text\": \"RRF\"}}";
+
+			if (scenarios.size() >= 10)
+				xAxis = "\"xAxis\":{\"categories\":" + scenarioData + ", \"min\":\"0\", \"max\":\"9\" ,  \"title\": {\"text\": \""
+						+ messageSource.getMessage("label.measures", null, "Measures", locale) + "\"}}";
+			else
+				xAxis = "\"xAxis\":{\"categories\":" + scenarioData + ", \"min\":\"0\", \"max\":\"" + (scenarios.size() - 1) + "\", \"title\": {\"text\": \""
+						+ messageSource.getMessage("label.scenarios", null, "Scenario", locale) + "\"}}";
 
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}";
 		} catch (Exception e) {

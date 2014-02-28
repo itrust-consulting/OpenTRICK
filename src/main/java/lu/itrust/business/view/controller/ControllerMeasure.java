@@ -1,5 +1,6 @@
 package lu.itrust.business.view.controller;
 
+import java.lang.reflect.Field;
 import java.security.Principal;
 import java.util.Locale;
 
@@ -7,15 +8,17 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Measure;
+import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ChartGenerator;
+import lu.itrust.business.component.helper.RRFFieldEditor;
+import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasure;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -23,6 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -85,7 +89,7 @@ public class ControllerMeasure {
 	@RequestMapping(value = "/{idMeasure}", method = RequestMethod.GET, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String get(@PathVariable int idMeasure, Model model, HttpSession session, Principal principal) throws Exception {
+	Measure get(@PathVariable int idMeasure, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.findByIdAndAnalysis(idMeasure, idAnalysis);
 		measure.setAnalysisNorm(null);
@@ -98,8 +102,45 @@ public class ControllerMeasure {
 				assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
 			((NormMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormMeasure) measure).getMeasurePropertyList()));
 		}
-		ObjectMapper objectMapper = new ObjectMapper();
-		return objectMapper.writeValueAsString(measure);
+		return measure;
+	}
+
+	@RequestMapping(value = "/RRF/Update", method = RequestMethod.POST, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody
+	String updateRRF(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		NormMeasure measure = (NormMeasure) serviceMeasure.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
+		Field field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
+		if (field == null) {
+			AssetTypeValue assetData = null;
+			for (AssetTypeValue assetTypeValue : measure.getAssetTypeValues()) {
+				if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) {
+					assetData = assetTypeValue;
+					break;
+				}
+			}
+			if (assetData != null)
+				assetData.setValue((Integer) fieldEditor.getValue());
+			else
+				return null;
+		} else {
+			field.setAccessible(true);
+			MeasureProperties properties = DAOHibernate.Initialise(measure.getMeasurePropertyList());
+			field.set(properties, fieldEditor.getValue());
+			measure.setMeasurePropertyList(properties);
+		}
+		serviceMeasure.saveOrUpdate(measure);
+		return chartGenerator.rrfByMeasure(measure, idAnalysis, locale, fieldEditor.getFilter());
+	}
+	
+	@RequestMapping(value = "/RRF/{idMeasure}/Load", method = RequestMethod.POST, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody
+	String load(@RequestBody RRFFilter filter, @PathVariable int idMeasure, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Measure measure = serviceMeasure.findByIdAndAnalysis(idMeasure, idAnalysis);
+		return chartGenerator.rrfByMeasure((NormMeasure) measure, idAnalysis, locale, filter);
 	}
 
 	/**

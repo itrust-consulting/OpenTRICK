@@ -2562,11 +2562,19 @@ function RRFView() {
 	RRFView.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
 		$(this.modal_dialog).prop("style", "width: 98%; min-width:1170px;");
+		$(this.modal_body).prop("style", "max-height: 828px;");
 		return false;
 	};
 
 	RRFView.prototype.UpdateChart = function(fiedName, value) {
 		return this.controller.UpdateChart(fiedName, value);
+	};
+	
+	RRFView.prototype.ForceSelectOneFirstItem = function(controller) {
+		for ( var i in this.controllers) 
+			if(this.controllers[i]!=controller)
+				this.controllers[i].SelectFirstItem();
+		return false;
 	};
 
 	RRFView.prototype.SwitchController = function(controller) {
@@ -2739,10 +2747,21 @@ function ScenarioRRFController(rrfView, container, name) {
 		return RRFController.prototype.Initialise.call(this);
 	};
 
+	ScenarioRRFController.prototype.SelectFirstItem = function() {
+		var element = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active");
+		if (element.length == 1) {
+			var item = $(element.parent()).find("a[trick-class='Scenario']:first");
+			$(item).addClass("active");
+			this.idScenario = parseInt($(item).attr("trick-id"));
+			this.rrfView.filter["scenarios"] = [ this.idScenario ];
+		}
+		return false;
+	};
+
 	ScenarioRRFController.prototype.UpdateChart = function(fiedName, value) {
 		var that = this;
 		if (this.idScenario < 1 || this.idScenario == undefined)
-			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active").attr("trick-id");
+			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
 		$.ajax({
 			url : context + "/Scenario/RRF/Update",
 			type : "post",
@@ -2759,7 +2778,7 @@ function ScenarioRRFController(rrfView, container, name) {
 	ScenarioRRFController.prototype.ReloadControls = function() {
 		var that = this;
 		if (this.idScenario < 1 || this.idScenario == undefined)
-			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active").attr("trick-id");
+			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
 		$.ajax({
 			url : context + "/Scenario/" + that.idScenario,
 			type : "get",
@@ -2785,10 +2804,28 @@ function ScenarioRRFController(rrfView, container, name) {
 	};
 
 	ScenarioRRFController.prototype.Onclick = function(element) {
-		var idScenario = $(element).attr("trick-id");
-		if (idScenario != this.idScenario || this.rrfView.controller != this) {
-			this.idScenario = idScenario;
-			return RRFController.prototype.Onclick.call(this, element);
+		var trickClass = $(element).attr("trick-class");
+		if (trickClass != "Scenario") {
+			var item = $(element).attr("trick-class") == undefined ? $(element).parent() : $(element);
+			$(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active").removeClass("active");
+			$(item).addClass('active');
+			return false;
+		} else {
+			var idScenario = $(element).attr("trick-id");
+			if (idScenario != this.idScenario || this.rrfView.controller != this) {
+				if (idScenario != this.idScenario) {
+					var idScenarioType = $(element).parent().attr('trick-id');
+					var scenarioType = $(element).parent().attr('trick-value');
+					$(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active").removeClass("active");
+					$(this.rrfView.modal_body).find(
+							"#selectable_rrf_scenario_controls a[trick-class='ScenarioType'][trick-id='" + idScenarioType + "'][trick-value='" + scenarioType + "']").addClass(
+							'active');
+				} else if (!$(element).hasClass("active"))
+					$(element).addClass("active");
+				this.idScenario = idScenario;
+				return RRFController.prototype.Onclick.call(this, element);
+			} else if (!$(element).hasClass("active"))
+				$(element).addClass("active");
 		}
 		return false;
 	};
@@ -2803,7 +2840,7 @@ function ScenarioRRFController(rrfView, container, name) {
 		} else {
 			this.rrfView.filter["measures"] = [];
 			for (var i = 0; i < element.length; i++)
-				this.rrfView.filter["measures"].push($(element[i].attr('trick-id')));
+				this.rrfView.filter["measures"].push($(element[i]).attr('trick-id'));
 		}
 		return false;
 	};
@@ -2816,16 +2853,18 @@ function ScenarioRRFController(rrfView, container, name) {
 			this.rrfView.filter["measures"] = $.makeArray($(element).parent().find("a[trick-class='Measure']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));
 			});
+			this.SelectFirstItem();
 			this.rrfView.SwitchController(this);
-		} else
-			this.rrfView.filter["measures"] = [ parseInt(trickId) ];
-		return this.ReloadChart();
+			return this.ReloadChart();
+		}
+		this.rrfView.filter["measures"] = [ parseInt(trickId) ];
+		return false;
 	};
 
 	ScenarioRRFController.prototype.ReloadChart = function() {
 		var that = this;
 		if (this.idScenario < 1 || this.idScenario == undefined)
-			this.idScenario = $(that.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active").attr("trick-id");
+			this.idScenario = $(that.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
 		if (this.rrfView.filter == undefined || this.rrfView.filter.measures == undefined || !this.rrfView.filter.measures.length)
 			this.GenerateFilter();
 		$.ajax({
@@ -2860,20 +2899,31 @@ function MeasureRRFController(rrfView, container, name) {
 		});
 
 		// controllerMeasure
-		$(that.rrfView.modal_body).find("#selectable_scenario_controls .list-group-item").on("click", function(event) {
+		$(that.rrfView.modal_body).find("#selectable_rrf_scenario_controls .list-group-item").on("click", function(event) {
 			return that.OnClickFilter(event);
 		});
 		return RRFController.prototype.Initialise.call(this);
 	};
 
+	MeasureRRFController.prototype.SelectFirstItem = function() {
+		var element = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active");
+		if (element.length == 1) {
+			var item = $(element.parent()).find("a[trick-class='Measure']:first");
+			$(item).addClass("active");
+			this.idMeasure = parseInt($(item).attr("trick-id"));
+			this.rrfView.filter["measures"] = [ this.idMeasure ];
+		}
+		return false;
+	};
+
 	MeasureRRFController.prototype.UpdateChart = function(fiedName, value) {
 		var that = this;
 		if (this.idMeasure < 1 || this.idMeasure == undefined)
-			this.idMeasure = $(this.modal_body).find("#selectable_rrf_measures_chapter_controls .active").attr("trick-id");
+			this.idMeasure = $(this.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
 		$.ajax({
 			url : context + "/Measure/RRF/Update",
 			type : "post",
-			data : '{"id":' + that.idMeasure + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.filter) + '}',
+			data : '{"id":' + that.idMeasure + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.rrfView.filter) + '}',
 			contentType : "application/json",
 			success : function(response) {
 				if (response.chart != null && response.chart != undefined)
@@ -2886,7 +2936,7 @@ function MeasureRRFController(rrfView, container, name) {
 	MeasureRRFController.prototype.ReloadControls = function() {
 		var that = this;
 		if (this.idMeasure < 1 || this.idMeasure == undefined)
-			this.idMeasure = $(this.modal_body).find("#selectable_rrf_measures_chapter_controls .active").attr("trick-id");
+			this.idMeasure = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
 		$.ajax({
 			url : context + "/Measure/" + that.idMeasure,
 			type : "get",
@@ -2899,7 +2949,7 @@ function MeasureRRFController(rrfView, container, name) {
 						var field = $(clone).prop("name");
 						var fieldValue = response.measurePropertyList[field];
 						if (fieldValue == undefined) {
-							for (var j = 0; j < response.assetTypeValues.length; j++){
+							for (var j = 0; j < response.assetTypeValues.length; j++) {
 								if (response.assetTypeValues[j].assetType.type == field) {
 									fieldValue = response.assetTypeValues[j].value;
 									break;
@@ -2938,26 +2988,66 @@ function MeasureRRFController(rrfView, container, name) {
 					$(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active").removeClass("active");
 					$(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls a[trick-class='Norm'][trick-id='" + idNorm + "'][trick-value='" + chapter + "']")
 							.addClass('active');
-				}
+				} else if (!$(element).hasClass("active"))
+					$(element).addClass("active");
 				this.idMeasure = idMeasure;
 				return RRFController.prototype.Onclick.call(this, element);
-			}
+			} else if (!$(element).hasClass("active"))
+				$(element).addClass("active");
 		}
 		return false;
 	};
 
 	MeasureRRFController.prototype.GenerateFilter = function() {
 		RRFView.prototype.GenerateFilter.call(this);
+		var element = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active");
+		if (element.length == 1) {
+			this.rrfView.filter["scenarios"] = $.makeArray($(element.parent()).find("a[trick-class='Scenario']")).map(function(item) {
+				return parseInt($(item).attr('trick-id'));
+			});
+		} else {
+			this.rrfView.filter["scenarios"] = [];
+			for (var i = 0; i < element.length; i++)
+				this.rrfView.filter["scenarios"].push($(element[i]).attr('trick-id'));
+		}
 		return false;
 	};
 
 	MeasureRRFController.prototype.OnClickFilter = function(event) {
-		return this.ReloadChart();
+		var element = $(event.target).attr("trick-class") == undefined ? $(event.target).parent() : $(event.target);
+		var trickClass = $(element).attr("trick-class");
+		var trickId = $(element).attr("trick-id");
+		if (trickClass == "ScenarioType") {
+			this.rrfView.filter["scenarios"] = $.makeArray($(element).parent().find("a[trick-class='Scenario']")).map(function(item) {
+				return parseInt($(item).attr('trick-id'));
+			});
+			this.SelectFirstItem();
+			this.rrfView.SwitchController(this);
+			return this.ReloadChart();
+		}
+		this.rrfView.filter["scenarios"] = [ parseInt(trickId) ];
+		return false;
 	};
 
 	MeasureRRFController.prototype.ReloadChart = function() {
-		return false;
+		var that = this;
+		if (this.idMeasure < 1 || this.idMeasure == undefined)
+			this.idMeasure = $(that.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+		if (this.rrfView.filter == undefined || this.rrfView.filter.scenarios == undefined || !this.rrfView.filter.scenarios.length)
+			this.GenerateFilter();
+		$.ajax({
+			url : context + "/Measure/RRF/" + that.idMeasure + "/Load",
+			type : "post",
+			data : JSON.stringify(that.rrfView.filter),
+			contentType : "application/json",
+			success : function(response) {
+				if (response.chart != null && response.chart != undefined)
+					that.chart = $(that.rrfView.modal_body).find("#chart_rrf").highcharts(response);
+				return false;
+			}
+		});
 	};
+	return false;
 }
 
 function scenrioRRF(idAnalysis) {
