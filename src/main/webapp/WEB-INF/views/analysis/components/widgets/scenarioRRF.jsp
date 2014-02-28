@@ -270,6 +270,11 @@
 													code="label.assetType.${assetType.type}"
 													text="${assetType.type}" /></th>
 										</c:forEach>
+										<c:forEach items="${categories}" var="category">
+											<th class="success" trick-class="Category" trick-value="${category}"><spring:message
+													code="label.category.${category}"
+													text="${category}" /></th>
+										</c:forEach>
 									</tr>
 								</thead>
 								<tbody>
@@ -351,6 +356,15 @@
 												data-slider-min="0" data-slider-max="100"
 												data-slider-step="1" data-slider-value="50"
 												name="${assetType.type}" data-slider-orientation="vertical"
+												data-slider-selection="after" data-slider-tooltip="show"></td>
+										</c:forEach>
+										<c:forEach items="${categories}" var="category">
+											<td class="success" trick-class="Category" trick-value="${category}"><input
+												type="text" class="slider"
+												id="measure_category_${category}" value="0"
+												data-slider-min="0" data-slider-max="1"
+												data-slider-step="1" data-slider-value="0"
+												name="${category}" data-slider-orientation="vertical"
 												data-slider-selection="after" data-slider-tooltip="show"></td>
 										</c:forEach>
 									</tr>

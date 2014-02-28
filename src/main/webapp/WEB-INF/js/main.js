@@ -2569,10 +2569,10 @@ function RRFView() {
 	RRFView.prototype.UpdateChart = function(fiedName, value) {
 		return this.controller.UpdateChart(fiedName, value);
 	};
-	
+
 	RRFView.prototype.ForceSelectOneFirstItem = function(controller) {
-		for ( var i in this.controllers) 
-			if(this.controllers[i]!=controller)
+		for ( var i in this.controllers)
+			if (this.controllers[i] != controller)
 				this.controllers[i].SelectFirstItem();
 		return false;
 	};
@@ -2889,6 +2889,68 @@ function MeasureRRFController(rrfView, container, name) {
 
 	this.idMeasure = -1;
 
+	this.FieldToCategory = {
+		direct1 : "Direct1",
+		direct2 : "Direc2",
+		direct3 : "Direct3",
+		direct4 : "Direct4",
+		direct5 : "Direct5",
+		direct6 : "Direct6",
+		direct61 : "Direct6.1",
+		direct62 : "Direct6.2",
+		direct63 : "Direct6.3",
+		direct64 : "Direct6.4",
+		direct7 : "Direct7",
+		indirect1 : "Indirect1",
+		indirect2 : "Indirect2",
+		indirect3 : "Indirect3",
+		indirect4 : "Indirect4",
+		indirect5 : "Indirect5",
+		indirect6 : "Indirect6",
+		indirect7 : "Indirect7",
+		indirect8 : "Indirect8",
+		indirect81 : "Indirect8.1",
+		indirect82 : "Indirect8.2",
+		indirect83 : "Indirect8.3",
+		indirect84 : "Indirect8.4",
+		indirect9 : "Indirect9",
+		indirect10 : "Indirect10",
+		confidentiality : "Confidentiality",
+		integrity : "Integrity",
+		availability : "Availability"
+	};
+
+	this.CategoryToField = {
+		"Direct1" : "direct1",
+		"Direc2" : "direct2",
+		"Direct3" : "direct3",
+		"Direct4" : "direct4",
+		"Direct5" : "direct5",
+		"Direct6" : "direct6",
+		"Direct6.1" : "direct61",
+		"Direct6.2" : "direct62",
+		"Direct6.3" : "direct63",
+		"Direct6.4" : "direct64",
+		"Direct7" : "direct7",
+		"Indirect1" : "indirect1",
+		"Indirect2" : "indirect2",
+		"Indirect3" : "indirect3",
+		"Indirect4" : "indirect4",
+		"Indirect5" : "indirect5",
+		"Indirect6" : "indirect6",
+		"Indirect7" : "indirect7",
+		"Indirect8" : "indirect8",
+		"Indirect8.1" : "indirect81",
+		"Indirect8.2" : "indirect82",
+		"Indirect8.3" : "indirect83",
+		"Indirect8.4" : "indirect84",
+		"Indirect9" : "indirect9",
+		"Indirect10" : "indirect10",
+		"Confidentiality" : "confidentiality",
+		"Integrity" : "integrity",
+		"Availability" : "availability"
+	};
+
 	MeasureRRFController.prototype.constructor = MeasureRRFController;
 
 	MeasureRRFController.prototype.Initialise = function() {
@@ -2917,6 +2979,7 @@ function MeasureRRFController(rrfView, container, name) {
 	};
 
 	MeasureRRFController.prototype.UpdateChart = function(fiedName, value) {
+		fiedName = this.CategoryToField[fiedName] || fiedName;
 		var that = this;
 		if (this.idMeasure < 1 || this.idMeasure == undefined)
 			this.idMeasure = $(this.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
@@ -2944,9 +3007,13 @@ function MeasureRRFController(rrfView, container, name) {
 			success : function(response) {
 				if (response.measurePropertyList != undefined && response.measurePropertyList != null) {
 					$(that.modal_body).find("#control_rrf_measure .slider").unbind("slideStop");
+					var category = $(that.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active :first").attr("trick-value");
+					$(that.container).find("*[trick-class='Category'][trick-value!='"+category+"']").hide();
+					$(that.container).find("*[trick-class='Category'][trick-value='"+category+"']").show();
+					console.log(category);
 					for (var i = 0; i < that.sliders.length; i++) {
 						var clone = $(that.sliders[i]).clone();
-						var field = $(clone).prop("name");
+						var field = that.CategoryToField[$(clone).prop("name")] || $(clone).prop("name");
 						var fieldValue = response.measurePropertyList[field];
 						if (fieldValue == undefined) {
 							for (var j = 0; j < response.assetTypeValues.length; j++) {
