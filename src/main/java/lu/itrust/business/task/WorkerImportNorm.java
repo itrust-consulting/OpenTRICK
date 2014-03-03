@@ -11,6 +11,7 @@ import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.component.helper.AsyncCallback;
 import lu.itrust.business.dao.DAOLanguage;
 import lu.itrust.business.dao.DAOMeasureDescription;
 import lu.itrust.business.dao.DAONorm;
@@ -19,7 +20,6 @@ import lu.itrust.business.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.dao.hbm.DAONormHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
-import lu.itrust.business.view.model.AsyncCallback;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFTable;

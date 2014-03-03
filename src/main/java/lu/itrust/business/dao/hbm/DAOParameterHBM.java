@@ -157,6 +157,17 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 				.list();
 
 	}
+	
+	@Override
+	public Parameter findByAnalysisAndTypeAndDescription(int idAnalysis, String type, String description) {
+		return (Parameter) getSession()
+		.createQuery(
+				"Select parameter "
+						+ "From Analysis as analysis "
+						+ "inner join analysis.parameters as parameter "
+						+ "where analysis.id = :analysisId and parameter.type.label = :type and parameter.description = :description")
+		.setInteger("analysisId", idAnalysis).setString("type", type).setString("description", description).uniqueResult();
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -325,5 +336,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 				.setParameter("idAnalysis", idAnalysis)
 				.setParameter("idParameter", idParameter).uniqueResult();
 	}
+
+	
 
 }

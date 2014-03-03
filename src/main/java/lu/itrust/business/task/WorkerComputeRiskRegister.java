@@ -3,13 +3,13 @@ package lu.itrust.business.task;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.cssf.RiskRegisterComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.component.helper.AsyncCallback;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAORiskRegister;
 import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.dao.hbm.DAORiskRegisterHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
-import lu.itrust.business.view.model.AsyncCallback;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;

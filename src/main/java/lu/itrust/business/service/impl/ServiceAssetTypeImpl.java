@@ -53,18 +53,10 @@ public class ServiceAssetTypeImpl implements ServiceAssetType {
 		daoAssetType.delete(assetType);
 	}
 
-	/**
-	 * @return the daoAssetType
-	 */
-	public DAOAssetType getDaoAssetType() {
-		return daoAssetType;
-	}
 
-	/**
-	 * @param daoAssetType the daoAssetType to set
-	 */
-	public void setDaoAssetType(DAOAssetType daoAssetType) {
-		this.daoAssetType = daoAssetType;
+	@Override
+	public List<AssetType> findByAnalysis(int idAnalysis) {
+		return this.daoAssetType.findByAnalysis(idAnalysis);
 	}
 	
 	

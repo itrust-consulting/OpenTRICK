@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
-	
+
 	/**
 	 * 
 	 */
@@ -53,8 +53,7 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 */
 	@Override
 	public AssetType get(String assetTypeName) throws Exception {
-		Query query = getSession().createQuery(
-				"From AssetType where type= :type");
+		Query query = getSession().createQuery("From AssetType where type= :type");
 		query.setString("type", assetTypeName);
 		return (AssetType) query.uniqueResult();
 
@@ -69,9 +68,9 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AssetType> loadAll() throws Exception {
-			Query query = getSession().createQuery("From AssetType");
+		Query query = getSession().createQuery("From AssetType");
 
-			return (List<AssetType>) query.list();
+		return (List<AssetType>) query.list();
 	}
 
 	/**
@@ -106,6 +105,15 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	@Override
 	public void delete(AssetType assetType) throws Exception {
 		getSession().delete(assetType);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AssetType> findByAnalysis(int idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select distinct(asset.assetType) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis order by asset.assetType.type asc")
+				.setParameter("idAnalysis", idAnalysis).list();
 	}
 
 }

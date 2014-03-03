@@ -64,6 +64,8 @@
 						<li><a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select"> <spring:message code="label.analysis.release" text="Close Analysis" /></a></li>
 						<c:if test="${!KowledgeBaseView }">
 							<li class="divider"></li>
+							<li><a href="#" onclick="return editRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.edit.rrf" text="Edit RRF" /></a></li>
+							<li class="divider"></li>
 							<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.assessment.generate.missing" text="Update Assessment" /></a></li>
 							<li class="divider"></li>
 							<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.analysis.compute.actionPlan" text="Compute ActionPlan" />

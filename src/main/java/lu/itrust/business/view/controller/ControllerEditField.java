@@ -24,8 +24,9 @@ import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
-import lu.itrust.business.component.JsonMessage;
 import lu.itrust.business.component.ParameterManager;
+import lu.itrust.business.component.helper.FieldEditor;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssessment;
@@ -40,7 +41,6 @@ import lu.itrust.business.validator.ExtendedParameterValidator;
 import lu.itrust.business.validator.HistoryValidator;
 import lu.itrust.business.validator.ParameterValidator;
 import lu.itrust.business.validator.field.ValidatorField;
-import lu.itrust.business.view.model.FieldEditor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -120,7 +120,7 @@ public class ControllerEditField {
 			field.setAccessible(true);
 
 			// set field with new data
-			if (setFieldData(field, itemInformation, fieldEditor, null)) {
+			if (SetFieldData(field, itemInformation, fieldEditor, null)) {
 
 				// update iteminformation
 				serviceItemInformation.saveOrUpdate(itemInformation);
@@ -185,7 +185,7 @@ public class ControllerEditField {
 				serviceDataValidation.register(new ParameterValidator());
 
 			// retireve value
-			Object value = value(fieldEditor, null);
+			Object value = FieldValue(fieldEditor, null);
 
 			// validate value
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
@@ -197,7 +197,7 @@ public class ControllerEditField {
 			field.setAccessible(true);
 
 			// set field data
-			if (setFieldData(field, parameter, fieldEditor, null)) {
+			if (SetFieldData(field, parameter, fieldEditor, null)) {
 
 				// update field
 				serviceParameter.saveOrUpdate(parameter);
@@ -280,7 +280,7 @@ public class ControllerEditField {
 				serviceDataValidation.register(new ExtendedParameterValidator());
 
 			// retireve value
-			Object value = value(fieldEditor, null);
+			Object value = FieldValue(fieldEditor, null);
 
 			// validate
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
@@ -298,7 +298,7 @@ public class ControllerEditField {
 			field.setAccessible(true);
 
 			// set field data
-			if (setFieldData(field, parameter, fieldEditor, null)) {
+			if (SetFieldData(field, parameter, fieldEditor, null)) {
 
 				// update field
 				serviceParameter.saveOrUpdate(parameter);
@@ -388,7 +388,7 @@ public class ControllerEditField {
 				serviceDataValidation.register(new AssessmentValidator());
 
 			// get value
-			Object value = value(fieldEditor, null);
+			Object value = FieldValue(fieldEditor, null);
 
 			// retrieve all acronyms of impact and likelihood
 			List<String> chooses = null;
@@ -409,7 +409,7 @@ public class ControllerEditField {
 			field.setAccessible(true);
 
 			// set data to field
-			if (!setFieldData(field, assessment, fieldEditor, null))
+			if (!SetFieldData(field, assessment, fieldEditor, null))
 
 				// return error message
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
@@ -465,7 +465,7 @@ public class ControllerEditField {
 				serviceDataValidation.register(new HistoryValidator());
 
 			// get new value
-			Object value = value(fieldEditor, null);
+			Object value = FieldValue(fieldEditor, null);
 
 			// validate
 			String error = serviceDataValidation.validate(history, fieldEditor.getFieldName(), value);
@@ -479,7 +479,7 @@ public class ControllerEditField {
 			field.setAccessible(true);
 
 			// set field data
-			if (setFieldData(field, history, fieldEditor, null)) {
+			if (SetFieldData(field, history, fieldEditor, null)) {
 
 				// update history
 				serviceHistory.saveOrUpdate(history);
@@ -566,8 +566,8 @@ public class ControllerEditField {
 
 				// retireve phase
 				Integer number = 0;
-				if (!fieldEditor.getValue().equalsIgnoreCase("NA"))
-					number = (Integer) value(fieldEditor, null);
+				if (!fieldEditor.getValue().toString().equalsIgnoreCase("NA"))
+					number = (Integer) FieldValue(fieldEditor, null);
 				if (number == null)
 					return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 				Phase phase = servicePhase.loadFromPhaseNumberAnalysis(number, idAnalysis);
@@ -578,7 +578,7 @@ public class ControllerEditField {
 				measure.setPhase(phase);
 
 				// set field data
-			} else if (!setFieldData(field, measure, fieldEditor, null))
+			} else if (!SetFieldData(field, measure, fieldEditor, null))
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 			// compute new cost
@@ -634,7 +634,7 @@ public class ControllerEditField {
 				List<Parameter> simpleParameters = serviceParameter.findByAnalysisAndType(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
 
 				// get value
-				double value = Double.parseDouble(fieldEditor.getValue());
+				double value = Double.parseDouble(fieldEditor.getValue().toString());
 
 				// parse parameters
 				for (Parameter parameter : parameters) {
@@ -697,8 +697,8 @@ public class ControllerEditField {
 
 			// retrieve phase
 			Integer number = 0;
-			if (!fieldEditor.getValue().equalsIgnoreCase("NA"))
-				number = (Integer) value(fieldEditor, null);
+			if (!fieldEditor.getValue().toString().equalsIgnoreCase("NA"))
+				number = (Integer) FieldValue(fieldEditor, null);
 			if (number == null)
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			Phase phase = servicePhase.loadFromPhaseNumberAnalysis(number, idAnalysis);
@@ -749,7 +749,7 @@ public class ControllerEditField {
 
 			// set field date
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-			field.set(phase, new Date(format.parse(fieldEditor.getValue()).getTime()));
+			field.set(phase, new Date(format.parse(fieldEditor.getValue().toString()).getTime()));
 
 			// update phase
 			servicePhase.saveOrUpdate(phase);
@@ -779,7 +779,7 @@ public class ControllerEditField {
 	 * @throws ParseException
 	 * @throws NumberFormatException
 	 */
-	protected boolean setFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) throws IllegalArgumentException, IllegalAccessException, ParseException,
+	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) throws IllegalArgumentException, IllegalAccessException, ParseException,
 			NumberFormatException {
 
 		// check for data type to set field with data with cast to correct data
@@ -787,18 +787,17 @@ public class ControllerEditField {
 		if (fieldEditor.getType().equalsIgnoreCase("string"))
 			field.set(object, (String) fieldEditor.getValue());
 		else if (fieldEditor.getType().equalsIgnoreCase("integer"))
-			field.set(object, Integer.parseInt(fieldEditor.getValue()));
+			field.set(object, Integer.parseInt(fieldEditor.getValue().toString()));
 		else if (fieldEditor.getType().equalsIgnoreCase("double"))
-			field.set(object, Double.parseDouble(fieldEditor.getValue()));
+			field.set(object, Double.parseDouble(fieldEditor.getValue().toString()));
 		else if (fieldEditor.getType().equalsIgnoreCase("float"))
-			field.set(object, Float.parseFloat(fieldEditor.getValue()));
+			field.set(object, Float.parseFloat(fieldEditor.getValue().toString()));
 		else if (fieldEditor.getType().equalsIgnoreCase("boolean"))
-			field.set(object, Boolean.parseBoolean(fieldEditor.getValue()));
+			field.set(object, Boolean.parseBoolean(fieldEditor.getValue().toString()));
 		else if (fieldEditor.getType().equalsIgnoreCase("date")) {
 			DateFormat format = new SimpleDateFormat(pattern == null ? "yyyy-MM-dd hh:mm:ss" : pattern);
-			field.set(object, format.parse(fieldEditor.getValue()));
+			field.set(object, format.parse(fieldEditor.getValue().toString()));
 		} else
-
 			// data type not recognized return error
 			return false;
 
@@ -814,23 +813,23 @@ public class ControllerEditField {
 	 * @param pattern
 	 * @return
 	 */
-	private Object value(FieldEditor fieldEditor, String pattern) {
+	public static Object FieldValue(FieldEditor fieldEditor, String pattern) {
 		try {
 
 			// get the field type and return value in casted form
 			if (fieldEditor.getType().equalsIgnoreCase("string"))
 				return (String) fieldEditor.getValue();
 			else if (fieldEditor.getType().equalsIgnoreCase("integer"))
-				return Integer.parseInt(fieldEditor.getValue());
+				return Integer.parseInt(fieldEditor.getValue().toString());
 			else if (fieldEditor.getType().equalsIgnoreCase("double"))
-				return Double.parseDouble(fieldEditor.getValue());
+				return Double.parseDouble(fieldEditor.getValue().toString());
 			else if (fieldEditor.getType().equalsIgnoreCase("float"))
-				return Float.parseFloat(fieldEditor.getValue());
+				return Float.parseFloat(fieldEditor.getValue().toString());
 			else if (fieldEditor.getType().equalsIgnoreCase("boolean"))
-				return Boolean.parseBoolean(fieldEditor.getValue());
+				return Boolean.parseBoolean(fieldEditor.getValue().toString());
 			else if (fieldEditor.getType().equalsIgnoreCase("date")) {
 				DateFormat format = new SimpleDateFormat(pattern == null ? "yyyy-MM-dd hh:mm:ss" : pattern);
-				return format.parse(fieldEditor.getValue());
+				return format.parse(fieldEditor.getValue().toString());
 			}
 
 			// data type not found, return error
@@ -846,5 +845,14 @@ public class ControllerEditField {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public static Field FindField(Class<?> object, String fieldName){
+		for (Field  field: object.getDeclaredFields())
+			if(field.getName().equals(fieldName))
+				return field;
+		if(!object.equals(Object.class))
+			return FindField(object.getSuperclass(), fieldName);
+		return null;
 	}
 }

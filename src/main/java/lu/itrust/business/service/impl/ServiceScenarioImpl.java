@@ -47,7 +47,7 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	@Override
 	public List<Scenario> loadAllFromAnalysisID(int idAnalysis)
 			throws Exception {
-		return daoScenario.loadAllFromAnalysisID(idAnalysis);
+		return daoScenario.findByAnalysis(idAnalysis);
 	}
 
 	/* (non-Javadoc)
@@ -95,6 +95,11 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	@Override
 	public List<Scenario> findByAnalysisAndSelected(int idAnalysis) {
 		return daoScenario.findByAnalysisAndSelected(idAnalysis);
+	}
+
+	@Override
+	public Scenario findByIdAndAnalysis(int id, int idAnalysis) {
+		return daoScenario.findByIdAndAnalysis(id, idAnalysis);
 	}
 
 }

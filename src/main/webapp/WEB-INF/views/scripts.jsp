@@ -14,6 +14,7 @@
 <script src="<spring:url value="/js/stickyrows/stickyRows.js"/>"></script>
 <script src="<spring:url value="/js/bootstrap.min.js" />"></script>
 <script src="<spring:url value="/js/bootbox.min.js" />"></script>
+<script src="<spring:url value="/js/bootstrap-slider.js" />"></script>
 <script src="<spring:url value="/js/dom-parser.js" />"></script>
 <script src="<spring:url value="/js/highstock.js" />"></script>
 <script src="<spring:url value="/js/highcharts-more.js" />"></script>

@@ -886,7 +886,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return True if Key is valid; False if Key is not valid
 	 */
-	public boolean isCategoryKey(String category) {
+	public static boolean isCategoryKey(String category) {
 		return category != null
 				&& category.matches(Constant.REGEXP_VALID_SCENARIO_CATEGORY);
 	}

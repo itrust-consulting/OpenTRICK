@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.dao.DAOMeasure;
 
 /**
@@ -33,6 +34,30 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 								+ "inner join analysisNorm.measures as measure "
 								+ "where analysisNorm.analysis.id = :analysis order by measure.id")
 				.setParameter("analysis", idAnalysis).list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<NormMeasure> findNormMeasureByAnalysisAndComputable(int idAnalysis) {
+		return getSession()
+		.createQuery(
+				"Select measure "
+						+ "From AnalysisNorm as analysisNorm "
+						+ "inner join analysisNorm.measures as measure "
+						+ "where analysisNorm.analysis.id = :idAnalysis and measure.computable = true and measure.status='AP' and exists(From NormMeasure measure2 where measure2 = measure) order by measure.id ")
+		.setParameter("idAnalysis", idAnalysis).list();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<NormMeasure> findNormMeasureByAnalysis(int idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select measure "
+								+ "From AnalysisNorm as analysisNorm "
+								+ "inner join analysisNorm.measures as measure "
+								+ "where analysisNorm.analysis.id = :idAnalysis and exists(From NormMeasure measure2 where measure2 = measure) order by measure.id ")
+				.setParameter("idAnalysis", idAnalysis).list();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -110,5 +135,22 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 				.setParameter("analysis", idAnalysis)
 				.setParameter("id", id).uniqueResult();
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<NormMeasure> findByAnalysisContains(int idAnalysis, List<Integer> measures) {
+		return getSession()
+		.createQuery(
+				"Select measure "
+						+ "From AnalysisNorm as analysisNorm "
+						+ "inner join analysisNorm.measures as measure "
+						+ "where analysisNorm.analysis.id = :analysis and measure.id in :measures order by measure.id")
+		.setParameter("analysis", idAnalysis)
+		.setParameterList("measures", measures).list();
+	}
+
+	
+
+	
 
 }

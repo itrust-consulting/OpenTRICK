@@ -47,6 +47,7 @@ import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
+import lu.itrust.business.component.helper.AsyncCallback;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAssetType;
 import lu.itrust.business.dao.DAOLanguage;
@@ -64,7 +65,6 @@ import lu.itrust.business.dao.hbm.DAONormHBM;
 import lu.itrust.business.dao.hbm.DAOParameterTypeHBM;
 import lu.itrust.business.dao.hbm.DAOScenarioTypeHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
-import lu.itrust.business.view.model.AsyncCallback;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
