@@ -113,17 +113,21 @@ public class ControllerMeasure {
 		NormMeasure measure = (NormMeasure) serviceMeasure.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
 		Field field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
 		if (field == null) {
-			AssetTypeValue assetData = null;
-			for (AssetTypeValue assetTypeValue : measure.getAssetTypeValues()) {
-				if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) {
-					assetData = assetTypeValue;
-					break;
+			if (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
+				measure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(), (Integer)fieldEditor.getValue());
+			else {
+				AssetTypeValue assetData = null;
+				for (AssetTypeValue assetTypeValue : measure.getAssetTypeValues()) {
+					if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) {
+						assetData = assetTypeValue;
+						break;
+					}
 				}
+				if (assetData != null)
+					assetData.setValue((Integer) fieldEditor.getValue());
+				else
+					return null;
 			}
-			if (assetData != null)
-				assetData.setValue((Integer) fieldEditor.getValue());
-			else
-				return null;
 		} else {
 			field.setAccessible(true);
 			MeasureProperties properties = DAOHibernate.Initialise(measure.getMeasurePropertyList());
@@ -133,7 +137,7 @@ public class ControllerMeasure {
 		serviceMeasure.saveOrUpdate(measure);
 		return chartGenerator.rrfByMeasure(measure, idAnalysis, locale, fieldEditor.getFilter());
 	}
-	
+
 	@RequestMapping(value = "/RRF/{idMeasure}/Load", method = RequestMethod.POST, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody

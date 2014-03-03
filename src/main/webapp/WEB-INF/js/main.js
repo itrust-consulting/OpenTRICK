@@ -2561,8 +2561,8 @@ function RRFView() {
 
 	RRFView.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
-		$(this.modal_dialog).prop("style", "width: 98%; min-width:1170px;");
-		$(this.modal_body).prop("style", "max-height: 828px;");
+		$(this.modal_dialog).attr("style", "width: 98%; min-width:1170px;");
+		$(this.modal_body).attr("style", "max-height: 828px;");
 		return false;
 	};
 
@@ -2624,11 +2624,11 @@ function RRFView() {
 	};
 
 	RRFView.prototype.GenerateFilter = function() {
-		if (this.chart == undefined || !this.chart.length || this.chart.series == undefined)
+		if (this.chart == undefined || this.chart.series == undefined)
 			return;
 		this.filter['series'] = [];
 		for (var i = 0; i < this.chart.series.length; i++) {
-			if (this.chart.series[i].visible)
+			if (!this.chart.series[i].visible)
 				this.filter['series'].push(this.chart.series[i].name);
 		}
 		return false;
@@ -2647,6 +2647,7 @@ function RRFView() {
 	};
 
 	RRFView.prototype.OnSliderChange = function(event) {
+		$(this.controller.container).find("#" + event.target.id + "_value").prop("value", event.value);
 		return this.UpdateChart(event.target.name, event.value);
 	};
 
@@ -2711,6 +2712,7 @@ function RRFController(rrfView, container, name) {
 	};
 
 	RRFController.prototype.GenerateFilter = function() {
+		return this.rrfView.GenerateFilter();
 	};
 
 	RRFController.prototype.Onclick = function(element) {
@@ -2721,6 +2723,10 @@ function RRFController(rrfView, container, name) {
 		this.ReloadChart();
 		return this.ReloadControls();
 	};
+
+	RRFController.prototype.OnClickFilter = function(event) {
+		return this.rrfView.GenerateFilter();
+	};
 }
 
 ScenarioRRFController.prototype = new RRFController();
@@ -2730,6 +2736,13 @@ function ScenarioRRFController(rrfView, container, name) {
 	RRFController.call(this, rrfView, container, name);
 
 	this.idScenario = -1;
+
+	this.DependencyFields = {
+		"preventive" : 0.0,
+		"limitative" : 0.0,
+		"detective" : 0.0,
+		"corrective" : 0.0
+	};
 
 	ScenarioRRFController.prototype.constructor = ScenarioRRFController;
 
@@ -2758,10 +2771,37 @@ function ScenarioRRFController(rrfView, container, name) {
 		return false;
 	};
 
+	ScenarioRRFController.prototype.CheckTypeValue = function() {
+		var sum = 0;
+		for (var i = 0; i < this.sliders.length; i++) {
+			if (this.DependencyFields[this.sliders[i].prop("name")] != undefined) {
+				var slider = $(this.sliders[i]).slider();
+				sum += parseFloat(slider.prop("value"));
+			}
+
+		}
+		var types = $(this.container).find("*[trick-type='type']");
+		if (sum != 1) {
+			if ($(types).hasClass("success")) {
+				$(types).removeClass("success");
+				$(types).addClass("danger");
+			}
+
+		} else {
+			if ($(types).hasClass("danger")) {
+				$(types).removeClass("danger");
+				$(types).addClass("success");
+			}
+		}
+		return false;
+	};
+
 	ScenarioRRFController.prototype.UpdateChart = function(fiedName, value) {
 		var that = this;
 		if (this.idScenario < 1 || this.idScenario == undefined)
 			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
+		if (this.DependencyFields[fiedName] != undefined)
+			this.CheckTypeValue();
 		$.ajax({
 			url : context + "/Scenario/RRF/Update",
 			type : "post",
@@ -2769,10 +2809,11 @@ function ScenarioRRFController(rrfView, container, name) {
 			contentType : "application/json",
 			success : function(response) {
 				if (response.chart != null && response.chart != undefined)
-					that.rrfView.chart = $(that.rrfView.modal_body).find("#chart_rrf").highcharts(response);
+					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
 				return false;
 			}
 		});
+		return false;
 	};
 
 	ScenarioRRFController.prototype.ReloadControls = function() {
@@ -2789,6 +2830,7 @@ function ScenarioRRFController(rrfView, container, name) {
 					for (var i = 0; i < that.sliders.length; i++) {
 						var clone = $(that.sliders[i]).clone();
 						var field = $(clone).prop("name");
+						$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", response[field]);
 						$(clone).attr("value", response[field]);
 						$(clone).attr("data-slider-value", response[field]);
 						$(that.sliders[i]).parent().replaceWith($(clone));
@@ -2797,6 +2839,7 @@ function ScenarioRRFController(rrfView, container, name) {
 							return that.rrfView.OnSliderChange(event);
 						});
 					}
+					that.CheckTypeValue();
 				}
 				return false;
 			}
@@ -2831,7 +2874,7 @@ function ScenarioRRFController(rrfView, container, name) {
 	};
 
 	ScenarioRRFController.prototype.GenerateFilter = function() {
-		this.rrfView.GenerateFilter();
+		RRFController.prototype.GenerateFilter.call(this);
 		var element = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active");
 		if (element.length == 1) {
 			this.rrfView.filter["measures"] = $.makeArray($(element.parent()).find("a[trick-class='Measure']")).map(function(item) {
@@ -2846,6 +2889,7 @@ function ScenarioRRFController(rrfView, container, name) {
 	};
 
 	ScenarioRRFController.prototype.OnClickFilter = function(event) {
+		RRFController.prototype.OnClickFilter.apply(this, event);
 		var element = $(event.target).attr("trick-class") == undefined ? $(event.target).parent() : $(event.target);
 		var trickClass = $(element).attr("trick-class");
 		var trickId = $(element).attr("trick-id");
@@ -2874,7 +2918,7 @@ function ScenarioRRFController(rrfView, container, name) {
 			contentType : "application/json",
 			success : function(response) {
 				if (response.chart != null && response.chart != undefined)
-					that.chart = $(that.rrfView.modal_body).find("#chart_rrf").highcharts(response);
+					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
 				return false;
 			}
 		});
@@ -2979,7 +3023,6 @@ function MeasureRRFController(rrfView, container, name) {
 	};
 
 	MeasureRRFController.prototype.UpdateChart = function(fiedName, value) {
-		fiedName = this.CategoryToField[fiedName] || fiedName;
 		var that = this;
 		if (this.idMeasure < 1 || this.idMeasure == undefined)
 			this.idMeasure = $(this.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
@@ -2990,7 +3033,7 @@ function MeasureRRFController(rrfView, container, name) {
 			contentType : "application/json",
 			success : function(response) {
 				if (response.chart != null && response.chart != undefined)
-					that.chart = $(that.modal_body).find("#chart_rrf").highcharts(response);
+					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
 				return false;
 			}
 		});
@@ -3006,11 +3049,8 @@ function MeasureRRFController(rrfView, container, name) {
 			contentType : "application/json",
 			success : function(response) {
 				if (response.measurePropertyList != undefined && response.measurePropertyList != null) {
-					$(that.modal_body).find("#control_rrf_measure .slider").unbind("slideStop");
-					var category = $(that.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active :first").attr("trick-value");
-					$(that.container).find("*[trick-class='Category'][trick-value!='"+category+"']").hide();
-					$(that.container).find("*[trick-class='Category'][trick-value='"+category+"']").show();
-					console.log(category);
+					that.SynchronizeSlider();
+					$(that.container).find(".slider").unbind("slideStop");
 					for (var i = 0; i < that.sliders.length; i++) {
 						var clone = $(that.sliders[i]).clone();
 						var field = that.CategoryToField[$(clone).prop("name")] || $(clone).prop("name");
@@ -3025,6 +3065,7 @@ function MeasureRRFController(rrfView, container, name) {
 							if (fieldValue == undefined)
 								continue;
 						}
+						$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", fieldValue);
 						$(clone).attr("value", fieldValue);
 						$(clone).attr("data-slider-value", fieldValue);
 						$(that.sliders[i]).parent().replaceWith($(clone));
@@ -3066,7 +3107,7 @@ function MeasureRRFController(rrfView, container, name) {
 	};
 
 	MeasureRRFController.prototype.GenerateFilter = function() {
-		RRFView.prototype.GenerateFilter.call(this);
+		RRFController.prototype.GenerateFilter.apply(this);
 		var element = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active");
 		if (element.length == 1) {
 			this.rrfView.filter["scenarios"] = $.makeArray($(element.parent()).find("a[trick-class='Scenario']")).map(function(item) {
@@ -3080,10 +3121,19 @@ function MeasureRRFController(rrfView, container, name) {
 		return false;
 	};
 
+	MeasureRRFController.prototype.SynchronizeSlider = function() {
+		var category = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active :first").attr("trick-value");
+		$(this.container).find("*[trick-class='Category'][trick-value!='" + category + "']").hide();
+		$(this.container).find("*[trick-class='Category'][trick-value='" + category + "']").show();
+		return false;
+	};
+
 	MeasureRRFController.prototype.OnClickFilter = function(event) {
+		RRFController.prototype.OnClickFilter.apply(this, event);
 		var element = $(event.target).attr("trick-class") == undefined ? $(event.target).parent() : $(event.target);
 		var trickClass = $(element).attr("trick-class");
 		var trickId = $(element).attr("trick-id");
+		this.SynchronizeSlider();
 		if (trickClass == "ScenarioType") {
 			this.rrfView.filter["scenarios"] = $.makeArray($(element).parent().find("a[trick-class='Scenario']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));
@@ -3109,7 +3159,7 @@ function MeasureRRFController(rrfView, container, name) {
 			contentType : "application/json",
 			success : function(response) {
 				if (response.chart != null && response.chart != undefined)
-					that.chart = $(that.rrfView.modal_body).find("#chart_rrf").highcharts(response);
+					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
 				return false;
 			}
 		});

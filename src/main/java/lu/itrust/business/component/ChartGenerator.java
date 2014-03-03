@@ -904,7 +904,7 @@ public class ChartGenerator {
 				if (rrf.endsWith(","))
 					rrf = rrf.substring(0, rrf.length() - 1);
 				rrf += "]";
-				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0},";
+				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": "+(!filter.getSeries().contains(key))+"},";
 			}
 
 			String chart = "\"chart\":{ \"type\":\"" + (measures.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": "
@@ -979,7 +979,7 @@ public class ChartGenerator {
 				if (rrf.endsWith(","))
 					rrf = rrf.substring(0, rrf.length() - 1);
 				rrf += "]";
-				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0},";
+				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": "+(!filter.getSeries().contains(key))+"},";
 			}
 
 			String chart = "\"chart\":{ \"type\":\"" + (scenarios.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": "
