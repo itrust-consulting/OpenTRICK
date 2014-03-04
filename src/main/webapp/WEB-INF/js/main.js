@@ -2965,7 +2965,7 @@ function MeasureRRFController(rrfView, container, name) {
 			contentType : "application/json",
 			success : function(response) {
 				if (response.measurePropertyList != undefined && response.measurePropertyList != null) {
-					that.SynchronizeSlider();
+					//that.SynchronizeSlider(); rejected by product owner
 					$(that.container).find(".slider").unbind("slideStop");
 					for (var i = 0; i < that.sliders.length; i++) {
 						var clone = $(that.sliders[i]).clone();
@@ -3049,7 +3049,7 @@ function MeasureRRFController(rrfView, container, name) {
 		var element = $(event.target).attr("trick-class") == undefined ? $(event.target).parent() : $(event.target);
 		var trickClass = $(element).attr("trick-class");
 		var trickId = $(element).attr("trick-id");
-		this.SynchronizeSlider();
+		//this.SynchronizeSlider(); rejected by product owner
 		if (trickClass == "ScenarioType") {
 			this.rrfView.filter["scenarios"] = $.makeArray($(element).parent().find("a[trick-class='Scenario']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));

@@ -8,121 +8,118 @@
 <div class="section" id="section_rrf">
 	<div class="row">
 		<div class="col-md-4">
-			<div class="list-group" style="max-height: 390px; overflow: auto;"
-				id="selectable_rrf_scenario_controls">
-				<c:forEach items="${scenarios.keySet()}" var="scenarioType"
-					varStatus="status">
-					<div class="list-group" trick-id="${scenarioType.id}">
-						<c:choose>
-							<c:when test="${status.index==0}">
-								<a href="#" trick-id="${scenarioType.id}"
-									trick-value="<spring:message text="${scenarioType.name}" />"
-									onclick="return false;" trick-class="ScenarioType"
-									class="list-group-item active">
-									<h4 class="list-group-item-heading">
-										<spring:message text="${scenarioType.name}" />
-									</h4>
-								</a>
-							</c:when>
-							<c:otherwise>
-								<a href="#" trick-id="${scenarioType.id}"
-									trick-value="<spring:message text="${scenarioType.name}" />"
-									onclick="return false;" trick-class="ScenarioType"
-									class="list-group-item">
-									<h4 class="list-group-item-heading">
-										<spring:message text="${scenarioType.name}" />
-									</h4>
-								</a>
-							</c:otherwise>
-						</c:choose>
-						<div class="list-group" trick-id="${scenarioType.id}"
-							trick-value="<spring:message text="${scenarioType.name}" />">
-							<c:forEach items="${scenarios.get(scenarioType)}" var="scenario"
-								varStatus="statusScanrio">
+			<div class="panel panel-primary">
+				<div class="panel-body">
+					<div class="list-group" style="max-height: 360px; overflow: auto;"
+						id="selectable_rrf_scenario_controls">
+						<c:forEach items="${scenarios.keySet()}" var="scenarioType"
+							varStatus="status">
+							<div class="list-group" trick-id="${scenarioType.id}">
 								<c:choose>
-									<c:when test="${status.index==0 && statusScanrio.index==0 }">
-										<a href="#" onclick="return false;"
-											onmouseover="$(this).popover('show')"
-											title="${scenario.name}" trick-class="Scenario"
-											trick-id="${scenario.id}" class="list-group-item active"
-											data-toggle="popover" data-trigger="hover"
-											data-placement="bottom"
-											data-content="${scenario.description}"
-											style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
-											<spring:message text="${scenario.name}" />
+									<c:when test="${status.index==0}">
+										<a href="#" trick-id="${scenarioType.id}"
+											trick-value="<spring:message text="${scenarioType.name}" />"
+											onclick="return false;" trick-class="ScenarioType"
+											class="list-group-item active">
+											<h4 class="list-group-item-heading">
+												<spring:message text="${scenarioType.name}" />
+											</h4>
 										</a>
-										<c:set var="selectedScenario" value="${scenario}" />
 									</c:when>
 									<c:otherwise>
-										<a href="#" onclick="return false;"
-											onmouseover="$(this).popover('show')"
-											title="${scenario.name}" trick-class="Scenario"
-											trick-id="${scenario.id}" class="list-group-item"
-											data-toggle="popover" data-trigger="hover"
-											data-placement="bottom"
-											data-content="${scenario.description}"
-											style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
-											<spring:message text="${scenario.name}" />
+										<a href="#" trick-id="${scenarioType.id}"
+											trick-value="<spring:message text="${scenarioType.name}" />"
+											onclick="return false;" trick-class="ScenarioType"
+											class="list-group-item">
+											<h4 class="list-group-item-heading">
+												<spring:message text="${scenarioType.name}" />
+											</h4>
 										</a>
 									</c:otherwise>
 								</c:choose>
-							</c:forEach>
-						</div>
+								<div class="list-group" trick-id="${scenarioType.id}"
+									trick-value="<spring:message text="${scenarioType.name}" />">
+									<c:forEach items="${scenarios.get(scenarioType)}"
+										var="scenario" varStatus="statusScanrio">
+										<c:choose>
+											<c:when test="${status.index==0 && statusScanrio.index==0 }">
+												<a href="#" onclick="return false;"
+													title="${scenario.name}" trick-class="Scenario"
+													trick-id="${scenario.id}" class="list-group-item active"
+													style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+													<spring:message text="${scenario.name}" />
+												</a>
+												<c:set var="selectedScenario" value="${scenario}" />
+											</c:when>
+											<c:otherwise>
+												<a href="#" onclick="return false;"
+													title="${scenario.name}" trick-class="Scenario"
+													trick-id="${scenario.id}" class="list-group-item"
+													style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+													<spring:message text="${scenario.name}" />
+												</a>
+											</c:otherwise>
+										</c:choose>
+									</c:forEach>
+								</div>
+							</div>
+						</c:forEach>
 					</div>
-				</c:forEach>
+				</div>
 			</div>
-			<div class="list-group" style="max-height: 390px; overflow: auto;"
-				id="selectable_rrf_measures_chapter_controls">
-				<c:forEach items="${measures.keySet()}" var="chapter"
-					varStatus="status">
-					<div class="list-group" trick-id="${chapter.norm.id}">
-						<c:choose>
-							<c:when test="${status.index==0}">
-								<a href="#" onclick="return false;"
-									class="list-group-item active" trick-class="Norm"
-									title="${chapter.reference}" trick-id="${chapter.norm.id}"
+			<div class="panel panel-primary">
+				<div class="panel-body">
+					<div class="list-group" style="max-height: 360px; overflow: auto;"
+						id="selectable_rrf_measures_chapter_controls">
+						<c:forEach items="${measures.keySet()}" var="chapter"
+							varStatus="status">
+							<div class="list-group" trick-id="${chapter.norm.id}">
+								<c:choose>
+									<c:when test="${status.index==0}">
+										<a href="#" onclick="return false;"
+											class="list-group-item active" trick-class="Norm"
+											title="${chapter.reference}" trick-id="${chapter.norm.id}"
+											trick-value="${chapter.reference}">
+											<h4 class="list-group-item-heading">
+												<spring:message text="${chapter.norm.label}" />
+												-
+												<spring:message code="label.measure.chapter"
+													arguments="${chapter.reference}"
+													text="Chapter ${chapter.reference}" />
+											</h4>
+										</a>
+									</c:when>
+									<c:otherwise>
+										<a href="#" onclick="return false;" class="list-group-item"
+											trick-class="Norm" trick-id="${chapter.norm.id}"
+											title="${chapter.reference}"
+											trick-value="${chapter.reference}">
+											<h4 class="list-group-item-heading">
+												<spring:message text="${chapter.norm.label}" />
+												-
+												<spring:message code="label.measure.chapter"
+													arguments="${chapter.reference}"
+													text="Chapter ${chapter.reference}" />
+											</h4>
+										</a>
+									</c:otherwise>
+								</c:choose>
+								<div class="list-group" trick-id="${chapter.norm.id}"
 									trick-value="${chapter.reference}">
-									<h4 class="list-group-item-heading">
-										<spring:message text="${chapter.norm.label}" />
-										-
-										<spring:message code="label.measure.chapter"
-											arguments="${chapter.reference}"
-											text="Chapter ${chapter.reference}" />
-									</h4>
-								</a>
-							</c:when>
-							<c:otherwise>
-								<a href="#" onclick="return false;" class="list-group-item"
-									trick-class="Norm" trick-id="${chapter.norm.id}"
-									title="${chapter.reference}" trick-value="${chapter.reference}">
-									<h4 class="list-group-item-heading">
-										<spring:message text="${chapter.norm.label}" />
-										-
-										<spring:message code="label.measure.chapter"
-											arguments="${chapter.reference}"
-											text="Chapter ${chapter.reference}" />
-									</h4>
-								</a>
-							</c:otherwise>
-						</c:choose>
-						<div class="list-group" trick-id="${chapter.norm.id}"
-							trick-value="${chapter.reference}">
-							<c:forEach items="${measures.get(chapter)}" var="measure">
-								<a href="#" onclick="return false;"
-									onmouseover="$(this).popover('show')"
-									title="${measure.getMeasureDescription().reference}"
-									trick-class="Measure" trick-id="${measure.id}"
-									class="list-group-item" data-toggle="popover"
-									data-trigger="hover" data-placement="bottom"
-									data-content="${measure.getMeasureDescription().getMeasureDescriptionTextByAlpha3(language).domain}"
-									style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
-									<spring:message
-										text="${measure.getMeasureDescription().getMeasureDescriptionTextByAlpha3(language).domain}" />
-								</a>
-							</c:forEach>
-						</div>
+									<c:forEach items="${measures.get(chapter)}" var="measure">
+										<a href="#" onclick="return false;"
+											trick-class="Measure" trick-id="${measure.id}"
+											class="list-group-item"
+											style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+											<spring:message
+												text="${measure.getMeasureDescription().reference} - ${measure.getMeasureDescription().getMeasureDescriptionTextByAlpha3(language).domain}" />
+										</a>
+									</c:forEach>
+								</div>
+							</div>
+						</c:forEach>
 					</div>
-				</c:forEach>
+				</div>
 			</div>
 		</div>
 		<div class="col-md-8">
@@ -165,32 +162,32 @@
 									</thead>
 									<tbody>
 										<tr>
-											<td class="${typeClass}" trick-type="type"><input type="text"
-												id="scenario_preventive" class="slider"
+											<td class="${typeClass}" trick-type="type"><input
+												type="text" id="scenario_preventive" class="slider"
 												value="${selectedScenario.preventive}" data-slider-min="0"
 												data-slider-max="1" data-slider-step="0.1"
 												data-slider-value="${selectedScenario.preventive}"
 												data-slider-orientation="vertical"
 												data-slider-selection="after" name="preventive"
 												data-slider-tooltip="show"></td>
-											<td class="${typeClass}" trick-type="type"><input type="text"
-												id="scenario_limitative" class="slider"
+											<td class="${typeClass}" trick-type="type"><input
+												type="text" id="scenario_limitative" class="slider"
 												value="${selectedScenario.limitative}" data-slider-min="0"
 												data-slider-max="1" data-slider-step="0.1"
 												data-slider-value="${selectedScenario.limitative}"
 												data-slider-orientation="vertical"
 												data-slider-selection="after" name="limitative"
 												data-slider-tooltip="show"></td>
-											<td class="${typeClass}" trick-type="type"><input type="text"
-												class="slider" id="scenario_detective"
+											<td class="${typeClass}" trick-type="type"><input
+												type="text" class="slider" id="scenario_detective"
 												value="${selectedScenario.detective}" data-slider-min="0"
 												data-slider-max="1" data-slider-step="0.1"
 												data-slider-value="${selectedScenario.detective}"
 												name="detective" data-slider-orientation="vertical"
 												data-slider-selection="after" data-slider-tooltip="show">
 											</td>
-											<td class="${typeClass}" trick-type="type"><input type="text"
-												class="slider" id="scenario_corrective"
+											<td class="${typeClass}" trick-type="type"><input
+												type="text" class="slider" id="scenario_corrective"
 												value="${selectedScenario.corrective}" data-slider-min="0"
 												data-slider-max="1" data-slider-step="0.1"
 												data-slider-value="${selectedScenario.corrective}"
@@ -231,18 +228,20 @@
 											</td>
 										</tr>
 										<tr>
-											<td class="${typeClass}" trick-type="type"><input type="text"
-												id="scenario_preventive_value" readonly="readonly"
-												class="form-control" value="${selectedScenario.preventive}"></td>
-											<td class="${typeClass}" trick-type="type"><input type="text"
-												id="scenario_limitative_value" readonly="readonly"
-												class="form-control" value="${selectedScenario.limitative}"></td>
-											<td class="${typeClass}" trick-type="type"><input type="text"
+											<td class="${typeClass}" trick-type="type"><input
+												type="text" id="scenario_preventive_value"
 												readonly="readonly" class="form-control"
+												value="${selectedScenario.preventive}"></td>
+											<td class="${typeClass}" trick-type="type"><input
+												type="text" id="scenario_limitative_value"
+												readonly="readonly" class="form-control"
+												value="${selectedScenario.limitative}"></td>
+											<td class="${typeClass}" trick-type="type"><input
+												type="text" readonly="readonly" class="form-control"
 												id="scenario_detective_value"
 												value="${selectedScenario.detective}"></td>
-											<td class="${typeClass}" trick-type="type"><input type="text"
-												readonly="readonly" class="form-control"
+											<td class="${typeClass}" trick-type="type"><input
+												type="text" readonly="readonly" class="form-control"
 												id="scenario_corrective_value"
 												value="${selectedScenario.corrective}"></td>
 											<td class="warning" trick-type="source"><input
@@ -306,7 +305,7 @@
 										</c:forEach>
 										<c:forEach items="${categories}" var="category">
 											<th class="success" trick-class="Category"
-												trick-value="${category}" hidden="true"><spring:message
+												trick-value="${category}"><spring:message
 													code="label.category.${category}" text="${category}" /></th>
 										</c:forEach>
 									</tr>
@@ -394,7 +393,7 @@
 										</c:forEach>
 										<c:forEach items="${categories}" var="category">
 											<td class="success" trick-class="Category"
-												trick-value="${category}" hidden="true"><input
+												trick-value="${category}"><input
 												type="text" class="slider" id="measure_category_${category}"
 												value="0" data-slider-min="0" data-slider-max="1"
 												data-slider-step="1" data-slider-value="0"
@@ -446,7 +445,7 @@
 										</c:forEach>
 										<c:forEach items="${categories}" var="category">
 											<td class="success" trick-class="Category"
-												trick-value="${category}" hidden="true"><input
+												trick-value="${category}"><input
 												type="text" id="measure_category_${category}_value"
 												readonly="readonly" class="form-control" value="0"
 												name="${category}"></td>

@@ -934,7 +934,7 @@ public class ChartGenerator {
 				xAxis = "\"xAxis\":{\"categories\":" + measuresData + ", \"min\":\"0\", \"max\":\"" + (measures.size() - 1) + "\", \"title\": {\"text\": \""
 						+ messageSource.getMessage("label.measures", null, "Measures", locale) + "\"}}";
 
-			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}";
+			return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", "");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1009,7 +1009,7 @@ public class ChartGenerator {
 				xAxis = "\"xAxis\":{\"categories\":" + scenarioData + ", \"min\":\"0\", \"max\":\"" + (scenarios.size() - 1) + "\", \"title\": {\"text\": \""
 						+ messageSource.getMessage("label.scenarios", null, "Scenario", locale) + "\"}}";
 
-			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}";
+			return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", "");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
