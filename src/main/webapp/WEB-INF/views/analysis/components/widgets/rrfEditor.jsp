@@ -43,18 +43,18 @@
 										var="scenario" varStatus="statusScanrio">
 										<c:choose>
 											<c:when test="${status.index==0 && statusScanrio.index==0 }">
-												<a href="#" onclick="return false;"
-													title="${scenario.name}" trick-class="Scenario"
-													trick-id="${scenario.id}" class="list-group-item active"
+												<a href="#" onclick="return false;" title="${scenario.name}"
+													trick-class="Scenario" trick-id="${scenario.id}"
+													class="list-group-item active"
 													style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
 													<spring:message text="${scenario.name}" />
 												</a>
 												<c:set var="selectedScenario" value="${scenario}" />
 											</c:when>
 											<c:otherwise>
-												<a href="#" onclick="return false;"
-													title="${scenario.name}" trick-class="Scenario"
-													trick-id="${scenario.id}" class="list-group-item"
+												<a href="#" onclick="return false;" title="${scenario.name}"
+													trick-class="Scenario" trick-id="${scenario.id}"
+													class="list-group-item"
 													style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
 													<spring:message text="${scenario.name}" />
 												</a>
@@ -107,9 +107,8 @@
 								<div class="list-group" trick-id="${chapter.norm.id}"
 									trick-value="${chapter.reference}">
 									<c:forEach items="${measures.get(chapter)}" var="measure">
-										<a href="#" onclick="return false;"
-											trick-class="Measure" trick-id="${measure.id}"
-											class="list-group-item"
+										<a href="#" onclick="return false;" trick-class="Measure"
+											trick-id="${measure.id}" class="list-group-item"
 											style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
 											<spring:message
 												text="${measure.getMeasureDescription().reference} - ${measure.getMeasureDescription().getMeasureDescriptionTextByAlpha3(language).domain}" />
@@ -150,6 +149,8 @@
 													code="label.scenario.detective" text="Detective" /></th>
 											<th class="${typeClass}" trick-type="type"><spring:message
 													code="label.scenario.corrective" text="Corrective" /></th>
+											<th class="warning" trick-type="source"><spring:message
+													code="label.scenario.accidental" text="Accidental" /></th>
 											<th class="warning" trick-type="source"><spring:message
 													code="label.scenario.intentional" text="Intentional" /></th>
 											<th class="warning" trick-type="source"><spring:message
@@ -194,6 +195,16 @@
 												name="corrective" data-slider-orientation="vertical"
 												data-slider-selection="after" data-slider-tooltip="show">
 											</td>
+
+											<td class="warning" trick-type="source"><input
+												type="text" class="slider" id="scenario_accidental"
+												value="${selectedScenario.accidental}" data-slider-min="0"
+												data-slider-max="4" data-slider-step="1"
+												data-slider-value="${selectedScenario.accidental}"
+												name="accidental" data-slider-orientation="vertical"
+												data-slider-selection="after" data-slider-tooltip="show">
+											</td>
+
 											<td class="warning" trick-type="source"><input
 												type="text" class="slider" id="scenario_intentional"
 												value="${selectedScenario.intentional}" data-slider-min="0"
@@ -244,6 +255,10 @@
 												type="text" readonly="readonly" class="form-control"
 												id="scenario_corrective_value"
 												value="${selectedScenario.corrective}"></td>
+											<td class="warning" trick-type="source"><input
+												type="text" readonly="readonly" class="form-control"
+												id="scenario_accidental_value"
+												value="${selectedScenario.accidental}"></td>
 											<td class="warning" trick-type="source"><input
 												type="text" readonly="readonly" class="form-control"
 												id="scenario_intentional_value"
@@ -393,11 +408,12 @@
 										</c:forEach>
 										<c:forEach items="${categories}" var="category">
 											<td class="success" trick-class="Category"
-												trick-value="${category}"><input
-												type="text" class="slider" id="measure_category_${category.replace('.','_')}"
-												value="0" data-slider-min="0" data-slider-max="1"
-												data-slider-step="1" data-slider-value="0"
-												name="${category}" data-slider-orientation="vertical"
+												trick-value="${category}"><input type="text"
+												class="slider"
+												id="measure_category_${category.replace('.','_')}" value="0"
+												data-slider-min="0" data-slider-max="1" data-slider-step="1"
+												data-slider-value="0" name="${category}"
+												data-slider-orientation="vertical"
 												data-slider-selection="after" data-slider-tooltip="show"></td>
 										</c:forEach>
 									</tr>
@@ -445,8 +461,8 @@
 										</c:forEach>
 										<c:forEach items="${categories}" var="category">
 											<td class="success" trick-class="Category"
-												trick-value="${category}"><input
-												type="text" id="measure_category_${category.replace('.','_')}_value"
+												trick-value="${category}"><input type="text"
+												id="measure_category_${category.replace('.','_')}_value"
 												readonly="readonly" class="form-control" value="0"
 												name="${category}"></td>
 										</c:forEach>

@@ -60,25 +60,25 @@
 											<c:choose>
 												<c:when test="${norm.equalsIgnoreCase('Custom')==true}">
 													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" ondblclick="return editField(this);">
-														<spring:message text="${measure.getImplementationRateValue()}" />
+														<fmt:formatNumber value="${measure.getImplementationRateValue()}" maxFractionDigits="0"/>
 													</td>
 												</c:when>
 												<c:when test="${norm.equalsIgnoreCase('Maturity')==false}">
 													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" trick-callback="reloadMeausreAndCompliance('${norm}','${measure.id}')" ondblclick="return editField(this);">
-														<spring:message text="${measure.getImplementationRateValue()}" />
+														<fmt:formatNumber value="${measure.getImplementationRateValue()}" maxFractionDigits="0"/>
 													</td>
 												</c:when>
 												<c:otherwise>
 													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" ondblclick="return editField(this);" trick-class="MaturityMeasure" trick-id="${measure.id}">
-														<spring:message text="${measure.getImplementationRateValue()}" />
+														<fmt:formatNumber value="${measure.getImplementationRateValue()}" maxFractionDigits="0"/>
 													</td>
 												</c:otherwise>
 											</c:choose>
-											<td class="success textaligncenter" trick-field="internalWL" trick-field-type="double" ondblclick="return editField(this);"><spring:message text="${measure.internalWL}" /></td>
-											<td class="success textaligncenter" trick-field="externalWL" trick-field-type="double" ondblclick="return editField(this);"><spring:message text="${measure.externalWL}" /></td>
-											<td class="success textaligncenter" trick-field="investment" trick-field-type="double" ondblclick="return editField(this);"><spring:message text="${measure.investment}" /></td>
-											<td class="success textaligncenter" trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);"><spring:message text="${measure.lifetime}" /></td>
-											<td class="success textaligncenter" trick-field="maintenance" trick-field-type="double" ondblclick="return editField(this);"><spring:message text="${measure.maintenance}" /></td>
+											<td class="success textaligncenter" trick-field="internalWL" trick-field-type="double" ondblclick="return editField(this);" real-value="${measure.internalWL}"><fmt:formatNumber value="${measure.internalWL}" maxFractionDigits="1" minFractionDigits="1"/></td>
+											<td class="success textaligncenter" trick-field="externalWL" trick-field-type="double" ondblclick="return editField(this);" real-value="${measure.externalWL}"><fmt:formatNumber value="${measure.externalWL}" maxFractionDigits="1" minFractionDigits="1"/></td>
+											<td class="success textaligncenter" trick-field="investment" trick-field-type="double" ondblclick="return editField(this);" real-value="${measure.investment}"><fmt:formatNumber value="${measure.investment}" maxFractionDigits="1" minFractionDigits="1"/></td>
+											<td class="success textaligncenter" trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);" real-value="${measure.lifetime}"><fmt:formatNumber value="${measure.lifetime}" maxFractionDigits="1" minFractionDigits="1"/></td>
+											<td class="success textaligncenter" trick-field="maintenance" trick-field-type="double" ondblclick="return editField(this);" real-value="${measure.maintenance}"><fmt:formatNumber value="${measure.maintenance}" /></td>
 											<td ${measure.cost == 0? "class='danger'" : "" } title="${measure.cost}"><fmt:formatNumber value="${measure.cost*0.001}" maxFractionDigits="0" /></td>
 											<td class="success textaligncenter" trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)" trick-real-value='${measure.phase.number}'>
 												<c:choose>

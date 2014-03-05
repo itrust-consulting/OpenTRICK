@@ -5,6 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<fmt:setLocale value="fr_FR" scope="session"/>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title><spring:message code="${title}" text="TRICK Service" /></title>
@@ -22,6 +23,6 @@
 <script type="text/javascript">
 <!--
 	var context = '${pageContext.request.contextPath}';
-	-->
+-->
 </script>
 </head>

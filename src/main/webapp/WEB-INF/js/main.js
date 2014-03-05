@@ -1993,8 +1993,6 @@ function deletePhase(idPhase) {
 			success : function(response) {
 				if (response["success"] != undefined) {
 					reloadSection("section_phase");
-					$("#info-dialog .modal-body").html(response["success"]);
-					$("#info-dialog").modal("toggle");
 				} else if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");

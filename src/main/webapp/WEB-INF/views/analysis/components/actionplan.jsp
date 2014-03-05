@@ -104,8 +104,8 @@
 									<td ${ape.deltaALE == 0? "class='danger'" : "" } title="${ape.deltaALE}"><fmt:formatNumber value="${ape.deltaALE*0.001}" maxFractionDigits="0" /></td>
 									<td ${ape.measure.cost == 0? "class='danger'" : "" } title="${ape.measure.cost}"><fmt:formatNumber value="${ape.measure.cost*0.001}" maxFractionDigits="0" /></td>
 									<td ${ape.ROI == 0? "class='danger'" : "" } title="${ape.ROI}"><fmt:formatNumber value="${ape.ROI*0.001}" maxFractionDigits="0" /></td>
-									<td ${ape.measure.internalWL == 0? "class='danger'" : "" } title="${ape.measure.internalWL}">${ape.measure.internalWL}</td>
-									<td ${ape.measure.externalWL == 0? "class='danger'" : "" } title="${ape.measure.externalWL}">${ape.measure.internalWL}</td>
+									<td ${ape.measure.internalWL == 0? "class='danger'" : "" } title="${ape.measure.internalWL}"><fmt:formatNumber value="${ape.measure.internalWL}" maxFractionDigits="1" minFractionDigits="1" /></td>
+									<td ${ape.measure.externalWL == 0? "class='danger'" : "" } title="${ape.measure.externalWL}"><fmt:formatNumber value="${ape.measure.externalWL}" maxFractionDigits="1" minFractionDigits="1"/></td>
 									<td ${ape.measure.investment == 0? "class='danger'" : "" } title="${ape.measure.investment}"><fmt:formatNumber value="${ape.measure.investment*0.001}"
 											maxFractionDigits="0" /></td>
 									<td class="success" trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)"
