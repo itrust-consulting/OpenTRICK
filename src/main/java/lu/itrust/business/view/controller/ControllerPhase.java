@@ -219,7 +219,6 @@ public class ControllerPhase {
 			return errors;
 
 		} catch (Exception e) {
-
 			// return errors
 			e.printStackTrace();
 			errors.add(new String[] { "endDate", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });

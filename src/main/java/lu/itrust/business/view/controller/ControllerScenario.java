@@ -392,7 +392,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping("/Chart/Ale")
+	@RequestMapping(value="/Chart/Ale",method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
 	String aleByAsset(HttpSession session, Model model, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -410,7 +410,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping("/Chart/Type/Ale")
+	@RequestMapping(value="/Chart/Type/Ale",method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody
 	String assetByALE(HttpSession session, Model model, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");

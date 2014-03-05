@@ -66,9 +66,9 @@ function disableifprofile(section, menu){
 }
 
 function adminCustomerChange(selector) {
-	var customer = $(selector).find("option:selected").val()
+	var customer = $(selector).find("option:selected").val();
 	$.ajax({
-		url : context + "/Admin/Analysis/DisplayByCustomer/" + customer + "/0",
+		url : context + "/Admin/Analysis/DisplayByCustomer/" + customer,
 		type : "get",
 		async : true,
 		contentType : "application/json",
@@ -93,7 +93,7 @@ function analysisTableSortable() {
 		return false;
 	
 	// define sort order of text
-	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
+	Array.AlphanumericSortOrder = 'AaÃ�Ã¡BbCcDdÃ�Ã°EeÃ‰Ã©Ä˜Ä™FfGgHhIiÃ�Ã­JjKkLlMmNnOoÃ“Ã³PpQqRrSsTtUuÃšÃºVvWwXxYyÃ�Ã½ZzÃžÃ¾Ã†Ã¦Ã–Ã¶';
 
 	// flag to check for case sensitive comparation
 	Array.AlphanumericSortIgnoreCase = true;

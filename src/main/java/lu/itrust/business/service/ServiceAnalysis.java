@@ -66,7 +66,10 @@ public interface ServiceAnalysis {
 	public void remove(Analysis analysis) throws Exception;
 
 	public void remove(Integer analysisId) throws Exception;
+	
+	public List<Analysis> loadByUserAndCustomerAndNoEmpty(String userName, int idCustomer);
 
 	public List<Analysis> loadAllFromCustomerAndProfile(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception;
 
+	public List<Analysis> loadAllFromCustomerAndProfile(int idCustomer);
 }

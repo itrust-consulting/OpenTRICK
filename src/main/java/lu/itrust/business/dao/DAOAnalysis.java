@@ -70,4 +70,8 @@ public interface DAOAnalysis {
 
 	public List<Analysis> loadAllFromCustomerAndProfile(Integer customerID, Integer pageIndex, Integer pageSize);
 
+	public List<Analysis> loadAllFromCustomerAndProfile(int idCustomer);
+
+	public List<Analysis> loadByUserAndCustomerAndNoEmpty(String userName, int idCustomer);
+
 }

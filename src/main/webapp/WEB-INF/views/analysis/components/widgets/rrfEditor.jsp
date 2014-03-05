@@ -394,7 +394,7 @@
 										<c:forEach items="${categories}" var="category">
 											<td class="success" trick-class="Category"
 												trick-value="${category}"><input
-												type="text" class="slider" id="measure_category_${category}"
+												type="text" class="slider" id="measure_category_${category.replace('.','_')}"
 												value="0" data-slider-min="0" data-slider-max="1"
 												data-slider-step="1" data-slider-value="0"
 												name="${category}" data-slider-orientation="vertical"
@@ -446,7 +446,7 @@
 										<c:forEach items="${categories}" var="category">
 											<td class="success" trick-class="Category"
 												trick-value="${category}"><input
-												type="text" id="measure_category_${category}_value"
+												type="text" id="measure_category_${category.replace('.','_')}_value"
 												readonly="readonly" class="form-control" value="0"
 												name="${category}"></td>
 										</c:forEach>

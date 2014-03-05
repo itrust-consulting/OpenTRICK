@@ -1045,9 +1045,7 @@ function parseJson(data) {
 }
 
 function downloadExportedSqLite(idFile) {
-	$.fileDownload(context + '/Analysis/Download/' + idFile).done(function() {
-		alert('File download a success!');
-	}).fail(function() {
+	$.fileDownload(context + '/Analysis/Download/' + idFile).fail(function() {
 		alert('File download failed!');
 	});
 	return false;
@@ -2118,7 +2116,7 @@ function navToogled(section, navSelected) {
 			$(data[i]).show();
 	}
 	return false;
-	
+
 }
 
 function hideActionplanAssets(sectionactionplan, menu) {
@@ -2129,9 +2127,9 @@ function hideActionplanAssets(sectionactionplan, menu) {
 		$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
 		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
 	}
-	
-	initialiseTableFixedHeaderRows('#actionplantable_'+actionplantype);
-	
+
+	initialiseTableFixedHeaderRows('#actionplantable_' + actionplantype);
+
 }
 
 function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
@@ -2194,10 +2192,40 @@ function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
  */
 $(function() {
 
+	var l_lang;
+	if (navigator.userLanguage) // Explorer
+		l_lang = navigator.userLanguage;
+	else if (navigator.language) // FF
+		l_lang = navigator.language;
+	else
+		l_lang = "en";
+	
+	console.log(l_lang);
+
 	if ($('#confirm-dialog').length)
 		$('#confirm-dialog').on('hidden.bs.modal', function() {
 			$("#confirm-dialog .btn-danger").unbind("click");
 		});
+
+	if ($("#addPhaseModel").length) {
+		$.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang + ".js");
+		$('#addPhaseModel').on('show.bs.modal', function() {
+			var lastDate = $("#section_phase td").last();
+			if(lastDate.length){
+				var beginDate = lastDate.text();
+				if(beginDate.match("\\d{4}-\\d{2}-\\d{2}")){
+					var endDate = beginDate.split("-");
+					endDate[0]++;
+					$("#addPhaseModel #phase_begin_date").prop("value", beginDate);
+					$("#addPhaseModel #phase_endDate").prop("value", endDate[0]+"-"+endDate[1]+"-"+endDate[2]);
+				}
+			}
+			$("#addPhaseModel input").datepicker({
+				format : "yyyy-mm-dd",
+				language : l_lang
+			});
+		});
+	}
 
 	var $window = $(window);
 	var previewScrollTop = $window.scrollTop();
@@ -2247,7 +2275,7 @@ function initialiseTableFixedHeaderRows(con) {
 		con = "";
 	$(con + '.fixedheadertable').stickyRows({
 		container : '.panel-body',
-		containersToSynchronize: "body"
+		containersToSynchronize : "body"
 	});
 	$("body").scroll();
 }
@@ -2387,9 +2415,9 @@ function updateStatus(progressBar, idTask, callback, status) {
 }
 
 function customerChange(selector) {
-	var customer = $(selector).find("option:selected").val()
+	var customer = $(selector).find("option:selected").val();
 	$.ajax({
-		url : context + "/Analysis/DisplayByCustomer/" + customer + "/0",
+		url : context + "/Analysis/DisplayByCustomer/" + customer,
 		type : "get",
 		async : true,
 		contentType : "application/json",
@@ -2414,7 +2442,7 @@ function chartALE() {
 			contentType : "application/json",
 			async : true,
 			success : function(response) {
-				$('#chart_ale_scenario_type').highcharts(JSON.parse(response));
+				$('#chart_ale_scenario_type').highcharts(response);
 			}
 		});
 	}
@@ -2426,7 +2454,7 @@ function chartALE() {
 			contentType : "application/json",
 			async : true,
 			success : function(response) {
-				$('#chart_ale_scenario').highcharts(JSON.parse(response));
+				$('#chart_ale_scenario').highcharts(response);
 			}
 		});
 	}
@@ -2439,7 +2467,7 @@ function chartALE() {
 			contentType : "application/json",
 			async : true,
 			success : function(response) {
-				$('#chart_ale_asset').highcharts(JSON.parse(response));
+				$('#chart_ale_asset').highcharts(response);
 			}
 		});
 	}
@@ -2451,7 +2479,7 @@ function chartALE() {
 			contentType : "application/json",
 			async : true,
 			success : function(response) {
-				$('#chart_ale_asset_type').highcharts(JSON.parse(response));
+				$('#chart_ale_asset_type').highcharts(response);
 			}
 		});
 	}
@@ -2636,6 +2664,7 @@ function RRFController(rrfView, container, name) {
 		var parent = $(element).parent();
 		$(parent).find(".list-group-item").removeClass("active");
 		$(element).addClass("active");
+		this.rrfView.GenerateFilter();
 		this.ReloadChart();
 		return this.ReloadControls();
 	};
@@ -2805,7 +2834,6 @@ function ScenarioRRFController(rrfView, container, name) {
 	};
 
 	ScenarioRRFController.prototype.OnClickFilter = function(event) {
-		RRFController.prototype.OnClickFilter.apply(this, event);
 		var element = $(event.target).attr("trick-class") == undefined ? $(event.target).parent() : $(event.target);
 		var trickClass = $(element).attr("trick-class");
 		var trickId = $(element).attr("trick-id");
@@ -2965,7 +2993,7 @@ function MeasureRRFController(rrfView, container, name) {
 			contentType : "application/json",
 			success : function(response) {
 				if (response.measurePropertyList != undefined && response.measurePropertyList != null) {
-					//that.SynchronizeSlider(); rejected by product owner
+					// that.SynchronizeSlider(); rejected by product owner
 					$(that.container).find(".slider").unbind("slideStop");
 					for (var i = 0; i < that.sliders.length; i++) {
 						var clone = $(that.sliders[i]).clone();
@@ -3045,11 +3073,10 @@ function MeasureRRFController(rrfView, container, name) {
 	};
 
 	MeasureRRFController.prototype.OnClickFilter = function(event) {
-		RRFController.prototype.OnClickFilter.apply(this, event);
 		var element = $(event.target).attr("trick-class") == undefined ? $(event.target).parent() : $(event.target);
 		var trickClass = $(element).attr("trick-class");
 		var trickId = $(element).attr("trick-id");
-		//this.SynchronizeSlider(); rejected by product owner
+		// this.SynchronizeSlider(); rejected by product owner
 		if (trickClass == "ScenarioType") {
 			this.rrfView.filter["scenarios"] = $.makeArray($(element).parent().find("a[trick-class='Scenario']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));

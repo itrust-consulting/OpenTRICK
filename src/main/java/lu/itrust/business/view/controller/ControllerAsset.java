@@ -321,7 +321,7 @@ public class ControllerAsset {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Chart/Ale")
+	@RequestMapping(value="/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
 	String aleByAsset(HttpSession session, Model model, Locale locale, Principal principal) throws Exception {
@@ -344,7 +344,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping("/Chart/Type/Ale")
+	@RequestMapping(value="/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
 	String assetByALE(HttpSession session, Model model, Locale locale, Principal principal) {

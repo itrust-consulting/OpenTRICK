@@ -231,4 +231,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<Analysis> loadAllFromCustomerAndProfile(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception {
 		return daoAnalysis.loadAllFromCustomerAndProfile(customerID, pageIndex, pageSize);
 	}
+
+	@Override
+	public List<Analysis> loadAllFromCustomerAndProfile(int idCustomer) {
+		return daoAnalysis.loadAllFromCustomerAndProfile(idCustomer);
+	}
+
+	@Override
+	public List<Analysis> loadByUserAndCustomerAndNoEmpty(String userName, int idCustomer) {
+		return daoAnalysis.loadByUserAndCustomerAndNoEmpty(userName,idCustomer);
+	}
 }

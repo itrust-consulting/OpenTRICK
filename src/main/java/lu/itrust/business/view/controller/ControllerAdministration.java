@@ -89,7 +89,7 @@ public class ControllerAdministration {
 			
 			model.put("customer", customerID);
 			model.put("customers", customers);
-			model.put("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerID, 0, 10));
+			model.put("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerID));
 		}
 			
 		return "admin/administration";
@@ -106,11 +106,10 @@ public class ControllerAdministration {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping("/Analysis/DisplayByCustomer/{customerSection}/{pageIndex}")
-	public String section(@PathVariable Integer customerSection, @PathVariable int pageIndex, HttpSession session, Principal principal, Model model) throws Exception {
-
+	@RequestMapping("/Analysis/DisplayByCustomer/{customerSection}")
+	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
 		session.setAttribute("currentCustomer", customerSection);
-		model.addAttribute("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerSection, pageIndex, 10));
+		model.addAttribute("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerSection));
 		model.addAttribute("customer", customerSection);
 		model.addAttribute("customers", serviceCustomer.loadAll());
 		return "admin/analysis/analyses";

@@ -215,7 +215,7 @@ public class ControllerAnalysis {
 			if (customer != null)
 
 				// load model with objects by the selected customer
-				model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(principal.getName(), customer, 0, 10));
+				model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomerAndNoEmpty(principal.getName(), customer));
 			model.addAttribute("customer", customer);
 			model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
 			model.addAttribute("login", principal.getName());
@@ -346,7 +346,7 @@ public class ControllerAnalysis {
 			if (!customers.isEmpty())
 				request.getSession().setAttribute("currentCustomer", customer = customers.get(0).getId());
 		}
-		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(principal.getName(), customer, 0, 10));
+		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomerAndNoEmpty(principal.getName(), customer));
 		model.addAttribute("customer", customer);
 		model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
@@ -365,15 +365,13 @@ public class ControllerAnalysis {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping("/DisplayByCustomer/{customerSection}/{pageIndex}")
-	public String section(@PathVariable Integer customerSection, @PathVariable int pageIndex, HttpSession session, Principal principal, Model model) throws Exception {
-
+	@RequestMapping("/DisplayByCustomer/{customerSection}")
+	public String section(@PathVariable Integer customerSection,HttpSession session, Principal principal, Model model) throws Exception {
 		session.setAttribute("currentCustomer", customerSection);
-		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(principal.getName(), customerSection, pageIndex, 10));
+		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomerAndNoEmpty(principal.getName(), customerSection));
 		model.addAttribute("customer", customerSection);
 		model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
-
 		return "analysis/analyses";
 	}
 
