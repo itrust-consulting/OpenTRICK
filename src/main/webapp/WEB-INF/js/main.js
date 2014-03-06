@@ -518,7 +518,6 @@ function AssessmentFieldEditor(element) {
 							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json",
 					success : function(response) {
-						console.log(response);
 						if (response["success"] != undefined) {
 							if (application.modal["AssessmentViewer"] != undefined)
 								application.modal["AssessmentViewer"].Load();
@@ -526,18 +525,19 @@ function AssessmentFieldEditor(element) {
 								$("#info-dialog .modal-body").html(response["success"]);
 								$("#info-dialog").prop("style", "z-index:1070");
 								$("#info-dialog").modal("toggle");
-
 							}
 						} else {
+							that.Rollback();
 							$("#alert-dialog .modal-body").html(response["error"]);
 							$("#alert-dialog").prop("style", "z-index:1070");
 							$("#alert-dialog").modal("toggle");
-
 						}
 						return true;
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
-						$("#alert-dialog .modal-body").text(jqXHR.responseText);
+						that.Rollback();
+						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+						$("#alert-dialog").prop("style", "z-index:1080");
 						$("#alert-dialog").modal("toggle");
 					},
 				});
@@ -551,7 +551,7 @@ function AssessmentFieldEditor(element) {
 	};
 }
 
-AssessmentExtendedParameterEditor.prototype = new AssessmentFieldEditor();
+AssessmentExtendedParameterEditor.prototype = new FieldEditor();
 
 function AssessmentExtendedParameterEditor(element) {
 	this.element = element;
@@ -565,15 +565,16 @@ function AssessmentExtendedParameterEditor(element) {
 			return true;
 		if (!this.LoadData())
 			return true;
-
+		if ($(this.element).attr("real-value") != undefined)
+			this.realValue = $(this.element).attr("real-value").trim();
+		
 		var indexOf = this.acromym.indexOf(this.defaultValue);
-		var value = indexOf >= 0 ? this.choose[indexOf] : this.defaultValue;
+		var value = indexOf >= 0 ? this.choose[indexOf] : this.realValue != null? this.realValue : this.defaultValue;
 		this.inputField = document.createElement("input");
 		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("id", "tag_impact");
 		this.inputField.setAttribute("placeholder", value);
 		this.inputField.setAttribute("value", value);
-		this.realValue = this.defaultValue;
+		this.inputField.setAttribute("style", "min-width:80px");
 		var that = this;
 		$(this.inputField).blur(function() {
 			return that.Save(that);
@@ -581,15 +582,26 @@ function AssessmentExtendedParameterEditor(element) {
 
 		return false;
 	};
-
+	
 	AssessmentExtendedParameterEditor.prototype.Show = function() {
 		if (this.inputField == null || this.inputField == undefined)
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
 		$(this.element).html(this.inputField);
-		$("#tag_impact").autocomplete({
-			source : this.choose
+		var data = [];
+		for (var i = 0; i < this.choose.length; i++)
+			data.push({value: this.choose[i]});
+		
+		var iteams = new Bloodhound({
+			datumTokenizer: function(d) { return Bloodhound.tokenizers.whitespace(d.value); },
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			local: data
+			});
+		iteams.initialize();
+		$(this.inputField).typeahead(null,{
+			displayKey: 'value',
+			source : iteams.ttAdapter()
 		});
 		$(this.inputField).focus();
 		return false;
@@ -606,7 +618,7 @@ function AssessmentExtendedParameterEditor(element) {
 	};
 
 	AssessmentExtendedParameterEditor.prototype.Rollback = function() {
-		$(this.element).html(this.realValue);
+		$(this.element).html(this.defaultValue);
 		return false;
 	};
 
@@ -628,21 +640,23 @@ function AssessmentExtendedParameterEditor(element) {
 								application.modal["AssessmentViewer"].Load();
 							else {
 								$("#info-dialog .modal-body").html(response["success"]);
-								$("#info-dialog").prop("style", "z-index:1070");
+								$("#info-dialog").prop("style", "z-index:1080");
 								$("#info-dialog").modal("toggle");
-
 							}
 						} else {
+							that.Rollback();
 							$("#alert-dialog .modal-body").html(response["error"]);
-							$("#alert-dialog").prop("style", "z-index:1070");
+							$("#alert-dialog").prop("style", "z-index:1080");
 							$("#alert-dialog").modal("toggle");
-
 						}
 						return true;
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
-						$("#alert-dialog .modal-body").text(jqXHR.responseText);
+						that.Rollback();
+						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+						$("#alert-dialog").prop("style", "z-index:1080");
 						$("#alert-dialog").modal("toggle");
+
 					},
 				});
 
@@ -668,7 +682,6 @@ function AssessmentImpactFieldEditor(element) {
 		for (var i = 0; i < $impactAcronyms.length; i++) {
 			this.acromym[i] = $($impactAcronyms[i]).text();
 			this.choose[i] = this.acromym[i] + " (" + $($impactValue[i]).text() + ")";
-
 		}
 		return this.choose.length;
 	};
@@ -1439,13 +1452,11 @@ function editField(element, controller, id, field, type) {
 		field = $(element).attr("trick-field");
 		var fieldImpact = [ "impactRep", "impactLeg", "impactOp", "impactFin" ];
 		var fieldProba = "likelihood";
-
 		if (fieldImpact.indexOf(field) != -1)
 			fieldEditor = new AssessmentImpactFieldEditor(element);
-		else if (field == fieldProba) {
-
+		else if (field == fieldProba)
 			fieldEditor = new AssessmentProbaFieldEditor(element);
-		} else
+		else
 			fieldEditor = new AssessmentFieldEditor(element);
 	} else if (controller == "MaturityMeasure")
 		fieldEditor = new MaturityMeasureFieldEditor(element);
@@ -2197,7 +2208,7 @@ $(function() {
 		l_lang = navigator.language;
 	else
 		l_lang = "en";
-	
+
 	console.log(l_lang);
 
 	if ($('#confirm-dialog').length)
@@ -2209,13 +2220,13 @@ $(function() {
 		$.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang + ".js");
 		$('#addPhaseModel').on('show.bs.modal', function() {
 			var lastDate = $("#section_phase td").last();
-			if(lastDate.length){
+			if (lastDate.length) {
 				var beginDate = lastDate.text();
-				if(beginDate.match("\\d{4}-\\d{2}-\\d{2}")){
+				if (beginDate.match("\\d{4}-\\d{2}-\\d{2}")) {
 					var endDate = beginDate.split("-");
 					endDate[0]++;
 					$("#addPhaseModel #phase_begin_date").prop("value", beginDate);
-					$("#addPhaseModel #phase_endDate").prop("value", endDate[0]+"-"+endDate[1]+"-"+endDate[2]);
+					$("#addPhaseModel #phase_endDate").prop("value", endDate[0] + "-" + endDate[1] + "-" + endDate[2]);
 				}
 			}
 			$("#addPhaseModel input").datepicker({
