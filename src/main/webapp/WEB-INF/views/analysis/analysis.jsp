@@ -23,7 +23,7 @@
 						<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)" var="measures" scope="request" />
 						<jsp:include page="analysisMenu.jsp" />
 						<jsp:include page="../successErrors.jsp" />
-						<div id="nav-container" trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}">
+						<div id="nav-container" trick-id="${analysis.id}" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}">
 							<c:if test="${!KowledgeBaseView}">
 								<h2> ${analysis.label} | ${ analysis.version } </h2>
 								<c:set var="histories" value="${analysis.histories}" scope="request" />

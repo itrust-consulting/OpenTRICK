@@ -43,11 +43,12 @@
 									<td trick-field="impactRep" trick-field-type="string" class="success" ondblclick="return editField(this);" real-value="${assessment.impactRep}"><c:catch>
 											<fmt:formatNumber value="${assessment.impactRep}" maxFractionDigits="1" minFractionDigits="1" var="impactRep" />
 										</c:catch> <c:choose>
-											<c:when test="${!empty impactRep }">
-												<spring:message text="${assessment.impactRep}" htmlEscape="true" />
+											<c:when test="${!empty impactRep}">
+												<spring:message text="${impactRep}" htmlEscape="true" />
 											</c:when>
 											<c:otherwise>
-												<spring:message text="${impactRep}" htmlEscape="true" />
+
+												<spring:message text="${assessment.impactRep}" htmlEscape="true" />
 											</c:otherwise>
 										</c:choose></td>
 								</c:otherwise>
@@ -132,8 +133,8 @@
 									maxFractionDigits="0" minFractionDigits="0" /></td>
 							<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="3" minFractionDigits="3" />"><fmt:formatNumber value="${assessment.ALEO*0.001}"
 									maxFractionDigits="0" minFractionDigits="0" /></td>
-							<td class="success" trick-field="comment" trick-field-type="string" colspan="3" ondblclick="return editField(this);">${assessment.comment}</td>
-							<td class="success" trick-field="hiddenComment" trick-field-type="string" colspan="3" ondblclick="return editField(this);">${assessment.hiddenComment}</td>
+							<td class="success" trick-field="comment" trick-field-type="string" trick-content="text" colspan="3" ondblclick="return editField(this);">${assessment.comment}</td>
+							<td class="success" trick-field="hiddenComment" trick-content="text" trick-field-type="string" colspan="3" ondblclick="return editField(this);">${assessment.hiddenComment}</td>
 						</tr>
 					</c:forEach>
 					<tr class="panel-footer" style="font-weight: bold;">

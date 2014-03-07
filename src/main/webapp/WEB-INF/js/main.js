@@ -276,37 +276,43 @@ function FieldEditor(element, validator) {
 	this.controllor = null;
 	this.defaultValue = $(element).text().trim();
 	this.choose = [];
-	this.inputField = null;
+	this.fieldEditor = null;
 	this.realValue = null;
 	this.fieldName = null;
 	this.classId = null;
 	this.fieldType = null;
 	this.callback = null;
 
-	FieldEditor.prototype.GenerateInputField = function() {
-		if ($(this.element).find("input").length || $(this.element).find("select").length)
+	FieldEditor.prototype.GeneratefieldEditor = function() {
+		if ($(this.element).find("input").length || $(this.element).find("select").length || $(this.element).find("textarea").length)
 			return true;
 		if (!this.LoadData())
 			return true;
 		if (!this.choose.length) {
-			this.inputField = document.createElement("input");
-			this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
+			if (this.defaultValue.length > 100 || $(this.element).attr("trick-content")=="text") {
+				this.fieldEditor = document.createElement("textarea");
+				this.fieldEditor.setAttribute("style", "min-width:300px;");
+			} else {
+				this.fieldEditor = document.createElement("input");
+				this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
+				this.fieldEditor.setAttribute("style", "min-width:80px;");
+			}
 		} else {
-			this.inputField = document.createElement("select");
-			this.inputField.setAttribute("style", "min-width:60px;");
+			this.fieldEditor = document.createElement("select");
+			this.fieldEditor.setAttribute("style", "min-width:80px;");
 			for (var i = 0; i < this.choose.length; i++) {
 				var option = document.createElement("option");
 				option.setAttribute("value", this.choose[i]);
 				$(option).text(this.choose[i]);
 				if (this.choose[i] == this.defaultValue)
 					option.setAttribute("selected", true);
-				$(option).appendTo($(this.inputField));
+				$(option).appendTo($(this.fieldEditor));
 			}
 		}
 		var that = this;
-		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
-		$(this.inputField).blur(function() {
+		this.fieldEditor.setAttribute("class", "form-control");
+		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		$(this.fieldEditor).blur(function() {
 			return that.Save(that);
 		});
 		return false;
@@ -319,7 +325,7 @@ function FieldEditor(element, validator) {
 
 	FieldEditor.prototype.Initialise = function() {
 
-		if (!this.GenerateInputField()) {
+		if (!this.GeneratefieldEditor()) {
 			this.controllor = this.__findControllor(this.element);
 			this.classId = this.__findClassId(this.element);
 			this.callback = this.__findCallback(this.element);
@@ -373,13 +379,13 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.Show = function() {
-		if (this.inputField == null || this.inputField == undefined)
+		if (this.fieldEditor == null || this.fieldEditor == undefined)
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
-		$(this.inputField).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
-		$(this.element).html(this.inputField);
-		$(this.inputField).focus();
+		$(this.fieldEditor).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
+		$(this.element).html(this.fieldEditor);
+		$(this.fieldEditor).focus();
 		return false;
 	};
 
@@ -398,13 +404,17 @@ function FieldEditor(element, validator) {
 
 	FieldEditor.prototype.HasChanged = function() {
 		if (this.realValue != null && this.realValue != undefined)
-			return $(this.inputField).prop("value") != this.realValue;
-		return $(this.inputField).prop("value") != this.defaultValue;
+			return $(this.fieldEditor).prop("value") != this.realValue;
+		return $(this.fieldEditor).prop("value") != this.defaultValue;
 	};
 
 	FieldEditor.prototype.UpdateUI = function() {
-		$(this.element).text($(this.inputField).prop("value"));
+		$(this.element).text($(this.fieldEditor).prop("value"));
 		return false;
+	};
+
+	FieldEditor.prototype.GetValue = function() {
+		return $(this.fieldEditor).val();
 	};
 
 	FieldEditor.prototype.Save = function(that) {
@@ -416,8 +426,8 @@ function FieldEditor(element, validator) {
 					url : context + "/EditField/" + that.controllor,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json",
 					success : function(response) {
 						if (response["success"] != undefined) {
@@ -467,8 +477,8 @@ function ExtendedFieldEditor(element) {
 					url : context + "/EditField/" + that.controllor,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json",
 					success : function(response) {
 						if (response["success"] != undefined) {
@@ -514,31 +524,22 @@ function AssessmentFieldEditor(element) {
 					url : context + "/EditField/" + that.controllor,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json",
 					success : function(response) {
 						if (response["success"] != undefined) {
 							if (application.modal["AssessmentViewer"] != undefined)
 								application.modal["AssessmentViewer"].Load();
-							else {
-								$("#info-dialog .modal-body").html(response["success"]);
-								$("#info-dialog").prop("style", "z-index:1070");
-								$("#info-dialog").modal("toggle");
-							}
 						} else {
 							that.Rollback();
-							$("#alert-dialog .modal-body").html(response["error"]);
-							$("#alert-dialog").prop("style", "z-index:1070");
-							$("#alert-dialog").modal("toggle");
+							application.modal["AssessmentViewer"].ShowError(response["error"]);
 						}
 						return true;
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
 						that.Rollback();
-						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-						$("#alert-dialog").prop("style", "z-index:1080");
-						$("#alert-dialog").modal("toggle");
+						application.modal["AssessmentViewer"].ShowError(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 					},
 				});
 
@@ -560,55 +561,60 @@ function AssessmentExtendedParameterEditor(element) {
 
 	AssessmentExtendedParameterEditor.prototype.constructor = AssessmentExtendedParameterEditor;
 
-	AssessmentExtendedParameterEditor.prototype.GenerateInputField = function() {
+	AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function() {
 		if ($(this.element).find("select").length)
 			return true;
 		if (!this.LoadData())
 			return true;
 		if ($(this.element).attr("real-value") != undefined)
 			this.realValue = $(this.element).attr("real-value").trim();
-		
+
 		var indexOf = this.acromym.indexOf(this.defaultValue);
-		var value = indexOf >= 0 ? this.choose[indexOf] : this.realValue != null? this.realValue : this.defaultValue;
-		this.inputField = document.createElement("input");
-		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", value);
-		this.inputField.setAttribute("value", value);
-		this.inputField.setAttribute("style", "min-width:80px");
+		var value = indexOf >= 0 ? this.choose[indexOf] : this.realValue != null ? this.realValue : this.defaultValue;
+		this.fieldEditor = document.createElement("input");
+		this.fieldEditor.setAttribute("class", "form-control");
+		this.fieldEditor.setAttribute("placeholder", value);
+		this.fieldEditor.setAttribute("value", value);
+		this.fieldEditor.setAttribute("style", "min-width:80px");
 		var that = this;
-		$(this.inputField).blur(function() {
+		$(this.fieldEditor).blur(function() {
 			return that.Save(that);
 		});
 
 		return false;
 	};
-	
+
 	AssessmentExtendedParameterEditor.prototype.Show = function() {
-		if (this.inputField == null || this.inputField == undefined)
+		if (this.fieldEditor == null || this.fieldEditor == undefined)
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
-		$(this.element).html(this.inputField);
+		$(this.element).html(this.fieldEditor);
 		var data = [];
 		for (var i = 0; i < this.choose.length; i++)
-			data.push({value: this.choose[i]});
-		
-		var iteams = new Bloodhound({
-			datumTokenizer: function(d) { return Bloodhound.tokenizers.whitespace(d.value); },
-			queryTokenizer: Bloodhound.tokenizers.whitespace,
-			local: data
+			data.push({
+				value : this.choose[i]
 			});
+
+		var iteams = new Bloodhound({
+			datumTokenizer : function(d) {
+				return Bloodhound.tokenizers.whitespace(d.value);
+			},
+			queryTokenizer : Bloodhound.tokenizers.whitespace,
+			limit : this.choose.length,
+			local : data
+		});
 		iteams.initialize();
-		$(this.inputField).typeahead(null,{
-			displayKey: 'value',
+		$(this.fieldEditor).typeahead(null, {
+			displayKey : 'value',
 			source : iteams.ttAdapter()
 		});
-		$(this.inputField).focus();
+		$(this.fieldEditor).focus();
 		return false;
 	};
 
 	AssessmentExtendedParameterEditor.prototype.HasChanged = function() {
-		return this.realValue != this.__extractAcronym($(this.inputField).prop("value"));
+		return this.defaultValue != this.__extractAcronym(this.GetValue());
 	};
 
 	AssessmentExtendedParameterEditor.prototype.__extractAcronym = function(value) {
@@ -622,50 +628,12 @@ function AssessmentExtendedParameterEditor(element) {
 		return false;
 	};
 
+	AssessmentExtendedParameterEditor.prototype.GetValue = function() {
+		return this.__extractAcronym(FieldEditor.prototype.GetValue.call(this));
+	};
+
 	AssessmentExtendedParameterEditor.prototype.Save = function(that) {
-		if (!that.Validate()) {
-			that.Rollback();
-		} else {
-			if (that.HasChanged()) {
-				$.ajax({
-					url : context + "/EditField/" + that.controllor,
-					type : "post",
-					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType(that.__extractAcronym($(that.inputField).prop("value")), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
-					success : function(response) {
-						if (response["success"] != undefined) {
-							if (application.modal["AssessmentViewer"] != undefined)
-								application.modal["AssessmentViewer"].Load();
-							else {
-								$("#info-dialog .modal-body").html(response["success"]);
-								$("#info-dialog").prop("style", "z-index:1080");
-								$("#info-dialog").modal("toggle");
-							}
-						} else {
-							that.Rollback();
-							$("#alert-dialog .modal-body").html(response["error"]);
-							$("#alert-dialog").prop("style", "z-index:1080");
-							$("#alert-dialog").modal("toggle");
-						}
-						return true;
-					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						that.Rollback();
-						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-						$("#alert-dialog").prop("style", "z-index:1080");
-						$("#alert-dialog").modal("toggle");
-
-					},
-				});
-
-			} else {
-				that.Rollback();
-				return false;
-			}
-		}
-		return false;
+		return new AssessmentFieldEditor().Save(that);
 	};
 }
 
@@ -687,11 +655,13 @@ function AssessmentImpactFieldEditor(element) {
 	};
 }
 
-AssessmentProbaFieldEditor.prototype = new AssessmentExtendedParameterEditor();
+AssessmentProbaFieldEditor.prototype = new FieldEditor();
 
 function AssessmentProbaFieldEditor(element) {
 	this.element = element;
 	this.defaultValue = $(element).text();
+	this.acromym = [];
+
 	AssessmentProbaFieldEditor.prototype.constructor = AssessmentProbaFieldEditor;
 
 	AssessmentProbaFieldEditor.prototype.LoadData = function() {
@@ -702,6 +672,34 @@ function AssessmentProbaFieldEditor(element) {
 			this.choose[i] = this.acromym[i] + " (" + $($probaAcronymsValues[i]).text() + ")";
 		}
 		return this.choose.length;
+	};
+
+	AssessmentProbaFieldEditor.prototype.GeneratefieldEditor = function() {
+		if ($(this.element).find("input").length || $(this.element).find("select").length)
+			return true;
+		if (!this.LoadData())
+			return true;
+		this.fieldEditor = document.createElement("select");
+		this.fieldEditor.setAttribute("style", "min-width:80px;");
+		for (var i = 0; i < this.choose.length; i++) {
+			var option = document.createElement("option");
+			option.setAttribute("value", this.acromym[i]);
+			$(option).text(this.choose[i]);
+			if (this.acromym[i] == this.defaultValue)
+				option.setAttribute("selected", true);
+			$(option).appendTo($(this.fieldEditor));
+		}
+		var that = this;
+		this.fieldEditor.setAttribute("class", "form-control");
+		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		$(this.fieldEditor).blur(function() {
+			return that.Save(that);
+		});
+		return false;
+	};
+
+	AssessmentProbaFieldEditor.prototype.Save = function(that) {
+		return new AssessmentFieldEditor().Save(that);
 	};
 
 }
@@ -727,27 +725,27 @@ function MaturityMeasureFieldEditor(element) {
 		return !this.implementations.length;
 	};
 
-	MaturityMeasureFieldEditor.prototype.GenerateInputField = function() {
+	MaturityMeasureFieldEditor.prototype.GeneratefieldEditor = function() {
 		if ($(this.element).find("select").length)
 			return true;
 		if (this.LoadData())
 			return true;
-		this.inputField = document.createElement("select");
-		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		this.fieldEditor = document.createElement("select");
+		this.fieldEditor.setAttribute("class", "form-control");
+		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 		for ( var i in this.implementations) {
 			var option = document.createElement("option");
 			option.setAttribute("value", this.implementations[i].value);
 			option.setAttribute("trick-id", this.implementations[i].id);
 			$(option).text(this.implementations[i].value);
-			$(option).appendTo($(this.inputField));
+			$(option).appendTo($(this.fieldEditor));
 			if (this.defaultValue == this.implementations[i].value)
 				$(option).prop("selected", true);
 		}
 
 		var that = this;
 		this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
-		$(this.inputField).blur(function() {
+		$(this.fieldEditor).blur(function() {
 			return that.Save(that);
 		});
 		return false;
@@ -770,7 +768,6 @@ function Modal() {
 		for ( var value in map)
 			size++;
 		return size;
-
 	};
 
 	Modal.prototype.DefaultHeaderButton = function() {
@@ -1203,7 +1200,11 @@ function AssessmentViewer() {
 
 	AssessmentViewer.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
-		$(this.modal_dialog).prop("style", "width: 95%; min-width:1170px; max-width:1300px;");
+		$(this.modal_dialog).prop("style", "width: 95%; min-width:1170px;");
+		$(this.modal_footer).hide();
+		this.dialogError = $("#alert-dialog").clone();
+		$(this.dialogError).removeAttr("id");
+		$(this.dialogError).appendTo($(this.modal));
 		return false;
 
 	};
@@ -1225,6 +1226,17 @@ function AssessmentViewer() {
 
 	AssessmentViewer.prototype.Update = function() {
 		throw "Not implemented";
+	};
+
+	AssessmentViewer.prototype.ShowError = function(message) {
+		var error = $('<div class="alert alert-danger alert-dismissable">' + message
+				+ '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>');
+		error.attr("style", "margin-bottom: 0px;");
+		$(error).appendTo(this.modal_title);
+		setTimeout(function() {
+			$(error).remove();
+		}, 5000);
+		return false;
 	};
 }
 

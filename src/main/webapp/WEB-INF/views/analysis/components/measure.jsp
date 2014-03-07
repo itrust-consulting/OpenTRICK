@@ -90,8 +90,8 @@
 													</c:otherwise>
 												</c:choose>
 											</td>
-											<td class="success" trick-field="comment" trick-field-type="string" ondblclick="return editField(this);"><div class="cellwidth_250"><spring:message text="${measure.comment}" /></div></td>
-											<td class="success" trick-field="toDo" trick-field-type="string" ondblclick="return editField(this);"><div class="cellwidth_250"><spring:message text="${measure.toDo}" /></div></td>
+											<td class="success" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);"><div class="cellwidth_250"><spring:message text="${measure.comment}" /></div></td>
+											<td class="success" trick-field="toDo" trick-content="text" trick-field-type="string" ondblclick="return editField(this);"><div class="cellwidth_250"><spring:message text="${measure.toDo}" /></div></td>
 										</tr>
 									</c:otherwise>
 								</c:choose>
