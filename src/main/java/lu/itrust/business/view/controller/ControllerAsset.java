@@ -78,7 +78,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Select/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Select/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String select(@PathVariable int id, Principal principal, Locale locale, HttpSession session) {
@@ -121,7 +121,7 @@ public class ControllerAsset {
 	 * @param session
 	 * @return
 	 */
-	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) {
@@ -166,7 +166,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
 	String[] delete(@PathVariable int id, Principal principal, Locale locale, HttpSession session) {
@@ -194,7 +194,7 @@ public class ControllerAsset {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) {
 
@@ -241,7 +241,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	List<String[]> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
@@ -321,7 +321,7 @@ public class ControllerAsset {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value="/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
 	String aleByAsset(HttpSession session, Model model, Locale locale, Principal principal) throws Exception {
@@ -344,7 +344,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value="/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value="/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
 	String assetByALE(HttpSession session, Model model, Locale locale, Principal principal) {

@@ -108,7 +108,7 @@ public class ControllerNorm {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Model model) throws Exception {
 
 		// call default
@@ -154,7 +154,7 @@ public class ControllerNorm {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	List<String[]> save(@RequestBody String value, Locale locale) {
 
@@ -200,7 +200,7 @@ public class ControllerNorm {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{normId}", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Delete/{normId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String deleteNorm(@PathVariable("normId") Integer normId, Locale locale) throws Exception {
 
@@ -224,7 +224,7 @@ public class ControllerNorm {
 	 * Upload new norm file
 	 * 
 	 * */
-	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String UploadNorm() throws Exception {
 		return "knowledgebase/standard/norm/uploadForm";
 	}

@@ -63,7 +63,7 @@ public class ControllerLanguage {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Model model) throws Exception {
 		model.addAttribute("languages", serviceLanguage.loadAll());
 		return "knowledgebase/language/languages";
@@ -97,7 +97,7 @@ public class ControllerLanguage {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	List<String[]> save(@RequestBody String value, Locale locale) {
 		List<String[]> errors = new LinkedList<>();
@@ -123,7 +123,7 @@ public class ControllerLanguage {
 	 * Delete single language
 	 * 
 	 * */
-	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String[] deleteLanguage(@PathVariable("languageId") Integer languageId, Locale locale) throws Exception {
 		serviceLanguage.remove(languageId);		
 		return new String[] {

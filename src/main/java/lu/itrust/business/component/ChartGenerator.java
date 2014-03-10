@@ -95,7 +95,7 @@ public class ChartGenerator {
 				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE()*0.0001 + ale.getValue());
+			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
@@ -110,7 +110,7 @@ public class ChartGenerator {
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
 		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
-		
+
 		if (ales2.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
 
@@ -153,7 +153,8 @@ public class ChartGenerator {
 
 		assessments.clear();
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}")
+				.replaceAll("\r|\n", " ");
 
 	}
 
@@ -176,7 +177,7 @@ public class ChartGenerator {
 				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE()*0.0001 + ale.getValue());
+			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
@@ -234,7 +235,168 @@ public class ChartGenerator {
 
 		assessments.clear();
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}")
+				.replaceAll("\r|\n", " ");
+	}
+
+	/**
+	 * aleByScenarioType: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param locale
+	 * @return
+	 */
+	public String aleByScenarioType(Integer idAnalysis, Locale locale) {
+		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedScenario(idAnalysis);
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getScenario().getScenarioType().getId());
+			if (ale == null) {
+				ales.put(assessment.getScenario().getScenarioType().getId(), ale = new ALE(assessment.getScenario().getScenarioType().getName(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
+
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
+
+		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale) + "\"}";
+
+		String pane = "\"pane\": {\"size\": \"100%\"}";
+
+		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
+
+		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
+
+		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
+
+		if (ales2.isEmpty())
+			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
+
+		ALE assetMax = ales2.get(0);
+
+		double max = assetMax.getValue();
+
+		String xAxis = "";
+
+		String series = "";
+
+		String categories = "[";
+
+		String dataALEs = "[";
+
+		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
+
+		for (ALE ale : ales2) {
+			categories += "\"" + ale.getAssetName() + "\",";
+			dataALEs += ale.getValue() + ",";
+		}
+
+		if (categories.endsWith(",")) {
+			categories = categories.substring(0, categories.length() - 1);
+			dataALEs = dataALEs.substring(0, dataALEs.length() - 1);
+		}
+		categories += "]";
+		dataALEs += "]";
+
+		if (ales2.size() >= 10)
+			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
+		else
+			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
+
+		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
+
+		ales.clear();
+
+		ales2.clear();
+
+		assessments.clear();
+
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}")
+				.replaceAll("\r|\n", " ");
+	}
+
+	/**
+	 * aleByScenario: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param locale
+	 * @return
+	 */
+	public String aleByScenario(Integer idAnalysis, Locale locale) {
+		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedScenario(idAnalysis);
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getScenario().getId());
+			if (ale == null) {
+				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
+
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
+
+		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale) + "\"}";
+
+		String pane = "\"pane\": {\"size\": \"100%\"}";
+
+		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
+
+		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
+
+		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
+
+		if (ales2.isEmpty())
+			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
+
+		ALE assetMax = ales2.get(0);
+
+		double max = assetMax.getValue();
+
+		String xAxis = "";
+
+		String series = "";
+
+		String categories = "[";
+
+		String dataALEs = "[";
+
+		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
+
+		for (ALE ale : ales2) {
+			categories += "\"" + ale.getAssetName() + "\",";
+			dataALEs += ale.getValue() + ",";
+		}
+
+		if (categories.endsWith(",")) {
+			categories = categories.substring(0, categories.length() - 1);
+			dataALEs = dataALEs.substring(0, dataALEs.length() - 1);
+		}
+		categories += "]";
+		dataALEs += "]";
+
+		if (ales2.size() >= 10)
+			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
+		else
+			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
+
+		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
+
+		ales.clear();
+
+		ales2.clear();
+
+		assessments.clear();
+
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}")
+				.replaceAll("\r|\n", " ");
 	}
 
 	/**
@@ -425,164 +587,6 @@ public class ChartGenerator {
 	}
 
 	/**
-	 * aleByScenarioType: <br>
-	 * Description
-	 * 
-	 * @param idAnalysis
-	 * @param locale
-	 * @return
-	 */
-	public String aleByScenarioType(Integer idAnalysis, Locale locale) {
-		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedScenario(idAnalysis);
-		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getScenario().getScenarioType().getId());
-			if (ale == null) {
-				ales.put(assessment.getScenario().getScenarioType().getId(), ale = new ALE(assessment.getScenario().getScenarioType().getName(), 0));
-				ales2.add(ale);
-			}
-			ale.setValue(assessment.getALE()*0.0001 + ale.getValue());
-		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
-
-		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale) + "\"}";
-
-		String pane = "\"pane\": {\"size\": \"100%\"}";
-
-		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
-
-		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
-
-		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
-
-		if (ales2.isEmpty())
-			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
-
-		ALE assetMax = ales2.get(0);
-
-		double max = assetMax.getValue();
-
-		String xAxis = "";
-
-		String series = "";
-
-		String categories = "[";
-
-		String dataALEs = "[";
-
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
-
-		for (ALE ale : ales2) {
-			categories += "\"" + ale.getAssetName() + "\",";
-			dataALEs += ale.getValue() + ",";
-		}
-
-		if (categories.endsWith(",")) {
-			categories = categories.substring(0, categories.length() - 1);
-			dataALEs = dataALEs.substring(0, dataALEs.length() - 1);
-		}
-		categories += "]";
-		dataALEs += "]";
-
-		if (ales2.size() >= 10)
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
-		else
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
-
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
-
-		ales.clear();
-
-		ales2.clear();
-
-		assessments.clear();
-
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
-	}
-
-	/**
-	 * aleByScenario: <br>
-	 * Description
-	 * 
-	 * @param idAnalysis
-	 * @param locale
-	 * @return
-	 */
-	public String aleByScenario(Integer idAnalysis, Locale locale) {
-		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedScenario(idAnalysis);
-		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getScenario().getId());
-			if (ale == null) {
-				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
-				ales2.add(ale);
-			}
-			ale.setValue(assessment.getALE()*0.0001 + ale.getValue());
-		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
-
-		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale) + "\"}";
-
-		String pane = "\"pane\": {\"size\": \"100%\"}";
-
-		String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
-
-		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
-
-		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
-
-		if (ales2.isEmpty())
-			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
-
-		ALE assetMax = ales2.get(0);
-
-		double max = assetMax.getValue();
-
-		String xAxis = "";
-
-		String series = "";
-
-		String categories = "[";
-
-		String dataALEs = "[";
-
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
-
-		for (ALE ale : ales2) {
-			categories += "\"" + ale.getAssetName() + "\",";
-			dataALEs += ale.getValue() + ",";
-		}
-
-		if (categories.endsWith(",")) {
-			categories = categories.substring(0, categories.length() - 1);
-			dataALEs = dataALEs.substring(0, dataALEs.length() - 1);
-		}
-		categories += "]";
-		dataALEs += "]";
-
-		if (ales2.size() >= 10)
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"9\"}";
-		else
-			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
-
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
-
-		ales.clear();
-
-		ales2.clear();
-
-		assessments.clear();
-
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
-	}
-
-	/**
 	 * evolutionProfitabilityCompliance: <br>
 	 * Description
 	 * 
@@ -676,11 +680,9 @@ public class ChartGenerator {
 			categories = categories.substring(0, categories.length() - 1);
 		categories += "]";
 
-		String keuroByYear = messageSource.getMessage("label.metric.keuro_by_year", null, "k&euro;/y", locale);
+		String keuroByYear = messageSource.getMessage("label.metric.keuro_by_year", null, "k\u20AC/y", locale);
 
-		String tooltip = "\"tooltip\":{\"pointFormat\": \"{series.name}: <b>{point.y}</b><br/>\", \"valueSuffix\": \"" + keuroByYear + "\", \"shared\": true, \"useHTML\": true }";
-
-		String yAxis = "\"yAxis\": [{\"labels\":{\"format\": \"{value} " + keuroByYear + "\",\"useHTML\": true}, \"title\": {\"title\":\""
+		String yAxis = "\"yAxis\": [{\"labels\":{\"format\": \"{value} " + keuroByYear + "\",\"useHTML\": true}, \"title\": {\"text\":\""
 				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale)
 				+ "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}%\"}, \"title\":{\"text\":\""
 				+ messageSource.getMessage("label.summary.compliance", null, "Compliance", locale) + "\"}, \"opposite\": true} ]";
@@ -689,17 +691,16 @@ public class ChartGenerator {
 		series += "\"series\":[{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001, null, "Compliance 27001", locale)
 				+ "\", \"data\":" + compliance27001 + ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1, \"tooltip\": {\"valueSuffix\": \"%\"}}, {\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27002, null, "Compliance 27002", locale) + "\", \"data\":" + compliance27002
-				+ ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1 ,  \"tooltip\": {\"valueSuffix\": \"%\"}},{\"name\":\""
+				+ ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE", locale) + "\", \"data\":" + ale
-				+ ",\"valueDecimals\": 0,\"type\": \"line\" , " + tooltip + "},  {\"name\":\""
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"},  {\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale) + "\", \"data\":" + riskReduction
-				+ ",\"valueDecimals\": 0,\"type\": \"line\" ,  " + tooltip + "},{\"name\":\""
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_PHASE_ANNUAL_COST, null, "Phase annual cost", locale) + "\", \"data\":" + phaseAnnualCost
-				+ ",\"valueDecimals\": 0,\"type\": \"line\" ,  " + tooltip + "},{\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale) + "\", \"data\":" + rosi
-				+ ",\"valueDecimals\": 0,\"type\": \"line\" , " + tooltip + "},{\"name\":\""
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale)
+				+ "\", \"data\":" + rosi + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale) + "\", \"data\":" + relatifRosi
-				+ ",\"valueDecimals\": 0,\"type\": \"line\", " + tooltip + "}]";
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
 		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
 	}
 
@@ -795,28 +796,26 @@ public class ChartGenerator {
 			categories = categories.substring(0, categories.length() - 1);
 		categories += "]";
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"useHTML\": true }";
-
 		String manDay = messageSource.getMessage("label.metric.man_day", null, "md", locale);
 
-		String yAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}, \"title\": {\"title\":\""
+		String yAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}, \"title\": {\"text\":\""
 				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale) + "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}" + manDay
-				+ "\"}, \"title\":{\"text\":\"" + messageSource.getMessage("label.summary.compliance", null, "Compliance", locale) + "\"}, \"opposite\": true} ]";
+				+ "\"}, \"title\":{\"text\":\"" + messageSource.getMessage("label.summary.workload", null, "Workload", locale) + "\"}, \"opposite\": true} ]";
 		xAxis = "\"xAxis\":{\"categories\":" + categories + "}";
 		series += "\"series\":[{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD, null, "Internal workload", locale)
-				+ "\", \"data\":" + internalWorkload + ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1, \"tooltip\": {\"valueSuffix\": \"" + manDay
-				+ "\"}}, {\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, null, "External workload", locale)
-				+ "\", \"data\":" + externalWorkload + ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1 ,  \"tooltip\": {\"valueSuffix\": \"" + manDay
-				+ "\"}},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, null, "Internal maintenance", locale)
-				+ "\", \"data\":" + internalMaintenace + ",\"valueDecimals\": 0,\"type\": \"line\" , " + tooltip + "},  {\"name\":\""
+				+ "\", \"data\":" + internalWorkload + ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1}, {\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, null, "External workload", locale) + "\", \"data\":"
+				+ externalWorkload + ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1},{\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, null, "Internal maintenance", locale) + "\", \"data\":"
+				+ internalMaintenace + ",\"valueDecimals\": 0,\"type\": \"line\"},  {\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, null, "External maintenance", locale) + "\", \"data\":"
-				+ externalMaintenance + ",\"valueDecimals\": 0,\"type\": \"line\" ,  " + tooltip + "},{\"name\":\""
+				+ externalMaintenance + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale) + "\", \"data\":" + totalPhaseCost
-				+ ",\"valueDecimals\": 0,\"type\": \"line\" ,  " + tooltip + "},{\"name\":\""
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, null, "Investment", locale) + "\", \"data\":" + investment
-				+ ",\"valueDecimals\": 0,\"type\": \"line\" , " + tooltip + "},{\"name\":\""
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_CURRENT_COST, null, "Current cost", locale) + "\", \"data\":" + currentCost
-				+ ",\"valueDecimals\": 0,\"type\": \"line\", " + tooltip + "}]";
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
 		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
 	}
 
@@ -898,7 +897,7 @@ public class ChartGenerator {
 				if (rrf.endsWith(","))
 					rrf = rrf.substring(0, rrf.length() - 1);
 				rrf += "]";
-				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": "+(!filter.getSeries().contains(key))+"},";
+				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": " + (!filter.getSeries().contains(key)) + "},";
 			}
 
 			String chart = "\"chart\":{ \"type\":\"" + (measures.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": "
@@ -973,7 +972,7 @@ public class ChartGenerator {
 				if (rrf.endsWith(","))
 					rrf = rrf.substring(0, rrf.length() - 1);
 				rrf += "]";
-				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": "+(!filter.getSeries().contains(key))+"},";
+				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": " + (!filter.getSeries().contains(key)) + "},";
 			}
 
 			String chart = "\"chart\":{ \"type\":\"" + (scenarios.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": "

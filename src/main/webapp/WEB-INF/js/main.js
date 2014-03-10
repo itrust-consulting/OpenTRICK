@@ -2229,11 +2229,11 @@ $(function() {
 			overflow : ''
 		});
 	});
-	
+
 	Highcharts.setOptions({
-		lang: {
-			decimalPoint: ',',
-            thousandsSep: ' '
+		lang : {
+			decimalPoint : ',',
+			thousandsSep : ' '
 		}
 	});
 
@@ -2349,8 +2349,9 @@ function compliance(norm) {
 		contentType : "application/json",
 		async : true,
 		success : function(response) {
-			$('#chart_compliance_' + norm).highcharts(JSON.parse(response));
-
+			if(response.chart==undefined || response.chart==null)
+				return;
+			$('#chart_compliance_' + norm).highcharts(response);
 		}
 	});
 	return false;
@@ -2366,6 +2367,8 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 		contentType : "application/json",
 		async : true,
 		success : function(response) {
+			if (response.chart == undefined || response.chart == null)
+				return true;
 			$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
 		}
 	});
@@ -2381,6 +2384,8 @@ function budgetByActionPlanType(actionPlanType) {
 		contentType : "application/json",
 		async : true,
 		success : function(response) {
+			if (response.chart == undefined || response.chart == null)
+				return true;
 			$('#chart_budget_' + actionPlanType).highcharts(response);
 		}
 	});

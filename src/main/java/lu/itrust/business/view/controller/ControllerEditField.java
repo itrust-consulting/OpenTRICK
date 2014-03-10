@@ -103,7 +103,7 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/ItemInformation", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/ItemInformation", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String itemInformation(@RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) {
@@ -167,7 +167,7 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Parameter", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Parameter", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String parameter(@RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) {
@@ -255,7 +255,7 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/ExtendedParameter", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/ExtendedParameter", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String extendedParameter(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
@@ -365,7 +365,7 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Assessment", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Assessment", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String assessment(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
@@ -448,7 +448,7 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/History", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/History", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String history(@RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) {
@@ -537,7 +537,7 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Measure", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Measure", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String measure(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
@@ -607,7 +607,7 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/MaturityMeasure", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/MaturityMeasure", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String maturityMeasure(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
@@ -680,7 +680,7 @@ public class ControllerEditField {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/ActionPlanEntry", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/ActionPlanEntry", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String actionplanentry(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
@@ -731,7 +731,7 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Phase", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Phase", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String phase(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {

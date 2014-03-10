@@ -74,7 +74,7 @@ public class ControllerAssessment {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 
@@ -96,7 +96,7 @@ public class ControllerAssessment {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Update", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String updateAssessment(HttpSession session, Locale locale, Principal principal) {
@@ -140,7 +140,7 @@ public class ControllerAssessment {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Wipe", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Wipe", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String deleteAssessments(HttpSession session, Locale locale, Principal principal) {
@@ -189,7 +189,7 @@ public class ControllerAssessment {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Asset/{assetId}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Asset/{assetId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String loadAssessmentsOfAsset(@PathVariable Integer assetId, Model model, HttpSession session, Principal principal) throws Exception {
 
@@ -222,7 +222,7 @@ public class ControllerAssessment {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Asset/{assetId}/Update", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Asset/{assetId}/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String updateAsset(@PathVariable int assetId, Model model, HttpSession session, Locale locale, Principal principal) {
 
@@ -286,7 +286,7 @@ public class ControllerAssessment {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Scenario/{scenarioId}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Scenario/{scenarioId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String loadByScenario(@PathVariable Integer scenarioId, Model model, HttpSession session, Principal principal) throws Exception {
 
@@ -319,7 +319,7 @@ public class ControllerAssessment {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Scenario/{scenarioId}/Update", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Scenario/{scenarioId}/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String updateByScenario(@PathVariable int scenarioId, Model model, HttpSession session, Locale locale, Principal principal) {
 
@@ -383,7 +383,7 @@ public class ControllerAssessment {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Update/Acronym/{idParameter}/{acronym}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Update/Acronym/{idParameter}/{acronym}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String updateAcromyn(@PathVariable int idParameter, @PathVariable String acronym, HttpSession session, Locale locale, Principal principal) {

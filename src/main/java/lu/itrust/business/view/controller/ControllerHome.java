@@ -53,7 +53,7 @@ public class ControllerHome {
 
 //	@Secured("ROLE_USER")
 	@PreAuthorize(Constant.ROLE_MIN_USER)
-	@RequestMapping(value = "/MessageResolver", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/MessageResolver", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String resolveMessage(Locale locale, HttpServletRequest request) {
 		String code = request.getParameter("code");

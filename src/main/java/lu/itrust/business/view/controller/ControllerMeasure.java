@@ -86,7 +86,7 @@ public class ControllerMeasure {
 		return "analysis/components/measure";
 	}
 
-	@RequestMapping(value = "/{idMeasure}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/{idMeasure}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	Measure get(@PathVariable int idMeasure, Model model, HttpSession session, Principal principal) throws Exception {
@@ -105,7 +105,7 @@ public class ControllerMeasure {
 		return measure;
 	}
 
-	@RequestMapping(value = "/RRF/Update", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/RRF/Update", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String updateRRF(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
@@ -138,7 +138,7 @@ public class ControllerMeasure {
 		return chartGenerator.rrfByMeasure(measure, idAnalysis, locale, fieldEditor.getFilter());
 	}
 
-	@RequestMapping(value = "/RRF/{idMeasure}/Load", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/RRF/{idMeasure}/Load", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String load(@RequestBody RRFFilter filter, @PathVariable int idMeasure, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
@@ -184,7 +184,7 @@ public class ControllerMeasure {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping("/Compliance/{norm}")
+	@RequestMapping(value="/Compliance/{norm}",method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@ResponseBody
 	String compliance(@PathVariable String norm, HttpSession session, Locale locale, Principal principal) {

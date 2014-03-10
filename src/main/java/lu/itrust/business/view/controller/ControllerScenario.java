@@ -105,7 +105,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Select/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Select/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String select(@PathVariable int id, Principal principal, Locale locale, HttpSession session) {
@@ -142,7 +142,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) {
@@ -183,7 +183,7 @@ public class ControllerScenario {
 	 * @param session
 	 * @return
 	 */
-	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
 	String delete(@PathVariable int id, Principal principal, Locale locale, HttpSession session) {
@@ -212,7 +212,7 @@ public class ControllerScenario {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 
@@ -226,7 +226,7 @@ public class ControllerScenario {
 		return "analysis/components/scenario";
 	}
 
-	@RequestMapping(value = "/{idScenario}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/{idScenario}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	Scenario get(@PathVariable int idScenario, Model model, HttpSession session, Principal principal) throws Exception {
@@ -237,7 +237,7 @@ public class ControllerScenario {
 		return scenario;
 	}
 
-	@RequestMapping(value = "/RRF", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/RRF", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String rrf(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -252,7 +252,7 @@ public class ControllerScenario {
 		return "analysis/components/widgets/rrfEditor";
 	}
 
-	@RequestMapping(value = "/RRF/Update", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/RRF/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String updateRRF(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
@@ -267,7 +267,7 @@ public class ControllerScenario {
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, locale, fieldEditor.getFilter());
 	}
 
-	@RequestMapping(value = "/RRF/{idScenario}/Load", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/RRF/{idScenario}/Load", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String load(@RequestBody RRFFilter filter, @PathVariable int idScenario, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
@@ -323,7 +323,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	List<String[]> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
@@ -392,7 +392,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value="/Chart/Ale",method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value="/Chart/Ale",method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String aleByAsset(HttpSession session, Model model, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -410,7 +410,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value="/Chart/Type/Ale",method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value="/Chart/Type/Ale",method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String assetByALE(HttpSession session, Model model, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");

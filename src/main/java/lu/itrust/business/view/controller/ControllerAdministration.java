@@ -125,7 +125,7 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/User/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("users", serviceUser.loadAll());
 		return "admin/user/users";
@@ -141,7 +141,7 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Roles", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Roles", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String getAllRoles(Map<String, Object> model, HttpSession session) throws Exception {
 
 		model.put("roles", RoleType.values());
@@ -160,7 +160,7 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Roles/{userId}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/User/Roles/{userId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String getUserRoles(@PathVariable("userId") int userId, Map<String, Object> model, HttpSession session) throws Exception {
 
 		List<Role> userRoles = serviceRole.getByUser(serviceUser.get(userId));
@@ -257,7 +257,7 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	List<String[]> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 
