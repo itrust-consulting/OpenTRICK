@@ -28,34 +28,34 @@
 							<th rowspan="2"><spring:message code="label.riskregister.strategy" text="Response strategy" /></th>
 						</tr>
 						<tr>
-							<th title="Probability">P</th>
-							<th title="Impact">I</th>
-							<th title="Importance">Imp.</th>
-							<th title="Probability">P</th>
-							<th title="Impact">I</th>
-							<th title="Importance">Imp.</th>
-							<th title="Probability">P</th>
-							<th title="Impact">I</th>
-							<th title="Importance">Imp.</th>
+							<th class="text-center" title="Probability">P</th>
+							<th class="text-center" title="Impact">I</th>
+							<th class="text-center" title="Importance">Imp.</th>
+							<th class="text-center" title="Probability">P</th>
+							<th class="text-center" title="Impact">I</th>
+							<th class="text-center" title="Importance">Imp.</th>
+							<th class="text-center" title="Probability">P</th>
+							<th class="text-center" title="Impact">I</th>
+							<th class="text-center" title="Importance">Imp.</th>
 						</tr>
 					</thead>
 					<tbody>
 						<c:forEach items="${riskregister}" var="item" varStatus="status">
 							<tr>
-								<td> ${item.scenario.scenarioType.name} </td>
-								<td> ${item.position} </td>
-								<td> ${item.scenario.name} </td>
-								<td> ${item.asset.name} </td>
-								<td title="${item.rawEvaluation.probability}"><fmt:formatNumber value="${item.rawEvaluation.probability}" maxFractionDigits="2" /></td>
-								<td title="${item.rawEvaluation.impact}"><fmt:formatNumber value="${item.rawEvaluation.impact*0.001}" maxFractionDigits="0" /></td>
-								<td title="${item.rawEvaluation.importance}"><fmt:formatNumber value="${item.rawEvaluation.importance*0.001}" maxFractionDigits="0" /></td>
-								<td title="${item.netEvaluation.probability}"><fmt:formatNumber value="${item.netEvaluation.probability}" maxFractionDigits="2" /></td>
-								<td title="${item.netEvaluation.impact}"><fmt:formatNumber value="${item.netEvaluation.impact*0.001}" maxFractionDigits="0" /></td>
-								<td title="${item.netEvaluation.importance}"><fmt:formatNumber value="${item.netEvaluation.importance*0.001}" maxFractionDigits="0" /></td>
-								<td title="${item.expectedImportance.probability}"><fmt:formatNumber value="${item.expectedImportance.probability}" maxFractionDigits="2" /></td>
-								<td title="${item.expectedImportance.impact}"><fmt:formatNumber value="${item.expectedImportance.impact*0.001}" maxFractionDigits="0" /></td>
-								<td title="${item.expectedImportance.importance}"><fmt:formatNumber value="${item.expectedImportance.importance*0.001}" maxFractionDigits="0" /></td>
-								<td> ${item.strategy} </td>
+								<td>${item.scenario.scenarioType.name}</td>
+								<td>${item.position}</td>
+								<td>${item.scenario.name}</td>
+								<td>${item.asset.name}</td>
+								<td class="text-right" title=<fmt:formatNumber value='${item.rawEvaluation.probability}' />><fmt:formatNumber value="${item.rawEvaluation.probability}" maxFractionDigits="2" minFractionDigits="2" /></td>
+								<td class="text-right" title=<fmt:formatNumber value="${item.rawEvaluation.impact}" />><fmt:formatNumber value="${item.rawEvaluation.impact*0.001}" maxFractionDigits="0" /></td>
+								<td class="text-right" title=<fmt:formatNumber value="${item.rawEvaluation.importance}" />><fmt:formatNumber value="${item.rawEvaluation.importance*0.001}" maxFractionDigits="0" /></td>
+								<td class="text-right" title=<fmt:formatNumber value="${item.netEvaluation.probability}" />><fmt:formatNumber value="${item.netEvaluation.probability}" maxFractionDigits="2" minFractionDigits="2" /></td>
+								<td class="text-right" title=<fmt:formatNumber value="${item.netEvaluation.impact}" />><fmt:formatNumber value="${item.netEvaluation.impact*0.001}" maxFractionDigits="0" /></td>
+								<td class="text-right" title=<fmt:formatNumber value="${item.netEvaluation.importance}"/>><fmt:formatNumber value="${item.netEvaluation.importance*0.001}" maxFractionDigits="0" /></td>
+								<td class="text-right" title=<fmt:formatNumber value="${item.expectedImportance.probability}"/>><fmt:formatNumber value="${item.expectedImportance.probability}" maxFractionDigits="2" minFractionDigits="2" /></td>
+								<td class="text-right" title=<fmt:formatNumber value="${item.expectedImportance.impact}"/>><fmt:formatNumber value="${item.expectedImportance.impact*0.001}" maxFractionDigits="0" /></td>
+								<td class="text-right" title=<fmt:formatNumber value="${item.expectedImportance.importance}"/>><fmt:formatNumber value="${item.expectedImportance.importance*0.001}" maxFractionDigits="0" /></td>
+								<td>${item.strategy}</td>
 							</tr>
 						</c:forEach>
 					</tbody>

@@ -95,7 +95,7 @@ public class ChartGenerator {
 				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() + ale.getValue());
+			ale.setValue(assessment.getALE()*0.0001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
@@ -109,8 +109,8 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
-
+		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
+		
 		if (ales2.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
 
@@ -126,7 +126,7 @@ public class ChartGenerator {
 
 		String dataALEs = "[";
 
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"}}";
+		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"}, \"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
 
 		for (ALE ale : ales2) {
 			categories += "\"" + ale.getAssetName() + "\",";
@@ -176,7 +176,7 @@ public class ChartGenerator {
 				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() + ale.getValue());
+			ale.setValue(assessment.getALE()*0.0001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
@@ -190,7 +190,7 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
+		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
 
 		if (ales2.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
@@ -207,7 +207,7 @@ public class ChartGenerator {
 
 		String dataALEs = "[";
 
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"}}";
+		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"}, \"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
 
 		for (ALE ale : ales2) {
 			categories += "\"" + ale.getAssetName() + "\",";
@@ -226,7 +226,7 @@ public class ChartGenerator {
 		else
 			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
 
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + ",\"valueDecimals\": 0}]";
+		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
 
 		ales.clear();
 
@@ -335,12 +335,6 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		/*
-		 * String tooltip =
-		 * "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;min-width:120px;'>{series.name}: </td><td style='padding:0;min-width:60px;'><b>{point.y:.1f} %</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }"
-		 * ;
-		 */
-
 		if (previouscompliances.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "}";
 
@@ -448,7 +442,7 @@ public class ChartGenerator {
 				ales.put(assessment.getScenario().getScenarioType().getId(), ale = new ALE(assessment.getScenario().getScenarioType().getName(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() + ale.getValue());
+			ale.setValue(assessment.getALE()*0.0001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
@@ -462,7 +456,7 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
+		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
 
 		if (ales2.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
@@ -479,7 +473,7 @@ public class ChartGenerator {
 
 		String dataALEs = "[";
 
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"}}";
+		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
 
 		for (ALE ale : ales2) {
 			categories += "\"" + ale.getAssetName() + "\",";
@@ -498,7 +492,7 @@ public class ChartGenerator {
 		else
 			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
 
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + ",\"valueDecimals\": 0}]";
+		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
 
 		ales.clear();
 
@@ -527,7 +521,7 @@ public class ChartGenerator {
 				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() + ale.getValue());
+			ale.setValue(assessment.getALE()*0.0001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
@@ -541,7 +535,7 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip = "\"tooltip\": {\"headerFormat\": \"<span style='font-size:10px'>{point.key}</span><table>\", \"pointFormat\": \"<tr><td style='color:{series.color};padding:0;'>{series.name}: </td><td style='padding:0;min-width:120px;'><b>{point.y:.1f} k&euro;</b></td></tr>\",\"footerFormat\": \"</table>\", \"shared\": true, \"useHTML\": true }";
+		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
 
 		if (ales2.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
@@ -558,7 +552,7 @@ public class ChartGenerator {
 
 		String dataALEs = "[";
 
-		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"}}";
+		String yAxis = "\"yAxis\": {\"min\": 0 , \"max\":" + max * 1.1 + ", \"title\": {\"text\": \"ALE\"},\"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}}";
 
 		for (ALE ale : ales2) {
 			categories += "\"" + ale.getAssetName() + "\",";
@@ -577,7 +571,7 @@ public class ChartGenerator {
 		else
 			xAxis = "\"xAxis\":{\"categories\":" + categories + ", \"min\":\"0\", \"max\":\"" + (ales2.size() - 1) + "\"}";
 
-		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + ",\"valueDecimals\": 0}]";
+		series += "\"series\":[{\"name\":\"ALE\", \"data\":" + dataALEs + "}]";
 
 		ales.clear();
 

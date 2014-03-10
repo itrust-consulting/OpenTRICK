@@ -1,7 +1,6 @@
 /*******************************************************************************
  * 
  */
-
 var application = new Application();
 
 var ANALYSIS_RIGHT = {
@@ -289,7 +288,7 @@ function FieldEditor(element, validator) {
 		if (!this.LoadData())
 			return true;
 		if (!this.choose.length) {
-			if (this.defaultValue.length > 100 || $(this.element).attr("trick-content")=="text") {
+			if (this.defaultValue.length > 100 || $(this.element).attr("trick-content") == "text") {
 				this.fieldEditor = document.createElement("textarea");
 				this.fieldEditor.setAttribute("style", "min-width:300px;");
 			} else {
@@ -2221,7 +2220,22 @@ $(function() {
 	else
 		l_lang = "en";
 
-	console.log(l_lang);
+	$('.modal').on('shown', function() {
+		$('body').css({
+			overflow : 'hidden'
+		});
+	}).on('hidden', function() {
+		$('body').css({
+			overflow : ''
+		});
+	});
+	
+	Highcharts.setOptions({
+		lang: {
+			decimalPoint: ',',
+            thousandsSep: ' '
+		}
+	});
 
 	if ($('#confirm-dialog').length)
 		$('#confirm-dialog').on('hidden.bs.modal', function() {

@@ -132,6 +132,7 @@ public class ActionPlanSummaryManager {
 			}
 			if (rows.isEmpty() && LABEL_CHARACTERISTIC.equals(string))
 				rows.addAll(rowHeaders);
+			
 		}
 
 		List<String> summary = null;

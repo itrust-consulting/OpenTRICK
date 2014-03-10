@@ -17,8 +17,8 @@
 			<ul class="nav nav-pills">
 				<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 					<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${actionPlanType.name}"><a href="#"
-						onclick="return navToogled('section_summary','${actionPlanType.name}');initialiseTableFixedHeaderRows('#summarytable_${actionPlanType.name}');"><spring:message code="label.actionPlanType.${actionPlanType.name}" text="${actionPlanType.name}"
-								htmlEscape="true" /></a></li>
+						onclick="return navToogled('section_summary','${actionPlanType.name}');initialiseTableFixedHeaderRows('#summarytable_${actionPlanType.name}');"><spring:message
+								code="label.actionPlanType.${actionPlanType.name}" text="${actionPlanType.name}" htmlEscape="true" /></a></li>
 				</c:forEach>
 			</ul>
 		</div>
@@ -50,14 +50,24 @@
 											<c:otherwise>
 												<td><spring:message code="${key}" text="${key}" /></td>
 												<c:forEach items="${summaryStages.get(key)}" var="value">
-													<c:choose>
-														<c:when test="${status.index > 0 }">
-															<td class="text-right"><spring:message text="${value}" htmlEscape="true" /></td>
-														</c:when>
-														<c:otherwise>
-															<td><spring:message text="${value}" htmlEscape="true" /></td>
-														</c:otherwise>
-													</c:choose>
+													<td class="text-right"><c:choose>
+															<c:when test='${key.endsWith("27002") || key.endsWith("27001") || key.endsWith("date")}'>
+																<spring:message text="${value}" htmlEscape="true" />
+															</c:when>
+															<c:otherwise>
+																<c:catch>
+																	<fmt:formatNumber value="${value}" maxFractionDigits="1" minFractionDigits="1" var="summaryValue" />
+																</c:catch>
+																<c:choose>
+																	<c:when test="${!empty summaryValue }">
+																		<spring:message text="${summaryValue}" htmlEscape="true" />
+																	</c:when>
+																	<c:otherwise>
+																		<spring:message text="${value}" htmlEscape="true" />
+																	</c:otherwise>
+																</c:choose>
+															</c:otherwise>
+														</c:choose></td>
 												</c:forEach>
 											</c:otherwise>
 										</c:choose>
