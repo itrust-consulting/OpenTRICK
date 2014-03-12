@@ -2,8 +2,6 @@ package lu.itrust.business.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.Language;
-import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.service.ServiceMeasureDescriptionText;
@@ -50,8 +48,8 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * .business.TS.MeasureDescription, lu.itrust.business.TS.Language)
 	 */
 	@Override
-	public boolean exists(MeasureDescription mesDesc, Language language) throws Exception {
-		return daoMeasureDescriptionText.existsForLanguage(mesDesc, language);
+	public boolean exists(int idMeasureDescription, int idLanguage) throws Exception {
+		return daoMeasureDescriptionText.existsForLanguage(idMeasureDescription, idLanguage);
 	}
 
 	/**
@@ -62,8 +60,8 @@ public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescript
 	 * @see lu.itrust.business.service.ServiceMeasureDescriptionText#getByLanguage(lu.itrust.business.TS.MeasureDescription, lu.itrust.business.TS.Language)
 	 */
 	@Override
-	public MeasureDescriptionText getByLanguage(MeasureDescription mesDesc, Language language) throws Exception {
-		return daoMeasureDescriptionText.getByLanguage(mesDesc, language);
+	public MeasureDescriptionText getByLanguage(int idMeasureDescription, int idLanguage) throws Exception {
+		return daoMeasureDescriptionText.getByLanguage(idMeasureDescription, idLanguage);
 	}
 
 	/*

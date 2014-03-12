@@ -32,7 +32,7 @@
 					<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).Sort(assessments)" var="sortedAssessments" />
 					<c:forEach items="${sortedAssessments}" var="assessment">
 						<tr trick-class="Assessment" trick-id="${assessment.id}">
-							<td colspan="2">${assessment.asset.name}</td>
+							<td colspan="2"><spring:message text="${assessment.asset.name}" /></td>
 							<td><fmt:formatNumber value="${assessment.asset.value}" maxFractionDigits="1" minFractionDigits="1" /></td>
 							<c:choose>
 								<c:when test="${parameters.containsKey(assessment.impactRep)}">
@@ -133,8 +133,10 @@
 									maxFractionDigits="0" minFractionDigits="0" /></td>
 							<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="3" minFractionDigits="3" />"><fmt:formatNumber value="${assessment.ALEO*0.001}"
 									maxFractionDigits="0" minFractionDigits="0" /></td>
-							<td class="success" trick-field="comment" trick-field-type="string" trick-content="text" colspan="3" ondblclick="return editField(this);">${assessment.comment}</td>
-							<td class="success" trick-field="hiddenComment" trick-content="text" trick-field-type="string" colspan="3" ondblclick="return editField(this);">${assessment.hiddenComment}</td>
+							<td class="success" trick-field="comment" trick-field-type="string" trick-content="text" colspan="3" ondblclick="return editField(this);"><spring:message
+									text="${assessment.comment}" /></td>
+							<td class="success" trick-field="hiddenComment" trick-content="text" trick-field-type="string" colspan="3" ondblclick="return editField(this);"><spring:message
+									text="${assessment.hiddenComment}" /></td>
 						</tr>
 					</c:forEach>
 					<tr class="panel-footer" style="font-weight: bold;">

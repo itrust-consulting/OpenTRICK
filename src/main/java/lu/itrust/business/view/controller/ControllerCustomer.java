@@ -290,7 +290,7 @@ public class ControllerCustomer {
 			String contactPerson = jsonNode.get("contactPerson").asText();
 			String telephoneNumber = jsonNode.get("telephoneNumber").asText();
 			String email = jsonNode.get("email").asText();
-			String address = jsonNode.get("email").asText();
+			String address = jsonNode.get("address").asText();
 			String city = jsonNode.get("city").asText();
 			String ZIPCode = jsonNode.get("ZIPCode").asText();
 			String country = jsonNode.get("country").asText();

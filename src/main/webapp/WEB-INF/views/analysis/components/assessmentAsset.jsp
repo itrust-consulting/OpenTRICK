@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<fmt:setLocale value="fr_FR" scope="session"/>
+<fmt:setLocale value="fr_FR" scope="session" />
 <div class="section" id="section_asset_assessment"
 	trick-name="<spring:message code="label.assessment.for.asset" text="Assessment for ${asset.name}" arguments="${asset.name}" htmlEscape="true" />">
 	<div class="panel panel-default">
@@ -27,11 +27,10 @@
 					</tr>
 				</thead>
 				<tbody>
-					<c:set var="prevAsset" value="null" />
 					<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).Sort(assessments)" var="sortedAssessments" />
 					<c:forEach items="${sortedAssessments}" var="assessment">
 						<tr trick-class="Assessment" trick-id="${assessment.id}" trick-callback="chartALE()">
-							<td colspan="3">${assessment.scenario.name}</td>
+							<td colspan="3"><spring:message text="${assessment.scenario.name}" /></td>
 							<c:choose>
 								<c:when test="${parameters.containsKey(assessment.impactRep)}">
 									<td trick-field="impactRep" trick-field-type="string" class="success" title='<fmt:formatNumber value="${parameters.get(assessment.impactRep)*0.001}" />'
@@ -127,14 +126,14 @@
 									value="${assessment.uncertainty}" maxFractionDigits="3" minFractionDigits="1" /></td>
 							<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="3" minFractionDigits="3" />"><fmt:formatNumber value="${assessment.ALEP*0.001}"
 									maxFractionDigits="0" minFractionDigits="0" /></td>
-							<td title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="3" minFractionDigits="3" />"><fmt:formatNumber value="${assessment.ALE*0.001}" maxFractionDigits="0"
-									minFractionDigits="0" /></td>
+							<td title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="3" minFractionDigits="3" />"><fmt:formatNumber value="${assessment.ALE*0.001}"
+									maxFractionDigits="0" minFractionDigits="0" /></td>
 							<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="3" minFractionDigits="3" />"><fmt:formatNumber value="${assessment.ALEO*0.001}"
 									maxFractionDigits="0" minFractionDigits="0" /></td>
-							<td trick-field="comment" trick-field-type="string" colspan="3" trick-content="text" ondblclick="return editField(this);">${assessment.comment}</td>
-							<td trick-field="hiddenComment" trick-field-type="string" trick-content="text" colspan="3" ondblclick="return editField(this);">${assessment.hiddenComment}</td>
+							<td trick-field="comment" trick-field-type="string" colspan="3" trick-content="text" ondblclick="return editField(this);"><spring:message text="${assessment.comment}" /></td>
+							<td trick-field="hiddenComment" trick-field-type="string" trick-content="text" colspan="3" ondblclick="return editField(this);"><spring:message
+									text="${assessment.hiddenComment}" /></td>
 						</tr>
-						<c:set var="prevAsset" value="${assessment.asset}" />
 					</c:forEach>
 					<tr class="panel-footer" style="font-weight: bold;">
 						<td colspan="9"><spring:message code="label.assessment.total.ale" text="Total" /></td>

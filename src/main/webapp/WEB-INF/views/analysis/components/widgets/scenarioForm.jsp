@@ -26,7 +26,7 @@
 						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.scenario.name" text="Name" />
 						</label>
 						<div class="col-sm-10">
-							<input name="name" id="scenario_name" class="form-control" value="${empty(scenario)? '':scenario.name}" />
+							<input name="name" id="scenario_name" class="form-control" value=<spring:message text="${empty(scenario)? '':scenario.name}"/> />
 						</div>
 					</div>
 					<div class="form-group">
@@ -38,7 +38,7 @@
 									<c:when test="${!empty(scenariotypes)}">
 										<option value='-1'><spring:message code="label.scenario.type.select" text="Select the type of scenario" /></option>
 										<c:forEach items="${scenariotypes}" var="scenariotype">
-											<option value="${scenariotype.id}" ${scenario.scenarioType == scenariotype?'selected':''}>${scenariotype.name}</option>
+											<option value="${scenariotype.id}" ${scenario.scenarioType == scenariotype?'selected':''}><spring:message text="${scenariotype.name}" /></option>
 										</c:forEach>
 									</c:when>
 									<c:otherwise>
@@ -52,7 +52,7 @@
 						<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.scenario.description" text="Description" />
 						</label>
 						<div class="col-sm-10">
-							<textarea name="description" class="form-control" id="scenario_description">${empty(scenario)? '': scenario.description}</textarea>
+							<textarea name="description" class="form-control" id="scenario_description"><spring:message text="${empty(scenario)? '': scenario.description}" /></textarea>
 						</div>
 					</div>
 					<div class="form-group">
@@ -62,29 +62,33 @@
 							<input name="selected" id="scenario_selected" class="form-control checkbox" type="checkbox" value="true" ${empty(scenario)? '': scenario.selected? 'checked' : ''} />
 						</div>
 					</div>
-					<table class="table">
-						<c:choose>
-							<c:when test="${!empty(scenario)}">
-								<thead>
-									<tr>
-										<c:forEach items="${scenario.assetTypeValues}" var="assettypevalue" varStatus="status">
-											<td><spring:message code="label.assetTypeValue.${assettypevalue.assetType.type}" text="${assettypevalue.assetType.type}"/></td>
-										</c:forEach>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<c:forEach items="${scenario.assetTypeValues }" var="assetTypeValue" varStatus="status">
-											<td><input type="checkbox" ${assetTypeValue.value>0? 'checked' : ''} value="1"
-												name="<spring:message
+					<div class="panel panel-primary">
+						<div class="panel-body">
+							<label class="col-sm-12 text-center"> <spring:message code="label.scenario.application.asset.types" text="Applicable asset types" /></label>
+							<table class="table">
+								<c:choose>
+									<c:when test="${!empty(scenario)}">
+										<thead>
+											<tr>
+												<c:forEach items="${scenario.assetTypeValues}" var="assettypevalue" varStatus="status">
+													<td><spring:message code="label.assetTypeValue.${assettypevalue.assetType.type}" text="${assettypevalue.assetType.type}" /></td>
+												</c:forEach>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<c:forEach items="${scenario.assetTypeValues }" var="assetTypeValue" varStatus="status">
+													<td><input type="checkbox" ${assetTypeValue.value>0? 'checked' : ''} value="1"
+														name="<spring:message
 											text="${assetTypeValue.assetType.type}" htmlEscape="true"/>" /></td>
-										</c:forEach>
-									</tr>
-								</tbody>
-							</c:when>
-						</c:choose>
-					</table>
-					
+												</c:forEach>
+											</tr>
+										</tbody>
+									</c:when>
+								</c:choose>
+							</table>
+						</div>
+					</div>
 				</form>
 			</div>
 			<div class="modal-footer">

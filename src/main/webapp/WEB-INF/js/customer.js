@@ -1,7 +1,6 @@
 function saveCustomer(form) {
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", true);
-	result = "";
-	return $
+	$
 			.ajax({
 				url : context + "/KnowledgeBase/Customer/Save",
 				type : "post",
@@ -104,6 +103,7 @@ function saveCustomer(form) {
 					return false;
 				},
 			});
+	return false;
 }
 
 function deleteCustomer(customerId, organisation) {

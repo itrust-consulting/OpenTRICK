@@ -1,8 +1,9 @@
 package lu.itrust.business.view.controller;
 
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,10 +12,14 @@ import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasureDescription;
 import lu.itrust.business.service.ServiceMeasureDescriptionText;
 import lu.itrust.business.service.ServiceNorm;
+import lu.itrust.business.validator.MeasureDescriptionTextValidator;
+import lu.itrust.business.validator.MeasureDescriptionValidator;
+import lu.itrust.business.validator.field.ValidatorField;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -54,6 +59,9 @@ public class ControllerMeasureDescription {
 	private ServiceLanguage serviceLanguage;
 
 	@Autowired
+	private ServiceDataValidation serviceDataValidation;
+
+	@Autowired
 	private MessageSource messageSource;
 
 	/**
@@ -67,9 +75,8 @@ public class ControllerMeasureDescription {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures")
-	public String displayAll(@PathVariable("normId") Integer normId, @RequestBody String value, HttpServletRequest request, Model model) throws Exception {
-		int id = 0;
+	@RequestMapping("KnowledgeBase/Norm/{normId}/language/{idLanguage}/Measures")
+	public String displayAll(@PathVariable int normId, @PathVariable int idLanguage, HttpServletRequest request, Model model) throws Exception {
 
 		// load all measuredescriptions of a norm
 		List<MeasureDescription> mesDescs = serviceMeasureDescription.getAllByNorm(normId);
@@ -77,31 +84,23 @@ public class ControllerMeasureDescription {
 		// chekc if measuredescriptions are not null
 		if (mesDescs != null) {
 
-			// parse data sent
-			if (!value.equals("")) {
-
-				// retrieve language id
-				ObjectMapper mapper = new ObjectMapper();
-				JsonNode jsonNode = mapper.readTree(value);
-				id = jsonNode.get("languageId").asInt();
-			}
-
 			// set language
 			Language lang = null;
-			if (id != 0) {
-				lang = serviceLanguage.get(id);
+			if (idLanguage != 0) {
+				lang = serviceLanguage.get(idLanguage);
 			} else {
 				lang = serviceLanguage.loadFromAlpha3("ENG");
 			}
 
-			// parse measuredescriptions and remove texts to add only selected language text
+			// parse measuredescriptions and remove texts to add only selected
+			// language text
 			for (MeasureDescription mesDesc : mesDescs) {
 
 				// remove all descriptiontexts
 				mesDesc.getMeasureDescriptionTexts().clear();
 
 				// load only from language
-				MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getByLanguage(mesDesc, lang);
+				MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getByLanguage(mesDesc.getId(), lang.getId());
 
 				// check if not null
 				if (mesDescText == null) {
@@ -136,7 +135,7 @@ public class ControllerMeasureDescription {
 	 * @throws Exception
 	 */
 	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures/AddForm")
-	public String displayAddForm(@PathVariable("normId") Integer normId, @RequestBody String value, HttpServletRequest request, Model model) throws Exception {
+	public String displayAddForm(@PathVariable("normId") Integer normId, HttpServletRequest request, Model model) throws Exception {
 
 		// load all languages
 		List<Language> languages = serviceLanguage.loadAll();
@@ -164,14 +163,7 @@ public class ControllerMeasureDescription {
 	 * @throws Exception
 	 */
 	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures/EditForm")
-	public String displayEditForm(@PathVariable("normId") Integer normId, @RequestBody String value, HttpServletRequest request, Model model) throws Exception {
-
-		// create json parser
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode jsonNode = mapper.readTree(value);
-
-		// retrieve measure id
-		int measureId = jsonNode.get("measureId").asInt();
+	public String displayEditForm(@PathVariable("normId") Integer normId, @RequestBody int measureId, HttpServletRequest request, Model model) throws Exception {
 
 		// load all languages
 		List<Language> languages = serviceLanguage.loadAll();
@@ -206,25 +198,33 @@ public class ControllerMeasureDescription {
 	 */
 	@RequestMapping(value = "KnowledgeBase/Norm/{normId}/Measures/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	List<String[]> save(@PathVariable("normId") Integer normId, @RequestBody String value, Locale locale) {
-
+	Map<String, String> save(@PathVariable("normId") int normId, @RequestBody String value, Locale locale) {
 		// create error list
-		List<String[]> errors = new LinkedList<>();
-
+		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
+			// create json parser
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(value);
 
-			// retrieve norm
-			Norm norm = serviceNorm.getNormByID(normId);
+			// retrieve measure id
+			int id = jsonNode.get("id").asInt();
 
 			// create new empty measuredescription object
-			MeasureDescription measureDescription = new MeasureDescription();
+			MeasureDescription measureDescription = serviceMeasureDescription.get(id);
 
-			// add measure to norm
-			measureDescription.setNorm(norm);
+			if (measureDescription == null) {
+				// retrieve norm
+				measureDescription = new MeasureDescription();
+				Norm norm = serviceNorm.getNormByID(normId);
+				if (norm == null)
+					errors.put("measureDescription.norm", messageSource.getMessage("error.norm.not_found", null, "Standard is not exist", locale));
+				measureDescription.setNorm(norm);
+			} else if (measureDescription.getNorm().getId() != normId)
+				errors.put("measureDescription.norm",
+						messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
 
-			// try to build the object with json data
-			buildMeasureDescription(errors, measureDescription, value, locale);
-
+			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale))
+				serviceMeasureDescription.saveOrUpdate(measureDescription);
 			// return errors
 			return errors;
 		}
@@ -232,7 +232,7 @@ public class ControllerMeasureDescription {
 		catch (Exception e) {
 
 			// return errors
-			errors.add(new String[] { "measuredescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("measuredescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return errors;
 		}
@@ -251,7 +251,7 @@ public class ControllerMeasureDescription {
 	 */
 	@RequestMapping(value = "KnowledgeBase/Norm/{normId}/Measures/Delete/{measureid}", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	String[] deleteMeasureDescription(@PathVariable("normId") Integer normId, @PathVariable("measureid") Integer measureid, Locale locale) throws Exception {
+	String[] deleteMeasureDescription(@PathVariable("normId") int normId, @PathVariable("measureid") int measureid, Locale locale) throws Exception {
 
 		try {
 
@@ -280,36 +280,45 @@ public class ControllerMeasureDescription {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildMeasureDescription(List<String[]> errors, MeasureDescription measuredescription, String source, Locale locale) {
-
+	private boolean buildMeasureDescription(Map<String, String> errors, MeasureDescription measuredescription, String source, Locale locale) {
 		try {
-
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 
-			// retrieve measure id
-			int id = jsonNode.get("id").asInt();
-
-			// set measure reference
-			measuredescription.setReference(jsonNode.get("reference").asText());
-
-			// set measure level
-			measuredescription.setLevel(jsonNode.get("level").asInt());
-
-			// check if measure is new or to update
-			if (id > 0) {
-
-				// set id
-				measuredescription.setId(jsonNode.get("id").asInt());
-			} else {
-
-				// create measure
-				serviceMeasureDescription.save(measuredescription);
+			String reference = jsonNode.get("reference").asText();
+			Integer level = null;
+			try {
+				level = jsonNode.get("level").asInt();
+			} catch (Exception e) {
 			}
+			if (!serviceDataValidation.isRegistred(MeasureDescription.class))
+				serviceDataValidation.register(new MeasureDescriptionValidator());
+
+			if (!serviceDataValidation.isRegistred(MeasureDescriptionText.class))
+				serviceDataValidation.register(new MeasureDescriptionTextValidator());
+
+			String error = serviceDataValidation.validate(measuredescription, "reference", reference);
+
+			if (error != null)
+				errors.put("measuredescription.reference", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				measuredescription.setReference(reference);
+
+			error = serviceDataValidation.validate(measuredescription, "level", level);
+
+			if (error != null)
+				errors.put("measuredescription.level", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				measuredescription.setLevel(level);
+
+			if (!errors.isEmpty())
+				return false;
 
 			// load languages
 			List<Language> languages = serviceLanguage.loadAll();
+
+			ValidatorField validator = serviceDataValidation.findByClass(MeasureDescriptionText.class);
 
 			// parse all languages
 			for (int i = 0; i < languages.size(); i++) {
@@ -324,45 +333,36 @@ public class ControllerMeasureDescription {
 				String description = jsonNode.get("description_" + language.getId()).asText();
 
 				// init measdesctext object
-				MeasureDescriptionText mesDescText = null;
+				MeasureDescriptionText mesDescText = measuredescription.findByLanguage(language);
 
-				// try to load existing texts of this language
-				mesDescText = serviceMeasureDescriptionText.getByLanguage(measuredescription, language);
+				error = validator.validate(measuredescription, "domain", domain);
 
-				// if new measure or text for this language does not exist: create new text and save
-				if (id < 1 || mesDescText == null) {
+				if (error != null)
+					errors.put("measureDescriptionText.domain_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
+				else
+					mesDescText.setDomain(domain);
 
+				error = validator.validate(measuredescription, "description", description);
+				if (error != null)
+					errors.put("measureDescriptionText.description_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
+				else
+					mesDescText.setDescription(description);
+				// if new measure or text for this language does not exist:
+				// create new text and save
+				if (mesDescText == null) {
 					// create new and add data
 					mesDescText = new MeasureDescriptionText();
-					mesDescText.setMeasureDescription(measuredescription);
 					mesDescText.setLanguage(language);
-					mesDescText.setDomain(domain);
-					mesDescText.setDescription(description);
-
-					// save
-					serviceMeasureDescriptionText.save(mesDescText);
-
-				} else {
-
-					// update existing text
-					mesDescText.setDomain(domain);
-					mesDescText.setDescription(description);
-
-					// update object
-					serviceMeasureDescriptionText.saveOrUpdate(mesDescText);
+					measuredescription.addMeasureDescriptionText(mesDescText);
 				}
-
-				// add text to object
-				measuredescription.addMeasureDescriptionText(mesDescText);
 			}
-
 			// return success message
-			return true;
+			return errors.isEmpty();
 
 		} catch (Exception e) {
 
 			// return error message
-			errors.add(new String[] { "buildMeasureDescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("measureDescription", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
 		}

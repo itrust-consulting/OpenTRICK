@@ -18,7 +18,7 @@
 								<c:choose>
 									<c:when test="${status.index==0}">
 										<a href="#" trick-id="${scenarioType.id}"
-											trick-value="<spring:message text="${scenarioType.name}" />"
+											trick-value=<spring:message text="${scenarioType.name}" />
 											onclick="return false;" trick-class="ScenarioType"
 											class="list-group-item active">
 											<h4 class="list-group-item-heading">
@@ -28,7 +28,7 @@
 									</c:when>
 									<c:otherwise>
 										<a href="#" trick-id="${scenarioType.id}"
-											trick-value="<spring:message text="${scenarioType.name}" />"
+											trick-value=<spring:message text="${scenarioType.name}" />
 											onclick="return false;" trick-class="ScenarioType"
 											class="list-group-item">
 											<h4 class="list-group-item-heading">
@@ -38,12 +38,12 @@
 									</c:otherwise>
 								</c:choose>
 								<div class="list-group" trick-id="${scenarioType.id}"
-									trick-value="<spring:message text="${scenarioType.name}" />">
+									trick-value=<spring:message text="${scenarioType.name}" /> >
 									<c:forEach items="${scenarios.get(scenarioType)}"
 										var="scenario" varStatus="statusScanrio">
 										<c:choose>
 											<c:when test="${status.index==0 && statusScanrio.index==0 }">
-												<a href="#" onclick="return false;" title="${scenario.name}"
+												<a href="#" onclick="return false;" title=<spring:message text="${scenario.name}"/>
 													trick-class="Scenario" trick-id="${scenario.id}"
 													class="list-group-item active"
 													style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
@@ -52,7 +52,7 @@
 												<c:set var="selectedScenario" value="${scenario}" />
 											</c:when>
 											<c:otherwise>
-												<a href="#" onclick="return false;" title="${scenario.name}"
+												<a href="#" onclick="return false;" title=<spring:message text="${scenario.name}"/>
 													trick-class="Scenario" trick-id="${scenario.id}"
 													class="list-group-item"
 													style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
@@ -78,8 +78,8 @@
 									<c:when test="${status.index==0}">
 										<a href="#" onclick="return false;"
 											class="list-group-item active" trick-class="Norm"
-											title="${chapter.reference}" trick-id="${chapter.norm.id}"
-											trick-value="${chapter.reference}">
+											title=<spring:message text="${chapter.reference}"/> trick-id="${chapter.norm.id}"
+											trick-value=<spring:message text="${chapter.reference}"/> >
 											<h4 class="list-group-item-heading">
 												<spring:message text="${chapter.norm.label}" />
 												-
@@ -92,8 +92,8 @@
 									<c:otherwise>
 										<a href="#" onclick="return false;" class="list-group-item"
 											trick-class="Norm" trick-id="${chapter.norm.id}"
-											title="${chapter.reference}"
-											trick-value="${chapter.reference}">
+											title=<spring:message text="${chapter.reference}"/>
+											trick-value=<spring:message text="${chapter.reference}"/> >
 											<h4 class="list-group-item-heading">
 												<spring:message text="${chapter.norm.label}" />
 												-
@@ -105,7 +105,7 @@
 									</c:otherwise>
 								</c:choose>
 								<div class="list-group" trick-id="${chapter.norm.id}"
-									trick-value="${chapter.reference}">
+									trick-value=<spring:message text="${chapter.reference}"/> >
 									<c:forEach items="${measures.get(chapter)}" var="measure">
 										<a href="#" onclick="return false;" trick-class="Measure"
 											trick-id="${measure.id}" class="list-group-item"
@@ -315,12 +315,12 @@
 												code="label.scenario.fSectoral" text="Strength Sectoral" /></th>
 										<c:forEach items="${assetTypes}" var="assetType">
 											<th class="warning"><spring:message
-													code="label.assetType.${assetType.type}"
+													code='label.assetType.${assetType.type}'
 													text="${assetType.type}" /></th>
 										</c:forEach>
 										<c:forEach items="${categories}" var="category">
 											<th class="success" trick-class="Category"
-												trick-value="${category}"><spring:message
+												trick-value=<spring:message text="${category}" /> ><spring:message
 													code="label.category.${category}" text="${category}" /></th>
 										</c:forEach>
 									</tr>
@@ -400,19 +400,19 @@
 										<c:forEach items="${assetTypes}" var="assetType">
 											<td class="warning" trick-class="AssetType"><input
 												type="text" class="slider"
-												id="measure_assetType_${assetType.type}" value="50"
+												id='measure_assetType_<spring:message text="${assetType.type}"/>' value="50"
 												data-slider-min="0" data-slider-max="100"
 												data-slider-step="1" data-slider-value="50"
-												name="${assetType.type}" data-slider-orientation="vertical"
+												name=<spring:message text="${assetType.type}"/> data-slider-orientation="vertical"
 												data-slider-selection="after" data-slider-tooltip="show"></td>
 										</c:forEach>
 										<c:forEach items="${categories}" var="category">
 											<td class="success" trick-class="Category"
-												trick-value="${category}"><input type="text"
+												trick-value=<spring:message text="${category}"/> ><input type="text"
 												class="slider"
 												id="measure_category_${category.replace('.','_')}" value="0"
 												data-slider-min="0" data-slider-max="1" data-slider-step="1"
-												data-slider-value="0" name="${category}"
+												data-slider-value="0" name=<spring:message text="${category}" />
 												data-slider-orientation="vertical"
 												data-slider-selection="after" data-slider-tooltip="show"></td>
 										</c:forEach>
@@ -455,16 +455,16 @@
 											id="measure_fSectoral_value" value="0" name="fsectoral"></td>
 										<c:forEach items="${assetTypes}" var="assetType">
 											<td class="warning" trick-class="AssetType"><input
-												type="text" id="measure_assetType_${assetType.type}_value"
+												type="text" id='measure_assetType_<spring:message text="${assetType.type}"/>_value'
 												style="min-width: 50px;" readonly="readonly"
-												class="form-control" value="50" name="${assetType.type}"></td>
+												class="form-control" value="50" name=<spring:message text="${assetType.type}" />></td>
 										</c:forEach>
 										<c:forEach items="${categories}" var="category">
 											<td class="success" trick-class="Category"
-												trick-value="${category}"><input type="text"
-												id="measure_category_${category.replace('.','_')}_value"
+												trick-value=<spring:message text="${category}" />><input type="text"
+												id='measure_category_<spring:message text="${category.replace('.','_')}"/>_value'
 												readonly="readonly" class="form-control" value="0"
-												name="${category}"></td>
+												name=<spring:message text="${category}" />></td>
 										</c:forEach>
 									</tr>
 								</tbody>

@@ -2,8 +2,6 @@ package lu.itrust.business.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.Language;
-import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 
 /**
@@ -19,9 +17,9 @@ public interface DAOMeasureDescriptionText {
 
 	public List<MeasureDescriptionText> getByMeasureDescription(int measureDescriptionID) throws Exception;
 
-	public boolean existsForLanguage(MeasureDescription mesDesc, Language language) throws Exception;
+	public boolean existsForLanguage(int idMeasureDescription, int idLanguage) throws Exception;
 
-	public MeasureDescriptionText getByLanguage(MeasureDescription mesDesc, Language language) throws Exception;
+	public MeasureDescriptionText getByLanguage(int idMeasureDescription, int idLanguage) throws Exception;
 
 	public void save(MeasureDescriptionText measureDescription) throws Exception;
 

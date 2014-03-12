@@ -57,7 +57,7 @@
 								<th><spring:message code="label.actionplan.phase" text="Phase" /></th>
 								<spring:eval expression="T(lu.itrust.business.component.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
 								<c:forEach items="${actionplanassets}" var="asset">
-									<th class="actionplanasset actionplanassethidden">${asset.name}</th>
+									<th class="actionplanasset actionplanassethidden"><spring:message text="${asset.name}" /></th>
 								</c:forEach>
 							</tr>
 						</thead>
@@ -94,7 +94,7 @@
 							</c:if>
 							<c:forEach items="${actionplansplitted.get(apt)}" var="ape">
 								<tr trick-class="ActionPlanEntry" trick-id="${ape.id}"
-									trick-callback="reloadActionPlanEntryRow('${ape.id}','${apt}', '${ape.measure.id}', '${ape.measure.analysisNorm.norm.label}')">
+									trick-callback="reloadActionPlanEntryRow('${ape.id}','${apt}', '${ape.measure.id}', '<spring:message text="${ape.measure.analysisNorm.norm.label}" />')">
 									<td><spring:message text="${ape.position}" /></td>
 									<td><spring:message text="${ape.measure.analysisNorm.norm.label}" /></td>
 									<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>

@@ -42,10 +42,10 @@
 					<tbody>
 						<c:forEach items="${riskregister}" var="item" varStatus="status">
 							<tr>
-								<td>${item.scenario.scenarioType.name}</td>
-								<td>${item.position}</td>
-								<td>${item.scenario.name}</td>
-								<td>${item.asset.name}</td>
+								<td><spring:message text="${item.scenario.scenarioType.name}" /></td>
+								<td><spring:message text="${item.position}" /></td>
+								<td><spring:message text="${item.scenario.name}" /></td>
+								<td><spring:message text="${item.asset.name}" /></td>
 								<td class="text-right" title=<fmt:formatNumber value='${item.rawEvaluation.probability}' />><fmt:formatNumber value="${item.rawEvaluation.probability}" maxFractionDigits="2" minFractionDigits="2" /></td>
 								<td class="text-right" title=<fmt:formatNumber value="${item.rawEvaluation.impact}" />><fmt:formatNumber value="${item.rawEvaluation.impact*0.001}" maxFractionDigits="0" /></td>
 								<td class="text-right" title=<fmt:formatNumber value="${item.rawEvaluation.importance}" />><fmt:formatNumber value="${item.rawEvaluation.importance*0.001}" maxFractionDigits="0" /></td>
@@ -55,7 +55,7 @@
 								<td class="text-right" title=<fmt:formatNumber value="${item.expectedImportance.probability}"/>><fmt:formatNumber value="${item.expectedImportance.probability}" maxFractionDigits="2" minFractionDigits="2" /></td>
 								<td class="text-right" title=<fmt:formatNumber value="${item.expectedImportance.impact}"/>><fmt:formatNumber value="${item.expectedImportance.impact*0.001}" maxFractionDigits="0" /></td>
 								<td class="text-right" title=<fmt:formatNumber value="${item.expectedImportance.importance}"/>><fmt:formatNumber value="${item.expectedImportance.importance*0.001}" maxFractionDigits="0" /></td>
-								<td>${item.strategy}</td>
+								<td><spring:message text="${item.strategy}" /></td>
 							</tr>
 						</c:forEach>
 					</tbody>

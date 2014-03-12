@@ -51,13 +51,13 @@
 								varStatus="status">
 								<tr trick-class="ExtendedParameter" trick-id="${parameter.id}">
 									<!--<td>${itemInformation.id}</td>-->
-									<td>${parameter.level}</td>
+									<td><spring:message text="${parameter.level}" /></td>
 									<td trick-field="acronym" trick-field-type="string"
 										class="success"
 										trick-callback="updateAssessmentAcronym('${parameter.id}')"
-										ondblclick="return editField(this);">${parameter.acronym}</td>
+										ondblclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
 									<td trick-field="description" trick-field-type="string"
-										class="success" ondblclick="return editField(this);">${parameter.description}</td>
+										class="success" ondblclick="return editField(this);"><spring:message text="${parameter.description}" /></td>
 									<td trick-field="value" trick-field-type="double"
 										${(parameter.level mod 2)==0? 'ondblclick="return editField(this);" class="success"': ''}
 										real-value="${parameter.value}"><fmt:formatNumber
@@ -109,13 +109,13 @@
 								varStatus="status">
 								<tr trick-class="ExtendedParameter" trick-id="${parameter.id}">
 									<!--<td>${itemInformation.id}</td>-->
-									<td>${parameter.level}</td>
+									<td><spring:message text="${parameter.level}" /></td>
 									<td trick-field="acronym" trick-field-type="string"
 										class="success"
 										trick-callback="updateAssessmentAcronym('${parameter.id}')"
-										ondblclick="return editField(this);">${parameter.acronym}</td>
+										ondblclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
 									<td trick-field="description" trick-field-type="string"
-										class="success" ondblclick="return editField(this);">${parameter.description}</td>
+										class="success" ondblclick="return editField(this);"><spring:message text="${parameter.description}" /></td>
 									<td trick-field="value" trick-field-type="double"
 										${(parameter.level mod 2)==0? 'ondblclick="return editField(this);" class="success"': ''}
 										real-value="${parameter.value}"><fmt:formatNumber

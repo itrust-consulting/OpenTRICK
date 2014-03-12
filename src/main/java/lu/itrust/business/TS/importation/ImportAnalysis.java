@@ -1916,7 +1916,7 @@ public class ImportAnalysis {
 				// else: check if measure description text exists in the
 				// language of the analysis ->
 				// NO
-			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc, this.analysis.getLanguage())) {
+			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc.getId(), this.analysis.getLanguage().getId())) {
 
 				// System.out.println("Not found");
 
@@ -2341,7 +2341,7 @@ public class ImportAnalysis {
 				// else: measure description exist: measure description text
 				// exists in the language
 				// of the analysis -> NO
-			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc, this.analysis.getLanguage())) {
+			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc.getId(), this.analysis.getLanguage().getId())) {
 
 				// create new measure description text
 				mesText = new MeasureDescriptionText();

@@ -8,7 +8,7 @@
 			<generator class="increment" />
 		</id>
 		<property column="dtAlpha3" name="alpha3" length="3" type="java.lang.String" not-null="true" unique="true" />
-		<property column="dtName" name="name" type="java.lang.String" not-null="true" />
-		<property column="dtAlternativeName" name="altName" type="java.lang.String" not-null="true" />
+		<property column="dtName" name="name" type="java.lang.String" not-null="true" unique="true"/>
+		<property column="dtAlternativeName" name="altName" type="java.lang.String" not-null="true" unique="true"/>
 	</class>
 </hibernate-mapping>

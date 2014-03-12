@@ -20,6 +20,12 @@ public interface DAOLanguage {
 	
 	public Language findByAnalysis(Integer idAnalysis);
 	
+	public boolean alpha3Exist(String alpha3);
+	
+	public boolean nameExist(String name);
+
+	public boolean altNameExist(String altName);
+	
 	public Language loadFromName(String name) throws Exception;
 	
 	public Language loadFromAlternativeName(String alternativeName) throws Exception;
@@ -33,4 +39,5 @@ public interface DAOLanguage {
 	public void remove(Language language)throws Exception;
 
 	public void remove(Integer languageID)throws Exception;
+
 }

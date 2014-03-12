@@ -34,6 +34,13 @@ var ANALYSIS_RIGHT = {
 	}
 };
 
+function escape(key, val) {
+	if (typeof (val) != "string")
+		return val;
+	return val.replace(/[\\]/g, '\\\\').replace(/[\/]/g, '\\/').replace(/[\b]/g, '\\b').replace(/[\f]/g, '\\f').replace(/[\n]/g, '\\n').replace(/[\r]/g, '\\r').replace(/[\t]/g,
+			'\\t').replace(/[\"]/g, '\\"').replace(/\\'/g, "\\'");
+}
+
 function log(msg) {
 	setTimeout(function() {
 		throw new Error(msg);
@@ -94,7 +101,7 @@ function MessageResolver(code, defaulttext, params) {
 			"default" : defaulttext,
 			"params" : params
 		},
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			if (response == null || response == "")
 				return defaulttext;
@@ -127,7 +134,7 @@ function cancelTask(taskId) {
 	$.ajax({
 		url : context + "/Task/Stop/" + taskId,
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(reponse) {
 			$("#task_" + taskId).remove();
 		}
@@ -149,7 +156,7 @@ function computeAssessment() {
 	$.ajax({
 		url : context + "/Assessment/Update",
 		type : "get",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			if (response['error'] != undefined) {
@@ -175,7 +182,7 @@ function wipeAssessment() {
 	$.ajax({
 		url : context + "/Assessment/Wipe",
 		type : "get",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			if (response['error'] != undefined) {
@@ -427,7 +434,7 @@ function FieldEditor(element, validator) {
 					async : true,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
 							+ '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
+					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
 							that.UpdateUI();
@@ -478,7 +485,7 @@ function ExtendedFieldEditor(element) {
 					async : true,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
 							+ '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
+					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
 							if (that.fieldName == "acronym")
@@ -525,7 +532,7 @@ function AssessmentFieldEditor(element) {
 					async : true,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
 							+ '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
+					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
 							if (application.modal["AssessmentViewer"] != undefined)
@@ -1100,7 +1107,7 @@ function TaskManager(title) {
 		$.ajax({
 			url : context + "/Task/InProcessing",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				if (reponse == null || reponse == "")
 					return false;
@@ -1161,7 +1168,7 @@ function TaskManager(title) {
 		$.ajax({
 			url : context + "/Task/Status/" + taskId,
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				if (reponse == null || reponse.flag == undefined) {
 					if (!instance.progressBars.length)
@@ -1255,7 +1262,7 @@ function AssessmentAssetViewer(assetId) {
 		var instance = this;
 		return $.ajax({
 			url : context + "/Assessment/Asset/" + instance.assetId,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
@@ -1279,7 +1286,7 @@ function AssessmentAssetViewer(assetId) {
 		var instance = this;
 		return $.ajax({
 			url : context + "/Assessment/Asset/" + instance.assetId + "/Update",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
@@ -1311,7 +1318,7 @@ function AssessmentScenarioViewer(scenarioId) {
 		var instance = this;
 		return $.ajax({
 			url : context + "/Assessment/Scenario/" + instance.scenarioId,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
@@ -1335,7 +1342,7 @@ function AssessmentScenarioViewer(scenarioId) {
 		var instance = this;
 		return $.ajax({
 			url : context + "/Assessment/Scenario/" + instance.scenarioId + "/Update",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
@@ -1357,7 +1364,7 @@ function AssessmentScenarioViewer(scenarioId) {
 function updateAssessmentAcronym(idParameter, acronym) {
 	$.ajax({
 		url : context + "/Assessment/Update/Acronym/" + idParameter + "/" + acronym,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			if (response["success"] != undefined) {
@@ -1418,7 +1425,7 @@ function defaultValueByType(value, type, protect) {
 		else
 			value = "";
 	}
-	return value;
+	return escape(undefined, value);
 }
 
 function updateFieldValue(element, value, type) {
@@ -1432,7 +1439,7 @@ function saveField(element, controller, id, field, type) {
 			type : "post",
 			async : true,
 			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"' + defaultValueByType($(element).prop("value"), type, true) + '", "type": "' + type + '"}',
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response == "" || response == null) {
 					updateFieldValue(element, $(element).prop("value"));
@@ -1588,7 +1595,7 @@ function reloadSection(section, subSection) {
 			url : context + controller,
 			type : "get",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
@@ -1634,7 +1641,7 @@ function selectAsset(assetId, value) {
 		}
 		$.ajax({
 			url : context + "/Asset/Select",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(requiredUpdate, null, 2),
 			type : 'post',
 			success : function(reponse) {
@@ -1646,7 +1653,7 @@ function selectAsset(assetId, value) {
 		$.ajax({
 			url : context + "/Asset/Select/" + assetId,
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				reloadSection("section_asset");
 				return false;
@@ -1665,7 +1672,7 @@ function deleteAsset(assetId) {
 			rowTrickId = selectedScenario.pop();
 			$.ajax({
 				url : context + "/Asset/Delete/" + rowTrickId,
-				contentType : "application/json",
+				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response) {
 					var trickSelect = parseJson(response);
@@ -1690,7 +1697,7 @@ function deleteAsset(assetId) {
 		$.ajax({
 			url : context + "/Asset/Delete/" + assetId,
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				reloadSection("section_asset");
 				return false;
@@ -1714,7 +1721,7 @@ function editAsset(rowTrickId, isAdd) {
 	$.ajax({
 		url : context + ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Asset/Add" : "/Asset/Edit/" + rowTrickId),
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
@@ -1740,7 +1747,7 @@ function saveAsset(form) {
 		type : "post",
 		async : true,
 		data : serializeAssetForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			var previewError = $("#addAssetModal .alert");
 			if (previewError.length)
@@ -1798,7 +1805,7 @@ function selectScenario(scenarioId, value) {
 		}
 		$.ajax({
 			url : context + "/Scenario/Select",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(requiredUpdate, null, 2),
 			type : 'post',
 			success : function(reponse) {
@@ -1810,7 +1817,7 @@ function selectScenario(scenarioId, value) {
 		$.ajax({
 			url : context + "/Scenario/Select/" + scenarioId,
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				reloadSection("section_scenario");
 				return false;
@@ -1860,7 +1867,7 @@ function deleteScenario(scenarioId) {
 			rowTrickId = selectedScenario.pop();
 			$.ajax({
 				url : context + "/Scenario/Delete/" + rowTrickId,
-				contentType : "application/json",
+				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response) {
 					var trickSelect = parseJson(response);
@@ -1884,7 +1891,7 @@ function deleteScenario(scenarioId) {
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Scenario/Delete/" + scenarioId,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(reponse) {
 				reloadSection("section_scenario");
@@ -1918,7 +1925,7 @@ function editScenario(rowTrickId, isAdd) {
 
 	$.ajax({
 		url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Scenario/Add" : "/Scenario/Edit/" + rowTrickId),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			var parser = new DOMParser();
@@ -1944,7 +1951,7 @@ function saveScenario(form) {
 		url : context + "/Scenario/Save",
 		type : "post",
 		data : serializeScenarioForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			var previewError = $("#addScenarioModal .alert");
@@ -1976,7 +1983,7 @@ function savePhase(form) {
 		type : "post",
 		async : true,
 		data : serializeForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			var previewError = $("#addPhaseModel .alert");
 			if (previewError.length)
@@ -2010,7 +2017,7 @@ function deletePhase(idPhase) {
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Phase/Delete/" + idPhase,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response) {
 				if (response["success"] != undefined) {
@@ -2290,7 +2297,7 @@ function reloadMeasureRow(idMeasure, norm) {
 		url : context + "/Measure/Section/" + norm,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			var parser = new DOMParser();
@@ -2320,7 +2327,7 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
 		url : context + "/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			if (!response.length)
@@ -2346,10 +2353,10 @@ function compliance(norm) {
 		url : context + "/Measure/Compliance/" + norm,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
-			if(response.chart==undefined || response.chart==null)
+			if (response.chart == undefined || response.chart == null)
 				return;
 			$('#chart_compliance_' + norm).highcharts(response);
 		}
@@ -2364,7 +2371,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 		url : context + "/ActionPlanSummary/Evolution/" + actionPlanType,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			if (response.chart == undefined || response.chart == null)
@@ -2381,7 +2388,7 @@ function budgetByActionPlanType(actionPlanType) {
 		url : context + "/ActionPlanSummary/Budget/" + actionPlanType,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			if (response.chart == undefined || response.chart == null)
@@ -2423,7 +2430,7 @@ function updateStatus(progressBar, idTask, callback, status) {
 		$.ajax({
 			url : context + "/Task/Status/" + idTask,
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				if (reponse.flag == undefined) {
 					eval(callback.failed);
@@ -2460,7 +2467,7 @@ function customerChange(selector) {
 		url : context + "/Analysis/DisplayByCustomer/" + customer,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			var parser = new DOMParser();
@@ -2479,7 +2486,7 @@ function chartALE() {
 			url : context + "/Scenario/Chart/Type/Ale",
 			type : "get",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response) {
 				$('#chart_ale_scenario_type').highcharts(response);
@@ -2491,7 +2498,7 @@ function chartALE() {
 			url : context + "/Scenario/Chart/Ale",
 			type : "get",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response) {
 				$('#chart_ale_scenario').highcharts(response);
@@ -2504,7 +2511,7 @@ function chartALE() {
 			url : context + "/Asset/Chart/Ale",
 			type : "get",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response) {
 				$('#chart_ale_asset').highcharts(response);
@@ -2516,7 +2523,7 @@ function chartALE() {
 			url : context + "/Asset/Chart/Type/Ale",
 			type : "get",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response) {
 				$('#chart_ale_asset_type').highcharts(response);
@@ -2584,7 +2591,7 @@ function RRFView() {
 		$.ajax({
 			url : context + "/Scenario/RRF",
 			type : "get",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
@@ -2791,7 +2798,7 @@ function ScenarioRRFController(rrfView, container, name) {
 			url : context + "/Scenario/RRF/Update",
 			type : "post",
 			data : '{"id":' + that.idScenario + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.rrfView.filter) + '}',
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response.chart != null && response.chart != undefined)
 					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
@@ -2808,7 +2815,7 @@ function ScenarioRRFController(rrfView, container, name) {
 		$.ajax({
 			url : context + "/Scenario/" + that.idScenario,
 			type : "get",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response.scenarioType != null && response.scenarioType != undefined) {
 					$(that.container).find(".slider").unbind("slideStop");
@@ -2899,7 +2906,7 @@ function ScenarioRRFController(rrfView, container, name) {
 			url : context + "/Scenario/RRF/" + that.idScenario + "/Load",
 			type : "post",
 			data : JSON.stringify(that.rrfView.filter),
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response.chart != null && response.chart != undefined)
 					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
@@ -3014,7 +3021,7 @@ function MeasureRRFController(rrfView, container, name) {
 			url : context + "/Measure/RRF/Update",
 			type : "post",
 			data : '{"id":' + that.idMeasure + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.rrfView.filter) + '}',
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response.chart != null && response.chart != undefined)
 					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
@@ -3030,7 +3037,7 @@ function MeasureRRFController(rrfView, container, name) {
 		$.ajax({
 			url : context + "/Measure/" + that.idMeasure,
 			type : "get",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response.measurePropertyList != undefined && response.measurePropertyList != null) {
 					// that.SynchronizeSlider(); rejected by product owner
@@ -3139,7 +3146,7 @@ function MeasureRRFController(rrfView, container, name) {
 			url : context + "/Measure/RRF/" + that.idMeasure + "/Load",
 			type : "post",
 			data : JSON.stringify(that.rrfView.filter),
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response.chart != null && response.chart != undefined)
 					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();

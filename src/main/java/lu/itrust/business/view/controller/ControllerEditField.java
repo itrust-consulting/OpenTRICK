@@ -628,7 +628,7 @@ public class ControllerEditField {
 			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
 
 				// retrieve parameters
-				List<Parameter> parameters = serviceParameter.findByAnalysisAndType(idAnalysis, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+				List<Parameter> parameters = serviceParameter.findByAnalysisAndType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 
 				// retrieve single parameters
 				List<Parameter> simpleParameters = serviceParameter.findByAnalysisAndType(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);

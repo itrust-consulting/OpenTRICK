@@ -7,12 +7,8 @@ function showMeasures(normId, languageId) {
 		var language = $("#section_language tbody tr[trick-id]:first-child");
 		languageId = language.length ? $(language).attr('trick-id') : 1;
 	}
-	var requestdata = {
-		"languageId" : languageId
-	};
 	$.ajax({
-		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures",
-		data : JSON.stringify(requestdata),
+		url : context + "/KnowledgeBase/Norm/" + normId + "/language/"+languageId+"/Measures",
 		type : "POST",
 		contentType : "application/json",
 		success : function(response) {
@@ -23,8 +19,7 @@ function showMeasures(normId, languageId) {
 			var doc = parser.parseFromString(response, "text/html");
 			var header = $(doc).find("#measures_header");
 			var body = $(doc).find("#measures_body");
-			var showMeasuresContext = $contextMenu
-					.find("li[name='show_measures'] a");
+			var showMeasuresContext = $contextMenu.find("li[name='show_measures'] a");
 
 			oldHeader = $("#showMeasuresModel-title");
 			oldBody = $("#showmeasuresbody");
@@ -35,34 +30,22 @@ function showMeasures(normId, languageId) {
 			measurestable.fnDestroy();
 			measurestable = $('#measurestable').dataTable({});
 
-			$("#measurestable_wrapper").on(
-					"contextmenu",
-					"table tbody tr",
-					function(e) {
-						$contextMenu.css("z-index", "1070");
-						var rowTrickId = $(e.currentTarget).attr('trick-id');
-						var reference = $(e.currentTarget).children(":eq(1)")
-								.text();
-						$contextMenu.attr("trick-selected-id", rowTrickId);
-						showMeasuresContext.parent().attr("hidden", true);
-						editRow.attr("onclick",
-								"javascript:return editSingleMeasure("
-										+ rowTrickId + ", " + normId + ");");
+			$("#measurestable_wrapper").on("contextmenu", "table tbody tr", function(e) {
+				$contextMenu.css("z-index", "1070");
+				var rowTrickId = $(e.currentTarget).attr('trick-id');
+				var reference = $(e.currentTarget).children(":eq(1)").text();
+				$contextMenu.attr("trick-selected-id", rowTrickId);
+				showMeasuresContext.parent().attr("hidden", true);
+				editRow.attr("onclick", "javascript:return editSingleMeasure(" + rowTrickId + ", " + normId + ");");
 
-						deleteElement
-								.attr("onclick",
-										"javascript:return deleteMeasure("
-												+ rowTrickId + "," + reference
-												+ ", '"
-												+ $("#normLabel").attr("value")
-												+ "');");
-						$contextMenu.css({
-							display : "block",
-							left : e.pageX,
-							top : e.pageY
-						});
-						return false;
-					});
+				deleteElement.attr("onclick", "javascript:return deleteMeasure(" + rowTrickId + "," + reference + ", '" + $("#normLabel").attr("value") + "');");
+				$contextMenu.css({
+					display : "block",
+					left : e.pageX,
+					top : e.pageY
+				});
+				return false;
+			});
 
 			$contextMenu.on("click", "a", function() {
 				$contextMenu.hide();
@@ -103,12 +86,10 @@ function saveMeasure(form) {
 			var data = "";
 			for ( var error in response)
 				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document
-					.getElementById(form), data);
+			result = data == "" ? true : showError(document.getElementById(form), data);
 			if (result) {
 				$("#addMeasureModel").modal("hide");
-				var language = $("#languageselect").find("option:selected")
-						.attr("value");
+				var language = $("#languageselect").find("option:selected").attr("value");
 				var normId = $("#normId").attr("value");
 				return showMeasures(normId, language);
 			}
@@ -128,38 +109,27 @@ function deleteMeasure(measureId, reference, norm) {
 			return false;
 		measureId = selectedScenario[0];
 		norm = $("#normLabel").prop("value");
-		reference = $(
-				"#section_measure_description tbody tr[trick-id='" + measureId
-						+ "'] td:nth-child(3)").text();
+		reference = $("#section_measure_description tbody tr[trick-id='" + measureId + "'] td:nth-child(3)").text();
 	}
-	$("#deleteMeasureBody")
-			.html(
-					MessageResolver("label.measure.question.delete",
-							"Are you sure that you want to delete the measure with the Reference: ")
-							+ "&nbsp;<strong>"
-							+ reference
-							+ "</strong> from the norm <strong>"
-							+ norm
-							+ " </strong>?");
+	$("#deleteMeasureBody").html(
+			MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: ") + "&nbsp;<strong>" + reference
+					+ "</strong> from the norm <strong>" + norm + " </strong>?");
 	var normId = $("#normId").attr("value");
-	$("#deletemeasurebuttonYes").click(
-			function() {
-				$.ajax({
-					url : context + "/KnowledgeBase/Norm/" + normId
-							+ "/Measures/Delete/" + measureId,
-					type : "POST",
-					contentType : "application/json",
-					success : function(response) {
-						var language = $("#languageselect").find(
-								"option:selected").attr("value");
-						var normId = $("#normId").attr("value");
-						showMeasures(normId, language);
-						return false;
-					}
-				});
-				$("#deleteMeasureModel").modal('toggle');
+	$("#deletemeasurebuttonYes").click(function() {
+		$.ajax({
+			url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/Delete/" + measureId,
+			type : "POST",
+			contentType : "application/json",
+			success : function(response) {
+				var language = $("#languageselect").find("option:selected").attr("value");
+				var normId = $("#normId").attr("value");
+				showMeasures(normId, language);
 				return false;
-			});
+			}
+		});
+		$("#deleteMeasureModel").modal('toggle');
+		return false;
+	});
 	$("#deleteMeasureModel").attr("style", "z-index:1060");
 	$("#deleteMeasureModel").modal('toggle');
 	return false;
@@ -186,20 +156,13 @@ function newMeasure(normId) {
 			$("#measurelanguageselect").focus(function() {
 
 				previous = this.value;
-			}).change(
-					function() {
+			}).change(function() {
 
-						$("div[measurelanguage='" + previous + "']").attr(
-								"style", "display:none;");
-						var language = $(this).find("option:selected").attr(
-								"value");
-						$("div[measurelanguage='" + language + "']")
-								.removeAttr("style");
-					});
-			$("#measure_form").prop(
-					"action",
-					context + "/KnowledgeBase/Norm/" + normId
-							+ "/Measures/Save");
+				$("div[measurelanguage='" + previous + "']").attr("style", "display:none;");
+				var language = $(this).find("option:selected").attr("value");
+				$("div[measurelanguage='" + language + "']").removeAttr("style");
+			});
+			$("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
 			return false;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
@@ -207,9 +170,7 @@ function newMeasure(normId) {
 		},
 	});
 
-	$("#addMeasureModel-title").text(
-			MessageResolver("title.knowledgebase.Measure.Add",
-					"Add a new Measure"));
+	$("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
 	$("#addmeasurebutton").text(MessageResolver("label.action.add", "Add"));
 
 	$("#addMeasureModel").modal('toggle');
@@ -225,8 +186,7 @@ function editSingleMeasure(measureId, normId) {
 		measureId = selectedScenario[0];
 		normId = $("#normId").prop("value");
 	}
-	var rows = $("#measurestable_wrapper").find(
-			"tr[trick-id='" + measureId + "'] td:not(:first-child)");
+	var rows = $("#measurestable_wrapper").find("tr[trick-id='" + measureId + "'] td:not(:first-child)");
 	$("#measure_id").prop("value", measureId);
 	$("#measure_reference").prop("value", $(rows[1]).text());
 	$("#measure_level").prop("value", $(rows[0]).text());
@@ -243,19 +203,12 @@ function editSingleMeasure(measureId, normId) {
 			$("#measurelanguageselect").focus(function() {
 
 				previous = this.value;
-			}).change(
-					function() {
-						var language = $(this).find("option:selected").attr(
-								"value");
-						$("div[measurelanguage=" + previous + "]").attr(
-								"style", "display:none;");
-						$("div[measurelanguage=" + language + "]").removeAttr(
-								"style");
-					});
-			$("#measure_form").prop(
-					"action",
-					context + "/KnowledgeBase/Norm/" + normId
-							+ "/Measures/Save");
+			}).change(function() {
+				var language = $(this).find("option:selected").attr("value");
+				$("div[measurelanguage=" + previous + "]").attr("style", "display:none;");
+				$("div[measurelanguage=" + language + "]").removeAttr("style");
+			});
+			$("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
 			return false;
 
 		},
@@ -264,9 +217,7 @@ function editSingleMeasure(measureId, normId) {
 		},
 	});
 
-	$("#addMeasureModel-title").text(
-			MessageResolver("title.knowledgebase.Measure.Update",
-					"Update new Measure"));
+	$("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Update", "Update new Measure"));
 	$("#addmeasurebutton").text(MessageResolver("label.action.edit", "Edit"));
 
 	$("#addMeasureModel").modal('toggle');

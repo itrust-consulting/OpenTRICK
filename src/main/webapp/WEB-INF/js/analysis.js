@@ -10,7 +10,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 		$.ajax({
 			url : context + "/Analysis/" + analysisId + "/ManageAccess",
 			type : "get",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 					$("#manageAnalysisAccessModelBody").html(response);
 					$("#manageAnalysisAccessModelButton").attr("onclick","updatemanageAnalysisAccess("+analysisId+",'userrightsform')");
@@ -30,7 +30,7 @@ function updatemanageAnalysisAccess(analysisid, userrightsform) {
 		url : context + "/Analysis/"+analysisid+"/ManageAccess/Update",
 		type : "post",
 		data : serializeForm(userrightsform),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			$("#manageAnalysisAccessModelBody").html(response);
 			$("#manageAnalysisAccessModelButton").attr("onclick","updatemanageAnalysisAccess("+analysisid+",'userrightsform')");
@@ -72,7 +72,7 @@ function saveAnalysis(form, reloadaction) {
 		url : context + "/Analysis/Save",
 		type : "post",
 		data : serializeForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			$("#addAnalysisModel .progress").hide();
 			$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
@@ -148,7 +148,7 @@ function deleteAnalysis(analysisId) {
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
 				type : "GET",
-				contentType : "application/json",
+				contentType : "application/json;charset=UTF-8",
 				success : function(response) {
 					$("#deleteprogressbar").hide();
 					$("#deleteanalysisbuttonYes").prop("disabled",false);
@@ -184,7 +184,7 @@ function createAnalysisProfile(analysisId, section_analysis) {
 		$.ajax({
 			url : context + "/AnalysisProfile/Add/" + analysisId,
 			type : "get",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
@@ -249,7 +249,7 @@ function newAnalysis() {
 	$.ajax({
 		url : context + "/Analysis/New",
 		type : "get",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
@@ -284,7 +284,7 @@ function addHistory(analysisId) {
 	$.ajax({
 		url : context + "/Analysis/" + analysisId + "/NewVersion",
 		type : "get",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			$("#addHistoryModal").replaceWith(response);
 			$('#addHistoryModal').modal("toggle");
@@ -311,7 +311,7 @@ function editSingleAnalysis(analysisId) {
 		$.ajax({
 			url : context + "/Analysis/Edit/" + analysisId,
 			type : "get",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
@@ -383,7 +383,7 @@ function calculateActionPlan(analysisId) {
 			type : "post",
 			data : JSON.stringify(data),
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response["success"] != undefined) {
 					if (taskManager == undefined)
@@ -435,7 +435,7 @@ function calculateRiskRegister(analysisId) {
 			type : "post",
 			data : JSON.stringify(data),
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response["success"] != undefined) {
 					if (taskManager == undefined)
@@ -467,7 +467,7 @@ function exportAnalysis(analysisId) {
 			url : context + "/Analysis/Export/" + analysisId,
 			type : "get",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response["success"] != undefined) {
 					if (taskManager == undefined)
@@ -591,7 +591,7 @@ function analysisTableSortable() {
 	}
 
 	// define sort order of text
-	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
+	Array.AlphanumericSortOrder = 'AaÃ�Ã¡BbCcDdÃ�Ã°EeÃ‰Ã©Ä˜Ä™FfGgHhIiÃ�Ã­JjKkLlMmNnOoÃ“Ã³PpQqRrSsTtUuÃšÃºVvWwXxYyÃ�Ã½ZzÃžÃ¾Ã†Ã¦Ã–Ã¶';
 
 	// flag to check for case sensitive comparation
 	Array.AlphanumericSortIgnoreCase = true;

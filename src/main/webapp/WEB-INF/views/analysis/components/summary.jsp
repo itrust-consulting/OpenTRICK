@@ -25,11 +25,11 @@
 		<div class="panel-body panelbodydefinition">
 			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 				<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
-				<div trick-nav-data="${actionPlanType.name}" ${status.index!=0? "hidden='true'" : "" }>
+				<div trick-nav-data="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
 					<h4 class="text-center">
 						<spring:message code="label.actionPlanType.${actionPlanType.name}" text="${actionPlanType.name}" htmlEscape="true" />
 					</h4>
-					<table class="fixedheadertable table table-hover" id="summarytable_${actionPlanType.name}">
+					<table class="fixedheadertable table table-hover" id="summarytable_<spring:message text='${actionPlanType.name}' />">
 						<thead>
 							<tr>
 								<th><spring:message code="label.characteristic" text="Phase characteristic" /></th>

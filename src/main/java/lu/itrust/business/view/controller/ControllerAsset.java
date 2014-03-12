@@ -263,7 +263,7 @@ public class ControllerAsset {
 				errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.not_found", null, "Selected analysis cannot be found", locale) });
 				return errors;
 			}
-
+			
 			// create new asset object
 			Asset asset = new Asset();
 
@@ -275,11 +275,10 @@ public class ControllerAsset {
 
 			// check if asset is to be created (new)
 			if (asset.getId() < 1) {
-
 				// create assessments for the new asset
 				assessmentManager.build(asset, idAnalysis);
 			} else {
-
+				
 				// update existing asset object
 				serviceAsset.merge(asset);
 

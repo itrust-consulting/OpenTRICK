@@ -16,7 +16,8 @@
 				<spring:hasBindErrors name="*">
 					<spring:bind path="*">
 						<c:forEach items="${status.errorMessages}" var="error">
-        						${error}<br />
+							<spring:message text="${error}" />
+							<br />
 						</c:forEach>
 					</spring:bind>
 				</spring:hasBindErrors>
@@ -34,7 +35,7 @@
 						<form:label path="norms">
 							<spring:message code="label.analysis.profile.norms" text="Standards" />
 						</form:label>
-						<form:select path="norms" multiple="true" cssClass="form-control" itemValue="id" itemLabel="label" items="${norms}" />
+						<form:select path="norms" multiple="true" cssClass="form-control" itemValue="id" itemLabel="label" items='<spring:message text="${norms}"/>' />
 					</div>
 					<table class="table">
 						<thead>

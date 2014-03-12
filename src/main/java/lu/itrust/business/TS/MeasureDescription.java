@@ -13,8 +13,8 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * <li>The Level of Measure (1-3)</li>
  * <li>The Measure Reference inside the Norm</li>
  * <li>
- * Measure Description Texts which represents the Domain and Description f a Measure in one to more
- * languages</li>
+ * Measure Description Texts which represents the Domain and Description f a
+ * Measure in one to more languages</li>
  * </ul>
  * 
  * @author itrust consulting s.à r.l. : SME, BJA, EOM
@@ -62,7 +62,18 @@ public class MeasureDescription implements Cloneable {
 	public MeasureDescriptionText getMeasureDescriptionText(Language language) {
 		return getMeasureDescriptionTextByAlpha3(language.getAlpha3());
 	}
-	
+
+	public MeasureDescriptionText findByLanguage(Language language) {
+		return findByAlph3(language.getAlpha3());
+	}
+
+	public MeasureDescriptionText findByAlph3(String alpha3) {
+		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts)
+			if (measureDescriptionText.getLanguage().getAlpha3().equalsIgnoreCase(alpha3))
+				return measureDescriptionText;
+		return null;
+	}
+
 	public MeasureDescriptionText getMeasureDescriptionTextByAlpha3(String alpha3) {
 
 		MeasureDescriptionText descriptionText = null;
@@ -75,8 +86,8 @@ public class MeasureDescription implements Cloneable {
 				descriptionTextEnglish = measureDescriptionText;
 		}
 
-		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish : descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts
-				.get(0) : descriptionText;
+		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish
+				: descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0) : descriptionText;
 	}
 
 	/**

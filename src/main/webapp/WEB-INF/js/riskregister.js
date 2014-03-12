@@ -30,7 +30,7 @@ function calculateRiskRegister(analysisId) {
 			type : "post",
 			data : JSON.stringify(data),
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response["success"] != undefined) {
 					if (taskManager == undefined)

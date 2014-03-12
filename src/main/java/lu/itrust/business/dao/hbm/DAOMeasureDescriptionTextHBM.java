@@ -2,7 +2,6 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 
@@ -66,10 +65,10 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#getByLanguage(lu.itrust.business.TS.MeasureDescription, lu.itrust.business.TS.Language)
 	 */
 	@Override
-	public MeasureDescriptionText getByLanguage(MeasureDescription mesDesc, Language language) throws Exception {
-		Query query = getSession().createQuery("from MeasureDescriptionText where measureDescription = :measureDescription and language= :language");
-		query.setParameter("measureDescription", mesDesc);
-		query.setParameter("language", language);
+	public MeasureDescriptionText getByLanguage(int idMeasureDescription, int idLanguage) throws Exception {
+		Query query = getSession().createQuery("from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage");
+		query.setParameter("idMeasureDescription", idMeasureDescription);
+		query.setParameter("idLanguage", idLanguage);
 		return (MeasureDescriptionText) query.uniqueResult();
 	}
 
@@ -107,10 +106,10 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	}
 
 	@Override
-	public boolean existsForLanguage(MeasureDescription mesDesc, Language language) throws Exception {
-		Query query = getSession().createQuery("Select count(*) from MeasureDescriptionText where measureDescription = :measureDescription and language = :language");
-		query.setParameter("measureDescription", mesDesc);
-		query.setParameter("language", language);
+	public boolean existsForLanguage(int idMeasureDescription, int idLanguage) throws Exception {
+		Query query = getSession().createQuery("Select count(*) from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage");
+		query.setParameter("idMeasureDescription", idMeasureDescription);
+		query.setParameter("idLanguage", idLanguage);
 		return (Long) query.uniqueResult() >= 1;
 
 	}

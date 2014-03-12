@@ -1,7 +1,6 @@
 package lu.itrust.business.view.controller;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -9,7 +8,10 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceLanguage;
+import lu.itrust.business.validator.LanguageValidator;
+import lu.itrust.business.validator.field.ValidatorField;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -44,6 +46,9 @@ public class ControllerLanguage {
 	@Autowired
 	private MessageSource messageSource;
 
+	@Autowired
+	private ServiceDataValidation serviceDataValidation;
+
 	/**
 	 * 
 	 * Display all Language
@@ -75,8 +80,8 @@ public class ControllerLanguage {
 	 * 
 	 * */
 	@RequestMapping("/{languageId}")
-	public String loadSingleLanguage(@PathVariable("languageId") Integer languageId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
-			throws Exception {
+	public String loadSingleLanguage(@PathVariable("languageId") Integer languageId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
+			Locale locale) throws Exception {
 		Language language = (Language) session.getAttribute("language");
 		if (language == null || language.getId() != languageId)
 			language = serviceLanguage.get(languageId);
@@ -99,20 +104,25 @@ public class ControllerLanguage {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
-	List<String[]> save(@RequestBody String value, Locale locale) {
-		List<String[]> errors = new LinkedList<>();
+	Map<String, String> save(@RequestBody String value, Locale locale) {
+		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
-
 			Language language = new Language();
 			if (!buildLanguage(errors, language, value, locale))
 				return errors;
 			if (language.getId() < 1) {
-				serviceLanguage.save(language);
-			} else {
+				if (serviceLanguage.alpha3Exist(language.getAlpha3()))
+					errors.put("alpha3", messageSource.getMessage("error.language.alph3.duplicate", null, "Alpha 3 code is already in use", locale));
+				if (serviceLanguage.altNameExist(language.getAltName()))
+					errors.put("altName", messageSource.getMessage("error.language.altName.duplicate", null, "Alternative name code is already in use", locale));
+				if (serviceLanguage.nameExist(language.getName()))
+					errors.put("name", messageSource.getMessage("error.language.name.duplicate", null, "Name is already in use", locale));
+				if (errors.isEmpty())
+					serviceLanguage.save(language);
+			} else
 				serviceLanguage.saveOrUpdate(language);
-			}
 		} catch (Exception e) {
-			errors.add(new String[] { "language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 		}
 		return errors;
@@ -124,14 +134,11 @@ public class ControllerLanguage {
 	 * 
 	 * */
 	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String[] deleteLanguage(@PathVariable("languageId") Integer languageId, Locale locale) throws Exception {
-		serviceLanguage.remove(languageId);		
-		return new String[] {
-			"error",
-			messageSource.getMessage("success.language.delete.successfully", null,
-					"Language was deleted successfully", locale) 
-		};
-		
+	public @ResponseBody
+	String[] deleteLanguage(@PathVariable("languageId") Integer languageId, Locale locale) throws Exception {
+		serviceLanguage.remove(languageId);
+		return new String[] { "error", messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale) };
+
 	}
 
 	/**
@@ -144,29 +151,47 @@ public class ControllerLanguage {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildLanguage(List<String[]> errors, Language language, String source, Locale locale) {
+	private boolean buildLanguage(Map<String, String> errors, Language language, String source, Locale locale) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 			int id = jsonNode.get("id").asInt();
 			if (id > 0)
 				language.setId(jsonNode.get("id").asInt());
-			
-			language.setAlpha3(jsonNode.get("alpha3").asText());
-			language.setName(jsonNode.get("name").asText());
-			language.setAltName(jsonNode.get("altName").asText());
+			ValidatorField validator = serviceDataValidation.findByClass(Language.class);
+			if (validator == null)
+				serviceDataValidation.register(validator = new LanguageValidator());
 
-			return true;
+			String alpha3 = jsonNode.get("alpha3").asText();
+			String name = jsonNode.get("name").asText();
+			String altName = jsonNode.get("altName").asText();
+			String error = validator.validate(language, "alpha3", alpha3);
+			if (error != null)
+				errors.put("alpha3", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				language.setAlpha3(alpha3);
+
+			error = validator.validate(language, "name", name);
+			if (error != null)
+				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				language.setName(name);
+
+			error = validator.validate(language, "altName", altName);
+			if (error != null)
+				errors.put("altName", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				language.setAltName(altName);
+			return errors.isEmpty();
 
 		} catch (Exception e) {
-
-			errors.add(new String[] { "language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("language", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
 		}
-		
+
 	}
-	
+
 	/**
 	 * setServiceLanguage: <br>
 	 * Description
