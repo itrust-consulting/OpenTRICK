@@ -248,3 +248,9 @@ table.dataTable tr.odd td.sorting_1,table.dataTable tr.even td.sorting_1
 .tt-suggestion p {
 	margin: 0;
 }
+
+table.floatThead-table {
+    border-top: none;
+    border-bottom: none;
+    background-color: #FFF;
+}

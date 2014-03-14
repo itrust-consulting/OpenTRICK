@@ -5,16 +5,16 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 			return false;
 		analysisId = selectedAnalysis[0];
 	}
-	
+
 	if (userCan(analysisId, ANALYSIS_RIGHT.ALL)) {
 		$.ajax({
 			url : context + "/Analysis/" + analysisId + "/ManageAccess",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-					$("#manageAnalysisAccessModelBody").html(response);
-					$("#manageAnalysisAccessModelButton").attr("onclick","updatemanageAnalysisAccess("+analysisId+",'userrightsform')");
-					$("#manageAnalysisAccessModel").modal('toggle');
+				$("#manageAnalysisAccessModelBody").html(response);
+				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
+				$("#manageAnalysisAccessModel").modal('toggle');
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
 				return false;
@@ -27,13 +27,13 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 
 function updatemanageAnalysisAccess(analysisid, userrightsform) {
 	$.ajax({
-		url : context + "/Analysis/"+analysisid+"/ManageAccess/Update",
+		url : context + "/Analysis/" + analysisid + "/ManageAccess/Update",
 		type : "post",
 		data : serializeForm(userrightsform),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			$("#manageAnalysisAccessModelBody").html(response);
-			$("#manageAnalysisAccessModelButton").attr("onclick","updatemanageAnalysisAccess("+analysisid+",'userrightsform')");
+			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisid + ",'userrightsform')");
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return false;
@@ -42,7 +42,7 @@ function updatemanageAnalysisAccess(analysisid, userrightsform) {
 }
 
 function findTrickisProfile(element) {
-	if (element != undefined && element != null && element.length>0 && element.length<2)
+	if (element != undefined && element != null && element.length > 0 && element.length < 2)
 		if ($(element).attr("trick-isProfile") != undefined)
 			return $(element).attr("trick-isProfile");
 		else if ($(element).parent().prop("tagName") != "BODY")
@@ -53,12 +53,12 @@ function findTrickisProfile(element) {
 		return null;
 }
 
-function disableifprofile(section, menu){
+function disableifprofile(section, menu) {
 	var element = $(menu + " li[class='profilemenu']");
 	element.addClass("disabled");
 	var isProfile = findTrickisProfile($(section + " tbody :checked"));
 	if (isProfile != undefined && isProfile != null) {
-		if (isProfile=="true")
+		if (isProfile == "true")
 			element.addClass("disabled");
 		else
 			element.removeClass("disabled");
@@ -136,11 +136,8 @@ function deleteAnalysis(analysisId) {
 	}
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.DELETE)) {
-		$("#deleteAnalysisBody").html(
-				MessageResolver("label.analysis.question.delete",
-						"Are you sure that you want to delete the analysis")
-						+ "?");
-		
+		$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis") + "?");
+
 		$("#deleteanalysisbuttonYes").click(function() {
 			$("#deleteAnalysisModel .modal-header > .close").hide();
 			$("#deleteprogressbar").show();
@@ -151,7 +148,7 @@ function deleteAnalysis(analysisId) {
 				contentType : "application/json;charset=UTF-8",
 				success : function(response) {
 					$("#deleteprogressbar").hide();
-					$("#deleteanalysisbuttonYes").prop("disabled",false);
+					$("#deleteanalysisbuttonYes").prop("disabled", false);
 					$("#deleteAnalysisModel").modal('toggle');
 					if (response.success != undefined) {
 						reloadSection("section_analysis");
@@ -165,7 +162,7 @@ function deleteAnalysis(analysisId) {
 			$("#deleteanalysisbuttonYes").unbind();
 			return false;
 		});
-		$("#deleteanalysisbuttonYes").prop("disabled",false);
+		$("#deleteanalysisbuttonYes").prop("disabled", false);
 		$("#deleteAnalysisModel .modal-header > .close").show();
 		$("#deleteAnalysisModel").modal('show');
 	} else
@@ -344,7 +341,7 @@ function selectAnalysis(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 
-	if (userCan(analysisId, ANALYSIS_RIGHT.READ))		
+	if (userCan(analysisId, ANALYSIS_RIGHT.READ))
 		window.location.replace(context + "/Analysis/" + analysisId + "/Select");
 
 	else
@@ -404,7 +401,7 @@ function calculateActionPlan(analysisId) {
 }
 
 function calculateRiskRegister(analysisId) {
-	
+
 	var analysisID = -1;
 
 	if (analysisId == null || analysisId == undefined) {
@@ -512,68 +509,49 @@ function duplicateAnalysis(form, analyisId) {
 	var oldVersion = $("#history_oldVersion").prop("value");
 	$(".progress-striped").show();
 	$("#history_submit_button").prop("disabled", true);
-	$
-			.ajax({
-				url : context + "/Analysis/Duplicate/" + analyisId,
-				type : "post",
-				aync : true,
-				data : $("#" + form).serialize(),
-				success : function(response) {
-					var alerts = $("#addHistoryModal .label-danger");
-					if (alerts.length)
-						alerts.remove();
-					if (response["success"] != undefined) {
-						showSuccess($("#addHistoryModal .modal-body")[0],
-								response["success"]);
-						setTimeout("location.reload()", 2000);
-					} else if (hasErrors(response, "history")) {
-						$(".progress-striped").hide();
-						$("#history_submit_button").prop("disabled", false);
-						$("#history_oldVersion").prop("value", oldVersion);
-						for ( var error in response) {
-							var label = document.createElement("label");
-							$(label).attr("class", "label label-danger");
-							$(label).text(response[error]);
-							switch (error) {
-							case "date":
-							case "error":
-								$(label).appendTo(
-										$("#addHistoryModal .modal-body"));
-								break;
-							case "author":
-								$(label)
-										.appendTo(
-												$(
-														"#addHistoryModal input[name='author']")
-														.parent());
-								break;
-							case "version":
-								$(label)
-										.appendTo(
-												$(
-														"#addHistoryModal input[name='version']")
-														.parent());
-								break;
-							case "comment":
-								$(label)
-										.appendTo(
-												$(
-														"#addHistoryModal textarea[name='comment']")
-														.parent());
-								break;
-							}
-						}
-						return false;
-					} else {
-						$("#alert-dialog .modal-body")
-								.html(
-										MessageResolver(
-												"error.unknown.data.loading",
-												"An unknown error occurred during data loading"));
-						$("#alert-dialog").modal("toggle");
+	$.ajax({
+		url : context + "/Analysis/Duplicate/" + analyisId,
+		type : "post",
+		aync : true,
+		data : $("#" + form).serialize(),
+		success : function(response) {
+			var alerts = $("#addHistoryModal .label-danger");
+			if (alerts.length)
+				alerts.remove();
+			if (response["success"] != undefined) {
+				showSuccess($("#addHistoryModal .modal-body")[0], response["success"]);
+				setTimeout("location.reload()", 2000);
+			} else if (hasErrors(response, "history")) {
+				$(".progress-striped").hide();
+				$("#history_submit_button").prop("disabled", false);
+				$("#history_oldVersion").prop("value", oldVersion);
+				for ( var error in response) {
+					var label = document.createElement("label");
+					$(label).attr("class", "label label-danger");
+					$(label).text(response[error]);
+					switch (error) {
+					case "date":
+					case "error":
+						$(label).appendTo($("#addHistoryModal .modal-body"));
+						break;
+					case "author":
+						$(label).appendTo($("#addHistoryModal input[name='author']").parent());
+						break;
+					case "version":
+						$(label).appendTo($("#addHistoryModal input[name='version']").parent());
+						break;
+					case "comment":
+						$(label).appendTo($("#addHistoryModal textarea[name='comment']").parent());
+						break;
 					}
 				}
-			});
+				return false;
+			} else {
+				$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
+				$("#alert-dialog").modal("toggle");
+			}
+		}
+	});
 	return false;
 }
 
@@ -635,12 +613,12 @@ function analysisTableSortable() {
 			},
 		},
 		textSorter : {
-			1 : Array.AlphanumericSort,
-			2 : function(a, b, direction, column, table) {
+			1 : function(a, b, direction, column, table) {
 				if (table.config.sortLocaleCompare)
 					return a.localeCompare(b);
-				return versionComparator(a, b, direction);
+				return versionComparator(a, b);
 			},
+			2 : Array.AlphanumericSort,
 			3 : $.tablesorter.sortNatural,
 		},
 		theme : "bootstrap",
@@ -653,13 +631,27 @@ function analysisTableSortable() {
 			filter_reset : ".reset"
 		}
 	});
-	$("th[class~='tablesorter-header'][data-column='0']").css({'width':'2px'});
-	$("th[class~='tablesorter-header'][data-column='1']").css({'width':'150px'});
-	//$("th[class~='tablesorter-header'][data-column='2']").css({'width':'2px'});
-	$("th[class~='tablesorter-header'][data-column='3']").css({'width':'250px'});
-	$("th[class~='tablesorter-header'][data-column='4']").css({'width':'250px'});
-	$("th[class~='tablesorter-header'][data-column='5']").css({'width':'150px'});
-	$("th[class~='tablesorter-header'][data-column='6']").css({'width':'5px'});
-	$("th[class~='tablesorter-header'][data-column='7']").css({'width':'5px'});
+	$("th[class~='tablesorter-header'][data-column='0']").css({
+		'width' : '2px'
+	});
+	$("th[class~='tablesorter-header'][data-column='1']").css({
+		'width' : '150px'
+	});
+	// $("th[class~='tablesorter-header'][data-column='2']").css({'width':'2px'});
+	$("th[class~='tablesorter-header'][data-column='3']").css({
+		'width' : '250px'
+	});
+	$("th[class~='tablesorter-header'][data-column='4']").css({
+		'width' : '250px'
+	});
+	$("th[class~='tablesorter-header'][data-column='5']").css({
+		'width' : '150px'
+	});
+	$("th[class~='tablesorter-header'][data-column='6']").css({
+		'width' : '5px'
+	});
+	$("th[class~='tablesorter-header'][data-column='7']").css({
+		'width' : '5px'
+	});
 	return false;
 }

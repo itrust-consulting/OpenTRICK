@@ -7,64 +7,24 @@ function showMeasures(normId, languageId) {
 		var language = $("#section_language tbody tr[trick-id]:first-child");
 		languageId = language.length ? $(language).attr('trick-id') : 1;
 	}
+
 	$.ajax({
-		url : context + "/KnowledgeBase/Norm/" + normId + "/language/"+languageId+"/Measures",
+		url : context + "/KnowledgeBase/Norm/" + normId + "/language/" + languageId + "/Measures",
 		type : "POST",
 		contentType : "application/json",
 		success : function(response) {
-			var $contextMenu = $("#contextMenu");
-			var editRow = $contextMenu.find("li[name='edit_row'] a");
-			var deleteElement = $contextMenu.find("li[name='delete'] a");
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			var header = $(doc).find("#measures_header");
 			var body = $(doc).find("#measures_body");
-			var showMeasuresContext = $contextMenu.find("li[name='show_measures'] a");
-
 			oldHeader = $("#showMeasuresModel-title");
 			oldBody = $("#showmeasuresbody");
 			$(oldHeader).html(header.html());
 			$(oldBody).html(body.html());
-			measurestable = $('#measurestable').dataTable();
-
-			measurestable.fnDestroy();
-			measurestable = $('#measurestable').dataTable({});
-
-			$("#measurestable_wrapper").on("contextmenu", "table tbody tr", function(e) {
-				$contextMenu.css("z-index", "1070");
-				var rowTrickId = $(e.currentTarget).attr('trick-id');
-				var reference = $(e.currentTarget).children(":eq(1)").text();
-				$contextMenu.attr("trick-selected-id", rowTrickId);
-				showMeasuresContext.parent().attr("hidden", true);
-				editRow.attr("onclick", "javascript:return editSingleMeasure(" + rowTrickId + ", " + normId + ");");
-
-				deleteElement.attr("onclick", "javascript:return deleteMeasure(" + rowTrickId + "," + reference + ", '" + $("#normLabel").attr("value") + "');");
-				$contextMenu.css({
-					display : "block",
-					left : e.pageX,
-					top : e.pageY
-				});
-				return false;
-			});
-
-			$contextMenu.on("click", "a", function() {
-				$contextMenu.hide();
-			});
-
-			$('html').click(function() {
-				$contextMenu.hide();
-			});
-
-			$('#contextMenu').click(function(event) {
-				event.stopPropagation();
-			});
-
-			$("#measurestable").removeAttr("style");
-			$("#measurestable").addClass("table table-striped");
+			measureSortTable($("#showmeasuresbody")[0]);
 			$("#languageselect").change(function() {
 				var language = $(this).find("option:selected").attr("value");
 				var normId = $("#normId").attr("value");
-				// alert(normId + ":::" + language);
 				showMeasures(normId, language);
 			});
 
@@ -76,30 +36,58 @@ function showMeasures(normId, languageId) {
 }
 
 function saveMeasure(form) {
-	result = "";
-	return $.ajax({
+	$.ajax({
 		url : $("#measure_form").prop("action"),
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json",
 		success : function(response) {
-			var data = "";
-			for ( var error in response)
-				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
-			if (result) {
+			var $formParent = $("#"+form).parent();
+			var alert = $formParent.find(".label-danger");
+			if (alert.length)
+				alert.remove();
+			var languages = $("#"+form).find("#measurelanguageselect option");
+			var languageDataValidation = {};
+			for (var i = 0; i < languages.length; i++) {
+				var idLanguage = $(languages[i]).val();
+				languageDataValidation["measureDescriptionText.domain_" + idLanguage] = "#measure_domain_" + idLanguage;
+				languageDataValidation["measureDescriptionText.description_" + idLanguage] = "#measure_description_" + idLanguage;
+			}
+			for ( var error in response) {
+				var errorElement = document.createElement("label");
+				errorElement.setAttribute("class", "label label-danger");
+				$(errorElement).text(response[error]);
+				var languageData = languageDataValidation[error];
+				if (languageData != undefined){
+					$(errorElement).appendTo($("#"+form).find(languageData).parent());
+					continue;
+				}
+				switch (error) {
+				case "measuredescription.reference":
+					$(errorElement).appendTo($("#"+form).find("#measure_reference").parent());
+					break;
+				case "measuredescription.level":
+					$(errorElement).appendTo($("#"+form).find("#measure_level").parent());
+					break;
+				case "measureDescription":
+					$(errorElement).appendTo($("#"+form).parent());
+					break;
+				}
+			}
+			if (!$formParent.find(".label-danger").length) {
 				$("#addMeasureModel").modal("hide");
 				var language = $("#languageselect").find("option:selected").attr("value");
 				var normId = $("#normId").attr("value");
 				return showMeasures(normId, language);
 			}
-			return result;
+			return false;
 
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
-		},
+			return false;
+		}
 	});
+	return false;
 }
 
 function deleteMeasure(measureId, reference, norm) {
@@ -138,6 +126,9 @@ function deleteMeasure(measureId, reference, norm) {
 function newMeasure(normId) {
 	if (normId == null || normId == undefined)
 		normId = $("#normId").prop("value");
+	var alert = $("#addMeasureModel .label-danger");
+	if (alert.length)
+		alert.remove();
 	$("#measure_id").prop("value", "-1");
 
 	$("#measure_reference").prop("value", "");
@@ -145,22 +136,16 @@ function newMeasure(normId) {
 	$("#measure_level").prop("value", "");
 
 	$.ajax({
-		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/AddForm",
+		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/Add",
 		type : "get",
 		async : true,
 		contentType : "application/json",
 		success : function(response) {
 			$("#measurelanguages").html(response);
-
-			var previous = 0;
-			$("#measurelanguageselect").focus(function() {
-
-				previous = this.value;
-			}).change(function() {
-
-				$("div[measurelanguage='" + previous + "']").attr("style", "display:none;");
-				var language = $(this).find("option:selected").attr("value");
-				$("div[measurelanguage='" + language + "']").removeAttr("style");
+			$("#measurelanguageselect").change(function() {
+				var language = parseInt($(this).find("option:selected").attr("value"));
+				$("#measurelanguages div[trick-id][trick-id!='"+ language + "']").hide();
+				$("#measurelanguages div[trick-id][trick-id='"+ language +"']").show();
 			});
 			$("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
 			return false;
@@ -178,6 +163,40 @@ function newMeasure(normId) {
 	return false;
 }
 
+function measureSortTable(element) {
+	// check if datatable has to be initialised
+	var tables = $(element).find("table");
+	if (!tables.length)
+		return false;
+	// define sort order of text
+	Array.AlphanumericSortOrder = 'AaÃ�Ã¡BbCcDdÃ�Ã°EeÃ‰Ã©Ä˜Ä™FfGgHhIiÃ�Ã­JjKkLlMmNnOoÃ“Ã³PpQqRrSsTtUuÃšÃºVvWwXxYyÃ�Ã½ZzÃžÃ¾Ã†Ã¦Ã–Ã¶';
+
+	// flag to check for case sensitive comparation
+	Array.AlphanumericSortIgnoreCase = true;
+
+	// call the tablesorter plugin and apply the uitheme widget
+	$(tables).tablesorter({
+		headers : {
+			0 : {
+				sorter : false,
+			}
+		},
+		textSorter : {
+			1 : Array.AlphanumericSort,
+			2 : function(a, b, direction, column, table) {
+				if (table.config.sortLocaleCompare)
+					return a.localeCompare(b);
+				return versionComparator(a, b);
+			},
+			3 : $.tablesorter.sortNatural
+		},
+		theme : "bootstrap",
+		headerTemplate : '{icon} {content}',
+		widthFixed : true,
+		widgets : [ "uitheme" ]
+	});
+}
+
 function editSingleMeasure(measureId, normId) {
 	if (measureId == null || measureId == undefined) {
 		var selectedScenario = findSelectItemIdBySection(("section_measure_description"));
@@ -186,27 +205,23 @@ function editSingleMeasure(measureId, normId) {
 		measureId = selectedScenario[0];
 		normId = $("#normId").prop("value");
 	}
-	var rows = $("#measurestable_wrapper").find("tr[trick-id='" + measureId + "'] td:not(:first-child)");
+	var alert = $("#addMeasureModel .label-danger");
+	if (alert.length)
+		alert.remove();
+	var rows = $("#measurestable").find("tr[trick-id='" + measureId + "'] td:not(:first-child)");
 	$("#measure_id").prop("value", measureId);
 	$("#measure_reference").prop("value", $(rows[1]).text());
 	$("#measure_level").prop("value", $(rows[0]).text());
 	$.ajax({
-		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/EditForm",
+		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/"+measureId+"/Edit",
 		type : "post",
-		data : JSON.stringify({
-			"measureId" : measureId
-		}),
 		contentType : "application/json",
 		success : function(response) {
-
 			$("#measurelanguages").html(response);
-			$("#measurelanguageselect").focus(function() {
-
-				previous = this.value;
-			}).change(function() {
-				var language = $(this).find("option:selected").attr("value");
-				$("div[measurelanguage=" + previous + "]").attr("style", "display:none;");
-				$("div[measurelanguage=" + language + "]").removeAttr("style");
+			$("#measurelanguageselect").change(function() {
+				var language = parseInt($(this).find("option:selected").attr("value"));
+				$("#measurelanguages div[trick-id][trick-id!='"+ language + "']").hide();
+				$("#measurelanguages div[trick-id][trick-id='"+ language +"']").show();
 			});
 			$("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
 			return false;

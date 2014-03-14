@@ -22,7 +22,7 @@
 <script src="<spring:url value="/js/highcharts-more.js" />"></script>
 <script src="<spring:url value="/js/modules/exporting.js" />"></script>
 <script src="<spring:url value="/js/main.js" />"></script>
-<script src="<spring:url value="/js/datatables/media/js/jquery.dataTables.min.js" />"></script>
+<script src="<spring:url value="/js/jquery.floatThead.min.js" />"></script>
 <script type="text/javascript">
 	<sec:authorize ifNotGranted="ROLE_ANONYMOUS" >
 	<!--

@@ -5,6 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.Norm;
+
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.business.dao.DAOMeasureDescription {
-	
+
 	/**
 	 * 
 	 */
@@ -57,7 +58,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 
 		Query query = getSession().createQuery("From MeasureDescription where norm = :norm and reference = :reference");
 		query.setParameter("norm", norm);
-		query.setString("reference", reference);		
+		query.setString("reference", reference);
 		return (MeasureDescription) query.uniqueResult();
 
 	}
@@ -71,12 +72,15 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 */
 	@Override
 	public boolean exists(String reference, Norm norm) throws Exception {
+		return refrenceExists(reference, norm.getId());
+	}
 
-		Query query = getSession().createQuery("Select count(*) From MeasureDescription where norm = :norm and reference = :reference");
-		query.setParameter("norm", norm);
+	@Override
+	public boolean refrenceExists(String reference, int idNorm) {
+		Query query = getSession().createQuery("Select count(*) From MeasureDescription where norm.id = :idNorm and reference = :reference");
+		query.setParameter("idNorm", idNorm);
 		query.setString("reference", reference);
 		return (Long) query.uniqueResult() >= 1;
-
 	}
 
 	/**
@@ -168,7 +172,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 		query.setParameter("normid", normid);
 		return (List<MeasureDescription>) query.list();
 	}
-	
+
 	/**
 	 * getAllByNorm: <br>
 	 * Description

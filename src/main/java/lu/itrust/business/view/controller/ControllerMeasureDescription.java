@@ -134,7 +134,7 @@ public class ControllerMeasureDescription {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures/AddForm")
+	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures/Add")
 	public String displayAddForm(@PathVariable("normId") Integer normId, HttpServletRequest request, Model model) throws Exception {
 
 		// load all languages
@@ -162,8 +162,8 @@ public class ControllerMeasureDescription {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures/EditForm")
-	public String displayEditForm(@PathVariable("normId") Integer normId, @RequestBody int measureId, HttpServletRequest request, Model model) throws Exception {
+	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures/{measureId}/Edit")
+	public String displayEditForm(@PathVariable("normId") Integer normId, @PathVariable int measureId, HttpServletRequest request, Model model) throws Exception {
 
 		// load all languages
 		List<Language> languages = serviceLanguage.loadAll();
@@ -302,18 +302,30 @@ public class ControllerMeasureDescription {
 
 			if (error != null)
 				errors.put("measuredescription.reference", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				measuredescription.setReference(reference);
+			else {
+				if (measuredescription.getId() < 1 && serviceMeasureDescription.exists(reference, measuredescription.getNorm()))
+					errors.put("measuredescription.reference",
+							messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
+				else
+					measuredescription.setReference(reference);
+			}
 
 			error = serviceDataValidation.validate(measuredescription, "level", level);
 
 			if (error != null)
 				errors.put("measuredescription.level", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				measuredescription.setLevel(level);
-
-			if (!errors.isEmpty())
-				return false;
+			else {
+				if (!errors.containsKey("measuredescription.reference")) {
+					int count = 1;
+					for (int i = 0; i < reference.length(); i++)
+						if (reference.charAt(i) == '.')
+							count++;
+					if (count != level)
+						errors.put("measuredescription.level", messageSource.getMessage("error.measuredescription.level.reference.not_meet", null, "Level and reference do not match", locale));
+					else
+						measuredescription.setLevel(level);
+				}
+			}
 
 			// load languages
 			List<Language> languages = serviceLanguage.loadAll();
@@ -335,18 +347,6 @@ public class ControllerMeasureDescription {
 				// init measdesctext object
 				MeasureDescriptionText mesDescText = measuredescription.findByLanguage(language);
 
-				error = validator.validate(measuredescription, "domain", domain);
-
-				if (error != null)
-					errors.put("measureDescriptionText.domain_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
-				else
-					mesDescText.setDomain(domain);
-
-				error = validator.validate(measuredescription, "description", description);
-				if (error != null)
-					errors.put("measureDescriptionText.description_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
-				else
-					mesDescText.setDescription(description);
 				// if new measure or text for this language does not exist:
 				// create new text and save
 				if (mesDescText == null) {
@@ -355,6 +355,19 @@ public class ControllerMeasureDescription {
 					mesDescText.setLanguage(language);
 					measuredescription.addMeasureDescriptionText(mesDescText);
 				}
+				
+				error = validator.validate(mesDescText, "domain", domain);
+
+				if (error != null)
+					errors.put("measureDescriptionText.domain_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
+				else
+					mesDescText.setDomain(domain);
+
+				error = validator.validate(mesDescText, "description", description);
+				if (error != null)
+					errors.put("measureDescriptionText.description_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
+				else
+					mesDescText.setDescription(description);
 			}
 			// return success message
 			return errors.isEmpty();

@@ -2064,31 +2064,37 @@ function contextMenuHide(context) {
  * @param order
  * @returns
  */
-function versionComparator(version1, version2, order) {
-
+function versionComparator(version1, version2) {
 	// splite versions by "."
 	var v1 = version1.split(".", 1);
 	var v2 = version2.split(".", 1);
-
+	
+	if (v1.length)
+		v1 = parseInt(v1[0]);
+	if (v2.length)
+		v2 = parseInt(v2[0]);
+	
 	if (v1 == v2) {
 		var index = version1.indexOf(".");
 		if (index != -1)
-			version1 = version1.substring(index + 2);
+			version1 = version1.substring(index + 1);
+		else version1="";
 
 		var index2 = version2.indexOf(".");
 		if (index2 != -1)
-			version2 = version2.substring(index2 + 2);
+			version2 = version2.substring(index2 + 1);
+		else version2="";
 
 		if (!version1.length && !version2.length)
 			return 0;
 		else if (!version1.length)
-			return -1 * (order ? 1 : -1);
+			return -1;
 		else if (!version2.length)
-			return 1 * (order ? 1 : -1);
+			return 1;
 
-		return versionComparator(version1, version2, order);
+		return versionComparator(version1, version2);
 	}
-	return v1 > v2 ? 1 : -1 * (order ? 1 : -1);
+	return v1 > v2 ? 1 : -1;
 
 }
 
@@ -2218,7 +2224,6 @@ function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
  * Content Navigation
  */
 $(function() {
-
 	var l_lang;
 	if (navigator.userLanguage) // Explorer
 		l_lang = navigator.userLanguage;
