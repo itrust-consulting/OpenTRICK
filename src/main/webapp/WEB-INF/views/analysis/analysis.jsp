@@ -77,8 +77,18 @@
 		<script type="text/javascript">
 			$(document).ready(function() {
 				$("input[type='checkbox']").removeAttr("checked");
-				initialiseTableFixedHeaderRows();
+				//adaptHeaderTabletoData("section_measure_27001");
 			});
+			
+			function adaptHeaderTabletoData(container) {
+				var tableheader = $("#"+container).find("table[class~='tableheaderrow']:first");
+				var tablescrollarea = $("#"+container).find("table[class~='tablescrollarea']:first");
+				tablescrollarea.find("tr:nth-child(3) td").each(function(index){
+					var bodywidth=$(this).outerWidth();
+					tableheader.find("tr:first th:nth-child("+(index+1)+")").outerWidth(bodywidth);
+										
+				});
+			}
 		
 		</script>
 			<c:if test="${empty(sessionScope.selectedAnalysis)}">
