@@ -17,7 +17,7 @@
 			<c:if test="${!KowledgeBaseView}">
 				<li><a href="#anchorHistory"><spring:message code="menu.analysis.history" text="History" /></a></li>
 			</c:if>
-			<li><a href="#anchorItemInformation"><spring:message code="menu.analysis.iteminformation" text="Item Information" /></a></li>
+			<li><a href="#anchorScope"><spring:message code="menu.analysis.iteminformation" text="Scope" /></a></li>
 			<li><a href="#anchorParameter"><spring:message code="menu.analysis.parameter" text="Parameters" /></a></li>
 			<li><a href="#anchorAsset"><spring:message code="menu.analysis.asset" text="Assets" /></a></li>
 			<li><a href="#anchorScenario"><spring:message code="menu.analysis.scenario" text="Scenarios" /></a></li>

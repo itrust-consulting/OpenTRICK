@@ -51,16 +51,21 @@
 											<c:choose>
 												<c:when test="${measure.computable==false }">
 													<tr style="background-color: LightGray">
-														<td><spring:message text="${measure.measureDescription.reference}" /></td>
 														<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
+														<td><spring:message text="${measure.measureDescription.reference}" /></td>
 														<td colspan="12"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 													</tr>
 												</c:when>
 												<c:otherwise>
 													<tr trick-class="Measure" trick-id="${measure.id}"
 														trick-callback="reloadMeasureRow('${measure.id}','${norm}');initialiseTableFixedHeaderRows('#section_measure_${norm}');">
-														<td><spring:message text="${measure.measureDescription.reference}" /></td>
 														<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
+														
+														<td>
+															<a href="#" class="descriptiontooltip" data-toggle="tooltip" title="<spring:message text="${!empty measureDescriptionText? measureDescriptionText.description : ''}" />">
+																<spring:message text="${measure.measureDescription.reference}" />
+															</a>
+														</td>
 														<td style="width: 650px;"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 														<td class="success textaligncenter cellwidth_80" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 																text="${measure.status}" /></td>

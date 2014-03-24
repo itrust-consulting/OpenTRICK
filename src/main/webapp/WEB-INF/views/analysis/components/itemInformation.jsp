@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<span class="anchor" id="anchorItemInformation"></span>
+<span class="anchor" id="anchorScope"></span>
 <div class="section" id="section_itemInformation">
 	<div class="page-header">
 		<h3 id="ItemInformation">
