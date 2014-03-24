@@ -39,9 +39,9 @@ import org.springframework.util.FileCopyUtils;
 /**
  * WorkerExportAnalysis.java: <br>
  * Detailed description...
- *
+ * 
  * @author eomar, itrust consulting s.à.rl. :
- * @version 
+ * @version
  * @since Jan 30, 2014
  */
 public class WorkerExportAnalysis implements Worker {
@@ -69,8 +69,7 @@ public class WorkerExportAnalysis implements Worker {
 	private WorkersPoolManager poolManager;
 
 	/**
-	 * WorkerExportAnalysis:
-	 * desc
+	 * WorkerExportAnalysis: desc
 	 * 
 	 * @param serviceTaskFeedback
 	 * @param sessionFactory
@@ -120,7 +119,8 @@ public class WorkerExportAnalysis implements Worker {
 				MessageHandler messageHandler = exportAnalysis.exportAnAnalysis();
 				if (messageHandler != null)
 					error = messageHandler.getException();
-				saveSqLite(session, analysis.getIdentifier());
+				else
+					saveSqLite(session, analysis.getIdentifier());
 			}
 		} catch (HibernateException e) {
 			this.error = e;
