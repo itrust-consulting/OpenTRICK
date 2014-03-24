@@ -5,7 +5,7 @@ function saveUser(form) {
 				url : context + "/Admin/User/Save",
 				type : "post",
 				data : serializeForm(form),
-				contentType : "application/json",
+				contentType : "application/json;charset=UTF-8",
 				success : function(response) {
 					var data = "";
 					for ( var error in response)
@@ -55,7 +55,7 @@ function deleteUser(userId, name) {
 									url : context + "/Admin/User/Delete/"
 											+ userId,
 									type : "POST",
-									contentType : "application/json",
+									contentType : "application/json;charset=UTF-8",
 									success : function(response) {
 										if (response == false) {
 											str = '<div class="alert alert-error" aria-hidden="true">';
@@ -103,7 +103,7 @@ function newUser() {
 	$.ajax({
 		url : context + "/Admin/Roles",
 		type : "get",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			$("#rolescontainer").html(response);
 		},
@@ -139,7 +139,7 @@ function editSingleUser(userId) {
 	$.ajax({
 		url : context + "/Admin/User/Roles/" + userId,
 		type : "get",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			$("#rolescontainer").html(response);
 		},

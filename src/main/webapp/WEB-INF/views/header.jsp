@@ -5,6 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<fmt:setLocale value="fr_FR" scope="session"/>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title><spring:message code="${title}" text="TRICK Service" /></title>
@@ -14,12 +15,14 @@
 <link href="<spring:url value="/js/stickyrows/stickyRows.css" />" rel="stylesheet" media="screen" />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.min.css" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/slider.css" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/datepicker.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/select2-bootstrap.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/theme.bootstrap.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/main.css" />' />
 <script type="text/javascript">
 <!--
 	var context = '${pageContext.request.contextPath}';
-	-->
+-->
 </script>
 </head>

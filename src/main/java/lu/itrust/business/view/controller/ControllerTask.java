@@ -6,10 +6,10 @@ import java.util.Locale;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.helper.AsyncResult;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
-import lu.itrust.business.view.model.AsyncResult;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;

@@ -63,6 +63,22 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	public List<Language> loadAll() throws Exception {
 		return daoLanguage.loadAll();
 	}
+	
+	
+	@Override
+	public boolean alpha3Exist(String alpha3) throws Exception {
+		return daoLanguage.alpha3Exist(alpha3);
+	}
+	
+	@Override
+	public boolean nameExist(String name) {
+		return daoLanguage.nameExist(name);
+	}
+
+	@Override
+	public boolean altNameExist(String altName) {
+		return daoLanguage.altNameExist(altName);
+	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.service.ServiceLanguage#save(lu.itrust.business.TS.Language)
@@ -80,7 +96,6 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	@Override
 	public void saveOrUpdate(Language language) throws Exception {
 		daoLanguage.saveOrUpdate(language);
-
 	}
 
 	/* (non-Javadoc)
@@ -96,7 +111,6 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	@Override
 	public void remove(Integer languageId) throws Exception {
 		daoLanguage.remove(languageId);
-
 	}
 	
 	/**
@@ -117,5 +131,6 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	public Language findByAnalysis(Integer idAnalysis) {
 		return this.daoLanguage.findByAnalysis(idAnalysis);
 	}
+
 
 }

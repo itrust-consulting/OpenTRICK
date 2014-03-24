@@ -27,10 +27,10 @@
 				<tbody>
 					<c:forEach items="${histories}" var="history">
 						<tr trick-class="History" trick-id="${history.id}">
-							<td>${history.version}</td>
+							<td><spring:message text="${history.version}" /></td>
 							<td><fmt:formatDate value="${history.date}" pattern="dd/MM/yyyy" /></td>
-							<td trick-field="author" trick-field-type="string" class="success" ondblclick="editField(this);">${history.author}</td>
-							<td trick-field="comment" trick-field-type="string" class="success" ondblclick="editField(this);">${history.comment}</td>
+							<td trick-field="author" trick-field-type="string" class="success" ondblclick="editField(this);"><spring:message text="${history.author}" /></td>
+							<td trick-field="comment" trick-field-type="string" trick-content="text" class="success" ondblclick="editField(this);"><spring:message text="${history.comment}" /></td>
 						</tr>
 					</c:forEach>
 				</tbody>

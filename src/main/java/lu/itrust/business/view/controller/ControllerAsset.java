@@ -19,7 +19,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
-import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceAssetType;
@@ -78,7 +78,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Select/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Select/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String select(@PathVariable int id, Principal principal, Locale locale, HttpSession session) {
@@ -121,7 +121,7 @@ public class ControllerAsset {
 	 * @param session
 	 * @return
 	 */
-	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) {
@@ -166,7 +166,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
 	String[] delete(@PathVariable int id, Principal principal, Locale locale, HttpSession session) {
@@ -194,7 +194,7 @@ public class ControllerAsset {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) {
 
@@ -241,7 +241,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	List<String[]> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
@@ -263,7 +263,7 @@ public class ControllerAsset {
 				errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.not_found", null, "Selected analysis cannot be found", locale) });
 				return errors;
 			}
-
+			
 			// create new asset object
 			Asset asset = new Asset();
 
@@ -275,11 +275,10 @@ public class ControllerAsset {
 
 			// check if asset is to be created (new)
 			if (asset.getId() < 1) {
-
 				// create assessments for the new asset
 				assessmentManager.build(asset, idAnalysis);
 			} else {
-
+				
 				// update existing asset object
 				serviceAsset.merge(asset);
 
@@ -321,7 +320,7 @@ public class ControllerAsset {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Chart/Ale")
+	@RequestMapping(value="/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
 	String aleByAsset(HttpSession session, Model model, Locale locale, Principal principal) throws Exception {
@@ -344,7 +343,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping("/Chart/Type/Ale")
+	@RequestMapping(value="/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
 	String assetByALE(HttpSession session, Model model, Locale locale, Principal principal) {

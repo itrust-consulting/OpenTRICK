@@ -23,6 +23,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * @author oensuifudine
@@ -52,7 +53,7 @@ public class ControllerHome {
 
 //	@Secured("ROLE_USER")
 	@PreAuthorize(Constant.ROLE_MIN_USER)
-	@RequestMapping(value = "/MessageResolver", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/MessageResolver", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String resolveMessage(Locale locale, HttpServletRequest request) {
 		String code = request.getParameter("code");
@@ -71,6 +72,14 @@ public class ControllerHome {
 	public String login() {
 		return "loginForm";
 	}
+	
+	@RequestMapping("/login/error")
+	public String login(RedirectAttributes attributes, Locale locale) {
+		attributes.addFlashAttribute("errors", messageSource.getMessage("error.bad.credential", null, "Please check your credentials", locale));
+		return "redirect:/login";
+	}
+	
+	
 
 	@RequestMapping("/logout")
 	public String logout() {

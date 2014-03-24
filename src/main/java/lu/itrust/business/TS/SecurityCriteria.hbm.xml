@@ -57,7 +57,7 @@
 		<joined-subclass name="MeasureProperties" extends="SecurityCriteria" table="MeasureProperties">
 			<key column="idMeasureProperties" not-null="true" />
 			<property name="fmeasure" column="dtStrengthMeasure" not-null="true" access="field" />
-			<property name="fSectoral" column="dtStrengthSectoral" not-null="true" access="field" />
+			<property name="fsectoral" column="dtStrengthSectoral" not-null="true" access="field" />
 			<property name="soaReference" column="dtSOAReference" not-null="true" access="field" />
 			<property name="soaComment" column="dtSOAComment" not-null="true" access="field" />
 			<property name="soaRisk" column="dtSOARisk" not-null="true" access="field" />

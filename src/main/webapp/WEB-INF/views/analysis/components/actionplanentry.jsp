@@ -5,7 +5,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <spring:htmlEscape defaultHtmlEscape="true" />
-<tr trick-class="ActionPlanEntry" trick-id="${actionplanentry.id}" trick-callback="reloadActionPlanEntryRow('${actionplanentry.id}','${actionplanentry.actionPlanType.getName()}')">
+<tr trick-class="ActionPlanEntry" trick-id="${actionplanentry.id}" trick-callback="reloadActionPlanEntryRow('${actionplanentry.id}','<spring:message text="${actionplanentry.actionPlanType.getName()}"/>')">
 	<td><spring:message text="${actionplanentry.position}" /></td>
 	<td><spring:message text="${actionplanentry.measure.analysisNorm.norm.label}" /></td>
 	<td><spring:message text="${actionplanentry.measure.measureDescription.reference}" /></td>

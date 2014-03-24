@@ -33,4 +33,6 @@ public interface ServiceMeasureDescription {
 
 	public DAOMeasureDescription getDaoMeasureDescription();
 
+	public boolean refrenceExists(String reference, int id);
+
 }

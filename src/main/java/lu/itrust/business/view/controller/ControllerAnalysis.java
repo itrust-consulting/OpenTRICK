@@ -27,7 +27,7 @@ import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
-import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceActionPlan;
@@ -215,7 +215,7 @@ public class ControllerAnalysis {
 			if (customer != null)
 
 				// load model with objects by the selected customer
-				model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(principal.getName(), customer, 0, 10));
+				model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomerAndNoEmpty(principal.getName(), customer));
 			model.addAttribute("customer", customer);
 			model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
 			model.addAttribute("login", principal.getName());
@@ -346,7 +346,7 @@ public class ControllerAnalysis {
 			if (!customers.isEmpty())
 				request.getSession().setAttribute("currentCustomer", customer = customers.get(0).getId());
 		}
-		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(principal.getName(), customer, 0, 10));
+		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomerAndNoEmpty(principal.getName(), customer));
 		model.addAttribute("customer", customer);
 		model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
@@ -365,15 +365,13 @@ public class ControllerAnalysis {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping("/DisplayByCustomer/{customerSection}/{pageIndex}")
-	public String section(@PathVariable Integer customerSection, @PathVariable int pageIndex, HttpSession session, Principal principal, Model model) throws Exception {
-
+	@RequestMapping("/DisplayByCustomer/{customerSection}")
+	public String section(@PathVariable Integer customerSection,HttpSession session, Principal principal, Model model) throws Exception {
 		session.setAttribute("currentCustomer", customerSection);
-		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomer(principal.getName(), customerSection, pageIndex, 10));
+		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomerAndNoEmpty(principal.getName(), customerSection));
 		model.addAttribute("customer", customerSection);
 		model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
-
 		return "analysis/analyses";
 	}
 
@@ -389,7 +387,7 @@ public class ControllerAnalysis {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String update(HttpSession session, Locale locale) {
@@ -534,7 +532,7 @@ public class ControllerAnalysis {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -581,7 +579,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
 	String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session) throws Exception {
@@ -619,7 +617,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String addHistory(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Principal principal, HttpSession session) throws Exception {
 

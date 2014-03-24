@@ -22,6 +22,7 @@ public interface DAOMeasureDescription {
 	public List<MeasureDescription> getAllByNorm(String label) throws Exception;
 	public List<MeasureDescription> getAll() throws Exception;
 	public boolean exists(String reference, Norm norm) throws Exception;
+	public boolean refrenceExists(String reference, int idNorm);
 	public boolean existsWithLanguage(String reference, Norm norm, Language language) throws Exception;
 	public void save(MeasureDescription measureDescription) throws Exception;
 	public void saveOrUpdate(MeasureDescription measureDescription) throws Exception;

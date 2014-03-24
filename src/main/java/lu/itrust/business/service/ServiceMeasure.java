@@ -7,6 +7,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.NormMeasure;
 
 /**
  * @author eomar
@@ -15,10 +16,14 @@ import lu.itrust.business.TS.Norm;
 public interface ServiceMeasure {
 
 	Measure findOne(int id);
-	
-	Measure findByIdAndAnalysis(Integer id, Integer idAnalysis);
 
 	List<Measure> findByAnalysis(int idAnalysis);
+
+	List<NormMeasure> findNormMeasureByAnalysis(int idAnalysis);
+
+	List<NormMeasure> findNormMeasureByAnalysisAndComputable(int idAnalysis);
+
+	Measure findByIdAndAnalysis(Integer id, Integer idAnalysis);
 
 	List<Measure> findByAnalysisAndNorm(int idAnalysis, int idNorm);
 
@@ -35,7 +40,4 @@ public interface ServiceMeasure {
 	void delete(Measure measure);
 
 	void delete(int id);
-
-	
-
 }

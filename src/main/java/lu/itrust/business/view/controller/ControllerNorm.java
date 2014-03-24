@@ -2,15 +2,17 @@ package lu.itrust.business.view.controller;
 
 import java.io.File;
 import java.security.Principal;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.CustomDelete;
-import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.component.helper.JsonMessage;
+import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasureDescription;
 import lu.itrust.business.service.ServiceMeasureDescriptionText;
@@ -19,6 +21,9 @@ import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerImportNorm;
+import lu.itrust.business.validator.NormValidator;
+import lu.itrust.business.validator.field.ValidatorField;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.SessionFactory;
@@ -72,6 +77,9 @@ public class ControllerNorm {
 	private ServiceTaskFeedback serviceTaskFeedback;
 
 	@Autowired
+	private ServiceDataValidation serviceDataValidation;
+
+	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
 	@Autowired
@@ -105,7 +113,7 @@ public class ControllerNorm {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Model model) throws Exception {
 
 		// call default
@@ -151,41 +159,39 @@ public class ControllerNorm {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
-	List<String[]> save(@RequestBody String value, Locale locale) {
+	Map<String, String> save(@RequestBody String value, Locale locale) {
 
 		// init errors list
-		List<String[]> errors = new LinkedList<>();
+		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		try {
-
 			// create new empty object
 			Norm norm = new Norm();
 
 			// build norm object
-			buildNorm(errors, norm, value, locale);
+			if (!buildNorm(errors, norm, value, locale))
+				return errors;
 
 			// check if norm has to be create (new) or updated
 			if (norm.getId() < 1) {
 
-				// save
-				serviceNorm.save(norm);
-			} else {
-
+				if (!serviceNorm.exists(norm.getLabel(), norm.getVersion()))
+					// save
+					serviceNorm.save(norm);
+				else
+					errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null, "Version already exists", locale));
+			} else
 				// update
 				serviceNorm.saveOrUpdate(norm);
-			}
-
 			// errors
-			return errors;
 		} catch (Exception e) {
-
 			// return errors
-			errors.add(new String[] { "norm", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("norm", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
-			return errors;
 		}
+		return errors;
 	}
 
 	/**
@@ -197,7 +203,7 @@ public class ControllerNorm {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{normId}", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Delete/{normId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String deleteNorm(@PathVariable("normId") Integer normId, Locale locale) throws Exception {
 
@@ -221,7 +227,7 @@ public class ControllerNorm {
 	 * Upload new norm file
 	 * 
 	 * */
-	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String UploadNorm() throws Exception {
 		return "knowledgebase/standard/norm/uploadForm";
 	}
@@ -254,7 +260,7 @@ public class ControllerNorm {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildNorm(List<String[]> errors, Norm norm, String source, Locale locale) {
+	private boolean buildNorm(Map<String, String> errors, Norm norm, String source, Locale locale) {
 
 		try {
 
@@ -262,35 +268,61 @@ public class ControllerNorm {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 
+			ValidatorField validator = serviceDataValidation.findByClass(Norm.class);
+
+			if (validator == null)
+				serviceDataValidation.register(validator = new NormValidator());
+
 			// load norm id
 			int id = jsonNode.get("id").asInt();
 
-			// check if norm has to be updated
-			if (id > 0)
+			String label = jsonNode.get("label").asText();
 
-				// init id
-				norm.setId(jsonNode.get("id").asInt());
+			String description = jsonNode.get("description").asText();
 
-			// set data
-			norm.setLabel(jsonNode.get("label").asText());
+			Integer version = null;
 
-			norm.setDescription(jsonNode.get("description").asText());
-			norm.setVersion(jsonNode.get("version").asInt());
-
-			// set computable flag
-			if (jsonNode.get("computable").asText().equals("on")) {
-				norm.setComputable(true);
-			} else {
-				norm.setComputable(false);
+			try {
+				version = jsonNode.get("version").asInt();
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
 			}
 
+			// check if norm has to be updated
+			if (id > 0)
+				// init id
+				norm.setId(id);
+
+			// set data
+			String error = validator.validate(norm, "label", label);
+			if (error != null)
+				errors.put("label", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				norm.setLabel(label);
+
+			error = validator.validate(norm, "version", version);
+
+			if (error != null)
+				errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				norm.setVersion(version);
+
+			error = validator.validate(norm, "description", description);
+
+			if (error != null)
+				errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				norm.setDescription(description);
+
+			// set computable flag
+			norm.setComputable(jsonNode.get("computable").asText().equals("on"));
+
 			// return success
-			return true;
+			return errors.isEmpty();
 
 		} catch (Exception e) {
-
 			// return error
-			errors.add(new String[] { "norm", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("norm", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
 		}

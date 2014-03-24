@@ -9,6 +9,7 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.component.helper.AsyncCallback;
 import lu.itrust.business.dao.DAOActionPlan;
 import lu.itrust.business.dao.DAOActionPlanSummary;
 import lu.itrust.business.dao.DAOActionPlanType;
@@ -19,7 +20,6 @@ import lu.itrust.business.dao.hbm.DAOActionPlanTypeHBM;
 import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
-import lu.itrust.business.view.model.AsyncCallback;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;

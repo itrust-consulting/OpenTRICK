@@ -12,7 +12,7 @@ function editSingleAnalysis(analysisId) {
 		$.ajax({
 			url : context + "/Analysis/Edit/" + analysisId,
 			type : "get",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
@@ -59,7 +59,7 @@ function saveAnalysis(form, reloadaction) {
 		url : context + "/Analysis/Save",
 		type : "post",
 		data : serializeForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			$("#addAnalysisModel .progress").hide();
 			$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
@@ -135,7 +135,7 @@ function deleteAnalysis(analysisId) {
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
 				type : "GET",
-				contentType : "application/json",
+				contentType : "application/json;charset=UTF-8",
 				success : function(response) {
 					$("#deleteprogressbar").hide();
 					$("#deleteanalysisbuttonYes").prop("disabled",false);
@@ -168,7 +168,7 @@ function analysisTableSortable() {
 		return false;
 
 	// define sort order of text
-	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
+	Array.AlphanumericSortOrder = 'AaÃ�Ã¡BbCcDdÃ�Ã°EeÃ‰Ã©Ä˜Ä™FfGgHhIiÃ�Ã­JjKkLlMmNnOoÃ“Ã³PpQqRrSsTtUuÃšÃºVvWwXxYyÃ�Ã½ZzÃžÃ¾Ã†Ã¦Ã–Ã¶';
 
 	// flag to check for case sensitive comparation
 	Array.AlphanumericSortIgnoreCase = true;

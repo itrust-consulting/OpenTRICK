@@ -20,6 +20,7 @@ import lu.itrust.business.TS.export.ExportAnalysis;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
+import lu.itrust.business.component.helper.AsyncCallback;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.dao.DAOUserSqLite;
@@ -28,7 +29,6 @@ import lu.itrust.business.dao.hbm.DAOUserHBM;
 import lu.itrust.business.dao.hbm.DAOUserSqLiteHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
-import lu.itrust.business.view.model.AsyncCallback;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -39,9 +39,9 @@ import org.springframework.util.FileCopyUtils;
 /**
  * WorkerExportAnalysis.java: <br>
  * Detailed description...
- *
+ * 
  * @author eomar, itrust consulting s.à.rl. :
- * @version 
+ * @version
  * @since Jan 30, 2014
  */
 public class WorkerExportAnalysis implements Worker {
@@ -69,8 +69,7 @@ public class WorkerExportAnalysis implements Worker {
 	private WorkersPoolManager poolManager;
 
 	/**
-	 * WorkerExportAnalysis:
-	 * desc
+	 * WorkerExportAnalysis: desc
 	 * 
 	 * @param serviceTaskFeedback
 	 * @param sessionFactory
@@ -120,7 +119,8 @@ public class WorkerExportAnalysis implements Worker {
 				MessageHandler messageHandler = exportAnalysis.exportAnAnalysis();
 				if (messageHandler != null)
 					error = messageHandler.getException();
-				saveSqLite(session, analysis.getIdentifier());
+				else
+					saveSqLite(session, analysis.getIdentifier());
 			}
 		} catch (HibernateException e) {
 			this.error = e;

@@ -16,6 +16,7 @@ import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Scenario;
+import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;

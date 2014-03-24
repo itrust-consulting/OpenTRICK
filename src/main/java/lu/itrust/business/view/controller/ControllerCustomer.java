@@ -14,7 +14,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.CustomDelete;
-import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceUser;
@@ -104,7 +104,7 @@ public class ControllerCustomer {
 	 * @throws Exception
 	 */
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping(value = "/{customerID}/Users/Update", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/{customerID}/Users/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public String updateCustomerUsers(@RequestBody String value, @PathVariable("customerID") int customerID, Model model, Principal principal, Locale locale,
 			RedirectAttributes redirectAttributes) throws Exception {
 		// create errors list
@@ -155,7 +155,7 @@ public class ControllerCustomer {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request) throws Exception {
 		String referer = request.getHeader("Referer");
 		if (referer != null && referer.contains("/trickservice/Admin")) {
@@ -198,7 +198,7 @@ public class ControllerCustomer {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	Map<String, String> save(@RequestBody String value, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<>();
@@ -237,7 +237,7 @@ public class ControllerCustomer {
 	 * Delete single customer
 	 * 
 	 * */
-	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Delete/{customerId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String deleteCustomer(@PathVariable("customerId") int customerId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 		try {
@@ -290,7 +290,7 @@ public class ControllerCustomer {
 			String contactPerson = jsonNode.get("contactPerson").asText();
 			String telephoneNumber = jsonNode.get("telephoneNumber").asText();
 			String email = jsonNode.get("email").asText();
-			String address = jsonNode.get("email").asText();
+			String address = jsonNode.get("address").asText();
 			String city = jsonNode.get("city").asText();
 			String ZIPCode = jsonNode.get("ZIPCode").asText();
 			String country = jsonNode.get("country").asText();

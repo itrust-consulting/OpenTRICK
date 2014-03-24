@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServicePhase;
 
@@ -64,7 +64,7 @@ public class ControllerPhase {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 
@@ -90,7 +90,7 @@ public class ControllerPhase {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{idPhase}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Delete/{idPhase}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
 	String delete(@PathVariable int idPhase, HttpSession session, Principal principal, Locale locale) throws Exception {
@@ -219,7 +219,6 @@ public class ControllerPhase {
 			return errors;
 
 		} catch (Exception e) {
-
 			// return errors
 			e.printStackTrace();
 			errors.add(new String[] { "endDate", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });

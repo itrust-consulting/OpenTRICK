@@ -38,7 +38,7 @@
 							<input name="level" id="measure_level" class="form-control" type="text" />
 						</div>
 					</div>
-						<div id="measurelanguages"></div>
+					<div id="measurelanguages"></div>
 				</form>
 			</div>
 			<div class="modal-footer">

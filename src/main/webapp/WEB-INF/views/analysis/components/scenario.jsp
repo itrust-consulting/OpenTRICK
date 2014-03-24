@@ -41,9 +41,9 @@
 						<tr trick-id="${scenario.id}" trick-selected="${scenario.selected}" ondblclick="return editScenario(${scenario.id})">
 							<td><input type="checkbox" class="checkbox checkboxselectable" onchange="return updateMenu('#section_scenario','#menu_scenario');"></td>
 							<td>${status.index+1}</td>
-							<td class="${cssClass}" colspan="2">${scenario.name}</td>
-							<td class="${cssClass}">${scenario.scenarioType.name}</td>
-							<td class="${cssClass}" colspan="2">${scenario.description}</td>
+							<td class="${cssClass}" colspan="2"><spring:message text="${scenario.name}" /></td>
+							<td class="${cssClass}"><spring:message text="${scenario.scenarioType.name}" /></td>
+							<td class="${cssClass}" colspan="2"><spring:message text="${scenario.description}" /></td>
 						</tr>
 					</c:forEach>
 				</tbody>

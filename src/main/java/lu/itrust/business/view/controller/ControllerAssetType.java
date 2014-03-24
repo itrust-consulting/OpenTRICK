@@ -28,7 +28,7 @@ public class ControllerAssetType {
 	@Autowired
 	private ServiceAssetType serviceAssetType;
 
-	@RequestMapping(value = "/All", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/All", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AssetType> findAll() throws Exception{
 		return serviceAssetType.loadAll();
 	}

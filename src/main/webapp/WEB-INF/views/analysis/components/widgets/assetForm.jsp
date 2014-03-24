@@ -26,7 +26,7 @@
 						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.asset.name" text="Name" />
 						</label>
 						<div class="col-sm-10">
-							<input name="name" id="asset_name" class="form-control" value="${empty(asset)? '':asset.name}" />
+							<input name="name" id="asset_name" class="form-control" value='<spring:message text="${empty(asset)? '':asset.name}" />' />
 						</div>
 					</div>
 					<div class="form-group">
@@ -68,14 +68,14 @@
 						<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.asset.comment" text="Comment" />
 						</label>
 						<div class="col-sm-10">
-							<textarea name="comment" class="form-control" id="asset_comment">${empty(asset)? '': asset.comment}</textarea>
+							<textarea name="comment" class="form-control" id="asset_comment"><spring:message text="${empty(asset)? '': asset.comment}" /></textarea>
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="hiddenComment" class="col-sm-2 control-label"> <spring:message code="label.asset.comment_hidden" text="Comment hidden" />
 						</label>
 						<div class="col-sm-10">
-							<textarea name="hiddenComment" id="asset_hiddenComment" class="form-control">${empty(asset)? '': asset.hiddenComment}</textarea>
+							<textarea name="hiddenComment" id="asset_hiddenComment" class="form-control"><spring:message text="${empty(asset)? '': asset.hiddenComment}" /></textarea>
 						</div>
 					</div>
 				</form>

@@ -1,7 +1,6 @@
 /*******************************************************************************
  * 
  */
-
 var application = new Application();
 
 var ANALYSIS_RIGHT = {
@@ -34,6 +33,13 @@ var ANALYSIS_RIGHT = {
 		name : "READ"
 	}
 };
+
+function escape(key, val) {
+	if (typeof (val) != "string")
+		return val;
+	return val.replace(/[\\]/g, '\\\\').replace(/[\/]/g, '\\/').replace(/[\b]/g, '\\b').replace(/[\f]/g, '\\f').replace(/[\n]/g, '\\n').replace(/[\r]/g, '\\r').replace(/[\t]/g,
+			'\\t').replace(/[\"]/g, '\\"').replace(/\\'/g, "\\'");
+}
 
 function log(msg) {
 	setTimeout(function() {
@@ -95,7 +101,7 @@ function MessageResolver(code, defaulttext, params) {
 			"default" : defaulttext,
 			"params" : params
 		},
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			if (response == null || response == "")
 				return defaulttext;
@@ -128,7 +134,7 @@ function cancelTask(taskId) {
 	$.ajax({
 		url : context + "/Task/Stop/" + taskId,
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(reponse) {
 			$("#task_" + taskId).remove();
 		}
@@ -150,7 +156,7 @@ function computeAssessment() {
 	$.ajax({
 		url : context + "/Assessment/Update",
 		type : "get",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			if (response['error'] != undefined) {
@@ -176,7 +182,7 @@ function wipeAssessment() {
 	$.ajax({
 		url : context + "/Assessment/Wipe",
 		type : "get",
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			if (response['error'] != undefined) {
@@ -276,37 +282,43 @@ function FieldEditor(element, validator) {
 	this.controllor = null;
 	this.defaultValue = $(element).text().trim();
 	this.choose = [];
-	this.inputField = null;
+	this.fieldEditor = null;
 	this.realValue = null;
 	this.fieldName = null;
 	this.classId = null;
 	this.fieldType = null;
 	this.callback = null;
 
-	FieldEditor.prototype.GenerateInputField = function() {
-		if ($(this.element).find("input").length || $(this.element).find("select").length)
+	FieldEditor.prototype.GeneratefieldEditor = function() {
+		if ($(this.element).find("input").length || $(this.element).find("select").length || $(this.element).find("textarea").length)
 			return true;
 		if (!this.LoadData())
 			return true;
 		if (!this.choose.length) {
-			this.inputField = document.createElement("input");
-			this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
+			if (this.defaultValue.length > 100 || $(this.element).attr("trick-content") == "text") {
+				this.fieldEditor = document.createElement("textarea");
+				this.fieldEditor.setAttribute("style", "min-width:300px;");
+			} else {
+				this.fieldEditor = document.createElement("input");
+				this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
+				this.fieldEditor.setAttribute("style", "min-width:80px;");
+			}
 		} else {
-			this.inputField = document.createElement("select");
-			this.inputField.setAttribute("style", "min-width:60px;");
+			this.fieldEditor = document.createElement("select");
+			this.fieldEditor.setAttribute("style", "min-width:80px;");
 			for (var i = 0; i < this.choose.length; i++) {
 				var option = document.createElement("option");
 				option.setAttribute("value", this.choose[i]);
 				$(option).text(this.choose[i]);
 				if (this.choose[i] == this.defaultValue)
 					option.setAttribute("selected", true);
-				$(option).appendTo($(this.inputField));
+				$(option).appendTo($(this.fieldEditor));
 			}
 		}
 		var that = this;
-		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
-		$(this.inputField).blur(function() {
+		this.fieldEditor.setAttribute("class", "form-control");
+		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		$(this.fieldEditor).blur(function() {
 			return that.Save(that);
 		});
 		return false;
@@ -319,7 +331,7 @@ function FieldEditor(element, validator) {
 
 	FieldEditor.prototype.Initialise = function() {
 
-		if (!this.GenerateInputField()) {
+		if (!this.GeneratefieldEditor()) {
 			this.controllor = this.__findControllor(this.element);
 			this.classId = this.__findClassId(this.element);
 			this.callback = this.__findCallback(this.element);
@@ -373,13 +385,13 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.Show = function() {
-		if (this.inputField == null || this.inputField == undefined)
+		if (this.fieldEditor == null || this.fieldEditor == undefined)
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
-		$(this.inputField).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
-		$(this.element).html(this.inputField);
-		$(this.inputField).focus();
+		$(this.fieldEditor).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
+		$(this.element).html(this.fieldEditor);
+		$(this.fieldEditor).focus();
 		return false;
 	};
 
@@ -398,13 +410,17 @@ function FieldEditor(element, validator) {
 
 	FieldEditor.prototype.HasChanged = function() {
 		if (this.realValue != null && this.realValue != undefined)
-			return $(this.inputField).prop("value") != this.realValue;
-		return $(this.inputField).prop("value") != this.defaultValue;
+			return $(this.fieldEditor).prop("value") != this.realValue;
+		return $(this.fieldEditor).prop("value") != this.defaultValue;
 	};
 
 	FieldEditor.prototype.UpdateUI = function() {
-		$(this.element).text($(this.inputField).prop("value"));
+		$(this.element).text($(this.fieldEditor).prop("value"));
 		return false;
+	};
+
+	FieldEditor.prototype.GetValue = function() {
+		return $(this.fieldEditor).val();
 	};
 
 	FieldEditor.prototype.Save = function(that) {
@@ -416,9 +432,9 @@ function FieldEditor(element, validator) {
 					url : context + "/EditField/" + that.controllor,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+							+ '", "type": "' + that.fieldType + '"}',
+					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
 							that.UpdateUI();
@@ -467,9 +483,9 @@ function ExtendedFieldEditor(element) {
 					url : context + "/EditField/" + that.controllor,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+							+ '", "type": "' + that.fieldType + '"}',
+					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
 							if (that.fieldName == "acronym")
@@ -514,31 +530,22 @@ function AssessmentFieldEditor(element) {
 					url : context + "/EditField/" + that.controllor,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType($(that.inputField).prop("value"), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+							+ '", "type": "' + that.fieldType + '"}',
+					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
-						console.log(response);
 						if (response["success"] != undefined) {
 							if (application.modal["AssessmentViewer"] != undefined)
 								application.modal["AssessmentViewer"].Load();
-							else {
-								$("#info-dialog .modal-body").html(response["success"]);
-								$("#info-dialog").prop("style", "z-index:1070");
-								$("#info-dialog").modal("toggle");
-
-							}
 						} else {
-							$("#alert-dialog .modal-body").html(response["error"]);
-							$("#alert-dialog").prop("style", "z-index:1070");
-							$("#alert-dialog").modal("toggle");
-
+							that.Rollback();
+							application.modal["AssessmentViewer"].ShowError(response["error"]);
 						}
 						return true;
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
-						$("#alert-dialog .modal-body").text(jqXHR.responseText);
-						$("#alert-dialog").modal("toggle");
+						that.Rollback();
+						application.modal["AssessmentViewer"].ShowError(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 					},
 				});
 
@@ -551,7 +558,7 @@ function AssessmentFieldEditor(element) {
 	};
 }
 
-AssessmentExtendedParameterEditor.prototype = new AssessmentFieldEditor();
+AssessmentExtendedParameterEditor.prototype = new FieldEditor();
 
 function AssessmentExtendedParameterEditor(element) {
 	this.element = element;
@@ -560,22 +567,23 @@ function AssessmentExtendedParameterEditor(element) {
 
 	AssessmentExtendedParameterEditor.prototype.constructor = AssessmentExtendedParameterEditor;
 
-	AssessmentExtendedParameterEditor.prototype.GenerateInputField = function() {
+	AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function() {
 		if ($(this.element).find("select").length)
 			return true;
 		if (!this.LoadData())
 			return true;
+		if ($(this.element).attr("real-value") != undefined)
+			this.realValue = $(this.element).attr("real-value").trim();
 
 		var indexOf = this.acromym.indexOf(this.defaultValue);
-		var value = indexOf >= 0 ? this.choose[indexOf] : this.defaultValue;
-		this.inputField = document.createElement("input");
-		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("id", "tag_impact");
-		this.inputField.setAttribute("placeholder", value);
-		this.inputField.setAttribute("value", value);
-		this.realValue = this.defaultValue;
+		var value = indexOf >= 0 ? this.choose[indexOf] : this.realValue != null ? this.realValue : this.defaultValue;
+		this.fieldEditor = document.createElement("input");
+		this.fieldEditor.setAttribute("class", "form-control");
+		this.fieldEditor.setAttribute("placeholder", value);
+		this.fieldEditor.setAttribute("value", value);
+		this.fieldEditor.setAttribute("style", "min-width:80px");
 		var that = this;
-		$(this.inputField).blur(function() {
+		$(this.fieldEditor).blur(function() {
 			return that.Save(that);
 		});
 
@@ -583,20 +591,36 @@ function AssessmentExtendedParameterEditor(element) {
 	};
 
 	AssessmentExtendedParameterEditor.prototype.Show = function() {
-		if (this.inputField == null || this.inputField == undefined)
+		if (this.fieldEditor == null || this.fieldEditor == undefined)
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
-		$(this.element).html(this.inputField);
-		$("#tag_impact").autocomplete({
-			source : this.choose
+		$(this.element).html(this.fieldEditor);
+		var data = [];
+		for (var i = 0; i < this.choose.length; i++)
+			data.push({
+				value : this.choose[i]
+			});
+
+		var iteams = new Bloodhound({
+			datumTokenizer : function(d) {
+				return Bloodhound.tokenizers.whitespace(d.value);
+			},
+			queryTokenizer : Bloodhound.tokenizers.whitespace,
+			limit : this.choose.length,
+			local : data
 		});
-		$(this.inputField).focus();
+		iteams.initialize();
+		$(this.fieldEditor).typeahead(null, {
+			displayKey : 'value',
+			source : iteams.ttAdapter()
+		});
+		$(this.fieldEditor).focus();
 		return false;
 	};
 
 	AssessmentExtendedParameterEditor.prototype.HasChanged = function() {
-		return this.realValue != this.__extractAcronym($(this.inputField).prop("value"));
+		return this.defaultValue != this.__extractAcronym(this.GetValue());
 	};
 
 	AssessmentExtendedParameterEditor.prototype.__extractAcronym = function(value) {
@@ -606,52 +630,16 @@ function AssessmentExtendedParameterEditor(element) {
 	};
 
 	AssessmentExtendedParameterEditor.prototype.Rollback = function() {
-		$(this.element).html(this.realValue);
+		$(this.element).html(this.defaultValue);
 		return false;
 	};
 
+	AssessmentExtendedParameterEditor.prototype.GetValue = function() {
+		return this.__extractAcronym(FieldEditor.prototype.GetValue.call(this));
+	};
+
 	AssessmentExtendedParameterEditor.prototype.Save = function(that) {
-		if (!that.Validate()) {
-			that.Rollback();
-		} else {
-			if (that.HasChanged()) {
-				$.ajax({
-					url : context + "/EditField/" + that.controllor,
-					type : "post",
-					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"'
-							+ defaultValueByType(that.__extractAcronym($(that.inputField).prop("value")), that.fieldType, true) + '", "type": "' + that.fieldType + '"}',
-					contentType : "application/json",
-					success : function(response) {
-						if (response["success"] != undefined) {
-							if (application.modal["AssessmentViewer"] != undefined)
-								application.modal["AssessmentViewer"].Load();
-							else {
-								$("#info-dialog .modal-body").html(response["success"]);
-								$("#info-dialog").prop("style", "z-index:1070");
-								$("#info-dialog").modal("toggle");
-
-							}
-						} else {
-							$("#alert-dialog .modal-body").html(response["error"]);
-							$("#alert-dialog").prop("style", "z-index:1070");
-							$("#alert-dialog").modal("toggle");
-
-						}
-						return true;
-					},
-					error : function(jqXHR, textStatus, errorThrown) {
-						$("#alert-dialog .modal-body").text(jqXHR.responseText);
-						$("#alert-dialog").modal("toggle");
-					},
-				});
-
-			} else {
-				that.Rollback();
-				return false;
-			}
-		}
-		return false;
+		return new AssessmentFieldEditor().Save(that);
 	};
 }
 
@@ -668,17 +656,18 @@ function AssessmentImpactFieldEditor(element) {
 		for (var i = 0; i < $impactAcronyms.length; i++) {
 			this.acromym[i] = $($impactAcronyms[i]).text();
 			this.choose[i] = this.acromym[i] + " (" + $($impactValue[i]).text() + ")";
-
 		}
 		return this.choose.length;
 	};
 }
 
-AssessmentProbaFieldEditor.prototype = new AssessmentExtendedParameterEditor();
+AssessmentProbaFieldEditor.prototype = new FieldEditor();
 
 function AssessmentProbaFieldEditor(element) {
 	this.element = element;
 	this.defaultValue = $(element).text();
+	this.acromym = [];
+
 	AssessmentProbaFieldEditor.prototype.constructor = AssessmentProbaFieldEditor;
 
 	AssessmentProbaFieldEditor.prototype.LoadData = function() {
@@ -689,6 +678,34 @@ function AssessmentProbaFieldEditor(element) {
 			this.choose[i] = this.acromym[i] + " (" + $($probaAcronymsValues[i]).text() + ")";
 		}
 		return this.choose.length;
+	};
+
+	AssessmentProbaFieldEditor.prototype.GeneratefieldEditor = function() {
+		if ($(this.element).find("input").length || $(this.element).find("select").length)
+			return true;
+		if (!this.LoadData())
+			return true;
+		this.fieldEditor = document.createElement("select");
+		this.fieldEditor.setAttribute("style", "min-width:80px;");
+		for (var i = 0; i < this.choose.length; i++) {
+			var option = document.createElement("option");
+			option.setAttribute("value", this.acromym[i]);
+			$(option).text(this.choose[i]);
+			if (this.acromym[i] == this.defaultValue)
+				option.setAttribute("selected", true);
+			$(option).appendTo($(this.fieldEditor));
+		}
+		var that = this;
+		this.fieldEditor.setAttribute("class", "form-control");
+		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		$(this.fieldEditor).blur(function() {
+			return that.Save(that);
+		});
+		return false;
+	};
+
+	AssessmentProbaFieldEditor.prototype.Save = function(that) {
+		return new AssessmentFieldEditor().Save(that);
 	};
 
 }
@@ -714,27 +731,27 @@ function MaturityMeasureFieldEditor(element) {
 		return !this.implementations.length;
 	};
 
-	MaturityMeasureFieldEditor.prototype.GenerateInputField = function() {
+	MaturityMeasureFieldEditor.prototype.GeneratefieldEditor = function() {
 		if ($(this.element).find("select").length)
 			return true;
 		if (this.LoadData())
 			return true;
-		this.inputField = document.createElement("select");
-		this.inputField.setAttribute("class", "form-control");
-		this.inputField.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
+		this.fieldEditor = document.createElement("select");
+		this.fieldEditor.setAttribute("class", "form-control");
+		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 		for ( var i in this.implementations) {
 			var option = document.createElement("option");
 			option.setAttribute("value", this.implementations[i].value);
 			option.setAttribute("trick-id", this.implementations[i].id);
 			$(option).text(this.implementations[i].value);
-			$(option).appendTo($(this.inputField));
+			$(option).appendTo($(this.fieldEditor));
 			if (this.defaultValue == this.implementations[i].value)
 				$(option).prop("selected", true);
 		}
 
 		var that = this;
 		this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
-		$(this.inputField).blur(function() {
+		$(this.fieldEditor).blur(function() {
 			return that.Save(that);
 		});
 		return false;
@@ -757,7 +774,6 @@ function Modal() {
 		for ( var value in map)
 			size++;
 		return size;
-
 	};
 
 	Modal.prototype.DefaultHeaderButton = function() {
@@ -1045,9 +1061,7 @@ function parseJson(data) {
 }
 
 function downloadExportedSqLite(idFile) {
-	$.fileDownload(context + '/Analysis/Download/' + idFile).done(function() {
-		alert('File download a success!');
-	}).fail(function() {
+	$.fileDownload(context + '/Analysis/Download/' + idFile).fail(function() {
 		alert('File download failed!');
 	});
 	return false;
@@ -1093,7 +1107,7 @@ function TaskManager(title) {
 		$.ajax({
 			url : context + "/Task/InProcessing",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				if (reponse == null || reponse == "")
 					return false;
@@ -1154,7 +1168,7 @@ function TaskManager(title) {
 		$.ajax({
 			url : context + "/Task/Status/" + taskId,
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				if (reponse == null || reponse.flag == undefined) {
 					if (!instance.progressBars.length)
@@ -1192,7 +1206,11 @@ function AssessmentViewer() {
 
 	AssessmentViewer.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
-		$(this.modal_dialog).prop("style", "width: 95%; min-width:1170px; max-width:1300px;");
+		$(this.modal_dialog).prop("style", "width: 95%; min-width:1170px;");
+		$(this.modal_footer).hide();
+		this.dialogError = $("#alert-dialog").clone();
+		$(this.dialogError).removeAttr("id");
+		$(this.dialogError).appendTo($(this.modal));
 		return false;
 
 	};
@@ -1215,6 +1233,17 @@ function AssessmentViewer() {
 	AssessmentViewer.prototype.Update = function() {
 		throw "Not implemented";
 	};
+
+	AssessmentViewer.prototype.ShowError = function(message) {
+		var error = $('<div class="alert alert-danger alert-dismissable">' + message
+				+ '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>');
+		error.attr("style", "margin-bottom: 0px;");
+		$(error).appendTo(this.modal_title);
+		setTimeout(function() {
+			$(error).remove();
+		}, 5000);
+		return false;
+	};
 }
 
 /**
@@ -1233,7 +1262,7 @@ function AssessmentAssetViewer(assetId) {
 		var instance = this;
 		return $.ajax({
 			url : context + "/Assessment/Asset/" + instance.assetId,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
@@ -1257,7 +1286,7 @@ function AssessmentAssetViewer(assetId) {
 		var instance = this;
 		return $.ajax({
 			url : context + "/Assessment/Asset/" + instance.assetId + "/Update",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
@@ -1289,7 +1318,7 @@ function AssessmentScenarioViewer(scenarioId) {
 		var instance = this;
 		return $.ajax({
 			url : context + "/Assessment/Scenario/" + instance.scenarioId,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
@@ -1313,7 +1342,7 @@ function AssessmentScenarioViewer(scenarioId) {
 		var instance = this;
 		return $.ajax({
 			url : context + "/Assessment/Scenario/" + instance.scenarioId + "/Update",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
 				var parser = new DOMParser();
@@ -1335,7 +1364,7 @@ function AssessmentScenarioViewer(scenarioId) {
 function updateAssessmentAcronym(idParameter, acronym) {
 	$.ajax({
 		url : context + "/Assessment/Update/Acronym/" + idParameter + "/" + acronym,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			if (response["success"] != undefined) {
@@ -1396,7 +1425,7 @@ function defaultValueByType(value, type, protect) {
 		else
 			value = "";
 	}
-	return value;
+	return escape(undefined, value);
 }
 
 function updateFieldValue(element, value, type) {
@@ -1410,7 +1439,7 @@ function saveField(element, controller, id, field, type) {
 			type : "post",
 			async : true,
 			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"' + defaultValueByType($(element).prop("value"), type, true) + '", "type": "' + type + '"}',
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response == "" || response == null) {
 					updateFieldValue(element, $(element).prop("value"));
@@ -1441,13 +1470,11 @@ function editField(element, controller, id, field, type) {
 		field = $(element).attr("trick-field");
 		var fieldImpact = [ "impactRep", "impactLeg", "impactOp", "impactFin" ];
 		var fieldProba = "likelihood";
-
 		if (fieldImpact.indexOf(field) != -1)
 			fieldEditor = new AssessmentImpactFieldEditor(element);
-		else if (field == fieldProba) {
-
+		else if (field == fieldProba)
 			fieldEditor = new AssessmentProbaFieldEditor(element);
-		} else
+		else
 			fieldEditor = new AssessmentFieldEditor(element);
 	} else if (controller == "MaturityMeasure")
 		fieldEditor = new MaturityMeasureFieldEditor(element);
@@ -1568,7 +1595,7 @@ function reloadSection(section, subSection) {
 			url : context + controller,
 			type : "get",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
@@ -1614,7 +1641,7 @@ function selectAsset(assetId, value) {
 		}
 		$.ajax({
 			url : context + "/Asset/Select",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(requiredUpdate, null, 2),
 			type : 'post',
 			success : function(reponse) {
@@ -1626,7 +1653,7 @@ function selectAsset(assetId, value) {
 		$.ajax({
 			url : context + "/Asset/Select/" + assetId,
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				reloadSection("section_asset");
 				return false;
@@ -1645,7 +1672,7 @@ function deleteAsset(assetId) {
 			rowTrickId = selectedScenario.pop();
 			$.ajax({
 				url : context + "/Asset/Delete/" + rowTrickId,
-				contentType : "application/json",
+				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response) {
 					var trickSelect = parseJson(response);
@@ -1670,7 +1697,7 @@ function deleteAsset(assetId) {
 		$.ajax({
 			url : context + "/Asset/Delete/" + assetId,
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				reloadSection("section_asset");
 				return false;
@@ -1694,7 +1721,7 @@ function editAsset(rowTrickId, isAdd) {
 	$.ajax({
 		url : context + ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Asset/Add" : "/Asset/Edit/" + rowTrickId),
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
@@ -1720,7 +1747,7 @@ function saveAsset(form) {
 		type : "post",
 		async : true,
 		data : serializeAssetForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			var previewError = $("#addAssetModal .alert");
 			if (previewError.length)
@@ -1778,7 +1805,7 @@ function selectScenario(scenarioId, value) {
 		}
 		$.ajax({
 			url : context + "/Scenario/Select",
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(requiredUpdate, null, 2),
 			type : 'post',
 			success : function(reponse) {
@@ -1790,7 +1817,7 @@ function selectScenario(scenarioId, value) {
 		$.ajax({
 			url : context + "/Scenario/Select/" + scenarioId,
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				reloadSection("section_scenario");
 				return false;
@@ -1840,7 +1867,7 @@ function deleteScenario(scenarioId) {
 			rowTrickId = selectedScenario.pop();
 			$.ajax({
 				url : context + "/Scenario/Delete/" + rowTrickId,
-				contentType : "application/json",
+				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(response) {
 					var trickSelect = parseJson(response);
@@ -1864,7 +1891,7 @@ function deleteScenario(scenarioId) {
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Scenario/Delete/" + scenarioId,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(reponse) {
 				reloadSection("section_scenario");
@@ -1898,7 +1925,7 @@ function editScenario(rowTrickId, isAdd) {
 
 	$.ajax({
 		url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Scenario/Add" : "/Scenario/Edit/" + rowTrickId),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			var parser = new DOMParser();
@@ -1924,7 +1951,7 @@ function saveScenario(form) {
 		url : context + "/Scenario/Save",
 		type : "post",
 		data : serializeScenarioForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			var previewError = $("#addScenarioModal .alert");
@@ -1956,7 +1983,7 @@ function savePhase(form) {
 		type : "post",
 		async : true,
 		data : serializeForm(form),
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			var previewError = $("#addPhaseModel .alert");
 			if (previewError.length)
@@ -1990,13 +2017,11 @@ function deletePhase(idPhase) {
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Phase/Delete/" + idPhase,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response) {
 				if (response["success"] != undefined) {
 					reloadSection("section_phase");
-					$("#info-dialog .modal-body").html(response["success"]);
-					$("#info-dialog").modal("toggle");
 				} else if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
@@ -2039,31 +2064,37 @@ function contextMenuHide(context) {
  * @param order
  * @returns
  */
-function versionComparator(version1, version2, order) {
-
+function versionComparator(version1, version2) {
 	// splite versions by "."
 	var v1 = version1.split(".", 1);
 	var v2 = version2.split(".", 1);
-
+	
+	if (v1.length)
+		v1 = parseInt(v1[0]);
+	if (v2.length)
+		v2 = parseInt(v2[0]);
+	
 	if (v1 == v2) {
 		var index = version1.indexOf(".");
 		if (index != -1)
-			version1 = version1.substring(index + 2);
+			version1 = version1.substring(index + 1);
+		else version1="";
 
 		var index2 = version2.indexOf(".");
 		if (index2 != -1)
-			version2 = version2.substring(index2 + 2);
+			version2 = version2.substring(index2 + 1);
+		else version2="";
 
 		if (!version1.length && !version2.length)
 			return 0;
 		else if (!version1.length)
-			return -1 * (order ? 1 : -1);
+			return -1;
 		else if (!version2.length)
-			return 1 * (order ? 1 : -1);
+			return 1;
 
-		return versionComparator(version1, version2, order);
+		return versionComparator(version1, version2);
 	}
-	return v1 > v2 ? 1 : -1 * (order ? 1 : -1);
+	return v1 > v2 ? 1 : -1;
 
 }
 
@@ -2118,7 +2149,7 @@ function navToogled(section, navSelected) {
 			$(data[i]).show();
 	}
 	return false;
-	
+
 }
 
 function hideActionplanAssets(sectionactionplan, menu) {
@@ -2129,9 +2160,9 @@ function hideActionplanAssets(sectionactionplan, menu) {
 		$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
 		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
 	}
-	
-	initialiseTableFixedHeaderRows('#actionplantable_'+actionplantype);
-	
+
+	initialiseTableFixedHeaderRows('#actionplantable_' + actionplantype);
+
 }
 
 function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
@@ -2193,11 +2224,55 @@ function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
  * Content Navigation
  */
 $(function() {
+	var l_lang;
+	if (navigator.userLanguage) // Explorer
+		l_lang = navigator.userLanguage;
+	else if (navigator.language) // FF
+		l_lang = navigator.language;
+	else
+		l_lang = "en";
+
+	$('.modal').on('shown', function() {
+		$('body').css({
+			overflow : 'hidden'
+		});
+	}).on('hidden', function() {
+		$('body').css({
+			overflow : ''
+		});
+	});
+
+	Highcharts.setOptions({
+		lang : {
+			decimalPoint : ',',
+			thousandsSep : ' '
+		}
+	});
 
 	if ($('#confirm-dialog').length)
 		$('#confirm-dialog').on('hidden.bs.modal', function() {
 			$("#confirm-dialog .btn-danger").unbind("click");
 		});
+
+	if ($("#addPhaseModel").length) {
+		$.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang + ".js");
+		$('#addPhaseModel').on('show.bs.modal', function() {
+			var lastDate = $("#section_phase td").last();
+			if (lastDate.length) {
+				var beginDate = lastDate.text();
+				if (beginDate.match("\\d{4}-\\d{2}-\\d{2}")) {
+					var endDate = beginDate.split("-");
+					endDate[0]++;
+					$("#addPhaseModel #phase_begin_date").prop("value", beginDate);
+					$("#addPhaseModel #phase_endDate").prop("value", endDate[0] + "-" + endDate[1] + "-" + endDate[2]);
+				}
+			}
+			$("#addPhaseModel input").datepicker({
+				format : "yyyy-mm-dd",
+				language : l_lang
+			});
+		});
+	}
 
 	var $window = $(window);
 	var previewScrollTop = $window.scrollTop();
@@ -2227,7 +2302,7 @@ function reloadMeasureRow(idMeasure, norm) {
 		url : context + "/Measure/Section/" + norm,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			var parser = new DOMParser();
@@ -2247,7 +2322,7 @@ function initialiseTableFixedHeaderRows(con) {
 		con = "";
 	$(con + '.fixedheadertable').stickyRows({
 		container : '.panel-body',
-		containersToSynchronize: "body"
+		containersToSynchronize : "body"
 	});
 	$("body").scroll();
 }
@@ -2257,7 +2332,7 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
 		url : context + "/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			if (!response.length)
@@ -2283,11 +2358,12 @@ function compliance(norm) {
 		url : context + "/Measure/Compliance/" + norm,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
-			$('#chart_compliance_' + norm).highcharts(JSON.parse(response));
-
+			if (response.chart == undefined || response.chart == null)
+				return;
+			$('#chart_compliance_' + norm).highcharts(response);
 		}
 	});
 	return false;
@@ -2300,9 +2376,11 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 		url : context + "/ActionPlanSummary/Evolution/" + actionPlanType,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
+			if (response.chart == undefined || response.chart == null)
+				return true;
 			$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
 		}
 	});
@@ -2315,9 +2393,11 @@ function budgetByActionPlanType(actionPlanType) {
 		url : context + "/ActionPlanSummary/Budget/" + actionPlanType,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
+			if (response.chart == undefined || response.chart == null)
+				return true;
 			$('#chart_budget_' + actionPlanType).highcharts(response);
 		}
 	});
@@ -2355,7 +2435,7 @@ function updateStatus(progressBar, idTask, callback, status) {
 		$.ajax({
 			url : context + "/Task/Status/" + idTask,
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
 				if (reponse.flag == undefined) {
 					eval(callback.failed);
@@ -2387,12 +2467,12 @@ function updateStatus(progressBar, idTask, callback, status) {
 }
 
 function customerChange(selector) {
-	var customer = $(selector).find("option:selected").val()
+	var customer = $(selector).find("option:selected").val();
 	$.ajax({
-		url : context + "/Analysis/DisplayByCustomer/" + customer + "/0",
+		url : context + "/Analysis/DisplayByCustomer/" + customer,
 		type : "get",
 		async : true,
-		contentType : "application/json",
+		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 			var parser = new DOMParser();
@@ -2411,10 +2491,10 @@ function chartALE() {
 			url : context + "/Scenario/Chart/Type/Ale",
 			type : "get",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response) {
-				$('#chart_ale_scenario_type').highcharts(JSON.parse(response));
+				$('#chart_ale_scenario_type').highcharts(response);
 			}
 		});
 	}
@@ -2423,10 +2503,10 @@ function chartALE() {
 			url : context + "/Scenario/Chart/Ale",
 			type : "get",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response) {
-				$('#chart_ale_scenario').highcharts(JSON.parse(response));
+				$('#chart_ale_scenario').highcharts(response);
 			}
 		});
 	}
@@ -2436,10 +2516,10 @@ function chartALE() {
 			url : context + "/Asset/Chart/Ale",
 			type : "get",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response) {
-				$('#chart_ale_asset').highcharts(JSON.parse(response));
+				$('#chart_ale_asset').highcharts(response);
 			}
 		});
 	}
@@ -2448,13 +2528,648 @@ function chartALE() {
 			url : context + "/Asset/Chart/Type/Ale",
 			type : "get",
 			async : true,
-			contentType : "application/json",
+			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response) {
-				$('#chart_ale_asset_type').highcharts(JSON.parse(response));
+				$('#chart_ale_asset_type').highcharts(response);
 			}
 		});
 	}
+	return false;
+}
+
+RRFView.prototype = new Modal();
+
+function RRFView() {
+
+	this.controller = {};
+
+	this.controllers = {};
+
+	this.chart = {};
+
+	this.filter = {
+		series : []
+	};
+
+	RRFView.prototype.constructor = RRFView;
+
+	RRFView.prototype.Intialise = function() {
+		Modal.prototype.Intialise.call(this);
+		$(this.modal_dialog).attr("style", "width: 98%; min-width:1170px;");
+		$(this.modal_body).attr("style", "max-height: 885px;");
+		$(this.modal_footer).remove();
+		return false;
+	};
+
+	RRFView.prototype.UpdateChart = function(fiedName, value) {
+		return this.controller.UpdateChart(fiedName, value);
+	};
+
+	RRFView.prototype.ForceSelectOneFirstItem = function(controller) {
+		for ( var i in this.controllers)
+			if (this.controllers[i] != controller)
+				this.controllers[i].SelectFirstItem();
+		return false;
+	};
+
+	RRFView.prototype.SwitchController = function(controller) {
+		if (this.controller == controller)
+			return true;
+		else if (controller == null || controller == undefined)
+			return false;
+		if (this.controllers[controller.name] != controller)
+			this.controllers[controller.name] = controller;
+		if (this.controller != undefined && Object.keys(this.controller).length)
+			this.controller.Hide();
+		this.controller = controller;
+		this.controller.Show();
+		return true;
+	};
+
+	RRFView.prototype.ReloadChart = function() {
+		return this.controller.ReloadChart();
+	};
+
+	RRFView.prototype.LoadData = function() {
+		var that = this;
+		$.ajax({
+			url : context + "/Scenario/RRF",
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(response, "text/html");
+				newSection = $(doc).find("*[id ='section_rrf']");
+				that.setBody($(newSection)[0].outerHTML);
+				// initialise controllers
+				that.controllers = {
+					"scenario" : new ScenarioRRFController(that, $(that.modal_body).find("#control_rrf_scenario"), "scenario"),
+					"measure" : new MeasureRRFController(that, $(that.modal_body).find("#control_rrf_measure"), "measure")
+				};
+
+				for ( var controller in that.controllers)
+					that.controllers[controller].Initialise();
+
+				that.SwitchController(that.controllers["scenario"]);
+				that.ReloadChart();
+				return false;
+			}
+		});
+		return true;
+	};
+
+	RRFView.prototype.GenerateFilter = function() {
+		if (this.chart == undefined || this.chart.series == undefined)
+			return;
+		this.filter['series'] = [];
+		for (var i = 0; i < this.chart.series.length; i++) {
+			if (!this.chart.series[i].visible)
+				this.filter['series'].push(this.chart.series[i].name);
+		}
+		return false;
+	};
+
+	RRFView.prototype.Onclick = function(element) {
+		var parent = $(element).parent();
+		$(parent).find(".list-group-item").removeClass("active");
+		$(element).addClass("active");
+		this.ReloadControls();
+		return this.ReloadChart();
+	};
+
+	RRFView.prototype.DefaultFooterButton = function() {
+		return false;
+	};
+
+	RRFView.prototype.OnSliderChange = function(event) {
+		$(this.controller.container).find("#" + event.target.id + "_value").prop("value", event.value);
+		return this.UpdateChart(event.target.name, event.value);
+	};
+
+	RRFView.prototype.Show = function() {
+		try {
+			if (this.modal_dialog == null || this.modal_dialog == undefined)
+				this.Intialise();
+			if ($(this.modal_body).empty() && !this.LoadData())
+				return false;
+			return Modal.prototype.Show.call(this);
+		} catch (e) {
+			console.log(e);
+			return false;
+		}
+	};
+}
+
+function RRFController(rrfView, container, name) {
+
+	this.rrfView = rrfView;
+
+	this.container = container;
+
+	this.name = name;
+
+	this.sliders = {};
+
+	RRFController.prototype.Initialise = function() {
+		var that = this;
+		var sliders = $(this.container).find(".slider");
+		this.sliders = $(sliders).slider();
+		this.sliders.on('slideStop', function(event) {
+			return that.rrfView.OnSliderChange(event);
+		});
+	};
+
+	RRFController.prototype.Show = function() {
+		if (!Object.keys(this.sliders).length)
+			this.Initialise();
+		if (this.rrfView.controller != this)
+			this.rrfView.SwitchController(this);
+		$(this.container).show();
+		this.ReloadControls();
+		return false;
+	};
+
+	RRFController.prototype.Hide = function() {
+		$(this.container).hide();
+		return false;
+	};
+
+	RRFController.prototype.UpdateChart = function(fiedName, value) {
+		return false;
+	};
+
+	RRFController.prototype.ReloadControls = function() {
+		return false;
+	};
+
+	RRFController.prototype.ReloadChart = function() {
+		false;
+	};
+
+	RRFController.prototype.GenerateFilter = function() {
+		return this.rrfView.GenerateFilter();
+	};
+
+	RRFController.prototype.Onclick = function(element) {
+		this.rrfView.SwitchController(this);
+		var parent = $(element).parent();
+		$(parent).find(".list-group-item").removeClass("active");
+		$(element).addClass("active");
+		this.rrfView.GenerateFilter();
+		this.ReloadChart();
+		return this.ReloadControls();
+	};
+
+	RRFController.prototype.OnClickFilter = function(event) {
+		return this.rrfView.GenerateFilter();
+	};
+}
+
+ScenarioRRFController.prototype = new RRFController();
+
+function ScenarioRRFController(rrfView, container, name) {
+
+	RRFController.call(this, rrfView, container, name);
+
+	this.idScenario = -1;
+
+	this.DependencyFields = {
+		"preventive" : 0.0,
+		"limitative" : 0.0,
+		"detective" : 0.0,
+		"corrective" : 0.0
+	};
+
+	ScenarioRRFController.prototype.constructor = ScenarioRRFController;
+
+	ScenarioRRFController.prototype.Initialise = function() {
+		var that = this;
+		// controllerScenario
+		$(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .list-group-item").on("click", function(event) {
+			return that.Onclick(event.target);
+		});
+
+		// controllerMeasure
+		$(that.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .list-group-item").on("click", function(event) {
+			return that.OnClickFilter(event);
+		});
+		return RRFController.prototype.Initialise.call(this);
+	};
+
+	ScenarioRRFController.prototype.SelectFirstItem = function() {
+		var element = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active");
+		if (element.length == 1) {
+			var item = $(element.parent()).find("a[trick-class='Scenario']:first");
+			$(item).addClass("active");
+			this.idScenario = parseInt($(item).attr("trick-id"));
+			this.rrfView.filter["scenarios"] = [ this.idScenario ];
+		}
+		return false;
+	};
+
+	ScenarioRRFController.prototype.CheckTypeValue = function() {
+		var sum = 0;
+		for (var i = 0; i < this.sliders.length; i++) {
+			if (this.DependencyFields[this.sliders[i].prop("name")] != undefined) {
+				var slider = $(this.sliders[i]).slider();
+				sum += parseFloat(slider.prop("value"));
+			}
+
+		}
+		var types = $(this.container).find("*[trick-type='type']");
+		if (sum != 1) {
+			if ($(types).hasClass("success")) {
+				$(types).removeClass("success");
+				$(types).addClass("danger");
+			}
+
+		} else {
+			if ($(types).hasClass("danger")) {
+				$(types).removeClass("danger");
+				$(types).addClass("success");
+			}
+		}
+		return false;
+	};
+
+	ScenarioRRFController.prototype.UpdateChart = function(fiedName, value) {
+		var that = this;
+		if (this.idScenario < 1 || this.idScenario == undefined)
+			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
+		if (this.DependencyFields[fiedName] != undefined)
+			this.CheckTypeValue();
+		$.ajax({
+			url : context + "/Scenario/RRF/Update",
+			type : "post",
+			data : '{"id":' + that.idScenario + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.rrfView.filter) + '}',
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				if (response.chart != null && response.chart != undefined)
+					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
+				return false;
+			}
+		});
+		return false;
+	};
+
+	ScenarioRRFController.prototype.ReloadControls = function() {
+		var that = this;
+		if (this.idScenario < 1 || this.idScenario == undefined)
+			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
+		$.ajax({
+			url : context + "/Scenario/" + that.idScenario,
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				if (response.scenarioType != null && response.scenarioType != undefined) {
+					$(that.container).find(".slider").unbind("slideStop");
+					for (var i = 0; i < that.sliders.length; i++) {
+						var clone = $(that.sliders[i]).clone();
+						var field = $(clone).prop("name");
+						$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", response[field]);
+						$(clone).attr("value", response[field]);
+						$(clone).attr("data-slider-value", response[field]);
+						$(that.sliders[i]).parent().replaceWith($(clone));
+						that.sliders[i] = $(clone).slider();
+						that.sliders[i].on("slideStop", function(event) {
+							return that.rrfView.OnSliderChange(event);
+						});
+					}
+					that.CheckTypeValue();
+				}
+				return false;
+			}
+		});
+	};
+
+	ScenarioRRFController.prototype.Onclick = function(element) {
+		var trickClass = $(element).attr("trick-class");
+		if (trickClass != "Scenario") {
+			var item = $(element).attr("trick-class") == undefined ? $(element).parent() : $(element);
+			$(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active").removeClass("active");
+			$(item).addClass('active');
+			return false;
+		} else {
+			var idScenario = $(element).attr("trick-id");
+			if (idScenario != this.idScenario || this.rrfView.controller != this) {
+				if (idScenario != this.idScenario) {
+					var idScenarioType = $(element).parent().attr('trick-id');
+					var scenarioType = $(element).parent().attr('trick-value');
+					$(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active").removeClass("active");
+					$(this.rrfView.modal_body).find(
+							"#selectable_rrf_scenario_controls a[trick-class='ScenarioType'][trick-id='" + idScenarioType + "'][trick-value='" + scenarioType + "']").addClass(
+							'active');
+				} else if (!$(element).hasClass("active"))
+					$(element).addClass("active");
+				this.idScenario = idScenario;
+				return RRFController.prototype.Onclick.call(this, element);
+			} else if (!$(element).hasClass("active"))
+				$(element).addClass("active");
+		}
+		return false;
+	};
+
+	ScenarioRRFController.prototype.GenerateFilter = function() {
+		RRFController.prototype.GenerateFilter.call(this);
+		var element = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active");
+		if (element.length == 1) {
+			this.rrfView.filter["measures"] = $.makeArray($(element.parent()).find("a[trick-class='Measure']")).map(function(item) {
+				return parseInt($(item).attr('trick-id'));
+			});
+		} else {
+			this.rrfView.filter["measures"] = [];
+			for (var i = 0; i < element.length; i++)
+				this.rrfView.filter["measures"].push($(element[i]).attr('trick-id'));
+		}
+		return false;
+	};
+
+	ScenarioRRFController.prototype.OnClickFilter = function(event) {
+		var element = $(event.target).attr("trick-class") == undefined ? $(event.target).parent() : $(event.target);
+		var trickClass = $(element).attr("trick-class");
+		var trickId = $(element).attr("trick-id");
+		if (trickClass == "Norm") {
+			this.rrfView.filter["measures"] = $.makeArray($(element).parent().find("a[trick-class='Measure']")).map(function(item) {
+				return parseInt($(item).attr('trick-id'));
+			});
+			this.SelectFirstItem();
+			this.rrfView.SwitchController(this);
+			return this.ReloadChart();
+		}
+		this.rrfView.filter["measures"] = [ parseInt(trickId) ];
+		return false;
+	};
+
+	ScenarioRRFController.prototype.ReloadChart = function() {
+		var that = this;
+		if (this.idScenario < 1 || this.idScenario == undefined)
+			this.idScenario = $(that.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
+		if (this.rrfView.filter == undefined || this.rrfView.filter.measures == undefined || !this.rrfView.filter.measures.length)
+			this.GenerateFilter();
+		$.ajax({
+			url : context + "/Scenario/RRF/" + that.idScenario + "/Load",
+			type : "post",
+			data : JSON.stringify(that.rrfView.filter),
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				if (response.chart != null && response.chart != undefined)
+					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
+				return false;
+			}
+		});
+	};
+}
+
+MeasureRRFController.prototype = new RRFController();
+
+function MeasureRRFController(rrfView, container, name) {
+
+	RRFController.call(this, rrfView, container, name);
+
+	this.idMeasure = -1;
+
+	this.FieldToCategory = {
+		direct1 : "Direct1",
+		direct2 : "Direc2",
+		direct3 : "Direct3",
+		direct4 : "Direct4",
+		direct5 : "Direct5",
+		direct6 : "Direct6",
+		direct61 : "Direct6.1",
+		direct62 : "Direct6.2",
+		direct63 : "Direct6.3",
+		direct64 : "Direct6.4",
+		direct7 : "Direct7",
+		indirect1 : "Indirect1",
+		indirect2 : "Indirect2",
+		indirect3 : "Indirect3",
+		indirect4 : "Indirect4",
+		indirect5 : "Indirect5",
+		indirect6 : "Indirect6",
+		indirect7 : "Indirect7",
+		indirect8 : "Indirect8",
+		indirect81 : "Indirect8.1",
+		indirect82 : "Indirect8.2",
+		indirect83 : "Indirect8.3",
+		indirect84 : "Indirect8.4",
+		indirect9 : "Indirect9",
+		indirect10 : "Indirect10",
+		confidentiality : "Confidentiality",
+		integrity : "Integrity",
+		availability : "Availability"
+	};
+
+	this.CategoryToField = {
+		"Direct1" : "direct1",
+		"Direc2" : "direct2",
+		"Direct3" : "direct3",
+		"Direct4" : "direct4",
+		"Direct5" : "direct5",
+		"Direct6" : "direct6",
+		"Direct6.1" : "direct61",
+		"Direct6.2" : "direct62",
+		"Direct6.3" : "direct63",
+		"Direct6.4" : "direct64",
+		"Direct7" : "direct7",
+		"Indirect1" : "indirect1",
+		"Indirect2" : "indirect2",
+		"Indirect3" : "indirect3",
+		"Indirect4" : "indirect4",
+		"Indirect5" : "indirect5",
+		"Indirect6" : "indirect6",
+		"Indirect7" : "indirect7",
+		"Indirect8" : "indirect8",
+		"Indirect8.1" : "indirect81",
+		"Indirect8.2" : "indirect82",
+		"Indirect8.3" : "indirect83",
+		"Indirect8.4" : "indirect84",
+		"Indirect9" : "indirect9",
+		"Indirect10" : "indirect10",
+		"Confidentiality" : "confidentiality",
+		"Integrity" : "integrity",
+		"Availability" : "availability"
+	};
+
+	MeasureRRFController.prototype.constructor = MeasureRRFController;
+
+	MeasureRRFController.prototype.Initialise = function() {
+		var that = this;
+		// controllerScenario
+		$(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .list-group-item").on("click", function(event) {
+			return that.Onclick(event.target);
+		});
+
+		// controllerMeasure
+		$(that.rrfView.modal_body).find("#selectable_rrf_scenario_controls .list-group-item").on("click", function(event) {
+			return that.OnClickFilter(event);
+		});
+		return RRFController.prototype.Initialise.call(this);
+	};
+
+	MeasureRRFController.prototype.SelectFirstItem = function() {
+		var element = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active");
+		if (element.length == 1) {
+			var item = $(element.parent()).find("a[trick-class='Measure']:first");
+			$(item).addClass("active");
+			this.idMeasure = parseInt($(item).attr("trick-id"));
+			this.rrfView.filter["measures"] = [ this.idMeasure ];
+		}
+		return false;
+	};
+
+	MeasureRRFController.prototype.UpdateChart = function(fiedName, value) {
+		var that = this;
+		if (this.idMeasure < 1 || this.idMeasure == undefined)
+			this.idMeasure = $(this.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+		$.ajax({
+			url : context + "/Measure/RRF/Update",
+			type : "post",
+			data : '{"id":' + that.idMeasure + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.rrfView.filter) + '}',
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				if (response.chart != null && response.chart != undefined)
+					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
+				return false;
+			}
+		});
+	};
+
+	MeasureRRFController.prototype.ReloadControls = function() {
+		var that = this;
+		if (this.idMeasure < 1 || this.idMeasure == undefined)
+			this.idMeasure = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+		$.ajax({
+			url : context + "/Measure/" + that.idMeasure,
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				if (response.measurePropertyList != undefined && response.measurePropertyList != null) {
+					// that.SynchronizeSlider(); rejected by product owner
+					$(that.container).find(".slider").unbind("slideStop");
+					for (var i = 0; i < that.sliders.length; i++) {
+						var clone = $(that.sliders[i]).clone();
+						var field = that.CategoryToField[$(clone).prop("name")] || $(clone).prop("name");
+						var fieldValue = response.measurePropertyList[field];
+						if (fieldValue == undefined) {
+							for (var j = 0; j < response.assetTypeValues.length; j++) {
+								if (response.assetTypeValues[j].assetType.type == field) {
+									fieldValue = response.assetTypeValues[j].value;
+									break;
+								}
+							}
+							if (fieldValue == undefined)
+								continue;
+						}
+						$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", fieldValue);
+						$(clone).attr("value", fieldValue);
+						$(clone).attr("data-slider-value", fieldValue);
+						$(that.sliders[i]).parent().replaceWith($(clone));
+						that.sliders[i] = $(clone).slider();
+						that.sliders[i].on("slideStop", function(event) {
+							return that.rrfView.OnSliderChange(event);
+						});
+					}
+				}
+				return false;
+			}
+		});
+	};
+
+	MeasureRRFController.prototype.Onclick = function(element) {
+		var trickClass = $(element).attr("trick-class");
+		if (trickClass != "Measure") {
+			var item = $(element).attr("trick-class") == undefined ? $(element).parent() : $(element);
+			$(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active").removeClass("active");
+			$(item).addClass('active');
+			return false;
+		} else {
+			var idMeasure = $(element).attr("trick-id");
+			if (idMeasure != this.idMeasure || this.rrfView.controller != this) {
+				if (idMeasure != this.idMeasure) {
+					var idNorm = $(element).parent().attr('trick-id');
+					var chapter = $(element).parent().attr('trick-value');
+					$(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active").removeClass("active");
+					$(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls a[trick-class='Norm'][trick-id='" + idNorm + "'][trick-value='" + chapter + "']")
+							.addClass('active');
+				} else if (!$(element).hasClass("active"))
+					$(element).addClass("active");
+				this.idMeasure = idMeasure;
+				return RRFController.prototype.Onclick.call(this, element);
+			} else if (!$(element).hasClass("active"))
+				$(element).addClass("active");
+		}
+		return false;
+	};
+
+	MeasureRRFController.prototype.GenerateFilter = function() {
+		RRFController.prototype.GenerateFilter.apply(this);
+		var element = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active");
+		if (element.length == 1) {
+			this.rrfView.filter["scenarios"] = $.makeArray($(element.parent()).find("a[trick-class='Scenario']")).map(function(item) {
+				return parseInt($(item).attr('trick-id'));
+			});
+		} else {
+			this.rrfView.filter["scenarios"] = [];
+			for (var i = 0; i < element.length; i++)
+				this.rrfView.filter["scenarios"].push($(element[i]).attr('trick-id'));
+		}
+		return false;
+	};
+
+	MeasureRRFController.prototype.SynchronizeSlider = function() {
+		var category = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active :first").attr("trick-value");
+		$(this.container).find("*[trick-class='Category'][trick-value!='" + category + "']").hide();
+		$(this.container).find("*[trick-class='Category'][trick-value='" + category + "']").show();
+		return false;
+	};
+
+	MeasureRRFController.prototype.OnClickFilter = function(event) {
+		var element = $(event.target).attr("trick-class") == undefined ? $(event.target).parent() : $(event.target);
+		var trickClass = $(element).attr("trick-class");
+		var trickId = $(element).attr("trick-id");
+		// this.SynchronizeSlider(); rejected by product owner
+		if (trickClass == "ScenarioType") {
+			this.rrfView.filter["scenarios"] = $.makeArray($(element).parent().find("a[trick-class='Scenario']")).map(function(item) {
+				return parseInt($(item).attr('trick-id'));
+			});
+			this.SelectFirstItem();
+			this.rrfView.SwitchController(this);
+			return this.ReloadChart();
+		}
+		this.rrfView.filter["scenarios"] = [ parseInt(trickId) ];
+		return false;
+	};
+
+	MeasureRRFController.prototype.ReloadChart = function() {
+		var that = this;
+		if (this.idMeasure < 1 || this.idMeasure == undefined)
+			this.idMeasure = $(that.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+		if (this.rrfView.filter == undefined || this.rrfView.filter.scenarios == undefined || !this.rrfView.filter.scenarios.length)
+			this.GenerateFilter();
+		$.ajax({
+			url : context + "/Measure/RRF/" + that.idMeasure + "/Load",
+			type : "post",
+			data : JSON.stringify(that.rrfView.filter),
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				if (response.chart != null && response.chart != undefined)
+					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
+				return false;
+			}
+		});
+	};
+	return false;
+}
+
+function editRRF(idAnalysis) {
+	if (idAnalysis == null || idAnalysis == undefined)
+		idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.READ)) {
+		var modal = new RRFView();
+		modal.Show();
+	} else
+		permissionError();
 	return false;
 }
 

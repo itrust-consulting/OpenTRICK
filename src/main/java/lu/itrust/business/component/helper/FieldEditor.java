@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.view.model;
+package lu.itrust.business.component.helper;
 
 /**
  * @author eom
@@ -15,7 +15,7 @@ public class FieldEditor {
 	
 	private String type;
 	
-	private String value;
+	private Object value;
 
 	/**
 	 * @return the id
@@ -34,14 +34,14 @@ public class FieldEditor {
 	/**
 	 * @return the value
 	 */
-	public String getValue() {
+	public Object getValue() {
 		return value;
 	}
 
 	/**
 	 * @param value the value to set
 	 */
-	public void setValue(String value) {
+	public void setValue(Object value) {
 		this.value = value;
 	}
 
@@ -72,5 +72,15 @@ public class FieldEditor {
 	public void setType(String type) {
 		this.type = type;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "FieldEditor [id=" + id + ", fieldName=" + fieldName + ", type=" + type + ", value=" + value + "]";
+	}
+	
+	
 
 }

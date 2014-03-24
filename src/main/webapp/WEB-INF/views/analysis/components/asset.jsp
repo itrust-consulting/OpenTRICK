@@ -43,11 +43,11 @@
 							</c:set>
 							<td><input type="checkbox" class="checkbox checkboxselectable" onchange="return updateMenu('#section_asset','#menu_asset');"></td>
 							<td>${status.index+1}</td>
-							<td class="${cssClass}">${asset.name}</td>
-							<td class="${cssClass}">${ asset.assetType.type}</td>
+							<td class="${cssClass}"><spring:message text="${asset.name}" /></td>
+							<td class="${cssClass}"><spring:message text="${ asset.assetType.type}" /></td>
 							<td class="${cssClass}" title="${asset.value}"><fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="0" /></td>
-							<td class="${cssClass}" colspan="3">${asset.comment}</td>
-							<td class="${cssClass}" colspan="3">${asset.hiddenComment}</td>
+							<td class="${cssClass}" colspan="3"><spring:message text="${asset.comment}" /></td>
+							<td class="${cssClass}" colspan="3"><spring:message text="${asset.hiddenComment}" /></td>
 						</tr>
 					</c:forEach>
 				</tbody>

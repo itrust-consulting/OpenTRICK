@@ -15,7 +15,7 @@ import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ActionPlanManager;
-import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceActionPlan;
@@ -133,7 +133,7 @@ public class ControllerActionPlan {
 	 * @throws Exception
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis ID
@@ -178,7 +178,7 @@ public class ControllerActionPlan {
 	 * @throws Exception
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	@RequestMapping(value = "/RetrieveSingleEntry/{entryID}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/RetrieveSingleEntry/{entryID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String retrieveSingle(@PathVariable("entryID") int entryID, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 
 		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
@@ -206,7 +206,7 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{analysisID}/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/{analysisID}/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
 	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model, @PathVariable("analysisID") Integer analysisID)
 			throws Exception {
@@ -227,7 +227,7 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String computeActionPlan(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 

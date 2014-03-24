@@ -89,7 +89,7 @@ public class ControllerAdministration {
 			
 			model.put("customer", customerID);
 			model.put("customers", customers);
-			model.put("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerID, 0, 10));
+			model.put("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerID));
 		}
 			
 		return "admin/administration";
@@ -106,11 +106,10 @@ public class ControllerAdministration {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping("/Analysis/DisplayByCustomer/{customerSection}/{pageIndex}")
-	public String section(@PathVariable Integer customerSection, @PathVariable int pageIndex, HttpSession session, Principal principal, Model model) throws Exception {
-
+	@RequestMapping("/Analysis/DisplayByCustomer/{customerSection}")
+	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
 		session.setAttribute("currentCustomer", customerSection);
-		model.addAttribute("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerSection, pageIndex, 10));
+		model.addAttribute("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerSection));
 		model.addAttribute("customer", customerSection);
 		model.addAttribute("customers", serviceCustomer.loadAll());
 		return "admin/analysis/analyses";
@@ -126,7 +125,7 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/User/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("users", serviceUser.loadAll());
 		return "admin/user/users";
@@ -142,7 +141,7 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Roles", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Roles", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String getAllRoles(Map<String, Object> model, HttpSession session) throws Exception {
 
 		model.put("roles", RoleType.values());
@@ -161,7 +160,7 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Roles/{userId}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/User/Roles/{userId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String getUserRoles(@PathVariable("userId") int userId, Map<String, Object> model, HttpSession session) throws Exception {
 
 		List<Role> userRoles = serviceRole.getByUser(serviceUser.get(userId));
@@ -258,7 +257,7 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	List<String[]> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 

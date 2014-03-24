@@ -21,7 +21,7 @@ public class MeasureProperties extends SecurityCriteria {
 	private int fmeasure = 0;
 
 	/** Strength Sectoral */
-	private int fSectoral = 0;
+	private int fsectoral = 0;
 
 	/** SOA Reference */
 	private String soaReference = "";
@@ -131,7 +131,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * @return The Sectoral Strength value
 	 */
 	public int getFSectoral() {
-		return fSectoral;
+		return fsectoral;
 	}
 
 	/**
@@ -146,7 +146,7 @@ public class MeasureProperties extends SecurityCriteria {
 			throw new IllegalArgumentException(
 					"Force Sectoral needs to be between 0 and 4 included!");
 		}
-		this.fSectoral = fSectoral;
+		this.fsectoral = fSectoral;
 	}
 
 	/**

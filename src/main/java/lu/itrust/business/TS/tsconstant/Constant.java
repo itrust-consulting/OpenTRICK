@@ -135,6 +135,12 @@ public class Constant {
 
 	/** Status regular expression */
 	public static final String REGEXP_VALID_MEASURE_STATUS = "AP|NA|M";
+	
+	/** Status regular expression */
+	public static final String REGEXP_VALID_NORM_MEASURE_STATUS = "AP|NA";
+	
+	/** Status regular expression */
+	public static final String REGEXP_VALID_MATURITY_MEASURE_STATUS = "M|NA";
 
 	/** Norm Caption regular Expression */
 	public static final String REGEXP_VALID_NORM_NAME = "Maturity|2700[1-2]|[cC]ustom";

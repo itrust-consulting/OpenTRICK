@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.dao.DAOMeasure;
 import lu.itrust.business.service.ServiceMeasure;
 
@@ -146,6 +147,16 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	@Override
 	public Measure findByIdAndAnalysis(Integer id, Integer idAnalysis) {
 		return daoMeasure.findByIdAndAnalysis(id,idAnalysis);
+	}
+
+	@Override
+	public List<NormMeasure> findNormMeasureByAnalysis(int idAnalysis) {
+		return daoMeasure.findNormMeasureByAnalysis(idAnalysis);
+	}
+
+	@Override
+	public List<NormMeasure> findNormMeasureByAnalysisAndComputable(int idAnalysis) {
+		return daoMeasure.findNormMeasureByAnalysisAndComputable(idAnalysis);
 	}
 
 }

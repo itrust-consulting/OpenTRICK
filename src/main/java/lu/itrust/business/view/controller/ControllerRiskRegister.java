@@ -10,7 +10,7 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.component.JsonMessage;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceAnalysis;
@@ -31,7 +31,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -122,7 +121,7 @@ public class ControllerRiskRegister {
 	 * @throws Exception
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json")
+	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 
 		return showRiskRegister(session, model, principal);
@@ -144,7 +143,7 @@ public class ControllerRiskRegister {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String computeRiskRegister(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 

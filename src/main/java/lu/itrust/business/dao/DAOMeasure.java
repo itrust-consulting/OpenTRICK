@@ -7,6 +7,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.NormMeasure;
 
 /**
  * @author eomar
@@ -17,6 +18,12 @@ public interface DAOMeasure {
 	Measure findOne(int id);
 	
 	List<Measure> findByAnalysis(int idAnalysis);
+	
+	List<NormMeasure> findByAnalysisContains(int idAnalysis, List<Integer> measures);
+	
+	List<NormMeasure> findNormMeasureByAnalysis(int idAnalysis);
+	
+	List<NormMeasure> findNormMeasureByAnalysisAndComputable(int idAnalysis);
 	
 	Measure findByIdAndAnalysis(Integer id, Integer idAnalysis);
 	
@@ -35,6 +42,12 @@ public interface DAOMeasure {
 	void delete(Measure measure);
 	
 	void delete(int id);
+
+	
+
+	
+
+	
 
 	
 }

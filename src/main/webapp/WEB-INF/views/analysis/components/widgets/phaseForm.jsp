@@ -27,7 +27,7 @@
 						</label>
 						<div class="col-sm-10">
 							<div class="input-group">
-								<input name="beginDate" id="phase_begin_date" class="form-control" type="date" value="${empty(phase)? '':phase.beginDate}"
+								<input name="beginDate" id="phase_begin_date" class="form-control" type="date" value="${empty(phase)? '':phase.beginDate}" pattern="dddd-dd-dd"
 									placeholder='<spring:message code="label.phase.date.pattern" text="YYYY-MM-DD"/>' />
 							</div>
 						</div>
@@ -37,7 +37,7 @@
 						</label>
 						<div class="col-sm-10">
 							<div class="input-group">
-								<input name="endDate" id="phase_endDate" class="form-control" type="date" placeholder='<spring:message code="label.phase.date.pattern" text="YYYY-MM-DD"/>'
+								<input name="endDate" id="phase_endDate" class="form-control" type="date" pattern="dddd-dd-dd" placeholder='<spring:message code="label.phase.date.pattern" text="YYYY-MM-DD"/>'
 									${empty(phase)? '': phase.endDate} />
 							</div>
 						</div>

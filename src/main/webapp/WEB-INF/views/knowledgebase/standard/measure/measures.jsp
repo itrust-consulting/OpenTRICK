@@ -36,12 +36,12 @@
 						</div>
 					</div>
 				</div>
-				<div class="panel-body">
+				<div class="panel-body" style="max-height: 800px;overflow: auto;">
 					<c:choose>
 						<c:when test="${!empty measureDescriptions}">
 							<table id="measurestable">
 								<thead>
-									<tr>
+									<tr  role="row">
 										<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'measure_description')"></th>
 										<th><spring:message code="label.measure.level" /></th>
 										<th><spring:message code="label.measure.reference" /></th>
@@ -73,19 +73,3 @@
 		</div>
 	</div>
 </div>
-<script type="text/javascript">
-	$(document).ready(function() {
-		$('#measurestable').dataTable({
-			"bLengthChange" : false,
-			"bAutoWidth" : false,
-			"aoColumns" : [ {
-				"sWidth" : "20px"
-			}, {
-				"sWidth" : "20px"
-			}, null, null, {
-				"sWidth" : "70px"
-			} ]
-		});
-		$("#measurestable").removeAttr("style");
-	});
-</script>

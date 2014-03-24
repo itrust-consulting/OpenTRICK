@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
-	
+
 	/**
 	 * 
 	 */
@@ -49,15 +49,14 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	@Override
 	public Language loadFromAlpha3(String alpha3) throws Exception {
 
-	
-			// prepare statement
-			Query query = getSession().createQuery("From Language where alpha3 = :alpha3");
+		// prepare statement
+		Query query = getSession().createQuery("From Language where alpha3 = :alpha3");
 
-			// sets data
-			query.setParameter("alpha3", alpha3);
+		// sets data
+		query.setParameter("alpha3", alpha3);
 
-			return (Language) query.uniqueResult();
-	
+		return (Language) query.uniqueResult();
+
 	}
 
 	@Override
@@ -72,7 +71,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 
 	@Override
 	public Language loadFromAlternativeName(String alternativeName) throws Exception {
-		
+
 		// prepare statement
 		Query query = getSession().createQuery("From Language where altName = :altName");
 
@@ -87,7 +86,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Language> loadAll() throws Exception {
-	
+
 		// prepare statement
 		Query query = getSession().createQuery("From Language");
 
@@ -113,18 +112,33 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	public void remove(Language language) throws Exception {
 		getSession().delete(language);
 	}
-	
+
 	@Override
 	public void remove(Integer languageId) throws Exception {
-		Query query = getSession().createQuery(
-				"delete from Language where id = :languageId");
+		Query query = getSession().createQuery("delete from Language where id = :languageId");
 		query.setParameter("languageId", languageId);
 		query.executeUpdate();
 	}
 
 	@Override
 	public Language findByAnalysis(Integer idAnalysis) {
-		return (Language) getSession().createQuery("Select analysis.language from Analysis analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis).uniqueResult();
+		return (Language) getSession().createQuery("Select analysis.language from Analysis analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis)
+				.uniqueResult();
+	}
+
+	@Override
+	public boolean alpha3Exist(String alpha3) {
+		return ((Long) getSession().createQuery("select count(*) From Language where alpha3 = :alpha3").setString("alpha3", alpha3).uniqueResult()).intValue() > 0;
+	}
+
+	@Override
+	public boolean nameExist(String name) {
+		return ((Long) getSession().createQuery("select count(*) From Language where name = :name").setString("name", name).uniqueResult()).intValue() > 0;
+	}
+
+	@Override
+	public boolean altNameExist(String altName) {
+		return ((Long) getSession().createQuery("select count(*) From Language where altName = :altName").setString("altName", altName).uniqueResult()).intValue() > 0;
 	}
 
 }

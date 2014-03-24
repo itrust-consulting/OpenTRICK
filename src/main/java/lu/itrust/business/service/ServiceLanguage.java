@@ -22,8 +22,13 @@ public interface ServiceLanguage {
 
 	public Language loadFromName(String name) throws Exception;
 
-	public Language loadFromAlternativeName(String alternativeName)
-			throws Exception;
+	public Language loadFromAlternativeName(String alternativeName) throws Exception;
+
+	public boolean alpha3Exist(String alpha3) throws Exception;
+
+	public boolean nameExist(String name);
+
+	public boolean altNameExist(String altName);
 
 	public List<Language> loadAll() throws Exception;
 

@@ -33,4 +33,6 @@ public interface ServiceScenario {
 	public void remove(Scenario scenario) throws Exception;
 
 	public Scenario merge(Scenario scenario);
+
+	public Scenario findByIdAndAnalysis(int id, int idAnalysis);
 }

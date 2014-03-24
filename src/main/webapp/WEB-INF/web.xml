@@ -12,17 +12,22 @@
   </listener>
   
   <context-param>
+	   <param-name>defaultHtmlEscape</param-name>
+	   <param-value>true</param-value>
+	</context-param>
+	
+	<context-param>
+	 	<param-name>javax.servlet.jsp.jstl.fmt.locale</param-name>
+	     <param-value>fr_FR</param-value>
+	</context-param>
+  
+  <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>
       	classpath:spring/application-config.xml
  	</param-value>
   </context-param>
-  
-  <context-param>
-   <param-name>defaultHtmlEscape</param-name>
-   <param-value>true</param-value>
-</context-param>
-  
+ 
   <!-- Security  --> 
   
   <filter>
