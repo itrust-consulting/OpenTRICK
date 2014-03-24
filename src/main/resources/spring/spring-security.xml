@@ -46,7 +46,6 @@
 	</beans:bean>
 
 	<beans:bean id="methodSecurityExpressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
-		<!-- <beans:constructor-arg name="decisionVoters"> <beans:list> <beans:ref bean="roleVoter" /> <beans:ref bean="authenticatedVoter" /> -->
 		<beans:property name="roleHierarchy" ref="roleHierarchy" />
 		<beans:property name="permissionEvaluator" ref="permissionEvaluator" />
 		<!-- </beans:list> </beans:constructor-arg> -->
