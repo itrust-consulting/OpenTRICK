@@ -2931,7 +2931,7 @@ function MeasureRRFController(rrfView, container, name) {
 
 	this.FieldToCategory = {
 		direct1 : "Direct1",
-		direct2 : "Direc2",
+		direct2 : "Direct2",
 		direct3 : "Direct3",
 		direct4 : "Direct4",
 		direct5 : "Direct5",
@@ -2962,7 +2962,7 @@ function MeasureRRFController(rrfView, container, name) {
 
 	this.CategoryToField = {
 		"Direct1" : "direct1",
-		"Direc2" : "direct2",
+		"Direct2" : "direct2",
 		"Direct3" : "direct3",
 		"Direct4" : "direct4",
 		"Direct5" : "direct5",
