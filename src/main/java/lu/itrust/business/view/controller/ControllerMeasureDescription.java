@@ -124,6 +124,47 @@ public class ControllerMeasureDescription {
 	}
 
 	/**
+	 * displayAll: <br>
+	 * Description
+	 * 
+	 * @param normId
+	 * @param value
+	 * @param request
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("KnowledgeBase/Norm/{normId}/language/{idLanguage}/Measures/{idMeasure}")
+	public String displaySingle(@PathVariable int normId, @PathVariable int idLanguage, @PathVariable int idMeasure, HttpServletRequest request, Model model) throws Exception {
+
+		// load all measuredescriptions of a norm
+		MeasureDescription mesDesc = serviceMeasureDescription.get(idMeasure);
+
+		// chekc if measuredescriptions are not null
+		if (mesDesc != null) {
+
+			// set language
+			Language lang = null;
+			if (idLanguage != 0) {
+				lang = serviceLanguage.get(idLanguage);
+			} else {
+				lang = serviceLanguage.loadFromAlpha3("ENG");
+			}
+
+			// load only from language
+			MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getByLanguage(mesDesc.getId(), lang.getId());
+
+			
+
+			// put data to model
+			model.addAttribute("norm", serviceNorm.getNormByID(normId));
+			model.addAttribute("measureDescription", mesDesc);
+			model.addAttribute("measureDescriptionText", mesDescText);
+		}
+		return "knowledgebase/standard/measure/measure";
+	}
+	
+	/**
 	 * displayAddForm: <br>
 	 * Description
 	 * 
@@ -225,6 +266,9 @@ public class ControllerMeasureDescription {
 
 			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale))
 				serviceMeasureDescription.saveOrUpdate(measureDescription);
+			
+			//System.out.println(measureDescription.isComputable()==true?"TRUE":"FALSE");
+			
 			// return errors
 			return errors;
 		}
@@ -288,6 +332,7 @@ public class ControllerMeasureDescription {
 
 			String reference = jsonNode.get("reference").asText();
 			Integer level = null;
+			Boolean computable = jsonNode.get("computable").asText().equals("on")?true:false;
 			try {
 				level = jsonNode.get("level").asInt();
 			} catch (Exception e) {
@@ -316,17 +361,25 @@ public class ControllerMeasureDescription {
 				errors.put("measuredescription.level", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
 				if (!errors.containsKey("measuredescription.reference")) {
-					int count = 1;
-					for (int i = 0; i < reference.length(); i++)
-						if (reference.charAt(i) == '.')
-							count++;
-					if (count != level)
-						errors.put("measuredescription.level", messageSource.getMessage("error.measuredescription.level.reference.not_meet", null, "Level and reference do not match", locale));
-					else
+//					int count = 1;
+//					for (int i = 0; i < reference.length(); i++)
+//						if (reference.charAt(i) == '.')
+//							count++;
+//					if (count != level)
+//						errors.put("measuredescription.level", messageSource.getMessage("error.measuredescription.level.reference.not_meet", null, "Level and reference do not match", locale));
+//					else
 						measuredescription.setLevel(level);
 				}
 			}
 
+			error = serviceDataValidation.validate(measuredescription, "computable", computable);
+
+			if (error != null)
+				errors.put("measuredescription.computable", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				measuredescription.setComputable(computable);
+			
+			
 			// load languages
 			List<Language> languages = serviceLanguage.loadAll();
 
@@ -362,8 +415,11 @@ public class ControllerMeasureDescription {
 					errors.put("measureDescriptionText.domain_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
 				else
 					mesDescText.setDomain(domain);
-
-				error = validator.validate(mesDescText, "description", description);
+				
+				if (level==3 && !(measuredescription.getNorm().getLabel().equals("27001") && measuredescription.getNorm().getVersion()==2013))
+					error = validator.validate(mesDescText, "description", description);
+				else
+					error=null;
 				if (error != null)
 					errors.put("measureDescriptionText.description_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
 				else

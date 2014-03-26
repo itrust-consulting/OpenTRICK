@@ -49,7 +49,7 @@
 									<tbody>
 										<c:forEach items="${measureSplited.get(norm)}" var="measure">
 											<c:choose>
-												<c:when test="${measure.computable==false }">
+												<c:when test="${measure.measureDescription.computable==false }">
 													<tr style="background-color: LightGray">
 														<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 														<td><spring:message text="${measure.measureDescription.reference}" /></td>

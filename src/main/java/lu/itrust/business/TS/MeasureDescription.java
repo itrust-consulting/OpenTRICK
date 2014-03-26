@@ -42,6 +42,9 @@ public class MeasureDescription implements Cloneable {
 	/** Measure Reference */
 	private String reference = "";
 
+	/** Flag to determine if measure can be used in the action plan (before: measure had to be level 3) */
+	private boolean computable = true;
+	
 	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/
@@ -263,5 +266,24 @@ public class MeasureDescription implements Cloneable {
 		if (norm.getLabel().equalsIgnoreCase(Constant.NORM_CUSTOM))
 			measureDescription.id = -1;
 		return measureDescription;
+	}
+
+	/** isComputable: <br>
+	 * Returns the computable field value.
+	 * 
+	 * @return The value of the computable field
+	 */
+	public boolean isComputable() {
+		return computable;
+	}
+
+	/** setComputable: <br>
+	 * Sets the Field "computable" with a value.
+	 * 
+	 * @param computable 
+	 * 			The Value to set the computable field
+	 */
+	public void setComputable(boolean computable) {
+		this.computable = computable;
 	}
 }

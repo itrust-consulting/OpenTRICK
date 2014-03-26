@@ -47,6 +47,7 @@
 										<th><spring:message code="label.measure.reference" /></th>
 										<th><spring:message code="label.measure.domain" /></th>
 										<th><spring:message code="label.measure.description" /></th>
+										<th><spring:message code="label.measure.computable" /></th>
 									</tr>
 								</thead>
 								<tbody>
@@ -57,6 +58,14 @@
 											<td>${measureDescription.reference}</td>
 											<td>${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:"&nbsp;"}</td>
 											<td>${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:"&nbsp;"}</td>
+											<td trick-computable="${measureDescription.computable}">
+												<c:if test="${measureDescription.computable==true}">
+													<spring:message code="label.yes_no.true" />
+												</c:if>
+												<c:if test="${measureDescription.computable==false}">
+													<spring:message code="label.yes_no.false" />
+												</c:if>
+											</td>
 										</tr>
 									</c:forEach>
 								</tbody>

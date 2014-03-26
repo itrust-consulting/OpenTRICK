@@ -1959,7 +1959,7 @@ public class ImportAnalysis {
 			normMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS));
 			normMeasure.setToCheck(rs.getString(Constant.MEASURE_REVISION));
 			normMeasure.setToDo(rs.getString(Constant.MEASURE_TODO));
-			normMeasure.setComputable(measurecomputable);
+			normMeasure.getMeasureDescription().setComputable(measurecomputable);
 
 			// calculate cost
 			cost =
@@ -2077,7 +2077,7 @@ public class ImportAnalysis {
 					// ****************************************************************
 
 					// check if value is 101 and level 3 -> YES
-					if ((assetTypeValue.getValue() == -1) && (normMeasure.isComputable())) {
+					if ((assetTypeValue.getValue() == -1) && (normMeasure.getMeasureDescription().isComputable())) {
 
 						// set this asset type value with a valid value
 						updateAssetTypeValue(normMeasure, assetTypeValue);
@@ -2494,7 +2494,7 @@ public class ImportAnalysis {
 
 			// create maturity measure with data
 			maturityMeasure = new MaturityMeasure();
-			maturityMeasure.setComputable(measurecomputable);
+			maturityMeasure.getMeasureDescription().setComputable(measurecomputable);
 			maturityMeasure.setMeasureDescription(mesDesc);
 			maturityMeasure.setComment(rs.getString(Constant.MEASURE_COMMENT).replace("'", "''"));
 			maturityMeasure.setCost(cost);

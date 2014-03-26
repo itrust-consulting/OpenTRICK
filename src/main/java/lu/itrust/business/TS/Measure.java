@@ -31,9 +31,6 @@ public abstract class Measure implements Serializable, Cloneable {
 
 	/** The Measure Domain */
 	private MeasureDescription measureDescription = null;
-
-	/** Flag to determine if measure can be used in the action plan (before: measure had to be level 3) */
-	private boolean computable = true;
 	
 	/** The Measure Status (AP, NA, M) */
 	private String status = "NA";
@@ -557,24 +554,5 @@ public abstract class Measure implements Serializable, Cloneable {
 		Measure measure = (Measure) super.clone();
 		measure.id = -1;
 		return measure;
-	}
-
-	/** isComputable: <br>
-	 * Returns the computable field value.
-	 * 
-	 * @return The value of the computable field
-	 */
-	public boolean isComputable() {
-		return computable;
-	}
-
-	/** setComputable: <br>
-	 * Sets the Field "computable" with a value.
-	 * 
-	 * @param computable 
-	 * 			The Value to set the computable field
-	 */
-	public void setComputable(boolean computable) {
-		this.computable = computable;
 	}
 }

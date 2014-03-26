@@ -1412,7 +1412,7 @@ public class ExportAnalysis {
 
 					// for measure
 					measureparams.add(measure.getMeasureDescription().getReference());
-					measureparams.add(measure.isComputable());
+					measureparams.add(measure.getMeasureDescription().isComputable());
 					measureparams.add(measure.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage()).getDomain());
 					measureparams.add(measure.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage()).getDescription());
 					measureparams.add(measure.getMeasureDescription().getLevel());
@@ -1528,7 +1528,7 @@ public class ExportAnalysis {
 							defaultspecparams.add(assetTypeValue.getValue());
 
 						// check if measure is level 3 -> YES
-						if (measure.isComputable()) {
+						if (measure.getMeasureDescription().isComputable()) {
 
 							// ****************************************************************
 							// * export level 3 asset type value into
@@ -1706,7 +1706,7 @@ public class ExportAnalysis {
 					measureparams.add(maturity.getAnalysisNorm().getNorm().getDescription());
 					measureparams.add(maturity.getAnalysisNorm().getNorm().isComputable());
 					measureparams.add(maturity.getMeasureDescription().getReference());
-					measureparams.add(maturity.isComputable());
+					measureparams.add(maturity.getMeasureDescription().isComputable());
 					measureparams.add(maturity.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage()).getDomain());
 					measureparams.add(maturity.getMeasureDescription().getLevel());
 					measureparams.add(maturity.getStatus());

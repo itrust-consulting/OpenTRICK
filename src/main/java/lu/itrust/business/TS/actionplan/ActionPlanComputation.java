@@ -1780,7 +1780,7 @@ public class ActionPlanComputation {
 					// 100% -> YES
 					// ****************************************************************
 					if (!(normMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
-							&& (normMeasure.getImplementationRate() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) && (normMeasure.isComputable()) && (normMeasure.getCost() >= 0)) {
+							&& (normMeasure.getImplementationRate() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) && (normMeasure.getMeasureDescription().isComputable()) && (normMeasure.getCost() >= 0)) {
 
 						// ****************************************************************
 						// * when phase computation, phase is bigger than 0,
@@ -1829,7 +1829,7 @@ public class ActionPlanComputation {
 						// relevant AND check if norm 27002 measure for Maturity
 						// calculation
 						// ****************************************************************
-						if (!isCssf && !(normMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normMeasure.isComputable()) && (normMeasure.getCost() >= 0)
+						if (!isCssf && !(normMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normMeasure.getMeasureDescription().isComputable()) && (normMeasure.getCost() >= 0)
 								&& (measureNorm.getNorm().getLabel().equals(Constant.NORM_27002) && (maturitycomputation))) {
 
 							// ****************************************************************
@@ -2326,7 +2326,7 @@ public class ActionPlanComputation {
 			// is applicable or
 			// mandatory
 			if ((measureNorm.getMeasure(j).getMeasureDescription().getReference().startsWith(chapter + "."))
-					&& (!measureNorm.getMeasure(j).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && (measureNorm.getMeasure(j).isComputable()))) {
+					&& (!measureNorm.getMeasure(j).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && (measureNorm.getMeasure(j).getMeasureDescription().isComputable()))) {
 
 				// *************************************************
 				// * measure found increment counter
@@ -2744,7 +2744,7 @@ public class ActionPlanComputation {
 
 						// check if measure applicable or mandatory and level 3
 						// -> YES
-						if ((!normMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normMeasure.isComputable())) {
+						if ((!normMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normMeasure.getMeasureDescription().isComputable())) {
 
 							// ****************************************************************
 							// * calculate sum of implementation rates and
@@ -2774,6 +2774,9 @@ public class ActionPlanComputation {
 
 								// check if measure is already implemented ->
 								// YES
+								
+								System.out.println(name+" ::: "+normMeasure.getAnalysisNorm().getNorm().getLabel()+" -> "+normMeasure.getMeasureDescription().getReference()+" : "+normMeasure.getImplementationRate());
+								
 								if (normMeasure.getImplementationRate() == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) {
 
 									// increment implemented counter

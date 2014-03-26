@@ -38,6 +38,12 @@
 							<input name="level" id="measure_level" class="form-control" type="text" />
 						</div>
 					</div>
+					<div class="form-group">
+						<label for="computable" class="col-sm-2 control-label"> <spring:message code="label.measure.computable" text="Computable" /></label>
+						<div class="col-sm-10">
+							<input name="computable" id="measure_computable" class="form-control" type="checkbox" />
+						</div>
+					</div>
 					<div id="measurelanguages"></div>
 				</form>
 			</div>

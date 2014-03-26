@@ -78,13 +78,35 @@ function saveMeasure(form) {
 				$("#addMeasureModel").modal("hide");
 				var language = $("#languageselect").find("option:selected").attr("value");
 				var normId = $("#normId").attr("value");
-				return showMeasures(normId, language);
+				var measureId = $("#"+form).find("#measure_id").val();
+				return refreshMeasure(normId, measureId, language);
 			}
 			return false;
 
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return false;
+		}
+	});
+	return false;
+}
+
+function refreshMeasure(normId, measureId, languageId){
+	if (normId == null || normId == undefined) {
+		normId=$("#normId");
+	}
+	if(!languageId == null || languageId == undefined){
+		languageId = $("#languageselect option[selected='selected']").value();
+	}
+	
+	$.ajax({
+		url : context + "/KnowledgeBase/Norm/" + normId + "/language/" + languageId + "/Measures/" + measureId,
+		type : "POST",
+		contentType : "application/json",
+		success : function(response) {
+			oldBody = $("#showmeasuresbody").find("[trick-id='" + measureId + "']");
+			$(oldBody).replaceWith(response);
+			measureSortTable($("#showmeasuresbody")[0]);
 		}
 	});
 	return false;
@@ -135,6 +157,8 @@ function newMeasure(normId) {
 
 	$("#measure_level").prop("value", "");
 
+	$("#measure_computable").prop("checked", "false");
+	
 	$.ajax({
 		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/Add",
 		type : "get",
@@ -212,6 +236,12 @@ function editSingleMeasure(measureId, normId) {
 	$("#measure_id").prop("value", measureId);
 	$("#measure_reference").prop("value", $(rows[1]).text());
 	$("#measure_level").prop("value", $(rows[0]).text());
+	if ($(rows[4]).attr("trick-computable")=="true"){
+		$("#measure_computable").prop("checked",true);	
+	} else {
+		$("#measure_computable").prop("checked",false);	
+	}
+	
 	$.ajax({
 		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/"+measureId+"/Edit",
 		type : "post",
