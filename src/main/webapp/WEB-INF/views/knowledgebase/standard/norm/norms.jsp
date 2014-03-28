@@ -16,6 +16,8 @@
 					<li><a href="#" onclick="return newNorm();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.norm.add" text="Add" /> </a></li>
 					<li class="disabled" trick-selectable="true"><a href="#" onclick="return showMeasures();"><span class="glyphicon glyphicon-new-window"></span> <spring:message
 								code="label.norm.show.measures" text="Show measures" /> </a></li>
+					<li class="disabled" trick-selectable="true"><a href="#" onclick="return exportSingleNorm();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
+								code="label.norm.export" text="Export" /> </a></li>
 					<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleNorm();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 								code="label.norm.edit" text="Edit" /> </a></li>
 					<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteNorm();"><span class="glyphicon glyphicon-remove"></span> <spring:message

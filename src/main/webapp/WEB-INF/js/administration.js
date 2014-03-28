@@ -9,28 +9,25 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 			return false;
 	}
 
-	if (userCan(analysisId, ANALYSIS_RIGHT.ALL)) {
-		$.ajax({
-			url : context + "/Analysis/" + analysisId + "/ManageAccess",
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				$("#manageAnalysisAccessModelBody").html(response);
-				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
-				$("#manageAnalysisAccessModel").modal('toggle');
-			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return false;
-			},
-		});
-	} else
-		permissionError();
+	$.ajax({
+		url : context + "/Admin/Analysis/" + analysisId + "/ManageAccess",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			$("#manageAnalysisAccessModelBody").html(response);
+			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
+			$("#manageAnalysisAccessModel").modal('toggle');
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return false;
+		},
+	});
 	return false;
 }
 
 function updatemanageAnalysisAccess(analysisid, userrightsform) {
 	$.ajax({
-		url : context + "/Analysis/" + analysisid + "/ManageAccess/Update",
+		url : context + "/Admin/Analysis/" + analysisid + "/ManageAccess/Update",
 		type : "post",
 		data : serializeForm(userrightsform),
 		contentType : "application/json;charset=UTF-8",

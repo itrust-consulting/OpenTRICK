@@ -54,10 +54,6 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				throw new NotFoundException("No analysis selected!");
 			}
 			
-			if (serviceUser.get(principal.getName()).hasRole(RoleType.ROLE_ADMIN)) {
-				return true;
-			}
-			
 		return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
 			e.printStackTrace();

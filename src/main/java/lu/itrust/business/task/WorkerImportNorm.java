@@ -256,12 +256,14 @@ public class WorkerImportNorm implements Worker {
 
 			sheet = workbook.getSheetAt(indexSheet);
 
+			//System.out.println(sheet.getSheetName());
+			
 			if (sheet.getSheetName().equals("NormData")) {
 
 				for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
 
 					table = sheet.getTables().get(indexTable);
-
+					//System.out.println(table.getName());
 					if (table.getName().equals("TableNormData")) {
 						startColSheet = table.getStartCellReference().getCol();
 						endColSheet = table.getEndCellReference().getCol();

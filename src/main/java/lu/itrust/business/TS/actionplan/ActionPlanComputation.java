@@ -2397,6 +2397,8 @@ public class ActionPlanComputation {
 
 		tmpval.norm27002 = (MeasureNorm) this.analysis.getAnalysisNormByLabel(Constant.NORM_27002);
 
+		tmpval.normCustom = (MeasureNorm) this.analysis.getAnalysisNormByLabel(Constant.NORM_CUSTOM);
+		
 		// ****************************************************************
 		// * generate first stage
 		// ****************************************************************
@@ -2414,6 +2416,7 @@ public class ActionPlanComputation {
 		// reinitialise variables
 		tmpval.conf27001 = 0;
 		tmpval.conf27002 = 0;
+		tmpval.confCustom = 0;
 
 		// calculation by phase ? -> YES
 		if ((apt.getId() == Constant.ACTIONPLAN_PHASE_NORMAL_MODE) || (apt.getId() == Constant.ACTIONPLAN_PHASE_OPTIMISTIC_MODE)
@@ -2464,6 +2467,7 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					tmpval.conf27001 = 0;
 					tmpval.conf27002 = 0;
+					tmpval.confCustom = 0;
 					tmpval.deltaALE = 0;
 					// tmpval.externalMaintenance = 0;
 					// tmpval.internalMaintenance = 0;
@@ -2527,6 +2531,7 @@ public class ActionPlanComputation {
 		// reinitialise variables
 		tmpval.conf27001 = 0;
 		tmpval.conf27002 = 0;
+		tmpval.confCustom = 0;
 
 		// check if by phase -> YES
 		if (byPhase) {
@@ -2591,6 +2596,12 @@ public class ActionPlanComputation {
 
 				// add measure to 27002 list
 				tmpval.conformance27002measures.add((NormMeasure) ape.getMeasure());
+			} else {
+				if (ape.getMeasure().getAnalysisNorm().getNorm().getLabel().equals(Constant.NORM_CUSTOM)) {
+
+					// add measure to 27002 list
+					tmpval.conformanceCustommeasures.add((NormMeasure) ape.getMeasure());
+				}	
 			}
 		}
 
@@ -2722,9 +2733,13 @@ public class ActionPlanComputation {
 			tmpval.implementedCount = 0;
 		}
 
-		tmpval.measureCount = 0;
+		if (tmpval.previousStage!=null)
+			tmpval.measureCount = tmpval.previousStage.getMeasureCount();
+		else
+			tmpval.measureCount = 0;
 		tmpval.conf27001 = 0;
 		tmpval.conf27002 = 0;
+		tmpval.confCustom = 0;
 
 		// ****************************************************************
 		// * check compliance for norm 27001: retrieve implementation rates
@@ -2775,7 +2790,7 @@ public class ActionPlanComputation {
 								// check if measure is already implemented ->
 								// YES
 								
-								System.out.println(name+" ::: "+normMeasure.getAnalysisNorm().getNorm().getLabel()+" -> "+normMeasure.getMeasureDescription().getReference()+" : "+normMeasure.getImplementationRate());
+								//System.out.println(name+" ::: "+normMeasure.getAnalysisNorm().getNorm().getLabel()+" -> "+normMeasure.getMeasureDescription().getReference()+" : "+normMeasure.getImplementationRate());
 								
 								if (normMeasure.getImplementationRate() == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) {
 
@@ -2790,7 +2805,7 @@ public class ActionPlanComputation {
 							} else {
 
 								// check if it is the first stage -> NO
-								tmpval.measureCount++;
+								
 								// in each case add the implementation rate to
 								// the sum of
 								// implementation rates for 27001 conformance
@@ -2808,7 +2823,7 @@ public class ActionPlanComputation {
 										// implementation value
 										// as finished
 										numerator += (1.) - (normMeasure.getImplementationRate() / 100.);
-
+										tmpval.measureCount++;
 										// leave loop
 										break;
 									}
@@ -2899,7 +2914,7 @@ public class ActionPlanComputation {
 							if (firstStage) {
 
 								// tmpval.measureCount++;
-
+								//System.out.println(name+" ::: "+normMeasure.getAnalysisNorm().getNorm().getLabel()+" -> "+normMeasure.getMeasureDescription().getReference()+" : "+normMeasure.getImplementationRate());
 								// check if measure is already implemented
 								if (normMeasure.getImplementationRate() == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) {
 
@@ -2914,7 +2929,7 @@ public class ActionPlanComputation {
 							} else {
 
 								// check if this is the first stage -> NO
-								tmpval.measureCount++;
+								
 								// in each case add the implementation rate to
 								// the sum of
 								// implementation rates for 27002 conformance
@@ -2939,7 +2954,7 @@ public class ActionPlanComputation {
 										// completed
 										// implementation rate
 										numerator += (1.) - (normMeasure.getImplementationRate() / 100.);
-
+										tmpval.measureCount++;
 										// leave loop
 										break;
 									}
@@ -2982,6 +2997,128 @@ public class ActionPlanComputation {
 					chapters.clear();
 				}
 			}
+			
+			if (this.norms.get(index).getNorm().getLabel().equals("Custom")) {
+
+				if (tmpval.normCustom != null && tmpval.normCustom.getMeasures() != null) {
+
+					Map<String, Object[]> chapters = new HashMap<String, Object[]>();
+					// parse measures of 27001
+					for (int j = 0; j < tmpval.normCustom.getMeasures().size(); j++) {
+
+						// temporary store measure of 27001
+						normMeasure = tmpval.normCustom.getMeasure(j);
+
+						// check if measure applicable or mandatory and level 3
+						// -> YES
+						if ((!normMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (normMeasure.getMeasureDescription().isComputable())) {
+
+							// ****************************************************************
+							// * calculate sum of implementation rates and
+							// number of measures after
+							// the loop divide the implementation rates by the
+							// number of measures
+							// ****************************************************************
+
+							String chapterName = extractMainChapter(normMeasure.getMeasureDescription().getReference());
+
+							Object[] chapter = chapters.containsKey(chapterName) ? chapters.get(chapterName) : new Object[] { 0.0, new Integer(0), new Integer(0) };
+
+							// conformance Custom
+							Double numerator = (Double) chapter[0];
+
+							// increment measure counter
+							Integer denominator = (Integer) chapter[1];
+
+							// increment implemented counter
+							Integer implementation = (Integer) chapter[2];
+
+							// increment measure counter
+							denominator++;
+
+							// check if it is the first stage -> YES
+							if (firstStage) {
+
+								// check if measure is already implemented ->
+								// YES
+								
+								//System.out.println(name+" ::: "+normMeasure.getAnalysisNorm().getNorm().getLabel()+" -> "+normMeasure.getMeasureDescription().getReference()+" : "+normMeasure.getImplementationRate());
+								
+								if (normMeasure.getImplementationRate() == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) {
+
+									// increment implemented counter
+									implementation++;
+								}
+
+								// in each case add the implementation rate to
+								// the sum of
+								// implementation rates for 2700x conformance
+								numerator += (normMeasure.getImplementationRate() / 100.);
+							} else {
+
+								// check if it is the first stage -> NO
+								
+								// in each case add the implementation rate to
+								// the sum of
+								// implementation rates for 27001 conformance
+								numerator += (normMeasure.getImplementationRate() / 100.);
+
+								// check if measure was already implemented then
+								// add implementation
+								// rate of 100% after that, the value inserted
+								// above needs to be
+								// removed
+								for (int k = 0; k < tmpval.conformanceCustommeasures.size(); k++) {
+									if (normMeasure.equals((NormMeasure) tmpval.conformanceCustommeasures.get(k))) {
+
+										// remove added value and add measure
+										// implementation value
+										// as finished
+										numerator += (1.) - (normMeasure.getImplementationRate() / 100.);
+										tmpval.measureCount++;
+										// leave loop
+										break;
+									}
+								}
+							}
+
+							chapters.put(chapterName, new Object[] { numerator, denominator, implementation });
+						}
+					}
+
+					// ****************************************************************
+					// * check compliance for norm 27001: calculate percentage
+					// of conformance
+					// ****************************************************************
+
+					for (String key : chapters.keySet()) {
+
+						Object[] chapter = chapters.get(key);
+
+						// rates for 2700x conformance
+						Double numerator = (Double) chapter[0];
+
+						// increment measure counter
+						Integer denominator = (Integer) chapter[1];
+
+						tmpval.confCustom += (numerator / (double) denominator);
+
+						// increment implemented counter
+						Integer implementation = (Integer) chapter[2];
+
+						tmpval.implementedCount += implementation;
+					}
+
+					if (chapters.size() > 0)
+						tmpval.confCustom /= (double) chapters.size();
+					else
+						tmpval.confCustom = 0;
+
+					chapters.clear();
+
+				}
+			}
+			
 		}
 
 		// ****************************************************************
@@ -2996,7 +3133,10 @@ public class ActionPlanComputation {
 		aStage.setActionPlanType(type);
 		aStage.setConformance27001(tmpval.conf27001);
 		aStage.setConformance27002(tmpval.conf27002);
-		aStage.setMeasureCount(tmpval.measureCount);
+		if (tmpval.previousStage!=null)
+			aStage.setMeasureCount(tmpval.implementedCount-tmpval.previousStage.getImplementedMeasuresCount());
+		else
+			aStage.setMeasureCount(tmpval.measureCount);
 		aStage.setImplementedMeasuresCount(tmpval.implementedCount);
 		aStage.setTotalALE(tmpval.totalALE);
 		aStage.setDeltaALE(tmpval.deltaALE);
@@ -3032,6 +3172,8 @@ public class ActionPlanComputation {
 		// * add summary stage to list of summary stages
 		// ****************************************************************
 		sumStage.add(aStage);
+		
+		tmpval.previousStage = aStage;
 	}
 
 	/**

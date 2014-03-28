@@ -2,6 +2,7 @@ package lu.itrust.business.view.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -9,7 +10,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
@@ -18,6 +22,7 @@ import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
+import lu.itrust.business.service.ServiceUserAnalysisRight;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -61,6 +66,9 @@ public class ControllerAdministration {
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
+	
 	/**
 	 * loadAll: <br>
 	 * Description
@@ -113,6 +121,120 @@ public class ControllerAdministration {
 		model.addAttribute("customer", customerSection);
 		model.addAttribute("customers", serviceCustomer.loadAll());
 		return "admin/analysis/analyses";
+	}
+	
+	/**
+	 * manageaccessrights: <br>
+	 * Description
+	 * 
+	 * @param analysisID
+	 * @param principal
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Analysis/{analysisID}/ManageAccess")
+	public String manageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model) throws Exception {
+
+		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
+
+		Analysis analysis = serviceAnalysis.get(analysisID);
+
+		if(!analysis.isProfile()){
+		
+			List<UserAnalysisRight> uars = analysis.getUserRights();
+	
+			for (UserAnalysisRight uar : uars) {
+				userrights.put(uar.getUser(), uar.getRight());
+			}
+	
+			for (User user : serviceUser.loadAll()) {
+				if (!userrights.containsKey(user))
+					userrights.put(user, null);
+			}
+	
+			model.addAttribute("analysisRigths", AnalysisRight.values());
+			model.addAttribute("analysis", analysis);
+			model.addAttribute("userrights", userrights);
+			return "analysis/manageuseranalysisrights";
+		} else {
+			return "redirect:Administration";
+		}
+	}
+
+	/**
+	 * updatemanageaccessrights: <br>
+	 * Description
+	 * 
+	 * @param analysisID
+	 * @param principal
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Analysis/{analysisID}/ManageAccess/Update")
+	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale) throws Exception {
+
+		try {
+
+			Map<User, UserAnalysisRight> userrights = new LinkedHashMap<>();
+
+			Analysis analysis = serviceAnalysis.get(analysisID);
+
+			List<UserAnalysisRight> uars = analysis.getUserRights();
+
+			for (UserAnalysisRight uar : uars) {
+				userrights.put(uar.getUser(), uar);
+			}
+
+			// create json parser
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(value);
+
+			for (User user : serviceUser.loadAll()) {
+
+				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
+
+				if (userrights.containsKey(user)) {
+					UserAnalysisRight uar = userrights.get(user);
+					if (useraccess == -1) {
+						analysis.removeRights(user);
+						serviceUserAnalysisRight.delete(uar);
+						serviceAnalysis.saveOrUpdate(analysis);
+						userrights.remove(user);
+					} else {
+						uar.setRight(AnalysisRight.valueOf(useraccess));
+						serviceUserAnalysisRight.saveOrUpdate(uar);
+						serviceAnalysis.saveOrUpdate(analysis);
+					}
+				} else {
+
+					if (!user.getCustomers().contains(analysis.getCustomer()))
+						user.addCustomer(analysis.getCustomer());
+
+					if (useraccess != -1) {
+						UserAnalysisRight uar = new UserAnalysisRight(user, analysis, AnalysisRight.valueOf(useraccess));
+						userrights.put(user, uar);
+						serviceUserAnalysisRight.save(uar);
+						serviceAnalysis.saveOrUpdate(analysis);
+					}
+
+				}
+			}
+
+			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights users successfully updated!", locale));
+
+			model.addAttribute("analysisRigths", AnalysisRight.values());
+			model.addAttribute("analysis", analysis);
+			model.addAttribute("userrights", userrights);
+
+			return manageaccessrights(analysisID, principal, model);
+		} catch (Exception e) {
+			// return errors
+			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			e.printStackTrace();
+			return manageaccessrights(analysisID, principal, model);
+		}
 	}
 	
 	/**

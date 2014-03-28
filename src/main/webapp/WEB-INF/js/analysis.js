@@ -23,6 +23,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 	} else
 		permissionError();
 	return false;
+	
 }
 
 function updatemanageAnalysisAccess(analysisid, userrightsform) {

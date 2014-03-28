@@ -224,3 +224,18 @@ function getImportNormTemplate() {
 	});
 	return false;
 }
+
+function exportSingleNorm(normId) {
+	if (normId == null || normId == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_norm"));
+		if (selectedScenario.length != 1)
+			return false;
+		normId = selectedScenario[0];
+	}
+	
+	$.fileDownload(context + '/KnowledgeBase/Norm/Export/'+normId).fail(function() {
+		alert('File export failed!');
+	});
+	return false;
+	
+}
