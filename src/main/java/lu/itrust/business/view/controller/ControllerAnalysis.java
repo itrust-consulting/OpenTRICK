@@ -23,6 +23,8 @@ import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
 import lu.itrust.business.component.AssessmentManager;
@@ -41,6 +43,7 @@ import lu.itrust.business.service.ServiceHistory;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceNorm;
 import lu.itrust.business.service.ServiceRiskRegister;
+import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.ServiceUserAnalysisRight;
@@ -64,6 +67,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -71,6 +75,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -147,6 +152,9 @@ public class ControllerAnalysis {
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
+	@Autowired
+	private ServiceRole serviceRole;
+	
 	// ******************************************************************************************************************
 	// * Request mappers
 	// ******************************************************************************************************************
@@ -176,18 +184,32 @@ public class ControllerAnalysis {
 		// check if an analysis is selected
 		if (selected != null) {
 
+			Boolean permissiondenied = false;
+			
 			// prepare permission evaluator
 			PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
 
-			// check if user has permission to read the analysis
-			if (permissionEvaluator.userIsAuthorized(selected, principal, AnalysisRight.READ)) {
-
-				// retrieve the analysis object
-				Analysis analysis = serviceAnalysis.get(selected);
-				if (analysis == null) {
-					attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-					return "redirect:/Error/404";
-				}
+			Analysis analysis = serviceAnalysis.get(selected);
+			
+			if (analysis == null) {
+				attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+				return "redirect:/Error/404";
+			}
+			
+			User user = serviceUser.get(principal.getName());
+			
+			Role roleconsultant = serviceRole.findByName(RoleType.ROLE_CONSULTANT.name());
+			
+			Role roleadmin = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
+			
+			if (analysis.isProfile()) {
+				if (!serviceUser.hasRole(user, roleconsultant) && !serviceUser.hasRole(user, roleadmin))
+					permissiondenied = true;
+			} else
+				if (!permissionEvaluator.userIsAuthorized(selected, principal, AnalysisRight.READ))
+					permissiondenied = true;
+			
+			if (!permissiondenied) {
 
 				// initialise and send data to the data model
 				Hibernate.initialize(analysis.getLanguage());
@@ -366,7 +388,7 @@ public class ControllerAnalysis {
 	 * @return
 	 */
 	@RequestMapping("/DisplayByCustomer/{customerSection}")
-	public String section(@PathVariable Integer customerSection,HttpSession session, Principal principal, Model model) throws Exception {
+	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
 		session.setAttribute("currentCustomer", customerSection);
 		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomerAndNoEmpty(principal.getName(), customerSection));
 		model.addAttribute("customer", customerSection);
@@ -419,36 +441,72 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/{analysisId}/Select")
 	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Model model, HttpSession session, RedirectAttributes attributes, Locale locale)
 			throws Exception {
 
-		// retrieve selected analysis
-		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+		Boolean permissiondenied = false;
+		
+		// prepare permission verifier
+		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
 
-		// check if analysis is selected and if thee selected value is the same
-		// as the analysis to
-		// select (in order to deselect analysis)
-		if (selected != null && selected.intValue() == analysisId)
-
-			// deselect the analysis
-			session.removeAttribute("selectedAnalysis");
-
-		// check if analysis exists -> YES
-		else if (serviceAnalysis.exist(analysisId)) {
-
-			// select the analysis
-			session.setAttribute("selectedAnalysis", analysisId);
+		User user = serviceUser.get(principal.getName());
+		
+		Role roleconsultant = serviceRole.findByName(RoleType.ROLE_CONSULTANT.name());
+		
+		Role roleadmin = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
+		
+		
+		
+		Analysis analysis = serviceAnalysis.get(analysisId);
+		
+		if (analysis.isProfile()) {
+			if (!serviceUser.hasRole(user, roleconsultant) && !serviceUser.hasRole(user, roleadmin))
+				permissiondenied = true;
+		} else
+			if (!permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ))
+				permissiondenied = true;
+		
+		if (!permissiondenied) {
+			
+			// retrieve selected analysis
+			Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+			
+			// check if analysis is selected and if thee selected value is the same
+			// as the analysis to
+			// select (in order to deselect analysis)
+			if (selected != null && selected.intValue() == analysisId)
+	
+				// deselect the analysis
+				session.removeAttribute("selectedAnalysis");
+	
+			// check if analysis exists -> YES
+			else if (serviceAnalysis.exist(analysisId)) {
+	
+				// select the analysis
+				session.setAttribute("selectedAnalysis", analysisId);
+			} else {
+	
+				// deselect the analysis
+				session.removeAttribute("selectedAnalysis");
+	
+				// add error attribute
+				attributes.addFlashAttribute("error", "Analysis not recognized!");
+			}
+			return "redirect:/Analysis";
 		} else {
-
-			// deselect the analysis
-			session.removeAttribute("selectedAnalysis");
-
-			// add error attribute
-			attributes.addFlashAttribute("error", "Analysis not recognized!");
+			// retrieve selected analysis
+			Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+			
+			// check if analysis is selected and if thee selected value is the same
+			// as the analysis to
+			// select (in order to deselect analysis)
+			if (selected != null && selected.intValue() == analysisId)
+	
+				// deselect the analysis
+				session.removeAttribute("selectedAnalysis");
+			return "403";
 		}
-		return "redirect:/Analysis";
 	}
 
 	// *****************************************************************
@@ -498,7 +556,6 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Edit/{analysisId}")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String requestEditAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model) throws Exception {
 
 		// retrieve analysis
@@ -506,6 +563,26 @@ public class ControllerAnalysis {
 		if (analysis == null)
 			return "redirect:/Error/404";
 
+		Boolean permissiondenied = false;
+		
+		// prepare permission evaluator
+		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
+		
+		User user = serviceUser.get(principal.getName());
+		
+		Role roleconsultant = serviceRole.findByName(RoleType.ROLE_CONSULTANT.name());
+		
+		Role roleadmin = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
+		
+		if (analysis.isProfile()) {
+			if (!serviceUser.hasRole(user, roleconsultant) && !serviceUser.hasRole(user, roleadmin))
+				permissiondenied = true;
+		} else
+			if (!permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ))
+				permissiondenied = true;
+		
+		if (!permissiondenied) {
+		
 		// add languages
 		model.put("languages", serviceLanguage.loadAll());
 
@@ -516,6 +593,10 @@ public class ControllerAnalysis {
 		model.put("analysis", analysis);
 
 		return "analysis/editAnalysis";
+		
+		} else {
+			return "redirect:/Error/403";
+		}
 	}
 
 	// *****************************************************************
@@ -925,7 +1006,6 @@ public class ControllerAnalysis {
 					analysis.setLanguage(lang);
 					analysis.setLabel(comment);
 				} else {
-					
 
 					analysis = serviceAnalysis.get(id);
 
@@ -984,13 +1064,11 @@ public class ControllerAnalysis {
 					analysis = new Duplicator().duplicateAnalysis(profile, null);
 					Analysis.initialiseEmptyItemInformation(analysis);
 					analysis.setProfile(false);
-					if ((analysis.getAssets().size() > 0) && (analysis.getScenarios().size() > 0) && (analysis.getAnalysisNorms().size() > 0))
+					if (analysis.getAnalysisNorms().size() > 0)
 						analysis.setData(true);
-					else
-						analysis.setData(false);
 				} else {
 					analysis = new Analysis();
-					analysis.setData(false);
+					analysis.setData(true);
 					Analysis.initialiseEmptyItemInformation(analysis);
 				}
 				analysis.setBasedOnAnalysis(null);

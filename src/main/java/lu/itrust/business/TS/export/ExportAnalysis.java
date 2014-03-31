@@ -813,7 +813,9 @@ public class ExportAnalysis {
 
 				// add parameters
 				params.clear();
-				params.add(parameter.getValue());
+				
+				Double value = parameter.getValue();
+				params.add(value.intValue());
 
 				// execute the query
 				sqlite.query(query, params);

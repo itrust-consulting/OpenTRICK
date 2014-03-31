@@ -200,41 +200,6 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	/**
-	 * computeActionPlan: <br>
-	 * Computes the Action Plans and stores the Result into the Database and
-	 * inside the ActionPlan Lists.
-	 * 
-	 * @return A MessageHandler Object containing either a Exception or null
-	 *         (Error or no Error)
-	 */
-	/*
-	 * public MessageHandler computeActionPlan() {
-	 * 
-	 * // create object ActionPlanComputation actionPlanComputation = new
-	 * ActionPlanComputation( this);
-	 * 
-	 * // perform computation return
-	 * actionPlanComputation.calculateActionPlans(); }
-	 */
-
-	/**
-	 * computeRiskRegister: <br>
-	 * Computes the Risk Register and stores the result in the MySQL Database
-	 * 
-	 * @return A MessageHandler Object containing either a Exception or null
-	 *         (Error or no Error)
-	 */
-	/*
-	 * public MessageHandler computeRiskRegister() {
-	 * 
-	 * // create object RiskRegisterComputation riskcomputation = new
-	 * RiskRegisterComputation( this);
-	 * 
-	 * // compute the risk register and store to database return
-	 * riskcomputation.computeRiskRegister(); }
-	 */
-
-	/**
 	 * getALEOfAsset: <br>
 	 * Returns the Sum of ALE from Assessments for the given Asset.
 	 * 

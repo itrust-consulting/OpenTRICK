@@ -5,34 +5,30 @@ function editSingleAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-
-	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
-		$("#addAnalysisModel .progress").hide();
-		$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
-		$.ajax({
-			url : context + "/Analysis/Edit/" + analysisId,
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				if ((form = doc.getElementById("form_edit_analysis")) == null) {
-					$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
-					$("#alert-dialog").modal("toggle");
-				} else {
-					$("#analysis_form").html($(form).html());
-					$("#addAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
-					$("#addAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
-					$("#analysis_form").prop("action", "/update");
-					$("#addAnalysisModel").modal('toggle');
-				}
-			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return false;
-			},
-		});
-	} else
-		permissionError();
+	$("#addAnalysisModel .progress").hide();
+	$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
+	$.ajax({
+		url : context + "/Analysis/Edit/" + analysisId,
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			if ((form = doc.getElementById("form_edit_analysis")) == null) {
+				$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
+				$("#alert-dialog").modal("toggle");
+			} else {
+				$("#analysis_form").html($(form).html());
+				$("#addAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
+				$("#addAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
+				$("#analysis_form").prop("action", "/update");
+				$("#addAnalysisModel").modal('toggle');
+			}
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			return false;
+		},
+	});
 	return false;
 }
 
@@ -44,12 +40,7 @@ function selectAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-
-	if (userCan(analysisId, ANALYSIS_RIGHT.READ))		
-		window.location.replace(context + "/Analysis/" + analysisId + "/Select");
-
-	else
-		permissionError();
+	window.location.replace(context + "/Analysis/" + analysisId + "/Select");
 }
 
 function saveAnalysis(form, reloadaction) {
@@ -121,42 +112,35 @@ function deleteAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
+	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis") + "?");
 
-	if (userCan(analysisId, ANALYSIS_RIGHT.DELETE)) {
-		$("#deleteAnalysisBody").html(
-				MessageResolver("label.analysis.question.delete",
-						"Are you sure that you want to delete the analysis")
-						+ "?");
-		
-		$("#deleteanalysisbuttonYes").click(function() {
-			$("#deleteAnalysisModel .modal-header > .close").hide();
-			$("#deleteprogressbar").show();
-			$("#deleteanalysisbuttonYes").prop("disabled", true);
-			$.ajax({
-				url : context + "/Analysis/Delete/" + analysisId,
-				type : "GET",
-				contentType : "application/json;charset=UTF-8",
-				success : function(response) {
-					$("#deleteprogressbar").hide();
-					$("#deleteanalysisbuttonYes").prop("disabled",false);
-					$("#deleteAnalysisModel").modal('toggle');
-					if (response.success != undefined) {
-						reloadSection("section_analysis");
-					} else if (response.error != undefined) {
-						$("#alert-dialog .modal-body").html(response.error);
-						$("#alert-dialog").modal("toggle");
-					}
-					return false;
+	$("#deleteanalysisbuttonYes").click(function() {
+		$("#deleteAnalysisModel .modal-header > .close").hide();
+		$("#deleteprogressbar").show();
+		$("#deleteanalysisbuttonYes").prop("disabled", true);
+		$.ajax({
+			url : context + "/Analysis/Delete/" + analysisId,
+			type : "GET",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				$("#deleteprogressbar").hide();
+				$("#deleteanalysisbuttonYes").prop("disabled", false);
+				$("#deleteAnalysisModel").modal('toggle');
+				if (response.success != undefined) {
+					reloadSection("section_analysis");
+				} else if (response.error != undefined) {
+					$("#alert-dialog .modal-body").html(response.error);
+					$("#alert-dialog").modal("toggle");
 				}
-			});
-			$("#deleteanalysisbuttonYes").unbind();
-			return false;
+				return false;
+			}
 		});
-		$("#deleteanalysisbuttonYes").prop("disabled",false);
-		$("#deleteAnalysisModel .modal-header > .close").show();
-		$("#deleteAnalysisModel").modal('show');
-	} else
-		permissionError();
+		$("#deleteanalysisbuttonYes").unbind();
+		return false;
+	});
+	$("#deleteanalysisbuttonYes").prop("disabled", false);
+	$("#deleteAnalysisModel .modal-header > .close").show();
+	$("#deleteAnalysisModel").modal('show');
 	return false;
 }
 
@@ -220,11 +204,21 @@ function analysisTableSortable() {
 			filter_reset : ".reset"
 		}
 	});
-	$("th[class~='tablesorter-header'][data-column='0']").css({'width':'2px'});
-	$("th[class~='tablesorter-header'][data-column='1']").css({'width':'250px'});
-	//$("th[class~='tablesorter-header'][data-column='2']").css({'width':'250px'});
-	$("th[class~='tablesorter-header'][data-column='3']").css({'width':'250px'});
-	$("th[class~='tablesorter-header'][data-column='4']").css({'width':'250px'});
-	$("th[class~='tablesorter-header'][data-column='5']").css({'width':'150px'});
+	$("th[class~='tablesorter-header'][data-column='0']").css({
+		'width' : '2px'
+	});
+	$("th[class~='tablesorter-header'][data-column='1']").css({
+		'width' : '250px'
+	});
+	// $("th[class~='tablesorter-header'][data-column='2']").css({'width':'250px'});
+	$("th[class~='tablesorter-header'][data-column='3']").css({
+		'width' : '250px'
+	});
+	$("th[class~='tablesorter-header'][data-column='4']").css({
+		'width' : '250px'
+	});
+	$("th[class~='tablesorter-header'][data-column='5']").css({
+		'width' : '150px'
+	});
 	return false;
 }
