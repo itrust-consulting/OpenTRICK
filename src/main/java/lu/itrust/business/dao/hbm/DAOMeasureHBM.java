@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOMeasure;
 
 /**
@@ -149,8 +150,22 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 		.setParameterList("measures", measures).list();
 	}
 
-	
-
-	
-
+	/**
+	 * loadSOA: <br>
+	 * Loads measures from all 27002 norms to be placed on the SOA table
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasure#loadSOA(int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Measure> loadSOA(int idAnalysis) {
+		return getSession()
+				.createQuery(
+						"Select measure "
+								+ "From AnalysisNorm as analysisNorm "
+								+ "inner join analysisNorm.measures as measure "
+								+ "where analysisNorm.norm.label = :norm and analysisNorm.analysis.id = :analysis order by analysisNorm.norm.label ASC, measure.id ASC")
+				.setParameter("analysis", idAnalysis)
+				.setParameter("norm", Constant.NORM_27002).list();
+	}
 }

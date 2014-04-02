@@ -62,7 +62,7 @@
 														<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 														
 														<td>
-															<a href="#" class="descriptiontooltip" data-toggle="tooltip" title="<spring:message text="${!empty measureDescriptionText? measureDescriptionText.description : ''}" />">
+															<a href="#" class="descriptiontooltip" data-toggle="tooltip" data-html="true" title="<spring:message text="${!empty measureDescriptionText? measureDescriptionText.description : ''}" />">
 																<spring:message text="${measure.measureDescription.reference}" />
 															</a>
 														</td>

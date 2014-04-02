@@ -7,7 +7,9 @@ import java.util.List;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.dao.DAORole;
 import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.service.ServiceUser;
 
@@ -25,6 +27,9 @@ public class ServiceUserImpl implements ServiceUser {
 	@Autowired
 	private DAOUser daoUser;
 
+	@Autowired
+	private DAORole daoRole;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -183,6 +188,29 @@ public class ServiceUserImpl implements ServiceUser {
 		return daoUser.hasRole(user, role);
 	}
 
+	/**
+	 * 
+	 * hasRole: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#hasRole(lu.itrust.business.TS.usermanagement.User,
+	 *      lu.itrust.business.TS.usermanagement.Role)
+	 */
+	@Transactional
+	@Override
+	public boolean hasRole(User user, RoleType roleType) throws Exception {
+		List<Role> roles = daoRole.getFromUser(user);
+		
+		for (Role role : roles) {
+			if (role.getType().compareTo(roleType)>=0){
+				return true;
+			}
+		}
+		
+		return false;
+		
+	}
+	
 	public DAOUser getDaoUser() {
 		return daoUser;
 	}

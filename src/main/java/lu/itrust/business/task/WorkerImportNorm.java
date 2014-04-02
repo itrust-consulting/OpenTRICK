@@ -242,7 +242,8 @@ public class WorkerImportNorm implements Worker {
 
 		short startColSheet, endColSheet;
 		int startRowSheet, endRowSheet;
-
+		String domain = "";
+		String description = "";
 		Language lang;
 		Pattern pattern;
 		Matcher matcher;
@@ -319,16 +320,24 @@ public class WorkerImportNorm implements Worker {
 												
 												if (daoMeasureDescriptionText.existsForLanguage(measureDescription.getId(), lang.getId())){
 													measureDescriptionText = daoMeasureDescriptionText.getByLanguage(measureDescription.getId(), lang.getId());
-													measureDescriptionText.setDomain(sheet.getRow(indexRow).getCell(indexCol)!=null?sheet.getRow(indexRow).getCell(indexCol).getStringCellValue():"");
-													measureDescriptionText.setDescription(sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "");
+													
+													domain = sheet.getRow(indexRow).getCell(indexCol)!=null?sheet.getRow(indexRow).getCell(indexCol).getStringCellValue():"";
+													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
+												
+													measureDescriptionText.setDomain(domain);
+													measureDescriptionText.setDescription(description);
 													
 												} else {
 													measureDescriptionText = new MeasureDescriptionText();
-
 													measureDescriptionText.setMeasureDescription(measureDescription);
-													measureDescriptionText.setDomain(sheet.getRow(indexRow).getCell(indexCol)!=null?sheet.getRow(indexRow).getCell(indexCol).getStringCellValue():"");
-													measureDescriptionText.setDescription(sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "");
 													measureDescriptionText.setLanguage(lang);
+
+													domain = sheet.getRow(indexRow).getCell(indexCol)!=null?sheet.getRow(indexRow).getCell(indexCol).getStringCellValue():"";
+													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
+																	
+													measureDescriptionText.setDomain(domain);
+													measureDescriptionText.setDescription(description);
+													
 													measureDescription.addMeasureDescriptionText(measureDescriptionText);
 												}
 											}

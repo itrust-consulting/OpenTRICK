@@ -1664,18 +1664,18 @@ public class ExportAnalysis {
 
 						// set query
 						measurequery = "INSERT INTO maturities SELECT ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
-						measurequery += " 'domain',? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime',? as 'maintenance',? as 'comment',? ";
+						measurequery += " 'domain',? as 'phase', ? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime',? as 'maintenance',? as 'comment',? ";
 						measurequery += "as 'todo',? as 'sml1',? as 'sml2',? as 'sml3',? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
 						// set limit
-						measurecounter = 23;
+						measurecounter = 24;
 
 					} else {
 
 						// check if first part -> NO
 
 						// check if limit reached -> YES
-						if (measurecounter + 23 >= 999) {
+						if (measurecounter + 24 >= 999) {
 
 							// execute query
 							measurequery = measurequery.substring(0, measurequery.length() - 6);
@@ -1686,20 +1686,20 @@ public class ExportAnalysis {
 
 							// reset query
 							measurequery = "INSERT INTO maturities SELECT ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
-							measurequery += " 'domain',? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime',? as 'maintenance',? as 'comment',? ";
+							measurequery += " 'domain',? as 'phase',? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime',? as 'maintenance',? as 'comment',? ";
 							measurequery += "as 'todo',? as 'sml1',? as 'sml2',? as 'sml3',? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
 							// reset limit
-							measurecounter = 23;
+							measurecounter = 24;
 						} else {
 
 							// limit reached -> NO
 
 							// add insert data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
-							measurecounter += 23;
+							measurecounter += 24;
 						}
 					}
 
@@ -1710,6 +1710,7 @@ public class ExportAnalysis {
 					measureparams.add(maturity.getMeasureDescription().getReference());
 					measureparams.add(maturity.getMeasureDescription().isComputable());
 					measureparams.add(maturity.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage()).getDomain());
+					measureparams.add(maturity.getPhase().getNumber());
 					measureparams.add(maturity.getMeasureDescription().getLevel());
 					measureparams.add(maturity.getStatus());
 					measureparams.add(maturity.getImplementationRateValue() / 100.0);
@@ -1728,29 +1729,6 @@ public class ExportAnalysis {
 					measureparams.add(generateIndexOfReference(maturity.getMeasureDescription().getReference()));
 					measureparams.add(maturity.getReachedLevel());
 
-					// ****************************************************************
-					// * set phase number of maturity chapter
-					// ****************************************************************
-
-					// check if measure is of level 1 (maturity chapter) -> YES
-					if (maturity.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_1) {
-
-						// ****************************************************************
-						// * set maturity chapter phase
-						// ****************************************************************
-
-						// build query
-						specquery = DatabaseHandler.generateInsertQuery("maturity_phase", 2);
-
-						// add parameters
-						specparams.clear();
-						specparams.add(maturity.getMeasureDescription().getReference()
-								.substring(maturity.getMeasureDescription().getReference().indexOf(".") + 1, maturity.getMeasureDescription().getReference().length()));
-						specparams.add(maturity.getPhase().getNumber());
-
-						// execute the query
-						sqlite.query(specquery, specparams);
-					}
 				}
 
 				// ****************************************************************

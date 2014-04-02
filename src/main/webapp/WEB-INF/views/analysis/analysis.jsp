@@ -25,12 +25,12 @@
 					<jsp:include page="../successErrors.jsp" />
 					<div id="nav-container" trick-id="${analysis.id}" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}">
 						<c:if test="${!KowledgeBaseView}">
-							<h2>${analysis.label} | ${ analysis.version }</h2>
+							<h2>${analysis.label}|${ analysis.version }</h2>
 							<c:set var="histories" value="${analysis.histories}" scope="request" />
 							<jsp:include page="./components/history.jsp" />
 						</c:if>
 						<c:if test="${KowledgeBaseView}">
-							<h2>${analysis.identifier} | ${ analysis.version }</h2>
+							<h2>${analysis.identifier}|${ analysis.version }</h2>
 						</c:if>
 						<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
 						<jsp:include page="./components/itemInformation.jsp" />
@@ -44,6 +44,7 @@
 						<jsp:include page="./components/phase.jsp" />
 						<jsp:include page="./components/measure.jsp" />
 						<c:if test="${!KowledgeBaseView }">
+							<jsp:include page="./components/soa.jsp" />
 							<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
 							<jsp:include page="./components/actionplan.jsp" />
 							<script type="text/javascript" src="<spring:url value="js/actionplan.js" />"></script>
@@ -67,40 +68,61 @@
 	<!-- ################################################################ End Container ################################################################# -->
 	<jsp:include page="../footer.jsp" />
 	<jsp:include page="../scripts.jsp" />
-	<c:if test="${!empty(sessionScope.selectedAnalysis)}">
-		<script type="text/javascript">
-			reloadCharts();
-		</script>
-	</c:if>
-	<script type="text/javascript">
-		$(document).ready(function() {
-			$("input[type='checkbox']").removeAttr("checked");
-			//adaptHeaderTabletoData("section_measure_27001");
-		});
-
-		function adaptHeaderTabletoData(container) {
-			var tableheader = $("#" + container).find("table[class~='tableheaderrow']:first");
-			var tablescrollarea = $("#" + container).find("table[class~='tablescrollarea']:first");
-			tablescrollarea.find("tr:nth-child(3) td").each(function(index) {
-				var bodywidth = $(this).outerWidth();
-				tableheader.find("tr:first th:nth-child(" + (index + 1) + ")").outerWidth(bodywidth);
-
-			});
-		}
-	</script>
 	<c:if test="${empty(sessionScope.selectedAnalysis)}">
 		<script type="text/javascript">
-			$(function() {
-				analysisTableSortable();
+			analysisTableSortable();
+		</script>
+	</c:if>
+	<c:if test="${!empty(sessionScope.selectedAnalysis)}">
+		<script type="text/javascript" src="http://datatables.net/release-datatables/media/js/jquery.dataTables.js"></script>
+		<script type="text/javascript" src="http://datatables.net/release-datatables/extras/FixedColumns/media/js/FixedColumns.js"></script>
+		<script type="text/javascript">
+			var el = null;
+
+			
+
+			$(document).ready(function() {
+
+				// load charts
+				reloadCharts();
+
+				$("input[type='checkbox']").removeAttr("checked");
+				
+				$('#table_SOA_27002').fixedHeaderTable({ footer: false, cloneHeadToFoot: false, fixedColumn: false, width:"100%",themeClass: 'table table-hover' });
+				$('#table_SOA_27002').css("margin-top","-49px");
+				$('div [class="fht-table-wrapper table table-hover"]').css("margin","0");
+				$('div [class="fht-table-wrapper table table-hover"]').css("padding","0");
+				
+				$('.descriptiontooltip').click(function() {
+
+					if (el != null && el.attr("data-original-title") != $(this).attr("data-original-title")) {
+						el.popover("hide");
+						el = null;
+					}
+
+					el = $(this);
+
+					$(this).popover({
+						trigger : 'manual',
+						placement : 'bottom',
+						html : true
+					}).popover('toggle');
+					return false;
+				});
+
+				$("div [class='fht-tbody']").scroll(function() {
+					console.log("ohe");
+					if (el != null) {
+						el.popover('hide');
+						$('.popover').remove();
+						el = null;
+					}
+				});
+				
+				
 			});
 		</script>
 	</c:if>
-	<script type="text/javascript">
-		$(function() {
-			console.log("Ola");
-			$('.descriptiontooltip').popover({placement : 'bottom', 'trigger':'hover'});
-		});
-	</script>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

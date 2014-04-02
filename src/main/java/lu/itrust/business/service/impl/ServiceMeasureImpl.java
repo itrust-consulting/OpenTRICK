@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOMeasure;
 import lu.itrust.business.service.ServiceMeasure;
 
@@ -159,4 +160,9 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 		return daoMeasure.findNormMeasureByAnalysisAndComputable(idAnalysis);
 	}
 
+	@Override
+	public List<Measure> loadSOA(int idAnalysis) {
+		return daoMeasure.loadSOA(idAnalysis);
+	}
+	
 }

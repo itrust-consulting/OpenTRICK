@@ -114,7 +114,7 @@ public class ControllerMeasure {
 		Field field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
 		if (field == null) {
 			if (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
-				measure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(), (Integer)fieldEditor.getValue());
+				measure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
 			else {
 				AssetTypeValue assetData = null;
 				for (AssetTypeValue assetTypeValue : measure.getAssetTypeValues()) {
@@ -184,10 +184,10 @@ public class ControllerMeasure {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value="/Compliance/{norm}",method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Compliance/{norm}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@ResponseBody
-	String compliance(@PathVariable String norm, HttpSession session, Locale locale, Principal principal) {
+	public String compliance(@PathVariable String norm, HttpSession session, Locale locale, Principal principal) {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -203,5 +203,17 @@ public class ControllerMeasure {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	@RequestMapping(value="/SOA",method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String getSOA(HttpSession session, Principal principal, Model model) {
+		
+		// retrieve analysis id
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		
+		model.addAttribute("measures", serviceMeasure.loadSOA(idAnalysis));
+		
+		return "analysis/components/soa";
 	}
 }

@@ -30,6 +30,8 @@ public interface ServiceMeasure {
 	List<Measure> findByAnalysisAndNorm(int idAnalysis, String norm);
 
 	List<Measure> findByAnalysisAndNorm(int idAnalysis, Norm norm);
+	
+	List<Measure> loadSOA(int idAnalysis);
 
 	Measure save(Measure measure);
 

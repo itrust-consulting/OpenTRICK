@@ -452,16 +452,10 @@ public class ControllerAnalysis {
 
 		User user = serviceUser.get(principal.getName());
 		
-		Role roleconsultant = serviceRole.findByName(RoleType.ROLE_CONSULTANT.name());
-		
-		Role roleadmin = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
-		
-		
-		
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		
 		if (analysis.isProfile()) {
-			if (!serviceUser.hasRole(user, roleconsultant) && !serviceUser.hasRole(user, roleadmin))
+			if (!serviceUser.hasRole(user, RoleType.ROLE_CONSULTANT))
 				permissiondenied = true;
 		} else
 			if (!permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ))
@@ -570,12 +564,8 @@ public class ControllerAnalysis {
 		
 		User user = serviceUser.get(principal.getName());
 		
-		Role roleconsultant = serviceRole.findByName(RoleType.ROLE_CONSULTANT.name());
-		
-		Role roleadmin = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
-		
 		if (analysis.isProfile()) {
-			if (!serviceUser.hasRole(user, roleconsultant) && !serviceUser.hasRole(user, roleadmin))
+			if (!serviceUser.hasRole(user, RoleType.ROLE_CONSULTANT))
 				permissiondenied = true;
 		} else
 			if (!permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ))
@@ -630,7 +620,7 @@ public class ControllerAnalysis {
 
 			// check if it is a new analysis or the user is authorized to modify
 			// the analysis
-			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)) {
+			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY) || serviceUser.hasRole(serviceUser.get(principal.getName()), RoleType.ROLE_CONSULTANT)) {
 
 				// create/update analysis object and set access rights
 				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);

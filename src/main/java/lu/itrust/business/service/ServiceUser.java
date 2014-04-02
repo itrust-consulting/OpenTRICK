@@ -7,6 +7,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -36,6 +37,8 @@ public interface ServiceUser {
 	boolean removeRole(User user, Role role) throws Exception;
 	
 	boolean hasRole(User user, Role role) throws Exception;
+	
+	boolean hasRole(User user, RoleType role) throws Exception;
 	
 	void save(User user)throws Exception;
 	
