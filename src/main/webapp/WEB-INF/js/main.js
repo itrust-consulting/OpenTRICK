@@ -2386,6 +2386,8 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			if (response.chart == undefined || response.chart == null)
 				return true;
 			$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
+			console.log("success: ");
+			console.log(response);
 		}
 	});
 }

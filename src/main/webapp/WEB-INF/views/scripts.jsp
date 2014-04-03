@@ -11,8 +11,6 @@
 <script src="<spring:url value="/js/jquery.tablesorter.widgets.js" />"></script>
 <script src="<spring:url value="/js/jquery.tablesorter.pager.js" />"></script>
 <script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
-<script src="<spring:url value="/js/stickyrows/stickyRows.js"/>"></script>
-<script src="<spring:url value="/js/jquery.floatThead.min.js"/>"></script>
 <script src="<spring:url value="/js/bootstrap.min.js" />"></script>
 <script src="<spring:url value="/js/bootbox.min.js" />"></script>
 <script src="<spring:url value="/js/bootstrap-slider.js" />"></script>
@@ -72,11 +70,11 @@
 <script src="<spring:url value="/js/locales/bootstrap-datepicker.zh-TW.js" />" charset="UTF-8"></script>
 <script src="<spring:url value="/js/bootstrap-tooltip.js" />"></script>
 <script src="<spring:url value="/js/dom-parser.js" />"></script>
-<script src="<spring:url value="/js/highstock.js" />"></script>
+<script src="<spring:url value="/js/highcharts.js" />"></script>
 <script src="<spring:url value="/js/highcharts-more.js" />"></script>
-<script src="<spring:url value="/js/modules/exporting.js" />"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+
 <script src="<spring:url value="/js/main.js" />"></script>
-<script src="<spring:url value="/js/jquery.floatThead.min.js" />"></script>
 <script type="text/javascript">
 	<sec:authorize ifNotGranted="ROLE_ANONYMOUS" >
 	<!--

@@ -24,7 +24,7 @@
 						<spring:message text="${measureSplited.get(norm).get(1).analysisNorm.norm.version}" />
 					</div>
 					<div class="panel-body panelbodydefinition">
-						<table cellpadding="0" cellspacing="0" border="0" class="table table-hover" style="width:100%;" id="table_SOA_${norm}">
+						<table cellpadding="0" cellspacing="0" border="0" class="table table-hover headertofixtable" style="width:100%;" id="table_SOA_${norm}">
 							<thead>
 								<tr>
 									<th><spring:message code="label.measure.ref" text="Ref" /></th>
@@ -65,7 +65,7 @@
 																	${measure.phase.number}
 																</c:otherwise>
 													</c:choose></td>
-												<td  style="width:20%;">
+												<td style="width:20%;">
 													<div>
 														<spring:message text="${measure.measurePropertyList.getSoaRisk()}" />
 													</div>

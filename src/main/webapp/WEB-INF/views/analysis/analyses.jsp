@@ -89,4 +89,3 @@
 </div>
 <jsp:include page="../analysis/widgetContent.jsp" />
 <jsp:include page="../analysis/components/widgets/historyForm.jsp" />
-<script type="text/javascript" src="<spring:url value="js/analysis.js" />"></script>

@@ -68,60 +68,13 @@
 	<!-- ################################################################ End Container ################################################################# -->
 	<jsp:include page="../footer.jsp" />
 	<jsp:include page="../scripts.jsp" />
+	
 	<c:if test="${empty(sessionScope.selectedAnalysis)}">
-		<script type="text/javascript">
-			analysisTableSortable();
-		</script>
+		<script type="text/javascript" src="<spring:url value="js/analyses.js" />"></script>
 	</c:if>
+	
 	<c:if test="${!empty(sessionScope.selectedAnalysis)}">
-		<script type="text/javascript" src="http://datatables.net/release-datatables/media/js/jquery.dataTables.js"></script>
-		<script type="text/javascript" src="http://datatables.net/release-datatables/extras/FixedColumns/media/js/FixedColumns.js"></script>
-		<script type="text/javascript">
-			var el = null;
-
-			
-
-			$(document).ready(function() {
-
-				// load charts
-				reloadCharts();
-
-				$("input[type='checkbox']").removeAttr("checked");
-				
-				$('#table_SOA_27002').fixedHeaderTable({ footer: false, cloneHeadToFoot: false, fixedColumn: false, width:"100%",themeClass: 'table table-hover' });
-				$('#table_SOA_27002').css("margin-top","-49px");
-				$('div [class="fht-table-wrapper table table-hover"]').css("margin","0");
-				$('div [class="fht-table-wrapper table table-hover"]').css("padding","0");
-				
-				$('.descriptiontooltip').click(function() {
-
-					if (el != null && el.attr("data-original-title") != $(this).attr("data-original-title")) {
-						el.popover("hide");
-						el = null;
-					}
-
-					el = $(this);
-
-					$(this).popover({
-						trigger : 'manual',
-						placement : 'bottom',
-						html : true
-					}).popover('toggle');
-					return false;
-				});
-
-				$("div [class='fht-tbody']").scroll(function() {
-					console.log("ohe");
-					if (el != null) {
-						el.popover('hide');
-						$('.popover').remove();
-						el = null;
-					}
-				});
-				
-				
-			});
-		</script>
+		<script type="text/javascript" src="<spring:url value="js/analysis.js" />"></script>
 	</c:if>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
