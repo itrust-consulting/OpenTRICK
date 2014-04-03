@@ -17,27 +17,46 @@ $(document).ready(function() {
 	// * fixed header tables
 	//******************************************************************************************************************
 	
-	// initialise fixedheader table with parameters
-	$('.headertofixtable').fixedHeaderTable({
-		footer : false,
-		cloneHeadToFoot : false,
-		fixedColumn : false,
-		width : "100%",
-		themeClass : 'table table-hover'
+	$("div[class='panel-body panelbodydefinition']").click(function() {
+		console.log("clicked");
 	});
 	
-	// first data row has wrong margin top
-	$('#table_SOA_27002').css("margin-top", "-49px");
+	$("div[class='panel-body panelbodydefinition']").scroll(function() {
+		initialisefixheadertables($(this).find("table:visible"));
+	});
 	
-	// remove small scrolling which causes scrolling inside panel
-	$('div [class="fht-table-wrapper table table-hover"]').css("margin", "0");
-	$('div [class="fht-table-wrapper table table-hover"]').css("padding", "0");
+	//initialisefixheadertables();
 
 	//******************************************************************************************************************
 	// * measure description in popover
 	//******************************************************************************************************************
 	
+	initmeasuredescriptionpopover();
 	
+});
+
+function initialisefixheadertables(parent){
+	console.log(parent);
+	if (parent.length !== 0) {
+		// initialise fixedheader table with parameters
+		$(parent).fixedHeaderTable({
+			footer : false,
+			cloneHeadToFoot : false,
+			fixedColumn : false,
+			width : "100%",
+			themeClass : 'table table-hover'
+		});
+		
+		// first data row has wrong margin top
+		//$('.headertofixtable').css("margin-top", "-49px");
+		
+		// remove small scrolling which causes scrolling inside panel
+		$('div [class="fht-table-wrapper table table-hover"]').css("margin", "0");
+		$('div [class="fht-table-wrapper table table-hover"]').css("padding", "0");
+	}
+}
+
+function initmeasuredescriptionpopover(){
 	// tooltip / popover click on reference
 	$('.descriptiontooltip').click(function() {
 		
@@ -83,4 +102,4 @@ $(document).ready(function() {
 			el = null;
 		}
 	});
-});
+}

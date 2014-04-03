@@ -48,19 +48,28 @@
 										<tr style="background-color: LightGray">
 											<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 											<td><spring:message text="${measure.measureDescription.reference}" /></td>
-											<td style="width:20%;" ><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-											<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+											<td style="width: 20%;"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
+											<td></td>
 										</tr>
 									</c:when>
 									<c:otherwise>
-										<tr trick-class="Measure" trick-id="${measure.id}"
-											trick-callback="reloadMeasureRow('${measure.id}','${norm}');">
+										<tr trick-class="Measure" trick-id="${measure.id}" trick-callback="reloadMeasureRow('${measure.id}','${norm}');">
 											<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 											<td><a href="#" class="descriptiontooltip" data-toggle="tooltip" data-html="true"
 												title="<spring:message text="${!empty measureDescriptionText? measureDescriptionText.description : ''}" />"> <spring:message
 														text="${measure.measureDescription.reference}" />
 											</a></td>
-											<td style="width:15%;"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+											<td style="width: 15%;"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 											<td class="success textaligncenter cellwidth_80" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 													text="${measure.status}" /></td>
 											<c:choose>
@@ -69,13 +78,12 @@
 															text="${measure.getImplementationRateValue()}" /></td>
 												</c:when>
 												<c:when test="${norm.equalsIgnoreCase('Maturity')==false}">
-													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double"
-														trick-callback="reloadMeausreAndCompliance('${norm}','${measure.id}')" ondblclick="return editField(this);"><spring:message
-															text="${measure.getImplementationRateValue()}" /></td>
+													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" trick-callback="reloadMeausreAndCompliance('${norm}','${measure.id}')"
+														ondblclick="return editField(this);"><spring:message text="${measure.getImplementationRateValue()}" /></td>
 												</c:when>
 												<c:otherwise>
-													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" ondblclick="return editField(this);"
-														trick-class="MaturityMeasure" trick-id="${measure.id}"><spring:message text="${measure.getImplementationRateValue()}" /></td>
+													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" ondblclick="return editField(this);" trick-class="MaturityMeasure"
+														trick-id="${measure.id}"><spring:message text="${measure.getImplementationRateValue()}" /></td>
 												</c:otherwise>
 											</c:choose>
 											<td class="success textaligncenter" trick-field="internalWL" trick-field-type="double" ondblclick="return editField(this);"><spring:message
@@ -84,23 +92,24 @@
 													text="${measure.externalWL}" /></td>
 											<td class="success textaligncenter" trick-field="investment" trick-field-type="double" ondblclick="return editField(this);"><spring:message
 													text="${measure.investment}" /></td>
-											<td class="success textaligncenter" trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);"><spring:message
-													text="${measure.lifetime}" /></td>
+											<td class="success textaligncenter" trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);"><spring:message text="${measure.lifetime}" /></td>
 											<td class="success textaligncenter" trick-field="maintenance" trick-field-type="double" ondblclick="return editField(this);"><spring:message
 													text="${measure.maintenance}" /></td>
 											<td ${measure.cost == 0? "class='danger'" : "" } title="${measure.cost}"><fmt:formatNumber value="${measure.cost*0.001}" maxFractionDigits="0" /></td>
-											<td class="success textaligncenter" trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);"
-												trick-callback-pre="extractPhase(this)" trick-real-value='${measure.phase.number}'>
-												<c:choose>
+											<td class="success textaligncenter" trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)"
+												trick-real-value='${measure.phase.number}'><c:choose>
 													<c:when test="${measure.phase.number == 0}">NA</c:when>
 													<c:otherwise>${measure.phase.number}</c:otherwise>
-												</c:choose>
+												</c:choose></td>
+											<td style="width: 25%;" class="success" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
+												<div>
+													<spring:message text="${measure.comment}" />
+												</div>
 											</td>
-											<td style="width:25%;" class="success" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
-												<div><spring:message text="${measure.comment}" /></div>
-											</td>
-											<td style="width:25%;" class="success" trick-field="toDo" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
-												<div><spring:message text="${measure.toDo}" /></div>
+											<td style="width: 25%;" class="success" trick-field="toDo" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
+												<div>
+													<spring:message text="${measure.toDo}" />
+												</div>
 											</td>
 										</tr>
 									</c:otherwise>

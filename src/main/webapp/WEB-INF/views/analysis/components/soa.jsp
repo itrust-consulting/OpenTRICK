@@ -70,7 +70,7 @@
 														<spring:message text="${measure.measurePropertyList.getSoaRisk()}" />
 													</div>
 												</td>
-												<td style="width:25%;" class="success" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
+												<td style="width: 25%;" class="success" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
 													<div>
 														<spring:message text="${measure.measurePropertyList.getSoaComment()}" />
 													</div>

@@ -37,10 +37,7 @@
 		<div class="panel-body panelbodydefinition">
 			<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 				<div trick-nav-data="${apt}" ${status.index!=0? "hidden='true'" : "" }>
-					<h4 class="text-center">
-						<spring:message code="label.actionPlanType.${apt}" text="${apt}" htmlEscape="true" />
-					</h4>
-					<table class="fixedheadertable table table-hover" id="actionplantable_${apt}">
+					<table cellpadding="0" cellspacing="0" border="0" class="table table-hover headertofixtable" style="width: 100%;" id="actionplantable_${apt}">
 						<thead>
 							<tr>
 								<th><spring:message code="label.table.index" text="#" /></th>
@@ -123,6 +120,7 @@
 								</tr>
 							</c:forEach>
 						</tbody>
+						<tfoot></tfoot>
 					</table>
 				</div>
 			</c:forEach>
