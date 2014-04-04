@@ -3,6 +3,153 @@
  */
 var application = new Application();
 
+function TimeoutInterceptor() {
+	this.lastUpdate = null;
+	this.LIMIT_SESSION = 15 * 60 * 1000;
+	this.ALERT_TIME = 3 * 60 * 1000;
+	this.stopState = true;
+	this.timer = {};
+	this.messages = {
+		Alert : "",
+		Logout : ""
+	};
+}
+
+TimeoutInterceptor.prototype = {
+	Update : function() {
+		if (this.stopState)
+			return false;
+		if (this.lastUpdate == null || this.CurrentTime() < this.LIMIT_SESSION)
+			this.lastUpdate = new Date();
+	},
+	CurrentTime : function() {
+		return new Date().getTime() - this.lastUpdate.getTime();
+	},
+	ShowLogin : function() {
+		$("#alert-dialog").modal("hide");
+		var url = undefined;
+		if ($("#nav-container").length) {
+			var idAnalysis = $("[trick-class='Analysis']").attr("trick-id");
+			if (idAnalysis != undefined)
+				url = context + "/Analysis/" + idAnalysis + "/Select";
+		}
+		if (url == undefined)
+			url = document.URL;
+		var login = new Login(url, this);
+		return login.Display();
+	},
+	AlertTimout : function() {
+		$("#alert-dialog .modal-body").html(this.messages.Alert.replace("%d", Math.floor((this.LIMIT_SESSION - this.CurrentTime()) * 0.001)));
+		$("#alert-dialog").modal("show");
+		return false;
+	},Initialise : function(){
+		this.messages.Alert = MessageResolver("info.session.expired", "Your session will be expired in %d secondes");
+		this.messages.Alert = MessageResolver("info.session.expired.alert", "Your session has been expired");
+		
+	},
+	Check : function() {
+		if (this.CurrentTime() > this.LIMIT_SESSION) {
+			this.Stop();
+			if (this.ShowLogin())
+				this.Start();
+		} else if (this.CurrentTime() > this.ALERT_TIME)
+			this.AlertTimout();
+	},
+	Stop : function() {
+		this.stopState = true;
+		clearInterval(this.timer);
+	},
+	Start : function(login) {
+		if (login != null) {
+			try {
+				if (!login.IsAuthenticate())
+					return;
+			} catch (e) {
+				console.log(e.message);
+			} finally {
+				delete login;
+			}
+		}else {
+			
+		}
+		var that = this;
+		this.stopState = false;
+		this.lastUpdate = new Date();
+		that.timer = setInterval(function() {
+			that.Check();
+		}, 30000);
+		// before jQuery send the request we will push it to our array
+		$.ajaxSetup({
+			beforeSend : function() {
+				that.Update();
+			}
+		});
+	}
+};
+
+function Login(url, timeoutInterceptor) {
+	this.url = url;
+	this.timeoutInterceptor = timeoutInterceptor;
+}
+
+Login.prototype = {
+	IsAuthenticate : function() {
+		var authentificated = false;
+		$.ajax({
+			url : context + "/IsAuthenticate",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				authentificated = response === true;
+			}
+		});
+		return authentificated;
+	},
+	Display : function() {
+		if (this.IsAuthenticate())
+			return true;
+		var view = new Modal();
+		var that = this;
+		view.DefaultFooterButton = function() {
+		};
+		view.Intialise();
+		$(view.modal_footer).remove();
+		$.ajax({
+			url : this.url,
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				var login = $($.parseHTML(response)).find("#login");
+				if (login.length) {
+					view.setBody($(login).html());
+					$(view.modal_body).find("#login_signin_button").on("click", function() {
+						var alerts = $(view.modal_body).find(".alert");
+						if (alerts.length)
+							alerts.remove();
+						$.ajax({
+							url : context + "/j_spring_security_check",
+							contentType : "application/x-www-form-urlencoded",
+							type : "post",
+							data : $(view.modal_body).find("#login_form").serialize(),
+							success : function(response) {
+								var $htmlResult = $.parseHTML(response);
+								if ($($htmlResult).find("#login").length)
+									$(view.modal_body).prepend($($htmlResult).find(".alert"));
+								else {
+									view.Distroy();
+									that.timeoutInterceptor.Start(that);
+								}
+							}
+						});
+						return false;
+					});
+					view.Show();
+				}
+				return false;
+			}
+		});
+		return this.IsAuthenticate();
+	}
+};
+
 var ANALYSIS_RIGHT = {
 	ALL : {
 		value : 0,
@@ -2068,22 +2215,24 @@ function versionComparator(version1, version2) {
 	// splite versions by "."
 	var v1 = version1.split(".", 1);
 	var v2 = version2.split(".", 1);
-	
+
 	if (v1.length)
 		v1 = parseInt(v1[0]);
 	if (v2.length)
 		v2 = parseInt(v2[0]);
-	
+
 	if (v1 == v2) {
 		var index = version1.indexOf(".");
 		if (index != -1)
 			version1 = version1.substring(index + 1);
-		else version1="";
+		else
+			version1 = "";
 
 		var index2 = version2.indexOf(".");
 		if (index2 != -1)
 			version2 = version2.substring(index2 + 1);
-		else version2="";
+		else
+			version2 = "";
 
 		if (!version1.length && !version2.length)
 			return 0;
@@ -2231,11 +2380,11 @@ $(function() {
 		l_lang = navigator.language;
 	else
 		l_lang = "en";
-	
-	if(l_lang == "en-US") {
-			l_lang="en";
+
+	if (l_lang == "en-US") {
+		l_lang = "en";
 	}
-	
+
 	$('.modal').on('shown', function() {
 		$('body').css({
 			overflow : 'hidden'
@@ -2259,7 +2408,8 @@ $(function() {
 		});
 
 	if ($("#addPhaseModel").length) {
-		//$.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang + ".js");
+		// $.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang +
+		// ".js");
 		$('#addPhaseModel').on('show.bs.modal', function() {
 			var lastDate = $("#section_phase td").last();
 			if (lastDate.length) {
@@ -2781,7 +2931,6 @@ function ScenarioRRFController(rrfView, container, name) {
 				var slider = $(this.sliders[i]).slider();
 				sum += parseFloat(slider.prop("value"));
 			}
-
 		}
 		var types = $(this.container).find("*[trick-type='type']");
 		if (sum != 1) {

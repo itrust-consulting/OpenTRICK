@@ -13,7 +13,7 @@
 		<intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/addUser*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<form-login login-page="/login" default-target-url="/home" authentication-failure-url="/login/error" />
-		<logout invalidate-session="true" logout-success-url="/home" />
+		<logout logout-success-url="/home" />
 	</http>
 
 	<authentication-manager>

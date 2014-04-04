@@ -20,7 +20,7 @@
 				<a class="navbar-link pull-right" style="margin-top: -35px;" href="${pageContext.request.contextPath}/Register"> <spring:message code="label.signup" text="Sign up" />
 				</a>
 				<jsp:include page="successErrors.jsp" />
-				<form method="post" action="<c:url value='${pageContext.request.contextPath}/j_spring_security_check'/>">
+				<form id="login_form" method="post" action="<c:url value='${pageContext.request.contextPath}/j_spring_security_check'/>">
 					<div class="form-group">
 						<input name="j_username" value="${(!empty (j_username))? j_username : ''}" placeholder="<spring:message code='label.signin.login' />" required="required" class="form-control" />
 					</div>
@@ -32,7 +32,7 @@
 						<label><spring:message code="label.signin.rememberMe" text="Remember me" /> <input type='checkbox' name='_spring_security_remember_me' /></label>
 					</div>
 					<div class="form-group">
-						<button type="submit" class="btn btn-default navbar-btn">
+						<button type="submit" id="login_signin_button" class="btn btn-default navbar-btn">
 							<spring:message code="label.signin.connect" text="Sign in" />
 						</button>
 					</div>

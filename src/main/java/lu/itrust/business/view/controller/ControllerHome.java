@@ -73,14 +73,17 @@ public class ControllerHome {
 		return "loginForm";
 	}
 	
+	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody boolean isAuthenticate(Principal principal){
+		return principal != null;
+	}
+	
 	@RequestMapping("/login/error")
 	public String login(RedirectAttributes attributes, Locale locale) {
 		attributes.addFlashAttribute("errors", messageSource.getMessage("error.bad.credential", null, "Please check your credentials", locale));
 		return "redirect:/login";
 	}
 	
-	
-
 	@RequestMapping("/logout")
 	public String logout() {
 		return "redirect:/j_spring_security_logout";
