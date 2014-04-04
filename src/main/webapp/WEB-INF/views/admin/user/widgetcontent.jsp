@@ -3,11 +3,11 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="addUserModel" tabindex="-1" role="dialog" aria-labelledby="addNewUser" aria-hidden="true">
+<div class="modal fade" id="addUserModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewUser" data-aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content" style="min-width: 50%;">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addUserModel-title">
 					<spring:message code="label.user.add.menu" text="Add new User" />
 				</h4>
@@ -65,11 +65,11 @@
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="deleteUserModel" tabindex="-1" aria-hidden="true" aria-labelledby="deleteUser" role="dialog">
+<div class="modal fade" id="deleteUserModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteUser" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteUserModel-title">
 					<spring:message code="title.user.delete" text="Delete a user" />
 				</h4>

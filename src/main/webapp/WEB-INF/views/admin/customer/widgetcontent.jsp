@@ -3,11 +3,11 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="addCustomerModel" tabindex="-1" role="dialog" aria-labelledby="addNewCustomer" aria-hidden="true">
+<div class="modal fade" id="addCustomerModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewCustomer" data-aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addCustomerModel-title">
 					<spring:message code="label.customer.add.menu" text="Add new customer" />
 				</h4>
@@ -92,11 +92,11 @@
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="manageCustomerUserModel" tabindex="-1" role="dialog" aria-labelledby="manageCustomerUserModel" aria-hidden="true">
+<div class="modal fade" id="manageCustomerUserModel" tabindex="-1" role="dialog" data-aria-labelledby="manageCustomerUserModel" data-aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addCustomerModel-title">
 					<spring:message code="label.customer.manage.users" text="Manage customer users" />
 				</h4>
@@ -110,11 +110,11 @@
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="deleteCustomerModel" tabindex="-1" aria-hidden="true" aria-labelledby="deleteCustomer" role="dialog">
+<div class="modal fade" id="deleteCustomerModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteCustomer" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteCustomerModel-title">
 					<spring:message code="title.customer.delete" text="Delete a customer" />
 				</h4>

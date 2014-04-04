@@ -3,11 +3,11 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="addPhaseModel" tabindex="-1" role="dialog" aria-labelledby="phaseModalForm" aria-hidden="true" data-backdrop="static">
+<div class="modal fade" id="addPhaseModel" tabindex="-1" role="dialog" data-aria-labelledby="phaseModalForm" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="phaseNewModal-title">
 					<spring:message code="label.phase.${empty(phase)? 'add':'edit'}" text="${empty(phase)? 'Add new phase':'Edit phase'}" />
 				</h4>

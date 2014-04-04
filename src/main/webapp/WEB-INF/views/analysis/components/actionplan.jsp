@@ -27,7 +27,7 @@
 			<div class="col-md-2">
 				<ul class="nav nav-pills" id="menu_actionplan">
 					<c:if test="${!actionplansplitted.isEmpty()}">
-						<li><a href="#" onclick="return toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');"> <span class="glyphicon glyphicon-chevron-down"></span>&nbsp;<spring:message
+						<li><a href="#" onclick="toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');return resetfixedheadertables('#actionplantable_${apt}')"> <span class="glyphicon glyphicon-chevron-down"></span>&nbsp;<spring:message
 									code="action.actionplanassets.show" text="Show Assets" />
 						</a></li>
 					</c:if>
@@ -37,7 +37,7 @@
 		<div class="panel-body panelbodydefinition">
 			<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 				<div trick-nav-data="${apt}" ${status.index!=0? "hidden='true'" : "" }>
-					<table cellpadding="0" cellspacing="0" border="0" class="table table-hover headertofixtable" style="width: 100%;" id="actionplantable_${apt}">
+					<table class="table table-hover headertofixtable" style="width: 100%;" id="actionplantable_${apt}">
 						<thead>
 							<tr>
 								<th><spring:message code="label.table.index" text="#" /></th>

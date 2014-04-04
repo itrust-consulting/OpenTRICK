@@ -4,7 +4,8 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="section" id="section_measure" style="z-index: 3">
+<span id="anchorSOA" class="anchor"></span>
+<div class="section" id="section_soa" style="z-index: 3">
 	<div class="page-header">
 		<h3 id="SOA">
 			<spring:message code="label.SOA" text="SOA" />
@@ -24,7 +25,7 @@
 						<spring:message text="${measureSplited.get(norm).get(1).analysisNorm.norm.version}" />
 					</div>
 					<div class="panel-body panelbodydefinition">
-						<table cellpadding="0" cellspacing="0" border="0" class="table table-hover headertofixtable" style="width:100%;" id="table_SOA_${norm}">
+						<table class="table table-hover headertofixtable" style="width:100%;" id="table_SOA_${norm}">
 							<thead>
 								<tr>
 									<th><spring:message code="label.measure.ref" text="Ref" /></th>

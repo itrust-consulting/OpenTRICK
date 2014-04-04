@@ -3,11 +3,11 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="addLanguageModel" tabindex="-1" role="dialog" aria-labelledby="addNewLanguage" aria-hidden="true">
+<div class="modal fade" id="addLanguageModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewLanguage" data-aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addLanguageModel-title">
 					<spring:message code="label.language.add.menu" text="Add new language" />
 				</h4>
@@ -46,11 +46,11 @@
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="deleteLanguageModel" tabindex="-1" aria-hidden="true" aria-labelledby="deleteLanguage" role="dialog">
+<div class="modal fade" id="deleteLanguageModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteLanguage" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteLanguageModel-title">
 					<spring:message code="title.language.delete" text="Delete a language" />
 				</h4>

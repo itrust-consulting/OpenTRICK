@@ -3,11 +3,11 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="addHistoryModal" tabindex="-1" role="dialog" aria-labelledby="addhistoryLabel" data-backdrop="static" aria-hidden="true">
+<div class="modal fade" id="addHistoryModal" tabindex="-1" role="dialog" data-aria-labelledby="addhistoryLabel" data-backdrop="static" data-aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="historyModal-title">
 					<spring:message code="label.history.add" text="Add new version" />
 				</h4>
@@ -69,7 +69,7 @@
 					</div>
 				</form>
 				<div class="progress progress-striped active" hidden="true">
-					<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
 				</div>
 			</div>
 			<div class="modal-footer">

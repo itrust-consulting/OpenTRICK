@@ -3,22 +3,22 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="showMeasuresModel" tabindex="-1" role="dialog" aria-labelledby="showMeasures" aria-hidden="true">
+<div class="modal fade" id="showMeasuresModel" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" data-aria-hidden="true">
 	<div class="modal-dialog" style="width:80%">
 		<div class="modal-content">
 			<div id="measures_header" class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="showMeasuresModel-title"></h4>
 			</div>
 			<div id="showmeasuresbody" class="modal-body"></div>
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="addMeasureModel" tabindex="-1" role="dialog" aria-labelledby="addNewMeasure" aria-hidden="true">
+<div class="modal fade" id="addMeasureModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewMeasure" data-aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addMeasureModel-title">
 					<spring:message code="label.measure.add.menu" text="Add new Measure" />
 				</h4>
@@ -55,11 +55,11 @@
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="deleteMeasureModel" tabindex="-1" aria-hidden="true" aria-labelledby="deleteMeasure" role="dialog">
+<div class="modal fade" id="deleteMeasureModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteMeasure" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteMeasureModel-title">
 					<spring:message code="title.measure.delete" text="Delete a measure" />
 				</h4>

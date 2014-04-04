@@ -3,6 +3,7 @@ package lu.itrust.business.TS.actionplan;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.naming.directory.InvalidAttributesException;
@@ -18,14 +19,17 @@ import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureNorm;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.dao.DAOActionPlanType;
 import lu.itrust.business.dao.DAOAnalysis;
+import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceTaskFeedback;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 /**
@@ -56,7 +60,10 @@ public class ActionPlanComputation {
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
-
+	
+	@Autowired
+	private ServiceMeasure serviceMeasure;
+	
 	/** task id */
 	private Long idTask;
 
@@ -71,7 +78,12 @@ public class ActionPlanComputation {
 
 	/** maturity computation computation flag */
 	private boolean maturitycomputation = false;
+	
+	private boolean normalcomputation = false;
 
+	@Autowired
+	private MessageSource messageSource;
+	
 	/***********************************************************************************************
 	 * Constructor
 	 **********************************************************************************************/
@@ -250,6 +262,14 @@ public class ActionPlanComputation {
 			// send feedback
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.normal_mode", "Compute Action Plan - normal mode - Phase", progress));
 
+			if (normalcomputation) {
+				computeActionPlan(ActionPlanMode.APN);
+				if (uncertainty) {
+					computeActionPlan(ActionPlanMode.APP);
+					computeActionPlan(ActionPlanMode.APO);
+				}
+			}
+			
 			// compute
 			computePhaseActionPlan(ActionPlanMode.APPN);
 
@@ -320,6 +340,14 @@ public class ActionPlanComputation {
 			// send feedback
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 50));
 
+			if (normalcomputation) {
+				computeSummary(ActionPlanMode.APN);
+				if (uncertainty) {
+					computeSummary(ActionPlanMode.APP);
+					computeSummary(ActionPlanMode.APO);
+				}
+			}
+			
 			// compute
 			computeSummary(ActionPlanMode.APPN);
 
@@ -928,6 +956,8 @@ public class ActionPlanComputation {
 					// * at this time actionPlanEntry has the biggest ROSI
 					// ****************************************************************
 
+					setSOARisk(actionPlanEntry, TMAList);
+					
 					// ****************************************************************
 					// * update TMAList ALE values for next run
 					// ****************************************************************
@@ -992,6 +1022,53 @@ public class ActionPlanComputation {
 		TMAList.clear();
 	}
 
+	private void setSOARisk(ActionPlanEntry entry, List<TMA> TMAList) {
+		
+		double report = 0;
+		
+		double tmpreport = 0;
+		
+		Assessment asm = null;
+
+		report = -1;
+		asm = null;
+		
+		if (!entry.getMeasure().getAnalysisNorm().getNorm().getLabel().equals(Constant.NORM_27002))
+			return;
+		
+		for (int i = 0; i < TMAList.size();i++) {
+			
+			if (!entry.getMeasure().equals(TMAList.get(i).getMeasure()))
+				continue;
+			
+			Assessment tmpAssessment = null;
+			
+			for (int k = 0;k < this.analysis.getAssessments().size();k++){
+				if (TMAList.get(i).getAssessment().equals(this.analysis.getAnAssessment(k))) {
+					tmpAssessment = this.analysis.getAnAssessment(k);
+					break;
+				}
+			}
+			
+			if (tmpAssessment != null) {
+			
+				tmpreport = TMAList.get(i).getDeltaALE() / tmpAssessment.getALE()*100;
+				
+				if (tmpreport > report) {
+					report = tmpreport;
+					asm = tmpAssessment;
+				}
+			}
+		}
+		
+		String soarisk = "asset: "+ asm.getAsset().getName() + "\n";
+		soarisk += "scenario: "+ asm.getScenario().getName() + "\n";
+		soarisk += "rate: " + String.valueOf(report);
+		
+		((NormMeasure) entry.getMeasure()).getMeasurePropertyList().setSoaRisk(soarisk);
+		//serviceMeasure.saveOrUpdate(entry.getMeasure());
+	}
+	
 	/***********************************************************************************************
 	 * Temporary Action Plan - BEGIN
 	 **********************************************************************************************/
@@ -1055,7 +1132,7 @@ public class ActionPlanComputation {
 		MaturityMeasure maturityMeasure = null;
 		List<ActionPlanAsset> tmpAssets = null;
 		double ALE = 0;
-
+		
 		// ****************************************************************
 		// * parse usedmeasures and generate action plan entries
 		// ****************************************************************
@@ -1074,6 +1151,7 @@ public class ActionPlanComputation {
 			// temporary action plan
 			// ****************************************************************
 
+		
 			// ****************************************************************
 			// * check if the measure is not a maturity measure -> NO
 			// ****************************************************************

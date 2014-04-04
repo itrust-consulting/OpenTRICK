@@ -21,7 +21,7 @@
 					<spring:message code="label.measure.${norm}" text="${norm}" />
 				</div>
 				<div class="panel-body panelbodydefinition">
-					<table cellpadding="0" cellspacing="0" border="0" class="table table-hover headertofixtable" style="width: 100%;" id="table_Measure_${norm}">
+					<table class="table table-hover headertofixtable" style="width: 100%;" id="table_Measure_${norm}">
 						<thead>
 							<tr>
 								<th><spring:message code="label.table.index" text="#" /></th>

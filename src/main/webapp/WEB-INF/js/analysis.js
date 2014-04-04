@@ -18,15 +18,14 @@ $(document).ready(function() {
 	//******************************************************************************************************************
 	
 	$("div[class='panel-body panelbodydefinition']").click(function() {
-		console.log("clicked");
-	});
-	
-	$("div[class='panel-body panelbodydefinition']").scroll(function() {
 		initialisefixheadertables($(this).find("table:visible"));
 	});
 	
-	//initialisefixheadertables();
+	$("div[class='panel-body panelbodydefinition']").scroll(function() {
 
+		//initialisefixheadertables($(this).find("table:visible"));
+	});
+	
 	//******************************************************************************************************************
 	// * measure description in popover
 	//******************************************************************************************************************
@@ -35,14 +34,24 @@ $(document).ready(function() {
 	
 });
 
+function resetfixedheadertables(parent){
+	console.log("ola");
+	$(parent).fixedHeaderTable('destroy');
+	var parentt = $(parent).parent();
+	$(parentt).find("table:visible").not("[id]").remove();
+	initialisefixheadertables(parent);
+	return false;
+}
+
 function initialisefixheadertables(parent){
-	console.log(parent);
+	//console.log(parent);
 	if (parent.length !== 0) {
 		// initialise fixedheader table with parameters
+		//$(parent).fixedHeaderTable("destroy");
 		$(parent).fixedHeaderTable({
 			footer : false,
 			cloneHeadToFoot : false,
-			fixedColumn : false,
+			fixedColumns : 3,
 			width : "100%",
 			themeClass : 'table table-hover'
 		});
