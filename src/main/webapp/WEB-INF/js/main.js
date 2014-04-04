@@ -41,11 +41,14 @@ TimeoutInterceptor.prototype = {
 	AlertTimout : function() {
 		$("#alert-dialog .modal-body").html(this.messages.Alert.replace("%d", Math.floor((this.LIMIT_SESSION - this.CurrentTime()) * 0.001)));
 		$("#alert-dialog").modal("show");
+		setTimeout(function() {
+			$("#alert-dialog").modal("hide");
+		}, 5000);
 		return false;
-	},Initialise : function(){
+	},
+	Initialise : function() {
 		this.messages.Alert = MessageResolver("info.session.expired", "Your session will be expired in %d secondes");
 		this.messages.Alert = MessageResolver("info.session.expired.alert", "Your session has been expired");
-		
 	},
 	Check : function() {
 		if (this.CurrentTime() > this.LIMIT_SESSION) {
@@ -69,15 +72,14 @@ TimeoutInterceptor.prototype = {
 			} finally {
 				delete login;
 			}
-		}else {
-			
-		}
+		} else
+			this.Initialise();
 		var that = this;
 		this.stopState = false;
 		this.lastUpdate = new Date();
 		that.timer = setInterval(function() {
 			that.Check();
-		}, 30000);
+		}, 60000);
 		// before jQuery send the request we will push it to our array
 		$.ajaxSetup({
 			beforeSend : function() {
