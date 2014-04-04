@@ -41,6 +41,7 @@
 					</ul>
 				</c:if></li>
 			<c:if test="${!KowledgeBaseView }">
+				<li><a href="#anchorSOA"> <spring:message code="menu.analysis.soa" text="SOA" /></a></li>
 				<li><a href="#anchorActionPlan"> <spring:message code="menu.analysis.actionplan" text="Action Plans" /></a></li>
 				<li><a href="#anchorSummary"> <spring:message code="menu.analysis.Summary" text="Action Plan Summaries" /></a></li>
 				<li><a href="#anchorRiskRegister"> <spring:message code="menu.analysis.riskregister" text="Risk Register" /></a></li>

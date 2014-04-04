@@ -17,27 +17,55 @@ $(document).ready(function() {
 	// * fixed header tables
 	//******************************************************************************************************************
 	
-	// initialise fixedheader table with parameters
-	$('.headertofixtable').fixedHeaderTable({
-		footer : false,
-		cloneHeadToFoot : false,
-		fixedColumn : false,
-		width : "100%",
-		themeClass : 'table table-hover'
+	$("div[class='panel-body panelbodydefinition']").click(function() {
+		initialisefixheadertables($(this).find("table:visible"));
 	});
 	
-	// first data row has wrong margin top
-	$('#table_SOA_27002').css("margin-top", "-49px");
-	
-	// remove small scrolling which causes scrolling inside panel
-	$('div [class="fht-table-wrapper table table-hover"]').css("margin", "0");
-	$('div [class="fht-table-wrapper table table-hover"]').css("padding", "0");
+	$("div[class='panel-body panelbodydefinition']").scroll(function() {
 
+		//initialisefixheadertables($(this).find("table:visible"));
+	});
+	
 	//******************************************************************************************************************
 	// * measure description in popover
 	//******************************************************************************************************************
 	
+	initmeasuredescriptionpopover();
 	
+});
+
+function resetfixedheadertables(parent){
+	console.log("ola");
+	$(parent).fixedHeaderTable('destroy');
+	var parentt = $(parent).parent();
+	$(parentt).find("table:visible").not("[id]").remove();
+	initialisefixheadertables(parent);
+	return false;
+}
+
+function initialisefixheadertables(parent){
+	//console.log(parent);
+	if (parent.length !== 0) {
+		// initialise fixedheader table with parameters
+		//$(parent).fixedHeaderTable("destroy");
+		$(parent).fixedHeaderTable({
+			footer : false,
+			cloneHeadToFoot : false,
+			fixedColumns : 3,
+			width : "100%",
+			themeClass : 'table table-hover'
+		});
+		
+		// first data row has wrong margin top
+		//$('.headertofixtable').css("margin-top", "-49px");
+		
+		// remove small scrolling which causes scrolling inside panel
+		$('div [class="fht-table-wrapper table table-hover"]').css("margin", "0");
+		$('div [class="fht-table-wrapper table table-hover"]').css("padding", "0");
+	}
+}
+
+function initmeasuredescriptionpopover(){
 	// tooltip / popover click on reference
 	$('.descriptiontooltip').click(function() {
 		
@@ -83,4 +111,4 @@ $(document).ready(function() {
 			el = null;
 		}
 	});
-});
+}

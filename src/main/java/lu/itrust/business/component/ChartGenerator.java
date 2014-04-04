@@ -75,6 +75,8 @@ public class ChartGenerator {
 	@Autowired
 	private DAOParameter daoParameter;
 
+	private String exporting = "\"exporting\":{\"sourceWidth\":1500,\"sourceHeight\": 600,\"chartOptions\": {\"legend\": {\"enabled\": true,\"title\": { \"text\": \"\"  }, \"itemHiddenStyle\": { \"display\": \"none\" } }, \"rangeSelector\": {\"enabled\": false },\"navigator\": {\"enabled\": false},\"scrollbar\": {\"enabled\": false}}}";
+	
 	/**
 	 * aleByAsset: <br>
 	 * Description
@@ -153,7 +155,7 @@ public class ChartGenerator {
 
 		assessments.clear();
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}")
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + ","+exporting+"}")
 				.replaceAll("\r|\n", " ");
 
 	}
@@ -235,7 +237,7 @@ public class ChartGenerator {
 
 		assessments.clear();
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}")
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + ","+exporting+"}")
 				.replaceAll("\r|\n", " ");
 	}
 
@@ -315,7 +317,7 @@ public class ChartGenerator {
 
 		assessments.clear();
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}")
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + ","+exporting+"}")
 				.replaceAll("\r|\n", " ");
 	}
 
@@ -351,7 +353,7 @@ public class ChartGenerator {
 
 		String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0 }}";
 
-		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k&euro;\",\"useHTML\": true }";
+		String tooltip = "\"tooltip\": { \"valueDecimals\": 2, \"valueSuffix\": \"k€\",\"useHTML\": true }";
 
 		if (ales2.isEmpty())
 			return "{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "}";
@@ -395,7 +397,7 @@ public class ChartGenerator {
 
 		assessments.clear();
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + "}")
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + tooltip + "," + xAxis + "," + yAxis + "," + series + ","+exporting+"}")
 				.replaceAll("\r|\n", " ");
 	}
 
@@ -583,7 +585,7 @@ public class ChartGenerator {
 
 		series += "]";
 
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + ","+exporting+"}").replaceAll("\r|\n", " ");
 	}
 
 	/**
@@ -680,7 +682,7 @@ public class ChartGenerator {
 			categories = categories.substring(0, categories.length() - 1);
 		categories += "]";
 
-		String keuroByYear = messageSource.getMessage("label.metric.keuro_by_year", null, "k\u20AC/y", locale);
+		String keuroByYear = messageSource.getMessage("label.metric.keuro_by_year", null, "k€/y", locale);
 
 		String yAxis = "\"yAxis\": [{\"labels\":{\"format\": \"{value} " + keuroByYear + "\",\"useHTML\": true}, \"title\": {\"text\":\""
 				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale)
@@ -701,11 +703,6 @@ public class ChartGenerator {
 				+ "\", \"data\":" + rosi + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale) + "\", \"data\":" + relatifRosi
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
-
-		String exporting = "\"exporting\":{\"sourceWidth\":1100,\"sourceHeight\": 600,\"chartOptions\": {\"legend\": {\"enabled\": true,\"title\": { \"text\": \"\"  }, \"itemHiddenStyle\": { \"display\": \"none\" } }, \"rangeSelector\": {";
-        exporting += "\"enabled\": false },\"navigator\": {\"enabled\": false},\"scrollbar\": {\"enabled\": false}}}";
-        
-        System.out.println(exporting);
 
 		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + ","+exporting+"}").replaceAll("\r|\n", " ");
 	}
@@ -804,7 +801,7 @@ public class ChartGenerator {
 
 		String manDay = messageSource.getMessage("label.metric.man_day", null, "md", locale);
 
-		String yAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} k&euro;\",\"useHTML\": true}, \"title\": {\"text\":\""
+		String yAxis = "\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} k€\",\"useHTML\": true}, \"title\": {\"text\":\""
 				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale) + "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}" + manDay
 				+ "\"}, \"title\":{\"text\":\"" + messageSource.getMessage("label.summary.workload", null, "Workload", locale) + "\"}, \"opposite\": true} ]";
 		xAxis = "\"xAxis\":{\"categories\":" + categories + "}";
@@ -822,7 +819,8 @@ public class ChartGenerator {
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_CURRENT_COST, null, "Current cost", locale) + "\", \"data\":" + currentCost
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
-		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
+		
+		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + ", "+ exporting +"}").replaceAll("\r|\n", " ");
 	}
 
 	private Map<String, RRFAssetType> computeRRFByScenario(Scenario scenario, List<AssetType> assetTypes, List<NormMeasure> measures, int idAnalysis) throws Exception {

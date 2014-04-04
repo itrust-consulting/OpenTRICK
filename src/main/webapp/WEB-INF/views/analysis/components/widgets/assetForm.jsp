@@ -3,11 +3,11 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="addAssetModal" tabindex="-1" role="dialog" aria-labelledby="addNewAsset" aria-hidden="true" data-backdrop="static" data-keyboard="true">
+<div class="modal fade" id="addAssetModal" tabindex="-1" role="dialog" data-aria-labelledby="addNewAsset" data-aria-hidden="true" data-backdrop="static" data-keyboard="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addAssetModel-title">
 					<spring:message code="label.asset.${empty(asset)? 'add':'edit'}" text="${empty(asset)? 'Add new asset':'Edit asset'}" />
 				</h4>

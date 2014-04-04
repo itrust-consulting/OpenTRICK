@@ -14,20 +14,24 @@
 							<div class="list-group" trick-id="${scenarioType.id}">
 								<c:choose>
 									<c:when test="${status.index==0}">
-										<a href="#" trick-id="${scenarioType.id}" trick-value=<spring:message text="${scenarioType.name}" /> onclick="return false;" trick-class="ScenarioType"
-											class="list-group-item active">
-											<h4 class="list-group-item-heading">
-												<spring:message text="${scenarioType.name}" />
-											</h4>
-										</a>
+										<h4 class="list-group-item-heading">
+											<a href="#" trick-id="${scenarioType.id}" trick-value=<spring:message text="${scenarioType.name}" /> onclick="return false;" trick-class="ScenarioType"
+												class="list-group-item active">
+												
+													<spring:message text="${scenarioType.name}" />
+												
+											</a>
+										</h4>
 									</c:when>
 									<c:otherwise>
-										<a href="#" trick-id="${scenarioType.id}" trick-value=<spring:message text="${scenarioType.name}" /> onclick="return false;" trick-class="ScenarioType"
-											class="list-group-item">
-											<h4 class="list-group-item-heading">
-												<spring:message text="${scenarioType.name}" />
-											</h4>
+										<h4 class="list-group-item-heading">
+											<a href="#" trick-id="${scenarioType.id}" trick-value=<spring:message text="${scenarioType.name}" /> onclick="return false;" trick-class="ScenarioType"
+												class="list-group-item">
+												
+													<spring:message text="${scenarioType.name}" />
+												
 										</a>
+										</h4>
 									</c:otherwise>
 								</c:choose>
 								<div class="list-group" trick-id="${scenarioType.id}" trick-value=<spring:message text="${scenarioType.name}" />>
@@ -59,24 +63,28 @@
 							<div class="list-group" trick-id="${chapter.norm.id}">
 								<c:choose>
 									<c:when test="${status.index==0}">
-										<a href="#" onclick="return false;" class="list-group-item active" trick-class="Norm" title=<spring:message text="${chapter.reference}"/> trick-id="${chapter.norm.id}"
-											trick-value=<spring:message text="${chapter.reference}"/>>
-											<h4 class="list-group-item-heading">
-												<spring:message text="${chapter.norm.label}" />
-												-
-												<spring:message code="label.measure.chapter" arguments="${chapter.reference}" text="Chapter ${chapter.reference}" />
-											</h4>
-										</a>
+										<h4 class="list-group-item-heading">
+											<a href="#" onclick="return false;" class="list-group-item active" trick-class="Norm" title=<spring:message text="${chapter.reference}"/> trick-id="${chapter.norm.id}"
+												trick-value=<spring:message text="${chapter.reference}"/>>
+												
+													<spring:message text="${chapter.norm.label}" />
+													-
+													<spring:message code="label.measure.chapter" arguments="${chapter.reference}" text="Chapter ${chapter.reference}" />
+												
+											</a>
+										</h4>
 									</c:when>
 									<c:otherwise>
-										<a href="#" onclick="return false;" class="list-group-item" trick-class="Norm" trick-id="${chapter.norm.id}" title=<spring:message text="${chapter.reference}"/>
-											trick-value=<spring:message text="${chapter.reference}"/>>
-											<h4 class="list-group-item-heading">
-												<spring:message text="${chapter.norm.label}" />
-												-
-												<spring:message code="label.measure.chapter" arguments="${chapter.reference}" text="Chapter ${chapter.reference}" />
-											</h4>
-										</a>
+										<h4 class="list-group-item-heading">
+											<a href="#" onclick="return false;" class="list-group-item" trick-class="Norm" trick-id="${chapter.norm.id}" title=<spring:message text="${chapter.reference}"/>
+												trick-value=<spring:message text="${chapter.reference}"/>>
+												
+													<spring:message text="${chapter.norm.label}" />
+													-
+													<spring:message code="label.measure.chapter" arguments="${chapter.reference}" text="Chapter ${chapter.reference}" />
+												
+											</a>
+										</h4>
 									</c:otherwise>
 								</c:choose>
 								<div class="list-group" trick-id="${chapter.norm.id}" trick-value=<spring:message text="${chapter.reference}"/>>
@@ -97,7 +105,7 @@
 			<div class="col-md-12" id="chart_rrf">
 				<div style="width: 1151px; height: 400px; padding-top: 12%">
 					<div class="progress progress-striped active">
-						<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+						<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
 					</div>
 				</div>
 			</div>
@@ -209,49 +217,28 @@
 								</thead>
 								<tbody>
 									<tr>
-										<td class="success">
-											<input type="text" id="measure_preventive" class="slider" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-											data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" name="preventive" data-slider-tooltip="show">
-										</td>
-										<td class="success">
-											<input type="text" id="measure_limitative" class="slider" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-											data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" name="limitative" data-slider-tooltip="show">
-										</td>
-										<td class="success">
-											<input type="text" class="slider" id="measure_detective" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-											data-slider-value="0" name="detective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show">
-										</td>
+										<td class="success"><input type="text" id="measure_preventive" class="slider" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
+											data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" name="preventive" data-slider-tooltip="show"></td>
+										<td class="success"><input type="text" id="measure_limitative" class="slider" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
+											data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" name="limitative" data-slider-tooltip="show"></td>
+										<td class="success"><input type="text" class="slider" id="measure_detective" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
+											data-slider-value="0" name="detective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 										<td class="success"><input type="text" class="slider" id="measure_corrective" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-											data-slider-value="0" name="corrective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show">
-										</td>
-										<td class="warning">
-											<input type="text" class="slider" id="measure_accidental" value ="0" data-slider-min="0" data-slider-max="4" data-slider-step="1" 
-											data-slider-value="0" name="accidental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show">
-										</td>
-										<td class="warning">
-											<input type="text" class="slider" id="measure_intentional" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-											data-slider-value="0" name="intentional" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show">
-										</td>
-										<td class="warning">
-											<input type="text" class="slider" id="measure_environmental" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-											data-slider-value="0" name="environmental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show">
-										</td>
-										<td class="warning">
-										<input type="text" class="slider" id="measure_internalThreat" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-											data-slider-value="0" name="internalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show">
-										</td>
-										<td class="warning">
-											<input type="text" class="slider" id="measure_externalThreat" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-											data-slider-value="0" name="externalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show">
-										</td>
-										<td class="success">
-											<input type="text" class="slider" id="measure_fmeasure" value="0" data-slider-min="0" data-slider-max="10" data-slider-step="1"
-											data-slider-value="0" name="fmeasure" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show">
-										</td>
-										<td class="success">
-											<input type="text" class="slider" id="measure_fSectoral" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-											data-slider-value="0" name="fsectoral" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show">
-										</td>
+											data-slider-value="0" name="corrective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+										<td class="warning"><input type="text" class="slider" id="measure_accidental" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
+											data-slider-value="0" name="accidental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+										<td class="warning"><input type="text" class="slider" id="measure_intentional" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
+											data-slider-value="0" name="intentional" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+										<td class="warning"><input type="text" class="slider" id="measure_environmental" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
+											data-slider-value="0" name="environmental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+										<td class="warning"><input type="text" class="slider" id="measure_internalThreat" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
+											data-slider-value="0" name="internalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+										<td class="warning"><input type="text" class="slider" id="measure_externalThreat" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
+											data-slider-value="0" name="externalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+										<td class="success"><input type="text" class="slider" id="measure_fmeasure" value="0" data-slider-min="0" data-slider-max="10" data-slider-step="1"
+											data-slider-value="0" name="fmeasure" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+										<td class="success"><input type="text" class="slider" id="measure_fSectoral" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
+											data-slider-value="0" name="fsectoral" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 										<c:forEach items="${assetTypes}" var="assetType">
 											<td class="warning" trick-class="AssetType"><input type="text" class="slider" id='measure_assetType_<spring:message text="${assetType.type}"/>' value="50"
 												data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="50" name=<spring:message text="${assetType.type}"/> data-slider-orientation="vertical"

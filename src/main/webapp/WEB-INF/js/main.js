@@ -2310,7 +2310,7 @@ function hideActionplanAssets(sectionactionplan, menu) {
 		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
 	}
 
-	initialiseTableFixedHeaderRows('#actionplantable_' + actionplantype);
+	return false;
 
 }
 
@@ -2324,8 +2324,6 @@ function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
 	} else {
 		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;" + MessageResolver("action.actionplanassets.hide", "Hide Assets"));
 	}
-
-	initialiseTableFixedHeaderRows("#actionplantable_" + actionplantype);
 
 	return false;
 }
@@ -2536,8 +2534,6 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			if (response.chart == undefined || response.chart == null)
 				return true;
 			$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
-			console.log("success: ");
-			console.log(response);
 		}
 	});
 }
