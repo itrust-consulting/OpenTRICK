@@ -16,7 +16,12 @@
 		<jsp:include page="menu.jsp" />
 		<div class="container">
 			<!-- #################################################################### Content ################################################################### -->
-			<div class="content" id="content">Home</div>
+
+			<h1 class="text-center" style="margin-top: 15%">
+				<spring:message code="label.welcome" text="Welcome to TRICK Service" />
+			</h1>
+
+
 			<!-- ################################################################ Include Footer ################################################################ -->
 		</div>
 		<jsp:include page="footer.jsp" />

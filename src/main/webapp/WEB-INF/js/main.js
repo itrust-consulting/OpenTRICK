@@ -48,7 +48,7 @@ TimeoutInterceptor.prototype = {
 	},
 	Initialise : function() {
 		this.messages.Alert = MessageResolver("info.session.expired", "Your session will be expired in %d secondes");
-		this.messages.Alert = MessageResolver("info.session.expired.alert", "Your session has been expired");
+		this.messages.Logout = MessageResolver("info.session.expired.alert", "Your session has been expired");
 	},
 	Check : function() {
 		if (this.CurrentTime() > this.LIMIT_SESSION) {
