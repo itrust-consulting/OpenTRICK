@@ -18,7 +18,7 @@
 				<ul class="nav nav-pills">
 					<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 						<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${apt}"><a href="#"
-							onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan');return navToogled('section_actionplans','${apt}');initialiseTableFixedHeaderRows('#actionplantable_${apt}');"> <spring:message
+							onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan');navToogled('section_actionplans','${apt}');return initialiseTableFixedHeaderRows('#actionplantable_${apt}');"> <spring:message
 									code="label.actionPlanType.${apt}" text="${apt}" htmlEscape="true" />
 						</a></li>
 					</c:forEach>
@@ -27,7 +27,7 @@
 			<div class="col-md-2">
 				<ul class="nav nav-pills" id="menu_actionplan">
 					<c:if test="${!actionplansplitted.isEmpty()}">
-						<li><a href="#" onclick="toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');return resetfixedheadertables('#actionplantable_${apt}')"> <span class="glyphicon glyphicon-chevron-down"></span>&nbsp;<spring:message
+						<li><a href="#" onclick="toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');return resetfixedheadertables()"> <span class="glyphicon glyphicon-chevron-down"></span>&nbsp;<spring:message
 									code="action.actionplanassets.show" text="Show Assets" />
 						</a></li>
 					</c:if>

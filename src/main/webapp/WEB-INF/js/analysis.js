@@ -5,7 +5,7 @@ $(document).ready(function() {
 	//******************************************************************************************************************
 	// * load charts
 	//******************************************************************************************************************
-	reloadCharts();
+	//reloadCharts();
 
 	//******************************************************************************************************************
 	// * uncheck checked checkboxes
@@ -34,8 +34,9 @@ $(document).ready(function() {
 	
 });
 
-function resetfixedheadertables(parent){
-	console.log("ola");
+function resetfixedheadertables(){
+	//console.log("ola");
+	//$("div#section_actionplans").find("table:visible").
 	$(parent).fixedHeaderTable('destroy');
 	var parentt = $(parent).parent();
 	$(parentt).find("table:visible").not("[id]").remove();
@@ -51,7 +52,7 @@ function initialisefixheadertables(parent){
 		$(parent).fixedHeaderTable({
 			footer : false,
 			cloneHeadToFoot : false,
-			fixedColumns : 3,
+			fixedColumn : false,
 			width : "100%",
 			themeClass : 'table table-hover'
 		});

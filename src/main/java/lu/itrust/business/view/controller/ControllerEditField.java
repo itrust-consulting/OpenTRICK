@@ -19,6 +19,8 @@ import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.Measure;
+import lu.itrust.business.TS.MeasureProperties;
+import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
@@ -27,6 +29,7 @@ import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ParameterManager;
 import lu.itrust.business.component.helper.FieldEditor;
 import lu.itrust.business.component.helper.JsonMessage;
+import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssessment;
@@ -42,6 +45,7 @@ import lu.itrust.business.validator.HistoryValidator;
 import lu.itrust.business.validator.ParameterValidator;
 import lu.itrust.business.validator.field.ValidatorField;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -584,6 +588,63 @@ public class ControllerEditField {
 			// compute new cost
 			Measure.ComputeCost(measure, parameters);
 
+			// update measure
+			serviceMeasure.saveOrUpdate(measure);
+
+			// return success message
+			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
+
+		} catch (Exception e) {
+
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+		}
+	}
+	
+	/**
+	 * measure: <br>
+	 * Description
+	 * 
+	 * @param fieldEditor
+	 * @param session
+	 * @param locale
+	 * @return
+	 */
+	@RequestMapping(value = "/SOA", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody
+	String soa(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+
+		try {
+
+			// retrieve analysis
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
+			// retrieve measure
+			NormMeasure measure = (NormMeasure) serviceMeasure.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
+			
+			if (measure == null)
+				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+
+			// set field
+			
+			// System.out.println("Fildname: " + fieldEditor.getFieldName());
+			
+			
+			
+			MeasureProperties mesprep = DAOHibernate.Initialise(measure.getMeasurePropertyList());
+			Field field = mesprep.getClass().getDeclaredField(fieldEditor.getFieldName());
+			field.setAccessible(true);
+
+			// check if field is a phase
+			if (!SetFieldData(field, mesprep, fieldEditor, null))
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+
+			measure.setMeasurePropertyList(mesprep);
+			
 			// update measure
 			serviceMeasure.saveOrUpdate(measure);
 

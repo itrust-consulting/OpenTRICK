@@ -50,7 +50,7 @@
 											</tr>
 										</c:when>
 										<c:otherwise>
-											<tr trick-class="Measure" trick-id="${measure.id}"
+											<tr trick-class="SOA" trick-id="${measure.id}"
 												trick-callback="reloadMeasureRow('${measure.id}','${norm}');initialiseTableFixedHeaderRows('#section_measure_${norm}');">
 												<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 												<td><a href="#" class="descriptiontooltip" data-toggle="tooltip" data-html="true"
@@ -71,12 +71,12 @@
 														<spring:message text="${measure.measurePropertyList.getSoaRisk()}" />
 													</div>
 												</td>
-												<td style="width: 25%;" class="success" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
+												<td style="width: 25%;" class="success" trick-field="soaComment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
 													<div>
 														<spring:message text="${measure.measurePropertyList.getSoaComment()}" />
 													</div>
 												</td>
-												<td style="width:25%;" class="success" trick-field="reference" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
+												<td style="width:25%;" class="success" trick-field="soaReference" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
 													<div>
 														<spring:message text="${measure.measurePropertyList.getSoaReference()}" />
 													</div>
