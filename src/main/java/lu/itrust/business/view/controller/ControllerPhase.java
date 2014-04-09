@@ -183,9 +183,9 @@ public class ControllerPhase {
 				}
 
 				// check if phases are empty to add phase 0
-				if (analysis.getUsedPhases().isEmpty())
-					analysis.getUsedPhases().add(new Phase(0));
-
+				if (analysis.getUsedPhases().isEmpty() || !analysis.hasPhase(0))
+					analysis.addUsedPhase(new Phase(0));
+	
 				// set phase number
 				phase.setNumber(analysis.getUsedPhases().size());
 
@@ -251,6 +251,8 @@ public class ControllerPhase {
 			phase.setBeginDate(new Date(format.parse(jsonNode.get("beginDate").asText()).getTime()));
 			phase.setEndDate(new Date(format.parse(jsonNode.get("endDate").asText()).getTime()));
 
+			System.out.println(phase);
+			
 			// return success
 			return true;
 		} catch (JsonProcessingException e) {

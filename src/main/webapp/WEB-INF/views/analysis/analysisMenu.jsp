@@ -69,13 +69,16 @@
 						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.analysis.compute.actionPlan" text="Compute ActionPlan" />
 						</a></li>
 						<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <spring:message code="label.analysis.compute.riskRegister" text="Compute Registers" /></a></li>
-						<li class="divider"></li>
+					</c:if>
+					<li class="divider"></li>
+					<li><a href="#" onclick="return deleteAssetTypeValueDuplication();"> <spring:message code="label.scenario.assettypevalue.duplication"
+								text="Delete assettype duplication" /></a></li>
+					<c:if test="${!KowledgeBaseView }">
 						<li><a href="#" onclick="return wipeAssessment();"> <spring:message code="label.analysis.assessment.wipe" text="Wipe assessments" /></a></li>
 						<li class="divider"></li>
 						<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.analysis.charts.reload" text="Reload Charts" /></a></li>
 					</c:if>
 				</ul></li>
-
 		</ul>
 	</div>
 </div>

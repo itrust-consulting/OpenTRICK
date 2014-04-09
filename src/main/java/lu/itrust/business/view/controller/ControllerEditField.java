@@ -45,7 +45,6 @@ import lu.itrust.business.validator.HistoryValidator;
 import lu.itrust.business.validator.ParameterValidator;
 import lu.itrust.business.validator.field.ValidatorField;
 
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;

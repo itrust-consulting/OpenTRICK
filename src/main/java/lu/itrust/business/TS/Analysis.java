@@ -422,9 +422,9 @@ public class Analysis implements Serializable, Cloneable {
 	 * together: assessment) values.
 	 * 
 	 * @param scenario
-	 *            The scenario to take Values to calculate     
-	 * @param assetType 
-	 * 		The assetType to take Values to calculate
+	 *            The scenario to take Values to calculate
+	 * @param assetType
+	 *            The assetType to take Values to calculate
 	 * @param parameter
 	 *            The tuning parameter
 	 * @param measure
@@ -1722,6 +1722,8 @@ public class Analysis implements Serializable, Cloneable {
 		phase.setAnalysis(this);
 		if (!usedPhases.contains(phase))
 			usedPhases.add(phase);
+		else
+			System.out.println("pahse not add : " + phase.getNumber());
 	}
 
 	/**
@@ -2386,4 +2388,14 @@ public class Analysis implements Serializable, Cloneable {
 		return copy;
 	}
 
+	public Phase findPhaseByNumber(int number) {
+		for (Phase phase : usedPhases)
+			if (phase.getNumber() == number)
+				return phase;
+		return null;
+	}
+	
+	public boolean hasPhase(int number){
+		return findPhaseByNumber(number)!=null;
+	}
 }

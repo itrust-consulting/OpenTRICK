@@ -4,6 +4,7 @@
 package lu.itrust.business.component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class MeasureManager {
 
 	public static Map<String, List<Measure>> SplitByNorm(List<Measure> measures) {
 		Map<String, List<Measure>> mappingMeasures = new LinkedHashMap<>();
+		Collections.sort(measures, new ComparatorMeasureReferance());
 		for (Measure measure : measures) {
 			Norm norm = measure.getAnalysisNorm().getNorm();
 			List<Measure> measures2 = mappingMeasures.get(norm.getLabel());
@@ -31,6 +33,7 @@ public class MeasureManager {
 			}
 			measures2.add(measure);
 		}
+		
 		return mappingMeasures;
 	}
 

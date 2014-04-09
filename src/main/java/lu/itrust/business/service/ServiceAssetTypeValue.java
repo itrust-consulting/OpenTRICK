@@ -1,21 +1,13 @@
-package lu.itrust.business.dao;
+package lu.itrust.business.service;
 
 import java.util.List;
 
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
 
-/** 
- * DAOAssetTypeValue.java: <br>
- * Detailed description...
- *
- * @author itrust consulting s.�.rl. :
- * @version 
- * @since 16 janv. 2013
- */
-public interface DAOAssetTypeValue {
-
-AssetTypeValue findOne(int id);
+public interface ServiceAssetTypeValue {
+	
+	AssetTypeValue findOne(int id);
 	
 	AssetTypeValue findByIdAndAnalysis(int id, int analysis);
 	

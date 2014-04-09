@@ -6,7 +6,7 @@ var application = new Application();
 function TimeoutInterceptor() {
 	this.lastUpdate = null;
 	this.LIMIT_SESSION = 15 * 60 * 1000;
-	this.ALERT_TIME = 3 * 60 * 1000;
+	this.ALERT_TIME = 12 * 60 * 1000;
 	this.stopState = true;
 	this.timer = {};
 	this.messages = {
@@ -23,7 +23,7 @@ TimeoutInterceptor.prototype = {
 			this.lastUpdate = new Date();
 	},
 	CurrentTime : function() {
-		return new Date().getTime() - this.lastUpdate.getTime();
+		return (new Date().getTime() - this.lastUpdate.getTime());
 	},
 	ShowLogin : function() {
 		$("#alert-dialog").modal("hide");
@@ -1610,28 +1610,32 @@ function saveField(element, controller, id, field, type) {
 }
 
 function editField(element, controller, id, field, type) {
-	var fieldEditor = null;
-	if (controller == null || controller == undefined)
-		controller = FieldEditor.prototype.__findControllor(element);
-	if (controller == "ExtendedParameter")
-		fieldEditor = new ExtendedFieldEditor(element);
-	else if (controller == "Assessment") {
-		field = $(element).attr("trick-field");
-		var fieldImpact = [ "impactRep", "impactLeg", "impactOp", "impactFin" ];
-		var fieldProba = "likelihood";
-		if (fieldImpact.indexOf(field) != -1)
-			fieldEditor = new AssessmentImpactFieldEditor(element);
-		else if (field == fieldProba)
-			fieldEditor = new AssessmentProbaFieldEditor(element);
+	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+		var fieldEditor = null;
+		if (controller == null || controller == undefined)
+			controller = FieldEditor.prototype.__findControllor(element);
+		if (controller == "ExtendedParameter")
+			fieldEditor = new ExtendedFieldEditor(element);
+		else if (controller == "Assessment") {
+			field = $(element).attr("trick-field");
+			var fieldImpact = [ "impactRep", "impactLeg", "impactOp", "impactFin" ];
+			var fieldProba = "likelihood";
+			if (fieldImpact.indexOf(field) != -1)
+				fieldEditor = new AssessmentImpactFieldEditor(element);
+			else if (field == fieldProba)
+				fieldEditor = new AssessmentProbaFieldEditor(element);
+			else
+				fieldEditor = new AssessmentFieldEditor(element);
+		} else if (controller == "MaturityMeasure")
+			fieldEditor = new MaturityMeasureFieldEditor(element);
 		else
-			fieldEditor = new AssessmentFieldEditor(element);
-	} else if (controller == "MaturityMeasure")
-		fieldEditor = new MaturityMeasureFieldEditor(element);
-	else
-		fieldEditor = new FieldEditor(element);
+			fieldEditor = new FieldEditor(element);
 
-	if (!fieldEditor.Initialise())
-		fieldEditor.Show();
+		if (!fieldEditor.Initialise())
+			fieldEditor.Show();
+	} else
+		permissionError();
 }
 
 function showError(parent, text) {
@@ -2214,39 +2218,21 @@ function contextMenuHide(context) {
  * @returns
  */
 function versionComparator(version1, version2) {
-	// splite versions by "."
-	var v1 = version1.split(".", 1);
-	var v2 = version2.split(".", 1);
-
-	if (v1.length)
-		v1 = parseInt(v1[0]);
-	if (v2.length)
-		v2 = parseInt(v2[0]);
-
-	if (v1 == v2) {
-		var index = version1.indexOf(".");
-		if (index != -1)
-			version1 = version1.substring(index + 1);
-		else
-			version1 = "";
-
-		var index2 = version2.indexOf(".");
-		if (index2 != -1)
-			version2 = version2.substring(index2 + 1);
-		else
-			version2 = "";
-
-		if (!version1.length && !version2.length)
+	var values1 = version1.split("\\.", 2);
+	var values2 = version2.split("\\.", 2);
+	var value1 = toInt(values1[0]);
+	var value2 = toInt(values2[0]);
+	if (value1 == value2) {
+		if (values1.length == 1 && values2.length == 1)
 			return 0;
-		else if (!version1.length)
+		else if (values1.length == 1 && values2.length > 1)
 			return -1;
-		else if (!version2.length)
+		else if (values1.length > 1 && values2.length == 1)
 			return 1;
-
-		return versionComparator(version1, version2);
-	}
-	return v1 > v2 ? 1 : -1;
-
+		else
+			return versionComparator(values1[1], values2[1]);
+	} else
+		return value1 > value2 ? 1 : -1;
 }
 
 function checkControlChange(checkbox, sectionName) {
@@ -2408,8 +2394,7 @@ $(function() {
 		});
 
 	if ($("#addPhaseModel").length) {
-		// $.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang +
-		// ".js");
+		$.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang + ".js");
 		$('#addPhaseModel').on('show.bs.modal', function() {
 			var lastDate = $("#section_phase td").last();
 			if (lastDate.length) {
@@ -3358,3 +3343,24 @@ $(function() {
 	});
 
 });
+
+function deleteAssetTypeValueDuplication() {
+	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+		$.ajax({
+			url : context + "/Scenario/Delete/AssetTypeValueDuplication",
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				if (response["error"] != undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
+					$("#alert-dialog").modal("toggle");
+				}else if(response["success"] != undefined){
+					$("#alert-dialog .modal-body").html(response["success"]);
+					$("#alert-dialog").modal("toggle");
+				}
+			}
+		});
+	} else
+		permissionError();
+}

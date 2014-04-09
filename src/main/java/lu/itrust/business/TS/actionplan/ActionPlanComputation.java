@@ -3,7 +3,6 @@ package lu.itrust.business.TS.actionplan;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.naming.directory.InvalidAttributesException;
@@ -19,7 +18,6 @@ import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureNorm;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
-import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;

@@ -8,6 +8,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
+import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
@@ -17,6 +18,7 @@ import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
+import lu.itrust.business.dao.DAOAssetTypeValue;
 import lu.itrust.business.dao.DAOCustomer;
 import lu.itrust.business.dao.DAOMeasureDescription;
 import lu.itrust.business.dao.DAOMeasureDescriptionText;
@@ -61,6 +63,9 @@ public class CustomDelete {
 
 	@Autowired
 	private DAOUser daoUser;
+	
+	@Autowired
+	private DAOAssetTypeValue daoAssetTypeValue;
 
 	@Transactional
 	// TODO check if actionplan needs to be cleared
@@ -90,6 +95,15 @@ public class CustomDelete {
 			daoMeasureDescription.remove(measureDescription);
 		}
 		daoNorm.remove(norm);
+	}
+	
+	@Transactional
+	public void deleteDuplicationAssetTypeValue(List<Scenario> scenarios) throws Exception{
+		for (Scenario scenario : scenarios) {
+			List<AssetTypeValue> assetTypeValues = scenario.deleteAssetTypeDuplication();
+			daoScenario.saveOrUpdate(scenario);
+			daoAssetTypeValue.delete(assetTypeValues);
+		}
 	}
 
 	@Transactional

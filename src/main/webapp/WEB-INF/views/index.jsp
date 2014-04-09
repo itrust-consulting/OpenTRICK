@@ -17,11 +17,10 @@
 		<div class="container">
 			<!-- #################################################################### Content ################################################################### -->
 
-			<h1 class="text-center" style="margin-top: 15%">
-				<spring:message code="label.welcome" text="Welcome to TRICK Service" />
+			<h1 class="text-center" style="margin-top: 5%; margin-bottom: 2%;">
+				<spring:message code="label.welcome" text="Welcome to TRICK Service!" />
 			</h1>
-
-
+			<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/Logo_TRICKService.png" /> style="width: 300px;height: auto;">
 			<!-- ################################################################ Include Footer ################################################################ -->
 		</div>
 		<jsp:include page="footer.jsp" />

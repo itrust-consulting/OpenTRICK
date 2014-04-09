@@ -7,9 +7,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <fmt:setLocale value="fr_FR" scope="session"/>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8" />
+<meta content="itrust consulting s.a.r.l - itrust.lu" name="author" />
+<meta content=<spring:message code="label.risk_analysis" text="Analysis de risque"/> name="description" />
+<meta content="width=device-width" name="viewport" />
+<link href=<spring:url value="/images/favicon.ico" /> rel="shortcut icon" />
 <title><spring:message code="${title}" text="TRICK Service" /></title>
-<!--<link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.css" />' /> -->
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.min.css" />' />

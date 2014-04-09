@@ -1,7 +1,11 @@
 package lu.itrust.business.TS;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Scenario: <br>
@@ -163,6 +167,22 @@ public class Scenario extends SecurityCriteria {
 			}
 		}
 		assetTypeValues.add(new AssetTypeValue(assetType, value));
+	}
+
+	public List<AssetTypeValue> deleteAssetTypeDuplication() {
+		List<AssetTypeValue> deletedAssetTypeValues = new LinkedList<>();
+		Map<AssetType, Boolean> mapping = new LinkedHashMap<>();
+		Iterator<AssetTypeValue> iterator = assetTypeValues.iterator();
+		while (iterator.hasNext()) {
+			AssetTypeValue assetTypeValue = iterator.next();
+			if (!mapping.containsKey(assetTypeValue.getAssetType()))
+				mapping.put(assetTypeValue.getAssetType(), true);
+			else {
+				iterator.remove();
+				deletedAssetTypeValues.add(assetTypeValue);
+			}
+		}
+		return deletedAssetTypeValues;
 	}
 
 	public int getAssetTypeValue(AssetType assetType) {
@@ -332,7 +352,8 @@ public class Scenario extends SecurityCriteria {
 
 	/**
 	 * isValidValue: <br>
-	 * Check if Category value is valid or not. A valid value in scenario is 0 or 1 or 4.
+	 * Check if Category value is valid or not. A valid value in scenario is 0
+	 * or 1 or 4.
 	 * 
 	 * @param value
 	 *            The value to check if valid
@@ -426,12 +447,13 @@ public class Scenario extends SecurityCriteria {
 
 	/**
 	 * equals: <br>
-	 * This method is used to determine if the current object equals another object. Fields that
-	 * identify a Scenario object are: id, name and type.
+	 * This method is used to determine if the current object equals another
+	 * object. Fields that identify a Scenario object are: id, name and type.
 	 * 
 	 * @param obj
 	 *            The object to check
-	 * @return True if the object equals the other object; False if the objects are not the same
+	 * @return True if the object equals the other object; False if the objects
+	 *         are not the same
 	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */

@@ -188,10 +188,8 @@ public class ControllerScenario {
 	public @ResponseBody
 	String delete(@PathVariable int id, Principal principal, Locale locale, HttpSession session) {
 		try {
-
 			// try to delete assessment with this scenario
 			customDelete.deleteScenario(serviceScenario.get(id));
-
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.delete.successfully", null, "Scenario was deleted successfully", locale));
 		} catch (Exception e) {
@@ -313,6 +311,22 @@ public class ControllerScenario {
 		return "analysis/components/widgets/scenarioForm";
 	}
 
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Delete/AssetTypeValueDuplication", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody
+	String deleteDuplicationAssetTypeValue(HttpSession session, Principal principal, Locale locale) {
+		try {
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			List<Scenario> scenarios = serviceScenario.loadAllFromAnalysisID(idAnalysis);
+			customDelete.deleteDuplicationAssetTypeValue(scenarios);
+			return JsonMessage.Success(messageSource.getMessage("success.delete.assettypevalue.duplication", null, "Duplication were successfully deleted", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.delete.assettypevalue.duplication", null, "Duplication cannot be deleted", locale));
+		}
+
+	}
+
 	/**
 	 * save: <br>
 	 * Description
@@ -392,7 +406,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value="/Chart/Ale",method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String aleByAsset(HttpSession session, Model model, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -410,7 +424,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value="/Chart/Type/Ale",method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String assetByALE(HttpSession session, Model model, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
