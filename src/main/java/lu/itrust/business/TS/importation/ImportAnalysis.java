@@ -2494,8 +2494,8 @@ public class ImportAnalysis {
 
 			// create maturity measure with data
 			maturityMeasure = new MaturityMeasure();
-			maturityMeasure.getMeasureDescription().setComputable(measurecomputable);
 			maturityMeasure.setMeasureDescription(mesDesc);
+			maturityMeasure.getMeasureDescription().setComputable(measurecomputable);
 			maturityMeasure.setComment(rs.getString(Constant.MEASURE_COMMENT).replace("'", "''"));
 			maturityMeasure.setCost(cost);
 			maturityMeasure.setInternalWL(rs.getInt(Constant.MATURITY_INTWL));
