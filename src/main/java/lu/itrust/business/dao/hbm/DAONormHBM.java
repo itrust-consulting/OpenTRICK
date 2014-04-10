@@ -118,4 +118,10 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 		return getSession().createQuery("Select analysisNorm.norm From AnalysisNorm as analysisNorm where analysisNorm.analysis.id = :analysisId").setParameter("analysisId", analysisId).list();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Norm> loadAllNoInAnalysis(int idAnalysis) {
+		return getSession().createQuery("Select norm From Norm norm where norm.label not in (Select analysisNorm.norm.label From AnalysisNorm as analysisNorm where analysisNorm.analysis.id = :analysisId)").setParameter("analysisId", idAnalysis).list();
+	}
+
 }

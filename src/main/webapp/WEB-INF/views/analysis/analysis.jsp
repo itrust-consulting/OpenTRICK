@@ -56,8 +56,8 @@
 							<jsp:include page="./components/riskregister.jsp" />
 							<script type="text/javascript" src="<spring:url value="js/riskregister.js" />"></script>
 							<jsp:include page="./components/charts.jsp" />
-							<jsp:include page="./components/widgets.jsp" />
 						</c:if>
+						<jsp:include page="./components/widgets.jsp" />
 					</div>
 				</c:when>
 				<c:otherwise>

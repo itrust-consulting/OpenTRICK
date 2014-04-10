@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.ServiceUserSqLite;
@@ -20,6 +21,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -88,4 +90,16 @@ public class ControllerHome {
 	public String logout() {
 		return "redirect:/j_spring_security_logout";
 	}
+	
+	@RequestMapping(value="/Error",method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String error(@ModelAttribute String error){
+		return JsonMessage.Error(error);
+	}
+	
+	@RequestMapping(value="/Success",method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String success(@ModelAttribute String success){
+		return JsonMessage.Error(success);
+	}
+	
+	
 }

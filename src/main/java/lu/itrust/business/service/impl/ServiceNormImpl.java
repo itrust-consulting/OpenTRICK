@@ -159,4 +159,9 @@ public class ServiceNormImpl implements ServiceNorm {
 	public List<Norm> loadAllFromAnalysis(int analysisId) {
 		return daoNorm.loadAllFromAnalysis(analysisId);
 	}
+
+	@Override
+	public List<Norm> loadAllNoInAnalysis(int idAnalysis) {
+		return daoNorm.loadAllNoInAnalysis(idAnalysis);
+	}
 }

@@ -37,6 +37,8 @@ public interface ServiceNorm {
 
 	public boolean exists(String label, int version);
 
+	public List<Norm> loadAllNoInAnalysis(int idAnalysis);
+
 
 	
 

@@ -53,7 +53,7 @@
 						</label>
 						<div class="col-sm-10">
 							<div class="input-group">
-								<input name="value" id="asset_value" class="form-control" type="number" value="${empty(asset)? '0.0':asset.value}" /> <span class="input-group-addon">k&euro;</span>
+								<input name="value" id="asset_value" class="form-control" value="${empty(asset)? '0':asset.value*0.001}" /> <span class="input-group-addon">k&euro;</span>
 							</div>
 						</div>
 					</div>

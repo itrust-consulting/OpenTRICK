@@ -869,13 +869,13 @@ function MaturityMeasureFieldEditor(element) {
 	MaturityMeasureFieldEditor.prototype.constructor = MaturityMeasureFieldEditor;
 
 	MaturityMeasureFieldEditor.prototype.LoadData = function() {
-		var $implementationRate = $("#Maturity_implementation_rate td[trick-class='Parameter']");
+		var $implementationRate = $("#Maturity_implementation_rate tr[trick-class='Parameter']");
 		if (!$implementationRate.length)
 			return true;
 		for (var i = 0; i < $implementationRate.length; i++)
 			this.implementations[i] = {
 				'id' : $($implementationRate[i]).attr('trick-id'),
-				'value' : $($implementationRate[i]).text()
+				'value' : $($implementationRate[i]).find("td[trick-field='value']").text()
 			};
 		return !this.implementations.length;
 	};
@@ -887,6 +887,7 @@ function MaturityMeasureFieldEditor(element) {
 			return true;
 		this.fieldEditor = document.createElement("select");
 		this.fieldEditor.setAttribute("class", "form-control");
+		this.fieldEditor.setAttribute("style", "min-width:70px;");
 		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 		for ( var i in this.implementations) {
 			var option = document.createElement("option");
@@ -3355,7 +3356,7 @@ function deleteAssetTypeValueDuplication() {
 				if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
-				}else if(response["success"] != undefined){
+				} else if (response["success"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["success"]);
 					$("#alert-dialog").modal("toggle");
 				}
@@ -3363,4 +3364,75 @@ function deleteAssetTypeValueDuplication() {
 		});
 	} else
 		permissionError();
+	return false;
+}
+
+function addStandard() {
+	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.ALL)) {
+		enableButtonSaveStandardState(true);
+		$.ajax({
+			url : context + "/Analysis/Add/Standard",
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				if (response["error"] != undefined)
+					showError($("#addStandardModal .modal-body")[0], response["error"]);
+				else {
+					var forms = $.parseHTML(response);
+					if (!$(forms).find("#addStandardForm").length) {
+						showError($("#addStandardModal .modal-body")[0], MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
+					} else {
+						if ($("#addStandardModal").length)
+							$("#addStandardModal").remove();
+						$(forms).appendTo($("#widget"));
+						enableButtonSaveStandardState(true);
+						$("#addStandardModal").modal("toggle");
+					}
+				}
+			}
+		});
+	} else
+		permissionError();
+	return false;
+}
+
+function enableButtonSaveStandardState(state) {
+	if (!$("#btn_save_standard").length)
+		return false;
+	if ($("#addStandardModal .alert").length)
+		$("#addStandardModal .alert").remove();
+	if (!state)
+		$("#add_standard_progressbar").show();
+	else
+		$("#add_standard_progressbar").hide();
+	$("#btn_save_standard").prop("disabled", !state);
+	return false;
+}
+
+function saveStandard(form) {
+	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.ALL)) {
+		enableButtonSaveStandardState(false);
+		var normId = $("#" + form + " select").val();
+		$.ajax({
+			url : context + "/Analysis/Save/Standard/" + normId,
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				if (response["error"] != undefined) {
+					enableButtonSaveStandardState(true);
+					showError($("#addStandardModal .modal-body")[0], response["error"]);
+				} else if (response["success"] != undefined) {
+					showSuccess($("#addStandardModal .modal-body")[0], response["success"]);
+					location.reload();
+					setTimeout(function() {
+						$("#addStandardModal").modal("toggle");
+					}, 10000);
+				}
+			}
+		});
+	} else
+		permissionError();
+	return false;
 }

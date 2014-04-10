@@ -79,11 +79,11 @@
 												</c:when>
 												<c:when test="${norm.equalsIgnoreCase('Maturity')==false}">
 													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" trick-callback="reloadMeausreAndCompliance('${norm}','${measure.id}')"
-														ondblclick="return editField(this);"><spring:message text="${measure.getImplementationRateValue()}" /></td>
+														ondblclick="return editField(this);"><fmt:formatNumber value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0"/></td>
 												</c:when>
 												<c:otherwise>
 													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" ondblclick="return editField(this);" trick-class="MaturityMeasure"
-														trick-id="${measure.id}"><spring:message text="${measure.getImplementationRateValue()}" /></td>
+														trick-id="${measure.id}"><fmt:formatNumber value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0"/></td>
 												</c:otherwise>
 											</c:choose>
 											<td class="success textaligncenter" trick-field="internalWL" trick-field-type="double" ondblclick="return editField(this);"><spring:message

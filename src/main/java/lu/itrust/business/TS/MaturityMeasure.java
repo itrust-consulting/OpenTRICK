@@ -225,7 +225,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 */
 	@Override
 	public double getImplementationRateValue() {
-		return getImplementationRate().getValue();
+		return getImplementationRate()!=null? getImplementationRate().getValue() : 0;
 	}
 
 	/* (non-Javadoc)

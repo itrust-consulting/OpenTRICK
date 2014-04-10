@@ -26,7 +26,7 @@
 						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.scenario.name" text="Name" />
 						</label>
 						<div class="col-sm-10">
-							<input name="name" id="scenario_name" class="form-control" value=<spring:message text="${empty(scenario)? '':scenario.name}"/> />
+							<input name="name" id="scenario_name" class="form-control" value='<spring:message text="${empty(scenario)? '':scenario.name}"/>' />
 						</div>
 					</div>
 					<div class="form-group">

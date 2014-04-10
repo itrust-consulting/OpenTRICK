@@ -56,13 +56,15 @@
 					</h4>
 				</div>
 				<div class="modal-body">
-					<div id="deleteAnalysisBody">Your question here...</div>
-				</div>
-				<div id="deleteprogressbar" class="progress progress-striped active" hidden="true" style="width: 95%">
-					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
+					<div id="deleteAnalysisBody" class="text-center">Your question here...</div>
+					<div class="col-sm-12" style="margin: 20px 0 -10px 0;">
+						<div id="deleteprogressbar" class="progress progress-striped active" hidden="true">
+							<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
+						</div>
+					</div>
 				</div>
 				<div class="modal-footer">
-					<button id="deleteanalysisbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
+					<button id="deleteanalysisbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal">
 						<spring:message code="label.answer.yes" text="Yes" />
 					</button>
 				</div>

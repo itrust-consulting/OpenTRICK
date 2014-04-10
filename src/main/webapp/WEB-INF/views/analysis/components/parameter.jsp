@@ -140,7 +140,7 @@
 			</div>
 		</div>
 		<div class="col-md-4">
-			<div class="panel panel-primary">
+			<div class="panel panel-primary" id="Maturity_implementation_rate">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.smt"
 						text="Implementation scale of SMT" />
@@ -221,7 +221,7 @@
 			</div>
 		</div>
 		<div class="col-md-5">
-			<div class="panel panel-primary" id="Maturity_implementation_rate">
+			<div class="panel panel-primary">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.maturity_level"
 						text="Maximal efficiency rate per security maturity level" />

@@ -245,7 +245,7 @@ public class ControllerAsset {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	List<String[]> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
-
+		
 		// create error list
 		List<String[]> errors = new LinkedList<>();
 		try {
@@ -272,7 +272,9 @@ public class ControllerAsset {
 
 				// return error on failure
 				return errors;
-
+		
+			asset.setValue(asset.getValue()*1000);
+			
 			// check if asset is to be created (new)
 			if (asset.getId() < 1) {
 				// create assessments for the new asset

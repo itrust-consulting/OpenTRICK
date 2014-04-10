@@ -38,6 +38,12 @@
 						<c:forEach items="${measureSplited.keySet()}" var="norm">
 							<li><a href="#anchorMeasure_${norm}"> <spring:message code="menu.measure.${norm}" text="${norm}" /></a>
 						</c:forEach>
+						<c:if test="${analysis.getRightsforUserString(login).right.ordinal() == 0}">
+							<c:if test="${!measureSplited.isEmpty()}">
+								<li class="divider"></li>
+							</c:if>
+							<li><a href="#" onclick="return addStandard();"> <spring:message code="label.analysis.add.standard" text="Add a standard" /></a></li>
+						</c:if>
 					</ul>
 				</c:if></li>
 			<c:if test="${!KowledgeBaseView }">
@@ -69,11 +75,7 @@
 						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.analysis.compute.actionPlan" text="Compute ActionPlan" />
 						</a></li>
 						<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <spring:message code="label.analysis.compute.riskRegister" text="Compute Registers" /></a></li>
-					</c:if>
-					<li class="divider"></li>
-					<li><a href="#" onclick="return deleteAssetTypeValueDuplication();"> <spring:message code="label.scenario.assettypevalue.duplication"
-								text="Delete assettype duplication" /></a></li>
-					<c:if test="${!KowledgeBaseView }">
+						<li class="divider"></li>
 						<li><a href="#" onclick="return wipeAssessment();"> <spring:message code="label.analysis.assessment.wipe" text="Wipe assessments" /></a></li>
 						<li class="divider"></li>
 						<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.analysis.charts.reload" text="Reload Charts" /></a></li>
