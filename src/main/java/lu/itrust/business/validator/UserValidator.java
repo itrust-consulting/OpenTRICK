@@ -15,6 +15,9 @@ import org.springframework.validation.Validator;
  */
 public class UserValidator implements Validator {
 
+	
+	private String passwordPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*)(?=\\S+$).{8,}$";
+	
 	/* (non-Javadoc)
 	 * @see org.springframework.validation.Validator#supports(java.lang.Class)
 	 */
@@ -36,8 +39,8 @@ public class UserValidator implements Validator {
 		
 		if(user.getPassword()==null || user.getPassword().trim().isEmpty())
 			errors.rejectValue("password", "errors.user.password.empty");
-		else if(user.getPassword().trim().length()<6)
-			errors.rejectValue("password", "errors.user.password.short");
+		else if(!user.getPassword().matches(passwordPattern))
+			errors.rejectValue("password", "errors.user.password.notmatching");
 		
 		if(user.getRepeatPassword() == null)
 			errors.rejectValue("repeatPassword", "errors.user.repeatPassword.empty", "Repeat password cannot be empty");
