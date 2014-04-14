@@ -21,14 +21,13 @@
 			<li><a href="#anchorParameter"><spring:message code="menu.analysis.parameter" text="Parameters" /></a></li>
 			<li><a href="#anchorAsset"><spring:message code="menu.analysis.asset" text="Assets" /></a></li>
 			<li><a href="#anchorScenario"><spring:message code="menu.analysis.scenario" text="Scenarios" /></a></li>
-			<!--
-			<li><a href="#RiskInformation"><spring:message code="menu.analysis.riskinformation" text="Risk Information" /></a></li>
-			<ul class="nav">
-				<li><a href="#Threats"><spring:message code="menu.analysis.threat" text="Threats" /></a></li>
-				<li><a href="#Risks"><spring:message code="menu.analysis.risk" text="Risks" /></a></li>
-				<li><a href="#Vulnerabilities"><spring:message code="menu.analysis.vulnerability" text="Vulnerability" /></a></li>
-			</ul>
-			-->
+			<li class="dropdown-submenu"><a href="#RiskInformation" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="menu.analysis.riskinformation"
+						text="Risk Information" /><span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="#Threats"><spring:message code="menu.analysis.threat" text="Threats" /></a></li>
+					<li><a href="#Risks"><spring:message code="menu.analysis.risk" text="Risks" /></a></li>
+					<li><a href="#Vulnerabilities"><spring:message code="menu.analysis.vulnerability" text="Vulnerability" /></a></li>
+				</ul></li>
 			<li><a href="#anchorPhase"> <spring:message code="menu.analysis.phase" text="Phases" /></a></li>
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="menu.analysis.standards" text="Standard" /><span
 					class="caret"></span></a> <c:if test="${empty(measureSplited)}">

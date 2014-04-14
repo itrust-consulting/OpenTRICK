@@ -322,20 +322,13 @@ public class Duplicator {
 					
 			}
 			
-			
 			// copy other data if requested
-
 			// scenarios
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", 25));
 			if (analysisProfile.isScenario()) {
-
 				copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
-				for (Scenario scenario : analysis.getScenarios()) {
-					Scenario tmpscenario = scenario.duplicate();
-					for (AssetTypeValue atv : scenario.getAssetTypeValues())
-						tmpscenario.addAssetTypeValue(atv.duplicate());
-					copy.getScenarios().add(tmpscenario);
-				}
+				for (Scenario scenario : analysis.getScenarios())
+					copy.getScenarios().add(scenario.duplicate());
 			} else
 				copy.setScenarios(null);
 

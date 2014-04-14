@@ -372,7 +372,9 @@ public class Scenario extends SecurityCriteria {
 	 *            The Object of AssetTypeValue to add to the list
 	 */
 	public void addAssetTypeValue(AssetTypeValue assetTypeValue) {
-		assetTypeValues.add(assetTypeValue);
+		AssetTypeValue typeValue = retrieveAssetTypeValue(assetTypeValue.getAssetType());
+		if(typeValue == null)
+			assetTypeValues.add(assetTypeValue);
 	}
 
 	/**
@@ -500,7 +502,7 @@ public class Scenario extends SecurityCriteria {
 		Scenario scenario = (Scenario) super.clone();
 		scenario.assetTypeValues = new ArrayList<>();
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
-			scenario.assetTypeValues.add(assetTypeValue.clone());
+			scenario.addAssetTypeValue(assetTypeValue.clone());
 		return scenario;
 	}
 
@@ -508,7 +510,7 @@ public class Scenario extends SecurityCriteria {
 		Scenario scenario = (Scenario) super.duplicate();
 		scenario.assetTypeValues = new ArrayList<>();
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
-			scenario.assetTypeValues.add(assetTypeValue.duplicate());
+			scenario.addAssetTypeValue(assetTypeValue.duplicate());
 		return scenario;
 	}
 }

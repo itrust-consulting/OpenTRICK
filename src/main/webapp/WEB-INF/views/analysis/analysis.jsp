@@ -36,6 +36,8 @@
 						</c:if>
 						<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
 						<jsp:include page="./components/itemInformation.jsp" />
+						<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
+						<jsp:include page="./components/riskinformation.jsp" />
 						<c:set var="parameters" value="${analysis.parameters}" scope="request" />
 						<jsp:include page="./components/parameter.jsp" />
 						<c:set var="assets" value="${analysis.assets}" scope="request" />
