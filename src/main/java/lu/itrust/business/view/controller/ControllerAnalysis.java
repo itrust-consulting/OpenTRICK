@@ -163,7 +163,7 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
-	
+
 	@Autowired
 	private ServiceMeasureDescription serviceMeasureDescription;
 
@@ -260,13 +260,12 @@ public class ControllerAnalysis {
 	}
 
 	@RequestMapping(value = "/Add/Standard", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String addStandardForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		List<Norm> norms = serviceNorm.loadAllNoInAnalysis(idAnalysis);
 		if (norms.isEmpty()) {
-			attributes.addFlashAttribute("error",
-					messageSource.getMessage("error.analysis.add.standard", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.analysis.add.standard", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
 			return "redirect:/Error";
 		}
 		model.addAttribute("norms", norms);
@@ -274,13 +273,14 @@ public class ControllerAnalysis {
 		model.addAttribute("idAnalysis", idAnalysis);
 		return "analysis/components/widgets/addStandardForm";
 	}
-	
+
 	@RequestMapping(value = "/Save/Standard/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
-	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session,Principal principal,RedirectAttributes attributes, Locale locale) throws Exception{
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody
+	String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, RedirectAttributes attributes, Locale locale) throws Exception {
 		try {
 			Norm norm = serviceNorm.getNormByID(idStandard);
-			if(norm == null)
+			if (norm == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null, "Unfortunately, selected standard does not exist", locale));
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -288,8 +288,7 @@ public class ControllerAnalysis {
 			AnalysisNorm analysisNorm = null;
 			List<MeasureDescription> measureDescriptions = serviceMeasureDescription.getAllByNorm(norm);
 			Object implementationRate = null;
-			if(norm.getLabel().equals(Constant.NORM_MATURITY))
-			{
+			if (norm.getLabel().equals(Constant.NORM_MATURITY)) {
 				analysisNorm = new MaturityNorm();
 				measure = new MaturityMeasure();
 				for (Parameter parameter : analysis.getParameters()) {
@@ -298,7 +297,7 @@ public class ControllerAnalysis {
 						break;
 					}
 				}
-			}else {
+			} else {
 				analysisNorm = new MeasureNorm();
 				measure = new NormMeasure();
 				List<AssetType> assetTypes = serviceAssetType.loadAll();
@@ -309,8 +308,8 @@ public class ControllerAnalysis {
 				implementationRate = new Double(0);
 			}
 			Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
-			if(phase == null)
-				analysis.addUsedPhase( phase = new Phase(Constant.PHASE_DEFAULT));
+			if (phase == null)
+				analysis.addUsedPhase(phase = new Phase(Constant.PHASE_DEFAULT));
 			measure.setPhase(phase);
 			analysisNorm.setAnalysis(analysis);
 			analysisNorm.setNorm(norm);
@@ -322,7 +321,7 @@ public class ControllerAnalysis {
 				analysisNorm.getMeasures().add(measure2);
 			}
 			analysis.addAnalysisNorm(analysisNorm);
-			
+
 			serviceAnalysis.saveOrUpdate(analysis);
 
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.add.standard", null, "A standard was successfully added", locale));
@@ -331,7 +330,7 @@ public class ControllerAnalysis {
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard", null, "An unknown error occurred during analysis saving", locale));
 		}
 	}
-	
+
 	/**
 	 * manageaccessrights: <br>
 	 * Description
@@ -377,6 +376,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("static-access")
 	@RequestMapping("/{analysisID}/ManageAccess/Update")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
 	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale) throws Exception {
@@ -398,6 +398,9 @@ public class ControllerAnalysis {
 			JsonNode jsonNode = mapper.readTree(value);
 
 			for (User user : serviceUser.loadAll()) {
+				
+				if (user.getLogin().equals(principal.getName()))
+					continue;
 
 				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
 
@@ -434,6 +437,8 @@ public class ControllerAnalysis {
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
 
+			Thread.currentThread().sleep(1000);
+			
 			return manageaccessrights(analysisID, principal, model);
 		} catch (Exception e) {
 			// return errors
@@ -532,30 +537,16 @@ public class ControllerAnalysis {
 	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Model model, HttpSession session, RedirectAttributes attributes, Locale locale)
 			throws Exception {
 
-		Boolean permissiondenied = false;
+		// prepare permission evaluator
+		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
 
-		// prepare permission verifier
-		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
-
-		User user = serviceUser.get(principal.getName());
-
-		Analysis analysis = serviceAnalysis.get(analysisId);
-
-		if (analysis.isProfile()) {
-			if (!serviceUser.hasRole(user, RoleType.ROLE_CONSULTANT))
-				permissiondenied = true;
-		} else if (!permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ))
-			permissiondenied = true;
-
-		if (!permissiondenied) {
+		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)) {
 
 			// retrieve selected analysis
 			Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 
-			// check if analysis is selected and if thee selected value is the
-			// same
-			// as the analysis to
-			// select (in order to deselect analysis)
+			// check if analysis is selected and if thee selected value is the same as the analysis
+			// to select (in order to deselect analysis)
 			if (selected != null && selected.intValue() == analysisId)
 
 				// deselect the analysis
@@ -576,18 +567,10 @@ public class ControllerAnalysis {
 			}
 			return "redirect:/Analysis";
 		} else {
-			// retrieve selected analysis
-			Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+			// deselect the analysis
+			session.removeAttribute("selectedAnalysis");
 
-			// check if analysis is selected and if thee selected value is the
-			// same
-			// as the analysis to
-			// select (in order to deselect analysis)
-			if (selected != null && selected.intValue() == analysisId)
-
-				// deselect the analysis
-				session.removeAttribute("selectedAnalysis");
-			return "403";
+			return "redirect:/Error/403";
 		}
 	}
 
@@ -645,33 +628,23 @@ public class ControllerAnalysis {
 		if (analysis == null)
 			return "redirect:/Error/404";
 
-		Boolean permissiondenied = false;
-
 		// prepare permission evaluator
 		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
 
-		User user = serviceUser.get(principal.getName());
+		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)) {
+		
+		// add languages
+		model.put("languages", serviceLanguage.loadAll());
 
-		if (analysis.isProfile()) {
-			if (!serviceUser.hasRole(user, RoleType.ROLE_CONSULTANT))
-				permissiondenied = true;
-		} else if (!permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ))
-			permissiondenied = true;
+		// add customers of user
+		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
 
-		if (!permissiondenied) {
+		// add the analysis object
+		model.put("analysis", analysis);
 
-			// add languages
-			model.put("languages", serviceLanguage.loadAll());
-
-			// add customers of user
-			model.put("customers", serviceCustomer.loadByUser(principal.getName()));
-
-			// add the analysis object
-			model.put("analysis", analysis);
-
-			return "analysis/editAnalysis";
-
+		return "analysis/editAnalysis";
 		} else {
+			
 			return "redirect:/Error/403";
 		}
 	}
@@ -708,7 +681,7 @@ public class ControllerAnalysis {
 			// check if it is a new analysis or the user is authorized to modify
 			// the analysis
 			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)
-					|| serviceUser.hasRole(serviceUser.get(principal.getName()), RoleType.ROLE_CONSULTANT)) {
+				|| serviceUser.hasRole(serviceUser.get(principal.getName()), RoleType.ROLE_CONSULTANT)) {
 
 				// create/update analysis object and set access rights
 				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
@@ -837,8 +810,8 @@ public class ControllerAnalysis {
 				// check if version is less or equal the current version
 				if (History.VersionComparator(history.getVersion(), version) != 1)
 					// retrun error
-					errors.put("version",
-							messageSource.getMessage("error.history.version.less_current", null, "Version of History entry must be greater than last Version of Analysis!", locale));
+					errors.put("version", messageSource.getMessage("error.history.version.less_current", null, "Version of History entry must be greater than last Version of Analysis!",
+							locale));
 			}
 
 			if (!errors.isEmpty()) {
@@ -1035,7 +1008,7 @@ public class ControllerAnalysis {
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""
-				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+			+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) userSqLite.getSize());

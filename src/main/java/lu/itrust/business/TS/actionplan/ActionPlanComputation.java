@@ -1245,7 +1245,7 @@ public class ActionPlanComputation {
 				// ****************************************************************
 				// * generate object with delta ALE to 0
 				// ****************************************************************
-				actionPlanEntry = new ActionPlanEntry(maturityMeasure, 0);
+				actionPlanEntry = new ActionPlanEntry(maturityMeasure, actionPlanType, 0);
 
 				// ****************************************************************
 				// * add object to temporary action plan

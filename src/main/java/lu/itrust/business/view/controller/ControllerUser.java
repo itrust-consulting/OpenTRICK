@@ -4,6 +4,8 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -11,21 +13,29 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.validator.UserValidator;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -123,6 +133,72 @@ public class ControllerUser {
 	}
 
 	/**
+	 * buildUser: <br>
+	 * Description
+	 * 
+	 * @param errors
+	 * @param customer
+	 * @param source
+	 * @param locale
+	 * @return
+	 */
+	private User buildUser(List<String[]> errors, String source, Locale locale, Principal principal) {
+
+		User user = null;
+
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+			int id = jsonNode.get("id").asInt();
+			if (id > 0) {
+				user = serviceUser.get(jsonNode.get("id").asInt());
+			} else {
+				return null;
+			}
+
+				user.setPassword(jsonNode.get("password").asText());
+				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+			
+			user.setFirstName(jsonNode.get("firstName").asText());
+			user.setLastName(jsonNode.get("lastName").asText());
+
+			user.setEmail(jsonNode.get("email").asText());
+
+			if (!principal.getName().equals(user.getLogin())) {
+
+				user.disable();
+
+				RoleType[] roletypes = RoleType.values();
+
+				for (int i = 0; i < roletypes.length; i++) {
+					Role role = serviceRole.findByName(roletypes[i].name());
+
+					if (role == null) {
+						role = new Role(roletypes[i]);
+						serviceRole.save(role);
+					}
+
+					if (jsonNode.get(role.getType().name()).asText().equals(Constant.CHECKBOX_CONTROL_ON)) {
+						user.addRole(role);
+					}
+
+				}
+
+			}
+
+			return user;
+
+		} catch (Exception e) {
+
+			errors.add(new String[] { "user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+	
+	/**
 	 * save: <br>
 	 * Description
 	 * 
@@ -130,48 +206,35 @@ public class ControllerUser {
 	 * @param result
 	 * @param attributes
 	 * @param locale
-	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
+	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody
+	List<String[]> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 
-	// TODO update
-
-	@RequestMapping("/Update")
-	public String save(@ModelAttribute("user") @Valid User user, BindingResult result, RedirectAttributes attributes, Locale locale, Map<String, Object> model, Principal principal)
-			throws Exception {
-
+		List<String[]> errors = new LinkedList<>();
+		
 		try {
 
-			// check if user tries to update his own profile
-			if (!user.getLogin().equals(principal.getName()))
-				return "errors/403";
+			User user = buildUser(errors, value, locale, principal);
 
-			// // check if profile has errors on validation
-			// if (result.hasErrors())
-			// return "profilUser";
-			//
-			// // TODO check if password needs to be reset
-			// ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-			// user.setPassword(passwordEncoder.encodePassword(user.getPassword(),
-			// user.getLogin()));
-			//
-			// // TODO do not let user change
-			//
-			// // update profile
-			// this.serviceUser.saveOrUpdate(user);
-			// attributes.addFlashAttribute("success",
-			// messageSource.getMessage("success.create.account", null,
-			// "Account has been created successfully", locale));
-			// model.put("userProfil", user);
-			return "profilUser";
+			if (user == null) {
+				return errors;
+			} else {
+				if (user.getId() < 1) {
+					serviceUser.save(user);
+				} else {
+					serviceUser.saveOrUpdate(user);
+				}
+			}
 		} catch (Exception e) {
-
-			// return errors
+			errors.add(new String[] { "user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
 			e.printStackTrace();
-			attributes.addFlashAttribute("errors", messageSource.getMessage("error.update.account", null, e.getMessage(), locale));
-			return "profilUser";
-
 		}
+
+		return errors;
+
 	}
+	
 }

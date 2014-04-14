@@ -149,6 +149,7 @@ public class ControllerActionPlan {
 		
 		for (ActionPlanEntry ape: actionplans) {
 			Hibernate.initialize(ape);
+			Hibernate.initialize(ape.getMeasure());
 			Hibernate.initialize(ape.getMeasure().getMeasureDescription().getMeasureDescriptionTexts());
 		}
 		

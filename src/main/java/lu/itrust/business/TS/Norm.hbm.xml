@@ -27,7 +27,7 @@
 		</properties>
 		<bag name="measures" table="measure" cascade="all" inverse="true">
 			<key column="fiAnalysisNorm" />
-			<one-to-many class="Measure" />
+			<one-to-many class="Measure"  />
 		</bag>
 	</class>
 	<subclass name="MeasureNorm" extends="AnalysisNorm" discriminator-value="MeasureNorm"/>

@@ -82,11 +82,13 @@ public class ActionPlanEntry implements Serializable {
 	 *            The Delta ALE
 	 * @throws IllegalArgumentException
 	 */
-	public ActionPlanEntry(Measure measure, double deltaALE) throws IllegalArgumentException {
+	public ActionPlanEntry(Measure measure, ActionPlanType actionplantype, double deltaALE) throws IllegalArgumentException {
 
 		// the measure
 		setMeasure(measure);
 
+		setActionPlanType(actionplantype);
+		
 		// the delta ALE for the measure (normal,optimistic and pessimistic)
 		setDeltaALE(deltaALE);
 

@@ -2,6 +2,8 @@ package lu.itrust.business.TS;
 
 import java.util.List;
 
+import org.hibernate.proxy.HibernateProxy;
+
 /**
  * MaturityNorm: <br>
  * This class represents the MaturityNorm and its data
@@ -77,7 +79,11 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 			throw new IndexOutOfBoundsException("Maturtiy AnalysisNorm Index (" + index
 				+ ") needs be between 0 and " + (getMeasures().size() - 1) + "!");
 		}
-		return (MaturityMeasure) getMeasures().get(index);
+		if (getMeasures().get(index) instanceof HibernateProxy)
+			return MaturityMeasure.class.cast(((HibernateProxy) getMeasures().get(index)).getHibernateLazyInitializer().getImplementation());
+		else {
+			return MaturityMeasure.class.cast(getMeasures().get(index));
+		}
 	}
 
 	/**
@@ -87,13 +93,16 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 	 * @param measures
 	 *            The Value to set the measures field
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setMeasures(List<Measure> measures) {
-		for (Measure measure : measures) {
-			if (!(measure instanceof MaturityMeasure))
-				throw new IllegalArgumentException("Excepted MaturityMeasure");
+		
+		if (measures instanceof HibernateProxy) {
+			List<Measure> deproxiedmeasures = (List<Measure>) ((HibernateProxy) measures).getHibernateLazyInitializer().getImplementation();
+			super.setMeasures(deproxiedmeasures);
+		} else {
+			super.setMeasures(measures);
 		}
-		super.setMeasures(measures);
 	}
 
 	/**
