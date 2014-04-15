@@ -23,7 +23,7 @@
 		var="extendedParameters" />
 	<div class="row">
 		<div class="col-md-6">
-			<div class="panel panel-primary" id="Scale_Impact">
+			<div class="panel panel-default" id="Scale_Impact">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.impact"
 						text="Impact of thread" />
@@ -81,7 +81,7 @@
 			</div>
 		</div>
 		<div class="col-md-6">
-			<div class="panel panel-primary" id="Scale_Probability">
+			<div class="panel panel-default" id="Scale_Probability">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.probability"
 						text="Probability of threat occurence" />
@@ -140,7 +140,7 @@
 			</div>
 		</div>
 		<div class="col-md-4">
-			<div class="panel panel-primary" id="Maturity_implementation_rate">
+			<div class="panel panel-default" id="Maturity_implementation_rate">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.smt"
 						text="Implementation scale of SMT" />
@@ -173,7 +173,7 @@
 			</div>
 		</div>
 		<div class="col-md-8">
-			<div class="panel panel-primary">
+			<div class="panel panel-default">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.various"
 						text="Various parameters" />
@@ -221,7 +221,7 @@
 			</div>
 		</div>
 		<div class="col-md-5">
-			<div class="panel panel-primary">
+			<div class="panel panel-default">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.maturity_level"
 						text="Maximal efficiency rate per security maturity level" />

@@ -18,16 +18,17 @@
 				<li><a href="#anchorHistory"><spring:message code="menu.analysis.history" text="History" /></a></li>
 			</c:if>
 			<li><a href="#anchorScope"><spring:message code="menu.analysis.iteminformation" text="Scope" /></a></li>
+			
 			<li><a href="#anchorParameter"><spring:message code="menu.analysis.parameter" text="Parameters" /></a></li>
-			<li><a href="#anchorAsset"><spring:message code="menu.analysis.asset" text="Assets" /></a></li>
-			<li><a href="#anchorScenario"><spring:message code="menu.analysis.scenario" text="Scenarios" /></a></li>
 			<li class="dropdown-submenu"><a href="#RiskInformation" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="menu.analysis.riskinformation"
 						text="Risk Information" /><span class="caret"></span></a>
 				<ul class="dropdown-menu">
-					<li><a href="#Threats"><spring:message code="menu.analysis.threat" text="Threats" /></a></li>
-					<li><a href="#Risks"><spring:message code="menu.analysis.risk" text="Risks" /></a></li>
-					<li><a href="#Vulnerabilities"><spring:message code="menu.analysis.vulnerability" text="Vulnerability" /></a></li>
+					<li><a href="#anchorRiskInformation_Threat"><spring:message code="menu.analysis.threat" text="Threats" /></a></li>
+					<li><a href="#anchorRiskInformation_Vul"><spring:message code="menu.analysis.vulnerability" text="Vulnerability" /></a></li>
+					<li><a href="#anchorRiskInformation_Risk"><spring:message code="menu.analysis.risk" text="Risks" /></a></li>
 				</ul></li>
+			<li><a href="#anchorAsset"><spring:message code="menu.analysis.asset" text="Assets" /></a></li>
+			<li><a href="#anchorScenario"><spring:message code="menu.analysis.scenario" text="Scenarios" /></a></li>
 			<li><a href="#anchorPhase"> <spring:message code="menu.analysis.phase" text="Phases" /></a></li>
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="menu.analysis.standards" text="Standard" /><span
 					class="caret"></span></a> <c:if test="${empty(measureSplited)}">

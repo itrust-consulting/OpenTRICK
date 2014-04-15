@@ -4,6 +4,7 @@
 package lu.itrust.business.component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ public class RiskInformationManager {
 	public static Map<String, List<RiskInformation>> Split(List<RiskInformation> riskInformations){
 		Map<String, List<RiskInformation>> mapper = new LinkedHashMap<>();
 		String key = "";
+		Collections.sort(riskInformations, new RiskInformationComparator());
 		for (RiskInformation riskInformation : riskInformations) {
 			key = riskInformation.getCategory().startsWith("Risk_TB")? "Risk" : riskInformation.getCategory();
 			List<RiskInformation> informations = mapper.get(key);

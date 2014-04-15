@@ -23,6 +23,7 @@ import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
+import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
@@ -39,10 +40,12 @@ import lu.itrust.business.service.ServiceItemInformation;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceParameter;
 import lu.itrust.business.service.ServicePhase;
+import lu.itrust.business.service.ServiceRiskInformation;
 import lu.itrust.business.validator.AssessmentValidator;
 import lu.itrust.business.validator.ExtendedParameterValidator;
 import lu.itrust.business.validator.HistoryValidator;
 import lu.itrust.business.validator.ParameterValidator;
+import lu.itrust.business.validator.RiskInformationValidator;
 import lu.itrust.business.validator.field.ValidatorField;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +97,9 @@ public class ControllerEditField {
 
 	@Autowired
 	private ServiceActionPlan serviceActionPlan;
+
+	@Autowired
+	private ServiceRiskInformation serviceRiskInformation;
 
 	@Autowired
 	private ServicePhase servicePhase;
@@ -600,7 +606,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
 		}
 	}
-	
+
 	/**
 	 * measure: <br>
 	 * Description
@@ -624,16 +630,14 @@ public class ControllerEditField {
 
 			// retrieve measure
 			NormMeasure measure = (NormMeasure) serviceMeasure.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
-			
+
 			if (measure == null)
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 
 			// set field
-			
+
 			// System.out.println("Fildname: " + fieldEditor.getFieldName());
-			
-			
-			
+
 			MeasureProperties mesprep = DAOHibernate.Initialise(measure.getMeasurePropertyList());
 			Field field = mesprep.getClass().getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
@@ -643,7 +647,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 			measure.setMeasurePropertyList(mesprep);
-			
+
 			// update measure
 			serviceMeasure.saveOrUpdate(measure);
 
@@ -825,6 +829,38 @@ public class ControllerEditField {
 		}
 	}
 
+	@RequestMapping(value = "/RiskInformation", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody
+	String riskInformation(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal){
+		try {
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			RiskInformation riskInformation = serviceRiskInformation.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
+			if (riskInformation == null)
+				return JsonMessage.Error(messageSource.getMessage("error.risk_information.not_found", null, "Risk information cannot be found", locale));
+			
+			// set field
+			Field field = riskInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
+			
+			ValidatorField validatorField = serviceDataValidation.findByClass(RiskInformation.class);
+			if(validatorField == null)
+				serviceDataValidation.register(validatorField = new RiskInformationValidator());
+			String error = validatorField.validate(riskInformation, fieldEditor.getFieldName(), fieldEditor.getValue());
+			if(error!=null)
+				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+			field.setAccessible(true);
+			if(!SetFieldData(field,riskInformation, fieldEditor,null))
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+			// update phase
+			serviceRiskInformation.saveOrUpdate(riskInformation);
+			// return success message
+			return JsonMessage.Success(messageSource.getMessage("success.risk_information.updated", null, "Risk information was successfully updated", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+		}
+	}
+
 	/**
 	 * setFieldData: <br>
 	 * Description
@@ -839,8 +875,8 @@ public class ControllerEditField {
 	 * @throws ParseException
 	 * @throws NumberFormatException
 	 */
-	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) throws IllegalArgumentException, IllegalAccessException, ParseException,
-			NumberFormatException {
+	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) throws IllegalArgumentException, IllegalAccessException,
+			ParseException, NumberFormatException {
 
 		// check for data type to set field with data with cast to correct data
 		// type
@@ -906,12 +942,12 @@ public class ControllerEditField {
 			return null;
 		}
 	}
-	
-	public static Field FindField(Class<?> object, String fieldName){
-		for (Field  field: object.getDeclaredFields())
-			if(field.getName().equals(fieldName))
+
+	public static Field FindField(Class<?> object, String fieldName) {
+		for (Field field : object.getDeclaredFields())
+			if (field.getName().equals(fieldName))
 				return field;
-		if(!object.equals(Object.class))
+		if (!object.equals(Object.class))
 			return FindField(object.getSuperclass(), fieldName);
 		return null;
 	}

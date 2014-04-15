@@ -260,25 +260,6 @@ function MessageResolver(code, defaulttext, params) {
 	return defaulttext;
 }
 
-function extract(data) {
-	var parser = new DOMParser();
-	var doc = parser.parseFromString(data, "text/html");
-	$("#content").html(doc.getElementById("login") == null ? doc.getElementById("content").innerHTML : doc.getElementById("login").outerHTML);
-	return false;
-}
-
-function changeDisplay(source) {
-	$.ajax({
-		url : context + "/changeDisplay",
-		data : {
-			source : source
-		},
-		contentType : "text/html",
-		success : extract
-	});
-	return false;
-}
-
 function cancelTask(taskId) {
 	$.ajax({
 		url : context + "/Task/Stop/" + taskId,
@@ -288,17 +269,6 @@ function cancelTask(taskId) {
 			$("#task_" + taskId).remove();
 		}
 	});
-}
-
-function openLink(url, confirmAction, message) {
-	if (!confirmAction || confirm(message)) {
-		$.ajax({
-			url : url,
-			contentType : "text/html",
-			success : extract
-		});
-	}
-	return false;
 }
 
 function computeAssessment() {
@@ -350,69 +320,6 @@ function wipeAssessment() {
 		},
 	});
 	return false;
-}
-
-function TrickCarousel(table) {
-	this.table = table;
-	this.count = 0;
-	this.theader = null;
-	this.tdata = null;
-	this.navLeft = null;
-	this.navRight = null;
-	this.selected = 1;
-
-	TrickCarousel.prototype.initialise = function() {
-		this.theader = $(this.table).find("th");
-		this.tdata = $(this.table).find("td");
-		this.count = $(this.table).find("th[trick-table-part]").length - 1;
-		this.navLeft = $($(this.table).parent()).find("a[control-trick-table='left']");
-		this.navRight = $($(this.table).parent()).find("a[control-trick-table='right']");
-		this.showGroup(1);
-		var that = this;
-
-		$(this.navLeft).click(function() {
-			if (that.selected < 2)
-				that.showGroup(that.count);
-			else
-				that.showGroup(that.selected - 1);
-			return false;
-		});
-		$(this.navRight).click(function() {
-			if (that.selected >= that.count)
-				that.showGroup(1);
-			else
-				that.showGroup(that.selected + 1);
-			return false;
-		});
-		return false;
-
-	};
-
-	TrickCarousel.prototype.showGroup = function(groupId) {
-		this.showPart(this.theader, groupId);
-		this.showPart(this.tdata, groupId);
-		return false;
-	};
-
-	TrickCarousel.prototype.showPart = function(items, groupId) {
-		var canHide = false;
-		this.selected = groupId;
-		for (var i = 0; i < items.length; i++) {
-			var item = items[i];
-			part = $(item).attr('trick-table-part');
-			if (part !== undefined) {
-				if (part == 0 || part == groupId)
-					canHide = false;
-				else
-					canHide = true;
-			}
-			if (canHide)
-				$(item).hide();
-			else
-				$(item).show();
-		}
-		return false;
-	};
 }
 
 function extractPhase(that) {
@@ -589,14 +496,18 @@ function FieldEditor(element, validator) {
 							that.UpdateUI();
 							if (that.callback != null && that.callback != undefined)
 								setTimeout(that.callback, 10);
-						} else {
+						} else if(response["error"] !=undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog").modal("toggle");
+						}else {
+							$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 							$("#alert-dialog").modal("toggle");
 						}
 						return true;
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
-						$("#alert-dialog .modal-body").text(jqXHR.responseText);
+						that.Rollback();
+						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 						$("#alert-dialog").modal("toggle");
 					},
 				});
@@ -640,14 +551,18 @@ function ExtendedFieldEditor(element) {
 							if (that.fieldName == "acronym")
 								setTimeout("updateAssessmentAcronym('" + that.classId + "', '" + that.defaultValue + "')", 100);
 							return reloadSection("section_parameter");
-						} else {
+						} else if(response["error"] !=undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog").modal("toggle");
+						}else {
+							$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 							$("#alert-dialog").modal("toggle");
 						}
 						return true;
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
-						$("#alert-dialog .modal-body").text(jqXHR.responseText);
+						that.Rollback();
+						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 						$("#alert-dialog").modal("toggle");
 					},
 				});
