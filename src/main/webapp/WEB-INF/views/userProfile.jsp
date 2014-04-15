@@ -22,44 +22,73 @@
 					<spring:message code="title.Profile" text="Profile" />
 				</h1>
 			</div>
-			<div class="content" id="content">
+			<div class="content" style="text-align:center;" id="content">
 				<c:if test="${!empty userProfil}">
-					<table class="data">
-						<tr>
-							<td><spring:message code="label.user.id" /></td>
-							<td>${userProfil.id}</td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.user.login" /></td>
-							<td>${userProfil.login}</td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.user.firstName" /></td>
-							<td>${userProfil.firstName}</td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.user.lastName" /></td>
-							<td>${userProfil.lastName}</td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.user.email" /></td>
-							<td>${userProfil.email}</td>
-						</tr>
-						<tr>
-							<td><spring:message code="label.user.roles" /></td>
-							<td><c:forEach items="${userProfil.roles}" var="role">
-									<spring:message code="label.role.${role.type}" />
-								</c:forEach></td>
-						</tr>
-					</table>
+					<form name="user" action="Update" class="form-horizontal" id="user_form" style="width:40%;display:inline-block">
+						<input type="hidden" name="id" value="${userProfil.id}" id="id">
+						<div class="form-group">
+							<label for="login" class="col-sm-2 control-label"> <spring:message code="label.user.login" />
+							</label>
+							<div class="col-sm-10">
+								<input id="login" name="login" class="form-control" type="text" value="${userProfil.login}" disabled="disabled" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="password" class="col-sm-2 control-label"> <spring:message code="label.user.password" />
+							</label>
+							<div class="col-sm-10">
+								<input id="password" name="password" class="form-control" type="password" value="" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="repeatpassword" class="col-sm-2 control-label"> <spring:message code="label.user.repeat_password" />
+							</label>
+							<div class="col-sm-10">
+								<input id="repeatpassword" name="repeatpassword" class="form-control" type="password" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="firstName" class="col-sm-2 control-label"> <spring:message code="label.user.firstName" />
+							</label>
+							<div class="col-sm-10">
+								<input id="firstName" name="firstName" class="form-control" type="text" value="${userProfil.firstName}" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="lastName" class="col-sm-2 control-label"> <spring:message code="label.user.lastName" />
+							</label>
+							<div class="col-sm-10">
+								<input id="lastName" name="lastName" class="form-control" type="text" value="${userProfil.lastName}" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="email" class="col-sm-2 control-label"> <spring:message code="label.user.email" />
+							</label>
+							<div class="col-sm-10">
+								<input id="email" name="email" class="form-control" type="text" value="${userProfil.email}" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="roles" class="col-sm-2 control-label"> <spring:message code="label.role" /></label>
+							<div class="col-sm-10" id="rolescontainer">
+								<c:forEach items="${userProfil.roles}" var="role">
+									<spring:message code="label.role.${role.type}" /> <br>
+								</c:forEach>
+							</div>
+						</div>
+						<button id="updateProfile" type="button" class="btn btn-primary" onclick="updateProfile('user_form')">
+							<spring:message code="label.update.profile" text="Update Profile" />
+					</button>
+					</form>
+					
 				</c:if>
 			</div>
-			<!-- ################################################################ End Container ################################################################# -->
 		</div>
-		<!-- ################################################################ Include Footer ################################################################ -->
-		<jsp:include page="footer.jsp" />
-		<jsp:include page="scripts.jsp" />
+		<!-- ################################################################ End Container ################################################################# -->
 	</div>
+	<!-- ################################################################ Include Footer ################################################################ -->
+	<jsp:include page="footer.jsp" />
+	<jsp:include page="scripts.jsp" />
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>
