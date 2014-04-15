@@ -2,8 +2,8 @@
 <taglib version="2.1" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd">
 <display-name>itrust tags</display-name>
-<short-name>fct</short-name>
 <tlib-version>1.0</tlib-version>
+<short-name>fct</short-name>
 <uri>http://itrust.lu/function</uri>
 <function>
 <name>matches</name>
