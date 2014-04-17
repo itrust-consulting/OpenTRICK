@@ -36,7 +36,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="panel-body" style="max-height: 800px;overflow: auto;">
+				<div class="panel-body panelbodydefinition">
 					<c:choose>
 						<c:when test="${!empty measureDescriptions}">
 							<table id="measurestable">

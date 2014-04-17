@@ -13,6 +13,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
+				<span id="success" hidden="hidden"></span>
 				<form name="user" action="User/Save" class="form-horizontal" id="user_form" commandName="user">
 					<input type="hidden" name="id" value="-1" id="user_id">
 					<div class="form-group">

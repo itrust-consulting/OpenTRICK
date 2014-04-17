@@ -33,7 +33,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class="panel-body">
+		<div class="panel-body panelbodydefinition">
 			<c:choose>
 				<c:when test="${!empty norms}">
 					<table class="table text-left">

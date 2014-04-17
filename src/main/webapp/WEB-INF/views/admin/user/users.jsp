@@ -20,7 +20,7 @@
 								code="label.action.delete" text="Delete" /> </a></li>
 				</ul>
 			</div>
-			<div class="panel-body">
+			<div class="panel-body panelbodydefinition">
 				<table class="table">
 					<thead>
 						<tr>

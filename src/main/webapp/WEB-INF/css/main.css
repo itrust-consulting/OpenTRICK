@@ -146,7 +146,7 @@ table.dataTable tr.odd td.sorting_1,table.dataTable tr.even td.sorting_1
 /**  table width */
 
 .panelbodydefinition{
-	height: 600px;
+	max-height: 600px;
 	overflow: auto;
 }
 
@@ -273,4 +273,19 @@ table.floatThead-table {
     border-top: none;
     border-bottom: none;
     background-color: #FFF;
+}
+
+.headertofixtable {
+	width: 100%;
+	table-layout:fixed;
+	padding:0;
+	margin:0;
+	cellspacing:0;
+	cellpadding:0;
+}
+
+
+.headertofixtablelargecolumn{
+	width:parent;
+	overflow:hidden;
 }

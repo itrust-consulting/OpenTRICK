@@ -1,24 +1,17 @@
-/**
- * 
- */
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
-
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.Role;
-import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.validator.UserValidator;
+import lu.itrust.business.validator.field.ValidatorField;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -27,10 +20,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,8 +29,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * @author oensuifudine
+ * ControllerUser.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since Apr 15, 2014
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/Profile")
@@ -56,37 +50,9 @@ public class ControllerUser {
 	@Autowired
 	private MessageSource messageSource;
 
-	/**
-	 * initBinder: <br>
-	 * Description
-	 * 
-	 * @param binder
-	 */
-	@InitBinder
-	protected void initBinder(WebDataBinder binder) {
-		binder.replaceValidators(new UserValidator());
-	}
-
-	/**
-	 * getServiceUser: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public ServiceUser getServiceUser() {
-		return serviceUser;
-	}
-
-	/**
-	 * setServiceUser: <br>
-	 * Description
-	 * 
-	 * @param serviceUser
-	 */
-	public void setServiceUser(ServiceUser serviceUser) {
-		this.serviceUser = serviceUser;
-	}
-
+	@Autowired
+	private ServiceDataValidation serviceDataValidation;
+	
 	/**
 	 * profile: <br>
 	 * Description
@@ -98,13 +64,15 @@ public class ControllerUser {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String profile(Principal principal, HttpSession session, Map<String, Object> model) throws Exception {
+	public String profile(Model model, Principal principal) throws Exception {
 
 		// retrieve profile of the current user
 		User user = serviceUser.get(principal.getName());
 
+		user.setPassword(Constant.EMPTY_STRING);
+
 		// add profile to model
-		model.put("userProfil", user);
+		model.addAttribute("user", user);
 
 		return "userProfile";
 	}
@@ -121,7 +89,7 @@ public class ControllerUser {
 	 */
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 	@RequestMapping("/{userId}")
-	public String profileOfUser(@PathVariable("userId") int userId, HttpSession session, Map<String, Object> model) throws Exception {
+	public String profileOfUser(@PathVariable("userId") int userId, Map<String, Object> model) throws Exception {
 
 		// retireve profile
 		User user = serviceUser.get(userId);
@@ -129,75 +97,9 @@ public class ControllerUser {
 		// add profile to model
 		model.put("userProfil", user);
 
-		return "profilUser";
+		return "userProfile";
 	}
 
-	/**
-	 * buildUser: <br>
-	 * Description
-	 * 
-	 * @param errors
-	 * @param customer
-	 * @param source
-	 * @param locale
-	 * @return
-	 */
-	private User buildUser(List<String[]> errors, String source, Locale locale, Principal principal) {
-
-		User user = null;
-
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
-			int id = jsonNode.get("id").asInt();
-			if (id > 0) {
-				user = serviceUser.get(jsonNode.get("id").asInt());
-			} else {
-				return null;
-			}
-
-				user.setPassword(jsonNode.get("password").asText());
-				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
-			
-			user.setFirstName(jsonNode.get("firstName").asText());
-			user.setLastName(jsonNode.get("lastName").asText());
-
-			user.setEmail(jsonNode.get("email").asText());
-
-			if (!principal.getName().equals(user.getLogin())) {
-
-				user.disable();
-
-				RoleType[] roletypes = RoleType.values();
-
-				for (int i = 0; i < roletypes.length; i++) {
-					Role role = serviceRole.findByName(roletypes[i].name());
-
-					if (role == null) {
-						role = new Role(roletypes[i]);
-						serviceRole.save(role);
-					}
-
-					if (jsonNode.get(role.getType().name()).asText().equals(Constant.CHECKBOX_CONTROL_ON)) {
-						user.addRole(role);
-					}
-
-				}
-
-			}
-
-			return user;
-
-		} catch (Exception e) {
-
-			errors.add(new String[] { "user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			e.printStackTrace();
-			return null;
-		}
-
-	}
-	
 	/**
 	 * save: <br>
 	 * Description
@@ -209,31 +111,107 @@ public class ControllerUser {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody
-	List<String[]> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
+	@RequestMapping(value = "/Update", method = RequestMethod.POST,headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, Principal principal) throws Exception {
 
-		List<String[]> errors = new LinkedList<>();
+		Map<String, String> errors = new LinkedHashMap<>();
 		
 		try {
 
-			User user = buildUser(errors, value, locale, principal);
-
-			if (user == null) {
+			User user = serviceUser.get(principal.getName());
+			
+			if (!buildUser(errors, user, source, locale))
 				return errors;
-			} else {
-				if (user.getId() < 1) {
-					serviceUser.save(user);
-				} else {
-					serviceUser.saveOrUpdate(user);
-				}
-			}
+			
+			serviceUser.saveOrUpdate(user);
+
+			return errors;
+
 		} catch (Exception e) {
-			errors.add(new String[] { "user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			
+			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			e.printStackTrace();
+			return errors;
+		}
+	}
+
+	/**
+	 * buildCustomer: <br>
+	 * Description
+	 * 
+	 * @param errors
+	 * @param customer
+	 * @param source
+	 * @param locale
+	 * @return
+	 */
+	private boolean buildUser(Map<String, String> errors, User user, String source, Locale locale) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+			ValidatorField validator = serviceDataValidation.findByClass(User.class);
+			if (validator == null)
+				serviceDataValidation.register(validator = new UserValidator());
+
+			String currentPassword = jsonNode.get("currentPassword").asText();
+			String password = jsonNode.get("password").asText();
+			String repeatedPassword = jsonNode.get("repeatPassword").asText();
+			String firstname = jsonNode.get("firstName").asText();
+			String lastname = jsonNode.get("lastName").asText();
+			String email = jsonNode.get("email").asText();
+			String error = null;
+			String oldPassword = user.getPassword();
+			
+			if(currentPassword!=Constant.EMPTY_STRING) {
+			
+				if (!oldPassword.equals(passwordEncoder.encodePassword(currentPassword, user.getLogin())))
+					errors.put("currentPassword", messageSource.getMessage("error.user.currentPassword.not_matching", null, "Current Password is not correct", locale));
+				
+				error = validator.validate(user, "password", password);
+				if (error != null)
+					errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
+				else 
+					user.setPassword(password);
+				
+				error = validator.validate(user, "repeatPassword", repeatedPassword);
+				if (error != null) {
+					user.setPassword(oldPassword);
+					errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
+				}
+				else {
+					
+					user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+				}
+			
+			}
+			
+			error = validator.validate(user, "firstName", firstname);
+			if (error != null)
+				errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setFirstName(firstname);
+
+			error = validator.validate(user, "lastName", lastname);
+			if (error != null)
+				errors.put("lastName", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setFirstName(lastname);
+			
+			error = validator.validate(user, "email", email);
+			if (error != null)
+				errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setEmail(email);
+
+			
+		} catch (Exception e) {
+			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 		}
 
-		return errors;
+
+		return errors.isEmpty();
 
 	}
 	

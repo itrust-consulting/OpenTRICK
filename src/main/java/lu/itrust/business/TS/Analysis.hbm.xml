@@ -93,17 +93,17 @@
 		</bag>
 
 		<bag name="userRights" table="UserAnalysisRight" cascade="all" access="field" inverse="true">
-			<key column="fiAnalysis" not-null="true" />
+			<key column="fiAnalysis" not-null="true"  />
 			<one-to-many class="UserAnalysisRight" />
 		</bag>
 
 	</class>
 
 	<class name="lu.itrust.business.TS.UserAnalysisRight" table="UserAnalysisRight">
-		<id column="idUserAnalysisRight" name="id" unsaved-value="-1">
+		<id column="idUserAnalysisRight" name="id" unsaved-value="-1" >
 			<generator class="increment" />
 		</id>
-		<properties name="unique_index" unique="true">
+		<properties name="unique_index" unique="true" >
 			<many-to-one name="user" column="fiUser" not-null="true" cascade="save-update" />
 			<many-to-one name="analysis" column="fiAnalysis" not-null="true" cascade="save-update" />
 		</properties>

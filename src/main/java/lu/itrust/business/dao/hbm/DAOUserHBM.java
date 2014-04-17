@@ -80,7 +80,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> loadAll() throws Exception {
-		return getSession().createQuery("From User").list();
+		return getSession().createQuery("From User order by firstName").list();
 	}
 
 	/**
