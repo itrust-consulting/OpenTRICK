@@ -343,7 +343,7 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/{analysisID}/ManageAccess")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
-	public String manageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model) throws Exception {
+	public String manageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, HttpSession session) throws Exception {
 
 		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
 
@@ -351,15 +351,13 @@ public class ControllerAnalysis {
 
 		List<UserAnalysisRight> uars = analysis.getUserRights();
 
-		for (UserAnalysisRight uar : uars) {
+		for (User user : serviceUser.loadAll())
+			userrights.put(user, null);
+
+		for (UserAnalysisRight uar : uars) 
 			userrights.put(uar.getUser(), uar.getRight());
-		}
-
-		for (User user : serviceUser.loadAll()) {
-			if (!userrights.containsKey(user))
-				userrights.put(user, null);
-		}
-
+		
+		model.addAttribute("currentUser", serviceUser.get(principal.getName()).getId());
 		model.addAttribute("analysisRigths", AnalysisRight.values());
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("userrights", userrights);
@@ -376,45 +374,53 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("static-access")
 	@RequestMapping("/{analysisID}/ManageAccess/Update")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
 	public String updatemanageaccessrights(@PathVariable("analysisID") int analysisID, Principal principal, Model model, @RequestBody String value, Locale locale) throws Exception {
 
 		try {
 
-			Map<User, UserAnalysisRight> userrights = new LinkedHashMap<>();
+			// create json parser
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(value);
+
+			Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
 
 			Analysis analysis = serviceAnalysis.get(analysisID);
 
 			List<UserAnalysisRight> uars = analysis.getUserRights();
 
-			for (UserAnalysisRight uar : uars) {
-				userrights.put(uar.getUser(), uar);
-			}
+			for (User user : serviceUser.loadAll())
+				userrights.put(user, null);
 
-			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
+			for (UserAnalysisRight uar : uars)
+				userrights.put(uar.getUser(), uar.getRight());
 
+			int currentUser = jsonNode.get("userselect").asInt();
+			
+			model.addAttribute("currentUser", currentUser);
+			
 			for (User user : serviceUser.loadAll()) {
-				
+
 				if (user.getLogin().equals(principal.getName()))
 					continue;
 
 				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
 
-				if (userrights.containsKey(user)) {
-					UserAnalysisRight uar = userrights.get(user);
+				UserAnalysisRight uar = analysis.getRightsforUser(user);
+
+				if (uar != null) {
+
 					if (useraccess == -1) {
 						analysis.removeRights(user);
 						serviceUserAnalysisRight.delete(uar);
 						serviceAnalysis.saveOrUpdate(analysis);
-						userrights.remove(user);
+						userrights.put(user, null);
 					} else {
 						uar.setRight(AnalysisRight.valueOf(useraccess));
 						serviceUserAnalysisRight.saveOrUpdate(uar);
 						serviceAnalysis.saveOrUpdate(analysis);
+						userrights.put(user, uar.getRight());
 					}
 				} else {
 
@@ -422,10 +428,10 @@ public class ControllerAnalysis {
 						user.addCustomer(analysis.getCustomer());
 
 					if (useraccess != -1) {
-						UserAnalysisRight uar = new UserAnalysisRight(user, analysis, AnalysisRight.valueOf(useraccess));
-						userrights.put(user, uar);
+						uar = new UserAnalysisRight(user, analysis, AnalysisRight.valueOf(useraccess));
 						serviceUserAnalysisRight.save(uar);
 						serviceAnalysis.saveOrUpdate(analysis);
+						userrights.put(user, uar.getRight());
 					}
 
 				}
@@ -437,14 +443,12 @@ public class ControllerAnalysis {
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
 
-			Thread.currentThread().sleep(1000);
-			
-			return manageaccessrights(analysisID, principal, model);
+			return "analysis/manageuseranalysisrights";
 		} catch (Exception e) {
 			// return errors
 			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
-			return manageaccessrights(analysisID, principal, model);
+			return "analysis/manageuseranalysisrights";
 		}
 	}
 
@@ -632,19 +636,19 @@ public class ControllerAnalysis {
 		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
 
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)) {
-		
-		// add languages
-		model.put("languages", serviceLanguage.loadAll());
 
-		// add customers of user
-		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
+			// add languages
+			model.put("languages", serviceLanguage.loadAll());
 
-		// add the analysis object
-		model.put("analysis", analysis);
+			// add customers of user
+			model.put("customers", serviceCustomer.loadByUser(principal.getName()));
 
-		return "analysis/editAnalysis";
+			// add the analysis object
+			model.put("analysis", analysis);
+
+			return "analysis/editAnalysis";
 		} else {
-			
+
 			return "redirect:/Error/403";
 		}
 	}

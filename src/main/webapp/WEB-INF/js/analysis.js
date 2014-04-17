@@ -1,7 +1,11 @@
 var el = null;
 
+var table = null;
+
 $(document).ready(function() {
 
+	
+	
 	//******************************************************************************************************************
 	// * load charts
 	//******************************************************************************************************************
@@ -16,9 +20,11 @@ $(document).ready(function() {
 	//******************************************************************************************************************
 	// * fixed header tables
 	//******************************************************************************************************************
-	
-	$("div[class='panel-body panelbodydefinition']").click(function() {
-		initialisefixheadertables($(this).find("table:visible"));
+		
+	$("div[class='panel-body panelbodydefinition']").click(function() { 
+			
+		//initialisefixheadertables($(this).find("table:visible"));
+
 	});
 	
 	$("div[class='panel-body panelbodydefinition']").scroll(function() {
@@ -45,16 +51,36 @@ function resetfixedheadertables(){
 }
 
 function initialisefixheadertables(parent){
+
 	//console.log(parent);
 	if (parent.length !== 0) {
 		// initialise fixedheader table with parameters
-		//$(parent).fixedHeaderTable("destroy");
+		$(parent).fixedHeaderTable("destroy");
+		var parentt = $(parent).parent();
+		$(parentt).find("table:visible").not("[id]").remove();
 		$(parent).fixedHeaderTable({
 			footer : false,
 			cloneHeadToFoot : false,
 			fixedColumn : false,
 			width : "100%",
 			themeClass : 'table table-hover'
+		});
+		
+		$("div[class='panel-body panelbodydefinition'] div[class='fht-tbody']").scroll(function() {
+			//console.log("ohe");
+			
+			// check if a popover is active
+			if (el != null) {
+				
+				// hide popover
+				el.popover('hide');
+				
+				// remove popover from dom (to avoid unclickable references)
+				$('.popover').remove();
+				
+				// set watcher to null (no popover is active)
+				el = null;
+			}
 		});
 		
 		// first data row has wrong margin top
@@ -96,7 +122,7 @@ function initmeasuredescriptionpopover(){
 	});
 
 	// when table is scrolled, hide popover
-	$("div [class='fht-tbody']").scroll(function() {
+	$("div[class='panel-body panelbodydefinition']").scroll(function() {
 		//console.log("ohe");
 		
 		// check if a popover is active

@@ -1,6 +1,13 @@
 
 analysisTableSortable();
 
+$(document).ready(function() {
+	$("input[type='checkbox']").removeAttr("checked");
+});
+$(function() {
+	analysisTableSortable();
+});
+
 function manageAnalysisAccess(analysisId, section_analysis) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedAnalysis = findSelectItemIdBySection((section_analysis));

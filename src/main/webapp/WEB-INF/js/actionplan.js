@@ -86,7 +86,7 @@ function calculateActionPlanWithOptions(analysisId, modalBox) {
 			}
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
+			console.log(textStatus, errorThrown);
 		},
 	});
 	

@@ -3,7 +3,6 @@ package lu.itrust.business.view.controller;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -20,9 +19,12 @@ import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceCustomer;
+import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.ServiceUserAnalysisRight;
+import lu.itrust.business.validator.UserValidator;
+import lu.itrust.business.validator.field.ValidatorField;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -62,13 +64,16 @@ public class ControllerAdministration {
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
-	
+
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-	
+
+	@Autowired
+	private ServiceDataValidation serviceDataValidation;
+
 	/**
 	 * loadAll: <br>
 	 * Description
@@ -81,25 +86,25 @@ public class ControllerAdministration {
 	public String showAdministration(HttpSession session, Principal principal, Map<String, Object> model) throws Exception {
 		model.put("adminView", true);
 		model.put("users", serviceUser.loadAll());
-		
-		List<Customer> customers = serviceCustomer.loadAllNotProfile(); 
-		
+
+		List<Customer> customers = serviceCustomer.loadAllNotProfile();
+
 		Integer customerID = (Integer) session.getAttribute("currentCustomer");
-		
+
 		if (customerID == null) {
 			customerID = customers.get(0).getId();
 			session.setAttribute("currentCustomer", customerID);
 		}
-		
-		customers = serviceCustomer.loadAll(); 
-		
-		if (customers != null && customers.size()>0) {
-			
+
+		customers = serviceCustomer.loadAll();
+
+		if (customers != null && customers.size() > 0) {
+
 			model.put("customer", customerID);
 			model.put("customers", customers);
 			model.put("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerID));
 		}
-			
+
 		return "admin/administration";
 	}
 
@@ -122,7 +127,7 @@ public class ControllerAdministration {
 		model.addAttribute("customers", serviceCustomer.loadAll());
 		return "admin/analysis/analyses";
 	}
-	
+
 	/**
 	 * manageaccessrights: <br>
 	 * Description
@@ -140,19 +145,17 @@ public class ControllerAdministration {
 
 		Analysis analysis = serviceAnalysis.get(analysisID);
 
-		if(!analysis.isProfile()){
-		
+		if (!analysis.isProfile()) {
+
 			List<UserAnalysisRight> uars = analysis.getUserRights();
-	
-			for (UserAnalysisRight uar : uars) {
+
+			for (User user : serviceUser.loadAll())
+				userrights.put(user, null);
+
+			for (UserAnalysisRight uar : uars)
 				userrights.put(uar.getUser(), uar.getRight());
-			}
-	
-			for (User user : serviceUser.loadAll()) {
-				if (!userrights.containsKey(user))
-					userrights.put(user, null);
-			}
-	
+
+			model.addAttribute("currentUser", serviceUser.get(principal.getName()).getId());
 			model.addAttribute("analysisRigths", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
@@ -177,35 +180,47 @@ public class ControllerAdministration {
 
 		try {
 
-			Map<User, UserAnalysisRight> userrights = new LinkedHashMap<>();
+			// create json parser
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(value);
+
+			Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
 
 			Analysis analysis = serviceAnalysis.get(analysisID);
 
 			List<UserAnalysisRight> uars = analysis.getUserRights();
 
-			for (UserAnalysisRight uar : uars) {
-				userrights.put(uar.getUser(), uar);
-			}
+			for (User user : serviceUser.loadAll())
+				userrights.put(user, null);
 
-			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(value);
+			for (UserAnalysisRight uar : uars)
+				userrights.put(uar.getUser(), uar.getRight());
+
+			int currentUser = jsonNode.get("userselect").asInt();
+
+			model.addAttribute("currentUser", currentUser);
 
 			for (User user : serviceUser.loadAll()) {
 
+				if (user.getLogin().equals(principal.getName()))
+					continue;
+				
 				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
 
-				if (userrights.containsKey(user)) {
-					UserAnalysisRight uar = userrights.get(user);
+				UserAnalysisRight uar = analysis.getRightsforUser(user);
+				
+				if (uar != null) {
+					
 					if (useraccess == -1) {
 						analysis.removeRights(user);
 						serviceUserAnalysisRight.delete(uar);
 						serviceAnalysis.saveOrUpdate(analysis);
-						userrights.remove(user);
+						userrights.put(user,null);
 					} else {
 						uar.setRight(AnalysisRight.valueOf(useraccess));
 						serviceUserAnalysisRight.saveOrUpdate(uar);
 						serviceAnalysis.saveOrUpdate(analysis);
+						userrights.put(user, uar.getRight());
 					}
 				} else {
 
@@ -213,8 +228,8 @@ public class ControllerAdministration {
 						user.addCustomer(analysis.getCustomer());
 
 					if (useraccess != -1) {
-						UserAnalysisRight uar = new UserAnalysisRight(user, analysis, AnalysisRight.valueOf(useraccess));
-						userrights.put(user, uar);
+						uar = new UserAnalysisRight(user, analysis, AnalysisRight.valueOf(useraccess));
+						userrights.put(user, uar.getRight());
 						serviceUserAnalysisRight.save(uar);
 						serviceAnalysis.saveOrUpdate(analysis);
 					}
@@ -228,15 +243,15 @@ public class ControllerAdministration {
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
 
-			return manageaccessrights(analysisID, principal, model);
+			return "analysis/manageuseranalysisrights";
 		} catch (Exception e) {
 			// return errors
 			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
-			return manageaccessrights(analysisID, principal, model);
+			return "analysis/manageuseranalysisrights";
 		}
 	}
-	
+
 	/**
 	 * section: <br>
 	 * Description
@@ -309,7 +324,7 @@ public class ControllerAdministration {
 	 * @param locale
 	 * @return
 	 */
-	private User buildUser(List<String[]> errors, String source, Locale locale, Principal principal) {
+	private User buildUser(Map<String, String> errors, String source, Locale locale, Principal principal) {
 
 		User user = null;
 
@@ -324,16 +339,44 @@ public class ControllerAdministration {
 				user.setLogin(jsonNode.get("login").asText());
 			}
 
-			if (!jsonNode.get("password").asText().equals(Constant.EMPTY_STRING)) {
-				user.setPassword(jsonNode.get("password").asText());
-				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+			ValidatorField validator = serviceDataValidation.findByClass(User.class);
+			if (validator == null)
+				serviceDataValidation.register(validator = new UserValidator());
+
+			String password = jsonNode.get("password").asText();
+			String firstname = jsonNode.get("firstName").asText();
+			String lastname = jsonNode.get("lastName").asText();
+			String email = jsonNode.get("email").asText();
+			String error = null;
+
+			if (!password.equals(Constant.EMPTY_STRING)) {
+
+				error = validator.validate(user, "password", password);
+				if (error != null)
+					errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
+				else {
+					user.setPassword(password);
+					ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+					user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+				}
 			}
+			error = validator.validate(user, "firstName", firstname);
+			if (error != null)
+				errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setFirstName(firstname);
 
-			user.setFirstName(jsonNode.get("firstName").asText());
-			user.setLastName(jsonNode.get("lastName").asText());
+			error = validator.validate(user, "lastName", lastname);
+			if (error != null)
+				errors.put("lastName", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setFirstName(lastname);
 
-			user.setEmail(jsonNode.get("email").asText());
+			error = validator.validate(user, "email", email);
+			if (error != null)
+				errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setEmail(email);
 
 			if (!principal.getName().equals(user.getLogin())) {
 
@@ -361,7 +404,7 @@ public class ControllerAdministration {
 
 		} catch (Exception e) {
 
-			errors.add(new String[] { "user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return null;
 		}
@@ -379,11 +422,11 @@ public class ControllerAdministration {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	public @ResponseBody
-	List<String[]> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
+	Map<String, String> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 
-		List<String[]> errors = new LinkedList<>();
+		Map<String, String> errors = new LinkedHashMap<>();
 		try {
 
 			User user = buildUser(errors, value, locale, principal);
@@ -396,13 +439,13 @@ public class ControllerAdministration {
 				} else {
 					serviceUser.saveOrUpdate(user);
 				}
+				return errors;
 			}
 		} catch (Exception e) {
-			errors.add(new String[] { "user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
+			return errors;
 		}
-
-		return errors;
 
 	}
 
