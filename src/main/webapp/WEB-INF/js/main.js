@@ -10,6 +10,7 @@ function TimeoutInterceptor() {
 	this.stopState = true;
 	this.timer = {};
 	this.loginShow = false;
+	this.TIME_TO_DISPLAY_ALERT = 0;
 	this.messages = {
 		Alert : "",
 		Logout : ""
@@ -61,6 +62,7 @@ TimeoutInterceptor.prototype = {
 	Initialise : function() {
 		this.messages.Alert = MessageResolver("info.session.expired", "Your session will be expired in %d secondes");
 		this.messages.Logout = MessageResolver("info.session.expired.alert", "Your session has been expired");
+		this.TIME_TO_DISPLAY_ALERT = this.LIMIT_SESSION - this.ALERT_TIME;
 	},
 	Reinitialise : function() {
 		var temp = this.loginShow;
@@ -75,11 +77,13 @@ TimeoutInterceptor.prototype = {
 		});
 		this.loginShow = temp;
 		return authentificated;
-	},
+	}
+	
+	,
 	Check : function() {
 		if (this.CurrentTime() > this.LIMIT_SESSION) {
 			this.ShowLogin();
-		} else if (this.CurrentTime() > this.ALERT_TIME)
+		} else if (this.CurrentTime() > this.TIME_TO_DISPLAY_ALERT)
 			this.AlertTimout();
 	},
 	Stop : function() {
@@ -2353,7 +2357,8 @@ $(function() {
 		});
 
 	if ($("#addPhaseModel").length) {
-		$.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang + ".js");
+		if (l_lang != "en")
+			$.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang + ".js");
 		$('#addPhaseModel').on('show.bs.modal', function() {
 			var lastDate = $("#section_phase td").last();
 			if (lastDate.length) {

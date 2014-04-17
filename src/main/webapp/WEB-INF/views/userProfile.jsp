@@ -3,92 +3,93 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<!-- ################################################################ Set Page Title ################################################################ -->
 <c:set scope="request" var="title">title.Profile</c:set>
-<!-- ###################################################################### HTML #################################################################### -->
 <html>
 <!-- Include Header -->
 <jsp:include page="header.jsp" />
-<!-- ################################################################# Start Container ############################################################## -->
 <body>
 	<div id="wrap">
-		<!-- ################################################################### Nav Menu ################################################################### -->
 		<jsp:include page="menu.jsp" />
 		<div class="container">
-			<jsp:include page="successErrors.jsp" />
-			<!-- #################################################################### Content ################################################################### -->
 			<div class="page-header">
 				<h1>
 					<spring:message code="title.Profile" text="Profile" />
 				</h1>
 			</div>
-			<div class="content" style="text-align:center;" id="content">
-				<c:if test="${!empty userProfil}">
-					<form name="user" action="Update" class="form-horizontal" id="user_form" style="width:40%;display:inline-block">
-						<input type="hidden" name="id" value="${userProfil.id}" id="id">
-						<div class="form-group">
-							<label for="login" class="col-sm-2 control-label"> <spring:message code="label.user.login" />
-							</label>
-							<div class="col-sm-10">
-								<input id="login" name="login" class="form-control" type="text" value="${userProfil.login}" disabled="disabled" />
-							</div>
+			<span id="success" hidden="hidden"></span>
+			<div style="margin: 0 auto; max-width: 600px; padding: 15px;">
+				<form id="updateprofileform" name="updateprofileform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/Profile/Update">
+					<div class="form-group">
+						<label for="login" class="col-sm-3 control-label"> <spring:message code="label.user.login" />
+						</label>
+						<div class="col-sm-9">
+							<input class="form-control" disabled="disabled" value="${user.login}" />
 						</div>
-						<div class="form-group">
-							<label for="password" class="col-sm-2 control-label"> <spring:message code="label.user.password" />
-							</label>
-							<div class="col-sm-10">
-								<input id="password" name="password" class="form-control" type="password" value="" />
-							</div>
+					</div>
+					<div class="form-group">
+						<label for="oldPassword" class="col-sm-3 control-label"> <spring:message code="label.user.currentpassword" text="Current Password" />
+						</label>
+						<div class="col-sm-9">
+							<input type="password" id="currentPassword" name="currentPassword" class="form-control" required="required" />
 						</div>
-						<div class="form-group">
-							<label for="repeatpassword" class="col-sm-2 control-label"> <spring:message code="label.user.repeat_password" />
-							</label>
-							<div class="col-sm-10">
-								<input id="repeatpassword" name="repeatpassword" class="form-control" type="password" />
-							</div>
+					</div>
+					<div class="form-group">
+						<label for="password" class="col-sm-3 control-label"> <spring:message code="label.user.password" text="Password" />
+						</label>
+						<div class="col-sm-9">
+							<input type="password" id="password" name="password" class="form-control" required="required" />
 						</div>
-						<div class="form-group">
-							<label for="firstName" class="col-sm-2 control-label"> <spring:message code="label.user.firstName" />
-							</label>
-							<div class="col-sm-10">
-								<input id="firstName" name="firstName" class="form-control" type="text" value="${userProfil.firstName}" />
-							</div>
+					</div>
+					<div class="form-group">
+						<label for="repeatPassword" class="col-sm-3 control-label"> <spring:message code="label.user.repeatPassword" text="Repeat password" />
+						</label>
+						<div class="col-sm-9">
+							<input type="password" id="repeatPassword" name="repeatPassword" class="form-control" required="required" />
 						</div>
-						<div class="form-group">
-							<label for="lastName" class="col-sm-2 control-label"> <spring:message code="label.user.lastName" />
-							</label>
-							<div class="col-sm-10">
-								<input id="lastName" name="lastName" class="form-control" type="text" value="${userProfil.lastName}" />
-							</div>
+					</div>
+					<div class="form-group">
+						<label for="firstName" class="col-sm-3 control-label"> <spring:message code="label.user.firstName" />
+						</label>
+						<div class="col-sm-9">
+							<input type="text" id="firstName" name="firstName" class="form-control" required value="${user.firstName}" />
 						</div>
-						<div class="form-group">
-							<label for="email" class="col-sm-2 control-label"> <spring:message code="label.user.email" />
-							</label>
-							<div class="col-sm-10">
-								<input id="email" name="email" class="form-control" type="text" value="${userProfil.email}" />
-							</div>
+					</div>
+					<div class="form-group">
+						<label for="lastName" class="col-sm-3 control-label"> <spring:message code="label.user.lastName" />
+						</label>
+						<div class="col-sm-9">
+							<input type="text" id="lastName" name="lastName" class="form-control" required value="${user.lastName}" />
 						</div>
-						<div class="form-group">
-							<label for="roles" class="col-sm-2 control-label"> <spring:message code="label.role" /></label>
-							<div class="col-sm-10" id="rolescontainer">
-								<c:forEach items="${userProfil.roles}" var="role">
-									<spring:message code="label.role.${role.type}" /> <br>
+					</div>
+					<div class="form-group">
+						<label for="email" class="col-sm-3 control-label"> <spring:message code="label.user.email" />
+						</label>
+						<div class="col-sm-9">
+							<input type="text" id="email" name="email" class="form-control" required
+								pattern='^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$' value="${user.email}" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="roles" class="col-sm-2 control-label"> <spring:message code="label.role" />
+						</label>
+						<div class="col-sm-10">
+							<ul class="list-group">
+								<c:forEach items="${user.roles}" var="role">
+									<li class="list-group-item"><spring:message code="label.role.${role.type}" /></li>
 								</c:forEach>
-							</div>
+							</ul>
 						</div>
-						<button id="updateProfile" type="button" class="btn btn-primary" onclick="updateProfile('user_form')">
-							<spring:message code="label.update.profile" text="Update Profile" />
-					</button>
-					</form>
-					
-				</c:if>
+					</div>
+				</form>
+				<div style="text-align:center">
+					<button class="btn btn-primary" onclick="return updateProfile('updateprofileform');" type="button"><spring:message code="label.user.update" text="Update" /></button>
+				</div>
 			</div>
 		</div>
-		<!-- ################################################################ End Container ################################################################# -->
+		<jsp:include page="footer.jsp" />
+		<jsp:include page="scripts.jsp" />
+		<script type="text/javascript" src="<spring:url value="/js/profile.js" />"></script>
 	</div>
-	<!-- ################################################################ Include Footer ################################################################ -->
-	<jsp:include page="footer.jsp" />
-	<jsp:include page="scripts.jsp" />
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

@@ -1,5 +1,7 @@
 package lu.itrust.business.TS;
 
+import java.io.Serializable;
+
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -10,7 +12,10 @@ import lu.itrust.business.TS.usermanagement.User;
  * @version 0.1
  * @since Jan 9, 2014
  */
-public class UserAnalysisRight implements Cloneable {
+public class UserAnalysisRight implements Serializable,Cloneable {
+
+	/** serialVersionUID */
+	private static final long serialVersionUID = 1L;
 
 	/** id */
 	private long id = -1;
