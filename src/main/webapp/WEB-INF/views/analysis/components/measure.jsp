@@ -75,29 +75,42 @@
 													text="${measure.status}" /></td>
 											<c:choose>
 												<c:when test="${norm.equalsIgnoreCase('Custom')==true}">
-													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" ondblclick="return editField(this);"><spring:message
-															text="${measure.getImplementationRateValue()}" /></td>
+													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
+															value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 												</c:when>
-												<c:when test="${norm.equalsIgnoreCase('Maturity')==false}">
+												<c:when test="${!norm.equalsIgnoreCase('Maturity')}">
 													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" trick-callback="reloadMeausreAndCompliance('${norm}','${measure.id}')"
-														ondblclick="return editField(this);"><fmt:formatNumber value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0"/></td>
+														ondblclick="return editField(this);"><fmt:formatNumber value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 												</c:when>
 												<c:otherwise>
 													<td class="success textaligncenter" trick-field="implementationRate" trick-field-type="double" ondblclick="return editField(this);" trick-class="MaturityMeasure"
-														trick-id="${measure.id}"><fmt:formatNumber value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0"/></td>
+														trick-id="${measure.id}"><fmt:formatNumber value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 												</c:otherwise>
 											</c:choose>
-											<td class="success textaligncenter" trick-field="internalWL" trick-field-type="double" ondblclick="return editField(this);"><spring:message
-													text="${measure.internalWL}" /></td>
-											<td class="success textaligncenter" trick-field="externalWL" trick-field-type="double" ondblclick="return editField(this);"><spring:message
-													text="${measure.externalWL}" /></td>
-											<td class="success textaligncenter" trick-field="investment" trick-field-type="double" ondblclick="return editField(this);" title="${measure.investment}&euro;"><fmt:formatNumber minFractionDigits="1" maxFractionDigits="1" value="${measure.investment*0.001}"/></td>
-											<td class="success textaligncenter" trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);"><spring:message text="${measure.lifetime}" /></td>
-											<td class="success textaligncenter" trick-field="maintenance" trick-field-type="double" ondblclick="return editField(this);"><spring:message
-													text="${measure.maintenance}" /></td>
+											<c:set var="internalWL">
+												<fmt:formatNumber value="${measure.internalWL}" maxFractionDigits="1" minFractionDigits="1" />
+											</c:set>
+											<td class="success textaligncenter" trick-field="internalWL" trick-field-type="double" ondblclick="return editField(this);"
+												real-value="${fn:replace(internalWL,',' ,'.') }">${internalWL}</td>
+											<c:set var="externalWL">
+												<fmt:formatNumber value="${measure.externalWL}" maxFractionDigits="1" minFractionDigits="1" />
+											</c:set>
+											<td class="success textaligncenter" trick-field="externalWL" trick-field-type="double" ondblclick="return editField(this);"
+												real-value="${fn:replace(externalWL,',' ,'.') }">${externalWL}</td>
+											<c:set var="investment">
+												<fmt:formatNumber minFractionDigits="1" maxFractionDigits="1" value="${measure.investment*0.001}" />
+											</c:set>
+											<td class="success textaligncenter" trick-field="investment" trick-field-type="double" ondblclick="return editField(this);" title="${measure.investment}&euro;"
+												real-value="${fn:replace(investment,',' ,'.') }">${investment}</td>
+											<c:set var="lifetime">
+												<fmt:formatNumber value="${measure.lifetime}" maxFractionDigits="1" minFractionDigits="1" />
+											</c:set>
+											<td class="success textaligncenter" trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);" real-value="${fn:replace(lifetime,',' ,'.') }">${lifetime}</td>
+											<td class="success textaligncenter" trick-field="maintenance" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
+													value="${measure.maintenance}" maxFractionDigits="0" minFractionDigits="0" /></td>
 											<td ${measure.cost == 0? "class='danger'" : "" } title="${measure.cost}&euro;"><fmt:formatNumber value="${measure.cost*0.001}" maxFractionDigits="0" /></td>
 											<td class="success textaligncenter" trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)"
-												trick-real-value='${measure.phase.number}'><c:choose>
+												real-value='${measure.phase.number}'><c:choose>
 													<c:when test="${measure.phase.number == 0}">NA</c:when>
 													<c:otherwise>${measure.phase.number}</c:otherwise>
 												</c:choose></td>
