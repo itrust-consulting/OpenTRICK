@@ -391,6 +391,23 @@ public class CategoryConverter {
 		// returns the type of the scneario if it is CSSF null when not
 		return  scenarioTypeToType.get(scenario.getScenarioType().getName());
 	}
+	
+	/**
+	 * getTypeFromScenarioType: <br>
+	 * retrieves CSSF genreic type or null
+	 * 
+	 * @param scenario
+	 *            scenario
+	 * @return CSSF type if scenario type is cssf otherwise null.
+	 */
+	public static String getTypeFromScenarioType(String scenarioType) {
+
+		// check if array is not yet initialised -> NO -> initialise
+		if (scenarioTypeToType == null) 
+			initialiseScenarioTypeToType();
+		// returns the type of the scneario if it is CSSF null when not
+		return  scenarioTypeToType.get(scenarioType);
+	}
 
 	/**
 	 * isCSSF: <br>

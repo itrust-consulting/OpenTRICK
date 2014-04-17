@@ -15,7 +15,7 @@
 								<c:choose>
 									<c:when test="${status.index==0}">
 										<h4 class="list-group-item-heading">
-											<a href="#" trick-id="${scenarioType.id}" trick-value=<spring:message text="${scenarioType.name}" /> onclick="return false;" trick-class="ScenarioType"
+											<a href="#" trick-id="${scenarioType.id}" trick-value='<spring:message text="${scenarioType.name}" />' onclick="return false;" trick-class="ScenarioType"
 												class="list-group-item active">
 												
 													<spring:message text="${scenarioType.name}" />
@@ -25,7 +25,7 @@
 									</c:when>
 									<c:otherwise>
 										<h4 class="list-group-item-heading">
-											<a href="#" trick-id="${scenarioType.id}" trick-value=<spring:message text="${scenarioType.name}" /> onclick="return false;" trick-class="ScenarioType"
+											<a href="#" trick-id="${scenarioType.id}" trick-value='<spring:message text="${scenarioType.name}" />' onclick="return false;" trick-class="ScenarioType"
 												class="list-group-item">
 												
 													<spring:message text="${scenarioType.name}" />
@@ -34,17 +34,17 @@
 										</h4>
 									</c:otherwise>
 								</c:choose>
-								<div class="list-group" trick-id="${scenarioType.id}" trick-value=<spring:message text="${scenarioType.name}" />>
+								<div class="list-group" trick-id="${scenarioType.id}" trick-value='<spring:message text="${scenarioType.name}" />'>
 									<c:forEach items="${scenarios.get(scenarioType)}" var="scenario" varStatus="statusScanrio">
 										<c:choose>
 											<c:when test="${status.index==0 && statusScanrio.index==0 }">
-												<a href="#" onclick="return false;" title=<spring:message text="${scenario.name}"/> trick-class="Scenario" trick-id="${scenario.id}" class="list-group-item active"
+												<a href="#" onclick="return false;" title='<spring:message text="${scenario.name}"/>' trick-class="Scenario" trick-id="${scenario.id}" class="list-group-item active"
 													style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"> <spring:message text="${scenario.name}" />
 												</a>
 												<c:set var="selectedScenario" value="${scenario}" />
 											</c:when>
 											<c:otherwise>
-												<a href="#" onclick="return false;" title=<spring:message text="${scenario.name}"/> trick-class="Scenario" trick-id="${scenario.id}" class="list-group-item"
+												<a href="#" onclick="return false;" title='<spring:message text="${scenario.name}"/>' trick-class="Scenario" trick-id="${scenario.id}" class="list-group-item"
 													style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"> <spring:message text="${scenario.name}" />
 												</a>
 											</c:otherwise>
@@ -64,7 +64,7 @@
 								<c:choose>
 									<c:when test="${status.index==0}">
 										<h4 class="list-group-item-heading">
-											<a href="#" onclick="return false;" class="list-group-item active" trick-class="Norm" title=<spring:message text="${chapter.reference}"/> trick-id="${chapter.norm.id}"
+											<a href="#" onclick="return false;" class="list-group-item active" trick-class="Norm" title='<spring:message text="${chapter.reference}"/>' trick-id="${chapter.norm.id}"
 												trick-value=<spring:message text="${chapter.reference}"/>>
 												
 													<spring:message text="${chapter.norm.label}" />
@@ -76,7 +76,7 @@
 									</c:when>
 									<c:otherwise>
 										<h4 class="list-group-item-heading">
-											<a href="#" onclick="return false;" class="list-group-item" trick-class="Norm" trick-id="${chapter.norm.id}" title=<spring:message text="${chapter.reference}"/>
+											<a href="#" onclick="return false;" class="list-group-item" trick-class="Norm" trick-id="${chapter.norm.id}" title='<spring:message text="${chapter.reference}"/>'
 												trick-value=<spring:message text="${chapter.reference}"/>>
 												
 													<spring:message text="${chapter.norm.label}" />

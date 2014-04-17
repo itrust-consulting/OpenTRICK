@@ -589,7 +589,10 @@ public class ControllerEditField {
 				// set field data
 			} else if (!SetFieldData(field, measure, fieldEditor, null))
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
-
+			
+			if(fieldEditor.getFieldName().equals("investment"))
+				measure.setInvestment(measure.getInvestment()*1000);
+			
 			// compute new cost
 			Measure.ComputeCost(measure, parameters);
 

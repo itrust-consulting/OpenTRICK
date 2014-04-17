@@ -539,7 +539,6 @@ public abstract class Measure implements Serializable, Cloneable {
 		// return calculated cost
 		if (cost >= 0)
 			measure.setCost(cost);
-		System.out.println(cost);
 	}
 
 	/* (non-Javadoc)

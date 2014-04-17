@@ -200,6 +200,20 @@ public class ControllerScenario {
 		}
 	}
 
+	@RequestMapping(value = "/Update/All", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
+	public @ResponseBody
+	String updateAllScenario(Locale locale) throws Exception {
+		List<Scenario> scenarios = serviceScenario.loadAll();
+		for (Scenario scenario : scenarios) {
+			for (String key : CategoryConverter.JAVAKEYS)
+				scenario.setCategoryValue(key, 0);
+			scenario.setCategoryValue(CategoryConverter.getTypeFromScenario(scenario), 1);
+			serviceScenario.saveOrUpdate(scenario);
+		}
+		return JsonMessage.Success(messageSource.getMessage("success.scenario.update.all", null, "Scenarios were successfully updated", locale));
+	}
+
 	/**
 	 * section: <br>
 	 * Description
@@ -457,7 +471,12 @@ public class ControllerScenario {
 				errors.add(new String[] { "assetType", messageSource.getMessage("error.scenariotype.not_found", null, "Selected scenario type cannot be found", locale) });
 				return false;
 			}
+
 			scenario.setScenarioType(scenarioType);
+			for (String key : CategoryConverter.JAVAKEYS)
+				scenario.setCategoryValue(key, 0);
+			scenario.setCategoryValue(CategoryConverter.getTypeFromScenario(scenario), 1);
+
 			for (AssetType assetType : assetTypes) {
 
 				AssetTypeValue atv = scenario.retrieveAssetTypeValue(assetType);

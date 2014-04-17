@@ -53,8 +53,6 @@ public class ControllerHome {
 		return "index";
 	}
 
-//	@Secured("ROLE_USER")
-	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String resolveMessage(Locale locale, HttpServletRequest request) {
@@ -91,15 +89,9 @@ public class ControllerHome {
 		return "redirect:/j_spring_security_logout";
 	}
 	
-	@RequestMapping(value="/Error",method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String error(@ModelAttribute String error){
-		return JsonMessage.Error(error);
-	}
-	
 	@RequestMapping(value="/Success",method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String success(@ModelAttribute String success){
-		return JsonMessage.Error(success);
+	public @ResponseBody String success(@ModelAttribute("success") String success){
+		return JsonMessage.Success(success);
 	}
-	
 	
 }

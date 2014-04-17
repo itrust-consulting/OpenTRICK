@@ -246,13 +246,9 @@ public class ControllerPhase {
 
 			// set date format
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
 			// retrieve begin and end date
 			phase.setBeginDate(new Date(format.parse(jsonNode.get("beginDate").asText()).getTime()));
 			phase.setEndDate(new Date(format.parse(jsonNode.get("endDate").asText()).getTime()));
-
-			System.out.println(phase);
-			
 			// return success
 			return true;
 		} catch (JsonProcessingException e) {

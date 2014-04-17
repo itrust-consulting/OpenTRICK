@@ -6,9 +6,10 @@ var application = new Application();
 function TimeoutInterceptor() {
 	this.lastUpdate = null;
 	this.LIMIT_SESSION = 15 * 60 * 1000;
-	this.ALERT_TIME = 12 * 60 * 1000;
+	this.ALERT_TIME = 3 * 60 * 1000;
 	this.stopState = true;
 	this.timer = {};
+	this.loginShow = false;
 	this.messages = {
 		Alert : "",
 		Logout : ""
@@ -17,8 +18,11 @@ function TimeoutInterceptor() {
 
 TimeoutInterceptor.prototype = {
 	Update : function() {
-		if (this.stopState)
+		if (this.stopState) {
+			if (!this.loginShow)
+				return this.ShowLogin();
 			return false;
+		}
 		if (this.lastUpdate == null || this.CurrentTime() < this.LIMIT_SESSION)
 			this.lastUpdate = new Date();
 	},
@@ -26,21 +30,29 @@ TimeoutInterceptor.prototype = {
 		return (new Date().getTime() - this.lastUpdate.getTime());
 	},
 	ShowLogin : function() {
+		this.Stop();
 		$("#alert-dialog").modal("hide");
 		var url = undefined;
 		if ($("#nav-container").length) {
-			var idAnalysis = $("[trick-class='Analysis']").attr("trick-id");
+			var idAnalysis = $("*[trick-class='Analysis']").attr("trick-id");
 			if (idAnalysis != undefined)
 				url = context + "/Analysis/" + idAnalysis + "/Select";
 		}
 		if (url == undefined)
 			url = document.URL;
-		var login = new Login(url, this);
-		return login.Display();
+		this.loginShow = true;
+		new Login(url, this).Display();
+		return false;
 	},
 	AlertTimout : function() {
+		var that = this;
 		$("#alert-dialog .modal-body").html(this.messages.Alert.replace("%d", Math.floor((this.LIMIT_SESSION - this.CurrentTime()) * 0.001)));
 		$("#alert-dialog").modal("show");
+		$("#alert-dialog .btn-danger").on("click", function() {
+			if(!that.Reinitialise())
+				return that.ShowLogin();
+			return false;
+		});
 		setTimeout(function() {
 			$("#alert-dialog").modal("hide");
 		}, 5000);
@@ -50,11 +62,23 @@ TimeoutInterceptor.prototype = {
 		this.messages.Alert = MessageResolver("info.session.expired", "Your session will be expired in %d secondes");
 		this.messages.Logout = MessageResolver("info.session.expired.alert", "Your session has been expired");
 	},
+	Reinitialise : function() {
+		var temp = this.loginShow;
+		this.loginShow = true;
+		var authentificated = false;
+		$.ajax({
+			url : context + "/IsAuthenticate",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				authentificated = response === true;
+			}
+		});
+		this.loginShow = temp;
+		return authentificated;
+	},
 	Check : function() {
 		if (this.CurrentTime() > this.LIMIT_SESSION) {
-			this.Stop();
-			if (this.ShowLogin())
-				this.Start();
+			this.ShowLogin();
 		} else if (this.CurrentTime() > this.ALERT_TIME)
 			this.AlertTimout();
 	},
@@ -77,6 +101,7 @@ TimeoutInterceptor.prototype = {
 		var that = this;
 		this.stopState = false;
 		this.lastUpdate = new Date();
+		this.loginShow = false;
 		that.timer = setInterval(function() {
 			that.Check();
 		}, 60000);
@@ -86,6 +111,7 @@ TimeoutInterceptor.prototype = {
 				that.Update();
 			}
 		});
+		return false;
 	}
 };
 
@@ -107,8 +133,11 @@ Login.prototype = {
 		return authentificated;
 	},
 	Display : function() {
-		if (this.IsAuthenticate())
-			return true;
+		this.timeoutInterceptor.Stop();
+		this.timeoutInterceptor.loginShow = true;
+		var authentificate = this.IsAuthenticate();
+		if (authentificate)
+			return this.timeoutInterceptor.Start(this);
 		var view = new Modal();
 		var that = this;
 		view.DefaultFooterButton = function() {
@@ -122,6 +151,9 @@ Login.prototype = {
 				var login = $($.parseHTML(response)).find("#login");
 				if (login.length) {
 					view.setBody($(login).html());
+					$(view.modal).on('hidden.bs.modal', function() {
+						that.timeoutInterceptor.loginShow = false;
+					});
 					$(view.modal_body).find("#login_signin_button").on("click", function() {
 						var alerts = $(view.modal_body).find(".alert");
 						if (alerts.length)
@@ -148,7 +180,7 @@ Login.prototype = {
 				return false;
 			}
 		});
-		return this.IsAuthenticate();
+		return authentificate;
 	}
 };
 
@@ -225,6 +257,7 @@ function userCan(idAnalysis, action) {
 function Application() {
 	this.modal = {};
 	this.data = {};
+	this.localesMessages = {};
 }
 
 function changePassword() {
@@ -243,6 +276,11 @@ function serializeForm(formId) {
 }
 
 function MessageResolver(code, defaulttext, params) {
+	var uniqueCode = "|^|" + code + "__uPu_*+*_*+*_+*+_PuP__" + params + "|$|";// mdr
+	if (application.localesMessages[uniqueCode] != undefined)
+		return application.localesMessages[uniqueCode];
+	else
+		application.localesMessages[uniqueCode] = defaulttext;
 	$.ajax({
 		url : context + "/MessageResolver",
 		data : {
@@ -254,7 +292,7 @@ function MessageResolver(code, defaulttext, params) {
 		success : function(response) {
 			if (response == null || response == "")
 				return defaulttext;
-			defaulttext = response;
+			return application.localesMessages[uniqueCode] = defaulttext = response;
 		}
 	});
 	return defaulttext;
@@ -496,10 +534,10 @@ function FieldEditor(element, validator) {
 							that.UpdateUI();
 							if (that.callback != null && that.callback != undefined)
 								setTimeout(that.callback, 10);
-						} else if(response["error"] !=undefined) {
+						} else if (response["error"] != undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
 							$("#alert-dialog").modal("toggle");
-						}else {
+						} else {
 							$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 							$("#alert-dialog").modal("toggle");
 						}
@@ -551,10 +589,10 @@ function ExtendedFieldEditor(element) {
 							if (that.fieldName == "acronym")
 								setTimeout("updateAssessmentAcronym('" + that.classId + "', '" + that.defaultValue + "')", 100);
 							return reloadSection("section_parameter");
-						} else if(response["error"] !=undefined) {
+						} else if (response["error"] != undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
 							$("#alert-dialog").modal("toggle");
-						}else {
+						} else {
 							$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
 							$("#alert-dialog").modal("toggle");
 						}
@@ -2309,6 +2347,11 @@ $(function() {
 			$("#confirm-dialog .btn-danger").unbind("click");
 		});
 
+	if ($('#alert-dialog').length)
+		$('#alert-dialog').on('hidden.bs.modal', function() {
+			$("#alert-dialog .btn-danger").unbind("click");
+		});
+
 	if ($("#addPhaseModel").length) {
 		$.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang + ".js");
 		$('#addPhaseModel').on('show.bs.modal', function() {
@@ -2815,7 +2858,7 @@ function ScenarioRRFController(rrfView, container, name) {
 	ScenarioRRFController.prototype.SelectFirstItem = function() {
 		var element = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active");
 		if (element.length == 1) {
-			var item = $(element.parent()).find("a[trick-class='Scenario']:first");
+			var item = $(element.parent().parent()).find("a[trick-class='Scenario']:first");
 			$(item).addClass("active");
 			this.idScenario = parseInt($(item).attr("trick-id"));
 			this.rrfView.filter["scenarios"] = [ this.idScenario ];
@@ -3064,7 +3107,7 @@ function MeasureRRFController(rrfView, container, name) {
 	MeasureRRFController.prototype.SelectFirstItem = function() {
 		var element = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active");
 		if (element.length == 1) {
-			var item = $(element.parent()).find("a[trick-class='Measure']:first");
+			var item = $(element.parent().parent()).find("a[trick-class='Measure']:first");
 			$(item).addClass("active");
 			this.idMeasure = parseInt($(item).attr("trick-id"));
 			this.rrfView.filter["measures"] = [ this.idMeasure ];
@@ -3349,5 +3392,27 @@ function saveStandard(form) {
 		});
 	} else
 		permissionError();
+	return false;
+}
+
+function fixAllScenarioCategories() {
+	$.ajax({
+		url : context + "/Scenario/Update/All",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			if (response["success"] != undefined)
+				$("#alert-dialog .modal-body").html(response["success"]);
+			else if (response["error"] != undefined)
+				$("#alert-dialog .modal-body").html(response["error"]);
+			else
+				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
+			$("#alert-dialog").modal("toggle");
+			return true;
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
+			$("#alert-dialog").modal("toggle");
+		}
+	});
 	return false;
 }

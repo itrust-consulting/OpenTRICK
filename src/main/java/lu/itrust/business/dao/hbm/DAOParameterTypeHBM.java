@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  * DAOParameterTypeHBM.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 31 janv. 2013
  */
@@ -42,7 +42,6 @@ public class DAOParameterTypeHBM extends DAOHibernate implements
 	 */
 	@Override
 	public ParameterType get(int id) throws Exception {
-
 		return (ParameterType) getSession().get(ParameterType.class, id);
 
 	}
@@ -56,8 +55,8 @@ public class DAOParameterTypeHBM extends DAOHibernate implements
 	@Override
 	public ParameterType get(String parameterTypeName) throws Exception {
 		return (ParameterType) getSession()
-				.createQuery("From ParameterType where type = :type")
-				.setString("type", parameterTypeName).uniqueResult();
+				.createQuery("From ParameterType where label = :label")
+				.setString("label", parameterTypeName).uniqueResult();
 
 	}
 

@@ -41,6 +41,14 @@
 				<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
 					<li ${menu.equals("Admin")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Admin"> <spring:message code="label.administration" text="Admin" /></a></li>
 				</sec:authorize>
+				<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
+					<li class="dropdown-submenu" ><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.runtime" text="Runtime" /><span
+					class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="#" onclick="return fixAllScenarioCategories()"><spring:message code="label.scenario.fix.categories" text="Fix category for Scenarios"/></a></li>
+						</ul>
+					</li>
+				</sec:authorize>
 				<li><a href="${pageContext.request.contextPath}/j_spring_security_logout"> <spring:message code="label.menu.logout" text="Logout" /></a></li>
 			</ul>
 		</div>

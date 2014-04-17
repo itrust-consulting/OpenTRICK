@@ -4,6 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<fmt:setLocale value="fr_FR" scope="session" />
 <div class="section" id="section_measure" style="z-index: 3">
 	<div class="page-header">
 		<h3 id="Measure">
@@ -90,12 +91,11 @@
 													text="${measure.internalWL}" /></td>
 											<td class="success textaligncenter" trick-field="externalWL" trick-field-type="double" ondblclick="return editField(this);"><spring:message
 													text="${measure.externalWL}" /></td>
-											<td class="success textaligncenter" trick-field="investment" trick-field-type="double" ondblclick="return editField(this);"><spring:message
-													text="${measure.investment}" /></td>
+											<td class="success textaligncenter" trick-field="investment" trick-field-type="double" ondblclick="return editField(this);" title="${measure.investment}&euro;"><fmt:formatNumber minFractionDigits="1" maxFractionDigits="1" value="${measure.investment*0.001}"/></td>
 											<td class="success textaligncenter" trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);"><spring:message text="${measure.lifetime}" /></td>
 											<td class="success textaligncenter" trick-field="maintenance" trick-field-type="double" ondblclick="return editField(this);"><spring:message
 													text="${measure.maintenance}" /></td>
-											<td ${measure.cost == 0? "class='danger'" : "" } title="${measure.cost}"><fmt:formatNumber value="${measure.cost*0.001}" maxFractionDigits="0" /></td>
+											<td ${measure.cost == 0? "class='danger'" : "" } title="${measure.cost}&euro;"><fmt:formatNumber value="${measure.cost*0.001}" maxFractionDigits="0" /></td>
 											<td class="success textaligncenter" trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)"
 												trick-real-value='${measure.phase.number}'><c:choose>
 													<c:when test="${measure.phase.number == 0}">NA</c:when>

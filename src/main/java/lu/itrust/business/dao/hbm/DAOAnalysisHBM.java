@@ -198,7 +198,6 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		Analysis analysis = get(analysisId);
 		if (analysis != null) {
 			remove(analysis);
-			System.out.println("Analysis was deleted");
 		}
 	}
 

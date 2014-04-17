@@ -569,7 +569,7 @@ public class Analysis implements Serializable, Cloneable {
 
 			// calculate: Category of Measure * Category of Scenario
 			categoryNumerator += properties.getCategoryValue(risk) * scenario.getCategoryValue(risk);
-
+			
 			// calculate: sum of Scenario Category
 			categoryDenominator += scenario.getCategoryValue(risk);
 		}

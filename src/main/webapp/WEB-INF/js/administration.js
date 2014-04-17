@@ -25,6 +25,55 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 	return false;
 }
 
+function generateDefaultRiskInformation(section) {
+	var idAnalysis = findSelectItemIdBySection(section);
+	if (idAnalysis.length != 1)
+		return false;
+	$.ajax({
+		url : context + "/RiskInformation/Generate/Default/From/Analysis/" + idAnalysis[0],
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			if (response["success"] != undefined)
+				$("#alert-dialog .modal-body").html(response["success"]);
+			else if (response["error"] != undefined)
+				$("#alert-dialog .modal-body").html(response["error"]);
+			else
+				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
+			$("#alert-dialog").modal("toggle");
+			return true;
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
+			$("#alert-dialog").modal("toggle");
+		}
+	});
+	return false;
+}
+
+function generateDefaultParameter(section) {
+	var idAnalysis = findSelectItemIdBySection(section);
+	if (idAnalysis.length != 1)
+		return false;
+	$.ajax({
+		url : context + "/Parameter/Generate/Default/From/Analysis/" + idAnalysis[0],
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			if (response["success"] != undefined)
+				$("#alert-dialog .modal-body").html(response["success"]);
+			else if (response["error"] != undefined)
+				$("#alert-dialog .modal-body").html(response["error"]);
+			else
+				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
+			$("#alert-dialog").modal("toggle");
+			return true;
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
+			$("#alert-dialog").modal("toggle");
+		}
+	});
+}
+
 function updatemanageAnalysisAccess(analysisid, userrightsform) {
 	$.ajax({
 		url : context + "/Admin/Analysis/" + analysisid + "/ManageAccess/Update",

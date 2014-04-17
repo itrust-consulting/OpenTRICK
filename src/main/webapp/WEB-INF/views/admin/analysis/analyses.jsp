@@ -16,6 +16,10 @@
 			<ul class="nav nav-pills" id="menu_analysis">
 				<li class="disabled profilemenu"><a href="#" onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="glyphicon glyphicon-plus primary"></span>
 						<spring:message code="label.analysis.manage.access" text="Manage Access Rights" /></a></li>
+				<li class="disabled profilemenu"><a href="#" onclick="return generateDefaultRiskInformation('section_admin_analysis');"> <span class="glyphicon glyphicon-refresh primary"></span>
+						<spring:message code="label.analysis.update.default.risk_information" text="Use to update default Risk Information" /></a></li>
+				<li class="disabled profilemenu"><a href="#" onclick="return generateDefaultParameter('section_admin_analysis');"> <span class="glyphicon glyphicon-refresh primary"></span>
+						<spring:message code="label.analysis.update.default.parameters" text="Use to update default Parameter" /></a></li>
 			</ul>
 		</div>
 		<div class="panel-body">

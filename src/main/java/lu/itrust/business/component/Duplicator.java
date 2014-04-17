@@ -1,5 +1,6 @@
 package lu.itrust.business.component;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -259,34 +260,34 @@ public class Duplicator {
 			copy.setUserRights(null);
 
 			// assets
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.asset", "empty assets", 30));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.asset", "empty assets", 5));
 			copy.setAssets(null);
 
 			// assessments
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment", "empty assessments", 35));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.assessment", "empty assessments", 10));
 			copy.setAssessments(null);
 
 			// item information
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.itemInformation", "Empty item information", 10));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.itemInformation", "Empty item information", 20));
 			copy.setItemInformations(null);
 
 			// risk information
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskInformation", "empty risk information", 20));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskInformation", "empty risk information", 30));
 			copy.setRiskInformations(null);
 
 			// actionplans
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.actionplan", "empty actionplans and summaries", 20));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.actionplan", "empty actionplans and summaries", 35));
 			copy.setActionPlans(null);
 			copy.setSummaries(null);
 
 			// risk register
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskregister", "empty risk register", 20));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.riskregister", "empty risk register", 40));
 			copy.setRiskRegisters(null);
 
 			// copy nessesary data to profile
 
 			// parameters
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 15));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 45));
 			copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
 			for (Parameter parameter : analysis.getParameters()) {
 				parameters.put(parameter.getId(), parameter.duplicate());
@@ -294,37 +295,27 @@ public class Duplicator {
 			}
 
 			// phases
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "empty phases", 44));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "empty phases", 50));
 
 			copy.setUsedPhases(new ArrayList<Phase>());
 			
 			Map<Integer, Phase> phases = new LinkedHashMap<Integer, Phase>();
 			
-			for(Phase phase : analysis.getUsedPhases()){
-				if(phase.getNumber()==Constant.PHASE_DEFAULT){
-					Phase tmpPhase = phase.duplicate();
-					
-//					Calendar cal = Calendar.getInstance();
-//					
-//					Date date = new Date(cal.getTime().getTime());
-//					
-//					tmpPhase.setBeginDate(date);
-//					
-//					cal.add(Calendar.YEAR, 1);
-//					
-//					date = new Date(cal.getTime().getTime());
-//					
-//					tmpPhase.setEndDate(date);
-//					
-					phases.put(Constant.PHASE_DEFAULT, tmpPhase);
-					copy.addUsedPhase(phases.get(Constant.PHASE_DEFAULT));
-				}
-					
+			Phase tmpPhase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
+			if(tmpPhase == null){
+				tmpPhase = new Phase(Constant.PHASE_DEFAULT);
+				tmpPhase.setBeginDate(new Date(System.currentTimeMillis()));
+				tmpPhase.setEndDate(new Date(System.currentTimeMillis()));
 			}
-			
+			else tmpPhase = tmpPhase.duplicate();
+			phases.put(Constant.PHASE_NOT_USABLE, new Phase(Constant.PHASE_NOT_USABLE));
+			phases.put(Constant.PHASE_DEFAULT, tmpPhase);
+			copy.addUsedPhase(phases.get(Constant.PHASE_NOT_USABLE));
+			copy.addUsedPhase(tmpPhase);
+		
 			// copy other data if requested
 			// scenarios
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", 25));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", 55));
 			if (analysisProfile.isScenario()) {
 				copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
 				for (Scenario scenario : analysis.getScenarios())
@@ -333,13 +324,13 @@ public class Duplicator {
 				copy.setScenarios(null);
 
 			// norms
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy norms", 45));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy norms", 60));
 
 			int normSize = analysis.getAnalysisNorms().size();
 
 			int copyCount = 0;
 
-			int diviser = normSize * 50;
+			int diviser = normSize * 60;
 
 			copy.setAnalysisNorms(new ArrayList<AnalysisNorm>(normSize));
 
@@ -347,7 +338,7 @@ public class Duplicator {
 				for (AnalysisNorm analysisNorm : analysis.getAnalysisNorms()) {
 					if (analysisProfile.getNorms().contains(analysisNorm.getNorm()))
 						copy.addAnalysisNorm(duplicateAnalysisNorm(analysisNorm, phases, parameters, true));
-					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy norms", (copyCount++ / diviser) * 50 + 45));
+					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy norms", (copyCount++ / diviser) * 60 + 35));
 				}
 			}
 			return copy;

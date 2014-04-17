@@ -18,14 +18,31 @@
 				<li><a href="#anchorHistory"><spring:message code="menu.analysis.history" text="History" /></a></li>
 			</c:if>
 			<li><a href="#anchorScope"><spring:message code="menu.analysis.iteminformation" text="Scope" /></a></li>
-			
-			<li><a href="#anchorParameter"><spring:message code="menu.analysis.parameter" text="Parameters" /></a></li>
-			<li class="dropdown-submenu"><a href="#RiskInformation" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="menu.analysis.riskinformation"
-						text="Risk Information" /><span class="caret"></span></a>
+
+			<c:choose>
+				<c:when test="${!empty analysis.parameters}">
+					<li><a href="#anchorParameter"><spring:message code="menu.analysis.parameter" text="Parameters" /></a></li>
+				</c:when>
+				<c:otherwise>
+					<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="menu.analysis.parameter" text="Parameters" /><span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="#" onclick="loadDefaultParameter('${analysis.id}')"><spring:message code="menu.analysis.load_default_parameter" text="Load default" /></a></li>
+						</ul></li>
+				</c:otherwise>
+			</c:choose>
+			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="menu.analysis.riskinformation" text="Risk Information" /><span
+					class="caret"></span></a>
 				<ul class="dropdown-menu">
-					<li><a href="#anchorRiskInformation_Threat"><spring:message code="menu.analysis.threat" text="Threats" /></a></li>
-					<li><a href="#anchorRiskInformation_Vul"><spring:message code="menu.analysis.vulnerability" text="Vulnerability" /></a></li>
-					<li><a href="#anchorRiskInformation_Risk"><spring:message code="menu.analysis.risk" text="Risks" /></a></li>
+					<c:choose>
+						<c:when test="${!empty analysis.riskInformations}">
+							<li><a href="#anchorRiskInformation_Threat"><spring:message code="menu.analysis.threat" text="Threats" /></a></li>
+							<li><a href="#anchorRiskInformation_Vul"><spring:message code="menu.analysis.vulnerability" text="Vulnerability" /></a></li>
+							<li><a href="#anchorRiskInformation_Risk"><spring:message code="menu.analysis.risk" text="Risks" /></a></li>
+						</c:when>
+						<c:otherwise>
+							<li><a href="#" onclick="loadDefaultRiskInformation('${analysis.id}')"><spring:message code="menu.analysis.load_default_risk_information" text="Load default" /></a></li>
+						</c:otherwise>
+					</c:choose>
 				</ul></li>
 			<li><a href="#anchorAsset"><spring:message code="menu.analysis.asset" text="Assets" /></a></li>
 			<li><a href="#anchorScenario"><spring:message code="menu.analysis.scenario" text="Scenarios" /></a></li>
@@ -33,19 +50,20 @@
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="menu.analysis.standards" text="Standard" /><span
 					class="caret"></span></a> <c:if test="${empty(measureSplited)}">
 					<spring:eval expression="T(lu.itrust.business.component.MeasureManager).SplitByNorm(measures)" var="measureSplited" scope="request" />
-				</c:if> <c:if test="${!empty(measureSplited)}">
-					<ul class="dropdown-menu">
+				</c:if>
+				<ul class="dropdown-menu">
+					<c:if test="${!empty(measureSplited)}">
 						<c:forEach items="${measureSplited.keySet()}" var="norm">
 							<li><a href="#anchorMeasure_${norm}"> <spring:message code="menu.measure.${norm}" text="${norm}" /></a>
 						</c:forEach>
-						<c:if test="${analysis.getRightsforUserString(login).right.ordinal() == 0}">
-							<c:if test="${!measureSplited.isEmpty()}">
-								<li class="divider"></li>
-							</c:if>
-							<li><a href="#" onclick="return addStandard();"> <spring:message code="label.analysis.add.standard" text="Add a standard" /></a></li>
+					</c:if>
+					<c:if test="${analysis.getRightsforUserString(login).right.ordinal() == 0}">
+						<c:if test="${!measureSplited.isEmpty()}">
+							<li class="divider"></li>
 						</c:if>
-					</ul>
-				</c:if></li>
+						<li><a href="#" onclick="return addStandard();"> <spring:message code="label.analysis.add.standard" text="Add a standard" /></a></li>
+					</c:if>
+				</ul></li>
 			<c:if test="${!KowledgeBaseView }">
 				<li><a href="#anchorSOA"> <spring:message code="menu.analysis.soa" text="SOA" /></a></li>
 				<li><a href="#anchorActionPlan"> <spring:message code="menu.analysis.actionplan" text="Action Plans" /></a></li>
@@ -65,7 +83,7 @@
 			</c:if>
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.action" text="Action" /><span class="caret"></span></a>
 				<ul class="dropdown-menu">
-					<li><a href="${pageContext.request.contextPath}/Analysis/${sessionScope.selectedAnalysis}/Select"> <spring:message code="label.analysis.release" text="Close Analysis" /></a></li>
+					<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <spring:message code="label.analysis.release" text="Close Analysis" /></a></li>
 					<li class="divider"></li>
 					<li><a href="#" onclick="return editRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.edit.rrf" text="Edit RRF" /></a></li>
 					<c:if test="${!KowledgeBaseView }">

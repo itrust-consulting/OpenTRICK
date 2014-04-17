@@ -265,7 +265,8 @@ public class ControllerAnalysis {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		List<Norm> norms = serviceNorm.loadAllNoInAnalysis(idAnalysis);
 		if (norms.isEmpty()) {
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.analysis.add.standard", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
+			attributes.addFlashAttribute("error",
+					messageSource.getMessage("error.analysis.add.standard", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
 			return "redirect:/Error";
 		}
 		model.addAttribute("norms", norms);
@@ -398,7 +399,7 @@ public class ControllerAnalysis {
 			JsonNode jsonNode = mapper.readTree(value);
 
 			for (User user : serviceUser.loadAll()) {
-				
+
 				if (user.getLogin().equals(principal.getName()))
 					continue;
 
@@ -438,7 +439,7 @@ public class ControllerAnalysis {
 			model.addAttribute("userrights", userrights);
 
 			Thread.currentThread().sleep(1000);
-			
+
 			return manageaccessrights(analysisID, principal, model);
 		} catch (Exception e) {
 			// return errors
@@ -534,44 +535,32 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisId}/Select")
-	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Model model, HttpSession session, RedirectAttributes attributes, Locale locale)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session)
 			throws Exception {
+		// select the analysis
+		session.setAttribute("selectedAnalysis", analysisId);
+		return "redirect:/Analysis";
+	}
 
-		// prepare permission evaluator
-		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
-
-		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)) {
-
-			// retrieve selected analysis
-			Integer selected = (Integer) session.getAttribute("selectedAnalysis");
-
-			// check if analysis is selected and if thee selected value is the same as the analysis
-			// to select (in order to deselect analysis)
-			if (selected != null && selected.intValue() == analysisId)
-
-				// deselect the analysis
-				session.removeAttribute("selectedAnalysis");
-
-			// check if analysis exists -> YES
-			else if (serviceAnalysis.exist(analysisId)) {
-
-				// select the analysis
-				session.setAttribute("selectedAnalysis", analysisId);
-			} else {
-
-				// deselect the analysis
-				session.removeAttribute("selectedAnalysis");
-
-				// add error attribute
-				attributes.addFlashAttribute("error", "Analysis not recognized!");
-			}
-			return "redirect:/Analysis";
-		} else {
-			// deselect the analysis
-			session.removeAttribute("selectedAnalysis");
-
-			return "redirect:/Error/403";
-		}
+	/**
+	 * selectAnalysis: <br>
+	 * selects or deselects an analysis
+	 * 
+	 * @param principal
+	 * @param analysisId
+	 * @param model
+	 * @param session
+	 * @param attributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Deselect")
+	public String DeselectAnalysis(HttpSession session) throws Exception {
+		// retrieve selected analysis
+		session.removeAttribute("selectedAnalysis");
+		return "redirect:/Analysis";
 	}
 
 	// *****************************************************************
@@ -632,19 +621,19 @@ public class ControllerAnalysis {
 		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
 
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)) {
-		
-		// add languages
-		model.put("languages", serviceLanguage.loadAll());
 
-		// add customers of user
-		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
+			// add languages
+			model.put("languages", serviceLanguage.loadAll());
 
-		// add the analysis object
-		model.put("analysis", analysis);
+			// add customers of user
+			model.put("customers", serviceCustomer.loadByUser(principal.getName()));
 
-		return "analysis/editAnalysis";
+			// add the analysis object
+			model.put("analysis", analysis);
+
+			return "analysis/editAnalysis";
 		} else {
-			
+
 			return "redirect:/Error/403";
 		}
 	}
@@ -681,7 +670,7 @@ public class ControllerAnalysis {
 			// check if it is a new analysis or the user is authorized to modify
 			// the analysis
 			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)
-				|| serviceUser.hasRole(serviceUser.get(principal.getName()), RoleType.ROLE_CONSULTANT)) {
+					|| serviceUser.hasRole(serviceUser.get(principal.getName()), RoleType.ROLE_CONSULTANT)) {
 
 				// create/update analysis object and set access rights
 				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
@@ -810,8 +799,8 @@ public class ControllerAnalysis {
 				// check if version is less or equal the current version
 				if (History.VersionComparator(history.getVersion(), version) != 1)
 					// retrun error
-					errors.put("version", messageSource.getMessage("error.history.version.less_current", null, "Version of History entry must be greater than last Version of Analysis!",
-							locale));
+					errors.put("version",
+							messageSource.getMessage("error.history.version.less_current", null, "Version of History entry must be greater than last Version of Analysis!", locale));
 			}
 
 			if (!errors.isEmpty()) {
@@ -1008,7 +997,7 @@ public class ControllerAnalysis {
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""
-			+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) userSqLite.getSize());
