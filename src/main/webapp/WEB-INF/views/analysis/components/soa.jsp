@@ -28,8 +28,8 @@
 						<table class="table table-hover headertofixtable" id="table_SOA_${norm}">
 							<thead>
 								<tr>
-									<th class="cellwidth_80"><spring:message code="label.measure.ref" text="Ref" /></th>
-									<th><spring:message code="label.measure.domain" text="Domain" /></th>
+									<th style="width:80px;"><spring:message code="label.measure.ref" text="Ref" /></th>
+									<th style="width:350px;"><spring:message code="label.measure.domain" text="Domain" /></th>
 									<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.phase" text="Phase" /></th>
 									<th><spring:message code="label.measure.SOA.risk" text="Risk" /></th>
 									<th><spring:message code="label.measure.SOA.comment" text="Comment" /></th>
@@ -45,13 +45,16 @@
 											<tr style="background-color: LightGray">
 												<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 												<td><spring:message text="${measure.measureDescription.reference}" /></td>
-												<td><div class="headertofixtablelargecolumn"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></div></td>
-												<td></td><td></td><td></td><td></td>
+												<td style="overflow:show;white-space: nowrap;"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+												<td></td>
+												<td></td>
+												<td></td>
+												<td></td>
 											</tr>
 										</c:when>
 										<c:otherwise>
 											<tr trick-class="SOA" trick-id="${measure.id}"
-												trick-callback="reloadMeasureRow('${measure.id}','${norm}');initialiseTableFixedHeaderRows('#section_measure_${norm}');">
+												trick-callback="initialiseTableFixedHeaderRows('#section_measure_${norm}');">
 												<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 												<td><a href="#" class="descriptiontooltip" data-toggle="tooltip" data-html="true"
 													title="<spring:message text="${!empty measureDescriptionText? measureDescriptionText.description : ''}" />"> <spring:message
@@ -71,13 +74,13 @@
 														<spring:message text="${measure.measurePropertyList.getSoaRisk()}" />
 													</div>
 												</td>
-												<td class="success" ondblclick="return editField(this.firstChild);" trick-field="soaComment" trick-content="text" trick-field-type="string" >
-													<div class="headertofixtablelargecolumn">
+												<td class="success" ondblclick="return editField(this.firstElementChild);"  >
+													<div class="headertofixtablelargecolumn" trick-field="soaComment" trick-content="text" trick-field-type="string">
 														<spring:message text="${measure.measurePropertyList.getSoaComment()}" />
 													</div>
 												</td>
-												<td class="success">
-													<div class="headertofixtablelargecolumn" trick-field="soaReference" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
+												<td class="success" ondblclick="return editField(this.firstElementChild);">
+													<div class="headertofixtablelargecolumn" trick-field="soaReference" trick-content="text" trick-field-type="string">
 														<spring:message text="${measure.measurePropertyList.getSoaReference()}" />
 													</div>
 												</td>

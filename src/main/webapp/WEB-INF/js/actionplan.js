@@ -93,3 +93,48 @@ function calculateActionPlanWithOptions(analysisId, modalBox) {
 	return false;
 	
 }
+
+function hideActionplanAssets(sectionactionplan, menu) {
+
+	var actionplantype = $(sectionactionplan).find(".disabled[trick-nav-control]").attr("trick-nav-control");
+
+	if (!$("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
+		$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
+		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
+	}
+
+	return false;
+
+}
+
+function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
+
+	var actionplantype = $(sectionactionplan).find(".disabled[trick-nav-control]").attr("trick-nav-control");
+
+	$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
+	if ($("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
+		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
+	} else {
+		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;" + MessageResolver("action.actionplanassets.hide", "Hide Assets"));
+	}
+
+	return false;
+}
+
+function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
+	$.ajax({
+		url : context + "/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
+		type : "get",
+		async : true,
+		contentType : "application/json;charset=UTF-8",
+		async : true,
+		success : function(response) {
+			if (!response.length)
+				return false;
+			$("#section_actionplan_" + type + " tr[trick-id='" + idActionPlanEntry + "']").replaceWith(response);
+			return false;
+		}
+	});
+	reloadMeasureRow(idMeasure, norm);
+	return false;
+}

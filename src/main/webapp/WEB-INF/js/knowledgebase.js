@@ -40,7 +40,10 @@ function selectAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	window.location.replace(context + "/Analysis/" + analysisId + "/Select");
+	
+	var element = document.createElement("a");
+	element.setAttribute("href", context + "/Analysis/" + analysisId + "/Select");
+	element.click();
 }
 
 function saveAnalysis(form, reloadaction) {

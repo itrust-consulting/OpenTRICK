@@ -86,8 +86,19 @@ public class ControllerMeasure {
 		return "analysis/components/measure";
 	}
 
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param idMeasure
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/{idMeasure}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
 	Measure get(@PathVariable int idMeasure, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -105,6 +116,25 @@ public class ControllerMeasure {
 		return measure;
 	}
 
+	@RequestMapping(value = "/SingleMeasure/{idMeasure}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String getSingleMeasure(@PathVariable int idMeasure, Model model, HttpSession session, Principal principal) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Measure measure = serviceMeasure.findByIdAndAnalysis(idMeasure, idAnalysis);
+		if (measure instanceof NormMeasure) {
+			Hibernate.initialize(((NormMeasure) measure).getAssetTypeValues());
+			Hibernate.initialize(measure);
+			for (AssetTypeValue assetTypeValue : ((NormMeasure) measure).getAssetTypeValues())
+				assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
+			((NormMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormMeasure) measure).getMeasurePropertyList()));
+		}
+		
+		model.addAttribute("measure", measure);
+		model.addAttribute("norm",measure.getAnalysisNorm().getNorm().getLabel());
+		
+		return "analysis/components/singleMeasure";
+	}
+	
 	@RequestMapping(value = "/RRF/Update", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody

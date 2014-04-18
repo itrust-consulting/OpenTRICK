@@ -22,7 +22,7 @@
 							code="label.analysis.delete" text="Delete" /></a></li>
 			</ul>
 		</div>
-		<div class="panel-body panelbodydefinition">
+		<div class="panel-body autofitpanelbodydefinition">
 			<table class="table table-hover">
 				<thead>
 					<tr>

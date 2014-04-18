@@ -8,7 +8,7 @@
 <div class="section" id="section_actionplans">
 	<div class="page-header">
 		<h3 id="ActionPlan">
-			<spring:message code="label.actionplans" text="Actionplans" />
+			<spring:message code="label.actionplan" text="Action Plan" />
 		</h3>
 	</div>
 	<spring:eval expression="T(lu.itrust.business.component.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
@@ -27,7 +27,7 @@
 			<div class="col-md-2">
 				<ul class="nav nav-pills" id="menu_actionplan">
 					<c:if test="${!actionplansplitted.isEmpty()}">
-						<li><a href="#" onclick="toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');return resetfixedheadertables()"> <span class="glyphicon glyphicon-chevron-down"></span>&nbsp;<spring:message
+						<li><a href="#" onclick="return toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');"> <span class="glyphicon glyphicon-chevron-down"></span>&nbsp;<spring:message
 									code="action.actionplanassets.show" text="Show Assets" />
 						</a></li>
 					</c:if>
@@ -37,24 +37,26 @@
 		<div class="panel-body panelbodydefinition">
 			<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 				<div trick-nav-data="${apt}" ${status.index!=0? "hidden='true'" : "" }>
-					<table class="table table-hover headertofixtable" style="width: 100%;" id="actionplantable_${apt}">
+					<table class="table table-hover headertofixtable" id="actionplantable_${apt}">
 						<thead>
 							<tr>
-								<th><spring:message code="label.table.index" text="#" /></th>
-								<th><spring:message code="label.measure.norm" text="Norm" /></th>
-								<th><spring:message code="label.measure.reference" text="Reference" /></th>
-								<th><spring:message code="label.actionplan.todo" text="To Do" /></th>
-								<th><spring:message code="label.actionplan.totalale" text="ALE" /> (k&euro;)</th>
-								<th><spring:message code="label.actionplan.deltaale" text="DeltaALE" /> (k&euro;)</th>
-								<th><spring:message code="label.measure.cs" text="Cost" /> (k&euro;)</th>
-								<th><spring:message code="label.actionplan.roi" text="ROI" /> (k&euro;)</th>
-								<th><spring:message code="label.actionplan.internal_setup" text="Internal Setup" /> (md)</th>
-								<th><spring:message code="label.actionplan.external_setup" text="External Setup" /> (md)</th>
-								<th><spring:message code="label.actionplan.investment" text="Investment" /> (k&euro;)</th>
-								<th><spring:message code="label.actionplan.phase" text="Phase" /></th>
+								<th style="width:50px;"><spring:message code="label.table.index" text="#" /></th>
+								<th style="width:80px;"><spring:message code="label.measure.norm" text="Norm" /></th>
+								<th style="width:80px;"><spring:message code="label.measure.reference" text="Reference" /></th>
+								<th style="width:600px;"><spring:message code="label.actionplan.todo" text="To Do" /></th>
+								<th style="width:80px;"><spring:message code="label.actionplan.totalale" text="ALE" /> (k&euro;)</th>
+								<th style="width:80px;"><spring:message code="label.actionplan.deltaale" text="DeltaALE" /> (k&euro;)</th>
+								<th style="width:80px;"><spring:message code="label.measure.cs" text="Cost" /> (k&euro;)</th>
+								<th style="width:80px;"><spring:message code="label.actionplan.roi" text="ROI" /> (k&euro;)</th>
+								<th style="width:80px;"><spring:message code="label.actionplan.internal_setup" text="Internal Setup" /> (md)</th>
+								<th style="width:80px;"><spring:message code="label.actionplan.external_setup" text="External Setup" /> (md)</th>
+								<th style="width:80px;"><spring:message code="label.actionplan.investment" text="Investment" /> (k&euro;)</th>
+								<th style="width:80px;"><spring:message code="label.actionplan.phase" text="Phase" /></th>
 								<spring:eval expression="T(lu.itrust.business.component.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
 								<c:forEach items="${actionplanassets}" var="asset">
-									<th class="actionplanasset actionplanassethidden"><spring:message text="${asset.name}" /></th>
+									<th class="actionplanasset actionplanassethidden" style="width:80px;">
+										<spring:message text="${asset.name}" />
+									</th>
 								</c:forEach>
 							</tr>
 						</thead>
@@ -101,8 +103,8 @@
 									<td ${ape.deltaALE == 0? "class='danger'" : "" } title="${ape.deltaALE}"><fmt:formatNumber value="${ape.deltaALE*0.001}" maxFractionDigits="0" /></td>
 									<td ${ape.measure.cost == 0? "class='danger'" : "" } title="${ape.measure.cost}"><fmt:formatNumber value="${ape.measure.cost*0.001}" maxFractionDigits="0" /></td>
 									<td ${ape.ROI == 0? "class='danger'" : "" } title="${ape.ROI}"><fmt:formatNumber value="${ape.ROI*0.001}" maxFractionDigits="0" /></td>
-									<td ${ape.measure.internalWL == 0? "class='danger'" : "" } title="${ape.measure.internalWL}"><fmt:formatNumber value="${ape.measure.internalWL}" maxFractionDigits="1" minFractionDigits="1" /></td>
-									<td ${ape.measure.externalWL == 0? "class='danger'" : "" } title="${ape.measure.externalWL}"><fmt:formatNumber value="${ape.measure.externalWL}" maxFractionDigits="1" minFractionDigits="1"/></td>
+									<td ${ape.measure.internalWL == 0? "class='danger'" : "" } title="${ape.measure.internalWL}"><fmt:formatNumber value="${ape.measure.internalWL}" maxFractionDigits="1" /></td>
+									<td ${ape.measure.externalWL == 0? "class='danger'" : "" } title="${ape.measure.externalWL}"><fmt:formatNumber value="${ape.measure.externalWL}" maxFractionDigits="1"/></td>
 									<td ${ape.measure.investment == 0? "class='danger'" : "" } title="${ape.measure.investment}"><fmt:formatNumber value="${ape.measure.investment*0.001}"
 											maxFractionDigits="0" /></td>
 									<td class="success" trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)"

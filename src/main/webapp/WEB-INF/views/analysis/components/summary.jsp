@@ -8,7 +8,7 @@
 <div class="section" id="section_summary">
 	<div class="page-header">
 		<h3 id="Summary">
-			<spring:message code="label.summaries" text="Summaries" />
+			<spring:message code="label.summary" text="Action Plan Summary" />
 		</h3>
 	</div>
 	<spring:eval expression="T(lu.itrust.business.component.ActionPlanSummaryManager).buildTables(summaries,phases)" var="summariesStages" />
@@ -26,13 +26,10 @@
 			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 				<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
 				<div trick-nav-data="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
-					<h4 class="text-center">
-						<spring:message code="label.actionPlanType.${actionPlanType.name}" text="${actionPlanType.name}" htmlEscape="true" />
-					</h4>
-					<table class="fixedheadertable table table-hover" id="summarytable_<spring:message text='${actionPlanType.name}' />">
+					<table class="table table-hover headertofixtable" id="summarytable_<spring:message text='${actionPlanType.name}' />">
 						<thead>
 							<tr>
-								<th><spring:message code="label.characteristic" text="Phase characteristic" /></th>
+								<th style="width:250px;"><spring:message code="label.characteristic" text="Phase characteristic" /></th>
 								<c:forEach items='${summaryStages.get("label.characteristic")}' var="phase">
 									<th class="text-right"><spring:message text="${phase}" /></th>
 								</c:forEach>
@@ -52,18 +49,18 @@
 												<c:forEach items="${summaryStages.get(key)}" var="value">
 													<td class="text-right"><c:choose>
 															<c:when test='${key.endsWith("27002") || key.endsWith("27001") || key.endsWith("date")}'>
-																<spring:message text="${value}" htmlEscape="true" />
+																<spring:message text="${value}" />
 															</c:when>
 															<c:otherwise>
 																<c:catch>
-																	<fmt:formatNumber value="${value}" maxFractionDigits="1" minFractionDigits="1" var="summaryValue" />
+																	<fmt:formatNumber value="${value}" maxFractionDigits="2" var="summaryValue" />
 																</c:catch>
 																<c:choose>
 																	<c:when test="${!empty summaryValue }">
-																		<spring:message text="${summaryValue}" htmlEscape="true" />
+																		<spring:message text="${summaryValue}" />
 																	</c:when>
 																	<c:otherwise>
-																		<spring:message text="${value}" htmlEscape="true" />
+																		<spring:message text="${value}" />
 																	</c:otherwise>
 																</c:choose>
 															</c:otherwise>
@@ -75,6 +72,8 @@
 								</c:if>
 							</c:forEach>
 						</tbody>
+						<tfoot>
+						</tfoot>
 					</table>
 				</div>
 			</c:forEach>

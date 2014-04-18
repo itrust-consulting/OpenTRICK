@@ -1,7 +1,7 @@
 /* Sticky footer styles
 -------------------------------------------------- */
 html,body {
-	 height: 96%;
+	height: 96%;
 	/* The html and body elements cannot have any padding or margin. */
 }
 
@@ -94,7 +94,7 @@ html,body {
 	margin-top: -17px;
 	float: left;
 	text-align: center;
-	font-weight:bold;
+	font-weight: bold;
 	width: 100%;
 }
 
@@ -144,8 +144,12 @@ table.dataTable tr.odd td.sorting_1,table.dataTable tr.even td.sorting_1
 }
 
 /**  table width */
+.panelbodydefinition {
+	height: 600px;
+	overflow: auto;
+}
 
-.panelbodydefinition{
+.autofitpanelbodydefinition {
 	max-height: 600px;
 	overflow: auto;
 }
@@ -155,46 +159,40 @@ table.dataTable tr.odd td.sorting_1,table.dataTable tr.even td.sorting_1
 }
 
 .tableheader {
-	height:200px;
-	margin:0;
-	padding:0;
+	height: 200px;
+	margin: 0;
+	padding: 0;
 }
 
 .tablescrollarea {
 	max-height: 500px;
-	height:500px; 
-	overflow: auto; 
+	height: 500px;
+	overflow: auto;
 	display: block;
-	margin-bottom:0px;
-	margin:0;
-	padding:0;
+	margin-bottom: 0px;
+	margin: 0;
+	padding: 0;
 }
 
 .cellwidth_650 {
-	width:500px;
+	width: 500px;
 	overflow: hidden;
 	o-text-overflow: ellipsis;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	line-height: 1.5;
-	display:block;
-	margin-0;
-	padding:0;
+	display: block; margin-0;
+	padding: 0;
 }
 
-
 .cellwidth_250 {
-	overflow: hidden;
-	o-text-overflow: ellipsis;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 	width: 250px;
-	line-height: 1.5;
 }
 
 .cellwidth_80 {
-	width:80px;
+	width: 80px;
 }
+
 .tablesorter thead tr.tablesorter-filter-row {
 	display: none
 }
@@ -245,7 +243,7 @@ table.dataTable tr.odd td.sorting_1,table.dataTable tr.even td.sorting_1
 }
 
 .tt-suggestion:HOVER,.tt-suggestion.tt-is-under-cursor {
-	cursor:pointer;
+	cursor: pointer;
 	cursor: hand;
 	color: #fff;
 	background-color: #0081c2;
@@ -270,22 +268,20 @@ table.dataTable tr.odd td.sorting_1,table.dataTable tr.even td.sorting_1
 }
 
 table.floatThead-table {
-    border-top: none;
-    border-bottom: none;
-    background-color: #FFF;
+	border-top: none;
+	border-bottom: none;
+	background-color: #FFF;
 }
 
 .headertofixtable {
 	width: 100%;
-	table-layout:fixed;
-	padding:0;
-	margin:0;
-	cellspacing:0;
-	cellpadding:0;
+	table-layout: fixed;
+	padding: 0;
+	margin: 0;
+	cellspacing: 0;
+	cellpadding: 0;
 }
 
-
-.headertofixtablelargecolumn{
-	width:parent;
-	overflow:hidden;
+.headertofixtablelargecolumn {
+	overflow: hidden;
 }

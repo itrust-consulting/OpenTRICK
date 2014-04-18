@@ -19,7 +19,7 @@
 							code="label.language.delete" text="Delete" /> </a></li>
 			</ul>
 		</div>
-		<div class="panel-body panelbodydefinition">
+		<div class="panel-body autofitpanelbodydefinition">
 			<c:choose>
 				<c:when test="${!empty languages}">
 					<table class="table">

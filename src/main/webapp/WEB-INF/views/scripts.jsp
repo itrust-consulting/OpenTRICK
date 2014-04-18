@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <script src="<spring:url value="/js/jquery-2.0.js" />"></script>
-<!--<script src="<spring:url value="/js/jquery-ui.js" />"></script>  -->
+<!-- <script src="<spring:url value="/js/jquery-ui.js" />"></script> -->
 <script src="<spring:url value="/js/jquery.tablesorter.min.js" />"></script>
 <script src="<spring:url value="/js/jquery.tablesorter.widgets.js" />"></script>
 <script src="<spring:url value="/js/jquery.tablesorter.pager.js" />"></script>

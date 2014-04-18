@@ -36,7 +36,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="panel-body panelbodydefinition">
+				<div class="panel-body autofitpanelbodydefinition">
 					<c:choose>
 						<c:when test="${!empty measureDescriptions}">
 							<table id="measurestable">

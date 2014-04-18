@@ -10,6 +10,7 @@ function TimeoutInterceptor() {
 	this.stopState = true;
 	this.timer = {};
 	this.loginShow = false;
+	this.TIME_TO_DISPLAY_ALERT = 0;
 	this.messages = {
 		Alert : "",
 		Logout : ""
@@ -61,6 +62,7 @@ TimeoutInterceptor.prototype = {
 	Initialise : function() {
 		this.messages.Alert = MessageResolver("info.session.expired", "Your session will be expired in %d secondes");
 		this.messages.Logout = MessageResolver("info.session.expired.alert", "Your session has been expired");
+		this.TIME_TO_DISPLAY_ALERT = this.LIMIT_SESSION - this.ALERT_TIME;
 	},
 	Reinitialise : function() {
 		var temp = this.loginShow;
@@ -75,11 +77,13 @@ TimeoutInterceptor.prototype = {
 		});
 		this.loginShow = temp;
 		return authentificated;
-	},
+	}
+	
+	,
 	Check : function() {
 		if (this.CurrentTime() > this.LIMIT_SESSION) {
 			this.ShowLogin();
-		} else if (this.CurrentTime() > this.ALERT_TIME)
+		} else if (this.CurrentTime() > this.TIME_TO_DISPLAY_ALERT)
 			this.AlertTimout();
 	},
 	Stop : function() {
@@ -307,67 +311,6 @@ function cancelTask(taskId) {
 			$("#task_" + taskId).remove();
 		}
 	});
-}
-
-function computeAssessment() {
-	$.ajax({
-		url : context + "/Assessment/Update",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response['error'] != undefined) {
-				$("#info-dialog .modal-body").text(response['error']);
-				$("#info-dialog").modal("toggle");
-			} else if (response['success'] != undefined) {
-				$("#info-dialog .modal-body").text(response['success']);
-				$("#info-dialog").modal("toggle");
-				chartALE();
-			}
-			return false;
-		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			console.log(textStatus);
-			console.log(errorThrown);
-			return false;
-		},
-	});
-	return false;
-}
-
-function wipeAssessment() {
-	$.ajax({
-		url : context + "/Assessment/Wipe",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response['error'] != undefined) {
-				$("#info-dialog .modal-body").text(response['error']);
-				$("#info-dialog").modal("toggle");
-			} else if (response['success'] != undefined) {
-				$("#info-dialog .modal-body").text(response['success']);
-				$("#info-dialog").modal("toggle");
-			}
-			return false;
-		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			console.log(textStatus);
-			console.log(errorThrown);
-			return false;
-		},
-	});
-	return false;
-}
-
-function extractPhase(that) {
-	var phases = $("#section_phase *[trick-class='Phase']>*:nth-child(2)");
-	if (!$(phases).length)
-		return true;
-	that.choose.push("NA");
-	for (var i = 0; i < phases.length; i++)
-		that.choose.push($(phases[i]).text());
-	return false;
 }
 
 function FieldEditor(element, validator) {
@@ -1464,28 +1407,7 @@ function AssessmentScenarioViewer(scenarioId) {
 	};
 }
 
-function updateAssessmentAcronym(idParameter, acronym) {
-	$.ajax({
-		url : context + "/Assessment/Update/Acronym/" + idParameter + "/" + acronym,
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response["success"] != undefined) {
-				$("#info-dialog .modal-body").html(response["success"]);
-				$("#info-dialog").modal("toggle");
-				setTimeout("updateALE()", 2000);
-			} else if (response["error"] != undefined) {
-				$("#alert-dialog .modal-body").html(response["error"]);
-				$("#alert-dialog").modal("toggle");
-			}
-			return false;
-		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return true;
-		}
-	});
-	return false;
-}
+
 
 function post(url, data, refraich) {
 	$.ajax({
@@ -1535,62 +1457,7 @@ function updateFieldValue(element, value, type) {
 	$(element).parent().text(defaultValueByType(value, type));
 }
 
-function saveField(element, controller, id, field, type) {
-	if ($(element).prop("value") != $(element).prop("placeholder")) {
-		$.ajax({
-			url : context + "/editField/" + controller,
-			type : "post",
-			async : true,
-			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"' + defaultValueByType($(element).prop("value"), type, true) + '", "type": "' + type + '"}',
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				if (response == "" || response == null) {
-					updateFieldValue(element, $(element).prop("value"));
-					return false;
-				}
-				bootbox.alert(jqXHR.responseText);
-				updateFieldValue(element, $(element).prop("placeholder"));
-				return true;
-			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				bootbox.alert(jqXHR.responseText);
-				updateFieldValue(element, $(element).prop("placeholder"));
-			},
-		});
-	} else {
-		updateFieldValue(element, $(element).prop("placeholder"));
-		return false;
-	}
-}
 
-function editField(element, controller, id, field, type) {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
-		var fieldEditor = null;
-		if (controller == null || controller == undefined)
-			controller = FieldEditor.prototype.__findControllor(element);
-		if (controller == "ExtendedParameter")
-			fieldEditor = new ExtendedFieldEditor(element);
-		else if (controller == "Assessment") {
-			field = $(element).attr("trick-field");
-			var fieldImpact = [ "impactRep", "impactLeg", "impactOp", "impactFin" ];
-			var fieldProba = "likelihood";
-			if (fieldImpact.indexOf(field) != -1)
-				fieldEditor = new AssessmentImpactFieldEditor(element);
-			else if (field == fieldProba)
-				fieldEditor = new AssessmentProbaFieldEditor(element);
-			else
-				fieldEditor = new AssessmentFieldEditor(element);
-		} else if (controller == "MaturityMeasure")
-			fieldEditor = new MaturityMeasureFieldEditor(element);
-		else
-			fieldEditor = new FieldEditor(element);
-
-		if (!fieldEditor.Initialise())
-			fieldEditor.Show();
-	} else
-		permissionError();
-}
 
 function showError(parent, text) {
 	var error = document.createElement("div");
@@ -1705,7 +1572,7 @@ function reloadSection(section, subSection) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
+				var doc = parser.parseFromString(response, "text/xml");
 				if (subSection != null && subSection != undefined)
 					section += "_" + subSection;
 				newSection = $(doc).find("*[id = '" + section + "']");
@@ -2243,32 +2110,7 @@ function navToogled(section, navSelected) {
 
 }
 
-function hideActionplanAssets(sectionactionplan, menu) {
 
-	var actionplantype = $(sectionactionplan).find(".disabled[trick-nav-control]").attr("trick-nav-control");
-
-	if (!$("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
-		$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
-		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
-	}
-
-	return false;
-
-}
-
-function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
-
-	var actionplantype = $(sectionactionplan).find(".disabled[trick-nav-control]").attr("trick-nav-control");
-
-	$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
-	if ($("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
-		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
-	} else {
-		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;" + MessageResolver("action.actionplanassets.hide", "Hide Assets"));
-	}
-
-	return false;
-}
 
 /**
  * Serialize form fields into JSON
@@ -2313,18 +2155,7 @@ function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
  * Content Navigation
  */
 $(function() {
-	var l_lang;
-	if (navigator.userLanguage) // Explorer
-		l_lang = navigator.userLanguage;
-	else if (navigator.language) // FF
-		l_lang = navigator.language;
-	else
-		l_lang = "en";
-
-	if (l_lang == "en-US") {
-		l_lang = "en";
-	}
-
+	
 	$('.modal').on('shown', function() {
 		$('body').css({
 			overflow : 'hidden'
@@ -2335,12 +2166,7 @@ $(function() {
 		});
 	});
 
-	Highcharts.setOptions({
-		lang : {
-			decimalPoint : ',',
-			thousandsSep : ' '
-		}
-	});
+	
 
 	if ($('#confirm-dialog').length)
 		$('#confirm-dialog').on('hidden.bs.modal', function() {
@@ -2352,26 +2178,8 @@ $(function() {
 			$("#alert-dialog .btn-danger").unbind("click");
 		});
 
-	if ($("#addPhaseModel").length) {
-		if (l_lang != "en")
-			$.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang + ".js");
-		$('#addPhaseModel').on('show.bs.modal', function() {
-			var lastDate = $("#section_phase td").last();
-			if (lastDate.length) {
-				var beginDate = lastDate.text();
-				if (beginDate.match("\\d{4}-\\d{2}-\\d{2}")) {
-					var endDate = beginDate.split("-");
-					endDate[0]++;
-					$("#addPhaseModel #phase_begin_date").prop("value", beginDate);
-					$("#addPhaseModel #phase_endDate").prop("value", endDate[0] + "-" + endDate[1] + "-" + endDate[2]);
-				}
-			}
-			$("#addPhaseModel input").datepicker({
-				format : "yyyy-mm-dd",
-				language : l_lang
-			});
-		});
-	}
+	
+
 
 	var $window = $(window);
 	var previewScrollTop = $window.scrollTop();
@@ -2396,138 +2204,7 @@ $(function() {
 
 });
 
-function reloadMeasureRow(idMeasure, norm) {
-	$.ajax({
-		url : context + "/Measure/Section/" + norm,
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			var $measure = $(doc).find("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']");
-			if (!$measure.length)
-				return false;
-			$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']").html($measure.html());
-			return false;
-		}
-	});
-	return false;
-}
 
-function initialiseTableFixedHeaderRows(con) {
-	if (con == undefined || con == null)
-		con = "";
-	$(con + '.fixedheadertable').stickyRows({
-		container : '.panel-body',
-		containersToSynchronize : "body"
-	});
-	$("body").scroll();
-}
-
-function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
-	$.ajax({
-		url : context + "/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (!response.length)
-				return false;
-			$("#section_actionplan_" + type + " tr[trick-id='" + idActionPlanEntry + "']").replaceWith(response);
-			return false;
-		}
-	});
-	reloadMeasureRow(idMeasure, norm);
-	return false;
-}
-
-function reloadMeausreAndCompliance(norm, idMeasure) {
-	reloadMeasureRow(idMeasure, norm);
-	compliance(norm);
-	return false;
-}
-
-function compliance(norm) {
-	if (!$('#chart_compliance_' + norm).length)
-		return false;
-	$.ajax({
-		url : context + "/Measure/Compliance/" + norm,
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response.chart == undefined || response.chart == null)
-				return;
-			$('#chart_compliance_' + norm).highcharts(response);
-		}
-	});
-	return false;
-}
-
-function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
-	if (!$('#chart_evolution_profitability_compliance_' + actionPlanType).length)
-		return false;
-	return $.ajax({
-		url : context + "/ActionPlanSummary/Evolution/" + actionPlanType,
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response.chart == undefined || response.chart == null)
-				return true;
-			$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
-		}
-	});
-}
-
-function budgetByActionPlanType(actionPlanType) {
-	if (!$('#chart_budget_' + actionPlanType).length)
-		return false;
-	return $.ajax({
-		url : context + "/ActionPlanSummary/Budget/" + actionPlanType,
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response.chart == undefined || response.chart == null)
-				return true;
-			$('#chart_budget_' + actionPlanType).highcharts(response);
-		}
-	});
-}
-
-function summaryCharts() {
-	var actionPlanTypes = $("#section_summary *[trick-nav-control]");
-	for (var i = 0; i < actionPlanTypes.length; i++) {
-		try {
-			actionPlanType = $(actionPlanTypes[i]).attr("trick-nav-control");
-			evolutionProfitabilityComplianceByActionPlanType(actionPlanType);
-			budgetByActionPlanType(actionPlanType);
-		} catch (e) {
-			console.log(e);
-		}
-
-	}
-	return false;
-}
-
-function reloadCharts() {
-	chartALE();
-	compliance('27001');
-	compliance('27002');
-	summaryCharts();
-	return false;
-};
-
-function reloadActionPlansAndCharts() {
-	reloadSection('section_actionplans');
-}
 
 function updateStatus(progressBar, idTask, callback, status) {
 	if (status == null || status == undefined) {
@@ -2584,58 +2261,7 @@ function customerChange(selector) {
 	return false;
 }
 
-function chartALE() {
-	if ($('#chart_ale_scenario_type').length) {
-		$.ajax({
-			url : context + "/Scenario/Chart/Type/Ale",
-			type : "get",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			async : true,
-			success : function(response) {
-				$('#chart_ale_scenario_type').highcharts(response);
-			}
-		});
-	}
-	if ($('#chart_ale_scenario').length) {
-		$.ajax({
-			url : context + "/Scenario/Chart/Ale",
-			type : "get",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			async : true,
-			success : function(response) {
-				$('#chart_ale_scenario').highcharts(response);
-			}
-		});
-	}
 
-	if ($('#chart_ale_asset').length) {
-		$.ajax({
-			url : context + "/Asset/Chart/Ale",
-			type : "get",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			async : true,
-			success : function(response) {
-				$('#chart_ale_asset').highcharts(response);
-			}
-		});
-	}
-	if ($('#chart_ale_asset_type').length) {
-		$.ajax({
-			url : context + "/Asset/Chart/Type/Ale",
-			type : "get",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			async : true,
-			success : function(response) {
-				$('#chart_ale_asset_type').highcharts(response);
-			}
-		});
-	}
-	return false;
-}
 
 RRFView.prototype = new Modal();
 
@@ -3326,75 +2952,6 @@ function deleteAssetTypeValueDuplication() {
 	return false;
 }
 
-function addStandard() {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.ALL)) {
-		enableButtonSaveStandardState(true);
-		$.ajax({
-			url : context + "/Analysis/Add/Standard",
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				if (response["error"] != undefined)
-					showError($("#addStandardModal .modal-body")[0], response["error"]);
-				else {
-					var forms = $.parseHTML(response);
-					if (!$(forms).find("#addStandardForm").length) {
-						showError($("#addStandardModal .modal-body")[0], MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
-					} else {
-						if ($("#addStandardModal").length)
-							$("#addStandardModal").remove();
-						$(forms).appendTo($("#widget"));
-						enableButtonSaveStandardState(true);
-						$("#addStandardModal").modal("toggle");
-					}
-				}
-			}
-		});
-	} else
-		permissionError();
-	return false;
-}
-
-function enableButtonSaveStandardState(state) {
-	if (!$("#btn_save_standard").length)
-		return false;
-	if ($("#addStandardModal .alert").length)
-		$("#addStandardModal .alert").remove();
-	if (!state)
-		$("#add_standard_progressbar").show();
-	else
-		$("#add_standard_progressbar").hide();
-	$("#btn_save_standard").prop("disabled", !state);
-	return false;
-}
-
-function saveStandard(form) {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.ALL)) {
-		enableButtonSaveStandardState(false);
-		var normId = $("#" + form + " select").val();
-		$.ajax({
-			url : context + "/Analysis/Save/Standard/" + normId,
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				if (response["error"] != undefined) {
-					enableButtonSaveStandardState(true);
-					showError($("#addStandardModal .modal-body")[0], response["error"]);
-				} else if (response["success"] != undefined) {
-					showSuccess($("#addStandardModal .modal-body")[0], response["success"]);
-					location.reload();
-					setTimeout(function() {
-						$("#addStandardModal").modal("toggle");
-					}, 10000);
-				}
-			}
-		});
-	} else
-		permissionError();
-	return false;
-}
 
 function fixAllScenarioCategories() {
 	$.ajax({
