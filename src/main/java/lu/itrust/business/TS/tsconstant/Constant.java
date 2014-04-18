@@ -113,8 +113,8 @@ public class Constant {
 	public static final String REGEXP_VALID_IMPACT_ACRONYM = "[cC]([0-9]|10)";
 
 	/** Regular *Expression to check on valid Names */
-	public static final String REGEXP_VALID_NAME = "^([a-zA-ZÃ Ã£Ã¢Ã¡Ã¤Ã£Ã¥Ã¦Ã¨ÃªÃ©Ã«Ã±Ã­Ã¯Ã¬Ã®Ã¸Ã´ÃµÃ²Ã³Ã¹Ã»ÃºÃ¼Ä‰Ä�Ä¥ÄµÅ�Å­Ã½Å¡Å¾Ä�Ã§ÃŸ-]+[',.]?\\s?){1,4}";
-
+	public static final String REGEXP_VALID_NAME = "^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð -]+[',.]?\\s?){1,4}";
+	
 	/** Email Regular expression to be valid */
 	public static final String REGEXP_VALID_EMAIL = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 

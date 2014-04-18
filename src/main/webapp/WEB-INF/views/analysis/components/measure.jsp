@@ -104,7 +104,7 @@
 													<c:when test="${measure.phase.number == 0}">NA</c:when>
 													<c:otherwise>${measure.phase.number}</c:otherwise>
 												</c:choose></td>
-											<td class="success" >
+											<td class="success">
 											
 												<div class="headertofixtablelargecolumn" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);">
 													<spring:message text="${measure.comment}" />
