@@ -246,7 +246,7 @@
 										</c:forEach>
 										<c:forEach items="${categories}" var="category">
 											<td class="success" trick-class="Category" trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
-												id="measure_category_${category.replace('.','_')}" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0"
+												id="measure_category_${fn:replace(category,'.','_')}" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0"
 												name=<spring:message text="${category}" /> data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 										</c:forEach>
 									</tr>
@@ -268,7 +268,7 @@
 										</c:forEach>
 										<c:forEach items="${categories}" var="category">
 											<td class="success" trick-class="Category" trick-value=<spring:message text="${category}" />><input type="text"
-												id='measure_category_<spring:message text="${category.replace('.','_')}"/>_value' readonly="readonly" class="form-control" value="0"
+												id='measure_category_<spring:message text="${fn:replace(category,'.','_')}"/>_value' readonly="readonly" class="form-control" value="0"
 												name=<spring:message text="${category}" />></td>
 										</c:forEach>
 									</tr>
