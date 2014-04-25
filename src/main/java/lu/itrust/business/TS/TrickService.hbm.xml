@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.TS">
+	<class name="TrickService" table="TrickService">
+		<id name="id" column="idTrickService" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<property name="version" column="dtVersion" not-null="true" access="field" />
+		<property name="installed" column="dtInstalled" not-null="true" access="field"/>
+	</class>
+</hibernate-mapping>

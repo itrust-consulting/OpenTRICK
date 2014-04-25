@@ -241,4 +241,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public List<Analysis> loadByUserAndCustomerAndNoEmpty(String userName, int idCustomer) {
 		return daoAnalysis.loadByUserAndCustomerAndNoEmpty(userName,idCustomer);
 	}
+
+	@Override
+	public Analysis getDefaultProfile() {
+		return daoAnalysis.getDefaultProfile();
+	}
 }

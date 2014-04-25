@@ -52,14 +52,16 @@ public class MeasureDescription implements Cloneable {
 	/**
 	 * Constructor:<br>
 	 * 
-	 * @param maturityRef
+	 * @param reference
 	 *            Reference of the Measure
 	 * @param norm
 	 *            Norm of the Measure
 	 */
-	public MeasureDescription(String maturityRef, Norm norm) {
+	public MeasureDescription(String reference, Norm norm, int level, boolean computable) {
 		this.norm = norm;
-		this.reference = maturityRef;
+		this.reference = reference;
+		this.level = level;
+		this.computable = computable;
 	}
 
 	public MeasureDescriptionText getMeasureDescriptionText(Language language) {

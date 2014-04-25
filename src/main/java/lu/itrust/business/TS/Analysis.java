@@ -51,6 +51,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	private boolean profile = false;
 
+	private boolean defaultProfile = false;
+	
 	/** The Customer object */
 	private Customer customer;
 
@@ -2397,5 +2399,24 @@ public class Analysis implements Serializable, Cloneable {
 	
 	public boolean hasPhase(int number){
 		return findPhaseByNumber(number)!=null;
+	}
+
+	/** isDefaultProfile: <br>
+	 * Returns the defaultProfile field value.
+	 * 
+	 * @return The value of the defaultProfile field
+	 */
+	public boolean isDefaultProfile() {
+		return defaultProfile;
+	}
+
+	/** setDefaultProfile: <br>
+	 * Sets the Field "defaultProfile" with a value.
+	 * 
+	 * @param defaultProfile 
+	 * 			The Value to set the defaultProfile field
+	 */
+	public void setDefaultProfile(boolean defaultProfile) {
+		this.defaultProfile = defaultProfile;
 	}
 }

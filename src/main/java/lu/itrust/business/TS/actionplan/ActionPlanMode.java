@@ -77,8 +77,8 @@ public enum ActionPlanMode {
 
 	public static ActionPlanMode getByName(String name) {
 		ActionPlanMode[] values = values();
-		for (int i = 1; i <values.length;i++)
-			if (values[i].getName().equals(name))
+		for (int i = 0; i < values.length;i++)
+			if (values[i].getName().equals(name.trim()))
 				return values[i];
 		return null;
 	}

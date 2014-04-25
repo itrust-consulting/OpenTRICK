@@ -19,6 +19,9 @@ public class RiskInformation implements Cloneable {
 	/** Risk Information id */
 	private int id = -1;
 
+	/** editable */
+	private boolean editable;
+	
 	/** The Risk Information Label */
 	private String label;
 
@@ -239,6 +242,25 @@ public class RiskInformation implements Cloneable {
 		RiskInformation riskInformation = (RiskInformation) super.clone();
 		riskInformation.id = -1;
 		return riskInformation;
+	}
+
+	/** isEditable: <br>
+	 * Returns the editable field value.
+	 * 
+	 * @return The value of the editable field
+	 */
+	public boolean isEditable() {
+		return editable;
+	}
+
+	/** setEditable: <br>
+	 * Sets the Field "editable" with a value.
+	 * 
+	 * @param editable 
+	 * 			The Value to set the editable field
+	 */
+	public void setEditable(boolean editable) {
+		this.editable = editable;
 	}
 
 }

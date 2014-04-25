@@ -3,10 +3,8 @@
  */
 package lu.itrust.business.validator;
 
-import java.util.Date;
 import java.util.List;
 
-import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.validator.field.ValidatorFieldImpl;

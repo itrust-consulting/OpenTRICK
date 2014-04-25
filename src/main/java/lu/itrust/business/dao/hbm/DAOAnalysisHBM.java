@@ -313,5 +313,10 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.data = true and userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc")
 				.setParameter("username", userName).setParameter("customer", idCustomer).list();
 	}
+
+	@Override
+	public Analysis getDefaultProfile() {
+		return (Analysis) getSession().createQuery("Select analysis From Analysis as analysis where analysis.defaultProfile = true and analysis.profile = true").uniqueResult();
+	}
 	
 }

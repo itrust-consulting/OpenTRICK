@@ -53,7 +53,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 		Query query = getSession().createQuery("From Language where alpha3 = :alpha3");
 
 		// sets data
-		query.setParameter("alpha3", alpha3);
+		query.setParameter("alpha3", alpha3.toUpperCase());
 
 		return (Language) query.uniqueResult();
 
@@ -97,14 +97,14 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 
 	@Override
 	public void save(Language language) throws Exception {
+		language.setAlpha3(language.getAlpha3().toUpperCase());
 		getSession().save(language);
 	}
 
 	@Override
 	public void saveOrUpdate(Language language) throws Exception {
-		// open session
+		language.setAlpha3(language.getAlpha3().toUpperCase());
 		getSession().saveOrUpdate(language);
-		// close session
 
 	}
 
@@ -128,7 +128,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 
 	@Override
 	public boolean alpha3Exist(String alpha3) {
-		return ((Long) getSession().createQuery("select count(*) From Language where alpha3 = :alpha3").setString("alpha3", alpha3).uniqueResult()).intValue() > 0;
+		return ((Long) getSession().createQuery("select count(*) From Language where alpha3 = :alpha3").setString("alpha3", alpha3.toUpperCase()).uniqueResult()).intValue() > 0;
 	}
 
 	@Override

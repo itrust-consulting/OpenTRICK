@@ -27,6 +27,8 @@ public interface ServiceAnalysis {
 	
 	public Analysis findProfileByName(String name);
 
+	public Analysis getDefaultProfile();
+	
 	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception;
 
 	public Analysis get(int id, String identifier, String version, Timestamp creationDate) throws Exception;

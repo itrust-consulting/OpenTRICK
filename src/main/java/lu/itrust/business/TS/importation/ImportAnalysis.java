@@ -1225,7 +1225,7 @@ public class ImportAnalysis {
 			// * Insert mandatoryPhase into simple parameter table
 			// ****************************************************************
 
-			parameter = new Parameter(parameterType, Constant.SOA_THRESHOLD, rs.getInt(Constant.SOA_THRESHOLD));
+			parameter = new Parameter(parameterType, Constant.SOA_THRESHOLD, rs.getDouble(Constant.SOA_THRESHOLD));
 			this.analysis.addAParameter(parameter);
 
 			// ****************************************************************
@@ -1243,7 +1243,7 @@ public class ImportAnalysis {
 			 * to list of parameters //
 			 * ****************************************************************
 			 */
-			parameter = new Parameter(parameterType, Constant.IMPORTANCE_THRESHOLD, rs.getInt(Constant.IMPORTANCE_THRESHOLD));
+			parameter = new Parameter(parameterType, Constant.IMPORTANCE_THRESHOLD, rs.getDouble(Constant.IMPORTANCE_THRESHOLD));
 			this.analysis.addAParameter(parameter);
 		}
 		// close result
@@ -1346,7 +1346,19 @@ public class ImportAnalysis {
 			// * create instance
 			// ****************************************************************
 			parameter = new Parameter();
-			parameter.setDescription("ImpScale" + String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE)));
+			
+			String desc = "ImpScale";
+			
+			switch(rs.getInt(Constant.MATURITY_IS_LINE)){
+				case 1:desc=Constant.IS_NOT_ACHIEVED;
+				case 2:desc=Constant.IS_RUDIMENTARY_ACHIEVED;
+				case 3:desc=Constant.IS_PARTIALLY_ACHIEVED;
+				case 4:desc=Constant.IS_LARGELY_ACHIEVED;
+				case 5:desc=Constant.IS_FULLY_ACHIEVED;
+				default:desc="ImpScale"+String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE));
+			}
+			
+			parameter.setDescription(desc);
 			parameter.setType(parameterType);
 			parameter.setValue(rs.getDouble(Constant.MATURITY_IS_VALUE) * 100);
 

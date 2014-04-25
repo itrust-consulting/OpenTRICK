@@ -32,6 +32,7 @@
 						<th><spring:message code="label.analysis.creationDate" /></th>
 						<th><spring:message code="label.analysis.owner" text="Owner" /></th>
 						<th><spring:message code="label.analysis.language" /></th>
+						<th><spring:message code="label.analysis.profile.default" text="Default" /></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -43,6 +44,9 @@
 							<td>${analysis.creationDate}</td>
 							<td>${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}</td>
 							<td>${analysis.language.name}</td>
+							<td>
+								<spring:message code="label.yes_no.${!analysis.defaultProfile}" text="${!analysis.defaultProfile}" />
+							</td>
 						</tr>
 					</c:forEach>
 				</tbody>

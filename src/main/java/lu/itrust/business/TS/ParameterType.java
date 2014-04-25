@@ -39,9 +39,9 @@ public class ParameterType {
 	 *            The Parameter Type Label
 	 */
 	public ParameterType(String label) {
-		if (label == null || !label.matches(Constant.REGEXP_VALID_PARAMETERTYPE))
+		if (label == null || !label.trim().matches(Constant.REGEXP_VALID_PARAMETERTYPE))
 				throw new IllegalArgumentException("Given Parameter Name does not exist!");
-		this.label = label;
+		this.label = label.trim();
 	}
 
 	/***********************************************************************************************
@@ -87,8 +87,8 @@ public class ParameterType {
 	 *            The Value to set the label field
 	 */
 	public void setLabel(String label) {
-		if (label == null || !label.matches(Constant.REGEXP_VALID_PARAMETERTYPE))
+		if (label == null || !label.trim().matches(Constant.REGEXP_VALID_PARAMETERTYPE))
 				throw new IllegalArgumentException("Given Parameter Name does not exist!");
-		this.label = label;
+		this.label = label.trim();
 	}
 }

@@ -4,6 +4,7 @@
 <hibernate-configuration>
  <session-factory name="trick service">
   <!-- Names the annotated entity class -->
+  <mapping resource="lu/itrust/business/TS/TrickService.hbm.xml"/>
   <mapping resource="lu/itrust/business/TS/Language.hbm.xml"/>
   <mapping resource="lu/itrust/business/TS/Analysis.hbm.xml"/>
   <mapping resource="lu/itrust/business/TS/Customer.hbm.xml"/>

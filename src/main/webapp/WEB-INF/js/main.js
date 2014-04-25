@@ -1571,8 +1571,9 @@ function reloadSection(section, subSection) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
+				var tag = response.substring(response.indexOf('<'));
 				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/xml");
+				var doc = parser.parseFromString(tag, "text/html");
 				if (subSection != null && subSection != undefined)
 					section += "_" + subSection;
 				newSection = $(doc).find("*[id = '" + section + "']");

@@ -265,8 +265,7 @@ public class ControllerAnalysis {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		List<Norm> norms = serviceNorm.loadAllNoInAnalysis(idAnalysis);
 		if (norms.isEmpty()) {
-			attributes.addFlashAttribute("error",
-					messageSource.getMessage("error.analysis.add.standard", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.analysis.add.standard", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
 			return "redirect:/Error";
 		}
 		model.addAttribute("norms", norms);
@@ -355,9 +354,9 @@ public class ControllerAnalysis {
 		for (User user : serviceUser.loadAll())
 			userrights.put(user, null);
 
-		for (UserAnalysisRight uar : uars) 
+		for (UserAnalysisRight uar : uars)
 			userrights.put(uar.getUser(), uar.getRight());
-		
+
 		model.addAttribute("currentUser", serviceUser.get(principal.getName()).getId());
 		model.addAttribute("analysisRigths", AnalysisRight.values());
 		model.addAttribute("analysis", analysis);
@@ -398,9 +397,9 @@ public class ControllerAnalysis {
 				userrights.put(uar.getUser(), uar.getRight());
 
 			int currentUser = jsonNode.get("userselect").asInt();
-			
+
 			model.addAttribute("currentUser", currentUser);
-			
+
 			for (User user : serviceUser.loadAll()) {
 
 				if (user.getLogin().equals(principal.getName()))
@@ -540,8 +539,7 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/{analysisId}/Select")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session)
-			throws Exception {
+	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
 		// select the analysis
 		session.setAttribute("selectedAnalysis", analysisId);
 		return "redirect:/Analysis";
@@ -674,7 +672,7 @@ public class ControllerAnalysis {
 			// check if it is a new analysis or the user is authorized to modify
 			// the analysis
 			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)
-					|| serviceUser.hasRole(serviceUser.get(principal.getName()), RoleType.ROLE_CONSULTANT)) {
+				|| serviceUser.hasRole(serviceUser.get(principal.getName()), RoleType.ROLE_CONSULTANT)) {
 
 				// create/update analysis object and set access rights
 				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
@@ -803,8 +801,8 @@ public class ControllerAnalysis {
 				// check if version is less or equal the current version
 				if (History.VersionComparator(history.getVersion(), version) != 1)
 					// retrun error
-					errors.put("version",
-							messageSource.getMessage("error.history.version.less_current", null, "Version of History entry must be greater than last Version of Analysis!", locale));
+					errors.put("version", messageSource.getMessage("error.history.version.less_current", null, "Version of History entry must be greater than last Version of Analysis!",
+							locale));
 			}
 
 			if (!errors.isEmpty()) {
@@ -831,6 +829,8 @@ public class ControllerAnalysis {
 			copy.setVersion(history.getVersion());
 			copy.setLabel(analysis.getLabel());
 			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
+			copy.setProfile(false);
+			copy.setDefaultProfile(false);
 
 			// save the new version
 			serviceAnalysis.saveOrUpdate(copy);
@@ -1001,7 +1001,7 @@ public class ControllerAnalysis {
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""
-				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+			+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) userSqLite.getSize());
@@ -1098,23 +1098,19 @@ public class ControllerAnalysis {
 
 				analysis = null;
 
-				// populate measures, default scenarios and parameters
-				if (idProfile > 1) {
-					Analysis profile = serviceAnalysis.get(idProfile);
-					if (profile == null) {
-						errors.put("profile", messageSource.getMessage("error.analysis.profile.not_found", null, "Selected profile cannot be found", locale));
-						return false;
-					}
-					analysis = new Duplicator().duplicateAnalysis(profile, null);
-					Analysis.initialiseEmptyItemInformation(analysis);
-					analysis.setProfile(false);
-					if (analysis.getAnalysisNorms().size() > 0)
-						analysis.setData(true);
-				} else {
-					analysis = new Analysis();
+				Analysis profile = null;
+
+				// create from profile
+				profile = serviceAnalysis.get(idProfile);
+				if (profile == null)
+					profile = serviceAnalysis.getDefaultProfile();
+
+				analysis = new Duplicator().duplicateAnalysis(profile, null);
+				analysis.setProfile(false);
+				analysis.setDefaultProfile(false);
+				if (analysis.getAnalysisNorms().size() > 0)
 					analysis.setData(true);
-					Analysis.initialiseEmptyItemInformation(analysis);
-				}
+
 				analysis.setBasedOnAnalysis(null);
 				analysis.setCreationDate(creationDate);
 				analysis.setCustomer(customer);
@@ -1133,11 +1129,8 @@ public class ControllerAnalysis {
 
 				if (session != null)
 					session.setAttribute("currentCustomer", customer.getOrganisation());
-
 			}
-
 			return true;
-
 		} catch (Exception e) {
 			errors.put("analysis", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();

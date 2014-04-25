@@ -87,9 +87,9 @@ public class AssetType implements Cloneable {
 	public void setType(String type) {
 		if (type == null)
 			throw new IllegalArgumentException("error.assettype.type_null");
-		else if (!type.matches(Constant.REGEXP_VALID_ASSET_TYPE))
+		else if (!type.trim().matches(Constant.REGEXP_VALID_ASSET_TYPE))
 			throw new IllegalArgumentException("error.assettype.type_no_meet");
-		this.type = type;
+		this.type = type.trim();
 	}
 
 	/**

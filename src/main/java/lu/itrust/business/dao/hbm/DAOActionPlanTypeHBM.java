@@ -25,7 +25,6 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements
 	 * 
 	 */
 	public DAOActionPlanTypeHBM() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -58,7 +57,7 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements
 	public ActionPlanType get(String name) throws Exception {
 		Query query = getSession().createQuery(
 				"From ActionPlanType where name = :name");
-		query.setString("name", name);
+		query.setString("name", name.trim());
 		return (ActionPlanType) query.uniqueResult();
 
 	}

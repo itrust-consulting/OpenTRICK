@@ -91,6 +91,6 @@ public class ActionPlanType {
 	 *            The Value to set the name field
 	 */
 	public void setName(String name) {
-		this.name = ActionPlanMode.getByName(name);
+		this.name = ActionPlanMode.getByName(name.trim());
 	}
 }

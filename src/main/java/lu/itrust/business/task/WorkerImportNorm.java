@@ -362,38 +362,32 @@ public class WorkerImportNorm implements Worker {
 
 	@Override
 	public boolean isWorking() {
-		// TODO Auto-generated method stub
 		return working;
 	}
 
 	@Override
 	public boolean isCanceled() {
-		// TODO Auto-generated method stub
 		return canceled;
 	}
 
 	@Override
 	public Exception getError() {
-		// TODO Auto-generated method stub
 		return error;
 	}
 
 	@Override
 	public void setId(Long id) {
-		// TODO Auto-generated method stub
 		this.id = id;
 
 	}
 
 	@Override
 	public void setPoolManager(WorkersPoolManager poolManager) {
-		// TODO Auto-generated method stub
 		this.poolManager = poolManager;
 	}
 
 	@Override
 	public Long getId() {
-		// TODO Auto-generated method stub
 		return id;
 	}
 

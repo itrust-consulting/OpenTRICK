@@ -93,7 +93,11 @@ public class Constant {
 	public static final String ESCALATION_WAY="escalation_way";							
 	public static final String DOCUMENT_CONSERVE="document_conserve";					
 	
-	
+	public static final String IS_NOT_ACHIEVED = "not_achieved";
+	public static final String IS_RUDIMENTARY_ACHIEVED = "rudimentary_achieved";
+	public static final String IS_PARTIALLY_ACHIEVED = "partially_achieved";
+	public static final String IS_LARGELY_ACHIEVED = "largly_achieved";
+	public static final String IS_FULLY_ACHIEVED = "fully_achieved";
 	
 	/***********************************************************************************************
 	 * item information field values - END

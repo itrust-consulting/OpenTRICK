@@ -27,7 +27,7 @@
 				<spring:message code="label.analysis.filter.customer" text="Analyses filtered by customer: " />
 				<select class="form-control" onchange="return adminCustomerChange(this)" style="margin-bottom: 10px">
 					<c:forEach items="${customers}" var="icustomer">
-						<option value="${icustomer.id}" ${icustomer.id == customer? 'selected':'' }>
+						<option value="${icustomer.id}" ${customer !=null && icustomer.id == customer? 'selected':'' }>
 							<spring:message text="${icustomer.organisation}" />
 						</option>
 					</c:forEach>

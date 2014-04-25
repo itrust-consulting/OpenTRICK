@@ -91,18 +91,27 @@ public class ControllerAdministration {
 
 		Integer customerID = (Integer) session.getAttribute("currentCustomer");
 
-		if (customerID == null) {
-			customerID = customers.get(0).getId();
-			session.setAttribute("currentCustomer", customerID);
-		}
+		// check if the current customer is set -> no
+		if (customerID == null && !customers.isEmpty())
 
+			// use first customer as selected customer
+			session.setAttribute("currentCustomer", customerID = customers.get(0).getId());
+		
 		customers = serviceCustomer.loadAll();
 
 		if (customers != null && customers.size() > 0) {
 
-			model.put("customer", customerID);
 			model.put("customers", customers);
-			model.put("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerID));
+
+			if (customerID != null) {
+				model.put("customers", customerID);
+				model.put("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerID));
+			} else {
+				model.put("customers", null);
+				model.put("analyses", serviceAnalysis.loadAll());
+			}
+			
+			
 		}
 
 		return "admin/administration";

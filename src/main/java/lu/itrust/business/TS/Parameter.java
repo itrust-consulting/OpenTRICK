@@ -35,10 +35,7 @@ public class Parameter implements Serializable, Cloneable {
 	 * Getters and Setters
 	 **********************************************************************************************/
 
-	
-	
-	public Parameter(ParameterType type, String descriptif,
-			int value) {
+	public Parameter(ParameterType type, String descriptif, Double value) {
 		setType(type);
 		setDescription(descriptif);
 		setValue(value);
@@ -134,7 +131,9 @@ public class Parameter implements Serializable, Cloneable {
 		this.id = id;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -147,6 +146,5 @@ public class Parameter implements Serializable, Cloneable {
 		parameter.id = -1;
 		return parameter;
 	}
-	
-	
+
 }
