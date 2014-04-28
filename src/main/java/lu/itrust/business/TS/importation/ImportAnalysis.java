@@ -47,7 +47,6 @@ import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
-import lu.itrust.business.component.helper.AsyncCallback;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAssetType;
 import lu.itrust.business.dao.DAOLanguage;
@@ -177,7 +176,7 @@ public class ImportAnalysis {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void ImportAnAnalysis() throws Exception {
+	public boolean ImportAnAnalysis() throws Exception {
 
 		Session session = null;
 
@@ -301,38 +300,15 @@ public class ImportAnalysis {
 			if (session != null)
 				session.getTransaction().commit();
 
-			MessageHandler messageHandler = new MessageHandler("success.analysis.import", "Import Done!", 100);
-			
-			messageHandler.setAsyncCallback(new AsyncCallback("window.location.assign(\"../Analysis\")", null));
-			
-			serviceTaskFeedback.send(idTask, messageHandler);
-			
 			System.out.println("Import Done!");
-		} catch (SQLException e) {
-
-			try {
-
-				int index = e.getMessage().indexOf("no such column:");
-				if (index != -1) {
-					int index2 = e.getMessage().lastIndexOf(")");
-					index += "no such column: ".length();
-					String column = e.getMessage().substring(index, index2);
-					serviceTaskFeedback.send(idTask, new MessageHandler("error.colums.not_found", new String[] { this.currentSqliteTable, column }, "Please check table '"
-						+ this.currentSqliteTable + "', column '" + column + "'", e));
-				} else {
-					serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), e));
-				}
-			} catch (Exception ed) {
-				ed.printStackTrace();
-			}
-
-			e.printStackTrace();
-			throw e;
-
+			
+			return true;
+			
 		} catch (Exception e) {
 			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), e));
 			e.printStackTrace();
 			throw e;
+			
 		} finally {
 			// clear maps
 			clearData();
@@ -1135,7 +1111,7 @@ public class ImportAnalysis {
 			parameterType.setId(Constant.PARAMETERTYPE_TYPE_SINGLE);
 
 			// save parameter type into database
-			daoParameterType.saveOrUpdate(parameterType);
+			daoParameterType.save(parameterType);
 		}
 
 		// Retrieve result
@@ -1268,7 +1244,7 @@ public class ImportAnalysis {
 			parameterType.setId(Constant.PARAMETERTYPE_TYPE_MAX_EFF);
 
 			// save parameter type into database
-			daoParameterType.saveOrUpdate(parameterType);
+			daoParameterType.save(parameterType);
 		}
 
 		// ****************************************************************
@@ -1413,7 +1389,7 @@ public class ImportAnalysis {
 			parameterType.setId(Constant.PARAMETERTYPE_TYPE_IMPACT);
 
 			// save parameter type into database
-			daoParameterType.saveOrUpdate(parameterType);
+			daoParameterType.save(parameterType);
 		}
 
 		// ****************************************************************
@@ -3021,6 +2997,14 @@ public class ImportAnalysis {
 		setDaoScenarioType(new DAOScenarioTypeHBM(session));
 	}
 
+	/**
+	 * @param serviceTaskFeedback
+	 *            the serviceTaskFeedback to set
+	 */
+	public ServiceTaskFeedback getServiceTaskFeedback() {
+		return this.serviceTaskFeedback;
+	}
+	
 	/**
 	 * @param serviceTaskFeedback
 	 *            the serviceTaskFeedback to set

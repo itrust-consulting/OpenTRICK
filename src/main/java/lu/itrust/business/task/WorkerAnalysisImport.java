@@ -12,7 +12,9 @@ import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.importation.ImportAnalysis;
+import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.component.helper.AsyncCallback;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 
@@ -223,7 +225,16 @@ public class WorkerAnalysisImport implements Worker {
 			importAnalysis.setAnalysis(analysis);
 			importAnalysis.setIdTask(getId());
 			importAnalysis.setDatabaseHandler(DatabaseHandler);
-			importAnalysis.ImportAnAnalysis();
+			if (importAnalysis.ImportAnAnalysis()) {
+			
+			MessageHandler messageHandler = new MessageHandler("success.analysis.import", "Import Done!", 100);
+			
+			messageHandler.setAsyncCallback(new AsyncCallback("window.location.assign(\"../Analysis\")", null));
+			
+			importAnalysis.getServiceTaskFeedback().send(getId(), messageHandler);
+			
+			}
+			
 		} catch (Exception e) {
 			error = e;
 		} finally {
