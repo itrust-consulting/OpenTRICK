@@ -1,7 +1,5 @@
 package lu.itrust.business.view.controller;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.security.Principal;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,10 +27,7 @@ import lu.itrust.business.service.ServiceScenarioType;
 import lu.itrust.business.service.ServiceTrickService;
 import lu.itrust.business.service.ServiceUser;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -53,34 +48,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ControllerIntstallation {
 
 	@Autowired
-	private ServiceTrickService serviceTrickService;
-
-	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-
+	
 	@Autowired
-	private ServiceAssetType serviceAssetType;
-
-	@Autowired
-	private ServiceParameterType serviceParameterType;
-
-	@Autowired
-	private ServiceLanguage serviceLanguage;
-
-	@Autowired
-	private ServiceScenarioType serviceScenarioType;
-
-	@Autowired
-	private ServiceActionPlanType serviceActionPlanType;
-
-	@Autowired
-	private ServiceNorm serviceNorm;
-
-	@Autowired
-	private ServiceMeasureDescription serviceMeasureDescription;
-
-	@Autowired
-	private ServiceMeasureDescriptionText serviceMeasureDescriptionText;
+	private ServiceTrickService serviceTrickService;
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
@@ -89,68 +60,17 @@ public class ControllerIntstallation {
 	private ServiceUser serviceUser;
 
 	@Autowired
-	private ServicePhase servicePhase;
+	private SessionFactory sessionFactory;
 	
-	
-	@RequestMapping("/Status")
-	public String status(Model model, Principal principal, HttpServletRequest request) throws Exception {
-
-		TrickService status = serviceTrickService.getStatus();
-
-		String version = "0.0.1";
-
-		boolean installed = false;
-
-		XSSFSheet sheet = null;
-
-		XSSFWorkbook workbook = null;
-
-		InputStream defaultFile = null;
-
-		if (status != null) {
-			model.addAttribute("status", status);
-			return "admin/status";
-		}
-
-		defaultFile = new FileInputStream(request.getServletContext().getRealPath("/WEB-INF/data") + "/TS_DEFAULT_VALUES_V0.2.xlsx");
-		workbook = new XSSFWorkbook(defaultFile);
-		defaultFile.close();
-
-		sheet = workbook.getSheet("TS");
-
-		XSSFCell cell = null;
-
-		// version
-		cell = sheet.getRow(1).getCell(0);
-		cell.setCellType(Cell.CELL_TYPE_STRING);
-		version = cell.getStringCellValue();
-
-		// installed
-		cell = sheet.getRow(1).getCell(1);
-		cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
-		installed = cell.getBooleanCellValue();
-
-		status = new TrickService(version, installed);
-
-		serviceTrickService.save(status);
-
-		Analysis defaultProfile = serviceAnalysis.getDefaultProfile();
-
-		if (defaultProfile != null) {
-			status.setInstalled(true);
-			serviceTrickService.saveOrUpdate(status);
-		}
-
-		model.addAttribute("status", status);
-
-		return "admin/status";
-
-	}
-
 	@RequestMapping("/Install")
+	public String install(Model model, Principal principal, HttpServletRequest request) throws Exception {
+		return "redirect:/RemoveDefaultProfile";
+	}
+	
+	@RequestMapping("/InstallTS")
 	public @ResponseBody
-	Map<String, String> install(Model model, Principal principal, HttpServletRequest request) throws Exception {
-
+	Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request) throws Exception {
+		
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		
 		TrickService status = serviceTrickService.getStatus();
@@ -160,15 +80,27 @@ public class ControllerIntstallation {
 			return errors;
 		}
 
-		String fileName = request.getServletContext().getRealPath("/WEB-INF/data") + "/TS_DEFAULT_VALUES_V0.2.xlsx";
+		String fileName = request.getServletContext().getRealPath("/WEB-INF/data") + "/TL1.4_TRICKService_DefaultProfile_v1.0.sqlite";
 	
 		installProfileCustomer(errors);
 
 		installDefaultProfile(fileName, principal, errors);
 
 		return errors;
+		
 	}
+	
+	@RequestMapping("/RemoveDefaultProfile")
+	public String removeDefault(Model model, Principal principal, HttpServletRequest request) throws Exception {
+		
+			Analysis analysis = serviceAnalysis.getDefaultProfile();
 
+			if(analysis != null) 
+				serviceAnalysis.remove(analysis);
+			
+			return "redirect:/InstallTS";
+	}
+	
 	private Customer installProfileCustomer(Map<String, String> errors) {
 		try {
 
@@ -192,18 +124,13 @@ public class ControllerIntstallation {
 		} catch (Exception e) {
 			e.printStackTrace();
 			
-			
-			
-			errors.put("profileCustomer", e.getMessage());
+			errors.put("installProfileCustomer", e.getMessage());
 			return null;
 		}
 	}
-
-	
 	
 	private boolean installDefaultProfile(String fileName, Principal principal, Map<String, String> errors) {
 
-		
 		Customer customer;
 		
 		User owner;
@@ -214,14 +141,6 @@ public class ControllerIntstallation {
 		
 		try {
 		
-		
-		// analysis profile
-
-		analysis = serviceAnalysis.getDefaultProfile();
-
-		if (analysis != null)
-			return true;
-
 		// customer
 		customer = serviceCustomer.loadProfileCustomer();
 
@@ -229,6 +148,7 @@ public class ControllerIntstallation {
 			customer = installProfileCustomer(errors);
 			if (customer==null) {
 				System.out.println("Customer could not be installed!");
+				errors.put("installDefaultProfile - Customer", "Could not find profile customer!");
 				return false;
 			}
 		}
@@ -238,7 +158,7 @@ public class ControllerIntstallation {
 
 		if (owner == null) {
 			System.out.println("Could not determine owner! Canceling default Profile creation...");
-			errors.put("Owner", "Could not determine owner");
+			errors.put("installDefaultProfile - Owner", "Could not determine owner!");
 			return false;
 		}
 
@@ -253,11 +173,20 @@ public class ControllerIntstallation {
 		
 		// import default values
 		ImportAnalysis importAnalysis = new ImportAnalysis(analysis, sqlitehandler);
-		return importAnalysis.ImportAnAnalysis();
-				
+		importAnalysis.setSessionFactory(sessionFactory);
+		
+		boolean returnvalue = importAnalysis.simpleAnalysisImport();
+		
+		importAnalysis.getAnalysis().setLabel("Default Profile from installer");
+		importAnalysis.getAnalysis().setIdentifier("SME");
+		
+		serviceAnalysis.saveOrUpdate(importAnalysis.getAnalysis());
+		
+		return returnvalue;
+						
 		} catch(Exception e) {
 			e.printStackTrace();
-			errors.put("createProfile", e.getMessage());
+			errors.put("installDefaultProfile - Create Profile", e.getMessage());
 			return false;
 		}
 	}

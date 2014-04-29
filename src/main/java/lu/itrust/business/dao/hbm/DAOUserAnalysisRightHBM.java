@@ -188,7 +188,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 		if (isProfile == null)
 			isProfile = false;
 		
-		if(user.hasRole(RoleType.ROLE_CONSULTANT) && isProfile)
+		if(user.hasRole(RoleType.ROLE_CONSULTANT) || isProfile)
 			analysisRight = AnalysisRight.ALL;
 		
 		return analysisRight == null ? false : analysisRight.ordinal() <= right.ordinal();

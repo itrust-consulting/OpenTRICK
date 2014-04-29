@@ -32,6 +32,29 @@ function editSingleAnalysis(analysisId) {
 	return false;
 }
 
+function setAsDefaultProfile(analysisId) {
+	if (analysisId == null || analysisId == undefined) {
+		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
+		if (selectedScenario.length != 1)
+			return false;
+		analysisId = selectedScenario[0];
+	}
+	
+	$.ajax({
+		url : context + "/Analysis/SetDefaultProfile/" + analysisId,
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+		
+			reloadSection("section_profile_analysis");
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+		},
+	});
+	return false;
+	
+}
+
 function selectAnalysis(analysisId) {
 
 	if (analysisId == null || analysisId == undefined) {
@@ -40,10 +63,13 @@ function selectAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	
+
 	var element = document.createElement("a");
 	element.setAttribute("href", context + "/Analysis/" + analysisId + "/Select");
+	$(element).appendTo("body");
 	element.click();
+	
+	return false;
 }
 
 function saveAnalysis(form, reloadaction) {

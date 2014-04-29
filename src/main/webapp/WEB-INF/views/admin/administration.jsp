@@ -22,8 +22,9 @@
 					<spring:message code="title.administration" text="Administration" />
 				</h1>
 			</div>
-			<div class="content" id="content" role="main" data-spy="scroll">
+			<div class="content" id="content">
 				<div id="messages"></div>
+				<jsp:include page="status.jsp" />
 				<jsp:include page="user/users.jsp" />
 				<jsp:include page="./customer/customers.jsp" />
 				<jsp:include page="./analysis/analyses.jsp" />
@@ -34,12 +35,7 @@
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="../footer.jsp" />
 		<jsp:include page="../scripts.jsp" />
-		<script type="text/javascript">
-			$(document).ready(function() {
-				$("input[type='checkbox']").removeAttr("checked");
-					analysisTableSortable();
-			});
-		</script>
+		<script type="text/javascript" src="<spring:url value="js/administration.js" />"></script>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

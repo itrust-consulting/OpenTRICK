@@ -168,7 +168,124 @@ public class ImportAnalysis {
 	/***********************************************************************************************
 	 * Methods
 	 **********************************************************************************************/
+	/**
+	 * simpleAnalysisImport: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	@Transactional
+	public boolean simpleAnalysisImport() {
+		
+		Session session = null;
+		
+		try {
 
+			if (sessionFactory != null) {
+				session = sessionFactory.openSession();
+				initialiseDAO(session);
+				session.getTransaction().begin();
+			}
+
+			System.out.println("Importing...");
+
+			// ****************************************************************
+			// * create analysis id, analysis label, analysis language and
+			// * Histories. Creates Analysis Entries into the Database
+			// ****************************************************************
+			importAnalyses();
+
+			// ****************************************************************
+			// * import risk information
+			// ****************************************************************
+			importRiskInformation();
+
+			// ****************************************************************
+			// * import item information
+			// ****************************************************************
+			importItemInformation();
+
+			// ****************************************************************
+			// * import simple parameters
+			// ****************************************************************
+			importSimpleParameters();
+
+			// ****************************************************************
+			// * import extended parameters
+			// ****************************************************************
+			importExtendedParameters();
+
+			// ****************************************************************
+			// * import maturity parameters
+			// ****************************************************************
+			importMaturityParameters();
+
+			// ****************************************************************
+			// * import assets
+			// ****************************************************************
+			importAssets();
+
+			// ****************************************************************
+			// * import scenarios
+			// ****************************************************************
+			importScenarios();
+
+			// ****************************************************************
+			// * import assessments
+			// ****************************************************************
+			importAssessments();
+
+			// ****************************************************************
+			// * import phases
+			// ****************************************************************
+			importPhases();
+
+			// ****************************************************************
+			// * import AnalysisNorm measures
+			// ****************************************************************
+			importNormMeasures();
+
+			// ****************************************************************
+			// * import asset type values
+			// ****************************************************************
+			importAssetTypeValues();
+
+			// ****************************************************************
+			// * import maturity measures
+			// ****************************************************************
+			importMaturityMeasures();
+
+			System.out.println("Saving Analysis Data...");
+			
+			// save or update analysis
+			daoAnalysis.save(this.analysis);
+			
+			if (session != null)
+				session.getTransaction().commit();
+
+			System.out.println("Import Done!");
+			
+			return true;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+			try {
+			this.sqlite.close();
+			} catch(Exception e) {
+				e.printStackTrace();
+				return false;
+			} finally {
+				// clear maps
+				clearData();
+				if (session != null)
+					session.close();
+			}
+			
+		}
+	}
+	
 	/**
 	 * ImportAnAnalysis: <br>
 	 * Method used to import and given analysis using an sqlite file into the mysql database.
@@ -348,6 +465,8 @@ public class ImportAnalysis {
 	 */
 	private void importAnalyses() throws Exception {
 
+		System.out.println("Import versions...");
+		
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************

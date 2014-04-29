@@ -1528,6 +1528,9 @@ function callbackBySection(section) {
 		"section_analysis" : function() {
 			return analysisTableSortable();
 		},
+		"section_profile_analysis" : function() {
+			return analysisTableSortable();
+		},
 		"section_actionplans" : function() {
 			compliance('27001');
 			compliance('27002');

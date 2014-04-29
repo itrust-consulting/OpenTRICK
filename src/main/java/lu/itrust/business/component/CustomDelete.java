@@ -108,6 +108,8 @@ public class CustomDelete {
 
 	@Transactional
 	public void deleteCustomer(Customer customer) throws Exception {
+		if(!customer.isCanBeUsed())
+			return;
 		List<Analysis> analyses = daoAnalysis.loadAllFromCustomer(customer);
 		for (Analysis analysis : analyses)
 			daoAnalysis.remove(analysis);
@@ -121,6 +123,10 @@ public class CustomDelete {
 
 	@Transactional
 	public void deleteCustomerByUser(Customer customer, String userName) throws Exception {
+		
+		if (!customer.isCanBeUsed())
+			return;
+		
 		List<Analysis> analyses = daoAnalysis.loadByUserAndCustomer(userName, customer.getOrganisation());
 		User user = daoUser.get(userName);
 		for (Analysis analysis : analyses) {

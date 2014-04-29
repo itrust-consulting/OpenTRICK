@@ -1,3 +1,49 @@
+$(document).ready(function() {
+	$("input[type='checkbox']").removeAttr("checked");
+	analysisTableSortable();
+});
+
+function installTrickService() {
+
+	$.ajax({
+		url : context + "/Install",
+		type : "GET",
+		async : true,
+		contentType : "application/json",
+		success : function(response) {
+
+			var alert = $("#content [class='alert alert-warning alert-dismissable']");
+			if (alert.length)
+				alert.remove();
+
+			for ( var error in response) {
+				var errorElement = document.createElement("div");
+				errorElement.setAttribute("class", "alert alert-warning alert-dismissable");
+
+				var tmpelement = document.createElement("button");
+				tmpelement.setAttribute("class", "close");
+				tmpelement.setAttribute("data-dismiss", "alert");
+				tmpelement.setAttribute("aria-hidden", "true");
+				$(tmpelement).text("&times;");
+
+				$(errorElement).text(response[error]);
+
+				$(tmpelement).appendTo($(errorElement));
+
+				$(errorElement).appendTo($("#content"));
+			}
+			if (!$("#content [class='alert alert-warning alert-dismissable']").length) {
+				location.reload(true);
+			}
+		},
+		error : function(XMLHttpRequest, textStatus, errorThrown) {
+			console.log(textStatus, errorThrown);
+		},
+	});
+
+	return false;
+}
+
 function manageAnalysisAccess(analysisId, section_analysis) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedAnalysis = findSelectItemIdBySection(section_analysis);
@@ -23,55 +69,6 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 		},
 	});
 	return false;
-}
-
-function generateDefaultRiskInformation(section) {
-	var idAnalysis = findSelectItemIdBySection(section);
-	if (idAnalysis.length != 1)
-		return false;
-	$.ajax({
-		url : context + "/RiskInformation/Generate/Default/From/Analysis/" + idAnalysis[0],
-		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
-			if (response["success"] != undefined)
-				$("#alert-dialog .modal-body").html(response["success"]);
-			else if (response["error"] != undefined)
-				$("#alert-dialog .modal-body").html(response["error"]);
-			else
-				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-			$("#alert-dialog").modal("toggle");
-			return true;
-		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-			$("#alert-dialog").modal("toggle");
-		}
-	});
-	return false;
-}
-
-function generateDefaultParameter(section) {
-	var idAnalysis = findSelectItemIdBySection(section);
-	if (idAnalysis.length != 1)
-		return false;
-	$.ajax({
-		url : context + "/Parameter/Generate/Default/From/Analysis/" + idAnalysis[0],
-		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
-			if (response["success"] != undefined)
-				$("#alert-dialog .modal-body").html(response["success"]);
-			else if (response["error"] != undefined)
-				$("#alert-dialog .modal-body").html(response["error"]);
-			else
-				$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-			$("#alert-dialog").modal("toggle");
-			return true;
-		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred during processing"));
-			$("#alert-dialog").modal("toggle");
-		}
-	});
 }
 
 function updatemanageAnalysisAccess(analysisid, userrightsform) {

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.TrickService;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.Role;
@@ -21,6 +22,7 @@ import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceRole;
+import lu.itrust.business.service.ServiceTrickService;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.ServiceUserAnalysisRight;
 import lu.itrust.business.validator.UserValidator;
@@ -74,6 +76,9 @@ public class ControllerAdministration {
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
+	@Autowired
+	private ServiceTrickService serviceTrickService;
+	
 	/**
 	 * loadAll: <br>
 	 * Description
@@ -98,16 +103,20 @@ public class ControllerAdministration {
 			session.setAttribute("currentCustomer", customerID = customers.get(0).getId());
 		
 		customers = serviceCustomer.loadAll();
-
+		
+		model.put("status", getStatus());
+		
 		if (customers != null && customers.size() > 0) {
 
 			model.put("customers", customers);
 
+			
+			
 			if (customerID != null) {
-				model.put("customers", customerID);
+				model.put("currentcustomer", customerID);
 				model.put("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerID));
 			} else {
-				model.put("customers", null);
+				model.put("currentcustomer", null);
 				model.put("analyses", serviceAnalysis.loadAll());
 			}
 			
@@ -117,6 +126,37 @@ public class ControllerAdministration {
 		return "admin/administration";
 	}
 
+	public TrickService getStatus() throws Exception {
+
+		TrickService status = serviceTrickService.getStatus();
+
+		String version = "0.0.1";
+
+		boolean installed = false;
+
+		if (status != null) {
+			
+			if(status.isInstalled()==false && serviceAnalysis.getDefaultProfile()!=null) {
+				status.setInstalled(true);
+				serviceTrickService.saveOrUpdate(status);
+			}
+			
+			return status;
+			
+		}
+
+		status = new TrickService(version, installed);
+		
+	
+		if (serviceAnalysis.getDefaultProfile() != null)
+			status.setInstalled(true);
+
+		serviceTrickService.save(status);
+		
+		return status;
+
+	}
+	
 	/**
 	 * section: <br>
 	 * reload customer section by page index
@@ -131,8 +171,8 @@ public class ControllerAdministration {
 	@RequestMapping("/Analysis/DisplayByCustomer/{customerSection}")
 	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
 		session.setAttribute("currentCustomer", customerSection);
+		model.addAttribute("customer",customerSection);
 		model.addAttribute("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerSection));
-		model.addAttribute("customer", customerSection);
 		model.addAttribute("customers", serviceCustomer.loadAll());
 		return "admin/analysis/analyses";
 	}

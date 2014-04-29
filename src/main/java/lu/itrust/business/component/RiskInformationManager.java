@@ -42,41 +42,4 @@ public class RiskInformationManager {
 		}
 		return mapper;
 	}
-	
-	public static boolean SaveDefault(List<RiskInformation> riskInformations, ServletContext servletContext) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			String filename = servletContext.getRealPath(DEFAULT_RISK_INFORMATION_PATH);
-			File file = new File(filename);
-			mapper.writeValue(file, riskInformations);
-			return true;
-		} catch (JsonGenerationException e) {
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return false;
-		
-	}
-	
-	public static List<RiskInformation> LoadDefault(ServletContext servletContext){
-		try {
-			String filename = servletContext.getRealPath(DEFAULT_RISK_INFORMATION_PATH);
-			File file = new File(filename);
-			if(!file.exists())
-				return null;
-			ObjectMapper mapper = new ObjectMapper();
-			TypeReference<List<RiskInformation>> TypeReference = new TypeReference<List<RiskInformation>>() {};
-			return mapper.readValue(file,TypeReference);
-		} catch (JsonParseException e) {
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 }

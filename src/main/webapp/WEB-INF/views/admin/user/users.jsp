@@ -61,7 +61,7 @@
 			</div>
 			<div class="panel-body">
 				<h4>
-					<spring:message code="label.user.notexist" />
+					<spring:message code="label.user.notexist" text="No users exist" />
 				</h4>
 			</div>
 		</div>

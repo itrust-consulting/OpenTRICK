@@ -64,17 +64,27 @@ public class ControllerUser {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String profile(Model model, Principal principal) throws Exception {
+	public String profile(Model model, Principal principal) {
 
-		// retrieve profile of the current user
-		User user = serviceUser.get(principal.getName());
-
-		user.setPassword(Constant.EMPTY_STRING);
-
-		// add profile to model
-		model.addAttribute("user", user);
-
-		return "userProfile";
+		try {
+		
+			User user = serviceUser.get(principal.getName());
+	
+			user.setPassword(Constant.EMPTY_STRING);
+	
+			// add profile to model
+			model.addAttribute("user", user);
+			
+		
+			return "userProfile";
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("user", null);
+			return "userProfile";
+		}
+		
+		
+		
 	}
 
 	/**

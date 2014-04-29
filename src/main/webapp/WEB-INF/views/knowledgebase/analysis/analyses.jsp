@@ -16,6 +16,8 @@
 			<ul class="nav nav-pills" id="menu_analysis">
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span class="glyphicon glyphicon-pushpin"></span> <spring:message
 							code="label.analysis.pin" text="Edit Analysis" /></a></li>
+				<li class="disabled" trick-selectable="true"><a href="#" onclick="return setAsDefaultProfile(undefined, 'true')"> <span class="glyphicon glyphicon-pushpin"></span> <spring:message
+							code="label.analysis.setdefault" text="Set As Default" /></a></li>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-edit"></span> <spring:message
 							code="label.analysis.editInfo" text="Edit info" /></a></li>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteAnalysis();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
@@ -45,7 +47,7 @@
 							<td>${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}</td>
 							<td>${analysis.language.name}</td>
 							<td>
-								<spring:message code="label.yes_no.${!analysis.defaultProfile}" text="${!analysis.defaultProfile}" />
+								<spring:message code="label.yes_no.${analysis.defaultProfile}" text="${analysis.defaultProfile}" />
 							</td>
 						</tr>
 					</c:forEach>

@@ -37,7 +37,7 @@
 							code="label.analysis.compute.risk_register" text="Risk register" /></a></li>
 			</ul>
 		</div>
-		<div class="panel-body panelbodydefinition">
+		<div class="panel-body autofitpanelbodydefinition">
 			<p class="text-center">
 				<spring:message code="label.analysis.filter.customer" text="Analyses filtered by customer: " />
 			<div class="col-md-offset-5 col-md-2">

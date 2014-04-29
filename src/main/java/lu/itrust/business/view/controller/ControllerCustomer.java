@@ -245,15 +245,19 @@ public class ControllerCustomer {
 			if (customer == null)
 				return JsonMessage.Error(messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
 
+			if (!customer.isCanBeUsed())
+				return JsonMessage.Error(messageSource.getMessage("error.customer.delete.profile", null, "Customer Profile cannot be deleted", locale));
+			
 			String referer = request.getHeader("Referer");
 
 			if (referer != null && referer.contains("/trickservice/Admin")) {
 				User user = serviceUser.get(principal.getName());
 				if (user.isAutorise(RoleType.ROLE_ADMIN)) {
-					customDelete.deleteCustomer(customer);
-					return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
+					
+						customDelete.deleteCustomer(customer);
+						return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
 				} else
-					JsonMessage.Error(messageSource.getMessage("errors.403.access.denied", null, "You do not have the nessesary permissions to perform this action!", locale));
+					return JsonMessage.Error(messageSource.getMessage("errors.403.access.denied", null, "You do not have the nessesary permissions to perform this action!", locale));
 			}
 			customDelete.deleteCustomerByUser(customer, principal.getName());
 			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));

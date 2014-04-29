@@ -690,6 +690,39 @@ public class ControllerAnalysis {
 	}
 
 	// *****************************************************************
+	// * set default profile
+	// *****************************************************************
+	
+	@RequestMapping("/SetDefaultProfile/{analysisId}")
+	@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
+	public @ResponseBody boolean setDefaultProfile(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
+		
+		Analysis analysis = serviceAnalysis.get(analysisId);
+		
+		Analysis currentProfileanalysis = serviceAnalysis.getDefaultProfile();
+		
+		if (analysis==null || !analysis.isProfile()) {
+			System.out.println("Bad analysis for default profile");
+			return false;
+		}
+		
+		analysis.setDefaultProfile(true);
+		serviceAnalysis.saveOrUpdate(analysis);
+		
+		if (currentProfileanalysis!=null) {
+			
+			if (currentProfileanalysis.getId()!=analysisId) {
+				
+				currentProfileanalysis.setDefaultProfile(false);
+				serviceAnalysis.saveOrUpdate(currentProfileanalysis);
+			}
+		}
+		
+		return true;
+	}
+	
+	
+	// *****************************************************************
 	// * delete analysis
 	// *****************************************************************
 
@@ -708,6 +741,11 @@ public class ControllerAnalysis {
 	String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session) throws Exception {
 		try {
 
+			Analysis analysis = serviceAnalysis.getDefaultProfile();
+			
+			if(analysis.getId()==analysisId)
+				return JsonMessage.Success(messageSource.getMessage("error.profile.delete.fail", null, "Default profile cannot be deleted!", locale));
+			
 			// delete the analysis
 			serviceAnalysis.remove(analysisId);
 
