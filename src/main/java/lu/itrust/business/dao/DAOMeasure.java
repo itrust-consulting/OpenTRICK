@@ -44,12 +44,4 @@ public interface DAOMeasure {
 	void delete(Measure measure);
 	
 	void delete(int id);
-
-	
-
-	
-
-	
-
-	
 }

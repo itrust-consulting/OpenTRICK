@@ -16,6 +16,9 @@
 		<property name="investment" column="dtInvestment" not-null="true" access="field" />
 		<property name="lifetime" column="dtLifetime" not-null="true" access="field" />
 		<property name="maintenance" column="dtMaintenance" not-null="true" access="field" />
+		<property name="internalMaintenance" column="dtInternalMaintenance" not-null="true" access="field" />
+		<property name="externalMaintenance" column="dtExternalMaintenance" not-null="true" access="field" />
+		<property name="recurrentInvestment" column="dtRecurrentInvestment" not-null="true" access="field" />
 		<property name="cost" column="dtCost" not-null="true" access="field" />
 		<property name="comment" column="dtComment" type="text" />
 		<property name="toDo" column="dtToDo" type="text" />

@@ -46,6 +46,7 @@
 					class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li><a href="#" onclick="return fixAllScenarioCategories()"><spring:message code="label.scenario.fix.categories" text="Fix category for Scenarios"/></a></li>
+							<li><a href="#" onclick="return fixMeasureMaintenance()"><spring:message code="label.measure.fix.maintenance" text="Update measures with new maintenance structure"/></a></li>
 						</ul>
 					</li>
 				</sec:authorize>

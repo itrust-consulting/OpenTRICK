@@ -69,6 +69,9 @@ public class SummaryStage {
 	/** Sum of ((ExternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
 	private double externalMaintenance;
 
+	/** Sum of recurrent Investment */
+	private double recurrentInvestment;
+	
 	/** Sum of ((Investments * Maintenance) / 100) taken from Action Plan Entries */
 	private double recurrentCost;
 
@@ -551,5 +554,24 @@ public class SummaryStage {
 	 */
 	public void setActionPlanType(ActionPlanType actionPlanType) {
 		this.actionPlanType = actionPlanType;
+	}
+
+	/** getRecurrentInvestment: <br>
+	 * Returns the recurrentInvestment field value.
+	 * 
+	 * @return The value of the recurrentInvestment field
+	 */
+	public double getRecurrentInvestment() {
+		return recurrentInvestment;
+	}
+
+	/** setRecurrentInvestment: <br>
+	 * Sets the Field "recurrentInvestment" with a value.
+	 * 
+	 * @param recurrentInvestment 
+	 * 			The Value to set the recurrentInvestment field
+	 */
+	public void setRecurrentInvestment(double recurrentInvestment) {
+		this.recurrentInvestment = recurrentInvestment;
 	}
 }

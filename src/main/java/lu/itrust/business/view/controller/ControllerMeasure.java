@@ -2,22 +2,28 @@ package lu.itrust.business.view.controller;
 
 import java.lang.reflect.Field;
 import java.security.Principal;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ChartGenerator;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.component.helper.RRFFieldEditor;
 import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasure;
+import lu.itrust.business.service.ServiceParameter;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +64,9 @@ public class ControllerMeasure {
 
 	@Autowired
 	private ServiceLanguage serviceLanguage;
+
+	@Autowired
+	private ServiceParameter serviceParameter;
 
 	/**
 	 * section: <br>
@@ -128,13 +137,13 @@ public class ControllerMeasure {
 				assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
 			((NormMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormMeasure) measure).getMeasurePropertyList()));
 		}
-		
+
 		model.addAttribute("measure", measure);
-		model.addAttribute("norm",measure.getAnalysisNorm().getNorm().getLabel());
-		
+		model.addAttribute("norm", measure.getAnalysisNorm().getNorm().getLabel());
+
 		return "analysis/components/singleMeasure";
 	}
-	
+
 	@RequestMapping(value = "/RRF/Update", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
@@ -235,15 +244,98 @@ public class ControllerMeasure {
 		}
 	}
 
-	@RequestMapping(value="/SOA",method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/SOA", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String getSOA(HttpSession session, Principal principal, Model model) {
-		
+
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		
+
 		model.addAttribute("measures", serviceMeasure.loadSOA(idAnalysis));
-		
+
 		return "analysis/components/soa";
+	}
+
+	@RequestMapping(value = "/Update/Maintenance", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
+	public @ResponseBody
+	String updateMaintenance(Locale locale) {
+
+		try {
+
+			List<Analysis> analyses = serviceAnalysis.loadAll();
+
+			for (Analysis analysis : analyses) {
+				for (AnalysisNorm norm : analysis.getAnalysisNorms()) {
+					for (Measure measure : norm.getMeasures()) {
+
+						double maintenance = measure.getMaintenance();
+
+						double internalmaintenance = 0;
+
+						double externalmaintenance = 0;
+
+						double recurrentInvestment = 0;
+
+						double lifetime = 0;
+
+						double defaultlifetime = analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
+
+						double internal_setup_rate = analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+
+						double external_setup_rate = analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+
+						double investment = 0;
+
+						lifetime = measure.getLifetime();
+
+						investment = measure.getInvestment();
+
+						if (lifetime == 0)
+							lifetime = defaultlifetime;
+
+						internalmaintenance = (internal_setup_rate * (maintenance / 100.)) / lifetime;
+
+						externalmaintenance = (external_setup_rate * (maintenance / 100.)) / lifetime;
+
+						recurrentInvestment = (investment * (maintenance / 100.)) / lifetime;
+
+						measure.setInternalMaintenance(internalmaintenance);
+
+						measure.setExternalMaintenance(externalmaintenance);
+
+						measure.setRecurrentInvestment(recurrentInvestment);
+
+						Measure.ComputeCost(measure, analysis);
+
+						serviceMeasure.saveOrUpdate(measure);
+
+					}
+				}
+
+				Parameter maintenanceDefaultParam = null;
+
+				for (Parameter parameter : analysis.getParameters()) {
+					if (parameter.getDescription().equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
+						maintenanceDefaultParam = parameter;
+						break;
+					}
+				}
+
+				if (maintenanceDefaultParam != null) {
+					analysis.getParameters().remove(maintenanceDefaultParam);
+					serviceParameter.delete(maintenanceDefaultParam);
+
+				}
+
+				serviceAnalysis.saveOrUpdate(analysis);
+
+			}
+
+			return JsonMessage.Success(messageSource.getMessage("success.maintenance.update.all", null, "Measures were successfully updated", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(e.getMessage());
+		}
 	}
 }

@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.History;
@@ -568,7 +569,7 @@ public class ControllerEditField {
 			field.setAccessible(true);
 
 			// retrieve parameters
-			List<Parameter> parameters = serviceParameter.findByAnalysisAndType(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
 			// check if field is a phase
 			if (fieldEditor.getFieldName().equals("phase")) {
@@ -591,10 +592,10 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			
 			if(fieldEditor.getFieldName().equals("investment"))
-				measure.setInvestment(measure.getInvestment()*1000);
+				measure.setInvestment(measure.getInvestment());
 			
 			// compute new cost
-			Measure.ComputeCost(measure, parameters);
+			Measure.ComputeCost(measure, analysis);
 
 			// update measure
 			serviceMeasure.saveOrUpdate(measure);
@@ -698,7 +699,7 @@ public class ControllerEditField {
 				List<Parameter> parameters = serviceParameter.findByAnalysisAndType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 
 				// retrieve single parameters
-				List<Parameter> simpleParameters = serviceParameter.findByAnalysisAndType(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME);
+				Analysis analysis = serviceAnalysis.get(idAnalysis);
 
 				// get value
 				double value = Double.parseDouble(fieldEditor.getValue().toString());
@@ -706,14 +707,14 @@ public class ControllerEditField {
 				// parse parameters
 				for (Parameter parameter : parameters) {
 
-					// TODO CHECK ???
+					// find the parameter
 					if (Math.abs(parameter.getValue() - value) < 1e-5) {
 
 						// set new implementation rate
 						measure.setImplementationRate(parameter);
 
 						// recompute cost
-						Measure.ComputeCost(measure, simpleParameters);
+						Measure.ComputeCost(measure, analysis);
 
 						// update measure
 						serviceMeasure.saveOrUpdate(measure);

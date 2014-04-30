@@ -19,11 +19,10 @@ import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * Analysis: <br>
- * This class represents an analysis and all its data of TRICK Service. This
- * class is used to store analysis data such as assets, scenarios, security
- * measures, item information, risk information, the version, parameters and
- * phases. After the data is stored, the action plan can be computed within this
- * class as well as the Action Plan Summary.
+ * This class represents an analysis and all its data of TRICK Service. This class is used to store
+ * analysis data such as assets, scenarios, security measures, item information, risk information,
+ * the version, parameters and phases. After the data is stored, the action plan can be computed
+ * within this class as well as the Action Plan Summary.
  * <ul>
  * <li>import Analysis from SQLite file</li>
  * <li>store analysis in java object to use during the calculations</li>
@@ -52,7 +51,7 @@ public class Analysis implements Serializable, Cloneable {
 	private boolean profile = false;
 
 	private boolean defaultProfile = false;
-	
+
 	/** The Customer object */
 	private Customer customer;
 
@@ -236,8 +235,7 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getLatestVersion: <br>
-	 * Parse all history entries to find latest version (version has to be of
-	 * format xx.xx.xx)
+	 * Parse all history entries to find latest version (version has to be of format xx.xx.xx)
 	 * 
 	 * @return
 	 */
@@ -288,9 +286,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * calculateRRF: <br>
-	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a
-	 * given measure, given Scenario and given Asset (asset and scenario
-	 * together: assessment) values.
+	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a given measure, given
+	 * Scenario and given Asset (asset and scenario together: assessment) values.
 	 * 
 	 * @param tmpAssessment
 	 *            The Assessment to take Values to calculate
@@ -373,23 +370,26 @@ public class Analysis implements Serializable, Cloneable {
 		// ****************************************************************
 		// * Type calculation
 		// ****************************************************************
-		type = ((measure.getMeasurePropertyList().getLimitative() * tmpAssessment.getScenario().getLimitative())
+		type =
+			((measure.getMeasurePropertyList().getLimitative() * tmpAssessment.getScenario().getLimitative())
 				+ (measure.getMeasurePropertyList().getPreventive() * tmpAssessment.getScenario().getPreventive())
 				+ (measure.getMeasurePropertyList().getDetective() * tmpAssessment.getScenario().getDetective()) + (measure.getMeasurePropertyList().getCorrective() * tmpAssessment
-				.getScenario().getCorrective())) / 4.;
+					.getScenario().getCorrective())) / 4.;
 
 		// ****************************************************************
 		// * Source calculation
 		// ****************************************************************
-		source = (measure.getMeasurePropertyList().getIntentional() * tmpAssessment.getScenario().getIntentional())
+		source =
+			(measure.getMeasurePropertyList().getIntentional() * tmpAssessment.getScenario().getIntentional())
 				+ (measure.getMeasurePropertyList().getAccidental() * tmpAssessment.getScenario().getAccidental())
 				+ (measure.getMeasurePropertyList().getEnvironmental() * tmpAssessment.getScenario().getEnvironmental())
 				+ (measure.getMeasurePropertyList().getInternalThreat() * tmpAssessment.getScenario().getInternalThreat())
 				+ (measure.getMeasurePropertyList().getExternalThreat() * tmpAssessment.getScenario().getExternalThreat());
 
-		source = source
+		source =
+			source
 				/ (4. * (double) (tmpAssessment.getScenario().getIntentional() + tmpAssessment.getScenario().getAccidental() + tmpAssessment.getScenario().getEnvironmental()
-						+ tmpAssessment.getScenario().getInternalThreat() + tmpAssessment.getScenario().getExternalThreat()));
+					+ tmpAssessment.getScenario().getInternalThreat() + tmpAssessment.getScenario().getExternalThreat()));
 
 		// ****************************************************************
 		// * RRF completion :
@@ -419,9 +419,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * calculateRRF: <br>
-	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a
-	 * given measure, given Scenario and given Asset (asset and scenario
-	 * together: assessment) values.
+	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a given measure, given
+	 * Scenario and given Asset (asset and scenario together: assessment) values.
 	 * 
 	 * @param scenario
 	 *            The scenario to take Values to calculate
@@ -492,19 +491,19 @@ public class Analysis implements Serializable, Cloneable {
 		// ****************************************************************
 		// * Type calculation
 		// ****************************************************************
-		type = ((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive())
+		type =
+			((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive())
 				+ (measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective())) / 4.;
 
 		// ****************************************************************
 		// * Source calculation
 		// ****************************************************************
-		source = (measure.getMeasurePropertyList().getIntentional() * scenario.getIntentional()) + (measure.getMeasurePropertyList().getAccidental() * scenario.getAccidental())
-				+ (measure.getMeasurePropertyList().getEnvironmental() * scenario.getEnvironmental())
-				+ (measure.getMeasurePropertyList().getInternalThreat() * scenario.getInternalThreat())
+		source =
+			(measure.getMeasurePropertyList().getIntentional() * scenario.getIntentional()) + (measure.getMeasurePropertyList().getAccidental() * scenario.getAccidental())
+				+ (measure.getMeasurePropertyList().getEnvironmental() * scenario.getEnvironmental()) + (measure.getMeasurePropertyList().getInternalThreat() * scenario.getInternalThreat())
 				+ (measure.getMeasurePropertyList().getExternalThreat() * scenario.getExternalThreat());
 
-		source = source
-				/ (4. * (double) (scenario.getIntentional() + scenario.getAccidental() + scenario.getEnvironmental() + scenario.getInternalThreat() + scenario.getExternalThreat()));
+		source = source / (4. * (double) (scenario.getIntentional() + scenario.getAccidental() + scenario.getEnvironmental() + scenario.getInternalThreat() + scenario.getExternalThreat()));
 
 		// ****************************************************************
 		// * RRF completion :
@@ -535,8 +534,8 @@ public class Analysis implements Serializable, Cloneable {
 	/**
 	 * calculateRRFCategory: <br>
 	 * RRF Category calculation Returns SUM(Rm*RiS)/4*SUM(Rs): R =
-	 * RISK(CONFIDENTIALITY,AVAILABILITY,INTEGRITY,Direct[1-7], Indirect[1-10]),
-	 * M=MeasureProperties and S=scenario
+	 * RISK(CONFIDENTIALITY,AVAILABILITY,INTEGRITY,Direct[1-7], Indirect[1-10]), M=MeasureProperties
+	 * and S=scenario
 	 * 
 	 * @param properties
 	 *            MeasureProperties
@@ -571,7 +570,7 @@ public class Analysis implements Serializable, Cloneable {
 
 			// calculate: Category of Measure * Category of Scenario
 			categoryNumerator += properties.getCategoryValue(risk) * scenario.getCategoryValue(risk);
-			
+
 			// calculate: sum of Scenario Category
 			categoryDenominator += scenario.getCategoryValue(risk);
 		}
@@ -613,83 +612,20 @@ public class Analysis implements Serializable, Cloneable {
 		double externalSetupValue = -1;
 		double internalSetupValue = -1;
 		double lifetimeDefault = -1;
-		double maintenanceDefault = -1;
 
 		// ****************************************************************
 		// * select external and internal setup rate from parameters
 		// ****************************************************************
 
-		// parse parameters
-		for (int i = 0; i < this.getParameters().size(); i++) {
-
-			// check if parameter is Internal Setup Rate -> YES
-			if (this.getAParameter(i).getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE)) {
-
-				// ****************************************************************
-				// * set internal Setup rate
-				// ****************************************************************
-				internalSetupValue = this.getAParameter(i).getValue();
-
-				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
-
-					// leave loop
-					break;
-				}
-			}
-
-			// check if parameter is External Setup Rate -> YES
-			if (this.getAParameter(i).getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE)) {
-
-				// ****************************************************************
-				// * set external setup rate
-				// ****************************************************************
-				externalSetupValue = this.getAParameter(i).getValue();
-
-				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
-
-					// leave loop
-					break;
-				}
-			}
-
-			// check if parameter is default lifetime -> YES
-			if (this.getAParameter(i).getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
-
-				// ****************************************************************
-				// * set default lifetime
-				// ****************************************************************
-				lifetimeDefault = this.getAParameter(i).getValue();
-
-				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
-
-					// leave loop
-					break;
-				}
-			}
-
-			// check if parameter is default maintenance -> YES
-			if (this.getAParameter(i).getDescription().equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
-
-				// ****************************************************************
-				// * set default maintenance
-				// ****************************************************************
-				maintenanceDefault = this.getAParameter(i).getValue();
-
-				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
-
-					// leave loop
-					break;
-				}
-			}
-		}
+		internalSetupValue = this.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+		
+		externalSetupValue = this.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+		
+		lifetimeDefault = this.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getInternalWL(), measure.getExternalWL(),
-				measure.getInvestment(), measure.getLifetime(), measure.getMaintenance());
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime(),
+					measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
 
 		// return calculated cost
 		return cost;
@@ -697,52 +633,45 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * computeCost: <br>
-	 * Returns the Calculated Cost of a Measure
+	 * Returns the Calculated Cost of a Measure. <br>
+	 * Formula used: <br>
+	 * Formula: Cost = ((is * iw) + (es * ew) + in) * ((1 / lt) + (ma / 100))<br>
+	 *	 With:<br>
+	 *	 is: The Internal Setup Rate in Euro per Man Day<br>
+	 *	 iw: The Internal Workload in Man Days<br>
+	 *	 es: The External Setup Rate in Euro per Man Day<br>
+	 *	 ew: The External Workload in Man Days<br>
+	 *	 in:  The Investment in Euro<br>
+	 *	 lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
+	 *	 ma: The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%) :: if 0 -> use The Default Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%)
 	 * 
 	 * @param internalSetup
-	 *            The Internal Setup Rate in Euro per Man Day
+	 *            
 	 * @param externalSetup
-	 *            The External Setup Rate in Euro per Man Day
+	 *            
 	 * @param lifetimeDefault
-	 *            The Default LifeTime in Years
+	 *            
 	 * @param maintenanceDefault
-	 *            The Default Maintenance in Percentage (0,00 - 1,00 WHERE 0,00
-	 *            = 0% and 0,1 = 100%)
+	 *            
 	 * @param internalWorkLoad
-	 *            The Internal Workload in Man Days
+	 *            
 	 * @param externalWorkLoad
-	 *            The External Workload in Man Days
+	 *            
 	 * @param investment
-	 *            The Investment in Euro
+	 *           
 	 * @param lifetime
-	 *            The Lifetime in Years
+	 *            
 	 * @param maintenance
-	 *            The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and
-	 *            0,1 = 100%)
 	 * 
 	 * @return The Calculated Cost
 	 */
-	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double internalWorkLoad,
-			double externalWorkLoad, double investment, double lifetime, double maintenance) {
+	@Deprecated
+	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double maintenance, double internalWorkLoad, double externalWorkLoad, double investment, double lifetime) {
 
 		// ****************************************************************
 		// * variable initialisation
 		// ****************************************************************
 		double cost = 0;
-
-		// ****************************************************************
-		// * Calculate Cost using Formula:
-		// Formula: Cost = ((is * iw) + (es * ew) + in) * ((1 / lt) + (ma /
-		// 100))
-		// With:
-		// is: internal setup
-		// iw: internal workload
-		// es: external setup
-		// ew: external workload
-		// in: investment
-		// lt: lifetime :: if 0 -> use default lifetime
-		// ma: maintenance :: if 0 -> use default maintenance
-		// ****************************************************************
 
 		// internal setup * internal wokload
 		cost = (internalSetup * internalWorkLoad);
@@ -779,6 +708,69 @@ public class Analysis implements Serializable, Cloneable {
 				cost *= ((1. / lifetime) + (maintenance / 100.));
 			}
 		}
+
+		// return calculated cost
+		return cost;
+	}
+	
+	/**
+	 * computeCost: <br>
+	 * Returns the Calculated Cost of a Measure. This method does no more need the parameter default maintenance, but needs to get the internal and external maintenance in md as well as the 
+	 * recurrent investment per year in keuro. <br>
+	 * Formula used:<br>
+	 * Cost = ((ir * iw) + (er * ew) + in) * ((1 / lt) + ((im * ir) + (em * er) + ri))<br>
+	 *	 With:<br>
+	 *	 ir: The Internal Setup Rate in Euro per Man Day<br>
+	 *	 iw: The Internal Workload in Man Days<br>
+	 *	 er: The External Setup Rate in Euro per Man Day<br>
+	 *	 ew: The External Workload in Man Days<br>
+	 *	 in: The Investment in kEuro<br>
+	 *	 lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
+	 *	 im: The Internal Maintenance in Man Days<br>
+	 *   em: The External Maintenance in Man Days<br>
+	 *   ri: The recurrent Investment in kEuro<br>
+	 * 
+	 * @param internalSetupRate
+	 *           
+	 * @param externalSetupRate
+	 *            
+	 * @param lifetimeDefault
+	 *            
+	 * @param internalMaintenance
+	 *            
+	 * @param externalMaintenance
+	 *            
+	 * @param recurrentInvestment
+	 *            
+	 * @param internalWorkLoad
+	 *            
+	 * @param externalWorkLoad
+	 *            
+	 * @param investment
+	 *            
+	 * @param lifetime
+	 *           
+	 * @return The Calculated Cost
+	 */
+	public static final double computeCost(double internalSetupRate, double externalSetupRate, double lifetimeDefault, double internalMaintenance, double externalMaintenance,
+			double recurrentInvestment, double internalWorkLoad, double externalWorkLoad, double investment, double lifetime) {
+
+		// ****************************************************************
+		// * variable initialisation
+		// ****************************************************************
+		double cost = 0;
+
+		// internal setup * internal wokload + external setup * external workload
+		cost = (internalSetupRate * internalWorkLoad) + (externalSetupRate * externalWorkLoad);
+
+		// + investment
+		cost += investment;
+
+		// check if lifetime is not 0 -> YES: use default lifetime
+		if (lifetime == 0) 			
+				cost *= ((1. / lifetimeDefault) + ((internalMaintenance * internalSetupRate)+(externalMaintenance * externalSetupRate) + recurrentInvestment));
+		else
+			cost *= ((1. / lifetimeDefault) + ((internalMaintenance * internalSetupRate)+(externalMaintenance * externalSetupRate) + recurrentInvestment));
 
 		// return calculated cost
 		return cost;
@@ -992,9 +984,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getYearsDifferenceBetweenTwoDates: <br>
-	 * This method Calculates an Double Value that Indicates the Difference
-	 * between two Dates. It is used to Calculate the Size of the Phase in
-	 * Years.
+	 * This method Calculates an Double Value that Indicates the Difference between two Dates. It is
+	 * used to Calculate the Size of the Phase in Years.
 	 * 
 	 * @param beginDate
 	 *            begin date (should be smallest date)
@@ -1049,8 +1040,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @param parameter
 	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or -1 if the parameter
-	 *         was not found
+	 * @return The Value of the Parameter if it exists, or -1 if the parameter was not found
 	 */
 	public double getParameter(String parameter) {
 
@@ -1077,9 +1067,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * computeParameterScales: <br>
-	 * This method will calculate the bounds of the extended parameters from and
-	 * to values. Since CSSF implementation, impact and probability values need
-	 * to be calculated using bounds.
+	 * This method will calculate the bounds of the extended parameters from and to values. Since
+	 * CSSF implementation, impact and probability values need to be calculated using bounds.
 	 */
 	public void computeParameterScales() {
 
@@ -1349,8 +1338,7 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getAnItemInformtation: <br>
-	 * Returns a Single Item Information from the List of Item Information at
-	 * the postion "index"
+	 * Returns a Single Item Information from the List of Item Information at the postion "index"
 	 * 
 	 * @param index
 	 *            The Position in the List to retrieve the Item Information
@@ -1487,8 +1475,7 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getARiskInformation: <br>
-	 * Returns a Risk Information from the List of Risk Information at position
-	 * "index"
+	 * Returns a Risk Information from the List of Risk Information at position "index"
 	 * 
 	 * @param index
 	 *            The Position to retrieve the Object
@@ -1860,8 +1847,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan
-	 *         Type
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> getActionPlans() {
 		return this.actionPlans;
@@ -1874,8 +1860,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan
-	 *         Type
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(String mode) {
 
@@ -1895,8 +1880,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan
-	 *         Type
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(ActionPlanMode mode) {
 
@@ -2053,9 +2037,9 @@ public class Analysis implements Serializable, Cloneable {
 	@Override
 	public String toString() {
 		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label
-				+ ", histories=" + histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets="
-				+ assets + ", riskInformations=" + riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisNorm=" + analysisNorms
-				+ ", usedphases=" + usedPhases + ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
+			+ ", histories=" + histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets
+			+ ", riskInformations=" + riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisNorm=" + analysisNorms + ", usedphases=" + usedPhases
+			+ ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}
 
 	/**
@@ -2076,8 +2060,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Method to identify if this object equals another. Equal means the fields
-	 * identifier, version and creationDate are the same.
+	 * Method to identify if this object equals another. Equal means the fields identifier, version
+	 * and creationDate are the same.
 	 * 
 	 * @param obj
 	 *            The other object to check
@@ -2396,12 +2380,13 @@ public class Analysis implements Serializable, Cloneable {
 				return phase;
 		return null;
 	}
-	
-	public boolean hasPhase(int number){
-		return findPhaseByNumber(number)!=null;
+
+	public boolean hasPhase(int number) {
+		return findPhaseByNumber(number) != null;
 	}
 
-	/** isDefaultProfile: <br>
+	/**
+	 * isDefaultProfile: <br>
 	 * Returns the defaultProfile field value.
 	 * 
 	 * @return The value of the defaultProfile field
@@ -2410,11 +2395,12 @@ public class Analysis implements Serializable, Cloneable {
 		return defaultProfile;
 	}
 
-	/** setDefaultProfile: <br>
+	/**
+	 * setDefaultProfile: <br>
 	 * Sets the Field "defaultProfile" with a value.
 	 * 
-	 * @param defaultProfile 
-	 * 			The Value to set the defaultProfile field
+	 * @param defaultProfile
+	 *            The Value to set the defaultProfile field
 	 */
 	public void setDefaultProfile(boolean defaultProfile) {
 		this.defaultProfile = defaultProfile;

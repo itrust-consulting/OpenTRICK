@@ -50,9 +50,18 @@ public abstract class Measure implements Serializable, Cloneable {
 	/** The LifeTime of the Measure (in Years) */
 	private double lifetime = 0;
 
-	/** The Maintenance of the Measure (in percent) */
+	/** The old Maintenance of the Measure (in percent) */
 	private double maintenance = 0;
+	
+	/** The internal Maintenance of the Measure (in Man Days) */
+	private double internalMaintenance = 0;
 
+	/** The external Maintenance of the Measure (in Man Days) */
+	private double externalMaintenance = 0;
+	
+	/** The recurrent investment of maintenance  of the Measure (Currency) */
+	private double recurrentInvestment = 0;
+	
 	/** The Cost of the Measure (Currency) */
 	private double cost = 0;
 
@@ -451,6 +460,14 @@ public abstract class Measure implements Serializable, Cloneable {
 		return true;
 	}
 	
+	/**
+	 * ComputeCost: <br>
+	 * Description
+	 * 
+	 * @param measure
+	 * @param analysis
+	 */
+	@Deprecated
 	public static void ComputeCost(Measure measure, List<Parameter> parameters) {
 		// ****************************************************************
 		// * variable initialisation
@@ -465,77 +482,68 @@ public abstract class Measure implements Serializable, Cloneable {
 		// * select external and internal setup rate from parameters
 		// ****************************************************************
 
-		// parse parameters
 		for (Parameter parameter : parameters) {
-
-			// check if parameter is Internal Setup Rate -> YES
-			if (parameter.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE)) {
-
-				// ****************************************************************
-				// * set internal Setup rate
-				// ****************************************************************
+			if(parameter.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE)) {
 				internalSetupValue = parameter.getValue();
-
-				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
-
-					// leave loop
-					break;
-				}
+				break;
 			}
-
-			// check if parameter is External Setup Rate -> YES
-			if (parameter.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE)) {
-
-				// ****************************************************************
-				// * set external setup rate
-				// ****************************************************************
+				
+		}
+		
+		for (Parameter parameter : parameters) {
+			if(parameter.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE)) {
 				externalSetupValue = parameter.getValue();
-
-				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
-
-					// leave loop
-					break;
-				}
+				break;
 			}
-
-			// check if parameter is default lifetime -> YES
-			if (parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
-
-				// ****************************************************************
-				// * set default lifetime
-				// ****************************************************************
+				
+		}
+		
+		for (Parameter parameter : parameters) {
+			if(parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
 				lifetimeDefault = parameter.getValue();
-
-				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
-
-					// leave loop
-					break;
-				}
+				break;
 			}
-
-			// check if parameter is default maintenance -> YES
-			if (parameter.getDescription().equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
-
-				// ****************************************************************
-				// * set default maintenance
-				// ****************************************************************
-				maintenanceDefault = parameter.getValue();
-
-				// check if all parameters are set -> YES
-				if ((internalSetupValue != -1) && (externalSetupValue != -1) && (lifetimeDefault != -1) && (maintenanceDefault != -1)) {
-
-					// leave loop
-					break;
-				}
-			}
+				
 		}
 
+		for (Parameter parameter : parameters) {
+			if(parameter.getDescription().equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
+				maintenanceDefault = parameter.getValue();
+				break;
+			}
+				
+		}
+		
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getInternalWL(), measure.getExternalWL(),
-				measure.getInvestment(), measure.getLifetime(), measure.getMaintenance());
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getMaintenance(), measure.getInternalWL(), measure.getExternalWL(),
+				measure.getInvestment(), measure.getLifetime());
+		// return calculated cost
+		if (cost >= 0)
+			measure.setCost(cost);
+	}
+	
+	public static void ComputeCost(Measure measure, Analysis analysis) {
+		// ****************************************************************
+		// * variable initialisation
+		// ****************************************************************
+		double cost = 0;
+		double externalSetupValue = -1;
+		double internalSetupValue = -1;
+		double lifetimeDefault = -1;
+
+		// ****************************************************************
+		// * select external and internal setup rate from parameters
+		// ****************************************************************
+
+		internalSetupValue = analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+		
+		externalSetupValue = analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+		
+		lifetimeDefault = analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
+
+		// calculate the cost
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(),
+				measure.getInvestment(), measure.getLifetime(), measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
 		// return calculated cost
 		if (cost >= 0)
 			measure.setCost(cost);
@@ -553,5 +561,62 @@ public abstract class Measure implements Serializable, Cloneable {
 		Measure measure = (Measure) super.clone();
 		measure.id = -1;
 		return measure;
+	}
+
+	/** getInternalMaintenance: <br>
+	 * Returns the internalMaintenance field value.
+	 * 
+	 * @return The value of the internalMaintenance field
+	 */
+	public double getInternalMaintenance() {
+		return internalMaintenance;
+	}
+
+	/** setInternalMaintenance: <br>
+	 * Sets the Field "internalMaintenance" with a value.
+	 * 
+	 * @param internalMaintenance 
+	 * 			The Value to set the internalMaintenance field
+	 */
+	public void setInternalMaintenance(double internalMaintenance) {
+		this.internalMaintenance = internalMaintenance;
+	}
+
+	/** getExternalMaintenance: <br>
+	 * Returns the externalMaintenance field value.
+	 * 
+	 * @return The value of the externalMaintenance field
+	 */
+	public double getExternalMaintenance() {
+		return externalMaintenance;
+	}
+
+	/** setExternalMaintenance: <br>
+	 * Sets the Field "externalMaintenance" with a value.
+	 * 
+	 * @param externalMaintenance 
+	 * 			The Value to set the externalMaintenance field
+	 */
+	public void setExternalMaintenance(double externalMaintenance) {
+		this.externalMaintenance = externalMaintenance;
+	}
+
+	/** getRecurrentInvestment: <br>
+	 * Returns the recurrentInvestment field value.
+	 * 
+	 * @return The value of the recurrentInvestment field
+	 */
+	public double getRecurrentInvestment() {
+		return recurrentInvestment;
+	}
+
+	/** setRecurrentInvestment: <br>
+	 * Sets the Field "recurrentInvestment" with a value.
+	 * 
+	 * @param recurrentInvestment 
+	 * 			The Value to set the recurrentInvestment field
+	 */
+	public void setRecurrentInvestment(double recurrentInvestment) {
+		this.recurrentInvestment = recurrentInvestment;
 	}
 }

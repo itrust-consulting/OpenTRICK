@@ -2552,6 +2552,7 @@ public class ActionPlanComputation {
 					// tmpval.investment = 0;
 					tmpval.measureCost = 0;
 					tmpval.measureCount = 0;
+					tmpval.recurrentInvestment = 0;
 					// tmpval.recurrentCost = 0;
 					tmpval.relativeROSI = 0;
 					tmpval.ROSI = 0;
@@ -2721,25 +2722,32 @@ public class ActionPlanComputation {
 		tmpval.investment += ape.getMeasure().getInvestment();
 
 		// update internal maintenance
-		double internalWL = ape.getMeasure().getInternalWL() * ape.getMeasure().getMaintenance() / 100.;
-
+		
+		// Depricated
+		// double internalWL = ape.getMeasure().getInternalWL() * ape.getMeasure().getMaintenance() / 100.;
+		
 		// in case of a phase calculation multiply internal maintenance with
 		// phasetime
 		if (phasetime > 0)
-			tmpval.internalMaintenance += internalWL * phasetime;
+			tmpval.internalMaintenance += ape.getMeasure().getInternalMaintenance() * phasetime;
 		else
-			tmpval.internalMaintenance += internalWL;
+			tmpval.internalMaintenance += ape.getMeasure().getInternalMaintenance();
 
 		// update external maintenance
-		double external = ape.getMeasure().getExternalWL() * ape.getMeasure().getMaintenance() / 100.;
 
+		// Depricated
+		// double externalWL = ape.getMeasure().getExternalWL() * ape.getMeasure().getMaintenance() / 100.;
+		
 		// in case of a phase calculation multiply external maintenance with
 		// phasetime
 		if (phasetime > 0)
-			tmpval.externalMaintenance += external * phasetime;
+			tmpval.externalMaintenance += ape.getMeasure().getExternalMaintenance() * phasetime;
 		else
-			tmpval.externalMaintenance += external;
+			tmpval.externalMaintenance += ape.getMeasure().getExternalMaintenance();
 
+		// update recurrent investment
+		tmpval.recurrentInvestment += ape.getMeasure().getRecurrentInvestment();
+		
 		// update recurrent cost
 		tmpval.recurrentCost += ape.getMeasure().getInvestment() * ape.getMeasure().getMaintenance() / 100.;
 
@@ -3224,6 +3232,7 @@ public class ActionPlanComputation {
 		aStage.setInvestment(tmpval.investment);
 		aStage.setInternalMaintenance(tmpval.internalMaintenance);
 		aStage.setExternalMaintenance(tmpval.externalMaintenance);
+		aStage.setRecurrentInvestment(tmpval.recurrentInvestment);
 		aStage.setRecurrentCost(tmpval.recurrentCost);
 		aStage.setTotalCostofStage(tmpval.totalCost);
 

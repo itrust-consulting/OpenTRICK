@@ -11,7 +11,7 @@ import lu.itrust.business.TS.NormMeasure;
  * This class has all data to represent the action plan summary. It is used to store values between
  * stages.
  * 
- * @author itrust consulting s.� r.l. - SME,BJA
+ * @author itrust consulting s.a r.l. - SME,BJA
  * @version 0.1
  * @since 2012-10-17
  */
@@ -95,6 +95,9 @@ public class SummaryValues {
 	/** Sum of External Maintenance to the Last Stage Entry */
 	public double externalMaintenance = 0;
 
+	/** Sum of recurrent investment to the Last Stage Entry */
+	public double recurrentInvestment = 0;
+	
 	/** Reccurent Cost of Stage */
 	public double recurrentCost = 0;
 

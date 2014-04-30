@@ -23,6 +23,7 @@
 		<property name="investment" type="double" column="dtInvestment" />
 		<property name="internalMaintenance" type="double" column="dtTotalInternalMaintenance" />
 		<property name="externalMaintenance" type="double" column="dtTotalExternalMaintenance" />
+		<property name="recurrentInvestment" type="double" column="dtRecurrentInvestment" />
 		<property name="recurrentCost" type="double" column="dtRecurrentCost" />
 		<property name="totalCostofStage" type="double" column="dtTotalCost" />
 	</class>

@@ -162,5 +162,4 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	public List<Measure> loadSOA(int idAnalysis) {
 		return daoMeasure.loadSOA(idAnalysis);
 	}
-	
 }

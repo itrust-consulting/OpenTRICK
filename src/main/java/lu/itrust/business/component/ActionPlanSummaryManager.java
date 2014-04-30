@@ -23,6 +23,7 @@ public class ActionPlanSummaryManager {
 
 	public static final String LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST = "label.resource.planning.total.phase.cost";
 	public static final String LABEL_RESOURCE_PLANNING_CURRENT_COST = "label.resource.planning.current.cost";
+	public static final String LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT = "label.resource.planning.recurrent.investment";
 	public static final String LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE = "label.resource.planning.external.maintenance";
 	public static final String LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE = "label.resource.planning.internal.maintenance";
 	public static final String LABEL_RESOURCE_PLANNING_INVESTMENT = "label.resource.planning.investment";
@@ -73,6 +74,7 @@ public class ActionPlanSummaryManager {
 		rows.add(LABEL_RESOURCE_PLANNING_INVESTMENT);
 		rows.add(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
 		rows.add(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
+		rows.add(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
 		rows.add(LABEL_RESOURCE_PLANNING_CURRENT_COST);
 		rows.add(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
 		return rows;
@@ -202,6 +204,9 @@ public class ActionPlanSummaryManager {
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
 			summary.add(index, Math.floor(summaryStage.getExternalMaintenance() /** 0.001*/) + "");
 
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
+			summary.add(index, Math.floor(summaryStage.getRecurrentInvestment() * 0.001) + "");
+			
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_CURRENT_COST);
 			summary.add(index, Math.floor(summaryStage.getRecurrentCost() * 0.001) + "");
 

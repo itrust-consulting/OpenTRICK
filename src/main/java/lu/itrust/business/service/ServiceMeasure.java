@@ -32,7 +32,7 @@ public interface ServiceMeasure {
 	List<Measure> findByAnalysisAndNorm(int idAnalysis, Norm norm);
 	
 	List<Measure> loadSOA(int idAnalysis);
-
+	
 	Measure save(Measure measure);
 
 	void saveOrUpdate(Measure measure);
