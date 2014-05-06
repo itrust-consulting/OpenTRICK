@@ -27,8 +27,7 @@
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">
-
-			<div class="content"  style="margin: 0 auto; max-width: 600px;">
+			<div class="content" style="margin: 0 auto; max-width: 600px;">
 				<!-- <img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/Logo_TRICKService.png" /> style="max-width: 600px; height: auto;"> -->
 				<table class="table">
 					<thead>

@@ -35,7 +35,9 @@
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="../footer.jsp" />
 		<jsp:include page="../scripts.jsp" />
-		<script type="text/javascript" src="<spring:url value="js/administration.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/administration.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/customer.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/user.js" />"></script>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

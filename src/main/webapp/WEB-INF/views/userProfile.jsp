@@ -65,8 +65,8 @@
 						<label for="email" class="col-sm-3 control-label"> <spring:message code="label.user.email" />
 						</label>
 						<div class="col-sm-9">
-							<input type="text" id="email" name="email" class="form-control" required
-								pattern='^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$' value="${user.email}" />
+							<input type="text" id="email" name="email" class="form-control" required pattern='^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$'
+								value="${user.email}" />
 						</div>
 					</div>
 					<div class="form-group">
@@ -81,14 +81,16 @@
 						</div>
 					</div>
 				</form>
-				<div style="text-align:center">
-					<button class="btn btn-primary" onclick="return updateProfile('updateprofileform');" type="button"><spring:message code="label.user.update" text="Update" /></button>
+				<div style="text-align: center">
+					<button class="btn btn-primary" onclick="return updateProfile('updateprofileform');" type="button">
+						<spring:message code="label.user.update" text="Update" />
+					</button>
 				</div>
 			</div>
 		</div>
 		<jsp:include page="footer.jsp" />
 		<jsp:include page="scripts.jsp" />
-		<script type="text/javascript" src="<spring:url value="/js/profile.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="/js/trickservice/profile.js" />"></script>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

@@ -14,12 +14,14 @@ import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.component.helper.RRFFieldEditor;
 import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
+import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasure;
@@ -68,6 +70,9 @@ public class ControllerMeasure {
 	@Autowired
 	private ServiceParameter serviceParameter;
 
+	@Autowired
+	private ServiceActionPlanSummary serviceActionPlanSummary;
+	
 	/**
 	 * section: <br>
 	 * Description
@@ -263,12 +268,16 @@ public class ControllerMeasure {
 
 		try {
 
+			System.out.println("Load all analyses...");
+			
 			List<Analysis> analyses = serviceAnalysis.loadAll();
 
 			for (Analysis analysis : analyses) {
+					
+				System.out.println("Update maintenance...");
+				
 				for (AnalysisNorm norm : analysis.getAnalysisNorms()) {
 					for (Measure measure : norm.getMeasures()) {
-
 						double maintenance = measure.getMaintenance();
 
 						double internalmaintenance = 0;
@@ -294,11 +303,11 @@ public class ControllerMeasure {
 						if (lifetime == 0)
 							lifetime = defaultlifetime;
 
-						internalmaintenance = (internal_setup_rate * (maintenance / 100.)) / lifetime;
+						internalmaintenance = (internal_setup_rate * (maintenance / 100.));
 
-						externalmaintenance = (external_setup_rate * (maintenance / 100.)) / lifetime;
+						externalmaintenance = (external_setup_rate * (maintenance / 100.));
 
-						recurrentInvestment = (investment * (maintenance / 100.)) / lifetime;
+						recurrentInvestment = (investment * (maintenance / 100.));
 
 						measure.setInternalMaintenance(internalmaintenance);
 
@@ -313,6 +322,16 @@ public class ControllerMeasure {
 					}
 				}
 
+				System.out.println("set new recurrent investment field in action plan summary...");
+				
+				for (SummaryStage summaryStage : analysis.getSummaries()) {
+					summaryStage.setRecurrentInvestment(0);
+					serviceActionPlanSummary.saveOrUpdate(summaryStage);
+				}
+				
+				System.out.println("remove default maintenance param...");
+
+				
 				Parameter maintenanceDefaultParam = null;
 
 				for (Parameter parameter : analysis.getParameters()) {
@@ -331,6 +350,8 @@ public class ControllerMeasure {
 				serviceAnalysis.saveOrUpdate(analysis);
 
 			}
+			
+			System.out.println("Done...");
 
 			return JsonMessage.Success(messageSource.getMessage("success.maintenance.update.all", null, "Measures were successfully updated", locale));
 		} catch (Exception e) {

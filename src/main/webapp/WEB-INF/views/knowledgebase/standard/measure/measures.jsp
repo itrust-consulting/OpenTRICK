@@ -41,7 +41,7 @@
 						<c:when test="${!empty measureDescriptions}">
 							<table id="measurestable">
 								<thead>
-									<tr  role="row">
+									<tr role="row">
 										<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'measure_description')"></th>
 										<th><spring:message code="label.measure.level" /></th>
 										<th><spring:message code="label.measure.reference" /></th>
@@ -58,14 +58,11 @@
 											<td>${measureDescription.reference}</td>
 											<td>${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:"&nbsp;"}</td>
 											<td>${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:"&nbsp;"}</td>
-											<td trick-computable="${measureDescription.computable}">
-												<c:if test="${measureDescription.computable==true}">
+											<td trick-computable="${measureDescription.computable}"><c:if test="${measureDescription.computable==true}">
 													<spring:message code="label.yes_no.true" />
-												</c:if>
-												<c:if test="${measureDescription.computable==false}">
+												</c:if> <c:if test="${measureDescription.computable==false}">
 													<spring:message code="label.yes_no.false" />
-												</c:if>
-											</td>
+												</c:if></td>
 										</tr>
 									</c:forEach>
 								</tbody>

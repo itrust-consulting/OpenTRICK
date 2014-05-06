@@ -1,11 +1,8 @@
-
-analysisTableSortable();
+var taskManager = undefined;
 
 $(document).ready(function() {
-	$("input[type='checkbox']").removeAttr("checked");
-});
-$(function() {
 	analysisTableSortable();
+	$("input[type='checkbox']").removeAttr("checked");
 });
 
 function manageAnalysisAccess(analysisId, section_analysis) {
@@ -22,7 +19,11 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				$("#manageAnalysisAccessModelBody").html(response);
+
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(response, "text/html");
+				newSection = $(doc).find("* div#manageuseraccessrights-modal");
+				$("div#manageAnalysisAccessModelBody").html(newSection);
 				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
 				$("#manageAnalysisAccessModel").modal('toggle');
 			},
@@ -33,18 +34,21 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 	} else
 		permissionError();
 	return false;
-	
+
 }
 
-function updatemanageAnalysisAccess(analysisid, userrightsform) {
+function updatemanageAnalysisAccess(analysisId, userrightsform) {
 	$.ajax({
-		url : context + "/Analysis/" + analysisid + "/ManageAccess/Update",
+		url : context + "/Analysis/" + analysisId + "/ManageAccess/Update",
 		type : "post",
 		data : serializeForm(userrightsform),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			$("#manageAnalysisAccessModelBody").html(response);
-			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisid + ",'userrightsform')");
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			newSection = $(doc).find("* div#manageuseraccessrights-modal");
+			$("div#manageAnalysisAccessModelBody").html(newSection);
+			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return false;
@@ -663,6 +667,32 @@ function analysisTableSortable() {
 	});
 	$("th[class~='tablesorter-header'][data-column='7']").css({
 		'width' : '5px'
+	});
+	return false;
+}
+
+function downloadExportedSqLite(idFile) {
+	$.fileDownload(context + '/Analysis/Download/' + idFile).fail(function() {
+		alert('File download failed!');
+	});
+	return false;
+}
+
+function customerChange(selector) {
+	var customer = $(selector).find("option:selected").val();
+	$.ajax({
+		url : context + "/Analysis/DisplayByCustomer/" + customer,
+		type : "get",
+		async : true,
+		contentType : "application/json;charset=UTF-8",
+		async : true,
+		success : function(response) {
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			newSection = $(doc).find("*[id ='section_analysis']");
+			$("#section_analysis").replaceWith(newSection);
+			analysisTableSortable();
+		}
 	});
 	return false;
 }

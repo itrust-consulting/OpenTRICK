@@ -3,30 +3,24 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<!-- ################################################################ Set Page Title ################################################################ -->
 <c:set scope="request" var="title">label.home</c:set>
-<!-- ###################################################################### HTML #################################################################### -->
 <html>
-<!-- Include Header -->
 <jsp:include page="header.jsp" />
-<!-- ################################################################# Start Container ############################################################## -->
 <body>
 	<div id="wrap">
-		<!-- ################################################################### Nav Menu ################################################################### -->
 		<jsp:include page="menu.jsp" />
 		<div class="container">
-			<!-- #################################################################### Content ################################################################### -->
-
-			<h1 class="text-center" style="margin-top: 5%; margin-bottom: 2%;">
-				<spring:message code="label.welcome" text="Welcome to TRICK Service!" />
-			</h1>
-			<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/Logo_TRICKService.png" /> style="width: 300px;height: auto;">
-			<!-- ################################################################ Include Footer ################################################################ -->
+			<div class="page-header">
+				<h1 class="text-center" style="margin-top: 5%; margin-bottom: 2%;">
+					<spring:message code="label.welcome" text="Welcome to TRICK Service!" />
+				</h1>
+			</div>
+			<div class="content" id="content">
+				<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/Logo_TRICKService.png" /> style="width: 300px; height: auto;">
+			</div>
 		</div>
 		<jsp:include page="footer.jsp" />
-		<!-- ################################################################ End Container ################################################################# -->
 		<jsp:include page="scripts.jsp" />
 	</div>
 </body>
-<!-- ################################################################### End HTML ################################################################### -->
 </html>

@@ -67,4 +67,3 @@
 		</div>
 	</div>
 </div>
-<script type="text/javascript" src="<spring:url value="js/language.js" />"></script>

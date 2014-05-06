@@ -286,7 +286,7 @@ public class ControllerAdministration {
 				}
 			}
 
-			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights users successfully updated!", locale));
+			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRigths", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
@@ -376,29 +376,45 @@ public class ControllerAdministration {
 	private User buildUser(Map<String, String> errors, String source, Locale locale, Principal principal) {
 
 		User user = null;
-
+		String error = null;
+		String login = "";
+		String password = "";
+		String firstname = "";
+		String lastname = "";
+		String email = "";
+		boolean newUser = false;
 		try {
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
-			int id = jsonNode.get("id").asInt();
-			if (id > 0) {
-				user = serviceUser.get(jsonNode.get("id").asInt());
-			} else {
-				user = new User();
-				user.setLogin(jsonNode.get("login").asText());
-			}
-
 			ValidatorField validator = serviceDataValidation.findByClass(User.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new UserValidator());
+			
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+			
+			login = jsonNode.get("login").asText();
+			password = jsonNode.get("password").asText();
+			firstname = jsonNode.get("firstName").asText();
+			lastname = jsonNode.get("lastName").asText();
+			email = jsonNode.get("email").asText();
+			
+			int id = jsonNode.get("id").asInt();
+			
+			
+			
+			if (id > 0) {
+				user = serviceUser.get(jsonNode.get("id").asInt());
+			} else {
+				newUser = true;
+				user = new User();
+				error = validator.validate(user, "login", login);
+				if (error != null)
+					errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
+				else {
+					user.setLogin(login);
+				}
+			}
 
-			String password = jsonNode.get("password").asText();
-			String firstname = jsonNode.get("firstName").asText();
-			String lastname = jsonNode.get("lastName").asText();
-			String email = jsonNode.get("email").asText();
-			String error = null;
-
-			if (!password.equals(Constant.EMPTY_STRING)) {
+			if (newUser || !password.equals(Constant.EMPTY_STRING)) {
 
 				error = validator.validate(user, "password", password);
 				if (error != null)
@@ -449,7 +465,10 @@ public class ControllerAdministration {
 
 			}
 
-			return user;
+			if(errors.isEmpty())
+				return user;
+			else
+				return null;
 
 		} catch (Exception e) {
 
@@ -480,16 +499,17 @@ public class ControllerAdministration {
 
 			User user = buildUser(errors, value, locale, principal);
 
-			if (user == null) {
+			if (!errors.isEmpty()) 
 				return errors;
-			} else {
-				if (user.getId() < 1) {
+			
+			if (user.getId() < 1) {
 					serviceUser.save(user);
-				} else {
-					serviceUser.saveOrUpdate(user);
-				}
-				return errors;
+			} else {
+				serviceUser.saveOrUpdate(user);
 			}
+			
+			return errors;
+			
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();

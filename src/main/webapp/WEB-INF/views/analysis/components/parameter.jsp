@@ -191,9 +191,6 @@
 								<th><spring:message
 										code="label.parameter.simple.default_life_time"
 										text="Default lifetime" /></th>
-								<th><spring:message
-										code="label.parameter.simple.default_maintenance"
-										text="Default maintenance" /></th>
 								<th><spring:message code="label.parameter.simple.tuning"
 										text="Tunning" /></th>
 								<th><spring:message code="label.parameter.simple.soa"

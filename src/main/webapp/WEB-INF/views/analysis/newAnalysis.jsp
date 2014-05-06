@@ -10,7 +10,7 @@
 		<label for="customer" class="col-sm-2 control-label"> <spring:message code="label.customer.organisation" text="Customer" />
 		</label>
 		<div class="col-sm-10" id="analysiscustomercontainer">
-			<select name="analysiscustomer">
+			<select class="form-control" name="analysiscustomer">
 				<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose ..." />
 					<c:forEach items="${customers}" var="customer">
 						<option value="${customer.id}">${customer.organisation}</option>
@@ -22,7 +22,7 @@
 		<label for="language" class="col-sm-2 control-label"> <spring:message code="label.analysis.language" text="Language" />
 		</label>
 		<div class="col-sm-10" id="analysislanguagecontainer">
-			<select name="analysislanguage">
+			<select name="analysislanguage" class="form-control">
 				<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose ..." />
 					<c:forEach items="${languages}" var="language">
 						<option value="${language.id}">${language.name}</option>
@@ -34,7 +34,7 @@
 		<label for="profile" class="col-sm-2 control-label"> <spring:message code="label.analysis.profileAnalysis" text="Profile" />
 		</label>
 		<div class="col-sm-10">
-			<select name="profile" id="analysis_profile">
+			<select name="profile" id="analysis_profile" class="form-control">
 				<option value="-1"><spring:message code="label.select.analysisProfile" text="Select a profile" /></option>
 				<c:forEach items="${profiles}" var="profile">
 					<option value="${profile.id }"><spring:message text="${profile.identifier}" /></option>

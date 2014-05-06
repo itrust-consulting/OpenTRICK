@@ -74,4 +74,3 @@
 		</div>
 	</div>
 </div>
-<script type="text/javascript" src="<spring:url value="js/norm.js" />"></script>

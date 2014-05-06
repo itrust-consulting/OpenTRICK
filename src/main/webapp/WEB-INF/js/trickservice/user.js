@@ -23,6 +23,9 @@ function saveUser(form) {
 
 				$(errorElement).text(response[error]);
 				switch (error) {
+				case "login":
+					$(errorElement).appendTo($("#"+ form + " #user_login").parent());
+					break;
 				case "password":
 					$(errorElement).appendTo($("#"+ form + " #user_password").parent());
 					break;

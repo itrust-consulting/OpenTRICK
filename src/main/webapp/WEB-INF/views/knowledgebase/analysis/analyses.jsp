@@ -44,11 +44,9 @@
 							<td>${analysis.identifier}</td>
 							<td>${analysis.label}</td>
 							<td>${analysis.creationDate}</td>
-							<td>${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}</td>
+							<td>${analysis.owner.getFirstName()}${analysis.owner.getLastName()}</td>
 							<td>${analysis.language.name}</td>
-							<td>
-								<spring:message code="label.yes_no.${analysis.defaultProfile}" text="${analysis.defaultProfile}" />
-							</td>
+							<td><spring:message code="label.yes_no.${analysis.defaultProfile}" text="${analysis.defaultProfile}" /></td>
 						</tr>
 					</c:forEach>
 				</tbody>
@@ -56,5 +54,3 @@
 		</div>
 	</div>
 </div>
-<jsp:include page="widgetContent.jsp" />
-<script type="text/javascript" src="<spring:url value="js/knowledgebase.js" />"></script>

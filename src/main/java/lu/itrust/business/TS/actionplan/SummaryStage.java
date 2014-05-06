@@ -34,46 +34,46 @@ public class SummaryStage {
 	private double conformance27002 = 0;
 
 	/** Number of Measures in this Stage */
-	private int measureCount;
+	private int measureCount = 0;
 
 	/** Number of Implemented Measures in this Stage */
-	private int implementedMeasuresCount;
+	private int implementedMeasuresCount = 0;
 
 	/** Total ALE for this Stage */
-	private double totalALE;
+	private double totalALE = 0;
 
 	/** Delta ALE for this Stage (calculate sum of deltaALE from actionplan entries) */
-	private double deltaALE;
+	private double deltaALE = 0;
 
 	/** Cost of Measures for this Stage (calculate sum of cost from measures in actionplan) */
-	private double costOfMeasures;
+	private double costOfMeasures = 0;
 
 	/** ROSI for this Stage (take last actionplan entry's ROSI value) */
-	private double ROSI;
+	private double ROSI = 0;
 
 	/** ROSI / Cost Of Measures */
-	private double relativeROSI;
+	private double relativeROSI = 0;
 
 	/** Sum of Internal Workloads taken from Action Plan Entries */
-	private double internalWorkload;
+	private double internalWorkload = 0;
 
 	/** Sum of External Workloads taken from Action Plan Entries */
-	private double externalWorkload;
+	private double externalWorkload = 0;
 
 	/** Sum of Investments taken from Action Plan Entries */
-	private double investment;
+	private double investment = 0;
 
 	/** Sum of ((InternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
-	private double internalMaintenance;
+	private double internalMaintenance = 0;
 
 	/** Sum of ((ExternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
-	private double externalMaintenance;
+	private double externalMaintenance = 0;
 
 	/** Sum of recurrent Investment */
-	private double recurrentInvestment;
-	
+	private double recurrentInvestment = 0;
+
 	/** Sum of ((Investments * Maintenance) / 100) taken from Action Plan Entries */
-	private double recurrentCost;
+	private double recurrentCost = 0;
 
 	/**
 	 * Sum of (InternalWorkload * InternalSetupRate) + (InternalWorkload * InternalSetupRate) +
@@ -84,8 +84,7 @@ public class SummaryStage {
 	private double totalCostofStage;
 
 	/** Regular exptression of Phase Names */
-	public static final String STAGE_REGEX =
-		"Start\\(P0\\)|Phase [1-9]\\d*|Anticipated|All Measures";
+	public static final String STAGE_REGEX = "Start\\(P0\\)|Phase [1-9]\\d*|Anticipated|All Measures";
 
 	/***********************************************************************************************
 	 * Constructors
@@ -143,8 +142,7 @@ public class SummaryStage {
 	 */
 	public void setStage(String stage) {
 		if (stage == null || !stage.matches(STAGE_REGEX))
-			throw new IllegalArgumentException("Stage should meet this regular expression "
-				+ STAGE_REGEX);
+			throw new IllegalArgumentException("Stage should meet this regular expression " + STAGE_REGEX);
 		this.stage = stage;
 	}
 
@@ -167,7 +165,7 @@ public class SummaryStage {
 	 */
 	public void setConformance27001(double conformance27001) {
 		if (conformance27001 < 0 || conformance27001 > 1)
-			throw new IllegalArgumentException("Conformance27001 should be between 0 and 1 :"+conformance27001);
+			throw new IllegalArgumentException("Conformance27001 should be between 0 and 1 :" + conformance27001);
 		this.conformance27001 = conformance27001;
 	}
 
@@ -190,7 +188,7 @@ public class SummaryStage {
 	 */
 	public void setConformance27002(double conformance27002) {
 		if (conformance27002 < 0 || conformance27002 > 1)
-			throw new IllegalArgumentException("Conformance27002 should be between 0 and 1 :"+conformance27002);
+			throw new IllegalArgumentException("Conformance27002 should be between 0 and 1 :" + conformance27002);
 		this.conformance27002 = conformance27002;
 	}
 
@@ -556,7 +554,8 @@ public class SummaryStage {
 		this.actionPlanType = actionPlanType;
 	}
 
-	/** getRecurrentInvestment: <br>
+	/**
+	 * getRecurrentInvestment: <br>
 	 * Returns the recurrentInvestment field value.
 	 * 
 	 * @return The value of the recurrentInvestment field
@@ -565,11 +564,12 @@ public class SummaryStage {
 		return recurrentInvestment;
 	}
 
-	/** setRecurrentInvestment: <br>
+	/**
+	 * setRecurrentInvestment: <br>
 	 * Sets the Field "recurrentInvestment" with a value.
 	 * 
-	 * @param recurrentInvestment 
-	 * 			The Value to set the recurrentInvestment field
+	 * @param recurrentInvestment
+	 *            The Value to set the recurrentInvestment field
 	 */
 	public void setRecurrentInvestment(double recurrentInvestment) {
 		this.recurrentInvestment = recurrentInvestment;

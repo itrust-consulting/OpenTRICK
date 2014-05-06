@@ -217,7 +217,7 @@ public class ControllerEditField {
 			} else
 
 				// return error message
-				return JsonMessage.Success(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (NoSuchFieldException e) {
 
 			// return error
@@ -888,8 +888,16 @@ public class ControllerEditField {
 			field.set(object, (String) fieldEditor.getValue());
 		else if (fieldEditor.getType().equalsIgnoreCase("integer"))
 			field.set(object, Integer.parseInt(fieldEditor.getValue().toString()));
-		else if (fieldEditor.getType().equalsIgnoreCase("double"))
-			field.set(object, Double.parseDouble(fieldEditor.getValue().toString()));
+		else if (fieldEditor.getType().equalsIgnoreCase("double")) {
+			if(((Parameter) object).getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)){
+				if (Double.parseDouble(fieldEditor.getValue().toString())>0)
+					field.set(object, Double.parseDouble(fieldEditor.getValue().toString()));
+				else
+					return false;
+			} else 
+				field.set(object, Double.parseDouble(fieldEditor.getValue().toString()));
+			
+		}
 		else if (fieldEditor.getType().equalsIgnoreCase("float"))
 			field.set(object, Float.parseFloat(fieldEditor.getValue().toString()));
 		else if (fieldEditor.getType().equalsIgnoreCase("boolean"))

@@ -18,7 +18,7 @@
 		<div class="panel-body">
 			<c:choose>
 				<c:when test="${!empty users}">
-					<select multiple name="usercustomer" class="form-control">
+					<select multiple id="usercustomer" name="usercustomer" class="form-control">
 						<c:forEach items="${users}" var="user">
 							<option value="user_${user.id}" ${customerusers.contains(user) ? 'selected="selected"' : ""}>${user.firstName.concat(' ').concat(user.lastName)}</option>
 						</c:forEach>

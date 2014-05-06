@@ -131,4 +131,3 @@
 		</div>
 	</div>
 </div>
-<script type="text/javascript" src="<spring:url value="js/customer.js" />"></script>

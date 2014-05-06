@@ -34,14 +34,11 @@
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="../footer.jsp" />
 		<jsp:include page="../scripts.jsp" />
-		<script type="text/javascript">
-			$(document).ready(function() {
-				$("input[type='checkbox']").removeAttr("checked");
-			});
-			$(function() {
-				analysisTableSortable();
-			});
-		</script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/knowledgebase.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/measuredescription.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/norm.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/language.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/customer.js" />"></script>
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

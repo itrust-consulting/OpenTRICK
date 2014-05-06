@@ -767,11 +767,14 @@ public class Analysis implements Serializable, Cloneable {
 		cost += investment;
 
 		// check if lifetime is not 0 -> YES: use default lifetime
-		if (lifetime == 0) 			
-				cost *= ((1. / lifetimeDefault) + ((internalMaintenance * internalSetupRate)+(externalMaintenance * externalSetupRate) + recurrentInvestment));
-		else
-			cost *= ((1. / lifetimeDefault) + ((internalMaintenance * internalSetupRate)+(externalMaintenance * externalSetupRate) + recurrentInvestment));
+		if (lifetime == 0) {			
+				cost *= (1. / lifetimeDefault);
+		} else {
+			cost *= (1. / lifetime);
+		}
 
+		cost += ((internalMaintenance * internalSetupRate)+(externalMaintenance * externalSetupRate) + recurrentInvestment);
+		
 		// return calculated cost
 		return cost;
 	}

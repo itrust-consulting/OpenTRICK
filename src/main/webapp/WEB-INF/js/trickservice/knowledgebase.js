@@ -1,3 +1,10 @@
+$(document).ready(function() {
+	$("input[type='checkbox']").removeAttr("checked");
+});
+$(function() {
+	analysisTableSortable();
+});
+
 function editSingleAnalysis(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
@@ -39,20 +46,20 @@ function setAsDefaultProfile(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	
+
 	$.ajax({
 		url : context + "/Analysis/SetDefaultProfile/" + analysisId,
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-		
+
 			reloadSection("section_profile_analysis");
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 		},
 	});
 	return false;
-	
+
 }
 
 function selectAnalysis(analysisId) {
@@ -68,7 +75,7 @@ function selectAnalysis(analysisId) {
 	element.setAttribute("href", context + "/Analysis/" + analysisId + "/Select");
 	$(element).appendTo("body");
 	element.click();
-	
+
 	return false;
 }
 

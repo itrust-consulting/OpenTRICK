@@ -256,7 +256,7 @@ public class ControllerAnalysis {
 			model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
 			model.addAttribute("login", principal.getName());
 		}
-		return "analysis/analysis";
+		return "analysis/analyse";
 	}
 
 	@RequestMapping(value = "/Add/Standard", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
@@ -402,7 +402,7 @@ public class ControllerAnalysis {
 
 			for (User user : serviceUser.loadAll()) {
 
-				if (user.getLogin().equals(principal.getName()))
+				if (user.getLogin().equals(principal.getName())) 
 					continue;
 
 				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
@@ -437,7 +437,7 @@ public class ControllerAnalysis {
 				}
 			}
 
-			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights users successfully updated!", locale));
+			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRigths", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);

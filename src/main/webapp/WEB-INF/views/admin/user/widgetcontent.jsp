@@ -87,4 +87,3 @@
 		</div>
 	</div>
 </div>
-<script type="text/javascript" src="<spring:url value="js/user.js" />"></script>

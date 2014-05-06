@@ -8,10 +8,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
-
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AnalysisRight;
@@ -73,7 +70,7 @@ import org.springframework.transaction.annotation.Transactional;
  * ImportAnalysis: <br>
  * This class is for importing an Analysis from an TRICK Light SQLite file into Java objects.
  * 
- * @author itrust consulting s.��� r.l. - BJA,SME
+ * @author itrust consulting s.a r.l. - BJA,SME
  * @version 0.1
  * @since 2012-12-14
  */
@@ -1207,8 +1204,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, ";
-		query += "maintenance_default, tuning, soaThreshold, mandatoryPhase, importanceThreshold FROM scope";
+		query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, tuning, soaThreshold, mandatoryPhase, importanceThreshold FROM scope";
 
 		// execute query
 		rs = sqlite.query(query, null);
@@ -1273,25 +1269,6 @@ public class ImportAnalysis {
 			parameter.setDescription(Constant.PARAMETER_LIFETIME_DEFAULT);
 			parameter.setType(parameterType);
 			parameter.setValue(rs.getInt(Constant.PARAMETER_LIFETIME_DEFAULT));
-
-			// ****************************************************************
-			// * add instance to list of parameters
-			// ****************************************************************
-			this.analysis.addAParameter(parameter);
-
-			// ****************************************************************
-			// * Insert default maintenance into simple parameter table
-			// ****************************************************************
-
-			// ****************************************************************
-			// // * create
-			// * instance of default maintenance //
-			// *
-			// ****************************************************************
-			parameter = new Parameter();
-			parameter.setDescription(Constant.PARAMETER_MAINTENANCE_DEFAULT);
-			parameter.setType(parameterType);
-			parameter.setValue(rs.getInt(Constant.PARAMETER_MAINTENANCE_DEFAULT));
 
 			// ****************************************************************
 			// * add instance to list of parameters
@@ -1445,12 +1422,12 @@ public class ImportAnalysis {
 			String desc = "ImpScale";
 			
 			switch(rs.getInt(Constant.MATURITY_IS_LINE)){
-				case 1:desc=Constant.IS_NOT_ACHIEVED;
-				case 2:desc=Constant.IS_RUDIMENTARY_ACHIEVED;
-				case 3:desc=Constant.IS_PARTIALLY_ACHIEVED;
-				case 4:desc=Constant.IS_LARGELY_ACHIEVED;
-				case 5:desc=Constant.IS_FULLY_ACHIEVED;
-				default:desc="ImpScale"+String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE));
+				case 1:desc=Constant.IS_NOT_ACHIEVED;break;
+				case 2:desc=Constant.IS_RUDIMENTARY_ACHIEVED;break;
+				case 3:desc=Constant.IS_PARTIALLY_ACHIEVED;break;
+				case 4:desc=Constant.IS_LARGELY_ACHIEVED;break;
+				case 5:desc=Constant.IS_FULLY_ACHIEVED;break;
+				default:desc="ImpScale"+String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE));break;
 			}
 			
 			parameter.setDescription(desc);
@@ -1805,36 +1782,6 @@ public class ImportAnalysis {
 		// close result
 		rs.close();
 
-		// ****************************************************************
-		// * retrieve maturity phases from maturity_phase table
-		// ****************************************************************
-
-		currentSqliteTable = "maturity_phase";
-		// build and execute query
-		query = "SELECT DISTINCT m.phase AS MeasurePhase, ma.phase AS MaturityPhase FROM measures m, maturity_phase ma";
-
-		rs = sqlite.query(query, null);
-
-		// retrieve results
-		while (rs.next()) {
-
-			// retrieve each maturtiy and measure phse
-			int measurePhase = rs.getInt("MeasurePhase");
-
-			int maturityPhase = rs.getInt("MaturityPhase");
-
-			// check if measure phase exists -> NO -> Add new phase with number
-			if (!phases.containsKey(measurePhase))
-				phases.put(measurePhase, new Phase(measurePhase));
-
-			// check if maturity phase exists -> NO -> Add new phase with number
-			if (!phases.containsKey(maturityPhase))
-				phases.put(maturityPhase, new Phase(maturityPhase));
-		}
-
-		// close result
-		rs.close();
-
 		// populate usedPhases list
 		for (Phase phase2 : phases.values())
 			this.analysis.addUsedPhase(phase2);
@@ -2062,7 +2009,10 @@ public class ImportAnalysis {
 			normMeasure.setImplementationRate(rs.getDouble(Constant.MEASURE_IMPLEMENTATION_RATE));
 			normMeasure.setInvestment(rs.getDouble(Constant.MEASURE_INVESTISMENT));
 			normMeasure.setLifetime(rs.getInt(Constant.MEASURE_LIFETIME));
-			normMeasure.setMaintenance(rs.getString(Constant.MEASURE_MAINTENANCE).trim().isEmpty() ? -1 : rs.getInt(Constant.MEASURE_MAINTENANCE));
+			normMeasure.setMaintenance(0);
+			normMeasure.setInternalMaintenance(rs.getDouble("internal_maintenance"));
+			normMeasure.setExternalMaintenance(rs.getDouble("external_maintenance"));
+			normMeasure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
 			normMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS));
 			normMeasure.setToCheck(rs.getString(Constant.MEASURE_REVISION));
 			normMeasure.setToDo(rs.getString(Constant.MEASURE_TODO));
@@ -2071,8 +2021,8 @@ public class ImportAnalysis {
 			// calculate cost
 			cost =
 				Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE), this.analysis
-						.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), this.analysis.getParameter(Constant.PARAMETER_MAINTENANCE_DEFAULT), normMeasure.getInternalWL(), normMeasure
-						.getExternalWL(), normMeasure.getInvestment(), normMeasure.getLifetime(), normMeasure.getMaintenance());
+						.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), normMeasure.getInternalMaintenance(), normMeasure.getExternalMaintenance(), normMeasure.getRecurrentInvestment(),
+						normMeasure.getInternalWL(), normMeasure.getExternalWL(), normMeasure.getInvestment(), normMeasure.getLifetime());
 
 			normMeasure.setCost(cost);
 
@@ -2333,19 +2283,15 @@ public class ImportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		ResultSet rs = null;
-		ResultSet rs2 = null;
 		int numPhase = 0;
 		String chapter = "";
 		double cost = 0;
-		List<Object> params = new Vector<Object>();
 		AnalysisNorm analysisNorm = null;
 		Phase tempPhase = null;
-		String query = "";
 		String status = "";
 		Norm norm = null;
 		MeasureDescription mesDesc = null;
 		MeasureDescriptionText mesText = null;
-		Integer chapterValue = 0;
 		Parameter implementationRateParameter = null;
 		double implementationRate = 0;
 		MaturityMeasure maturityMeasure = null;
@@ -2471,41 +2417,11 @@ public class ImportAnalysis {
 			// attributed phase
 			if (rs.getInt(Constant.MEASURE_LEVEL) == Constant.MEASURE_LEVEL_1) {
 
-				// ****************************************************************
-				// * measure is a chapter (example: M.4)
-				// ****************************************************************
-
-				// get chapter as integer (stored in database as integer)
-				chapterValue = Integer.valueOf(chapter.substring(2, chapter.length()));
-
-				// ****************************************************************
-				// * select phase number for the chapter
-				// ****************************************************************
-
-				currentSqliteTable = "maturity_phase";
-				// build query
-				query = "SELECT phase FROM maturity_phase WHERE chapter=?";
-
-				// add parameters
-				params.clear();
-				params.add(chapterValue);
-
-				// execute query
-				rs2 = sqlite.query(query, params);
-
-				// retrieve result
-				// result returns a row -> YES
-				if (rs2.next()) {
-
 					// set phase number
-					numPhase = rs2.getInt(Constant.MATURITYPHASE_ID);
+					numPhase = rs.getInt("phase");
 
 					// retrieve phase from number of the map
 					tempPhase = phases.get(numPhase);
-				}
-
-				// close result
-				rs2.close();
 			}
 
 			// phase does not exist
@@ -2560,11 +2476,10 @@ public class ImportAnalysis {
 				|| (rs.getString(Constant.MEASURE_STATUS).replace("'", "''").equals(Constant.MEASURE_STATUS_MANDATORY))) {
 
 				// calculate cost
-				cost =
-					Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
-							this.analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), this.analysis.getParameter(Constant.PARAMETER_MAINTENANCE_DEFAULT), rs
-									.getInt(Constant.MATURITY_INTWL), rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT), rs.getInt(Constant.MEASURE_LIFETIME), rs
-									.getInt(Constant.MEASURE_MAINTENANCE));
+				cost = Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
+							this.analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), rs.getInt("internal_maintenance"),rs.getInt("external_maintenance"),
+							rs.getInt("recurrent_investment"), rs.getInt(Constant.MATURITY_INTWL), rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT), 
+							rs.getInt(Constant.MEASURE_LIFETIME));
 			} else {
 
 				// check if status is not NA -> NO
@@ -2610,7 +2525,10 @@ public class ImportAnalysis {
 			maturityMeasure.setImplementationRate(implementationRateParameter);
 			maturityMeasure.setInvestment(rs.getDouble(Constant.MATURITY_INVESTMENT));
 			maturityMeasure.setLifetime(rs.getInt(Constant.MEASURE_LIFETIME));
-			maturityMeasure.setMaintenance(rs.getInt(Constant.MEASURE_MAINTENANCE));
+			maturityMeasure.setMaintenance(0);
+			maturityMeasure.setInternalMaintenance(rs.getDouble("internal_maintenance"));
+			maturityMeasure.setExternalMaintenance(rs.getDouble("external_maintenance"));
+			maturityMeasure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
 			maturityMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS).replace("'", "''"));
 			maturityMeasure.setToDo(rs.getString(Constant.MEASURE_TODO).replace("'", "''"));
 			maturityMeasure.setReachedLevel(rs.getInt(Constant.MATURITY_REACHED));
