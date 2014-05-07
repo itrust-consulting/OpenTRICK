@@ -206,6 +206,11 @@ public class ControllerEditField {
 			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
 
+			if(parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT))
+				if (Double.parseDouble(fieldEditor.getValue().toString())<=0)
+					return JsonMessage.Error(messageSource.getMessage("error.edit.parameter.default_lifetime", null, "Default lifetime has to be > 0!", locale));
+	 
+			
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
 
@@ -888,16 +893,8 @@ public class ControllerEditField {
 			field.set(object, (String) fieldEditor.getValue());
 		else if (fieldEditor.getType().equalsIgnoreCase("integer"))
 			field.set(object, Integer.parseInt(fieldEditor.getValue().toString()));
-		else if (fieldEditor.getType().equalsIgnoreCase("double")) {
-			if(((Parameter) object).getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)){
-				if (Double.parseDouble(fieldEditor.getValue().toString())>0)
-					field.set(object, Double.parseDouble(fieldEditor.getValue().toString()));
-				else
-					return false;
-			} else 
-				field.set(object, Double.parseDouble(fieldEditor.getValue().toString()));
-			
-		}
+		else if (fieldEditor.getType().equalsIgnoreCase("double"))
+			field.set(object, Double.parseDouble(fieldEditor.getValue().toString()));
 		else if (fieldEditor.getType().equalsIgnoreCase("float"))
 			field.set(object, Float.parseFloat(fieldEditor.getValue().toString()));
 		else if (fieldEditor.getType().equalsIgnoreCase("boolean"))

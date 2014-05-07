@@ -52,7 +52,7 @@
 		</div>
 		<jsp:include page="../footer.jsp" />
 		<jsp:include page="../scripts.jsp" />
-		<script src="<spring:url value="js/analysis.js" />"></script>
+		<script src="<spring:url value="js/trickservice/analysis.js" />"></script>
 		<script src="<spring:url value="/js/highcharts/highcharts.js" />"></script>
 		<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>
 		<script src="<spring:url value="/js/highcharts/exporting.js" />"></script>
