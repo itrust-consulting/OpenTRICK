@@ -11,7 +11,7 @@
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
-<div class="navbar navbar-default navbar-fixed-top">
+<div class="navbar navbar-default navbar-fixed-top" style="z-index:1001">
 	<div class="container">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -46,6 +46,7 @@
 					class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li><a href="#" onclick="return fixAllScenarioCategories()"><spring:message code="label.scenario.fix.categories" text="Fix category for Scenarios"/></a></li>
+							<li class="divider"></li>
 							<li><a href="#" onclick="return fixMeasureMaintenance()"><spring:message code="label.measure.fix.maintenance" text="Update measures with new maintenance structure"/></a></li>
 						</ul>
 					</li>

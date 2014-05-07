@@ -599,7 +599,7 @@ textarea.input-group-sm>.form-control,textarea.input-group-sm>.input-group-addon
 @media (min-width:768px){.navbar-collapse{width:auto;border-top:0;box-shadow:none;}.navbar-collapse.collapse{display:block !important;height:auto !important;padding-bottom:0;overflow:visible !important;} .navbar-collapse.in{overflow-y:auto;} .navbar-collapse .navbar-nav.navbar-left:first-child{margin-left:-15px;} .navbar-collapse .navbar-nav.navbar-right:last-child{margin-right:-15px;} .navbar-collapse .navbar-text:last-child{margin-right:0;}}
 .container>.navbar-header,.container>.navbar-collapse{margin-right:-15px;margin-left:-15px;}@media (min-width:768px){.container>.navbar-header,.container>.navbar-collapse{margin-right:0;margin-left:0;}}
 .navbar-static-top{z-index:1000;border-width:0 0 1px;}@media (min-width:768px){.navbar-static-top{border-radius:0;}}
-.navbar-fixed-top,.navbar-fixed-bottom{position:fixed;right:0;left:0;z-index:1030;}@media (min-width:768px){.navbar-fixed-top,.navbar-fixed-bottom{border-radius:0;}}
+.navbar-fixed-top,.navbar-fixed-bottom{position:fixed;right:0;left:0;z-index:1030}@media (min-width:768px){.navbar-fixed-top,.navbar-fixed-bottom{border-radius:0;}}
 .navbar-fixed-top{top:0;border-width:0 0 1px;}
 .navbar-fixed-bottom{bottom:0;margin-bottom:0;border-width:1px 0 0;}
 .navbar-brand{float:left;padding:16.5px 15px;font-size:15px;line-height:17px;}.navbar-brand:hover,.navbar-brand:focus{text-decoration:none;}

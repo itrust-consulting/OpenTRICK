@@ -580,9 +580,8 @@ public class ControllerEditField {
 			if (fieldEditor.getFieldName().equals("phase")) {
 
 				// retireve phase
-				Integer number = 0;
-				if (!fieldEditor.getValue().toString().equalsIgnoreCase("NA"))
-					number = (Integer) FieldValue(fieldEditor, null);
+				Integer number = null;
+				number = (Integer) FieldValue(fieldEditor, null);
 				if (number == null)
 					return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 				Phase phase = servicePhase.loadFromPhaseNumberAnalysis(number, idAnalysis);
@@ -597,7 +596,10 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			
 			if(fieldEditor.getFieldName().equals("investment"))
-				measure.setInvestment(measure.getInvestment());
+				measure.setInvestment(measure.getInvestment()*1000);
+			
+			if(fieldEditor.getFieldName().equals("recurrentInvestment"))
+				measure.setRecurrentInvestment(measure.getRecurrentInvestment()*1000);
 			
 			// compute new cost
 			Measure.ComputeCost(measure, analysis);
@@ -769,9 +771,8 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.actionplanentry.not_found", null, "Action Plan Entry cannot be found", locale));
 
 			// retrieve phase
-			Integer number = 0;
-			if (!fieldEditor.getValue().toString().equalsIgnoreCase("NA"))
-				number = (Integer) FieldValue(fieldEditor, null);
+			Integer number = null;
+			number = (Integer) FieldValue(fieldEditor, null);
 			if (number == null)
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			Phase phase = servicePhase.loadFromPhaseNumberAnalysis(number, idAnalysis);

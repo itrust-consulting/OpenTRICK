@@ -3,14 +3,14 @@
  */
 package lu.itrust.business.view.controller;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.security.Principal;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
-import javax.naming.directory.InvalidAttributesException;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Analysis;
@@ -33,15 +33,16 @@ import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssetType;
+import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceScenario;
 import lu.itrust.business.service.ServiceScenarioType;
+import lu.itrust.business.validator.ScenarioValidator;
+import lu.itrust.business.validator.field.ValidatorField;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -95,6 +96,9 @@ public class ControllerScenario {
 
 	@Autowired
 	private AssessmentManager assessmentManager;
+
+	@Autowired
+	private ServiceDataValidation serviceDataValidation;
 
 	/**
 	 * select: <br>
@@ -299,7 +303,7 @@ public class ControllerScenario {
 	@RequestMapping("/Add")
 	public String add(Model model) throws Exception {
 		model.addAttribute("scenariotypes", serviceScenarioType.loadAll());
-		model.addAttribute("scenario", new Scenario(serviceAssetType.loadAll()));
+		model.addAttribute("assetTypes", serviceAssetType.loadAll());
 		return "analysis/components/widgets/scenarioForm";
 	}
 
@@ -321,7 +325,7 @@ public class ControllerScenario {
 
 		// add scenario to model
 		model.addAttribute("scenario", serviceScenario.get(id));
-
+		model.addAttribute("assetTypes", serviceAssetType.loadAll());
 		return "analysis/components/widgets/scenarioForm";
 	}
 
@@ -354,61 +358,55 @@ public class ControllerScenario {
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	List<String[]> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
+	Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
 
 		// create errors list
-		List<String[]> errors = new LinkedList<>();
-
-		// get analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		if (idAnalysis == null) {
-			errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale) });
-			return errors;
-		}
+		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		try {
+
+			// get analysis id
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis == null) {
+				errors.put("scenario", messageSource.getMessage("error.analysis.no_selected", null, "There is no analysis selected", locale));
+				return errors;
+			}
+
 			// load analysis
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.not_found", null, "Selected analysis cannot be found", locale) });
+				errors.put("scenario", messageSource.getMessage("error.analysis.not_found", null, "Selected analysis cannot be found", locale));
 				return errors;
 			}
-			int idScenario = retrieveId(value);
-			Scenario scenario = null;
-			if (idScenario > 0) {
-				scenario = serviceScenario.get(idScenario);
-				if (scenario == null) {
-					errors.add(new String[] { "scenario", messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale) });
-					return errors;
-				}
-			} else
-				scenario = new Scenario();
+
+			Scenario scenario = new Scenario();
 
 			List<AssetType> assetTypes = serviceAssetType.loadAll();
 
-			if (!buildScenario(errors, scenario, assetTypes, value, locale))
+			buildScenario(errors, scenario, assetTypes, value, locale);
+
+			if (!errors.isEmpty())
+				// return error on failure
 				return errors;
+
 			if (scenario.getId() < 1) {
 				assessmentManager.build(scenario, idAnalysis);
 			} else {
-				serviceScenario.saveOrUpdate(scenario);
+				serviceScenario.merge(scenario);
 				if (scenario.isSelected())
 					assessmentManager.selectScenario(scenario);
 				else
 					assessmentManager.unSelectScenario(scenario);
 			}
-		} catch (ConstraintViolationException e) {
-			errors.add(new String[] { "assetType", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-		} catch (IllegalArgumentException e) {
-			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+
+			return errors;
+
+		} catch (Exception e) {
+			errors.put("scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
+			return errors;
 		}
 
-		catch (Exception e) {
-			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			e.printStackTrace();
-		}
-		return errors;
 	}
 
 	/**
@@ -458,24 +456,50 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildScenario(List<String[]> errors, Scenario scenario, List<AssetType> assetTypes, String source, Locale locale) {
+	private boolean buildScenario(Map<String, String> errors, Scenario scenario, List<AssetType> assetTypes, String source, Locale locale) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
-			scenario.setName(jsonNode.get("name").asText());
-			scenario.setSelected(jsonNode.get("selected").asBoolean());
-			scenario.setDescription(jsonNode.get("description").asText());
+
+			int idScenario = jsonNode.get("id").asInt();
+
+			if (idScenario > 0)
+				scenario.setId(idScenario);
+
+			ValidatorField validator = serviceDataValidation.findByClass(Scenario.class);
+			if (validator == null)
+				serviceDataValidation.register(validator = new ScenarioValidator());
+
+			String error = null;
+
+			String name = jsonNode.get("name").asText();
+
 			JsonNode node = jsonNode.get("scenarioType");
 			ScenarioType scenarioType = serviceScenarioType.get(node.get("id").asInt());
-			if (scenarioType == null) {
-				errors.add(new String[] { "assetType", messageSource.getMessage("error.scenariotype.not_found", null, "Selected scenario type cannot be found", locale) });
-				return false;
+
+			scenario.setDescription(jsonNode.get("description").asText());
+
+			error = validator.validate(scenario, "name", name);
+			if (error != null)
+				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
+			else {
+				scenario.setName(name);
+				scenario.setSelected(jsonNode.get("selected").asBoolean());
 			}
 
-			scenario.setScenarioType(scenarioType);
-			for (String key : CategoryConverter.JAVAKEYS)
-				scenario.setCategoryValue(key, 0);
-			scenario.setCategoryValue(CategoryConverter.getTypeFromScenario(scenario), 1);
+			error = validator.validate(scenario, "scenarioType", scenarioType);
+			if (error != null)
+				errors.put("scenarioType", serviceDataValidation.ParseError(error, messageSource, locale));
+			else {
+				scenario.setScenarioType(scenarioType);
+
+				// set all categories to 0
+				for (String key : CategoryConverter.JAVAKEYS)
+					scenario.setCategoryValue(key, 0);
+
+				// set category according to value of scenario type
+				scenario.setCategoryValue(CategoryConverter.getTypeFromScenario(scenario), 1);
+			}
 
 			for (AssetType assetType : assetTypes) {
 
@@ -492,48 +516,12 @@ public class ControllerScenario {
 			}
 			return true;
 
-		} catch (JsonProcessingException e) {
-			errors.add(new String[] { "scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			e.printStackTrace();
-		} catch (IOException e) {
-			errors.add(new String[] { "scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			e.printStackTrace();
-		} catch (InvalidAttributesException e) {
-			errors.add(new String[] { "scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			errors.add(new String[] { "scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			e.printStackTrace();
 		} catch (Exception e) {
 
-			errors.add(new String[] { "scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
+			return false;
 		}
-		return false;
-	}
 
-	/**
-	 * retrieveId: <br>
-	 * Description
-	 * 
-	 * @param source
-	 * @return
-	 */
-	private int retrieveId(String source) {
-
-		try {
-
-			// create json parser
-			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readTree(source);
-
-			// return scenario id
-			return jsonNode.get("id").asInt();
-		} catch (Exception e) {
-
-			// return illegal id
-			e.printStackTrace();
-			return -1;
-		}
 	}
 }

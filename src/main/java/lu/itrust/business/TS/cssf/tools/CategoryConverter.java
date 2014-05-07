@@ -375,11 +375,11 @@ public class CategoryConverter {
 
 	/**
 	 * getTypeFromScenario: <br>
-	 * retrieves CSSF genreic type or null
+	 * retrieves the cssf or cia generic type of the given scenario, or null
 	 * 
 	 * @param scenario
 	 *            scenario
-	 * @return CSSF type if scenario type is cssf otherwise null.
+	 * @return generic scenario type name
 	 */
 	public static String getTypeFromScenario(Scenario scenario) {
 

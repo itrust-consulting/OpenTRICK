@@ -609,8 +609,27 @@ function findTrickID(element) {
 function versionComparator(version1, version2) {
 	var values1 = version1.split("\\.", 2);
 	var values2 = version2.split("\\.", 2);
-	var value1 = toInt(values1[0]);
-	var value2 = toInt(values2[0]);
+	
+	var vers1="";
+	
+	var vers2="";
+	
+	for(var i = 0;i<values1.length;i++)
+		vers1 += values1[i];
+	
+	for(var i = 0;i<values2.length;i++)
+		vers2 += values2[i];
+	
+	console.log(vers1 + "::" + vers2);
+	
+	return vers1 > vers2 ? 1 : -1;
+}
+
+function oldversionComparator(version1, version2) {
+	var values1 = version1.split("\\.", 2);
+	var values2 = version2.split("\\.", 2);
+	var value1 = parseInt(values1[0]);
+	var value2 = parseInt(values2[0]);
 	if (value1 == value2) {
 		if (values1.length == 1 && values2.length == 1)
 			return 0;

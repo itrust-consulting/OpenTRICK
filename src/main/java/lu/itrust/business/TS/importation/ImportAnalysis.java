@@ -1724,19 +1724,6 @@ public class ImportAnalysis {
 		String phaseEndDate = "";
 
 		// ****************************************************************
-		// * create phase 0
-		// ****************************************************************
-
-		phase = new Phase();
-		phase.setNumber(0);
-		phase.setAnalysis(this.analysis);
-		phase.setBeginDate(null);
-		phase.setEndDate(null);
-
-		// add phase 0 to the map
-		phases.put(0, phase);
-
-		// ****************************************************************
 		// * select all existing phases from info_phases
 		// ****************************************************************
 
@@ -2427,10 +2414,10 @@ public class ImportAnalysis {
 			// phase does not exist
 			if (tempPhase == null) {
 
-				// add not usable phase (0)
+				// use default phase
 
-				// set phase 0
-				numPhase = Constant.PHASE_NOT_USABLE;
+				// set phase 1
+				numPhase = Constant.PHASE_DEFAULT;
 
 				// ****************************************************************
 				// * create phase instance
@@ -2444,8 +2431,6 @@ public class ImportAnalysis {
 					tempPhase.setNumber(numPhase);
 					tempPhase.setBeginDate(null);
 					tempPhase.setBeginDate(null);
-
-					phases.get(numPhase);
 
 					phases.put(numPhase, tempPhase);
 

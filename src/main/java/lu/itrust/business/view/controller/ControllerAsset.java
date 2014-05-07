@@ -3,11 +3,12 @@
  */
 package lu.itrust.business.view.controller;
 
-import java.io.IOException;
 import java.security.Principal;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.naming.directory.InvalidAttributesException;
 import javax.servlet.http.HttpSession;
@@ -23,11 +24,12 @@ import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceAssetType;
+import lu.itrust.business.service.ServiceDataValidation;
+import lu.itrust.business.validator.AssetValidator;
+import lu.itrust.business.validator.field.ValidatorField;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -68,6 +70,9 @@ public class ControllerAsset {
 
 	@Autowired
 	private ChartGenerator chartGenerator;
+
+	@Autowired
+	private ServiceDataValidation serviceDataValidation;
 
 	/**
 	 * select: <br>
@@ -156,7 +161,7 @@ public class ControllerAsset {
 		model.addAttribute("assettypes", serviceAssetType.loadAll());
 		return "analysis/components/widgets/assetForm";
 	}
-	
+
 	/**
 	 * delete: <br>
 	 * Description
@@ -244,43 +249,44 @@ public class ControllerAsset {
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	List<String[]> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
-		
+	Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
+
 		// create error list
-		List<String[]> errors = new LinkedList<>();
+		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
 
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis == null) {
-				errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale) });
+				errors.put("asset", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 				return errors;
 			}
 
 			// retrieve analysis object
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.not_found", null, "Selected analysis cannot be found", locale) });
+				errors.put("asset", messageSource.getMessage("error.analysis.not_found", null, "Selected analysis cannot be found", locale));
 				return errors;
 			}
-			
+
 			// create new asset object
 			Asset asset = new Asset();
 
 			// build asset
-			if (!buildAsset(errors, asset, value, locale))
+			buildAsset(errors, asset, value, locale);
 
+			if(!errors.isEmpty())
 				// return error on failure
 				return errors;
-		
-			asset.setValue(asset.getValue()*1000);
-			
+
+			asset.setValue(asset.getValue() * 1000);
+
 			// check if asset is to be created (new)
 			if (asset.getId() < 1) {
-				// create assessments for the new asset
+				// create assessments for the new asset and save asset and asessments into analysis
 				assessmentManager.build(asset, idAnalysis);
 			} else {
-				
+
 				// update existing asset object
 				serviceAsset.merge(asset);
 
@@ -290,26 +296,17 @@ public class ControllerAsset {
 				else
 					assessmentManager.unSelectAsset(asset);
 			}
-		} catch (ConstraintViolationException e) {
 
-			// add error on assettype
-			errors.add(new String[] { "assetType", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-		} catch (IllegalArgumentException e) {
-
-			// add error on asset
-			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			e.printStackTrace();
-		}
-
-		catch (Exception e) {
+			// return errors
+			return errors;
+		} catch (Exception e) {
 
 			// add general error
-			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
+			// return errors
+			return errors;
 		}
-
-		// return errors
-		return errors;
 	}
 
 	/**
@@ -322,7 +319,7 @@ public class ControllerAsset {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
 	String aleByAsset(HttpSession session, Model model, Locale locale, Principal principal) throws Exception {
@@ -345,7 +342,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value="/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
 	String assetByALE(HttpSession session, Model model, Locale locale, Principal principal) {
@@ -369,7 +366,7 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildAsset(List<String[]> errors, Asset asset, String source, Locale locale) {
+	private boolean buildAsset(Map<String, String> errors, Asset asset, String source, Locale locale) {
 		try {
 
 			// create json parser for the source
@@ -381,53 +378,51 @@ public class ControllerAsset {
 
 			// check if asset is to be updated or created
 			if (id > 0)
-				asset.setId(jsonNode.get("id").asInt());
+				asset.setId(id);
 
-			// add data to object
-			asset.setName(jsonNode.get("name").asText());
-			asset.setValue(jsonNode.get("value").asDouble());
-			asset.setSelected(jsonNode.get("selected").asBoolean());
+			ValidatorField validator = serviceDataValidation.findByClass(Asset.class);
+			if (validator == null)
+				serviceDataValidation.register(validator = new AssetValidator());
+
+			String name = jsonNode.get("name").asText();
+
+			JsonNode node = jsonNode.get("assetType");
+			AssetType assetType = serviceAssetType.get(node.get("id").asInt());
+
+			double value = jsonNode.get("value").asDouble();
+
+			String error = null;
+
 			asset.setComment(jsonNode.get("comment").asText());
 			asset.setHiddenComment(jsonNode.get("hiddenComment").asText());
 
-			// get assettype
-			JsonNode node = jsonNode.get("assetType");
-			AssetType assetType = serviceAssetType.get(node.get("id").asInt());
-			if (assetType == null) {
-				errors.add(new String[] { "assetType", messageSource.getMessage("error.assettype.not_found", null, "Selected asset type cannot be found", locale) });
-				return false;
+			error = validator.validate(asset, "name", name);
+			if (error != null)
+				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
+			else {
+				asset.setName(name);
+				asset.setSelected(jsonNode.get("selected").asBoolean());
 			}
 
-			// set asset type
-			asset.setAssetType(assetType);
+			error = validator.validate(asset, "assetType", assetType);
+			if (error != null)
+				errors.put("assetType", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				asset.setAssetType(assetType);
+
+			error = validator.validate(asset, "value", value);
+			if (error != null)
+				errors.put("value", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				asset.setValue(value);
 
 			// return success message
 			return true;
 
-		} catch (JsonProcessingException e) {
-
-			// return error message
-			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			e.printStackTrace();
-		} catch (IOException e) {
-
-			// return error message
-			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			e.printStackTrace();
-		} catch (InvalidAttributesException e) {
-
-			// return error message
-			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-
-			// return error message
-			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			e.printStackTrace();
 		} catch (Exception e) {
 
 			// return error message
-			errors.add(new String[] { "asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
+			errors.put("asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 		}
 

@@ -39,18 +39,53 @@ function saveScenario(form) {
 		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
-			var previewError = $("#addScenarioModal .alert");
-			if (previewError.length)
-				previewError.remove();
-			var data = "";
-			for ( var error in response)
-				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
-			if (result) {
-				$("#addScenarioModal").modal("hide");
+			var label = $("#addScenarioModal .label-danger");
+			if (label.length)
+				label.remove();
+			var alert = $("#addScenarioModal [class='alert alert-danger alert-dismissable']");
+			if (alert.length)
+				alert.remove();
+			for ( var error in response) {
+				var errorElement = document.createElement("label");
+				errorElement.setAttribute("class", "label label-danger");
+
+				$(errorElement).text(response[error]);
+				switch (error) {
+				case "name":
+					$(errorElement).appendTo($("#scenario_form #scenario_name").parent());
+					break;
+				case "scenarioType":
+					$(errorElement).appendTo($("#scenario_form #scenario_scenariotype_id").parent());
+					break;
+				case "description":
+					$(errorElement).appendTo($("#scenario_form #scenario_description").parent());
+					break;	
+				case "selected":
+					$(errorElement).appendTo($("#scenario_form #asset_selected").parent());
+					break;
+				case "scenario":
+					var errorElement = document.createElement("div");
+					errorElement.setAttribute("class", "alert alert-danger alert-dismissable");
+
+					var tmpelement = document.createElement("button");
+					tmpelement.setAttribute("class", "close");
+					tmpelement.setAttribute("data-dismiss", "alert");
+					tmpelement.setAttribute("aria-hidden", "true");
+					$(tmpelement).html("&times;");
+
+					$(errorElement).text(response[error]);
+
+					$(tmpelement).appendTo($(errorElement));
+
+					$(errorElement).insertBefore($("#scenario_form"));
+					break;
+				}
+			}
+			if (!$("#addScenarioModal .label-danger").length && !$("#addScenarioModal .alert-danger").length) {
+				$("#addScenarioModal").modal("toggle");
 				reloadSection("section_scenario");
 			}
-			return result;
+			return false;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return result;

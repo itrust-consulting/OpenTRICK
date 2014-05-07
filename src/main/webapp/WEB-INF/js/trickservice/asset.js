@@ -132,21 +132,50 @@ function saveAsset(form) {
 		data : serializeAssetForm(form),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			var previewError = $("#addAssetModal .alert");
-			if (previewError.length)
-				previewError.remove();
-			var data = "";
-			for ( var error in response)
-				data += response[error][1] + "\n";
-			result = data == "" ? true : showError(document.getElementById(form), data);
-			if (result) {
-				$("#addAssetModal").modal("hide");
+			var alert = $("#addAssetModal .label-danger");
+			if (alert.length)
+				alert.remove();
+			for ( var error in response) {
+				var errorElement = document.createElement("label");
+				errorElement.setAttribute("class", "label label-danger");
+
+				$(errorElement).text(response[error]);
+				switch (error) {
+				case "name":
+					$(errorElement).appendTo($("#asset_form #asset_name").parent());
+					break;
+				case "assetType":
+					$(errorElement).appendTo($("#asset_form #asset_assettype_id").parent());
+					break;
+				case "value":
+					$(errorElement).appendTo($("#asset_form #asset_value").parent());
+					break;	
+				case "selected":
+					$(errorElement).appendTo($("#asset_form #asset_selected").parent());
+					break;
+				case "comment":
+					$(errorElement).appendTo($("#asset_form #asset_comment").parent());
+					break;
+				case "hiddenComment":
+					$(errorElement).appendTo($("#asset_form #asset_hiddenComment").parent());
+					break;
+				}
+			}
+			if (!$("#addAssetModal .label-danger").length) {
+				$("#addAssetModal").modal("toggle");
 				reloadSection("section_asset");
 			}
-			return result;
+			return false;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
+			var alert = $("#addAssetModal .label-danger");
+			if (alert.length)
+				alert.remove();
+			var errorElement = document.createElement("label");
+			errorElement.setAttribute("class", "label label-danger");
+			$(errorElement).text(MessageResolver("error.unknown.add.asset", "An unknown error occurred during adding asset"));
+			$(errorElement).appendTo($("#addAssetModal .modal-body"));
+			return false;
 		},
 	});
 }

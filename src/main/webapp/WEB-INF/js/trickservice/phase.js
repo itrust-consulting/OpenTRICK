@@ -102,7 +102,6 @@ function extractPhase(that) {
 	var phases = $("#section_phase *[trick-class='Phase']>*:nth-child(2)");
 	if (!$(phases).length)
 		return true;
-	that.choose.push("NA");
 	for (var i = 0; i < phases.length; i++)
 		that.choose.push($(phases[i]).text());
 	return false;

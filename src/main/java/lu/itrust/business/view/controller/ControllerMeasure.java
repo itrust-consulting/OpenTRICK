@@ -72,7 +72,7 @@ public class ControllerMeasure {
 
 	@Autowired
 	private ServiceActionPlanSummary serviceActionPlanSummary;
-	
+
 	/**
 	 * section: <br>
 	 * Description
@@ -269,15 +269,15 @@ public class ControllerMeasure {
 		try {
 
 			System.out.println("Load all analyses...");
-			
-			List<Analysis> analyses = serviceAnalysis.loadAll();
 
+			List<Analysis> analyses = serviceAnalysis.loadAll();
 			for (Analysis analysis : analyses) {
-					
 				System.out.println("Update maintenance...");
-				
+				if (analysis == null)
+					return JsonMessage.Error(messageSource.getMessage("error.maintenance.update.all", null, "Analysis not found!", locale));
 				for (AnalysisNorm norm : analysis.getAnalysisNorms()) {
 					for (Measure measure : norm.getMeasures()) {
+
 						double maintenance = measure.getMaintenance();
 
 						double internalmaintenance = 0;
@@ -286,26 +286,13 @@ public class ControllerMeasure {
 
 						double recurrentInvestment = 0;
 
-						double lifetime = 0;
-
-						double defaultlifetime = analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
-
-						double internal_setup_rate = analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
-
-						double external_setup_rate = analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
-
 						double investment = 0;
-
-						lifetime = measure.getLifetime();
 
 						investment = measure.getInvestment();
 
-						if (lifetime == 0)
-							lifetime = defaultlifetime;
+						internalmaintenance = (measure.getInternalWL() * (maintenance / 100.));
 
-						internalmaintenance = (internal_setup_rate * (maintenance / 100.));
-
-						externalmaintenance = (external_setup_rate * (maintenance / 100.));
+						externalmaintenance = (measure.getExternalWL() * (maintenance / 100.));
 
 						recurrentInvestment = (investment * (maintenance / 100.));
 
@@ -323,15 +310,14 @@ public class ControllerMeasure {
 				}
 
 				System.out.println("set new recurrent investment field in action plan summary...");
-				
+
 				for (SummaryStage summaryStage : analysis.getSummaries()) {
 					summaryStage.setRecurrentInvestment(0);
 					serviceActionPlanSummary.saveOrUpdate(summaryStage);
 				}
-				
+
 				System.out.println("remove default maintenance param...");
 
-				
 				Parameter maintenanceDefaultParam = null;
 
 				for (Parameter parameter : analysis.getParameters()) {
@@ -350,7 +336,7 @@ public class ControllerMeasure {
 				serviceAnalysis.saveOrUpdate(analysis);
 
 			}
-			
+
 			System.out.println("Done...");
 
 			return JsonMessage.Success(messageSource.getMessage("success.maintenance.update.all", null, "Measures were successfully updated", locale));

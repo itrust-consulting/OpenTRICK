@@ -13,17 +13,8 @@ import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.importation.ImportAnalysis;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.service.ServiceActionPlanType;
 import lu.itrust.business.service.ServiceAnalysis;
-import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceCustomer;
-import lu.itrust.business.service.ServiceLanguage;
-import lu.itrust.business.service.ServiceMeasureDescription;
-import lu.itrust.business.service.ServiceMeasureDescriptionText;
-import lu.itrust.business.service.ServiceNorm;
-import lu.itrust.business.service.ServiceParameterType;
-import lu.itrust.business.service.ServicePhase;
-import lu.itrust.business.service.ServiceScenarioType;
 import lu.itrust.business.service.ServiceTrickService;
 import lu.itrust.business.service.ServiceUser;
 

@@ -47,10 +47,15 @@
 		real-value="${fn:replace(measure.internalMaintenance,',' ,'.') }"><fmt:formatNumber value="${measure.internalMaintenance}" maxFractionDigits="2" /></td>
 	<td class="success textaligncenter" trick-field="externalMaintenance" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
 			value="${measure.externalMaintenance}" maxFractionDigits="2" /></td>
+	<c:set var="recurrentInvestment">
+		<fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="0" />
+	</c:set>
 	<td class="success textaligncenter" trick-field="recurrentInvestment" trick-field-type="double" ondblclick="return editField(this);" title="${measure.recurrentInvestment}&euro;"
-		real-value="${fn:replace(measure.recurrentInvestment,',' ,'.') }"><fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="0" /></td>
-	<td ${measure.cost == 0? "class='textaligncenter danger'" : "class='textaligncenter'" } title="${measure.cost}&euro;"><fmt:formatNumber value="${measure.cost*0.001}"
-			maxFractionDigits="0" /></td>
+		real-value="${fn:replace(recurrentInvestment,',' ,'.') }">${recurrentInvestment}</td>
+	<c:set var="cost">
+		<fmt:formatNumber value="${measure.cost*0.001}" maxFractionDigits="0" />
+	</c:set>
+	<td ${cost == 0? "class='textaligncenter danger'" : "class='textaligncenter'" } title="${measure.cost}&euro;">${cost}</td>
 	<td class="success textaligncenter" trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)"
 		real-value='${measure.phase.number}'><c:choose>
 			<c:when test="${measure.phase.number == 0}">NA</c:when>

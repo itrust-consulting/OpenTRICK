@@ -584,7 +584,7 @@ function analysisTableSortable() {
 	}
 
 	// define sort order of text
-	Array.AlphanumericSortOrder = 'AaÃ�Ã¡BbCcDdÃ�Ã°EeÃ‰Ã©Ä˜Ä™FfGgHhIiÃ�Ã­JjKkLlMmNnOoÃ“Ã³PpQqRrSsTtUuÃšÃºVvWwXxYyÃ�Ã½ZzÃžÃ¾Ã†Ã¦Ã–Ã¶';
+	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
 
 	// flag to check for case sensitive comparation
 	Array.AlphanumericSortIgnoreCase = true;
@@ -628,12 +628,12 @@ function analysisTableSortable() {
 			},
 		},
 		textSorter : {
-			1 : function(a, b, direction, column, table) {
+			1 : Array.AlphanumericSort,
+			2 : function(a, b, direction, column, table) {
 				if (table.config.sortLocaleCompare)
 					return a.localeCompare(b);
-				return versionComparator(a, b);
+				return versionComparator(a, b, direction);
 			},
-			2 : Array.AlphanumericSort,
 			3 : $.tablesorter.sortNatural,
 		},
 		theme : "bootstrap",

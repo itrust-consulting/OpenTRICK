@@ -21,8 +21,6 @@
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<spring:message code="label.measure.${norm}" text="${norm}" />
-						|
-						<spring:message text="${measureSplited.get(norm).get(1).analysisNorm.norm.version}" />
 					</div>
 					<div class="panel-body panelbodydefinition">
 						<table class="table table-hover headertofixtable" id="table_SOA_${norm}">

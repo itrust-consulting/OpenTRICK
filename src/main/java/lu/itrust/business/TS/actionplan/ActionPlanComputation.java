@@ -819,12 +819,6 @@ public class ActionPlanComputation {
 		for (int phase = 0; phase < this.analysis.getUsedPhases().size(); phase++) {
 
 			// ****************************************************************
-			// * generate TMA list for phase computation
-			// ****************************************************************
-			if (this.analysis.getUsedPhases().get(phase).getNumber() == 0)
-				continue;
-
-			// ****************************************************************
 			// * check if TMAList is empty -> NO: after first time TMAList is
 			// not empty, so ALE
 			// values need to be reused

@@ -78,9 +78,25 @@
 										<tbody>
 											<tr>
 												<c:forEach items="${scenario.assetTypeValues }" var="assetTypeValue" varStatus="status">
-													<td><input type="checkbox" ${assetTypeValue.value>0? 'checked' : ''} value="1"
-														name="<spring:message
-											text="${assetTypeValue.assetType.type}" htmlEscape="true"/>" /></td>
+													<td>
+														<input type="checkbox" ${assetTypeValue.value > 0 ? 'checked' : ''} value="1" name="<spring:message text="${assetTypeValue.assetType.type}" />" />
+													</td>
+												</c:forEach>
+											</tr>
+										</tbody>
+									</c:when>
+									<c:when test="${!empty(assetTypes)}">
+										<thead>
+											<tr>
+												<c:forEach items="${assetTypes}" var="assetType">
+													<td><spring:message code="label.assetTypeValue.${assetType.type}" text="${assetType.type}" /></td>
+												</c:forEach>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<c:forEach items="${assetTypes}" var="assetType" varStatus="status">
+													<td><input type="checkbox" value="1" name="<spring:message text="${assetType.type}" />" /></td>
 												</c:forEach>
 											</tr>
 										</tbody>

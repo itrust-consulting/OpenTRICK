@@ -762,17 +762,14 @@ public class Analysis implements Serializable, Cloneable {
 
 		// internal setup * internal wokload + external setup * external workload
 		cost = (internalSetupRate * internalWorkLoad) + (externalSetupRate * externalWorkLoad);
-
 		// + investment
 		cost += investment;
-
 		// check if lifetime is not 0 -> YES: use default lifetime
-		if (lifetime == 0) {			
-				cost *= (1. / lifetimeDefault);
-		} else {
+		if (lifetime == 0)			
+			cost *= (1. / lifetimeDefault);
+		else
 			cost *= (1. / lifetime);
-		}
-
+				
 		cost += ((internalMaintenance * internalSetupRate)+(externalMaintenance * externalSetupRate) + recurrentInvestment);
 		
 		// return calculated cost

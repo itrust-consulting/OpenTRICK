@@ -216,11 +216,7 @@ public class Asset implements Cloneable {
 	 * @throws InvalidAttributesException
 	 *             if others fields are not initialized yet
 	 */
-	public void setSelected(boolean selected) throws InvalidAttributesException {
-		if (name.trim().isEmpty())
-			throw new InvalidAttributesException("error.asset.selected.name");
-		if (value < 0)
-			throw new InvalidAttributesException("error.asset.selected.value");
+	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
 
