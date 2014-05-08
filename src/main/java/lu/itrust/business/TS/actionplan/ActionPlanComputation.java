@@ -2546,7 +2546,7 @@ public class ActionPlanComputation {
 					// tmpval.investment = 0;
 					tmpval.measureCost = 0;
 					tmpval.measureCount = 0;
-					tmpval.recurrentInvestment = 0;
+					//tmpval.recurrentInvestment = 0;
 					// tmpval.recurrentCost = 0;
 					tmpval.relativeROSI = 0;
 					tmpval.ROSI = 0;
