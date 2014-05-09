@@ -15,15 +15,18 @@ import lu.itrust.business.service.ServiceAsset;
 
 /**
  * @author eom
- *
+ * 
  */
 @Service
 public class ServiceAssetImpl implements ServiceAsset {
 
 	@Autowired
 	private DAOAsset daoAsset;
-	
-	/* (non-Javadoc)
+
+	/**
+	 * get: <br>
+	 * Description
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#get(int)
 	 */
 	@Override
@@ -31,40 +34,87 @@ public class ServiceAssetImpl implements ServiceAsset {
 		return daoAsset.get(id);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceAsset#find()
+	/**
+	 * getAll: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceAsset#getAll()
 	 */
 	@Override
-	public List<Asset> find() {
-		return daoAsset.find();
+	public List<Asset> getAll() {
+		return daoAsset.getAll();
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceAsset#find(int, int)
+	/**
+	 * getByPageAndSize: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceAsset#getByPageAndSize(int, int)
 	 */
 	@Override
-	public List<Asset> find(int pageIndex, int pageSize) {
-		return daoAsset.find(pageIndex, pageSize);
+	public List<Asset> getByPageAndSize(int pageIndex, int pageSize) {
+		return daoAsset.getByPageAndSize(pageIndex, pageSize);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceAsset#findByAnalysis(int)
+	/**
+	 * getFromAnalysisByPageAndSize: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceAsset#getFromAnalysisByPageAndSize(int, int, int)
 	 */
 	@Override
-	public List<Asset> findByAnalysis(int analysisId) {
-		return daoAsset.findByAnalysis(analysisId);
+	public List<Asset> getFromAnalysisByPageAndSize(int pageIndex, int pageSize, int analysisId) {
+		return daoAsset.getFromAnalysisByPageAndSize(pageIndex, pageSize, analysisId);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceAsset#findByAnalysis(int, int, int)
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceAsset#belongsToAnalysis(int, int)
 	 */
 	@Override
-	public List<Asset> findByAnalysis(int pageIndex, int pageSize,
-			int analysisId) {
-		return daoAsset.findByAnalysis(pageIndex, pageSize, analysisId);
+	public boolean belongsToAnalysis(int analysisId, int assetId) {
+		return daoAsset.belongsToAnalysis(assetId, analysisId);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceAsset#getAllFromAnalysis(int)
+	 */
+	@Override
+	public List<Asset> getAllFromAnalysis(int analysisId) {
+		return daoAsset.getAllFromAnalysis(analysisId);
+	}
+
+	/**
+	 * getSelectedFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceAsset#getSelectedFromAnalysis(int)
+	 */
+	@Override
+	public List<Asset> getSelectedFromAnalysis(int idAnalysis) {
+		return daoAsset.getSelectedFromAnalysis(idAnalysis);
+	}
+
+	/**
+	 * getSelectedFromAnalysisAndOrderByALE: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceAsset#getSelectedFromAnalysisAndOrderByALE(int)
+	 */
+	@Override
+	public List<Asset> getSelectedFromAnalysisAndOrderByALE(int idAnalysis) {
+		return daoAsset.getSelectedFromAnalysisAndOrderByALE(idAnalysis);
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#save(lu.itrust.business.TS.Asset)
 	 */
 	@Override
@@ -73,7 +123,10 @@ public class ServiceAssetImpl implements ServiceAsset {
 		return daoAsset.save(asset);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#saveOrUpdate(lu.itrust.business.TS.Asset)
 	 */
 	@Override
@@ -82,7 +135,10 @@ public class ServiceAssetImpl implements ServiceAsset {
 		daoAsset.saveOrUpdate(asset);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * merge: <br>
+	 * Description
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#merge(lu.itrust.business.TS.Asset)
 	 */
 	@Override
@@ -91,16 +147,10 @@ public class ServiceAssetImpl implements ServiceAsset {
 		return daoAsset.merge(asset);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceAsset#delete(lu.itrust.business.TS.Asset)
-	 */
-	@Override
-	@Transactional
-	public void delete(Asset asset) {
-		daoAsset.delete(asset);
-	}
-
-	/* (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#delete(int)
 	 */
 	@Override
@@ -109,9 +159,15 @@ public class ServiceAssetImpl implements ServiceAsset {
 		daoAsset.delete(id);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceAsset#delete(lu.itrust.business.TS.Asset)
+	 */
 	@Override
-	public List<Asset> findByAnalysisAndSelected(int idAnalysis) {
-		return daoAsset.findByAnalysisAndSelected(idAnalysis);
+	@Transactional
+	public void delete(Asset asset) {
+		daoAsset.delete(asset);
 	}
-
 }

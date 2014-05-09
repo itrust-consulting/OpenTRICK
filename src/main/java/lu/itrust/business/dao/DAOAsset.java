@@ -8,33 +8,35 @@ import lu.itrust.business.TS.Asset;
  * DAOAsset.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 16 janv. 2013
  */
 public interface DAOAsset {
-	
-	Asset get(int id);
 
-	List<Asset> find();
+	Asset get(int id) throws Exception;
 
-	List<Asset> find(int pageIndex, int pageSize);
+	List<Asset> getAll() throws Exception;
 
-	List<Asset> findByAnalysis(int analysisId);
-	
-	List<Asset> findByAnalysisAndSelectedOderByALE(int idAnalysis);
-	
-	List<Asset> findByAnalysisAndSelected(int idAnalysis);
+	List<Asset> getByPageAndSize(int pageIndex, int pageSize) throws Exception;
 
-	List<Asset> findByAnalysis(int pageIndex, int pageSize, int analysisId);
+	List<Asset> getFromAnalysisByPageAndSize(int pageIndex, int pageSize, int analysisId) throws Exception;
 
-	Asset save(Asset asset);
+	boolean belongsToAnalysis(int assetId, int analysisId) throws Exception;
 
-	void saveOrUpdate(Asset asset);
+	List<Asset> getAllFromAnalysis(int analysisId) throws Exception;
 
-	Asset merge(Asset asset);
+	List<Asset> getSelectedFromAnalysis(int idAnalysis) throws Exception;
 
-	void delete(Asset asset);
+	List<Asset> getSelectedFromAnalysisAndOrderByALE(int idAnalysis) throws Exception;
 
-	void delete(int id);
+	Asset save(Asset asset) throws Exception;
+
+	void saveOrUpdate(Asset asset) throws Exception;
+
+	Asset merge(Asset asset) throws Exception;
+
+	void delete(int id) throws Exception;
+
+	void delete(Asset asset) throws Exception;
 }

@@ -91,7 +91,7 @@ public class ControllerAnalysisProfile {
 			return "analysis/components/widgets/analysisProfileForm";
 		}
 
-		if (serviceAnalysis.isProfile(analysisProfile.getName())) {
+		if (serviceAnalysis.isProfile(analysisProfile.getIdAnalysis())) {
 			model.addAttribute("norms", serviceNorm.loadAllFromAnalysis(analysisProfile.getIdAnalysis()));
 			result.rejectValue("name", "error.analysis.profile.name.used", null, "Name is not available");
 			return "analysis/components/widgets/analysisProfileForm";

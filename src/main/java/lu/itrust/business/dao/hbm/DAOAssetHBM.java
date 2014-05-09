@@ -19,148 +19,176 @@ import lu.itrust.business.dao.DAOAsset;
 public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public DAOAssetHBM() {
 	}
 
 	/**
+	 * Constructor: <br>
+	 * 
 	 * @param session
 	 */
 	public DAOAssetHBM(Session session) {
 		super(session);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOAsset#get(int)
 	 */
 	@Override
-	public Asset get(int id) {
+	public Asset get(int id) throws Exception {
 		return (Asset) getSession().get(Asset.class, id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAll: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAsset#find()
+	 * @see lu.itrust.business.dao.DAOAsset#getAll()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> find() {
+	public List<Asset> getAll() throws Exception {
 		return getSession().createQuery("From Asset").list();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getByPageAndSize: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAsset#find(int, int)
+	 * @see lu.itrust.business.dao.DAOAsset#getByPageAndSize(int, int)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> find(int pageIndex, int pageSize) {
-		return getSession().createQuery("From Asset").setMaxResults(pageSize)
-				.setFirstResult(pageSize * (pageIndex - 1)).list();
+	public List<Asset> getByPageAndSize(int pageIndex, int pageSize) throws Exception {
+		return getSession().createQuery("From Asset").setMaxResults(pageSize).setFirstResult(pageSize * (pageIndex - 1)).list();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getFromAnalysisByPageAndSize: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAsset#findByAnalysis(int)
+	 * @see lu.itrust.business.dao.DAOAsset#getFromAnalysisByPageAndSize(int, int, int)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> findByAnalysis(int analysisId) {
-		return getSession()
-				.createQuery(
-						"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId order by asset.value desc, asset.ALE desc, asset.name asc")
+	public List<Asset> getFromAnalysisByPageAndSize(int pageIndex, int pageSize, int analysisId) throws Exception {
+		return getSession().createQuery("Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId").setInteger("analysisId", analysisId)
+				.setMaxResults(pageSize).setFirstResult(pageSize * (pageIndex - 1)).list();
+	}
+
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAsset#belongsToAnalysis(int, int)
+	 */
+	@Override
+	public boolean belongsToAnalysis(int assetId, int analysisId) throws Exception {
+		return ((Long) getSession().createQuery("Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisid and asset.id = : assetid")
+				.setInteger("analysisid", analysisId).setInteger("assetid", assetId).uniqueResult()).intValue() > 0;
+	}
+
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAsset#getAllFromAnalysis(int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Asset> getAllFromAnalysis(int analysisId) throws Exception {
+		return getSession().createQuery(
+				"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId order by asset.value desc, asset.ALE desc, asset.name asc")
 				.setInteger("analysisId", analysisId).list();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getSelectedFromAnalysis: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAsset#findByAnalysis(int, int, int)
+	 * @see lu.itrust.business.dao.DAOAsset#getSelectedFromAnalysis(int)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> findByAnalysis(int pageIndex, int pageSize,
-			int analysisId) {
-		return getSession()
-				.createQuery(
-						"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId")
-				.setInteger("analysisId", analysisId).setMaxResults(pageSize)
-				.setFirstResult(pageSize * (pageIndex - 1)).list();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.dao.DAOAsset#save(lu.itrust.business.TS.Asset)
-	 */
-	@Override
-	public Asset save(Asset asset) {
-		return (Asset) getSession().save(asset);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOAsset#saveOrUpdate(lu.itrust.business.TS.Asset)
-	 */
-	@Override
-	public void saveOrUpdate(Asset asset) {
-		getSession().saveOrUpdate(asset);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.dao.DAOAsset#merge(lu.itrust.business.TS.Asset)
-	 */
-	@Override
-	public Asset merge(Asset asset) {
-		return (Asset) getSession().merge(asset);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.dao.DAOAsset#delete(lu.itrust.business.TS.Asset)
-	 */
-	@Override
-	public void delete(Asset asset) {
-		getSession().delete(asset);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.dao.DAOAsset#delete(int)
-	 */
-	@Override
-	public void delete(int id) {
-		getSession().delete(get(id));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Asset> findByAnalysisAndSelected(int idAnalysis) {
+	public List<Asset> getSelectedFromAnalysis(int idAnalysis) throws Exception {
 		return getSession()
 				.createQuery(
 						"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.value desc , asset.name asc")
 				.setInteger("idAnalysis", idAnalysis).list();
 	}
 
+	/**
+	 * getSelectedFromAnalysisAndOrderByALE: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAsset#getSelectedFromAnalysisAndOrderByALE(int)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> findByAnalysisAndSelectedOderByALE(int idAnalysis) {
-		 return getSession()
-			.createQuery(
-					"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.ALE asc, asset.ALEO asc, asset.ALEP asc , asset.name asc, asset.value asc")
-			.setInteger("idAnalysis", idAnalysis).list();
+	public List<Asset> getSelectedFromAnalysisAndOrderByALE(int idAnalysis) throws Exception {
+		return getSession()
+				.createQuery(
+						"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.ALE asc, asset.ALEO asc, asset.ALEP asc , asset.name asc, asset.value asc")
+				.setInteger("idAnalysis", idAnalysis).list();
 	}
 
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAsset#save(lu.itrust.business.TS.Asset)
+	 */
+	@Override
+	public Asset save(Asset asset) throws Exception {
+		return (Asset) getSession().save(asset);
+	}
+
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAsset#saveOrUpdate(lu.itrust.business.TS.Asset)
+	 */
+	@Override
+	public void saveOrUpdate(Asset asset) throws Exception {
+		getSession().saveOrUpdate(asset);
+	}
+
+	/**
+	 * merge: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAsset#merge(lu.itrust.business.TS.Asset)
+	 */
+	@Override
+	public Asset merge(Asset asset) throws Exception {
+		return (Asset) getSession().merge(asset);
+	}
+
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAsset#delete(int)
+	 */
+	@Override
+	public void delete(int id) throws Exception {
+		getSession().delete(get(id));
+	}
+
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAsset#delete(lu.itrust.business.TS.Asset)
+	 */
+	@Override
+	public void delete(Asset asset) throws Exception {
+		getSession().delete(asset);
+	}
 }

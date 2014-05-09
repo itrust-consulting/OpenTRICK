@@ -1,11 +1,11 @@
 package lu.itrust.business.dao.hbm;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAnalysis;
 
@@ -25,138 +25,283 @@ import org.springframework.stereotype.Repository;
 public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public DAOAnalysisHBM() {
 	}
 
 	/**
-	 * @param sessionFactory
+	 * Constructor: <br>
+	 * 
+	 * @param session
 	 */
 	public DAOAnalysisHBM(Session session) {
 		super(session);
 	}
 
-	@Override
-	public Analysis get(int id) throws Exception {
-		return (Analysis) getSession().get(Analysis.class, id);
-	}
-
 	/**
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#get(long, java.lang.String, java.sql.Date)
+	 * @see lu.itrust.business.dao.DAOAnalysis#get(int)
 	 */
 	@Override
-	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception {
-
-		Query query = getSession().createQuery("From Analysis where id = :id identifier = :identifier and version = :version and creationDate = :creationDate");
-
-		query.setInteger("id", id);
-
-		query.setString("identifier", identifier);
-
-		query.setString("version", version);
-
-		query.setString("creationDate", creationDate);
-
-		return (Analysis) query.uniqueResult();
-
+	public Analysis get(int idAnalysis) throws Exception {
+		return (Analysis) getSession().get(Analysis.class, idAnalysis);
 	}
 
 	/**
-	 * get: <br>
+	 * getDefaultProfile: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#get(java.lang.String, java.lang.String,
-	 *      java.sql.Date)
+	 * @see lu.itrust.business.dao.DAOAnalysis#getDefaultProfile()
 	 */
 	@Override
-	public Analysis get(int id, String identifier, String version, Timestamp creationDate) throws Exception {
-		return get(id, identifier, version, creationDate);
+	public Analysis getDefaultProfile() throws Exception {
+		return (Analysis) getSession().createQuery("Select analysis From Analysis as analysis where analysis.defaultProfile = true and analysis.profile = true").uniqueResult();
 	}
 
+	/**
+	 * getFromIdentifierVersion: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getFromIdentifierVersion(java.lang.String,
+	 *      java.lang.String)
+	 */
 	@Override
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception {
 		Query query = getSession().createQuery("From Analysis where identifier = :identifier and version = :version");
-
 		query.setString("identifier", identifier);
-
 		query.setString("version", version);
-
 		return (Analysis) query.uniqueResult();
 	}
 
 	/**
-	 * analysisExist: <br>
+	 * exists: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#analysisExist(java.lang.String, java.lang.String)
+	 * @see lu.itrust.business.dao.DAOAnalysis#exists(int)
 	 */
 	@Override
-	public boolean analysisExist(String identifier, String version) throws Exception {
-		Query query = getSession().createQuery("select count(*) From Analysis where identifier = :identifier and version = :version");
-
-		query.setString("identifier", identifier);
-
-		query.setString("version", version);
-
-		return ((Long) query.uniqueResult()) != 0;
+	public boolean exists(int idAnalysis) {
+		return ((Long) getSession().createQuery("Select count(*) From Analysis where id = :id").setInteger("id", idAnalysis).uniqueResult()).intValue() > 0;
 	}
 
 	/**
-	 * loadAllFromCustomerIdentifierVersion: <br>
+	 * isProfile: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#loadAllFromCustomerIdentifierVersion(lu.itrust.business.TS.Customer,
+	 * @see lu.itrust.business.dao.DAOAnalysis#isProfile(int)
+	 */
+	@Override
+	public boolean isProfile(int analysisid) {
+		Boolean result =
+			(Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.id = :identifier").setParameter("identifier", analysisid).uniqueResult();
+		return result == null ? false : result;
+	}
+
+	/**
+	 * getAllAnalysisIDs: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getAllAnalysisIDs()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Integer> getAllAnalysisIDs() throws Exception {
+		return (List<Integer>) getSession().createQuery("SELECT analysis.id From Analysis as analysis").list();
+	}
+
+	/**
+	 * getAll: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getAll()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAll() throws Exception {
+		Query query = getSession().createQuery("From Analysis");
+		return (List<Analysis>) query.list();
+	}
+
+	/**
+	 * getAllNotEmpty: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getAllNotEmpty()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllNotEmpty() throws Exception {
+		return getSession().createQuery("From Analysis as analysis where analysis.empty = :empty").setBoolean("empty", false).list();
+	}
+
+	/**
+	 * getAllProfiles: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getAllProfiles()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllProfiles() {
+		return getSession().createQuery("Select analysis From Analysis as analysis where analysis.profile = true").list();
+	}
+
+	/**
+	 * getAllFromUserNameAndCustomerId: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getAllFromUserNameAndCustomerId(java.lang.String,
+	 *      java.lang.Integer)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllFromUserNameAndCustomerId(String userName, Integer customerID) throws Exception {
+		return getSession()
+				.createQuery(
+						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
+				.setParameter("username", userName).setParameter("customer", customerID).list();
+	}
+
+	/**
+	 * getFromUserNameAndCustomerIdAndNotEmpty: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getFromUserNameAndCustomerIdAndNotEmpty(java.lang.String,
+	 *      int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getFromUserNameAndCustomerIdAndNotEmpty(String userName, int idCustomer) {
+		return getSession()
+				.createQuery(
+						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.data = true and userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc")
+				.setParameter("username", userName).setParameter("customer", idCustomer).list();
+	}
+
+	/**
+	 * getFromUserNameAndCustomer: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getFromUserNameAndCustomer(java.lang.String,
+	 *      java.lang.Integer, int, int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getFromUserNameAndCustomer(String login, Integer customer, int pageIndex, int pageSize) {
+		return getSession()
+				.createQuery(
+						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
+				.setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
+	}
+
+	/**
+	 * getAllFromCustomerIdAndProfile: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getAllFromCustomerIdAndProfile(int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllFromCustomerIdAndProfile(int idCustomer) {
+		return (List<Analysis>) getSession().createQuery("SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true").setParameter(
+				"customer", idCustomer).list();
+	}
+
+	/**
+	 * getAllFromCustomerIdAndProfileByPageAndSize: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getAllFromCustomerIdAndProfileByPageAndSize(java.lang.Integer,
+	 *      java.lang.Integer, java.lang.Integer)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllFromCustomerIdAndProfileByPageAndSize(Integer customerID, Integer pageIndex, Integer pageSize) {
+		return (List<Analysis>) getSession().createQuery("SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true").setParameter(
+				"customer", customerID).setMaxResults(pageSize).setFirstResult((pageIndex) * pageSize).list();
+	}
+
+	/**
+	 * getAllFromUser: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getAllFromUser(lu.itrust.business.TS.usermanagement.User)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllFromUser(User user) throws Exception {
+		return getSession().createQuery("SELECT uar.analysis FROM UserAnalysisRight uar WHERE uar.user = :user").setParameter("user", user).list();
+	}
+
+	/**
+	 * getAllFromCustomer: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getAllFromCustomer(lu.itrust.business.TS.Customer)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllFromCustomer(Customer customer) throws Exception {
+		Query query = getSession().createQuery("From Analysis where customer = :customer");
+		query.setParameter("customer", customer);
+		return (List<Analysis>) query.list();
+	}
+
+	/**
+	 * getAllFromCustomerIdentifierVersion: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getAllFromCustomerIdentifierVersion(lu.itrust.business.TS.Customer,
+	 *      java.lang.String, java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception {
+		Query query = getSession().createQuery("From Analysis where customer = :customer and version = :version");
+		query.setParameter("customer", customer);
+		query.setString("version", version);
+		return (List<Analysis>) query.list();
+	}
+
+	/**
+	 * getParameterFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#getParameterFromAnalysis(java.lang.Integer,
 	 *      java.lang.String)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> loadAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception {
-
-		Query query = getSession().createQuery("From Analysis where customer = :customer and version = :version");
-
-		query.setParameter("customer", customer);
-
-		query.setString("version", version);
-
-		return (List<Analysis>) query.list();
-
+	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception {
+		return (Parameter) getSession().createQuery(
+				"Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and parameter.description = :parameter")
+				.setParameter("idAnalysis", idAnalysis).setParameter("parameter", Parameter).uniqueResult();
 	}
 
 	/**
-	 * loadAll: <br>
+	 * getLanguageOfAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#loadAllFromCustomer(lu.itrust.business.TS.Customer)
+	 * @see lu.itrust.business.dao.DAOAnalysis#getLanguageOfAnalysis(int)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> loadAllFromCustomer(Customer customer) throws Exception {
-		Query query = getSession().createQuery("From Analysis where customer = :customer");
-
-		query.setParameter("customer", customer);
-
-		return (List<Analysis>) query.list();
-
+	public Language getLanguageOfAnalysis(int analysisID) throws Exception {
+		return (Language) getSession().createQuery("SELECT language FROM Analysis analysis WHERE analysis.id = :analysisID").setParameter("analysisID", analysisID).uniqueResult();
 	}
 
 	/**
-	 * loadAll: <br>
+	 * getVersionOfAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#loadAll()
+	 * @see lu.itrust.business.dao.DAOAnalysis#getVersionOfAnalysis(int)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> loadAll() throws Exception {
-
-		Query query = getSession().createQuery("From Analysis");
-
-		return (List<Analysis>) query.list();
-
+	public String getVersionOfAnalysis(int id) throws Exception {
+		Query query = getSession().createQuery("SELECT version From Analysis where id = :id");
+		query.setInteger("id", id);
+		return (String) query.uniqueResult();
 	}
 
 	/**
@@ -188,135 +333,16 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * @see lu.itrust.business.dao.DAOAnalysis#remove(lu.itrust.business.TS.Analysis)
 	 */
 	@Override
-	public void remove(Analysis analysis) throws Exception {
+	public void delete(Analysis analysis) throws Exception {
 		getSession().delete(analysis);
 
 	}
 
 	@Override
-	public void remove(Integer analysisId) throws Exception {
+	public void delete(Integer analysisId) throws Exception {
 		Analysis analysis = get(analysisId);
 		if (analysis != null) {
-			remove(analysis);
+			delete(analysis);
 		}
 	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Analysis> loadAllNotEmpty() throws Exception {
-		return getSession().createQuery("From Analysis as analysis where analysis.empty = :empty").setBoolean("empty", false).list();
-	}
-
-	@Override
-	public boolean exist(int id) {
-		return ((Long) getSession().createQuery("Select count(*) From Analysis where id = :id").setInteger("id", id).uniqueResult()).intValue() > 0;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Analysis> loadAllFromUser(User user) throws Exception {
-		return getSession().createQuery("SELECT uar.analysis FROM UserAnalysisRight uar WHERE uar.user = :user").setParameter("user", user).list();
-	}
-
-	@Override
-	public Language getLanguageOfAnalysis(int analysisID) throws Exception {
-		return (Language) getSession().createQuery("SELECT language FROM Analysis analysis WHERE analysis.id = :analysisID").setParameter("analysisID", analysisID).uniqueResult();
-
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Analysis> loadByUserAndCustomer(String login, String customer) {
-		return getSession()
-				.createQuery(
-						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.organisation = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
-				.setParameter("username", login).setParameter("customer", customer).list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Analysis> loadByUserAndCustomer(String login, String customer, int pageIndex, int pageSize) {
-		return getSession()
-				.createQuery(
-						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.organisation = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
-				.setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
-	}
-
-	@Override
-	public String getVersionOfAnalysis(int id) throws Exception {
-		Query query = getSession().createQuery("SELECT version From Analysis where id = :id");
-
-		query.setInteger("id", id);
-
-		return (String) query.uniqueResult();
-	}
-
-	public boolean isProfile(int analysisid) {
-		Boolean result =
-			(Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.id = :identifier").setParameter("identifier", analysisid).uniqueResult();
-		return result == null ? false : result;
-	}
-
-	public boolean isProfile(String name) {
-		Boolean result =
-			(Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.identifier = :identifier").setParameter("identifier", name).uniqueResult();
-		return result == null ? false : result;
-	}
-
-	@Override
-	public Analysis findProfileByName(String name) {
-		return (Analysis) getSession().createQuery("Select analysis From Analysis as analysis where analysis.identifier = :identifier and analysis.profile = true").setParameter(
-				"identifier", name).uniqueResult();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Analysis> loadProfiles() {
-		return getSession().createQuery("Select analysis From Analysis as analysis where analysis.profile = true").list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Analysis> loadByUserAndCustomer(String userName, Integer customerID) throws Exception {
-		return getSession()
-				.createQuery(
-						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
-				.setParameter("username", userName).setParameter("customer", customerID).list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Analysis> loadByUserAndCustomer(String login, Integer customer, int pageIndex, int pageSize) {
-		return getSession()
-				.createQuery(
-						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
-				.setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Analysis> loadAllFromCustomerAndProfile(Integer customerID, Integer pageIndex, Integer pageSize) {
-		return (List<Analysis>) getSession().createQuery("SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true").setParameter("customer", customerID).setMaxResults(pageSize).setFirstResult((pageIndex) * pageSize).list();
-	}
-
-	@SuppressWarnings("unchecked") 
-	@Override
-	public List<Analysis> loadAllFromCustomerAndProfile(int idCustomer) {
-		return (List<Analysis>) getSession().createQuery("SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true").setParameter("customer", idCustomer).list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Analysis> loadByUserAndCustomerAndNoEmpty(String userName, int idCustomer) {
-		return getSession()
-				.createQuery(
-						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.data = true and userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc")
-				.setParameter("username", userName).setParameter("customer", idCustomer).list();
-	}
-
-	@Override
-	public Analysis getDefaultProfile() {
-		return (Analysis) getSession().createQuery("Select analysis From Analysis as analysis where analysis.defaultProfile = true and analysis.profile = true").uniqueResult();
-	}
-	
 }

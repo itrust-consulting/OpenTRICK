@@ -209,7 +209,7 @@ public class ControllerAsset {
 			return null;
 
 		// load all assets of analysis to model
-		model.addAttribute("assets", serviceAsset.findByAnalysis(integer));
+		model.addAttribute("assets", serviceAsset.getAllFromAnalysis(integer));
 
 		return "analysis/components/asset";
 	}

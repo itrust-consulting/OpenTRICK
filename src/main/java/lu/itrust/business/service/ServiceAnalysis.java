@@ -9,6 +9,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -35,6 +36,8 @@ public interface ServiceAnalysis {
 	
 	public String getVersionOfAnalysis(int id) throws Exception;
 
+	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception;
+	
 	public boolean analysisExist(String identifier, String version) throws Exception;
 
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception;
@@ -59,6 +62,8 @@ public interface ServiceAnalysis {
 
 	public List<Analysis> loadAll() throws Exception;
 
+	public List<Integer> loadAllAnalysisIDs() throws Exception;
+	
 	public List<Analysis> loadAllNotEmpty() throws Exception;
 
 	public void save(Analysis analysis) throws Exception;

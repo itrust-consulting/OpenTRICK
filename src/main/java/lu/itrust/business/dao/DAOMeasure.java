@@ -25,6 +25,8 @@ public interface DAOMeasure {
 	
 	List<NormMeasure> findNormMeasureByAnalysisAndComputable(int idAnalysis);
 	
+	List<Measure> findMeasureByAnalysisAndComputable(int idAnalysis);
+	
 	Measure findByIdAndAnalysis(Integer id, Integer idAnalysis);
 	
 	List<Measure> findByAnalysisAndNorm(int idAnalysis, int idNorm);
@@ -32,6 +34,8 @@ public interface DAOMeasure {
 	List<Measure> findByAnalysisAndNorm(int idAnalysis, String norm);
 	
 	List<Measure> findByAnalysisAndNorm(int idAnalysis, Norm norm);
+	
+	List<Measure> loadAll();
 	
 	List<Measure> loadSOA(int idAnalysis);
 

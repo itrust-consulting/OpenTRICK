@@ -24,13 +24,15 @@ import org.springframework.stereotype.Repository;
 public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public DAOActionPlanHBM() {
 	}
 
 	/**
-	 * @param sessionFactory
+	 * Constructor: <br>
+	 * 
+	 * @param session
 	 */
 	public DAOActionPlanHBM(Session session) {
 		super(session);
@@ -46,7 +48,20 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	public ActionPlanEntry get(int id) throws Exception {
 		return (ActionPlanEntry) getSession().get(ActionPlanEntry.class, id);
 	}
+	
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOActionPlan#belongsToAnalysis(int, int)
+	 */
+	@Override
+	public boolean belongsToAnalysis(int actionPlanEntryId, int analysisId){
+		return ((Long) getSession().createQuery("Select count(actionPlanEntry) From Analysis as analysis inner join analysis.actionPlans as actionPlanEntry where analysis.id = :analysisId and actionPlanEntry.id = : actionPlanEntryid")
+				.setInteger("analysisId", analysisId).setInteger("actionPlanEntryId", actionPlanEntryId).uniqueResult()).intValue() > 0;
+	}
 
+	
 	/**
 	 * loadAll: <br>
 	 * Description
@@ -55,92 +70,121 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ActionPlanEntry> loadAll() throws Exception {
+	public List<ActionPlanEntry> getAll() throws Exception {
 		return (List<ActionPlanEntry>) getSession().createQuery("From actionplans").list();
 	}
 
 	/**
-	 * save: <br>
+	 * getAllFromAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOActionPlan#save(lu.itrust.business.TS.actionplan.ActionPlanEntry)
+	 * @see lu.itrust.business.dao.DAOActionPlan#getAllFromAnalysis(int)
 	 */
-	@Override
-	public void save(ActionPlanEntry actionPlanEntry) throws Exception {
-		getSession().save(actionPlanEntry);
-
-	}
-
-	/**
-	 * saveOrUpdate: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOActionPlan#saveOrUpdate(lu.itrust.business.TS.actionplan.ActionPlanEntry)
-	 */
-	@Override
-	public void saveOrUpdate(ActionPlanEntry actionPlanEntry) throws Exception {
-		getSession().saveOrUpdate(actionPlanEntry);
-
-	}
-
-	/**
-	 * remove: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOActionPlan#delete(lu.itrust.business.TS.actionplan.ActionPlanEntry)
-	 */
-	@Override
-	public void delete(ActionPlanEntry actionPlanEntry) throws Exception {
-		getSession().delete(actionPlanEntry);
-
-	}
-
-	@Override
-	public List<ActionPlanEntry> loadByAnalysisActionPlanType(Analysis analysis, ActionPlanMode mode) throws Exception {
-
-		return analysis.getActionPlan(mode);
-
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ActionPlanEntry> loadByAnalysisActionPlanType(int analysisID, ActionPlanMode mode) throws Exception {
+	public List<ActionPlanEntry> getAllFromAnalysis(int id) throws Exception {
+		return (List<ActionPlanEntry>) getSession().createQuery("Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.id DESC")
+				.setParameter("analysisID", id).list();
+	}
 
+	/**
+	 * getFromAnalysisAndActionPlanType: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOActionPlan#getFromAnalysisAndActionPlanType(int,
+	 *      lu.itrust.business.TS.actionplan.ActionPlanMode)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(int analysisID, ActionPlanMode mode) throws Exception {
 		return (List<ActionPlanEntry>) getSession()
 				.createQuery(
 						"SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplans where analysis.id = :analysisID and actionplans.actionPlanType.name = :mode ORDER BY actionplan.actionPlanType.id ASC, actionplan.measure.phase.number ASC, actionplan.ROI ASC")
 				.setParameter("mode", mode).setParameter("analysisID", analysisID).list();
-
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * getFromAnalysisAndActionPlanType: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOActionPlan#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.Analysis,
+	 *      lu.itrust.business.TS.actionplan.ActionPlanMode)
+	 */
 	@Override
-	public List<ActionPlanEntry> loadAllFromAnalysis(int id) throws Exception {
-		return (List<ActionPlanEntry>) getSession().createQuery(
-				"Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.id DESC").setParameter(
-				"analysisID", id).list();
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode) throws Exception {
+		return analysis.getActionPlan(mode);
 	}
 
+	/**
+	 * getMeasuresFromActionPlanAndAnalysis: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOActionPlan#getMeasuresFromActionPlanAndAnalysis(int, lu.itrust.business.TS.actionplan.ActionPlanMode)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> loadMeasuresFromAnalysisActionPlan(int id, ActionPlanMode apm) throws Exception {
+	public List<Measure> getMeasuresFromActionPlanAndAnalysis(int id, ActionPlanMode apm) throws Exception {
 		return (List<Measure>) getSession().createQuery(
 				"Select actionplan.measure From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID and actionplan.actionPlanType.name = :apm").setParameter(
 				"analysisID", id).setParameter("apm", apm).list();
 	}
 
+	/**
+	 * getMeasuresFromActionPlanAndAnalysisAndNotToImplement: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOActionPlan#getMeasuresFromActionPlanAndAnalysisAndNotToImplement(int, lu.itrust.business.TS.actionplan.ActionPlanMode)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> loadMeasuresFromAnalysisActionPlanNotToImplement(int id, ActionPlanMode apm) throws Exception {
+	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(int id, ActionPlanMode apm) throws Exception {
 		return (List<Measure>) getSession().createQuery(
 				"Select actionplan.measure From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID and actionplan.actionPlanType.name = :apm and actionplan.ROI <= 0.0")
 				.setParameter("analysisID", id).setParameter("apm", apm).list();
 	}
 
+	/**
+	 * getDistinctActionPlanAssetsFromAnalysisAndOrderByALE: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOActionPlan#getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(int)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> loadAssetsByAnalysisOrderByALE(int analysisID) throws Exception {
-
+	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(int analysisID) throws Exception {
 		return (List<Asset>) getSession().createQuery("SELECT DISTINCT apa.asset FROM Analysis a INNER JOIN ActionPlanAsset apa WHERE a.id= : analysisID").list();
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOActionPlan#save(lu.itrust.business.TS.actionplan.ActionPlanEntry)
+	 */
+	@Override
+	public void save(ActionPlanEntry actionPlanEntry) throws Exception {
+		getSession().save(actionPlanEntry);
+	}
+
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOActionPlan#saveOrUpdate(lu.itrust.business.TS.actionplan.ActionPlanEntry)
+	 */
+	@Override
+	public void saveOrUpdate(ActionPlanEntry actionPlanEntry) throws Exception {
+		getSession().saveOrUpdate(actionPlanEntry);
+	}
+
+	/**
+	 * delete: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOActionPlan#delete(lu.itrust.business.TS.actionplan.ActionPlanEntry)
+	 */
+	@Override
+	public void delete(ActionPlanEntry actionPlanEntry) throws Exception {
+		getSession().delete(actionPlanEntry);
 	}
 }

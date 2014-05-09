@@ -18,6 +18,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceDataValidation;
@@ -130,16 +131,19 @@ public class ControllerAdministration {
 
 		TrickService status = serviceTrickService.getStatus();
 
-		String version = "0.0.1";
+		String version = "0.0.4";
 
 		boolean installed = false;
 
 		if (status != null) {
 			
-			if(status.isInstalled()==false && serviceAnalysis.getDefaultProfile()!=null) {
+			if(status.isInstalled()==false && serviceAnalysis.getDefaultProfile()!=null)
 				status.setInstalled(true);
-				serviceTrickService.saveOrUpdate(status);
-			}
+						
+			if(GeneralComperator.VersionComparator(version, status.getVersion()) == 1)
+				status.setVersion(version);
+			
+			serviceTrickService.saveOrUpdate(status);
 			
 			return status;
 			

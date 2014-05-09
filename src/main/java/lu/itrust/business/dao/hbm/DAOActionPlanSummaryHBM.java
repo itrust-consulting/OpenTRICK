@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.dao.hbm;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
@@ -22,141 +23,157 @@ import org.springframework.stereotype.Repository;
 public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPlanSummary {
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public DAOActionPlanSummaryHBM() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @param sessionFactory
+	 * Constructor: <br>
+	 * 
+	 * @param session
 	 */
 	public DAOActionPlanSummaryHBM(Session session) {
 		super(session);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOActionPlanSummary#get(long,
-	 * lu.itrust.business.TS.actionplan.ActionPlanType,
-	 * lu.itrust.business.TS.Analysis)
+	 * @see lu.itrust.business.dao.DAOActionPlanSummary#get(int)
 	 */
 	@Override
 	public SummaryStage get(int idSummaryStage) throws Exception {
 		return (SummaryStage) getSession().get(SummaryStage.class, idSummaryStage);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getFromAnalysisById: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOActionPlanSummary#loadAllFromType(lu.itrust
-	 * .business.TS.actionplan.ActionPlanType, lu.itrust.business.TS.Analysis)
+	 * @see lu.itrust.business.dao.DAOActionPlanSummary#getFromAnalysisById(java.lang.Integer,
+	 *      java.lang.Integer)
 	 */
 	@Override
-	public List<SummaryStage> loadAllFromType(ActionPlanType actionPlanType, Analysis analysis) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public SummaryStage getFromAnalysisById(Integer idAnalysis, Integer idSummaryStage) throws Exception {
+		return (SummaryStage) getSession().createQuery(
+				"Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.id = :idSummaryStage").setParameter(
+				"idAnalysis", idAnalysis).setParameter("idSummaryStage", idSummaryStage).uniqueResult();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOActionPlanSummary#loadAllFromAnalysis(lu.itrust
-	 * .business.TS.Analysis)
+	 * @see lu.itrust.business.dao.DAOActionPlan#belongsToAnalysis(int, int)
 	 */
 	@Override
-	public List<SummaryStage> loadAllFromAnalysis(Analysis analysis) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean belongsToAnalysis(int actionPlanSummaryId, int analysisId) throws Exception {
+		return ((Long) getSession().createQuery(
+				"Select count(summary) From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :analysisId and summary.id = : actionPlanSummaryId")
+				.setInteger("analysisId", analysisId).setInteger("actionPlanSummaryId", actionPlanSummaryId).uniqueResult()).intValue() > 0;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAll: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOActionPlanSummary#
-	 * loadAllFromAnalysisIdentifierVersionCreationDate(int, java.lang.String,
-	 * java.lang.String)
-	 */
-	@Override
-	public List<SummaryStage> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier, String version, String creationDate) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.dao.DAOActionPlanSummary#loadAll()
+	 * @see lu.itrust.business.dao.DAOActionPlanSummary#getAll()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SummaryStage> loadAll() throws Exception {
-		// TODO Auto-generated method stub
+	public List<SummaryStage> getAll() throws Exception {
 		return getSession().createQuery("From SummaryStage").list();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOActionPlanSummary#save(lu.itrust.business.TS
-	 * .actionplan.SummaryStage)
+	 * @see lu.itrust.business.dao.DAOActionPlanSummary#getAllFromAnalysis(java.lang.Integer)
 	 */
-	@Override
-	public void save(SummaryStage summaryStage) throws Exception {
-		getSession().save(summaryStage);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOActionPlanSummary#saveOrUpdate(lu.itrust.business
-	 * .TS.actionplan.SummaryStage)
-	 */
-	@Override
-	public void saveOrUpdate(SummaryStage summaryStage) throws Exception {
-		getSession().saveOrUpdate(summaryStage);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOActionPlanSummary#remove(lu.itrust.business
-	 * .TS.actionplan.SummaryStage)
-	 */
-	@Override
-	public void remove(SummaryStage summaryStage) throws Exception {
-		getSession().delete(summaryStage);
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SummaryStage> findByAnalysis(Integer idAnalysis) {
+	public List<SummaryStage> getAllFromAnalysis(Integer idAnalysis) {
 		return getSession().createQuery("Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis order by summary.id")
 				.setParameter("idAnalysis", idAnalysis).list();
 	}
 
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOActionPlanSummary#getAllFromAnalysis(lu.itrust.business.TS.Analysis)
+	 */
 	@Override
-	public SummaryStage findByIdAndAnalysis(int id, Integer idAnalysis) {
-		return (SummaryStage) getSession()
-				.createQuery("Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.id = :idSuammary")
-				.setParameter("idAnalysis", idAnalysis).setParameter("idSuammary", id).uniqueResult();
+	public List<SummaryStage> getAllFromAnalysis(Analysis analysis) throws Exception {
+		return null;
 	}
 
+	/**
+	 * getFromAnalysisAndActionPlanType: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOActionPlanSummary#getFromAnalysisAndActionPlanType(java.lang.Integer,
+	 *      java.lang.String)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SummaryStage> findByAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) {
+	public List<SummaryStage> getFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) throws Exception {
 		return getSession()
 				.createQuery(
 						"Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.actionPlanType.name = :actionPlanType order by summary.id")
 				.setParameter("idAnalysis", idAnalysis).setParameter("actionPlanType", ActionPlanMode.getByName(actionPlanType)).list();
 	}
 
+	/**
+	 * getFromAnalysisAndActionPlanType: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOActionPlanSummary#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.Analysis,
+	 *      lu.itrust.business.TS.actionplan.ActionPlanType)
+	 */
+	@Override
+	public List<SummaryStage> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception {
+		List<SummaryStage> sumStages = new ArrayList<SummaryStage>();
+		for (SummaryStage stage : sumStages) {
+			if (stage.getActionPlanType().equals(actionPlanType))
+				sumStages.add(stage);
+		}
+		return sumStages;
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOActionPlanSummary#save(lu.itrust.business.TS.actionplan.SummaryStage)
+	 */
+	@Override
+	public void save(SummaryStage summaryStage) throws Exception {
+		getSession().save(summaryStage);
+	}
+
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOActionPlanSummary#saveOrUpdate(lu.itrust.business.TS.actionplan.SummaryStage)
+	 */
+	@Override
+	public void saveOrUpdate(SummaryStage summaryStage) throws Exception {
+		getSession().saveOrUpdate(summaryStage);
+	}
+
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOActionPlanSummary#delete(lu.itrust.business.TS.actionplan.SummaryStage)
+	 */
+	@Override
+	public void delete(SummaryStage summaryStage) throws Exception {
+		getSession().delete(summaryStage);
+	}
 }

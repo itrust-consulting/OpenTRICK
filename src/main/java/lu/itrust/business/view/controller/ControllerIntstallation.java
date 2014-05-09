@@ -71,7 +71,7 @@ public class ControllerIntstallation {
 			return errors;
 		}
 
-		String fileName = request.getServletContext().getRealPath("/WEB-INF/data") + "/TL1.4_TRICKService_DefaultProfile_v1.0.sqlite";
+		String fileName = request.getServletContext().getRealPath("/WEB-INF/data") + "/TL1.4_TRICKService_DefaultProfile_v1.1.sqlite";
 	
 		installProfileCustomer(errors);
 

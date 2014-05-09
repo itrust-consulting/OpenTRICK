@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.view.controller;
 
 import java.lang.reflect.Field;
@@ -100,6 +97,8 @@ public class ControllerScenario {
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
+
+	
 	/**
 	 * select: <br>
 	 * Description
@@ -202,20 +201,6 @@ public class ControllerScenario {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.scenario.delete.failed", null, "Scenario cannot be deleted", locale));
 		}
-	}
-
-	@RequestMapping(value = "/Update/All", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	String updateAllScenario(Locale locale) throws Exception {
-		List<Scenario> scenarios = serviceScenario.loadAll();
-		for (Scenario scenario : scenarios) {
-			for (String key : CategoryConverter.JAVAKEYS)
-				scenario.setCategoryValue(key, 0);
-			scenario.setCategoryValue(CategoryConverter.getTypeFromScenario(scenario), 1);
-			serviceScenario.saveOrUpdate(scenario);
-		}
-		return JsonMessage.Success(messageSource.getMessage("success.scenario.update.all", null, "Scenarios were successfully updated", locale));
 	}
 
 	/**

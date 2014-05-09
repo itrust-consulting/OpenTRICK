@@ -20,19 +20,21 @@ public interface DAOActionPlan {
 	
 	public ActionPlanEntry get(int id) throws Exception;
 			
-	public List<ActionPlanEntry> loadByAnalysisActionPlanType(Analysis analysis, ActionPlanMode mode) throws Exception;
+	public boolean belongsToAnalysis(int actionPlanEntryId, int analysisId);
+	
+	public List<ActionPlanEntry> getAll() throws Exception;
+	
+	public List<ActionPlanEntry> getAllFromAnalysis(int id) throws Exception;
+	
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(int analysisID, ActionPlanMode mode) throws Exception;
+	
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode) throws Exception;
 
-	public List<ActionPlanEntry> loadByAnalysisActionPlanType(int analysisID, ActionPlanMode mode) throws Exception;
+	public List<Measure> getMeasuresFromActionPlanAndAnalysis(int analysisID, ActionPlanMode mode) throws Exception;
 	
-	public List<Measure> loadMeasuresFromAnalysisActionPlan(int id, ActionPlanMode apm) throws Exception;
+	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(int id, ActionPlanMode apm) throws Exception;
 	
-	public List<Measure> loadMeasuresFromAnalysisActionPlanNotToImplement(int id, ActionPlanMode apm) throws Exception;
-	
-	public List<ActionPlanEntry> loadAllFromAnalysis(int id) throws Exception;
-		
-	public List<Asset> loadAssetsByAnalysisOrderByALE(int analysisID) throws Exception;
-
-	public List<ActionPlanEntry> loadAll() throws Exception;
+	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(int analysisID) throws Exception;
 	
 	public void save(ActionPlanEntry actionPlanEntry) throws Exception;
 	

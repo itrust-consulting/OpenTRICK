@@ -1066,6 +1066,34 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	/**
+	 * getParameter: <br>
+	 * Returns the Parameter value of a given Parameter.
+	 * 
+	 * @param parameter
+	 *            The Label of the Parameter
+	 * @return The Value of the Parameter if it exists, or -1 if the parameter was not found
+	 */
+	public Parameter getParameterObject(String parameter) {
+
+		// initialise result value
+
+		// parse all parameters
+		for (int i = 0; i < this.getParameters().size(); i++) {
+
+			// check if parameter is the one request -> YES
+			if (this.getAParameter(i).getDescription().equals(parameter)) {
+
+				// ****************************************************************
+				// * set value
+				// ****************************************************************
+				return this.getAParameter(i);
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * computeParameterScales: <br>
 	 * This method will calculate the bounds of the extended parameters from and to values. Since
 	 * CSSF implementation, impact and probability values need to be calculated using bounds.

@@ -16,4 +16,6 @@ public interface PermissionEvaluator extends org.springframework.security.access
 
 	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception;
 	
+	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) throws Exception;
+	
 }

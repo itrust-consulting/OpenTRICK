@@ -2,22 +2,16 @@ package lu.itrust.business.view.controller;
 
 import java.lang.reflect.Field;
 import java.security.Principal;
-import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormMeasure;
-import lu.itrust.business.TS.Parameter;
-import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ChartGenerator;
-import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.component.helper.RRFFieldEditor;
 import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
@@ -259,90 +253,5 @@ public class ControllerMeasure {
 		model.addAttribute("measures", serviceMeasure.loadSOA(idAnalysis));
 
 		return "analysis/components/soa";
-	}
-
-	@RequestMapping(value = "/Update/Maintenance", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	String updateMaintenance(Locale locale) {
-
-		try {
-
-			System.out.println("Load all analyses...");
-
-			List<Analysis> analyses = serviceAnalysis.loadAll();
-			for (Analysis analysis : analyses) {
-				System.out.println("Update maintenance...");
-				if (analysis == null)
-					return JsonMessage.Error(messageSource.getMessage("error.maintenance.update.all", null, "Analysis not found!", locale));
-				for (AnalysisNorm norm : analysis.getAnalysisNorms()) {
-					for (Measure measure : norm.getMeasures()) {
-
-						double maintenance = measure.getMaintenance();
-
-						double internalmaintenance = 0;
-
-						double externalmaintenance = 0;
-
-						double recurrentInvestment = 0;
-
-						double investment = 0;
-
-						investment = measure.getInvestment();
-
-						internalmaintenance = (measure.getInternalWL() * (maintenance / 100.));
-
-						externalmaintenance = (measure.getExternalWL() * (maintenance / 100.));
-
-						recurrentInvestment = (investment * (maintenance / 100.));
-
-						measure.setInternalMaintenance(internalmaintenance);
-
-						measure.setExternalMaintenance(externalmaintenance);
-
-						measure.setRecurrentInvestment(recurrentInvestment);
-
-						Measure.ComputeCost(measure, analysis);
-
-						serviceMeasure.saveOrUpdate(measure);
-
-					}
-				}
-
-				System.out.println("set new recurrent investment field in action plan summary...");
-
-				for (SummaryStage summaryStage : analysis.getSummaries()) {
-					summaryStage.setRecurrentInvestment(0);
-					serviceActionPlanSummary.saveOrUpdate(summaryStage);
-				}
-
-				System.out.println("remove default maintenance param...");
-
-				Parameter maintenanceDefaultParam = null;
-
-				for (Parameter parameter : analysis.getParameters()) {
-					if (parameter.getDescription().equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
-						maintenanceDefaultParam = parameter;
-						break;
-					}
-				}
-
-				if (maintenanceDefaultParam != null) {
-					analysis.getParameters().remove(maintenanceDefaultParam);
-					serviceParameter.delete(maintenanceDefaultParam);
-
-				}
-
-				serviceAnalysis.saveOrUpdate(analysis);
-
-			}
-
-			System.out.println("Done...");
-
-			return JsonMessage.Success(messageSource.getMessage("success.maintenance.update.all", null, "Measures were successfully updated", locale));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return JsonMessage.Error(e.getMessage());
-		}
 	}
 }

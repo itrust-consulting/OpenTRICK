@@ -9,6 +9,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.service.ServiceAnalysis;
@@ -245,5 +246,15 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public Analysis getDefaultProfile() {
 		return daoAnalysis.getDefaultProfile();
+	}
+
+	@Override
+	public List<Integer> loadAllAnalysisIDs() throws Exception {
+		return daoAnalysis.loadAllAnalysisIDs();
+	}
+
+	@Override
+	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception {
+		return daoAnalysis.getParameterFromAnalysis(idAnalysis, Parameter);
 	}
 }

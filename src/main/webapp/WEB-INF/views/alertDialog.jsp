@@ -11,7 +11,7 @@
 				<div class="modal-body"></div>
 				<!-- dialog buttons -->
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">
 						<spring:message code="label.dialog.button.ok" text="OK" />
 					</button>
 				</div>

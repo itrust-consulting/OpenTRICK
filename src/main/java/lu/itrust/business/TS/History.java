@@ -71,33 +71,6 @@ public class History implements Serializable, Cloneable {
 		this.comment = comment;
 	}
 
-	private static int toInt(String version) {
-		try {
-			if (version.isEmpty())
-				return 0;
-			return Integer.parseInt(version);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
-	public static final int VersionComparator(String versionA, String versionB) {
-		String[] versionsA = versionA.split("\\.", 2);
-		String[] versionsB = versionB.split("\\.", 2);
-		int valueA = toInt(versionsA[0]);
-		int valueB = toInt(versionsB[0]);
-		if (valueA > valueB)
-			return 1;
-		else if (valueA < valueB)
-			return -1;
-		else if (valueA == valueB
-				&& (versionsA.length == 1 && versionsB.length == 1))
-			return 0;
-		return VersionComparator(versionsA.length > 1 ? versionsA[1] : "",
-				versionsB.length > 1 ? versionsB[1] : "");
-	}
-
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/

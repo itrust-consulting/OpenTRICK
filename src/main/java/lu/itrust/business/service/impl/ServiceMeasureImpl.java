@@ -162,4 +162,14 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	public List<Measure> loadSOA(int idAnalysis) {
 		return daoMeasure.loadSOA(idAnalysis);
 	}
+
+	@Override
+	public List<Measure> loadAll() {
+		return daoMeasure.loadAll();
+	}
+
+	@Override
+	public List<Measure> findMeasureByAnalysisAndComputable(int idAnalysis) {
+		return daoMeasure.findMeasureByAnalysisAndComputable(idAnalysis);
+	}
 }

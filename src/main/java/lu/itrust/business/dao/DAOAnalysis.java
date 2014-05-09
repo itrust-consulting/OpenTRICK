@@ -1,11 +1,11 @@
 package lu.itrust.business.dao;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -18,62 +18,51 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 public interface DAOAnalysis {
 
-	public Analysis get(int id) throws Exception;
+	public Analysis get(int idAnalysis) throws Exception;
 
-	public boolean exist(int id);
-	
-	public boolean isProfile(int analysisid);
-
-	public boolean isProfile(String name);
-	
-	public Analysis findProfileByName(String name);
-
-	public Analysis getDefaultProfile();
-	
-	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception;
-
-	public Analysis get(int id, String identifier, String version, Timestamp creationDate) throws Exception;
-
-	public String getVersionOfAnalysis(int id) throws Exception;
-	
-	public boolean analysisExist(String identifier, String version) throws Exception;
+	public Analysis getDefaultProfile() throws Exception;
 
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception;
 
-	public Language getLanguageOfAnalysis(int analysisID) throws Exception;
-	
-	public List<Analysis> loadProfiles();
-	
-	public List<Analysis> loadByUserAndCustomer(String login, String customer);
-	
-	public List<Analysis> loadByUserAndCustomer(String login, String customer, int pageIndex, int pageSize);
-	
-	public List<Analysis> loadByUserAndCustomer(String login, Integer customer, int pageIndex, int pageSize);
+	public boolean exists(int idAnalysis) throws Exception;
 
-	public List<Analysis> loadAllFromUser(User user) throws Exception;
+	public boolean isProfile(int idAnalysis) throws Exception;
 
-	public List<Analysis> loadAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception;
+	public List<Integer> getAllAnalysisIDs() throws Exception;
 
-	public List<Analysis> loadAllFromCustomer(Customer customer) throws Exception;
+	public List<Analysis> getAll() throws Exception;
 
-	public List<Analysis> loadAll() throws Exception;
+	public List<Analysis> getAllNotEmpty() throws Exception;
+
+	public List<Analysis> getAllProfiles() throws Exception;
+
+	public List<Analysis> getAllFromUserNameAndCustomerId(String userName, Integer customerID) throws Exception;
+
+	public List<Analysis> getFromUserNameAndCustomerIdAndNotEmpty(String userName, int idCustomer) throws Exception;
+
+	public List<Analysis> getFromUserNameAndCustomer(String login, Integer customer, int pageIndex, int pageSize) throws Exception;
+
+	public List<Analysis> getAllFromCustomerIdAndProfile(int idCustomer) throws Exception;
+
+	public List<Analysis> getAllFromCustomerIdAndProfileByPageAndSize(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception;
+
+	public List<Analysis> getAllFromUser(User user) throws Exception;
+
+	public List<Analysis> getAllFromCustomer(Customer customer) throws Exception;
+	
+	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception;
+
+	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception;
+
+	public Language getLanguageOfAnalysis(int idAnalysis) throws Exception;
+
+	public String getVersionOfAnalysis(int idAnalysis) throws Exception;
 
 	public void save(Analysis analysis) throws Exception;
 
 	public void saveOrUpdate(Analysis analysis) throws Exception;
 
-	public void remove(Analysis analysis) throws Exception;
+	public void delete(Integer idAnalysis) throws Exception;
 
-	public void remove(Integer analysisId) throws Exception;
-
-	public List<Analysis> loadAllNotEmpty() throws Exception;
-
-	public List<Analysis> loadByUserAndCustomer(String userName, Integer customerID) throws Exception;
-
-	public List<Analysis> loadAllFromCustomerAndProfile(Integer customerID, Integer pageIndex, Integer pageSize);
-
-	public List<Analysis> loadAllFromCustomerAndProfile(int idCustomer);
-
-	public List<Analysis> loadByUserAndCustomerAndNoEmpty(String userName, int idCustomer);
-
+	public void delete(Analysis analysis) throws Exception;
 }

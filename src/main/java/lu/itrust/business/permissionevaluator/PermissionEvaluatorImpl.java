@@ -1,9 +1,13 @@
 package lu.itrust.business.permissionevaluator;
 
 import java.io.Serializable;
+import java.security.InvalidParameterException;
 import java.security.Principal;
 
 import lu.itrust.business.TS.AnalysisRight;
+import lu.itrust.business.TS.Asset;
+import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.ServiceUserAnalysisRight;
 
@@ -29,6 +33,12 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Autowired
 	private ServiceUser serviceUser;
 	
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
+	private ServiceAsset serviceAsset;
+	
 	public PermissionEvaluatorImpl(){
 	}
 	
@@ -46,13 +56,61 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	@Override
+	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal, AnalysisRight right) throws Exception {
+		
+		try {
+		
+			if (analysisId == null || analysisId <= 0)
+				throw new InvalidParameterException("Invalid analysis id!");
+			else
+				if (!serviceAnalysis.exist(analysisId))
+					throw new NotFoundException("Analysis does not exist!");
+			
+			if(className == null || className.isEmpty())
+				throw new InvalidParameterException("Invalid class name!");
+			
+			if (elementId == null || elementId <= 0)
+				throw new InvalidParameterException("Invalid element id selected!");
+						
+			if(principal == null)
+				throw new InvalidParameterException("Principal cannot be null!");
+			
+			if(right == null)
+				throw new InvalidParameterException("AnalysisRight cannot be null!");
+			
+			switch (className) {
+				case "Asset":{
+					
+					if(!serviceAsset.belongsToAnalysis(elementId, analysisId))
+							return false;
+					break;
+				}
+			}
+			
+			
+		return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	@Override
 	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception {
 		
 		try {
 		
-			if (analysisId == null || analysisId <= 0) {
-				throw new NotFoundException("No analysis selected!");
-			}
+			if (analysisId == null || analysisId <= 0)
+				throw new InvalidParameterException("Invalid analysis id!");
+			else
+				if (!serviceAnalysis.exist(analysisId))
+					throw new NotFoundException("Analysis does not exist!");
+						
+			if(principal == null)
+				throw new InvalidParameterException("Principal cannot be null!");
+			
+			if(right == null)
+				throw new InvalidParameterException("AnalysisRight cannot be null!");
 			
 		return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {

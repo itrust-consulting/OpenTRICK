@@ -1,17 +1,11 @@
-/**
- * 
- */
 package lu.itrust.business.view.controller;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceAnalysis;
@@ -46,7 +40,7 @@ public class ControllerParameter {
 
 	@Autowired
 	private MessageSource messageSource;
-	
+
 	@Autowired
 	private ServiceParameterType serviceParameterType;
 
@@ -98,47 +92,5 @@ public class ControllerParameter {
 
 		// load parameters of analysis
 		return serviceParameter.findByAnalysisAndTypeAndNoLazy(idAnalysis, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
-	}
-	
-	@RequestMapping(value = "/Update/ImplementationScale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody Map<String,String> updateImplementationScaleNames() {
-		
-		Map<String, String> errors = new LinkedHashMap<String,String>();
-		
-		try {
-		
-		List<Analysis> analyses = serviceAnalysis.loadAll();
-		
-		for(Analysis analysis: analyses) {
-			
-			List<Parameter> parameters = serviceParameter.findByAnalysisAndType(analysis.getId(), Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
-			
-			for(Parameter parameter : parameters) {
-				if(!parameter.getDescription().startsWith("ImpScale"))
-					continue;
-				else {
-					Integer line = Integer.valueOf(parameter.getDescription().substring(8));
-					String desc = "";
-					switch(line){
-						case 1:desc=Constant.IS_NOT_ACHIEVED;break;
-						case 2:desc=Constant.IS_RUDIMENTARY_ACHIEVED;break;
-						case 3:desc=Constant.IS_PARTIALLY_ACHIEVED;break;
-						case 4:desc=Constant.IS_LARGELY_ACHIEVED;break;
-						case 5:desc=Constant.IS_FULLY_ACHIEVED;break;
-						default:desc="ImpScale"+String.valueOf(line);break;
-					}
-					
-					parameter.setDescription(desc);
-					serviceParameter.saveOrUpdate(parameter);
-				}
-			}
-		}
-		return errors;
-		}catch(Exception e) {
-			errors.put("error", e.getMessage());
-			e.printStackTrace();
-			return errors;
-		}
 	}
 }

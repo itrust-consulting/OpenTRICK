@@ -42,6 +42,7 @@ import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
+import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
@@ -402,7 +403,7 @@ public class ControllerAnalysis {
 
 			for (User user : serviceUser.loadAll()) {
 
-				if (user.getLogin().equals(principal.getName())) 
+				if (user.getLogin().equals(principal.getName()))
 					continue;
 
 				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
@@ -437,7 +438,8 @@ public class ControllerAnalysis {
 				}
 			}
 
-			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			model.addAttribute("success", messageSource
+					.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRigths", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
@@ -692,36 +694,36 @@ public class ControllerAnalysis {
 	// *****************************************************************
 	// * set default profile
 	// *****************************************************************
-	
+
 	@RequestMapping("/SetDefaultProfile/{analysisId}")
 	@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
-	public @ResponseBody boolean setDefaultProfile(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
-		
+	public @ResponseBody
+	boolean setDefaultProfile(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
+
 		Analysis analysis = serviceAnalysis.get(analysisId);
-		
+
 		Analysis currentProfileanalysis = serviceAnalysis.getDefaultProfile();
-		
-		if (analysis==null || !analysis.isProfile()) {
+
+		if (analysis == null || !analysis.isProfile()) {
 			System.out.println("Bad analysis for default profile");
 			return false;
 		}
-		
+
 		analysis.setDefaultProfile(true);
 		serviceAnalysis.saveOrUpdate(analysis);
-		
-		if (currentProfileanalysis!=null) {
-			
-			if (currentProfileanalysis.getId()!=analysisId) {
-				
+
+		if (currentProfileanalysis != null) {
+
+			if (currentProfileanalysis.getId() != analysisId) {
+
 				currentProfileanalysis.setDefaultProfile(false);
 				serviceAnalysis.saveOrUpdate(currentProfileanalysis);
 			}
 		}
-		
+
 		return true;
 	}
-	
-	
+
 	// *****************************************************************
 	// * delete analysis
 	// *****************************************************************
@@ -742,10 +744,10 @@ public class ControllerAnalysis {
 		try {
 
 			Analysis analysis = serviceAnalysis.getDefaultProfile();
-			
-			if(analysis.getId()==analysisId)
+
+			if (analysis.getId() == analysisId)
 				return JsonMessage.Success(messageSource.getMessage("error.profile.delete.fail", null, "Default profile cannot be deleted!", locale));
-			
+
 			// delete the analysis
 			serviceAnalysis.remove(analysisId);
 
@@ -837,7 +839,7 @@ public class ControllerAnalysis {
 				String version = serviceAnalysis.getVersionOfAnalysis(analysisId);
 
 				// check if version is less or equal the current version
-				if (History.VersionComparator(history.getVersion(), version) != 1)
+				if (GeneralComperator.VersionComparator(history.getVersion(), version) != 1)
 					// retrun error
 					errors.put("version", messageSource.getMessage("error.history.version.less_current", null, "Version of History entry must be greater than last Version of Analysis!",
 							locale));

@@ -45,9 +45,11 @@
 					<li class="dropdown-submenu" ><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.runtime" text="Runtime" /><span
 					class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a href="#" onclick="return fixAllScenarioCategories()"><spring:message code="label.scenario.fix.categories" text="Fix category for Scenarios"/></a></li>
+							<li><a href="#" onclick="return fixAllScenarioCategories()"><spring:message code="label.scenario.fix.categories" text="Update category for Scenarios (V.0.0.2)"/></a></li>
 							<li class="divider"></li>
-							<li><a href="#" onclick="return fixMeasureMaintenance()"><spring:message code="label.measure.fix.maintenance" text="Update measures with new maintenance structure"/></a></li>
+							<li><a href="#" onclick="return fixMeasureMaintenance()"><spring:message code="label.measure.fix.maintenance" text="Update measures with new maintenance structure (V.0.0.3)"/></a></li>
+							<li class="divider"></li>
+							<li><a href="#" onclick="return fixImplementationScaleParameterDescription()"><spring:message code="label.measure.fix.implementationscale" text="Update Implementation Scale description (V.0.0.4)"/></a></li>
 						</ul>
 					</li>
 				</sec:authorize>

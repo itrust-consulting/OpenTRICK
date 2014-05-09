@@ -14,24 +14,28 @@ import lu.itrust.business.TS.Asset;
 public interface ServiceAsset {
 	
 	Asset get(int id);
+
+	List<Asset> getAll();
+
+	List<Asset> getByPageAndSize(int pageIndex, int pageSize);
+
+	List<Asset> getFromAnalysisByPageAndSize(int pageIndex, int pageSize, int analysisId);
 	
-	List<Asset> find();
+	boolean belongsToAnalysis(int assetId, int analysisId);
 	
-	List<Asset> find(int pageIndex, int pageSize);
+	List<Asset> getAllFromAnalysis(int analysisId);
 	
-	List<Asset> findByAnalysis(int analysisId);
+	List<Asset> getSelectedFromAnalysis(int idAnalysis);
 	
-	List<Asset> findByAnalysis(int pageIndex, int pageSize ,int analysisId);
-	
-	List<Asset> findByAnalysisAndSelected(int idAnalysis);
+	List<Asset> getSelectedFromAnalysisAndOrderByALE(int idAnalysis);
 	
 	Asset save(Asset asset);
-	
+
 	void saveOrUpdate(Asset asset);
-	
+
 	Asset merge(Asset asset);
-	
-	void delete(Asset asset);
-	
+
 	void delete(int id);
+
+	void delete(Asset asset);
 }

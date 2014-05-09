@@ -4,6 +4,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.History;
+import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.dao.DAOHistory;
 
 import org.hibernate.Hibernate;
@@ -26,7 +27,6 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * 
 	 */
 	public DAOHistoryHBM() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -54,10 +54,8 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * @see lu.itrust.business.dao.DAOHistory#loadAllFromAnalysis(java.lang.Integer)
 	 */
 	@Override
-	public List<History> loadAllFromAnalysis(Integer analysisid)
-			throws Exception {
-		Analysis analysis = (Analysis) getSession().get(Analysis.class,
-				analysisid);
+	public List<History> loadAllFromAnalysis(Integer analysisid) throws Exception {
+		Analysis analysis = (Analysis) getSession().get(Analysis.class, analysisid);
 		List<History> histories = null;
 		if (analysis != null) {
 			Hibernate.initialize(analysis.getHistories());
@@ -74,10 +72,8 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<History> loadAllFromAnalysis(Analysis analysis)
-			throws Exception {
-		Query query = getSession().createQuery(
-				"From History where analysis = :analysis");
+	public List<History> loadAllFromAnalysis(Analysis analysis) throws Exception {
+		Query query = getSession().createQuery("From History where analysis = :analysis");
 		query.setParameter("analysis", analysis);
 		return (List<History>) query.list();
 	}
@@ -91,11 +87,8 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<History> loadAllByAuthorAnalysis(Analysis analysis,
-			String author) throws Exception {
-		Query query = getSession()
-				.createQuery(
-						"From History where analysis = :analysis and history.author = :author");
+	public List<History> loadAllByAuthorAnalysis(Analysis analysis, String author) throws Exception {
+		Query query = getSession().createQuery("From History where analysis = :analysis and history.author = :author");
 		query.setString("author", author);
 		query.setParameter("analysis", analysis);
 		return (List<History>) query.list();
@@ -110,11 +103,8 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<History> loadAllByVersionAnalysis(Analysis analysis,
-			String version) throws Exception {
-		Query query = getSession()
-				.createQuery(
-						"From History where History.version = :version and analysis = :analysis");
+	public List<History> loadAllByVersionAnalysis(Analysis analysis, String version) throws Exception {
+		Query query = getSession().createQuery("From History where History.version = :version and analysis = :analysis");
 		query.setString("version", version);
 		query.setParameter("analysis", analysis);
 		return (List<History>) query.list();
@@ -175,8 +165,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 *      java.lang.String)
 	 */
 	@Override
-	public boolean versionExists(Analysis analysis, String version)
-			throws Exception {
+	public boolean versionExists(Analysis analysis, String version) throws Exception {
 		return analysis.versionExists(version);
 	}
 
@@ -184,15 +173,12 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * versionExists: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#versionExists(java.lang.Integer,
-	 *      java.lang.String)
+	 * @see lu.itrust.business.dao.DAOHistory#versionExists(java.lang.Integer, java.lang.String)
 	 */
 	@Override
-	public boolean versionExists(Integer analysisId, String version)
-			throws Exception {
+	public boolean versionExists(Integer analysisId, String version) throws Exception {
 		boolean res = false;
-		Analysis analysis = (Analysis) getSession().get(Analysis.class,
-				analysisId);
+		Analysis analysis = (Analysis) getSession().get(Analysis.class, analysisId);
 		if (analysis != null) {
 			Hibernate.initialize(analysis.getHistories());
 			res = analysis.versionExists(version);
@@ -204,14 +190,12 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * save: <br>
 	 * this will add the history entry to the analysis as well
 	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#save(java.lang.Integer,
-	 *      lu.itrust.business.TS.History)
+	 * @see lu.itrust.business.dao.DAOHistory#save(java.lang.Integer, lu.itrust.business.TS.History)
 	 */
 	@Override
 	public void save(Integer analysisId, History history) throws Exception {
 
-		Analysis analysis = (Analysis) getSession().get(Analysis.class,
-				analysisId);
+		Analysis analysis = (Analysis) getSession().get(Analysis.class, analysisId);
 
 		if (analysis != null) {
 
@@ -232,8 +216,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 
 			analysis.setId(-1);
 
-			if (History.VersionComparator(history.getVersion(),
-					analysis.getVersion()) == 1) {
+			if (GeneralComperator.VersionComparator(history.getVersion(), analysis.getVersion()) == 1) {
 				getSession().save(history);
 
 				analysis.addAHistory(history);
@@ -243,8 +226,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 				getSession().saveOrUpdate(analysis);
 
 			} else {
-				throw new IllegalArgumentException(
-						"Version of History Entry must be > last Version of Analysis!");
+				throw new IllegalArgumentException("Version of History Entry must be > last Version of Analysis!");
 			}
 
 		}
@@ -253,12 +235,8 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> findVersionByAnalysis(int analysisId) {
-		return getSession()
-				.createQuery(
-						"Select distinct history.version "
-								+ "From Analysis as analysis inner join analysis.histories as history "
-								+ "where analysis.identifier = "
-								+ "( Select analysis2.identifier From Analysis as analysis2 where analysis2.id = :analysisId )")
-				.setInteger("analysisId", analysisId).list();
+		return getSession().createQuery(
+				"Select distinct history.version " + "From Analysis as analysis inner join analysis.histories as history " + "where analysis.identifier = "
+					+ "( Select analysis2.identifier From Analysis as analysis2 where analysis2.id = :analysisId )").setInteger("analysisId", analysisId).list();
 	}
 }
