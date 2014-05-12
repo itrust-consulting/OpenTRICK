@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.dao;
 
 import java.util.List;
@@ -10,41 +7,40 @@ import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
- * @author oensuifudine
+ * DAOUser.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since Jan 1, 2013
  */
 public interface DAOUser {
 
-	User get(int id) throws Exception;
+	public User get(int id) throws Exception;
 
-	User get(String login) throws Exception;
-	
-	User get(String login,String password) throws Exception;
-	
-	List<User> loadAll()throws Exception;
-	
-	List<User> loadByName(String name)throws Exception;
-	
-	List<User> loadByCountry(String name)throws Exception;
-	
-	List<User> loadByCustomer(int customer) throws Exception;
-	
-	List<User> loadByCustomer(Customer customer) throws Exception;
-	
-	boolean addRole(User user, Role role) throws Exception;
+	public User get(String login) throws Exception;
 
-	boolean removeRole(User user, Role role) throws Exception;
+	public User get(String login, String password) throws Exception;
 
-	boolean hasRole(User user, Role role) throws Exception;
-	
-	void save(User user)throws Exception;
-	
-	void saveOrUpdate(User user)throws Exception;
-	
-	void delete(User user)throws Exception;
-	
-	void delete(int id)throws Exception;
+	public boolean noUsers() throws Exception;
 
-	boolean hasUsers()throws Exception;
-		
+	public List<User> getAllUsers() throws Exception;
+
+	public List<User> getAllByFirstName(String name) throws Exception;
+
+	public List<User> getAllByCountry(String name) throws Exception;
+
+	public List<User> getAllUsersFromCustomer(int customer) throws Exception;
+
+	public List<User> getAllUsersFromCustomer(Customer customer) throws Exception;
+
+	public boolean hasRole(User user, Role role) throws Exception;
+
+	public void save(User user) throws Exception;
+
+	public void saveOrUpdate(User user) throws Exception;
+
+	public void delete(int id) throws Exception;
+
+	public void delete(User user) throws Exception;
 }

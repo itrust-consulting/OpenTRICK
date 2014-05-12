@@ -511,7 +511,7 @@ public class ImportAnalysis {
 		acroLanguage = this.analysis.getIdentifier().substring(0, 3);
 
 		// retrieve language from acronym
-		language = daoLanguage.loadFromAlpha3(acroLanguage);
+		language = daoLanguage.getLanguageByAlpha3(acroLanguage);
 
 		// if language is not found, create the english language object and save
 		// it to the database
@@ -589,7 +589,7 @@ public class ImportAnalysis {
 			history = this.analysis.getAHistory(i);
 
 			// check if analysis with this version does NOT already exist -> YES
-			if (!daoAnalysis.analysisExist(this.analysis.getIdentifier(), history.getVersion())) {
+			if (!daoAnalysis.exists(this.analysis.getIdentifier(), history.getVersion())) {
 
 				// ****************************************************************
 				// * store analysis with history entries to the current version
@@ -844,7 +844,7 @@ public class ImportAnalysis {
 			typename = rs.getString(Constant.ASSET_TYPE_LABEL);
 
 			// retrieve asset type by name
-			assetType = daoAssetType.get(typename);
+			assetType = daoAssetType.getByName(typename);
 
 			// check if asset type exists -> NO
 			if (assetType == null) {
@@ -952,7 +952,7 @@ public class ImportAnalysis {
 			type = rs.getString(Constant.THREAT_TYPE_LABEL);
 
 			// retrieve scenario type from database
-			scenarioType = daoScenarioType.get(type);
+			scenarioType = daoScenarioType.getByTypeName(type);
 
 			// check if type does not exist
 			if (scenarioType == null) {
@@ -1874,7 +1874,7 @@ public class ImportAnalysis {
 				}
 			}
 
-			norm = daoNorm.loadSingleNormByNameAndVersion(idMeasureNorm, normversion);
+			norm = daoNorm.getNormByNameAndVersion(idMeasureNorm, normversion);
 			// norm is not in database create new norm and save in into
 			// database for future
 			if (norm == null) {
@@ -1917,7 +1917,7 @@ public class ImportAnalysis {
 			measureRefMeasure = rs.getString(Constant.MEASURE_REF_MEASURE);
 
 			// get measure description from database
-			mesDesc = daoMeasureDescription.getByReferenceNorm(measureRefMeasure, norm);
+			mesDesc = daoMeasureDescription.getByReferenceAndNorm(measureRefMeasure, norm);
 
 			// measure description was found -> NO
 			if (mesDesc == null) {
@@ -1957,7 +1957,7 @@ public class ImportAnalysis {
 				// else: check if measure description text exists in the
 				// language of the analysis ->
 				// NO
-			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc.getId(), this.analysis.getLanguage().getId())) {
+			} else if (!daoMeasureDescriptionText.existsForLanguageByMeasureDescriptionIdAndLanguageId(mesDesc.getId(), this.analysis.getLanguage().getId())) {
 
 				// System.out.println("Not found");
 
@@ -2319,7 +2319,7 @@ public class ImportAnalysis {
 				}
 			}
 
-			norm = daoNorm.loadSingleNormByNameAndVersion(Constant.NORM_MATURITY, normversion);
+			norm = daoNorm.getNormByNameAndVersion(Constant.NORM_MATURITY, normversion);
 			// norm is not in database create new norm and save in into
 			// database for future
 			if (norm == null) {
@@ -2351,7 +2351,7 @@ public class ImportAnalysis {
 			chapter = rs.getString(Constant.MATURITY_REF);
 
 			// retrieve measuredescription from database
-			mesDesc = daoMeasureDescription.getByReferenceNorm(chapter, analysisNorm.getNorm());
+			mesDesc = daoMeasureDescription.getByReferenceAndNorm(chapter, analysisNorm.getNorm());
 
 			// measure description does not exist
 			if (mesDesc == null) {
@@ -2381,7 +2381,7 @@ public class ImportAnalysis {
 				// else: measure description exist: measure description text
 				// exists in the language
 				// of the analysis -> NO
-			} else if (!daoMeasureDescriptionText.existsForLanguage(mesDesc.getId(), this.analysis.getLanguage().getId())) {
+			} else if (!daoMeasureDescriptionText.existsForLanguageByMeasureDescriptionIdAndLanguageId(mesDesc.getId(), this.analysis.getLanguage().getId())) {
 
 				// create new measure description text
 				mesText = new MeasureDescriptionText();
@@ -2661,7 +2661,7 @@ public class ImportAnalysis {
 		for (String key : keys) {
 
 			// retrieve asset type from database by asset type name
-			assetType = daoAssetType.get(key);
+			assetType = daoAssetType.getByName(key);
 
 			// asset type does not exist
 			if (assetType == null) {

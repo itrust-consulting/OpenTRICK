@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.component;
 
 import java.util.Collections;
@@ -28,8 +25,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author eom
+ * AssessmentManager.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since May 12, 2014
  */
 @Component
 public class AssessmentManager {
@@ -52,7 +53,7 @@ public class AssessmentManager {
 	@Transactional
 	public void selectAsset(Asset asset) throws Exception {
 		asset.setSelected(true);
-		List<Assessment> assessments = daoAssessment.findByAssetAndUnselected(asset);
+		List<Assessment> assessments = daoAssessment.getAllSelectedAssessmentFromAsset(asset);
 		for (Assessment assessment : assessments) {
 			if (assessment.getScenario().isSelected() && assessment.getScenario().hasInfluenceOnAsset(asset.getAssetType())) {
 				assessment.setSelected(true);
@@ -72,7 +73,7 @@ public class AssessmentManager {
 	@Transactional
 	public void unSelectAsset(Asset asset) throws Exception {
 		asset.setSelected(false);
-		List<Assessment> assessments = daoAssessment.findByAssetAndSelected(asset);
+		List<Assessment> assessments = daoAssessment.getAllSelectedAssessmentFromAsset(asset);
 		for (Assessment assessment : assessments) {
 			if (assessment.isSelected()) {
 				assessment.setSelected(false);
@@ -94,7 +95,7 @@ public class AssessmentManager {
 	@Transactional
 	public void selectScenario(Scenario scenario) throws Exception {
 		scenario.setSelected(true);
-		List<Assessment> assessments = daoAssessment.findByScenarioAndUnselected(scenario);
+		List<Assessment> assessments = daoAssessment.getAllUnselectedAssessmentFromScenario(scenario);
 		for (Assessment assessment : assessments) {
 			if (assessment.getAsset().isSelected() && scenario.hasInfluenceOnAsset(assessment.getAsset().getAssetType())) {
 				assessment.setSelected(true);
@@ -114,7 +115,7 @@ public class AssessmentManager {
 	@Transactional
 	public void unSelectScenario(Scenario scenario) throws Exception {
 		scenario.setSelected(false);
-		List<Assessment> assessments = daoAssessment.findByScenarioAndSelected(scenario);
+		List<Assessment> assessments = daoAssessment.getAllSelectedAssessmentFromScenario(scenario);
 		for (Assessment assessment : assessments) {
 			if (assessment.isSelected()) {
 				assessment.setSelected(false);
@@ -140,7 +141,7 @@ public class AssessmentManager {
 			return;
 		analysis.addAnAsset(asset);
 		List<Assessment> assessments = analysis.getAssessments();
-		List<Scenario> scenarios = daoScenario.findByAnalysisAndSelected(idAnalysis);
+		List<Scenario> scenarios = daoScenario.getAllFromAnalysisIdAndSelected(idAnalysis);
 		for (Scenario scenario : scenarios)
 			assessments.add(new Assessment(asset, scenario));
 		daoAnalysis.saveOrUpdate(analysis);
@@ -153,7 +154,7 @@ public class AssessmentManager {
 			return;
 		analysis.addAScenario(scenario);
 		List<Assessment> assessments = analysis.getAssessments();
-		List<Asset> assets = daoAsset.findByAnalysisAndSelected(idAnalysis);
+		List<Asset> assets = daoAsset.getAllFromAnalysisIdAndSelected(idAnalysis);
 		for (Asset asset : assets) {
 			if (scenario.hasInfluenceOnAsset(asset.getAssetType()))
 				assessments.add(new Assessment(asset, scenario));
@@ -189,7 +190,7 @@ public class AssessmentManager {
 		while (iterator.hasNext()) {
 			Assessment assessment = iterator.next();
 			iterator.remove();
-			daoAssessment.remove(assessment);
+			daoAssessment.delete(assessment);
 		}
 	}
 

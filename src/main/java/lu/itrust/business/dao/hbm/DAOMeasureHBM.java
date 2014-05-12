@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.dao.hbm;
 
 import java.util.List;
@@ -11,155 +8,264 @@ import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOMeasure;
 
-import org.hibernate.Query;
+import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 /**
- * @author eomar
+ * DAOMeasureHBM.java: <br>
+ * Detailed description...
  * 
+ * @author smenghi, itrust consulting s.à.rl.
+ * @version
+ * @since Feb 12, 2013
  */
 @Repository
 public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 
+	/**
+	 * Constructor: <br>
+	 */
+	public DAOMeasureHBM() {
+	}
+
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param session
+	 */
+	public DAOMeasureHBM(Session session) {
+		super(session);
+	}
+
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#get(int)
+	 */
 	@Override
-	public Measure findOne(int id) {
+	public Measure get(int id) throws Exception {
 		return (Measure) getSession().get(Measure.class, id);
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * getMeasureFromAnalysisIdById: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#getMeasureFromAnalysisIdById(java.lang.Integer,
+	 *      java.lang.Integer)
+	 */
 	@Override
-	public List<Measure> findByAnalysis(int idAnalysis) {
-		return getSession().createQuery(
-				"Select measure " + "From AnalysisNorm as analysisNorm " + "inner join analysisNorm.measures as measure " + "where analysisNorm.analysis.id = :analysis order by measure.id")
-				.setParameter("analysis", idAnalysis).list();
+	public Measure getMeasureFromAnalysisIdById(Integer idAnalysis, Integer id) throws Exception {
+		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :analysis and measure.id = :id";
+		return (Measure) getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("id", id).uniqueResult();
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#belongsToAnalysis(int, int)
+	 */
 	@Override
-	public List<NormMeasure> findNormMeasureByAnalysisAndComputable(int idAnalysis) {
-		return getSession()
-				.createQuery(
-						"Select measure "
-							+ "From AnalysisNorm as analysisNorm "
-							+ "inner join analysisNorm.measures as measure "
-							+ "where analysisNorm.analysis.id = :idAnalysis and measure.measureDescription.computable = true and measure.status='AP' and exists(From NormMeasure measure2 where measure2 = measure) order by measure.id ")
-				.setParameter("idAnalysis", idAnalysis).list();
+	public boolean belongsToAnalysis(int measureId, int analysisId) throws Exception {
+		String query = "Select count(measure) From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :analysis and ";
+		query += "measure.id = : measureId";
+		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("measureId", measureId).uniqueResult()).intValue() > 0;
 	}
 
+	/**
+	 * getAllMeasures: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllMeasures()
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<NormMeasure> findNormMeasureByAnalysis(int idAnalysis) {
-		return getSession().createQuery(
-				"Select measure " + "From AnalysisNorm as analysisNorm " + "inner join analysisNorm.measures as measure "
-					+ "where analysisNorm.analysis.id = :idAnalysis and exists(From NormMeasure measure2 where measure2 = measure) order by measure.id ").setParameter("idAnalysis",
-				idAnalysis).list();
+	public List<Measure> getAllMeasures() throws Exception {
+		return (List<Measure>) getSession().createQuery("From Measure").list();
 	}
 
+	/**
+	 * getAllFromAnalysisId: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllFromAnalysisId(int)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> findByAnalysisAndNorm(int idAnalysis, int idNorm) {
-		return getSession().createQuery(
-				"Select measure " + "From AnalysisNorm as analysisNorm " + "inner join analysisNorm.measures as measure "
-					+ "where analysisNorm.norm.id = :norm and analysisNorm.analysis.id = :analysis order by measure.id").setParameter("analysis", idAnalysis).setParameter("norm", idNorm)
-				.list();
+	public List<Measure> getAllFromAnalysisId(int idAnalysis) throws Exception {
+		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :analysis order by measure.id";
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).list();
 	}
 
+	/**
+	 * getSOAMeasuresFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#getSOAMeasuresFromAnalysis(int)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> findByAnalysisAndNorm(int idAnalysis, String norm) {
-		return getSession().createQuery(
-				"Select measure " + "From AnalysisNorm as analysisNorm " + "inner join analysisNorm.measures as measure "
-					+ "where analysisNorm.norm.label = :norm and analysisNorm.analysis.id = :analysis order by measure.id").setParameter("analysis", idAnalysis).setParameter("norm", norm)
-				.list();
+	public List<Measure> getSOAMeasuresFromAnalysis(int idAnalysis) throws Exception {
+		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.norm.label = :norm and analysisNorm.analysis.id";
+		query += "= :analysis order by analysisNorm.norm.label ASC, measure.id ASC";
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("norm", Constant.NORM_27002).list();
 	}
 
+	/**
+	 * getAllMeasuresFromAnalysisIdAndComputable: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllMeasuresFromAnalysisIdAndComputable(int)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> findByAnalysisAndNorm(int idAnalysis, Norm norm) {
-		return getSession().createQuery(
-				"Select measure " + "From AnalysisNorm as analysisNorm " + "inner join analysisNorm.measures as measure "
-					+ "where analysisNorm.norm = :norm and analysisNorm.analysis.id = :analysis order by measure.id").setParameter("analysis", idAnalysis).setParameter("norm", norm).list();
+	public List<Measure> getAllMeasuresFromAnalysisIdAndComputable(int idAnalysis) throws Exception {
+		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :idAnalysis and ";
+		query += "measure.measureDescription.computable = true order by measure.id";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
 
+	/**
+	 * getAllMeasuresFromAnalysisIdAndNormId: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllMeasuresFromAnalysisIdAndNormId(int, int)
+	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public Measure save(Measure measure) {
+	public List<Measure> getAllMeasuresFromAnalysisIdAndNormId(int idAnalysis, int idNorm) throws Exception {
+		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.norm.id = :norm and analysisNorm.analysis.id = ";
+		query += ":analysis order by measure.id";
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("norm", idNorm).list();
+	}
+
+	/**
+	 * getAllMeasuresFromAnalysisIdAndNormLabel: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllMeasuresFromAnalysisIdAndNormLabel(int,
+	 *      java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Measure> getAllMeasuresFromAnalysisIdAndNormLabel(int idAnalysis, String norm) throws Exception {
+		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.norm.label = :norm and analysisNorm.analysis.id = ";
+		query += ":analysis order by measure.id";
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("norm", norm).list();
+	}
+
+	/**
+	 * getAllMeasuresFromAnalysisIdAndNorm: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllMeasuresFromAnalysisIdAndNorm(int,
+	 *      lu.itrust.business.TS.Norm)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Measure> getAllMeasuresFromAnalysisIdAndNorm(int idAnalysis, Norm norm) throws Exception {
+		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.norm = :norm and analysisNorm.analysis.id = ";
+		query += ":analysis order by measure.id";
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("norm", norm).list();
+	}
+
+	/**
+	 * getAllNormMeasuresFromAnalysisId: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllNormMeasuresFromAnalysisId(int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<NormMeasure> getAllNormMeasuresFromAnalysisId(int idAnalysis) throws Exception {
+		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :idAnalysis and ";
+		query += "exists(From NormMeasure measure2 where measure2 = measure) order by measure.id";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+	}
+
+	/**
+	 * getAllNormMeasuresFromAnalysisIdAndComputable: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllNormMeasuresFromAnalysisIdAndComputable(int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<NormMeasure> getAllNormMeasuresFromAnalysisIdAndComputable(int idAnalysis) throws Exception {
+		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :idAnalysis and ";
+		query += "measure.measureDescription.computable = true and measure.status='AP' and exists(From NormMeasure measure2 where measure2 = measure) order by measure.id ";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+	}
+
+	/**
+	 * getAllAnalysisNormsFromAnalysisByMeasureIdList: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllAnalysisNormsFromAnalysisByMeasureIdList(int,
+	 *      java.util.List)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<NormMeasure> getAllAnalysisNormsFromAnalysisByMeasureIdList(int idAnalysis, List<Integer> measures) throws Exception {
+		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :analysis and measure.id in ";
+		query += ":measures order by measure.id";
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameterList("measures", measures).list();
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#save(lu.itrust.business.TS.Measure)
+	 */
+	@Override
+	public Measure save(Measure measure) throws Exception {
 		return (Measure) getSession().save(measure);
 	}
 
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#saveOrUpdate(lu.itrust.business.TS.Measure)
+	 */
 	@Override
-	public void saveOrUpdate(Measure measure) {
+	public void saveOrUpdate(Measure measure) throws Exception {
 		getSession().saveOrUpdate(measure);
 	}
 
+	/**
+	 * merge: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#merge(lu.itrust.business.TS.Measure)
+	 */
 	@Override
-	public Measure merge(Measure measure) {
+	public Measure merge(Measure measure) throws Exception {
 		return (Measure) getSession().merge(measure);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasure#delete(lu.itrust.business.TS.Measure)
+	 */
 	@Override
-	public void delete(Measure measure) {
+	public void delete(Measure measure) throws Exception {
 		getSession().delete(measure);
 	}
 
-	@Override
-	public void delete(int id) {
-		delete(findOne(id));
-	}
-
-	@Override
-	public Measure findByIdAndAnalysis(Integer id, Integer idAnalysis) {
-		return (Measure) getSession()
-				.createQuery(
-						"Select measure " + "From AnalysisNorm as analysisNorm " + "inner join analysisNorm.measures as measure "
-							+ "where analysisNorm.analysis.id = :analysis and measure.id = :id").setParameter("analysis", idAnalysis).setParameter("id", id).uniqueResult();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<NormMeasure> findByAnalysisContains(int idAnalysis, List<Integer> measures) {
-		return getSession().createQuery(
-				"Select measure " + "From AnalysisNorm as analysisNorm " + "inner join analysisNorm.measures as measure "
-					+ "where analysisNorm.analysis.id = :analysis and measure.id in :measures order by measure.id").setParameter("analysis", idAnalysis).setParameterList("measures",
-				measures).list();
-	}
-
 	/**
-	 * loadSOA: <br>
-	 * Loads measures from all 27002 norms to be placed on the SOA table
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasure#loadSOA(int)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Measure> loadSOA(int idAnalysis) {
-		return getSession().createQuery(
-				"Select measure " + "From AnalysisNorm as analysisNorm " + "inner join analysisNorm.measures as measure "
-					+ "where analysisNorm.norm.label = :norm and analysisNorm.analysis.id = :analysis order by analysisNorm.norm.label ASC, measure.id ASC").setParameter("analysis",
-				idAnalysis).setParameter("norm", Constant.NORM_27002).list();
-	}
-
-	/**
-	 * loadAll: <br>
+	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasure#loadAll()
+	 * @see lu.itrust.business.dao.DAOMeasure#delete(int)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> loadAll() {
-		// prepare statement
-		Query query = getSession().createQuery("From Measure");
-
-		// execute query
-
-		return (List<Measure>) query.list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Measure> findMeasureByAnalysisAndComputable(int idAnalysis) {
-		return getSession().createQuery(
-				"Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :idAnalysis and "
-					+ "measure.measureDescription.computable = true order by measure.id").setParameter("idAnalysis", idAnalysis).list();
+	public void delete(int id) throws Exception {
+		delete(get(id));
 	}
 }

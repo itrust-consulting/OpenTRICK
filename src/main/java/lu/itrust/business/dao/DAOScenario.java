@@ -9,24 +9,33 @@ import lu.itrust.business.TS.Scenario;
  * DAOScenario.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 16 janv. 2013
  */
 public interface DAOScenario {
 
 	public Scenario get(int id) throws Exception;
-	public Scenario loadFromNameAnalysis(String scenarioName, Analysis analysis) throws Exception;
-	public List<Scenario> loadAllFromScenarioTypeID(int scenarioTypeID, Analysis analysis) throws Exception;
-	public List<Scenario> findByAnalysisContains(int idAnalysis, List<Integer> scenarios);
-	public List<Scenario> findByAnalysis(int idAnalysis) throws Exception;
-	public List<Scenario> findByAnalysisAndSelected(int idAnalysis);
-	public List<Scenario> loadAll() throws Exception;
+
+	public Scenario getScenarioFromAnalysisByScenarioId(int idAnalysis, int scenarioId) throws Exception;
+
+	public boolean belongsToAnalysis(Integer scenarioId, Integer analysisId) throws Exception;
+
+	public List<Scenario> getAllScenarios() throws Exception;
+
+	public List<Scenario> getAllFromAnalysisId(int idAnalysis) throws Exception;
+
+	public List<Scenario> getAllFromAnalysisIdAndSelected(int idAnalysis) throws Exception;
+
+	public List<Scenario> getAllFromAnalysisByScenarioTypeId(Analysis analysis, int scenarioTypeID) throws Exception;
+
+	public List<Scenario> getAllScenariosFromAnalysisByScenarioIdList(int idAnalysis, List<Integer> scenarios) throws Exception;
+
 	public void save(Scenario scenario) throws Exception;
+
 	public void saveOrUpdate(Scenario scenario) throws Exception;
-	public void remove(Scenario scenario) throws Exception;
-	public Scenario merge(Scenario scenario);
-	public Scenario findByIdAndAnalysis(int id, int idAnalysis);
-	
-	
+
+	public Scenario merge(Scenario scenario) throws Exception;
+
+	public void delete(Scenario scenario) throws Exception;
 }

@@ -20,14 +20,15 @@ import org.springframework.stereotype.Repository;
 public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType {
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public DAOScenarioTypeHBM() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @param sessionFactory
+	 * Constructor: <br>
+	 * 
+	 * @param session
 	 */
 	public DAOScenarioTypeHBM(Session session) {
 		super(session);
@@ -41,34 +42,30 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 */
 	@Override
 	public ScenarioType get(int id) throws Exception {
-
 		return (ScenarioType) getSession().get(ScenarioType.class, id);
 	}
 
 	/**
-	 * get: <br>
+	 * getByTypeName: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOScenarioType#get(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOScenarioType#getByTypeName(java.lang.String)
 	 */
 	@Override
-	public ScenarioType get(String scenarioTypeName) throws Exception {
+	public ScenarioType getByTypeName(String scenarioTypeName) throws Exception {
 		return (ScenarioType) getSession().createQuery("From ScenarioType where name = :type").setString("type", scenarioTypeName).uniqueResult();
-
 	}
 
 	/**
-	 * loadAll: <br>
+	 * getAllScenarioTypes: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOScenarioType#loadAll()
+	 * @see lu.itrust.business.dao.DAOScenarioType#getAllScenarioTypes()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ScenarioType> loadAll() throws Exception {
-
+	public List<ScenarioType> getAllScenarioTypes() throws Exception {
 		return (List<ScenarioType>) getSession().createQuery("From ScenarioType").list();
-
 	}
 
 	/**
@@ -80,7 +77,6 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	@Override
 	public void save(ScenarioType scenarioType) throws Exception {
 		getSession().save(scenarioType);
-
 	}
 
 	/**
@@ -104,5 +100,4 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	public void delete(ScenarioType scenarioType) throws Exception {
 		getSession().delete(scenarioType);
 	}
-
 }

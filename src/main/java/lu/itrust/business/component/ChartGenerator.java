@@ -88,7 +88,7 @@ public class ChartGenerator {
 	 */
 	public String aleByAsset(int idAnalysis, Locale locale) throws Exception {
 
-		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedAsset(idAnalysis);
+		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelectedAsset(idAnalysis);
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -168,9 +168,9 @@ public class ChartGenerator {
 	 * @param locale
 	 * @return
 	 */
-	public String aleByAssetType(int idAnalysis, Locale locale) {
+	public String aleByAssetType(int idAnalysis, Locale locale) throws Exception {
 
-		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedAsset(idAnalysis);
+		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelectedAsset(idAnalysis);
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -248,9 +248,10 @@ public class ChartGenerator {
 	 * @param idAnalysis
 	 * @param locale
 	 * @return
+	 * @throws Exception 
 	 */
-	public String aleByScenarioType(Integer idAnalysis, Locale locale) {
-		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedScenario(idAnalysis);
+	public String aleByScenarioType(Integer idAnalysis, Locale locale) throws Exception {
+		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelectedScenario(idAnalysis);
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -328,9 +329,10 @@ public class ChartGenerator {
 	 * @param idAnalysis
 	 * @param locale
 	 * @return
+	 * @throws Exception 
 	 */
-	public String aleByScenario(Integer idAnalysis, Locale locale) {
-		List<Assessment> assessments = daoAssessment.findByAnalysisAndSelectedScenario(idAnalysis);
+	public String aleByScenario(Integer idAnalysis, Locale locale) throws Exception {
+		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelectedScenario(idAnalysis);
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -484,7 +486,7 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	public String compliance(int idAnalysis, String norm, Locale locale) throws Exception {
-		List<Measure> measures = daoMeasure.findByAnalysis(idAnalysis);
+		List<Measure> measures = daoMeasure.getAllFromAnalysisId(idAnalysis);
 
 		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, norm);
 
@@ -535,11 +537,11 @@ public class ChartGenerator {
 
 		series += serie;
 
-		List<Measure> actionplanmeasures = daoActionPlan.loadMeasuresFromAnalysisActionPlan(idAnalysis, ActionPlanMode.APPN);
+		List<Measure> actionplanmeasures = daoActionPlan.getMeasuresFromActionPlanAndAnalysis(idAnalysis, ActionPlanMode.APPN);
 
-		List<Measure> actionplanmeasuresnottoimplement = daoActionPlan.loadMeasuresFromAnalysisActionPlanNotToImplement(idAnalysis, ActionPlanMode.APPN);
+		List<Measure> actionplanmeasuresnottoimplement = daoActionPlan.getMeasuresFromActionPlanAndAnalysisAndNotToImplement(idAnalysis, ActionPlanMode.APPN);
 
-		List<Phase> phases = daoPhase.loadAllFromAnalysis(idAnalysis);
+		List<Phase> phases = daoPhase.getAllFromAnalysis(idAnalysis);
 
 		Hibernate.initialize(phases);
 
@@ -824,11 +826,11 @@ public class ChartGenerator {
 	}
 
 	private Map<String, RRFAssetType> computeRRFByScenario(Scenario scenario, List<AssetType> assetTypes, List<NormMeasure> measures, int idAnalysis) throws Exception {
-		Parameter parameter = daoParameter.findByAnalysisAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
+		Parameter parameter = daoParameter.getParameterFromAnalysisByParameterTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		if (assetTypes == null)
-			assetTypes = daoAssetType.findByAnalysis(idAnalysis);
+			assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
 		if (measures == null)
-			measures = daoMeasure.findNormMeasureByAnalysisAndComputable(idAnalysis);
+			measures = daoMeasure.getAllNormMeasuresFromAnalysisIdAndComputable(idAnalysis);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
 		for (AssetType assetType : assetTypes) {
 			RRFAssetType rrfAssetType = new RRFAssetType(assetType.getType());
@@ -843,11 +845,11 @@ public class ChartGenerator {
 	}
 
 	private Map<String, RRFAssetType> computeRRFByMeasure(NormMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
-		Parameter parameter = daoParameter.findByAnalysisAndTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
+		Parameter parameter = daoParameter.getParameterFromAnalysisByParameterTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		if (assetTypes == null)
-			assetTypes = daoAssetType.findByAnalysis(idAnalysis);
+			assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
 		if (scenarios == null)
-			scenarios = daoScenario.findByAnalysis(idAnalysis);
+			scenarios = daoScenario.getAllFromAnalysisId(idAnalysis);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
 		for (AssetType assetType : assetTypes) {
 			RRFAssetType rrfAssetType = new RRFAssetType(assetType.getType());
@@ -861,8 +863,8 @@ public class ChartGenerator {
 		return rrfs;
 	}
 
-	public String rrfByScenario(int idScenario, int idAnalysis, Locale locale, RRFFilter filter) {
-		Scenario scenario = daoScenario.findByIdAndAnalysis(idScenario, idAnalysis);
+	public String rrfByScenario(int idScenario, int idAnalysis, Locale locale, RRFFilter filter) throws Exception {
+		Scenario scenario = daoScenario.getScenarioFromAnalysisByScenarioId(idAnalysis,idScenario);
 		if (scenario == null)
 			return null;
 		return rrfByScenario(scenario, idAnalysis, locale, filter);
@@ -882,14 +884,14 @@ public class ChartGenerator {
 
 			String series = "\"series\":[";
 
-			List<AssetType> assetTypes = daoAssetType.findByAnalysis(idAnalysis);
+			List<AssetType> assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
 
 			List<NormMeasure> measures = null;
 
 			if (filter == null || filter.getMeasures().isEmpty())
-				measures = daoMeasure.findNormMeasureByAnalysisAndComputable(idAnalysis);
+				measures = daoMeasure.getAllNormMeasuresFromAnalysisIdAndComputable(idAnalysis);
 			else
-				measures = daoMeasure.findByAnalysisContains(idAnalysis, filter.getMeasures());
+				measures = daoMeasure.getAllAnalysisNormsFromAnalysisByMeasureIdList(idAnalysis, filter.getMeasures());
 
 			Map<String, RRFAssetType> rrfs = computeRRFByScenario(scenario, assetTypes, measures, idAnalysis);
 
@@ -938,8 +940,8 @@ public class ChartGenerator {
 		return null;
 	}
 
-	public String rrfByMeasure(int idMeasure, Integer idAnalysis, Locale locale, RRFFilter filter) {
-		NormMeasure normMeasure = (NormMeasure) daoMeasure.findByIdAndAnalysis(idMeasure, idAnalysis);
+	public String rrfByMeasure(int idMeasure, Integer idAnalysis, Locale locale, RRFFilter filter) throws Exception {
+		NormMeasure normMeasure = (NormMeasure) daoMeasure.getMeasureFromAnalysisIdById(idMeasure, idAnalysis);
 		return rrfByMeasure(normMeasure, idAnalysis, locale, filter);
 	}
 
@@ -957,14 +959,14 @@ public class ChartGenerator {
 
 			String series = "\"series\":[";
 
-			List<AssetType> assetTypes = daoAssetType.findByAnalysis(idAnalysis);
+			List<AssetType> assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
 
 			List<Scenario> scenarios = null;
 
 			if (filter == null || filter.getScenarios().isEmpty())
-				scenarios = daoScenario.findByAnalysis(idAnalysis);
+				scenarios = daoScenario.getAllFromAnalysisId(idAnalysis);
 			else
-				scenarios = daoScenario.findByAnalysisContains(idAnalysis, filter.getScenarios());
+				scenarios = daoScenario.getAllScenariosFromAnalysisByScenarioIdList(idAnalysis, filter.getScenarios());
 
 			Map<String, RRFAssetType> rrfs = computeRRFByMeasure(measure, assetTypes, scenarios, idAnalysis);
 

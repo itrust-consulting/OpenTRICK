@@ -18,36 +18,50 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class DAOHibernate {
 
-	public DAOHibernate() {
-	}
-
-	public DAOHibernate(Session session) {
-		this.session = session;
-	}
-
+	/** The Session */
 	private Session session;
 
 	@Autowired
 	private SessionFactory sessionFactory;
 
 	/**
-	 * getSession()<br>
-	 * retrieves current session
+	 * Constructor: <br>
+	 */
+	public DAOHibernate() {
+	}
+
+	/**
+	 * Constructor: <br>
 	 * 
-	 * @return current session
+	 * @param session
+	 */
+	public DAOHibernate(Session session) {
+		this.session = session;
+	}
+
+	/**
+	 * getSession: <br>
+	 * retrieve current session
+	 * 
+	 * @return
 	 */
 	public Session getSession() {
 		return session == null ? sessionFactory.getCurrentSession() : session;
 	}
 
+	/**
+	 * Initialise: <br>
+	 * initialise given object
+	 * 
+	 * @param object
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T Initialise(T object) {
 		Hibernate.initialize(object);
 		if (object instanceof HibernateProxy) {
 			return (T) ((HibernateProxy) object).getHibernateLazyInitializer().getImplementation();
 		}
-
 		return object;
-
 	}
 }

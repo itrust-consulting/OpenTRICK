@@ -52,7 +52,7 @@ public class WorkerImportNorm implements Worker {
 	private DAOMeasureDescription daoMeasureDescription;
 
 	private DAOMeasureDescriptionText daoMeasureDescriptionText;
-	
+
 	private DAOLanguage daoLanguage;
 
 	private File importFile;
@@ -143,7 +143,7 @@ public class WorkerImportNorm implements Worker {
 	public void importNewNorm() throws Exception {
 
 		System.out.println("Import new Norm from Excel template...");
-		
+
 		FileInputStream fileToOpen = new FileInputStream(importFile);
 
 		// Get the workbook instance for XLS file
@@ -152,17 +152,17 @@ public class WorkerImportNorm implements Worker {
 		sheetNumber = workbook.getNumberOfSheets();
 
 		newNorm = null;
-		
+
 		System.out.println("Retrieve Norm...");
-		
+
 		getNorm();
 
 		if (newNorm != null) {
-			
+
 			System.out.println("Retrieve Measures of Norm...");
 			getMeasures();
 			System.out.println("Import Norm Done!");
-		}else {
+		} else {
 			messageHandler = new MessageHandler("error.import.norm.malformedExcelFile", null, "The Excel file containing Norm to import is malformed. Please check its content!");
 			serviceTaskFeedback.send(id, messageHandler);
 		}
@@ -170,8 +170,7 @@ public class WorkerImportNorm implements Worker {
 
 	/**
 	 * getNorm: <br>
-	 * This function browse sheet (NormInfo) and table (TableNormInfo) of the
-	 * Excel <br/>
+	 * This function browse sheet (NormInfo) and table (TableNormInfo) of the Excel <br/>
 	 * workbook and get information of the norm to import
 	 * 
 	 */
@@ -201,19 +200,24 @@ public class WorkerImportNorm implements Worker {
 
 						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
 							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
-								if (daoNorm.exists(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue())) {
-									newNorm = daoNorm.loadSingleNormByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
-									messageHandler = new MessageHandler("error.import.norm.exists", new Object[] { newNorm.getLabel(), newNorm.getVersion() }, "Norm label (" + newNorm.getLabel() + ") and version (" + newNorm.getVersion() + ") already exist, updating existing norm");
+								if (daoNorm.existsByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow)
+										.getCell(startColSheet + 1).getNumericCellValue())) {
+									newNorm =
+										daoNorm.getNormByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(
+												startColSheet + 1).getNumericCellValue());
+									messageHandler =
+										new MessageHandler("error.import.norm.exists", new Object[] { newNorm.getLabel(), newNorm.getVersion() }, "Norm label (" + newNorm.getLabel()
+											+ ") and version (" + newNorm.getVersion() + ") already exist, updating existing norm");
 									serviceTaskFeedback.send(id, messageHandler);
 									System.out.println("Updating existing Norm (" + newNorm.getLabel() + " - " + newNorm.getVersion() + ")...");
 								} else {
-									
+
 									newNorm = new Norm();
 									newNorm.setLabel(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue());
 									newNorm.setVersion((int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
 									newNorm.setDescription(sheet.getRow(indexRow).getCell(startColSheet + 2).getStringCellValue());
 									newNorm.setComputable(sheet.getRow(indexRow).getCell(startColSheet + 3).getBooleanCellValue());
-									
+
 									daoNorm.save(newNorm);
 								}
 							}
@@ -231,8 +235,7 @@ public class WorkerImportNorm implements Worker {
 
 	/**
 	 * getMeasures: <br>
-	 * This function browse sheet (NormData) and table (TableNormData) of the
-	 * Excel <br/>
+	 * This function browse sheet (NormData) and table (TableNormData) of the Excel <br/>
 	 * workbook and get information of the measures to import
 	 * 
 	 */
@@ -257,14 +260,14 @@ public class WorkerImportNorm implements Worker {
 
 			sheet = workbook.getSheetAt(indexSheet);
 
-			//System.out.println(sheet.getSheetName());
-			
+			// System.out.println(sheet.getSheetName());
+
 			if (sheet.getSheetName().equals("NormData")) {
 
 				for (int indexTable = 0; indexTable < sheet.getTables().size(); indexTable++) {
 
 					table = sheet.getTables().get(indexTable);
-					//System.out.println(table.getName());
+					// System.out.println(table.getName());
 					if (table.getName().equals("TableNormData")) {
 						startColSheet = table.getStartCellReference().getCol();
 						endColSheet = table.getEndCellReference().getCol();
@@ -273,25 +276,25 @@ public class WorkerImportNorm implements Worker {
 
 						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
 							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
-								
-								measureDescription = daoMeasureDescription.getByReferenceNorm(sheet.getRow(indexRow).getCell(1).getStringCellValue(), newNorm);
-								
-								if (measureDescription == null){
-								
+
+								measureDescription = daoMeasureDescription.getByReferenceAndNorm(sheet.getRow(indexRow).getCell(1).getStringCellValue(), newNorm);
+
+								if (measureDescription == null) {
+
 									measureDescription = new MeasureDescription();
 									measureDescription.setNorm(newNorm);
 									daoMeasureDescription.save(measureDescription);
 								}
-								
-								//System.out.println("Row: " + indexRow);
-								
+
+								// System.out.println("Row: " + indexRow);
+
 								measureDescription.setLevel((int) sheet.getRow(indexRow).getCell(0).getNumericCellValue());
 								measureDescription.setReference(sheet.getRow(indexRow).getCell(1).getStringCellValue());
-								if (measureDescription.getLevel()==3)
+								if (measureDescription.getLevel() == 3)
 									measureDescription.setComputable(true);
 								else
 									measureDescription.setComputable(false);
-								
+
 								if (startColSheet + 3 <= endColSheet) {
 
 									measureDescriptionTexts = new ArrayList<>();
@@ -302,14 +305,14 @@ public class WorkerImportNorm implements Worker {
 										if (matcher.matches()) {
 
 											if ((indexCol - startColSheet) % 2 == 1) {
-												
-												lang = daoLanguage.loadFromAlpha3(matcher.group(2).trim().toLowerCase());
+
+												lang = daoLanguage.getLanguageByAlpha3(matcher.group(2).trim().toLowerCase());
 
 												if (lang == null) {
 													lang = new Language();
 													lang.setAlpha3(matcher.group(2));
-													if (daoLanguage.alpha3Exist(matcher.group(2))){
-														lang = daoLanguage.loadFromAlpha3(matcher.group(2));
+													if (daoLanguage.languageExistsByAlpha3(matcher.group(2))) {
+														lang = daoLanguage.getLanguageByAlpha3(matcher.group(2));
 													} else {
 														lang = new Language();
 														lang.setAlpha3(matcher.group(2));
@@ -317,27 +320,29 @@ public class WorkerImportNorm implements Worker {
 														daoLanguage.save(lang);
 													}
 												}
-												
-												if (daoMeasureDescriptionText.existsForLanguage(measureDescription.getId(), lang.getId())){
-													measureDescriptionText = daoMeasureDescriptionText.getByLanguage(measureDescription.getId(), lang.getId());
-													
-													domain = sheet.getRow(indexRow).getCell(indexCol)!=null?sheet.getRow(indexRow).getCell(indexCol).getStringCellValue():"";
-													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
-												
+
+												if (daoMeasureDescriptionText.existsForLanguageByMeasureDescriptionIdAndLanguageId(measureDescription.getId(), lang.getId())) {
+													measureDescriptionText = daoMeasureDescriptionText.getMeasureDescriptionTextByIdAndLanguageId(measureDescription.getId(), lang.getId());
+
+													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
+													description =
+														sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
+
 													measureDescriptionText.setDomain(domain);
 													measureDescriptionText.setDescription(description);
-													
+
 												} else {
 													measureDescriptionText = new MeasureDescriptionText();
 													measureDescriptionText.setMeasureDescription(measureDescription);
 													measureDescriptionText.setLanguage(lang);
 
-													domain = sheet.getRow(indexRow).getCell(indexCol)!=null?sheet.getRow(indexRow).getCell(indexCol).getStringCellValue():"";
-													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
-																	
+													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
+													description =
+														sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
+
 													measureDescriptionText.setDomain(domain);
 													measureDescriptionText.setDescription(description);
-													
+
 													measureDescription.addMeasureDescriptionText(measureDescriptionText);
 												}
 											}
@@ -346,7 +351,9 @@ public class WorkerImportNorm implements Worker {
 								}
 
 								daoMeasureDescription.saveOrUpdate(measureDescription);
-								//System.out.println("Save measure:::"+ measureDescription.getNorm().getLabel() + "->" + measureDescription.getReference());
+								// System.out.println("Save measure:::"+
+								// measureDescription.getNorm().getLabel() + "->" +
+								// measureDescription.getReference());
 							}
 					}
 				}

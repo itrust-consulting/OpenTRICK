@@ -7,10 +7,17 @@ import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.dao.DAOAnalysisNorm;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
+/**
+ * DAOAnalysisNormHBM.java: <br>
+ * Detailed description...
+ *
+ * @author smenghi, itrust consulting s.à.rl.
+ * @version 
+ * @since Feb 12, 2013
+ */
 @Repository
 public class DAOAnalysisNormHBM extends DAOHibernate implements DAOAnalysisNorm {
 
@@ -49,8 +56,7 @@ public class DAOAnalysisNormHBM extends DAOHibernate implements DAOAnalysisNorm 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisNorm> getAll() throws Exception {
-		Query query = getSession().createQuery("From AnalysisNorm");
-		return (List<AnalysisNorm>) query.list();
+		return (List<AnalysisNorm>) getSession().createQuery("From AnalysisNorm").list();
 	}
 
 	/**
@@ -62,9 +68,7 @@ public class DAOAnalysisNormHBM extends DAOHibernate implements DAOAnalysisNorm 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisNorm> getAllFromAnalysis(Integer analysisID) throws Exception {
-		Query query = getSession().createQuery("From AnalysisNorm where analysis.id = :analysis ORDER BY norm.label ASC");
-		query.setParameter("analysis", analysisID);
-		return (List<AnalysisNorm>) query.list();
+		return (List<AnalysisNorm>) getSession().createQuery("From AnalysisNorm where analysis.id = :analysis ORDER BY norm.label ASC").setParameter("analysis", analysisID).list();
 	}
 
 	/**
@@ -76,9 +80,7 @@ public class DAOAnalysisNormHBM extends DAOHibernate implements DAOAnalysisNorm 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisNorm> getAllFromAnalysis(Analysis analysis) throws Exception {
-		Query query = getSession().createQuery("From AnalysisNorm where analysis = :analysis");
-		query.setParameter("analysis", analysis);
-		return (List<AnalysisNorm>) query.list();
+		return (List<AnalysisNorm>) getSession().createQuery("From AnalysisNorm where analysis = :analysis").setParameter("analysis", analysis).list();
 	}
 
 	/**
@@ -90,9 +92,7 @@ public class DAOAnalysisNormHBM extends DAOHibernate implements DAOAnalysisNorm 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisNorm> getAllAnalysisNormFromNorm(Norm norm) throws Exception {
-		Query query = getSession().createQuery("From AnalysisNorm where norm = :norm");
-		query.setParameter("norm", norm);
-		return (List<AnalysisNorm>) query.list();
+		return (List<AnalysisNorm>) getSession().createQuery("From AnalysisNorm where norm = :norm").setParameter("norm", norm).list();
 	}
 
 	/**

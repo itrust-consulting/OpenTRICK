@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.dao.hbm;
 
 import java.util.ArrayList;
@@ -16,8 +13,12 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 /**
- * @author oensuifudine
+ * DAOActionPlanSummaryHBM.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since Feb 12, 2013
  */
 @Repository
 public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPlanSummary {
@@ -57,9 +58,8 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 */
 	@Override
 	public SummaryStage getFromAnalysisById(Integer idAnalysis, Integer idSummaryStage) throws Exception {
-		return (SummaryStage) getSession().createQuery(
-				"Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.id = :idSummaryStage").setParameter(
-				"idAnalysis", idAnalysis).setParameter("idSummaryStage", idSummaryStage).uniqueResult();
+		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.id = :idSummaryStage";
+		return (SummaryStage) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idSummaryStage", idSummaryStage).uniqueResult();
 	}
 
 	/**
@@ -70,9 +70,8 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 */
 	@Override
 	public boolean belongsToAnalysis(int actionPlanSummaryId, int analysisId) throws Exception {
-		return ((Long) getSession().createQuery(
-				"Select count(summary) From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :analysisId and summary.id = : actionPlanSummaryId")
-				.setInteger("analysisId", analysisId).setInteger("actionPlanSummaryId", actionPlanSummaryId).uniqueResult()).intValue() > 0;
+		String query = "Select count(summary) From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :analysisId and summary.id = : actionPlanSummaryId";
+		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("actionPlanSummaryId", actionPlanSummaryId).uniqueResult()).intValue() > 0;
 	}
 
 	/**
@@ -95,9 +94,9 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SummaryStage> getAllFromAnalysis(Integer idAnalysis) {
-		return getSession().createQuery("Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis order by summary.id")
-				.setParameter("idAnalysis", idAnalysis).list();
+	public List<SummaryStage> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis order by summary.id";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
 
 	/**
@@ -108,7 +107,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 */
 	@Override
 	public List<SummaryStage> getAllFromAnalysis(Analysis analysis) throws Exception {
-		return null;
+		return analysis.getSummaries();
 	}
 
 	/**
@@ -121,10 +120,9 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<SummaryStage> getFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) throws Exception {
-		return getSession()
-				.createQuery(
-						"Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.actionPlanType.name = :actionPlanType order by summary.id")
-				.setParameter("idAnalysis", idAnalysis).setParameter("actionPlanType", ActionPlanMode.getByName(actionPlanType)).list();
+		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.actionPlanType.name = :actionPlanType ";
+		query += "order by summary.id";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("actionPlanType", ActionPlanMode.getByName(actionPlanType)).list();
 	}
 
 	/**

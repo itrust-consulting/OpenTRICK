@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.dao;
 
 import java.util.List;
@@ -8,31 +5,34 @@ import java.util.List;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
 
 /**
- * @author eomar
+ * DAOUserSqLite.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 public interface DAOUserSqLite {
 
-	UserSQLite findOne(long id);
+	public UserSQLite get(long id) throws Exception;
 
-	UserSQLite findByFileName(String fileName);
+	public UserSQLite getByFileName(String fileName) throws Exception;
 
-	UserSQLite findByIdAndUser(long idFile, String username);
+	public UserSQLite getByUserSQLiteIdAndUserLogin(long idFile, String username) throws Exception;
 
-	List<UserSQLite> findByUser(String username);
+	public List<UserSQLite> getAllFromUser(String username) throws Exception;
 
-	List<UserSQLite> findByUser(String username, int pageIndex, int pageSize);
+	public List<UserSQLite> getAllFromUserLoginByPageAndSizeIndex(String username, int pageIndex, int pageSize) throws Exception;
 
-	UserSQLite save(UserSQLite userSqLite);
+	public UserSQLite save(UserSQLite userSqLite) throws Exception;
 
-	void saveOrUpdate(UserSQLite userSqLite);
+	public void saveOrUpdate(UserSQLite userSqLite) throws Exception;
 
-	UserSQLite merge(UserSQLite userSqLite);
+	public UserSQLite merge(UserSQLite userSqLite) throws Exception;
 
-	void delete(UserSQLite userSqLite);
+	public void delete(long idUserSqLite) throws Exception;
 
-	void delete(long idUserSqLite);
+	public void delete(String fileName) throws Exception;
 
-	void delete(String fileName);
-
+	public void delete(UserSQLite userSqLite) throws Exception;
 }

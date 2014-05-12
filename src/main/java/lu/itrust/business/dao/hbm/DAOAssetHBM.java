@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.dao.hbm;
 
 import java.util.List;
@@ -12,8 +9,12 @@ import lu.itrust.business.TS.Asset;
 import lu.itrust.business.dao.DAOAsset;
 
 /**
- * @author eom
+ * DAOAssetHBM.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since Feb 12, 2013
  */
 @Repository
 public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
@@ -42,6 +43,18 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@Override
 	public Asset get(int id) throws Exception {
 		return (Asset) getSession().get(Asset.class, id);
+	}
+
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAsset#belongsToAnalysis(int, int)
+	 */
+	@Override
+	public boolean belongsToAnalysis(int assetId, int analysisId) throws Exception {
+		String query = "Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisid and asset.id = : assetid";
+		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("assetid", assetId).uniqueResult()).intValue() > 0;
 	}
 
 	/**
@@ -77,20 +90,8 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Asset> getFromAnalysisByPageAndSize(int pageIndex, int pageSize, int analysisId) throws Exception {
-		return getSession().createQuery("Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId").setInteger("analysisId", analysisId)
-				.setMaxResults(pageSize).setFirstResult(pageSize * (pageIndex - 1)).list();
-	}
-
-	/**
-	 * belongsToAnalysis: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOAsset#belongsToAnalysis(int, int)
-	 */
-	@Override
-	public boolean belongsToAnalysis(int assetId, int analysisId) throws Exception {
-		return ((Long) getSession().createQuery("Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisid and asset.id = : assetid")
-				.setInteger("analysisid", analysisId).setInteger("assetid", assetId).uniqueResult()).intValue() > 0;
+		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId";
+		return getSession().createQuery(query).setParameter("analysisId", analysisId).setMaxResults(pageSize).setFirstResult(pageSize * (pageIndex - 1)).list();
 	}
 
 	/**
@@ -102,9 +103,8 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Asset> getAllFromAnalysis(int analysisId) throws Exception {
-		return getSession().createQuery(
-				"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId order by asset.value desc, asset.ALE desc, asset.name asc")
-				.setInteger("analysisId", analysisId).list();
+		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId order by asset.value desc, asset.ALE desc, asset.name asc";
+		return getSession().createQuery(query).setParameter("analysisId", analysisId).list();
 	}
 
 	/**
@@ -115,11 +115,10 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> getSelectedFromAnalysis(int idAnalysis) throws Exception {
-		return getSession()
-				.createQuery(
-						"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.value desc , asset.name asc")
-				.setInteger("idAnalysis", idAnalysis).list();
+	public List<Asset> getAllFromAnalysisIdAndSelected(int idAnalysis) throws Exception {
+		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.value desc, ";
+		query += "asset.name asc";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
 
 	/**
@@ -131,10 +130,9 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Asset> getSelectedFromAnalysisAndOrderByALE(int idAnalysis) throws Exception {
-		return getSession()
-				.createQuery(
-						"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.ALE asc, asset.ALEO asc, asset.ALEP asc , asset.name asc, asset.value asc")
-				.setInteger("idAnalysis", idAnalysis).list();
+		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.ALE asc, ";
+		query += "asset.ALEO asc, asset.ALEP asc , asset.name asc, asset.value asc";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
 
 	/**

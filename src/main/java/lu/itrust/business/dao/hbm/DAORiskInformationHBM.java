@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.dao.hbm;
 
 import java.util.List;
@@ -13,26 +10,35 @@ import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.dao.DAORiskInformation;
 
 /**
- * @author eomar
- *
+ * DAORiskInformationHBM.java: <br>
+ * Detailed description...
+ * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Repository
 public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInformation {
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public DAORiskInformationHBM() {
 	}
 
 	/**
+	 * Constructor: <br>
+	 * 
 	 * @param session
 	 */
 	public DAORiskInformationHBM(Session session) {
 		super(session);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
 	 * @see lu.itrust.business.dao.DAORiskInformation#get(int)
 	 */
 	@Override
@@ -40,52 +46,95 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 		return (RiskInformation) getSession().get(RiskInformation.class, id);
 	}
 
+	/**
+	 * getFromAnalysisById: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORiskInformation#getFromAnalysisById(int, int)
+	 */
+	@Override
+	public RiskInformation getFromAnalysisById(int id, int idAnalysis) throws Exception {
+		String query = "Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis and riskInformation.id = :id";
+		return (RiskInformation) getSession().createQuery(query).setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResult();
+	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.dao.DAORiskInformation#loadFromChapter(java.lang.String)
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORiskInformation#belongsToAnalysis(java.lang.Integer,
+	 *      java.lang.Integer)
+	 */
+	public boolean belongsToAnalysis(Integer riskinformationId, Integer analysisId) throws Exception {
+		String query = "Select count(riskinformation) From Analysis as analysis inner join analysis.usedPhases as riskinformation where analysis.id = :analysisid and phase.id = ";
+		query += ":riskinformationId";
+		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskinformationId", riskinformationId).uniqueResult()).intValue() > 0;
+	}
+
+	/**
+	 * getAllRiskInformation: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORiskInformation#getAllRiskInformation()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskInformation> loadFromChapter(String chapter) throws Exception {
-		return getSession().createQuery("From RiskInformation where chapter = :chapter").setString("chapter", chapter).list();
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.dao.DAORiskInformation#loadFromCategory(java.lang.String)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<RiskInformation> loadFromCategory(String category) throws Exception {
-		return getSession().createQuery("From RiskInformation where category = :category").setString("category", category).list();
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.dao.DAORiskInformation#loadAllFromAnalysis(lu.itrust.business.TS.Analysis)
-	 */
-	@Override
-	public List<RiskInformation> loadAllFromAnalysis(Analysis analysis) throws Exception {
-		return analysis.getRiskInformations();
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.dao.DAORiskInformation#loadAllFromAnalysisID(int)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<RiskInformation> loadAllFromAnalysisID(int analysisID) throws Exception {
-		return getSession().createQuery("Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis").setParameter("idAnalysis", analysisID).list();
-	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.dao.DAORiskInformation#loadAll()
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<RiskInformation> loadAll() throws Exception {
+	public List<RiskInformation> getAllRiskInformation() throws Exception {
 		return getSession().createQuery("From RiskInformation").list();
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * getAllByChapter: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORiskInformation#getAllByChapter(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<RiskInformation> getAllByChapter(String chapter) throws Exception {
+		return getSession().createQuery("From RiskInformation where chapter = :chapter").setString("chapter", chapter).list();
+	}
+
+	/**
+	 * getAllByCategory: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORiskInformation#getAllByCategory(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<RiskInformation> getAllByCategory(String category) throws Exception {
+		return getSession().createQuery("From RiskInformation where category = :category").setString("category", category).list();
+	}
+
+	/**
+	 * getAllFromAnalysisId: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORiskInformation#getAllFromAnalysisId(int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<RiskInformation> getAllFromAnalysisId(int analysisID) throws Exception {
+		String query = "Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis";
+		return getSession().createQuery(query).setParameter("idAnalysis", analysisID).list();
+	}
+
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORiskInformation#getAllFromAnalysis(lu.itrust.business.TS.Analysis)
+	 */
+	@Override
+	public List<RiskInformation> getAllFromAnalysis(Analysis analysis) throws Exception {
+		return analysis.getRiskInformations();
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
 	 * @see lu.itrust.business.dao.DAORiskInformation#save(lu.itrust.business.TS.RiskInformation)
 	 */
 	@Override
@@ -93,29 +142,25 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 		getSession().save(riskInformation);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
 	 * @see lu.itrust.business.dao.DAORiskInformation#saveOrUpdate(lu.itrust.business.TS.RiskInformation)
 	 */
 	@Override
 	public void saveOrUpdate(RiskInformation riskInformation) throws Exception {
 		getSession().saveOrUpdate(riskInformation);
-
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.dao.DAORiskInformation#remove(lu.itrust.business.TS.RiskInformation)
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORiskInformation#delete(lu.itrust.business.TS.RiskInformation)
 	 */
 	@Override
-	public void remove(RiskInformation riskInformation) throws Exception {
+	public void delete(RiskInformation riskInformation) throws Exception {
 		getSession().delete(riskInformation);
 	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.dao.DAORiskInformation#findbyIdAndAnalysis(int, int)
-	 */
-	@Override
-	public RiskInformation findbyIdAndAnalysis(int id, int idAnalysis) {
-		return (RiskInformation) getSession().createQuery("Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis and riskInformation.id = :id").setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResult();
-	}
-
 }

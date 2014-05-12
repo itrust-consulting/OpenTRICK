@@ -70,10 +70,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@Override
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception {
-		Query query = getSession().createQuery("From Analysis where identifier = :identifier and version = :version");
-		query.setString("identifier", identifier);
-		query.setString("version", version);
-		return (Analysis) query.uniqueResult();
+		String query = "From Analysis where identifier = :identifier and version = :version";
+		return (Analysis) getSession().createQuery(query).setString("identifier", identifier).setString("version", version).uniqueResult();
 	}
 
 	/**
@@ -83,8 +81,20 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * @see lu.itrust.business.dao.DAOAnalysis#exists(int)
 	 */
 	@Override
-	public boolean exists(int idAnalysis) {
+	public boolean exists(int idAnalysis) throws Exception {
 		return ((Long) getSession().createQuery("Select count(*) From Analysis where id = :id").setInteger("id", idAnalysis).uniqueResult()).intValue() > 0;
+	}
+
+	/**
+	 * exists: <br>
+	 * Description
+	 *
+	 * @see lu.itrust.business.dao.DAOAnalysis#exists(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public boolean exists(String identifier, String version) throws Exception {
+		String query = "Select count(analysis) From Analysis as analysis where analysis.identifier = :identifier and analysis.version = :version";
+		return ((Long) getSession().createQuery(query).setString("identifier", identifier).setString("version", version).uniqueResult()).intValue() > 0;
 	}
 
 	/**
@@ -94,9 +104,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * @see lu.itrust.business.dao.DAOAnalysis#isProfile(int)
 	 */
 	@Override
-	public boolean isProfile(int analysisid) {
-		Boolean result =
-			(Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.id = :identifier").setParameter("identifier", analysisid).uniqueResult();
+	public boolean isProfile(int analysisid) throws Exception {
+		String query = "Select analysis.profile From Analysis as analysis where analysis.id = :identifier";
+		Boolean result = (Boolean) getSession().createQuery(query).setParameter("identifier", analysisid).uniqueResult();
 		return result == null ? false : result;
 	}
 
@@ -145,7 +155,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getAllProfiles() {
+	public List<Analysis> getAllProfiles() throws Exception {
 		return getSession().createQuery("Select analysis From Analysis as analysis where analysis.profile = true").list();
 	}
 
@@ -159,10 +169,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> getAllFromUserNameAndCustomerId(String userName, Integer customerID) throws Exception {
-		return getSession()
-				.createQuery(
-						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
-				.setParameter("username", userName).setParameter("customer", customerID).list();
+		String query = "Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer ";
+		query += "order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc";
+		return getSession().createQuery(query).setParameter("username", userName).setParameter("customer", customerID).list();
 	}
 
 	/**
@@ -174,11 +183,10 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getFromUserNameAndCustomerIdAndNotEmpty(String userName, int idCustomer) {
-		return getSession()
-				.createQuery(
-						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.data = true and userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc")
-				.setParameter("username", userName).setParameter("customer", idCustomer).list();
+	public List<Analysis> getFromUserNameAndCustomerIdAndNotEmpty(String userName, int idCustomer) throws Exception {
+		String query = "Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.data = true and ";
+		query += "userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc";
+		return getSession().createQuery(query).setParameter("username", userName).setParameter("customer", idCustomer).list();
 	}
 
 	/**
@@ -190,11 +198,10 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getFromUserNameAndCustomer(String login, Integer customer, int pageIndex, int pageSize) {
-		return getSession()
-				.createQuery(
-						"Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc")
-				.setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
+	public List<Analysis> getFromUserNameAndCustomer(String login, Integer customer, int pageIndex, int pageSize) throws Exception {
+		String query = "Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer ";
+		query += "order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc";
+		return getSession().createQuery(query).setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
 	}
 
 	/**
@@ -205,9 +212,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getAllFromCustomerIdAndProfile(int idCustomer) {
-		return (List<Analysis>) getSession().createQuery("SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true").setParameter(
-				"customer", idCustomer).list();
+	public List<Analysis> getAllFromCustomerIdAndProfile(int idCustomer) throws Exception {
+		String query = "SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true";
+		return (List<Analysis>) getSession().createQuery(query).setParameter("customer", idCustomer).list();
 	}
 
 	/**
@@ -219,9 +226,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getAllFromCustomerIdAndProfileByPageAndSize(Integer customerID, Integer pageIndex, Integer pageSize) {
-		return (List<Analysis>) getSession().createQuery("SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true").setParameter(
-				"customer", customerID).setMaxResults(pageSize).setFirstResult((pageIndex) * pageSize).list();
+	public List<Analysis> getAllFromCustomerIdAndProfileByPageAndSize(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception {
+		String query = "SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true";
+		return (List<Analysis>) getSession().createQuery(query).setParameter("customer", customerID).setMaxResults(pageSize).setFirstResult((pageIndex) * pageSize).list();
 	}
 
 	/**
@@ -245,9 +252,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> getAllFromCustomer(Customer customer) throws Exception {
-		Query query = getSession().createQuery("From Analysis where customer = :customer");
-		query.setParameter("customer", customer);
-		return (List<Analysis>) query.list();
+		return (List<Analysis>) getSession().createQuery("From Analysis where customer = :customer").setParameter("customer", customer).list();
 	}
 
 	/**
@@ -260,10 +265,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception {
-		Query query = getSession().createQuery("From Analysis where customer = :customer and version = :version");
-		query.setParameter("customer", customer);
-		query.setString("version", version);
-		return (List<Analysis>) query.list();
+		String query = "From Analysis where customer = :customer and version = :version";
+		return (List<Analysis>) getSession().createQuery(query).setParameter("customer", customer).setString("version", version).list();
 	}
 
 	/**
@@ -275,9 +278,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@Override
 	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception {
-		return (Parameter) getSession().createQuery(
-				"Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and parameter.description = :parameter")
-				.setParameter("idAnalysis", idAnalysis).setParameter("parameter", Parameter).uniqueResult();
+		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and parameter.description = :parameter";
+		return (Parameter) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("parameter", Parameter).uniqueResult();
 	}
 
 	/**
@@ -299,9 +301,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@Override
 	public String getVersionOfAnalysis(int id) throws Exception {
-		Query query = getSession().createQuery("SELECT version From Analysis where id = :id");
-		query.setInteger("id", id);
-		return (String) query.uniqueResult();
+		return (String) getSession().createQuery("SELECT version From Analysis where id = :id").setParameter("id", id).uniqueResult();
 	}
 
 	/**

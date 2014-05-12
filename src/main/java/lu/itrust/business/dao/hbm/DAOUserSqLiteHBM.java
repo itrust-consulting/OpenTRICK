@@ -12,139 +12,155 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 /**
- * @author eomar
+ * DAOUserSqLiteHBM.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since Feb 12, 2013
  */
 @Repository
 public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public DAOUserSqLiteHBM() {
 	}
 
 	/**
+	 * Constructor: <br>
+	 * 
 	 * @param session
 	 */
 	public DAOUserSqLiteHBM(Session session) {
 		super(session);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUserSqLite#findOne(long)
+	 * @see lu.itrust.business.dao.DAOUserSqLite#get(long)
 	 */
 	@Override
-	public UserSQLite findOne(long id) {
+	public UserSQLite get(long id) throws Exception {
 		return (UserSQLite) getSession().get(UserSQLite.class, id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getByFileName: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOUserSqLite#findByFileName(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOUserSqLite#getByFileName(java.lang.String)
 	 */
 	@Override
-	public UserSQLite findByFileName(String fileName) {
+	public UserSQLite getByFileName(String fileName) throws Exception {
 		return (UserSQLite) getSession().createQuery("From UserSQLite where fileName = :fileName").setParameter("fileName", fileName).uniqueResult();
 	}
 
+	/**
+	 * getByUserSQLiteIdAndUserLogin: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOUserSqLite#getByUserSQLiteIdAndUserLogin(long,
+	 *      java.lang.String)
+	 */
 	@Override
-	public UserSQLite findByIdAndUser(long idFile, String username) {
-		return (UserSQLite) getSession().createQuery("From UserSQLite where id = :idFile and user.login = :username").setParameter("idFile", idFile)
-				.setParameter("username", username).uniqueResult();
+	public UserSQLite getByUserSQLiteIdAndUserLogin(long idFile, String username) throws Exception {
+		String query = "From UserSQLite where id = :idFile and user.login = :username";
+		return (UserSQLite) getSession().createQuery(query).setParameter("idFile", idFile).setParameter("username", username).uniqueResult();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllFromUser: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUserSqLite#findByUser(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOUserSqLite#getAllFromUser(java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserSQLite> findByUser(String username) {
+	public List<UserSQLite> getAllFromUser(String username) throws Exception {
 		return getSession().createQuery("From UserSQLite where user.login = :username").setParameter("username", username).list();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllFromUserLoginByPageAndSizeIndex: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUserSqLite#findByUser(java.lang.String,
-	 * int, int)
+	 * @see lu.itrust.business.dao.DAOUserSqLite#getAllFromUserLoginByPageAndSizeIndex(java.lang.String,
+	 *      int, int)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserSQLite> findByUser(String username, int pageIndex, int pageSize) {
-		return getSession().createQuery("From UserSQLite where user.login = :username").setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize)
-				.setMaxResults(pageSize).list();
+	public List<UserSQLite> getAllFromUserLoginByPageAndSizeIndex(String username, int pageIndex, int pageSize) throws Exception {
+		String query = "From UserSQLite where user.login = :username";
+		return getSession().createQuery(query).setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * save: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUserSqLite#save(lu.itrust.business.TS.
-	 * usermanagement.UserSqLite)
+	 * @see lu.itrust.business.dao.DAOUserSqLite#save(lu.itrust.business.TS.usermanagement.UserSQLite)
 	 */
 	@Override
-	public UserSQLite save(UserSQLite userSqLite) {
+	public UserSQLite save(UserSQLite userSqLite) throws Exception {
 		return (UserSQLite) getSession().save(userSqLite);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAOUserSqLite#saveOrUpdate(lu.itrust.business
-	 * .TS.usermanagement.UserSqLite)
+	 * @see lu.itrust.business.dao.DAOUserSqLite#saveOrUpdate(lu.itrust.business.TS.usermanagement.UserSQLite)
 	 */
 	@Override
-	public void saveOrUpdate(UserSQLite userSqLite) {
+	public void saveOrUpdate(UserSQLite userSqLite) throws Exception {
 		getSession().saveOrUpdate(userSqLite);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * merge: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUserSqLite#merge(lu.itrust.business.TS.
-	 * usermanagement.UserSqLite)
+	 * @see lu.itrust.business.dao.DAOUserSqLite#merge(lu.itrust.business.TS.usermanagement.UserSQLite)
 	 */
 	@Override
-	public UserSQLite merge(UserSQLite userSqLite) {
+	public UserSQLite merge(UserSQLite userSqLite) throws Exception {
 		return (UserSQLite) getSession().merge(userSqLite);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.dao.DAOUserSqLite#delete(lu.itrust.business.TS.
-	 * usermanagement.UserSqLite)
-	 */
-	@Override
-	public void delete(UserSQLite userSqLite) {
-		getSession().delete(userSqLite);
-	}
-
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOUserSqLite#delete(long)
 	 */
 	@Override
-	public void delete(long idUserSqLite) {
-		delete(findOne(idUserSqLite));
+	public void delete(long idUserSqLite) throws Exception {
+		delete(get(idUserSqLite));
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOUserSqLite#delete(java.lang.String)
 	 */
 	@Override
-	public void delete(String fileName) {
-		delete(findByFileName(fileName));
+	public void delete(String fileName) throws Exception {
+		delete(getByFileName(fileName));
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOUserSqLite#delete(lu.itrust.business.TS.usermanagement.UserSQLite)
+	 */
+	@Override
+	public void delete(UserSQLite userSqLite) throws Exception {
+		getSession().delete(userSqLite);
+	}
 }

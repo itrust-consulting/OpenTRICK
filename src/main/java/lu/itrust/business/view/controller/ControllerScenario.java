@@ -402,10 +402,11 @@ public class ControllerScenario {
 	 * @param model
 	 * @param locale
 	 * @return
+	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
-	String aleByAsset(HttpSession session, Model model, Locale locale) {
+	String aleByAsset(HttpSession session, Model model, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
@@ -420,10 +421,11 @@ public class ControllerScenario {
 	 * @param model
 	 * @param locale
 	 * @return
+	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
-	String assetByALE(HttpSession session, Model model, Locale locale) {
+	String assetByALE(HttpSession session, Model model, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;

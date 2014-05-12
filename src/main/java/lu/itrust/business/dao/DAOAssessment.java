@@ -50,6 +50,6 @@ public interface DAOAssessment {
 	public void saveOrUpdate(Assessment assessment) throws Exception;
 
 	public void saveOrUpdate(List<Assessment> assessments) throws Exception;
-
+	
 	public void delete(Assessment assessment) throws Exception;
 }

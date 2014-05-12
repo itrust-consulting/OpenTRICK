@@ -26,6 +26,8 @@ public interface DAOAnalysis {
 
 	public boolean exists(int idAnalysis) throws Exception;
 
+	public boolean exists(String identifier, String version) throws Exception;
+	
 	public boolean isProfile(int idAnalysis) throws Exception;
 
 	public List<Integer> getAllAnalysisIDs() throws Exception;
@@ -49,7 +51,7 @@ public interface DAOAnalysis {
 	public List<Analysis> getAllFromUser(User user) throws Exception;
 
 	public List<Analysis> getAllFromCustomer(Customer customer) throws Exception;
-	
+
 	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception;
 
 	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception;

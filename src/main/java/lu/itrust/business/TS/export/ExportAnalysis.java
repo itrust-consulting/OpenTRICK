@@ -1027,7 +1027,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 		List<Object> params = new ArrayList<Object>();
 		String query = "";
-		List<AssetType> assetTypes = serviceAssetType.loadAll();
+		List<AssetType> assetTypes = serviceAssetType.getAll();
 
 		// ****************************************************************
 		// * export asset types
@@ -1099,7 +1099,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 		List<Object> params = new ArrayList<Object>();
 		String query = "";
-		List<ScenarioType> scenarioTypes = serviceScenarioType.loadAll();
+		List<ScenarioType> scenarioTypes = serviceScenarioType.getAllScenarioTypes();
 
 		// ****************************************************************
 		// * export scenario types

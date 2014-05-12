@@ -27,5 +27,4 @@ public interface DAOActionPlanType {
 	public void saveOrUpdate(ActionPlanType actionPlanType) throws Exception;
 
 	public void delete(ActionPlanType actionPlanType) throws Exception;
-
 }

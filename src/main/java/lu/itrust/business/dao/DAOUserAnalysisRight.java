@@ -10,41 +10,38 @@ import lu.itrust.business.TS.usermanagement.User;
 /**
  * DAOUserAnalysisRight.java: <br>
  * Detailed description...
- *
+ * 
  * @author smenghi, itrust consulting s.à.rl. :
- * @version 
+ * @version
  * @since Jan 9, 2014
  */
 public interface DAOUserAnalysisRight {
-		
-		UserAnalysisRight get(long id) throws Exception;
-		
-		List<UserAnalysisRight> getAllByUser(String login) throws Exception;
-		
-		List<UserAnalysisRight> getAllByUser(User user) throws Exception;
-		
-		List<UserAnalysisRight> getAllByUniqueAnalysis(int analysisid) throws Exception;
-		
-		List<UserAnalysisRight> getAllByUniqueAnalysis(Analysis analysis) throws Exception;
-		
-		List<UserAnalysisRight> getAllByAnalysisIdentifier(String identifier) throws Exception;
-		
-		void save(UserAnalysisRight userAnalysisRight)throws Exception;
-		
-		void saveOrUpdate(UserAnalysisRight userAnalysisRight)throws Exception;
-		
-		void delete(UserAnalysisRight userAnalysisRight)throws Exception;
-		
-		void delete(long id)throws Exception;
 
-		public UserAnalysisRight getUserAnalysisRight(Analysis analysis, User user) throws Exception;
+	public UserAnalysisRight get(long id) throws Exception;
 
-		public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception;
-		
-		public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception;
+	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) throws Exception;
 
-		boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right);
+	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) throws Exception;
 
-		boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right);
-		
+	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception;
+
+	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception;
+
+	public UserAnalysisRight getUserAnalysisRight(Analysis analysis, User user) throws Exception;
+
+	public List<UserAnalysisRight> getAllFromAnalysisId(int analysisid) throws Exception;
+
+	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis) throws Exception;
+
+	public List<UserAnalysisRight> getAllFromUserLogin(String login) throws Exception;
+
+	public List<UserAnalysisRight> getAllFromUser(User user) throws Exception;
+
+	public void save(UserAnalysisRight userAnalysisRight) throws Exception;
+
+	public void saveOrUpdate(UserAnalysisRight userAnalysisRight) throws Exception;
+
+	public void delete(long id) throws Exception;
+
+	public void delete(UserAnalysisRight userAnalysisRight) throws Exception;
 }

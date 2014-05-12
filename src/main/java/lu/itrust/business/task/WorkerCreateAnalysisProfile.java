@@ -80,7 +80,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			DAOCustomer daoCustomer = new DAOCustomerHBM(session);
 
-			Customer customer = daoCustomer.loadProfileCustomer();
+			Customer customer = daoCustomer.getProfileCustomer();
 			if (customer == null) {
 				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a customer profile before you can create your analysis profile", null));
 				return;
@@ -141,7 +141,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 		
 		for (int i = 0; i < analysisProfile.getNorms().size();) {
 			int id = parseId(analysisProfile.getNorms().get(i).getLabel());
-			Norm norm = daoNorm.getNormByID(id);
+			Norm norm = daoNorm.get(id);
 			if (norm == null)
 				analysisProfile.getNorms().remove(i);
 			else {

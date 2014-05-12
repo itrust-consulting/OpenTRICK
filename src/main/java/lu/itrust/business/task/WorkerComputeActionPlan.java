@@ -231,7 +231,7 @@ public class WorkerComputeActionPlan implements Worker {
 		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan summary is deleting", null));
 
 		while (!analysis.getSummaries().isEmpty())
-			daoActionPlanSummary.remove(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
+			daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
 
 		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan is deleting", null));
 

@@ -5,7 +5,6 @@ import java.util.List;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
@@ -19,15 +18,17 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itrust.business.dao.DAOMeasureDescriptionText {
-	
+
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public DAOMeasureDescriptionTextHBM() {
 	}
 
 	/**
-	 * @param sessionFactory
+	 * Constructor: <br>
+	 * 
+	 * @param session
 	 */
 	public DAOMeasureDescriptionTextHBM(Session session) {
 		super(session);
@@ -45,38 +46,49 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	}
 
 	/**
-	 * getByMeasureDescription: <br>
+	 * getMeasureDescriptionTextByIdAndLanguageId: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#getByMeasureDescription(int)
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#getMeasureDescriptionTextByIdAndLanguageId(int,
+	 *      int)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<MeasureDescriptionText> getByMeasureDescription(int measureDescriptionID) throws Exception {
-		Query query = getSession().createQuery("from MeasureDescriptionText where measureDescription.id = :measureDescriptionid");
-		query.setParameter("measureDescriptionid", measureDescriptionID);
-		return (List<MeasureDescriptionText>) query.list();
+	public MeasureDescriptionText getMeasureDescriptionTextByIdAndLanguageId(int idMeasureDescription, int idLanguage) throws Exception {
+		String query = "from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage";
+		return (MeasureDescriptionText) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).uniqueResult();
 	}
 
 	/**
-	 * getByLanguage: <br>
+	 * existsForLanguageByMeasureDescriptionIdAndLanguageId: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#getByLanguage(lu.itrust.business.TS.MeasureDescription, lu.itrust.business.TS.Language)
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#existsForLanguageByMeasureDescriptionIdAndLanguageId(int,
+	 *      int)
 	 */
 	@Override
-	public MeasureDescriptionText getByLanguage(int idMeasureDescription, int idLanguage) throws Exception {
-		Query query = getSession().createQuery("from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage");
-		query.setParameter("idMeasureDescription", idMeasureDescription);
-		query.setParameter("idLanguage", idLanguage);
-		return (MeasureDescriptionText) query.uniqueResult();
+	public boolean existsForLanguageByMeasureDescriptionIdAndLanguageId(int idMeasureDescription, int idLanguage) throws Exception {
+		String query = "Select count(*) from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage";
+		return (Long) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).uniqueResult() >= 1;
+	}
+
+	/**
+	 * getAllMeasureDescriptionTextsByMeasureDescriptionId: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#getAllMeasureDescriptionTextsByMeasureDescriptionId(int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<MeasureDescriptionText> getAllMeasureDescriptionTextsByMeasureDescriptionId(int measureDescriptionID) throws Exception {
+		String query = "from MeasureDescriptionText where measureDescription.id = :measureDescriptionid";
+		return (List<MeasureDescriptionText>) getSession().createQuery(query).setParameter("measureDescriptionid", measureDescriptionID).list();
 	}
 
 	/**
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#save(lu.itrust.business.dao.DAOMeasureDescriptionText)
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#save(lu.itrust.business.TS.MeasureDescriptionText)
 	 */
 	@Override
 	public void save(MeasureDescriptionText measureDescriptiontext) throws Exception {
@@ -84,34 +96,24 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	}
 
 	/**
-	 * saveAndUpdate: <br>
+	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#saveAndUpdate(lu.itrust.business.dao.DAOMeasureDescriptionText)
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#saveOrUpdate(lu.itrust.business.TS.MeasureDescriptionText)
 	 */
 	@Override
-	public void saveAndUpdate(MeasureDescriptionText measureDescriptiontext) throws Exception {
+	public void saveOrUpdate(MeasureDescriptionText measureDescriptiontext) throws Exception {
 		getSession().saveOrUpdate(measureDescriptiontext);
 	}
 
 	/**
-	 * remove: <br>
+	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#remove(lu.itrust.business.dao.DAOMeasureDescriptionText)
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#delete(lu.itrust.business.TS.MeasureDescriptionText)
 	 */
 	@Override
-	public void remove(MeasureDescriptionText measureDescriptiontext) throws Exception {
+	public void delete(MeasureDescriptionText measureDescriptiontext) throws Exception {
 		getSession().delete(measureDescriptiontext);
 	}
-
-	@Override
-	public boolean existsForLanguage(int idMeasureDescription, int idLanguage) throws Exception {
-		Query query = getSession().createQuery("Select count(*) from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage");
-		query.setParameter("idMeasureDescription", idMeasureDescription);
-		query.setParameter("idLanguage", idLanguage);
-		return (Long) query.uniqueResult() >= 1;
-
-	}
-
 }

@@ -199,7 +199,7 @@ public class WorkerComputeRiskRegister implements Worker {
 		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.riskregister", "Risk Register is deleting", 50));
 
 		while (!analysis.getRiskRegisters().isEmpty())
-			daoRiskRegister.remove(analysis.getRiskRegisters().remove(analysis.getRiskRegisters().size() - 1));
+			daoRiskRegister.delete(analysis.getRiskRegisters().remove(analysis.getRiskRegisters().size() - 1));
 
 	}
 

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository;
  * DAOUserHBM.java: <br>
  * Detailed description...
  * 
- * @author oensuifudine, itrust consulting s.à.rl. :
+ * @author eomar, itrust consulting s.à.rl. :
  * @version
  * @since Feb , 2013
  */
@@ -25,13 +25,15 @@ import org.springframework.stereotype.Repository;
 public class DAOUserHBM extends DAOHibernate implements DAOUser {
 
 	/**
-	 * constructor
+	 * Constructor: <br>
 	 */
 	public DAOUserHBM() {
 	}
 
 	/**
-	 * @param sessionFactory
+	 * Constructor: <br>
+	 * 
+	 * @param session
 	 */
 	public DAOUserHBM(Session session) {
 		super(session);
@@ -41,7 +43,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#get(long)
+	 * @see lu.itrust.business.dao.DAOUser#get(int)
 	 */
 	@Override
 	public User get(int id) throws Exception {
@@ -63,8 +65,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * get: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String,
-	 *      java.lang.String)
+	 * @see lu.itrust.business.dao.DAOUser#get(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public User get(String login, String password) throws Exception {
@@ -72,77 +73,86 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	}
 
 	/**
-	 * loadAll: <br>
+	 * noUsers: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#loadAll()
+	 * @see lu.itrust.business.dao.DAOUser#noUsers()
+	 */
+	@Override
+	public boolean noUsers() throws Exception {
+		return ((Long) getSession().createQuery("Select count(*) From User").uniqueResult()).intValue() == 0;
+	}
+
+	/**
+	 * getAllUsers: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#getAllUsers()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> loadAll() throws Exception {
+	public List<User> getAllUsers() throws Exception {
 		return getSession().createQuery("From User order by firstName").list();
 	}
 
 	/**
-	 * loadByName: <br>
+	 * getAllByFirstName: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#loadByName(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOUser#getAllByFirstName(java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> loadByName(String name) throws Exception {
+	public List<User> getAllByFirstName(String name) throws Exception {
 		return getSession().createQuery("From User where firstName = :name").setString("name", name).list();
 	}
 
 	/**
-	 * loadByCountry: <br>
+	 * getAllByCountry: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#loadByCountry(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOUser#getAllByCountry(java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> loadByCountry(String name) throws Exception {
+	public List<User> getAllByCountry(String name) throws Exception {
 		return getSession().createQuery("From User where country = :country").setString("country", name).list();
 	}
 
 	/**
-	 * addRole: <br>
+	 * getAllUsersFromCustomer: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#addRole(lu.itrust.business.TS.usermanagement.Role)
+	 * @see lu.itrust.business.dao.DAOUser#getAllUsersFromCustomer(int)
 	 */
-	public boolean addRole(User user, Role role) throws Exception {
-		boolean result = false;
-		try {
-			user.addRole(role);
-			getSession().saveOrUpdate(user);
-			result = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			result = false;
-		}
-		return result;
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> getAllUsersFromCustomer(int customer) throws Exception {
+		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer.id = :customer").setInteger("customer", customer).list();
 	}
 
 	/**
-	 * removeRole: <br>
+	 * getAllUsersFromCustomer: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOUser#removeRole(lu.itrust.business.TS.usermanagement.Role)
+	 * @see lu.itrust.business.dao.DAOUser#getAllUsersFromCustomer(lu.itrust.business.TS.Customer)
 	 */
-	public boolean removeRole(User user, Role role) throws Exception {
-		boolean result = false;
-		try {
-			user.removeRole(role);
-			getSession().saveOrUpdate(user);
-			result = true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			result = false;
-		}
-		return result;
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> getAllUsersFromCustomer(Customer customer) throws Exception {
+		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer = :customer").setParameter("customer", customer).list();
+	}
+
+	/**
+	 * hasRole: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOUser#hasRole(lu.itrust.business.TS.usermanagement.User,
+	 *      lu.itrust.business.TS.usermanagement.Role)
+	 */
+	@Override
+	public boolean hasRole(User user, Role role) throws Exception {
+		return user.hasRole(role.getType());
 	}
 
 	/**
@@ -164,9 +174,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@Override
 	public void saveOrUpdate(User user) throws Exception {
-
 		getSession().saveOrUpdate(user);
-
 	}
 
 	/**
@@ -189,57 +197,5 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	@Override
 	public void delete(int id) throws Exception {
 		delete(get(id));
-	}
-
-	/**
-	 * hasUsers: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOUser#hasUsers()
-	 */
-	@Override
-	public boolean hasUsers() throws Exception {
-		return ((Long) getSession().createQuery("Select count(*) From User").uniqueResult()).intValue() > 0;
-	}
-
-	/**
-	 * hasRole: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOUser#hasRole(lu.itrust.business.TS.usermanagement.User,
-	 *      lu.itrust.business.TS.usermanagement.Role)
-	 */
-	@Override
-	public boolean hasRole(User user, Role role) throws Exception {
-		return user.hasRole(role.getType());
-	}
-
-	/**
-	 * loadByCustomer: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOUser#loadByCustomer(int)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<User> loadByCustomer(int customer) throws Exception {
-
-		// return list of user with this particular customer
-		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer.id = :customer").setInteger("customer", customer).list();
-	}
-
-	/**
-	 * loadByCustomer: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOUser#loadByCustomer(lu.itrust.business.TS.Customer)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<User> loadByCustomer(Customer customer) throws Exception {
-		
-		// return list of user with this particular customer
-		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer = :customer").setParameter("customer", customer).list();
-		//return getSession().createQuery("Select user From User user where :customer in user.customers").setParameter("customer", customer).list();
 	}
 }

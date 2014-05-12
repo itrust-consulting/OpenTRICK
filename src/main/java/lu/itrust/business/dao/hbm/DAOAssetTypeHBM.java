@@ -78,10 +78,9 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AssetType> getAllFromAnalysis(int idAnalysis) {
-		return getSession().createQuery(
-				"Select distinct(asset.assetType) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis order by asset.assetType.type asc")
-				.setParameter("idAnalysis", idAnalysis).list();
+	public List<AssetType> getAllFromAnalysis(int idAnalysis) throws Exception {
+		String query = "Select distinct(asset.assetType) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis order by asset.assetType.type asc";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
 
 	/**

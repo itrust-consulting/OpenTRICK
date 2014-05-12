@@ -1,5 +1,6 @@
 package lu.itrust.business.dao.hbm;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
@@ -8,7 +9,6 @@ import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.dao.DAOHistory;
 
 import org.hibernate.Hibernate;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
@@ -24,13 +24,15 @@ import org.springframework.stereotype.Repository;
 public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public DAOHistoryHBM() {
 	}
 
 	/**
-	 * @param sessionFactory
+	 * Constructor: <br>
+	 * 
+	 * @param session
 	 */
 	public DAOHistoryHBM(Session session) {
 		super(session);
@@ -48,135 +50,27 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	}
 
 	/**
-	 * loadAllFromAnalysis: <br>
+	 * belongsToAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#loadAllFromAnalysis(java.lang.Integer)
+	 * @see lu.itrust.business.dao.DAOHistory#belongsToAnalysis(java.lang.Integer,
+	 *      java.lang.Integer)
 	 */
 	@Override
-	public List<History> loadAllFromAnalysis(Integer analysisid) throws Exception {
-		Analysis analysis = (Analysis) getSession().get(Analysis.class, analysisid);
-		List<History> histories = null;
-		if (analysis != null) {
-			Hibernate.initialize(analysis.getHistories());
-			histories = analysis.getHistories();
-		}
-		return histories;
+	public boolean belongsToAnalysis(Integer historyId, Integer analysisId) throws Exception {
+		String query = "Select count(history) From Analysis as analysis inner join analysis.history as history where analysis.id = :analysisId and history.id = : historyId";
+		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("historyId", historyId).uniqueResult()).intValue() > 0;
 	}
 
 	/**
-	 * loadAllFromAnalysis: <br>
+	 * versionExistsByAnalysisIdAndAnalysisVersion: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#loadAllFromAnalysis(lu.itrust.business.TS.Analysis)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<History> loadAllFromAnalysis(Analysis analysis) throws Exception {
-		Query query = getSession().createQuery("From History where analysis = :analysis");
-		query.setParameter("analysis", analysis);
-		return (List<History>) query.list();
-	}
-
-	/**
-	 * loadAllByAuthorAnalysis: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#loadAllByAuthorAnalysis(lu.itrust.business.TS.Analysis,
-	 *      java.lang.String)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<History> loadAllByAuthorAnalysis(Analysis analysis, String author) throws Exception {
-		Query query = getSession().createQuery("From History where analysis = :analysis and history.author = :author");
-		query.setString("author", author);
-		query.setParameter("analysis", analysis);
-		return (List<History>) query.list();
-	}
-
-	/**
-	 * loadAllByVersionAnalysis: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#loadAllByVersionAnalysis(lu.itrust.business.TS.Analysis,
-	 *      java.lang.String)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<History> loadAllByVersionAnalysis(Analysis analysis, String version) throws Exception {
-		Query query = getSession().createQuery("From History where History.version = :version and analysis = :analysis");
-		query.setString("version", version);
-		query.setParameter("analysis", analysis);
-		return (List<History>) query.list();
-	}
-
-	/**
-	 * loadAll: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#loadAll()
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<History> loadAll() throws Exception {
-		Query query = getSession().createQuery("From History");
-		return (List<History>) query.list();
-
-	}
-
-	/**
-	 * save: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#save(de.hunsicker.jalopy.storage.History)
-	 */
-	@Override
-	public void save(History history) throws Exception {
-		getSession().save(history);
-	}
-
-	/**
-	 * saveOrUpdate: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#saveOrUpdate(de.hunsicker.jalopy.storage.History)
-	 */
-	@Override
-	public void saveOrUpdate(History history) throws Exception {
-		getSession().saveOrUpdate(history);
-	}
-
-	/**
-	 * remove: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#delete(de.hunsicker.jalopy.storage.History)
-	 */
-	@Override
-	public void remove(History history) throws Exception {
-		getSession().delete(history);
-	}
-
-	/**
-	 * versionExists: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#versionExists(lu.itrust.business.TS.Analysis,
+	 * @see lu.itrust.business.dao.DAOHistory#versionExistsByAnalysisIdAndAnalysisVersion(java.lang.Integer,
 	 *      java.lang.String)
 	 */
 	@Override
-	public boolean versionExists(Analysis analysis, String version) throws Exception {
-		return analysis.versionExists(version);
-	}
-
-	/**
-	 * versionExists: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOHistory#versionExists(java.lang.Integer, java.lang.String)
-	 */
-	@Override
-	public boolean versionExists(Integer analysisId, String version) throws Exception {
+	public boolean versionExistsByAnalysisIdAndAnalysisVersion(Integer analysisId, String version) throws Exception {
 		boolean res = false;
 		Analysis analysis = (Analysis) getSession().get(Analysis.class, analysisId);
 		if (analysis != null) {
@@ -187,56 +81,159 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	}
 
 	/**
+	 * versionExistsForAnalysisByVersion: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOHistory#versionExistsForAnalysisByVersion(lu.itrust.business.TS.Analysis,
+	 *      java.lang.String)
+	 */
+	@Override
+	public boolean versionExistsForAnalysisByVersion(Analysis analysis, String version) throws Exception {
+		return analysis.versionExists(version);
+	}
+
+	/**
+	 * getVersionsFromAnalysisId: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOHistory#getVersionsFromAnalysisId(int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getVersionsFromAnalysisId(int analysisId) throws Exception {
+		String query = "Select distinct history.version " + "From Analysis as analysis inner join analysis.histories as history where analysis.identifier = ( Select analysis2.identifier";
+		query += " From Analysis as analysis2 where analysis2.id = :analysisId )";
+		return getSession().createQuery(query).setInteger("analysisId", analysisId).list();
+	}
+
+	/**
+	 * getAllHistories: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOHistory#getAllHistories()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<History> getAllHistories() throws Exception {
+		return (List<History>) getSession().createQuery("From History").list();
+	}
+
+	/**
+	 * getAllFromAnalysisId: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOHistory#getAllFromAnalysisId(java.lang.Integer)
+	 */
+	@Override
+	public List<History> getAllFromAnalysisId(Integer analysisid) throws Exception {
+		Analysis analysis = (Analysis) getSession().get(Analysis.class, analysisid);
+		List<History> histories = null;
+		if (analysis != null) {
+			Hibernate.initialize(analysis.getHistories());
+			histories = analysis.getHistories();
+		}
+		return histories;
+	}
+
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOHistory#getAllFromAnalysis(lu.itrust.business.TS.Analysis)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<History> getAllFromAnalysis(Analysis analysis) throws Exception {
+		return (List<History>) getSession().createQuery("From History where analysis = :analysis").setParameter("analysis", analysis).list();
+	}
+
+	/**
+	 * getAllHistoriesFromAnalysisByAuthor: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOHistory#getAllHistoriesFromAnalysisByAuthor(lu.itrust.business.TS.Analysis,
+	 *      java.lang.String)
+	 */
+	@Override
+	public List<History> getAllHistoriesFromAnalysisByAuthor(Analysis analysis, String author) throws Exception {
+		List<History> histories = new ArrayList<History>();
+		for (History history : analysis.getHistories())
+			if (history.getAuthor().equals(author))
+				histories.add(history);
+		if (histories.isEmpty())
+			return null;
+		else
+			return histories;
+	}
+
+	/**
+	 * getAllHistoriesFromAnalysisByVersion: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOHistory#getAllHistoriesFromAnalysisByVersion(lu.itrust.business.TS.Analysis,
+	 *      java.lang.String)
+	 */
+	@Override
+	public List<History> getAllHistoriesFromAnalysisByVersion(Analysis analysis, String version) throws Exception {
+		List<History> histories = new ArrayList<History>();
+		for (History history : analysis.getHistories())
+			if (history.getVersion().equals(version))
+				histories.add(history);
+		if (histories.isEmpty())
+			return null;
+		else
+			return histories;
+	}
+
+	/**
 	 * save: <br>
-	 * this will add the history entry to the analysis as well
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOHistory#save(java.lang.Integer, lu.itrust.business.TS.History)
 	 */
 	@Override
 	public void save(Integer analysisId, History history) throws Exception {
-
 		Analysis analysis = (Analysis) getSession().get(Analysis.class, analysisId);
-
-		if (analysis != null) {
-
-			Hibernate.initialize(analysis);
-			Hibernate.initialize(analysis.getAssets());
-			Hibernate.initialize(analysis.getActionPlans());
-			Hibernate.initialize(analysis.getAnalysisNorms());
-			Hibernate.initialize(analysis.getAssessments());
-			Hibernate.initialize(analysis.getScenarios());
-			Hibernate.initialize(analysis.getHistories());
-			Hibernate.initialize(analysis.getItemInformations());
-			Hibernate.initialize(analysis.getLanguage());
-			Hibernate.initialize(analysis.getParameters());
-			Hibernate.initialize(analysis.getRiskInformations());
-			Hibernate.initialize(analysis.getSummaries());
-			Hibernate.initialize(analysis.getUsedPhases());
-			Hibernate.initialize(analysis.getRiskRegisters());
-
-			analysis.setId(-1);
-
-			if (GeneralComperator.VersionComparator(history.getVersion(), analysis.getVersion()) == 1) {
-				getSession().save(history);
-
-				analysis.addAHistory(history);
-
-				analysis.setVersion(history.getVersion());
-
-				getSession().saveOrUpdate(analysis);
-
-			} else {
-				throw new IllegalArgumentException("Version of History Entry must be > last Version of Analysis!");
-			}
-
-		}
+		Hibernate.initialize(analysis.getHistories());
+		if (GeneralComperator.VersionComparator(history.getVersion(), analysis.getVersion()) == 1) {
+			getSession().save(history);
+			analysis.addAHistory(history);
+			analysis.setVersion(history.getVersion());
+			getSession().saveOrUpdate(analysis);
+		} else
+			throw new IllegalArgumentException("Version of History Entry must be > last Version of Analysis!");
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOHistory#save(lu.itrust.business.TS.History)
+	 */
 	@Override
-	public List<String> findVersionByAnalysis(int analysisId) {
-		return getSession().createQuery(
-				"Select distinct history.version " + "From Analysis as analysis inner join analysis.histories as history " + "where analysis.identifier = "
-					+ "( Select analysis2.identifier From Analysis as analysis2 where analysis2.id = :analysisId )").setInteger("analysisId", analysisId).list();
+	public void save(History history) throws Exception {
+		getSession().save(history);
+	}
+
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOHistory#saveOrUpdate(lu.itrust.business.TS.History)
+	 */
+	@Override
+	public void saveOrUpdate(History history) throws Exception {
+		getSession().saveOrUpdate(history);
+	}
+
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOHistory#delete(lu.itrust.business.TS.History)
+	 */
+	@Override
+	public void delete(History history) throws Exception {
+		getSession().delete(history);
 	}
 }

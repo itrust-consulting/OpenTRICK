@@ -63,42 +63,42 @@ public class CustomDelete {
 
 	@Autowired
 	private DAOUser daoUser;
-	
+
 	@Autowired
 	private DAOAssetTypeValue daoAssetTypeValue;
 
 	@Transactional
 	// TODO check if actionplan needs to be cleared
 	public void deleteAsset(Asset asset) throws Exception {
-		List<Assessment> assessments = daoAssessment.loadAllFromAsset(asset);
+		List<Assessment> assessments = daoAssessment.getAllFromAsset(asset);
 		for (Assessment assessment : assessments)
-			daoAssessment.remove(assessment);
+			daoAssessment.delete(assessment);
 		daoAsset.delete(asset);
 	}
 
 	@Transactional
 	public void deleteScenario(Scenario scenario) throws Exception {
-		List<Assessment> assessments = daoAssessment.loadAllFromScenario(scenario);
+		List<Assessment> assessments = daoAssessment.getAllFromScenario(scenario);
 		for (Assessment assessment : assessments)
-			daoAssessment.remove(assessment);
-		daoScenario.remove(scenario);
+			daoAssessment.delete(assessment);
+		daoScenario.delete(scenario);
 	}
 
 	@Transactional
 	public void deleteNorm(Norm norm) throws Exception {
-		List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByNorm(norm);
+		List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllMeasureDescriptionsByNorm(norm);
 		for (MeasureDescription measureDescription : measureDescriptions) {
-			List<MeasureDescriptionText> measureDescriptionTexts = daoMeasureDescriptionText.getByMeasureDescription(measureDescription.getId());
+			List<MeasureDescriptionText> measureDescriptionTexts = daoMeasureDescriptionText.getAllMeasureDescriptionTextsByMeasureDescriptionId(measureDescription.getId());
 			for (MeasureDescriptionText measureDescriptiontext : measureDescriptionTexts) {
-				daoMeasureDescriptionText.remove(measureDescriptiontext);
+				daoMeasureDescriptionText.delete(measureDescriptiontext);
 			}
-			daoMeasureDescription.remove(measureDescription);
+			daoMeasureDescription.delete(measureDescription);
 		}
-		daoNorm.remove(norm);
+		daoNorm.delete(norm);
 	}
-	
+
 	@Transactional
-	public void deleteDuplicationAssetTypeValue(List<Scenario> scenarios) throws Exception{
+	public void deleteDuplicationAssetTypeValue(List<Scenario> scenarios) throws Exception {
 		for (Scenario scenario : scenarios) {
 			List<AssetTypeValue> assetTypeValues = scenario.deleteAssetTypeDuplication();
 			daoScenario.saveOrUpdate(scenario);
@@ -108,26 +108,26 @@ public class CustomDelete {
 
 	@Transactional
 	public void deleteCustomer(Customer customer) throws Exception {
-		if(!customer.isCanBeUsed())
+		if (!customer.isCanBeUsed())
 			return;
-		List<Analysis> analyses = daoAnalysis.loadAllFromCustomer(customer);
+		List<Analysis> analyses = daoAnalysis.getAllFromCustomer(customer);
 		for (Analysis analysis : analyses)
-			daoAnalysis.remove(analysis);
-		List<User> users = daoUser.loadByCustomer(customer);
+			daoAnalysis.delete(analysis);
+		List<User> users = daoUser.getAllUsersFromCustomer(customer);
 		for (User user : users) {
 			user.getCustomers().remove(customer);
 			daoUser.saveOrUpdate(user);
 		}
-		daoCustomer.remove(customer);
+		daoCustomer.delete(customer);
 	}
 
 	@Transactional
 	public void deleteCustomerByUser(Customer customer, String userName) throws Exception {
-		
+
 		if (!customer.isCanBeUsed())
 			return;
-		
-		List<Analysis> analyses = daoAnalysis.loadByUserAndCustomer(userName, customer.getId());
+
+		List<Analysis> analyses = daoAnalysis.getAllFromUserNameAndCustomerId(userName, customer.getId());
 		User user = daoUser.get(userName);
 		for (Analysis analysis : analyses) {
 			analysis.removeRights(user);
@@ -138,8 +138,8 @@ public class CustomDelete {
 		if (!user.containsCustomer(customer))
 			daoUser.saveOrUpdate(user);
 
-		if (!daoCustomer.hasUser(customer.getId()) && analyses.isEmpty())
-			daoCustomer.remove(customer);
+		if (!daoCustomer.customerHasUsers(customer.getId()) && analyses.isEmpty())
+			daoCustomer.delete(customer);
 	}
 
 }

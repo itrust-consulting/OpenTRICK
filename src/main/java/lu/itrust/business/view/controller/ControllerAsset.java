@@ -341,11 +341,12 @@ public class ControllerAsset {
 	 * @param model
 	 * @param locale
 	 * @return
+	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
-	String assetByALE(HttpSession session, Model model, Locale locale, Principal principal) {
+	String assetByALE(HttpSession session, Model model, Locale locale, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");

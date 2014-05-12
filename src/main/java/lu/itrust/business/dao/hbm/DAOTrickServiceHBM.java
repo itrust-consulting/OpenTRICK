@@ -25,6 +25,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 
 	/**
 	 * Constructor: <br>
+	 * 
 	 * @param session
 	 */
 	public DAOTrickServiceHBM(Session session) {
@@ -34,7 +35,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	/**
 	 * get: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOTrickService#get(int)
 	 */
 	@Override
@@ -50,9 +51,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 */
 	@Override
 	public TrickService getStatus() throws Exception {
-
 		return (TrickService) getSession().get(TrickService.class, 1);
-
 	}
 
 	/**
@@ -86,9 +85,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * @see lu.itrust.business.dao.DAOTrickService#remove(lu.itrust.business.TS.TrickService)
 	 */
 	@Override
-	public void remove(TrickService trickservice) throws Exception {
+	public void delete(TrickService trickservice) throws Exception {
 		getSession().delete(trickservice);
-
 	}
-
 }

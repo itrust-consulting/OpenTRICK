@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.dao.hbm;
 
 import java.util.List;
@@ -13,28 +10,34 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 /**
- * @author oensuifudine
+ * DAORoleHBM.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since Jan 12, 2013
  */
 @Repository
 public class DAORoleHBM extends DAOHibernate implements DAORole {
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public DAORoleHBM() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @param sessionFactory
+	 * Constructor: <br>
+	 * 
+	 * @param session
 	 */
 	public DAORoleHBM(Session session) {
 		super(session);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAORole#get(long)
 	 */
@@ -43,80 +46,78 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 		return (Role) getSession().get(Role.class, id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getRoleByName: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAORole#get(java.lang.String)
+	 * @see lu.itrust.business.dao.DAORole#getRoleByName(java.lang.String)
+	 */
+	@Override
+	public Role getRoleByName(String name) throws Exception {
+		return (Role) getSession().createQuery("FROM Role WHERE dtType=:RoleType").setString("RoleType", name).uniqueResult();
+	}
+
+	/**
+	 * getAllRoles: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORole#getAllRoles()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Role> getAllRoles() throws Exception {
+		return getSession().createQuery("From Role").list();
+	}
+
+	/**
+	 * getFromUser: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORole#getFromUser(java.lang.String)
 	 */
 	@Override
 	public List<Role> getFromUser(String login) throws Exception {
 		User aUser = (User) getSession().createQuery("From User where login = :user").setParameter("user", login).uniqueResult();
 		List<Role> roles = aUser.getRoles();
-		
 		return roles;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getFromUser: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAORole#get(lu.itrust.business.TS.User)
+	 * @see lu.itrust.business.dao.DAORole#getFromUser(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
 	public List<Role> getFromUser(User user) throws Exception {
-		
-		User aUser = (User) getSession().createQuery("From User where id = :user").setParameter("user", user.getId()).uniqueResult();
-		
-		List<Role> roles = aUser.getRoles();
-				
-		return roles;
+		return user.getRoles();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * save: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAORole#loadAll()
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public List<Role> loadAll() throws Exception {
-		return getSession().createQuery("From Role").list();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.dao.DAORole#save(lu.itrust.business.TS.Role)
+	 * @see lu.itrust.business.dao.DAORole#save(lu.itrust.business.TS.usermanagement.Role)
 	 */
 	@Override
 	public void save(Role role) throws Exception {
 		getSession().save(role);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAORole#saveOrUpdate(lu.itrust.business.TS.Role)
+	 * @see lu.itrust.business.dao.DAORole#saveOrUpdate(lu.itrust.business.TS.usermanagement.Role)
 	 */
 	@Override
 	public void saveOrUpdate(Role role) throws Exception {
 		getSession().saveOrUpdate(role);
-
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.dao.DAORole#delete(lu.itrust.business.TS.Role)
-	 */
-	@Override
-	public void delete(Role role) throws Exception {
-		getSession().delete(role);
-
-	}
-
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAORole#delete(long)
 	 */
@@ -125,36 +126,38 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 		getSession().delete(get(id));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.dao.DAORole#delete(lu.itrust.business.TS.User)
-	 */
-	@Override
-	public void delete(User user) throws Exception {
-
-		for (Role role : getFromUser(user))
-			delete(role);
-
-	}
-
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAORole#delete(java.lang.String)
 	 */
 	@Override
 	public void delete(String login) throws Exception {
-
 		for (Role role : getFromUser(login))
 			delete(role);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORole#delete(lu.itrust.business.TS.usermanagement.Role)
+	 */
 	@Override
-	public Role findByName(String name) throws Exception {
-		// TODO Auto-generated method stub
-		return (Role) getSession().createQuery("FROM Role WHERE dtType=:RoleType").setString("RoleType", name).uniqueResult();
-
+	public void delete(Role role) throws Exception {
+		getSession().delete(role);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORole#delete(lu.itrust.business.TS.usermanagement.User)
+	 */
+	@Override
+	public void delete(User user) throws Exception {
+		for (Role role : getFromUser(user))
+			delete(role);
+	}
 }
