@@ -1,53 +1,45 @@
-/**
- * 
- */
 package lu.itrust.business.service;
 
 import java.util.List;
 
 import lu.itrust.business.TS.Customer;
-import lu.itrust.business.dao.DAOCustomer;
 
 /**
- * @author oensuifudine
+ * ServiceCustomer.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 public interface ServiceCustomer {
+	public Customer get(Integer id) throws Exception;
 
-	public Customer get(int id) throws Exception;
+	public Customer getProfile() throws Exception;
 
-	public Customer loadByCustomerName(String fullName) throws Exception;
+	public Customer getFromContactPerson(String contactPerson) throws Exception;
 
-	public List<Customer> loadByOrganasition(String organisation) throws Exception;
+	public boolean isProfile(Integer id) throws Exception;
 
-	public Customer loadProfileCustomer();
+	public boolean profileExists() throws Exception;
 
-	public boolean hasProfileCustomer();
-	
-	public boolean hasUser(int idCustomer);
-	
-	public boolean exist(String organisation);
+	public boolean hasUsers(Integer idCustomer) throws Exception;
 
-	public List<Customer> loadByUser(String username);
-	
-	public List<Customer> loadByUserAndProfile(String username);
+	public boolean existsByOrganisation(String organisation) throws Exception;
 
-	public List<Customer> loadByCountry(String city) throws Exception;
+	public List<Customer> getAll() throws Exception;
 
-	public List<Customer> loadAll() throws Exception;
+	public List<Customer> getAllAndProfileOfUser(String username) throws Exception;
+
+	public List<Customer> getAllNotProfileOfUser(String username) throws Exception;
+
+	public List<Customer> getAllNotProfiles() throws Exception;
 
 	public void save(Customer customer) throws Exception;
 
 	public void saveOrUpdate(Customer customer) throws Exception;
 
-	public void remove(Customer customer) throws Exception;
+	public void delete(Customer customer) throws Exception;
 
-	public void remove(Integer customerId) throws Exception;
-
-	public DAOCustomer getDaoCustomer();
-
-	public boolean isProfile(int id);
-
-	public List<Customer> loadAllNotProfile() throws Exception;
-
+	public void delete(Integer customerId) throws Exception;
 }

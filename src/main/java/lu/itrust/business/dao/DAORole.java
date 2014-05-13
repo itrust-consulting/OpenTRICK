@@ -14,22 +14,21 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 1, 2013
  */
 public interface DAORole {
+	public Role get(Integer id) throws Exception;
 
-	public Role get(long id) throws Exception;
+	public Role getByName(String name) throws Exception;
 
-	public Role getRoleByName(String name) throws Exception;
+	public List<Role> getAll() throws Exception;
 
-	public List<Role> getAllRoles() throws Exception;
+	public List<Role> getAllFromUser(String login) throws Exception;
 
-	public List<Role> getFromUser(String login) throws Exception;
-
-	public List<Role> getFromUser(User user) throws Exception;
+	public List<Role> getAllFromUser(User user) throws Exception;
 
 	public void save(Role role) throws Exception;
 
 	public void saveOrUpdate(Role role) throws Exception;
 
-	public void delete(long id) throws Exception;
+	public void delete(Integer id) throws Exception;
 
 	public void delete(String login) throws Exception;
 

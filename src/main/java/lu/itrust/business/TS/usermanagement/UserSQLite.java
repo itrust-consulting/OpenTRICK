@@ -11,7 +11,7 @@ import java.sql.Timestamp;
  */
 public class UserSQLite {
 
-	private long id = -1;
+	private int id = -1;
 
 	private String fileName = null;
 	
@@ -57,7 +57,7 @@ public class UserSQLite {
 	 * @param id
 	 *            the id to set
 	 */
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 

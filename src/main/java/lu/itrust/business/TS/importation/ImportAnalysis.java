@@ -952,7 +952,7 @@ public class ImportAnalysis {
 			type = rs.getString(Constant.THREAT_TYPE_LABEL);
 
 			// retrieve scenario type from database
-			scenarioType = daoScenarioType.getByTypeName(type);
+			scenarioType = daoScenarioType.getByName(type);
 
 			// check if type does not exist
 			if (scenarioType == null) {
@@ -1957,7 +1957,7 @@ public class ImportAnalysis {
 				// else: check if measure description text exists in the
 				// language of the analysis ->
 				// NO
-			} else if (!daoMeasureDescriptionText.existsForLanguageByMeasureDescriptionIdAndLanguageId(mesDesc.getId(), this.analysis.getLanguage().getId())) {
+			} else if (!daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(mesDesc.getId(), this.analysis.getLanguage().getId())) {
 
 				// System.out.println("Not found");
 
@@ -2381,7 +2381,7 @@ public class ImportAnalysis {
 				// else: measure description exist: measure description text
 				// exists in the language
 				// of the analysis -> NO
-			} else if (!daoMeasureDescriptionText.existsForLanguageByMeasureDescriptionIdAndLanguageId(mesDesc.getId(), this.analysis.getLanguage().getId())) {
+			} else if (!daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(mesDesc.getId(), this.analysis.getLanguage().getId())) {
 
 				// create new measure description text
 				mesText = new MeasureDescriptionText();

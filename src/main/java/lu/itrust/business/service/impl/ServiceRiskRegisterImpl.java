@@ -1,11 +1,7 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.dao.DAORiskRegister;
 import lu.itrust.business.service.ServiceRiskRegister;
@@ -15,8 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author oensuifudine
+ * ServiceRiskRegisterImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Transactional
 @Service
@@ -25,77 +25,95 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	@Autowired
 	private DAORiskRegister daoRiskRegister;
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceRiskRegister#getRiskRegister(int)
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskRegister#get(int)
 	 */
 	@Override
-	public RiskRegisterItem get(int id) throws Exception {
-		// TODO Auto-generated method stub
+	public RiskRegisterItem get(Integer id) throws Exception {
 		return daoRiskRegister.get(id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceRiskRegister#getRiskRegisterItem(lu.itrust.business.TS.
-	 * Scenario)
+	 * @param riskregisterItemId
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskRegister#belongsToAnalysis(java.lang.Integer,
+	 *      java.lang.Integer)
 	 */
 	@Override
-	public RiskRegisterItem getByScenario(Scenario scenario) throws Exception {
-		// TODO Auto-generated method stub
-		return daoRiskRegister.getByScenario(scenario);
+	public boolean belongsToAnalysis(Integer riskregisterItemId, Integer analysisId) throws Exception {
+		return daoRiskRegister.belongsToAnalysis(riskregisterItemId, analysisId);
 	}
 
-	public List<RiskRegisterItem> loadAllFromAnalysis(Integer analysisID) throws Exception {
-		return daoRiskRegister.loadAllFromAnalysis(analysisID);
-	}
-
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllFromAnalysisId: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceRiskRegister#save(lu.itrust.business.TS.cssf.RiskRegisterItem
-	 * )
+	 * @param analysisID
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskRegister#getAllFromAnalysisId(java.lang.Integer)
+	 */
+	@Override
+	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisID) throws Exception {
+		return daoRiskRegister.getAllFromAnalysis(analysisID);
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param riskRegisterItem
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskRegister#save(lu.itrust.business.TS.cssf.RiskRegisterItem)
 	 */
 	@Transactional
 	@Override
 	public void save(RiskRegisterItem riskRegisterItem) throws Exception {
 		daoRiskRegister.save(riskRegisterItem);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceRiskRegister#saveOrUpdate(lu.itrust.business.TS.cssf.
-	 * RiskRegisterItem)
+	 * @param riskRegisterItem
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskRegister#saveOrUpdate(lu.itrust.business.TS.cssf.RiskRegisterItem)
 	 */
 	@Transactional
 	@Override
 	public void saveOrUpdate(RiskRegisterItem riskRegisterItem) throws Exception {
 		daoRiskRegister.saveOrUpdate(riskRegisterItem);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceRiskRegister#remove(lu.itrust.business.TS.cssf.RiskRegisterItem
-	 * )
+	 * @param riskRegisterItem
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskRegister#delete(lu.itrust.business.TS.cssf.RiskRegisterItem)
 	 */
 	@Transactional
 	@Override
-	public void remove(RiskRegisterItem riskRegisterItem) throws Exception {
-		daoRiskRegister.remove(riskRegisterItem);
-
+	public void delete(RiskRegisterItem riskRegisterItem) throws Exception {
+		daoRiskRegister.delete(riskRegisterItem);
 	}
-
-	public void setDaoRiskRegister(DAORiskRegister daoRiskRegister) {
-		this.daoRiskRegister = daoRiskRegister;
-	}
-
 }

@@ -1,52 +1,45 @@
-/**
- * 
- */
 package lu.itrust.business.service;
 
 import java.util.List;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.usermanagement.Role;
-import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
- * @author oensuifudine
- *
+ * ServiceUser.java: <br>
+ * Detailed description...
+ * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 1, 2013
  */
 public interface ServiceUser {
-	
-	User get(int id) throws Exception;
-	
-	User get(String login) throws Exception;
-	
-	User get(String login,String password) throws Exception;
-	
-	List<User> loadAll()throws Exception;
-	
-	List<User> loadByName(String name)throws Exception;
-	
-	List<User> loadByCountry(String name)throws Exception;
-	
-	List<User> loadByCustomer(int customer)throws Exception;
-	
-	List<User> loadByCustomer(Customer customer)throws Exception;
-	
-	boolean addRole(User user, Role role) throws Exception;
-	
-	boolean removeRole(User user, Role role) throws Exception;
-	
-	boolean hasRole(User user, Role role) throws Exception;
-	
-	boolean hasRole(User user, RoleType role) throws Exception;
-	
-	void save(User user)throws Exception;
-	
-	void saveOrUpdate(User user)throws Exception;
-	
-	void delete(User user)throws Exception;
-	
-	void delete(int id)throws Exception;
+	public User get(Integer id) throws Exception;
 
-	boolean hasUsers() throws Exception;
+	public User get(String login) throws Exception;
+
+	public User get(String login, String password) throws Exception;
+
+	public boolean noUsers() throws Exception;
+
+	public List<User> getAll() throws Exception;
+
+	public List<User> getAllByFirstName(String name) throws Exception;
+
+	public List<User> getAllByCountry(String name) throws Exception;
+
+	public List<User> getAllFromCustomer(Integer customer) throws Exception;
+
+	public List<User> getAllFromCustomer(Customer customer) throws Exception;
+
+	public boolean hasRole(User user, Role role) throws Exception;
+
+	public void save(User user) throws Exception;
+
+	public void saveOrUpdate(User user) throws Exception;
+
+	public void delete(Integer id) throws Exception;
+
+	public void delete(User user) throws Exception;
 }

@@ -41,7 +41,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * @see lu.itrust.business.dao.DAOAssetTypeValue#get(int)
 	 */
 	@Override
-	public AssetTypeValue get(int id) throws Exception {
+	public AssetTypeValue get(Integer id) throws Exception {
 		return (AssetTypeValue) getSession().get(AssetTypeValue.class, id);
 	}
 
@@ -97,7 +97,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * @see lu.itrust.business.dao.DAOAssetTypeValue#delete(int)
 	 */
 	@Override
-	public void delete(int id) throws Exception {
+	public void delete(Integer id) throws Exception {
 		delete(get(id));
 	}
 

@@ -5,28 +5,36 @@ import java.util.List;
 
 import lu.itrust.business.TS.Phase;
 
+/**
+ * ServicePhase.java: <br>
+ * Detailed description...
+ * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
+ */
 public interface ServicePhase {
+	public Phase get(Integer id) throws Exception;
 
-	public Phase get(int id) throws Exception;
+	public Phase getFromAnalysisByPhaseNumber(Integer IdAnalysis, Integer number) throws Exception;
 
-	public Phase loadFromPhaseNumberAnalysis(int number, int idAnalysis) throws Exception;
+	public Phase getFromAnalysisByPhaseId(Integer idAnalysis, Integer idPhase) throws Exception;
 
-	public List<Phase> loadByBeginDate(Date beginDate, int idAnalysis) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId) throws Exception;
 
-	public List<Phase> loadByEndDate(Date beginDate, int idAnalysis) throws Exception;
+	public boolean canBeDeleted(Integer idPhase) throws Exception;
 
-	public boolean canBeDeleted(int idPhase);
+	public List<Phase> getAll() throws Exception;
 
-	public List<Phase> loadAllFromAnalysis(int idAnalysis) throws Exception;
+	public List<Phase> getAllFromAnalysis(Integer idAnalysis) throws Exception;
 
-	public Phase loadByIdAndIdAnalysis(int idPhase, Integer idAnalysis);
+	public List<Phase> getAllFromAnalysisByBeginDate(Integer idAnalysis, Date beginDate) throws Exception;
 
-	public List<Phase> loadAll() throws Exception;
+	public List<Phase> getAllFromAnalysisByEndDate(Integer idAnalysis, Date beginDate) throws Exception;
 
 	public void save(Phase phase) throws Exception;
 
 	public void saveOrUpdate(Phase phase) throws Exception;
 
-	public void remove(Phase phase) throws Exception;
-
+	public void delete(Phase phase) throws Exception;
 }

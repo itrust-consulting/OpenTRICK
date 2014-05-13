@@ -45,7 +45,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * @see lu.itrust.business.dao.DAOHistory#get(int)
 	 */
 	@Override
-	public History get(int id) throws Exception {
+	public History get(Integer id) throws Exception {
 		return (History) getSession().get(History.class, id);
 	}
 
@@ -57,7 +57,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer historyId, Integer analysisId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer historyId) throws Exception {
 		String query = "Select count(history) From Analysis as analysis inner join analysis.history as history where analysis.id = :analysisId and history.id = : historyId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("historyId", historyId).uniqueResult()).intValue() > 0;
 	}
@@ -70,7 +70,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 *      java.lang.String)
 	 */
 	@Override
-	public boolean versionExistsByAnalysisIdAndAnalysisVersion(Integer analysisId, String version) throws Exception {
+	public boolean versionExistsInAnalysis(Integer analysisId, String version) throws Exception {
 		boolean res = false;
 		Analysis analysis = (Analysis) getSession().get(Analysis.class, analysisId);
 		if (analysis != null) {
@@ -88,7 +88,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 *      java.lang.String)
 	 */
 	@Override
-	public boolean versionExistsForAnalysisByVersion(Analysis analysis, String version) throws Exception {
+	public boolean versionExistsInAnalysis(Analysis analysis, String version) throws Exception {
 		return analysis.versionExists(version);
 	}
 
@@ -100,7 +100,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<String> getVersionsFromAnalysisId(int analysisId) throws Exception {
+	public List<String> getVersionsFromAnalysis(Integer analysisId) throws Exception {
 		String query = "Select distinct history.version " + "From Analysis as analysis inner join analysis.histories as history where analysis.identifier = ( Select analysis2.identifier";
 		query += " From Analysis as analysis2 where analysis2.id = :analysisId )";
 		return getSession().createQuery(query).setInteger("analysisId", analysisId).list();
@@ -114,7 +114,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<History> getAllHistories() throws Exception {
+	public List<History> getAll() throws Exception {
 		return (List<History>) getSession().createQuery("From History").list();
 	}
 
@@ -125,7 +125,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 * @see lu.itrust.business.dao.DAOHistory#getAllFromAnalysisId(java.lang.Integer)
 	 */
 	@Override
-	public List<History> getAllFromAnalysisId(Integer analysisid) throws Exception {
+	public List<History> getAllFromAnalysis(Integer analysisid) throws Exception {
 		Analysis analysis = (Analysis) getSession().get(Analysis.class, analysisid);
 		List<History> histories = null;
 		if (analysis != null) {
@@ -155,7 +155,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 *      java.lang.String)
 	 */
 	@Override
-	public List<History> getAllHistoriesFromAnalysisByAuthor(Analysis analysis, String author) throws Exception {
+	public List<History> getAllFromAnalysisByAuthor(Analysis analysis, String author) throws Exception {
 		List<History> histories = new ArrayList<History>();
 		for (History history : analysis.getHistories())
 			if (history.getAuthor().equals(author))
@@ -174,7 +174,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 *      java.lang.String)
 	 */
 	@Override
-	public List<History> getAllHistoriesFromAnalysisByVersion(Analysis analysis, String version) throws Exception {
+	public List<History> getAllFromAnalysisByVersion(Analysis analysis, String version) throws Exception {
 		List<History> histories = new ArrayList<History>();
 		for (History history : analysis.getHistories())
 			if (history.getVersion().equals(version))

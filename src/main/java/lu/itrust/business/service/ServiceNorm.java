@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service;
 
 import java.util.List;
@@ -9,37 +6,35 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Norm;
 
 /**
- * @author oensuifudine
+ * ServiceNorm.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 public interface ServiceNorm {
-	public Norm getNormByID(int idNorm) throws Exception;
+	public Norm get(Integer id) throws Exception;
 
-	public Norm loadNotCustomNormByName(String norm) throws Exception;
-	
-	public Norm loadSingleNormByName(String norm) throws Exception;
-	
-	public Norm loadSingleNormByNameAndVersion(String label, int version) throws Exception; 
-	
-	public List<Norm> loadAllFromAnalysis(int analysisId);
+	public Norm getNormByName(String norm) throws Exception;
 
-	public List<Norm> loadAllFromAnalysis(Analysis analysis) throws Exception;
-	
-	public List<Norm> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier, String version, String creationDate) throws Exception;
-	
-	public List<Norm> loadAll() throws Exception;
-	
+	public Norm getNormNotCustomByName(String norm) throws Exception;
+
+	public Norm getNormByNameAndVersion(String label, int version) throws Exception;
+
+	public boolean existsByNameAndVersion(String label, int version) throws Exception;
+
+	public List<Norm> getAll() throws Exception;
+
+	public List<Norm> getAllFromAnalysis(Integer analysisId) throws Exception;
+
+	public List<Norm> getAllFromAnalysis(Analysis analysis) throws Exception;
+
+	public List<Norm> getAllNotInAnalysis(Integer idAnalysis) throws Exception;
+
 	public void save(Norm Norm) throws Exception;
-	
+
 	public void saveOrUpdate(Norm Norm) throws Exception;
-	
-	public void remove(Norm Norm)throws Exception;
 
-	public boolean exists(String label, int version);
-
-	public List<Norm> loadAllNoInAnalysis(int idAnalysis);
-
-
-	
-
+	public void delete(Norm Norm) throws Exception;
 }

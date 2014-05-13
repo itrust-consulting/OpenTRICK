@@ -14,21 +14,21 @@ import lu.itrust.business.TS.Norm;
  * @since Feb 1, 2013
  */
 public interface DAOMeasureDescription {
-	public MeasureDescription get(int id) throws Exception;
+	public MeasureDescription get(Integer id) throws Exception;
 
 	public MeasureDescription getByReferenceAndNorm(String reference, Norm norm) throws Exception;
 
-	public boolean existsForMeasureByReferenceAndNorm(String reference, int idNorm) throws Exception;
+	public boolean existsForMeasureByReferenceAndNorm(String reference, Integer idNorm) throws Exception;
 
 	public boolean existsForMeasureByReferenceAndNorm(String reference, Norm norm) throws Exception;
 
-	public List<MeasureDescription> getAllMeasureDescriptions() throws Exception;
+	public List<MeasureDescription> getAll() throws Exception;
 
-	public List<MeasureDescription> getAllMeasureDescriptionsByNorm(Integer normid) throws Exception;
+	public List<MeasureDescription> getAllByNorm(Integer normid) throws Exception;
 
-	public List<MeasureDescription> getAllMeasureDescriptionsByNorm(String label) throws Exception;
+	public List<MeasureDescription> getAllByNorm(String label) throws Exception;
 
-	public List<MeasureDescription> getAllMeasureDescriptionsByNorm(Norm norm) throws Exception;
+	public List<MeasureDescription> getAllByNorm(Norm norm) throws Exception;
 
 	public void save(MeasureDescription measureDescription) throws Exception;
 

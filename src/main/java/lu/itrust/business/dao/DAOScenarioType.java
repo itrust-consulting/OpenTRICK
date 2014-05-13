@@ -13,11 +13,11 @@ import lu.itrust.business.TS.ScenarioType;
  * @since 16 janv. 2013
  */
 public interface DAOScenarioType {
-	public ScenarioType get(int id) throws Exception;
+	public ScenarioType get(Integer id) throws Exception;
 
-	public ScenarioType getByTypeName(String scenarioTypeName) throws Exception;
+	public ScenarioType getByName(String scenarioTypeName) throws Exception;
 
-	public List<ScenarioType> getAllScenarioTypes() throws Exception;
+	public List<ScenarioType> getAll() throws Exception;
 
 	public void save(ScenarioType scenarioType) throws Exception;
 

@@ -8,13 +8,12 @@ import lu.itrust.business.TS.AssetTypeValue;
  * DAOAssetTypeValue.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.�.rl. :
+ * @author itrust consulting s.a.rl. :
  * @version
  * @since 16 janv. 2013
  */
 public interface DAOAssetTypeValue {
-
-	public AssetTypeValue get(int id) throws Exception;
+	public AssetTypeValue get(Integer id) throws Exception;
 
 	public AssetTypeValue save(AssetTypeValue assetTypeValue) throws Exception;
 
@@ -22,7 +21,7 @@ public interface DAOAssetTypeValue {
 
 	public AssetTypeValue merge(AssetTypeValue assetTypeValue) throws Exception;
 
-	public void delete(int id) throws Exception;
+	public void delete(Integer id) throws Exception;
 
 	public void delete(AssetTypeValue assetTypeValue) throws Exception;
 

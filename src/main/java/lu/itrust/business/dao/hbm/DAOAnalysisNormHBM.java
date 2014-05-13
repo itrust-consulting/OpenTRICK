@@ -13,9 +13,9 @@ import org.springframework.stereotype.Repository;
 /**
  * DAOAnalysisNormHBM.java: <br>
  * Detailed description...
- *
+ * 
  * @author smenghi, itrust consulting s.à.rl.
- * @version 
+ * @version
  * @since Feb 12, 2013
  */
 @Repository
@@ -43,7 +43,7 @@ public class DAOAnalysisNormHBM extends DAOHibernate implements DAOAnalysisNorm 
 	 * @see lu.itrust.business.dao.DAOAnalysisNorm#get(int)
 	 */
 	@Override
-	public AnalysisNorm get(int id) throws Exception {
+	public AnalysisNorm get(Integer id) throws Exception {
 		return (AnalysisNorm) getSession().get(AnalysisNorm.class, id);
 	}
 
@@ -91,7 +91,7 @@ public class DAOAnalysisNormHBM extends DAOHibernate implements DAOAnalysisNorm 
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AnalysisNorm> getAllAnalysisNormFromNorm(Norm norm) throws Exception {
+	public List<AnalysisNorm> getAllFromNorm(Norm norm) throws Exception {
 		return (List<AnalysisNorm>) getSession().createQuery("From AnalysisNorm where norm = :norm").setParameter("norm", norm).list();
 	}
 

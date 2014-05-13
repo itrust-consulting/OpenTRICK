@@ -11,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** 
+/**
  * ServiceHistoryImpl.java: <br>
  * Detailed description...
- *
+ * 
  * @author itrust consulting s.à.rl. :
- * @version 
+ * @version
  * @since Oct 22, 2013
  */
 @Service
@@ -24,32 +24,11 @@ public class ServiceHistoryImpl implements ServiceHistory {
 
 	@Autowired
 	private DAOHistory daoHistory;
-	
-	/**
-	 * setDAOHistory: <br>
-	 * Description
-	 * 
-	 * @param daoHistory
-	 */
-	public void setDAOHistory(DAOHistory daoHistory) {
-		this.daoHistory = daoHistory;
-	}
-	
-	/**
-	 * daoHistory: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	@Override
-	public DAOHistory getDAOHistory() {
-		return daoHistory;
-	}
-	
+
 	/**
 	 * get: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.service.ServiceHistory#get(java.lang.Integer)
 	 */
 	@Override
@@ -58,31 +37,165 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	}
 
 	/**
-	 * getAllFromAnalysis: <br>
+	 * belongsToAnalysis: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.service.ServiceHistory#getAllFromAnalysis(java.lang.Integer)
+	 * 
+	 * @param historyId
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceHistory#belongsToAnalysis(java.lang.Integer,
+	 *      java.lang.Integer)
 	 */
 	@Override
-	public List<History> getAllFromAnalysis(Integer id) throws Exception {
-		return daoHistory.loadAllFromAnalysis(id);
+	public boolean belongsToAnalysis(Integer historyId, Integer analysisId) throws Exception {
+		return daoHistory.belongsToAnalysis(historyId, analysisId);
+	}
+
+	/**
+	 * versionExistsByAnalysisIdAndAnalysisVersion: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param version
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceHistory#versionExistsByAnalysisIdAndAnalysisVersion(java.lang.Integer,
+	 *      java.lang.String)
+	 */
+	@Override
+	public boolean versionExistsInAnalysis(Integer analysisId, String version) throws Exception {
+		return daoHistory.versionExistsInAnalysis(analysisId, version);
+	}
+
+	/**
+	 * versionExistsForAnalysisByVersion: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 * @param version
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceHistory#versionExistsForAnalysisByVersion(lu.itrust.business.TS.Analysis,
+	 *      java.lang.String)
+	 */
+	@Override
+	public boolean versionExistsInAnalysis(Analysis analysis, String version) throws Exception {
+		return daoHistory.versionExistsInAnalysis(analysis, version);
+	}
+
+	/**
+	 * getVersionsFromAnalysisId: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceHistory#getVersionsFromAnalysisId(int)
+	 */
+	@Override
+	public List<String> getVersionsFromAnalysis(Integer analysisId) throws Exception {
+		return daoHistory.getVersionsFromAnalysis(analysisId);
+	}
+
+	/**
+	 * getAllHistories: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceHistory#getAllHistories()
+	 */
+	@Override
+	public List<History> getAll() throws Exception {
+		return daoHistory.getAll();
 	}
 
 	/**
 	 * getAllFromAnalysis: <br>
 	 * Description
-	 *
+	 * 
+	 * @see lu.itrust.business.service.ServiceHistory#getAllFromAnalysis(java.lang.Integer)
+	 */
+	@Override
+	public List<History> getAllFromAnalysis(Integer id) throws Exception {
+		return daoHistory.getAllFromAnalysis(id);
+	}
+
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
 	 * @see lu.itrust.business.service.ServiceHistory#getAllFromAnalysis(lu.itrust.business.TS.Analysis)
 	 */
 	@Override
 	public List<History> getAllFromAnalysis(Analysis analysis) throws Exception {
-		return daoHistory.loadAllFromAnalysis(analysis);
+		return daoHistory.getAllFromAnalysis(analysis);
+	}
+
+	/**
+	 * getAllHistoriesFromAnalysisByAuthor: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 * @param author
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceHistory#getAllHistoriesFromAnalysisByAuthor(lu.itrust.business.TS.Analysis,
+	 *      java.lang.String)
+	 */
+	@Override
+	public List<History> getAllFromAnalysisByAuthor(Analysis analysis, String author) throws Exception {
+		return daoHistory.getAllFromAnalysisByAuthor(analysis, author);
+	}
+
+	/**
+	 * getAllHistoriesFromAnalysisByVersion: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 * @param version
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceHistory#getAllHistoriesFromAnalysisByVersion(lu.itrust.business.TS.Analysis,
+	 *      java.lang.String)
+	 */
+	@Override
+	public List<History> getAllFromAnalysisByVersion(Analysis analysis, String version) throws Exception {
+		return daoHistory.getAllFromAnalysisByVersion(analysis, version);
 	}
 
 	/**
 	 * save: <br>
 	 * Description
-	 *
+	 * 
+	 * @param analysisId
+	 * @param history
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceHistory#save(java.lang.Integer,
+	 *      lu.itrust.business.TS.History)
+	 */
+	@Transactional
+	@Override
+	public void save(Integer analysisId, History history) throws Exception {
+		daoHistory.save(analysisId, history);
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param history
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceHistory#save(lu.itrust.business.TS.History)
 	 */
 	@Transactional
@@ -94,7 +207,10 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	/**
 	 * saveOrUpdate: <br>
 	 * Description
-	 *
+	 * 
+	 * @param history
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceHistory#saveOrUpdate(lu.itrust.business.TS.History)
 	 */
 	@Transactional
@@ -106,51 +222,15 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	/**
 	 * delete: <br>
 	 * Description
-	 *
+	 * 
+	 * @param history
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceHistory#delete(lu.itrust.business.TS.History)
 	 */
 	@Transactional
 	@Override
 	public void delete(History history) throws Exception {
-		daoHistory.remove(history);
-	}
-
-	/**
-	 * versionExists: <br>
-	 * Description
-	 *
-	 * @see lu.itrust.business.service.ServiceHistory#versionExists(lu.itrust.business.TS.Analysis, java.lang.String)
-	 */
-	@Override
-	public boolean versionExists(Analysis analysis, String version) throws Exception {
-		return daoHistory.versionExists(analysis, version);
-	}
-
-	/**
-	 * versionExists: <br>
-	 * Description
-	 *
-	 * @see lu.itrust.business.service.ServiceHistory#versionExists(java.lang.Integer, java.lang.String)
-	 */
-	@Override
-	public boolean versionExists(Integer analysisId, String version) throws Exception {
-		return daoHistory.versionExists(analysisId, version);
-	}
-
-	/**
-	 * save: <br>
-	 * Description
-	 *
-	 * @see lu.itrust.business.service.ServiceHistory#save(java.lang.Integer, lu.itrust.business.TS.History)
-	 */
-	@Transactional
-	@Override
-	public void save(Integer analysisId, History history) throws Exception {
-		daoHistory.save(analysisId, history);
-	}
-
-	@Override
-	public List<String> findVersionByAnalysis(int analysisId) {
-		return daoHistory.findVersionByAnalysis(analysisId);
+		daoHistory.delete(history);
 	}
 }

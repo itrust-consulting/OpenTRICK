@@ -79,7 +79,7 @@ public class ControllerAdministration {
 
 	@Autowired
 	private ServiceTrickService serviceTrickService;
-	
+
 	/**
 	 * loadAll: <br>
 	 * Description
@@ -91,9 +91,9 @@ public class ControllerAdministration {
 	@RequestMapping
 	public String showAdministration(HttpSession session, Principal principal, Map<String, Object> model) throws Exception {
 		model.put("adminView", true);
-		model.put("users", serviceUser.loadAll());
+		model.put("users", serviceUser.getAllUsers());
 
-		List<Customer> customers = serviceCustomer.loadAllNotProfile();
+		List<Customer> customers = serviceCustomer.getAllCustomersNoProfiles();
 
 		Integer customerID = (Integer) session.getAttribute("currentCustomer");
 
@@ -102,28 +102,23 @@ public class ControllerAdministration {
 
 			// use first customer as selected customer
 			session.setAttribute("currentCustomer", customerID = customers.get(0).getId());
-		
-		customers = serviceCustomer.loadAll();
-		
+
+		customers = serviceCustomer.getAllCustomers();
+
 		model.put("status", getStatus());
-		
+
 		if (customers != null && customers.size() > 0) {
 
 			model.put("customers", customers);
 
-			
-			
 			if (customerID != null) {
 				model.put("currentcustomer", customerID);
-				model.put("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerID));
+				model.put("analyses", serviceAnalysis.getAllFromCustomerIdAndProfile(customerID));
 			} else {
 				model.put("currentcustomer", null);
-				model.put("analyses", serviceAnalysis.loadAll());
+				model.put("analyses", serviceAnalysis.getAll());
 			}
-			
-			
 		}
-
 		return "admin/administration";
 	}
 
@@ -136,31 +131,30 @@ public class ControllerAdministration {
 		boolean installed = false;
 
 		if (status != null) {
-			
-			if(status.isInstalled()==false && serviceAnalysis.getDefaultProfile()!=null)
+
+			if (status.isInstalled() == false && serviceAnalysis.getDefaultProfile() != null)
 				status.setInstalled(true);
-						
-			if(GeneralComperator.VersionComparator(version, status.getVersion()) == 1)
+
+			if (GeneralComperator.VersionComparator(version, status.getVersion()) == 1)
 				status.setVersion(version);
-			
+
 			serviceTrickService.saveOrUpdate(status);
-			
+
 			return status;
-			
+
 		}
 
 		status = new TrickService(version, installed);
-		
-	
+
 		if (serviceAnalysis.getDefaultProfile() != null)
 			status.setInstalled(true);
 
 		serviceTrickService.save(status);
-		
+
 		return status;
 
 	}
-	
+
 	/**
 	 * section: <br>
 	 * reload customer section by page index
@@ -175,9 +169,9 @@ public class ControllerAdministration {
 	@RequestMapping("/Analysis/DisplayByCustomer/{customerSection}")
 	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
 		session.setAttribute("currentCustomer", customerSection);
-		model.addAttribute("customer",customerSection);
-		model.addAttribute("analyses", serviceAnalysis.loadAllFromCustomerAndProfile(customerSection));
-		model.addAttribute("customers", serviceCustomer.loadAll());
+		model.addAttribute("customer", customerSection);
+		model.addAttribute("analyses", serviceAnalysis.getAllFromCustomerIdAndProfile(customerSection));
+		model.addAttribute("customers", serviceCustomer.getAllCustomers());
 		return "admin/analysis/analyses";
 	}
 
@@ -202,7 +196,7 @@ public class ControllerAdministration {
 
 			List<UserAnalysisRight> uars = analysis.getUserRights();
 
-			for (User user : serviceUser.loadAll())
+			for (User user : serviceUser.getAllUsers())
 				userrights.put(user, null);
 
 			for (UserAnalysisRight uar : uars)
@@ -243,7 +237,7 @@ public class ControllerAdministration {
 
 			List<UserAnalysisRight> uars = analysis.getUserRights();
 
-			for (User user : serviceUser.loadAll())
+			for (User user : serviceUser.getAllUsers())
 				userrights.put(user, null);
 
 			for (UserAnalysisRight uar : uars)
@@ -253,22 +247,22 @@ public class ControllerAdministration {
 
 			model.addAttribute("currentUser", currentUser);
 
-			for (User user : serviceUser.loadAll()) {
+			for (User user : serviceUser.getAllUsers()) {
 
 				if (user.getLogin().equals(principal.getName()))
 					continue;
-				
+
 				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
 
 				UserAnalysisRight uar = analysis.getRightsforUser(user);
-				
+
 				if (uar != null) {
-					
+
 					if (useraccess == -1) {
 						analysis.removeRights(user);
 						serviceUserAnalysisRight.delete(uar);
 						serviceAnalysis.saveOrUpdate(analysis);
-						userrights.put(user,null);
+						userrights.put(user, null);
 					} else {
 						uar.setRight(AnalysisRight.valueOf(useraccess));
 						serviceUserAnalysisRight.saveOrUpdate(uar);
@@ -290,7 +284,8 @@ public class ControllerAdministration {
 				}
 			}
 
-			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			model.addAttribute("success", messageSource
+					.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRigths", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
@@ -317,7 +312,7 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping(value = "/User/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
-		model.addAttribute("users", serviceUser.loadAll());
+		model.addAttribute("users", serviceUser.getAllUsers());
 		return "admin/user/users";
 	}
 
@@ -353,7 +348,7 @@ public class ControllerAdministration {
 	@RequestMapping(value = "/User/Roles/{userId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String getUserRoles(@PathVariable("userId") int userId, Map<String, Object> model, HttpSession session) throws Exception {
 
-		List<Role> userRoles = serviceRole.getByUser(serviceUser.get(userId));
+		List<Role> userRoles = serviceRole.getFromUser(serviceUser.get(userId));
 
 		List<RoleType> roleTypes = new ArrayList<RoleType>();
 
@@ -391,20 +386,18 @@ public class ControllerAdministration {
 			ValidatorField validator = serviceDataValidation.findByClass(User.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new UserValidator());
-			
+
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
-			
+
 			login = jsonNode.get("login").asText();
 			password = jsonNode.get("password").asText();
 			firstname = jsonNode.get("firstName").asText();
 			lastname = jsonNode.get("lastName").asText();
 			email = jsonNode.get("email").asText();
-			
+
 			int id = jsonNode.get("id").asInt();
-			
-			
-			
+
 			if (id > 0) {
 				user = serviceUser.get(jsonNode.get("id").asInt());
 			} else {
@@ -454,7 +447,7 @@ public class ControllerAdministration {
 				RoleType[] roletypes = RoleType.values();
 
 				for (int i = 0; i < roletypes.length; i++) {
-					Role role = serviceRole.findByName(roletypes[i].name());
+					Role role = serviceRole.getRoleByName(roletypes[i].name());
 
 					if (role == null) {
 						role = new Role(roletypes[i]);
@@ -469,7 +462,7 @@ public class ControllerAdministration {
 
 			}
 
-			if(errors.isEmpty())
+			if (errors.isEmpty())
 				return user;
 			else
 				return null;
@@ -503,17 +496,17 @@ public class ControllerAdministration {
 
 			User user = buildUser(errors, value, locale, principal);
 
-			if (!errors.isEmpty()) 
+			if (!errors.isEmpty())
 				return errors;
-			
+
 			if (user.getId() < 1) {
-					serviceUser.save(user);
+				serviceUser.save(user);
 			} else {
 				serviceUser.saveOrUpdate(user);
 			}
-			
+
 			return errors;
-			
+
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();

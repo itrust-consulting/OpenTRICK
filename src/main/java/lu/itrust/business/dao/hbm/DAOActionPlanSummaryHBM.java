@@ -45,7 +45,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * @see lu.itrust.business.dao.DAOActionPlanSummary#get(int)
 	 */
 	@Override
-	public SummaryStage get(int idSummaryStage) throws Exception {
+	public SummaryStage get(Integer idSummaryStage) throws Exception {
 		return (SummaryStage) getSession().get(SummaryStage.class, idSummaryStage);
 	}
 
@@ -69,7 +69,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 * @see lu.itrust.business.dao.DAOActionPlan#belongsToAnalysis(int, int)
 	 */
 	@Override
-	public boolean belongsToAnalysis(int actionPlanSummaryId, int analysisId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanSummaryId) throws Exception {
 		String query = "Select count(summary) From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :analysisId and summary.id = : actionPlanSummaryId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("actionPlanSummaryId", actionPlanSummaryId).uniqueResult()).intValue() > 0;
 	}

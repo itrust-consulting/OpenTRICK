@@ -80,7 +80,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			DAOCustomer daoCustomer = new DAOCustomerHBM(session);
 
-			Customer customer = daoCustomer.getProfileCustomer();
+			Customer customer = daoCustomer.getProfile();
 			if (customer == null) {
 				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a customer profile before you can create your analysis profile", null));
 				return;

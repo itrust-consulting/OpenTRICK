@@ -108,8 +108,8 @@ public class ControllerActionPlan {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 
 		// load all actionplans from the selected analysis
-		List<ActionPlanEntry> actionplans = serviceActionPlan.loadAllFromAnalysis(selected);
-		
+		List<ActionPlanEntry> actionplans = serviceActionPlan.getAllFromAnalysis(selected);
+
 		// load all affected assets of the actionplans (unique assets used)
 		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
 
@@ -140,19 +140,19 @@ public class ControllerActionPlan {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 
 		// load all actionplans from the selected analysis
-		List<ActionPlanEntry> actionplans = serviceActionPlan.loadAllFromAnalysis(selected);
+		List<ActionPlanEntry> actionplans = serviceActionPlan.getAllFromAnalysis(selected);
 
 		// load all affected assets of the actionplans (unique assets used)
 		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
 
 		Collections.reverse(actionplans);
-		
-		for (ActionPlanEntry ape: actionplans) {
+
+		for (ActionPlanEntry ape : actionplans) {
 			Hibernate.initialize(ape);
 			Hibernate.initialize(ape.getMeasure());
 			Hibernate.initialize(ape.getMeasure().getMeasureDescription().getMeasureDescriptionTexts());
 		}
-		
+
 		// prepare model
 		model.put("actionplans", actionplans);
 		model.put("assets", assets);
@@ -184,7 +184,7 @@ public class ControllerActionPlan {
 
 		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
 
-		String alpha3 = serviceAnalysis.getLanguageFromAnalysis(analysisID).getAlpha3();
+		String alpha3 = serviceAnalysis.getLanguageOfAnalysis(analysisID).getAlpha3();
 
 		// retrieve actionplan entry from the given entryID
 		ActionPlanEntry actionplanentry = serviceActionPlan.get(entryID);
@@ -214,7 +214,7 @@ public class ControllerActionPlan {
 
 		model.put("id", analysisID);
 
-		model.put("norms", serviceAnalysisNorm.loadAllFromAnalysis(analysisID));
+		model.put("norms", serviceAnalysisNorm.getAllFromAnalysis(analysisID));
 
 		return "analysis/components/actionplanoptions";
 	}
@@ -245,13 +245,13 @@ public class ControllerActionPlan {
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_ACTIONPLAN)) {
 
 			// retrieve options selected by the user
-			
+
 			boolean uncertainty = false;
-			
+
 			if (jsonNode.get("uncertainty") != null)
 				uncertainty = jsonNode.get("uncertainty").asBoolean();
 
-			List<AnalysisNorm> anorms = serviceAnalysisNorm.loadAllFromAnalysis(analysisId);
+			List<AnalysisNorm> anorms = serviceAnalysisNorm.getAllFromAnalysis(analysisId);
 
 			List<AnalysisNorm> norms = new ArrayList<AnalysisNorm>();
 
@@ -259,19 +259,18 @@ public class ControllerActionPlan {
 				if (jsonNode.get("norm_" + anorm.getId()) != null)
 					if (jsonNode.get("norm_" + anorm.getId()).asBoolean())
 						norms.add(anorm);
-
 			}
 
 			// prepare asynchronous worker
-			
-			boolean reloadSection = session.getAttribute("selectedAnalysis")!=null;
-			
+
+			boolean reloadSection = session.getAttribute("selectedAnalysis") != null;
+
 			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, norms, uncertainty, reloadSection);
 			worker.setPoolManager(workersPoolManager);
-			
+
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 				return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
-			
+
 			// execute task
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));

@@ -9,27 +9,26 @@ import lu.itrust.business.TS.Scenario;
  * DAOScenario.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.�.rl. :
+ * @author eomar, itrust consulting s.a.rl. :
  * @version
  * @since 16 janv. 2013
  */
 public interface DAOScenario {
+	public Scenario get(Integer id) throws Exception;
 
-	public Scenario get(int id) throws Exception;
-
-	public Scenario getScenarioFromAnalysisByScenarioId(int idAnalysis, int scenarioId) throws Exception;
+	public Scenario getFromAnalysisById(Integer idAnalysis, Integer scenarioId) throws Exception;
 
 	public boolean belongsToAnalysis(Integer scenarioId, Integer analysisId) throws Exception;
 
-	public List<Scenario> getAllScenarios() throws Exception;
+	public List<Scenario> getAll() throws Exception;
 
-	public List<Scenario> getAllFromAnalysisId(int idAnalysis) throws Exception;
+	public List<Scenario> getAllFromAnalysis(Integer idAnalysis) throws Exception;
 
-	public List<Scenario> getAllFromAnalysisIdAndSelected(int idAnalysis) throws Exception;
+	public List<Scenario> getAllSelectedFromAnalysis(Integer idAnalysis) throws Exception;
 
-	public List<Scenario> getAllFromAnalysisByScenarioTypeId(Analysis analysis, int scenarioTypeID) throws Exception;
+	public List<Scenario> getAllFromAnalysisByType(Analysis analysis, Integer scenarioTypeID) throws Exception;
 
-	public List<Scenario> getAllScenariosFromAnalysisByScenarioIdList(int idAnalysis, List<Integer> scenarios) throws Exception;
+	public List<Scenario> getAllFromAnalysisByIdList(Integer idAnalysis, List<Integer> scenarios) throws Exception;
 
 	public void save(Scenario scenario) throws Exception;
 

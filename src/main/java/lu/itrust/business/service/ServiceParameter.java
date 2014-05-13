@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service;
 
 import java.util.List;
@@ -10,60 +7,61 @@ import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.ParameterType;
 
 /**
- * @author eom
+ * ServiceParameter.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 public interface ServiceParameter {
+	public Parameter get(Integer id) throws Exception;
 
-	Parameter get(int id);
-	
-	Parameter findByIdAndAnalysis(
-			int idParameter, Integer idAnalysis);
+	public Parameter getFromAnalysisById(Integer idAnalysis, Integer idParameter) throws Exception;
 
-	List<Parameter> findAll();
+	public Parameter getFromAnalysisByTypeAndDescription(Integer idAnalysis, String parameterType, String description) throws Exception;
 
-	List<Parameter> findByAnalysis(int idAnalysis);
+	public boolean belongsToAnalysis(Integer analysisId, Integer parameterId) throws Exception;
 
-	List<Parameter> findAll(int pageIndex, int pageSize);
+	public List<String> getExtendedParameterAcronymsFromAnalysis(Integer idAnalysis) throws Exception;
 
-	List<Parameter> findByAnalysis(int idAnalysis, int pageIndex, int pageSize);
-	
-	List<String> findAcronymByAnalysis(int idAnalysis);
+	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, String type) throws Exception;
 
-	List<String> findAcronymByAnalysisAndType(int idAnalysis, String type);
-	
-	List<String> findAcronymByAnalysisAndType(int idAnalysis, ParameterType type);
+	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, ParameterType type) throws Exception;
 
-	List<ExtendedParameter> findImpactByAnalysisAndType(int idAnalysis);
+	public List<Parameter> getAll() throws Exception;
 
-	List<ExtendedParameter> findExtendedByAnalysis(int idAnalysis);
+	public List<Parameter> getAllFromAnalysis(Integer idAnalysis) throws Exception;
 
-	List<ExtendedParameter> findProbaByAnalysisAndType(int idAnalysis);
+	public List<Parameter> getAllFromAnalysisByPageAndSizeIndex(Integer idAnalysis, Integer pageIndex, Integer pageSize) throws Exception;
 
-	List<ExtendedParameter> findExtendedByAnalysisAndType(int idAnalysis,
-			ParameterType type);
+	public List<Parameter> getAllByPageAndSizeIndex(Integer pageIndex, Integer pageSize) throws Exception;
 
-	List<Parameter> findByAnalysisAndType(int idAnalysis, String type);
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, Integer idType) throws Exception;
 
-	List<Parameter> findByAnalysisAndTypeAndNoLazy(int idAnalysis,
-			String type);
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, String type) throws Exception;
 
-	List<Parameter> findByAnalysisAndType(int idAnalysis, int idType);
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, ParameterType type) throws Exception;
 
-	List<Parameter> findByAnalysisAndType(int idAnalysis, ParameterType type);
+	public List<Parameter> getAllInitialisedFromAnalysisByType(Integer idAnalysis, String type) throws Exception;
 
-	Parameter save(Parameter parameter);
+	public List<ExtendedParameter> getAllExtendedFromAnalysis(Integer idAnalysis) throws Exception;
 
-	void saveOrUpdate(List<? extends Parameter> parameters);
+	public List<ExtendedParameter> getAllExtendedFromAnalysisAndType(Integer idAnalysis, ParameterType type) throws Exception;
 
-	void saveOrUpdate(Parameter parameter);
+	public List<ExtendedParameter> getAllImpactFromAnalysis(Integer idAnalysis) throws Exception;
 
-	Parameter merge(Parameter parameter);
+	public List<ExtendedParameter> getAllProbabilityFromAnalysis(Integer idAnalysis) throws Exception;
 
-	void delete(Parameter parameter);
+	public Parameter save(Parameter parameter) throws Exception;
 
-	void delete(int id);
+	public void saveOrUpdate(Parameter parameter) throws Exception;
 
-	
+	public void saveOrUpdate(List<? extends Parameter> parameters) throws Exception;
 
+	public Parameter merge(Parameter parameter) throws Exception;
+
+	public void delete(Integer id) throws Exception;
+
+	public void delete(Parameter parameter) throws Exception;
 }

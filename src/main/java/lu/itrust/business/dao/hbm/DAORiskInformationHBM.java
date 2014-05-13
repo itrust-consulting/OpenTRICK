@@ -42,7 +42,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.dao.DAORiskInformation#get(int)
 	 */
 	@Override
-	public RiskInformation get(int id) throws Exception {
+	public RiskInformation get(Integer id) throws Exception {
 		return (RiskInformation) getSession().get(RiskInformation.class, id);
 	}
 
@@ -53,7 +53,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.dao.DAORiskInformation#getFromAnalysisById(int, int)
 	 */
 	@Override
-	public RiskInformation getFromAnalysisById(int id, int idAnalysis) throws Exception {
+	public RiskInformation getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception {
 		String query = "Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis and riskInformation.id = :id";
 		return (RiskInformation) getSession().createQuery(query).setParameter("id", id).setParameter("idAnalysis", idAnalysis).uniqueResult();
 	}
@@ -79,7 +79,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskInformation> getAllRiskInformation() throws Exception {
+	public List<RiskInformation> getAll() throws Exception {
 		return getSession().createQuery("From RiskInformation").list();
 	}
 
@@ -115,7 +115,7 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskInformation> getAllFromAnalysisId(int analysisID) throws Exception {
+	public List<RiskInformation> getAllFromAnalysis(Integer analysisID) throws Exception {
 		String query = "Select riskInformation From Analysis analysis inner join analysis.riskInformations as riskInformation where analysis.id = :idAnalysis";
 		return getSession().createQuery(query).setParameter("idAnalysis", analysisID).list();
 	}

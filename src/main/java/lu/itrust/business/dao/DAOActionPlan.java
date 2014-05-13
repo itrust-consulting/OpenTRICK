@@ -12,34 +12,32 @@ import lu.itrust.business.TS.actionplan.ActionPlanMode;
  * DAOActionPlan.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.�.rl. :
+ * @author eomar, itrust consulting s.a.rl. :
  * @version
  * @since 16 janv. 2013
  */
 public interface DAOActionPlan {
+	public ActionPlanEntry get(Integer id) throws Exception;
 
-	public ActionPlanEntry get(int id) throws Exception;
-
-	public boolean belongsToAnalysis(int actionPlanEntryId, int analysisId) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanEntryId) throws Exception;
 
 	public List<ActionPlanEntry> getAll() throws Exception;
 
-	public List<ActionPlanEntry> getAllFromAnalysis(int id) throws Exception;
+	public List<ActionPlanEntry> getAllFromAnalysis(Integer id) throws Exception;
 
-	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(int analysisID, ActionPlanMode mode) throws Exception;
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Integer analysisID, ActionPlanMode mode) throws Exception;
 
 	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanMode mode) throws Exception;
 
-	public List<Measure> getMeasuresFromActionPlanAndAnalysis(int analysisID, ActionPlanMode mode) throws Exception;
+	public List<Measure> getMeasuresFromActionPlanAndAnalysis(Integer analysisID, ActionPlanMode mode) throws Exception;
 
-	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(int id, ActionPlanMode apm) throws Exception;
+	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(Integer id, ActionPlanMode apm) throws Exception;
 
-	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(int analysisID) throws Exception;
+	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(Integer analysisID) throws Exception;
 
 	public void save(ActionPlanEntry actionPlanEntry) throws Exception;
 
 	public void saveOrUpdate(ActionPlanEntry actionPlanEntry) throws Exception;
 
 	public void delete(ActionPlanEntry actionPlanEntry) throws Exception;
-
 }

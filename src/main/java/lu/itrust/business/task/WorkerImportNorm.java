@@ -321,8 +321,8 @@ public class WorkerImportNorm implements Worker {
 													}
 												}
 
-												if (daoMeasureDescriptionText.existsForLanguageByMeasureDescriptionIdAndLanguageId(measureDescription.getId(), lang.getId())) {
-													measureDescriptionText = daoMeasureDescriptionText.getMeasureDescriptionTextByIdAndLanguageId(measureDescription.getId(), lang.getId());
+												if (daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(measureDescription.getId(), lang.getId())) {
+													measureDescriptionText = daoMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measureDescription.getId(), lang.getId());
 
 													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
 													description =

@@ -30,7 +30,7 @@ public class ControllerScenarioType {
 	
 	@RequestMapping(value = "/All", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<ScenarioType> all() throws Exception {
-		return serviceScenarioType.loadAll();
+		return serviceScenarioType.getAllScenarioTypes();
 	}
 
 }

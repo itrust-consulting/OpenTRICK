@@ -53,7 +53,7 @@ public class AssessmentManager {
 	@Transactional
 	public void selectAsset(Asset asset) throws Exception {
 		asset.setSelected(true);
-		List<Assessment> assessments = daoAssessment.getAllSelectedAssessmentFromAsset(asset);
+		List<Assessment> assessments = daoAssessment.getAllSelectedFromAsset(asset);
 		for (Assessment assessment : assessments) {
 			if (assessment.getScenario().isSelected() && assessment.getScenario().hasInfluenceOnAsset(asset.getAssetType())) {
 				assessment.setSelected(true);
@@ -73,7 +73,7 @@ public class AssessmentManager {
 	@Transactional
 	public void unSelectAsset(Asset asset) throws Exception {
 		asset.setSelected(false);
-		List<Assessment> assessments = daoAssessment.getAllSelectedAssessmentFromAsset(asset);
+		List<Assessment> assessments = daoAssessment.getAllSelectedFromAsset(asset);
 		for (Assessment assessment : assessments) {
 			if (assessment.isSelected()) {
 				assessment.setSelected(false);
@@ -95,7 +95,7 @@ public class AssessmentManager {
 	@Transactional
 	public void selectScenario(Scenario scenario) throws Exception {
 		scenario.setSelected(true);
-		List<Assessment> assessments = daoAssessment.getAllUnselectedAssessmentFromScenario(scenario);
+		List<Assessment> assessments = daoAssessment.getAllUnselectedFromScenario(scenario);
 		for (Assessment assessment : assessments) {
 			if (assessment.getAsset().isSelected() && scenario.hasInfluenceOnAsset(assessment.getAsset().getAssetType())) {
 				assessment.setSelected(true);
@@ -115,7 +115,7 @@ public class AssessmentManager {
 	@Transactional
 	public void unSelectScenario(Scenario scenario) throws Exception {
 		scenario.setSelected(false);
-		List<Assessment> assessments = daoAssessment.getAllSelectedAssessmentFromScenario(scenario);
+		List<Assessment> assessments = daoAssessment.getAllSelectedFromScenario(scenario);
 		for (Assessment assessment : assessments) {
 			if (assessment.isSelected()) {
 				assessment.setSelected(false);
@@ -141,7 +141,7 @@ public class AssessmentManager {
 			return;
 		analysis.addAnAsset(asset);
 		List<Assessment> assessments = analysis.getAssessments();
-		List<Scenario> scenarios = daoScenario.getAllFromAnalysisIdAndSelected(idAnalysis);
+		List<Scenario> scenarios = daoScenario.getAllSelectedFromAnalysis(idAnalysis);
 		for (Scenario scenario : scenarios)
 			assessments.add(new Assessment(asset, scenario));
 		daoAnalysis.saveOrUpdate(analysis);

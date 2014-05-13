@@ -41,7 +41,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 * @see lu.itrust.business.dao.DAOAsset#get(int)
 	 */
 	@Override
-	public Asset get(int id) throws Exception {
+	public Asset get(Integer id) throws Exception {
 		return (Asset) getSession().get(Asset.class, id);
 	}
 
@@ -52,7 +52,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 * @see lu.itrust.business.dao.DAOAsset#belongsToAnalysis(int, int)
 	 */
 	@Override
-	public boolean belongsToAnalysis(int assetId, int analysisId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer assetId) throws Exception {
 		String query = "Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisid and asset.id = : assetid";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("assetid", assetId).uniqueResult()).intValue() > 0;
 	}
@@ -77,7 +77,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> getByPageAndSize(int pageIndex, int pageSize) throws Exception {
+	public List<Asset> getByPageAndSize(Integer pageIndex, Integer pageSize) throws Exception {
 		return getSession().createQuery("From Asset").setMaxResults(pageSize).setFirstResult(pageSize * (pageIndex - 1)).list();
 	}
 
@@ -89,7 +89,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> getFromAnalysisByPageAndSize(int pageIndex, int pageSize, int analysisId) throws Exception {
+	public List<Asset> getFromAnalysisByPageAndSize(Integer analysisId, Integer pageIndex, Integer pageSize) throws Exception {
 		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId";
 		return getSession().createQuery(query).setParameter("analysisId", analysisId).setMaxResults(pageSize).setFirstResult(pageSize * (pageIndex - 1)).list();
 	}
@@ -102,7 +102,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> getAllFromAnalysis(int analysisId) throws Exception {
+	public List<Asset> getAllFromAnalysis(Integer analysisId) throws Exception {
 		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId order by asset.value desc, asset.ALE desc, asset.name asc";
 		return getSession().createQuery(query).setParameter("analysisId", analysisId).list();
 	}
@@ -115,7 +115,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> getAllFromAnalysisIdAndSelected(int idAnalysis) throws Exception {
+	public List<Asset> getAllFromAnalysisIdAndSelected(Integer idAnalysis) throws Exception {
 		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.value desc, ";
 		query += "asset.name asc";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
@@ -129,7 +129,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> getSelectedFromAnalysisAndOrderByALE(int idAnalysis) throws Exception {
+	public List<Asset> getSelectedFromAnalysisAndOrderByALE(Integer idAnalysis) throws Exception {
 		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.selected = true order by asset.ALE asc, ";
 		query += "asset.ALEO asc, asset.ALEP asc , asset.name asc, asset.value asc";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
@@ -175,7 +175,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 * @see lu.itrust.business.dao.DAOAsset#delete(int)
 	 */
 	@Override
-	public void delete(int id) throws Exception {
+	public void delete(Integer id) throws Exception {
 		getSession().delete(get(id));
 	}
 

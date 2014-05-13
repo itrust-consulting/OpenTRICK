@@ -88,7 +88,7 @@ public class ControllerTask {
 			}
 
 			// retrieve last feedback message
-			MessageHandler messageHandler = serviceTaskFeedback.reciveLast(id);
+			MessageHandler messageHandler = serviceTaskFeedback.recieveLast(id);
 
 			// check if message exists or set null
 			if (messageHandler != null) {
@@ -107,7 +107,7 @@ public class ControllerTask {
 
 			// unrgister task when done or errors
 			if (asyncResult.getFlag() == 5 || asyncResult.getFlag() < 3 && !serviceTaskFeedback.hasMessage(id)) {
-				serviceTaskFeedback.deregisterTask(principal.getName(), id);
+				serviceTaskFeedback.unregisterTask(principal.getName(), id);
 			}
 		}
 

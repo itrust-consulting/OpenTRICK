@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service;
 
 import java.util.List;
@@ -8,33 +5,33 @@ import java.util.List;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
 
 /**
- * @author eomar
+ * ServiceUserSqLite.java: <br>
+ * Detailed description...
  * 
+ * @author smenghi, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 public interface ServiceUserSqLite {
+	public UserSQLite get(Integer id) throws Exception;
 
-	UserSQLite findOne(long id);
+	public UserSQLite getByFileName(String fileName) throws Exception;
 
-	UserSQLite findByFileName(String fileName);
-	
-	UserSQLite findByIdAndUser(long idFile, String username);
+	public UserSQLite getByIdAndUser(Integer idFile, String username) throws Exception;
 
-	List<UserSQLite> findByUser(String username);
+	public List<UserSQLite> getAllFromUser(String username) throws Exception;
 
-	List<UserSQLite> findByUser(String username, int pageIndex, int pageSize);
+	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize) throws Exception;
 
-	UserSQLite save(UserSQLite userSqLite);
+	public UserSQLite save(UserSQLite userSqLite) throws Exception;
 
-	void saveOrUpdate(UserSQLite userSqLite);
+	public void saveOrUpdate(UserSQLite userSqLite) throws Exception;
 
-	UserSQLite merge(UserSQLite userSqLite);
+	public UserSQLite merge(UserSQLite userSqLite) throws Exception;
 
-	void delete(UserSQLite userSqLite);
+	public void delete(Integer idUserSqLite) throws Exception;
 
-	void delete(long idUserSqLite);
+	public void delete(String fileName) throws Exception;
 
-	void delete(String fileName);
-
-	
-
+	public void delete(UserSQLite userSqLite) throws Exception;
 }

@@ -15,8 +15,7 @@ import lu.itrust.business.TS.Norm;
  * @since 24 janv. 2013
  */
 public interface DAOAnalysisNorm {
-
-	public AnalysisNorm get(int id) throws Exception;
+	public AnalysisNorm get(Integer id) throws Exception;
 
 	public List<AnalysisNorm> getAll() throws Exception;
 
@@ -24,7 +23,7 @@ public interface DAOAnalysisNorm {
 
 	public List<AnalysisNorm> getAllFromAnalysis(Analysis analysis) throws Exception;
 
-	public List<AnalysisNorm> getAllAnalysisNormFromNorm(Norm norm) throws Exception;
+	public List<AnalysisNorm> getAllFromNorm(Norm norm) throws Exception;
 
 	public void save(AnalysisNorm analysisNorm) throws Exception;
 

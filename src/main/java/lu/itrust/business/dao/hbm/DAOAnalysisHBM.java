@@ -46,7 +46,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * @see lu.itrust.business.dao.DAOAnalysis#get(int)
 	 */
 	@Override
-	public Analysis get(int idAnalysis) throws Exception {
+	public Analysis get(Integer idAnalysis) throws Exception {
 		return (Analysis) getSession().get(Analysis.class, idAnalysis);
 	}
 
@@ -81,14 +81,14 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * @see lu.itrust.business.dao.DAOAnalysis#exists(int)
 	 */
 	@Override
-	public boolean exists(int idAnalysis) throws Exception {
+	public boolean exists(Integer idAnalysis) throws Exception {
 		return ((Long) getSession().createQuery("Select count(*) From Analysis where id = :id").setInteger("id", idAnalysis).uniqueResult()).intValue() > 0;
 	}
 
 	/**
 	 * exists: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOAnalysis#exists(java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -104,7 +104,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * @see lu.itrust.business.dao.DAOAnalysis#isProfile(int)
 	 */
 	@Override
-	public boolean isProfile(int analysisid) throws Exception {
+	public boolean isProfile(Integer analysisid) throws Exception {
 		String query = "Select analysis.profile From Analysis as analysis where analysis.id = :identifier";
 		Boolean result = (Boolean) getSession().createQuery(query).setParameter("identifier", analysisid).uniqueResult();
 		return result == null ? false : result;
@@ -183,7 +183,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getFromUserNameAndCustomerIdAndNotEmpty(String userName, int idCustomer) throws Exception {
+	public List<Analysis> getFromUserNameAndCustomerIdAndNotEmpty(String userName, Integer idCustomer) throws Exception {
 		String query = "Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.data = true and ";
 		query += "userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc";
 		return getSession().createQuery(query).setParameter("username", userName).setParameter("customer", idCustomer).list();
@@ -198,7 +198,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getFromUserNameAndCustomer(String login, Integer customer, int pageIndex, int pageSize) throws Exception {
+	public List<Analysis> getFromUserNameAndCustomer(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception {
 		String query = "Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer ";
 		query += "order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc";
 		return getSession().createQuery(query).setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
@@ -212,7 +212,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getAllFromCustomerIdAndProfile(int idCustomer) throws Exception {
+	public List<Analysis> getAllFromCustomerIdAndProfile(Integer idCustomer) throws Exception {
 		String query = "SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true";
 		return (List<Analysis>) getSession().createQuery(query).setParameter("customer", idCustomer).list();
 	}
@@ -289,7 +289,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * @see lu.itrust.business.dao.DAOAnalysis#getLanguageOfAnalysis(int)
 	 */
 	@Override
-	public Language getLanguageOfAnalysis(int analysisID) throws Exception {
+	public Language getLanguageOfAnalysis(Integer analysisID) throws Exception {
 		return (Language) getSession().createQuery("SELECT language FROM Analysis analysis WHERE analysis.id = :analysisID").setParameter("analysisID", analysisID).uniqueResult();
 	}
 
@@ -300,7 +300,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * @see lu.itrust.business.dao.DAOAnalysis#getVersionOfAnalysis(int)
 	 */
 	@Override
-	public String getVersionOfAnalysis(int id) throws Exception {
+	public String getVersionOfAnalysis(Integer id) throws Exception {
 		return (String) getSession().createQuery("SELECT version From Analysis where id = :id").setParameter("id", id).uniqueResult();
 	}
 

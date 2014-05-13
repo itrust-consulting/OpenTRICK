@@ -1,13 +1,9 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.usermanagement.Role;
-import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAORole;
 import lu.itrust.business.dao.DAOUser;
@@ -18,8 +14,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author oensuifudine
+ * ServiceUserImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 1, 2013
  */
 @Service
 public class ServiceUserImpl implements ServiceUser {
@@ -29,19 +29,29 @@ public class ServiceUserImpl implements ServiceUser {
 
 	@Autowired
 	private DAORole daoRole;
-	
-	/*
-	 * (non-Javadoc)
+
+	/**
+	 * get: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceUser#get(long)
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#get(int)
 	 */
 	@Override
-	public User get(int id) throws Exception {
+	public User get(Integer id) throws Exception {
 		return daoUser.get(id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param login
+	 * @return
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceUser#get(java.lang.String)
 	 */
@@ -50,8 +60,14 @@ public class ServiceUserImpl implements ServiceUser {
 		return daoUser.get(login);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param login
+	 * @param password
+	 * @return
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceUser#get(java.lang.String, java.lang.String)
 	 */
@@ -60,118 +76,93 @@ public class ServiceUserImpl implements ServiceUser {
 		return daoUser.get(login, password);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * noUsers: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceUser#loadAll()
-	 */
-	@Override
-	public List<User> loadAll() throws Exception {
-		return daoUser.loadAll();
-	}
-
-	/*
-	 * (non-Javadoc)
+	 * @return
+	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.service.ServiceUser#loadByName(java.lang.String)
+	 * @see lu.itrust.business.service.ServiceUser#noUsers()
 	 */
+	@Transactional
 	@Override
-	public List<User> loadByName(String name) throws Exception {
-		return daoUser.loadByName(name);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.service.ServiceUser#loadByCountry(java.lang.String)
-	 */
-	@Override
-	public List<User> loadByCountry(String name) throws Exception {
-		return daoUser.loadByCountry(name);
+	public boolean noUsers() throws Exception {
+		return daoUser.noUsers();
 	}
 
 	/**
-	 * addRole: <br>
+	 * getAllUsers: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceUser#addRole(lu.itrust.business.TS.usermanagement.User,
-	 *      lu.itrust.business.TS.usermanagement.Role)
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#getAllUsers()
 	 */
-	@Transactional
-	public boolean addRole(User user, Role role) throws Exception {
-		return daoUser.addRole(user, role);
+	@Override
+	public List<User> getAll() throws Exception {
+		return daoUser.getAll();
 	}
 
 	/**
-	 * removeRole: <br>
+	 * getAllByFirstName: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceUser#removeRole(lu.itrust.business.TS.usermanagement.User,
-	 *      lu.itrust.business.TS.usermanagement.Role)
-	 */
-	@Transactional
-	public boolean removeRole(User user, Role role) throws Exception {
-		return daoUser.removeRole(user, role);
-	}
-
-	/*
-	 * (non-Javadoc)
+	 * @param name
+	 * @return
+	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.service.ServiceUser#save(lu.itrust.business.TS.User)
+	 * @see lu.itrust.business.service.ServiceUser#getAllByFirstName(java.lang.String)
 	 */
-	@Transactional
 	@Override
-	public void save(User user) throws Exception {
-		daoUser.save(user);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.service.ServiceUser#saveOrUpdate(lu.itrust.business.TS.User)
-	 */
-	@Transactional
-	@Override
-	public void saveOrUpdate(User user) throws Exception {
-		daoUser.saveOrUpdate(user);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.service.ServiceUser#delete(lu.itrust.business.TS.User)
-	 */
-	@Transactional
-	@Override
-	public void delete(User user) throws Exception {
-		daoUser.delete(user);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.service.ServiceUser#delete(long)
-	 */
-	@Transactional
-	@Override
-	public void delete(int id) throws Exception {
-		daoUser.delete(id);
+	public List<User> getAllByFirstName(String name) throws Exception {
+		return daoUser.getAllByFirstName(name);
 	}
 
 	/**
-	 * 
-	 * hasUsers: <br>
+	 * getAllByCountry: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceUser#hasUsers()
+	 * @param name
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#getAllByCountry(java.lang.String)
 	 */
-	@Transactional
 	@Override
-	public boolean hasUsers() throws Exception {
-		return daoUser.hasUsers();
+	public List<User> getAllByCountry(String name) throws Exception {
+		return daoUser.getAllByCountry(name);
+	}
+
+	/**
+	 * getAllUsersFromCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#getAllUsersFromCustomer(int)
+	 */
+	@Override
+	public List<User> getAllFromCustomer(Integer customer) throws Exception {
+		return daoUser.getAllFromCustomer(customer);
+	}
+
+	/**
+	 * getAllUsersFromCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#getAllUsersFromCustomer(lu.itrust.business.TS.Customer)
+	 */
+	@Override
+	public List<User> getAllFromCustomer(Customer customer) throws Exception {
+		return daoUser.getAllFromCustomer(customer);
 	}
 
 	/**
@@ -189,43 +180,62 @@ public class ServiceUserImpl implements ServiceUser {
 	}
 
 	/**
-	 * 
-	 * hasRole: <br>
+	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceUser#hasRole(lu.itrust.business.TS.usermanagement.User,
-	 *      lu.itrust.business.TS.usermanagement.Role)
+	 * @param user
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#save(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Transactional
 	@Override
-	public boolean hasRole(User user, RoleType roleType) throws Exception {
-		List<Role> roles = daoRole.getFromUser(user);
-		
-		for (Role role : roles) {
-			if (role.getType().compareTo(roleType)>=0){
-				return true;
-			}
-		}
-		
-		return false;
-		
-	}
-	
-	public DAOUser getDaoUser() {
-		return daoUser;
+	public void save(User user) throws Exception {
+		daoUser.save(user);
 	}
 
-	public void setDaoUser(DAOUser daoUser) {
-		this.daoUser = daoUser;
-	}
-
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#saveOrUpdate(lu.itrust.business.TS.usermanagement.User)
+	 */
+	@Transactional
 	@Override
-	public List<User> loadByCustomer(int customer) throws Exception {
-		return daoUser.loadByCustomer(customer);
+	public void saveOrUpdate(User user) throws Exception {
+		daoUser.saveOrUpdate(user);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#delete(int)
+	 */
+	@Transactional
 	@Override
-	public List<User> loadByCustomer(Customer customer) throws Exception {
-		return daoUser.loadByCustomer(customer);
+	public void delete(Integer id) throws Exception {
+		daoUser.delete(id);
+	}
+
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#delete(lu.itrust.business.TS.usermanagement.User)
+	 */
+	@Transactional
+	@Override
+	public void delete(User user) throws Exception {
+		daoUser.delete(user);
 	}
 }

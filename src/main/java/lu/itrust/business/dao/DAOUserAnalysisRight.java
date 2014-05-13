@@ -16,8 +16,11 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 9, 2014
  */
 public interface DAOUserAnalysisRight {
+	public UserAnalysisRight get(Integer id) throws Exception;
 
-	public UserAnalysisRight get(long id) throws Exception;
+	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user) throws Exception;
+
+	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception;
 
 	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) throws Exception;
 
@@ -25,15 +28,11 @@ public interface DAOUserAnalysisRight {
 
 	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception;
 
-	public AnalysisRight getAnalysisRightOfUser(Analysis analysis, User user) throws Exception;
-
-	public UserAnalysisRight getUserAnalysisRight(Analysis analysis, User user) throws Exception;
-
-	public List<UserAnalysisRight> getAllFromAnalysisId(int analysisid) throws Exception;
+	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid) throws Exception;
 
 	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis) throws Exception;
 
-	public List<UserAnalysisRight> getAllFromUserLogin(String login) throws Exception;
+	public List<UserAnalysisRight> getAllFromUser(String login) throws Exception;
 
 	public List<UserAnalysisRight> getAllFromUser(User user) throws Exception;
 
@@ -41,7 +40,7 @@ public interface DAOUserAnalysisRight {
 
 	public void saveOrUpdate(UserAnalysisRight userAnalysisRight) throws Exception;
 
-	public void delete(long id) throws Exception;
+	public void delete(Integer id) throws Exception;
 
 	public void delete(UserAnalysisRight userAnalysisRight) throws Exception;
 }

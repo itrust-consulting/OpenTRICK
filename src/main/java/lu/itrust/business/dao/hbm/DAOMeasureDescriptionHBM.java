@@ -41,7 +41,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * @see lu.itrust.business.dao.DAOMeasureDescription#get(int)
 	 */
 	@Override
-	public MeasureDescription get(int id) throws Exception {
+	public MeasureDescription get(Integer id) throws Exception {
 		return (MeasureDescription) getSession().get(MeasureDescription.class, id);
 	}
 
@@ -66,7 +66,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 *      int)
 	 */
 	@Override
-	public boolean existsForMeasureByReferenceAndNorm(String reference, int idNorm) throws Exception {
+	public boolean existsForMeasureByReferenceAndNorm(String reference, Integer idNorm) throws Exception {
 		String query = "Select count(*) From MeasureDescription where norm.id = :idNorm and reference = :reference";
 		return (Long) getSession().createQuery(query).setParameter("idNorm", idNorm).setParameter("reference", reference).uniqueResult() >= 1;
 	}
@@ -91,7 +91,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<MeasureDescription> getAllMeasureDescriptions() throws Exception {
+	public List<MeasureDescription> getAll() throws Exception {
 		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription").list();
 	}
 
@@ -103,7 +103,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<MeasureDescription> getAllMeasureDescriptionsByNorm(Integer normid) throws Exception {
+	public List<MeasureDescription> getAllByNorm(Integer normid) throws Exception {
 		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where norm.id = :normid").setParameter("normid", normid).list();
 	}
 
@@ -115,7 +115,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<MeasureDescription> getAllMeasureDescriptionsByNorm(String label) throws Exception {
+	public List<MeasureDescription> getAllByNorm(String label) throws Exception {
 		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where norm.label = :normLabel").setParameter("normLabel", label).list();
 	}
 
@@ -127,7 +127,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<MeasureDescription> getAllMeasureDescriptionsByNorm(Norm norm) throws Exception {
+	public List<MeasureDescription> getAllByNorm(Norm norm) throws Exception {
 		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where norm = :norm").setParameter("norm", norm).list();
 	}
 

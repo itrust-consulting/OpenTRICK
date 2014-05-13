@@ -10,17 +10,16 @@ import lu.itrust.business.TS.actionplan.SummaryStage;
  * DAOActionPlanSummary.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.�.rl. :
+ * @author eomar, itrust consulting s.a.rl. :
  * @version
  * @since 16 janv. 2013
  */
 public interface DAOActionPlanSummary {
-
-	public SummaryStage get(int idSummaryStage) throws Exception;
+	public SummaryStage get(Integer idSummaryStage) throws Exception;
 
 	public SummaryStage getFromAnalysisById(Integer idAnalysis, Integer idSummaryStage) throws Exception;
 
-	public boolean belongsToAnalysis(int actionPlanSummaryId, int analysisId) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanSummaryId) throws Exception;
 
 	public List<SummaryStage> getAll() throws Exception;
 

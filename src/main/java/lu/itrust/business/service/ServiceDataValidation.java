@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service;
 
 import java.util.List;
@@ -12,32 +9,33 @@ import org.springframework.context.MessageSource;
 import lu.itrust.business.validator.field.ValidatorField;
 
 /**
- * @author eomar
- * @param <T>
+ * ServiceDataValidation.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since May 13, 2013
  */
 public interface ServiceDataValidation {
-	boolean register(ValidatorField validator);
+	public boolean register(ValidatorField validator) throws Exception;
 
-	boolean deregister(Class<?> clazz);
+	public boolean unregister(Class<?> clazz) throws Exception;
 
-	boolean isRegistred(Class<?> clazz);
+	public boolean isRegistred(Class<?> clazz) throws Exception;
 
-	boolean isRegistred(ValidatorField validator);
+	public boolean isRegistred(ValidatorField validator) throws Exception;
 
-	ValidatorField findByClass(Class<?> clazz);
+	public ValidatorField findByClass(Class<?> clazz) throws Exception;
 
-	Map<String, String> validate(Object object);
+	public String validate(Object object, String fieldName, Object data) throws Exception;
 
-	String validate(Object object, String fieldName, Object data);
+	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws Exception;
 
-	String validate(Object o, String fieldName, Object candidate,
-			Object[] choose);
+	public String validate(Object o, String fieldName, Object candidate, List<Object> choose) throws Exception;
 
-	String validate(Object o, String fieldName, Object candidate,
-			List<Object> choose);
+	public String ParseError(String message, MessageSource messageSource, Locale locale) throws Exception;
 
-	Map<String, String> validate(Object o, Map<Object, Object> choose);
+	public Map<String, String> validate(Object object) throws Exception;
 
-	String ParseError(String message, MessageSource messageSource, Locale locale);
+	public Map<String, String> validate(Object o, Map<Object, Object> choose) throws Exception;
 }

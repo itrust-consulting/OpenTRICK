@@ -1,9 +1,5 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
@@ -19,8 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author oensuifudine
+ * ServiceAnalysisImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Service
 public class ServiceAnalysisImpl implements ServiceAnalysis {
@@ -28,97 +28,343 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Autowired
 	private DAOAnalysis daoAnalysis;
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceAnalysis#get(int)
 	 */
 	@Override
-	public Analysis get(int id) throws Exception {
+	public Analysis get(Integer id) throws Exception {
 		return daoAnalysis.get(id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getDefaultProfile: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceAnalysis#get(int, java.lang.String, java.lang.String,
-	 * java.lang.String)
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getDefaultProfile()
 	 */
 	@Override
-	public Analysis get(int id, String identifier, String version, String creationDate) throws Exception {
-		return daoAnalysis.get(id, identifier, version, creationDate);
+	public Analysis getDefaultProfile() throws Exception {
+		return daoAnalysis.getDefaultProfile();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getFromIdentifierVersion: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceAnalysis#get(int, java.lang.String, java.lang.String,
-	 * java.sql.Timestamp)
-	 */
-	@Override
-	public Analysis get(int id, String identifier, String version, Timestamp creationDate) throws Exception {
-		return daoAnalysis.get(id, identifier, version, creationDate);
-	}
-
-	/*
-	 * (non-Javadoc)
+	 * @param identifier
+	 * @param version
+	 * @return
+	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.service.ServiceAnalysis#analysisExist(java.lang.String ,
-	 * java.lang.String)
-	 */
-	@Override
-	public boolean analysisExist(String identifier, String version) throws Exception {
-		return daoAnalysis.analysisExist(identifier, version);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.service.ServiceAnalysis#getFromIdentifierVersion(java .lang.String,
-	 * java.lang.String)
+	 * @see lu.itrust.business.service.ServiceAnalysis#getFromIdentifierVersion(java.lang.String,
+	 *      java.lang.String)
 	 */
 	@Override
 	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception {
 		return daoAnalysis.getFromIdentifierVersion(identifier, version);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * exists: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceAnalysis#
-	 * loadAllFromCustomerIdentifierVersion(lu.itrust.business.TS.Customer, java.lang.String,
-	 * java.lang.String)
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#exists(int)
 	 */
 	@Override
-	public List<Analysis> loadAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception {
-		return daoAnalysis.loadAllFromCustomerIdentifierVersion(customer, identifier, version);
+	public boolean exists(Integer idAnalysis) throws Exception {
+		return daoAnalysis.exists(idAnalysis);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * exists: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceAnalysis#loadAllFromCustomer(lu.itrust
-	 * .business.TS.Customer)
+	 * @param identifier
+	 * @param version
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#exists(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public List<Analysis> loadAllFromCustomer(Customer customer) throws Exception {
-		return daoAnalysis.loadAllFromCustomer(customer);
+	public boolean exists(String identifier, String version) throws Exception {
+		return daoAnalysis.exists(identifier, version);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * isProfile: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceAnalysis#loadAll()
+	 * @param analysisid
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#isProfile(int)
 	 */
 	@Override
-	public List<Analysis> loadAll() throws Exception {
-		return daoAnalysis.loadAll();
+	public boolean isProfile(Integer analysisid) throws Exception {
+		return daoAnalysis.isProfile(analysisid);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllAnalysisIDs: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceAnalysis#save(lu.itrust.business.TS .Analysis)
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getAllAnalysisIDs()
+	 */
+	@Override
+	public List<Integer> getAllAnalysisIDs() throws Exception {
+		return daoAnalysis.getAllAnalysisIDs();
+	}
+
+	/**
+	 * getAll: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getAll()
+	 */
+	@Override
+	public List<Analysis> getAll() throws Exception {
+		return daoAnalysis.getAll();
+	}
+
+	/**
+	 * getAllNotEmpty: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getAllNotEmpty()
+	 */
+	@Override
+	public List<Analysis> getAllNotEmpty() throws Exception {
+		return daoAnalysis.getAllNotEmpty();
+	}
+
+	/**
+	 * getAllProfiles: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getAllProfiles()
+	 */
+	@Override
+	public List<Analysis> getAllProfiles() throws Exception {
+		return daoAnalysis.getAllProfiles();
+	}
+
+	/**
+	 * getAllFromUserNameAndCustomerId: <br>
+	 * Description
+	 * 
+	 * @param userName
+	 * @param customerID
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getAllFromUserNameAndCustomerId(java.lang.String,
+	 *      java.lang.Integer)
+	 */
+	@Override
+	public List<Analysis> getAllFromUserNameAndCustomerId(String userName, Integer customerID) throws Exception {
+		return daoAnalysis.getAllFromUserNameAndCustomerId(userName, customerID);
+	}
+
+	/**
+	 * getFromUserNameAndCustomerIdAndNotEmpty: <br>
+	 * Description
+	 * 
+	 * @param userName
+	 * @param idCustomer
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getFromUserNameAndCustomerIdAndNotEmpty(java.lang.String,
+	 *      int)
+	 */
+	@Override
+	public List<Analysis> getFromUserNameAndCustomerIdAndNotEmpty(String userName, Integer idCustomer) throws Exception {
+		return daoAnalysis.getFromUserNameAndCustomerIdAndNotEmpty(userName, idCustomer);
+	}
+
+	/**
+	 * getFromUserNameAndCustomer: <br>
+	 * Description
+	 * 
+	 * @param login
+	 * @param customer
+	 * @param pageIndex
+	 * @param pageSize
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getFromUserNameAndCustomer(java.lang.String,
+	 *      java.lang.Integer, int, int)
+	 */
+	@Override
+	public List<Analysis> getFromUserNameAndCustomer(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception {
+		return daoAnalysis.getFromUserNameAndCustomer(login, customer, pageIndex, pageSize);
+	}
+
+	/**
+	 * getAllFromCustomerIdAndProfile: <br>
+	 * Description
+	 * 
+	 * @param idCustomer
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getAllFromCustomerIdAndProfile(int)
+	 */
+	@Override
+	public List<Analysis> getAllFromCustomerIdAndProfile(Integer idCustomer) throws Exception {
+		return daoAnalysis.getAllFromCustomerIdAndProfile(idCustomer);
+	}
+
+	/**
+	 * getAllFromCustomerIdAndProfileByPageAndSize: <br>
+	 * Description
+	 * 
+	 * @param customerID
+	 * @param pageIndex
+	 * @param pageSize
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getAllFromCustomerIdAndProfileByPageAndSize(java.lang.Integer,
+	 *      java.lang.Integer, java.lang.Integer)
+	 */
+	@Override
+	public List<Analysis> getAllFromCustomerIdAndProfileByPageAndSize(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception {
+		return daoAnalysis.getAllFromCustomerIdAndProfileByPageAndSize(customerID, pageIndex, pageSize);
+	}
+
+	/**
+	 * getAllFromUser: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getAllFromUser(lu.itrust.business.TS.usermanagement.User)
+	 */
+	@Override
+	public List<Analysis> getAllFromUser(User user) throws Exception {
+		return daoAnalysis.getAllFromUser(user);
+	}
+
+	/**
+	 * getAllFromCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getAllFromCustomer(lu.itrust.business.TS.Customer)
+	 */
+	@Override
+	public List<Analysis> getAllFromCustomer(Customer customer) throws Exception {
+		return daoAnalysis.getAllFromCustomer(customer);
+	}
+
+	/**
+	 * getAllFromCustomerIdentifierVersion: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @param identifier
+	 * @param version
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getAllFromCustomerIdentifierVersion(lu.itrust.business.TS.Customer,
+	 *      java.lang.String, java.lang.String)
+	 */
+	@Override
+	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception {
+		return daoAnalysis.getAllFromCustomerIdentifierVersion(customer, identifier, version);
+	}
+
+	/**
+	 * getParameterFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param Parameter
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getParameterFromAnalysis(java.lang.Integer,
+	 *      java.lang.String)
+	 */
+	@Override
+	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception {
+		return daoAnalysis.getParameterFromAnalysis(idAnalysis, Parameter);
+	}
+
+	/**
+	 * getLanguageOfAnalysis: <br>
+	 * Description
+	 * 
+	 * @param analysisID
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getLanguageOfAnalysis(int)
+	 */
+	@Override
+	public Language getLanguageOfAnalysis(Integer analysisID) throws Exception {
+		return daoAnalysis.getLanguageOfAnalysis(analysisID);
+	}
+
+	/**
+	 * getVersionOfAnalysis: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#getVersionOfAnalysis(int)
+	 */
+	@Override
+	public String getVersionOfAnalysis(Integer id) throws Exception {
+		return daoAnalysis.getVersionOfAnalysis(id);
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#save(lu.itrust.business.TS.Analysis)
 	 */
 	@Transactional
 	@Override
@@ -126,10 +372,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 		daoAnalysis.save(analysis);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceAnalysis#saveOrUpdate(lu.itrust.business .TS.Analysis)
+	 * @param analysis
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#saveOrUpdate(lu.itrust.business.TS.Analysis)
 	 */
 	@Transactional
 	@Override
@@ -137,124 +387,34 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.service.ServiceAnalysis#remove(lu.itrust.business. TS.Analysis)
-	 */
-	@Transactional
-	@Override
-	public void remove(Analysis analysis) throws Exception {
-		daoAnalysis.remove(analysis);
-	}
-
-	@Transactional
-	@Override
-	public void remove(Integer analysisId) throws Exception {
-		daoAnalysis.remove(analysisId);
-	}
-
-	@Override
-	public List<Analysis> loadAllNotEmpty() throws Exception {
-		return daoAnalysis.loadAllNotEmpty();
-	}
-
-	@Override
-	public boolean exist(int id) {
-
-		return daoAnalysis.exist(id);
-	}
-
-	@Override
-	public List<Analysis> loadAllFromUser(User user) throws Exception {
-		return daoAnalysis.loadAllFromUser(user);
-	}
-
-	@Override
-	public Language getLanguageFromAnalysis(int analysisID) throws Exception {
-		return daoAnalysis.getLanguageOfAnalysis(analysisID);
-	}
-
-	@Override
-	public List<Analysis> loadByUserAndCustomer(String login, String customer) {
-		return daoAnalysis.loadByUserAndCustomer(login, customer);
-	}
-
-	@Override
-	public List<Analysis> loadByUserAndCustomer(String login, String customer, int pageIndex, int pageSize) {
-		return daoAnalysis.loadByUserAndCustomer(login, customer,pageIndex, pageSize );
-	}
-
-	@Override
-	public List<Analysis> loadByUserAndCustomer(String login, Integer customer, int pageIndex, int pageSize) {
-		return daoAnalysis.loadByUserAndCustomer(login, customer,pageIndex, pageSize );
-	}
-	
-	@Override
-
-	public String getVersionOfAnalysis(int id) throws Exception {
-		return daoAnalysis.getVersionOfAnalysis(id);
-	}
-	
 	/**
-	 * isProfile: <br>
+	 * delete: <br>
 	 * Description
 	 * 
-	 * @param analysisid
-	 * @return
+	 * @param analysis
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#delete(lu.itrust.business.TS.Analysis)
 	 */
+	@Transactional
 	@Override
-	public boolean isProfile(int analysisid) {
-		return daoAnalysis.isProfile(analysisid);
-	}
-	
-	@Override
-	public boolean isProfile(String name) {
-		return daoAnalysis.isProfile(name);
+	public void delete(Analysis analysis) throws Exception {
+		daoAnalysis.delete(analysis);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#delete(java.lang.Integer)
+	 */
+	@Transactional
 	@Override
-	public Analysis findProfileByName(String name) {
-		return daoAnalysis.findProfileByName(name);
+	public void delete(Integer analysisId) throws Exception {
+		daoAnalysis.delete(analysisId);
 	}
 
-	@Override
-	public List<Analysis> loadProfiles() {
-		return daoAnalysis.loadProfiles();
-	}
-
-	@Override
-	public List<Analysis> loadByUserAndCustomer(String userName, Integer customerID) throws Exception {
-		return daoAnalysis.loadByUserAndCustomer(userName, customerID);
-	}
-
-	@Override
-	public List<Analysis> loadAllFromCustomerAndProfile(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception {
-		return daoAnalysis.loadAllFromCustomerAndProfile(customerID, pageIndex, pageSize);
-	}
-
-	@Override
-	public List<Analysis> loadAllFromCustomerAndProfile(int idCustomer) {
-		return daoAnalysis.loadAllFromCustomerAndProfile(idCustomer);
-	}
-
-	@Override
-	public List<Analysis> loadByUserAndCustomerAndNoEmpty(String userName, int idCustomer) {
-		return daoAnalysis.loadByUserAndCustomerAndNoEmpty(userName,idCustomer);
-	}
-
-	@Override
-	public Analysis getDefaultProfile() {
-		return daoAnalysis.getDefaultProfile();
-	}
-
-	@Override
-	public List<Integer> loadAllAnalysisIDs() throws Exception {
-		return daoAnalysis.loadAllAnalysisIDs();
-	}
-
-	@Override
-	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception {
-		return daoAnalysis.getParameterFromAnalysis(idAnalysis, Parameter);
-	}
 }

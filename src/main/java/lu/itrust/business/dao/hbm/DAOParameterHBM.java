@@ -44,7 +44,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * @see lu.itrust.business.dao.DAOParameter#get(int)
 	 */
 	@Override
-	public Parameter get(int id) throws Exception {
+	public Parameter get(Integer id) throws Exception {
 		return (Parameter) getSession().get(Parameter.class, id);
 	}
 
@@ -55,7 +55,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * @see lu.itrust.business.dao.DAOParameter#getFromAnalysisIdById(int, java.lang.Integer)
 	 */
 	@Override
-	public Parameter getFromAnalysisIdById(int idParameter, Integer idAnalysis) throws Exception {
+	public Parameter getFromAnalysisById(Integer idAnalysis, Integer idParameter) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and parameter.id = :idParameter";
 		return (Parameter) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idParameter", idParameter).uniqueResult();
 	}
@@ -68,7 +68,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 *      java.lang.String, java.lang.String)
 	 */
 	@Override
-	public Parameter getParameterFromAnalysisByParameterTypeAndDescription(int idAnalysis, String type, String description) throws Exception {
+	public Parameter getFromAnalysisByTypeAndDescription(Integer idAnalysis, String type, String description) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type.label = :type and ";
 		query += "parameter.description = :description";
 		return (Parameter) getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", type).setParameter("description", description).uniqueResult();
@@ -82,7 +82,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer parameterId, Integer analysisId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer parameterId) throws Exception {
 		String query = "Select count(parameter) From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisid and parameter.id = : parameterId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("parameterId", parameterId).uniqueResult()).intValue() > 0;
 	}
@@ -95,7 +95,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<String> getExtendedParameterAcronymsFromAnalysisId(int idAnalysis) throws Exception {
+	public List<String> getExtendedParameterAcronymsFromAnalysis(Integer idAnalysis) throws Exception {
 		String query = "Select parameter.acronym From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and (parameter.type.label = :impact ";
 		query += "or parameter.type.label = :proba ) order by parameter.level";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME).setParameter("proba",
@@ -111,7 +111,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<String> getExtendedParameterAcronymsFromAnalysisByParameterTypeName(int idAnalysis, String type) throws Exception {
+	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, String type) throws Exception {
 		String query = "Select parameter.acronym From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and parameter.type.label = :type ";
 		query += "order by parameter.level";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("type", type).list();
@@ -126,7 +126,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<String> getExtendedParameterAcronymsFromAnalysisByParameterType(int idAnalysis, ParameterType type) throws Exception {
+	public List<String> getExtendedParameterAcronymsFromAnalysisByType(Integer idAnalysis, ParameterType type) throws Exception {
 		String query = "Select parameter.acronym From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and parameter.type = :type order by ";
 		query += "parameter.level";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("type", type).list();
@@ -140,7 +140,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Parameter> getAllParameters() throws Exception {
+	public List<Parameter> getAll() throws Exception {
 		return getSession().createQuery("From Parameter").list();
 	}
 
@@ -152,7 +152,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Parameter> getAllParametersFromAnalysis(int idAnalysis) throws Exception {
+	public List<Parameter> getAllFromAnalysis(Integer idAnalysis) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
@@ -166,7 +166,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Parameter> getAllParametersFromAnalysisByPageAndSizeIndex(int idAnalysis, int pageIndex, int pageSize) throws Exception {
+	public List<Parameter> getAllFromAnalysisByPageAndSizeIndex(Integer idAnalysis, Integer pageIndex, Integer pageSize) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
 	}
@@ -179,7 +179,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Parameter> getAllParametersByPageAndSizeIndex(int pageIndex, int pageSize) throws Exception {
+	public List<Parameter> getAllByPageAndSizeIndex(Integer pageIndex, Integer pageSize) throws Exception {
 		return getSession().createQuery("From Parameter").setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
 	}
 
@@ -192,7 +192,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Parameter> getParametersFromAnalysisIdByParameterTypeId(int idAnalysis, int idType) throws Exception {
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, Integer idType) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type.id = :idType";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("idType", idType).list();
 	}
@@ -206,7 +206,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Parameter> getParametersFromAnalysisIdByParameterTypeName(int idAnalysis, String type) throws Exception {
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, String type) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type.label = :type";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", type).list();
 	}
@@ -220,7 +220,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Parameter> getParametersFromAnalysisIdByParameterType(int idAnalysis, ParameterType type) throws Exception {
+	public List<Parameter> getAllFromAnalysisByType(Integer idAnalysis, ParameterType type) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type= :type";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", type).list();
 	}
@@ -233,8 +233,8 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 *      java.lang.String)
 	 */
 	@Override
-	public List<Parameter> getInitialisedParametersFromAnalysisIdByParameterTypeName(int idAnalysis, String type) throws Exception {
-		List<Parameter> parameters = getParametersFromAnalysisIdByParameterTypeName(idAnalysis, type);
+	public List<Parameter> getAllInitialisedFromAnalysisByType(Integer idAnalysis, String type) throws Exception {
+		List<Parameter> parameters = getAllFromAnalysisByType(idAnalysis, type);
 		for (int i = 0; i < parameters.size(); i++) {
 			parameters.set(i, Initialise(parameters.get(i)));
 			parameters.get(i).setType(Initialise(parameters.get(i).getType()));
@@ -250,7 +250,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ExtendedParameter> getAllExtendedParametersFromAnalysisId(int idAnalysis) throws Exception {
+	public List<ExtendedParameter> getAllExtendedFromAnalysis(Integer idAnalysis) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :idAnalysis and (parameter.type.label = :impact or ";
 		query += "parameter.type.label = :proba) order by parameter.type.id, parameter.level";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("impact", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME).setParameter("proba",
@@ -266,7 +266,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ExtendedParameter> getAllExtendedParametersFromAnalysisIdAndParameterType(int idAnalysis, ParameterType type) throws Exception {
+	public List<ExtendedParameter> getAllExtendedFromAnalysisAndType(Integer idAnalysis, ParameterType type) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type = :type order by ";
 		query += "parameter.level asc";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", type).list();
@@ -280,7 +280,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ExtendedParameter> getImpactParameterByAnalysisId(int idAnalysis) throws Exception {
+	public List<ExtendedParameter> getAllImpactFromAnalysis(Integer idAnalysis) throws Exception {
 		String query = "Select parameter From Analysis as analysis  inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type.label = :type order by ";
 		query += "parameter.level asc";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME).list();
@@ -294,7 +294,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ExtendedParameter> getProbaParameterByAnalysisId(int idAnalysis) throws Exception {
+	public List<ExtendedParameter> getAllProbabilityFromAnalysis(Integer idAnalysis) throws Exception {
 		String query = "Select parameter From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisId and parameter.type.label = :type order by ";
 		query += "parameter.level asc";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("type", Constant.PARAMETERTYPE_TYPE_IMPACT_NAME).list();
@@ -352,7 +352,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 * @see lu.itrust.business.dao.DAOParameter#delete(int)
 	 */
 	@Override
-	public void delete(int id) throws Exception {
+	public void delete(Integer id) throws Exception {
 		getSession().delete(get(id));
 	}
 

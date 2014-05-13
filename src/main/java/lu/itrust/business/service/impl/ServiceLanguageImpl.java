@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
@@ -14,73 +11,160 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author oensuifudine
- *
+ * ServiceLanguageImpl.java: <br>
+ * Detailed description...
+ * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Service
 public class ServiceLanguageImpl implements ServiceLanguage {
 
 	@Autowired
 	private DAOLanguage daoLanguage;
-	
-	/* (non-Javadoc)
+
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceLanguage#get(int)
 	 */
 	@Override
-	public Language get(int id) throws Exception {
+	public Language get(Integer id) throws Exception {
 		return daoLanguage.get(id);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceLanguage#loadFromAlpha3(java.lang.String)
+	/**
+	 * languageExistsByAlpha3: <br>
+	 * Description
+	 * 
+	 * @param alpha3
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceLanguage#languageExistsByAlpha3(java.lang.String)
 	 */
 	@Override
-	public Language loadFromAlpha3(String alpha3) throws Exception {
-		return daoLanguage.loadFromAlpha3(alpha3);
+	public boolean languageExistsByAlpha3(String alpha3) throws Exception {
+		return daoLanguage.languageExistsByAlpha3(alpha3);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceLanguage#loadFromName(java.lang.String)
+	/**
+	 * languageExistsByName: <br>
+	 * Description
+	 * 
+	 * @param name
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceLanguage#languageExistsByName(java.lang.String)
 	 */
 	@Override
-	public Language loadFromName(String name) throws Exception {
-		return daoLanguage.loadFromName(name);
+	public boolean languageExistsByName(String name) throws Exception {
+		return daoLanguage.languageExistsByName(name);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceLanguage#loadFromAlternativeName(java.lang.String)
+	/**
+	 * languageExistsByAltName: <br>
+	 * Description
+	 * 
+	 * @param altName
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceLanguage#languageExistsByAltName(java.lang.String)
 	 */
 	@Override
-	public Language loadFromAlternativeName(String alternativeName)
-			throws Exception {
-		return daoLanguage.loadFromAlternativeName(alternativeName);
+	public boolean languageExistsByAltName(String altName) throws Exception {
+		return daoLanguage.languageExistsByAltName(altName);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceLanguage#loadAll()
+	/**
+	 * getLanguageOfAnalysis: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceLanguage#getLanguageOfAnalysis(java.lang.Integer)
 	 */
 	@Override
-	public List<Language> loadAll() throws Exception {
-		return daoLanguage.loadAll();
-	}
-	
-	
-	@Override
-	public boolean alpha3Exist(String alpha3) throws Exception {
-		return daoLanguage.alpha3Exist(alpha3);
-	}
-	
-	@Override
-	public boolean nameExist(String name) {
-		return daoLanguage.nameExist(name);
+	public Language getLanguageOfAnalysis(Integer idAnalysis) throws Exception {
+		return this.daoLanguage.getLanguageOfAnalysis(idAnalysis);
 	}
 
+	/**
+	 * getLanguageByAlpha3: <br>
+	 * Description
+	 * 
+	 * @param alpha3
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceLanguage#getLanguageByAlpha3(java.lang.String)
+	 */
 	@Override
-	public boolean altNameExist(String altName) {
-		return daoLanguage.altNameExist(altName);
+	public Language getLanguageByAlpha3(String alpha3) throws Exception {
+		return daoLanguage.getLanguageByAlpha3(alpha3);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * getLanguageByName: <br>
+	 * Description
+	 * 
+	 * @param name
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceLanguage#getLanguageByName(java.lang.String)
+	 */
+	@Override
+	public Language getLanguageByName(String name) throws Exception {
+		return daoLanguage.getLanguageByName(name);
+	}
+
+	/**
+	 * getLanguageByAltName: <br>
+	 * Description
+	 * 
+	 * @param alternativeName
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceLanguage#getLanguageByAltName(java.lang.String)
+	 */
+	@Override
+	public Language getLanguageByAltName(String alternativeName) throws Exception {
+		return daoLanguage.getLanguageByAltName(alternativeName);
+	}
+
+	/**
+	 * getAllLanguages: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceLanguage#getAllLanguages()
+	 */
+	@Override
+	public List<Language> getAll() throws Exception {
+		return daoLanguage.getAll();
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param language
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceLanguage#save(lu.itrust.business.TS.Language)
 	 */
 	@Transactional
@@ -89,7 +173,13 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 		daoLanguage.save(language);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @param language
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceLanguage#saveOrUpdate(lu.itrust.business.TS.Language)
 	 */
 	@Transactional
@@ -98,39 +188,33 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 		daoLanguage.saveOrUpdate(language);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceLanguage#remove(lu.itrust.business.TS.Language)
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param languageId
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceLanguage#delete(java.lang.Integer)
 	 */
 	@Transactional
 	@Override
-	public void remove(Language language) throws Exception {
-		daoLanguage.remove(language);
+	public void delete(Integer languageId) throws Exception {
+		daoLanguage.delete(languageId);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param language
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceLanguage#delete(lu.itrust.business.TS.Language)
+	 */
 	@Transactional
 	@Override
-	public void remove(Integer languageId) throws Exception {
-		daoLanguage.remove(languageId);
+	public void delete(Language language) throws Exception {
+		daoLanguage.delete(language);
 	}
-	
-	/**
-	 * @return the daoLanguage
-	 */
-	public DAOLanguage getDaoLanguage() {
-		return daoLanguage;
-	}
-
-	/**
-	 * @param daoLanguage the daoLanguage to set
-	 */
-	public void setDaoLanguage(DAOLanguage daoLanguage) {
-		this.daoLanguage = daoLanguage;
-	}
-
-	@Override
-	public Language findByAnalysis(Integer idAnalysis) {
-		return this.daoLanguage.findByAnalysis(idAnalysis);
-	}
-
-
 }

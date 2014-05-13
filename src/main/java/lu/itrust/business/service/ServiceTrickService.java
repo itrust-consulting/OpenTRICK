@@ -11,7 +11,7 @@ import lu.itrust.business.TS.TrickService;
  * @since Apr 23, 2014
  */
 public interface ServiceTrickService {
-	public TrickService get(int id) throws Exception;
+	public TrickService get(Integer id) throws Exception;
 	
 	public TrickService getStatus() throws Exception;
 	
@@ -19,5 +19,5 @@ public interface ServiceTrickService {
 	
 	public void saveOrUpdate(TrickService trickservice) throws Exception;
 	
-	public void remove(TrickService trickservice) throws Exception;
+	public void delete(TrickService trickservice) throws Exception;
 }

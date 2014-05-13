@@ -41,7 +41,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.dao.DAOLanguage#get(int)
 	 */
 	@Override
-	public Language get(int id) throws Exception {
+	public Language get(Integer id) throws Exception {
 		return (Language) getSession().get(Language.class, id);
 	}
 
@@ -130,7 +130,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Language> getAllLanguages() throws Exception {
+	public List<Language> getAll() throws Exception {
 		return (List<Language>) getSession().createQuery("From Language").list();
 	}
 

@@ -41,7 +41,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @see lu.itrust.business.dao.DAOItemInformation#get(int)
 	 */
 	@Override
-	public ItemInformation get(int id) throws Exception {
+	public ItemInformation get(Integer id) throws Exception {
 		return (ItemInformation) getSession().get(ItemInformation.class, id);
 	}
 
@@ -53,7 +53,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 *      java.lang.String)
 	 */
 	@Override
-	public ItemInformation getFromAnalysisIdByDescription(int analysisId, String description) throws Exception {
+	public ItemInformation getFromAnalysisByDescription(Integer analysisId, String description) throws Exception {
 		String query = "Select itemInformation From Analysis as analysis inner join analysis.itemInformations as itemInformation  where analysis.id = :id and ";
 		query += "iteminformation.description = :iteminformation";
 		return (ItemInformation) getSession().createQuery(query).setParameter("id", analysisId).setParameter("description", description).uniqueResult();
@@ -67,7 +67,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer iteminformationId, Integer analysisId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer iteminformationId) throws Exception {
 		String query = "Select count(itemInformation) From Analysis as analysis inner join analysis.itemInformations as itemInformation where analysis.id = :analysisid and ";
 		query += "itemInformation.id = : itemInformationId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("itemInformationId", iteminformationId).uniqueResult()).intValue() > 0;
@@ -81,7 +81,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ItemInformation> getAllItemInformation() throws Exception {
+	public List<ItemInformation> getAll() throws Exception {
 		return getSession().createQuery("From ItemInformation").list();
 	}
 
@@ -93,7 +93,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ItemInformation> getAllFromAnalysisId(int analysisID) throws Exception {
+	public List<ItemInformation> getAllFromAnalysis(Integer analysisID) throws Exception {
 		String query = "Select itemInformation From Analysis as analysis inner join analysis.itemInformations as itemInformation  where analysis.id = :id";
 		return getSession().createQuery(query).setInteger("id", analysisID).list();
 	}

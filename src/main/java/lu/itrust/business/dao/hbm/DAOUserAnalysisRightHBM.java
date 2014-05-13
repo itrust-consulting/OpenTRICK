@@ -45,8 +45,20 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#get(long)
 	 */
 	@Override
-	public UserAnalysisRight get(long id) throws Exception {
+	public UserAnalysisRight get(Integer id) throws Exception {
 		return (UserAnalysisRight) getSession().get(DAOUserAnalysisRightHBM.class, id);
+	}
+
+	/**
+	 * getUserAnalysisRight: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getUserAnalysisRight(lu.itrust.business.TS.Analysis,
+	 *      lu.itrust.business.TS.usermanagement.User)
+	 */
+	@Override
+	public UserAnalysisRight getFromAnalysisAndUser(Analysis analysis, User user) throws Exception {
+		return analysis.getRightsforUser(user);
 	}
 
 	/**
@@ -109,18 +121,6 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	}
 
 	/**
-	 * getUserAnalysisRight: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#getUserAnalysisRight(lu.itrust.business.TS.Analysis,
-	 *      lu.itrust.business.TS.usermanagement.User)
-	 */
-	@Override
-	public UserAnalysisRight getUserAnalysisRight(Analysis analysis, User user) throws Exception {
-		return analysis.getRightsforUser(user);
-	}
-
-	/**
 	 * getAllFromAnalysisId: <br>
 	 * Description
 	 * 
@@ -128,7 +128,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserAnalysisRight> getAllFromAnalysisId(int analysisid) throws Exception {
+	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid) throws Exception {
 		return (List<UserAnalysisRight>) getSession().createQuery("From UserAnalysisRight WHERE analysis.id = :analysis").setParameter("analysis", analysisid).list();
 	}
 
@@ -152,7 +152,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserAnalysisRight> getAllFromUserLogin(String login) throws Exception {
+	public List<UserAnalysisRight> getAllFromUser(String login) throws Exception {
 		return (List<UserAnalysisRight>) getSession().createQuery("From UserAnalysisRight WHERE user.login = :user").setParameter("user", login).list();
 	}
 
@@ -197,7 +197,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#delete(long)
 	 */
 	@Override
-	public void delete(long id) throws Exception {
+	public void delete(Integer id) throws Exception {
 		getSession().delete(get(id));
 	}
 

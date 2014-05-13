@@ -13,8 +13,7 @@ import lu.itrust.business.TS.Language;
  * @since 16 janv. 2013
  */
 public interface DAOLanguage {
-
-	public Language get(int id) throws Exception;
+	public Language get(Integer id) throws Exception;
 
 	public boolean languageExistsByAlpha3(String alpha3) throws Exception;
 
@@ -30,7 +29,7 @@ public interface DAOLanguage {
 
 	public Language getLanguageByAltName(String alternativeName) throws Exception;
 
-	public List<Language> getAllLanguages() throws Exception;
+	public List<Language> getAll() throws Exception;
 
 	public void save(Language language) throws Exception;
 

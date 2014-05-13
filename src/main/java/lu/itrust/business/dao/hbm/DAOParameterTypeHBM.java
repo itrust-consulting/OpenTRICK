@@ -41,7 +41,7 @@ public class DAOParameterTypeHBM extends DAOHibernate implements DAOParameterTyp
 	 * @see lu.itrust.business.dao.DAOParameterType#get(int)
 	 */
 	@Override
-	public ParameterType get(int id) throws Exception {
+	public ParameterType get(Integer id) throws Exception {
 		return (ParameterType) getSession().get(ParameterType.class, id);
 	}
 
@@ -64,7 +64,7 @@ public class DAOParameterTypeHBM extends DAOHibernate implements DAOParameterTyp
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ParameterType> getAllParameterTypes() throws Exception {
+	public List<ParameterType> getAll() throws Exception {
 		return (List<ParameterType>) getSession().createQuery("From ParameterType").list();
 	}
 

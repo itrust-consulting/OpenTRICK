@@ -172,7 +172,7 @@ public class WorkerComputeActionPlan implements Worker {
 				e.printStackTrace();
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
-			} catch (HibernateException e1) {
+			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		} finally {

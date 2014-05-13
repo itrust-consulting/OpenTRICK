@@ -13,13 +13,13 @@ import lu.itrust.business.TS.MeasureDescriptionText;
  * @since Feb 1, 2013
  */
 public interface DAOMeasureDescriptionText {
-	public MeasureDescriptionText get(int id) throws Exception;
+	public MeasureDescriptionText get(Integer id) throws Exception;
 
-	public MeasureDescriptionText getMeasureDescriptionTextByIdAndLanguageId(int idMeasureDescription, int idLanguage) throws Exception;
+	public MeasureDescriptionText getForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception;
 
-	public boolean existsForLanguageByMeasureDescriptionIdAndLanguageId(int idMeasureDescription, int idLanguage) throws Exception;
+	public boolean existsForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception;
 
-	public List<MeasureDescriptionText> getAllMeasureDescriptionTextsByMeasureDescriptionId(int measureDescriptionID) throws Exception;
+	public List<MeasureDescriptionText> getAllFromMeasureDescription(Integer measureDescriptionID) throws Exception;
 
 	public void save(MeasureDescriptionText measureDescription) throws Exception;
 

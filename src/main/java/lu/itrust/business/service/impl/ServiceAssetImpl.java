@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
@@ -14,8 +11,12 @@ import lu.itrust.business.dao.DAOAsset;
 import lu.itrust.business.service.ServiceAsset;
 
 /**
- * @author eom
+ * ServiceAssetImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Service
 public class ServiceAssetImpl implements ServiceAsset {
@@ -27,21 +28,44 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * get: <br>
 	 * Description
 	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#get(int)
 	 */
 	@Override
-	public Asset get(int id) {
+	public Asset get(Integer id) throws Exception {
 		return daoAsset.get(id);
+	}
+
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
+	 * 
+	 * @param assetId
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAsset#belongsToAnalysis(int, int)
+	 */
+	@Override
+	public boolean belongsToAnalysis(Integer analysisId, Integer assetId) throws Exception {
+		return daoAsset.belongsToAnalysis(analysisId, assetId);
 	}
 
 	/**
 	 * getAll: <br>
 	 * Description
 	 * 
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#getAll()
 	 */
 	@Override
-	public List<Asset> getAll() {
+	public List<Asset> getAll() throws Exception {
 		return daoAsset.getAll();
 	}
 
@@ -49,10 +73,15 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * getByPageAndSize: <br>
 	 * Description
 	 * 
+	 * @param pageIndex
+	 * @param pageSize
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#getByPageAndSize(int, int)
 	 */
 	@Override
-	public List<Asset> getByPageAndSize(int pageIndex, int pageSize) {
+	public List<Asset> getByPageAndSize(Integer pageIndex, Integer pageSize) throws Exception {
 		return daoAsset.getByPageAndSize(pageIndex, pageSize);
 	}
 
@@ -60,32 +89,31 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * getFromAnalysisByPageAndSize: <br>
 	 * Description
 	 * 
+	 * @param pageIndex
+	 * @param pageSize
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#getFromAnalysisByPageAndSize(int, int, int)
 	 */
 	@Override
-	public List<Asset> getFromAnalysisByPageAndSize(int pageIndex, int pageSize, int analysisId) {
-		return daoAsset.getFromAnalysisByPageAndSize(pageIndex, pageSize, analysisId);
-	}
-
-	/**
-	 * belongsToAnalysis: <br>
-	 * Description
-	 * 
-	 * @see lu.itrust.business.service.ServiceAsset#belongsToAnalysis(int, int)
-	 */
-	@Override
-	public boolean belongsToAnalysis(int analysisId, int assetId) {
-		return daoAsset.belongsToAnalysis(assetId, analysisId);
+	public List<Asset> getFromAnalysisByPageAndSize(Integer analysisId, Integer pageIndex, Integer pageSize) throws Exception {
+		return daoAsset.getFromAnalysisByPageAndSize(analysisId, pageIndex, pageSize);
 	}
 
 	/**
 	 * getAllFromAnalysis: <br>
 	 * Description
 	 * 
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#getAllFromAnalysis(int)
 	 */
 	@Override
-	public List<Asset> getAllFromAnalysis(int analysisId) {
+	public List<Asset> getAllFromAnalysis(Integer analysisId) throws Exception {
 		return daoAsset.getAllFromAnalysis(analysisId);
 	}
 
@@ -93,21 +121,27 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * getSelectedFromAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceAsset#getSelectedFromAnalysis(int)
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
 	 */
 	@Override
-	public List<Asset> getSelectedFromAnalysis(int idAnalysis) {
-		return daoAsset.getSelectedFromAnalysis(idAnalysis);
+	public List<Asset> getAllFromAnalysisIdAndSelected(Integer idAnalysis) throws Exception {
+		return daoAsset.getAllFromAnalysisIdAndSelected(idAnalysis);
 	}
 
 	/**
 	 * getSelectedFromAnalysisAndOrderByALE: <br>
 	 * Description
 	 * 
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#getSelectedFromAnalysisAndOrderByALE(int)
 	 */
 	@Override
-	public List<Asset> getSelectedFromAnalysisAndOrderByALE(int idAnalysis) {
+	public List<Asset> getSelectedFromAnalysisAndOrderByALE(Integer idAnalysis) throws Exception {
 		return daoAsset.getSelectedFromAnalysisAndOrderByALE(idAnalysis);
 	}
 
@@ -115,11 +149,15 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * save: <br>
 	 * Description
 	 * 
+	 * @param asset
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#save(lu.itrust.business.TS.Asset)
 	 */
 	@Override
 	@Transactional
-	public Asset save(Asset asset) {
+	public Asset save(Asset asset) throws Exception {
 		return daoAsset.save(asset);
 	}
 
@@ -127,11 +165,14 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
+	 * @param asset
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#saveOrUpdate(lu.itrust.business.TS.Asset)
 	 */
 	@Override
 	@Transactional
-	public void saveOrUpdate(Asset asset) {
+	public void saveOrUpdate(Asset asset) throws Exception {
 		daoAsset.saveOrUpdate(asset);
 	}
 
@@ -139,11 +180,15 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * merge: <br>
 	 * Description
 	 * 
+	 * @param asset
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#merge(lu.itrust.business.TS.Asset)
 	 */
 	@Override
 	@Transactional
-	public Asset merge(Asset asset) {
+	public Asset merge(Asset asset) throws Exception {
 		return daoAsset.merge(asset);
 	}
 
@@ -151,11 +196,14 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * delete: <br>
 	 * Description
 	 * 
+	 * @param id
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#delete(int)
 	 */
 	@Override
 	@Transactional
-	public void delete(int id) {
+	public void delete(Integer id) throws Exception {
 		daoAsset.delete(id);
 	}
 
@@ -163,11 +211,14 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * delete: <br>
 	 * Description
 	 * 
+	 * @param asset
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceAsset#delete(lu.itrust.business.TS.Asset)
 	 */
 	@Override
 	@Transactional
-	public void delete(Asset asset) {
+	public void delete(Asset asset) throws Exception {
 		daoAsset.delete(asset);
 	}
 }

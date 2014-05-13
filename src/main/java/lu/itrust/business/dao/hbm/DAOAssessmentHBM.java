@@ -43,7 +43,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * @see lu.itrust.business.dao.DAOAssessment#get(int)
 	 */
 	@Override
-	public Assessment get(int id) throws Exception {
+	public Assessment get(Integer id) throws Exception {
 		return (Assessment) getSession().get(Assessment.class, id);
 	}
 
@@ -79,7 +79,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> getAllFromAnalysisID(int idAnalysis) throws Exception {
+	public List<Assessment> getAllFromAnalysis(Integer idAnalysis) throws Exception {
 		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
@@ -93,7 +93,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> getAssessmentFromAnalysisAndImpactLikelihoodAcronym(int idAnalysis, String acronym) throws Exception {
+	public List<Assessment> getAllFromAnalysisAndImpactLikelihoodAcronym(Integer idAnalysis, String acronym) throws Exception {
 		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and (assessment.impactRep = :acronym or ";
 		query += "assessment.impactOp = :acronym or assessment.impactLeg = :acronym or assessment.impactFin = :acronym or assessment.likelihood = :acronym)";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("acronym", acronym).list();
@@ -120,7 +120,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> getAllFromScenarioId(int scenarioID) throws Exception {
+	public List<Assessment> getAllFromScenario(Integer scenarioID) throws Exception {
 		return getSession().createQuery("From Assessment where scenario.id = :scenarioId").setParameter("scenarioId", scenarioID).list();
 	}
 
@@ -144,7 +144,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> getAllSelectedAssessmentFromScenario(Scenario scenario) throws Exception {
+	public List<Assessment> getAllSelectedFromScenario(Scenario scenario) throws Exception {
 		return getSession().createQuery("From Assessment where scenario = :scenario and selected = true").setParameter("scenario", scenario).list();
 	}
 
@@ -156,7 +156,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> getAllUnselectedAssessmentFromScenario(Scenario scenario) throws Exception {
+	public List<Assessment> getAllUnselectedFromScenario(Scenario scenario) throws Exception {
 		return getSession().createQuery("From Assessment where scenario = :scenario and selected = false").setParameter("scenario", scenario).list();
 	}
 
@@ -181,7 +181,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> getAllFromAssetId(int assetID) throws Exception {
+	public List<Assessment> getAllFromAsset(Integer assetID) throws Exception {
 		return getSession().createQuery("From Assessment where asset.id = :assetID").setParameter("assetID", assetID).list();
 	}
 
@@ -205,7 +205,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> getAllSelectedAssessmentFromAsset(Asset asset) throws Exception {
+	public List<Assessment> getAllSelectedFromAsset(Asset asset) throws Exception {
 		return getSession().createQuery("From Assessment where asset = :asset and selected = true").setParameter("asset", asset).list();
 	}
 
@@ -217,7 +217,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Assessment> getAllUnSelectedAssessmentFromAsset(Asset asset) throws Exception {
+	public List<Assessment> getAllUnSelectedFromAsset(Asset asset) throws Exception {
 		return getSession().createQuery("From Assessment where asset = :asset and selected = false").setParameter("asset", asset).list();
 	}
 

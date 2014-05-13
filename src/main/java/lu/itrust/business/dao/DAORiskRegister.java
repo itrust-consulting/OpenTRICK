@@ -13,12 +13,11 @@ import lu.itrust.business.TS.cssf.RiskRegisterItem;
  * @since 16 janv. 2013
  */
 public interface DAORiskRegister {
+	public RiskRegisterItem get(Integer id) throws Exception;
 
-	public RiskRegisterItem get(int id) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer riskregisterItemId) throws Exception;
 
-	public boolean belongsToAnalysis(Integer riskregisterItemId, Integer analysisId) throws Exception;
-
-	public List<RiskRegisterItem> getAllFromAnalysisId(Integer analysisId) throws Exception;
+	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId) throws Exception;
 
 	public void save(RiskRegisterItem riskRegisterItem) throws Exception;
 

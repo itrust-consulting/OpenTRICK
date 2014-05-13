@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
@@ -16,8 +13,12 @@ import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.service.ServiceAssessment;
 
 /**
- * @author eom
+ * ServiceAssessmentImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Service
 public class ServiceAssessmentImpl implements ServiceAssessment {
@@ -25,196 +26,291 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	@Autowired
 	private DAOAssessment daoAssessment;
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceAssessment#get(int)
 	 */
 	@Override
-	public Assessment get(int id) throws Exception {
+	public Assessment get(Integer id) throws Exception {
 		return daoAssessment.get(id);
 	}
-	
-	@Override
-	public List<Assessment> findByAnalysisAndAcronym(int idAnalysis,
-			String acronym) {
-		
-		return daoAssessment.findByAnalysisAndAcronym(idAnalysis,acronym);
-	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#loadAllFromScenario(lu.itrust
-	 * .business.TS.Scenario)
+	 * @param assessmentId
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#belongsToAnalysis(java.lang.Integer,
+	 *      java.lang.Integer)
 	 */
 	@Override
-	public List<Assessment> loadAllFromScenario(Scenario scenario)
-			throws Exception {
-		return daoAssessment.loadAllFromScenario(scenario);
+	public boolean belongsToAnalysis(Integer assessmentId, Integer analysisId) throws Exception {
+		return daoAssessment.belongsToAnalysis(assessmentId, analysisId);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAll: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#loadAllFromScenarioId(int)
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAll()
 	 */
 	@Override
-	public List<Assessment> loadAllFromScenarioId(int scenarioID)
-			throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Assessment> getAll() throws Exception {
+		return daoAssessment.getAll();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllFromAnalysisID: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#loadAllFromAsset(lu.itrust
-	 * .business.TS.Asset)
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAllFromAnalysisID(int)
 	 */
 	@Override
-	public List<Assessment> loadAllFromAsset(Asset asset) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Assessment> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+		return daoAssessment.getAllFromAnalysis(idAnalysis);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAssessmentFromAnalysisAndImpactLikelihoodAcronym: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceAssessment#loadAllFromAssetId(int)
+	 * @param idAnalysis
+	 * @param acronym
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAssessmentFromAnalysisAndImpactLikelihoodAcronym(int,
+	 *      java.lang.String)
 	 */
 	@Override
-	public List<Assessment> loadAllFromAssetId(int assetID) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Assessment> getAllFromAnalysisAndImpactLikelihoodAcronym(Integer idAnalysis, String acronym) throws Exception {
+		return daoAssessment.getAllFromAnalysisAndImpactLikelihoodAcronym(idAnalysis, acronym);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllFromAnalysisAndSelectedScenario: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#loadAllFromAnalysisID(int)
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAllFromAnalysisAndSelectedScenario(java.lang.Integer)
 	 */
 	@Override
-	public List<Assessment> loadAllFromAnalysisID(int idAnalysis)
-			throws Exception {
-		return daoAssessment.loadAllFromAnalysisID(idAnalysis);
+	public List<Assessment> getAllFromAnalysisAndSelectedScenario(Integer idAnalysis) throws Exception {
+		return daoAssessment.getAllFromAnalysisAndSelectedScenario(idAnalysis);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllFromScenarioId: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceAssessment#loadAll()
+	 * @param scenarioID
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAllFromScenarioId(int)
 	 */
 	@Override
-	public List<Assessment> loadAll() throws Exception {
-		return daoAssessment.loadAll();
+	public List<Assessment> getAllFromScenario(Integer scenarioID) throws Exception {
+		return daoAssessment.getAllFromScenario(scenarioID);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllFromScenario: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#save(lu.itrust.business.
-	 * TS.Assessment)
+	 * @param scenario
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAllFromScenario(lu.itrust.business.TS.Scenario)
+	 */
+	@Override
+	public List<Assessment> getAllFromScenario(Scenario scenario) throws Exception {
+		return daoAssessment.getAllFromScenario(scenario);
+	}
+
+	/**
+	 * getAllSelectedAssessmentFromScenario: <br>
+	 * Description
+	 * 
+	 * @param scenario
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAllSelectedAssessmentFromScenario(lu.itrust.business.TS.Scenario)
+	 */
+	@Override
+	public List<Assessment> getAllSelectedFromScenario(Scenario scenario) throws Exception {
+		return daoAssessment.getAllSelectedFromScenario(scenario);
+	}
+
+	/**
+	 * getAllUnselectedAssessmentFromScenario: <br>
+	 * Description
+	 * 
+	 * @param scenario
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAllUnselectedAssessmentFromScenario(lu.itrust.business.TS.Scenario)
+	 */
+	@Override
+	public List<Assessment> getAllUnselectedFromScenario(Scenario scenario) throws Exception {
+		return daoAssessment.getAllUnselectedFromScenario(scenario);
+	}
+
+	/**
+	 * getAllFromAnalysisAndSelectedAsset: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAllFromAnalysisAndSelectedAsset(java.lang.Integer)
+	 */
+	@Override
+	public List<Assessment> getAllFromAnalysisAndSelectedAsset(Integer idAnalysis) throws Exception {
+		return daoAssessment.getAllFromAnalysisAndSelectedAsset(idAnalysis);
+	}
+
+	/**
+	 * getAllFromAssetId: <br>
+	 * Description
+	 * 
+	 * @param assetID
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAllFromAssetId(int)
+	 */
+	@Override
+	public List<Assessment> getAllFromAsset(Integer assetID) throws Exception {
+		return daoAssessment.getAllFromAsset(assetID);
+	}
+
+	/**
+	 * getAllFromAsset: <br>
+	 * Description
+	 * 
+	 * @param asset
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAllFromAsset(lu.itrust.business.TS.Asset)
+	 */
+	@Override
+	public List<Assessment> getAllFromAsset(Asset asset) throws Exception {
+		return daoAssessment.getAllFromAsset(asset);
+	}
+
+	/**
+	 * getAllSelectedAssessmentFromAsset: <br>
+	 * Description
+	 * 
+	 * @param asset
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAllSelectedAssessmentFromAsset(lu.itrust.business.TS.Asset)
+	 */
+	@Override
+	public List<Assessment> getAllSelectedFromAsset(Asset asset) throws Exception {
+		return daoAssessment.getAllSelectedFromAsset(asset);
+	}
+
+	/**
+	 * getAllUnSelectedAssessmentFromAsset: <br>
+	 * Description
+	 * 
+	 * @param asset
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getAllUnSelectedAssessmentFromAsset(lu.itrust.business.TS.Asset)
+	 */
+	@Override
+	public List<Assessment> getAllUnSelectedFromAsset(Asset asset) throws Exception {
+		return daoAssessment.getAllUnSelectedFromAsset(asset);
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param assessment
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#save(lu.itrust.business.TS.Assessment)
 	 */
 	@Transactional
 	@Override
 	public void save(Assessment assessment) throws Exception {
 		daoAssessment.save(assessment);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#saveOrUpdate(lu.itrust.business
-	 * .TS.Assessment)
+	 * @param assessment
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#saveOrUpdate(lu.itrust.business.TS.Assessment)
 	 */
 	@Transactional
 	@Override
 	public void saveOrUpdate(Assessment assessment) throws Exception {
 		daoAssessment.saveOrUpdate(assessment);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#remove(lu.itrust.business
-	 * .TS.Assessment)
+	 * @param assessments
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#saveOrUpdate(java.util.List)
 	 */
 	@Transactional
 	@Override
-	public void remove(Assessment assessment) throws Exception {
-		daoAssessment.remove(assessment);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#saveOrUpdate(java.util.List)
-	 */
-	@Transactional
-	@Override
-	public void saveOrUpdate(List<Assessment> assessments) {
+	public void saveOrUpdate(List<Assessment> assessments) throws Exception {
 		daoAssessment.saveOrUpdate(assessments);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#findByAssetAndUnselected
-	 * (lu.itrust.business.TS.Asset)
-	 */
-	@Override
-	public List<Assessment> findByAssetAndUnselected(Asset asset) {
-		return daoAssessment.findByAssetAndUnselected(asset);
-	}
-
-	/*
-	 * (non-Javadoc)
+	 * @param assessment
+	 * @throws Exception
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#findByAssetAndSelected(lu
-	 * .itrust.business.TS.Asset)
+	 * @see lu.itrust.business.service.ServiceAssessment#delete(lu.itrust.business.TS.Assessment)
 	 */
+	@Transactional
 	@Override
-	public List<Assessment> findByAssetAndSelected(Asset asset) {
-		return daoAssessment.findByAssetAndSelected(asset);
+	public void delete(Assessment assessment) throws Exception {
+		daoAssessment.delete(assessment);
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#findByScenarioAndSelected
-	 * (lu.itrust.business.TS.Scenario)
-	 */
-	@Override
-	public List<Assessment> findByScenarioAndSelected(Scenario scenario) {
-		return daoAssessment.findByScenarioAndSelected(scenario);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceAssessment#findByScenarioAndUnselected
-	 * (lu.itrust.business.TS.Scenario)
-	 */
-	@Override
-	public List<Assessment> findByScenarioAndUnselected(Scenario scenario) {
-		return daoAssessment.findByScenarioAndUnselected(scenario);
-	}
-
 }

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
@@ -14,86 +11,139 @@ import lu.itrust.business.dao.DAOItemInformation;
 import lu.itrust.business.service.ServiceItemInformation;
 
 /**
- * @author eom
- *
+ * ServiceItemInformationImpl.java: <br>
+ * Detailed description...
+ * 
+ * @author smenghi, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Service
 public class ServiceItemInformationImpl implements ServiceItemInformation {
 
 	@Autowired
 	private DAOItemInformation daoItemInformation;
-	
-	/* (non-Javadoc)
+
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceItemInformation#get(int)
 	 */
 	@Override
-	public ItemInformation get(int id) throws Exception {
+	public ItemInformation get(Integer id) throws Exception {
 		return daoItemInformation.get(id);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceItemInformation#loadFromDescription(java.lang.String)
+	/**
+	 * getFromAnalysisIdByDescription: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param description
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceItemInformation#getFromAnalysisIdByDescription(int,
+	 *      java.lang.String)
 	 */
 	@Override
-	public ItemInformation loadFromDescription(String description)
-			throws Exception {
-		return daoItemInformation.loadFromDescription(description);
+	public ItemInformation getFromAnalysisByDescription(Integer idAnalysis, String description) throws Exception {
+		return daoItemInformation.getFromAnalysisByDescription(idAnalysis, description);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceItemInformation#loadAllFromAnalysisID(int)
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
+	 * 
+	 * @param historyId
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceItemInformation#belongsToAnalysis(java.lang.Integer,
+	 *      java.lang.Integer)
 	 */
 	@Override
-	public List<ItemInformation> loadAllFromAnalysisID(int analysisID)
-			throws Exception {
-		return daoItemInformation.loadAllFromAnalysisID(analysisID);
+	public boolean belongsToAnalysis(Integer historyId, Integer analysisId) throws Exception {
+		return daoItemInformation.belongsToAnalysis(historyId, analysisId);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceItemInformation#loadAllFromAnalysisIdentifierVersionCreationDate(int, java.lang.String, java.lang.String)
+	/**
+	 * getAllItemInformation: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceItemInformation#getAllItemInformation()
 	 */
 	@Override
-	public List<ItemInformation> loadAllFromAnalysisIdentifierVersionCreationDate(
-			int identifier, String version, String creationDate)
-			throws Exception {
-		return daoItemInformation.loadAllFromAnalysisIdentifierVersionCreationDate(identifier, version, creationDate);
+	public List<ItemInformation> getAll() throws Exception {
+		return daoItemInformation.getAll();
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceItemInformation#loadAll()
+	/**
+	 * getAllFromAnalysisId: <br>
+	 * Description
+	 * 
+	 * @param analysisID
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceItemInformation#getAllFromAnalysisId(int)
 	 */
 	@Override
-	public List<ItemInformation> loadAll() throws Exception {
-		return daoItemInformation.loadAll();
+	public List<ItemInformation> getAllFromAnalysis(Integer analysisID) throws Exception {
+		return daoItemInformation.getAllFromAnalysis(analysisID);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param itemInformation
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceItemInformation#save(lu.itrust.business.TS.ItemInformation)
 	 */
 	@Transactional
 	@Override
 	public void save(ItemInformation itemInformation) throws Exception {
 		daoItemInformation.save(itemInformation);
-
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @param itemInformation
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceItemInformation#saveOrUpdate(lu.itrust.business.TS.ItemInformation)
 	 */
 	@Transactional
 	@Override
 	public void saveOrUpdate(ItemInformation itemInformation) throws Exception {
 		daoItemInformation.saveOrUpdate(itemInformation);
-
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceItemInformation#remove(lu.itrust.business.TS.ItemInformation)
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param itemInformation
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceItemInformation#delete(lu.itrust.business.TS.ItemInformation)
 	 */
 	@Transactional
 	@Override
-	public void remove(ItemInformation itemInformation) throws Exception {
-		daoItemInformation.remove(itemInformation);
+	public void delete(ItemInformation itemInformation) throws Exception {
+		daoItemInformation.delete(itemInformation);
 	}
-
 }

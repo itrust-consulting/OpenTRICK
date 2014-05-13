@@ -41,7 +41,7 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 * @see lu.itrust.business.dao.DAOScenarioType#get(int)
 	 */
 	@Override
-	public ScenarioType get(int id) throws Exception {
+	public ScenarioType get(Integer id) throws Exception {
 		return (ScenarioType) getSession().get(ScenarioType.class, id);
 	}
 
@@ -52,7 +52,7 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 * @see lu.itrust.business.dao.DAOScenarioType#getByTypeName(java.lang.String)
 	 */
 	@Override
-	public ScenarioType getByTypeName(String scenarioTypeName) throws Exception {
+	public ScenarioType getByName(String scenarioTypeName) throws Exception {
 		return (ScenarioType) getSession().createQuery("From ScenarioType where name = :type").setString("type", scenarioTypeName).uniqueResult();
 	}
 
@@ -64,7 +64,7 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ScenarioType> getAllScenarioTypes() throws Exception {
+	public List<ScenarioType> getAll() throws Exception {
 		return (List<ScenarioType>) getSession().createQuery("From ScenarioType").list();
 	}
 

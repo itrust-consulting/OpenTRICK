@@ -15,32 +15,31 @@ import lu.itrust.business.TS.NormMeasure;
  * @since May 12, 2014
  */
 public interface DAOMeasure {
+	public Measure get(Integer id) throws Exception;
 
-	public Measure get(int id) throws Exception;
+	public Measure getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception;
 
-	public Measure getMeasureFromAnalysisIdById(Integer idAnalysis, Integer id) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer measureId) throws Exception;
 
-	public boolean belongsToAnalysis(int assetId, int analysisId) throws Exception;
+	public List<Measure> getAll() throws Exception;
 
-	public List<Measure> getAllMeasures() throws Exception;
+	public List<Measure> getAllFromAnalysis(Integer idAnalysis) throws Exception;
 
-	public List<Measure> getAllFromAnalysisId(int idAnalysis) throws Exception;
+	public List<Measure> getSOAMeasuresFromAnalysis(Integer idAnalysis) throws Exception;
 
-	public List<Measure> getSOAMeasuresFromAnalysis(int idAnalysis) throws Exception;
+	public List<Measure> getAllComputableFromAnalysis(Integer idAnalysis) throws Exception;
 
-	public List<Measure> getAllMeasuresFromAnalysisIdAndComputable(int idAnalysis) throws Exception;
+	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm) throws Exception;
 
-	public List<Measure> getAllMeasuresFromAnalysisIdAndNormId(int idAnalysis, int idNorm) throws Exception;
+	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, String norm) throws Exception;
 
-	public List<Measure> getAllMeasuresFromAnalysisIdAndNormLabel(int idAnalysis, String norm) throws Exception;
+	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, Norm norm) throws Exception;
 
-	public List<Measure> getAllMeasuresFromAnalysisIdAndNorm(int idAnalysis, Norm norm) throws Exception;
+	public List<NormMeasure> getAllNormMeasuresFromAnalysis(Integer idAnalysis) throws Exception;
 
-	public List<NormMeasure> getAllNormMeasuresFromAnalysisId(int idAnalysis) throws Exception;
+	public List<NormMeasure> getAllNormMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception;
 
-	public List<NormMeasure> getAllNormMeasuresFromAnalysisIdAndComputable(int idAnalysis) throws Exception;
-
-	public List<NormMeasure> getAllAnalysisNormsFromAnalysisByMeasureIdList(int idAnalysis, List<Integer> measures) throws Exception;
+	public List<NormMeasure> getAllNormMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception;
 
 	public Measure save(Measure measure) throws Exception;
 
@@ -48,7 +47,7 @@ public interface DAOMeasure {
 
 	public Measure merge(Measure measure) throws Exception;
 
-	public void delete(int id) throws Exception;
+	public void delete(Integer id) throws Exception;
 
 	public void delete(Measure measure) throws Exception;
 }

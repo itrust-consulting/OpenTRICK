@@ -15,9 +15,9 @@ import org.springframework.stereotype.Repository;
 /**
  * DAONormHBM.java: <br>
  * Detailed description...
- *
+ * 
  * @author smenghi, itrust consulting s.à.rl.
- * @version 
+ * @version
  * @since Feb 12, 2013
  */
 @Repository
@@ -45,7 +45,7 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 	 * @see lu.itrust.business.dao.DAONorm#get(int)
 	 */
 	@Override
-	public Norm get(int id) throws Exception {
+	public Norm get(Integer id) throws Exception {
 		return (Norm) getSession().get(Norm.class, id);
 	}
 
@@ -79,7 +79,7 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 	 * @see lu.itrust.business.dao.DAONorm#getNormByNameAndVersion(java.lang.String, int)
 	 */
 	@Override
-	public Norm getNormByNameAndVersion(String label, int version) throws Exception {
+	public Norm getNormByNameAndVersion(String label, Integer version) throws Exception {
 		return (Norm) getSession().createQuery("from Norm where label = :label and version = :version").setParameter("label", label).setParameter("version", version).uniqueResult();
 	}
 
@@ -90,7 +90,7 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 	 * @see lu.itrust.business.dao.DAONorm#existsByNameAndVersion(java.lang.String, int)
 	 */
 	@Override
-	public boolean existsByNameAndVersion(String label, int version) throws Exception {
+	public boolean existsByNameAndVersion(String label, Integer version) throws Exception {
 		return ((Long) getSession().createQuery("select count(*) from Norm where label = :label and version = :version").setParameter("label", label).setParameter("version", version)
 				.uniqueResult()).intValue() != 0;
 	}
@@ -103,7 +103,7 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Norm> getAllNorms() throws Exception {
+	public List<Norm> getAll() throws Exception {
 		return (List<Norm>) getSession().createQuery("From Norm").list();
 	}
 
@@ -115,7 +115,7 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Norm> getAllFromAnalysisId(int analysisId) throws Exception {
+	public List<Norm> getAllFromAnalysis(Integer analysisId) throws Exception {
 		return getSession().createQuery("Select analysisNorm.norm From AnalysisNorm as analysisNorm where analysisNorm.analysis.id = :analysisId").setParameter("analysisId", analysisId)
 				.list();
 	}
@@ -142,7 +142,7 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Norm> getAllNormsNotInAnalysis(int idAnalysis) throws Exception {
+	public List<Norm> getAllNotInAnalysis(Integer idAnalysis) throws Exception {
 		String query = "Select norm From Norm norm where norm.label not in (Select analysisNorm.norm.label From AnalysisNorm as analysisNorm where analysisNorm.analysis.id = :analysisId)";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
 	}

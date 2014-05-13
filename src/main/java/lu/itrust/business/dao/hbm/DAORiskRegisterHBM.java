@@ -44,7 +44,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 * @see lu.itrust.business.dao.DAORiskRegister#get(int)
 	 */
 	@Override
-	public RiskRegisterItem get(int id) throws Exception {
+	public RiskRegisterItem get(Integer id) throws Exception {
 		return (RiskRegisterItem) getSession().get(RiskRegisterItem.class, id);
 	}
 
@@ -75,7 +75,7 @@ public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister 
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<RiskRegisterItem> getAllFromAnalysisId(Integer analysisId) throws Exception {
+	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId) throws Exception {
 		String query = "SELECT riskregisters FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregisters WHERE analysis.id= :analysisID";
 		return (List<RiskRegisterItem>) getSession().createQuery(query).setParameter("analysisID", analysisId).list();
 	}

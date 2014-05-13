@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
@@ -15,96 +12,183 @@ import lu.itrust.business.dao.DAORiskInformation;
 import lu.itrust.business.service.ServiceRiskInformation;
 
 /**
- * @author eomar
- *
+ * ServiceRiskInformationImpl.java: <br>
+ * Detailed description...
+ * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Service
 public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 
 	@Autowired
 	private DAORiskInformation daoRiskInformation;
-	
-	/* (non-Javadoc)
+
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceRiskInformation#get(int)
 	 */
 	@Override
-	public RiskInformation get(int id) throws Exception {
+	public RiskInformation get(Integer id) throws Exception {
 		return daoRiskInformation.get(id);
 	}
 
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceRiskInformation#loadFromChapter(java.lang.String)
+	/**
+	 * getFromAnalysisById: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskInformation#getFromAnalysisById(int, int)
 	 */
 	@Override
-	public List<RiskInformation> loadFromChapter(String chapter) throws Exception {
-		return daoRiskInformation.loadFromChapter(chapter);
+	public RiskInformation getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception {
+		return daoRiskInformation.getFromAnalysisById(idAnalysis, id);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceRiskInformation#loadFromCategory(java.lang.String)
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
+	 * 
+	 * @param riskinformationId
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskInformation#belongsToAnalysis(java.lang.Integer,
+	 *      java.lang.Integer)
 	 */
 	@Override
-	public List<RiskInformation> loadFromCategory(String category) throws Exception {
-		return daoRiskInformation.loadFromCategory(category);
+	public boolean belongsToAnalysis(Integer riskinformationId, Integer analysisId) throws Exception {
+		return daoRiskInformation.belongsToAnalysis(riskinformationId, analysisId);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceRiskInformation#loadAllFromAnalysis(lu.itrust.business.TS.Analysis)
+	/**
+	 * getAllRiskInformation: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskInformation#getAllRiskInformation()
 	 */
 	@Override
-	public List<RiskInformation> loadAllFromAnalysis(Analysis analysis) throws Exception {
-		return daoRiskInformation.loadAllFromAnalysis(analysis);
+	public List<RiskInformation> getAll() throws Exception {
+		return daoRiskInformation.getAll();
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceRiskInformation#loadAllFromAnalysisID(int)
+	/**
+	 * getAllByChapter: <br>
+	 * Description
+	 * 
+	 * @param chapter
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskInformation#getAllByChapter(java.lang.String)
 	 */
 	@Override
-	public List<RiskInformation> loadAllFromAnalysisID(int analysisID) throws Exception {
-		return daoRiskInformation.loadAllFromAnalysisID(analysisID);
+	public List<RiskInformation> getAllByChapter(String chapter) throws Exception {
+		return daoRiskInformation.getAllByChapter(chapter);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceRiskInformation#loadAll()
+	/**
+	 * getAllByCategory: <br>
+	 * Description
+	 * 
+	 * @param category
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskInformation#getAllByCategory(java.lang.String)
 	 */
 	@Override
-	public List<RiskInformation> loadAll() throws Exception {
-		return daoRiskInformation.loadAll();
+	public List<RiskInformation> getAllByCategory(String category) throws Exception {
+		return daoRiskInformation.getAllByCategory(category);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * getAllFromAnalysisId: <br>
+	 * Description
+	 * 
+	 * @param analysisID
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskInformation#getAllFromAnalysisId(int)
+	 */
+	@Override
+	public List<RiskInformation> getAllFromAnalysis(Integer analysisID) throws Exception {
+		return daoRiskInformation.getAllFromAnalysis(analysisID);
+	}
+
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskInformation#getAllFromAnalysis(lu.itrust.business.TS.Analysis)
+	 */
+	@Override
+	public List<RiskInformation> getAllFromAnalysis(Analysis analysis) throws Exception {
+		return daoRiskInformation.getAllFromAnalysis(analysis);
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param riskInformation
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceRiskInformation#save(lu.itrust.business.TS.RiskInformation)
 	 */
 	@Transactional
 	@Override
 	public void save(RiskInformation riskInformation) throws Exception {
 		daoRiskInformation.save(riskInformation);
-
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @param riskInformation
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceRiskInformation#saveOrUpdate(lu.itrust.business.TS.RiskInformation)
 	 */
 	@Transactional
 	@Override
 	public void saveOrUpdate(RiskInformation riskInformation) throws Exception {
 		daoRiskInformation.saveOrUpdate(riskInformation);
-
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceRiskInformation#remove(lu.itrust.business.TS.RiskInformation)
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param riskInformation
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRiskInformation#delete(lu.itrust.business.TS.RiskInformation)
 	 */
 	@Transactional
 	@Override
-	public void remove(RiskInformation riskInformation) throws Exception {
-		daoRiskInformation.remove(riskInformation);
+	public void delete(RiskInformation riskInformation) throws Exception {
+		daoRiskInformation.delete(riskInformation);
 	}
-
-	@Override
-	public RiskInformation findByIdAndAnalysis(int id, int idAnalysis) throws Exception {
-		return daoRiskInformation.findbyIdAndAnalysis(id, idAnalysis);
-	}
-
 }

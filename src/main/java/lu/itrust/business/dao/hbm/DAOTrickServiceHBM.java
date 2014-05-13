@@ -39,7 +39,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * @see lu.itrust.business.dao.DAOTrickService#get(int)
 	 */
 	@Override
-	public TrickService get(int id) throws Exception {
+	public TrickService get(Integer id) throws Exception {
 		return (TrickService) getSession().get(TrickService.class, id);
 	}
 
@@ -63,7 +63,6 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	@Override
 	public void save(TrickService trickservice) throws Exception {
 		getSession().save(trickservice);
-		getSession().flush();
 	}
 
 	/**
@@ -75,7 +74,6 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	@Override
 	public void saveOrUpdate(TrickService trickservice) throws Exception {
 		getSession().saveOrUpdate(trickservice);
-		getSession().flush();
 	}
 
 	/**

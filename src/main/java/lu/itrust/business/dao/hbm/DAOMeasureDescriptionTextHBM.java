@@ -41,7 +41,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#get(int)
 	 */
 	@Override
-	public MeasureDescriptionText get(int id) throws Exception {
+	public MeasureDescriptionText get(Integer id) throws Exception {
 		return (MeasureDescriptionText) getSession().get(MeasureDescription.class, id);
 	}
 
@@ -53,7 +53,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 *      int)
 	 */
 	@Override
-	public MeasureDescriptionText getMeasureDescriptionTextByIdAndLanguageId(int idMeasureDescription, int idLanguage) throws Exception {
+	public MeasureDescriptionText getForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception {
 		String query = "from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage";
 		return (MeasureDescriptionText) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).uniqueResult();
 	}
@@ -66,7 +66,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 *      int)
 	 */
 	@Override
-	public boolean existsForLanguageByMeasureDescriptionIdAndLanguageId(int idMeasureDescription, int idLanguage) throws Exception {
+	public boolean existsForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception {
 		String query = "Select count(*) from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage";
 		return (Long) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).uniqueResult() >= 1;
 	}
@@ -79,7 +79,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<MeasureDescriptionText> getAllMeasureDescriptionTextsByMeasureDescriptionId(int measureDescriptionID) throws Exception {
+	public List<MeasureDescriptionText> getAllFromMeasureDescription(Integer measureDescriptionID) throws Exception {
 		String query = "from MeasureDescriptionText where measureDescription.id = :measureDescriptionid";
 		return (List<MeasureDescriptionText>) getSession().createQuery(query).setParameter("measureDescriptionid", measureDescriptionID).list();
 	}

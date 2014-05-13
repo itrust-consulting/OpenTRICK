@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service;
 
 import java.util.List;
@@ -8,34 +5,37 @@ import java.util.List;
 import lu.itrust.business.TS.Asset;
 
 /**
- * @author eom
- *
+ * ServiceAsset.java: <br>
+ * Detailed description...
+ * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 public interface ServiceAsset {
-	
-	Asset get(int id);
+	public Asset get(Integer id) throws Exception;
 
-	List<Asset> getAll();
+	public boolean belongsToAnalysis(Integer analysisId, Integer assetId) throws Exception;
 
-	List<Asset> getByPageAndSize(int pageIndex, int pageSize);
+	public List<Asset> getAll() throws Exception;
 
-	List<Asset> getFromAnalysisByPageAndSize(int pageIndex, int pageSize, int analysisId);
-	
-	boolean belongsToAnalysis(int assetId, int analysisId);
-	
-	List<Asset> getAllFromAnalysis(int analysisId);
-	
-	List<Asset> getSelectedFromAnalysis(int idAnalysis);
-	
-	List<Asset> getSelectedFromAnalysisAndOrderByALE(int idAnalysis);
-	
-	Asset save(Asset asset);
+	public List<Asset> getByPageAndSize(Integer pageIndex, Integer pageSize) throws Exception;
 
-	void saveOrUpdate(Asset asset);
+	public List<Asset> getFromAnalysisByPageAndSize(Integer analysisId, Integer pageIndex, Integer pageSize) throws Exception;
 
-	Asset merge(Asset asset);
+	public List<Asset> getAllFromAnalysis(Integer analysisId) throws Exception;
 
-	void delete(int id);
+	public List<Asset> getAllFromAnalysisIdAndSelected(Integer idAnalysis) throws Exception;
 
-	void delete(Asset asset);
+	public List<Asset> getSelectedFromAnalysisAndOrderByALE(Integer idAnalysis) throws Exception;
+
+	public Asset save(Asset asset) throws Exception;
+
+	public void saveOrUpdate(Asset asset) throws Exception;
+
+	public Asset merge(Asset asset) throws Exception;
+
+	public void delete(Integer id) throws Exception;
+
+	public void delete(Asset asset) throws Exception;
 }

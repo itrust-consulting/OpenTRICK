@@ -63,7 +63,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else
-				if (!serviceAnalysis.exist(analysisId))
+				if (!serviceAnalysis.exists(analysisId))
 					throw new NotFoundException("Analysis does not exist!");
 			
 			if(className == null || className.isEmpty())
@@ -103,7 +103,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			if (analysisId == null || analysisId <= 0)
 				throw new InvalidParameterException("Invalid analysis id!");
 			else
-				if (!serviceAnalysis.exist(analysisId))
+				if (!serviceAnalysis.exists(analysisId))
 					throw new NotFoundException("Analysis does not exist!");
 						
 			if(principal == null)

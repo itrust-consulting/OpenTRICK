@@ -42,7 +42,7 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	 * @see lu.itrust.business.dao.DAOActionPlanType#get(int)
 	 */
 	@Override
-	public ActionPlanType get(int id) throws Exception {
+	public ActionPlanType get(Integer id) throws Exception {
 		return (ActionPlanType) getSession().get(ActionPlanType.class, id);
 	}
 

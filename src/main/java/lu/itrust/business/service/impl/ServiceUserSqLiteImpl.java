@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
@@ -14,8 +11,12 @@ import lu.itrust.business.dao.DAOUserSqLite;
 import lu.itrust.business.service.ServiceUserSqLite;
 
 /**
- * @author eomar
+ * ServiceUserSqLiteImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2014
  */
 @Service
 public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
@@ -23,130 +24,175 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	@Autowired
 	private DAOUserSqLite daoUserSqLite;
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceUserSqLite#findOne(long)
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUserSqLite#get(long)
 	 */
 	@Override
-	public UserSQLite findOne(long id) {
-		return daoUserSqLite.findOne(id);
+	public UserSQLite get(Integer id) throws Exception {
+		return daoUserSqLite.get(id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getByFileName: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceUserSqLite#findByFileName(java.lang
-	 * .String)
+	 * @param fileName
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUserSqLite#getByFileName(java.lang.String)
 	 */
 	@Override
-	public UserSQLite findByFileName(String fileName) {
-		return daoUserSqLite.findByFileName(fileName);
+	public UserSQLite getByFileName(String fileName) throws Exception {
+		return daoUserSqLite.getByFileName(fileName);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getByUserSQLiteIdAndUserLogin: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceUserSqLite#findByUser(java.lang.String
-	 * )
+	 * @param idFile
+	 * @param username
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUserSqLite#getByUserSQLiteIdAndUserLogin(long,
+	 *      java.lang.String)
 	 */
 	@Override
-	public List<UserSQLite> findByUser(String username) {
-		return daoUserSqLite.findByUser(username);
+	public UserSQLite getByIdAndUser(Integer idFile, String username) throws Exception {
+		return daoUserSqLite.getByIdAndUser(idFile, username);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllFromUser: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceUserSqLite#findByUser(java.lang.String
-	 * , int, int)
+	 * @param username
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUserSqLite#getAllFromUser(java.lang.String)
 	 */
 	@Override
-	public List<UserSQLite> findByUser(String username, int pageIndex, int pageSize) {
-		return daoUserSqLite.findByUser(username, pageIndex, pageSize);
+	public List<UserSQLite> getAllFromUser(String username) throws Exception {
+		return daoUserSqLite.getAllFromUser(username);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllFromUserLoginByPageAndSizeIndex: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceUserSqLite#save(lu.itrust.business
-	 * .TS.usermanagement.UserSqLite)
+	 * @param username
+	 * @param pageIndex
+	 * @param pageSize
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUserSqLite#getAllFromUserLoginByPageAndSizeIndex(java.lang.String,
+	 *      int, int)
+	 */
+	@Override
+	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize) throws Exception {
+		return daoUserSqLite.getAllFromUserByPageAndSizeIndex(username, pageIndex, pageSize);
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param userSqLite
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUserSqLite#save(lu.itrust.business.TS.usermanagement.UserSQLite)
 	 */
 	@Transactional
 	@Override
-	public UserSQLite save(UserSQLite userSqLite) {
+	public UserSQLite save(UserSQLite userSqLite) throws Exception {
 		return daoUserSqLite.save(userSqLite);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceUserSqLite#saveOrUpdate(lu.itrust.
-	 * business.TS.usermanagement.UserSqLite)
+	 * @param userSqLite
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUserSqLite#saveOrUpdate(lu.itrust.business.TS.usermanagement.UserSQLite)
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(UserSQLite userSqLite) {
+	public void saveOrUpdate(UserSQLite userSqLite) throws Exception {
 		daoUserSqLite.saveOrUpdate(userSqLite);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * merge: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceUserSqLite#merge(lu.itrust.business
-	 * .TS.usermanagement.UserSqLite)
+	 * @param userSqLite
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUserSqLite#merge(lu.itrust.business.TS.usermanagement.UserSQLite)
 	 */
 	@Transactional
 	@Override
-	public UserSQLite merge(UserSQLite userSqLite) {
+	public UserSQLite merge(UserSQLite userSqLite) throws Exception {
 		return daoUserSqLite.merge(userSqLite);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceUserSqLite#delete(lu.itrust.business
-	 * .TS.usermanagement.UserSqLite)
-	 */
-	@Transactional
-	@Override
-	public void delete(UserSQLite userSqLite) {
-		daoUserSqLite.delete(userSqLite);
-	}
-
-	/*
-	 * (non-Javadoc)
+	 * @param idUserSqLite
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceUserSqLite#delete(long)
 	 */
 	@Transactional
 	@Override
-	public void delete(long idUserSqLite) {
+	public void delete(Integer idUserSqLite) throws Exception {
 		daoUserSqLite.delete(idUserSqLite);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceUserSqLite#delete(java.lang.String)
+	 * @param fileName
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUserSqLite#delete(java.lang.String)
 	 */
 	@Transactional
 	@Override
-	public void delete(String fileName) {
+	public void delete(String fileName) throws Exception {
 		daoUserSqLite.delete(fileName);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param userSqLite
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUserSqLite#delete(lu.itrust.business.TS.usermanagement.UserSQLite)
+	 */
+	@Transactional
 	@Override
-	public UserSQLite findByIdAndUser(long idFile, String username) {
-		return daoUserSqLite.findByIdAndUser(idFile, username);
+	public void delete(UserSQLite userSqLite) throws Exception {
+		daoUserSqLite.delete(userSqLite);
 	}
-
 }

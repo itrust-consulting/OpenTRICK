@@ -8,20 +8,20 @@ import lu.itrust.business.TS.ItemInformation;
  * DAOItemInformation.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.�.rl. :
+ * @author itrust consulting s.a.rl. :
  * @version
  * @since 16 janv. 2013
  */
 public interface DAOItemInformation {
-	public ItemInformation get(int id) throws Exception;
+	public ItemInformation get(Integer id) throws Exception;
 
-	public ItemInformation getFromAnalysisIdByDescription(int analysisId, String description) throws Exception;
+	public ItemInformation getFromAnalysisByDescription(Integer analysisId, String description) throws Exception;
 
-	boolean belongsToAnalysis(Integer historyId, Integer analysisId) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer historyId) throws Exception;
 
-	public List<ItemInformation> getAllItemInformation() throws Exception;
+	public List<ItemInformation> getAll() throws Exception;
 
-	public List<ItemInformation> getAllFromAnalysisId(int analysisId) throws Exception;
+	public List<ItemInformation> getAllFromAnalysis(Integer analysisId) throws Exception;
 
 	public void save(ItemInformation itemInformation) throws Exception;
 

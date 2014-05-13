@@ -44,7 +44,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.dao.DAOUserSqLite#get(long)
 	 */
 	@Override
-	public UserSQLite get(long id) throws Exception {
+	public UserSQLite get(Integer id) throws Exception {
 		return (UserSQLite) getSession().get(UserSQLite.class, id);
 	}
 
@@ -67,7 +67,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 *      java.lang.String)
 	 */
 	@Override
-	public UserSQLite getByUserSQLiteIdAndUserLogin(long idFile, String username) throws Exception {
+	public UserSQLite getByIdAndUser(Integer idFile, String username) throws Exception {
 		String query = "From UserSQLite where id = :idFile and user.login = :username";
 		return (UserSQLite) getSession().createQuery(query).setParameter("idFile", idFile).setParameter("username", username).uniqueResult();
 	}
@@ -93,7 +93,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserSQLite> getAllFromUserLoginByPageAndSizeIndex(String username, int pageIndex, int pageSize) throws Exception {
+	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize) throws Exception {
 		String query = "From UserSQLite where user.login = :username";
 		return getSession().createQuery(query).setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
 	}
@@ -138,7 +138,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.dao.DAOUserSqLite#delete(long)
 	 */
 	@Override
-	public void delete(long idUserSqLite) throws Exception {
+	public void delete(Integer idUserSqLite) throws Exception {
 		delete(get(idUserSqLite));
 	}
 

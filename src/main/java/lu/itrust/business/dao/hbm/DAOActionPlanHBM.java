@@ -45,7 +45,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * @see lu.itrust.business.dao.DAOActionPlan#get(int)
 	 */
 	@Override
-	public ActionPlanEntry get(int id) throws Exception {
+	public ActionPlanEntry get(Integer id) throws Exception {
 		return (ActionPlanEntry) getSession().get(ActionPlanEntry.class, id);
 	}
 
@@ -56,7 +56,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * @see lu.itrust.business.dao.DAOActionPlan#belongsToAnalysis(int, int)
 	 */
 	@Override
-	public boolean belongsToAnalysis(int actionPlanEntryId, int analysisId) throws Exception {
+	public boolean belongsToAnalysis(Integer actionPlanEntryId, Integer analysisId) throws Exception {
 		String query = "Select count(actionPlanEntry) From Analysis as analysis inner join analysis.actionPlans as actionPlanEntry where analysis.id = :analysisId and actionPlanEntry.id = ";
 		query += ":actionPlanEntryid";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("actionPlanEntryId", actionPlanEntryId).uniqueResult()).intValue() > 0;
@@ -82,7 +82,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ActionPlanEntry> getAllFromAnalysis(int id) throws Exception {
+	public List<ActionPlanEntry> getAllFromAnalysis(Integer id) throws Exception {
 		String query = "Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.id DESC";
 		return (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("analysisID", id).list();
 	}
@@ -96,7 +96,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(int analysisID, ActionPlanMode mode) throws Exception {
+	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Integer analysisID, ActionPlanMode mode) throws Exception {
 		String query = "SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplans where analysis.id = :analysisID and actionplans.actionPlanType.name = ";
 		query += ":mode ORDER BY actionplan.actionPlanType.id ASC, actionplan.measure.phase.number ASC, actionplan.ROI ASC";
 		return (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("mode", mode).setParameter("analysisID", analysisID).list();
@@ -123,7 +123,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> getMeasuresFromActionPlanAndAnalysis(int id, ActionPlanMode apm) throws Exception {
+	public List<Measure> getMeasuresFromActionPlanAndAnalysis(Integer id, ActionPlanMode apm) throws Exception {
 		String query = "Select actionplan.measure From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID and actionplan.actionPlanType.name = :apm";
 		return (List<Measure>) getSession().createQuery(query).setParameter("analysisID", id).setParameter("apm", apm).list();
 	}
@@ -137,7 +137,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(int id, ActionPlanMode apm) throws Exception {
+	public List<Measure> getMeasuresFromActionPlanAndAnalysisAndNotToImplement(Integer id, ActionPlanMode apm) throws Exception {
 		String query = "Select actionplan.measure From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID and actionplan.actionPlanType.name = :apm and actionplan.ROI ";
 		query += "<= 0.0";
 		return (List<Measure>) getSession().createQuery(query).setParameter("analysisID", id).setParameter("apm", apm).list();
@@ -151,7 +151,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(int analysisID) throws Exception {
+	public List<Asset> getDistinctActionPlanAssetsFromAnalysisAndOrderByALE(Integer analysisID) throws Exception {
 		String query = "SELECT DISTINCT apa.asset FROM Analysis a INNER JOIN ActionPlanAsset apa WHERE a.id= :analysisID";
 		return (List<Asset>) getSession().createQuery(query).setParameter("analysisID", analysisID).list();
 	}

@@ -9,30 +9,30 @@ import lu.itrust.business.TS.History;
  * DAOHistory.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.�.rl. :
+ * @author itrust consulting s.a.rl. :
  * @version
  * @since Feb 1, 2013
  */
 public interface DAOHistory {
-	public History get(int id) throws Exception;
+	public History get(Integer id) throws Exception;
 
-	boolean belongsToAnalysis(Integer historyId, Integer analysisId) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer historyId) throws Exception;
 
-	public boolean versionExistsByAnalysisIdAndAnalysisVersion(Integer analysisId, String version) throws Exception;
+	public boolean versionExistsInAnalysis(Integer analysisId, String version) throws Exception;
 
-	public boolean versionExistsForAnalysisByVersion(Analysis analysis, String version) throws Exception;
+	public boolean versionExistsInAnalysis(Analysis analysis, String version) throws Exception;
 
-	public List<String> getVersionsFromAnalysisId(int analysisId) throws Exception;
+	public List<String> getVersionsFromAnalysis(Integer analysisId) throws Exception;
 
-	public List<History> getAllHistories() throws Exception;
+	public List<History> getAll() throws Exception;
 
-	public List<History> getAllFromAnalysisId(Integer analysisid) throws Exception;
+	public List<History> getAllFromAnalysis(Integer analysisid) throws Exception;
 
 	public List<History> getAllFromAnalysis(Analysis analysis) throws Exception;
 
-	public List<History> getAllHistoriesFromAnalysisByAuthor(Analysis analysis, String author) throws Exception;
+	public List<History> getAllFromAnalysisByAuthor(Analysis analysis, String author) throws Exception;
 
-	public List<History> getAllHistoriesFromAnalysisByVersion(Analysis analysis, String version) throws Exception;
+	public List<History> getAllFromAnalysisByVersion(Analysis analysis, String version) throws Exception;
 
 	public void save(Integer analysisId, History history) throws Exception;
 

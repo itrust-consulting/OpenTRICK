@@ -11,8 +11,7 @@ import lu.itrust.business.TS.TrickService;
  * @since Apr 23, 2014
  */
 public interface DAOTrickService {
-
-	public TrickService get(int id) throws Exception;
+	public TrickService get(Integer id) throws Exception;
 
 	public TrickService getStatus() throws Exception;
 

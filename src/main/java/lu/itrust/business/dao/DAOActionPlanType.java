@@ -8,13 +8,12 @@ import lu.itrust.business.TS.actionplan.ActionPlanType;
  * DAOActionPlanType.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.�.rl. :
+ * @author itrust consulting s.a.rl. :
  * @version
- * @since 7 f�vr. 2013
+ * @since 7 feb. 2013
  */
 public interface DAOActionPlanType {
-
-	public ActionPlanType get(int id) throws Exception;
+	public ActionPlanType get(Integer id) throws Exception;
 
 	public ActionPlanType getByName(String name) throws Exception;
 

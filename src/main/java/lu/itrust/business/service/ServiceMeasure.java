@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service;
 
 import java.util.List;
@@ -10,40 +7,47 @@ import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.NormMeasure;
 
 /**
- * @author eomar
+ * ServiceMeasure.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 public interface ServiceMeasure {
+	public Measure get(Integer id) throws Exception;
 
-	Measure findOne(int id);
+	public Measure getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception;
 
-	List<Measure> findByAnalysis(int idAnalysis);
+	public boolean belongsToAnalysis(Integer analysisId, Integer measureId) throws Exception;
 
-	List<NormMeasure> findNormMeasureByAnalysis(int idAnalysis);
+	public List<Measure> getAll() throws Exception;
 
-	List<NormMeasure> findNormMeasureByAnalysisAndComputable(int idAnalysis);
+	public List<Measure> getAllFromAnalysis(Integer idAnalysis) throws Exception;
 
-	List<Measure> findMeasureByAnalysisAndComputable(int idAnalysis);
-	
-	Measure findByIdAndAnalysis(Integer id, Integer idAnalysis);
+	public List<Measure> getSOAMeasuresFromAnalysis(Integer idAnalysis) throws Exception;
 
-	List<Measure> findByAnalysisAndNorm(int idAnalysis, int idNorm);
+	public List<Measure> getAllComputableFromAnalysis(Integer idAnalysis) throws Exception;
 
-	List<Measure> findByAnalysisAndNorm(int idAnalysis, String norm);
+	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm) throws Exception;
 
-	List<Measure> findByAnalysisAndNorm(int idAnalysis, Norm norm);
-	
-	List<Measure> loadAll();
-	
-	List<Measure> loadSOA(int idAnalysis);
-	
-	Measure save(Measure measure);
+	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, String norm) throws Exception;
 
-	void saveOrUpdate(Measure measure);
+	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, Norm norm) throws Exception;
 
-	Measure merge(Measure measure);
+	public List<NormMeasure> getAllNormMeasuresFromAnalysis(Integer idAnalysis) throws Exception;
 
-	void delete(Measure measure);
+	public List<NormMeasure> getAllNormMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception;
 
-	void delete(int id);
+	public List<NormMeasure> getAllNormMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception;
+
+	public Measure save(Measure measure) throws Exception;
+
+	public void saveOrUpdate(Measure measure) throws Exception;
+
+	public Measure merge(Measure measure) throws Exception;
+
+	public void delete(Integer id) throws Exception;
+
+	public void delete(Measure measure) throws Exception;
 }

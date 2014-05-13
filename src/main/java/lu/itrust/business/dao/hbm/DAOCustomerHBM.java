@@ -41,7 +41,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.dao.DAOCustomer#get(int)
 	 */
 	@Override
-	public Customer get(int id) throws Exception {
+	public Customer get(Integer id) throws Exception {
 		return (Customer) getSession().get(Customer.class, id);
 	}
 
@@ -52,7 +52,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.dao.DAOCustomer#getProfileCustomer()
 	 */
 	@Override
-	public Customer getProfileCustomer() throws Exception {
+	public Customer getProfile() throws Exception {
 		return (Customer) getSession().createQuery("From Customer where canBeUsed = false").uniqueResult();
 	}
 
@@ -63,7 +63,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.dao.DAOCustomer#getCustomerFromContactPerson(java.lang.String)
 	 */
 	@Override
-	public Customer getCustomerFromContactPerson(String contactPerson) throws Exception {
+	public Customer getFromContactPerson(String contactPerson) throws Exception {
 		return (Customer) getSession().createQuery("From Customer where contactPerson = :contactPerson").setParameter("contactPerson", contactPerson).uniqueResult();
 	}
 
@@ -74,7 +74,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.dao.DAOCustomer#isProfileCustomer(int)
 	 */
 	@Override
-	public boolean isProfileCustomer(int idCustomer) throws Exception {
+	public boolean isProfile(Integer idCustomer) throws Exception {
 		Boolean result =
 			(Boolean) getSession().createQuery("Select customer.canBeUsed From Customer as customer where customer.id = :idCustomer").setParameter("idCustomer", idCustomer).uniqueResult();
 		return result == null ? false : !result;
@@ -87,7 +87,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.dao.DAOCustomer#customerProfileExists()
 	 */
 	@Override
-	public boolean customerProfileExists() throws Exception {
+	public boolean profileExists() throws Exception {
 		return ((Long) getSession().createQuery("Select count(customer) From Customer as customer where customer.canBeUsed = false").uniqueResult()).intValue() == 1;
 	}
 
@@ -98,7 +98,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.dao.DAOCustomer#customerHasUsers(int)
 	 */
 	@Override
-	public boolean customerHasUsers(int idCustomer) throws Exception {
+	public boolean hasUsers(Integer idCustomer) throws Exception {
 		String query = "Select count(customer) From User as user inner join user.customers as customer where customer.id = :idCustomer";
 		return ((Long) getSession().createQuery(query).setParameter("idCustomer", idCustomer).uniqueResult()).intValue() != 0;
 	}
@@ -110,7 +110,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.dao.DAOCustomer#customerExistsByOrganisation(java.lang.String)
 	 */
 	@Override
-	public boolean customerExistsByOrganisation(String organisation) throws Exception {
+	public boolean existsByOrganisation(String organisation) throws Exception {
 		String query = "Select count(customer) From Customer as customer where customer.organisation = :organisation";
 		return ((Long) getSession().createQuery(query).setParameter("organisation", organisation).uniqueResult()).intValue() > 0;
 	}
@@ -123,7 +123,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Customer> getAllCustomers() throws Exception {
+	public List<Customer> getAll() throws Exception {
 		return (List<Customer>) getSession().createQuery("From Customer").list();
 	}
 
@@ -135,7 +135,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Customer> getAllCustomersAndProfileOfUser(String username) throws Exception {
+	public List<Customer> getAllAndProfileOfUser(String username) throws Exception {
 		String query = "Select customer From Customer as customer where customer.canBeUsed = false or customer in (select customer1 From User as user inner join user.customers as customer1";
 		query += " where user.login = :username)  order by customer.canBeUsed asc, customer.organisation asc, customer.contactPerson asc";
 		return getSession().createQuery(query).setParameter("username", username).list();
@@ -149,7 +149,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Customer> getAllCustomersNoProfilesOfUser(String username) throws Exception {
+	public List<Customer> getAllNotProfileOfUser(String username) throws Exception {
 		String query = "Select customer From User as user inner join user.customers as customer where user.login = :username and customer.canBeUsed = true order by customer.organisation ";
 		query += "asc, customer.contactPerson asc";
 		return getSession().createQuery(query).setParameter("username", username).list();
@@ -163,7 +163,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Customer> getAllCustomersNoProfiles() throws Exception {
+	public List<Customer> getAllNotProfiles() throws Exception {
 		return (List<Customer>) getSession().createQuery("From Customer WHERE canBeUsed=true").list();
 	}
 

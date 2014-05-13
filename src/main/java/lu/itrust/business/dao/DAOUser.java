@@ -15,8 +15,7 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Jan 1, 2013
  */
 public interface DAOUser {
-
-	public User get(int id) throws Exception;
+	public User get(Integer id) throws Exception;
 
 	public User get(String login) throws Exception;
 
@@ -24,15 +23,15 @@ public interface DAOUser {
 
 	public boolean noUsers() throws Exception;
 
-	public List<User> getAllUsers() throws Exception;
+	public List<User> getAll() throws Exception;
 
 	public List<User> getAllByFirstName(String name) throws Exception;
 
 	public List<User> getAllByCountry(String name) throws Exception;
 
-	public List<User> getAllUsersFromCustomer(int customer) throws Exception;
+	public List<User> getAllFromCustomer(Integer customer) throws Exception;
 
-	public List<User> getAllUsersFromCustomer(Customer customer) throws Exception;
+	public List<User> getAllFromCustomer(Customer customer) throws Exception;
 
 	public boolean hasRole(User user, Role role) throws Exception;
 
@@ -40,7 +39,7 @@ public interface DAOUser {
 
 	public void saveOrUpdate(User user) throws Exception;
 
-	public void delete(int id) throws Exception;
+	public void delete(Integer id) throws Exception;
 
 	public void delete(User user) throws Exception;
 }

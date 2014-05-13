@@ -46,7 +46,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.dao.DAOUser#get(int)
 	 */
 	@Override
-	public User get(int id) throws Exception {
+	public User get(Integer id) throws Exception {
 		return (User) getSession().get(User.class, id);
 	}
 
@@ -91,7 +91,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllUsers() throws Exception {
+	public List<User> getAll() throws Exception {
 		return getSession().createQuery("From User order by firstName").list();
 	}
 
@@ -127,7 +127,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllUsersFromCustomer(int customer) throws Exception {
+	public List<User> getAllFromCustomer(Integer customer) throws Exception {
 		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer.id = :customer").setInteger("customer", customer).list();
 	}
 
@@ -139,7 +139,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<User> getAllUsersFromCustomer(Customer customer) throws Exception {
+	public List<User> getAllFromCustomer(Customer customer) throws Exception {
 		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer = :customer").setParameter("customer", customer).list();
 	}
 
@@ -195,7 +195,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * @see lu.itrust.business.dao.DAOUser#delete(long)
 	 */
 	@Override
-	public void delete(int id) throws Exception {
+	public void delete(Integer id) throws Exception {
 		delete(get(id));
 	}
 }

@@ -42,7 +42,7 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 * @see lu.itrust.business.dao.DAOAssetType#get(int)
 	 */
 	@Override
-	public AssetType get(int id) throws Exception {
+	public AssetType get(Integer id) throws Exception {
 		return (AssetType) getSession().get(AssetType.class, id);
 	}
 
@@ -78,7 +78,7 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AssetType> getAllFromAnalysis(int idAnalysis) throws Exception {
+	public List<AssetType> getAllFromAnalysis(Integer idAnalysis) throws Exception {
 		String query = "Select distinct(asset.assetType) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis order by asset.assetType.type asc";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}

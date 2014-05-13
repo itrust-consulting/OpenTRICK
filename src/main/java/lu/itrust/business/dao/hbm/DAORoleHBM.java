@@ -42,7 +42,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 * @see lu.itrust.business.dao.DAORole#get(long)
 	 */
 	@Override
-	public Role get(long id) throws Exception {
+	public Role get(Integer id) throws Exception {
 		return (Role) getSession().get(Role.class, id);
 	}
 
@@ -53,7 +53,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 * @see lu.itrust.business.dao.DAORole#getRoleByName(java.lang.String)
 	 */
 	@Override
-	public Role getRoleByName(String name) throws Exception {
+	public Role getByName(String name) throws Exception {
 		return (Role) getSession().createQuery("FROM Role WHERE dtType=:RoleType").setString("RoleType", name).uniqueResult();
 	}
 
@@ -65,7 +65,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Role> getAllRoles() throws Exception {
+	public List<Role> getAll() throws Exception {
 		return getSession().createQuery("From Role").list();
 	}
 
@@ -76,7 +76,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 * @see lu.itrust.business.dao.DAORole#getFromUser(java.lang.String)
 	 */
 	@Override
-	public List<Role> getFromUser(String login) throws Exception {
+	public List<Role> getAllFromUser(String login) throws Exception {
 		User aUser = (User) getSession().createQuery("From User where login = :user").setParameter("user", login).uniqueResult();
 		List<Role> roles = aUser.getRoles();
 		return roles;
@@ -89,7 +89,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 * @see lu.itrust.business.dao.DAORole#getFromUser(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
-	public List<Role> getFromUser(User user) throws Exception {
+	public List<Role> getAllFromUser(User user) throws Exception {
 		return user.getRoles();
 	}
 
@@ -122,7 +122,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 * @see lu.itrust.business.dao.DAORole#delete(long)
 	 */
 	@Override
-	public void delete(long id) throws Exception {
+	public void delete(Integer id) throws Exception {
 		getSession().delete(get(id));
 	}
 
@@ -134,7 +134,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 */
 	@Override
 	public void delete(String login) throws Exception {
-		for (Role role : getFromUser(login))
+		for (Role role : getAllFromUser(login))
 			delete(role);
 	}
 
@@ -157,7 +157,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 */
 	@Override
 	public void delete(User user) throws Exception {
-		for (Role role : getFromUser(user))
+		for (Role role : getAllFromUser(user))
 			delete(role);
 	}
 }

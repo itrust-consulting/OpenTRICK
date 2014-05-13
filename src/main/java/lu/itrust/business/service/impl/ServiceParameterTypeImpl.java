@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
@@ -14,8 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author oensuifudine
+ * ServiceParameterTypeImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Service
 @Transactional
@@ -24,46 +25,58 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 	@Autowired
 	private DAOParameterType daoParameterType;
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceParameterType#get(int)
 	 */
 	@Override
-	public ParameterType get(int id) throws Exception {
-		// TODO Auto-generated method stub
+	public ParameterType get(Integer id) throws Exception {
 		return daoParameterType.get(id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getByName: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceParameterType#get(java.lang.String)
+	 * @param parameterTypeName
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceParameterType#getByName(java.lang.String)
 	 */
 	@Override
-	public ParameterType get(String parameterTypeName) throws Exception {
-		// TODO Auto-generated method stub
-		return daoParameterType.get(parameterTypeName);
+	public ParameterType getByName(String parameterTypeName) throws Exception {
+		return daoParameterType.getByName(parameterTypeName);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllParameterTypes: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceParameterType#loadAll()
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceParameterType#getAllParameterTypes()
 	 */
 	@Override
-	public List<ParameterType> loadAll() throws Exception {
-		// TODO Auto-generated method stub
-		return daoParameterType.loadAll();
+	public List<ParameterType> getAll() throws Exception {
+		return daoParameterType.getAll();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * save: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceParameterType#save(lu.itrust.business
-	 * .TS.ParameterType)
+	 * @param parameterType
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceParameterType#save(lu.itrust.business.TS.ParameterType)
 	 */
 	@Transactional
 	@Override
@@ -72,12 +85,14 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceParameterType#saveOrUpdate(lu.itrust
-	 * .business.TS.ParameterType)
+	 * @param parameterType
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceParameterType#saveOrUpdate(lu.itrust.business.TS.ParameterType)
 	 */
 	@Transactional
 	@Override
@@ -86,32 +101,18 @@ public class ServiceParameterTypeImpl implements ServiceParameterType {
 
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceParameterType#delete(lu.itrust.business
-	 * .TS.ParameterType)
+	 * @param parameterType
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceParameterType#delete(lu.itrust.business.TS.ParameterType)
 	 */
 	@Transactional
 	@Override
 	public void delete(ParameterType parameterType) throws Exception {
 		daoParameterType.delete(parameterType);
 	}
-
-	/**
-	 * @return the daoParameterType
-	 */
-	public DAOParameterType getDaoParameterType() {
-		return daoParameterType;
-	}
-
-	/**
-	 * @param daoParameterType
-	 *            the daoParameterType to set
-	 */
-	public void setDaoParameterType(DAOParameterType daoParameterType) {
-		this.daoParameterType = daoParameterType;
-	}
-
 }

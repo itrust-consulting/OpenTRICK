@@ -42,7 +42,7 @@ public class WorkerAnalysisImport implements Worker {
 	private String fileName;
 
 	private Customer customer;
-	
+
 	private User owner;
 
 	/**
@@ -69,7 +69,7 @@ public class WorkerAnalysisImport implements Worker {
 		setCustomer(customer);
 		setFileName(importFile.getCanonicalPath());
 		setImportAnalysis(new ImportAnalysis());
-		
+
 		importAnalysis.setServiceTaskFeedback(serviceTaskFeedback);
 		importAnalysis.setSessionFactory(sessionFactory);
 	}
@@ -139,7 +139,8 @@ public class WorkerAnalysisImport implements Worker {
 		}
 	}
 
-	/** getOwner: <br>
+	/**
+	 * getOwner: <br>
 	 * Returns the owner field value.
 	 * 
 	 * @return The value of the owner field
@@ -148,11 +149,12 @@ public class WorkerAnalysisImport implements Worker {
 		return owner;
 	}
 
-	/** setOwner: <br>
+	/**
+	 * setOwner: <br>
 	 * Sets the Field "owner" with a value.
 	 * 
-	 * @param owner 
-	 * 			The Value to set the owner field
+	 * @param owner
+	 *            The Value to set the owner field
 	 */
 	public void setOwner(User owner) {
 		this.owner = owner;
@@ -219,22 +221,22 @@ public class WorkerAnalysisImport implements Worker {
 			analysis.setCustomer(customer);
 			analysis.setOwner(owner);
 			UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
-			
+
 			analysis.addUserRight(uar);
-			
+
 			importAnalysis.setAnalysis(analysis);
 			importAnalysis.setIdTask(getId());
 			importAnalysis.setDatabaseHandler(DatabaseHandler);
 			if (importAnalysis.ImportAnAnalysis()) {
-			
-			MessageHandler messageHandler = new MessageHandler("success.analysis.import", "Import Done!", 100);
-			
-			messageHandler.setAsyncCallback(new AsyncCallback("window.location.assign(\"../Analysis\")", null));
-			
-			importAnalysis.getServiceTaskFeedback().send(getId(), messageHandler);
-			
+
+				MessageHandler messageHandler = new MessageHandler("success.analysis.import", "Import Done!", 100);
+
+				messageHandler.setAsyncCallback(new AsyncCallback("window.location.assign(\"../Analysis\")", null));
+
+				importAnalysis.getServiceTaskFeedback().send(getId(), messageHandler);
+
 			}
-			
+
 		} catch (Exception e) {
 			error = e;
 		} finally {

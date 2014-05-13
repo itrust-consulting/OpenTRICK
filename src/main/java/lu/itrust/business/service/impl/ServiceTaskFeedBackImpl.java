@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.Collections;
@@ -16,24 +13,154 @@ import lu.itrust.business.service.ServiceTaskFeedback;
 import org.springframework.stereotype.Service;
 
 /**
- * @author eom
+ * ServiceTaskFeedBackImpl.java: <br>
+ * Detailed description...
  * 
+ * @author smenghi, itrust consulting s.a.rl.
+ * @version
+ * @since Feb 13, 2013
  */
 @Service
 public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 
-	private Map<String, List<Long>> userTasks = Collections
-			.synchronizedMap(new LinkedHashMap<String, List<Long>>());
+	private Map<String, List<Long>> userTasks = Collections.synchronizedMap(new LinkedHashMap<String, List<Long>>());
 
-	private Map<Long, Queue<MessageHandler>> messageHandlers = Collections
-			.synchronizedMap(new LinkedHashMap<Long, Queue<MessageHandler>>());
+	private Map<Long, Queue<MessageHandler>> messageHandlers = Collections.synchronizedMap(new LinkedHashMap<Long, Queue<MessageHandler>>());
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * messageCount: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceTaskFeedback#send(lu.itrust.business
-	 * .TS.messagehandler.MessageHandler)
+	 * @param id
+	 * @return
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#messageCount(long)
+	 */
+	@Override
+	public int messageCount(long id) {
+		Queue<MessageHandler> queue = messageHandlers.get(id);
+		return queue == null ? 0 : queue.size();
+	}
+
+	/**
+	 * taskExist: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#taskExist(long)
+	 */
+	@Override
+	public boolean taskExist(long id) {
+		return messageHandlers.containsKey(id);
+	}
+
+	/**
+	 * hasMessage: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#hasMessage(long)
+	 */
+	@Override
+	public boolean hasMessage(long id) {
+		Queue<MessageHandler> queue = messageHandlers.get(id);
+		return queue != null && !queue.isEmpty();
+	}
+
+	/**
+	 * userHasTask: <br>
+	 * Description
+	 * 
+	 * @param userName
+	 * @return
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#userHasTask(java.lang.String)
+	 */
+	@Override
+	public boolean userHasTask(String userName) {
+		if (!userTasks.containsKey(userName))
+			return false;
+		List<Long> tasks = userTasks.get(userName);
+		return tasks != null && !tasks.isEmpty();
+	}
+
+	/**
+	 * hasTask: <br>
+	 * Description
+	 * 
+	 * @param userName
+	 * @param id
+	 * @return
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#hasTask(java.lang.String, long)
+	 */
+	@Override
+	public boolean hasTask(String userName, long id) {
+		if (!userTasks.containsKey(userName))
+			return false;
+		for (Long task : userTasks.get(userName))
+			if (id == task)
+				return true;
+		return false;
+	}
+
+	/**
+	 * registerTask: <br>
+	 * Description
+	 * 
+	 * @param userName
+	 * @param id
+	 * @return
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#registerTask(java.lang.String, long)
+	 */
+	@Override
+	public boolean registerTask(String userName, long id) {
+		if (messageHandlers.containsKey(id))
+			return false;
+		messageHandlers.put(id, new LinkedList<MessageHandler>());
+		List<Long> tasks = userTasks.containsKey(userName) ? userTasks.get(userName) : Collections.synchronizedList(new LinkedList<Long>());
+		tasks.add(id);
+		if (!userTasks.containsKey(userName))
+			userTasks.put(userName, tasks);
+		return true;
+	}
+
+	/**
+	 * unregisterTask: <br>
+	 * Description
+	 * 
+	 * @param userName
+	 * @param id
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#unregisterTask(java.lang.String, long)
+	 */
+	@Override
+	public void unregisterTask(String userName, long id) {
+		if (!userTasks.containsKey(userName))
+			return;
+		List<Long> tasks = userTasks.get(userName);
+		if (tasks == null || tasks.isEmpty())
+			return;
+		tasks.remove(id);
+		if (tasks.isEmpty())
+			userTasks.remove(userName);
+		if (messageHandlers.containsKey(id) && !messageHandlers.get(id).isEmpty())
+			messageHandlers.get(id).clear();
+		messageHandlers.remove(id);
+	}
+
+	/**
+	 * send: <br>
+	 * Description
+	 * 
+	 * @param handler
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#send(lu.itrust.business.TS.messagehandler.MessageHandler)
 	 */
 	@Override
 	public void send(MessageHandler handler) {
@@ -43,11 +170,15 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		queue.add(handler);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * send: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @param handler
 	 * 
 	 * @see lu.itrust.business.service.ServiceTaskFeedback#send(long,
-	 * lu.itrust.business.TS.messagehandler.MessageHandler)
+	 *      lu.itrust.business.TS.messagehandler.MessageHandler)
 	 */
 	@Override
 	public void send(long id, MessageHandler handler) {
@@ -57,12 +188,16 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		queue.add(handler);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * send: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceTaskFeedback#send(java.lang.String,
-	 * long, lu.itrust.business.TS.messagehandler.MessageHandler)
+	 * @param userName
+	 * @param id
+	 * @param handler
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#send(java.lang.String, long,
+	 *      lu.itrust.business.TS.messagehandler.MessageHandler)
 	 */
 	@Override
 	public void send(String userName, long id, MessageHandler handler) {
@@ -71,27 +206,53 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		send(id, handler);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * recieve: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceTaskFeedback#recive(long)
+	 * @param id
+	 * @return
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#recieve(long)
 	 */
 	@Override
-	public MessageHandler recive(long id) {
+	public MessageHandler recieve(long id) {
 		Queue<MessageHandler> queue = messageHandlers.get(id);
 		if (queue == null || queue.isEmpty())
 			return null;
 		return queue.poll();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * recieveLast: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceTaskFeedback#recive(java.lang.String)
+	 * @param id
+	 * @return
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#recieveLast(long)
 	 */
 	@Override
-	public List<MessageHandler> recive(String userName) {
+	public MessageHandler recieveLast(long id) {
+		Queue<MessageHandler> queue = messageHandlers.get(id);
+		if (queue == null || queue.isEmpty())
+			return null;
+		MessageHandler messageHandler = null;
+		while (!queue.isEmpty())
+			messageHandler = queue.poll();
+		return messageHandler;
+	}
+
+	/**
+	 * recieve: <br>
+	 * Description
+	 * 
+	 * @param userName
+	 * @return
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#recieve(java.lang.String)
+	 */
+	@Override
+	public List<MessageHandler> recieve(String userName) {
 		List<MessageHandler> handlers = new LinkedList<>();
 		if (!userTasks.containsKey(userName))
 			return handlers;
@@ -101,125 +262,17 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		return handlers;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * tasks: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceTaskFeedback#task(java.lang.String)
+	 * @param userName
+	 * @return
+	 * 
+	 * @see lu.itrust.business.service.ServiceTaskFeedback#tasks(java.lang.String)
 	 */
 	@Override
 	public List<Long> tasks(String userName) {
 		return userTasks.get(userName);
-	}
-
-	/**
-	 * @return the messageHandlers
-	 */
-	protected Map<Long, Queue<MessageHandler>> getMessageHandlers() {
-		return messageHandlers;
-	}
-
-	/**
-	 * @param messageHandlers
-	 *            the messageHandlers to set
-	 */
-	protected void setMessageHandlers(
-			Map<Long, Queue<MessageHandler>> messageHandlers) {
-		this.messageHandlers = messageHandlers;
-	}
-
-	/**
-	 * @return the userTask
-	 */
-	protected Map<String, List<Long>> getUserTasks() {
-		return userTasks;
-	}
-
-	/**
-	 * @param userTask
-	 *            the userTask to set
-	 */
-	protected void setUserTasks(Map<String, List<Long>> userTask) {
-		this.userTasks = userTask;
-	}
-
-	@Override
-	public boolean registerTask(String userName, long id) {
-		if (messageHandlers.containsKey(id))
-			return false;
-		messageHandlers.put(id, new LinkedList<MessageHandler>());
-		List<Long> tasks = userTasks.containsKey(userName) ? userTasks
-				.get(userName) : Collections
-				.synchronizedList(new LinkedList<Long>());
-		tasks.add(id);
-		if (!userTasks.containsKey(userName))
-			userTasks.put(userName, tasks);
-		return true;
-	}
-
-	@Override
-	public void deregisterTask(String userName, long id) {
-
-		if (!userTasks.containsKey(userName))
-			return;
-		List<Long> tasks = userTasks.get(userName);
-
-		if (tasks == null || tasks.isEmpty())
-			return;
-		tasks.remove(id);
-		if (tasks.isEmpty())
-			userTasks.remove(userName);
-		if (messageHandlers.containsKey(id)
-				&& !messageHandlers.get(id).isEmpty())
-			messageHandlers.get(id).clear();
-		messageHandlers.remove(id);
-	}
-
-	@Override
-	public boolean taskExist(long id) {
-		return messageHandlers.containsKey(id);
-	}
-
-	@Override
-	public boolean userHasTask(String userName) {
-		if (!userTasks.containsKey(userName))
-			return false;
-		List<Long> tasks = userTasks.get(userName);
-		return tasks != null && !tasks.isEmpty();
-	}
-
-	@Override
-	public boolean hasTask(String userName, long id) {
-
-		if (!userTasks.containsKey(userName))
-			return false;
-
-		for (Long task : userTasks.get(userName))
-			if (id == task)
-				return true;
-		return false;
-	}
-
-	@Override
-	public boolean hasMessage(long id) {
-		Queue<MessageHandler> queue = messageHandlers.get(id);
-		return queue != null && !queue.isEmpty();
-	}
-
-	@Override
-	public int messageCount(long id) {
-		Queue<MessageHandler> queue = messageHandlers.get(id);
-		return queue == null ? 0 : queue.size();
-	}
-
-	@Override
-	public MessageHandler reciveLast(long id) {
-		Queue<MessageHandler> queue = messageHandlers.get(id);
-		if (queue == null || queue.isEmpty())
-			return null;
-		MessageHandler messageHandler = null;
-		while (!queue.isEmpty())
-			messageHandler = queue.poll();
-		return messageHandler;
 	}
 }

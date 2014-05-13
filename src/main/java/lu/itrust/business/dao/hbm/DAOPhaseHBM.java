@@ -42,7 +42,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.dao.DAOPhase#get(int)
 	 */
 	@Override
-	public Phase get(int id) throws Exception {
+	public Phase get(Integer id) throws Exception {
 		return (Phase) getSession().get(Phase.class, id);
 	}
 
@@ -53,7 +53,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.dao.DAOPhase#getPhaseFromAnalysisByPhaseNumber(int, int)
 	 */
 	@Override
-	public Phase getPhaseFromAnalysisByPhaseNumber(int number, int IdAnalysis) throws Exception {
+	public Phase getFromAnalysisByPhaseNumber(Integer IdAnalysis, Integer number) throws Exception {
 		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.number=:phaseNumber";
 		return (Phase) getSession().createQuery(query).setParameter("idAnalysis", IdAnalysis).setParameter("phaseNumber", number).uniqueResult();
 	}
@@ -65,7 +65,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.dao.DAOPhase#getPhaseFromAnalysisIdByPhaseId(int, java.lang.Integer)
 	 */
 	@Override
-	public Phase getPhaseFromAnalysisIdByPhaseId(int idPhase, Integer idAnalysis) throws Exception {
+	public Phase getFromAnalysisByPhaseId(Integer idAnalysis, Integer idPhase) throws Exception {
 		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.id = :idPhase";
 		return (Phase) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idPhase", idPhase).uniqueResult();
 	}
@@ -77,7 +77,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.dao.DAOPhase#canBeDeleted(int)
 	 */
 	@Override
-	public boolean canBeDeleted(int idPhase) throws Exception {
+	public boolean canBeDeleted(Integer idPhase) throws Exception {
 		String query = "Select count(measure) from Measure as measure where measure.phase.id = :idPhase";
 		return ((Long) getSession().createQuery(query).setParameter("idPhase", idPhase).uniqueResult()).intValue() == 0;
 	}
@@ -102,7 +102,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Phase> getAllPhases() throws Exception {
+	public List<Phase> getAll() throws Exception {
 		return getSession().createQuery("from Phase phase order by phase.number asc, phase.beginDate asc").list();
 	}
 
@@ -114,7 +114,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Phase> getAllFromAnalysis(int idAnalysis) throws Exception {
+	public List<Phase> getAllFromAnalysis(Integer idAnalysis) throws Exception {
 		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis order by phase.number asc";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
@@ -127,7 +127,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Phase> getAllPhasesFromAnalysisByBeginDate(int idAnalysis, Date beginDate) throws Exception {
+	public List<Phase> getAllFromAnalysisByBeginDate(Integer idAnalysis, Date beginDate) throws Exception {
 		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.beginDate = :beginDate order by ";
 		query += "phase.number";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("beginDate", beginDate).list();
@@ -141,7 +141,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Phase> getAllPhasesFromAnalysisByEndDate(int idAnalysis, Date endDate) throws Exception {
+	public List<Phase> getAllFromAnalysisByEndDate(Integer idAnalysis, Date endDate) throws Exception {
 		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.endDate = :endDate order by phase.number";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("endDate", endDate).list();
 	}

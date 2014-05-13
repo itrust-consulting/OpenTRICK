@@ -86,9 +86,9 @@ public class CustomDelete {
 
 	@Transactional
 	public void deleteNorm(Norm norm) throws Exception {
-		List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllMeasureDescriptionsByNorm(norm);
+		List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByNorm(norm);
 		for (MeasureDescription measureDescription : measureDescriptions) {
-			List<MeasureDescriptionText> measureDescriptionTexts = daoMeasureDescriptionText.getAllMeasureDescriptionTextsByMeasureDescriptionId(measureDescription.getId());
+			List<MeasureDescriptionText> measureDescriptionTexts = daoMeasureDescriptionText.getAllFromMeasureDescription(measureDescription.getId());
 			for (MeasureDescriptionText measureDescriptiontext : measureDescriptionTexts) {
 				daoMeasureDescriptionText.delete(measureDescriptiontext);
 			}
@@ -113,7 +113,7 @@ public class CustomDelete {
 		List<Analysis> analyses = daoAnalysis.getAllFromCustomer(customer);
 		for (Analysis analysis : analyses)
 			daoAnalysis.delete(analysis);
-		List<User> users = daoUser.getAllUsersFromCustomer(customer);
+		List<User> users = daoUser.getAllFromCustomer(customer);
 		for (User user : users) {
 			user.getCustomers().remove(customer);
 			daoUser.saveOrUpdate(user);
@@ -138,7 +138,7 @@ public class CustomDelete {
 		if (!user.containsCustomer(customer))
 			daoUser.saveOrUpdate(user);
 
-		if (!daoCustomer.customerHasUsers(customer.getId()) && analyses.isEmpty())
+		if (!daoCustomer.hasUsers(customer.getId()) && analyses.isEmpty())
 			daoCustomer.delete(customer);
 	}
 

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
@@ -15,51 +12,153 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author eom
- *
+ * ServiceScenarioImpl.java: <br>
+ * Detailed description...
+ * 
+ * @author smenghi, itrust consulting s.a.rl.
+ * @version
+ * @since May 13, 2014
  */
 @Service
 public class ServiceScenarioImpl implements ServiceScenario {
 
 	@Autowired
 	private DAOScenario daoScenario;
-	
-	/* (non-Javadoc)
+
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceScenario#get(int)
 	 */
 	@Override
-	public Scenario get(int id) throws Exception {
+	public Scenario get(Integer id) throws Exception {
 		return daoScenario.get(id);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceScenario#loadFromNameAnalysis(java.lang.String, lu.itrust.business.TS.Analysis)
+	/**
+	 * getScenarioFromAnalysisByScenarioId: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenario#getScenarioFromAnalysisByScenarioId(int, int)
 	 */
 	@Override
-	public Scenario loadFromNameAnalysis(String scenarioName, Analysis analysis)
-			throws Exception {
-		return daoScenario.loadFromNameAnalysis(scenarioName, analysis);
+	public Scenario getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception {
+		return daoScenario.getFromAnalysisById(idAnalysis, id);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceScenario#loadAllFromAnalysisID(int)
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
+	 * 
+	 * @param scenarioId
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenario#belongsToAnalysis(java.lang.Integer,
+	 *      java.lang.Integer)
 	 */
 	@Override
-	public List<Scenario> loadAllFromAnalysisID(int idAnalysis)
-			throws Exception {
-		return daoScenario.findByAnalysis(idAnalysis);
+	public boolean belongsToAnalysis(Integer scenarioId, Integer analysisId) throws Exception {
+		return daoScenario.belongsToAnalysis(scenarioId, analysisId);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceScenario#loadAll()
+	/**
+	 * getAllScenarios: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenario#getAllScenarios()
 	 */
 	@Override
-	public List<Scenario> loadAll() throws Exception {
-		return daoScenario.loadAll();
+	public List<Scenario> getAll() throws Exception {
+		return daoScenario.getAll();
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceScenario#save(lu.itrust.business.TS.Scenario)
+	/**
+	 * getAllFromAnalysisId: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenario#getAllFromAnalysisId(int)
+	 */
+	@Override
+	public List<Scenario> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+		return daoScenario.getAllFromAnalysis(idAnalysis);
+	}
+
+	/**
+	 * getAllFromAnalysisIdAndSelected: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenario#getAllFromAnalysisIdAndSelected(int)
+	 */
+	@Override
+	public List<Scenario> getAllSelectedFromAnalysis(Integer idAnalysis) throws Exception {
+		return daoScenario.getAllSelectedFromAnalysis(idAnalysis);
+	}
+
+	/**
+	 * getAllFromAnalysisByScenarioTypeId: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 * @param scenarioTypeID
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenario#getAllFromAnalysisByScenarioTypeId(lu.itrust.business.TS.Analysis,
+	 *      int)
+	 */
+	@Override
+	public List<Scenario> getAllFromAnalysisByType(Analysis analysis, Integer scenarioTypeID) throws Exception {
+		return daoScenario.getAllFromAnalysisByType(analysis, scenarioTypeID);
+	}
+
+	/**
+	 * getAllScenariosFromAnalysisByScenarioIdList: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param scenarios
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenario#getAllScenariosFromAnalysisByScenarioIdList(int,
+	 *      java.util.List)
+	 */
+	@Override
+	public List<Scenario> getAllFromAnalysisByIdList(Integer idAnalysis, List<Integer> scenarios) throws Exception {
+		return daoScenario.getAllFromAnalysisByIdList(idAnalysis, scenarios);
+	}
+
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @param scenario
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenario#saveOrUpdate(lu.itrust.business.TS.Scenario)
 	 */
 	@Transactional
 	@Override
@@ -67,39 +166,49 @@ public class ServiceScenarioImpl implements ServiceScenario {
 		daoScenario.save(scenario);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @param scenario
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceScenario#saveOrUpdate(lu.itrust.business.TS.Scenario)
 	 */
 	@Transactional
 	@Override
 	public void saveOrUpdate(Scenario scenario) throws Exception {
 		daoScenario.saveOrUpdate(scenario);
-
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceScenario#remove(lu.itrust.business.TS.Scenario)
+	/**
+	 * merge: <br>
+	 * Description
+	 * 
+	 * @param scenario
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenario#merge(lu.itrust.business.TS.Scenario)
 	 */
 	@Transactional
 	@Override
-	public void remove(Scenario scenario) throws Exception {
-		daoScenario.remove(scenario);
-	}
-
-	@Transactional
-	@Override
-	public Scenario merge(Scenario scenario) {
+	public Scenario merge(Scenario scenario) throws Exception {
 		return daoScenario.merge(scenario);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param scenario
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenario#delete(lu.itrust.business.TS.Scenario)
+	 */
+	@Transactional
 	@Override
-	public List<Scenario> findByAnalysisAndSelected(int idAnalysis) {
-		return daoScenario.findByAnalysisAndSelected(idAnalysis);
+	public void delete(Scenario scenario) throws Exception {
+		daoScenario.delete(scenario);
 	}
-
-	@Override
-	public Scenario findByIdAndAnalysis(int id, int idAnalysis) {
-		return daoScenario.findByIdAndAnalysis(id, idAnalysis);
-	}
-
 }

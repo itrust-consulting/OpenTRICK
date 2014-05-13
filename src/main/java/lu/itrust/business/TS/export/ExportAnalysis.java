@@ -1099,7 +1099,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 		List<Object> params = new ArrayList<Object>();
 		String query = "";
-		List<ScenarioType> scenarioTypes = serviceScenarioType.getAllScenarioTypes();
+		List<ScenarioType> scenarioTypes = serviceScenarioType.getAll();
 
 		// ****************************************************************
 		// * export scenario types
