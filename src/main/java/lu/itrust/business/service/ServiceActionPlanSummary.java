@@ -27,9 +27,9 @@ public interface ServiceActionPlanSummary {
 
 	public List<SummaryStage> getAllFromAnalysis(Analysis analysis) throws Exception;
 
-	public List<SummaryStage> getFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) throws Exception;
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) throws Exception;
 
-	public List<SummaryStage> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception;
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception;
 
 	public void save(SummaryStage summaryStage) throws Exception;
 

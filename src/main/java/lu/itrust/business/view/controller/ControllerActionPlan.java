@@ -100,8 +100,8 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String showActionPlan(HttpSession session, Map<String, Object> model, Principal principal) throws Exception {
 
 		// retrieve analysis ID
@@ -132,8 +132,8 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String section(Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis ID
@@ -178,16 +178,16 @@ public class ControllerActionPlan {
 	 *         javascript)
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	@RequestMapping(value = "/RetrieveSingleEntry/{entryID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public String retrieveSingle(@PathVariable("entryID") int entryID, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
+	@RequestMapping(value = "/RetrieveSingleEntry/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'ActionPlanEntry', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String retrieveSingle(@PathVariable("elementID") int elementID, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 
 		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
 
 		String alpha3 = serviceAnalysis.getLanguageOfAnalysis(analysisID).getAlpha3();
 
 		// retrieve actionplan entry from the given entryID
-		ActionPlanEntry actionplanentry = serviceActionPlan.get(entryID);
+		ActionPlanEntry actionplanentry = serviceActionPlan.get(elementID);
 
 		// prepare model
 		model.put("actionplanentry", actionplanentry);
@@ -233,7 +233,7 @@ public class ControllerActionPlan {
 	String computeActionPlan(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 
 		// prepare permission verifier
-		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
+		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNode = mapper.readTree(value);

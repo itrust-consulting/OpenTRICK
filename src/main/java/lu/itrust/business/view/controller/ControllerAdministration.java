@@ -19,6 +19,7 @@ import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.GeneralComperator;
+import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceDataValidation;
@@ -91,9 +92,9 @@ public class ControllerAdministration {
 	@RequestMapping
 	public String showAdministration(HttpSession session, Principal principal, Map<String, Object> model) throws Exception {
 		model.put("adminView", true);
-		model.put("users", serviceUser.getAllUsers());
+		model.put("users", serviceUser.getAll());
 
-		List<Customer> customers = serviceCustomer.getAllCustomersNoProfiles();
+		List<Customer> customers = serviceCustomer.getAllNotProfiles();
 
 		Integer customerID = (Integer) session.getAttribute("currentCustomer");
 
@@ -103,7 +104,7 @@ public class ControllerAdministration {
 			// use first customer as selected customer
 			session.setAttribute("currentCustomer", customerID = customers.get(0).getId());
 
-		customers = serviceCustomer.getAllCustomers();
+		customers = serviceCustomer.getAll();
 
 		model.put("status", getStatus());
 
@@ -113,7 +114,7 @@ public class ControllerAdministration {
 
 			if (customerID != null) {
 				model.put("currentcustomer", customerID);
-				model.put("analyses", serviceAnalysis.getAllFromCustomerIdAndProfile(customerID));
+				model.put("analyses", serviceAnalysis.getAllFromCustomerAndProfile(customerID));
 			} else {
 				model.put("currentcustomer", null);
 				model.put("analyses", serviceAnalysis.getAll());
@@ -170,8 +171,8 @@ public class ControllerAdministration {
 	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
 		session.setAttribute("currentCustomer", customerSection);
 		model.addAttribute("customer", customerSection);
-		model.addAttribute("analyses", serviceAnalysis.getAllFromCustomerIdAndProfile(customerSection));
-		model.addAttribute("customers", serviceCustomer.getAllCustomers());
+		model.addAttribute("analyses", serviceAnalysis.getAllFromCustomerAndProfile(customerSection));
+		model.addAttribute("customers", serviceCustomer.getAll());
 		return "admin/analysis/analyses";
 	}
 
@@ -196,14 +197,14 @@ public class ControllerAdministration {
 
 			List<UserAnalysisRight> uars = analysis.getUserRights();
 
-			for (User user : serviceUser.getAllUsers())
-				userrights.put(user, null);
+			for (User user : serviceUser.getAll())
+				userrights.put(DAOHibernate.Initialise(user), null);
 
 			for (UserAnalysisRight uar : uars)
-				userrights.put(uar.getUser(), uar.getRight());
+				userrights.put(DAOHibernate.Initialise(uar.getUser()), DAOHibernate.Initialise(uar.getRight()));
 
-			model.addAttribute("currentUser", serviceUser.get(principal.getName()).getId());
-			model.addAttribute("analysisRigths", AnalysisRight.values());
+			model.addAttribute("currentUser", (DAOHibernate.Initialise(serviceUser.get(principal.getName())).getId()));
+			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
 			return "analysis/manageuseranalysisrights";
@@ -237,17 +238,19 @@ public class ControllerAdministration {
 
 			List<UserAnalysisRight> uars = analysis.getUserRights();
 
-			for (User user : serviceUser.getAllUsers())
-				userrights.put(user, null);
+			for (User user : serviceUser.getAll())
+				userrights.put(DAOHibernate.Initialise(user), null);
 
 			for (UserAnalysisRight uar : uars)
-				userrights.put(uar.getUser(), uar.getRight());
+				userrights.put(DAOHibernate.Initialise(uar.getUser()), DAOHibernate.Initialise(uar.getRight()));
 
 			int currentUser = jsonNode.get("userselect").asInt();
 
 			model.addAttribute("currentUser", currentUser);
 
-			for (User user : serviceUser.getAllUsers()) {
+			for (User user : serviceUser.getAll()) {
+
+				user = DAOHibernate.Initialise(user);
 
 				if (user.getLogin().equals(principal.getName()))
 					continue;
@@ -287,7 +290,7 @@ public class ControllerAdministration {
 			model.addAttribute("success", messageSource
 					.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
-			model.addAttribute("analysisRigths", AnalysisRight.values());
+			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
 
@@ -312,7 +315,7 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping(value = "/User/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
-		model.addAttribute("users", serviceUser.getAllUsers());
+		model.addAttribute("users", serviceUser.getAll());
 		return "admin/user/users";
 	}
 
@@ -348,7 +351,7 @@ public class ControllerAdministration {
 	@RequestMapping(value = "/User/Roles/{userId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String getUserRoles(@PathVariable("userId") int userId, Map<String, Object> model, HttpSession session) throws Exception {
 
-		List<Role> userRoles = serviceRole.getFromUser(serviceUser.get(userId));
+		List<Role> userRoles = serviceRole.getAllFromUser(serviceUser.get(userId));
 
 		List<RoleType> roleTypes = new ArrayList<RoleType>();
 
@@ -447,7 +450,7 @@ public class ControllerAdministration {
 				RoleType[] roletypes = RoleType.values();
 
 				for (int i = 0; i < roletypes.length; i++) {
-					Role role = serviceRole.getRoleByName(roletypes[i].name());
+					Role role = serviceRole.getByName(roletypes[i].name());
 
 					if (role == null) {
 						role = new Role(roletypes[i]);

@@ -75,10 +75,11 @@ public class ControllerMeasure {
 	 * @param model
 	 * @param principal
 	 * @return
+	 * @throws Exception 
 	 */
 	@RequestMapping("/Section")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String section(HttpSession session, Model model, Principal principal) {
+	public String section(HttpSession session, Model model, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -86,10 +87,10 @@ public class ControllerMeasure {
 			return null;
 
 		// add measures of the analysis
-		model.addAttribute("measures", serviceMeasure.findByAnalysis(idAnalysis));
+		model.addAttribute("measures", serviceMeasure.getAllFromAnalysis(idAnalysis));
 
 		// add language of the analysis
-		model.addAttribute("language", serviceLanguage.findByAnalysis(idAnalysis).getAlpha3());
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3());
 
 		return "analysis/components/measure";
 	}
@@ -105,12 +106,12 @@ public class ControllerMeasure {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{idMeasure}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@RequestMapping(value = "/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
-	Measure get(@PathVariable int idMeasure, Model model, HttpSession session, Principal principal) throws Exception {
+	Measure get(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Measure measure = serviceMeasure.findByIdAndAnalysis(idMeasure, idAnalysis);
+		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		measure.setAnalysisNorm(null);
 		measure.setMeasureDescription(null);
 		if (measure instanceof NormMeasure) {
@@ -124,11 +125,11 @@ public class ControllerMeasure {
 		return measure;
 	}
 
-	@RequestMapping(value = "/SingleMeasure/{idMeasure}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String getSingleMeasure(@PathVariable int idMeasure, Model model, HttpSession session, Principal principal) throws Exception {
+	@RequestMapping(value = "/SingleMeasure/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Measure measure = serviceMeasure.findByIdAndAnalysis(idMeasure, idAnalysis);
+		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		if (measure instanceof NormMeasure) {
 			Hibernate.initialize(((NormMeasure) measure).getAssetTypeValues());
 			Hibernate.initialize(measure);
@@ -148,7 +149,7 @@ public class ControllerMeasure {
 	public @ResponseBody
 	String updateRRF(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		NormMeasure measure = (NormMeasure) serviceMeasure.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
+		NormMeasure measure = (NormMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, fieldEditor.getId());
 		Field field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
 		if (field == null) {
 			if (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
@@ -176,12 +177,12 @@ public class ControllerMeasure {
 		return chartGenerator.rrfByMeasure(measure, idAnalysis, locale, fieldEditor.getFilter());
 	}
 
-	@RequestMapping(value = "/RRF/{idMeasure}/Load", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/RRF/{elementID}/Load", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String load(@RequestBody RRFFilter filter, @PathVariable int idMeasure, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	String load(@RequestBody RRFFilter filter, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Measure measure = serviceMeasure.findByIdAndAnalysis(idMeasure, idAnalysis);
+		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		return chartGenerator.rrfByMeasure((NormMeasure) measure, idAnalysis, locale, filter);
 	}
 
@@ -194,10 +195,11 @@ public class ControllerMeasure {
 	 * @param model
 	 * @param attributes
 	 * @return
+	 * @throws Exception 
 	 */
-	@RequestMapping("/Section/{norm}")
+	//@RequestMapping("/Section/{norm}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String sectionNorm(@PathVariable String norm, HttpSession session, Model model, Principal principal) {
+	public String sectionNorm(@PathVariable String norm, HttpSession session, Model model, Principal principal) throws Exception {
 
 		// get analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -205,10 +207,10 @@ public class ControllerMeasure {
 			return null;
 
 		// add measures of a norm
-		model.addAttribute("measures", serviceMeasure.findByAnalysisAndNorm(idAnalysis, norm));
+		model.addAttribute("measures", serviceMeasure.getAllFromAnalysisAndNorm(idAnalysis, norm));
 
 		// add language of analysis
-		model.addAttribute("language", serviceLanguage.findByAnalysis(idAnalysis));
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis));
 
 		return "analysis/components/measure";
 	}
@@ -245,12 +247,12 @@ public class ControllerMeasure {
 
 	@RequestMapping(value = "/SOA", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String getSOA(HttpSession session, Principal principal, Model model) {
+	public String getSOA(HttpSession session, Principal principal, Model model) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
-		model.addAttribute("measures", serviceMeasure.loadSOA(idAnalysis));
+		model.addAttribute("measures", serviceMeasure.getSOAMeasuresFromAnalysis(idAnalysis));
 
 		return "analysis/components/soa";
 	}

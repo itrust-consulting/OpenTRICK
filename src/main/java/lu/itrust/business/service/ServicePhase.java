@@ -18,7 +18,7 @@ public interface ServicePhase {
 
 	public Phase getFromAnalysisByPhaseNumber(Integer IdAnalysis, Integer number) throws Exception;
 
-	public Phase getFromAnalysisByPhaseId(Integer idAnalysis, Integer idPhase) throws Exception;
+	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase) throws Exception;
 
 	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId) throws Exception;
 

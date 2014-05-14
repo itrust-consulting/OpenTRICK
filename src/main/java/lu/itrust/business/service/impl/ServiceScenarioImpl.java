@@ -69,8 +69,8 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer scenarioId, Integer analysisId) throws Exception {
-		return daoScenario.belongsToAnalysis(scenarioId, analysisId);
+	public boolean belongsToAnalysis(Integer analysisId, Integer scenarioId) throws Exception {
+		return daoScenario.belongsToAnalysis(analysisId, scenarioId);
 	}
 
 	/**

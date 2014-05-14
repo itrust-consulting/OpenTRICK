@@ -2,11 +2,11 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
-
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.dao.DAOItemInformation;
+
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOItemInformationHBM.java: <br>
@@ -46,6 +46,25 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	}
 
 	/**
+	 * getFromAnalysisById: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param idIteminformation
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.dao.DAOItemInformation#getFromAnalysisById(java.lang.Integer,
+	 *      java.lang.Integer)
+	 */
+	@Override
+	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idIteminformation) throws Exception {
+		String query =
+			"Select iteminformation From Analysis as analysis inner join analysis.iteminformations as iteminformation where analysis.id = :idAnalysis and iteminformation.id = :idIteminformation";
+		return (ItemInformation) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idIteminformation", idIteminformation).uniqueResult();
+	}
+
+	/**
 	 * getFromAnalysisIdByDescription: <br>
 	 * Description
 	 * 
@@ -69,7 +88,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer iteminformationId) throws Exception {
 		String query = "Select count(itemInformation) From Analysis as analysis inner join analysis.itemInformations as itemInformation where analysis.id = :analysisid and ";
-		query += "itemInformation.id = : itemInformationId";
+		query += "itemInformation.id = :itemInformationId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("itemInformationId", iteminformationId).uniqueResult()).intValue() > 0;
 	}
 

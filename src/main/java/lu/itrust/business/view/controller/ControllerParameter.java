@@ -1,6 +1,5 @@
 package lu.itrust.business.view.controller;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -12,8 +11,6 @@ import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceParameter;
 import lu.itrust.business.service.ServiceParameterType;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -64,7 +61,7 @@ public class ControllerParameter {
 			return null;
 
 		// add parameters to model
-		model.addAttribute("parameters", serviceParameter.findByAnalysis(idAnalysis));
+		model.addAttribute("parameters", serviceParameter.getAllFromAnalysis(idAnalysis));
 
 		return "analysis/components/parameter";
 	}
@@ -76,14 +73,12 @@ public class ControllerParameter {
 	 * @param model
 	 * @param session
 	 * @return
-	 * @throws JsonGenerationException
-	 * @throws JsonMappingException
-	 * @throws IOException
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Maturity/ImplementationRate", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
-	List<Parameter> maturityImplementationRate(Model model, HttpSession session, Principal principal) throws JsonGenerationException, JsonMappingException, IOException {
+	List<Parameter> maturityImplementationRate(Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -91,6 +86,6 @@ public class ControllerParameter {
 			return null;
 
 		// load parameters of analysis
-		return serviceParameter.findByAnalysisAndTypeAndNoLazy(idAnalysis, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
+		return serviceParameter.getAllInitialisedFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME);
 	}
 }

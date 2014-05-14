@@ -69,8 +69,8 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer riskinformationId, Integer analysisId) throws Exception {
-		return daoRiskInformation.belongsToAnalysis(riskinformationId, analysisId);
+	public boolean belongsToAnalysis(Integer analysisId, Integer riskinformationId) throws Exception {
+		return daoRiskInformation.belongsToAnalysis(analysisId, riskinformationId);
 	}
 
 	/**

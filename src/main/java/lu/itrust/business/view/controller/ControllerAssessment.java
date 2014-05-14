@@ -84,7 +84,7 @@ public class ControllerAssessment {
 			return null;
 
 		// add assessments to model
-		model.addAttribute("assessments", serviceAssessment.loadAllFromAnalysisID(integer));
+		model.addAttribute("assessments", serviceAssessment.getAllFromAnalysis(integer));
 		return "analysis/components/assessment";
 	}
 
@@ -118,7 +118,7 @@ public class ControllerAssessment {
 
 			// update assessments of analysis
 			assessmentManager.UpdateAssessment(analysis);
-			
+
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 
@@ -167,7 +167,6 @@ public class ControllerAssessment {
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 
-			
 			// return success message
 			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.wipe", null, "Assessments were successfully deleted", locale) + "\"}");
 		} catch (Exception e) {
@@ -189,9 +188,9 @@ public class ControllerAssessment {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Asset/{assetId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String loadAssessmentsOfAsset(@PathVariable Integer assetId, Model model, HttpSession session, Principal principal) throws Exception {
+	@RequestMapping(value = "/Asset/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String loadAssessmentsOfAsset(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
 		// get analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -204,12 +203,10 @@ public class ControllerAssessment {
 			return null;
 
 		// retrieve asset
-		Asset asset = serviceAsset.get(assetId);
-		if (!analysis.getAssets().contains(asset))
-			return null;
+		Asset asset = serviceAsset.get(elementID);
 
 		// load assessments by asset into model
-		return assessmentByAsset(model, asset, serviceAssessment.findByAssetAndSelected(asset), idAnalysis);
+		return assessmentByAsset(model, asset, serviceAssessment.getAllSelectedFromAsset(asset), idAnalysis);
 	}
 
 	/**
@@ -223,7 +220,7 @@ public class ControllerAssessment {
 	 * @return
 	 */
 	@RequestMapping(value = "/Asset/{assetId}/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String updateAsset(@PathVariable int assetId, Model model, HttpSession session, Locale locale, Principal principal) {
 
 		try {
@@ -239,10 +236,10 @@ public class ControllerAssessment {
 				return null;
 
 			// retrieve extended paramters of analysis
-			List<ExtendedParameter> parameters = serviceParameter.findExtendedByAnalysis(idAnalysis);
+			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
 
 			// retrieve assessments of analysis
-			List<Assessment> assessments = serviceAssessment.findByAssetAndSelected(asset);
+			List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
 
 			// parse assessments and initialise impact values to 0 if empty
 			for (Assessment assessment : assessments) {
@@ -286,9 +283,9 @@ public class ControllerAssessment {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Scenario/{scenarioId}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String loadByScenario(@PathVariable Integer scenarioId, Model model, HttpSession session, Principal principal) throws Exception {
+	@RequestMapping(value = "/Scenario/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String loadByScenario(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -301,12 +298,10 @@ public class ControllerAssessment {
 			return null;
 
 		// retrieve scenario from given id
-		Scenario scenario = serviceScenario.get(scenarioId);
-		if (!analysis.getScenarios().contains(scenario))
-			return null;
+		Scenario scenario = serviceScenario.get(elementID);
 
 		// load all assessments by scenario to model
-		return assessmentByScenario(model, scenario, serviceAssessment.findByScenarioAndSelected(scenario), idAnalysis);
+		return assessmentByScenario(model, scenario, serviceAssessment.getAllSelectedFromScenario(scenario), idAnalysis);
 	}
 
 	/**
@@ -319,9 +314,9 @@ public class ControllerAssessment {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Scenario/{scenarioId}/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String updateByScenario(@PathVariable int scenarioId, Model model, HttpSession session, Locale locale, Principal principal) {
+	@RequestMapping(value = "/Scenario/{elementID}/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public String updateByScenario(@PathVariable int elementID, Model model, HttpSession session, Locale locale, Principal principal) {
 
 		try {
 
@@ -331,15 +326,15 @@ public class ControllerAssessment {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			// load scenario
-			Scenario scenario = serviceScenario.get(scenarioId);
+			Scenario scenario = serviceScenario.get(elementID);
 			if (scenario == null)
 				return null;
 
 			// load extended parameters
-			List<ExtendedParameter> parameters = serviceParameter.findExtendedByAnalysis(idAnalysis);
+			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
 
 			// load assessments
-			List<Assessment> assessments = serviceAssessment.findByScenarioAndSelected(scenario);
+			List<Assessment> assessments = serviceAssessment.getAllSelectedFromScenario(scenario);
 
 			// parse assessments and initilaise illegal impact values
 			for (Assessment assessment : assessments) {
@@ -382,11 +377,12 @@ public class ControllerAssessment {
 	 * @param session
 	 * @param locale
 	 * @return
+	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Update/Acronym/{idParameter}/{acronym}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Update/Acronym/{elementID}/{acronym}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String updateAcromyn(@PathVariable int idParameter, @PathVariable String acronym, HttpSession session, Locale locale, Principal principal) {
+	String updateAcromyn(@PathVariable int elementID, @PathVariable String acronym, HttpSession session, Locale locale, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -394,7 +390,7 @@ public class ControllerAssessment {
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 		// retrieve parameter id
-		Parameter parameter = serviceParameter.findByIdAndAnalysis(idParameter, idAnalysis);
+		Parameter parameter = serviceParameter.getFromAnalysisById(idAnalysis, elementID);
 		if (parameter == null || !(parameter instanceof ExtendedParameter))
 			return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
 
@@ -404,7 +400,7 @@ public class ControllerAssessment {
 		try {
 
 			// retrieve assessments by acronym and analysis
-			List<Assessment> assessments = serviceAssessment.findByAnalysisAndAcronym(idAnalysis, acronym);
+			List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndImpactLikelihoodAcronym(idAnalysis, acronym);
 
 			// parse assessments and update impact value to parameter acronym
 			for (Assessment assessment : assessments) {
@@ -423,20 +419,20 @@ public class ControllerAssessment {
 				serviceAssessment.saveOrUpdate(assessment);
 			}
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() },
-					"Assessment acronym (" + acronym + ") was successfully updated with (" + extendedParameter.getAcronym() + ")", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym ("
+				+ acronym + ") was successfully updated with (" + extendedParameter.getAcronym() + ")", locale));
 		} catch (Exception e) {
 
 			// return error message
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym ("
-					+ acronym + ") cannot be updated to (" + extendedParameter.getAcronym() + ")", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym (" + acronym
+				+ ") cannot be updated to (" + extendedParameter.getAcronym() + ")", locale));
 		}
 
 	}
 
-	private Map<String, Double> generateAcronymValueMatching(int idAnalysis) {
-		List<ExtendedParameter> extendedParameters = serviceParameter.findExtendedByAnalysis(idAnalysis);
+	private Map<String, Double> generateAcronymValueMatching(int idAnalysis) throws Exception {
+		List<ExtendedParameter> extendedParameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
 		Map<String, Double> matchingParameters = new LinkedHashMap<String, Double>(extendedParameters.size());
 		for (ExtendedParameter extendedParameter : extendedParameters)
 			matchingParameters.put(extendedParameter.getAcronym(), extendedParameter.getValue());
@@ -452,8 +448,9 @@ public class ControllerAssessment {
 	 * @param asset
 	 * @param assessments
 	 * @return
+	 * @throws Exception
 	 */
-	private String assessmentByAsset(Model model, Asset asset, List<Assessment> assessments, int idAnalysis) {
+	private String assessmentByAsset(Model model, Asset asset, List<Assessment> assessments, int idAnalysis) throws Exception {
 		ALE ale = new ALE(asset.getName(), 0);
 		ALE aleo = new ALE(asset.getName(), 0);
 		ALE alep = new ALE(asset.getName(), 0);
@@ -478,8 +475,9 @@ public class ControllerAssessment {
 	 * @param scenario
 	 * @param assessments
 	 * @return
+	 * @throws Exception
 	 */
-	private String assessmentByScenario(Model model, Scenario scenario, List<Assessment> assessments, int idAnalysis) {
+	private String assessmentByScenario(Model model, Scenario scenario, List<Assessment> assessments, int idAnalysis) throws Exception {
 		ALE ale = new ALE(scenario.getName(), 0);
 		ALE aleo = new ALE(scenario.getName(), 0);
 		ALE alep = new ALE(scenario.getName(), 0);

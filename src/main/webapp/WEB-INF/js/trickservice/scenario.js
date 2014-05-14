@@ -26,7 +26,11 @@ function editScenario(rowTrickId, isAdd) {
 			});
 			$("#addScenarioModal").modal("toggle");
 			return false;
-		}
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			console.log(textStatus, errorThrown);
+			return false;
+		},
 	});
 	return false;
 }
@@ -59,7 +63,7 @@ function saveScenario(form) {
 					break;
 				case "description":
 					$(errorElement).appendTo($("#scenario_form #scenario_description").parent());
-					break;	
+					break;
 				case "selected":
 					$(errorElement).appendTo($("#scenario_form #asset_selected").parent());
 					break;

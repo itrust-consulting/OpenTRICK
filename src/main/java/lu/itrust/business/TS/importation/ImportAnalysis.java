@@ -173,9 +173,9 @@ public class ImportAnalysis {
 	 */
 	@Transactional
 	public boolean simpleAnalysisImport() {
-		
+
 		Session session = null;
-		
+
 		try {
 
 			if (sessionFactory != null) {
@@ -253,24 +253,24 @@ public class ImportAnalysis {
 			importMaturityMeasures();
 
 			System.out.println("Saving Analysis Data...");
-			
+
 			// save or update analysis
 			daoAnalysis.save(this.analysis);
-			
+
 			if (session != null)
 				session.getTransaction().commit();
 
 			System.out.println("Import Done!");
-			
+
 			return true;
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		} finally {
 			try {
-			this.sqlite.close();
-			} catch(Exception e) {
+				this.sqlite.close();
+			} catch (Exception e) {
 				e.printStackTrace();
 				return false;
 			} finally {
@@ -279,10 +279,10 @@ public class ImportAnalysis {
 				if (session != null)
 					session.close();
 			}
-			
+
 		}
 	}
-	
+
 	/**
 	 * ImportAnAnalysis: <br>
 	 * Method used to import and given analysis using an sqlite file into the mysql database.
@@ -402,7 +402,7 @@ public class ImportAnalysis {
 			AssessmentManager asm = new AssessmentManager();
 
 			System.out.println("Saving Analysis Data...");
-			
+
 			// save or update analysis
 			daoAnalysis.save(this.analysis);
 
@@ -410,19 +410,19 @@ public class ImportAnalysis {
 			asm.UpdateAssessment(this.analysis);
 
 			daoAnalysis.saveOrUpdate(this.analysis);
-			
+
 			if (session != null)
 				session.getTransaction().commit();
 
 			System.out.println("Import Done!");
-			
+
 			return true;
-			
+
 		} catch (Exception e) {
 			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), e));
 			e.printStackTrace();
 			throw e;
-			
+
 		} finally {
 			// clear maps
 			clearData();
@@ -463,7 +463,7 @@ public class ImportAnalysis {
 	private void importAnalyses() throws Exception {
 
 		System.out.println("Import versions...");
-		
+
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
@@ -511,7 +511,7 @@ public class ImportAnalysis {
 		acroLanguage = this.analysis.getIdentifier().substring(0, 3);
 
 		// retrieve language from acronym
-		language = daoLanguage.getLanguageByAlpha3(acroLanguage);
+		language = daoLanguage.getByAlpha3(acroLanguage);
 
 		// if language is not found, create the english language object and save
 		// it to the database
@@ -1418,18 +1418,30 @@ public class ImportAnalysis {
 			// * create instance
 			// ****************************************************************
 			parameter = new Parameter();
-			
+
 			String desc = "ImpScale";
-			
-			switch(rs.getInt(Constant.MATURITY_IS_LINE)){
-				case 1:desc=Constant.IS_NOT_ACHIEVED;break;
-				case 2:desc=Constant.IS_RUDIMENTARY_ACHIEVED;break;
-				case 3:desc=Constant.IS_PARTIALLY_ACHIEVED;break;
-				case 4:desc=Constant.IS_LARGELY_ACHIEVED;break;
-				case 5:desc=Constant.IS_FULLY_ACHIEVED;break;
-				default:desc="ImpScale"+String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE));break;
+
+			switch (rs.getInt(Constant.MATURITY_IS_LINE)) {
+				case 1:
+					desc = Constant.IS_NOT_ACHIEVED;
+					break;
+				case 2:
+					desc = Constant.IS_RUDIMENTARY_ACHIEVED;
+					break;
+				case 3:
+					desc = Constant.IS_PARTIALLY_ACHIEVED;
+					break;
+				case 4:
+					desc = Constant.IS_LARGELY_ACHIEVED;
+					break;
+				case 5:
+					desc = Constant.IS_FULLY_ACHIEVED;
+					break;
+				default:
+					desc = "ImpScale" + String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE));
+					break;
 			}
-			
+
 			parameter.setDescription(desc);
 			parameter.setType(parameterType);
 			parameter.setValue(rs.getDouble(Constant.MATURITY_IS_VALUE) * 100);
@@ -2192,7 +2204,7 @@ public class ImportAnalysis {
 					// ****************************************************************
 					// * create instance
 					// ****************************************************************
-					itemInformation = new ItemInformation(rsMetaData.getColumnName(i),Constant.ITEMINFORMATION_SCOPE, rs.getString(rsMetaData.getColumnName(i)));
+					itemInformation = new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_SCOPE, rs.getString(rsMetaData.getColumnName(i)));
 
 					// ****************************************************************
 					// * add instance to list of item information
@@ -2241,7 +2253,7 @@ public class ImportAnalysis {
 				// ****************************************************************
 				// * create instance
 				// ****************************************************************
-				itemInformation = new ItemInformation(rsMetaData.getColumnName(i),Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i)));
+				itemInformation = new ItemInformation(rsMetaData.getColumnName(i), Constant.ITEMINFORMATION_ORGANISATION, rs.getString(rsMetaData.getColumnName(i)));
 
 				// ****************************************************************
 				// * add instance to list of item information
@@ -2300,9 +2312,9 @@ public class ImportAnalysis {
 			currentSqliteTable = "maturities";
 			// retrieve norm from map
 			norm = norms.get(Constant.NORM_MATURITY);
-			
+
 			tempPhase = null;
-			
+
 			if (columnExists(rs, Constant.MEASURE_VERSION_NORM)) {
 				normversion = rs.getInt(Constant.MEASURE_VERSION_NORM);
 				normcomputable = rs.getBoolean(Constant.MEASURE_NORM_COMPUTABLE);
@@ -2404,11 +2416,11 @@ public class ImportAnalysis {
 			// attributed phase
 			if (rs.getInt(Constant.MEASURE_LEVEL) == Constant.MEASURE_LEVEL_1) {
 
-					// set phase number
-					numPhase = rs.getInt("phase");
+				// set phase number
+				numPhase = rs.getInt("phase");
 
-					// retrieve phase from number of the map
-					tempPhase = phases.get(numPhase);
+				// retrieve phase from number of the map
+				tempPhase = phases.get(numPhase);
 			}
 
 			// phase does not exist
@@ -2461,10 +2473,11 @@ public class ImportAnalysis {
 				|| (rs.getString(Constant.MEASURE_STATUS).replace("'", "''").equals(Constant.MEASURE_STATUS_MANDATORY))) {
 
 				// calculate cost
-				cost = Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
-							this.analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), rs.getInt("internal_maintenance"),rs.getInt("external_maintenance"),
-							rs.getInt("recurrent_investment"), rs.getInt(Constant.MATURITY_INTWL), rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT), 
-							rs.getInt(Constant.MEASURE_LIFETIME));
+				cost =
+					Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
+							this.analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), rs.getInt("internal_maintenance"), rs.getInt("external_maintenance"), rs
+									.getInt("recurrent_investment"), rs.getInt(Constant.MATURITY_INTWL), rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT), rs
+									.getInt(Constant.MEASURE_LIFETIME));
 			} else {
 
 				// check if status is not NA -> NO
@@ -3026,7 +3039,7 @@ public class ImportAnalysis {
 	public ServiceTaskFeedback getServiceTaskFeedback() {
 		return this.serviceTaskFeedback;
 	}
-	
+
 	/**
 	 * @param serviceTaskFeedback
 	 *            the serviceTaskFeedback to set

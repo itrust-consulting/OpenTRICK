@@ -53,6 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -113,15 +114,24 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/ItemInformation", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/ItemInformation/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'ItemInformation', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String itemInformation(@RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) {
+	String itemInformation(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) {
 
 		try {
 
+			// retrieve analysis id
+			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+
+			// check if analysis exist
+			if (id == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+			if (!serviceAnalysis.exists(id))
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
 			// get item information object from id
-			ItemInformation itemInformation = serviceItemInformation.get(fieldEditor.getId());
+			ItemInformation itemInformation = serviceItemInformation.getFromAnalysisById(id, elementID);
 			if (itemInformation == null)
 				return JsonMessage.Error(messageSource.getMessage("error.itemInformation.not_found", null, "ItemInformation cannot be found", locale));
 
@@ -177,15 +187,24 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Parameter", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Parameter/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String parameter(@RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) {
+	String parameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) {
 
 		try {
 
+			// retrieve analysis id
+			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+
+			// check if analysis exist
+			if (id == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+			if (!serviceAnalysis.exists(id))
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
 			// get parameter object
-			Parameter parameter = serviceParameter.get(fieldEditor.getId());
+			Parameter parameter = serviceParameter.getFromAnalysisById(id, elementID);
 			if (parameter == null)
 				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
 
@@ -206,11 +225,10 @@ public class ControllerEditField {
 			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
 
-			if(parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT))
-				if (Double.parseDouble(fieldEditor.getValue().toString())<=0)
+			if (parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT))
+				if (Double.parseDouble(fieldEditor.getValue().toString()) <= 0)
 					return JsonMessage.Error(messageSource.getMessage("error.edit.parameter.default_lifetime", null, "Default lifetime has to be > 0!", locale));
-	 
-			
+
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
 
@@ -270,10 +288,10 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/ExtendedParameter", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/ExtendedParameter/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String extendedParameter(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+	String extendedParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
 		try {
 
 			// retrieve analysis id
@@ -282,11 +300,11 @@ public class ControllerEditField {
 			// check if analysis exist
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-			if (!serviceAnalysis.exist(id))
+			if (!serviceAnalysis.exists(id))
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			// retrieve parameter
-			ExtendedParameter parameter = (ExtendedParameter) serviceParameter.get(fieldEditor.getId());
+			ExtendedParameter parameter = (ExtendedParameter) serviceParameter.getFromAnalysisById(id, elementID);
 			if (parameter == null)
 				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
 
@@ -319,7 +337,7 @@ public class ControllerEditField {
 				serviceParameter.saveOrUpdate(parameter);
 
 				// retrieve parameters
-				List<ExtendedParameter> parameters = serviceParameter.findExtendedByAnalysisAndType(id, parameter.getType());
+				List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysisAndType(id, parameter.getType());
 
 				// update impact value
 				ParameterManager.ComputeImpactValue(parameters);
@@ -380,21 +398,24 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Assessment", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Assessment/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Assessment', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String assessment(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+	String assessment(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
 
 		try {
 
-			// retrieve analysis
+			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute("selectedAnalysis");
 
+			// check if analysis exist
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+			if (!serviceAnalysis.exists(id))
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			// retrieve assessment
-			Assessment assessment = serviceAssessment.get(fieldEditor.getId());
+			Assessment assessment = serviceAssessment.getFromAnalysisById(id, elementID);
 			if (assessment == null)
 				return JsonMessage.Error(messageSource.getMessage("error.assessment.not_found", null, "Assessment cannot be found", locale));
 
@@ -408,9 +429,9 @@ public class ControllerEditField {
 			// retrieve all acronyms of impact and likelihood
 			List<String> chooses = null;
 			if ("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor.getFieldName()))
-				chooses = serviceParameter.findAcronymByAnalysisAndType(id, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+				chooses = serviceParameter.getExtendedParameterAcronymsFromAnalysisByType(id, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
 			else if ("likelihood".equals(fieldEditor.getFieldName()))
-				chooses = serviceParameter.findAcronymByAnalysisAndType(id, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
+				chooses = serviceParameter.getExtendedParameterAcronymsFromAnalysisByType(id, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
 
 			// validate new value
 			String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value, chooses != null ? chooses.toArray() : null);
@@ -433,7 +454,7 @@ public class ControllerEditField {
 			Map<String, ExtendedParameter> parameters = new LinkedHashMap<>();
 
 			// parse parameters
-			for (ExtendedParameter parameter : serviceParameter.findExtendedByAnalysis(id))
+			for (ExtendedParameter parameter : serviceParameter.getAllExtendedFromAnalysis(id))
 
 				// add parameter into map
 				parameters.put(parameter.getAcronym(), parameter);
@@ -463,15 +484,21 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/History", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/History/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'History', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String history(@RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) {
+	String history(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) {
 
 		try {
 
+			// retrieve analysis
+			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+
+			if (id == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+
 			// retireve history object
-			History history = serviceHistory.get(fieldEditor.getId());
+			History history = serviceHistory.getFromAnalysisById(id, elementID);
 			if (history == null)
 				return JsonMessage.Error(messageSource.getMessage("error.history.not_found", null, "History cannot be found", locale));
 
@@ -552,10 +579,10 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Measure", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Measure/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String measure(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+	String measure(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
 
 		try {
 
@@ -565,7 +592,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			// retrieve measure
-			Measure measure = serviceMeasure.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
+			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 			if (measure == null)
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 
@@ -584,7 +611,7 @@ public class ControllerEditField {
 				number = (Integer) FieldValue(fieldEditor, null);
 				if (number == null)
 					return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
-				Phase phase = servicePhase.loadFromPhaseNumberAnalysis(number, idAnalysis);
+				Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
 				if (phase == null)
 					return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
 
@@ -594,13 +621,13 @@ public class ControllerEditField {
 				// set field data
 			} else if (!SetFieldData(field, measure, fieldEditor, null))
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
-			
-			if(fieldEditor.getFieldName().equals("investment"))
-				measure.setInvestment(measure.getInvestment()*1000);
-			
-			if(fieldEditor.getFieldName().equals("recurrentInvestment"))
-				measure.setRecurrentInvestment(measure.getRecurrentInvestment()*1000);
-			
+
+			if (fieldEditor.getFieldName().equals("investment"))
+				measure.setInvestment(measure.getInvestment() * 1000);
+
+			if (fieldEditor.getFieldName().equals("recurrentInvestment"))
+				measure.setRecurrentInvestment(measure.getRecurrentInvestment() * 1000);
+
 			// compute new cost
 			Measure.ComputeCost(measure, analysis);
 
@@ -627,10 +654,10 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/SOA", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/SOA/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String soa(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+	String soa(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
 
 		try {
 
@@ -640,7 +667,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			// retrieve measure
-			NormMeasure measure = (NormMeasure) serviceMeasure.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
+			NormMeasure measure = (NormMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 
 			if (measure == null)
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
@@ -682,10 +709,10 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/MaturityMeasure", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/MaturityMeasure/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String maturityMeasure(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+	String maturityMeasure(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
 
 		try {
 
@@ -695,7 +722,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			// retrieve measure
-			Measure measure = serviceMeasure.findOne(fieldEditor.getId());
+			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 			if (measure == null)
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 
@@ -703,7 +730,7 @@ public class ControllerEditField {
 			if (fieldEditor.getFieldName().equalsIgnoreCase("implementationRate")) {
 
 				// retrieve parameters
-				List<Parameter> parameters = serviceParameter.findByAnalysisAndType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
+				List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME);
 
 				// retrieve single parameters
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -736,7 +763,7 @@ public class ControllerEditField {
 			} else
 
 				// update as if it would be a normal measure
-				return measure(fieldEditor, session, locale, principal);
+				return measure(elementID, fieldEditor, session, locale, principal);
 		} catch (Exception e) {
 
 			// return error
@@ -755,18 +782,21 @@ public class ControllerEditField {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/ActionPlanEntry", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/ActionPlanEntry/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'ActionPlanEntry', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String actionplanentry(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+	String actionplanentry(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
 
 		try {
 
 			// retrieve analysis
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
+			if (idAnalysis == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
 			// get acion plan entry
-			ActionPlanEntry ape = serviceActionPlan.get(fieldEditor.getId());
+			ActionPlanEntry ape = serviceActionPlan.getFromAnalysisById(idAnalysis, elementID);
 			if (ape == null)
 				return JsonMessage.Error(messageSource.getMessage("error.actionplanentry.not_found", null, "Action Plan Entry cannot be found", locale));
 
@@ -775,7 +805,7 @@ public class ControllerEditField {
 			number = (Integer) FieldValue(fieldEditor, null);
 			if (number == null)
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
-			Phase phase = servicePhase.loadFromPhaseNumberAnalysis(number, idAnalysis);
+			Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
 			if (phase == null)
 				return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
 
@@ -805,15 +835,22 @@ public class ControllerEditField {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Phase", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Phase/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Phase', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String phase(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
+	String phase(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
 
 		try {
 
+			// retrieve analysis
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+			if (idAnalysis == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
 			// retireve phase
-			Phase phase = servicePhase.get(fieldEditor.getId());
+			Phase phase = servicePhase.getFromAnalysisById(idAnalysis, elementID);
+
 			if (phase == null)
 				return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
 
@@ -839,27 +876,27 @@ public class ControllerEditField {
 		}
 	}
 
-	@RequestMapping(value = "/RiskInformation", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/RiskInformation/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'RiskInformation', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String riskInformation(@RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal){
+	String riskInformation(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) {
 		try {
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-			RiskInformation riskInformation = serviceRiskInformation.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
+			RiskInformation riskInformation = serviceRiskInformation.getFromAnalysisById(idAnalysis, elementID);
 			if (riskInformation == null)
 				return JsonMessage.Error(messageSource.getMessage("error.risk_information.not_found", null, "Risk information cannot be found", locale));
-			
+
 			// set field
 			Field field = riskInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
-			
+
 			ValidatorField validatorField = serviceDataValidation.findByClass(RiskInformation.class);
-			if(validatorField == null)
+			if (validatorField == null)
 				serviceDataValidation.register(validatorField = new RiskInformationValidator());
 			String error = validatorField.validate(riskInformation, fieldEditor.getFieldName(), fieldEditor.getValue());
-			if(error!=null)
+			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			field.setAccessible(true);
-			if(!SetFieldData(field,riskInformation, fieldEditor,null))
+			if (!SetFieldData(field, riskInformation, fieldEditor, null))
 				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			// update phase
 			serviceRiskInformation.saveOrUpdate(riskInformation);
@@ -885,8 +922,8 @@ public class ControllerEditField {
 	 * @throws ParseException
 	 * @throws NumberFormatException
 	 */
-	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) throws IllegalArgumentException, IllegalAccessException,
-			ParseException, NumberFormatException {
+	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) throws IllegalArgumentException, IllegalAccessException, ParseException,
+			NumberFormatException {
 
 		// check for data type to set field with data with cast to correct data
 		// type

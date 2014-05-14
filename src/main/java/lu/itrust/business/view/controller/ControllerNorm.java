@@ -121,7 +121,7 @@ public class ControllerNorm {
 
 		// load all norms to model
 
-		model.addAttribute("norms", serviceNorm.loadAll());
+		model.addAttribute("norms", serviceNorm.getAll());
 		return "knowledgebase/standard/norm/norms";
 	}
 
@@ -156,7 +156,7 @@ public class ControllerNorm {
 	public String loadSingleNorm(@PathVariable("normId") String normId, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale) throws Exception {
 
 		// load norm object
-		Norm norm = serviceNorm.loadSingleNormByName(normId);
+		Norm norm = serviceNorm.getNormByName(normId);
 		if (norm == null) {
 
 			// retrun error if norm does not exist
@@ -197,7 +197,7 @@ public class ControllerNorm {
 			// check if norm has to be create (new) or updated
 			if (norm.getId() < 1) {
 
-				if (!serviceNorm.exists(norm.getLabel(), norm.getVersion()))
+				if (!serviceNorm.existsByNameAndVersion(norm.getLabel(), norm.getVersion()))
 					// save
 					serviceNorm.save(norm);
 				else
@@ -230,7 +230,7 @@ public class ControllerNorm {
 		try {
 
 			// try to delete the norm
-			customDelete.deleteNorm(serviceNorm.getNormByID(normId));
+			customDelete.deleteNorm(serviceNorm.get(normId));
 
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null, "Norm was deleted successfully", locale));
@@ -295,7 +295,7 @@ public class ControllerNorm {
 	@RequestMapping(value = "/Export/{normId}", headers = "Accept=application/json")
 	public String exportNorm(@PathVariable("normId") Integer normId, Principal principal, HttpServletRequest request, Locale locale, HttpServletResponse response) throws Exception {
 
-		Norm norm = serviceNorm.getNormByID(normId);
+		Norm norm = serviceNorm.get(normId);
 
 		if (norm == null)
 			return "404";
@@ -374,7 +374,7 @@ public class ControllerNorm {
 		referencecol = 1;
 		computablecol = 2;
 
-		List<Language> languages = serviceLanguage.loadAll();
+		List<Language> languages = serviceLanguage.getAll();
 
 		int headerRow = 0;
 
@@ -477,7 +477,7 @@ public class ControllerNorm {
 
 			for (Language language : languages) {
 
-				MeasureDescriptionText measureDescriptionText = serviceMeasureDescriptionText.getByLanguage(measuredescription.getId(), language.getId());
+				MeasureDescriptionText measureDescriptionText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measuredescription.getId(), language.getId());
 
 				String domain = "";
 

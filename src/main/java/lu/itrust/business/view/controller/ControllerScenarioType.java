@@ -18,19 +18,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author eom
- *
+ * 
  */
 @Controller
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/ScenarioType")
 public class ControllerScenarioType {
-	
+
 	@Autowired
 	private ServiceScenarioType serviceScenarioType;
-	
+
 	@RequestMapping(value = "/All", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody List<ScenarioType> all() throws Exception {
-		return serviceScenarioType.getAllScenarioTypes();
+	public @ResponseBody
+	List<ScenarioType> all() throws Exception {
+		return serviceScenarioType.getAll();
 	}
 
 }

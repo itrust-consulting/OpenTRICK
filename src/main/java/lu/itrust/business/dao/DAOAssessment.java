@@ -17,6 +17,8 @@ import lu.itrust.business.TS.Scenario;
 public interface DAOAssessment {
 	public Assessment get(Integer id) throws Exception;
 
+	public Assessment getFromAnalysisById(Integer idAnalysis, Integer idAssessment) throws Exception;
+	
 	public boolean belongsToAnalysis(Integer analysisId, Integer assessmentId) throws Exception;
 
 	public List<Assessment> getAll() throws Exception;

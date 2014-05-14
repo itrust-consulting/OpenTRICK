@@ -66,9 +66,9 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer scenarioId, Integer analysisId) throws Exception {
-		String query = "Select count(scenario) From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisid and scenario.id = : scenarioId";
-		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("scenarioId", scenarioId).uniqueResult()).intValue() > 0;
+	public boolean belongsToAnalysis(Integer analysisId, Integer scenarioId) throws Exception {
+		String query = "Select count(scenario) From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisId and scenario.id = :scenarioId";
+		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("scenarioId", scenarioId).uniqueResult()).intValue() > 0;
 	}
 
 	/**

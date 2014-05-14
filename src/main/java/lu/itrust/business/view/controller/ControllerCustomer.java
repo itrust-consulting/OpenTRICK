@@ -70,7 +70,7 @@ public class ControllerCustomer {
 	 * */
 	@RequestMapping
 	public String loadAllCustomers(Principal principal, Map<String, Object> model) throws Exception {
-		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
+		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		return "knowledgebase/customer/customers";
 	}
 
@@ -88,8 +88,8 @@ public class ControllerCustomer {
 	@RequestMapping("/{customerID}/Users")
 	public String loadCustomerUsers(@PathVariable("customerID") int customerID, Model model, Principal principal) throws Exception {
 		model.addAttribute("customer", serviceCustomer.get(customerID));
-		model.addAttribute("users", serviceUser.loadAll());
-		model.addAttribute("customerusers", serviceUser.loadByCustomer(customerID));
+		model.addAttribute("users", serviceUser.getAll());
+		model.addAttribute("customerusers", serviceUser.getAllFromCustomer(customerID));
 		return "knowledgebase/customer/customerusers";
 	}
 
@@ -116,8 +116,8 @@ public class ControllerCustomer {
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(value);
-			List<User> users = serviceUser.loadAll();
-			List<User> customerusers = serviceUser.loadByCustomer(customerID);
+			List<User> users = serviceUser.getAll();
+			List<User> customerusers = serviceUser.getAllFromCustomer(customerID);
 			for (User user : users) {
 				boolean userhasaccess = jsonNode.get("user_" + user.getId()).asBoolean();
 				if (userhasaccess)
@@ -158,15 +158,13 @@ public class ControllerCustomer {
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request) throws Exception {
 		String referer = request.getHeader("Referer");
-		if (referer != null && referer.contains("/trickservice/Admin")) {
-			User user = serviceUser.get(principal.getName());
-			if (user.isAutorise(RoleType.ROLE_ADMIN)) {
-				model.addAttribute("adminView", true);
-				model.addAttribute("customers", serviceCustomer.loadAll());
-			} else
-				model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
-		} else
-			model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
+		User user = serviceUser.get(principal.getName());
+		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
+		if (referer != null && referer.contains("/Admin")) {
+			model.addAttribute("adminView", true);
+			if (user.isAutorised(RoleType.ROLE_ADMIN))
+				model.addAttribute("customers", serviceCustomer.getAll());
+		}
 		return "knowledgebase/customer/customers";
 	}
 
@@ -176,8 +174,8 @@ public class ControllerCustomer {
 	 * 
 	 * */
 	@RequestMapping("/{customerId}")
-	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
-			Locale locale) throws Exception {
+	public String loadSingleCustomer(@PathVariable("customerId") Integer customerId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
+			throws Exception {
 		Customer customer = (Customer) session.getAttribute("customer");
 		if (customer == null || customer.getId() != customerId)
 			customer = serviceCustomer.get(customerId);
@@ -209,22 +207,21 @@ public class ControllerCustomer {
 			User user = serviceUser.get(principal.getName());
 
 			if (customer.getId() < 1) {
-				if (serviceCustomer.exist(customer.getOrganisation())) {
+				if (serviceCustomer.existsByOrganisation(customer.getOrganisation())) {
 					errors.put("organisation", messageSource.getMessage("error.customer.duplicate.organisation", null, "Name is not available", locale));
 					return errors;
 				} else if (customer.isCanBeUsed()) {
 					user.addCustomer(customer);
 					serviceUser.saveOrUpdate(user);
-				} else if (!serviceCustomer.hasProfileCustomer())
+				} else if (!serviceCustomer.profileExists())
 					serviceCustomer.save(customer);
 				else
 					errors.put("canBeUsed", messageSource.getMessage("error.customer.profile.duplicate", null, "A customer profile already exists", locale));
-			} else if (serviceCustomer.hasUser(customer.getId()) && customer.isCanBeUsed() || !(serviceCustomer.hasUser(customer.getId()) || customer.isCanBeUsed())
-					&& (!serviceCustomer.hasProfileCustomer() || serviceCustomer.isProfile(customer.getId())))
+			} else if (serviceCustomer.hasUsers(customer.getId()) && customer.isCanBeUsed() || !(serviceCustomer.hasUsers(customer.getId()) || customer.isCanBeUsed())
+				&& (!serviceCustomer.profileExists() || serviceCustomer.isProfile(customer.getId())))
 				serviceCustomer.saveOrUpdate(customer);
 			else
-				errors.put("canBeUsed",
-						messageSource.getMessage("error.customer.profile.attach.user", null, "Only a customer who is not attached to a user can be used as profile", locale));
+				errors.put("canBeUsed", messageSource.getMessage("error.customer.profile.attach.user", null, "Only a customer who is not attached to a user can be used as profile", locale));
 		} catch (Exception e) {
 			errors.put("customer", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
@@ -247,15 +244,15 @@ public class ControllerCustomer {
 
 			if (!customer.isCanBeUsed())
 				return JsonMessage.Error(messageSource.getMessage("error.customer.delete.profile", null, "Customer Profile cannot be deleted", locale));
-			
+
 			String referer = request.getHeader("Referer");
 
-			if (referer != null && referer.contains("/trickservice/Admin")) {
+			if (referer != null && referer.contains("/Admin")) {
 				User user = serviceUser.get(principal.getName());
-				if (user.isAutorise(RoleType.ROLE_ADMIN)) {
-					
-						customDelete.deleteCustomer(customer);
-						return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
+				if (user.isAutorised(RoleType.ROLE_ADMIN)) {
+
+					customDelete.deleteCustomer(customer);
+					return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
 				} else
 					return JsonMessage.Error(messageSource.getMessage("errors.403.access.denied", null, "You do not have the nessesary permissions to perform this action!", locale));
 			}

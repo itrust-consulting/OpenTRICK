@@ -189,8 +189,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public List<Analysis> getAllFromUserNameAndCustomerId(String userName, Integer customerID) throws Exception {
-		return daoAnalysis.getAllFromUserNameAndCustomerId(userName, customerID);
+	public List<Analysis> getAllFromUserAndCustomer(String userName, Integer customerID) throws Exception {
+		return daoAnalysis.getAllFromUserAndCustomer(userName, customerID);
 	}
 
 	/**
@@ -206,8 +206,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 *      int)
 	 */
 	@Override
-	public List<Analysis> getFromUserNameAndCustomerIdAndNotEmpty(String userName, Integer idCustomer) throws Exception {
-		return daoAnalysis.getFromUserNameAndCustomerIdAndNotEmpty(userName, idCustomer);
+	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer) throws Exception {
+		return daoAnalysis.getAllNotEmptyFromUserAndCustomer(userName, idCustomer);
 	}
 
 	/**
@@ -225,8 +225,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 *      java.lang.Integer, int, int)
 	 */
 	@Override
-	public List<Analysis> getFromUserNameAndCustomer(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception {
-		return daoAnalysis.getFromUserNameAndCustomer(login, customer, pageIndex, pageSize);
+	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception {
+		return daoAnalysis.getAllFromUserAndCustomerByPageAndSizeIndex(login, customer, pageIndex, pageSize);
 	}
 
 	/**
@@ -240,8 +240,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 * @see lu.itrust.business.service.ServiceAnalysis#getAllFromCustomerIdAndProfile(int)
 	 */
 	@Override
-	public List<Analysis> getAllFromCustomerIdAndProfile(Integer idCustomer) throws Exception {
-		return daoAnalysis.getAllFromCustomerIdAndProfile(idCustomer);
+	public List<Analysis> getAllFromCustomerAndProfile(Integer idCustomer) throws Exception {
+		return daoAnalysis.getAllFromCustomerAndProfile(idCustomer);
 	}
 
 	/**
@@ -258,8 +258,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 *      java.lang.Integer, java.lang.Integer)
 	 */
 	@Override
-	public List<Analysis> getAllFromCustomerIdAndProfileByPageAndSize(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception {
-		return daoAnalysis.getAllFromCustomerIdAndProfileByPageAndSize(customerID, pageIndex, pageSize);
+	public List<Analysis> getAllFromCustomerAndProfileByPageAndSizeIndex(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception {
+		return daoAnalysis.getAllFromCustomerAndProfileByPageAndSizeIndex(customerID, pageIndex, pageSize);
 	}
 
 	/**

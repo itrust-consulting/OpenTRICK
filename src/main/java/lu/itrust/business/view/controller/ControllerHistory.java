@@ -60,9 +60,10 @@ public class ControllerHistory {
 	 * Description
 	 * 
 	 * @param binder
+	 * @throws Exception
 	 */
 	@InitBinder
-	protected void initBinder(WebDataBinder binder) {
+	protected void initBinder(WebDataBinder binder) throws Exception {
 		HistoryValidator historyValidator = new HistoryValidator();
 		serviceDataValidation.register(historyValidator);
 		binder.replaceValidators(historyValidator);
@@ -77,7 +78,6 @@ public class ControllerHistory {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Analysis/{analysisId}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String display(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
 
@@ -99,12 +99,12 @@ public class ControllerHistory {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/{historyid}")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String displayHistory(@PathVariable("historyId") Integer historyId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
+	@RequestMapping("/{elementID}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'History', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String displayHistory(@PathVariable Integer elementID, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
 			Locale locale, Principal principal) throws Exception {
 
-		History history = serviceHistory.get(historyId);
+		History history = serviceHistory.get(elementID);
 		if (history == null) {
 
 			// return error message and redirect to analysis page

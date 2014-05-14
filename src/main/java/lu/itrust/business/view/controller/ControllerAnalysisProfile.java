@@ -57,13 +57,13 @@ public class ControllerAnalysisProfile {
 
 	@Autowired
 	private ServiceUser serviceUser;
-	
+
 	@Autowired
 	private TaskExecutor executor;
 
 	@Autowired
 	private SessionFactory sessionFactory;
-	
+
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
@@ -75,7 +75,7 @@ public class ControllerAnalysisProfile {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/Add/{analysisId}")
 	public String createProfile(@PathVariable int analysisId, Model model, Principal principal) throws Exception {
-		List<Norm> norms = serviceNorm.loadAllFromAnalysis(analysisId);
+		List<Norm> norms = serviceNorm.getAllFromAnalysis(analysisId);
 		AnalysisProfile analysisProfile = new AnalysisProfile(analysisId);
 		model.addAttribute("norms", norms);
 		model.addAttribute("analysisProfile", analysisProfile);
@@ -87,18 +87,18 @@ public class ControllerAnalysisProfile {
 	public String saveProfile(@ModelAttribute @Valid AnalysisProfile analysisProfile, BindingResult result, Model model, Principal principal, Locale locale) throws Exception {
 
 		if (result.hasErrors()) {
-			model.addAttribute("norms", serviceNorm.loadAllFromAnalysis(analysisProfile.getIdAnalysis()));
+			model.addAttribute("norms", serviceNorm.getAllFromAnalysis(analysisProfile.getIdAnalysis()));
 			return "analysis/components/widgets/analysisProfileForm";
 		}
 
 		if (serviceAnalysis.isProfile(analysisProfile.getIdAnalysis())) {
-			model.addAttribute("norms", serviceNorm.loadAllFromAnalysis(analysisProfile.getIdAnalysis()));
+			model.addAttribute("norms", serviceNorm.getAllFromAnalysis(analysisProfile.getIdAnalysis()));
 			result.rejectValue("name", "error.analysis.profile.name.used", null, "Name is not available");
 			return "analysis/components/widgets/analysisProfileForm";
 		}
 
 		User user = serviceUser.get(principal.getName());
-		
+
 		Worker worker = new WorkerCreateAnalysisProfile(serviceTaskFeedback, sessionFactory, workersPoolManager, analysisProfile, user);
 		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
 			executor.execute(worker);
@@ -106,12 +106,12 @@ public class ControllerAnalysisProfile {
 		}
 		result.reject("failed.analysis.duplication.start", "Profile cannot be create");
 		return "analysis/components/widgets/analysisProfileForm";
-	}	
-	
+	}
+
 	@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
 	@RequestMapping("/Section")
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
-		model.addAttribute("analyses", serviceAnalysis.loadProfiles());
+		model.addAttribute("analyses", serviceAnalysis.getAllProfiles());
 		model.addAttribute("login", principal.getName());
 		return "knowledgebase/analysis/analyses";
 	}

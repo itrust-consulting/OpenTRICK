@@ -54,7 +54,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@Override
 	public Phase getFromAnalysisByPhaseNumber(Integer IdAnalysis, Integer number) throws Exception {
-		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.number=:phaseNumber";
+		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.number = :phaseNumber";
 		return (Phase) getSession().createQuery(query).setParameter("idAnalysis", IdAnalysis).setParameter("phaseNumber", number).uniqueResult();
 	}
 
@@ -65,7 +65,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.dao.DAOPhase#getPhaseFromAnalysisIdByPhaseId(int, java.lang.Integer)
 	 */
 	@Override
-	public Phase getFromAnalysisByPhaseId(Integer idAnalysis, Integer idPhase) throws Exception {
+	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase) throws Exception {
 		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.id = :idPhase";
 		return (Phase) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idPhase", idPhase).uniqueResult();
 	}
@@ -89,8 +89,8 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * @see lu.itrust.business.dao.DAOPhase#belongsToAnalysis(java.lang.Integer, java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer phaseId, Integer analysisId) throws Exception {
-		String query = "Select count(phase) From Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :analysisid and phase.id = : phaseId";
+	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId) throws Exception {
+		String query = "Select count(phase) From Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :analysisid and phase.id = :phaseId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("phaseId", phaseId).uniqueResult()).intValue() > 0;
 	}
 

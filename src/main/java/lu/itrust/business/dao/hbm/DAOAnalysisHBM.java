@@ -168,7 +168,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getAllFromUserNameAndCustomerId(String userName, Integer customerID) throws Exception {
+	public List<Analysis> getAllFromUserAndCustomer(String userName, Integer customerID) throws Exception {
 		String query = "Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer ";
 		query += "order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc";
 		return getSession().createQuery(query).setParameter("username", userName).setParameter("customer", customerID).list();
@@ -183,7 +183,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getFromUserNameAndCustomerIdAndNotEmpty(String userName, Integer idCustomer) throws Exception {
+	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer) throws Exception {
 		String query = "Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.data = true and ";
 		query += "userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc";
 		return getSession().createQuery(query).setParameter("username", userName).setParameter("customer", idCustomer).list();
@@ -198,7 +198,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getFromUserNameAndCustomer(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception {
+	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception {
 		String query = "Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer ";
 		query += "order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc";
 		return getSession().createQuery(query).setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
@@ -212,7 +212,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getAllFromCustomerIdAndProfile(Integer idCustomer) throws Exception {
+	public List<Analysis> getAllFromCustomerAndProfile(Integer idCustomer) throws Exception {
 		String query = "SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true";
 		return (List<Analysis>) getSession().createQuery(query).setParameter("customer", idCustomer).list();
 	}
@@ -226,7 +226,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Analysis> getAllFromCustomerIdAndProfileByPageAndSize(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception {
+	public List<Analysis> getAllFromCustomerAndProfileByPageAndSizeIndex(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception {
 		String query = "SELECT analysis From Analysis as analysis where analysis.customer.id = :customer OR analysis.profile=true";
 		return (List<Analysis>) getSession().createQuery(query).setParameter("customer", customerID).setMaxResults(pageSize).setFirstResult((pageIndex) * pageSize).list();
 	}

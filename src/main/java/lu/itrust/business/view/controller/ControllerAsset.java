@@ -83,14 +83,14 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Select/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Select/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String select(@PathVariable int id, Principal principal, Locale locale, HttpSession session) {
+	String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
 		try {
 
 			// retrieve asset
-			Asset asset = serviceAsset.get(id);
+			Asset asset = serviceAsset.get(elementID);
 			if (asset == null)
 				return JsonMessage.Error(messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", locale));
 
@@ -158,7 +158,7 @@ public class ControllerAsset {
 	@RequestMapping("/Add")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String edit(Model model, HttpSession session, Principal principal) throws Exception {
-		model.addAttribute("assettypes", serviceAssetType.loadAll());
+		model.addAttribute("assettypes", serviceAssetType.getAll());
 		return "analysis/components/widgets/assetForm";
 	}
 
@@ -171,14 +171,14 @@ public class ControllerAsset {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
+	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
-	String[] delete(@PathVariable int id, Principal principal, Locale locale, HttpSession session) {
+	String[] delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
 		try {
 
 			// delete asset ( delete asset from from assessments) then from assets
-			customDelete.deleteAsset(serviceAsset.get(id));
+			customDelete.deleteAsset(serviceAsset.get(elementID));
 
 			// retrun success message
 			return new String[] { "success", messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale) };
@@ -198,10 +198,11 @@ public class ControllerAsset {
 	 * @param session
 	 * @param principal
 	 * @return
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String section(Model model, HttpSession session, Principal principal) {
+	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
@@ -223,15 +224,15 @@ public class ControllerAsset {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Edit/{id}")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String edit(@PathVariable Integer id, Model model, Principal principal, HttpSession session) throws Exception {
+	@RequestMapping("/Edit/{elementID}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public String edit(@PathVariable Integer elementID, Model model, Principal principal, HttpSession session) throws Exception {
 
 		// add all assettypes to model
-		model.addAttribute("assettypes", serviceAssetType.loadAll());
+		model.addAttribute("assettypes", serviceAssetType.getAll());
 
 		// add asset object to model
-		model.addAttribute("asset", serviceAsset.get(id));
+		model.addAttribute("asset", serviceAsset.get(elementID));
 
 		return "analysis/components/widgets/assetForm";
 	}
@@ -275,7 +276,7 @@ public class ControllerAsset {
 			// build asset
 			buildAsset(errors, asset, value, locale);
 
-			if(!errors.isEmpty())
+			if (!errors.isEmpty())
 				// return error on failure
 				return errors;
 
@@ -287,6 +288,10 @@ public class ControllerAsset {
 				assessmentManager.build(asset, idAnalysis);
 			} else {
 
+				if(!serviceAsset.belongsToAnalysis(idAnalysis, asset.getId())) {
+					errors.put("asset", serviceDataValidation.ParseError("asset.not_belongs_to_analysis", messageSource, locale));
+					return errors;
+				}
 				// update existing asset object
 				serviceAsset.merge(asset);
 
@@ -341,7 +346,7 @@ public class ControllerAsset {
 	 * @param model
 	 * @param locale
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")

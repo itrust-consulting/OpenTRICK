@@ -83,7 +83,7 @@ public class DAOParameterHBM extends DAOHibernate implements DAOParameter {
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer parameterId) throws Exception {
-		String query = "Select count(parameter) From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisid and parameter.id = : parameterId";
+		String query = "Select count(parameter) From Analysis as analysis inner join analysis.parameters as parameter where analysis.id = :analysisid and parameter.id = :parameterId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("parameterId", parameterId).uniqueResult()).intValue() > 0;
 	}
 

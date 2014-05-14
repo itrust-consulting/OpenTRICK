@@ -16,6 +16,8 @@ import lu.itrust.business.TS.History;
 public interface ServiceHistory {
 	public History get(Integer id) throws Exception;
 
+	public History getFromAnalysisById(Integer idAnalysis, Integer idHistory) throws Exception;
+	
 	public boolean belongsToAnalysis(Integer analysisId, Integer historyId) throws Exception;
 
 	public boolean versionExistsInAnalysis(Integer analysisId, String version) throws Exception;

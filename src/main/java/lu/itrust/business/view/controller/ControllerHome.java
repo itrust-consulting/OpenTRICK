@@ -49,7 +49,7 @@ public class ControllerHome {
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/home")
 	public String home(Model model, Principal principal) throws Exception {
-		model.addAttribute("userSqLites", serviceUserSqLite.findByFileName(principal.getName()));
+		model.addAttribute("userSqLites", serviceUserSqLite.getByFileName(principal.getName()));
 		return "index";
 	}
 
@@ -65,7 +65,7 @@ public class ControllerHome {
 	@RequestMapping("/feedback")
 	public @ResponseBody
 	List<MessageHandler> revice(Principal principal) {
-		return serviceTaskFeedback.recive(principal.getName());
+		return serviceTaskFeedback.recieve(principal.getName());
 	}
 
 	@RequestMapping("/login")

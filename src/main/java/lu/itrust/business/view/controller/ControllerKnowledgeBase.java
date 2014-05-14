@@ -50,18 +50,18 @@ public class ControllerKnowledgeBase {
 	private ServiceUser serviceUser;
 
 	@RequestMapping
-	public String displayKowledgeBase(Map<String, Object> model, Principal principal) throws Exception {
-		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
-		model.put("languages", serviceLanguage.loadAll());
-		model.put("norms", serviceNorm.loadAll());
-		model.put("norms", serviceNorm.loadAll());
-		model.put("analyses", serviceAnalysis.loadProfiles());
+	public String displayKnowledgeBase(Map<String, Object> model, Principal principal) throws Exception {
+		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
+		model.put("languages", serviceLanguage.getAll());
+		model.put("norms", serviceNorm.getAll());
+		model.put("norms", serviceNorm.getAll());
+		model.put("analyses", serviceAnalysis.getAllProfiles());
 		return "knowledgebase/knowledgebase";
 	}
 
 	@RequestMapping("/Analysis/Section")
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
-		model.addAttribute("analyses", serviceAnalysis.loadProfiles());
+		model.addAttribute("analyses", serviceAnalysis.getAllProfiles());
 		model.addAttribute("login", principal.getName());
 		model.addAttribute("KowledgeBaseView", true);
 		return "analysis/analyses";

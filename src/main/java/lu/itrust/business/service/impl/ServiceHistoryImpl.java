@@ -37,6 +37,23 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	}
 
 	/**
+	 * getFromAnalysisById: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param idHistory
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceHistory#getFromAnalysisById(java.lang.Integer,
+	 *      java.lang.Integer)
+	 */
+	@Override
+	public History getFromAnalysisById(Integer idAnalysis, Integer idHistory) throws Exception {
+		return daoHistory.getFromAnalysisById(idAnalysis, idHistory);
+	}
+
+	/**
 	 * belongsToAnalysis: <br>
 	 * Description
 	 * 

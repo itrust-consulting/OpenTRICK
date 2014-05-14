@@ -73,7 +73,7 @@ public class ControllerPatch {
 
 		try {
 
-			List<Scenario> scenarios = serviceScenario.loadAll();
+			List<Scenario> scenarios = serviceScenario.getAll();
 			for (Scenario scenario : scenarios) {
 				for (String key : CategoryConverter.JAVAKEYS)
 					scenario.setCategoryValue(key, 0);
@@ -108,7 +108,7 @@ public class ControllerPatch {
 
 		try {
 
-			List<Integer> analyses = serviceAnalysis.loadAllAnalysisIDs();
+			List<Integer> analyses = serviceAnalysis.getAllAnalysisIDs();
 
 			for (Integer idAnalysis: analyses) {
 
@@ -122,7 +122,7 @@ public class ControllerPatch {
 
 				Parameter defaultMaintenance = serviceAnalysis.getParameterFromAnalysis(idAnalysis, Constant.PARAMETER_MAINTENANCE_DEFAULT);
 
-				List<Measure> measures = serviceMeasure.findMeasureByAnalysisAndComputable(idAnalysis);
+				List<Measure> measures = serviceMeasure.getAllComputableFromAnalysis(idAnalysis);
 
 				if(measures == null || measures.isEmpty())
 					continue;
@@ -162,7 +162,7 @@ public class ControllerPatch {
 
 				}
 
-				for (SummaryStage summaryStage : serviceActionPlanSummary.findByAnalysis(idAnalysis)) {
+				for (SummaryStage summaryStage : serviceActionPlanSummary.getAllFromAnalysis(idAnalysis)) {
 					summaryStage.setRecurrentInvestment(0);
 					serviceActionPlanSummary.saveOrUpdate(summaryStage);
 				}
@@ -199,7 +199,7 @@ public class ControllerPatch {
 
 		try {
 
-			List<Parameter> parameters = serviceParameter.findAll();
+			List<Parameter> parameters = serviceParameter.getAll();
 
 			for (Parameter parameter : parameters) {
 								

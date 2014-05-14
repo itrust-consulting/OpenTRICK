@@ -68,10 +68,10 @@ public class ControllerSummary {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 		// add phases of analysis
-		model.addAttribute("phases", servicePhase.loadAllFromAnalysis(idAnalysis));
+		model.addAttribute("phases", servicePhase.getAllFromAnalysis(idAnalysis));
 
 		// add actionplan summaries
-		model.addAttribute("summaries", serviceActionPlanSummary.findByAnalysis(idAnalysis));
+		model.addAttribute("summaries", serviceActionPlanSummary.getAllFromAnalysis(idAnalysis));
 
 		return "analysis/components/summary";
 	}
@@ -85,24 +85,25 @@ public class ControllerSummary {
 	 * @param session
 	 * @param locale
 	 * @return
+	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
-	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'ActionPlanSummary', #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
-	String delete(@PathVariable int id, Principal principal, HttpSession session, Locale locale) {
+	String delete(@PathVariable int elementID, Principal principal, HttpSession session, Locale locale) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 		// retrieve a single actionplansummary entry of analysis
-		SummaryStage summaryStage = serviceActionPlanSummary.findByIdAndAnalysis(id, idAnalysis);
+		SummaryStage summaryStage = serviceActionPlanSummary.getFromAnalysisById(idAnalysis, elementID);
 		if (summaryStage == null)
 			return JsonMessage.Error(messageSource.getMessage("error.summary.not_found", null, "Summary cannot be found", locale));
 		else
 			try {
 
 				// delete entry
-				serviceActionPlanSummary.remove(summaryStage);
+				serviceActionPlanSummary.delete(summaryStage);
 
 				// return success message
 				return JsonMessage.Success(messageSource.getMessage("success.summary.delete", null, "Summary was successfully deleted", locale));
@@ -122,11 +123,12 @@ public class ControllerSummary {
 	 * @param session
 	 * @param locale
 	 * @return
+	 * @throws Exception
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	@RequestMapping(value = "/Delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
-	List<String> delete(Principal principal, HttpSession session, Locale locale) {
+	List<String> delete(Principal principal, HttpSession session, Locale locale) throws Exception {
 
 		// create errors list
 		List<String> errors = new LinkedList<String>();
@@ -135,14 +137,14 @@ public class ControllerSummary {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 		// get summaries
-		List<SummaryStage> summaryStages = serviceActionPlanSummary.findByAnalysis(idAnalysis);
+		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysis(idAnalysis);
 
 		try {
 
 			// parse stages
 			for (SummaryStage summaryStage : summaryStages) {
 				// remove current
-				serviceActionPlanSummary.remove(summaryStage);
+				serviceActionPlanSummary.delete(summaryStage);
 			}
 
 			// add success message
@@ -169,8 +171,8 @@ public class ControllerSummary {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping(value = "/Evolution/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
 	String chartEvolutionProfitabityCompliance(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
 
@@ -178,10 +180,10 @@ public class ControllerSummary {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 		// load all phases of analysis
-		List<Phase> phases = servicePhase.loadAllFromAnalysis(idAnalysis);
+		List<Phase> phases = servicePhase.getAllFromAnalysis(idAnalysis);
 
 		// load all summaries of analysis
-		List<SummaryStage> summaryStages = serviceActionPlanSummary.findByAnalysisAndActionPlanType(idAnalysis, actionPlanType);
+		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType);
 
 		// generate chart
 		return chartGenerator.evolutionProfitabilityCompliance(summaryStages, phases, actionPlanType, locale);
@@ -198,8 +200,8 @@ public class ControllerSummary {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping(value = "/Budget/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
 	String chartBudget(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
 
@@ -207,10 +209,10 @@ public class ControllerSummary {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 		// retrieve phases
-		List<Phase> phases = servicePhase.loadAllFromAnalysis(idAnalysis);
+		List<Phase> phases = servicePhase.getAllFromAnalysis(idAnalysis);
 
 		// retrieve summaries
-		List<SummaryStage> summaryStages = serviceActionPlanSummary.findByAnalysisAndActionPlanType(idAnalysis, actionPlanType);
+		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType);
 
 		// return chart
 		return chartGenerator.budget(summaryStages, phases, actionPlanType, locale);

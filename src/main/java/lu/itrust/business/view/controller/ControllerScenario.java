@@ -97,8 +97,6 @@ public class ControllerScenario {
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
-
-	
 	/**
 	 * select: <br>
 	 * Description
@@ -108,15 +106,15 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Select/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Select/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String select(@PathVariable int id, Principal principal, Locale locale, HttpSession session) {
+	String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
 
 		try {
 
 			// retrieve scenario
-			Scenario scenario = serviceScenario.get(id);
+			Scenario scenario = serviceScenario.get(elementID);
 			if (scenario == null)
 				return JsonMessage.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale));
 
@@ -186,13 +184,13 @@ public class ControllerScenario {
 	 * @param session
 	 * @return
 	 */
-	@RequestMapping(value = "/Delete/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
+	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
-	String delete(@PathVariable int id, Principal principal, Locale locale, HttpSession session) {
+	String delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
 		try {
 			// try to delete assessment with this scenario
-			customDelete.deleteScenario(serviceScenario.get(id));
+			customDelete.deleteScenario(serviceScenario.get(elementID));
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.delete.successfully", null, "Scenario was deleted successfully", locale));
 		} catch (Exception e) {
@@ -222,17 +220,17 @@ public class ControllerScenario {
 		if (integer == null)
 			return null;
 		// load all scenarios from analysis
-		model.addAttribute("scenarios", serviceScenario.loadAllFromAnalysisID(integer));
+		model.addAttribute("scenarios", serviceScenario.getAllFromAnalysis(integer));
 
 		return "analysis/components/scenario";
 	}
 
-	@RequestMapping(value = "/{idScenario}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	Scenario get(@PathVariable int idScenario, Model model, HttpSession session, Principal principal) throws Exception {
+	Scenario get(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Scenario scenario = DAOHibernate.Initialise(serviceScenario.findByIdAndAnalysis(idScenario, idAnalysis));
+		Scenario scenario = DAOHibernate.Initialise(serviceScenario.getFromAnalysisById(idAnalysis, elementID));
 		scenario.setScenarioType(DAOHibernate.Initialise(scenario.getScenarioType()));
 		scenario.setAssetTypeValues(null);
 		return scenario;
@@ -242,13 +240,13 @@ public class ControllerScenario {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String rrf(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		List<NormMeasure> normMeasures = serviceMeasure.findNormMeasureByAnalysisAndComputable(idAnalysis);
-		List<Scenario> scenarios = serviceScenario.loadAllFromAnalysisID(idAnalysis);
+		List<NormMeasure> normMeasures = serviceMeasure.getAllNormMeasuresFromAnalysisAndComputable(idAnalysis);
+		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(idAnalysis);
 		model.addAttribute("measures", MeasureManager.SplitByChapter(normMeasures));
 		model.addAttribute("categories", CategoryConverter.JAVAKEYS);
 		model.addAttribute("scenarios", ScenarioManager.SplitByType(scenarios));
-		model.addAttribute("assetTypes", serviceAssetType.findByAnalysis(idAnalysis));
-		Language language = serviceLanguage.findByAnalysis(idAnalysis);
+		model.addAttribute("assetTypes", serviceAssetType.getAllFromAnalysis(idAnalysis));
+		Language language = serviceLanguage.getFromAnalysis(idAnalysis);
 		model.addAttribute("language", language == null ? locale.getISO3Language() : language.getAlpha3());
 		return "analysis/components/widgets/rrfEditor";
 	}
@@ -258,7 +256,7 @@ public class ControllerScenario {
 	public @ResponseBody
 	String updateRRF(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Scenario scenario = serviceScenario.findByIdAndAnalysis(fieldEditor.getId(), idAnalysis);
+		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, fieldEditor.getId());
 		Field field = ControllerEditField.FindField(Scenario.class, fieldEditor.getFieldName());
 		if (field == null)
 			return null;
@@ -268,12 +266,12 @@ public class ControllerScenario {
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, locale, fieldEditor.getFilter());
 	}
 
-	@RequestMapping(value = "/RRF/{idScenario}/Load", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/RRF/{elementID}/Load", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID,'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String load(@RequestBody RRFFilter filter, @PathVariable int idScenario, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Scenario scenario = serviceScenario.findByIdAndAnalysis(idScenario, idAnalysis);
+		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, idScenario);
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, locale, filter);
 	}
 
@@ -286,9 +284,10 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Add")
-	public String add(Model model) throws Exception {
-		model.addAttribute("scenariotypes", serviceScenarioType.loadAll());
-		model.addAttribute("assetTypes", serviceAssetType.loadAll());
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public String add(Model model, HttpSession session, Principal principal) throws Exception {
+		model.addAttribute("scenariotypes", serviceScenarioType.getAll());
+		model.addAttribute("assetTypes", serviceAssetType.getAll());
 		return "analysis/components/widgets/scenarioForm";
 	}
 
@@ -301,26 +300,31 @@ public class ControllerScenario {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Edit/{id}")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String edit(@PathVariable Integer id, Model model, HttpSession session, Principal principal) throws Exception {
+	@RequestMapping("/Edit/{elementID}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public String edit(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		
+		if(idAnalysis == null)
+			return null;
+		
 		// add scenario types to model
-		model.addAttribute("scenariotypes", serviceScenarioType.loadAll());
+		model.addAttribute("scenariotypes", serviceScenarioType.getAll());
 
 		// add scenario to model
-		model.addAttribute("scenario", serviceScenario.get(id));
-		model.addAttribute("assetTypes", serviceAssetType.loadAll());
+		model.addAttribute("scenario", serviceScenario.getFromAnalysisById(idAnalysis, elementID));
+		model.addAttribute("assetTypes", serviceAssetType.getAll());
 		return "analysis/components/widgets/scenarioForm";
 	}
 
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	@RequestMapping(value = "/Delete/AssetTypeValueDuplication", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
 	String deleteDuplicationAssetTypeValue(HttpSession session, Principal principal, Locale locale) {
 		try {
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-			List<Scenario> scenarios = serviceScenario.loadAllFromAnalysisID(idAnalysis);
+			List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(idAnalysis);
 			customDelete.deleteDuplicationAssetTypeValue(scenarios);
 			return JsonMessage.Success(messageSource.getMessage("success.delete.assettypevalue.duplication", null, "Duplication were successfully deleted", locale));
 		} catch (Exception e) {
@@ -366,7 +370,7 @@ public class ControllerScenario {
 
 			Scenario scenario = new Scenario();
 
-			List<AssetType> assetTypes = serviceAssetType.loadAll();
+			List<AssetType> assetTypes = serviceAssetType.getAll();
 
 			buildScenario(errors, scenario, assetTypes, value, locale);
 
@@ -377,6 +381,12 @@ public class ControllerScenario {
 			if (scenario.getId() < 1) {
 				assessmentManager.build(scenario, idAnalysis);
 			} else {
+
+				if (!serviceScenario.belongsToAnalysis(idAnalysis, scenario.getId())) {
+					errors.put("scenario", serviceDataValidation.ParseError("error.scenario.not_belongs_to_analysis", messageSource, locale));
+					return errors;
+				}
+
 				serviceScenario.merge(scenario);
 				if (scenario.isSelected())
 					assessmentManager.selectScenario(scenario);
@@ -402,11 +412,12 @@ public class ControllerScenario {
 	 * @param model
 	 * @param locale
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
-	String aleByAsset(HttpSession session, Model model, Locale locale) throws Exception {
+	String aleByAsset(HttpSession session, Model model,Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
@@ -421,11 +432,12 @@ public class ControllerScenario {
 	 * @param model
 	 * @param locale
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
-	String assetByALE(HttpSession session, Model model, Locale locale) throws Exception {
+	String assetByALE(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;

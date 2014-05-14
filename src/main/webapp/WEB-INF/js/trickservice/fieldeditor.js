@@ -173,7 +173,7 @@ function FieldEditor(element, validator) {
 		} else {
 			if (that.HasChanged()) {
 				$.ajax({
-					url : context + "/EditField/" + that.controllor,
+					url : context + "/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
@@ -512,36 +512,6 @@ function AssessmentProbaFieldEditor(element) {
 		return new AssessmentFieldEditor().Save(that);
 	};
 
-}
-
-//field edit
-
-function saveField(element, controller, id, field, type) {
-	if ($(element).prop("value") != $(element).prop("placeholder")) {
-		$.ajax({
-			url : context + "/editField/" + controller,
-			type : "post",
-			async : true,
-			data : '{"id":' + id + ', "fieldName":"' + field + '", "value":"' + defaultValueByType($(element).prop("value"), type, true) + '", "type": "' + type + '"}',
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				if (response == "" || response == null) {
-					updateFieldValue(element, $(element).prop("value"));
-					return false;
-				}
-				bootbox.alert(jqXHR.responseText);
-				updateFieldValue(element, $(element).prop("placeholder"));
-				return true;
-			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				bootbox.alert(jqXHR.responseText);
-				updateFieldValue(element, $(element).prop("placeholder"));
-			},
-		});
-	} else {
-		updateFieldValue(element, $(element).prop("placeholder"));
-		return false;
-	}
 }
 
 function editField(element, controller, id, field, type) {

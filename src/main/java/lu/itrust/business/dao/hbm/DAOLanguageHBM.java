@@ -52,7 +52,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.dao.DAOLanguage#languageExistsByAlpha3(java.lang.String)
 	 */
 	@Override
-	public boolean languageExistsByAlpha3(String alpha3) throws Exception {
+	public boolean existsByAlpha3(String alpha3) throws Exception {
 		return ((Long) getSession().createQuery("select count(*) From Language where alpha3 = :alpha3").setString("alpha3", alpha3.toUpperCase()).uniqueResult()).intValue() > 0;
 	}
 
@@ -63,7 +63,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.dao.DAOLanguage#languageExistsByName(java.lang.String)
 	 */
 	@Override
-	public boolean languageExistsByName(String name) throws Exception {
+	public boolean existsByName(String name) throws Exception {
 		return ((Long) getSession().createQuery("select count(*) From Language where name = :name").setString("name", name).uniqueResult()).intValue() > 0;
 	}
 
@@ -74,7 +74,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.dao.DAOLanguage#languageExistsByAltName(java.lang.String)
 	 */
 	@Override
-	public boolean languageExistsByAltName(String altName) throws Exception {
+	public boolean existsByAltName(String altName) throws Exception {
 		return ((Long) getSession().createQuery("select count(*) From Language where altName = :altName").setString("altName", altName).uniqueResult()).intValue() > 0;
 	}
 
@@ -85,7 +85,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.dao.DAOLanguage#getLanguageOfAnalysis(java.lang.Integer)
 	 */
 	@Override
-	public Language getLanguageOfAnalysis(Integer idAnalysis) throws Exception {
+	public Language getFromAnalysis(Integer idAnalysis) throws Exception {
 		return (Language) getSession().createQuery("Select analysis.language from Analysis analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis).uniqueResult();
 	}
 
@@ -96,7 +96,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.dao.DAOLanguage#getLanguageByAlpha3(java.lang.String)
 	 */
 	@Override
-	public Language getLanguageByAlpha3(String alpha3) throws Exception {
+	public Language getByAlpha3(String alpha3) throws Exception {
 		return (Language) getSession().createQuery("From Language where alpha3 = :alpha3").setParameter("alpha3", alpha3.toUpperCase()).uniqueResult();
 	}
 
@@ -107,7 +107,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.dao.DAOLanguage#getLanguageByName(java.lang.String)
 	 */
 	@Override
-	public Language getLanguageByName(String name) throws Exception {
+	public Language getByName(String name) throws Exception {
 		return (Language) getSession().createQuery("From Language where name = :name").setParameter("name", name).uniqueResult();
 	}
 
@@ -118,7 +118,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * @see lu.itrust.business.dao.DAOLanguage#getLanguageByAltName(java.lang.String)
 	 */
 	@Override
-	public Language getLanguageByAltName(String alternativeName) throws Exception {
+	public Language getByAltName(String alternativeName) throws Exception {
 		return (Language) getSession().createQuery("From Language where altName = :altName").setParameter("altName", alternativeName).uniqueResult();
 	}
 

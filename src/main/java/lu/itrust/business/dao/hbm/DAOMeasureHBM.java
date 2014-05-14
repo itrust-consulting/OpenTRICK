@@ -69,9 +69,9 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer measureId) throws Exception {
-		String query = "Select count(measure) From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :analysis and ";
-		query += "measure.id = : measureId";
-		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("measureId", measureId).uniqueResult()).intValue() > 0;
+		String query = "Select count(measure) From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :analysisId and ";
+		query += "measure.id = :measureId";
+		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("measureId", measureId).uniqueResult()).intValue() > 0;
 	}
 
 	/**

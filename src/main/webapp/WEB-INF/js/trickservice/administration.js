@@ -1,3 +1,5 @@
+var previous;
+
 $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
 	analysisTableSortable();
@@ -60,13 +62,23 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			
+
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			newSection = $(doc).find("* div#manageuseraccessrights-modal");
 			$("div#manageAnalysisAccessModelBody").html(newSection);
 			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
 			$("#manageAnalysisAccessModel").modal('toggle');
+			$("#userselect").one('focus', function() {
+				previous = this.value;
+			}).change(function() {
+
+				$("#user_" + previous).attr("hidden", true);
+
+				$("#user_" + this.value).removeAttr("hidden");
+
+				previous = this.value;
+			});
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return false;
@@ -87,6 +99,16 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 			newSection = $(doc).find("* div#manageuseraccessrights-modal");
 			$("div#manageAnalysisAccessModelBody").html(newSection);
 			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
+			$("#userselect").one('focus', function() {
+				previous = this.value;
+			}).change(function() {
+
+				$("#user_" + previous).attr("hidden", true);
+
+				$("#user_" + this.value).removeAttr("hidden");
+
+				previous = this.value;
+			});
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			return false;

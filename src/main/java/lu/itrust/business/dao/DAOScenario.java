@@ -18,7 +18,7 @@ public interface DAOScenario {
 
 	public Scenario getFromAnalysisById(Integer idAnalysis, Integer scenarioId) throws Exception;
 
-	public boolean belongsToAnalysis(Integer scenarioId, Integer analysisId) throws Exception;
+	public boolean belongsToAnalysis(Integer analysisId, Integer scenarioId) throws Exception;
 
 	public List<Scenario> getAll() throws Exception;
 

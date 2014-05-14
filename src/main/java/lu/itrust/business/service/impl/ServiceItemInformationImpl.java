@@ -40,6 +40,23 @@ public class ServiceItemInformationImpl implements ServiceItemInformation {
 	}
 
 	/**
+	 * getFromAnalysisById: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param idItemInformation
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceItemInformation#getFromAnalysisById(java.lang.Integer,
+	 *      java.lang.Integer)
+	 */
+	@Override
+	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idItemInformation) throws Exception {
+		return daoItemInformation.getFromAnalysisById(idAnalysis, idItemInformation);
+	}
+
+	/**
 	 * getFromAnalysisIdByDescription: <br>
 	 * Description
 	 * 

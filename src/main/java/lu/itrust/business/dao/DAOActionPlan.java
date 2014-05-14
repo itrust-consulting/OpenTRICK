@@ -19,6 +19,8 @@ import lu.itrust.business.TS.actionplan.ActionPlanMode;
 public interface DAOActionPlan {
 	public ActionPlanEntry get(Integer id) throws Exception;
 
+	public ActionPlanEntry getFromAnalysisById(Integer idAnalysis, Integer idActionPlanEntry) throws Exception;
+	
 	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanEntryId) throws Exception;
 
 	public List<ActionPlanEntry> getAll() throws Exception;

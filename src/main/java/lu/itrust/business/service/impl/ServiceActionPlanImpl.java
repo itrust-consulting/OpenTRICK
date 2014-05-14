@@ -43,6 +43,11 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 		return daoActionPlan.get(id);
 	}
 
+	public ActionPlanEntry getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception {
+		return daoActionPlan.getFromAnalysisById(idAnalysis, id);	
+	}
+
+	
 	/**
 	 * belongsToAnalysis: <br>
 	 * Description

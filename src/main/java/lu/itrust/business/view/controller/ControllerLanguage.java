@@ -56,7 +56,7 @@ public class ControllerLanguage {
 	 * */
 	@RequestMapping
 	public String loadAllLanguages(Map<String, Object> model) throws Exception {
-		model.put("languages", serviceLanguage.loadAll());
+		model.put("languages", serviceLanguage.getAll());
 		return "knowledgebase/language/languages";
 	}
 
@@ -70,7 +70,7 @@ public class ControllerLanguage {
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String section(Model model) throws Exception {
-		model.addAttribute("languages", serviceLanguage.loadAll());
+		model.addAttribute("languages", serviceLanguage.getAll());
 		return "knowledgebase/language/languages";
 	}
 
@@ -80,8 +80,8 @@ public class ControllerLanguage {
 	 * 
 	 * */
 	@RequestMapping("/{languageId}")
-	public String loadSingleLanguage(@PathVariable("languageId") Integer languageId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
-			Locale locale) throws Exception {
+	public String loadSingleLanguage(@PathVariable("languageId") Integer languageId, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale)
+			throws Exception {
 		Language language = (Language) session.getAttribute("language");
 		if (language == null || language.getId() != languageId)
 			language = serviceLanguage.get(languageId);
@@ -111,11 +111,11 @@ public class ControllerLanguage {
 			if (!buildLanguage(errors, language, value, locale))
 				return errors;
 			if (language.getId() < 1) {
-				if (serviceLanguage.alpha3Exist(language.getAlpha3()))
+				if (serviceLanguage.existsByAlpha3(language.getAlpha3()))
 					errors.put("alpha3", messageSource.getMessage("error.language.alph3.duplicate", null, "Alpha 3 code is already in use", locale));
-				if (serviceLanguage.altNameExist(language.getAltName()))
+				if (serviceLanguage.existsByAltName(language.getAltName()))
 					errors.put("altName", messageSource.getMessage("error.language.altName.duplicate", null, "Alternative name code is already in use", locale));
-				if (serviceLanguage.nameExist(language.getName()))
+				if (serviceLanguage.existsByName(language.getName()))
 					errors.put("name", messageSource.getMessage("error.language.name.duplicate", null, "Name is already in use", locale));
 				if (errors.isEmpty())
 					serviceLanguage.save(language);
@@ -136,7 +136,7 @@ public class ControllerLanguage {
 	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String[] deleteLanguage(@PathVariable("languageId") Integer languageId, Locale locale) throws Exception {
-		serviceLanguage.remove(languageId);
+		serviceLanguage.delete(languageId);
 		return new String[] { "error", messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale) };
 
 	}

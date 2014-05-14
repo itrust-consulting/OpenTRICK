@@ -37,15 +37,15 @@ public interface ServiceAnalysis {
 
 	public List<Analysis> getAllProfiles() throws Exception;
 
-	public List<Analysis> getAllFromUserNameAndCustomerId(String userName, Integer customerID) throws Exception;
+	public List<Analysis> getAllFromUserAndCustomer(String userName, Integer customerID) throws Exception;
 
-	public List<Analysis> getFromUserNameAndCustomerIdAndNotEmpty(String userName, Integer idCustomer) throws Exception;
+	public List<Analysis> getAllNotEmptyFromUserAndCustomer(String userName, Integer idCustomer) throws Exception;
 
-	public List<Analysis> getFromUserNameAndCustomer(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception;
+	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception;
 
-	public List<Analysis> getAllFromCustomerIdAndProfile(Integer idCustomer) throws Exception;
+	public List<Analysis> getAllFromCustomerAndProfile(Integer idCustomer) throws Exception;
 
-	public List<Analysis> getAllFromCustomerIdAndProfileByPageAndSize(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception;
+	public List<Analysis> getAllFromCustomerAndProfileByPageAndSizeIndex(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception;
 
 	public List<Analysis> getAllFromUser(User user) throws Exception;
 

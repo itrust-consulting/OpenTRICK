@@ -49,6 +49,11 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 		return (History) getSession().get(History.class, id);
 	}
 
+	public History getFromAnalysisById(Integer idAnalysis, Integer idHistory) throws Exception {
+		String query = "Select history From Analysis as analysis inner join analysis.histories as history where analysis.id = :idAnalysis and history.id = :idHistory";
+		return (History) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idHistory", idHistory).uniqueResult();
+	}
+
 	/**
 	 * belongsToAnalysis: <br>
 	 * Description
@@ -58,7 +63,7 @@ public class DAOHistoryHBM extends DAOHibernate implements DAOHistory {
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer historyId) throws Exception {
-		String query = "Select count(history) From Analysis as analysis inner join analysis.history as history where analysis.id = :analysisId and history.id = : historyId";
+		String query = "Select count(history) From Analysis as analysis inner join analysis.history as history where analysis.id = :analysisId and history.id = :historyId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("historyId", historyId).uniqueResult()).intValue() > 0;
 	}
 

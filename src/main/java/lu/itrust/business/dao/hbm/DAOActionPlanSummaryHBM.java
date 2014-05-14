@@ -119,7 +119,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SummaryStage> getFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) throws Exception {
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) throws Exception {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.actionPlanType.name = :actionPlanType ";
 		query += "order by summary.id";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("actionPlanType", ActionPlanMode.getByName(actionPlanType)).list();
@@ -133,7 +133,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 *      lu.itrust.business.TS.actionplan.ActionPlanType)
 	 */
 	@Override
-	public List<SummaryStage> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception {
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception {
 		List<SummaryStage> sumStages = new ArrayList<SummaryStage>();
 		for (SummaryStage stage : sumStages) {
 			if (stage.getActionPlanType().equals(actionPlanType))

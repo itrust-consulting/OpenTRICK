@@ -208,7 +208,7 @@ public class User implements Serializable {
 		return roles.get(roles.indexOf(role));
 	}
 
-	public boolean isAutorise(RoleType role) {
+	public boolean isAutorised(RoleType role) {
 
 		if (role != null && roles != null) {
 
@@ -223,7 +223,7 @@ public class User implements Serializable {
 
 	public boolean isAutorised(String role) {
 
-		return isAutorise(RoleType.valueOf(role));
+		return isAutorised(RoleType.valueOf(role));
 	}
 
 	public Role removeRole(Role role) {

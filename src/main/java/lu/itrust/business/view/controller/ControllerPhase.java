@@ -74,7 +74,7 @@ public class ControllerPhase {
 			return null;
 
 		// add phases of this analysis
-		model.addAttribute("phases", servicePhase.loadAllFromAnalysis(integer));
+		model.addAttribute("phases", servicePhase.getAllFromAnalysis(integer));
 
 		return "analysis/components/phase";
 	}
@@ -90,8 +90,8 @@ public class ControllerPhase {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{idPhase}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
+	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Phase', #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
 	String delete(@PathVariable int idPhase, HttpSession session, Principal principal, Locale locale) throws Exception {
 
@@ -105,15 +105,13 @@ public class ControllerPhase {
 			return JsonMessage.Error(messageSource.getMessage("error.phase.cannot_delete", null, "Phase cannot be deleted", locale));
 
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
-		
+
 		// retrieve phases of analysis
 		List<Phase> phases = analysis.getUsedPhases();
 
 		// first phases cannot be deleted (0 and 1)
 		if (phases.size() < 2)
 			return JsonMessage.Error(messageSource.getMessage("error.phase.on_required", null, "This phase cannot be deleted", locale));
-		
-		
 
 		// iterate through phases
 		Phase phase = null;
@@ -126,7 +124,7 @@ public class ControllerPhase {
 				// delete phase
 				if (phase.getId() == idPhase) {
 					iterator.remove();
-					servicePhase.remove(phase);
+					servicePhase.delete(phase);
 				} else
 					phase = null;
 			} else {
@@ -182,19 +180,11 @@ public class ControllerPhase {
 					return errors;
 				}
 
-				// check if phases are empty to add phase 0
-				if (analysis.getUsedPhases().isEmpty() || !analysis.hasPhase(0))
-					analysis.addUsedPhase(new Phase(0));
-	
 				// set phase number
-				phase.setNumber(analysis.getUsedPhases().size());
+				phase.setNumber(analysis.getUsedPhases().size() + 1);
 
 				// parse phase og analysis
 				for (Phase phase2 : analysis.getUsedPhases()) {
-
-					// skip phase 0
-					if (phase2.getNumber() == 0)
-						continue;
 
 					// check if correct begin and end date and retrun errors
 					if (phase.getBeginDate().before(phase2.getBeginDate())) {

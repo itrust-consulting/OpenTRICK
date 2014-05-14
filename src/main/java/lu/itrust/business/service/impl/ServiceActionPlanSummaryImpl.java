@@ -131,8 +131,8 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 	 *      java.lang.String)
 	 */
 	@Override
-	public List<SummaryStage> getFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) throws Exception {
-		return daoActionPlanSummary.getFromAnalysisAndActionPlanType(idAnalysis, actionPlanType);
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) throws Exception {
+		return daoActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType);
 	}
 
 	/**
@@ -148,8 +148,8 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 	 *      lu.itrust.business.TS.actionplan.ActionPlanType)
 	 */
 	@Override
-	public List<SummaryStage> getFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception {
-		return daoActionPlanSummary.getFromAnalysisAndActionPlanType(analysis, actionPlanType);
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception {
+		return daoActionPlanSummary.getAllFromAnalysisAndActionPlanType(analysis, actionPlanType);
 	}
 
 	/**

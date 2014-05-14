@@ -15,6 +15,8 @@ import lu.itrust.business.TS.ItemInformation;
 public interface DAOItemInformation {
 	public ItemInformation get(Integer id) throws Exception;
 
+	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idIteminformation) throws Exception;
+	
 	public ItemInformation getFromAnalysisByDescription(Integer analysisId, String description) throws Exception;
 
 	public boolean belongsToAnalysis(Integer analysisId, Integer historyId) throws Exception;

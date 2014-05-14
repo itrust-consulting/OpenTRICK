@@ -89,7 +89,7 @@ public class ControllerMeasureDescription {
 			if (idLanguage != 0) {
 				lang = serviceLanguage.get(idLanguage);
 			} else {
-				lang = serviceLanguage.loadFromAlpha3("ENG");
+				lang = serviceLanguage.getByAlpha3("ENG");
 			}
 
 			// parse measuredescriptions and remove texts to add only selected
@@ -100,7 +100,7 @@ public class ControllerMeasureDescription {
 				mesDesc.getMeasureDescriptionTexts().clear();
 
 				// load only from language
-				MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getByLanguage(mesDesc.getId(), lang.getId());
+				MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(mesDesc.getId(), lang.getId());
 
 				// check if not null
 				if (mesDescText == null) {
@@ -116,8 +116,8 @@ public class ControllerMeasureDescription {
 
 			// put data to model
 			model.addAttribute("selectedLanguage", lang);
-			model.addAttribute("languages", serviceLanguage.loadAll());
-			model.addAttribute("norm", serviceNorm.getNormByID(normId));
+			model.addAttribute("languages", serviceLanguage.getAll());
+			model.addAttribute("norm", serviceNorm.get(normId));
 			model.addAttribute("measureDescriptions", mesDescs);
 		}
 		return "knowledgebase/standard/measure/measures";
@@ -148,22 +148,20 @@ public class ControllerMeasureDescription {
 			if (idLanguage != 0) {
 				lang = serviceLanguage.get(idLanguage);
 			} else {
-				lang = serviceLanguage.loadFromAlpha3("ENG");
+				lang = serviceLanguage.getByAlpha3("ENG");
 			}
 
 			// load only from language
-			MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getByLanguage(mesDesc.getId(), lang.getId());
-
-			
+			MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(mesDesc.getId(), lang.getId());
 
 			// put data to model
-			model.addAttribute("norm", serviceNorm.getNormByID(normId));
+			model.addAttribute("norm", serviceNorm.get(normId));
 			model.addAttribute("measureDescription", mesDesc);
 			model.addAttribute("measureDescriptionText", mesDescText);
 		}
 		return "knowledgebase/standard/measure/measure";
 	}
-	
+
 	/**
 	 * displayAddForm: <br>
 	 * Description
@@ -179,7 +177,7 @@ public class ControllerMeasureDescription {
 	public String displayAddForm(@PathVariable("normId") Integer normId, HttpServletRequest request, Model model) throws Exception {
 
 		// load all languages
-		List<Language> languages = serviceLanguage.loadAll();
+		List<Language> languages = serviceLanguage.getAll();
 
 		// add languages to model
 		model.addAttribute("languages", languages);
@@ -207,7 +205,7 @@ public class ControllerMeasureDescription {
 	public String displayEditForm(@PathVariable("normId") Integer normId, @PathVariable int measureId, HttpServletRequest request, Model model) throws Exception {
 
 		// load all languages
-		List<Language> languages = serviceLanguage.loadAll();
+		List<Language> languages = serviceLanguage.getAll();
 
 		// load measuredescriptiontexts of measuredescription
 		List<MeasureDescriptionText> mesDesc = serviceMeasureDescription.get(measureId).getMeasureDescriptionTexts();
@@ -256,19 +254,18 @@ public class ControllerMeasureDescription {
 			if (measureDescription == null) {
 				// retrieve norm
 				measureDescription = new MeasureDescription();
-				Norm norm = serviceNorm.getNormByID(normId);
+				Norm norm = serviceNorm.get(normId);
 				if (norm == null)
 					errors.put("measureDescription.norm", messageSource.getMessage("error.norm.not_found", null, "Standard is not exist", locale));
 				measureDescription.setNorm(norm);
 			} else if (measureDescription.getNorm().getId() != normId)
-				errors.put("measureDescription.norm",
-						messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
+				errors.put("measureDescription.norm", messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
 
 			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale))
 				serviceMeasureDescription.saveOrUpdate(measureDescription);
-			
-			//System.out.println(measureDescription.isComputable()==true?"TRUE":"FALSE");
-			
+
+			// System.out.println(measureDescription.isComputable()==true?"TRUE":"FALSE");
+
 			// return errors
 			return errors;
 		}
@@ -301,7 +298,7 @@ public class ControllerMeasureDescription {
 
 			// try to delete measure
 			if (serviceMeasureDescription.get(measureid).getNorm().getId() == normId)
-				serviceMeasureDescription.remove(serviceMeasureDescription.get(measureid));
+				serviceMeasureDescription.delete(serviceMeasureDescription.get(measureid));
 
 			// return success message
 			return new String[] { "success", messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale) };
@@ -332,7 +329,7 @@ public class ControllerMeasureDescription {
 
 			String reference = jsonNode.get("reference").asText();
 			Integer level = null;
-			Boolean computable = jsonNode.get("computable").asText().equals("on")?true:false;
+			Boolean computable = jsonNode.get("computable").asText().equals("on") ? true : false;
 			try {
 				level = jsonNode.get("level").asInt();
 			} catch (Exception e) {
@@ -348,9 +345,9 @@ public class ControllerMeasureDescription {
 			if (error != null)
 				errors.put("measuredescription.reference", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
-				if (measuredescription.getId() < 1 && serviceMeasureDescription.exists(reference, measuredescription.getNorm()))
-					errors.put("measuredescription.reference",
-							messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
+				if (measuredescription.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndNorm(reference, measuredescription.getNorm()))
+					errors.put("measuredescription.reference", messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard",
+							locale));
 				else
 					measuredescription.setReference(reference);
 			}
@@ -361,14 +358,16 @@ public class ControllerMeasureDescription {
 				errors.put("measuredescription.level", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
 				if (!errors.containsKey("measuredescription.reference")) {
-//					int count = 1;
-//					for (int i = 0; i < reference.length(); i++)
-//						if (reference.charAt(i) == '.')
-//							count++;
-//					if (count != level)
-//						errors.put("measuredescription.level", messageSource.getMessage("error.measuredescription.level.reference.not_meet", null, "Level and reference do not match", locale));
-//					else
-						measuredescription.setLevel(level);
+					// int count = 1;
+					// for (int i = 0; i < reference.length(); i++)
+					// if (reference.charAt(i) == '.')
+					// count++;
+					// if (count != level)
+					// errors.put("measuredescription.level",
+					// messageSource.getMessage("error.measuredescription.level.reference.not_meet",
+					// null, "Level and reference do not match", locale));
+					// else
+					measuredescription.setLevel(level);
 				}
 			}
 
@@ -378,10 +377,9 @@ public class ControllerMeasureDescription {
 				errors.put("measuredescription.computable", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
 				measuredescription.setComputable(computable);
-			
-			
+
 			// load languages
-			List<Language> languages = serviceLanguage.loadAll();
+			List<Language> languages = serviceLanguage.getAll();
 
 			ValidatorField validator = serviceDataValidation.findByClass(MeasureDescriptionText.class);
 
@@ -408,18 +406,18 @@ public class ControllerMeasureDescription {
 					mesDescText.setLanguage(language);
 					measuredescription.addMeasureDescriptionText(mesDescText);
 				}
-				
+
 				error = validator.validate(mesDescText, "domain", domain);
 
 				if (error != null)
 					errors.put("measureDescriptionText.domain_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
 				else
 					mesDescText.setDomain(domain);
-				
-				if (level==3 && !(measuredescription.getNorm().getLabel().equals("27001") && measuredescription.getNorm().getVersion()==2013))
+
+				if (level == 3 && !(measuredescription.getNorm().getLabel().equals("27001") && measuredescription.getNorm().getVersion() == 2013))
 					error = validator.validate(mesDescText, "description", description);
 				else
-					error=null;
+					error = null;
 				if (error != null)
 					errors.put("measureDescriptionText.description_" + language.getId(), serviceDataValidation.ParseError(error, messageSource, locale));
 				else

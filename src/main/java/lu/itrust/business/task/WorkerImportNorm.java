@@ -306,13 +306,13 @@ public class WorkerImportNorm implements Worker {
 
 											if ((indexCol - startColSheet) % 2 == 1) {
 
-												lang = daoLanguage.getLanguageByAlpha3(matcher.group(2).trim().toLowerCase());
+												lang = daoLanguage.getByAlpha3(matcher.group(2).trim().toLowerCase());
 
 												if (lang == null) {
 													lang = new Language();
 													lang.setAlpha3(matcher.group(2));
-													if (daoLanguage.languageExistsByAlpha3(matcher.group(2))) {
-														lang = daoLanguage.getLanguageByAlpha3(matcher.group(2));
+													if (daoLanguage.existsByAlpha3(matcher.group(2))) {
+														lang = daoLanguage.getByAlpha3(matcher.group(2));
 													} else {
 														lang = new Language();
 														lang.setAlpha3(matcher.group(2));

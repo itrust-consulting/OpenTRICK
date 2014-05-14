@@ -53,7 +53,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer assetId) throws Exception {
-		String query = "Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisid and asset.id = : assetid";
+		String query = "Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisid and asset.id = :assetid";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("assetid", assetId).uniqueResult()).intValue() > 0;
 	}
 

@@ -42,6 +42,23 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	}
 
 	/**
+	 * getFromAnalysisById: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param idAssessment
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAssessment#getFromAnalysisById(java.lang.Integer,
+	 *      java.lang.Integer)
+	 */
+	@Override
+	public Assessment getFromAnalysisById(Integer idAnalysis, Integer idAssessment) throws Exception {
+		return daoAssessment.getFromAnalysisById(idAnalysis, idAssessment);
+	}
+
+	/**
 	 * belongsToAnalysis: <br>
 	 * Description
 	 * 

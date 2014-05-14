@@ -415,7 +415,7 @@ public class ChartGenerator {
 	public static Map<String, Object[]> ComputeComplianceBefore(List<Measure> measures, String norm) {
 		Map<String, Object[]> compliances = new LinkedHashMap<String, Object[]>();
 		for (Measure measure : measures) {
-			if (measure.getAnalysisNorm().getNorm().getLabel().equals(norm) && measure.getMeasureDescription().getLevel() >= 3
+			if (measure.getAnalysisNorm().getNorm().getLabel().equals(norm) && measure.getMeasureDescription().isComputable()
 				&& !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
 				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
 				Object[] compliance = compliances.get(chapter);

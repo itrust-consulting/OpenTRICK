@@ -9,39 +9,24 @@
 	</p>
 	<jsp:include page="../successErrors.jsp" />
 	<c:if test="${!empty userrights}">
-		
 		<form id="userrightsform" name="userrightsform" action="" method="post">
-		<spring:message code="label.select.user" text="Select a user: " />
-		<select id="userselect" name="userselect" class="form-control">
-			<c:forEach items="${userrights.keySet()}" var="user" varStatus="status">
-				<option value="${user.id}" ${user.id==currentUser?"selected='selected'":""} >${user.firstName}&nbsp;${user.lastName}</option>
-			</c:forEach>
-		</select>
-		<script type="text/javascript">
-			var previous;
-
-			$("#userselect").one('focus', function() {
-				previous = this.value;
-			}).change(function() {
-
-				$("#user_" + previous).attr("hidden", true);
-
-				$("#user_" + this.value).removeAttr("hidden");
-
-				previous = this.value;
-			});
-		</script>
-		<input name="analysis" type="hidden" value="${analysis.id}" />
-		<c:forEach items="${userrights.keySet()}" var="user">
-			<div id="user_${user.id}"  ${user.id==currentUser?"":"hidden='hidden'"}>
-				<c:set var="analysisRight" value="${userrights.get(user)}" scope="request" />
-				<input type="radio" value="-1" name="analysisRight_${user.id}" ${analysisRight == null?'checked="checked"':'' }>&nbsp;NONE<br>
-				<c:forEach items="${analysisRigths}" var="right">
-					<input type="radio" ${analysisRight == right?'checked="checked"':'' } value="${right.ordinal()}" name="analysisRight_${user.id}" />&nbsp;${right}
-					<br>
+			<spring:message code="label.select.user" text="Select a user: " />
+			<select id="userselect" name="userselect" class="form-control">
+				<c:forEach items="${userrights.keySet()}" var="user" varStatus="status">
+					<option value="${user.id}" ${user.id==currentUser?"selected='selected'":""}>${user.firstName}&nbsp;${user.lastName}</option>
 				</c:forEach>
-			</div>
-		</c:forEach>
+			</select>
+			<input name="analysis" type="hidden" value="${analysis.id}" />
+			<c:forEach items="${userrights.keySet()}" var="user">
+				<div id="user_${user.id}" ${user.id==currentUser?"":"hidden='hidden'"}>
+					<c:set var="analysisRight" value="${userrights.get(user)}" scope="request" />
+					<input type="radio" value="-1" name="analysisRight_${user.id}" ${analysisRight == null?'checked="checked"':'' }>&nbsp;NONE<br>
+					<c:forEach items="${analysisRights}" var="right">
+						<input type="radio" ${analysisRight == right?'checked="checked"':'' } value="${right.ordinal()}" name="analysisRight_${user.id}" />&nbsp;${right}
+					<br>
+					</c:forEach>
+				</div>
+			</c:forEach>
 		</form>
 	</c:if>
 </div>

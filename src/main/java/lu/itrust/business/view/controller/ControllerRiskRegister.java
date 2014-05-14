@@ -100,7 +100,7 @@ public class ControllerRiskRegister {
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
 
 		// load all actionplans from the selected analysis
-		List<RiskRegisterItem> riskregister = serviceRiskRegister.loadAllFromAnalysis(selected);
+		List<RiskRegisterItem> riskregister = serviceRiskRegister.getAllFromAnalysis(selected);
 
 		// prepare model
 		model.put("riskregister", riskregister);
@@ -148,7 +148,7 @@ public class ControllerRiskRegister {
 	String computeRiskRegister(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 
 		// prepare permission verifier
-		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
+		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode jsonNode = mapper.readTree(value);
@@ -158,18 +158,18 @@ public class ControllerRiskRegister {
 
 		// verify if user is authorized to compute the risk register
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_RISK_REGISTER)) {
-			
-			boolean reloadSection = session.getAttribute("selectedAnalysis")!=null;
-			
+
+			boolean reloadSection = session.getAttribute("selectedAnalysis") != null;
+
 			WorkerComputeRiskRegister worker = new WorkerComputeRiskRegister(workersPoolManager, sessionFactory, serviceTaskFeedback, analysisId, reloadSection);
 
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 				return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Risk Register computation was failed", locale));
-			
+
 			// execute task
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.start.compute.riskregister", null, "Risk Register computation was started successfully", locale));
-			
+
 		} else {
 			return JsonMessage.Success(messageSource.getMessage("error.permissiondenied", null, "Permission denied!", locale));
 		}

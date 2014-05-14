@@ -127,7 +127,7 @@ public class CustomDelete {
 		if (!customer.isCanBeUsed())
 			return;
 
-		List<Analysis> analyses = daoAnalysis.getAllFromUserNameAndCustomerId(userName, customer.getId());
+		List<Analysis> analyses = daoAnalysis.getAllFromUserAndCustomer(userName, customer.getId());
 		User user = daoUser.get(userName);
 		for (Analysis analysis : analyses) {
 			analysis.removeRights(user);

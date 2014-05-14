@@ -43,7 +43,7 @@ public class ControllerRegister {
 
 	@Autowired
 	private ServiceRole serviceRole;
-	
+
 	/**
 	 * initBinder: <br>
 	 * Description
@@ -64,10 +64,10 @@ public class ControllerRegister {
 	 */
 	@RequestMapping("/Register")
 	public String add(Map<String, Object> model) {
-		
+
 		// create new user object and add it to model
 		model.put("user", new User());
-		
+
 		return "registerUserForm";
 	}
 
@@ -86,49 +86,49 @@ public class ControllerRegister {
 	public String save(@ModelAttribute("user") @Valid User user, BindingResult result, RedirectAttributes attributes, Locale locale) throws Exception {
 
 		try {
-			
+
 			// check if validator has errors
 			if (result.hasErrors())
-				
+
 				// return to form
 				return "registerUserForm";
-			
+
 			// encode password
 			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 			user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
-			
+
 			// check if users exist and give first user admin role
 			Role role = null;
-			if (!serviceUser.hasUsers()) {
-				
+			if (serviceUser.noUsers()) {
+
 				// check if admin role exists and create it if not
-				role = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
+				role = serviceRole.getByName(RoleType.ROLE_ADMIN.name());
 				if (role == null) {
 					role = new Role(RoleType.ROLE_ADMIN);
 					serviceRole.save(role);
 				}
 			} else {
-				
+
 				// check if user role exists and create it if not
-				role = serviceRole.findByName(RoleType.ROLE_USER.name());
+				role = serviceRole.getByName(RoleType.ROLE_USER.name());
 				if (role == null) {
 					role = new Role(RoleType.ROLE_USER);
 					serviceRole.save(role);
 				}
 			}
-			
+
 			// set role of new user
 			user.addRole(role);
-			
-			// save user 
+
+			// save user
 			this.serviceUser.save(user);
-			
+
 			// return success message and redirect to login page
 			attributes.addFlashAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
 			attributes.addFlashAttribute("login", user.getLogin());
 			return "redirect:/login";
 		} catch (ConstraintViolationException e) {
-			
+
 			// return error and return to register page
 			e.printStackTrace();
 			attributes.addFlashAttribute("errors", messageSource.getMessage("error.create.account.unknown", null, "Account creation failed, Please try again", locale));

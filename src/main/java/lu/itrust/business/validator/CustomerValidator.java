@@ -61,11 +61,11 @@ public class CustomerValidator extends ValidatorFieldImpl implements Validator {
 			break;
 		case "telephoneNumber":
 			if (candidate == null || !(candidate instanceof String))
-				return "error.customer.telephoneNumber.unsupported:telephoneNumber:Telephone number value is not supported";
+				return "error.customer.telephoneNumber.unsupported:telephoneNumber:Phone number value is not supported";
 			else if (candidate.toString().trim().isEmpty())
 				return "error.customer.telephoneNumber.empty::Telephone number cannot be empty";
 			else if (!candidate.toString().matches(Constant.REGEXP_VALID_PHONE))
-				return "error.customer.contactPerson.rejected::Contact Person is not valid";
+				return "error.customer.contactPerson.rejected::Phone number is not valid";
 			break;
 		case "email":
 			if (candidate == null || !(candidate instanceof String))

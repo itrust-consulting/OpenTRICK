@@ -18,19 +18,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author eom
- *
+ * 
  */
 @PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
 @Controller
 @RequestMapping("/AssetType")
 public class ControllerAssetType {
-	
+
 	@Autowired
 	private ServiceAssetType serviceAssetType;
 
 	@RequestMapping(value = "/All", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody List<AssetType> findAll() throws Exception{
-		return serviceAssetType.loadAll();
+	public @ResponseBody
+	List<AssetType> findAll() throws Exception {
+		return serviceAssetType.getAll();
 	}
 
 }

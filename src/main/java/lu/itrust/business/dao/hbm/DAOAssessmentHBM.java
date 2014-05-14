@@ -48,6 +48,23 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	}
 
 	/**
+	 * getFromAnalysisById: <br>
+	 * Description
+	 *
+	 * @param idAnalysis
+	 * @param idAssessment
+	 * @return
+	 * @throws Exception
+	 *
+	 * @see lu.itrust.business.dao.DAOAssessment#getFromAnalysisById(java.lang.Integer, java.lang.Integer)
+	 */
+	@Override
+	public Assessment getFromAnalysisById(Integer idAnalysis, Integer idAssessment) throws Exception{
+		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.id = :idAssessment";
+		return (Assessment) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idAssessment", idAssessment).uniqueResult();
+	}
+	
+	/**
 	 * belongsToAnalysis: <br>
 	 * Description
 	 * 
@@ -55,7 +72,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 *      java.lang.Integer)
 	 */
 	public boolean belongsToAnalysis(Integer assessmentId, Integer analysisId) throws Exception {
-		String query = "Select count(assessment) From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :analysisId and assessment.id = : assessmentId";
+		String query = "Select count(assessment) From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :analysisId and assessment.id = :assessmentId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("assessmentId", assessmentId).uniqueResult()).intValue() > 0;
 	}
 

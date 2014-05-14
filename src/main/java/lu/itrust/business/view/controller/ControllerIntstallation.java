@@ -40,7 +40,7 @@ public class ControllerIntstallation {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
-	
+
 	@Autowired
 	private ServiceTrickService serviceTrickService;
 
@@ -52,18 +52,18 @@ public class ControllerIntstallation {
 
 	@Autowired
 	private SessionFactory sessionFactory;
-	
+
 	@RequestMapping("/Install")
 	public String install(Model model, Principal principal, HttpServletRequest request) throws Exception {
 		return "redirect:/RemoveDefaultProfile";
 	}
-	
+
 	@RequestMapping("/InstallTS")
 	public @ResponseBody
 	Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request) throws Exception {
-		
+
 		Map<String, String> errors = new LinkedHashMap<String, String>();
-		
+
 		TrickService status = serviceTrickService.getStatus();
 
 		if (status == null) {
@@ -72,30 +72,30 @@ public class ControllerIntstallation {
 		}
 
 		String fileName = request.getServletContext().getRealPath("/WEB-INF/data") + "/TL1.4_TRICKService_DefaultProfile_v1.1.sqlite";
-	
+
 		installProfileCustomer(errors);
 
 		installDefaultProfile(fileName, principal, errors);
 
 		return errors;
-		
+
 	}
-	
+
 	@RequestMapping("/RemoveDefaultProfile")
 	public String removeDefault(Model model, Principal principal, HttpServletRequest request) throws Exception {
-		
-			Analysis analysis = serviceAnalysis.getDefaultProfile();
 
-			if(analysis != null) 
-				serviceAnalysis.remove(analysis);
-			
-			return "redirect:/InstallTS";
+		Analysis analysis = serviceAnalysis.getDefaultProfile();
+
+		if (analysis != null)
+			serviceAnalysis.delete(analysis);
+
+		return "redirect:/InstallTS";
 	}
-	
+
 	private Customer installProfileCustomer(Map<String, String> errors) {
 		try {
 
-			Customer customer = serviceCustomer.loadProfileCustomer();
+			Customer customer = serviceCustomer.getProfile();
 
 			if (customer == null) {
 				customer = new Customer();
@@ -114,68 +114,68 @@ public class ControllerIntstallation {
 			return customer;
 		} catch (Exception e) {
 			e.printStackTrace();
-			
+
 			errors.put("installProfileCustomer", e.getMessage());
 			return null;
 		}
 	}
-	
+
 	private boolean installDefaultProfile(String fileName, Principal principal, Map<String, String> errors) {
 
 		Customer customer;
-		
-		User owner;
-		
-		Analysis analysis = null;
-		
-		DatabaseHandler sqlitehandler = null;
-		
-		try {
-		
-		// customer
-		customer = serviceCustomer.loadProfileCustomer();
 
-		if (customer == null) {
-			customer = installProfileCustomer(errors);
-			if (customer==null) {
-				System.out.println("Customer could not be installed!");
-				errors.put("installDefaultProfile - Customer", "Could not find profile customer!");
+		User owner;
+
+		Analysis analysis = null;
+
+		DatabaseHandler sqlitehandler = null;
+
+		try {
+
+			// customer
+			customer = serviceCustomer.getProfile();
+
+			if (customer == null) {
+				customer = installProfileCustomer(errors);
+				if (customer == null) {
+					System.out.println("Customer could not be installed!");
+					errors.put("installDefaultProfile - Customer", "Could not find profile customer!");
+					return false;
+				}
+			}
+
+			// owner
+			owner = serviceUser.get(principal.getName());
+
+			if (owner == null) {
+				System.out.println("Could not determine owner! Canceling default Profile creation...");
+				errors.put("installDefaultProfile - Owner", "Could not determine owner!");
 				return false;
 			}
-		}
-		
-		// owner
-		owner = serviceUser.get(principal.getName());
 
-		if (owner == null) {
-			System.out.println("Could not determine owner! Canceling default Profile creation...");
-			errors.put("installDefaultProfile - Owner", "Could not determine owner!");
-			return false;
-		}
+			// create analysis
+			analysis = new Analysis();
+			analysis.setCustomer(customer);
+			analysis.setOwner(owner);
+			analysis.setProfile(true);
+			analysis.setDefaultProfile(true);
 
-		// create analysis 
-		analysis = new Analysis();
-		analysis.setCustomer(customer);
-		analysis.setOwner(owner);
-		analysis.setProfile(true);
-		analysis.setDefaultProfile(true);
-		
-		sqlitehandler = new DatabaseHandler(fileName);
-		
-		// import default values
-		ImportAnalysis importAnalysis = new ImportAnalysis(analysis, sqlitehandler);
-		importAnalysis.setSessionFactory(sessionFactory);
-		
-		boolean returnvalue = importAnalysis.simpleAnalysisImport();
-		
-		importAnalysis.getAnalysis().setLabel("Default Profile from installer");
-		importAnalysis.getAnalysis().setIdentifier("SME");
-		
-		serviceAnalysis.saveOrUpdate(importAnalysis.getAnalysis());
-		
-		return returnvalue;
-						
-		} catch(Exception e) {
+			sqlitehandler = new DatabaseHandler(fileName);
+
+			// import default values
+			ImportAnalysis importAnalysis = new ImportAnalysis(analysis, sqlitehandler);
+			importAnalysis.setSessionFactory(sessionFactory);
+
+			boolean returnvalue = importAnalysis.simpleAnalysisImport();
+
+			importAnalysis.getAnalysis().setLabel("Default Profile from installer");
+			importAnalysis.getAnalysis().setIdentifier("SME");
+
+			serviceAnalysis.saveOrUpdate(importAnalysis.getAnalysis());
+
+			return returnvalue;
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			errors.put("installDefaultProfile - Create Profile", e.getMessage());
 			return false;

@@ -1,7 +1,6 @@
 package lu.itrust.business.view.controller;
 
 import java.io.File;
-import java.io.IOException;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -44,6 +43,7 @@ import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.component.helper.JsonMessage;
+import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceActionPlan;
@@ -203,7 +203,7 @@ public class ControllerAnalysis {
 			Boolean permissiondenied = false;
 
 			// prepare permission evaluator
-			PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
+			PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 
 			Analysis analysis = serviceAnalysis.get(selected);
 
@@ -214,9 +214,9 @@ public class ControllerAnalysis {
 
 			User user = serviceUser.get(principal.getName());
 
-			Role roleconsultant = serviceRole.findByName(RoleType.ROLE_CONSULTANT.name());
+			Role roleconsultant = serviceRole.getByName(RoleType.ROLE_CONSULTANT.name());
 
-			Role roleadmin = serviceRole.findByName(RoleType.ROLE_ADMIN.name());
+			Role roleadmin = serviceRole.getByName(RoleType.ROLE_ADMIN.name());
 
 			if (analysis.isProfile()) {
 				if (!serviceUser.hasRole(user, roleconsultant) && !serviceUser.hasRole(user, roleadmin))
@@ -239,7 +239,7 @@ public class ControllerAnalysis {
 		} else {
 
 			// load only customers of this user
-			List<Customer> customers = serviceCustomer.loadByUser(principal.getName());
+			List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
 
 			// retrieve currently selected customer
 			Integer customer = (Integer) session.getAttribute("currentCustomer");
@@ -252,9 +252,9 @@ public class ControllerAnalysis {
 			if (customer != null)
 
 				// load model with objects by the selected customer
-				model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomerAndNoEmpty(principal.getName(), customer));
+				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
 			model.addAttribute("customer", customer);
-			model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
+			model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 			model.addAttribute("login", principal.getName());
 		}
 		return "analysis/analyse";
@@ -262,15 +262,15 @@ public class ControllerAnalysis {
 
 	@RequestMapping(value = "/Add/Standard", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String addStandardForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) {
+	public String addStandardForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		List<Norm> norms = serviceNorm.loadAllNoInAnalysis(idAnalysis);
+		List<Norm> norms = serviceNorm.getAllNotInAnalysis(idAnalysis);
 		if (norms.isEmpty()) {
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.analysis.add.standard", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
 			return "redirect:/Error";
 		}
 		model.addAttribute("norms", norms);
-		model.addAttribute("currentNorms", serviceNorm.loadAllFromAnalysis(idAnalysis));
+		model.addAttribute("currentNorms", serviceNorm.getAllFromAnalysis(idAnalysis));
 		model.addAttribute("idAnalysis", idAnalysis);
 		return "analysis/components/widgets/addStandardForm";
 	}
@@ -280,7 +280,7 @@ public class ControllerAnalysis {
 	public @ResponseBody
 	String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, RedirectAttributes attributes, Locale locale) throws Exception {
 		try {
-			Norm norm = serviceNorm.getNormByID(idStandard);
+			Norm norm = serviceNorm.get(idStandard);
 			if (norm == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null, "Unfortunately, selected standard does not exist", locale));
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -301,7 +301,7 @@ public class ControllerAnalysis {
 			} else {
 				analysisNorm = new MeasureNorm();
 				measure = new NormMeasure();
-				List<AssetType> assetTypes = serviceAssetType.loadAll();
+				List<AssetType> assetTypes = serviceAssetType.getAll();
 				List<AssetTypeValue> assetTypeValues = ((NormMeasure) measure).getAssetTypeValues();
 				for (AssetType assetType : assetTypes)
 					assetTypeValues.add(new AssetTypeValue(assetType, 0));
@@ -352,14 +352,14 @@ public class ControllerAnalysis {
 
 		List<UserAnalysisRight> uars = analysis.getUserRights();
 
-		for (User user : serviceUser.loadAll())
-			userrights.put(user, null);
+		for (User user : serviceUser.getAll())
+			userrights.put(DAOHibernate.Initialise(user), null);
 
 		for (UserAnalysisRight uar : uars)
-			userrights.put(uar.getUser(), uar.getRight());
+			userrights.put(DAOHibernate.Initialise(uar.getUser()), DAOHibernate.Initialise(uar.getRight()));
 
-		model.addAttribute("currentUser", serviceUser.get(principal.getName()).getId());
-		model.addAttribute("analysisRigths", AnalysisRight.values());
+		model.addAttribute("currentUser", (DAOHibernate.Initialise(serviceUser.get(principal.getName())).getId()));
+		model.addAttribute("analysisRights", AnalysisRight.values());
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("userrights", userrights);
 		return "analysis/manageuseranalysisrights";
@@ -391,17 +391,17 @@ public class ControllerAnalysis {
 
 			List<UserAnalysisRight> uars = analysis.getUserRights();
 
-			for (User user : serviceUser.loadAll())
-				userrights.put(user, null);
+			for (User user : serviceUser.getAll())
+				userrights.put(DAOHibernate.Initialise(user), null);
 
 			for (UserAnalysisRight uar : uars)
-				userrights.put(uar.getUser(), uar.getRight());
+				userrights.put(DAOHibernate.Initialise(uar.getUser()), DAOHibernate.Initialise(uar.getRight()));
 
 			int currentUser = jsonNode.get("userselect").asInt();
 
 			model.addAttribute("currentUser", currentUser);
 
-			for (User user : serviceUser.loadAll()) {
+			for (User user : serviceUser.getAll()) {
 
 				if (user.getLogin().equals(principal.getName()))
 					continue;
@@ -441,7 +441,7 @@ public class ControllerAnalysis {
 			model.addAttribute("success", messageSource
 					.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
-			model.addAttribute("analysisRigths", AnalysisRight.values());
+			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
 
@@ -461,14 +461,14 @@ public class ControllerAnalysis {
 	@RequestMapping("/Section")
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
 		Integer customer = (Integer) request.getSession().getAttribute("currentCustomer");
+		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
 		if (customer == null) {
-			List<Customer> customers = serviceCustomer.loadByUser(principal.getName());
 			if (!customers.isEmpty())
 				request.getSession().setAttribute("currentCustomer", customer = customers.get(0).getId());
 		}
-		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomerAndNoEmpty(principal.getName(), customer));
+		model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
 		model.addAttribute("customer", customer);
-		model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
+		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
 
 		return "analysis/analyses";
@@ -488,9 +488,9 @@ public class ControllerAnalysis {
 	@RequestMapping("/DisplayByCustomer/{customerSection}")
 	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
 		session.setAttribute("currentCustomer", customerSection);
-		model.addAttribute("analyses", serviceAnalysis.loadByUserAndCustomerAndNoEmpty(principal.getName(), customerSection));
+		model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customerSection));
 		model.addAttribute("customer", customerSection);
-		model.addAttribute("customers", serviceCustomer.loadByUser(principal.getName()));
+		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
 		return "analysis/analyses";
 	}
@@ -584,12 +584,12 @@ public class ControllerAnalysis {
 	public String requestnewAnalysis(Principal principal, Map<String, Object> model) throws Exception {
 
 		// add languages
-		model.put("languages", serviceLanguage.loadAll());
+		model.put("languages", serviceLanguage.getAll());
 
 		// add only customers of the current user
-		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
+		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 
-		model.put("profiles", serviceAnalysis.loadProfiles());
+		model.put("profiles", serviceAnalysis.getAllProfiles());
 		// set author as the username
 
 		User user = serviceUser.get(principal.getName());
@@ -622,15 +622,15 @@ public class ControllerAnalysis {
 			return "redirect:/Error/404";
 
 		// prepare permission evaluator
-		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
+		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)) {
 
 			// add languages
-			model.put("languages", serviceLanguage.loadAll());
+			model.put("languages", serviceLanguage.getAll());
 
 			// add customers of user
-			model.put("customers", serviceCustomer.loadByUser(principal.getName()));
+			model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 
 			// add the analysis object
 			model.put("analysis", analysis);
@@ -663,7 +663,7 @@ public class ControllerAnalysis {
 		try {
 
 			// prepare permission verifier
-			PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceUserAnalysisRight);
+			PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(value);
@@ -674,7 +674,7 @@ public class ControllerAnalysis {
 			// check if it is a new analysis or the user is authorized to modify
 			// the analysis
 			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)
-				|| serviceUser.hasRole(serviceUser.get(principal.getName()), RoleType.ROLE_CONSULTANT)) {
+				|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
 
 				// create/update analysis object and set access rights
 				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
@@ -749,7 +749,7 @@ public class ControllerAnalysis {
 				return JsonMessage.Success(messageSource.getMessage("error.profile.delete.fail", null, "Default profile cannot be deleted!", locale));
 
 			// delete the analysis
-			serviceAnalysis.remove(analysisId);
+			serviceAnalysis.delete(analysisId);
 
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
@@ -906,7 +906,7 @@ public class ControllerAnalysis {
 	public String importAnalysis(Principal principal, Map<String, Object> model) throws Exception {
 
 		// add the customers of the user to the data model
-		model.put("customers", serviceCustomer.loadByUser(principal.getName()));
+		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		return "analysis/importAnalysisForm";
 	}
 
@@ -1021,13 +1021,13 @@ public class ControllerAnalysis {
 	 * @param principal
 	 * @param response
 	 * @return
-	 * @throws IOException
+	 * @throws Exception
 	 */
 	@RequestMapping("/Download/{idFile}")
-	public String download(@PathVariable long idFile, Principal principal, HttpServletResponse response) throws IOException {
+	public String download(@PathVariable Integer idFile, Principal principal, HttpServletResponse response) throws Exception {
 
 		// get user file by given file id and username
-		UserSQLite userSqLite = serviceUserSqLite.findByIdAndUser(idFile, principal.getName());
+		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(idFile, principal.getName());
 
 		// if file could not be found retrun 404 error
 		if (userSqLite == null)

@@ -65,8 +65,8 @@ public class DAORiskInformationHBM extends DAOHibernate implements DAORiskInform
 	 * @see lu.itrust.business.dao.DAORiskInformation#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
-	public boolean belongsToAnalysis(Integer riskinformationId, Integer analysisId) throws Exception {
-		String query = "Select count(riskinformation) From Analysis as analysis inner join analysis.usedPhases as riskinformation where analysis.id = :analysisid and phase.id = ";
+	public boolean belongsToAnalysis(Integer analysisId, Integer riskinformationId) throws Exception {
+		String query = "Select count(riskinformation) From Analysis as analysis inner join analysis.riskInformations as riskinformation where analysis.id = :analysisid and riskinformation.id = ";
 		query += ":riskinformationId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskinformationId", riskinformationId).uniqueResult()).intValue() > 0;
 	}

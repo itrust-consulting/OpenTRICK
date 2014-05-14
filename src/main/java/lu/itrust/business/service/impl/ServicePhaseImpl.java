@@ -69,8 +69,8 @@ public class ServicePhaseImpl implements ServicePhase {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public Phase getFromAnalysisByPhaseId(Integer idAnalysis, Integer idPhase) throws Exception {
-		return daoPhase.getFromAnalysisByPhaseId(idAnalysis, idPhase);
+	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase) throws Exception {
+		return daoPhase.getFromAnalysisById(idAnalysis, idPhase);
 	}
 
 	/**
@@ -86,8 +86,8 @@ public class ServicePhaseImpl implements ServicePhase {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer phaseId, Integer analysisId) throws Exception {
-		return daoPhase.belongsToAnalysis(phaseId, analysisId);
+	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId) throws Exception {
+		return daoPhase.belongsToAnalysis(analysisId, phaseId);
 	}
 
 	/**

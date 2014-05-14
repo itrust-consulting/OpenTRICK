@@ -50,8 +50,8 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @see lu.itrust.business.service.ServiceLanguage#languageExistsByAlpha3(java.lang.String)
 	 */
 	@Override
-	public boolean languageExistsByAlpha3(String alpha3) throws Exception {
-		return daoLanguage.languageExistsByAlpha3(alpha3);
+	public boolean existsByAlpha3(String alpha3) throws Exception {
+		return daoLanguage.existsByAlpha3(alpha3);
 	}
 
 	/**
@@ -65,8 +65,8 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @see lu.itrust.business.service.ServiceLanguage#languageExistsByName(java.lang.String)
 	 */
 	@Override
-	public boolean languageExistsByName(String name) throws Exception {
-		return daoLanguage.languageExistsByName(name);
+	public boolean existsByName(String name) throws Exception {
+		return daoLanguage.existsByName(name);
 	}
 
 	/**
@@ -80,8 +80,8 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @see lu.itrust.business.service.ServiceLanguage#languageExistsByAltName(java.lang.String)
 	 */
 	@Override
-	public boolean languageExistsByAltName(String altName) throws Exception {
-		return daoLanguage.languageExistsByAltName(altName);
+	public boolean existsByAltName(String altName) throws Exception {
+		return daoLanguage.existsByAltName(altName);
 	}
 
 	/**
@@ -95,8 +95,8 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @see lu.itrust.business.service.ServiceLanguage#getLanguageOfAnalysis(java.lang.Integer)
 	 */
 	@Override
-	public Language getLanguageOfAnalysis(Integer idAnalysis) throws Exception {
-		return this.daoLanguage.getLanguageOfAnalysis(idAnalysis);
+	public Language getFromAnalysis(Integer idAnalysis) throws Exception {
+		return this.daoLanguage.getFromAnalysis(idAnalysis);
 	}
 
 	/**
@@ -110,8 +110,8 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @see lu.itrust.business.service.ServiceLanguage#getLanguageByAlpha3(java.lang.String)
 	 */
 	@Override
-	public Language getLanguageByAlpha3(String alpha3) throws Exception {
-		return daoLanguage.getLanguageByAlpha3(alpha3);
+	public Language getByAlpha3(String alpha3) throws Exception {
+		return daoLanguage.getByAlpha3(alpha3);
 	}
 
 	/**
@@ -125,8 +125,8 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @see lu.itrust.business.service.ServiceLanguage#getLanguageByName(java.lang.String)
 	 */
 	@Override
-	public Language getLanguageByName(String name) throws Exception {
-		return daoLanguage.getLanguageByName(name);
+	public Language getByName(String name) throws Exception {
+		return daoLanguage.getByName(name);
 	}
 
 	/**
@@ -140,8 +140,8 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @see lu.itrust.business.service.ServiceLanguage#getLanguageByAltName(java.lang.String)
 	 */
 	@Override
-	public Language getLanguageByAltName(String alternativeName) throws Exception {
-		return daoLanguage.getLanguageByAltName(alternativeName);
+	public Language getByAltName(String alternativeName) throws Exception {
+		return daoLanguage.getByAltName(alternativeName);
 	}
 
 	/**

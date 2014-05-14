@@ -50,6 +50,22 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	}
 
 	/**
+	 * getFromAnalysisById: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param idActionPlanEntry
+	 * @return
+	 * @throws Exception
+	 */
+	@Override
+	public ActionPlanEntry getFromAnalysisById(Integer idAnalysis, Integer idActionPlanEntry) throws Exception {
+		String query = "Select actionplanentry From Analysis as analysis inner join analysis.actionPlans as actionplanentry where analysis.id = :idAnalysis and actionplanentry.id = ";
+		query += ":idActionPlanEntry";
+		return (ActionPlanEntry) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idActionPlanEntry", idActionPlanEntry).uniqueResult();
+	}
+
+	/**
 	 * belongsToAnalysis: <br>
 	 * Description
 	 * 
