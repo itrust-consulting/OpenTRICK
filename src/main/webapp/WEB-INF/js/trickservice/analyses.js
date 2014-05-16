@@ -519,72 +519,71 @@ function exportAnalysis(analysisId) {
 	return false;
 }
 
-function hasErrors(errors, targetName) {
-	var targets = {
-		history : function() {
-			for ( var error in errors) {
-				switch (error) {
-				case "error":
-				case "author":
-				case "version":
-				case "comment":
-				case "date":
-					return true;
-				}
-			}
-			return false;
-		}
-	};
-	if ($.isFunction(targets[targetName]))
-		return targets[targetName]();
-	return false;
-}
-
 function duplicateAnalysis(form, analyisId) {
 	var oldVersion = $("#history_oldVersion").prop("value");
 	$(".progress-striped").show();
-	$("#history_submit_button").prop("disabled", true);
+	$(".progress-striped").addClass("active");
+	var labels = $("#addHistoryModal .label-danger");
+	if (labels.length)
+		labels.remove();
+
+	var alert = $("#addHistoryModal [class='alert alert-warning']");
+	if (alert.length)
+		alert.remove();
+	
 	$.ajax({
 		url : context + "/Analysis/Duplicate/" + analyisId,
 		type : "post",
 		aync : true,
-		data : $("#" + form).serialize(),
+		data : serializeForm(form),
+		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			var alerts = $("#addHistoryModal .label-danger");
-			if (alerts.length)
-				alerts.remove();
-			if (response["success"] != undefined) {
-				showSuccess($("#addHistoryModal .modal-body")[0], response["success"]);
-				setTimeout("location.reload()", 2000);
-			} else if (hasErrors(response, "history")) {
-				$(".progress-striped").hide();
-				$("#history_submit_button").prop("disabled", false);
-				$("#history_oldVersion").prop("value", oldVersion);
-				for ( var error in response) {
-					var label = document.createElement("label");
-					$(label).attr("class", "label label-danger");
-					$(label).text(response[error]);
-					switch (error) {
-					case "date":
-					case "error":
-						$(label).appendTo($("#addHistoryModal .modal-body"));
-						break;
-					case "author":
-						$(label).appendTo($("#addHistoryModal input[name='author']").parent());
-						break;
-					case "version":
-						$(label).appendTo($("#addHistoryModal input[name='version']").parent());
-						break;
-					case "comment":
-						$(label).appendTo($("#addHistoryModal textarea[name='comment']").parent());
-						break;
-					}
+
+			$("#history_oldVersion").attr("value", oldVersion);
+
+			for ( var error in response) {
+				$(".progress-striped").removeClass("active");
+				var errorElement = document.createElement("label");
+				errorElement.setAttribute("class", "label label-danger");
+
+				$(errorElement).text(response[error]);
+
+				switch (error) {
+				case "author":
+					$(errorElement).appendTo($("#addHistoryModal #history_author").parent());
+					break;
+				case "version":
+					$(errorElement).appendTo($("#addHistoryModal #history_version").parent());
+					break;
+				case "comment":
+					$(errorElement).appendTo($("#addHistoryModal #history_comment").parent());
+					break;
+				case "analysis": {
+					var alertElement = document.createElement("div");
+					alertElement.setAttribute("class", "alert alert-warning");
+
+					$(alertElement).text($(errorElement).text());
+
+					$("#addHistoryModal .modal-body").prepend($(alertElement));
+					break;
 				}
-				return false;
-			} else {
-				$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
-				$("#alert-dialog").modal("toggle");
+				}
+
 			}
+			if (!$("#addHistoryModal .label-danger").length && !$("#addHistoryModal [class='alert alert-warning alert-dismissable']").length) {
+				
+				var alertElement = document.createElement("div");
+				alertElement.setAttribute("class", "alert alert-success");
+						
+				$(alertElement).text(MessageResolver("success.newversion.created", "New version created sucessfully!"));
+
+				$("#addHistoryModal div.modal-body").prepend($(alertElement));
+
+				$(".progress-striped").removeClass("active");
+				
+				setTimeout("location.reload()", 2000);
+			}
+
 		}
 	});
 	return false;

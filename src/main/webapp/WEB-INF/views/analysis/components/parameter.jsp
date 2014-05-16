@@ -14,8 +14,10 @@
 	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitParameters(parameters)" var="parametersSplited" />
 	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitSimpleParameters(parametersSplited[0])" var="simpleParameters" />
 	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitExtendedParameters(parametersSplited[1])" var="extendedParameters" />
+	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitMaturityParameters(parameters)" var="maturityParameters" />
 	<div class="row">
 		<div class="col-md-6">
+			<span id="anchorParameter_Impact" class="anchor"></span>
 			<div class="panel panel-default" id="Scale_Impact">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.impact" text="Impact of thread" />
@@ -59,6 +61,7 @@
 			</div>
 		</div>
 		<div class="col-md-6">
+			<span id="anchorParameter_Probability" class="anchor"></span>
 			<div class="panel panel-default" id="Scale_Probability">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.extended.probability" text="Probability of threat occurence" />
@@ -102,6 +105,7 @@
 			</div>
 		</div>
 		<div class="col-md-4">
+			<span id="anchorParameter_ImplementationRate" class="anchor"></span>
 			<div class="panel panel-default" id="Maturity_implementation_rate">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.smt" text="Implementation scale of SMT" />
@@ -129,6 +133,7 @@
 			</div>
 		</div>
 		<div class="col-md-8">
+			<span id="anchorParameter_Various" class="anchor"></span>
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.various" text="Various parameters" />
@@ -159,6 +164,7 @@
 			</div>
 		</div>
 		<div class="col-md-5">
+			<span id="anchorParameter_MaxEfficiency" class="anchor"></span>
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.simple.maturity_level" text="Maximal efficiency rate per security maturity level" />
@@ -184,6 +190,50 @@
 								</c:forEach>
 								<td>%</td>
 							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<span id="anchorParameter_ILPS" class="anchor"></span>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<spring:message code="label.parameter.maturity_ilps" text="Required level of implmentation per SML" />
+				</div>
+				<div class="panel-body">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th><spring:message code="label.parameter.maturity.Category" text="Category" /></th>
+								<th><spring:message code="label.parameter.maturity.Task" text="Task" /></th>
+								<th><spring:message code="label.parameter.maturity.sml0" text="SML0" /> (%)</th>
+								<th><spring:message code="label.parameter.maturity.sml1" text="SML1" /> (%)</th>
+								<th><spring:message code="label.parameter.maturity.sml2" text="SML2" /> (%)</th>
+								<th><spring:message code="label.parameter.maturity.sml3" text="SML3" /> (%)</th>
+								<th><spring:message code="label.parameter.maturity.sml4" text="SML4" /> (%)</th>
+								<th><spring:message code="label.parameter.maturity.sml5" text="SML5" /> (%)</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach items="${maturityParameters}" var="parameter">
+								<tr trick-class="MaturityParameter" trick-id="${parameter.id}">
+									<td><spring:message code="label.parameter.maturity.RSML.${parameter.category}" text="${parameter.category}" /></td>
+									<td><spring:message code="label.parameter.maturity.RSML.${parameter.description}" text="${parameter.description}" /></td>
+									<td class="success" trick-field="SMLLevel0" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel0*100}"
+											maxFractionDigits="0" /></td>
+									<td class="success" trick-field="SMLLevel1" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel1*100}"
+											maxFractionDigits="0" /></td>
+									<td class="success" trick-field="SMLLevel2" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel2*100}"
+											maxFractionDigits="0" /></td>
+									<td class="success" trick-field="SMLLevel3" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel3*100}"
+											maxFractionDigits="0" /></td>
+									<td class="success" trick-field="SMLLevel4" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel4*100}"
+											maxFractionDigits="0" /></td>
+									<td class="success" trick-field="SMLLevel5" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel5*100}"
+											maxFractionDigits="0" /></td>
+								</tr>
+							</c:forEach>
 						</tbody>
 					</table>
 				</div>

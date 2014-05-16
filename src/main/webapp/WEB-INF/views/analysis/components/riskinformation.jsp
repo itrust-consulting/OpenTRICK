@@ -21,7 +21,7 @@
 			<div class="panel-heading">
 				<spring:message code="label.risk_information.${categoryRiskInformation}" text="${categoryRiskInformation}" />
 			</div>
-			<div class="panel-body" style="max-height: 700px; overflow: auto;">
+			<div class="panel-body autofitpanelbodydefinition">
 				<table class="table table-condensed">
 					<thead>
 						<tr>

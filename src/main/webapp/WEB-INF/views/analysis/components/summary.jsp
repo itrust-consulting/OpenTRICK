@@ -22,7 +22,7 @@
 				</c:forEach>
 			</ul>
 		</div>
-		<div class="panel-body panelbodydefinition">
+		<div class="panel-body autofitpanelbodydefinition">
 			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 				<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
 				<div trick-nav-data="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>

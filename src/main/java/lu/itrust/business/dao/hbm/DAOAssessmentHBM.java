@@ -71,7 +71,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * @see lu.itrust.business.dao.DAOAssessment#belongsToAnalysis(java.lang.Integer,
 	 *      java.lang.Integer)
 	 */
-	public boolean belongsToAnalysis(Integer assessmentId, Integer analysisId) throws Exception {
+	public boolean belongsToAnalysis(Integer analysisId, Integer assessmentId) throws Exception {
 		String query = "Select count(assessment) From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :analysisId and assessment.id = :assessmentId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("assessmentId", assessmentId).uniqueResult()).intValue() > 0;
 	}

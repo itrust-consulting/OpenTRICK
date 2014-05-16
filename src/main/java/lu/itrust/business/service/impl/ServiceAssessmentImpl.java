@@ -71,8 +71,8 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer assessmentId, Integer analysisId) throws Exception {
-		return daoAssessment.belongsToAnalysis(assessmentId, analysisId);
+	public boolean belongsToAnalysis(Integer analysisId, Integer assessmentId) throws Exception {
+		return daoAssessment.belongsToAnalysis(analysisId, assessmentId);
 	}
 
 	/**

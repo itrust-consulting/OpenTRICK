@@ -77,6 +77,10 @@ public class ControllerIntstallation {
 
 		installDefaultProfile(fileName, principal, errors);
 
+		status.setVersion(Constant.TRICKSERVICE_VERSION);
+		
+		serviceTrickService.saveOrUpdate(status);
+		
 		return errors;
 
 	}

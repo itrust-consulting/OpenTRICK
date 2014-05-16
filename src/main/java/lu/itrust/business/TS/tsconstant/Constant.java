@@ -17,6 +17,8 @@ package lu.itrust.business.TS.tsconstant;
  */
 public class Constant {
 
+	public static final String TRICKSERVICE_VERSION = "0.0.3";
+	
 	/***********************************************************************************************
 	 * List of Role and permissions (for controllers) - BEGIN
 	 **********************************************************************************************/

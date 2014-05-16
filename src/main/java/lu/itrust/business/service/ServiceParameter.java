@@ -52,7 +52,7 @@ public interface ServiceParameter {
 	public List<ExtendedParameter> getAllImpactFromAnalysis(Integer idAnalysis) throws Exception;
 
 	public List<ExtendedParameter> getAllProbabilityFromAnalysis(Integer idAnalysis) throws Exception;
-
+	
 	public Parameter save(Parameter parameter) throws Exception;
 
 	public void saveOrUpdate(Parameter parameter) throws Exception;

@@ -62,6 +62,7 @@
 			<script type="text/javascript" src="<spring:url value="js/trickservice/assessment.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/asset.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/fieldeditor.js" />"></script>
+			<script type="text/javascript" src="<spring:url value="js/bootstrap/typeahead.bundle.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/phase.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/scenario.js" />"></script>

@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -82,7 +81,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -784,22 +782,18 @@ public class ControllerAnalysis {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String addHistory(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Principal principal, HttpSession session) throws Exception {
 
-		// create history
-		History history = new History();
-
 		// retrieve user
 		User user = serviceUser.get(principal.getName());
 
 		// retrieve version
 		String version = serviceAnalysis.getVersionOfAnalysis(analysisId);
 
-		// set user name and lastname
-		history.setAuthor(user.getFirstName() + " " + user.getLastName());
+		String author = user.getFirstName() + " " + user.getLastName();
 
 		// add data to model
-		model.put("history", history);
 		model.put("oldVersion", version);
 		model.put("analysisId", analysisId);
+		model.put("author", author);
 
 		return "analysis/components/widgets/historyForm";
 	}
@@ -818,47 +812,70 @@ public class ControllerAnalysis {
 	@RequestMapping(value = "/Duplicate/{analysisId}", headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String createNewVersion(@ModelAttribute History history, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale) throws Exception {
+	Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale) throws Exception {
+
+		Map<String, String> errors = new LinkedHashMap<String, String>();
+
 		try {
-
-			Map<String, String> errors = new LinkedHashMap<String, String>();
-
-			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(history.getClass());
-
-			if (validator == null)
-				serviceDataValidation.register(validator = new HistoryValidator());
-
-			history.setDate(new Date(System.currentTimeMillis()));
-
-			for (Entry<String, String> entry : validator.validate(history).entrySet())
-				errors.put(entry.getKey(), serviceDataValidation.ParseError(entry.getValue(), messageSource, locale));
-
-			if (!errors.containsKey("version")) {
-
-				// retrieve analysis version
-				String version = serviceAnalysis.getVersionOfAnalysis(analysisId);
-
-				// check if version is less or equal the current version
-				if (GeneralComperator.VersionComparator(history.getVersion(), version) != 1)
-					// retrun error
-					errors.put("version", messageSource.getMessage("error.history.version.less_current", null, "Version of History entry must be greater than last Version of Analysis!",
-							locale));
-			}
-
-			if (!errors.isEmpty()) {
-				ObjectMapper mapper = new ObjectMapper();
-				return mapper.writeValueAsString(errors);
-			}
 
 			// retrieve analysis object
 			Analysis analysis = serviceAnalysis.get(analysisId);
 
 			// check if object is not null
 			if (analysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
+				errors.put("analysis", serviceDataValidation.ParseError("error.analysis.not_found::Analysis cannot be found!", messageSource, locale));
+
+			
+			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(History.class);
+
+			if (validator == null)
+				serviceDataValidation.register(validator = new HistoryValidator());
+
+			History history = new History();
+
+			String error = null;
+
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(value);
+
+			String author = jsonNode.get("author").asText();
+			Date date = new Date(System.currentTimeMillis());
+			String version = jsonNode.get("version").asText();
+			String comment = jsonNode.get("comment").asText();
+			String oldVersion = jsonNode.get("oldVersion").asText();
+
+			error = validator.validate(history, "author", author);
+			if (error != null)
+				errors.put("author", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				history.setAuthor(author);
+
+			error = validator.validate(history, "version", version);
+			if (error != null)
+				errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
+			else {
+
+				if (GeneralComperator.VersionComparator(oldVersion, version) >= 0)
+					errors.put("version", serviceDataValidation.ParseError("error.history.version.invalid::Version has to be bigger than based on verison", messageSource, locale));
+				else
+					if(serviceAnalysis.exists(analysis.getIdentifier(), version))
+						errors.put("version", serviceDataValidation.ParseError("error.history.version.exists::Version already exists for the analysis", messageSource, locale));
+					else
+						history.setVersion(version);
+			}
+
+			error = validator.validate(history, "comment", comment);
+			if (error != null)
+				errors.put("comment", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				history.setComment(comment);
 
 			// update date of history object
-			history.setDate(new Date(System.currentTimeMillis()));
+			history.setDate(date);
+
+			if (!errors.isEmpty())
+				// return error on failure
+				return errors;
 
 			// duplicate analysis
 			Duplicator duplicator = new Duplicator();
@@ -875,17 +892,18 @@ public class ControllerAnalysis {
 			// save the new version
 			serviceAnalysis.saveOrUpdate(copy);
 
-			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.duplicate", null, "Analysis was successfully duplicated", locale));
+			return errors;
 		} catch (CloneNotSupportedException e) {
 			// return dubplicate error message
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicate!", locale));
+			errors.put("analysis", serviceDataValidation.ParseError("error.analysis.duplicate::Analysis cannot be duplicated!", messageSource, locale));
+			return errors;
 		} catch (Exception e) {
 
 			// return general error message
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.duplicate.unknown", null, "An unknown error occurred during copying", locale));
+			errors.put("analysis", serviceDataValidation.ParseError("error.analysis.duplicate.unknown::An unknown error occurred during duplication!", messageSource, locale));
+			return errors;
 		}
 	}
 

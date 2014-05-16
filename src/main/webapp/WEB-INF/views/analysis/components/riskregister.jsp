@@ -13,7 +13,7 @@
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px;">&nbsp;</div>
-		<div class="panel-body" style="max-height: 700px; overflow: auto;">
+		<div class="panel-body autofitpanelbodydefinition">
 			<c:if test="${!empty(riskregister)}">
 				<table class="table table-hover">
 					<thead>

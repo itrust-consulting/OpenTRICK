@@ -70,7 +70,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanSummaryId) throws Exception {
-		String query = "Select count(summary) From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :analysisId and summary.id = : actionPlanSummaryId";
+		String query = "Select count(summary) From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :analysisId and summary.id = :actionPlanSummaryId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("actionPlanSummaryId", actionPlanSummaryId).uniqueResult()).intValue() > 0;
 	}
 

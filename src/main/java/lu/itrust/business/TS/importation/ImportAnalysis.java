@@ -7,8 +7,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AnalysisRight;
@@ -1661,9 +1664,13 @@ public class ImportAnalysis {
 		// execute query
 		rs = sqlite.query(query, null);
 
+		List<MaturityParameter> parameters = new ArrayList<MaturityParameter>();
+		
 		// retrieve the name, and with the name find out the category
 		while (rs.next()) {
 
+			maturityParameter = null;
+			
 			// ****************************************************************
 			// * set the label and category of the maturity parameter
 			// ****************************************************************
@@ -1692,22 +1699,62 @@ public class ImportAnalysis {
 				}
 			}
 
+			for(MaturityParameter parameter : parameters)
+				if(parameter.getCategory().equals(cat) && parameter.getDescription().equals(label)) {
+					maturityParameter = parameter;
+					break;
+				}
+			
 			// ****************************************************************
 			// * create instance
 			// ****************************************************************
-			maturityParameter = new MaturityParameter();
-			maturityParameter.setCategory(cat);
-			maturityParameter.setDescription(label);
-			maturityParameter.setType(parameterType);
-			maturityParameter.setSMLLevel(rs.getInt(Constant.MATURITY_REQUIRED_LIPS_SML));
-			maturityParameter.setValue(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+			
+			if(maturityParameter == null) {
+				maturityParameter = new MaturityParameter();
+				maturityParameter.setCategory(cat);
+				maturityParameter.setDescription(label);
+				maturityParameter.setType(parameterType);
+				parameters.add(maturityParameter);
+			}
+			
+			switch(rs.getInt(Constant.MATURITY_REQUIRED_LIPS_SML)) {
+				case 0:{
+					maturityParameter.setSMLLevel0(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+					maturityParameter.setValue(-1);
+					break;
+				}
+				case 1:{
+					maturityParameter.setSMLLevel1(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+					maturityParameter.setValue(-1);
+					break;
+				}
+				case 2:{
+					maturityParameter.setSMLLevel2(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+					maturityParameter.setValue(-1);
+					break;
+				}
+				case 3:{
+					maturityParameter.setSMLLevel3(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+					maturityParameter.setValue(-1);
+					break;
+				}
+				case 4:{
+					maturityParameter.setSMLLevel4(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+					maturityParameter.setValue(-1);
+					break;
+				}
+				case 5:{
+					maturityParameter.setSMLLevel5(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+					maturityParameter.setValue(-1);
+					break;
+				}
+			}
 
-			// ****************************************************************
-			// * add instance to list of parameters
-			// ****************************************************************
-			this.analysis.addAParameter(maturityParameter);
 		}
 
+		for(Parameter parameter : parameters)
+		this.analysis.addAParameter(parameter);
+		
 		// close result
 		rs.close();
 	}

@@ -34,7 +34,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class="panel-body panelbodydefinition">
+		<div class="panel-body autofitpanelbodydefinition">
 			<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 				<div trick-nav-data="${apt}" ${status.index!=0? "hidden='true'" : "" }>
 					<table class="table table-hover headertofixtable" id="actionplantable_${apt}">

@@ -11,7 +11,7 @@
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
-<div class="navbar navbar-default navbar-fixed-top" style="z-index:1001">
+<div class="navbar navbar-default navbar-fixed-top" style="z-index:1030">
 	<div class="container">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -45,11 +45,15 @@
 					<li class="dropdown-submenu" ><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.runtime" text="Runtime" /><span
 					class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a href="#" onclick="return fixAllScenarioCategories()"><spring:message code="label.scenario.fix.categories" text="Update category for Scenarios (V.0.0.2)"/></a></li>
+							<li><a href="#" onclick="return fixAllScenarioCategories()"><spring:message code="label.scenario.fix.categories" text="Update category of Scenarios from all analyses"/></a></li>
 							<li class="divider"></li>
-							<li><a href="#" onclick="return fixMeasureMaintenance()"><spring:message code="label.measure.fix.maintenance" text="Update measures with new maintenance structure (V.0.0.3)"/></a></li>
+							<li><a href="#" onclick="return fixAllAssessments()"><spring:message code="label.scenario.fix.assessments" text="Update assessments of all analyses"/></a></li>
 							<li class="divider"></li>
-							<li><a href="#" onclick="return fixImplementationScaleParameterDescription()"><spring:message code="label.measure.fix.implementationscale" text="Update Implementation Scale description (V.0.0.4)"/></a></li>
+							<li><a href="#" onclick="return fixImplementationScaleParameterDescription()"><spring:message code="label.measure.fix.implementationscale" text="Update Implementation Scale description"/></a></li>
+							<li class="divider"></li>
+							<li><a href="#" onclick="return fixMeasureMaintenance()"><spring:message code="label.measure.fix.maintenance" text="Update measures with new maintenance structure (V.0.0.2)"/></a></li>
+							<li class="divider"></li>
+							<li><a href="#" onclick="return fixMaturityParameterStructure()"><spring:message code="label.measure.fix.maturityparam" text="Update Maturity Parameter structure (V.0.0.3)"/></a></li>
 						</ul>
 					</li>
 				</sec:authorize>

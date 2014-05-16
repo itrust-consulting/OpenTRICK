@@ -19,6 +19,7 @@ import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.ItemInformation;
+import lu.itrust.business.TS.MaturityParameter;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormMeasure;
@@ -45,6 +46,7 @@ import lu.itrust.business.service.ServiceRiskInformation;
 import lu.itrust.business.validator.AssessmentValidator;
 import lu.itrust.business.validator.ExtendedParameterValidator;
 import lu.itrust.business.validator.HistoryValidator;
+import lu.itrust.business.validator.MaturityParameterValidator;
 import lu.itrust.business.validator.ParameterValidator;
 import lu.itrust.business.validator.RiskInformationValidator;
 import lu.itrust.business.validator.field.ValidatorField;
@@ -389,6 +391,100 @@ public class ControllerEditField {
 		}
 	}
 
+	@RequestMapping(value = "/MaturityParameter/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody
+	String maturityparameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, Locale locale, HttpSession session, Principal principal) {
+
+		try {
+
+			// retrieve analysis id
+			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+
+			// check if analysis exist
+			if (id == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+			if (!serviceAnalysis.exists(id))
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
+			// get parameter object
+			MaturityParameter parameter = (MaturityParameter) serviceParameter.getFromAnalysisById(id, elementID);
+			if (parameter == null)
+				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
+
+			// validate parameter
+			ValidatorField validator = serviceDataValidation.findByClass(parameter.getClass());
+			if (validator == null)
+				serviceDataValidation.register(new MaturityParameterValidator());
+
+			// retireve value
+			Object value = FieldValue(fieldEditor, null);
+
+			// validate value
+			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
+			if (error != null)
+				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+
+			// create field
+			Field field = parameter.getClass().getDeclaredField(fieldEditor.getFieldName());
+			field.setAccessible(true);
+
+			// set value /100 to save as values between 0 and 1
+			Double val = Double.valueOf(((String)fieldEditor.getValue()))/100;
+			
+			fieldEditor.setValue(String.valueOf(val));
+			
+			// set field data
+			if (SetFieldData(field, parameter, fieldEditor, null)) {
+
+				// update field
+				
+				serviceParameter.saveOrUpdate(parameter);
+
+				// return success message
+				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null, "Parameter was successfully updated", locale));
+			} else
+
+				// return error message
+				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+		} catch (NoSuchFieldException e) {
+
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		} catch (SecurityException e) {
+
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		} catch (NumberFormatException e) {
+
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		} catch (IllegalArgumentException e) {
+
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		} catch (IllegalAccessException e) {
+
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		} catch (ParseException e) {
+
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		} catch (Exception e) {
+
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		}
+	}
+	
 	/**
 	 * assessment: <br>
 	 * Description

@@ -127,8 +127,6 @@ public class ControllerAdministration {
 
 		TrickService status = serviceTrickService.getStatus();
 
-		String version = "0.0.4";
-
 		boolean installed = false;
 
 		if (status != null) {
@@ -136,8 +134,8 @@ public class ControllerAdministration {
 			if (status.isInstalled() == false && serviceAnalysis.getDefaultProfile() != null)
 				status.setInstalled(true);
 
-			if (GeneralComperator.VersionComparator(version, status.getVersion()) == 1)
-				status.setVersion(version);
+			if (GeneralComperator.VersionComparator(Constant.TRICKSERVICE_VERSION, status.getVersion()) == 1)
+				status.setVersion(Constant.TRICKSERVICE_VERSION);
 
 			serviceTrickService.saveOrUpdate(status);
 
@@ -145,7 +143,7 @@ public class ControllerAdministration {
 
 		}
 
-		status = new TrickService(version, installed);
+		status = new TrickService(Constant.TRICKSERVICE_VERSION, installed);
 
 		if (serviceAnalysis.getDefaultProfile() != null)
 			status.setInstalled(true);
@@ -256,7 +254,10 @@ public class ControllerAdministration {
 					continue;
 
 				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
-
+			
+				for(UserAnalysisRight uar: analysis.getUserRights())
+					uar.setUser(DAOHibernate.Initialise(uar.getUser()));
+				
 				UserAnalysisRight uar = analysis.getRightsforUser(user);
 
 				if (uar != null) {

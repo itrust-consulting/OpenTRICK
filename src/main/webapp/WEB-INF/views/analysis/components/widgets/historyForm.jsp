@@ -19,56 +19,32 @@
 						<label for="author" class="col-sm-2 control-label"> <spring:message code="label.history.author" text="Author" />
 						</label>
 						<div class="col-sm-10">
-							<input name="author" id="history_author" class="form-control" value=<spring:message text="${empty(history)? '':history.author}"/> />
+							<input name="author" id="history_author" class="form-control" value="<spring:message text="${author}"/>" />
 						</div>
-						<spring:hasBindErrors name="history">
-							<spring:bind path="history.author" ignoreNestedPath="true" htmlEscape="true">
-								<c:forEach items="${status.errorMessages}" var="error">
-									<label class="label label-danger"> <spring:message text="${error}" />
-									</label>
-								</c:forEach>
-							</spring:bind>
-						</spring:hasBindErrors>
 					</div>
 					<div class="form-group">
 						<label for=basedOnVersion class="col-sm-2 control-label"> <spring:message code="label.history.basedOn" text="Based on Version" />
 						</label>
 						<div class="col-sm-10">
-							<input id="history_oldVersion" class="form-control" value=<spring:message text="${oldVersion}"/> readonly />
+							<input name="oldVersion" id="history_oldVersion" class="form-control" value=<spring:message text="${oldVersion}"/> readonly />
 						</div>
 					</div>
 					<div class="form-group">
 						<label for=version class="col-sm-2 control-label"> <spring:message code="label.history.version" text="Version" />
 						</label>
 						<div class="col-sm-10">
-							<input name="version" id="history_version" class="form-control" value=<spring:message text="${empty(history)? '':history.version}" /> />
-							<spring:hasBindErrors name="history">
-								<spring:bind path="history.version" ignoreNestedPath="true" htmlEscape="true">
-									<c:forEach items="${status.errorMessages}" var="error">
-										<label class="label label-danger"> <spring:message text="${error}" />
-										</label>
-									</c:forEach>
-								</spring:bind>
-							</spring:hasBindErrors>
+							<input name="version" id="history_version" class="form-control" value="" />
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.history.comment" text="Comment" />
 						</label>
 						<div class="col-sm-10">
-							<textarea name="comment" class="form-control" id="history_comment"><spring:message text="${empty(history)? '': history.comment}"/></textarea>
-							<spring:hasBindErrors name="history">
-								<spring:bind path="history.comment" ignoreNestedPath="true" htmlEscape="true">
-									<c:forEach items="${status.errorMessages}" var="error">
-										<label class="label label-danger"> <spring:message text="${error}" />
-										</label>
-									</c:forEach>
-								</spring:bind>
-							</spring:hasBindErrors>
+							<textarea name="comment" class="form-control" id="history_comment"></textarea>
 						</div>
 					</div>
 				</form>
-				<div class="progress progress-striped active" hidden="true">
+				<div class="progress progress-striped" hidden="true">
 					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
 				</div>
 			</div>

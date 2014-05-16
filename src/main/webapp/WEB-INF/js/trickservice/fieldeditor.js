@@ -228,7 +228,7 @@ function ExtendedFieldEditor(element) {
 		} else {
 			if (that.HasChanged()) {
 				$.ajax({
-					url : context + "/EditField/" + that.controllor,
+					url : context + "/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
@@ -331,7 +331,7 @@ function AssessmentFieldEditor(element) {
 		} else {
 			if (that.HasChanged()) {
 				$.ajax({
-					url : context + "/EditField/" + that.controllor,
+					url : context + "/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)

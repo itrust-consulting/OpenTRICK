@@ -60,7 +60,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	@Override
 	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idIteminformation) throws Exception {
 		String query =
-			"Select iteminformation From Analysis as analysis inner join analysis.iteminformations as iteminformation where analysis.id = :idAnalysis and iteminformation.id = :idIteminformation";
+			"Select iteminformation From Analysis as analysis inner join analysis.itemInformations as iteminformation where analysis.id = :idAnalysis and iteminformation.id = :idIteminformation";
 		return (ItemInformation) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idIteminformation", idIteminformation).uniqueResult();
 	}
 

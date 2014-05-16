@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -910,15 +911,28 @@ public class ExportAnalysis {
 		// * parse parameters and export maturtiy parameter only
 		// ****************************************************************
 
+		Map<MaturityParameter, Integer> maturitysmllvl = new LinkedHashMap<MaturityParameter, Integer>();
+		
+		Integer smllvl = 0;
+		
 		// parse parameters
 		for (int index = 0; index < this.analysis.getParameters().size(); index++) {
 
 			// check if ILPS
 			if (this.analysis.getAParameter(index).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME)) {
 
+				smllvl = 0;
+				
 				// store maturity parameter
 				maturityParameter = (MaturityParameter) this.analysis.getAParameter(index);
 
+				smllvl = maturitysmllvl.get(maturityParameter);
+				
+				if(smllvl == null) {
+					maturitysmllvl.put(maturityParameter, 0);
+					smllvl = 0;
+				}
+				
 				// ****************************************************************
 				// * export parameter
 				// ****************************************************************
@@ -969,8 +983,40 @@ public class ExportAnalysis {
 				// add parameters
 				params.add(maturityParameter.getDescription());
 				params.add(getLinefromMaturityCategory(maturityParameter.getDescription()));
-				params.add(maturityParameter.getSMLLevel());
-				params.add(maturityParameter.getValue());
+				params.add(smllvl);
+				switch(smllvl) {
+					case 0: {
+						
+						params.add(maturityParameter.getSMLLevel0());
+						maturitysmllvl.put(maturityParameter, smllvl + 1);
+						break;
+					}
+					case 1: {
+						params.add(maturityParameter.getSMLLevel1());
+						maturitysmllvl.put(maturityParameter, smllvl + 1);
+						break;
+					}
+					case 2: {
+						params.add(maturityParameter.getSMLLevel2());
+						maturitysmllvl.put(maturityParameter, smllvl + 1);
+						break;
+					}
+					case 3: {
+						params.add(maturityParameter.getSMLLevel3());
+						maturitysmllvl.put(maturityParameter, smllvl + 1);
+						break;
+					}
+					case 4: {
+						params.add(maturityParameter.getSMLLevel4());
+						maturitysmllvl.put(maturityParameter, smllvl + 1);
+						break;
+					}
+					case 5: {
+						params.add(maturityParameter.getSMLLevel5());
+						maturitysmllvl.put(maturityParameter, smllvl + 1);
+						break;
+					}
+				}
 			}
 		}
 

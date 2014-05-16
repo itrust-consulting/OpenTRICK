@@ -618,13 +618,14 @@ public class Analysis implements Serializable, Cloneable {
 		// ****************************************************************
 
 		internalSetupValue = this.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
-		
+
 		externalSetupValue = this.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
-		
+
 		lifetimeDefault = this.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime(),
+		cost =
+			Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime(),
 					measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
 
 		// return calculated cost
@@ -636,37 +637,39 @@ public class Analysis implements Serializable, Cloneable {
 	 * Returns the Calculated Cost of a Measure. <br>
 	 * Formula used: <br>
 	 * Formula: Cost = ((is * iw) + (es * ew) + in) * ((1 / lt) + (ma / 100))<br>
-	 *	 With:<br>
-	 *	 is: The Internal Setup Rate in Euro per Man Day<br>
-	 *	 iw: The Internal Workload in Man Days<br>
-	 *	 es: The External Setup Rate in Euro per Man Day<br>
-	 *	 ew: The External Workload in Man Days<br>
-	 *	 in:  The Investment in Euro<br>
-	 *	 lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
-	 *	 ma: The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%) :: if 0 -> use The Default Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%)
+	 * With:<br>
+	 * is: The Internal Setup Rate in Euro per Man Day<br>
+	 * iw: The Internal Workload in Man Days<br>
+	 * es: The External Setup Rate in Euro per Man Day<br>
+	 * ew: The External Workload in Man Days<br>
+	 * in: The Investment in Euro<br>
+	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
+	 * ma: The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%) :: if 0 -> use
+	 * The Default Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%)
 	 * 
 	 * @param internalSetup
-	 *            
+	 * 
 	 * @param externalSetup
-	 *            
+	 * 
 	 * @param lifetimeDefault
-	 *            
+	 * 
 	 * @param maintenanceDefault
-	 *            
+	 * 
 	 * @param internalWorkLoad
-	 *            
+	 * 
 	 * @param externalWorkLoad
-	 *            
+	 * 
 	 * @param investment
-	 *           
+	 * 
 	 * @param lifetime
-	 *            
+	 * 
 	 * @param maintenance
 	 * 
 	 * @return The Calculated Cost
 	 */
 	@Deprecated
-	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double maintenance, double internalWorkLoad, double externalWorkLoad, double investment, double lifetime) {
+	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double maintenance, double internalWorkLoad,
+			double externalWorkLoad, double investment, double lifetime) {
 
 		// ****************************************************************
 		// * variable initialisation
@@ -712,44 +715,45 @@ public class Analysis implements Serializable, Cloneable {
 		// return calculated cost
 		return cost;
 	}
-	
+
 	/**
 	 * computeCost: <br>
-	 * Returns the Calculated Cost of a Measure. This method does no more need the parameter default maintenance, but needs to get the internal and external maintenance in md as well as the 
+	 * Returns the Calculated Cost of a Measure. This method does no more need the parameter default
+	 * maintenance, but needs to get the internal and external maintenance in md as well as the
 	 * recurrent investment per year in keuro. <br>
 	 * Formula used:<br>
 	 * Cost = ((ir * iw) + (er * ew) + in) * ((1 / lt) + ((im * ir) + (em * er) + ri))<br>
-	 *	 With:<br>
-	 *	 ir: The Internal Setup Rate in Euro per Man Day<br>
-	 *	 iw: The Internal Workload in Man Days<br>
-	 *	 er: The External Setup Rate in Euro per Man Day<br>
-	 *	 ew: The External Workload in Man Days<br>
-	 *	 in: The Investment in kEuro<br>
-	 *	 lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
-	 *	 im: The Internal Maintenance in Man Days<br>
-	 *   em: The External Maintenance in Man Days<br>
-	 *   ri: The recurrent Investment in kEuro<br>
+	 * With:<br>
+	 * ir: The Internal Setup Rate in Euro per Man Day<br>
+	 * iw: The Internal Workload in Man Days<br>
+	 * er: The External Setup Rate in Euro per Man Day<br>
+	 * ew: The External Workload in Man Days<br>
+	 * in: The Investment in kEuro<br>
+	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
+	 * im: The Internal Maintenance in Man Days<br>
+	 * em: The External Maintenance in Man Days<br>
+	 * ri: The recurrent Investment in kEuro<br>
 	 * 
 	 * @param internalSetupRate
-	 *           
+	 * 
 	 * @param externalSetupRate
-	 *            
+	 * 
 	 * @param lifetimeDefault
-	 *            
+	 * 
 	 * @param internalMaintenance
-	 *            
+	 * 
 	 * @param externalMaintenance
-	 *            
+	 * 
 	 * @param recurrentInvestment
-	 *            
+	 * 
 	 * @param internalWorkLoad
-	 *            
+	 * 
 	 * @param externalWorkLoad
-	 *            
+	 * 
 	 * @param investment
-	 *            
+	 * 
 	 * @param lifetime
-	 *           
+	 * 
 	 * @return The Calculated Cost
 	 */
 	public static final double computeCost(double internalSetupRate, double externalSetupRate, double lifetimeDefault, double internalMaintenance, double externalMaintenance,
@@ -765,13 +769,13 @@ public class Analysis implements Serializable, Cloneable {
 		// + investment
 		cost += investment;
 		// check if lifetime is not 0 -> YES: use default lifetime
-		if (lifetime == 0)			
+		if (lifetime == 0)
 			cost *= (1. / lifetimeDefault);
 		else
 			cost *= (1. / lifetime);
-				
-		cost += ((internalMaintenance * internalSetupRate)+(externalMaintenance * externalSetupRate) + recurrentInvestment);
-		
+
+		cost += ((internalMaintenance * internalSetupRate) + (externalMaintenance * externalSetupRate) + recurrentInvestment);
+
 		// return calculated cost
 		return cost;
 	}
@@ -1089,10 +1093,10 @@ public class Analysis implements Serializable, Cloneable {
 				return this.getAParameter(i);
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * computeParameterScales: <br>
 	 * This method will calculate the bounds of the extended parameters from and to values. Since
@@ -1938,6 +1942,14 @@ public class Analysis implements Serializable, Cloneable {
 		return (List<Parameter>[]) splits;
 	}
 
+	public static List<MaturityParameter> SplitMaturityParameters(List<Parameter> parameters) {
+		List<MaturityParameter> splits = new ArrayList<MaturityParameter>();
+		for (Parameter parameter : parameters)
+			if (parameter instanceof MaturityParameter)
+				splits.add((MaturityParameter) parameter);
+		return splits;
+	}
+
 	@SuppressWarnings("unchecked")
 	public static List<Parameter>[] SplitSimpleParameters(List<Parameter> parameters) {
 		List<?>[] splits = new List<?>[3];
@@ -2293,7 +2305,7 @@ public class Analysis implements Serializable, Cloneable {
 	public UserAnalysisRight getRightsforUser(User user) {
 
 		for (UserAnalysisRight userRight : userRights) {
-			if (userRight.getUser().equals(user)) {
+			if (userRight.getUser().getLogin().equals(user.getLogin())) {
 				return userRight;
 			}
 		}

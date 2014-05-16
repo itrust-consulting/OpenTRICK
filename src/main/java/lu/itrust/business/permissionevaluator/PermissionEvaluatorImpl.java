@@ -8,6 +8,7 @@ import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceHistory;
 import lu.itrust.business.service.ServiceItemInformation;
@@ -44,6 +45,9 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
+	@Autowired
+	private ServiceAssessment serviceAssessment;
+	
 	@Autowired
 	private ServiceAsset serviceAsset;
 
@@ -128,7 +132,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				}
 				case "Assessment": {
 
-					if (!serviceActionPlanSummary.belongsToAnalysis(analysisId, elementId))
+					if (!serviceAssessment.belongsToAnalysis(analysisId, elementId))
 						return false;
 					break;
 				}
