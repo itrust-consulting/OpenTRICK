@@ -42,8 +42,7 @@
 
 	<class name="UserSQLite" table="UserSQLite">
 
-		<id name="id" type="long" unsaved-value="-1">
-			<column name="idUserSQLite" />
+		<id name="id" unsaved-value="-1" column="idUserSQLite">
 			<generator class="increment" />
 		</id>
 

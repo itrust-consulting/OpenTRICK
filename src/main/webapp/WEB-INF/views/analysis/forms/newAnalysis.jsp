@@ -3,7 +3,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<jsp:include page="../successErrors.jsp" />
+<jsp:include page="../../successErrors.jsp" />
 <div id="form_add_analysis">
 	<input type="hidden" name="id" value="-1" id="analysis_id">
 	<div class="form-group">
@@ -46,7 +46,7 @@
 		<label for="label" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
 		</label>
 		<div class="col-sm-10">
-			<textarea name="label" id="analysis_label" class="form-control"></textarea>
+			<textarea name="label" id="analysis_label" class="form-control resize_vectical_only"></textarea>
 		</div>
 	</div>
 	<div class="form-group">

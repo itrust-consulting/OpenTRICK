@@ -1717,6 +1717,8 @@ public class ImportAnalysis {
 				parameters.add(maturityParameter);
 			}
 			
+			
+			
 			switch(rs.getInt(Constant.MATURITY_REQUIRED_LIPS_SML)) {
 				case 0:{
 					maturityParameter.setSMLLevel0(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));

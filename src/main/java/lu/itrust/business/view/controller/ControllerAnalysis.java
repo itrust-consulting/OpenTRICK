@@ -270,7 +270,7 @@ public class ControllerAnalysis {
 		model.addAttribute("norms", norms);
 		model.addAttribute("currentNorms", serviceNorm.getAllFromAnalysis(idAnalysis));
 		model.addAttribute("idAnalysis", idAnalysis);
-		return "analysis/components/widgets/addStandardForm";
+		return "analysis/components/forms/addStandard";
 	}
 
 	@RequestMapping(value = "/Save/Standard/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
@@ -360,7 +360,7 @@ public class ControllerAnalysis {
 		model.addAttribute("analysisRights", AnalysisRight.values());
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("userrights", userrights);
-		return "analysis/manageuseranalysisrights";
+		return "analysis/forms/manageUserAnalysisRights";
 	}
 
 	/**
@@ -443,12 +443,12 @@ public class ControllerAnalysis {
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
 
-			return "analysis/manageuseranalysisrights";
+			return "analysis/forms/manageUserAnalysisRights";
 		} catch (Exception e) {
 			// return errors
 			model.addAttribute("errors", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
-			return "analysis/manageuseranalysisrights";
+			return "analysis/forms/manageUserAnalysisRights";
 		}
 	}
 
@@ -594,7 +594,7 @@ public class ControllerAnalysis {
 
 		model.put("author", user.getFirstName() + " " + user.getLastName());
 
-		return "analysis/newAnalysis";
+		return "analysis/forms/newAnalysis";
 	}
 
 	// *****************************************************************
@@ -633,7 +633,7 @@ public class ControllerAnalysis {
 			// add the analysis object
 			model.put("analysis", analysis);
 
-			return "analysis/editAnalysis";
+			return "analysis/forms/editAnalysis";
 		} else {
 
 			return "redirect:/Error/403";
@@ -795,7 +795,7 @@ public class ControllerAnalysis {
 		model.put("analysisId", analysisId);
 		model.put("author", author);
 
-		return "analysis/components/widgets/historyForm";
+		return "analysis/forms/newVersion";
 	}
 
 	/**
@@ -925,7 +925,7 @@ public class ControllerAnalysis {
 
 		// add the customers of the user to the data model
 		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
-		return "analysis/importAnalysisForm";
+		return "analysis/forms/importAnalysis";
 	}
 
 	/**
@@ -956,7 +956,7 @@ public class ControllerAnalysis {
 			typeMessage = "errors";
 			message = messageSource.getMessage("error.customerorfile.import.analysis", null, "Customer or file are not set or empty!", locale);
 			attributes.addFlashAttribute(typeMessage, message);
-			return "analysis/importAnalysisForm";
+			return "analysis/forms/importAnalysis";
 		}
 
 		// set selected customer, the selected customer of the analysis

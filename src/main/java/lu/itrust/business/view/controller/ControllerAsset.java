@@ -159,7 +159,7 @@ public class ControllerAsset {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String edit(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("assettypes", serviceAssetType.getAll());
-		return "analysis/components/widgets/assetForm";
+		return "analysis/components/forms/addOrEditAsset";
 	}
 
 	/**
@@ -234,7 +234,7 @@ public class ControllerAsset {
 		// add asset object to model
 		model.addAttribute("asset", serviceAsset.get(elementID));
 
-		return "analysis/components/widgets/assetForm";
+		return "analysis/components/forms/addOrEditAsset";
 	}
 
 	/**

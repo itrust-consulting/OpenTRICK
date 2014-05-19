@@ -205,7 +205,7 @@ public class ControllerAdministration {
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
-			return "analysis/manageuseranalysisrights";
+			return "analysis/forms/manageUserAnalysisRights";
 		} else {
 			return "redirect:Administration";
 		}

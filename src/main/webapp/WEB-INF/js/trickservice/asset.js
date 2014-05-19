@@ -112,11 +112,6 @@ function editAsset(rowTrickId, isAdd) {
 				return false;
 			if ($("#addAssetModal").length)
 				$("#addAssetModal").html($(addAssetModal).html());
-			else
-				$(addAssetModal).appendTo($("#widget"));
-			$('#addAssetModal').on('hidden.bs.modal', function() {
-				$('#addAssetModal').remove();
-			});
 			$("#addAssetModal").modal("toggle");
 			return false;
 		}

@@ -55,7 +55,7 @@
 						<form:label path="comment">
 							<spring:message code="label.analysis.profile.description" text="Description" />
 						</form:label>
-						<form:textarea path="comment" cssClass="form-control" />
+						<form:textarea path="comment" cssClass="form-control resize_vertical_only" />
 						<form:errors element="label" path="comment" cssClass="label label-danger" />
 					</div>
 				</form:form>

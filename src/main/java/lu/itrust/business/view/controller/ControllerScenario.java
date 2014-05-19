@@ -248,7 +248,7 @@ public class ControllerScenario {
 		model.addAttribute("assetTypes", serviceAssetType.getAllFromAnalysis(idAnalysis));
 		Language language = serviceLanguage.getFromAnalysis(idAnalysis);
 		model.addAttribute("language", language == null ? locale.getISO3Language() : language.getAlpha3());
-		return "analysis/components/widgets/rrfEditor";
+		return "analysis/components/forms/rrfEditor";
 	}
 
 	@RequestMapping(value = "/RRF/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
@@ -288,7 +288,7 @@ public class ControllerScenario {
 	public String add(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("scenariotypes", serviceScenarioType.getAll());
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
-		return "analysis/components/widgets/scenarioForm";
+		return "analysis/components/forms/addOrEditScenario";
 	}
 
 	/**
@@ -305,17 +305,17 @@ public class ControllerScenario {
 	public String edit(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		
-		if(idAnalysis == null)
+
+		if (idAnalysis == null)
 			return null;
-		
+
 		// add scenario types to model
 		model.addAttribute("scenariotypes", serviceScenarioType.getAll());
 
 		// add scenario to model
 		model.addAttribute("scenario", serviceScenario.getFromAnalysisById(idAnalysis, elementID));
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
-		return "analysis/components/widgets/scenarioForm";
+		return "analysis/components/forms/addOrEditScenario";
 	}
 
 	@RequestMapping(value = "/Delete/AssetTypeValueDuplication", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
@@ -417,7 +417,7 @@ public class ControllerScenario {
 	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody
-	String aleByAsset(HttpSession session, Model model,Principal principal, Locale locale) throws Exception {
+	String aleByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;

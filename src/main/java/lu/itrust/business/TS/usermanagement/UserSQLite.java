@@ -14,11 +14,11 @@ public class UserSQLite {
 	private int id = -1;
 
 	private String fileName = null;
-	
+
 	private String analysisIdentifier = null;
 
 	private User user = null;
-	
+
 	private long size = 0;
 
 	private byte[] sqLite;
@@ -49,7 +49,7 @@ public class UserSQLite {
 	/**
 	 * @return the id
 	 */
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -141,7 +141,8 @@ public class UserSQLite {
 	}
 
 	/**
-	 * @param size the size to set
+	 * @param size
+	 *            the size to set
 	 */
 	public void setSize(long size) {
 		this.size = size;
@@ -155,7 +156,8 @@ public class UserSQLite {
 	}
 
 	/**
-	 * @param analysisIdentifier the analysisIdentifier to set
+	 * @param analysisIdentifier
+	 *            the analysisIdentifier to set
 	 */
 	public void setAnalysisIdentifier(String analysisIdentifier) {
 		this.analysisIdentifier = analysisIdentifier;

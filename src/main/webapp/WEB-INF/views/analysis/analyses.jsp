@@ -97,8 +97,7 @@
 				</div>
 			</div>
 		</div>
-		<jsp:include page="../analysis/widgetContent.jsp" />
-		<jsp:include page="../analysis/components/widgets/historyForm.jsp" />
+		<jsp:include page="widgets.jsp" />
 		<jsp:include page="../footer.jsp" />
 		<jsp:include page="../scripts.jsp" />
 		<script type="text/javascript" src="<spring:url value="js/trickservice/analyses.js" />"></script>

@@ -285,3 +285,7 @@ table.floatThead-table {
 .headertofixtablelargecolumn {
 	overflow: hidden;
 }
+
+.resize_vectical_only {
+	resize:vertical;
+}

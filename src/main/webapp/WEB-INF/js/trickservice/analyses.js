@@ -22,8 +22,8 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
-				newSection = $(doc).find("* div#manageuseraccessrights-modal");
-				$("div#manageAnalysisAccessModelBody").html(newSection);
+				newSection = $(doc).find("* div#manageAnalysisAccessModel");
+				$("div#manageAnalysisAccessModel").replaceWith(newSection);
 				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
 				$("#manageAnalysisAccessModel").modal('toggle');
 				$("#userselect").one('focus', function() {
@@ -171,6 +171,7 @@ function deleteAnalysis(analysisId) {
 	}
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.DELETE)) {
+
 		$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis") + "?");
 
 		$("#deleteanalysisbuttonYes").click(function() {
@@ -530,7 +531,7 @@ function duplicateAnalysis(form, analyisId) {
 	var alert = $("#addHistoryModal [class='alert alert-warning']");
 	if (alert.length)
 		alert.remove();
-	
+
 	$.ajax({
 		url : context + "/Analysis/Duplicate/" + analyisId,
 		type : "post",
@@ -571,16 +572,16 @@ function duplicateAnalysis(form, analyisId) {
 
 			}
 			if (!$("#addHistoryModal .label-danger").length && !$("#addHistoryModal [class='alert alert-warning alert-dismissable']").length) {
-				
+
 				var alertElement = document.createElement("div");
 				alertElement.setAttribute("class", "alert alert-success");
-						
+
 				$(alertElement).text(MessageResolver("success.newversion.created", "New version created sucessfully!"));
 
 				$("#addHistoryModal div.modal-body").prepend($(alertElement));
 
 				$(".progress-striped").removeClass("active");
-				
+
 				setTimeout("location.reload()", 2000);
 			}
 

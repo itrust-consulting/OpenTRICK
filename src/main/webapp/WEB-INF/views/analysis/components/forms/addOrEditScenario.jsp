@@ -52,7 +52,7 @@
 						<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.scenario.description" text="Description" />
 						</label>
 						<div class="col-sm-10">
-							<textarea name="description" class="form-control" id="scenario_description"><spring:message text="${empty(scenario)? '': scenario.description}" /></textarea>
+							<textarea name="description" class="form-control resize_vectical_only" id="scenario_description"><spring:message text="${empty(scenario)? '': scenario.description}" /></textarea>
 						</div>
 					</div>
 					<div class="form-group">

@@ -79,7 +79,7 @@ public class ControllerAnalysisProfile {
 		AnalysisProfile analysisProfile = new AnalysisProfile(analysisId);
 		model.addAttribute("norms", norms);
 		model.addAttribute("analysisProfile", analysisProfile);
-		return "analysis/components/widgets/analysisProfileForm";
+		return "analysis/forms/createProfile";
 	}
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisProfile.idAnalysis, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
@@ -88,13 +88,13 @@ public class ControllerAnalysisProfile {
 
 		if (result.hasErrors()) {
 			model.addAttribute("norms", serviceNorm.getAllFromAnalysis(analysisProfile.getIdAnalysis()));
-			return "analysis/components/widgets/analysisProfileForm";
+			return "analysis/forms/createProfile";
 		}
 
 		if (serviceAnalysis.isProfile(analysisProfile.getIdAnalysis())) {
 			model.addAttribute("norms", serviceNorm.getAllFromAnalysis(analysisProfile.getIdAnalysis()));
 			result.rejectValue("name", "error.analysis.profile.name.used", null, "Name is not available");
-			return "analysis/components/widgets/analysisProfileForm";
+			return "analysis/forms/createProfile";
 		}
 
 		User user = serviceUser.get(principal.getName());
@@ -105,7 +105,7 @@ public class ControllerAnalysisProfile {
 			return "redirect:/Task/Status/" + worker.getId();
 		}
 		result.reject("failed.analysis.duplication.start", "Profile cannot be create");
-		return "analysis/components/widgets/analysisProfileForm";
+		return "analysis/forms/createProfile";
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)

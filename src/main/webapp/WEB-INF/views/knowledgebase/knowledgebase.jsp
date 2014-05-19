@@ -35,6 +35,7 @@
 		<jsp:include page="../footer.jsp" />
 		<jsp:include page="../scripts.jsp" />
 		<script type="text/javascript" src="<spring:url value="js/trickservice/knowledgebase.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/jquery.fileDownload.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/measuredescription.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/norm.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/language.js" />"></script>

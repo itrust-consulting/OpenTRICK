@@ -19,11 +19,6 @@ function editScenario(rowTrickId, isAdd) {
 				return false;
 			if ($("#addScenarioModal").length)
 				$("#addScenarioModal").html($(addScenarioModal).html());
-			else
-				$(addScenarioModal).appendTo($("#widget"));
-			$('#addScenarioModal').on('hidden.bs.modal', function() {
-				$('#addScenarioModal').remove();
-			});
 			$("#addScenarioModal").modal("toggle");
 			return false;
 		},

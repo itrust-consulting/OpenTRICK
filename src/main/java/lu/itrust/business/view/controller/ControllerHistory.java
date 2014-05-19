@@ -84,40 +84,7 @@ public class ControllerHistory {
 		// load all of analysis
 		model.put("histories", serviceHistory.getAllFromAnalysis(analysisId));
 
-		return "analysis/history/histories";
-	}
-
-	/**
-	 * displayHistory: <br>
-	 * Description
-	 * 
-	 * @param historyId
-	 * @param session
-	 * @param model
-	 * @param redirectAttributes
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/{elementID}")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'History', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String displayHistory(@PathVariable Integer elementID, HttpSession session, Map<String, Object> model, RedirectAttributes redirectAttributes,
-			Locale locale, Principal principal) throws Exception {
-
-		History history = serviceHistory.get(elementID);
-		if (history == null) {
-
-			// return error message and redirect to analysis page
-			String msg = messageSource.getMessage("errors.history.notexist", null, "History does not exist", locale);
-			redirectAttributes.addFlashAttribute("errors", msg);
-			return "redirect:/Analysis";
-		} else {
-
-			// add history object to model
-			model.put("history", history);
-
-			return "analysis/history/showHistory";
-		}
+		return "analysis/components/history";
 	}
 
 	/**

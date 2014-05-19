@@ -47,9 +47,9 @@
 					<jsp:include page="./components/riskregister.jsp" />
 					<jsp:include page="./components/charts.jsp" />
 				</c:if>
-				<jsp:include page="./components/widgets.jsp" />
 			</div>
 		</div>
+		<jsp:include page="./components/widgets.jsp" />
 		<jsp:include page="../footer.jsp" />
 		<jsp:include page="../scripts.jsp" />
 		<script src="<spring:url value="js/trickservice/analysis.js" />"></script>
