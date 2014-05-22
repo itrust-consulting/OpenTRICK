@@ -106,7 +106,7 @@ public class ControllerIntstallation {
 				customer.setOrganisation("Profile");
 				customer.setContactPerson("Profile");
 				customer.setEmail("profile@trickservice.lu");
-				customer.setTelephoneNumber("0123456");
+				customer.setPhoneNumber("0123456");
 				customer.setAddress("Profile");
 				customer.setCity("Profile");
 				customer.setZIPCode("Profile");

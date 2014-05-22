@@ -71,7 +71,9 @@ function RRFView() {
 				for ( var controller in that.controllers)
 					that.controllers[controller].Initialise();
 
-				that.SwitchController(that.controllers["scenario"]);
+				that.controllers["measure"].SelectFirstItem();
+				that.SwitchController(that.controllers["measure"]);
+
 				that.ReloadChart();
 				return false;
 			}
@@ -286,9 +288,20 @@ function ScenarioRRFController(rrfView, container, name) {
 					for (var i = 0; i < that.sliders.length; i++) {
 						var clone = $(that.sliders[i]).clone();
 						var field = $(clone).prop("name");
-						$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", response[field]);
-						$(clone).attr("value", response[field]);
-						$(clone).attr("data-slider-value", response[field]);
+						var fieldValue = response[field];
+						if(fieldValue == undefined) {
+							for (var j = 0; j < response.assetTypeValues.length; j++) {
+								if (response.assetTypeValues[j].assetType.type == field) {
+									fieldValue = response.assetTypeValues[j].value;
+									break;
+								}
+							}
+							if (fieldValue == undefined)
+								continue;
+						}
+						$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", fieldValue);
+						$(clone).attr("value", fieldValue);
+						$(clone).attr("data-slider-value", fieldValue);
 						$(that.sliders[i]).parent().replaceWith($(clone));
 						that.sliders[i] = $(clone).slider();
 						that.sliders[i].on("slideStop", function(event) {

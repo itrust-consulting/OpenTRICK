@@ -238,7 +238,11 @@ public class ControllerNorm {
 
 			// return error message
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.norm.delete.successfully", null, "Norm was not deleted. Make sure it is not used in an analysis", locale));
+			String[] parts = e.getMessage().split(":");
+			String code = parts[0];
+			String defaultmessage = parts[1];
+
+			return JsonMessage.Error(messageSource.getMessage(code, null, defaultmessage, locale));
 		}
 	}
 
@@ -267,8 +271,7 @@ public class ControllerNorm {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Import", headers = "Accept=application/json")
-	public String importNewNorm(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
-			throws Exception {
+	public String importNewNorm(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale) throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 		file.transferTo(importFile);
 		Worker worker = new WorkerImportNorm(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);

@@ -1,3 +1,5 @@
+var progressBar = undefined;
+
 function saveNorm(form) {
 	$("#addNormModel #addnormbutton").prop("disabled", false);
 	$.ajax({
@@ -68,6 +70,10 @@ function deleteNorm(normId, name) {
 			type : "POST",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
+				if (response["error"] != undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
+					$("#alert-dialog").modal("toggle");
+				}	
 				reloadSection("section_norm");
 				return false;
 			}
@@ -112,6 +118,10 @@ function onSelectFile(file) {
 function importNewNorm() {
 	$("#uploadNormModal .modal-footer .btn").prop("disabled", true);
 	$("#uploadNormModal .modal-header .close").prop("disabled", true);
+	
+	if(progressBar != undefined)
+		progressBar.Distroy();
+	
 	var formData = new FormData($('#uploadNorm_form')[0]);
 	$.ajax({
 		url : context + "/KnowledgeBase/Norm/Import",
@@ -130,7 +140,7 @@ function importNewNorm() {
 		// beforeSend : beforeSendHandler,
 		success : function(response) {
 			if (response.flag != undefined) {
-				var progressBar = new ProgressBar();
+				progressBar = new ProgressBar();
 				progressBar.Initialise();
 				$(progressBar.progress).appendTo($("#uploadNorm_form").parent());
 				callback = {

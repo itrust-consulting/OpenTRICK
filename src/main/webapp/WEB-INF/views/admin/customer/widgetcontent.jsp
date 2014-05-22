@@ -30,10 +30,10 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="telephoneNumber" class="col-sm-2 control-label"> <spring:message code="label.customer.telephoneNumber" text="Telephone Number" />
+						<label for="phoneNumber" class="col-sm-2 control-label"> <spring:message code="label.customer.phoneNumber" text="Phone Number" />
 						</label>
 						<div class="col-sm-10">
-							<input name="telephoneNumber" id="customer_telephoneNumber" class="form-control" type="text" />
+							<input name="phoneNumber" id="customer_phoneNumber" class="form-control" type="text" />
 						</div>
 					</div>
 					<div class="form-group">

@@ -65,8 +65,8 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
-			newSection = $(doc).find("* div#manageuseraccessrights-modal");
-			$("div#manageAnalysisAccessModelBody").html(newSection);
+			newSection = $(doc).find("* div#manageAnalysisAccessModel");
+			$("div#manageAnalysisAccessModel").replaceWith(newSection);
 			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
 			$("#manageAnalysisAccessModel").modal('toggle');
 			$("#userselect").one('focus', function() {
@@ -96,8 +96,8 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
-			newSection = $(doc).find("* div#manageuseraccessrights-modal");
-			$("div#manageAnalysisAccessModelBody").html(newSection);
+			newSection = $(doc).find("* div.modal-content");
+			$("div#manageAnalysisAccessModel div.modal-content").html(newSection);
 			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
 			$("#userselect").one('focus', function() {
 				previous = this.value;

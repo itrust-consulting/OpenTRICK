@@ -18,7 +18,7 @@ function ProgressBar() {
 		this.progress.setAttribute("class", "progress progress-striped active");
 		this.progressbar.setAttribute("class", "progress-bar progress-bar-info");
 		this.progressbar.setAttribute("role", "progressbar");
-		this.progressbar.setAttribute("aria-valuenow", "100");
+		this.progressbar.setAttribute("aria-valuenow", "1");
 		this.progressbar.setAttribute("aria-valuemin", "0");
 		this.progressbar.setAttribute("valuemax", "100");
 		this.progressbar.setAttribute("style", "width: 100%");

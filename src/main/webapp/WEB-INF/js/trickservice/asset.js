@@ -108,8 +108,7 @@ function editAsset(rowTrickId, isAdd) {
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
-			if ((addAssetModal = doc.getElementById("addAssetModal")) == null)
-				return false;
+			var addAssetModal = $(doc).find("* div#addAssetModal");
 			if ($("#addAssetModal").length)
 				$("#addAssetModal").html($(addAssetModal).html());
 			$("#addAssetModal").modal("toggle");
@@ -144,7 +143,7 @@ function saveAsset(form) {
 					break;
 				case "value":
 					$(errorElement).appendTo($("#asset_form #asset_value").parent());
-					break;	
+					break;
 				case "selected":
 					$(errorElement).appendTo($("#asset_form #asset_selected").parent());
 					break;
@@ -158,7 +157,10 @@ function saveAsset(form) {
 			}
 			if (!$("#addAssetModal .label-danger").length) {
 				$("#addAssetModal").modal("toggle");
-				reloadSection("section_asset");
+
+				var id = $("#" + form + " input[name='id']").attr("value");
+				setTimeout(reloadAsset(id), 10);
+
 			}
 			return false;
 		},
@@ -173,4 +175,84 @@ function saveAsset(form) {
 			return false;
 		},
 	});
+}
+
+function reloadAsset(id) {
+	if (id == -1) {
+		reloadSection("section_asset");
+		return false;
+	}
+	$.ajax({
+		url : context + "/Asset/SingleAsset/" + id,
+		type : "get",
+		dataType : "html",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+
+			var element = document.createElement("div");
+
+			$(element).html(response);
+
+			if ($(element).find("tr[trick-id='" + id + "']").length) {
+				var replacedValue = $(element).find("td:nth-child(5)").text();
+
+				if (replacedValue == "")
+					return;
+
+				var replaced = false;
+
+				$("#assetTable tr td:nth-child(5)").each(function() {
+					
+					var thistrickid = $(this).parent().attr("trick-id");
+					
+					if (id == thistrickid) {
+						$(this).parent().remove();
+					}
+				});
+				
+				var tmprow = undefined;
+				
+				$("#assetTable tr td:nth-child(5)").each(function() {
+						
+				
+					var thisValue = $(this).text();
+
+					if(parseInt(replacedValue) > parseInt(thisValue)) {
+					
+						// the asset to replace has bigger value than the
+						// current
+
+						if (!replaced) {
+
+							// get tr element
+							var parent = $(this).parent().get(0);
+
+							// add the row to before the current
+							$(parent).before($(element).find("tr"));
+
+							replaced = true;
+						}
+						
+					} else {
+					
+					tmprow = $(this).parent().get(0);
+					
+					}
+					
+				});
+
+				if(tmprow != undefined)
+					$(tmprow).after($(element).find("tr"));
+				
+				$("#assetTable tr td:nth-child(2)").each(function(i, obj) {
+				
+					$(obj).text(i+1);
+					
+				});
+				
+				
+			}
+		}
+	});
+	return false;
 }

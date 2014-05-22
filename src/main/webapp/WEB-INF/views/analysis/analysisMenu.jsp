@@ -32,7 +32,7 @@
 					class="caret"></span></a>
 				<ul class="dropdown-menu">
 					<li><a href="#anchorRiskInformation_Threat"><spring:message code="menu.analysis.threat" text="Threats" /></a></li>
-					<li><a href="#anchorRiskInformation_Vul"><spring:message code="menu.analysis.vulnerability" text="Vulnerability" /></a></li>
+					<li><a href="#anchorRiskInformation_Vul"><spring:message code="menu.analysis.vulnerability" text="Vulnerabilities" /></a></li>
 					<li><a href="#anchorRiskInformation_Risk"><spring:message code="menu.analysis.risk" text="Risks" /></a></li>
 				</ul></li>
 			<li><a href="#anchorAsset"><spring:message code="menu.analysis.asset" text="Assets" /></a></li>
@@ -84,7 +84,7 @@
 						<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.assessment.generate.missing" text="Update Assessment" /></a></li>
 						<li><a href="#" onclick="return wipeAssessment();"> <spring:message code="label.analysis.assessment.wipe" text="Wipe assessments" /></a></li>
 						<li class="divider"></li>
-						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.analysis.compute.actionPlan" text="Compute ActionPlan" />
+						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.analysis.compute.actionPlan" text="Compute Action Plan" />
 						</a></li>
 						<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <spring:message code="label.analysis.compute.riskRegister" text="Compute Registers" /></a></li>
 						<li class="divider"></li>

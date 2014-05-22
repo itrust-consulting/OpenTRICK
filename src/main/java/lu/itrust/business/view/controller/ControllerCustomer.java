@@ -105,8 +105,8 @@ public class ControllerCustomer {
 	 */
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 	@RequestMapping(value = "/{customerID}/Users/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public String updateCustomerUsers(@RequestBody String value, @PathVariable("customerID") int customerID, Model model, Principal principal, Locale locale,
-			RedirectAttributes redirectAttributes) throws Exception {
+	public String updateCustomerUsers(@RequestBody String value, @PathVariable("customerID") int customerID, Model model, Principal principal, Locale locale, RedirectAttributes redirectAttributes)
+			throws Exception {
 		// create errors list
 
 		try {
@@ -120,12 +120,11 @@ public class ControllerCustomer {
 			List<User> customerusers = serviceUser.getAllFromCustomer(customerID);
 			for (User user : users) {
 				boolean userhasaccess = jsonNode.get("user_" + user.getId()).asBoolean();
-				if (userhasaccess)
+				if (userhasaccess) {
 					user.addCustomer(customer);
-				else
-					user.removeCustomer(customer);
-
-				serviceUser.saveOrUpdate(user);
+					serviceUser.saveOrUpdate(user);
+				} else
+					customDelete.removeCustomerByUser(customer, user.getLogin());
 			}
 
 			model.addAttribute("users", users);
@@ -245,22 +244,17 @@ public class ControllerCustomer {
 			if (!customer.isCanBeUsed())
 				return JsonMessage.Error(messageSource.getMessage("error.customer.delete.profile", null, "Customer Profile cannot be deleted", locale));
 
-			String referer = request.getHeader("Referer");
-
-			if (referer != null && referer.contains("/Admin")) {
-				User user = serviceUser.get(principal.getName());
-				if (user.isAutorised(RoleType.ROLE_ADMIN)) {
-
-					customDelete.deleteCustomer(customer);
-					return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
-				} else
-					return JsonMessage.Error(messageSource.getMessage("errors.403.access.denied", null, "You do not have the nessesary permissions to perform this action!", locale));
-			}
-			customDelete.deleteCustomerByUser(customer, principal.getName());
+			customDelete.deleteCustomer(customer);
 			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null, "Customer was deleted successfully", locale));
+
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.customer.delete", null, "Customer cannot be deleted", locale));
+
+			String[] parts = e.getMessage().split(":");
+			String code = parts[0];
+			String defaultmessage = parts[1];
+
+			return JsonMessage.Error(messageSource.getMessage(code, null, defaultmessage, locale));
 		}
 
 	}
@@ -289,7 +283,7 @@ public class ControllerCustomer {
 
 			String organisation = jsonNode.get("organisation").asText();
 			String contactPerson = jsonNode.get("contactPerson").asText();
-			String telephoneNumber = jsonNode.get("telephoneNumber").asText();
+			String telephoneNumber = jsonNode.get("phoneNumber").asText();
 			String email = jsonNode.get("email").asText();
 			String address = jsonNode.get("address").asText();
 			String city = jsonNode.get("city").asText();
@@ -309,11 +303,11 @@ public class ControllerCustomer {
 			else
 				customer.setContactPerson(contactPerson);
 
-			error = validator.validate(customer, "telephoneNumber", telephoneNumber);
+			error = validator.validate(customer, "phoneNumber", telephoneNumber);
 			if (error != null)
-				errors.put("telephoneNumber", serviceDataValidation.ParseError(error, messageSource, locale));
+				errors.put("phoneNumber", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
-				customer.setTelephoneNumber(telephoneNumber);
+				customer.setPhoneNumber(telephoneNumber);
 
 			error = validator.validate(customer, "email", email);
 			if (error != null)

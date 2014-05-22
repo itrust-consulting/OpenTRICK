@@ -439,9 +439,12 @@ function updateStatus(progressBar, idTask, callback, status) {
 				updateStatus(progressBar, idTask, callback);
 			}, 1500);
 		} else {
-			setTimeout(function() {
+			/*setTimeout(function() {
 				progressBar.Distroy();
-			}, 3000);
+			}, 3000);*/
+			$(progressBar.progress).parent().parent().find("button").each(function(){
+				$(this).removeAttr("disabled");
+			});
 			if (callback.success != undefined)
 				eval(callback.success);
 			else if (status.asyncCallback != undefined && status.asyncCallback != null)

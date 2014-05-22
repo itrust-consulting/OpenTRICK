@@ -22,8 +22,8 @@
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return displayAssessmentByScenario()"><span class="glyphicon glyphicon-new-window"></span> <spring:message code="label.scenario.assessment" text="Assessment" /> </a></li>
 			</ul>
 		</div>
-		<div class="panel-body" style="max-height: 700px; overflow: auto; padding-bottom: 20px;">
-			<table class="table table-hover">
+		<div class="panel-body autofitpanelbodydefinition">
+			<table id="scneariotable" class="table table-hover headertofixtable">
 				<thead>
 					<tr>
 						<th class="checkboxtableheader"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'scenario')"></th>
@@ -33,6 +33,7 @@
 						<th colspan="2"><spring:message code="label.scenario.description" text="Description" htmlEscape="true" /></th>
 					</tr>
 				</thead>
+				<tfoot></tfoot>
 				<tbody>
 					<c:forEach items="${scenarios}" var="scenario" varStatus="status">
 						<c:set var="cssClass">

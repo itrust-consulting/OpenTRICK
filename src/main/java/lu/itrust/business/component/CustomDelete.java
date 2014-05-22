@@ -16,6 +16,7 @@ import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAnalysis;
+import lu.itrust.business.dao.DAOAnalysisNorm;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
 import lu.itrust.business.dao.DAOAssetTypeValue;
@@ -62,6 +63,9 @@ public class CustomDelete {
 	private DAOAnalysis daoAnalysis;
 
 	@Autowired
+	private DAOAnalysisNorm daoAnalysisNorm;
+
+	@Autowired
 	private DAOUser daoUser;
 
 	@Autowired
@@ -86,15 +90,20 @@ public class CustomDelete {
 
 	@Transactional
 	public void deleteNorm(Norm norm) throws Exception {
+		if (daoAnalysisNorm.getAllFromNorm(norm).size() > 0)
+			throw new Exception("error.delete.norm.analyseswithnorm:The norm is used in analyses! Could not delete norm!");
+
 		List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByNorm(norm);
 		for (MeasureDescription measureDescription : measureDescriptions) {
-			List<MeasureDescriptionText> measureDescriptionTexts = daoMeasureDescriptionText.getAllFromMeasureDescription(measureDescription.getId());
+			List<MeasureDescriptionText> measureDescriptionTexts =
+				daoMeasureDescriptionText.getAllFromMeasureDescription(measureDescription.getId());
 			for (MeasureDescriptionText measureDescriptiontext : measureDescriptionTexts) {
 				daoMeasureDescriptionText.delete(measureDescriptiontext);
 			}
 			daoMeasureDescription.delete(measureDescription);
 		}
 		daoNorm.delete(norm);
+
 	}
 
 	@Transactional
@@ -111,6 +120,9 @@ public class CustomDelete {
 		if (!customer.isCanBeUsed())
 			return;
 		List<Analysis> analyses = daoAnalysis.getAllFromCustomer(customer);
+		if (analyses.size() > 0)
+			throw new Exception("error.delete.customer.hasanalyses:There are still analyses of this customer! Could not delete customer!");
+
 		for (Analysis analysis : analyses)
 			daoAnalysis.delete(analysis);
 		List<User> users = daoUser.getAllFromCustomer(customer);
@@ -122,12 +134,13 @@ public class CustomDelete {
 	}
 
 	@Transactional
-	public void deleteCustomerByUser(Customer customer, String userName) throws Exception {
+	public void removeCustomerByUser(Customer customer, String userName) throws Exception {
 
 		if (!customer.isCanBeUsed())
 			return;
 
 		List<Analysis> analyses = daoAnalysis.getAllFromUserAndCustomer(userName, customer.getId());
+
 		User user = daoUser.get(userName);
 		for (Analysis analysis : analyses) {
 			analysis.removeRights(user);
@@ -137,9 +150,6 @@ public class CustomDelete {
 		user.getCustomers().remove(customer);
 		if (!user.containsCustomer(customer))
 			daoUser.saveOrUpdate(user);
-
-		if (!daoCustomer.hasUsers(customer.getId()) && analyses.isEmpty())
-			daoCustomer.delete(customer);
 	}
 
 }

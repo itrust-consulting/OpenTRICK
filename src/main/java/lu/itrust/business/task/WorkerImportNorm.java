@@ -200,11 +200,11 @@ public class WorkerImportNorm implements Worker {
 
 						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
 							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
-								if (daoNorm.existsByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow)
-										.getCell(startColSheet + 1).getNumericCellValue())) {
+								if (daoNorm.existsByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(startColSheet + 1)
+										.getNumericCellValue())) {
 									newNorm =
-										daoNorm.getNormByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(
-												startColSheet + 1).getNumericCellValue());
+										daoNorm.getNormByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(startColSheet + 1)
+												.getNumericCellValue());
 									messageHandler =
 										new MessageHandler("error.import.norm.exists", new Object[] { newNorm.getLabel(), newNorm.getVersion() }, "Norm label (" + newNorm.getLabel()
 											+ ") and version (" + newNorm.getVersion() + ") already exist, updating existing norm");
@@ -325,11 +325,14 @@ public class WorkerImportNorm implements Worker {
 													measureDescriptionText = daoMeasureDescriptionText.getForMeasureDescriptionAndLanguage(measureDescription.getId(), lang.getId());
 
 													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
-													description =
-														sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
+													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
 
-													measureDescriptionText.setDomain(domain);
-													measureDescriptionText.setDescription(description);
+													if (domain.isEmpty() || measureDescription.isComputable() && description.isEmpty())
+														System.out.println("Measuredescriptiontext not valid! Skipping...");
+													else {
+														measureDescriptionText.setDescription(description);
+														measureDescriptionText.setDomain(domain);
+													}
 
 												} else {
 													measureDescriptionText = new MeasureDescriptionText();
@@ -337,13 +340,19 @@ public class WorkerImportNorm implements Worker {
 													measureDescriptionText.setLanguage(lang);
 
 													domain = sheet.getRow(indexRow).getCell(indexCol) != null ? sheet.getRow(indexRow).getCell(indexCol).getStringCellValue() : "";
-													description =
-														sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
+													description = sheet.getRow(indexRow).getCell(indexCol + 1) != null ? sheet.getRow(indexRow).getCell(indexCol + 1).getStringCellValue() : "";
 
-													measureDescriptionText.setDomain(domain);
-													measureDescriptionText.setDescription(description);
+													if (!domain.isEmpty())
+														measureDescriptionText.setDomain(domain);
 
-													measureDescription.addMeasureDescriptionText(measureDescriptionText);
+													if (!description.isEmpty())
+														measureDescriptionText.setDescription(description);
+
+													if (domain.isEmpty() || measureDescription.isComputable() && description.isEmpty())
+														System.out.println("Measuredescription text not valid! Skipping...");
+													else
+														measureDescription.addMeasureDescriptionText(measureDescriptionText);
+
 												}
 											}
 										}

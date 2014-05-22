@@ -5,7 +5,6 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<fmt:setLocale value="fr_FR" scope="session" />
 <head>
 <meta charset="utf-8" />
 <meta content="itrust consulting s.a.r.l - itrust.lu" name="author" />

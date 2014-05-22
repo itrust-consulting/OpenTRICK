@@ -17,8 +17,8 @@
 				<div class="panel-heading">
 				&nbsp;
 				</div>
-				<div class="panel-body" style="max-height: 700px; overflow: auto;">
-					<table class="table table-hover">
+				<div class="panel-body autofitpanelbodydefinition">
+					<table id="iteminformationtable" class="table table-condensed table-hover headertofixtable">
 						<thead>
 							<tr>
 								<th colspan="2"><spring:message code="label.itemInformation.description" text="Description" /></th>
@@ -26,10 +26,11 @@
 								
 							</tr>
 						</thead>
+						<tfoot></tfoot>
 						<tbody>
 							<c:forEach items="${itemInformations}" var="itemInformation">
 								<tr trick-class="ItemInformation" trick-id="${itemInformation.id}">
-									<td colspan="2"><spring:message code="label.itemInformation.${itemInformation.description}" text="${itemInformation.description}" /></td>
+									<td colspan="2"><spring:message code="label.itemInformation.${itemInformation.description.trim()}" text="${itemInformation.description}" /></td>
 									<td colspan="1" trick-field="value" trick-content="text" trick-field-type="string" class="success" ondblclick="return editField(this);"><spring:message text="${itemInformation.value}" /></td>
 								</tr>
 							</c:forEach>

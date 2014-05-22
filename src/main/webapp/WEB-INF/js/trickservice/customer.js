@@ -2,9 +2,9 @@ function initUserCustomerList() {
 	$('#usercustomer').hide().after("<ul class='list-group'></ul>");
 	$('#usercustomer option').each(function() {
 		var selected = "";
-		
-		var attr =$(this).attr('selected');
-			
+
+		var attr = $(this).attr('selected');
+
 		if (typeof attr !== 'undefined' && attr !== false) {
 			selected = " active";
 		}
@@ -64,8 +64,8 @@ function saveCustomer(form) {
 					$(errorElement).appendTo($("#customer_form #customer_contactPerson").parent());
 					break;
 
-				case "telephoneNumber":
-					$(errorElement).appendTo($("#customer_form #customer_telephoneNumber").parent());
+				case "phoneNumber":
+					$(errorElement).appendTo($("#customer_form #customer_phoneNumber").parent());
 					break;
 				case "canBeUsed":
 					$(errorElement).appendTo($("#customer_form #customer_canBeUsed").parent());
@@ -105,14 +105,17 @@ function deleteCustomer(customerId, organisation) {
 		customerId = selectedScenario[0];
 		organisation = $("#section_customer tbody tr[trick-id='" + customerId + "']>td:nth-child(2)").text();
 	}
-	$("#deleteCustomerBody").html(
-			MessageResolver("label.customer.question.delete", "Are you sure that you want to delete the customer") + "&nbsp;<strong>" + organisation + "</strong>?");
+	$("#deleteCustomerBody").html(MessageResolver("label.customer.question.delete", "Are you sure that you want to delete the customer") + "&nbsp;<strong>" + organisation + "</strong>?");
 	$("#deletecustomerbuttonYes").click(function() {
 		$.ajax({
 			url : context + "/KnowledgeBase/Customer/Delete/" + customerId,
 			type : "POST",
 			contentType : "application/json",
 			success : function(response) {
+				if (response["error"] != undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
+					$("#alert-dialog").modal("toggle");
+				}				
 				reloadSection("section_customer");
 				return false;
 			}
@@ -163,7 +166,7 @@ function editSingleCustomer(customerId) {
 	$("#customer_id").prop("value", customerId);
 	$("#customer_organisation").prop("value", $(rows[0]).text());
 	$("#customer_contactPerson").prop("value", $(rows[1]).text());
-	$("#customer_telephoneNumber").prop("value", $(rows[2]).text());
+	$("#customer_phoneNumber").prop("value", $(rows[2]).text());
 	$("#customer_email").prop("value", $(rows[3]).text());
 	$("#customer_address").prop("value", $(rows[4]).text());
 	$("#customer_city").prop("value", $(rows[5]).text());

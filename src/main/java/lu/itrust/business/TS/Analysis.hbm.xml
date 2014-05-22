@@ -13,10 +13,10 @@
 			<property length="12" type="string" column="dtVersion" generated="never" lazy="false" name="version" not-null="true" />
 			<property type="timestamp" column="dtCreationDate" generated="never" lazy="false" name="creationDate" not-null="true" />
 		</properties>
-		
-		<property name="profile" column="dtProfile" access="field" not-null="true"/>
 
-		<property name="defaultProfile" column="dtDefaultProfile" access="field" not-null="true"/>
+		<property name="profile" column="dtProfile" access="field" not-null="true" />
+
+		<property name="defaultProfile" column="dtDefaultProfile" access="field" not-null="true" />
 
 		<many-to-one class="Customer" column="fiCustomer" name="customer" not-null="true" lazy="false" access="field" />
 
@@ -59,7 +59,7 @@
 			<one-to-many class="lu.itrust.business.TS.actionplan.SummaryStage" />
 		</bag>
 
-		<bag name="actionPlans" table="Actionplan" cascade="all" access="field" order-by="id, (measure.phase.number) ASC, ROI ASC">
+		<bag name="actionPlans" table="Actionplan" cascade="all" access="field" order-by="id ASC, (measure.phase.number) ASC, ROI ASC">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="lu.itrust.business.TS.actionplan.ActionPlanEntry" />
 		</bag>
@@ -69,17 +69,17 @@
 			<one-to-many class="Assessment" />
 		</bag>
 
-		<bag name="scenarios" table="Scenario" cascade="all" access="field" order-by="(type.type) asc, name asc">
+		<bag name="scenarios" table="Scenario" cascade="all" access="field" order-by="(scenarioType.id) ASC, name ASC">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Scenario" />
 		</bag>
 
-		<bag name="analysisNorms" table="AnalysisNorm" cascade="all" inverse="true" access="field" order-by="norm.id asc">
+		<bag name="analysisNorms" table="AnalysisNorm" cascade="all" inverse="true" access="field" order-by="(norm.id) ASC">
 			<key column="fiAnalysis" not-null="true" />
-			<one-to-many class="AnalysisNorm"/>
+			<one-to-many class="AnalysisNorm" />
 		</bag>
 
-		<bag name="usedPhases" table="Phase" cascade="all" inverse="true" access="field" lazy="false" order-by="number asc">
+		<bag name="usedPhases" table="Phase" cascade="all" inverse="true" access="field" lazy="false" order-by="number ASC">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Phase" />
 		</bag>
@@ -89,23 +89,23 @@
 			<one-to-many class="Parameter" />
 		</bag>
 
-		<bag name="assets" table="Asset" cascade="all" access="field" order-by="value desc, ALE desc , name asc">
+		<bag name="assets" table="Asset" cascade="all" access="field" order-by="value DESC, ALE DESC, name ASC">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Asset" />
 		</bag>
 
 		<bag name="userRights" table="UserAnalysisRight" cascade="all" access="field" inverse="true">
-			<key column="fiAnalysis" not-null="true"  />
+			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="UserAnalysisRight" />
 		</bag>
 
 	</class>
 
 	<class name="lu.itrust.business.TS.UserAnalysisRight" table="UserAnalysisRight">
-		<id column="idUserAnalysisRight" name="id" unsaved-value="-1" >
+		<id column="idUserAnalysisRight" name="id" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
-		<properties name="unique_index" unique="true" >
+		<properties name="unique_index" unique="true">
 			<many-to-one name="user" column="fiUser" not-null="true" cascade="save-update" />
 			<many-to-one name="analysis" column="fiAnalysis" not-null="true" cascade="save-update" />
 		</properties>

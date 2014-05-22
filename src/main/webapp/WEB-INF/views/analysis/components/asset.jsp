@@ -22,11 +22,11 @@
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return displayAssessmentByAsset()"><span class="glyphicon glyphicon-new-window"></span> <spring:message code="label.asset.assessment" text="Assessment" /> </a></li>
 			</ul>
 		</div>
-		<div class="panel-body" style="max-height: 700px; overflow: auto;">
-			<table class="table table-hover">
+		<div class="panel-body autofitpanelbodydefinition">
+			<table class="table table-hover headertofixtable" id="assetTable">
 				<thead>
 					<tr>
-						<th class="checkboxtableheader"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'asset')"></th>
+						<th class="checkboxtableheader" style="width:50px"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'asset')"></th>
 						<th><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
 						<th><spring:message code="label.asset.name" text="Name" htmlEscape="true" /></th>
 						<th><spring:message code="label.asset.type" text="Type" htmlEscape="true" /></th>
@@ -35,6 +35,7 @@
 						<th colspan="3"><spring:message code="label.asset.comment" text="Hidden comment" htmlEscape="true" /></th>
 					</tr>
 				</thead>
+				<tfoot></tfoot>
 				<tbody>
 					<c:forEach items="${assets}" var="asset" varStatus="status">
 						<tr trick-id="${asset.id}" trick-selected="${asset.selected}" ondblclick="return editAsset('${asset.id}');">

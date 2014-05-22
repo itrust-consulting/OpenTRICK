@@ -22,7 +22,7 @@
 					<div class="panel-heading">
 						<spring:message code="label.measure.${norm}" text="${norm}" />
 					</div>
-					<div class="panel-body panelbodydefinition">
+					<div class="panel-body autofitpanelbodydefinition">
 						<table class="table table-hover headertofixtable" id="table_SOA_${norm}">
 							<thead>
 								<tr>

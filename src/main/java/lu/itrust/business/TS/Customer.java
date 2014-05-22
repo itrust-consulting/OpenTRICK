@@ -45,7 +45,7 @@ public class Customer implements Serializable {
 	private String contactPerson = "";
 
 	/** The Telephone Number of the Contact Person or Organisation */
-	private String telephoneNumber = "";
+	private String phoneNumber = "";
 
 	/** The Email of the Contact Person or Organisation */
 	private String email = "";
@@ -229,8 +229,8 @@ public class Customer implements Serializable {
 	 * 
 	 * @return The Telephone Number (from the Contact Person or Organisation)
 	 */
-	public String getTelephoneNumber() {
-		return telephoneNumber;
+	public String getPhoneNumber() {
+		return phoneNumber;
 	}
 
 	/**
@@ -240,11 +240,11 @@ public class Customer implements Serializable {
 	 * @param telephoneNumber
 	 *            The value to set the Telephone Number (from the Contact Person or Organisation)
 	 */
-	public void setTelephoneNumber(String telephoneNumber) {
-		if ((telephoneNumber == null) || (telephoneNumber.trim().equals("")) || (!telephoneNumber.matches(Constant.REGEXP_VALID_PHONE))) {
-			throw new IllegalArgumentException("Customer Telephone Number field cannot be null or empty and has to match Regualr Expression: " + Constant.REGEXP_VALID_PHONE);
+	public void setPhoneNumber(String telephoneNumber) {
+		if ((telephoneNumber == null) || (telephoneNumber.trim().equals(""))) {
+			throw new IllegalArgumentException("Customer Telephone Number field cannot be null or empty");
 		}
-		this.telephoneNumber = telephoneNumber;
+		this.phoneNumber = telephoneNumber;
 	}
 
 	/**
@@ -337,6 +337,6 @@ public class Customer implements Serializable {
 	@Override
 	public String toString() {
 		return "Customer [id=" + id + ", organisation=" + organisation + ", address=" + address + ", city=" + city + ", ZIPCode=" + ZIPCode + ", country=" + country
-			+ ", contactPerson=" + contactPerson + ", telephoneNumber=" + telephoneNumber + ", email=" + email + "]";
+			+ ", contactPerson=" + contactPerson + ", telephoneNumber=" + phoneNumber + ", email=" + email + "]";
 	}
 }

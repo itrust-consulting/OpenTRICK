@@ -19,21 +19,32 @@ $(document).ready(function() {
 	// * fixed header tables
 	// ******************************************************************************************************************
 
-	$("div[class='panel-body panelbodydefinition']").click(function() {
-
-		if (($(this).find("div.fht-table-wrapper")).length <= 0) {
-			initialisefixheadertables($(this).find("table:visible"));
-		}
-
-	});
-
-	$("div[class='panel-body panelbodydefinition']").scroll(function() {
-
-		if (($(this).find("div.fht-table-wrapper")).length <= 0) {
-			initialisefixheadertables($(this).find("table:visible"));
+	$("div.panel-body").click(function() {
+		
+		if($(this).outerHeight()>=600) {
+		
+			if(!$(this).hasClass("panelbodydefinition"))
+				$(this).addClass("panelbodydefinition");
+			
+			if (($(this).find("div.fht-table-wrapper")).length <= 0) {
+				initialisefixheadertables($(this).find("table:visible"));
+			}
 		}
 	});
 
+	$("div.panel-body").scroll(function() {
+		
+		if($(this).outerHeight()>=600) {
+			
+			if(!$(this).hasClass("panelbodydefinition"))
+				$(this).addClass("panelbodydefinition");
+			
+			if (($(this).find("div.fht-table-wrapper")).length <= 0) {
+				initialisefixheadertables($(this).find("table:visible"));
+			}
+		}
+	});
+	
 	// ******************************************************************************************************************
 	// * measure description in popover
 	// ******************************************************************************************************************
@@ -43,8 +54,7 @@ $(document).ready(function() {
 });
 
 function initialisefixheadertables(parent) {
-
-	// console.log(parent);
+	
 	if (parent.length !== 0) {
 		// initialise fixedheader table with parameters
 		$(parent).fixedHeaderTable("destroy");
@@ -58,8 +68,8 @@ function initialisefixheadertables(parent) {
 			themeClass : 'table table-hover'
 		});
 
-		$("div[class='panel-body panelbodydefinition'] div[class='fht-tbody']").scroll(function() {
-			// console.log("ohe");
+		$(parentt).find("div[class='fht-tbody']").scroll(function() {
+			console.log("ohe");
 
 			// check if a popover is active
 			if (el != null) {
@@ -106,7 +116,7 @@ function initmeasuredescriptionpopover() {
 			trigger : 'manual',
 			placement : 'bottom',
 			html : true,
-			container : ".panelbodydefinition"
+			container : ".autofitpanelbodydefinition"
 		}).popover('toggle');
 
 		// avoid scroll top
@@ -114,7 +124,7 @@ function initmeasuredescriptionpopover() {
 	});
 
 	// when table is scrolled, hide popover
-	$("div[class='panel-body panelbodydefinition']").scroll(function() {
+	$("div[class='panel-body']").scroll(function() {
 		// console.log("ohe");
 		// check if a popover is active
 		if (el != null) {
@@ -139,7 +149,6 @@ function reloadMeasureRow(idMeasure, norm) {
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
-		async : true,
 		success : function(response) {
 
 			var tag = response.substring(response.indexOf('<'));

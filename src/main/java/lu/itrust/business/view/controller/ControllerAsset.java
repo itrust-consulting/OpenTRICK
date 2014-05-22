@@ -202,7 +202,7 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String section(Model model, HttpSession session, Principal principal) throws Exception {
+	public String section(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		// retrieve analysis id
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
@@ -215,6 +215,19 @@ public class ControllerAsset {
 		return "analysis/components/asset";
 	}
 
+	@RequestMapping(value = "/SingleAsset/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String singleAsset(@PathVariable Integer elementID, Model model, Principal principal, HttpSession session, Locale locale) throws Exception {
+
+		// add all assettypes to model
+		model.addAttribute("assettypes", serviceAssetType.getAll());
+
+		// add asset object to model
+		model.addAttribute("asset", serviceAsset.get(elementID));
+
+		return "analysis/components/forms/singleAsset";
+	}
+	
 	/**
 	 * edit: <br>
 	 * Description
@@ -224,9 +237,9 @@ public class ControllerAsset {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Edit/{elementID}")
+	@RequestMapping(value = "/Edit/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String edit(@PathVariable Integer elementID, Model model, Principal principal, HttpSession session) throws Exception {
+	public String edit(@PathVariable Integer elementID, Model model, Principal principal, HttpSession session, Locale locale) throws Exception {
 
 		// add all assettypes to model
 		model.addAttribute("assettypes", serviceAssetType.getAll());

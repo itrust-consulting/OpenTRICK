@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.validator.LanguageValidator;
@@ -49,6 +50,9 @@ public class ControllerLanguage {
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
+	
 	/**
 	 * 
 	 * Display all Language
@@ -136,8 +140,13 @@ public class ControllerLanguage {
 	@RequestMapping(value = "/Delete/{languageId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String[] deleteLanguage(@PathVariable("languageId") Integer languageId, Locale locale) throws Exception {
+		
+		// TODO: check if analysis has language (add dao method and service method)
+		
+		// TODO: check if language is used inside measure descriptiontexts(add dao and service method)
+		
 		serviceLanguage.delete(languageId);
-		return new String[] { "error", messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale) };
+		return new String[] { "success", messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale) };
 
 	}
 

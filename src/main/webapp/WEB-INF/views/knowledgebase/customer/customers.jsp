@@ -34,7 +34,7 @@
 								<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'customer')"></th>
 								<th><spring:message code="label.customer.organisation" /></th>
 								<th><spring:message code="label.customer.contactPerson" /></th>
-								<th><spring:message code="label.customer.telephoneNumber" /></th>
+								<th><spring:message code="label.customer.phoneNumber" /></th>
 								<th><spring:message code="label.customer.email" /></th>
 								<th><spring:message code="label.customer.address" /></th>
 								<th><spring:message code="label.customer.city" /></th>
@@ -53,7 +53,7 @@
 									<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_customer','#menu_customer');"></td>
 									<td><spring:message text="${customer.organisation}" /></td>
 									<td><spring:message text="${customer.contactPerson}" /></td>
-									<td><spring:message text="${customer.telephoneNumber}" /></td>
+									<td><spring:message text="${customer.phoneNumber}" /></td>
 									<td><spring:message text="${customer.email}" /></td>
 									<td><spring:message text="${customer.address}" /></td>
 									<td><spring:message text="${customer.city}" /></td>

@@ -142,8 +142,6 @@ public class ControllerPatch {
 					continue;
 				else {
 
-					System.out.println("Parameter " + (parameters.indexOf(parameter) + 1) + " of " + parameters.size());
-
 					Integer line = Integer.valueOf(parameter.getDescription().substring(8));
 					String desc = "";
 					switch (line) {
@@ -298,9 +296,9 @@ public class ControllerPatch {
 					if (parameter.getValue() != -1) {
 
 						MaturityParameter param = maturitylvls.get(((MaturityParameter) parameter).getCategory() + "_" + ((MaturityParameter) parameter).getDescription());
-						
+
 						MaturityParameter matparam = (MaturityParameter) parameter;
-						
+
 						if (param == null) {
 							param = (MaturityParameter) parameter;
 							maturitylvls.put(param.getCategory() + "_" + param.getDescription(), param);

@@ -744,7 +744,7 @@ public class ControllerAnalysis {
 			Analysis analysis = serviceAnalysis.getDefaultProfile();
 
 			if (analysis.getId() == analysisId)
-				return JsonMessage.Success(messageSource.getMessage("error.profile.delete.fail", null, "Default profile cannot be deleted!", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.profile.delete.fail", null, "Default profile cannot be deleted!", locale));
 
 			// delete the analysis
 			serviceAnalysis.delete(analysisId);

@@ -22,13 +22,13 @@
 				<spring:message code="label.risk_information.${categoryRiskInformation}" text="${categoryRiskInformation}" />
 			</div>
 			<div class="panel-body autofitpanelbodydefinition">
-				<table class="table table-condensed">
+				<table id="${categoryRiskInformation}table" class="table table-condensed table-hover headertofixtable">
 					<thead>
 						<tr>
 							<th><spring:message code="label.risk_information.id" text="Id" /></th>
 							<c:choose>
 								<c:when test="${categoryRiskInformation == 'Threat'}">
-									<th><spring:message code="label.risk_information.threat.characteristic" text="Threat characteristic" /></th>
+									<th><spring:message code="label.risk_information.threat" text="Threat" /></th>
 								</c:when>
 								<c:when test="${categoryRiskInformation == 'Vul'}">
 									<th><spring:message code="label.risk_information.vulnerabilities" text="Vulnerabilies" /></th>
@@ -45,6 +45,7 @@
 							<th><spring:message code="label.risk_information.comment_hidden" text="Hidden Comment" /></th>
 						</tr>
 					</thead>
+					<tfoot></tfoot>
 					<tbody>
 						<c:forEach items="${riskInformationSplited.get(categoryRiskInformation)}" var="risk_information">
 							<c:if test="${categoryRiskInformation == 'Risk'}">

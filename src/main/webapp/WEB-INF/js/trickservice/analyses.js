@@ -56,8 +56,8 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
-			newSection = $(doc).find("* div#manageuseraccessrights-modal");
-			$("div#manageAnalysisAccessModelBody").html(newSection);
+			newSection = $(doc).find("* div.modal-content");
+			$("div#manageAnalysisAccessModel div.modal-content").html(newSection);
 			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
 			$("#userselect").one('focus', function() {
 				previous = this.value;

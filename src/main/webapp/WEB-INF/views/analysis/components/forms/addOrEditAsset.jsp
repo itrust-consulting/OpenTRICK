@@ -72,7 +72,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="hiddenComment" class="col-sm-2 control-label"> <spring:message code="label.asset.comment_hidden" text="Comment hidden" />
+						<label for="hiddenComment" class="col-sm-2 control-label"> <spring:message code="label.asset.comment_hidden" text="Hidden comment" />
 						</label>
 						<div class="col-sm-10">
 							<textarea name="hiddenComment" id="asset_hiddenComment" class="form-control resize_vectical_only"><spring:message text="${empty(asset)? '': asset.hiddenComment}" /></textarea>
