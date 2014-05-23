@@ -1,5 +1,7 @@
 package lu.itrust.business.TS;
 
+import lu.itrust.business.TS.tsconstant.Constant;
+
 /** 
  * TrickService.java: <br>
  * Detailed description...
@@ -13,7 +15,7 @@ public class TrickService {
 	/** database ID */
 	private int id = -1;
 	
-	private String version = "0.0.1";
+	private String version = Constant.TRICKSERVICE_VERSION;
 	
 	private boolean installed = false;
 

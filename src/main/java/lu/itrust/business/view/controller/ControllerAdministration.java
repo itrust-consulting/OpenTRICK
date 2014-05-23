@@ -123,6 +123,13 @@ public class ControllerAdministration {
 		return "admin/administration";
 	}
 
+	/**
+	 * getStatus: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
 	public TrickService getStatus() throws Exception {
 
 		TrickService status = serviceTrickService.getStatus();
