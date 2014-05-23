@@ -69,7 +69,7 @@ function initialisefixheadertables(parent) {
 		});
 
 		$(parentt).find("div[class='fht-tbody']").scroll(function() {
-			console.log("ohe");
+			//console.log("ohe");
 
 			// check if a popover is active
 			if (el != null) {

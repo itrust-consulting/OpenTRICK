@@ -174,19 +174,17 @@ public class ControllerAsset {
 	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
 	public @ResponseBody
-	String[] delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
+	String delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
 		try {
 
 			// delete asset ( delete asset from from assessments) then from assets
 			customDelete.deleteAsset(serviceAsset.get(elementID));
-
-			// retrun success message
-			return new String[] { "success", messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale) };
+			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale));
+			
 		} catch (Exception e) {
 
-			// return error message
 			e.printStackTrace();
-			return new String[] { "error", messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale) };
+			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
 		}
 	}
 

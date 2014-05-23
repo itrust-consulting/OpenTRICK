@@ -373,8 +373,8 @@ public class Analysis implements Serializable, Cloneable {
 		type =
 			((measure.getMeasurePropertyList().getLimitative() * tmpAssessment.getScenario().getLimitative())
 				+ (measure.getMeasurePropertyList().getPreventive() * tmpAssessment.getScenario().getPreventive())
-				+ (measure.getMeasurePropertyList().getDetective() * tmpAssessment.getScenario().getDetective()) + (measure.getMeasurePropertyList().getCorrective() * tmpAssessment
-					.getScenario().getCorrective())) / 4.;
+				+ (measure.getMeasurePropertyList().getDetective() * tmpAssessment.getScenario().getDetective()) + (measure.getMeasurePropertyList().getCorrective() * tmpAssessment.getScenario()
+					.getCorrective())) / 4.;
 
 		// ****************************************************************
 		// * Source calculation
@@ -398,17 +398,12 @@ public class Analysis implements Serializable, Cloneable {
 
 		RRF = ((assetTypeValue / 100. * strength * category * type * source) / 500.) * tuning;
 
-		// if
-		// ((measure.getMeasureDescription().getReference().equals("A.9.2.2")))
-		// {
-		// System.out.println("Measure: " +
-		// measure.getMeasureDescription().getReference() +
+		// if ((measure.getMeasureDescription().getReference().equals("4.1.1"))) {
+		// System.out.println("Measure: " + measure.getMeasureDescription().getReference() +
 		// "Asset: " + tmpAssessment.getAsset().getName() + "Scenario: " +
-		// tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" +
-		// assetTypeValue +
-		// ", strength=" + strength + ", Category=" + category + ", type=" +
-		// type + ", source=" +
-		// source + ", tuning=" + tuning);
+		// tmpAssessment.getScenario().getName()
+		// + " ;RRF=" + RRF + ", atv=" + assetTypeValue + ", strength=" + strength + ", Category=" +
+		// category + ", type=" + type + ", source=" + source + ", tuning=" + tuning);
 		// }
 
 		// ****************************************************************
@@ -625,8 +620,8 @@ public class Analysis implements Serializable, Cloneable {
 
 		// calculate the cost
 		cost =
-			Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime(),
-					measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
+			Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime(), measure
+					.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
 
 		// return calculated cost
 		return cost;
@@ -2076,10 +2071,10 @@ public class Analysis implements Serializable, Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label
-			+ ", histories=" + histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets
-			+ ", riskInformations=" + riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisNorm=" + analysisNorms + ", usedphases=" + usedPhases
-			+ ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
+		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label + ", histories="
+			+ histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets + ", riskInformations="
+			+ riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisNorm=" + analysisNorms + ", usedphases=" + usedPhases + ", actionPlans=" + actionPlans
+			+ ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}
 
 	/**

@@ -14,7 +14,9 @@ import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Scenario;
+import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.dao.DAOActionPlan;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAnalysisNorm;
 import lu.itrust.business.dao.DAOAssessment;
@@ -69,11 +71,21 @@ public class CustomDelete {
 	private DAOUser daoUser;
 
 	@Autowired
+	private DAOActionPlan daoActionPlan;
+	
+	@Autowired
 	private DAOAssetTypeValue daoAssetTypeValue;
 
 	@Transactional
-	// TODO check if actionplan needs to be cleared
 	public void deleteAsset(Asset asset) throws Exception {
+		
+		List<ActionPlanEntry> actionplans = daoActionPlan.getAllFromAsset(asset);
+		for (ActionPlanEntry actionplanentry : actionplans)
+			daoActionPlan.delete(actionplanentry);
+
+		//TODO load summary stages that were created by this action plan entries and delete them as well
+		
+		
 		List<Assessment> assessments = daoAssessment.getAllFromAsset(asset);
 		for (Assessment assessment : assessments)
 			daoAssessment.delete(assessment);

@@ -97,9 +97,9 @@ public class TMA {
 
 		// the calculated RRF
 		this.RRF = RRF;
-		
-		//System.out.println("Measure: "+measure.getAnalysisNorm().getNorm().getLabel()+ "/"+ measure.getMeasureDescription().getReference()+":: Assessment: "+assessment.getScenario().getName()+"/"+assessment.getAsset().getName()+ "RRF: "+ RRF);
-		
+
+		//System.out.println(this.toString());
+
 	}
 
 	/***********************************************************************************************
@@ -112,12 +112,8 @@ public class TMA {
 	 * ALE * RRF * (1 - ImpRate / 1 - RRF * ImpRate)
 	 */
 	public void calculateDeltaALE() {
-		this.deltaALE =
-			this.ALE
-				* RRF
-				* ((1. - (this.measure.getImplementationRateValue() / 100.)) / (1. - RRF
-					* (this.measure.getImplementationRateValue() / 100.)));
-		
+		this.deltaALE = this.ALE * RRF * ((1. - (this.measure.getImplementationRateValue() / 100.)) / (1. - RRF * (this.measure.getImplementationRateValue() / 100.)));
+
 	}
 
 	/**
@@ -135,11 +131,8 @@ public class TMA {
 	 * @return the computed deltaALE for this measure using a given ALE
 	 */
 	public static double calculateDeltaALE(double ALE, double RRF, Measure measure) {
-		
-		return ALE
-			* RRF
-			* ((1.0 - (measure.getImplementationRateValue() / 100.0)) / (1.0 - RRF
-				* (measure.getImplementationRateValue() / 100.0)));
+
+		return ALE * RRF * ((1.0 - (measure.getImplementationRateValue() / 100.0)) / (1.0 - RRF * (measure.getImplementationRateValue() / 100.0)));
 	}
 
 	/**
@@ -149,11 +142,8 @@ public class TMA {
 	 */
 	public void calculateDeltaALEMaturity() {
 		this.deltaALEMat =
-			this.ALE
-				* RRF
-				* (this.measure.getImplementationRateValue() / 100.)
-				* ((nMaxEff / 100. - cMaxEff / 100.) / (1. - RRF * cMaxEff / 100.
-					* (this.measure.getImplementationRateValue() / 100.)));
+			this.ALE * RRF * (this.measure.getImplementationRateValue() / 100.)
+				* ((nMaxEff / 100. - cMaxEff / 100.) / (1. - RRF * cMaxEff / 100. * (this.measure.getImplementationRateValue() / 100.)));
 	}
 
 	/***********************************************************************************************
@@ -349,23 +339,23 @@ public class TMA {
 		this.deltaALEMat = deltaALEMat;
 	}
 
-	
-	
-	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((assessment == null) ? 0 : assessment.hashCode());
+		result = prime * result + ((assessment == null) ? 0 : assessment.hashCode());
 		result = prime * result + ((measure == null) ? 0 : measure.hashCode());
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -388,6 +378,18 @@ public class TMA {
 		} else if (!measure.equals(other.measure))
 			return false;
 		return true;
+	}
+
+	/**
+	 * 
+	 */
+	@Override
+	public String toString() {
+		return "TMA [" + "Assessment [id=" + assessment.getId() + ", ALE=" + assessment.getALE() + ", ALEO=" + assessment.getALEO() + ", ALEP=" + assessment.getALEP() + ", Impact="
+			+ assessment.getImpactReal() + ", Likelihood=" + assessment.getLikelihoodReal() + ", Uncertainty=" + assessment.getUncertainty() + ", " + "Asset [id=" + assessment.getAsset().getId()
+			+ ", name=" + assessment.getAsset().getName() + "], " + "Scenario [id=" + assessment.getScenario().getName() + ", name=" + assessment.getScenario().getName() + "]], " + "Measure[id="
+			+ measure.getId() + ", Norm [ id=" + norm.getId() + ", name=" + norm.getLabel() + ", version=" + norm.getVersion() + "], reference=" + measure.getMeasureDescription().getReference() + "], "
+			+ "RRF="+RRF+", ALE="+ALE+", deltaALE="+deltaALE+", current SML Max Eff= "+cMaxEff+", next SML Max Eff="+nMaxEff+", deltaALE Maturtity="+deltaALEMat+"]";
 	}
 
 	/**

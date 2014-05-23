@@ -1,6 +1,8 @@
 package lu.itrust.business.view.controller;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -68,6 +70,11 @@ import lu.itrust.business.task.WorkerAnalysisImport;
 import lu.itrust.business.task.WorkerExportAnalysis;
 import lu.itrust.business.validator.HistoryValidator;
 
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.Hibernate;
@@ -436,8 +443,7 @@ public class ControllerAnalysis {
 				}
 			}
 
-			model.addAttribute("success", messageSource
-					.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
@@ -825,7 +831,6 @@ public class ControllerAnalysis {
 			if (analysis == null)
 				errors.put("analysis", serviceDataValidation.ParseError("error.analysis.not_found::Analysis cannot be found!", messageSource, locale));
 
-			
 			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(History.class);
 
 			if (validator == null)
@@ -857,11 +862,10 @@ public class ControllerAnalysis {
 
 				if (GeneralComperator.VersionComparator(oldVersion, version) >= 0)
 					errors.put("version", serviceDataValidation.ParseError("error.history.version.invalid::Version has to be bigger than based on verison", messageSource, locale));
+				else if (serviceAnalysis.exists(analysis.getIdentifier(), version))
+					errors.put("version", serviceDataValidation.ParseError("error.history.version.exists::Version already exists for the analysis", messageSource, locale));
 				else
-					if(serviceAnalysis.exists(analysis.getIdentifier(), version))
-						errors.put("version", serviceDataValidation.ParseError("error.history.version.exists::Version already exists for the analysis", messageSource, locale));
-					else
-						history.setVersion(version);
+					history.setVersion(version);
 			}
 
 			error = validator.validate(history, "comment", comment);
@@ -942,8 +946,8 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Import/Execute")
-	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request,
-			@RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
+	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request, @RequestParam(value = "file") MultipartFile file,
+			final RedirectAttributes attributes, Locale locale) throws Exception {
 
 		// retrieve the customer
 		Customer customer = serviceCustomer.get(customerId);
@@ -1070,6 +1074,103 @@ public class ControllerAnalysis {
 		FileCopyUtils.copy(userSqLite.getSqLite(), response.getOutputStream());
 
 		// return
+		return null;
+	}
+
+	/**
+	 * computeRiskRegister: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param attributes
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/{analysisId}/export/report")
+	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Locale locale) throws Exception {
+
+		Analysis analysis = serviceAnalysis.get(analysisId);
+
+		if (analysis == null) {
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not.found", null, "This analysis does not exist!", locale));
+			return "redirect:/Analysis";
+		} else if (!analysis.hasData()) {
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not.exportable", null, "This analysis cannot be exported!", locale));
+			return "redirect:/Analysis";
+		}
+
+		try {
+
+			File template = new File(request.getServletContext().getRealPath("/WEB-INF/data/TOD_001_itrust-Report-EN_V2.0.dotx"));
+			File doctemp = new File(request.getServletContext().getRealPath("/WEB-INF/tmp/TOD_001_itrust-Report-EN_V2.0.docx"));
+
+			OPCPackage pkg = OPCPackage.open(template.getAbsoluteFile());
+			pkg.replaceContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml",
+					"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml");
+			pkg.save(doctemp);
+
+			XWPFDocument document = new XWPFDocument(new FileInputStream(request.getServletContext().getRealPath("/WEB-INF/tmp/TOD_001_itrust-Report-EN_V2.0.docx")));
+			// XWPFDocument document = new XWPFDocument();
+			XWPFParagraph tmpParagraph = document.createParagraph();
+			XWPFRun tmpRun = tmpParagraph.createRun();
+			tmpRun.setText("LALALALAALALAAAA");
+			tmpRun.setText("LALALALAALALAAAA2");
+			tmpRun.setFontSize(18);
+			tmpParagraph = document.createParagraph();
+			tmpRun = tmpParagraph.createRun();
+			tmpRun.setText("Actifs");
+			tmpParagraph.setStyle("Heading1");
+
+			int assetNumber = analysis.getAssets().size();
+
+			if (assetNumber > 0) {
+
+				XWPFTable tmptable = document.createTable(assetNumber + 1, 7);
+
+				tmptable.getRow(0).getCell(0).setText("Nr");
+				tmptable.getRow(0).getCell(1).setText("Name");
+				tmptable.getRow(0).getCell(2).setText("Type");
+				tmptable.getRow(0).getCell(3).setText("Value");
+				tmptable.getRow(0).getCell(4).setText("ALE");
+				tmptable.getRow(0).getCell(5).setText("Selected");
+				tmptable.getRow(0).getCell(6).setText("Comment");
+
+				// Loop assets
+
+				for (int index = 0; index < analysis.getAssets().size(); index++) {
+
+					tmptable.getRow(index + 1).getCell(0).setText("" + (index + 1));
+					tmptable.getRow(index + 1).getCell(1).setText(analysis.getAssets().get(index).getName());
+					tmptable.getRow(index + 1).getCell(2).setText(analysis.getAssets().get(index).getAssetType().getType());
+					tmptable.getRow(index + 1).getCell(3).setText("" + analysis.getAssets().get(index).getValue());
+					tmptable.getRow(index + 1).getCell(4).setText("" + (analysis.getAssets().get(index).getALE()));
+					if (analysis.getAssets().get(index).isSelected())
+						tmptable.getRow(index + 1).getCell(5).setText("x");
+					else
+						tmptable.getRow(index + 1).getCell(5).setText("");
+					tmptable.getRow(index + 1).getCell(6).setText(analysis.getAssets().get(index).getComment());
+
+				}
+			}
+
+			document.write(new FileOutputStream(new File(request.getServletContext().getRealPath("/WEB-INF/tmp/STA_" + analysis.getLabel() + "_V" + analysis.getVersion() + ".docx"))));
+
+			File file = new File(request.getServletContext().getRealPath("/WEB-INF/tmp/STA_" + analysis.getLabel() + "_V" + analysis.getVersion() + ".docx"));
+
+			if (file != null) {
+
+				response.setContentType("docx");
+				response.setContentLength((int) file.length());
+				response.setHeader("Content-Disposition", "attachment; filename=\"" + "STA_" + analysis.getLabel() + "_V" + analysis.getVersion() + ".docx" + "\"");
+				FileCopyUtils.copy(FileCopyUtils.copyToByteArray(file), response.getOutputStream());
+			}
+
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+
+		//
+
 		return null;
 	}
 
