@@ -12,6 +12,7 @@ import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.MeasureManager;
 import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasureDescription;
@@ -64,6 +65,9 @@ public class ControllerMeasureDescription {
 	@Autowired
 	private MessageSource messageSource;
 
+	@Autowired
+	MeasureManager measureManager;
+	
 	/**
 	 * displayAll: <br>
 	 * Description
@@ -261,8 +265,11 @@ public class ControllerMeasureDescription {
 			} else if (measureDescription.getNorm().getId() != normId)
 				errors.put("measureDescription.norm", messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
 
-			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale))
+			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale)) {
 				serviceMeasureDescription.saveOrUpdate(measureDescription);
+				
+				measureManager.createNewMeasureForAllAnalyses(measureDescription);
+			}
 
 			// System.out.println(measureDescription.isComputable()==true?"TRUE":"FALSE");
 
@@ -390,11 +397,14 @@ public class ControllerMeasureDescription {
 				Language language = languages.get(i);
 
 				// get domain in this language
-				String domain = jsonNode.get("domain_" + language.getId()).asText();
+				String domain = jsonNode.get("domain_" + language.getId()).asText().trim();
 
 				// get description in this language
-				String description = jsonNode.get("description_" + language.getId()).asText();
+				String description = jsonNode.get("description_" + language.getId()).asText().trim();
 
+				if(domain.equals(Constant.EMPTY_STRING) && description.equals(Constant.EMPTY_STRING))
+					continue;
+				
 				// init measdesctext object
 				MeasureDescriptionText mesDescText = measuredescription.findByLanguage(language);
 

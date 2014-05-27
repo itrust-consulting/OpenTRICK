@@ -143,7 +143,7 @@ public class DAONormHBM extends DAOHibernate implements DAONorm {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Norm> getAllNotInAnalysis(Integer idAnalysis) throws Exception {
-		String query = "Select norm From Norm norm where norm.label not in (Select analysisNorm.norm.label From AnalysisNorm as analysisNorm where analysisNorm.analysis.id = :analysisId)";
+		String query = "Select norm From Norm as norm where norm.label NOT IN (Select analysisNorm.norm.label From AnalysisNorm as analysisNorm where analysisNorm.analysis.id = :analysisId)";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
 	}
 

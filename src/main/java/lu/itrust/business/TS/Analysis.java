@@ -1715,6 +1715,20 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @return The value of the usedphases field
 	 */
+	public Phase getPhaseByNumber(int number) {
+		for(Phase phase : usedPhases) {
+			if(phase.getNumber()==number)
+				return phase; 
+		}
+		return null;
+	}
+	
+	/**
+	 * getUsedphases: <br>
+	 * Returns the usedphases field value.
+	 * 
+	 * @return The value of the usedphases field
+	 */
 	public List<Phase> getUsedPhases() {
 		return usedPhases;
 	}

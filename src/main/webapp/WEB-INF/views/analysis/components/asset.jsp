@@ -27,7 +27,7 @@
 				<thead>
 					<tr>
 						<th class="checkboxtableheader" style="width:50px"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'asset')"></th>
-						<th><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
+						<th style="width:50px"><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
 						<th><spring:message code="label.asset.name" text="Name" htmlEscape="true" /></th>
 						<th><spring:message code="label.asset.type" text="Type" htmlEscape="true" /></th>
 						<th><spring:message code="label.asset.value" text="Value" htmlEscape="true" /> (k&euro;)</th>

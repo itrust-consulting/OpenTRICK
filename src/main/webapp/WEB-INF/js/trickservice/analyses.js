@@ -520,6 +520,25 @@ function exportAnalysis(analysisId) {
 	return false;
 }
 
+function exportAnalysisReport(analysisId) {
+	if (analysisId == null || analysisId == undefined) {
+		var selectedScenario = findSelectItemIdBySection("section_analysis");
+		if (selectedScenario.length != 1)
+			return false;
+		analysisId = selectedScenario[0];
+	}
+	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
+		$.fileDownload(context + '/Analysis/Export/Report/'+analysisId).fail(function() {
+			alert('File export failed!');
+		});
+		return false;
+	} else
+		permissionError();
+	return false;
+}
+
+
+
 function duplicateAnalysis(form, analyisId) {
 	var oldVersion = $("#history_oldVersion").prop("value");
 	$(".progress-striped").show();

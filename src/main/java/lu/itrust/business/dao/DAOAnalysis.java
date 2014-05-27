@@ -28,6 +28,8 @@ public interface DAOAnalysis {
 	public boolean exists(String identifier, String version) throws Exception;
 
 	public boolean isProfile(Integer idAnalysis) throws Exception;
+	
+	public boolean hasData(Integer idAnalysis) throws Exception;
 
 	public List<Integer> getAllAnalysisIDs() throws Exception;
 

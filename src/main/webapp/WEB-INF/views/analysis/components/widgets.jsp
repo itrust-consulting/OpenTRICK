@@ -7,4 +7,5 @@
 	<jsp:include page="./forms/addOrEditAsset.jsp" />
 	<jsp:include page="./forms/addOrEditScenario.jsp" />
 	<jsp:include page="./forms/addPhase.jsp" />
+	<jsp:include page="./forms/addStandard.jsp" />
 </div>

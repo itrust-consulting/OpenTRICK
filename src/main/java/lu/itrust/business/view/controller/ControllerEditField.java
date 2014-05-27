@@ -430,15 +430,15 @@ public class ControllerEditField {
 			field.setAccessible(true);
 
 			// set value /100 to save as values between 0 and 1
-			Double val = Double.valueOf(((String)fieldEditor.getValue()))/100;
-			
+			Double val = Double.valueOf(((String) fieldEditor.getValue())) / 100;
+
 			fieldEditor.setValue(String.valueOf(val));
-			
+
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
 
 				// update field
-				
+
 				serviceParameter.saveOrUpdate(parameter);
 
 				// return success message
@@ -484,7 +484,7 @@ public class ControllerEditField {
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 		}
 	}
-	
+
 	/**
 	 * assessment: <br>
 	 * Description
@@ -693,7 +693,14 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 
 			// set field
-			Field field = measure.getClass().getSuperclass().getDeclaredField(fieldEditor.getFieldName());
+
+			Field field = null;
+
+			if (fieldEditor.getFieldName().equals("toCheck"))
+				field = measure.getClass().getDeclaredField(fieldEditor.getFieldName());
+			else
+				field = measure.getClass().getSuperclass().getDeclaredField(fieldEditor.getFieldName());
+			
 			field.setAccessible(true);
 
 			// retrieve parameters

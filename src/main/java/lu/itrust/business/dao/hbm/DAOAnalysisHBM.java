@@ -111,6 +111,21 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	}
 
 	/**
+	 * hasData: <br>
+	 * Description
+	 * 
+	 * @{tags
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysis#hasData(java.lang.Integer)
+	 */
+	@Override
+	public boolean hasData(Integer idAnalysis) throws Exception {
+		String query = "Select analysis.data From Analysis as analysis where analysis.id = :identifier";
+		Boolean result = (Boolean) getSession().createQuery(query).setParameter("identifier", idAnalysis).uniqueResult();
+		return result == null ? false : result;
+	}
+
+	/**
 	 * getAllAnalysisIDs: <br>
 	 * Description
 	 * 

@@ -39,7 +39,6 @@ function saveUser(form) {
 					$(errorElement).appendTo($("#"+ form + " #user_email").parent());
 					break;
 				case "user": {
-					
 						var errElement = document.createElement("div");
 						errElement.setAttribute("class", "alert alert-danger");
 						$(errElement).text($(errorElement).text());
@@ -47,7 +46,6 @@ function saveUser(form) {
 						$("#success").removeAttr("hidden");
 						$("#user_password").prop("value", "");
 					}
-					
 				}
 			}
 			
@@ -58,7 +56,7 @@ function saveUser(form) {
 				$(successElement).appendTo($("#addUserModel .modal-body #success"));
 				$("#success").removeAttr("hidden");
 				$("#user_password").prop("value", "");
-				
+				setTimeout(reloadSection("section_user"),2000);
 			}
 		},
 		error : function(jqXHR, textStatus, errorThrown) {

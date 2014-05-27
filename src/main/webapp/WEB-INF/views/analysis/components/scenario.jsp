@@ -26,8 +26,8 @@
 			<table id="scneariotable" class="table table-hover headertofixtable">
 				<thead>
 					<tr>
-						<th class="checkboxtableheader"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'scenario')"></th>
-						<th><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
+						<th class="checkboxtableheader" style="width:50px"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'scenario')"></th>
+						<th style="width:50px"><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
 						<th colspan="2"><spring:message code="label.scenario.name" text="Name" htmlEscape="true" /></th>
 						<th><spring:message code="label.scenario.type" text="Type" htmlEscape="true" /></th>
 						<th colspan="2"><spring:message code="label.scenario.description" text="Description" htmlEscape="true" /></th>

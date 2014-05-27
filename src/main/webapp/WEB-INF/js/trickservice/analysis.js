@@ -329,9 +329,7 @@ function addStandard() {
 					if (!$(forms).find("#addStandardForm").length) {
 						showError($("#addStandardModal .modal-body")[0], MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
 					} else {
-						if ($("#addStandardModal").length)
-							$("#addStandardModal").remove();
-						$(forms).appendTo($("#widget"));
+						$("#addStandardModal").replaceWith($(forms));
 						enableButtonSaveStandardState(true);
 						$("#addStandardModal").modal("toggle");
 					}

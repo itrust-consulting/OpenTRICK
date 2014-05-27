@@ -121,6 +121,19 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	/**
+	 * hasData: <br>
+	 * Description
+	 * 
+	 * @{tags
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysis#hasData(java.lang.Integer)
+	 */
+	@Override
+	public boolean hasData(Integer idAnalysis) throws Exception {
+		return daoAnalysis.hasData(idAnalysis);
+	}
+
+	/**
 	 * getAllAnalysisIDs: <br>
 	 * Description
 	 * 
