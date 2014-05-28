@@ -1477,6 +1477,20 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	/**
+	 * getSelectedAssets: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public List<Asset> getSelectedAssets() {
+		List<Asset> tmpassets = new ArrayList<Asset>();
+		for (Asset asset : assets)
+			if (asset.isSelected())
+				tmpassets.add(asset);
+		return tmpassets;
+	}
+
+	/**
 	 * addAnAsset: <br>
 	 * Adds an Asset Object to the List of Assets
 	 * 
@@ -1569,6 +1583,20 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	/**
+	 * getScenarioList: <br>
+	 * Returns the Scenario List.
+	 * 
+	 * @return The Scenario List Object
+	 */
+	public List<Scenario> getSelectedScenarios() {
+		List<Scenario> tmpscenarios = new ArrayList<Scenario>();
+		for (Scenario scenario : scenarios)
+			if (scenario.isSelected())
+				tmpscenarios.add(scenario);
+		return tmpscenarios;
+	}
+
+	/**
 	 * setAScenario: <br>
 	 * Adds a Scenario Object to the List of Scenarios
 	 * 
@@ -1607,13 +1635,27 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	/**
-	 * getAssessmentList: <br>
-	 * Returns the List of Assessments.
+	 * getAssessments: <br>
+	 * Description
 	 * 
-	 * @return The List of Assessment Objects
+	 * @return
 	 */
 	public List<Assessment> getAssessments() {
 		return assessments;
+	}
+
+	/**
+	 * getSelectedAssessments: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public List<Assessment> getSelectedAssessments() {
+		List<Assessment> tmpassessments = new ArrayList<Assessment>();
+		for (Assessment assessment : assessments)
+			if (assessment.isSelected())
+				tmpassessments.add(assessment);
+		return tmpassessments;
 	}
 
 	/**
@@ -1716,13 +1758,13 @@ public class Analysis implements Serializable, Cloneable {
 	 * @return The value of the usedphases field
 	 */
 	public Phase getPhaseByNumber(int number) {
-		for(Phase phase : usedPhases) {
-			if(phase.getNumber()==number)
-				return phase; 
+		for (Phase phase : usedPhases) {
+			if (phase.getNumber() == number)
+				return phase;
 		}
 		return null;
 	}
-	
+
 	/**
 	 * getUsedphases: <br>
 	 * Returns the usedphases field value.
