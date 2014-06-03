@@ -213,19 +213,19 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>3.10-beta2</version>
+			<version>3.10-FINAL</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml-schemas</artifactId>
-			<version>3.10-beta2</version>
+			<version>3.10-FINAL</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.10-beta2</version>
+			<version>3.10-FINAL</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

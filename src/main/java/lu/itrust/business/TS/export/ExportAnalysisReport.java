@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,9 +14,17 @@ import javax.servlet.ServletContext;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
+import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.ItemInformation;
+import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.TS.Scenario;
+import lu.itrust.business.TS.actionplan.ActionPlanAsset;
+import lu.itrust.business.TS.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.actionplan.SummaryStage;
+import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.ActionPlanManager;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.RiskInformationManager;
 import lu.itrust.business.component.helper.ALE;
@@ -29,6 +38,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.apache.xmlbeans.XmlCursor;
+import org.hibernate.Hibernate;
 
 /**
  * ExportReport.java: <br>
@@ -86,8 +96,12 @@ public class ExportAnalysisReport {
 		pkg.replaceContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml", "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml");
 		pkg.save(doctemp);
 
+		XWPFDocument templatedoc = new XWPFDocument(new FileInputStream(template));
+		
 		XWPFDocument document = new XWPFDocument(new FileInputStream(this.getContext().getRealPath("/WEB-INF/tmp/TOD_001_analysis-report-FR_V2.1.docx")));
 
+		document.createStyles().setStyles(templatedoc.getStyle());;
+		
 		this.document = document;
 
 		generateItemInformation();
@@ -99,6 +113,14 @@ public class ExportAnalysisReport {
 		generateAssessements();
 
 		generateThreats();
+
+		generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+
+		generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
+
+		generateActionPlan();
+
+		generateActionPlanSummary();
 
 		document.write(new FileOutputStream(new File(this.getContext().getRealPath("/WEB-INF/tmp/STA_" + analysis.getLabel() + "_V" + analysis.getVersion() + ".docx"))));
 
@@ -116,6 +138,394 @@ public class ExportAnalysisReport {
 				return paragraph;
 		}
 		return null;
+	}
+
+	private void generateActionPlanSummary() throws Exception {
+		XWPFParagraph paragraph = null;
+		XWPFTable table = null;
+		XWPFTableRow row = null;
+
+		paragraph = findParagraphByText("<Summary>");
+
+		// run = paragraph.getRuns().get(0);
+
+		paragraph.removeRun(0);
+
+		List<SummaryStage> summary = analysis.getSummary(ActionPlanMode.APPN);
+
+		if (summary.size() > 0) {
+
+			// initialise table with 1 row and 1 column after the paragraph cursor
+
+			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+			// set header
+
+			row = table.getRow(0);
+
+			for (int i = 1; i < 3; i++)
+				row.addNewTableCell();
+
+			int rownumber = 0;
+
+			while (rownumber < 22) {
+
+				if(rownumber == 0)			
+					row = table.getRow(rownumber);
+				else
+					row = table.createRow();
+
+				switch (rownumber) {
+					case 0: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Phase characteristics");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText(stage.getStage());
+						}
+						break;
+					}
+					case 1: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Beginning date");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							if (cellnumber == 1)
+								continue;
+							// row.getCell(cellnumber).setText(stage.get);
+						}
+						break;
+					}
+					case 2: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("End date");
+						cellnumber++;
+						// row.getCell(cellnumber).setText(stage.getStage());
+
+						break;
+					}
+					case 3: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Compliance level 27001 (%)...");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getConformance27001()*100);
+						}
+						break;
+					}
+					case 4: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Compliance level 27002 (%)...");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getConformance27002()*100);
+						}
+						break;
+					}
+					case 5: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Number of measures for phase");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getImplementedMeasuresCount());
+						}
+						break;
+					}
+					case 6: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Implemented measures (number)...");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText(""+stage.getImplementedMeasuresCount());
+						}
+						break;
+					}
+					case 7: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Profitability");
+						// merge columns
+						break;
+					}
+					case 8: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("ALE (k€/y)... at end");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getTotalALE());
+						}
+						break;
+					}
+					case 9: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Risk reduction (k€/y)");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getDeltaALE());
+						}
+						break;
+					}
+					case 10: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Average yearly cost of phase (k€/y)");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getCostOfMeasures());
+						}
+						break;
+					}
+					case 11: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("ROSI (k€/y)");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getROSI());
+						}
+						break;
+					}
+					case 12: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Relative ROSI");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getRelativeROSI());
+						}
+						break;
+					}
+					case 13: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Resource planning");
+						// mrege columns
+						break;
+					}
+					case 14: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Internal workload (md)");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getInternalWorkload());
+						}
+						break;
+					}
+					case 15: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("External workload (md)");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getExternalWorkload());
+						}
+						break;
+					}
+					case 16: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Investment (k€)");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getInvestment());
+						}
+						break;
+					}
+					case 17: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Internal maintenance (md)");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getInternalMaintenance());
+						}
+						break;
+					}
+					case 18: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("External maintenance (md)");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getExternalMaintenance());
+						}
+						break;
+					}
+					case 19: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Recurrent investment (k€)");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getRecurrentInvestment());
+						}
+						break;
+					}
+					case 20: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Recurrent costs (k€)");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getRecurrentCost());
+						}
+						break;
+					}
+					case 21: {
+						int cellnumber = 0;
+						row.getCell(cellnumber).setText("Total cost of phase (k€)");
+						for (SummaryStage stage : summary) {
+							cellnumber++;
+							row.getCell(cellnumber).setText("" + stage.getTotalCostofStage());
+						}
+						break;
+					}
+
+				}
+
+				rownumber++;
+
+			}
+
+		}
+ 
+	}
+
+	private void generateActionPlan() throws Exception {
+		XWPFParagraph paragraph = null;
+		XWPFTable table = null;
+		XWPFTableRow row = null;
+
+		paragraph = findParagraphByText("<ActionPlan>");
+
+		// run = paragraph.getRuns().get(0);
+
+		paragraph.removeRun(0);
+
+		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
+
+		if (actionplan.size() > 0) {
+
+			// initialise table with 1 row and 1 column after the paragraph cursor
+
+			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+			// set header
+
+			row = table.getRow(0);
+
+			for (int i = 1; i < 11; i++)
+				row.addNewTableCell();
+
+			row.getCell(0).setText("Nr");
+			row.getCell(1).setText("Norm");
+			row.getCell(2).setText("Ref.");
+			row.getCell(3).setText("Description");
+			row.getCell(4).setText("ALE (k€/y)");
+			row.getCell(5).setText("ΔNr");
+			row.getCell(6).setText("CS (k€/y)");
+			row.getCell(6).setText("ROSI (k€/y");
+			row.getCell(7).setText("IS");
+			row.getCell(8).setText("ES");
+			row.getCell(9).setText("INV (k€)");
+			row.getCell(10).setText("P");
+
+			// add asset names
+			List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplan);
+			for (Asset asset : assets)
+				row.addNewTableCell().setText(asset.getName());
+
+			int nr = 0;
+
+			// set data
+			for (ActionPlanEntry entry : actionplan) {
+				row = table.createRow();
+				nr++;
+				Hibernate.initialize(entry);
+				Hibernate.initialize(entry.getMeasure());
+				Hibernate.initialize(entry.getActionPlanAssets());
+				// System.out.println(entry.toString());
+				row.getCell(0).setText("" + nr);
+				row.getCell(1).setText(entry.getMeasure().getAnalysisNorm().getNorm().getLabel());
+				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
+				row.getCell(3).setText(entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain() + ":");
+				row.getCell(3).addParagraph().createRun().setText(entry.getMeasure().getToDo());
+				row.getCell(4).setText("" + entry.getTotalALE());
+				row.getCell(5).setText(Integer.valueOf(entry.getPosition()).toString());
+				row.getCell(6).setText("" + entry.getMeasure().getCost());
+				row.getCell(7).setText("" + entry.getMeasure().getInternalWL());
+				row.getCell(8).setText("" + entry.getMeasure().getExternalWL());
+				row.getCell(9).setText("" + entry.getMeasure().getInvestment());
+				row.getCell(10).setText("" + entry.getMeasure().getPhase().getNumber());
+				List<ActionPlanAsset> tmpassets = entry.getActionPlanAssets();
+				for (int i = 11; i < assets.size() + 11; i++) {
+					for (ActionPlanAsset aasset : tmpassets) {
+						row.getCell(i).setText("" + aasset.getCurrentALE());
+					}
+				}
+			}
+
+			// Set the table style. If the style is not defined, the table style will become
+			// "Normal".
+			// table.getCTTbl().getTblPr().addNewTblStyle().setVal("Table TS 1");
+
+			// table.setStyleID("Table TS 1");
+
+		}
+	}
+
+	private void generateExtendedParameters(String type) throws Exception {
+		XWPFParagraph paragraph = null;
+		XWPFTable table = null;
+		XWPFTableRow row = null;
+		String parmetertype = "";
+		if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+			parmetertype = "Proba";
+		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
+			parmetertype = "Impact";
+
+		paragraph = findParagraphByText("<" + parmetertype + ">");
+
+		// run = paragraph.getRuns().get(0);
+
+		paragraph.removeRun(0);
+
+		List<Parameter> parameters = analysis.getParameters();
+
+		List<ExtendedParameter> extendedParameters = new ArrayList<ExtendedParameter>();
+
+		for (Parameter parameter : parameters) {
+			if (parameter.getType().getLabel().equals(type))
+				extendedParameters.add((ExtendedParameter) parameter);
+		}
+
+		if (extendedParameters.size() > 0) {
+
+			// initialise table with 1 row and 1 column after the paragraph cursor
+
+			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+			// set header
+
+			row = table.getRow(0);
+
+			for (int i = 1; i < 6; i++)
+				row.addNewTableCell();
+
+			row.getCell(0).setText("Level");
+			row.getCell(1).setText("Acro");
+			row.getCell(2).setText("Qualification");
+			row.getCell(3).setText("Value");
+			row.getCell(4).setText("Value From [");
+			row.getCell(5).setText("Value To [");
+
+			// set data
+			for (ExtendedParameter extendedParameter : extendedParameters) {
+				row = table.createRow();
+				row.getCell(0).setText("" + extendedParameter.getLevel());
+				row.getCell(1).setText(extendedParameter.getAcronym());
+				row.getCell(2).setText(extendedParameter.getDescription());
+				row.getCell(3).setText("" + extendedParameter.getValue());
+				row.getCell(4).setText("" + extendedParameter.getBounds().getFrom());
+				row.getCell(5).setText("" + extendedParameter.getBounds().getTo());
+			}
+
+			// Set the table style. If the style is not defined, the table style will become
+			// "Normal".
+			// table.getCTTbl().getTblPr().addNewTblStyle().setVal("Table TS 1");
+
+			// table.setStyleID("Table TS 1");
+
+		}
 	}
 
 	private void generateItemInformation() throws Exception {
@@ -170,7 +580,8 @@ public class ExportAnalysisReport {
 
 		paragraph = findParagraphByText("<Asset>");
 
-		paragraph.removeRun(0);
+		for (int i = 0; i< paragraph.getRuns().size();i++)
+			paragraph.removeRun(i);
 
 		List<Asset> assets = analysis.getSelectedAssets();
 

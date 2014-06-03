@@ -476,4 +476,14 @@ public class ActionPlanEntry implements Serializable {
 //		actionPlanAsset.setActionPlanEntry(this);
 //		actionPlanAssessments.add(actionPlanAsset);
 //	}
+	
+	@Override
+	public String toString(){
+		return "ActionPlanEntry {id="+id+",actionplantype="+actionPlanType.getName()+",position="+position+",cost="+cost+",ROI="+ROI+",totalALE="+totalALE+","
+			+ "Measure {id="+measure.getId()+",norm="+measure.getAnalysisNorm().getNorm().getLabel()+",reference="+measure.getMeasureDescription().getReference()+",cost="+measure.getCost()+",IS="
+				+measure.getInternalWL()+",ES="+measure.getExternalWL()+",INV="+measure.getInvestment()+",phase="+measure.getPhase().getNumber()+"}} ";
+
+		
+	}
+	
 }
