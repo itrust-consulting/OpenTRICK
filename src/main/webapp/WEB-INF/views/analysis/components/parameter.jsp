@@ -43,8 +43,8 @@
 										ondblclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
 									<td trick-field="description" trick-field-type="string" class="success textaligncenter" ondblclick="return editField(this);"><spring:message
 											text="${parameter.description}" /></td>
-									<td trick-field="value" trick-field-type="double"
-										${(parameter.level mod 2)==0? 'ondblclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'} real-value="${parameter.value}"><fmt:formatNumber
+									<td trick-field="value" trick-field-type="double" title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'
+										${(parameter.level mod 2)==0? 'ondblclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'}><fmt:formatNumber
 											value="${parameter.value*0.001}" maxFractionDigits="0" /></td>
 									<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from*0.001}" maxFractionDigits="0" /></td>
 									<td class="textaligncenter"><c:choose>
@@ -89,9 +89,12 @@
 										ondblclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
 									<td trick-field="description" trick-field-type="string" class="success textaligncenter" ondblclick="return editField(this);"><spring:message
 											text="${parameter.description}" /></td>
+									<c:set var="parameterValue">
+										<fmt:formatNumber value="${parameter.value}" />
+									</c:set>
 									<td trick-field="value" trick-field-type="double"
-										${(parameter.level mod 2)==0? 'ondblclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'} real-value="${parameter.value}"><fmt:formatNumber
-											value="${parameter.value}" maxFractionDigits="2" minFractionDigits="2" /></td>
+										${(parameter.level mod 2)==0? 'ondblclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'} title="${parameterValue}"
+										real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" minFractionDigits="2" /></td>
 									<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from}" maxFractionDigits="2" minFractionDigits="2" /></td>
 									<td class="textaligncenter"><c:choose>
 											<c:when test="${status.index!=10}">

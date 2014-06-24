@@ -137,7 +137,7 @@ public class ControllerMeasure {
 				assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
 			((NormMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormMeasure) measure).getMeasurePropertyList()));
 		}
-
+		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3());
 		model.addAttribute("measure", measure);
 		model.addAttribute("norm", measure.getAnalysisNorm().getNorm().getLabel());
 

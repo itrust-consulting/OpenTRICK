@@ -30,38 +30,29 @@
 					value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 		</c:otherwise>
 	</c:choose>
-	<c:set var="internalWL">
-		<fmt:formatNumber value="${measure.internalWL}" maxFractionDigits="2" />
-	</c:set>
-	<td ${csscentered} trick-field="internalWL" trick-field-type="double" ondblclick="return editField(this);" real-value="${fn:replace(internalWL,',' ,'.') }">${internalWL}</td>
-	<c:set var="externalWL">
-		<fmt:formatNumber value="${measure.externalWL}" maxFractionDigits="2" />
-	</c:set>
-	<td ${csscentered} trick-field="externalWL" trick-field-type="double" ondblclick="return editField(this);" real-value="${fn:replace(externalWL,',' ,'.') }">${externalWL}</td>
-	<td ${csscentered} trick-field="investment" trick-field-type="double" ondblclick="return editField(this);" title="${measure.investment}&euro;"
-		real-value="${fn:replace(measure.investment,',' ,'.') }"><fmt:formatNumber value="${measure.investment*0.001}" maxFractionDigits="0" /></td>
-	<c:set var="lifetime">
-		<fmt:formatNumber value="${measure.lifetime}" maxFractionDigits="2" />
-	</c:set>
-	<td ${csscentered} trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);" real-value="${fn:replace(lifetime,',' ,'.') }">${lifetime}</td>
-	<td ${csscentered} trick-field="internalMaintenance" trick-field-type="double" ondblclick="return editField(this);"
-		real-value="${fn:replace(measure.internalMaintenance,',' ,'.') }"><fmt:formatNumber value="${measure.internalMaintenance}" maxFractionDigits="2" /></td>
+
+	<td ${csscentered} trick-field="internalWL" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.internalWL}"
+			maxFractionDigits="2" /></td>
+	<td ${csscentered} trick-field="externalWL" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.externalWL}"
+			maxFractionDigits="2" /></td>
+	<td ${csscentered} trick-field="investment" trick-field-type="double" ondblclick="return editField(this);" title='<fmt:formatNumber value="${measure.investment}" />&euro;'><fmt:formatNumber
+			value="${measure.investment*0.001}" maxFractionDigits="0" /></td>
+	<td ${csscentered} trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.lifetime}" maxFractionDigits="2" /></td>
+	<td ${csscentered} trick-field="internalMaintenance" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.internalMaintenance}"
+			maxFractionDigits="2" /></td>
 	<td ${csscentered} trick-field="externalMaintenance" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.externalMaintenance}"
 			maxFractionDigits="2" /></td>
-	<c:set var="recurrentInvestment">
-		<fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="0" />
-	</c:set>
-	<td ${csscentered} trick-field="recurrentInvestment" trick-field-type="double" ondblclick="return editField(this);" title="${measure.recurrentInvestment}&euro;"
-		real-value="${fn:replace(recurrentInvestment,',' ,'.') }">${recurrentInvestment}</td>
+	<td ${csscentered} trick-field="recurrentInvestment" trick-field-type="double" ondblclick="return editField(this);"
+		title='<fmt:formatNumber value="${measure.recurrentInvestment}"/>&euro;'><fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="0" /></td>
 	<c:set var="cost">
 		<fmt:formatNumber value="${measure.cost*0.001}" maxFractionDigits="0" />
 	</c:set>
 	<c:choose>
 		<c:when test="${measure.getImplementationRateValue()==100 || measure.getStatus().equals('NA')}">
-			<td class='textaligncenter' title="${measure.cost}&euro;">${cost}</td>
+			<td class='textaligncenter' title='<fmt:formatNumber value="${measure.cost}" />&euro;'>${cost}</td>
 		</c:when>
 		<c:otherwise>
-			<td ${cost == 0? "class='textaligncenter danger'" : "class='textaligncenter'" } title="${measure.cost}&euro;">${cost}</td>
+			<td ${measure.cost == 0? "class='textaligncenter danger'" : "class='textaligncenter'" } title='<fmt:formatNumber value="${measure.cost}" />&euro;'>${cost}</td>
 		</c:otherwise>
 	</c:choose>
 	<td ${csscentered} trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)" real-value='${measure.phase.number}'><c:choose>

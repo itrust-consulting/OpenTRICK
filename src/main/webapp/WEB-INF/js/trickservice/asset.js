@@ -176,7 +176,7 @@ function saveAsset(form) {
 }
 
 function reloadAsset(id) {
-	if (id == -1) {
+	if (id == -1 || id == undefined) {
 		reloadSection("section_asset");
 		return false;
 	}
@@ -186,70 +186,16 @@ function reloadAsset(id) {
 		dataType : "html",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-
 			var element = document.createElement("div");
-
 			$(element).html(response);
-
-			if ($(element).find("tr[trick-id='" + id + "']").length) {
-				var replacedValue = $(element).find("td:nth-child(5)").text();
-
-				if (replacedValue == "")
-					return;
-
-				var replaced = false;
-
-				$("#assetTable tr td:nth-child(5)").each(function() {
-					
-					var thistrickid = $(this).parent().attr("trick-id");
-					
-					if (id == thistrickid) {
-						$(this).parent().remove();
-					}
-				});
-				
-				var tmprow = undefined;
-				
-				$("#assetTable tr td:nth-child(5)").each(function() {
-						
-				
-					var thisValue = $(this).text();
-
-					if(parseInt(replacedValue) > parseInt(thisValue)) {
-					
-						// the asset to replace has bigger value than the
-						// current
-
-						if (!replaced) {
-
-							// get tr element
-							var parent = $(this).parent().get(0);
-
-							// add the row to before the current
-							$(parent).before($(element).find("tr"));
-
-							replaced = true;
-						}
-						
-					} else {
-					
-					tmprow = $(this).parent().get(0);
-					
-					}
-					
-				});
-
-				if(tmprow != undefined)
-					$(tmprow).after($(element).find("tr"));
-				
-				$("#assetTable tr td:nth-child(2)").each(function(i, obj) {
-				
-					$(obj).text(i+1);
-					
-				});
-				
-				
-			}
+			var newValue = $(element).find("tr[trick-id='" + id + "']");
+			if (!newValue.length)
+				return false;
+			var current = $("#section_asset tr[trick-id='" + id + "']");
+			if (!current.length)
+				return false;
+			$(newValue).find("td:nth-child(2)").text($(current).find("td:nth-child(2)").text());
+			$(current).replaceWith(newValue);
 		}
 	});
 	return false;

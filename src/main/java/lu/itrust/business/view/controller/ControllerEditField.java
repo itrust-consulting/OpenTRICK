@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.Principal;
 import java.sql.Date;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
@@ -334,7 +335,8 @@ public class ControllerEditField {
 
 			// set field data
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
-
+				if ("value".equals(fieldEditor.getFieldName()) && Constant.PARAMETERTYPE_TYPE_IMPACT_NAME.equalsIgnoreCase(parameter.getType().getLabel()))
+					parameter.setValue(parameter.getValue() * 1000);
 				// update field
 				serviceParameter.saveOrUpdate(parameter);
 
@@ -519,15 +521,21 @@ public class ControllerEditField {
 			if (!serviceDataValidation.isRegistred(assessment.getClass()))
 				serviceDataValidation.register(new AssessmentValidator());
 
-			// get value
-			Object value = FieldValue(fieldEditor, null);
-
 			// retrieve all acronyms of impact and likelihood
 			List<String> chooses = null;
-			if ("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor.getFieldName()))
-				chooses = serviceParameter.getExtendedParameterAcronymsFromAnalysisByType(id, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
-			else if ("likelihood".equals(fieldEditor.getFieldName()))
+			if ("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor.getFieldName())) {
+				try {
+					chooses = serviceParameter.getExtendedParameterAcronymsFromAnalysisByType(id, Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+					if(!chooses.contains(fieldEditor.getValue()))
+						fieldEditor.setValue(Double.toString(NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue() * 1000));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else if ("likelihood".equals(fieldEditor.getFieldName()))
 				chooses = serviceParameter.getExtendedParameterAcronymsFromAnalysisByType(id, Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
+			
+			// get value
+			Object value = FieldValue(fieldEditor, null);
 
 			// validate new value
 			String error = serviceDataValidation.validate(assessment, fieldEditor.getFieldName(), value, chooses != null ? chooses.toArray() : null);
@@ -1028,28 +1036,12 @@ public class ControllerEditField {
 	 * @throws ParseException
 	 * @throws NumberFormatException
 	 */
-	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) throws IllegalArgumentException, IllegalAccessException, ParseException,
-			NumberFormatException {
-
-		// check for data type to set field with data with cast to correct data
-		// type
-		if (fieldEditor.getType().equalsIgnoreCase("string"))
-			field.set(object, (String) fieldEditor.getValue());
-		else if (fieldEditor.getType().equalsIgnoreCase("integer"))
-			field.set(object, Integer.parseInt(fieldEditor.getValue().toString()));
-		else if (fieldEditor.getType().equalsIgnoreCase("double"))
-			field.set(object, Double.parseDouble(fieldEditor.getValue().toString()));
-		else if (fieldEditor.getType().equalsIgnoreCase("float"))
-			field.set(object, Float.parseFloat(fieldEditor.getValue().toString()));
-		else if (fieldEditor.getType().equalsIgnoreCase("boolean"))
-			field.set(object, Boolean.parseBoolean(fieldEditor.getValue().toString()));
-		else if (fieldEditor.getType().equalsIgnoreCase("date")) {
-			DateFormat format = new SimpleDateFormat(pattern == null ? "yyyy-MM-dd hh:mm:ss" : pattern);
-			field.set(object, format.parse(fieldEditor.getValue().toString()));
-		} else
-			// data type not recognized return error
+	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) throws IllegalArgumentException, IllegalAccessException,
+			ParseException, NumberFormatException {
+		Object value = FieldValue(fieldEditor, pattern);
+		if (value == null)
 			return false;
-
+		field.set(object, value);
 		// return success
 		return true;
 	}
@@ -1064,36 +1056,30 @@ public class ControllerEditField {
 	 */
 	public static Object FieldValue(FieldEditor fieldEditor, String pattern) {
 		try {
-
 			// get the field type and return value in casted form
 			if (fieldEditor.getType().equalsIgnoreCase("string"))
 				return (String) fieldEditor.getValue();
 			else if (fieldEditor.getType().equalsIgnoreCase("integer"))
-				return Integer.parseInt(fieldEditor.getValue().toString());
+				return NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).intValue();
 			else if (fieldEditor.getType().equalsIgnoreCase("double"))
-				return Double.parseDouble(fieldEditor.getValue().toString());
+				return NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue();
 			else if (fieldEditor.getType().equalsIgnoreCase("float"))
-				return Float.parseFloat(fieldEditor.getValue().toString());
+				return NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).floatValue();
 			else if (fieldEditor.getType().equalsIgnoreCase("boolean"))
 				return Boolean.parseBoolean(fieldEditor.getValue().toString());
 			else if (fieldEditor.getType().equalsIgnoreCase("date")) {
 				DateFormat format = new SimpleDateFormat(pattern == null ? "yyyy-MM-dd hh:mm:ss" : pattern);
 				return format.parse(fieldEditor.getValue().toString());
 			}
-
-			// data type not found, return error
-			return null;
 		} catch (NumberFormatException e) {
-
 			// print error
 			e.printStackTrace();
-			return null;
 		} catch (ParseException e) {
-
 			// print error
 			e.printStackTrace();
-			return null;
 		}
+		// data type not found, return error
+		return null;
 	}
 
 	public static Field FindField(Class<?> object, String fieldName) {

@@ -4,6 +4,7 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
+import java.text.NumberFormat;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -85,8 +86,7 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Select/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
+	public @ResponseBody String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
 		try {
 
 			// retrieve asset
@@ -128,8 +128,7 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) {
+	public @ResponseBody List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) {
 
 		// init list of errors
 		List<String> errors = new LinkedList<String>();
@@ -140,12 +139,15 @@ public class ControllerAsset {
 
 				select(id, principal, locale, session);
 				/*
-				 * // retrieve asset Asset asset = serviceAsset.get(id); if (asset == null)
-				 * errors.add(JsonMessage.Error(messageSource.getMessage("error.asset.not_found",
-				 * null, "Asset cannot be found", locale)));
+				 * // retrieve asset Asset asset = serviceAsset.get(id); if
+				 * (asset == null)
+				 * errors.add(JsonMessage.Error(messageSource.getMessage
+				 * ("error.asset.not_found", null, "Asset cannot be found",
+				 * locale)));
 				 * 
-				 * // check if asset if (asset.isSelected()) assessmentManager.unSelectAsset(asset);
-				 * else assessmentManager.selectAsset(asset);
+				 * // check if asset if (asset.isSelected())
+				 * assessmentManager.unSelectAsset(asset); else
+				 * assessmentManager.selectAsset(asset);
 				 */
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -176,8 +178,8 @@ public class ControllerAsset {
 	public @ResponseBody
 	String delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
 		try {
-
-			// delete asset ( delete asset from from assessments) then from assets
+			// delete asset ( delete asset from from assessments) then from
+			// assets
 			customDelete.deleteAsset(serviceAsset.get(elementID));
 			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale));
 			
@@ -225,7 +227,7 @@ public class ControllerAsset {
 
 		return "analysis/components/forms/singleAsset";
 	}
-	
+
 	/**
 	 * edit: <br>
 	 * Description
@@ -260,8 +262,7 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
 
 		// create error list
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -295,11 +296,12 @@ public class ControllerAsset {
 
 			// check if asset is to be created (new)
 			if (asset.getId() < 1) {
-				// create assessments for the new asset and save asset and asessments into analysis
+				// create assessments for the new asset and save asset and
+				// asessments into analysis
 				assessmentManager.build(asset, idAnalysis);
 			} else {
 
-				if(!serviceAsset.belongsToAnalysis(idAnalysis, asset.getId())) {
+				if (!serviceAsset.belongsToAnalysis(idAnalysis, asset.getId())) {
 					errors.put("asset", serviceDataValidation.ParseError("asset.not_belongs_to_analysis", messageSource, locale));
 					return errors;
 				}
@@ -337,8 +339,7 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody
-	String aleByAsset(HttpSession session, Model model, Locale locale, Principal principal) throws Exception {
+	public @ResponseBody String aleByAsset(HttpSession session, Model model, Locale locale, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -361,8 +362,7 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody
-	String assetByALE(HttpSession session, Model model, Locale locale, Principal principal) throws Exception {
+	public @ResponseBody String assetByALE(HttpSession session, Model model, Locale locale, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -406,8 +406,8 @@ public class ControllerAsset {
 			JsonNode node = jsonNode.get("assetType");
 			AssetType assetType = serviceAssetType.get(node.get("id").asInt());
 
-			double value = jsonNode.get("value").asDouble();
-
+			double value = NumberFormat.getInstance(Locale.FRANCE).parse(jsonNode.get("value").asText()).doubleValue();
+			
 			String error = null;
 
 			asset.setComment(jsonNode.get("comment").asText());

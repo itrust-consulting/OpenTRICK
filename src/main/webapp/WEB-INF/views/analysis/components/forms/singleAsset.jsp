@@ -10,7 +10,7 @@
 	<td>${status.index+1}</td>
 	<td class="${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}"><spring:message text="${asset.name}" /></td>
 	<td class="${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}"><spring:message text="${ asset.assetType.type}" /></td>
-	<td class="${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}" title="${asset.value}"><fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="0" /></td>
+	<td class="${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}" title='<fmt:formatNumber value="${asset.value}" maxFractionDigits="0" />'><fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="0" /></td>
 	<td class="${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}" colspan="3"><spring:message text="${asset.comment}" /></td>
 	<td class="${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}" colspan="3"><spring:message text="${asset.hiddenComment}" /></td>
 </tr>

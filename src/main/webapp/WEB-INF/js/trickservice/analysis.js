@@ -20,12 +20,12 @@ $(document).ready(function() {
 	// ******************************************************************************************************************
 
 	$("div.panel-body").click(function() {
-		
-		if($(this).outerHeight()>=600) {
-		
-			if(!$(this).hasClass("panelbodydefinition"))
+
+		if ($(this).outerHeight() >= 600) {
+
+			if (!$(this).hasClass("panelbodydefinition"))
 				$(this).addClass("panelbodydefinition");
-			
+
 			if (($(this).find("div.fht-table-wrapper")).length <= 0) {
 				initialisefixheadertables($(this).find("table:visible"));
 			}
@@ -33,18 +33,18 @@ $(document).ready(function() {
 	});
 
 	$("div.panel-body").scroll(function() {
-		
-		if($(this).outerHeight()>=600) {
-			
-			if(!$(this).hasClass("panelbodydefinition"))
+
+		if ($(this).outerHeight() >= 600) {
+
+			if (!$(this).hasClass("panelbodydefinition"))
 				$(this).addClass("panelbodydefinition");
-			
+
 			if (($(this).find("div.fht-table-wrapper")).length <= 0) {
 				initialisefixheadertables($(this).find("table:visible"));
 			}
 		}
 	});
-	
+
 	// ******************************************************************************************************************
 	// * measure description in popover
 	// ******************************************************************************************************************
@@ -54,7 +54,7 @@ $(document).ready(function() {
 });
 
 function initialisefixheadertables(parent) {
-	
+
 	if (parent.length !== 0) {
 		// initialise fixedheader table with parameters
 		$(parent).fixedHeaderTable("destroy");
@@ -150,13 +150,12 @@ function reloadMeasureRow(idMeasure, norm) {
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-
-			var tag = response.substring(response.indexOf('<'));
-
-			if ($(tag).attr("trick-id") == idMeasure) {
+			var element = document.createElement("div");
+			$(element).html(response);
+			var tag = $(element).find("tr[trick-id='" + idMeasure + "']");
+			if (tag.length) {
 				$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']").replaceWith(tag);
 				var popover = $(tag).find("a.descriptiontooltip");
-
 				$(popover).popover({
 					trigger : 'manual',
 					placement : 'bottom',
