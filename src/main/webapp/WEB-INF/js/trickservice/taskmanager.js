@@ -121,9 +121,12 @@ function TaskManager(title) {
 					setTimeout(function() {
 						instance.Remove(taskId);
 					}, 3000);
-					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null)
-						eval(reponse.asyncCallback.action);
-					else if (reponse.taskName != null && reponse.taskName != undefined)
+					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null) {
+						if (reponse.asyncCallback.args.length)
+							window[reponse.asyncCallback.action].apply(null, reponse.asyncCallback.args);
+						else
+							eval(reponse.asyncCallback.action);
+					} else if (reponse.taskName != null && reponse.taskName != undefined)
 						eval(reponse.taskName.action);
 				}
 				return false;

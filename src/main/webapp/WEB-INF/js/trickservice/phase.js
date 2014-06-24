@@ -14,7 +14,7 @@ if ($("#addPhaseModel").length) {
 		}
 		
 		if (l_lang != "en")
-			$.getScript(context + "/js/locales/bootstrap-datepicker." + l_lang + ".js");
+			$.getScript(context + "/js/bootstrap/locales/bootstrap-datepicker." + l_lang + ".js");
 		$('#addPhaseModel').on('show.bs.modal', function() {
 			var lastDate = $("#section_phase td").last();
 			if (lastDate.length) {

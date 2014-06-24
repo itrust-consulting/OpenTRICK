@@ -42,9 +42,9 @@
 								<td>${user.lastName}</td>
 								<td>${user.email}</td>
 								<td><spring:message code="label.user.enable.${user.enable}" /></td>
-								<td><div class="btn-group"><c:forEach items="${user.roles}" var="role">
-										<button type="button" class="btn btn-default" disabled="disabled" style="font-size:inherit;color:inherit;opacity:0.9;"><spring:message code="label.role.${role.type}" /></button>
-									</c:forEach></div></td>
+								<td><ul class="list-group"><c:forEach items="${user.roles}" var="role">
+										<li class="list-group-item pull-left" style="margin-right: 5px;"><spring:message code="label.role.${role.type}" /></li>
+									</c:forEach></ul></td>
 							</tr>
 						</c:forEach>
 					</tbody>

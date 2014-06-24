@@ -8,12 +8,12 @@ function initUserCustomerList() {
 		if (typeof attr !== 'undefined' && attr !== false) {
 			selected = " active";
 		}
-		$('.list-group').append("<li class='list-group-item" + selected + "' opt='" + $(this).attr('value') + "'>" + $(this).html() + "</li>");
+		$('#customerusersform .list-group').append("<li class='list-group-item" + selected + "' opt='" + $(this).attr('value') + "'>" + $(this).html() + "</li>");
 	});
-	$('.list-group li').on('click', function() {
+	$('#customerusersform .list-group li').on('click', function() {
 		$(this).toggleClass('active');
 		var allVal = new Array();
-		$('.list-group li.active').each(function() {
+		$('#customerusersform .list-group li.active').each(function() {
 			allVal.push($(this).attr('opt'));
 		});
 		$('#usercustomer').val(allVal);

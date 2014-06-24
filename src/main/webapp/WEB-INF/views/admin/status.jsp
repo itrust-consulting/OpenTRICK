@@ -11,18 +11,18 @@
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px">
-			<ul class="nav nav-pills" id="menu_status">
-				<li>
-					<button class="btn btn-primary btn-lg" type="button" onclick="return installTrickService();">
+			<ul class="nav nav-pills " id="menu_status">
+				<li class="active">
+					<a href="#" onclick="return installTrickService();">
 						<c:choose>
 							<c:when test="${status.installed == true}">
 								<spring:message code="label.reinstall" text="Reinstall TRICK Service" />
 							</c:when>
-							<c:when test="${status.installed == false}">
+							<c:otherwise>
 								<spring:message code="label.installed.no" text="Install TRICK Service" />
-							</c:when>
+							</c:otherwise>
 						</c:choose>
-					</button>
+					</a>
 				</li>
 			</ul>
 		</div>
