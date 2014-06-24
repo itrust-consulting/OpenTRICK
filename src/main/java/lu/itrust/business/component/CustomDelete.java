@@ -87,25 +87,27 @@ public class CustomDelete {
 
 		List<ActionPlanEntry> actionplans = daoActionPlan.getAllFromAsset(asset);
 
-		Integer analysisid = actionplans.get(0).getMeasure().getAnalysisNorm().getAnalysis().getId();
+		if (!actionplans.isEmpty()) {
 
-		String type = actionplans.get(0).getActionPlanType().getName();
+			Integer analysisid = actionplans.get(0).getMeasure().getAnalysisNorm().getAnalysis().getId();
 
-		for (ActionPlanEntry actionplanentry : actionplans) {
+			String type = actionplans.get(0).getActionPlanType().getName();
 
-			daoActionPlan.delete(actionplanentry);
-		}
+			for (ActionPlanEntry actionplanentry : actionplans) {
 
-		if (analysisid != null) {
-
-			List<SummaryStage> summary = daoActionPlanSummary.getAllFromAnalysisAndActionPlanType(analysisid, type);
-
-			for (SummaryStage stage : summary) {
-				daoActionPlanSummary.delete(stage);
+				daoActionPlan.delete(actionplanentry);
 			}
-		} else
-			throw new Exception("Could not get analysis id!");
 
+			if (analysisid != null) {
+
+				List<SummaryStage> summary = daoActionPlanSummary.getAllFromAnalysisAndActionPlanType(analysisid, type);
+
+				for (SummaryStage stage : summary) {
+					daoActionPlanSummary.delete(stage);
+				}
+			} else
+				throw new Exception("Could not get analysis id!");
+		}
 		List<Assessment> assessments = daoAssessment.getAllFromAsset(asset);
 		for (Assessment assessment : assessments)
 			daoAssessment.delete(assessment);

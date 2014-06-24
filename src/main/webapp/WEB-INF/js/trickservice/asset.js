@@ -70,6 +70,7 @@ function deleteAsset(assetId) {
 						$(checked).removeAttr("checked");
 					if (row.length)
 						$(row).remove();
+					updateMenu('#section_asset','#menu_asset');
 					reloadSection("section_actionplans");
 					reloadSection("section_summary");
 				} else if (response["error"] != undefined) {

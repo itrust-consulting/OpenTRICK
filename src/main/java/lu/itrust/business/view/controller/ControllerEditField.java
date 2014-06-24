@@ -540,6 +540,9 @@ public class ControllerEditField {
 			Field field = assessment.getClass().getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
 
+			if("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor.getFieldName()) && !chooses.contains(value)) {
+				fieldEditor.setValue(String.valueOf((Double.valueOf((String)value) * 1000)));
+			}
 			// set data to field
 			if (!SetFieldData(field, assessment, fieldEditor, null))
 

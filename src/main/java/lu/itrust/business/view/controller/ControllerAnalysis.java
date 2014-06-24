@@ -1082,13 +1082,16 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/Export/Report/{analysisId}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
-	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal, Locale locale) throws Exception {
+	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal, Locale locale)
+			throws Exception {
+
+		File file = null;
 
 		try {
 
 			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
 
-			File file = exportAnalysisReport.exportToWordDocument(analysisId, request.getServletContext(), serviceAnalysis);
+			file = exportAnalysisReport.exportToWordDocument(analysisId, request.getServletContext(), serviceAnalysis, true);
 
 			if (file != null) {
 
@@ -1102,6 +1105,50 @@ public class ControllerAnalysis {
 			t.printStackTrace();
 			attributes.addFlashAttribute("errors", messageSource.getMessage(t.getMessage(), null, t.getMessage(), locale));
 			return "redirect:/Analysis";
+		} finally {
+			if (file != null && file.exists())
+				file.delete();
+		}
+	}
+
+	/**
+	 * computeRiskRegister: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param attributes
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Export/ReportData/{analysisId}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
+	public String exportReportData(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal, Locale locale)
+			throws Exception {
+
+		File file = null;
+
+		try {
+
+			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
+
+			file = exportAnalysisReport.exportToWordDocument(analysisId, request.getServletContext(), serviceAnalysis, false);
+
+			if (file != null) {
+
+				response.setContentType("docx");
+				response.setContentLength((int) file.length());
+				response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+				FileCopyUtils.copy(FileCopyUtils.copyToByteArray(file), response.getOutputStream());
+
+			}
+			return null;
+		} catch (Throwable t) {
+			t.printStackTrace();
+			attributes.addFlashAttribute("errors", messageSource.getMessage(t.getMessage(), null, t.getMessage(), locale));
+			return "redirect:/Analysis";
+		} finally {
+			if (file != null && file.exists())
+				file.delete();
 		}
 	}
 
