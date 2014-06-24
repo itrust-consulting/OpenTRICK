@@ -29,6 +29,8 @@ public interface ServiceAnalysis {
 
 	public boolean isProfile(Integer idAnalysis) throws Exception;
 
+	public boolean hasData(Integer idAnalysis) throws Exception;
+	
 	public List<Integer> getAllAnalysisIDs() throws Exception;
 
 	public List<Analysis> getAll() throws Exception;

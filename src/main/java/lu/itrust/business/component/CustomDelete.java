@@ -14,7 +14,12 @@ import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Scenario;
+import lu.itrust.business.TS.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.actionplan.ActionPlanType;
+import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.dao.DAOActionPlan;
+import lu.itrust.business.dao.DAOActionPlanSummary;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAnalysisNorm;
 import lu.itrust.business.dao.DAOAssessment;
@@ -69,11 +74,40 @@ public class CustomDelete {
 	private DAOUser daoUser;
 
 	@Autowired
+	private DAOActionPlan daoActionPlan;
+
+	@Autowired
+	private DAOActionPlanSummary daoActionPlanSummary;
+
+	@Autowired
 	private DAOAssetTypeValue daoAssetTypeValue;
 
 	@Transactional
-	// TODO check if actionplan needs to be cleared
 	public void deleteAsset(Asset asset) throws Exception {
+
+		List<ActionPlanEntry> actionplans = daoActionPlan.getAllFromAsset(asset);
+
+		if (!actionplans.isEmpty()) {
+
+			Integer analysisid = actionplans.get(0).getMeasure().getAnalysisNorm().getAnalysis().getId();
+
+			String type = actionplans.get(0).getActionPlanType().getName();
+
+			for (ActionPlanEntry actionplanentry : actionplans) {
+
+				daoActionPlan.delete(actionplanentry);
+			}
+
+			if (analysisid != null) {
+
+				List<SummaryStage> summary = daoActionPlanSummary.getAllFromAnalysisAndActionPlanType(analysisid, type);
+
+				for (SummaryStage stage : summary) {
+					daoActionPlanSummary.delete(stage);
+				}
+			} else
+				throw new Exception("Could not get analysis id!");
+		}
 		List<Assessment> assessments = daoAssessment.getAllFromAsset(asset);
 		for (Assessment assessment : assessments)
 			daoAssessment.delete(assessment);
@@ -95,8 +129,7 @@ public class CustomDelete {
 
 		List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByNorm(norm);
 		for (MeasureDescription measureDescription : measureDescriptions) {
-			List<MeasureDescriptionText> measureDescriptionTexts =
-				daoMeasureDescriptionText.getAllFromMeasureDescription(measureDescription.getId());
+			List<MeasureDescriptionText> measureDescriptionTexts = daoMeasureDescriptionText.getAllFromMeasureDescription(measureDescription.getId());
 			for (MeasureDescriptionText measureDescriptiontext : measureDescriptionTexts) {
 				daoMeasureDescriptionText.delete(measureDescriptiontext);
 			}

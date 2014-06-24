@@ -131,6 +131,21 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	}
 
 	/**
+	 * getAllFromAsset: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOActionPlan#getAllFromAsset(lu.itrust.business.TS.Asset)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ActionPlanEntry> getAllFromAsset(Asset asset) throws Exception {
+		String query = "SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplans INNER JOIN actionplans.actionPlanAssets As actionPlanAssets where actionPlanAssets.asset = :asset";
+		return (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("asset", asset).list();
+	}
+	
+	/**
 	 * getMeasuresFromActionPlanAndAnalysis: <br>
 	 * Description
 	 * 

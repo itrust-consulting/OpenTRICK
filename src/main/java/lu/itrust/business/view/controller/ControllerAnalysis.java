@@ -33,6 +33,7 @@ import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.UserAnalysisRight;
+import lu.itrust.business.TS.export.ExportAnalysisReport;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
@@ -436,8 +437,7 @@ public class ControllerAnalysis {
 				}
 			}
 
-			model.addAttribute("success", messageSource
-					.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
@@ -825,7 +825,6 @@ public class ControllerAnalysis {
 			if (analysis == null)
 				errors.put("analysis", serviceDataValidation.ParseError("error.analysis.not_found::Analysis cannot be found!", messageSource, locale));
 
-			
 			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(History.class);
 
 			if (validator == null)
@@ -857,11 +856,10 @@ public class ControllerAnalysis {
 
 				if (GeneralComperator.VersionComparator(oldVersion, version) >= 0)
 					errors.put("version", serviceDataValidation.ParseError("error.history.version.invalid::Version has to be bigger than based on verison", messageSource, locale));
+				else if (serviceAnalysis.exists(analysis.getIdentifier(), version))
+					errors.put("version", serviceDataValidation.ParseError("error.history.version.exists::Version already exists for the analysis", messageSource, locale));
 				else
-					if(serviceAnalysis.exists(analysis.getIdentifier(), version))
-						errors.put("version", serviceDataValidation.ParseError("error.history.version.exists::Version already exists for the analysis", messageSource, locale));
-					else
-						history.setVersion(version);
+					history.setVersion(version);
 			}
 
 			error = validator.validate(history, "comment", comment);
@@ -942,8 +940,8 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Import/Execute")
-	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request,
-			@RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
+	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request, @RequestParam(value = "file") MultipartFile file,
+			final RedirectAttributes attributes, Locale locale) throws Exception {
 
 		// retrieve the customer
 		Customer customer = serviceCustomer.get(customerId);
@@ -1071,6 +1069,87 @@ public class ControllerAnalysis {
 
 		// return
 		return null;
+	}
+
+	/**
+	 * computeRiskRegister: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param attributes
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Export/Report/{analysisId}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
+	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal, Locale locale)
+			throws Exception {
+
+		File file = null;
+
+		try {
+
+			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
+
+			file = exportAnalysisReport.exportToWordDocument(analysisId, request.getServletContext(), serviceAnalysis, true);
+
+			if (file != null) {
+
+				response.setContentType("docx");
+				response.setContentLength((int) file.length());
+				response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+				FileCopyUtils.copy(FileCopyUtils.copyToByteArray(file), response.getOutputStream());
+			}
+			return null;
+		} catch (Throwable t) {
+			t.printStackTrace();
+			attributes.addFlashAttribute("errors", messageSource.getMessage(t.getMessage(), null, t.getMessage(), locale));
+			return "redirect:/Analysis";
+		} finally {
+			if (file != null && file.exists())
+				file.delete();
+		}
+	}
+
+	/**
+	 * computeRiskRegister: <br>
+	 * Description
+	 * 
+	 * @param analysisId
+	 * @param attributes
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Export/ReportData/{analysisId}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
+	public String exportReportData(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal, Locale locale)
+			throws Exception {
+
+		File file = null;
+
+		try {
+
+			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
+
+			file = exportAnalysisReport.exportToWordDocument(analysisId, request.getServletContext(), serviceAnalysis, false);
+
+			if (file != null) {
+
+				response.setContentType("docx");
+				response.setContentLength((int) file.length());
+				response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+				FileCopyUtils.copy(FileCopyUtils.copyToByteArray(file), response.getOutputStream());
+
+			}
+			return null;
+		} catch (Throwable t) {
+			t.printStackTrace();
+			attributes.addFlashAttribute("errors", messageSource.getMessage(t.getMessage(), null, t.getMessage(), locale));
+			return "redirect:/Analysis";
+		} finally {
+			if (file != null && file.exists())
+				file.delete();
+		}
 	}
 
 	// ******************************************************************************************************************

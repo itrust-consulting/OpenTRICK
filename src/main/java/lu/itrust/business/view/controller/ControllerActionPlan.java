@@ -142,21 +142,24 @@ public class ControllerActionPlan {
 		// load all actionplans from the selected analysis
 		List<ActionPlanEntry> actionplans = serviceActionPlan.getAllFromAnalysis(selected);
 
-		// load all affected assets of the actionplans (unique assets used)
-		List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
+		if (!actionplans.isEmpty()) {
 
-		Collections.reverse(actionplans);
+			// load all affected assets of the actionplans (unique assets used)
+			List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
 
-		for (ActionPlanEntry ape : actionplans) {
-			Hibernate.initialize(ape);
-			Hibernate.initialize(ape.getMeasure());
-			Hibernate.initialize(ape.getMeasure().getMeasureDescription().getMeasureDescriptionTexts());
-		}
+			Collections.reverse(actionplans);
 
-		// prepare model
-		model.put("actionplans", actionplans);
-		model.put("assets", assets);
-
+			for (ActionPlanEntry ape : actionplans) {
+				Hibernate.initialize(ape);
+				Hibernate.initialize(ape.getMeasure());
+				Hibernate.initialize(ape.getMeasure().getMeasureDescription().getMeasureDescriptionTexts());
+			}
+			// prepare model
+			model.put("actionplans", actionplans);
+			model.put("assets", assets);
+		} else
+			model.put("actionplans", actionplans);
+			
 		// return view
 		return "analysis/components/actionplan";
 
@@ -209,8 +212,7 @@ public class ControllerActionPlan {
 	 */
 	@RequestMapping(value = "/{analysisID}/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
-	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model, @PathVariable("analysisID") Integer analysisID)
-			throws Exception {
+	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model, @PathVariable("analysisID") Integer analysisID) throws Exception {
 
 		model.put("id", analysisID);
 

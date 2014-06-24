@@ -194,7 +194,7 @@ public class AssessmentManager {
 		}
 	}
 
-	private static void SplitAssessment(List<Assessment> assessments, Map<String, ALE> ales, Map<String, List<Assessment>> assessmentByAssets) {
+	public static void SplitAssessment(List<Assessment> assessments, Map<String, ALE> ales, Map<String, List<Assessment>> assessmentByAssets) {
 		for (Assessment assessment : assessments) {
 			if (assessment.isSelected()) {
 				List<Assessment> assessments2 = assessmentByAssets.get(assessment.getAsset().getName());
@@ -339,4 +339,5 @@ public class AssessmentManager {
 		}
 
 	}
+
 }

@@ -42,11 +42,11 @@ function saveMeasure(form) {
 		data : serializeForm(form),
 		contentType : "application/json",
 		success : function(response) {
-			var $formParent = $("#"+form).parent();
+			var $formParent = $("#" + form).parent();
 			var alert = $formParent.find(".label-danger");
 			if (alert.length)
 				alert.remove();
-			var languages = $("#"+form).find("#measurelanguageselect option");
+			var languages = $("#" + form).find("#measurelanguageselect option");
 			var languageDataValidation = {};
 			for (var i = 0; i < languages.length; i++) {
 				var idLanguage = $(languages[i]).val();
@@ -58,19 +58,19 @@ function saveMeasure(form) {
 				errorElement.setAttribute("class", "label label-danger");
 				$(errorElement).text(response[error]);
 				var languageData = languageDataValidation[error];
-				if (languageData != undefined){
-					$(errorElement).appendTo($("#"+form).find(languageData).parent());
+				if (languageData != undefined) {
+					$(errorElement).appendTo($("#" + form).find(languageData).parent());
 					continue;
 				}
 				switch (error) {
 				case "measuredescription.reference":
-					$(errorElement).appendTo($("#"+form).find("#measure_reference").parent());
+					$(errorElement).appendTo($("#" + form).find("#measure_reference").parent());
 					break;
 				case "measuredescription.level":
-					$(errorElement).appendTo($("#"+form).find("#measure_level").parent());
+					$(errorElement).appendTo($("#" + form).find("#measure_level").parent());
 					break;
 				case "measureDescription":
-					$(errorElement).appendTo($("#"+form).parent());
+					$(errorElement).appendTo($("#" + form).parent());
 					break;
 				}
 			}
@@ -78,7 +78,7 @@ function saveMeasure(form) {
 				$("#addMeasureModel").modal("hide");
 				var language = $("#languageselect").find("option:selected").attr("value");
 				var normId = $("#normId").attr("value");
-				var measureId = $("#"+form).find("#measure_id").val();
+				var measureId = $("#" + form).find("#measure_id").val();
 				return refreshMeasure(normId, measureId, language);
 			}
 			return false;
@@ -91,24 +91,50 @@ function saveMeasure(form) {
 	return false;
 }
 
-function refreshMeasure(normId, measureId, languageId){
+function refreshMeasure(normId, measureId, languageId) {
 	if (normId == null || normId == undefined) {
-		normId=$("#normId");
+		normId = $("#normId");
 	}
-	if(!languageId == null || languageId == undefined){
+	if (!languageId == null || languageId == undefined) {
 		languageId = $("#languageselect option[selected='selected']").value();
 	}
-	
-	$.ajax({
-		url : context + "/KnowledgeBase/Norm/" + normId + "/language/" + languageId + "/Measures/" + measureId,
-		type : "POST",
-		contentType : "application/json",
-		success : function(response) {
-			oldBody = $("#showmeasuresbody").find("[trick-id='" + measureId + "']");
-			$(oldBody).replaceWith(response);
-			measureSortTable($("#showmeasuresbody")[0]);
-		}
-	});
+
+	if (measureId == -1) {
+		$.ajax({
+			url : context + "/KnowledgeBase/Norm/" + normId + "/language/" + languageId + "/Measures",
+			type : "POST",
+			contentType : "application/json",
+			success : function(response) {
+
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(response, "text/html");
+				var header = $(doc).find("#measures_header");
+				var body = $(doc).find("#measures_body");
+				oldHeader = $("#showMeasuresModel-title");
+				oldBody = $("#showmeasuresbody");
+				$(oldHeader).html(header.html());
+				$(oldBody).html(body.html());
+				measureSortTable($("#showmeasuresbody")[0]);
+				$("#languageselect").change(function() {
+					var language = $(this).find("option:selected").attr("value");
+					var normId = $("#normId").attr("value");
+					showMeasures(normId, language);
+				});
+			}
+		});
+	} else {
+		$.ajax({
+			url : context + "/KnowledgeBase/Norm/" + normId + "/language/" + languageId + "/Measures/" + measureId,
+			type : "GET",
+			contentType : "application/json",
+			success : function(response) {
+
+				oldBody = $("#showmeasuresbody").find("[trick-id='" + measureId + "']");
+				$(oldBody).replaceWith(response);
+				measureSortTable($("#showmeasuresbody")[0]);
+			}
+		});
+	}
 	return false;
 }
 
@@ -158,7 +184,7 @@ function newMeasure(normId) {
 	$("#measure_level").prop("value", "");
 
 	$("#measure_computable").prop("checked", "false");
-	
+
 	$.ajax({
 		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/Add",
 		type : "get",
@@ -168,8 +194,8 @@ function newMeasure(normId) {
 			$("#measurelanguages").html(response);
 			$("#measurelanguageselect").change(function() {
 				var language = parseInt($(this).find("option:selected").attr("value"));
-				$("#measurelanguages div[trick-id][trick-id!='"+ language + "']").hide();
-				$("#measurelanguages div[trick-id][trick-id='"+ language +"']").show();
+				$("#measurelanguages div[trick-id][trick-id!='" + language + "']").hide();
+				$("#measurelanguages div[trick-id][trick-id='" + language + "']").show();
 			});
 			$("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
 			return false;
@@ -236,22 +262,22 @@ function editSingleMeasure(measureId, normId) {
 	$("#measure_id").prop("value", measureId);
 	$("#measure_reference").prop("value", $(rows[1]).text());
 	$("#measure_level").prop("value", $(rows[0]).text());
-	if ($(rows[4]).attr("trick-computable")=="true"){
-		$("#measure_computable").prop("checked",true);	
+	if ($(rows[4]).attr("trick-computable") == "true") {
+		$("#measure_computable").prop("checked", true);
 	} else {
-		$("#measure_computable").prop("checked",false);	
+		$("#measure_computable").prop("checked", false);
 	}
-	
+
 	$.ajax({
-		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/"+measureId+"/Edit",
+		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/" + measureId + "/Edit",
 		type : "post",
 		contentType : "application/json",
 		success : function(response) {
 			$("#measurelanguages").html(response);
 			$("#measurelanguageselect").change(function() {
 				var language = parseInt($(this).find("option:selected").attr("value"));
-				$("#measurelanguages div[trick-id][trick-id!='"+ language + "']").hide();
-				$("#measurelanguages div[trick-id][trick-id='"+ language +"']").show();
+				$("#measurelanguages div[trick-id][trick-id!='" + language + "']").hide();
+				$("#measurelanguages div[trick-id][trick-id='" + language + "']").show();
 			});
 			$("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
 			return false;

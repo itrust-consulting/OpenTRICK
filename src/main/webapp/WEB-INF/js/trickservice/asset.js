@@ -48,41 +48,39 @@ function selectAsset(assetId, value) {
 
 function deleteAsset(assetId) {
 	if (assetId == null || assetId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_asset"));
-		if (!selectedScenario.length)
-			return false;
-		while (selectedScenario.length) {
-			rowTrickId = selectedScenario.pop();
-			$.ajax({
-				url : context + "/Asset/Delete/" + rowTrickId,
-				contentType : "application/json;charset=UTF-8",
-				async : true,
-				success : function(response) {
-					var trickSelect = parseJson(response);
-					if (trickSelect != undefined && trickSelect["success"] != undefined) {
-						var row = $("#section_asset tr[trick-id='" + rowTrickId + "']");
-						var checked = $("#section_asset tr[trick-id='" + rowTrickId + "'] :checked");
-						if (checked.length)
-							$(checked).removeAttr("checked");
-						if (row.length)
-							$(row).remove();
-					}
-					return false;
-				}
-			});
-		}
-		setTimeout("reloadSection('section_asset')", 100);
-		return false;
+			var selectedScenario = $("#section_asset :checked");
+			if (selectedScenario.length != 1)
+				return false;
+			assetId = findTrickID(selectedScenario[0]);
 	}
 
-	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.asset", "Are you sure, you want to delete this asset"));
+	var assetname = $("#section_asset tr[trick-id='" + assetId + "'] td:nth-child(3)").text();
+
+	$("#confirm-dialog .modal-body").html(MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset ")+ "\"<b>"+assetname+"\"</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!");
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Asset/Delete/" + assetId,
 			async : true,
 			contentType : "application/json;charset=UTF-8",
-			success : function(reponse) {
-				reloadSection("section_asset");
+			success : function(response) {
+				if (response["success"] != undefined) {
+					var row = $("#section_asset tr[trick-id='" + assetId + "']");
+					var checked = $("#section_asset tr[trick-id='" + assetId + "'] :checked");
+					if (checked.length)
+						$(checked).removeAttr("checked");
+					if (row.length)
+						$(row).remove();
+					updateMenu('#section_asset','#menu_asset');
+					reloadSection("section_actionplans");
+					reloadSection("section_summary");
+				} else if (response["error"] != undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
+					$("#alert-dialog").modal("toggle");
+				} else {
+					$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset"));
+					$("#alert-dialog").modal("toggle");
+				}
+				
 				return false;
 			}
 		});

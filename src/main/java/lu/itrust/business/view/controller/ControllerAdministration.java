@@ -443,7 +443,7 @@ public class ControllerAdministration {
 			if (error != null)
 				errors.put("lastName", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
-				user.setFirstName(lastname);
+				user.setLastName(lastname);
 
 			error = validator.validate(user, "email", email);
 			if (error != null)

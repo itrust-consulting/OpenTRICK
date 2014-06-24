@@ -94,14 +94,14 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 		case "firstName":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.user.data.unsupported:firstName:First Name value is not supported";
-			if (!((String) candidate).matches(Constant.REGEXP_VALID_NAME))
+			if (!((String) candidate).trim().matches(Constant.REGEXP_VALID_NAME))
 				return "error.user.data.not_valid:firstName:First Name is not valid";
 			break;
 		
 		case "lastName":
 			if (candidate == null || !(candidate instanceof String))
 				return "error.user.data.unsupported:lastName:Last Name value is not supported";
-			if (!((String) candidate).matches(Constant.REGEXP_VALID_NAME))
+			if (!((String) candidate).trim().matches(Constant.REGEXP_VALID_NAME))
 				return "error.user.data.not_valid:lastName:Last Name is not valid";
 			break;
 		

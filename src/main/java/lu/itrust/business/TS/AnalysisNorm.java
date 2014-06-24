@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import lu.itrust.business.TS.tsconstant.Constant;
-
 /**
  * AnalysisNorm: <br>
  * This class represents a AnalysisNorm and its data
@@ -104,8 +102,6 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 			throw new IllegalArgumentException("error.norm.null");
 		else if (name.getLabel() == null)
 			throw new IllegalArgumentException("error.norm.label_null");
-		else if (!name.getLabel().matches(Constant.REGEXP_VALID_NORM_NAME))
-			throw new IllegalArgumentException("error.norm.label_no_meet_regex");
 		this.norm = name;
 	}
 
