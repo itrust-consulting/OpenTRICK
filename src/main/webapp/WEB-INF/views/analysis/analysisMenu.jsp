@@ -23,10 +23,11 @@
 				<ul class="dropdown-menu">
 					<li><a href="#anchorParameter_Impact"><spring:message code="menu.analysis.parameter.impact" text="Impact" /></a></li>
 					<li><a href="#anchorParameter_Probability"><spring:message code="menu.analysis.parameter.probability" text="Probability" /></a></li>
+					<li><a href="#anchorParameter_ILPS"><spring:message code="menu.analysis.parameter.ilps" text="Required level of implmentation per SML" /></a></li>
 					<li><a href="#anchorParameter_ImplementationRate"><spring:message code="menu.analysis.parameter.implmentationrate" text="Implementation scale of SMT" /></a></li>
 					<li><a href="#anchorParameter_Various"><spring:message code="menu.analysis.parameter.various" text="Various" /></a></li>
 					<li><a href="#anchorParameter_MaxEfficiency"><spring:message code="menu.analysis.parameter.maxeff" text="Maximal efficiency rate per security maturity level" /></a></li>
-					<li><a href="#anchorParameter_ILPS"><spring:message code="menu.analysis.parameter.ilps" text="Required level of implmentation per SML" /></a></li>
+					
 				</ul></li>
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="menu.analysis.riskinformation" text="Risk Information" /><span
 					class="caret"></span></a>
