@@ -124,13 +124,13 @@
 								</c:otherwise>
 							</c:choose>
 							<td trick-field="uncertainty" trick-field-type="double" class="success" trick-real-value="${assessment.uncertainty}" ondblclick="return editField(this);"><fmt:formatNumber
-									value="${assessment.uncertainty}" maxFractionDigits="3" minFractionDigits="1" /></td>
-							<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="3" minFractionDigits="3" />&euro;"><fmt:formatNumber value="${assessment.ALEO*0.001}"
-									maxFractionDigits="0" minFractionDigits="0" /></td>
-							<td title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="3" minFractionDigits="3" />&euro;"><fmt:formatNumber value="${assessment.ALE*0.001}"
-									maxFractionDigits="0" minFractionDigits="0" /></td>
-							<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="3" minFractionDigits="3" />&euro;"><fmt:formatNumber value="${assessment.ALEP*0.001}"
-									maxFractionDigits="0" minFractionDigits="0" /></td>
+									value="${assessment.uncertainty}" maxFractionDigits="2" minFractionDigits="1" /></td>
+							<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${assessment.ALEO*0.001}"
+									maxFractionDigits="2" minFractionDigits="0" /></td>
+							<td title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${assessment.ALE*0.001}"
+									maxFractionDigits="2" minFractionDigits="0" /></td>
+							<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${assessment.ALEP*0.001}"
+									maxFractionDigits="2" minFractionDigits="0" /></td>
 							<td class="success" trick-field="comment" trick-field-type="string" trick-content="text" colspan="3" ondblclick="return editField(this);"><spring:message
 									text="${assessment.comment}" /></td>
 							<td class="success" trick-field="hiddenComment" trick-content="text" trick-field-type="string" colspan="3" ondblclick="return editField(this);"><spring:message
@@ -139,14 +139,14 @@
 					</c:forEach>
 					<tr class="panel-footer" style="font-weight: bold;">
 						<td colspan="9"><spring:message code="label.assessment.total.ale" text="Total" /></td>
-						<td title="<fmt:formatNumber value="${aleo.value}&euro;" maxFractionDigits="3" minFractionDigits="3" />"><spring:htmlEscape defaultHtmlEscape="true">
-								<fmt:formatNumber value="${aleo.value*0.001}" maxFractionDigits="0" minFractionDigits="0" />
+						<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><spring:htmlEscape defaultHtmlEscape="true">
+								<fmt:formatNumber value="${aleo.value*0.001}" maxFractionDigits="2" minFractionDigits="0" />
 							</spring:htmlEscape></td>
-						<td title="<fmt:formatNumber value="${ale.value}&euro;" maxFractionDigits="3" minFractionDigits="3" />"><spring:htmlEscape defaultHtmlEscape="true">
-								<fmt:formatNumber value="${ale.value*0.001}" maxFractionDigits="0" minFractionDigits="0" />
+						<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><spring:htmlEscape defaultHtmlEscape="true">
+								<fmt:formatNumber value="${ale.value*0.001}" maxFractionDigits="2" minFractionDigits="0" />
 							</spring:htmlEscape></td>
-						<td title="<fmt:formatNumber value="${alep.value}&euro;" maxFractionDigits="3" minFractionDigits="3" />"><spring:htmlEscape defaultHtmlEscape="true">
-								<fmt:formatNumber value="${alep.value*0.001}" maxFractionDigits="0" minFractionDigits="0" />
+						<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><spring:htmlEscape defaultHtmlEscape="true">
+								<fmt:formatNumber value="${alep.value*0.001}" maxFractionDigits="2" minFractionDigits="0" />
 							</spring:htmlEscape></td>
 						<td colspan="6" />
 					</tr>

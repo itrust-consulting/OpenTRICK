@@ -547,10 +547,7 @@ public class ControllerEditField {
 			// init field
 			Field field = assessment.getClass().getDeclaredField(fieldEditor.getFieldName());
 			field.setAccessible(true);
-
-			if("impactRep,impactOp,impactLeg,impactFin".contains(fieldEditor.getFieldName()) && !chooses.contains(value)) {
-				fieldEditor.setValue(String.valueOf((Double.valueOf((String)value) * 1000)));
-			}
+			
 			// set data to field
 			if (!SetFieldData(field, assessment, fieldEditor, null))
 
@@ -562,7 +559,6 @@ public class ControllerEditField {
 
 			// parse parameters
 			for (ExtendedParameter parameter : serviceParameter.getAllExtendedFromAnalysis(id))
-
 				// add parameter into map
 				parameters.put(parameter.getAcronym(), parameter);
 

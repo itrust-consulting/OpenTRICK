@@ -111,7 +111,51 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-4">
+		<div class="col-md-6">
+			<span id="anchorParameter_ILPS" class="anchor"></span>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<spring:message code="label.parameter.maturity_ilps" text="Required level of implmentation per SML" />
+				</div>
+				<div class="panel-body">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th class="textaligncenter"><spring:message code="label.parameter.maturity.Category" text="Category" /></th>
+								<th class="textaligncenter"><spring:message code="label.parameter.maturity.Task" text="Task" /></th>
+								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml0" text="SML0" /> (%)</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml1" text="SML1" /> (%)</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml2" text="SML2" /> (%)</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml3" text="SML3" /> (%)</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml4" text="SML4" /> (%)</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml5" text="SML5" /> (%)</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach items="${maturityParameters}" var="parameter">
+								<tr trick-class="MaturityParameter" trick-id="${parameter.id}">
+									<td class="textaligncenter"><spring:message code="label.parameter.maturity.RSML.${parameter.category}" text="${parameter.category}" /></td>
+									<td class="textaligncenter"><spring:message code="label.parameter.maturity.RSML.${parameter.description}" text="${parameter.description}" /></td>
+									<td class="success textaligncenter" trick-field="SMLLevel0" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
+											value="${parameter.SMLLevel0*100}" maxFractionDigits="0" /></td>
+									<td class="success textaligncenter" trick-field="SMLLevel1" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
+											value="${parameter.SMLLevel1*100}" maxFractionDigits="0" /></td>
+									<td class="success textaligncenter" trick-field="SMLLevel2" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
+											value="${parameter.SMLLevel2*100}" maxFractionDigits="0" /></td>
+									<td class="success textaligncenter" trick-field="SMLLevel3" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
+											value="${parameter.SMLLevel3*100}" maxFractionDigits="0" /></td>
+									<td class="success textaligncenter" trick-field="SMLLevel4" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
+											value="${parameter.SMLLevel4*100}" maxFractionDigits="0" /></td>
+									<td class="success textaligncenter" trick-field="SMLLevel5" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
+											value="${parameter.SMLLevel5*100}" maxFractionDigits="0" /></td>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
 			<span id="anchorParameter_ImplementationRate" class="anchor"></span>
 			<div class="panel panel-default" id="Maturity_implementation_rate">
 				<div class="panel-heading">
@@ -122,7 +166,7 @@
 						<thead>
 							<tr>
 								<th class="textaligncenter"><spring:message code="label.parameter.Level" text="Level" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.percentage" text="Implementation" /> %</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.percentage" text="Implementation" /> (%)</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -138,7 +182,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-8">
+		<div class="col-md-6">
 			<span id="anchorParameter_Various" class="anchor"></span>
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -169,7 +213,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-5">
+		<div class="col-md-6">
 			<span id="anchorParameter_MaxEfficiency" class="anchor"></span>
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -179,13 +223,12 @@
 					<table class="table table-hover">
 						<thead>
 							<tr>
-								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml0" text="SML0" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml1" text="SML1" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml2" text="SML2" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml3" text="SML3" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml4" text="SML4" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml5" text="SML5" /></th>
-								<th></th>
+								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml0" text="SML0" /> (%)</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml1" text="SML1" /> (%)</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml2" text="SML2" /> (%)</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml3" text="SML3" /> (%)</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml4" text="SML4" /> (%)</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.simple.sml5" text="SML5" /> (%)</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -194,52 +237,7 @@
 									<td trick-class="Parameter" trick-id="${parameter.id}" class="success textaligncenter" trick-field="value" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
 											value="${parameter.value}" maxFractionDigits="0" /></td>
 								</c:forEach>
-								<td class="textaligncenter">%</td>
 							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-6">
-			<span id="anchorParameter_ILPS" class="anchor"></span>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<spring:message code="label.parameter.maturity_ilps" text="Required level of implmentation per SML" />
-				</div>
-				<div class="panel-body">
-					<table class="table table-hover">
-						<thead>
-							<tr>
-								<th class="textaligncenter"><spring:message code="label.parameter.maturity.Category" text="Category" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.maturity.Task" text="Task" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml0" text="SML0" /> (%)</th>
-								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml1" text="SML1" /> (%)</th>
-								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml2" text="SML2" /> (%)</th>
-								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml3" text="SML3" /> (%)</th>
-								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml4" text="SML4" /> (%)</th>
-								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml5" text="SML5" /> (%)</th>
-							</tr>
-						</thead>
-						<tbody>
-							<c:forEach items="${maturityParameters}" var="parameter">
-								<tr trick-class="MaturityParameter" trick-id="${parameter.id}">
-									<td class="textaligncenter"><spring:message code="label.parameter.maturity.RSML.${parameter.category}" text="${parameter.category}" /></td>
-									<td class="textaligncenter"><spring:message code="label.parameter.maturity.RSML.${parameter.description}" text="${parameter.description}" /></td>
-									<td class="success textaligncenter" trick-field="SMLLevel0" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel0*100}"
-											maxFractionDigits="0" /></td>
-									<td class="success textaligncenter" trick-field="SMLLevel1" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel1*100}"
-											maxFractionDigits="0" /></td>
-									<td class="success textaligncenter" trick-field="SMLLevel2" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel2*100}"
-											maxFractionDigits="0" /></td>
-									<td class="success textaligncenter" trick-field="SMLLevel3" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel3*100}"
-											maxFractionDigits="0" /></td>
-									<td class="success textaligncenter" trick-field="SMLLevel4" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel4*100}"
-											maxFractionDigits="0" /></td>
-									<td class="success textaligncenter" trick-field="SMLLevel5" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.SMLLevel5*100}"
-											maxFractionDigits="0" /></td>
-								</tr>
-							</c:forEach>
 						</tbody>
 					</table>
 				</div>

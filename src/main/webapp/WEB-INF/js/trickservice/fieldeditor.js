@@ -218,7 +218,7 @@ ExtendedFieldEditor.prototype = new FieldEditor();
 function ExtendedFieldEditor(element) {
 	this.element = element;
 	this.controllor = "ExtendedParameter";
-	this.defaultValue = $(element).text();
+	this.defaultValue = $(element).text().trim();
 
 	ExtendedFieldEditor.prototype.constructor = ExtendedFieldEditor;
 
@@ -269,7 +269,7 @@ MaturityMeasureFieldEditor.prototype = new FieldEditor();
 
 function MaturityMeasureFieldEditor(element) {
 	this.element = element;
-	this.defaultValue = $(element).text();
+	this.defaultValue = $(element).text().trim();
 	this.implementations = [];
 
 	MaturityMeasureFieldEditor.prototype.constructor = MaturityMeasureFieldEditor;
@@ -321,7 +321,7 @@ function AssessmentFieldEditor(element) {
 
 	this.element = element;
 
-	this.defaultValue = $(element).text();
+	this.defaultValue = $(element).text().trim();
 
 	AssessmentFieldEditor.prototype.constructor = AssessmentFieldEditor;
 
@@ -366,7 +366,7 @@ AssessmentExtendedParameterEditor.prototype = new FieldEditor();
 
 function AssessmentExtendedParameterEditor(element) {
 	this.element = element;
-	this.defaultValue = $(element).text();
+	this.defaultValue = $(element).text().trim();
 	this.acromym = [];
 
 	AssessmentExtendedParameterEditor.prototype.constructor = AssessmentExtendedParameterEditor;
@@ -451,7 +451,7 @@ AssessmentImpactFieldEditor.prototype = new AssessmentExtendedParameterEditor();
 
 function AssessmentImpactFieldEditor(element) {
 	this.element = element;
-	this.defaultValue = $(element).text();
+	this.defaultValue = $(element).text().trim();
 	AssessmentImpactFieldEditor.prototype.constructor = AssessmentImpactFieldEditor;
 
 	AssessmentImpactFieldEditor.prototype.LoadData = function() {
@@ -469,7 +469,7 @@ AssessmentProbaFieldEditor.prototype = new FieldEditor();
 
 function AssessmentProbaFieldEditor(element) {
 	this.element = element;
-	this.defaultValue = $(element).text();
+	this.defaultValue = $(element).text().trim();
 	this.acromym = [];
 
 	AssessmentProbaFieldEditor.prototype.constructor = AssessmentProbaFieldEditor;
