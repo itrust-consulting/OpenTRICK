@@ -19,7 +19,7 @@ $(document).ready(function() {
 	// * fixed header tables
 	// ******************************************************************************************************************
 
-	$("div.panel-body").click(function() {
+	$("div.autofitpanelbodydefinition").click(function() {
 
 		if ($(this).outerHeight() >= 600) {
 
@@ -32,7 +32,7 @@ $(document).ready(function() {
 		}
 	});
 
-	$("div.panel-body").scroll(function() {
+	$("div.autofitpanelbodydefinition").scroll(function() {
 
 		if ($(this).outerHeight() >= 600) {
 
@@ -124,7 +124,7 @@ function initmeasuredescriptionpopover() {
 	});
 
 	// when table is scrolled, hide popover
-	$("div[class='panel-body']").scroll(function() {
+	$("div[class='autofitpanelbodydefinition']").scroll(function() {
 		// console.log("ohe");
 		// check if a popover is active
 		if (el != null) {

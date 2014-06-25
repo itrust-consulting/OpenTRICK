@@ -15,6 +15,7 @@
 	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitSimpleParameters(parametersSplited[0])" var="simpleParameters" />
 	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitExtendedParameters(parametersSplited[1])" var="extendedParameters" />
 	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitMaturityParameters(parameters)" var="maturityParameters" />
+
 	<div class="row">
 		<div class="col-md-6">
 			<span id="anchorParameter_Impact" class="anchor"></span>
@@ -111,14 +112,17 @@
 				</div>
 			</div>
 		</div>
+	</div>
+
+	<div class="row">
 		<div class="col-md-6">
 			<span id="anchorParameter_ILPS" class="anchor"></span>
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<spring:message code="label.parameter.maturity_ilps" text="Required level of implmentation per SML" />
 				</div>
-				<div class="panel-body">
-					<table class="table table-hover">
+				<div class="panel-body autofitpanelbodydefinition" style="max-height: 655px; overflow: auto; min-height: 655px">
+					<table class="table table-hover" id="tableMaturityIlps">
 						<thead>
 							<tr>
 								<th class="textaligncenter"><spring:message code="label.parameter.maturity.Category" text="Category" /></th>
@@ -131,6 +135,7 @@
 								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml5" text="SML5" /> (%)</th>
 							</tr>
 						</thead>
+						<tfoot></tfoot>
 						<tbody>
 							<c:forEach items="${maturityParameters}" var="parameter">
 								<tr trick-class="MaturityParameter" trick-id="${parameter.id}">

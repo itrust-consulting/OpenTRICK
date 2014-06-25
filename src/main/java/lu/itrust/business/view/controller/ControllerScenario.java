@@ -10,7 +10,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Language;
@@ -419,14 +418,6 @@ public class ControllerScenario {
 				return errors;
 			}
 
-			// load analysis
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			if (analysis == null) {
-				errors.put("scenario", messageSource.getMessage("error.analysis.not_found", null,
-						"Selected analysis cannot be found", locale));
-				return errors;
-			}
-
 			Scenario scenario = new Scenario();
 
 			List<AssetType> assetTypes = serviceAssetType.getAll();
@@ -436,11 +427,11 @@ public class ControllerScenario {
 			if (!errors.isEmpty())
 				// return error on failure
 				return errors;
-
-			if (scenario.getId() < 1) {
-				assessmentManager.build(scenario, idAnalysis);
-			} else {
-
+			
+			assessmentManager.build(scenario, idAnalysis);
+			
+			if (scenario.getId() > 1) {
+				
 				if (!serviceScenario.belongsToAnalysis(idAnalysis, scenario.getId())) {
 					errors.put("scenario", serviceDataValidation.ParseError(
 							"error.scenario.not_belongs_to_analysis", messageSource, locale));

@@ -5,7 +5,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://itrust.lu/function"%>
-<div class="section" id="section_risk_information" style="z-index: 3">
+<!-- <span class="anchor" id="anchoranchorRiskInformation"></span> -->
+<div class="section" id="section_risk_information">
 	<div class="page-header">
 		<h3>
 			<spring:message code="label.risk_information" text="Risk information" />

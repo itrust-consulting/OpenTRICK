@@ -150,8 +150,7 @@ table.dataTable tr.odd td.sorting_1,table.dataTable tr.even td.sorting_1
 }
 
 .autofitpanelbodydefinition {
-	max-height: 600px;
-	overflow: auto;
+	max-height: 600px; overflow: auto;
 }
 
 .textaligncenter {

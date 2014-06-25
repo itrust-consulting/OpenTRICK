@@ -139,11 +139,21 @@ public class AssessmentManager {
 		Analysis analysis = daoAnalysis.get(idAnalysis);
 		if (analysis == null)
 			return;
-		analysis.addAnAsset(asset);
+		if (asset.getId() < 1)
+			analysis.addAnAsset(asset);
+		Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByAssetId(asset.getId());
 		List<Assessment> assessments = analysis.getAssessments();
-		List<Scenario> scenarios = daoScenario.getAllSelectedFromAnalysis(idAnalysis);
-		for (Scenario scenario : scenarios)
-			assessments.add(new Assessment(asset, scenario));
+		List<Scenario> scenarios = analysis.getScenarios();
+		for (Scenario scenario : scenarios) {
+			if (!assetAssessments.containsKey(scenario.getId())) {
+				if (scenario.hasInfluenceOnAsset(asset.getAssetType()))
+					assessments.add(new Assessment(asset, scenario));
+			} else if (!scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+				Assessment assessment = assetAssessments.get(scenario.getId());
+				assessments.remove(assessment);
+				daoAssessment.delete(assessment);
+			}
+		}
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
@@ -152,12 +162,20 @@ public class AssessmentManager {
 		Analysis analysis = daoAnalysis.get(idAnalysis);
 		if (analysis == null)
 			return;
-		analysis.addAScenario(scenario);
+		if (scenario.getId() < 1)
+			analysis.addAScenario(scenario);
 		List<Assessment> assessments = analysis.getAssessments();
-		List<Asset> assets = daoAsset.getAllFromAnalysisIdAndSelected(idAnalysis);
+		Map<Integer, Assessment> sceanrioAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
+		List<Asset> assets = analysis.getAssets();
 		for (Asset asset : assets) {
-			if (scenario.hasInfluenceOnAsset(asset.getAssetType()))
-				assessments.add(new Assessment(asset, scenario));
+			if (!sceanrioAssessments.containsKey(asset.getId())) {
+				if (scenario.hasInfluenceOnAsset(asset.getAssetType()))
+					assessments.add(new Assessment(asset, scenario));
+			} else if (!scenario.hasInfluenceOnAsset(asset.getAssetType())) {
+				Assessment assessment = sceanrioAssessments.get(asset.getId());
+				assessments.remove(assessment);
+				daoAssessment.delete(assessment);
+			}
 		}
 		daoAnalysis.saveOrUpdate(analysis);
 	}

@@ -14,7 +14,6 @@ import java.util.Map;
 import javax.naming.directory.InvalidAttributesException;
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -274,14 +273,7 @@ public class ControllerAsset {
 				errors.put("asset", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 				return errors;
 			}
-
-			// retrieve analysis object
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			if (analysis == null) {
-				errors.put("asset", messageSource.getMessage("error.analysis.not_found", null, "Selected analysis cannot be found", locale));
-				return errors;
-			}
-
+			
 			// create new asset object
 			Asset asset = new Asset();
 
@@ -293,14 +285,13 @@ public class ControllerAsset {
 				return errors;
 
 			asset.setValue(asset.getValue() * 1000);
+			
+			// create assessments for the new asset and save asset and
+			// Assessments into analysis
+			assessmentManager.build(asset, idAnalysis);
 
 			// check if asset is to be created (new)
-			if (asset.getId() < 1) {
-				// create assessments for the new asset and save asset and
-				// asessments into analysis
-				assessmentManager.build(asset, idAnalysis);
-			} else {
-
+			if (asset.getId() > 0) {
 				if (!serviceAsset.belongsToAnalysis(idAnalysis, asset.getId())) {
 					errors.put("asset", serviceDataValidation.ParseError("asset.not_belongs_to_analysis", messageSource, locale));
 					return errors;
@@ -314,7 +305,6 @@ public class ControllerAsset {
 				else
 					assessmentManager.unSelectAsset(asset);
 			}
-
 			// return errors
 			return errors;
 		} catch (Exception e) {
