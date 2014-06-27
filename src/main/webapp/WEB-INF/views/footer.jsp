@@ -3,6 +3,7 @@
 	<div class="container">
 		<spring:eval expression="T(java.util.Calendar).YEAR" var="YEAR" />
 		<spring:eval expression="T(java.util.Calendar).getInstance().get(YEAR)" var="year" />
-		<p class="text-muted credit text-center" style="margin-bottom: 10px; margin-top: 10px;">&copy; 2007-${year} itrust consulting - All Rights Reserved</p>
+		<p class="text-muted credit text-center" style="margin-bottom: 10px; margin-top: 10px;">&copy; 2007-${year} itrust consulting - All Rights Reserved <span class="pull-right">TRICK Service v<spring:eval expression="@propertyConfigurer.getProperty('app.settings.version')" /></span></p>
+		
 	</div>
 </div>
