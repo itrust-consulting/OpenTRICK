@@ -3,8 +3,10 @@ package lu.itrust.business.TS.export;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -81,79 +83,84 @@ public class ExportAnalysisReport {
 	 * @throws Exception
 	 */
 	public File exportToWordDocument(Integer analysisId, ServletContext context, ServiceAnalysis serviceAnalysis, boolean template) throws Exception {
+		InputStream inputStream = null;
+		try {
+			if (!serviceAnalysis.exists(analysisId)) {
+				throw new IllegalArgumentException("error.analysis.not_exist");
+			} else if (serviceAnalysis.isProfile(analysisId)) {
+				throw new IllegalArgumentException("error.analysis.is_profile");
+			} else if (!serviceAnalysis.hasData(analysisId)) {
+				throw new IllegalArgumentException("error.analysis.no_data");
+			}
 
-		if (!serviceAnalysis.exists(analysisId)) {
-			throw new IllegalArgumentException("error.analysis.not_exist");
-		} else if (serviceAnalysis.isProfile(analysisId)) {
-			throw new IllegalArgumentException("error.analysis.is_profile");
-		} else if (!serviceAnalysis.hasData(analysisId)) {
-			throw new IllegalArgumentException("error.analysis.no_data");
+			Analysis analysis = serviceAnalysis.get(analysisId);
+
+			if (analysis.getLanguage() == null || !analysis.getLanguage().getAlpha3().equalsIgnoreCase("fra"))
+				locale = Locale.ENGLISH;
+			else
+				locale = Locale.FRENCH;
+
+			this.analysis = analysis;
+
+			this.context = context;
+
+			this.serviceAnalysis = serviceAnalysis;
+
+			XWPFDocument document = null;
+
+			File doctemp = new File(this.getContext().getRealPath(String.format("/WEB-INF/tmp/STA_%s_V%s.docx", analysis.getLabel(), analysis.getVersion())));
+
+			if (!doctemp.exists())
+				doctemp.createNewFile();
+
+			if (template) {
+				File doctemplate = new File(this.getContext().getRealPath(
+						String.format("/WEB-INF/data/TOD_001_analysis-report-%s_V2.1.dotx", locale == Locale.FRENCH ? "FR" : "EN")));
+				OPCPackage pkg = OPCPackage.open(doctemplate.getAbsoluteFile());
+				pkg.replaceContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml",
+						"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml");
+				pkg.save(doctemp);
+				document = new XWPFDocument(inputStream = new FileInputStream(doctemp));
+			} else {
+				XWPFDocument templateDocx = new XWPFDocument(inputStream = new FileInputStream(new File(this.getContext().getRealPath(
+						String.format("/WEB-INF/data/TOD_001_analysis-report-%s_V2.1.dotx", locale == Locale.FRENCH ? "FR" : "EN")))));
+				document = new XWPFDocument();
+				XWPFStyles xwpfStyles = document.createStyles();
+				xwpfStyles.setStyles(templateDocx.getStyle());
+			}
+
+			this.document = document;
+
+			if (!template)
+				generatePlaceholders();
+
+			generateItemInformation();
+
+			generateAssets();
+
+			generateScenarios();
+
+			generateAssessements();
+
+			generateThreats();
+
+			generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+
+			generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
+
+			generateActionPlan();
+
+			generateActionPlanSummary();
+
+			generateMeasures();
+
+			document.write(new FileOutputStream(doctemp));
+
+			return doctemp;
+		} finally {
+			if (inputStream != null)
+				inputStream.close();
 		}
-
-		Analysis analysis = serviceAnalysis.get(analysisId);
-		
-		if(!(analysis.getLanguage() == null || analysis.getLanguage().getAlpha3().equalsIgnoreCase("fra")))
-			locale  = Locale.ENGLISH;
-		else locale = Locale.FRENCH;
-
-		this.analysis = analysis;
-
-		this.context = context;
-
-		this.serviceAnalysis = serviceAnalysis;
-
-		XWPFDocument document = null;
-
-		File doctemp = new File(this.getContext().getRealPath("/WEB-INF/tmp/STA_" + analysis.getLabel() + "_V" + analysis.getVersion() + ".docx"));
-
-		if (!doctemp.exists())
-			doctemp.createNewFile();
-
-		if (template) {
-			File doctemplate = new File(this.getContext().getRealPath("/WEB-INF/data/TOD_001_analysis-report-FR_V2.1.dotx"));
-			OPCPackage pkg = OPCPackage.open(doctemplate.getAbsoluteFile());
-			pkg.replaceContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml",
-					"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml");
-			pkg.save(doctemp);
-			document = new XWPFDocument(new FileInputStream(doctemp));
-		} else {
-			XWPFDocument templateDocx = new XWPFDocument(new FileInputStream(new File(this.getContext().getRealPath("/WEB-INF/data/TOD_001_analysis-report-FR_V2.1.dotx"))));
-			document = new XWPFDocument();
-			XWPFStyles xwpfStyles = document.createStyles();
-			xwpfStyles.setStyles(templateDocx.getStyle());
-		}
-
-		this.document = document;
-
-		for (XWPFTable table : this.document.getTables())
-			System.out.println(table.getStyleID());
-
-		if (!template)
-			generatePlaceholders();
-
-		generateItemInformation();
-
-		generateAssets();
-
-		generateScenarios();
-
-		generateAssessements();
-
-		generateThreats();
-
-		generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
-
-		generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
-
-		generateActionPlan();
-
-		generateActionPlanSummary();
-
-		generateMeasures();
-
-		document.write(new FileOutputStream(doctemp));
-
-		return doctemp;
 	}
 
 	private void generatePlaceholders() {
@@ -760,7 +767,7 @@ public class ExportAnalysisReport {
 
 						table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
-						table.setStyleID("TableTS"+key);
+						table.setStyleID("TableTS" + key);
 
 						CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
 						width.setW(BigInteger.valueOf(10000));
@@ -966,12 +973,12 @@ public class ExportAnalysisReport {
 				row.addNewTableCell();
 
 			// set header
-			table.getRow(0).getCell(0).setText("Nr");
-			table.getRow(0).getCell(1).setText("Name");
-			table.getRow(0).getCell(2).setText("Type");
-			table.getRow(0).getCell(3).setText("Value (k€)");
-			table.getRow(0).getCell(4).setText("ALE (k€)");
-			table.getRow(0).getCell(5).setText("Comment");
+			table.getRow(0).getCell(0).setText(messageSource.getMessage("rapport.asset.title.number.row", null, "Nr", locale));
+			table.getRow(0).getCell(1).setText(messageSource.getMessage("rapport.asset.title.name", null, "Name", locale));
+			table.getRow(0).getCell(2).setText(messageSource.getMessage("rapport.asset.title.type", null, "Type", locale));
+			table.getRow(0).getCell(3).setText(messageSource.getMessage("rapport.asset.title.value", null, "Value(k€)", locale));
+			table.getRow(0).getCell(4).setText(messageSource.getMessage("rapport.asset.title.ale", null, "ALE(k€)", locale));
+			table.getRow(0).getCell(5).setText(messageSource.getMessage("rapport.asset.title.comment", null, "Comment", locale));
 
 			int number = 0;
 
@@ -982,8 +989,9 @@ public class ExportAnalysisReport {
 				row.getCell(0).setText("" + (number));
 				row.getCell(1).setText(asset.getName());
 				row.getCell(2).setText(asset.getAssetType().getType());
-				Double value = asset.getValue() / 1000.;
-				String svalue = new DecimalFormat("#").format(value);
+				Double value = asset.getValue()*0.001;
+				new DecimalFormat("#");
+				String svalue = NumberFormat.getNumberInstance(Locale.FRANCE).format(value);
 				row.getCell(3).setText(svalue);
 				value = asset.getALE() / 1000.;
 				svalue = new DecimalFormat("#").format(value);
@@ -1023,22 +1031,21 @@ public class ExportAnalysisReport {
 			for (int i = 1; i < 2; i++)
 				row.addNewTableCell();
 
-			row.getCell(0).setText("Description");
-			row.getCell(1).setText("Value");
+			row.getCell(0).setText(messageSource.getMessage("rapport.scope.title.description", null, "Description", locale));
+			row.getCell(1).setText(messageSource.getMessage("rapport.scope.title.value", null, "Value", locale));
 
 			// set data
 			for (ItemInformation iteminfo : iteminformations) {
 				row = table.createRow();
-				row.getCell(0).setText(iteminfo.getDescription());
-				row.getCell(1).setText(iteminfo.getValue());
+				row.getCell(0).setText(messageSource.getMessage("rapport.scope.name." + iteminfo.getDescription().toLowerCase(), null, iteminfo.getDescription(), locale));
+				paragraph = row.getCell(1).addParagraph();
+				paragraph.createRun().setText(iteminfo.getValue());
 			}
 		}
 	}
 
 	private XWPFParagraph findParagraphByText(String text) {
-
 		List<XWPFParagraph> paragraphs = document.getParagraphs();
-
 		for (XWPFParagraph paragraph : paragraphs) {
 			if (paragraph.getParagraphText().equals(text))
 				return paragraph;
