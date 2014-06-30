@@ -122,7 +122,7 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					}, 3000);
 					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null) {
-						if (reponse.asyncCallback.args.length)
+						if (reponse.asyncCallback.args !=null && reponse.asyncCallback.args.length)
 							window[reponse.asyncCallback.action].apply(null, reponse.asyncCallback.args);
 						else
 							eval(reponse.asyncCallback.action);
