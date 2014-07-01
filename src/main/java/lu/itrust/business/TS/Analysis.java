@@ -16,6 +16,7 @@ import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * Analysis: <br>
@@ -300,8 +301,9 @@ public class Analysis implements Serializable, Cloneable {
 	 *            The Measure to take Values to calculate
 	 * 
 	 * @return The Calculated RRF
+	 * @throws TrickException 
 	 */
-	public static double calculateRRF(Assessment tmpAssessment, List<Parameter> parameters, NormMeasure measure) {
+	public static double calculateRRF(Assessment tmpAssessment, List<Parameter> parameters, NormMeasure measure) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -364,6 +366,9 @@ public class Analysis implements Serializable, Cloneable {
 		strength = measure.getMeasurePropertyList().getFMeasure();
 		strength = strength * measure.getMeasurePropertyList().getFSectoral();
 		strength = strength / 40.;
+		
+		if(Double.isNaN(strength))
+			throw new TrickException("error.analysis.rrf.measure.strength.nan", String.format( "Please check measure strength for %s for %s",measure.getMeasureDescription().getReference(),measure.getAnalysisNorm().getNorm().getLabel()), measure.getMeasureDescription().getReference(),measure.getAnalysisNorm().getNorm().getLabel());
 
 		// ****************************************************************
 		// * Category calculation
@@ -377,6 +382,7 @@ public class Analysis implements Serializable, Cloneable {
 				+ (measure.getMeasurePropertyList().getPreventive() * tmpAssessment.getScenario().getPreventive())
 				+ (measure.getMeasurePropertyList().getDetective() * tmpAssessment.getScenario().getDetective()) + (measure.getMeasurePropertyList().getCorrective() * tmpAssessment
 				.getScenario().getCorrective())) / 4.;
+		
 
 		// ****************************************************************
 		// * Source calculation
@@ -390,6 +396,9 @@ public class Analysis implements Serializable, Cloneable {
 		source = source
 				/ (4. * (double) (tmpAssessment.getScenario().getIntentional() + tmpAssessment.getScenario().getAccidental() + tmpAssessment.getScenario().getEnvironmental()
 						+ tmpAssessment.getScenario().getInternalThreat() + tmpAssessment.getScenario().getExternalThreat()));
+		
+		if(Double.isNaN(source))
+			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format( "Please check menance source for scenario (%s)",tmpAssessment.getScenario().getName()), tmpAssessment.getScenario().getName());
 
 		// ****************************************************************
 		// * RRF completion :
@@ -397,6 +406,9 @@ public class Analysis implements Serializable, Cloneable {
 		// ****************************************************************
 
 		RRF = ((assetTypeValue / 100. * strength * category * type * source) / 500.) * tuning;
+		
+		if(Double.isNaN(RRF))
+			throw new TrickException("error.analysis.rrf.nan", String.format( "Please check measure (%s for %s)",measure.getMeasureDescription().getReference(),measure.getAnalysisNorm().getNorm().getLabel()), measure.getMeasureDescription().getReference(),measure.getAnalysisNorm().getNorm().getLabel());
 
 		// if ((measure.getMeasureDescription().getReference().equals("4.1.1")))
 		// {
@@ -431,8 +443,9 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param measure
 	 *            The Measure to take Values to calculate
 	 * @return The Calculated RRF
+	 * @throws TrickException 
 	 */
-	public static double calculateRRF(Scenario scenario, AssetType assetType, Parameter parameter, NormMeasure measure) {
+	public static double calculateRRF(Scenario scenario, AssetType assetType, Parameter parameter, NormMeasure measure) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -543,8 +556,9 @@ public class Analysis implements Serializable, Cloneable {
 	 *            Scenario
 	 * 
 	 * @return The Calculated RRF Category value
+	 * @throws TrickException 
 	 */
-	public static double calculateRRFCategory(MeasureProperties properties, Scenario scenario) {
+	public static double calculateRRFCategory(MeasureProperties properties, Scenario scenario) throws TrickException {
 
 		// check if properties and scenario are not null to avoid failures
 		if (properties == null)
@@ -577,7 +591,7 @@ public class Analysis implements Serializable, Cloneable {
 
 		// check if not Division by 0
 		if (categoryDenominator == 0) {
-			throw new ArithmeticException("error.rrf.compute.arithmetic_denominator_zero");
+			throw new TrickException("error.scenario.rrf.compute.arithmetic_denominator_zero",String.format("Please check scenario (%s) data: RRF is not a number", scenario.getName()), scenario.getName() );
 		}
 
 		// **************************************************************

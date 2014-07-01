@@ -15,7 +15,6 @@ import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOActionPlan;

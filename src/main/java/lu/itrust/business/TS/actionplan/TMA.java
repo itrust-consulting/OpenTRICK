@@ -3,6 +3,7 @@ package lu.itrust.business.TS.actionplan;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * TMA: <br>
@@ -67,8 +68,9 @@ public class TMA {
 	 *            The Measure Object
 	 * @param RRF
 	 *            The RRF value
+	 * @throws TrickException 
 	 */
-	public TMA(ActionPlanMode mode, Assessment asessment, Measure measure, double RRF) {
+	public TMA(ActionPlanMode mode, Assessment asessment, Measure measure, double RRF) throws TrickException {
 
 		// the assessment (-> Asset + Scenario)
 		this.assessment = asessment;
@@ -97,6 +99,9 @@ public class TMA {
 
 		// the calculated RRF
 		this.RRF = RRF;
+		
+		if(Double.isNaN(RRF))
+			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
 
 		//System.out.println(this.toString());
 
@@ -110,8 +115,13 @@ public class TMA {
 	 * calculateDeltaALE: <br>
 	 * Calculates the delta ALE using the formula <br>
 	 * ALE * RRF * (1 - ImpRate / 1 - RRF * ImpRate)
+	 * @throws TrickException 
 	 */
-	public void calculateDeltaALE() {
+	public void calculateDeltaALE() throws TrickException {
+		if(Double.isNaN(RRF))
+			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
+		if(Double.isNaN(ALE))
+			throw new TrickException("error.tma.ale.nan", "Please check your data: ALE is not a number");
 		this.deltaALE = this.ALE * RRF * ((1. - (this.measure.getImplementationRateValue() / 100.)) / (1. - RRF * (this.measure.getImplementationRateValue() / 100.)));
 
 	}
@@ -129,9 +139,13 @@ public class TMA {
 	 *            The Measure to calculate the deltaALE
 	 * 
 	 * @return the computed deltaALE for this measure using a given ALE
+	 * @throws TrickException 
 	 */
-	public static double calculateDeltaALE(double ALE, double RRF, Measure measure) {
-
+	public static double calculateDeltaALE(double ALE, double RRF, Measure measure) throws TrickException {
+		if(Double.isNaN(RRF))
+			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
+		if(Double.isNaN(ALE))
+			throw new TrickException("error.tma.ale.nan", "Please check your data: ALE is not a number");
 		return ALE * RRF * ((1.0 - (measure.getImplementationRateValue() / 100.0)) / (1.0 - RRF * (measure.getImplementationRateValue() / 100.0)));
 	}
 

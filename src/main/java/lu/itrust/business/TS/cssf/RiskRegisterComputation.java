@@ -23,6 +23,7 @@ import lu.itrust.business.TS.cssf.tools.CSSFSort;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * RiskRegisterComputation: <br>
@@ -68,7 +69,7 @@ public class RiskRegisterComputation {
 		this.analysis = analysis;
 	}
 
-	public List<TMA> generateTMAs(Analysis analysis) {
+	public List<TMA> generateTMAs(Analysis analysis) throws TrickException {
 		List<TMA> tmas = new ArrayList<TMA>();
 
 		List<Phase> usePhases = analysis.getUsedPhases();
@@ -86,11 +87,8 @@ public class RiskRegisterComputation {
 			if (usePhases.get(i).getNumber() == 0)
 				continue;
 			tmas.addAll(ActionPlanComputation.generateTMAList(this.analysis, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true, analysis.getAnalysisNorms()));
-
-			if (mandatoryPhase == usePhases.get(i).getNumber()) {
-				System.out.println(usePhases.get(i).getNumber());
+			if (mandatoryPhase == usePhases.get(i).getNumber())
 				break;
-			}
 		}
 		return tmas;
 
@@ -218,11 +216,12 @@ public class RiskRegisterComputation {
 	 *            The List of Parameters
 	 * 
 	 * @return The Risk Register as a List of RiskRegisterItems
+	 * @throws TrickException 
 	 * 
 	 * @see CSSFTools#sortByGroup(Map)
 	 * @see CSSFTools#sortAndConcatenateGroup(Map)
 	 */
-	public static List<RiskRegisterItem> CSSFComputation(final List<Assessment> assessments, final List<TMA> tmas, final List<Parameter> parameters) {
+	public static List<RiskRegisterItem> CSSFComputation(final List<Assessment> assessments, final List<TMA> tmas, final List<Parameter> parameters) throws TrickException {
 
 		// initialise ALE Array (this array will contain all net ALE's of each Risk)
 		// Integer: Scenario ID, Double: ALE of the Scenario, calculated by Inet*Pnet)
@@ -778,13 +777,14 @@ public class RiskRegisterComputation {
 	 *            List of TMA entries generated from the Analysis
 	 * @param parameters
 	 *            List of Parameters of Analysis
+	 * @throws TrickException 
 	 * 
 	 * @see #computeDeltaALEs(Map, Map, TMA, List)
 	 * @see #computeRawALE(Map, Map, TMA, List)
 	 * @see #computeProbabilityRelativeImpact(Map, Scenario, Measure)
 	 */
 	private static void computeRawALEAndDeltaALEAndProbabilityRelativeImpacts(Map<String, double[]> probabilityRelativeImpacts, Map<String, Impact> impacts, Map<String, Double> rawALEs,
-			Map<String, Double> deltaALEs, final Map<String, Double> netALEs, final List<TMA> tmas, final List<Parameter> parameters) {
+			Map<String, Double> deltaALEs, final Map<String, Double> netALEs, final List<TMA> tmas, final List<Parameter> parameters) throws TrickException {
 
 		Map<String, Parameter> mapParameters = new LinkedHashMap<String, Parameter>();
 		
@@ -839,8 +839,9 @@ public class RiskRegisterComputation {
 	 *            The TMA entry to retrieve delta ALE from
 	 * @param parameters
 	 *            The List of Parameters
+	 * @throws TrickException 
 	 */
-	private static void computeDeltaALEs(Map<String, Double> deltaALEs, double ALE, final TMA tma, final List<Parameter> parameters) {
+	private static void computeDeltaALEs(Map<String, Double> deltaALEs, double ALE, final TMA tma, final List<Parameter> parameters) throws TrickException {
 
 		// retrieve scenario ID
 		String key = tma.getAssessment().getScenario().getId() + "_" + tma.getAssessment().getAsset().getId();

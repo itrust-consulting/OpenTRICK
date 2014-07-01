@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.actionplan;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * SummaryStage: <br>
@@ -301,11 +302,13 @@ public class SummaryStage {
 	 * 
 	 * @param costOfMeasures
 	 *            The value to set the Cost of all Measures in this Stage
+	 * @throws TrickException 
 	 */
-	public void setCostOfMeasures(double costOfMeasures) {
-		if (costOfMeasures < 0) {
+	public void setCostOfMeasures(double costOfMeasures) throws TrickException {
+		if(Double.isNaN(costOfMeasures))
+			throw new TrickException("error.summary.cost_of_measure.nan", "Please ckeck your data: Cost of measure is not a number");
+		if (costOfMeasures < 0) 
 			throw new IllegalArgumentException("CostOfMeasures should be 1 or greater");
-		}
 		this.costOfMeasures = costOfMeasures;
 	}
 
@@ -325,8 +328,11 @@ public class SummaryStage {
 	 * 
 	 * @param ROSI
 	 *            The value to set the ROSI or ROSMI of the last Entry of the Stage
+	 * @throws TrickException 
 	 */
-	public void setROSI(double ROSI) {
+	public void setROSI(double ROSI) throws TrickException {
+		if(Double.isNaN(ROSI))
+			throw new TrickException("error.summary.rosi.nan", "Please ckeck your data: rosi is not a number");
 		this.ROSI = ROSI;
 	}
 
@@ -346,8 +352,11 @@ public class SummaryStage {
 	 * 
 	 * @param relativeROSI
 	 *            The value to set the Relative ROSI
+	 * @throws TrickException 
 	 */
-	public void setRelativeROSI(double relativeROSI) {
+	public void setRelativeROSI(double relativeROSI) throws TrickException {
+		if(Double.isNaN(relativeROSI))
+			throw new TrickException("error.summary.relative_rosi.nan", "Please ckeck your data: relative rosi is not a number");
 		this.relativeROSI = relativeROSI;
 	}
 
@@ -367,8 +376,11 @@ public class SummaryStage {
 	 * 
 	 * @param internalWorkload
 	 *            The value to set the Internal Workload
+	 * @throws TrickException 
 	 */
-	public void setInternalWorkload(double internalWorkload) {
+	public void setInternalWorkload(double internalWorkload) throws TrickException {
+		if(Double.isNaN(internalWorkload))
+			throw new TrickException("error.summary.internal_workload.nan", "Please ckeck your data: Internal workload is not a number");
 		if (internalWorkload < 0)
 			throw new IllegalArgumentException("InternalWorkload should be 0 or greater");
 		this.internalWorkload = internalWorkload;
@@ -390,8 +402,11 @@ public class SummaryStage {
 	 * 
 	 * @param externalWorkload
 	 *            The value to set the External Workload
+	 * @throws TrickException 
 	 */
-	public void setExternalWorkload(double externalWorkload) {
+	public void setExternalWorkload(double externalWorkload) throws TrickException {
+		if(Double.isNaN(externalWorkload))
+			throw new TrickException("error.summary.external_workload.nan", "Please ckeck your data: External workload is not a number");
 		if (externalWorkload < 0)
 			throw new IllegalArgumentException("ExternalWorkload should be 0 or greater");
 		this.externalWorkload = externalWorkload;
@@ -413,8 +428,11 @@ public class SummaryStage {
 	 * 
 	 * @param investment
 	 *            The value to set the Investment
+	 * @throws TrickException 
 	 */
-	public void setInvestment(double investment) {
+	public void setInvestment(double investment) throws TrickException {
+		if(Double.isNaN(investment))
+			throw new TrickException("error.summary.investment.nan", "Please ckeck your data: Investment is not a number");
 		if (investment < 0)
 			throw new IllegalArgumentException("Investment should be 0 or greater");
 		this.investment = investment;
@@ -436,8 +454,11 @@ public class SummaryStage {
 	 * 
 	 * @param internalMaintenance
 	 *            The value to set the Internal Maintenance
+	 * @throws TrickException 
 	 */
-	public void setInternalMaintenance(double internalMaintenance) {
+	public void setInternalMaintenance(double internalMaintenance) throws TrickException {
+		if(Double.isNaN(internalMaintenance))
+			throw new TrickException("error.summary.internal_maintenance.nan", "Please ckeck your data: Internal maintenance is not a number");
 		if (internalMaintenance < 0)
 			throw new IllegalArgumentException("InternalMaintenance should be 0 or greater");
 		this.internalMaintenance = internalMaintenance;
@@ -459,8 +480,11 @@ public class SummaryStage {
 	 * 
 	 * @param externalMaintenance
 	 *            The value to set the External Maintenance
+	 * @throws TrickException 
 	 */
-	public void setExternalMaintenance(double externalMaintenance) {
+	public void setExternalMaintenance(double externalMaintenance) throws TrickException {
+		if(Double.isNaN(externalMaintenance))
+			throw new TrickException("error.summary.external_maintenance.nan", "Please ckeck your data: External maintenance is not a number");
 		if (externalMaintenance < 0)
 			throw new IllegalArgumentException("ExternalMaintenance should be 0 or greater");
 		this.externalMaintenance = externalMaintenance;
@@ -482,8 +506,11 @@ public class SummaryStage {
 	 * 
 	 * @param recurrentCost
 	 *            The value to set the Recurrent Cost
+	 * @throws TrickException 
 	 */
-	public void setRecurrentCost(double recurrentCost) {
+	public void setRecurrentCost(double recurrentCost) throws TrickException {
+		if(Double.isNaN(recurrentCost))
+			throw new TrickException("error.summary.recurrent_cost.nan", "Please ckeck your data: Recurrent cost is not a number");
 		if (recurrentCost < 0)
 			throw new IllegalArgumentException("RecurrentCost should be 0 or greater");
 		this.recurrentCost = recurrentCost;
@@ -505,8 +532,11 @@ public class SummaryStage {
 	 * 
 	 * @param totalCostofStage
 	 *            The value to set the Total Cost of this Stage
+	 * @throws TrickException 
 	 */
-	public void setTotalCostofStage(double totalCostofStage) {
+	public void setTotalCostofStage(double totalCostofStage) throws TrickException {
+		if(Double.isNaN(recurrentCost))
+			throw new TrickException("error.summary.total_cost_of_stage.nan", "Please ckeck your data: Total cost of stage is not a number");
 		if (totalCostofStage < 0)
 			throw new IllegalArgumentException("TotalCostofStage should be 0 or greater");
 		this.totalCostofStage = totalCostofStage;
@@ -570,8 +600,11 @@ public class SummaryStage {
 	 * 
 	 * @param recurrentInvestment
 	 *            The Value to set the recurrentInvestment field
+	 * @throws TrickException 
 	 */
-	public void setRecurrentInvestment(double recurrentInvestment) {
+	public void setRecurrentInvestment(double recurrentInvestment) throws TrickException {
+		if(Double.isNaN(recurrentInvestment))
+			throw new TrickException("error.summary.recurrent_investment.nan", "Please ckeck your data: Recurrent investment is not a number");
 		this.recurrentInvestment = recurrentInvestment;
 	}
 }
