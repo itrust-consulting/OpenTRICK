@@ -395,14 +395,13 @@ public class ExportAnalysisReport {
 				break;
 			}
 			case 7: {
-				while (!row.getTableCells().isEmpty())
-					row.removeCell(0);
-				row.addNewTableCell();
+				while (row.getCtRow().getTcList().size() > 1)
+					row.getCtRow().removeTc(1);
 				if (row.getCell(0).getCTTc().getTcPr() == null)
 					row.getCell(0).getCTTc().addNewTcPr();
-				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(summary.size()));
+				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(summary.size() + 1));
 				row.getCell(0).setText(getMessage("repport.summary_stage.profitability", null, "Profitability", locale));
-				
+
 				break;
 			}
 			case 8: {
@@ -441,12 +440,11 @@ public class ExportAnalysisReport {
 				break;
 			}
 			case 13: {
-				while (!row.getTableCells().isEmpty())
-					row.removeCell(0);
-				row.createCell();
+				while (row.getCtRow().getTcList().size() > 1)
+					row.getCtRow().removeTc(1);
 				if (row.getCell(0).getCTTc().getTcPr() == null)
 					row.getCell(0).getCTTc().addNewTcPr();
-				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(summary.size()));
+				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(summary.size() + 1));
 				row.getCell(0).setText(getMessage("repport.summary_stage.resource.planning", null, "Resource planning", locale));
 
 				// mrege columns
@@ -646,8 +644,17 @@ public class ExportAnalysisReport {
 
 			row = table.getRow(0);
 
+			if (row.getTableCells().isEmpty())
+				row.createCell();
+			if (row.getCell(0).getCTTc().getTcPr() == null)
+				row.getCell(0).getCTTc().addNewTcPr();
+			row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(6));
+			row.getCell(0).setText(getMessage("repport.parameter.title." + parmetertype.toLowerCase(), null, parmetertype, locale));
+
+			row = table.createRow();
+
 			for (int i = 1; i < 6; i++)
-				row.addNewTableCell();
+				row.addNewTableCell().setColor("B8CCE4");
 
 			row.getCell(0).setText(getMessage("repport.parameter.level", null, "Level", locale));
 			row.getCell(1).setText(getMessage("repport.parameter.acronym", null, "Acro", locale));
@@ -656,9 +663,13 @@ public class ExportAnalysisReport {
 			row.getCell(4).setText(getMessage("repport.parameter.value.from", null, "Value From [", locale));
 			row.getCell(5).setText(getMessage("repport.parameter.value.to", null, "Value To [", locale));
 
+			int countrow = 0;
 			// set data
 			for (ExtendedParameter extendedParameter : extendedParameters) {
 				row = table.createRow();
+			
+				while(row.getCtRow().getTcList().size()<6)
+					row.addNewTableCell();
 				row.getCell(0).setText("" + extendedParameter.getLevel());
 				row.getCell(1).setText(extendedParameter.getAcronym());
 				row.getCell(2).setText(extendedParameter.getDescription());
@@ -667,6 +678,8 @@ public class ExportAnalysisReport {
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 					value *= 0.001;
 				addCellNumber(row.getCell(3), kEuroFormat.format(value));
+				if (countrow % 2 != 0)
+					row.getCell(3).setColor("dbe5f1");
 				value = extendedParameter.getBounds().getFrom();
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 					value *= 0.001;
@@ -679,6 +692,10 @@ public class ExportAnalysisReport {
 						value *= 0.001;
 					addCellNumber(row.getCell(5), kEuroFormat.format(value));
 				}
+				for (int i = 4; i < 6; i++)
+					row.getCell(i).setColor("dbe5f1");
+
+				countrow++;
 			}
 
 			// Set the table style. If the style is not defined, the table style
@@ -699,6 +716,7 @@ public class ExportAnalysisReport {
 		List<RiskInformation> riskInformations = analysis.getRiskInformations();
 
 		Map<String, List<RiskInformation>> riskmapping = RiskInformationManager.Split(riskInformations);
+		boolean chapter = false;
 
 		for (String key : riskmapping.keySet()) {
 
@@ -751,13 +769,18 @@ public class ExportAnalysisReport {
 
 					previouselement = riskinfo;
 					row = table.createRow();
+					chapter = riskinfo.getChapter().matches("\\d(\\.0){2}");
 					row.getCell(0).setText(riskinfo.getChapter());
 					row.getCell(1).setText(riskinfo.getLabel());
 					if (riskinfo.getCategory().equals("Threat")) {
+						for (int i = 0; i < 3; i++)
+							row.getCell(i).setColor(chapter ? "B8CCE4" : "dbe5f1");
 						row.getCell(2).setText(riskinfo.getAcronym());
 						row.getCell(3).setText("" + riskinfo.getExposed());
 						addCellParagraph(row.getCell(4), riskinfo.getComment());
 					} else {
+						for (int i = 0; i < 2; i++)
+							row.getCell(i).setColor(chapter ? "B8CCE4" : "dbe5f1");
 						row.getCell(2).setText("" + riskinfo.getExposed());
 						addCellParagraph(row.getCell(3), riskinfo.getComment());
 					}
@@ -827,7 +850,8 @@ public class ExportAnalysisReport {
 
 			row = table.createRow();
 			for (int i = 1; i < 5; i++)
-				row.addNewTableCell();
+				row.addNewTableCell().setColor("c6d9f1");
+			;
 			row.getCell(0).setText(getMessage("repport.assessment.total_ale.assets", null, "Total ALE of Assets", locale));
 			addCellNumber(row.getCell(3), numberFormat.format(totalale * 0.001));
 
@@ -836,7 +860,7 @@ public class ExportAnalysisReport {
 				ALE ale = alesmap.get(assetname);
 				row = table.createRow();
 				for (int i = 1; i < 5; i++)
-					row.addNewTableCell();
+					row.addNewTableCell().setColor("c6d9f1");
 				row.getCell(0).setText(ale.getAssetName());
 				addCellNumber(row.getCell(3), numberFormat.format(ale.getValue() * 0.001));
 				for (Assessment assessment : assessmentsofasset) {
@@ -962,6 +986,7 @@ public class ExportAnalysisReport {
 				row.getCell(1).setText(asset.getName());
 				row.getCell(2).setText(asset.getAssetType().getType());
 				addCellNumber(row.getCell(3), kEuroFormat.format(asset.getValue() * 0.001));
+				row.getCell(4).setColor("c6d9f1");
 				addCellNumber(row.getCell(4), kEuroFormat.format(asset.getALE() * 0.001));
 				addCellParagraph(row.getCell(5), asset.getComment());
 			}
