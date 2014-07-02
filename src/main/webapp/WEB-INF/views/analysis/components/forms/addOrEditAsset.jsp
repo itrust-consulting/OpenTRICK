@@ -58,7 +58,7 @@
 										<input name="value" id="asset_value" class="form-control" value="0">
 									</c:when>
 									<c:otherwise>
-										<input name="value" id="asset_value" class="form-control" value='<fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="0" />'>
+										<input name="value" id="asset_value" class="form-control" value='<fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="1" />'>
 									</c:otherwise>
 								</c:choose>
 								<span class="input-group-addon">k&euro;</span>

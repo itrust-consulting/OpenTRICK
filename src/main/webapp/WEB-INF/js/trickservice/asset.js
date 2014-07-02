@@ -6,7 +6,7 @@ function serializeAssetForm(formId) {
 		"id" : parseInt(data["assetType"]),
 		"type" : $("#asset_assettype_id option:selected").text()
 	};
-	data["value"] = parseFloat(data["value"]);
+	//data["value"] = parseFloat(data["value"]);
 	data["selected"] = data["selected"] == "on";
 	return JSON.stringify(data);
 }

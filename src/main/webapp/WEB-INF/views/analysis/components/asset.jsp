@@ -46,7 +46,7 @@
 							<td>${status.index+1}</td>
 							<td class="${cssClass}"><spring:message text="${asset.name}" /></td>
 							<td class="${cssClass}"><spring:message text="${ asset.assetType.type}" /></td>
-							<td class="${cssClass}" title='<fmt:formatNumber value="${asset.value}"/>&euro;'><fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="0" /></td>
+							<td class="${cssClass}" title='<fmt:formatNumber value="${asset.value}"/>&euro;'><fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="1" /></td>
 							<td class="${cssClass}" colspan="3"><spring:message text="${asset.comment}" /></td>
 							<td class="${cssClass}" colspan="3"><spring:message text="${asset.hiddenComment}" /></td>
 						</tr>
