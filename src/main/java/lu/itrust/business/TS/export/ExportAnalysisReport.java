@@ -3,12 +3,14 @@ package lu.itrust.business.TS.export;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -35,20 +37,18 @@ import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.service.ServiceAnalysis;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.xwpf.usermodel.LineSpacingRule;
+import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFStyles;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.apache.xmlbeans.XmlCursor;
 import org.hibernate.Hibernate;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTString;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblWidth;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcBorders;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
+import org.springframework.context.MessageSource;
 
 /**
  * ExportReport.java: <br>
@@ -68,7 +68,17 @@ public class ExportAnalysisReport {
 
 	private Analysis analysis = null;
 
+	private Locale locale = null;
+
+	private MessageSource messageSource;
+
+	private DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+
+	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+
 	public ExportAnalysisReport() {
+		kEuroFormat.setMaximumFractionDigits(1);
+		numberFormat.setMaximumFractionDigits(0);
 	}
 
 	/**
@@ -82,70 +92,83 @@ public class ExportAnalysisReport {
 	 * @throws Exception
 	 */
 	public File exportToWordDocument(Integer analysisId, ServletContext context, ServiceAnalysis serviceAnalysis, boolean template) throws Exception {
+		InputStream inputStream = null;
+		try {
+			if (!serviceAnalysis.exists(analysisId)) {
+				throw new IllegalArgumentException("error.analysis.not_exist");
+			} else if (serviceAnalysis.isProfile(analysisId)) {
+				throw new IllegalArgumentException("error.analysis.is_profile");
+			} else if (!serviceAnalysis.hasData(analysisId)) {
+				throw new IllegalArgumentException("error.analysis.no_data");
+			}
 
-		if (!serviceAnalysis.exists(analysisId)) {
-			throw new IllegalArgumentException("error.analysis.not_exist");
-		} else if (serviceAnalysis.isProfile(analysisId)) {
-			throw new IllegalArgumentException("error.analysis.is_profile");
-		} else if (!serviceAnalysis.hasData(analysisId)) {
-			throw new IllegalArgumentException("error.analysis.no_data");
-		}
+			Analysis analysis = serviceAnalysis.get(analysisId);
 
-		Analysis analysis = serviceAnalysis.get(analysisId);
+			if (analysis.getLanguage() == null || !analysis.getLanguage().getAlpha3().equalsIgnoreCase("fra"))
+				locale = Locale.ENGLISH;
+			else
+				locale = Locale.FRENCH;
 
-		this.analysis = analysis;
+			this.analysis = analysis;
 
-		this.context = context;
+			this.context = context;
 
-		this.serviceAnalysis = serviceAnalysis;
+			this.serviceAnalysis = serviceAnalysis;
 
-		XWPFDocument document = null;
+			XWPFDocument document = null;
 
-		File doctemp = new File(this.getContext().getRealPath("/WEB-INF/tmp/STA_" + analysis.getLabel() + "_V" + analysis.getVersion() + ".docx"));
+			File doctemp = new File(this.getContext().getRealPath(String.format("/WEB-INF/tmp/STA_%s_V%s.docx", analysis.getLabel(), analysis.getVersion())));
 
-		if (!doctemp.exists())
-			doctemp.createNewFile();
+			if (!doctemp.exists())
+				doctemp.createNewFile();
 
-		if (template) {
+			if (template) {
+				File doctemplate = new File(this.getContext().getRealPath(
+						String.format("/WEB-INF/data/TOD_001_analysis-report-%s_V2.1.dotx", locale == Locale.FRENCH ? "FR" : "EN")));
+				OPCPackage pkg = OPCPackage.open(doctemplate.getAbsoluteFile());
+				pkg.replaceContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml",
+						"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml");
+				pkg.save(doctemp);
+				document = new XWPFDocument(inputStream = new FileInputStream(doctemp));
+			} else {
+				XWPFDocument templateDocx = new XWPFDocument(inputStream = new FileInputStream(new File(this.getContext().getRealPath(
+						String.format("/WEB-INF/data/TOD_001_analysis-report-%s_V2.1.dotx", locale == Locale.FRENCH ? "FR" : "EN")))));
+				document = new XWPFDocument();
+				XWPFStyles xwpfStyles = document.createStyles();
+				xwpfStyles.setStyles(templateDocx.getStyle());
+			}
 
-			File doctemplate = new File(this.getContext().getRealPath("/WEB-INF/data/TOD_001_analysis-report-FR_V2.1.dotx"));
-			OPCPackage pkg = OPCPackage.open(doctemplate.getAbsoluteFile());
-			pkg.replaceContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml",
-					"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml");
-			pkg.save(doctemp);
-			document = new XWPFDocument(new FileInputStream(doctemp));
-		} else {
-			document = new XWPFDocument();
-		}
+			this.document = document;
 
-		this.document = document;
-
-		if (!template)
 			generatePlaceholders();
 
-		generateItemInformation();
+			generateItemInformation();
 
-		generateAssets();
+			generateAssets();
 
-		generateScenarios();
+			generateScenarios();
 
-		generateAssessements();
+			generateAssessements();
 
-		generateThreats();
+			generateThreats();
 
-		generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
+			generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME);
 
-		generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
+			generateExtendedParameters(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME);
 
-		generateActionPlan();
+			generateActionPlan();
 
-		generateActionPlanSummary();
+			generateActionPlanSummary();
 
-		generateMeasures();
+			generateMeasures();
 
-		document.write(new FileOutputStream(doctemp));
+			document.write(new FileOutputStream(doctemp));
 
-		return doctemp;
+			return doctemp;
+		} finally {
+			if (inputStream != null)
+				inputStream.close();
+		}
 	}
 
 	private void generatePlaceholders() {
@@ -165,6 +188,27 @@ public class ExportAnalysisReport {
 		document.createParagraph().createRun().setText("<Measures>");
 	}
 
+	private XWPFRun addCellNumber(XWPFTableCell cell, String number) {
+		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
+		paragraph.setAlignment(ParagraphAlignment.RIGHT);
+		XWPFRun run = paragraph.createRun();
+		run.setText(number);
+		return run;
+	}
+
+	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text) {
+		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
+		paragraph.setSpacingLineRule(LineSpacingRule.EXACT);
+		paragraph.setAlignment(ParagraphAlignment.LEFT);
+		String[] texts = text.split("(\r\n|\n\r|\r|\n)");
+		for (int i = 0; i < texts.length; i++) {
+			if (i > 0)
+				paragraph.createRun().addBreak();
+			paragraph.createRun().setText(texts[i]);
+		}
+		return paragraph;
+	}
+
 	private void generateMeasures() {
 		XWPFParagraph paragraph = null;
 		XWPFTable table = null;
@@ -178,15 +222,19 @@ public class ExportAnalysisReport {
 
 		if (paragraph != null && anorms.size() > 0) {
 
-			paragraph.removeRun(0);
+			while (!paragraph.getRuns().isEmpty())
+				paragraph.removeRun(0);
 
 			for (AnalysisNorm anorm : anorms) {
 
-				// initialise table with 1 row and 1 column after the paragraph cursor
+				// initialise table with 1 row and 1 column after the paragraph
+				// cursor
 
 				paragraph.createRun().setText(anorm.getNorm().getLabel());
 
 				table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+				table.setStyleID("TableTSMeasure");
 
 				CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
 				width.setW(BigInteger.valueOf(10000));
@@ -198,21 +246,20 @@ public class ExportAnalysisReport {
 				for (int i = 1; i < 14; i++)
 					row.createCell();
 
-				row.getCell(0).setText("Ref.");
-				row.getCell(1).setText("Domain");
-				row.getCell(2).setText("ST");
-				row.getCell(3).setText("IR(%)");
-				row.getCell(4).setText("IS (md)");
-				row.getCell(5).setText("ES (md)");
-				row.getCell(6).setText("INV (k€)");
-				row.getCell(7).setText("LT (y)");
-				row.getCell(8).setText("IM (md)");
-				row.getCell(9).setText("EM (md)");
-				row.getCell(10).setText("RINV (k€)");
-				row.getCell(11).setText("CS (k€)");
-				row.getCell(12).setText("Comment");
-				row.getCell(13).setText("To Do");
-
+				row.getCell(0).setText(getMessage("repport.measure.reference", null, "Ref.", locale));
+				row.getCell(1).setText(getMessage("repport.measure.domain", null, "Domain", locale));
+				row.getCell(2).setText(getMessage("repport.measure.status", null, "ST", locale));
+				row.getCell(3).setText(getMessage("repport.measure.implementation_rate", null, "IR(%)", locale));
+				row.getCell(4).setText(getMessage("repport.measure.internal.workload", null, "IS(md)", locale));
+				row.getCell(5).setText(getMessage("repport.measure.external.workload", null, "ES(md)", locale));
+				row.getCell(6).setText(getMessage("repport.measure.investment", null, "INV(k€)", locale));
+				row.getCell(7).setText(getMessage("repport.measure.life_time", null, "LT(y)", locale));
+				row.getCell(8).setText(getMessage("repport.measure.internal.maintenance", null, "IM(md)", locale));
+				row.getCell(9).setText(getMessage("repport.measure.external.maintenance", null, "EM(md)", locale));
+				row.getCell(10).setText(getMessage("repport.measure.recurrent.investment", null, "RINV(k€)", locale));
+				row.getCell(11).setText(getMessage("repport.measure.cost", null, "CS(k€)", locale));
+				row.getCell(12).setText(getMessage("repport.measure.comment", null, "Comment", locale));
+				row.getCell(13).setText(getMessage("repport.measure.to_do", null, "To Do", locale));
 				// set data
 				for (Measure measure : anorm.getMeasures()) {
 					row = table.createRow();
@@ -221,25 +268,23 @@ public class ExportAnalysisReport {
 					Hibernate.initialize(measure.getMeasureDescription());
 
 					if (measure.getMeasureDescription().getLevel() < 3) {
-
 						row.getCell(0).setText(measure.getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain());
-
 					} else {
 						// System.out.println(entry.toString());
 						row.getCell(0).setText(measure.getMeasureDescription().getReference());
 						row.getCell(1).setText(measure.getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain());
 						row.getCell(2).setText(measure.getStatus());
-						row.getCell(3).setText(new DecimalFormat("#").format(measure.getImplementationRateValue()));
-						row.getCell(4).setText(new DecimalFormat("#.#").format(measure.getInternalWL()));
-						row.getCell(5).setText(new DecimalFormat("#.#").format(measure.getExternalWL()));
-						row.getCell(6).setText(new DecimalFormat("#").format(measure.getInvestment() / 1000));
-						row.getCell(7).setText(new DecimalFormat("#").format(measure.getLifetime()));
-						row.getCell(8).setText(new DecimalFormat("#.#").format(measure.getInternalMaintenance()));
-						row.getCell(9).setText(new DecimalFormat("#.#").format(measure.getExternalMaintenance()));
-						row.getCell(10).setText(new DecimalFormat("#").format(measure.getRecurrentInvestment() / 1000));
-						row.getCell(11).setText(new DecimalFormat("#").format(measure.getCost() / 1000));
-						row.getCell(12).setText(measure.getComment());
-						row.getCell(13).setText(measure.getToDo());
+						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
+						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
+						addCellNumber(row.getCell(5), kEuroFormat.format(measure.getExternalWL()));
+						addCellNumber(row.getCell(6), numberFormat.format(measure.getInvestment() * 0.001));
+						addCellNumber(row.getCell(7), numberFormat.format(measure.getLifetime()));
+						addCellNumber(row.getCell(8), kEuroFormat.format(measure.getInternalMaintenance()));
+						addCellNumber(row.getCell(9), kEuroFormat.format(measure.getExternalMaintenance()));
+						addCellNumber(row.getCell(10), numberFormat.format(measure.getRecurrentInvestment() * 0.001));
+						addCellNumber(row.getCell(11), numberFormat.format(measure.getCost() * 0.001));
+						addCellParagraph(row.getCell(12), measure.getComment());
+						addCellParagraph(row.getCell(13), measure.getToDo());
 					}
 				}
 
@@ -254,261 +299,218 @@ public class ExportAnalysisReport {
 
 		paragraph = findParagraphByText("<Summary>");
 
+		if (paragraph == null)
+			return;
+
 		// run = paragraph.getRuns().get(0);
 
 		List<SummaryStage> summary = analysis.getSummary(ActionPlanMode.APPN);
 
-		if (paragraph != null && summary.size() > 0) {
-
+		while (!paragraph.getRuns().isEmpty())
 			paragraph.removeRun(0);
 
-			// initialise table with 1 row and 1 column after the paragraph cursor
+		if (summary.isEmpty())
+			return;
 
-			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+		// initialise table with 1 row and 1 column after the paragraph
+		// cursor
 
-			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-			width.setW(BigInteger.valueOf(10000));
+		table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
-			// set header
+		table.setStyleID("TableTSSummary");
 
-			row = table.getRow(0);
+		CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
+		width.setW(BigInteger.valueOf(10000));
 
-			for (int i = 1; i < 3; i++)
-				row.addNewTableCell();
+		// set header
 
-			int rownumber = 0;
+		row = table.getRow(0);
 
-			while (rownumber < 22) {
+		for (int i = 1; i < 3; i++)
+			row.addNewTableCell();
 
-				if (rownumber == 0)
-					row = table.getRow(rownumber);
-				else
-					row = table.createRow();
+		int rownumber = 0;
 
-				switch (rownumber) {
-					case 0: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Phase characteristics");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							row.getCell(cellnumber).setText(stage.getStage());
-						}
-						break;
-					}
-					case 1: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Beginning date");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							if (cellnumber == 1)
-								continue;
-							// row.getCell(cellnumber).setText(stage.get);
-						}
-						break;
-					}
-					case 2: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("End date");
-						cellnumber++;
-						// row.getCell(cellnumber).setText(stage.getStage());
+		while (rownumber < 22) {
 
-						break;
-					}
-					case 3: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Compliance level 27001 (%)...");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
+			if (rownumber == 0)
+				row = table.getRow(rownumber);
+			else
+				row = table.createRow();
 
-							Double value = stage.getConformance27001();
-							String svalue = String.valueOf(value.intValue() * 100);
-
-							row.getCell(cellnumber).setText(svalue);
-						}
-						break;
-					}
-					case 4: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Compliance level 27002 (%)...");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							Double value = stage.getConformance27002();
-							String svalue = String.valueOf(value.intValue() * 100);
-							row.getCell(cellnumber).setText(svalue);
-						}
-						break;
-					}
-					case 5: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Number of measures for phase");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							row.getCell(cellnumber).setText("" + stage.getImplementedMeasuresCount());
-						}
-						break;
-					}
-					case 6: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Implemented measures (number)...");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							row.getCell(cellnumber).setText("" + stage.getImplementedMeasuresCount());
-						}
-						break;
-					}
-					case 7: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Profitability");
-						// merge columns
-						break;
-					}
-					case 8: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("ALE (k€/y)... at end");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							Double value = stage.getTotalALE() / 1000;
-							String svalue = new DecimalFormat("#").format(value);
-							row.getCell(cellnumber).setText(svalue);
-						}
-						break;
-					}
-					case 9: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Risk reduction (k€/y)");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							Double value = stage.getDeltaALE() / 1000;
-							String svalue = new DecimalFormat("#").format(value);
-							row.getCell(cellnumber).setText(svalue);
-						}
-						break;
-					}
-					case 10: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Average yearly cost of phase (k€/y)");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							Double value = stage.getCostOfMeasures() / 1000;
-							String svalue = new DecimalFormat("#").format(value);
-							row.getCell(cellnumber).setText(svalue);
-						}
-						break;
-					}
-					case 11: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("ROSI (k€/y)");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							Double value = stage.getROSI() / 1000;
-							String svalue = new DecimalFormat("#").format(value);
-							row.getCell(cellnumber).setText(svalue);
-						}
-						break;
-					}
-					case 12: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Relative ROSI");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							Double value = stage.getRelativeROSI() / 1000;
-							String svalue = new DecimalFormat("#").format(value);
-							row.getCell(cellnumber).setText(svalue);
-						}
-						break;
-					}
-					case 13: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Resource planning");
-						// mrege columns
-						break;
-					}
-					case 14: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Internal workload (md)");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							row.getCell(cellnumber).setText("" + stage.getInternalWorkload());
-						}
-						break;
-					}
-					case 15: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("External workload (md)");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							row.getCell(cellnumber).setText("" + stage.getExternalWorkload());
-						}
-						break;
-					}
-					case 16: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Investment (k€)");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							Double value = stage.getInvestment() / 1000;
-							String svalue = new DecimalFormat("#").format(value);
-							row.getCell(cellnumber).setText(svalue);
-						}
-						break;
-					}
-					case 17: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Internal maintenance (md)");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							row.getCell(cellnumber).setText("" + stage.getInternalMaintenance());
-						}
-						break;
-					}
-					case 18: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("External maintenance (md)");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							row.getCell(cellnumber).setText("" + stage.getExternalMaintenance());
-						}
-						break;
-					}
-					case 19: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Recurrent investment (k€)");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							Double value = stage.getRecurrentInvestment() / 1000;
-							String svalue = new DecimalFormat("#").format(value);
-							row.getCell(cellnumber).setText(svalue);
-						}
-						break;
-					}
-					case 20: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Recurrent costs (k€)");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							Double value = stage.getRecurrentCost() / 1000;
-							String svalue = new DecimalFormat("#").format(value);
-							row.getCell(cellnumber).setText(svalue);
-						}
-						break;
-					}
-					case 21: {
-						int cellnumber = 0;
-						row.getCell(cellnumber).setText("Total cost of phase (k€)");
-						for (SummaryStage stage : summary) {
-							cellnumber++;
-							Double value = stage.getTotalCostofStage() / 1000;
-							String svalue = new DecimalFormat("#").format(value);
-							row.getCell(cellnumber).setText(svalue);
-						}
-						break;
-					}
-
+			switch (rownumber) {
+			case 0: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.phase.characteristics", null, "Phase characteristics", locale));
+				for (SummaryStage stage : summary) {
+					XWPFTableCell cell = row.getCell(++cellnumber);
+					if (cell == null)
+						cell = row.addNewTableCell();
+					cell.setText(stage.getStage().equalsIgnoreCase("Start(P0)") ? getMessage("repport.summary_stage.phase.start", null, stage.getStage(), locale) : getMessage(
+							"repport.summary_stage.phase", stage.getStage().split(" "), stage.getStage(), locale));
 				}
+				break;
+			}
+			case 1: {
+				row.getCell(0).setText(getMessage("repport.summary_stage.date.beginning", null, "Beginning date", locale));
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				for (int i = 1; i < summary.size(); i++) {
+					addCellParagraph(row.getCell(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getBeginDate()));
+				}
+				break;
+			}
+			case 2: {
+				row.getCell(0).setText(getMessage("repport.summary_stage.date.end", null, "End date", locale));
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				for (int i = 1; i < summary.size(); i++)
+					addCellParagraph(row.getCell(i + 1), dateFormat.format(analysis.findPhaseByNumber(i).getEndDate()));
+				break;
+			}
+			case 3: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.compliance.level", new Object[] { "27001" }, "Compliance level 27001 (%)...", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), String.valueOf((int) (stage.getConformance27001() * 100)));
+				break;
+			}
+			case 4: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.compliance.level", new Object[] { "27002" }, "Compliance level 27002 (%)...", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), String.valueOf((int) (stage.getConformance27002() * 100)));
+				break;
+			}
+			case 5: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.number_of_measure_for_phase", null, "Number of measures for phase", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), "" + stage.getMeasureCount());
+				break;
+			}
+			case 6: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.implementted_measures", null, "Implemented measures (number)...", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), "" + stage.getImplementedMeasuresCount());
+				break;
+			}
+			case 7: {
+				while (row.getCtRow().getTcList().size() > 1)
+					row.getCtRow().removeTc(1);
+				if (row.getCell(0).getCTTc().getTcPr() == null)
+					row.getCell(0).getCTTc().addNewTcPr();
+				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(summary.size() + 1));
+				row.getCell(0).setText(getMessage("repport.summary_stage.profitability", null, "Profitability", locale));
 
-				rownumber++;
+				break;
+			}
+			case 8: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.ale_at_end", null, "ALE (k€/y)... at end", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getTotalALE() * 0.001)));
+				break;
+			}
+			case 9: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.risk_reduction", null, "Risk reduction (k€/y)", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getDeltaALE() * 0.001)));
+				break;
+			}
+			case 10: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.average_yearly_cost_of_phase", null, "Average yearly cost of phase (k€/y)", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getCostOfMeasures() * 0.001)));
+				break;
+			}
+			case 11: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.rosi", null, "ROSI (k€/y)", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getROSI() * 0.001)));
+				break;
+			}
+			case 12: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.rosi.relative", null, "Relative ROSI", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getRelativeROSI() * 0.001)));
+				break;
+			}
+			case 13: {
+				while (row.getCtRow().getTcList().size() > 1)
+					row.getCtRow().removeTc(1);
+				if (row.getCell(0).getCTTc().getTcPr() == null)
+					row.getCell(0).getCTTc().addNewTcPr();
+				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(summary.size() + 1));
+				row.getCell(0).setText(getMessage("repport.summary_stage.resource.planning", null, "Resource planning", locale));
+
+				// mrege columns
+
+				break;
+			}
+			case 14: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.workload.internal", null, "Internal workload (md)", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getInternalWorkload()));
+				break;
+			}
+			case 15: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.workload.external", null, "External workload (md)", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getExternalWorkload()));
+				break;
+			}
+			case 16: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.investment", null, "Investment (k€)", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getInvestment() * 0.001)));
+				break;
+			}
+			case 17: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.investment", null, "Internal maintenance (md)", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getInternalMaintenance()));
+				break;
+			}
+			case 18: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.maintenance.external", null, "External maintenance (md)", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getExternalMaintenance()));
+				break;
+			}
+			case 19: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.investment.recurrent", null, "Recurrent investment (k€)", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getRecurrentInvestment() * 0.001)));
+				break;
+			}
+			case 20: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.cost.recurrent", null, "Recurrent costs (k€)", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getRecurrentCost() * 0.001)));
+				break;
+			}
+			case 21: {
+				int cellnumber = 0;
+				row.getCell(cellnumber).setText(getMessage("repport.summary_stage.cost.total_of_phase", null, "Total cost of phase (k€)", locale));
+				for (SummaryStage stage : summary)
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getTotalCostofStage() * 0.001)));
+				break;
+			}
 
 			}
+
+			rownumber++;
 
 		}
 
@@ -527,11 +529,15 @@ public class ExportAnalysisReport {
 
 		if (paragraph != null && actionplan.size() > 0) {
 
-			paragraph.removeRun(0);
+			while (!paragraph.getRuns().isEmpty())
+				paragraph.removeRun(0);
 
-			// initialise table with 1 row and 1 column after the paragraph cursor
+			// initialise table with 1 row and 1 column after the paragraph
+			// cursor
 
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+			table.setStyleID("TableTSActionPlan");
 
 			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
 			width.setW(BigInteger.valueOf(10000));
@@ -543,19 +549,18 @@ public class ExportAnalysisReport {
 			for (int i = 1; i < 12; i++)
 				row.addNewTableCell();
 
-			row.getCell(0).setText("Nr");
-			row.getCell(1).setText("Norm");
-			row.getCell(2).setText("Ref.");
-			row.getCell(3).setText("Description");
-			row.getCell(4).setText("ALE (k€/y)");
-			row.getCell(5).setText("ΔNr");
-			row.getCell(6).setText("CS (k€/y)");
-			row.getCell(7).setText("ROSI (k€/y");
-			row.getCell(8).setText("IS");
-			row.getCell(9).setText("ES");
-			row.getCell(10).setText("INV (k€)");
-			row.getCell(11).setText("P");
-
+			row.getCell(0).setText(getMessage("repport.action_plan.row_number", null, "Nr", locale));
+			row.getCell(1).setText(getMessage("repport.action_plan.norm", null, "Norm", locale));
+			row.getCell(2).setText(getMessage("repport.action_plan.reference", null, "Ref.", locale));
+			row.getCell(3).setText(getMessage("repport.action_plan.description", null, "Description", locale));
+			row.getCell(4).setText(getMessage("repport.action_plan.ale", null, "ALE (k€/y)", locale));
+			row.getCell(5).setText(getMessage("repport.action_plan.delta_row_number", null, "ΔNr", locale));
+			row.getCell(6).setText(getMessage("repport.action_plan.cost", null, "CS (k€/y)", locale));
+			row.getCell(7).setText(getMessage("repport.action_plan.rosi", null, "ROSI (k€/y)", locale));
+			row.getCell(8).setText(getMessage("repport.action_plan.internal.workload", null, "IS", locale));
+			row.getCell(9).setText(getMessage("repport.action_plan.external.workload", null, "ES", locale));
+			row.getCell(10).setText(getMessage("repport.action_plan.investment", null, "INV (k€)", locale));
+			row.getCell(11).setText(getMessage("repport.action_plan.probability", null, "P", locale));
 			// add asset names
 			List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplan);
 			for (Asset asset : assets)
@@ -570,43 +575,31 @@ public class ExportAnalysisReport {
 				Hibernate.initialize(entry);
 				Hibernate.initialize(entry.getMeasure());
 				Hibernate.initialize(entry.getActionPlanAssets());
-				// System.out.println(entry.toString());
 				row.getCell(0).setText("" + nr);
 				row.getCell(1).setText(entry.getMeasure().getAnalysisNorm().getNorm().getLabel());
 				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
-				row.getCell(3).setText(entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain() + ":");
-				row.getCell(3).addParagraph().createRun().setText(entry.getMeasure().getToDo());
-				Double value = entry.getTotalALE() / 1000;
-				String svalue = new DecimalFormat("#").format(value);
-				row.getCell(4).setText(svalue);
-				row.getCell(5).setText(entry.getPosition());
-				value = entry.getMeasure().getCost() / 1000;
-				svalue = new DecimalFormat("#").format(value);
-				row.getCell(6).setText(svalue);
-				value = entry.getROI() / 1000;
-				svalue = new DecimalFormat("#").format(value);
-				row.getCell(7).setText(svalue);
-				row.getCell(8).setText("" + entry.getMeasure().getInternalWL());
-				row.getCell(9).setText("" + entry.getMeasure().getExternalWL());
-				value = entry.getMeasure().getInvestment() / 1000;
-				svalue = new DecimalFormat("#").format(value);
-				row.getCell(10).setText(svalue);
-				row.getCell(11).setText("" + entry.getMeasure().getPhase().getNumber());
+				addCellParagraph(row.getCell(3), entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain() + ":");
+				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo());
+				addCellNumber(row.getCell(4), numberFormat.format(entry.getTotalALE() * 0.001));
+				addCellNumber(row.getCell(5), entry.getPosition());
+				addCellNumber(row.getCell(6), numberFormat.format(entry.getMeasure().getCost() * 0.001));
+				addCellNumber(row.getCell(7), numberFormat.format(entry.getROI() * 0.001));
+				addCellNumber(row.getCell(8), "" + entry.getMeasure().getInternalWL());
+				addCellNumber(row.getCell(9), "" + entry.getMeasure().getExternalWL());
+				addCellNumber(row.getCell(10), numberFormat.format(entry.getMeasure().getInvestment() * 0.001));
+				addCellNumber(row.getCell(11), "" + entry.getMeasure().getPhase().getNumber());
 				List<ActionPlanAsset> tmpassets = entry.getActionPlanAssets();
-				for (int i = 12; i < assets.size() + 12; i++) {
-					for (ActionPlanAsset aasset : tmpassets) {
-						value = aasset.getCurrentALE() / 1000;
-						svalue = new DecimalFormat("#").format(value);
-						row.getCell(i).setText(svalue);
-					}
-				}
+				int countAsset = 12;
+				for (ActionPlanAsset aasset : tmpassets)
+					addCellNumber(row.getCell(countAsset++), numberFormat.format(aasset.getCurrentALE() * 0.001));
 			}
 
-			// Set the table style. If the style is not defined, the table style will become
+			// Set the table style. If the style is not defined, the table style
+			// will become
 			// "Normal".
-			// table.getCTTbl().getTblPr().addNewTblStyle().setVal("Table TS 1");
+			// table.getCTTbl().getTblPr().addNewTblStyle().setVal("TableTS");
 
-			// table.setStyleID("Table TS 1");
+			// table.setStyleID("TableTS");
 
 		}
 	}
@@ -634,11 +627,15 @@ public class ExportAnalysisReport {
 
 		if (paragraph != null && extendedParameters.size() > 0) {
 
-			paragraph.removeRun(0);
+			while (!paragraph.getRuns().isEmpty())
+				paragraph.removeRun(0);
 
-			// initialise table with 1 row and 1 column after the paragraph cursor
+			// initialise table with 1 row and 1 column after the paragraph
+			// cursor
 
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+			table.setStyleID("TableTS" + parmetertype);
 
 			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
 			width.setW(BigInteger.valueOf(10000));
@@ -647,54 +644,66 @@ public class ExportAnalysisReport {
 
 			row = table.getRow(0);
 
+			if (row.getTableCells().isEmpty())
+				row.createCell();
+			if (row.getCell(0).getCTTc().getTcPr() == null)
+				row.getCell(0).getCTTc().addNewTcPr();
+			row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(6));
+			row.getCell(0).setText(getMessage("repport.parameter.title." + parmetertype.toLowerCase(), null, parmetertype, locale));
+
+			row = table.createRow();
+
 			for (int i = 1; i < 6; i++)
-				row.addNewTableCell();
+				row.addNewTableCell().setColor("B8CCE4");
 
-			row.getCell(0).setText("Level");
-			row.getCell(1).setText("Acro");
-			row.getCell(2).setText("Qualification");
-			row.getCell(3).setText("Value");
-			row.getCell(4).setText("Value From [");
-			row.getCell(5).setText("Value To [");
+			row.getCell(0).setText(getMessage("repport.parameter.level", null, "Level", locale));
+			row.getCell(1).setText(getMessage("repport.parameter.acronym", null, "Acro", locale));
+			row.getCell(2).setText(getMessage("repport.parameter.qualification", null, "Qualification", locale));
+			row.getCell(3).setText(getMessage("repport.parameter.value", null, "Value", locale));
+			row.getCell(4).setText(getMessage("repport.parameter.value.from", null, "Value From [", locale));
+			row.getCell(5).setText(getMessage("repport.parameter.value.to", null, "Value To [", locale));
 
+			int countrow = 0;
 			// set data
 			for (ExtendedParameter extendedParameter : extendedParameters) {
 				row = table.createRow();
+			
+				while(row.getCtRow().getTcList().size()<6)
+					row.addNewTableCell();
 				row.getCell(0).setText("" + extendedParameter.getLevel());
 				row.getCell(1).setText(extendedParameter.getAcronym());
 				row.getCell(2).setText(extendedParameter.getDescription());
-
 				Double value = 0.;
-				String svalue = "";
-
 				value = extendedParameter.getValue();
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-					value /= 1000.;
-				svalue = new DecimalFormat("#.##").format(value);
-				row.getCell(3).setText(svalue);
-
+					value *= 0.001;
+				addCellNumber(row.getCell(3), kEuroFormat.format(value));
+				if (countrow % 2 != 0)
+					row.getCell(3).setColor("dbe5f1");
 				value = extendedParameter.getBounds().getFrom();
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-					value /= 1000.;
-				svalue = new DecimalFormat("#.##").format(value);
-				row.getCell(4).setText(svalue);
-
+					value *= 0.001;
+				addCellNumber(row.getCell(4), kEuroFormat.format(value));
 				if (extendedParameter.getLevel() == 10)
-					row.getCell(5).setText("+∞");
+					addCellNumber(row.getCell(5), "+∞");
 				else {
 					value = extendedParameter.getBounds().getTo();
 					if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-						value /= 1000.;
-					svalue = new DecimalFormat("#.##").format(value);
-					row.getCell(5).setText(svalue);
+						value *= 0.001;
+					addCellNumber(row.getCell(5), kEuroFormat.format(value));
 				}
+				for (int i = 4; i < 6; i++)
+					row.getCell(i).setColor("dbe5f1");
+
+				countrow++;
 			}
 
-			// Set the table style. If the style is not defined, the table style will become
+			// Set the table style. If the style is not defined, the table style
+			// will become
 			// "Normal".
-			// table.getCTTbl().getTblPr().addNewTblStyle().setVal("Table TS 1");
+			// table.getCTTbl().getTblPr().addNewTblStyle().setVal("TableTS");
 
-			// table.setStyleID("Table TS 1");
+			// table.setStyleID("TableTS");
 
 		}
 	}
@@ -707,6 +716,7 @@ public class ExportAnalysisReport {
 		List<RiskInformation> riskInformations = analysis.getRiskInformations();
 
 		Map<String, List<RiskInformation>> riskmapping = RiskInformationManager.Split(riskInformations);
+		boolean chapter = false;
 
 		for (String key : riskmapping.keySet()) {
 
@@ -716,7 +726,8 @@ public class ExportAnalysisReport {
 
 			if (paragraph != null && elements.size() > 0) {
 
-				paragraph.removeRun(0);
+				while (!paragraph.getRuns().isEmpty())
+					paragraph.removeRun(0);
 
 				RiskInformation previouselement = null;
 
@@ -731,42 +742,47 @@ public class ExportAnalysisReport {
 
 						table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
+						table.setStyleID("TableTS" + key);
+
 						CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
 						width.setW(BigInteger.valueOf(10000));
 
 						// set header
 						row = table.getRow(0);
-						row.getCell(0).setText("Id");
+						row.getCell(0).setText(getMessage(String.format("repport.risk_information.title.%s", "id"), null, "Id", locale));
 						row.addNewTableCell();
-						table.getRow(0).getCell(1).setText(riskinfo.getCategory());
-
+						table.getRow(0).getCell(1).setText(getMessage(String.format("repport.risk_information.title.%s", key.toLowerCase()), null, key.toLowerCase(), locale));
 						if (riskinfo.getCategory().equals("Threat")) {
 							row.addNewTableCell();
-							row.getCell(2).setText("Acro");
+							row.getCell(2).setText(getMessage(String.format("repport.risk_information.title.%s", "acro"), null, "Acro", locale));
 							row.addNewTableCell();
-							row.getCell(3).setText("Expo.");
+							row.getCell(3).setText(getMessage(String.format("repport.risk_information.title.%s", "expo"), null, "Expo.", locale));
 							row.addNewTableCell();
-							row.getCell(4).setText("Comment");
+							row.getCell(4).setText(getMessage(String.format("repport.risk_information.title.%s", "comment"), null, "Comment", locale));
 						} else {
 							row.addNewTableCell();
-							row.getCell(2).setText("Expo.");
+							row.getCell(2).setText(getMessage(String.format("repport.risk_information.title.%s", "expo"), null, "Expo.", locale));
 							row.addNewTableCell();
-							row.getCell(3).setText("Comment");
+							row.getCell(3).setText(getMessage(String.format("repport.risk_information.title.%s", "comment"), null, "Comment", locale));
 						}
 					}
 
 					previouselement = riskinfo;
-
 					row = table.createRow();
+					chapter = riskinfo.getChapter().matches("\\d(\\.0){2}");
 					row.getCell(0).setText(riskinfo.getChapter());
 					row.getCell(1).setText(riskinfo.getLabel());
 					if (riskinfo.getCategory().equals("Threat")) {
+						for (int i = 0; i < 3; i++)
+							row.getCell(i).setColor(chapter ? "B8CCE4" : "dbe5f1");
 						row.getCell(2).setText(riskinfo.getAcronym());
 						row.getCell(3).setText("" + riskinfo.getExposed());
-						row.getCell(4).setText("" + (riskinfo.getComment()));
+						addCellParagraph(row.getCell(4), riskinfo.getComment());
 					} else {
+						for (int i = 0; i < 2; i++)
+							row.getCell(i).setColor(chapter ? "B8CCE4" : "dbe5f1");
 						row.getCell(2).setText("" + riskinfo.getExposed());
-						row.getCell(3).setText("" + (riskinfo.getComment()));
+						addCellParagraph(row.getCell(3), riskinfo.getComment());
 					}
 				}
 			}
@@ -789,7 +805,8 @@ public class ExportAnalysisReport {
 
 		if (paragraph != null && assessments.size() > 0) {
 
-			paragraph.removeRun(0);
+			while (!paragraph.getRuns().isEmpty())
+				paragraph.removeRun(0);
 
 			Map<String, ALE> alesmap = new LinkedHashMap<String, ALE>();
 			Map<String, List<Assessment>> assessementsmap = new LinkedHashMap<String, List<Assessment>>();
@@ -797,6 +814,8 @@ public class ExportAnalysisReport {
 			AssessmentManager.SplitAssessment(assessments, alesmap, assessementsmap);
 
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+			table.setStyleID("TableTSAssessment");
 
 			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
 			width.setW(BigInteger.valueOf(10000));
@@ -806,7 +825,7 @@ public class ExportAnalysisReport {
 			row = table.getRow(0);
 
 			// set header
-			row.getCell(0).setText("Assets");
+			row.getCell(0).setText(getMessage("repport.assessment.assets", null, "Assets", locale));
 
 			row.getCell(0).getCTTc().addNewTcPr();
 
@@ -819,44 +838,59 @@ public class ExportAnalysisReport {
 			for (int i = 1; i < 5; i++)
 				row.addNewTableCell();
 
-			row.getCell(0).setText("Scenarios");
-			row.getCell(1).setText("Fin.");
-			row.getCell(2).setText("P.");
-			row.getCell(3).setText("ALE(k€/y");
-			row.getCell(4).setText("Comment");
+			row.getCell(0).setText(getMessage("repport.assessment.scenarios", null, "Scenarios", locale));
+			row.getCell(1).setText(getMessage("repport.assessment.impact.financial", null, "Fin.", locale));
+			row.getCell(1).setColor("c6d9f1");
+			row.getCell(2).setText(getMessage("repport.assessment.probability", null, "P.", locale));
+			row.getCell(2).setColor("c6d9f1");
+			row.getCell(3).setText(getMessage("repport.assessment.ale", null, "ALE(k€/y", locale));
+			row.getCell(3).setColor("c6d9f1");
+			row.getCell(4).setText(getMessage("repport.assessment.comment", null, "Comment", locale));
+			row.getCell(4).setColor("c6d9f1");
 
 			row = table.createRow();
 			for (int i = 1; i < 5; i++)
-				row.addNewTableCell();
-			row.getCell(0).setText("Total ALE of Assets");
-			Double value = totalale / 1000.;
-			String svalue = new DecimalFormat("#").format(value);
-			row.getCell(3).setText(svalue);
+				row.addNewTableCell().setColor("c6d9f1");
+			;
+			row.getCell(0).setText(getMessage("repport.assessment.total_ale.assets", null, "Total ALE of Assets", locale));
+			addCellNumber(row.getCell(3), numberFormat.format(totalale * 0.001));
 
 			for (String assetname : assessementsmap.keySet()) {
 				List<Assessment> assessmentsofasset = assessementsmap.get(assetname);
 				ALE ale = alesmap.get(assetname);
 				row = table.createRow();
 				for (int i = 1; i < 5; i++)
-					row.addNewTableCell();
+					row.addNewTableCell().setColor("c6d9f1");
 				row.getCell(0).setText(ale.getAssetName());
-				value = ale.getValue() / 1000.;
-				svalue = new DecimalFormat("#").format(value);
-				row.getCell(3).setText(svalue);
+				addCellNumber(row.getCell(3), numberFormat.format(ale.getValue() * 0.001));
 				for (Assessment assessment : assessmentsofasset) {
 					row = table.createRow();
 					for (int i = 1; i < 5; i++)
 						row.addNewTableCell();
 					row.getCell(0).setText(assessment.getScenario().getName());
-					row.getCell(1).setText(assessment.getImpactFin());
-					row.getCell(2).setText(assessment.getLikelihood());
-					value = assessment.getALE() / 1000.;
-					svalue = new DecimalFormat("#").format(value);
-					row.getCell(3).setText(svalue);
-					row.getCell(4).setText(assessment.getComment());
+					addCellNumber(row.getCell(1), formatedImpact(assessment.getImpactFin()));
+					addCellNumber(row.getCell(2), formatLikelihood(assessment.getLikelihood()));
+					addCellNumber(row.getCell(3), numberFormat.format(assessment.getALE() * 0.001));
+					addCellParagraph(row.getCell(4), assessment.getComment());
 				}
 			}
 
+		}
+	}
+
+	private String formatLikelihood(String likelihood) {
+		try {
+			return kEuroFormat.format(Double.parseDouble(likelihood));
+		} catch (Exception e) {
+			return likelihood;
+		}
+	}
+
+	private String formatedImpact(String impactFin) {
+		try {
+			return kEuroFormat.format(Double.parseDouble(impactFin) * 0.001);
+		} catch (Exception e) {
+			return impactFin;
 		}
 	}
 
@@ -871,9 +905,12 @@ public class ExportAnalysisReport {
 
 		if (paragraph != null && scenarios.size() > 0) {
 
-			paragraph.removeRun(0);
+			while (!paragraph.getRuns().isEmpty())
+				paragraph.removeRun(0);
 
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+			table.setStyleID("TableTSScenario");
 
 			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
 			width.setW(BigInteger.valueOf(10000));
@@ -886,9 +923,9 @@ public class ExportAnalysisReport {
 				row.addNewTableCell();
 
 			// set header
-			table.getRow(0).getCell(0).setText("Nr");
-			table.getRow(0).getCell(1).setText("Name");
-			table.getRow(0).getCell(2).setText("Description");
+			table.getRow(0).getCell(0).setText(getMessage("repport.scenario.title.number.row", null, "Nr", locale));
+			table.getRow(0).getCell(1).setText(getMessage("repport.scenario.title.number.name", null, "Name", locale));
+			table.getRow(0).getCell(2).setText(getMessage("repport.scenario.title.number.description", null, "Description", locale));
 
 			int number = 0;
 
@@ -896,9 +933,9 @@ public class ExportAnalysisReport {
 			for (Scenario scenario : scenarios) {
 				row = table.createRow();
 				number++;
-				row.getCell(0).setText("" + (number));
-				row.getCell(1).setText(scenario.getName());
-				row.getCell(2).setText(scenario.getDescription());
+				row.getCell(0).setText("" + number);
+				addCellParagraph(row.getCell(1), scenario.getName());
+				addCellParagraph(row.getCell(2), scenario.getDescription());
 			}
 		}
 	}
@@ -914,9 +951,12 @@ public class ExportAnalysisReport {
 
 		if (paragraph != null && assets.size() > 0) {
 
-			paragraph.removeRun(0);
+			while (!paragraph.getRuns().isEmpty())
+				paragraph.removeRun(0);
 
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+			table.setStyleID("TableTSAsset");
 
 			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
 			width.setW(BigInteger.valueOf(10000));
@@ -929,12 +969,12 @@ public class ExportAnalysisReport {
 				row.addNewTableCell();
 
 			// set header
-			table.getRow(0).getCell(0).setText("Nr");
-			table.getRow(0).getCell(1).setText("Name");
-			table.getRow(0).getCell(2).setText("Type");
-			table.getRow(0).getCell(3).setText("Value (k€)");
-			table.getRow(0).getCell(4).setText("ALE (k€)");
-			table.getRow(0).getCell(5).setText("Comment");
+			table.getRow(0).getCell(0).setText(getMessage("repport.asset.title.number.row", null, "Nr", locale));
+			table.getRow(0).getCell(1).setText(getMessage("repport.asset.title.name", null, "Name", locale));
+			table.getRow(0).getCell(2).setText(getMessage("repport.asset.title.type", null, "Type", locale));
+			table.getRow(0).getCell(3).setText(getMessage("repport.asset.title.value", null, "Value(k€)", locale));
+			table.getRow(0).getCell(4).setText(getMessage("repport.asset.title.ale", null, "ALE(k€)", locale));
+			table.getRow(0).getCell(5).setText(getMessage("repport.asset.title.comment", null, "Comment", locale));
 
 			int number = 0;
 
@@ -945,13 +985,10 @@ public class ExportAnalysisReport {
 				row.getCell(0).setText("" + (number));
 				row.getCell(1).setText(asset.getName());
 				row.getCell(2).setText(asset.getAssetType().getType());
-				Double value = asset.getValue() / 1000.;
-				String svalue = new DecimalFormat("#").format(value);
-				row.getCell(3).setText(svalue);
-				value = asset.getALE() / 1000.;
-				svalue = new DecimalFormat("#").format(value);
-				row.getCell(4).setText(svalue);
-				row.getCell(5).setText(asset.getComment());
+				addCellNumber(row.getCell(3), kEuroFormat.format(asset.getValue() * 0.001));
+				row.getCell(4).setColor("c6d9f1");
+				addCellNumber(row.getCell(4), kEuroFormat.format(asset.getALE() * 0.001));
+				addCellParagraph(row.getCell(5), asset.getComment());
 			}
 		}
 	}
@@ -967,11 +1004,15 @@ public class ExportAnalysisReport {
 
 		if (paragraph != null && iteminformations.size() > 0) {
 
-			paragraph.removeRun(0);
+			while (!paragraph.getRuns().isEmpty())
+				paragraph.removeRun(0);
 
-			// initialise table with 1 row and 1 column after the paragraph cursor
+			// initialise table with 1 row and 1 column after the paragraph
+			// cursor
 
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+			table.setStyleID("TableTSScope");
 
 			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
 			width.setW(BigInteger.valueOf(10000));
@@ -983,22 +1024,25 @@ public class ExportAnalysisReport {
 			for (int i = 1; i < 2; i++)
 				row.addNewTableCell();
 
-			row.getCell(0).setText("Description");
-			row.getCell(1).setText("Value");
+			row.getCell(0).setText(getMessage("repport.scope.title.description", null, "Description", locale));
+			row.getCell(1).setText(getMessage("repport.scope.title.value", null, "Value", locale));
 
 			// set data
 			for (ItemInformation iteminfo : iteminformations) {
 				row = table.createRow();
-				row.getCell(0).setText(iteminfo.getDescription());
-				row.getCell(1).setText(iteminfo.getValue());
+				row.getCell(0).setText(getMessage("repport.scope.name." + iteminfo.getDescription().toLowerCase(), null, iteminfo.getDescription(), locale));
+				addCellParagraph(row.getCell(1), iteminfo.getValue());
 			}
 		}
 	}
 
+	private String getMessage(String code, Object[] parameters, String defaultMessage, Locale locale) {
+		// System.out.println(String.format("%s=%s", code, defaultMessage));
+		return messageSource.getMessage(code, parameters, defaultMessage, locale);
+	}
+
 	private XWPFParagraph findParagraphByText(String text) {
-
 		List<XWPFParagraph> paragraphs = document.getParagraphs();
-
 		for (XWPFParagraph paragraph : paragraphs) {
 			if (paragraph.getParagraphText().equals(text))
 				return paragraph;
@@ -1088,5 +1132,21 @@ public class ExportAnalysisReport {
 	 */
 	public void setDocument(XWPFDocument document) {
 		this.document = document;
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
 	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * ActionPlanEntry: <br>
@@ -81,8 +82,9 @@ public class ActionPlanEntry implements Serializable {
 	 * @param deltaALE
 	 *            The Delta ALE
 	 * @throws IllegalArgumentException
+	 * @throws TrickException 
 	 */
-	public ActionPlanEntry(Measure measure, ActionPlanType actionplantype, double deltaALE) throws IllegalArgumentException {
+	public ActionPlanEntry(Measure measure, ActionPlanType actionplantype, double deltaALE) throws IllegalArgumentException, TrickException {
 
 		// the measure
 		setMeasure(measure);
@@ -113,9 +115,10 @@ public class ActionPlanEntry implements Serializable {
 	 *            The Total ALE value
 	 * @param deltaALE
 	 *            The Delta ALE value
+	 * @throws TrickException 
 	 */
 	public ActionPlanEntry(NormMeasure measure, ActionPlanType actionPlanType,
-			List<ActionPlanAsset> actionPlanAssets, double totalALE, double deltaALE) {
+			List<ActionPlanAsset> actionPlanAssets, double totalALE, double deltaALE) throws TrickException {
 
 		// the measure
 		setMeasure(measure);
@@ -307,8 +310,11 @@ public class ActionPlanEntry implements Serializable {
 	 * 
 	 * @param deltaALE
 	 *            The value to set the Delta ALE
+	 * @throws TrickException 
 	 */
-	public void setDeltaALE(double deltaALE) {
+	public void setDeltaALE(double deltaALE) throws TrickException {
+		if(Double.isNaN(deltaALE))
+			throw new TrickException("error.action_plan_entry.delta_ale.nan", "Please check your data: Delta ALE is not a number");
 		if (deltaALE < 0) {
 			throw new IllegalArgumentException("Delta ALE cannot be < 0!");
 		}

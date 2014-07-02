@@ -23,6 +23,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.dao.DAOActionPlanType;
 import lu.itrust.business.dao.DAOAnalysis;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceTaskFeedback;
 
@@ -1074,8 +1075,9 @@ public class ActionPlanComputation {
 	 * @return The Temporary Action Plan Entries
 	 * 
 	 * @throws InvalidAttributesException
+	 * @throws TrickException 
 	 */
-	private List<ActionPlanEntry> generateTemporaryActionPlan(List<Measure> usedMeasures, ActionPlanType actionPlanType, List<TMA> TMAList) throws InvalidAttributesException {
+	private List<ActionPlanEntry> generateTemporaryActionPlan(List<Measure> usedMeasures, ActionPlanType actionPlanType, List<TMA> TMAList) throws InvalidAttributesException, TrickException {
 
 		// ****************************************************************
 		// * variables initialisation
@@ -1109,9 +1111,10 @@ public class ActionPlanComputation {
 	 * @param tmpActionPlan
 	 *            The Temporary Action Plan with all usable Entries
 	 * @throws InvalidAttributesException
+	 * @throws TrickException 
 	 */
 	private void generateNormalActionPlanEntries(List<ActionPlanEntry> tmpActionPlan, ActionPlanType actionPlanType, List<Measure> usedMeasures, List<TMA> TMAList)
-			throws InvalidAttributesException {
+			throws InvalidAttributesException, TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -1261,8 +1264,9 @@ public class ActionPlanComputation {
 	 * @param TMAList
 	 *            The list of TMA
 	 * @throws InvalidAttributesException
+	 * @throws TrickException 
 	 */
-	private void generateMaturtiyChapterActionPlanEntries(List<ActionPlanEntry> tmpActionPlan, List<Measure> usedMeasures, List<TMA> TMAList) throws InvalidAttributesException {
+	private void generateMaturtiyChapterActionPlanEntries(List<ActionPlanEntry> tmpActionPlan, List<Measure> usedMeasures, List<TMA> TMAList) throws InvalidAttributesException, TrickException {
 
 		// ****************************************************************
 		// * inistialise variables
@@ -1596,8 +1600,9 @@ public class ActionPlanComputation {
 	 *            The Action Plan Entry(used to store ALE values of the Assets)
 	 * @param normMeasure
 	 *            The taken AnalysisNorm Measure
+	 * @throws TrickException 
 	 */
-	private void adaptValuesForNormMeasure(List<TMA> TMAList, ActionPlanEntry actionPlanEntry, NormMeasure normMeasure) {
+	private void adaptValuesForNormMeasure(List<TMA> TMAList, ActionPlanEntry actionPlanEntry, NormMeasure normMeasure) throws TrickException {
 
 		// ****************************************************************
 		// * variable initialisation
@@ -1665,8 +1670,9 @@ public class ActionPlanComputation {
 	 * @param TMAList
 	 * @param actionPlanEntry
 	 * @param maturityMeasure
+	 * @throws TrickException 
 	 */
-	private void adaptValuesForMaturityMeasure(List<TMA> TMAList, ActionPlanEntry actionPlanEntry, MaturityMeasure maturityMeasure) {
+	private void adaptValuesForMaturityMeasure(List<TMA> TMAList, ActionPlanEntry actionPlanEntry, MaturityMeasure maturityMeasure) throws TrickException {
 
 		// ****************************************************************
 		// * variable initialisation
@@ -1787,9 +1793,10 @@ public class ActionPlanComputation {
 	 * @param norms
 	 *            List of AnalysisNorms to be used in the actionplan (to
 	 *            generate only TMA entries for the given norms)
+	 * @throws TrickException 
 	 */
 	public static List<TMA> generateTMAList(Analysis analysis, List<Measure> usedMeasures, ActionPlanMode mode, int phase, boolean isCssf, boolean maturitycomputation,
-			List<AnalysisNorm> norms) {
+			List<AnalysisNorm> norms) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -1947,9 +1954,10 @@ public class ActionPlanComputation {
 	 * @param usefulMeasure
 	 *            Flag to determine is this measure needs to be added to the
 	 *            usedMeasures (a valid Measure)
+	 * @throws TrickException 
 	 */
 	private static void generateTMAEntry(Analysis analysis, List<TMA> TMAList, List<Measure> usedMeasures, ActionPlanMode mode, MeasureNorm measureNorm, NormMeasure normMeasure,
-			boolean usefulMeasure, boolean maturitycomputation, List<AnalysisNorm> norms) {
+			boolean usefulMeasure, boolean maturitycomputation, List<AnalysisNorm> norms) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -2427,8 +2435,9 @@ public class ActionPlanComputation {
 	 * @param mode
 	 *            Defines which Type of Action Plan (Normal, Optimisitc or
 	 *            Pessimistic)
+	 * @throws TrickException 
 	 */
-	private void computeSummary(ActionPlanMode mode) {
+	private void computeSummary(ActionPlanMode mode) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -2796,8 +2805,9 @@ public class ActionPlanComputation {
 	 *            The Name to give for the Stage
 	 * @param firstStage
 	 *            Flag to tell if the Stage is the First Stage
+	 * @throws TrickException 
 	 */
-	private void generateStage(ActionPlanType type, SummaryValues tmpval, List<SummaryStage> sumStage, String name, boolean firstStage) {
+	private void generateStage(ActionPlanType type, SummaryValues tmpval, List<SummaryStage> sumStage, String name, boolean firstStage) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -3178,6 +3188,9 @@ public class ActionPlanComputation {
 
 						// increment measure counter
 						Integer denominator = (Integer) chapter[1];
+						
+						if(denominator == 0)
+							throw new TrickException("error.summary.no.implemented.measure", "No implemented measure");
 
 						tmpval.confCustom += (numerator / (double) denominator);
 

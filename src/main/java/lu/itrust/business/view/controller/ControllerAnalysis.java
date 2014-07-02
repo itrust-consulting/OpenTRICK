@@ -1090,6 +1090,8 @@ public class ControllerAnalysis {
 		try {
 
 			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
+			
+			exportAnalysisReport.setMessageSource(messageSource);
 
 			file = exportAnalysisReport.exportToWordDocument(analysisId, request.getServletContext(), serviceAnalysis, true);
 

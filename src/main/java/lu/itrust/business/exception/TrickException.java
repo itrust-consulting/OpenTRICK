@@ -39,6 +39,12 @@ public class TrickException extends Exception {
 	}
 	
 
+	public TrickException(String code, String message, String... parameters) {
+		super(message);
+		this.code = code;
+		this.parameters = parameters;
+	}
+
 	/**
 	 * @return the code
 	 */

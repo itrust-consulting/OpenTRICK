@@ -203,7 +203,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				throw new NotFoundException("Analysis does not exist!");
 
 			if (principal == null)
-				throw new InvalidParameterException("Principal cannot be null!");
+				return false;
 
 			if (right == null)
 				throw new InvalidParameterException("AnalysisRight cannot be null!");
