@@ -25,19 +25,16 @@ import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.TS.Scenario;
-import lu.itrust.business.TS.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.component.ActionPlanManager;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.RiskInformationManager;
 import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.service.ServiceAnalysis;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.xwpf.usermodel.LineSpacingRule;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -59,6 +56,16 @@ import org.springframework.context.MessageSource;
  * @since May 27, 2014
  */
 public class ExportAnalysisReport {
+
+	private static final String SUPER_HEAD_COLOR = "95b3d7";
+
+	private static final String DEFAULT_CELL_COLOR = "f5f9f0";
+
+	private static final String ZERO_COST_COLOR = "e6b8b7";
+
+	private static final String SUB_HEADER_COLOR = "dbe5f1";
+
+	private static final String HEADER_COLOR = "B8CCE4";
 
 	private XWPFDocument document = null;
 
@@ -190,6 +197,7 @@ public class ExportAnalysisReport {
 
 	private XWPFRun addCellNumber(XWPFTableCell cell, String number) {
 		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
+		paragraph.setStyle("TableParagraphTS");
 		paragraph.setAlignment(ParagraphAlignment.RIGHT);
 		XWPFRun run = paragraph.createRun();
 		run.setText(number);
@@ -198,7 +206,7 @@ public class ExportAnalysisReport {
 
 	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text) {
 		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
-		paragraph.setSpacingLineRule(LineSpacingRule.EXACT);
+		paragraph.setStyle("TableParagraphTS");
 		paragraph.setAlignment(ParagraphAlignment.LEFT);
 		String[] texts = text.split("(\r\n|\n\r|\r|\n)");
 		for (int i = 0; i < texts.length; i++) {
@@ -225,13 +233,20 @@ public class ExportAnalysisReport {
 			while (!paragraph.getRuns().isEmpty())
 				paragraph.removeRun(0);
 
+			boolean isFirst = true;
+
 			for (AnalysisNorm anorm : anorms) {
 
 				// initialise table with 1 row and 1 column after the paragraph
 				// cursor
 
-				paragraph.createRun().setText(anorm.getNorm().getLabel());
-
+				if (isFirst)
+					isFirst = false;
+				else{
+					paragraph = document.createParagraph();
+					paragraph.createRun().addCarriageReturn();
+				}
+				
 				table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
 				table.setStyleID("TableTSMeasure");
@@ -243,8 +258,22 @@ public class ExportAnalysisReport {
 
 				row = table.getRow(0);
 
-				for (int i = 1; i < 14; i++)
-					row.createCell();
+				if (row.getCtRow().getTcList().isEmpty())
+					row.addNewTableCell();
+				if (row.getCell(0).getCTTc().getTcPr() == null)
+					row.getCell(0).getCTTc().addNewTcPr();
+
+				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(14));
+
+				row.getCell(0).setText(anorm.getNorm().getLabel());
+
+				row = table.createRow();
+				
+				if(!row.getTableCells().isEmpty())
+					row.getCell(0).setColor(SUPER_HEAD_COLOR);
+				
+				while (row.getTableCells().size() < 14)
+					row.createCell().setColor(SUPER_HEAD_COLOR);
 
 				row.getCell(0).setText(getMessage("repport.measure.reference", null, "Ref.", locale));
 				row.getCell(1).setText(getMessage("repport.measure.domain", null, "Domain", locale));
@@ -262,17 +291,23 @@ public class ExportAnalysisReport {
 				row.getCell(13).setText(getMessage("repport.measure.to_do", null, "To Do", locale));
 				// set data
 				for (Measure measure : anorm.getMeasures()) {
+					
 					row = table.createRow();
-					Hibernate.initialize(measure);
-					Hibernate.initialize(measure.getPhase());
-					Hibernate.initialize(measure.getMeasureDescription());
-
+					while (row.getTableCells().size() < 14)
+						row.createCell();
+					
+					row.getCell(0).setText(measure.getMeasureDescription().getReference());
+					row.getCell(1).setText(measure.getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain());
 					if (measure.getMeasureDescription().getLevel() < 3) {
-						row.getCell(0).setText(measure.getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain());
+						while (row.getCtRow().getTcList().size() > 2)
+							row.getCtRow().getTcList().remove(2);
+						if (row.getCell(1).getCTTc().getTcPr() == null)
+							row.getCell(1).getCTTc().addNewTcPr();
+						row.getCell(1).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(13));
+						for (int i = 0; i < 2; i++)
+							row.getCell(i).setColor(measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
 					} else {
-						// System.out.println(entry.toString());
-						row.getCell(0).setText(measure.getMeasureDescription().getReference());
-						row.getCell(1).setText(measure.getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain());
+						
 						row.getCell(2).setText(measure.getStatus());
 						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
 						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
@@ -285,9 +320,18 @@ public class ExportAnalysisReport {
 						addCellNumber(row.getCell(11), numberFormat.format(measure.getCost() * 0.001));
 						addCellParagraph(row.getCell(12), measure.getComment());
 						addCellParagraph(row.getCell(13), measure.getToDo());
+
+						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue() >= 100) {
+							for (int i = 0; i < 14; i++)
+								row.getCell(i).setColor(DEFAULT_CELL_COLOR);
+						} else {
+							row.getCell(0).setColor(SUB_HEADER_COLOR);
+							row.getCell(1).setColor(SUB_HEADER_COLOR);
+							row.getCell(11).setColor(measure.getCost() == 0? ZERO_COST_COLOR : SUB_HEADER_COLOR);
+						}
+							
 					}
 				}
-
 			}
 		}
 	}
@@ -561,13 +605,7 @@ public class ExportAnalysisReport {
 			row.getCell(9).setText(getMessage("repport.action_plan.external.workload", null, "ES", locale));
 			row.getCell(10).setText(getMessage("repport.action_plan.investment", null, "INV (k€)", locale));
 			row.getCell(11).setText(getMessage("repport.action_plan.probability", null, "P", locale));
-			// add asset names
-			List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplan);
-			for (Asset asset : assets)
-				row.addNewTableCell().setText(asset.getName());
-
 			int nr = 0;
-
 			// set data
 			for (ActionPlanEntry entry : actionplan) {
 				row = table.createRow();
@@ -578,7 +616,10 @@ public class ExportAnalysisReport {
 				row.getCell(0).setText("" + nr);
 				row.getCell(1).setText(entry.getMeasure().getAnalysisNorm().getNorm().getLabel());
 				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
-				addCellParagraph(row.getCell(3), entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain() + ":");
+				paragraph = addCellParagraph(row.getCell(3), entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain() + ":");
+				for (XWPFRun run : paragraph.getRuns())
+					run.setBold(true);
+				paragraph.createRun().addBreak();
 				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo());
 				addCellNumber(row.getCell(4), numberFormat.format(entry.getTotalALE() * 0.001));
 				addCellNumber(row.getCell(5), entry.getPosition());
@@ -588,10 +629,9 @@ public class ExportAnalysisReport {
 				addCellNumber(row.getCell(9), "" + entry.getMeasure().getExternalWL());
 				addCellNumber(row.getCell(10), numberFormat.format(entry.getMeasure().getInvestment() * 0.001));
 				addCellNumber(row.getCell(11), "" + entry.getMeasure().getPhase().getNumber());
-				List<ActionPlanAsset> tmpassets = entry.getActionPlanAssets();
-				int countAsset = 12;
-				for (ActionPlanAsset aasset : tmpassets)
-					addCellNumber(row.getCell(countAsset++), numberFormat.format(aasset.getCurrentALE() * 0.001));
+				for (int i = 0; i < 11; i++)
+					row.getCell(i).setColor(SUB_HEADER_COLOR);
+
 			}
 
 			// Set the table style. If the style is not defined, the table style
@@ -654,7 +694,7 @@ public class ExportAnalysisReport {
 			row = table.createRow();
 
 			for (int i = 1; i < 6; i++)
-				row.addNewTableCell().setColor("B8CCE4");
+				row.addNewTableCell().setColor(HEADER_COLOR);
 
 			row.getCell(0).setText(getMessage("repport.parameter.level", null, "Level", locale));
 			row.getCell(1).setText(getMessage("repport.parameter.acronym", null, "Acro", locale));
@@ -667,8 +707,8 @@ public class ExportAnalysisReport {
 			// set data
 			for (ExtendedParameter extendedParameter : extendedParameters) {
 				row = table.createRow();
-			
-				while(row.getCtRow().getTcList().size()<6)
+
+				while (row.getCtRow().getTcList().size() < 6)
 					row.addNewTableCell();
 				row.getCell(0).setText("" + extendedParameter.getLevel());
 				row.getCell(1).setText(extendedParameter.getAcronym());
@@ -679,7 +719,7 @@ public class ExportAnalysisReport {
 					value *= 0.001;
 				addCellNumber(row.getCell(3), kEuroFormat.format(value));
 				if (countrow % 2 != 0)
-					row.getCell(3).setColor("dbe5f1");
+					row.getCell(3).setColor(SUB_HEADER_COLOR);
 				value = extendedParameter.getBounds().getFrom();
 				if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
 					value *= 0.001;
@@ -693,7 +733,7 @@ public class ExportAnalysisReport {
 					addCellNumber(row.getCell(5), kEuroFormat.format(value));
 				}
 				for (int i = 4; i < 6; i++)
-					row.getCell(i).setColor("dbe5f1");
+					row.getCell(i).setColor(SUB_HEADER_COLOR);
 
 				countrow++;
 			}
@@ -774,13 +814,13 @@ public class ExportAnalysisReport {
 					row.getCell(1).setText(riskinfo.getLabel());
 					if (riskinfo.getCategory().equals("Threat")) {
 						for (int i = 0; i < 3; i++)
-							row.getCell(i).setColor(chapter ? "B8CCE4" : "dbe5f1");
+							row.getCell(i).setColor(chapter ? HEADER_COLOR : SUB_HEADER_COLOR);
 						row.getCell(2).setText(riskinfo.getAcronym());
 						row.getCell(3).setText("" + riskinfo.getExposed());
 						addCellParagraph(row.getCell(4), riskinfo.getComment());
 					} else {
 						for (int i = 0; i < 2; i++)
-							row.getCell(i).setColor(chapter ? "B8CCE4" : "dbe5f1");
+							row.getCell(i).setColor(chapter ? HEADER_COLOR : SUB_HEADER_COLOR);
 						row.getCell(2).setText("" + riskinfo.getExposed());
 						addCellParagraph(row.getCell(3), riskinfo.getComment());
 					}

@@ -288,3 +288,9 @@ table.floatThead-table {
 .resize_vectical_only {
 	resize:vertical;
 }
+
+td > pre{
+	border: none;
+	background-color: inherit;
+}
+

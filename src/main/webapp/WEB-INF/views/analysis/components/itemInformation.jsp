@@ -11,6 +11,7 @@
 			<spring:message code="label.scope" text="Scope" />
 		</h3>
 	</div>
+	<c:set var="newline" value="(\r\n|\n\r|\r|\n)"/>
 	<div class="row">
 		<div class="col-md-12">
 			<div class="panel panel-default">
@@ -30,8 +31,10 @@
 						<tbody>
 							<c:forEach items="${itemInformations}" var="itemInformation">
 								<tr trick-class="ItemInformation" trick-id="${itemInformation.id}">
-									<td colspan="2"><spring:message code="label.itemInformation.${itemInformation.description.trim()}" text="${itemInformation.description}" /></td>
-									<td colspan="1" trick-field="value" trick-content="text" trick-field-type="string" class="success" ondblclick="return editField(this);"><spring:message text="${itemInformation.value}" /></td>
+									<td colspan="2">
+									<spring:message code="label.itemInformation.${itemInformation.description.trim()}" text="${itemInformation.description}" htmlEscape="false" javaScriptEscape="true"/></td>
+									<td colspan="1" ondblclick="return editField(this.firstElementChild);" class="success">
+									<pre trick-field="value" trick-content="text" trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
 								</tr>
 							</c:forEach>
 						</tbody>

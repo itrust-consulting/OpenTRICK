@@ -106,7 +106,9 @@
 											<td ${csscentered} trick-field="externalWL" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.externalWL}"
 													maxFractionDigits="2" /></td>
 											<td ${csscentered} trick-field="investment" trick-field-type="double" ondblclick="return editField(this);"
-												title='<fmt:formatNumber value="${measure.investment}" />&euro;'><fmt:formatNumber value="${measure.investment*0.001}" maxFractionDigits="0" /></td>
+												title='<fmt:formatNumber value="${measure.investment}" />&euro;' real-value='<fmt:formatNumber
+			value="${measure.investment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
+													value="${measure.investment*0.001}" maxFractionDigits="0" /></td>
 											<td ${csscentered} trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.lifetime}"
 													maxFractionDigits="2" /></td>
 											<td ${csscentered} trick-field="internalMaintenance" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
@@ -114,7 +116,10 @@
 											<td ${csscentered} trick-field="externalMaintenance" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
 													value="${measure.externalMaintenance}" maxFractionDigits="2" /></td>
 											<td ${csscentered} trick-field="recurrentInvestment" trick-field-type="double" ondblclick="return editField(this);"
-												title='<fmt:formatNumber value="${measure.recurrentInvestment}" />&euro;'><fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="0" /></td>
+												title='<fmt:formatNumber value="${measure.recurrentInvestment}" />&euro;'
+												real-value='<fmt:formatNumber
+			value="${measure.recurrentInvestment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
+													value="${measure.recurrentInvestment*0.001}" maxFractionDigits="0" /></td>
 											<c:set var="cost">
 												<fmt:formatNumber value="${measure.cost*0.001}" maxFractionDigits="0" />
 											</c:set>

@@ -44,7 +44,7 @@
 							<td>${status.index+1}</td>
 							<td class="${cssClass}" colspan="2"><spring:message text="${scenario.name}" /></td>
 							<td class="${cssClass}"><spring:message text="${scenario.scenarioType.name}" /></td>
-							<td class="${cssClass}" colspan="2"><spring:message text="${scenario.description}" /></td>
+							<td class="${cssClass}" colspan="2"><pre><spring:message text="${scenario.description}" /></pre></td>
 						</tr>
 					</c:forEach>
 				</tbody>

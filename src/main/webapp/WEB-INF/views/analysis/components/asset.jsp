@@ -47,8 +47,8 @@
 							<td class="${cssClass}"><spring:message text="${asset.name}" /></td>
 							<td class="${cssClass}"><spring:message text="${ asset.assetType.type}" /></td>
 							<td class="${cssClass}" title='<fmt:formatNumber value="${asset.value}"/>&euro;'><fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="1" /></td>
-							<td class="${cssClass}" colspan="3"><spring:message text="${asset.comment}" /></td>
-							<td class="${cssClass}" colspan="3"><spring:message text="${asset.hiddenComment}" /></td>
+							<td class="${cssClass}" colspan="3"><pre><spring:message text="${asset.comment}" /></pre></td>
+							<td class="${cssClass}" colspan="3"><pre><spring:message text="${asset.hiddenComment}" /></pre></td>
 						</tr>
 					</c:forEach>
 				</tbody>

@@ -22,6 +22,16 @@ function RRFView() {
 		return false;
 	};
 
+	RRFView.prototype.UpdateChartView = function(response) {
+		if (response.chart != null && response.chart != undefined)
+			this.chart = $($(this.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
+		else if (response.error != undefined) {
+			$(this.modal_body).find("#chart_rrf").html('<div style="width: 1151px; height: 400px; padding-top: 12%"></div>');
+			showError($(this.modal_body).find("#chart_rrf div")[0], response.error);
+		}
+		return false;
+	};
+
 	RRFView.prototype.UpdateChart = function(fiedName, value) {
 		return this.controller.UpdateChart(fiedName, value);
 	};
@@ -266,9 +276,7 @@ function ScenarioRRFController(rrfView, container, name) {
 			data : '{"id":' + that.idScenario + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.rrfView.filter) + '}',
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				if (response.chart != null && response.chart != undefined)
-					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
-				return false;
+				return that.rrfView.UpdateChartView(response);
 			}
 		});
 		return false;
@@ -289,7 +297,7 @@ function ScenarioRRFController(rrfView, container, name) {
 						var clone = $(that.sliders[i]).clone();
 						var field = $(clone).prop("name");
 						var fieldValue = response[field];
-						if(fieldValue == undefined) {
+						if (fieldValue == undefined) {
 							for (var j = 0; j < response.assetTypeValues.length; j++) {
 								if (response.assetTypeValues[j].assetType.type == field) {
 									fieldValue = response.assetTypeValues[j].value;
@@ -385,9 +393,7 @@ function ScenarioRRFController(rrfView, container, name) {
 			data : JSON.stringify(that.rrfView.filter),
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				if (response.chart != null && response.chart != undefined)
-					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
-				return false;
+				return that.rrfView.UpdateChartView(response);
 			}
 		});
 	};
@@ -500,9 +506,7 @@ function MeasureRRFController(rrfView, container, name) {
 			data : '{"id":' + that.idMeasure + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.rrfView.filter) + '}',
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				if (response.chart != null && response.chart != undefined)
-					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
-				return false;
+				return that.rrfView.UpdateChartView(response);
 			}
 		});
 	};
@@ -625,9 +629,7 @@ function MeasureRRFController(rrfView, container, name) {
 			data : JSON.stringify(that.rrfView.filter),
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				if (response.chart != null && response.chart != undefined)
-					that.rrfView.chart = $($(that.rrfView.modal_body).find("#chart_rrf").highcharts(response)).highcharts();
-				return false;
+				return that.rrfView.UpdateChartView(response);
 			}
 		});
 	};

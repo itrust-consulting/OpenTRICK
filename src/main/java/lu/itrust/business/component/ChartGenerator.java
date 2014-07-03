@@ -20,6 +20,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.helper.ALE;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.component.helper.RRFAssetType;
 import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.component.helper.RRFMeasure;
@@ -31,6 +32,7 @@ import lu.itrust.business.dao.DAOMeasure;
 import lu.itrust.business.dao.DAOParameter;
 import lu.itrust.business.dao.DAOPhase;
 import lu.itrust.business.dao.DAOScenario;
+import lu.itrust.business.exception.TrickException;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -930,7 +932,11 @@ public class ChartGenerator {
 						+ messageSource.getMessage("label.measures", null, "Measures", locale) + "\"}}";
 
 			return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
-		} catch (Exception e) {
+		}
+		catch(TrickException e){
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -1007,7 +1013,12 @@ public class ChartGenerator {
 						+ messageSource.getMessage("label.scenarios", null, "Scenario", locale) + "\"}}";
 
 			return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
-		} catch (Exception e) {
+		} 
+		
+		catch(TrickException e){
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
