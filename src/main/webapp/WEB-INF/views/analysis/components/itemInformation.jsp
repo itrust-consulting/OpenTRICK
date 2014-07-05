@@ -19,11 +19,11 @@
 				&nbsp;
 				</div>
 				<div class="panel-body autofitpanelbodydefinition">
-					<table id="iteminformationtable" class="table table-condensed table-hover headertofixtable">
+					<table id="iteminformationtable" class="table table-condensed table-hover table-fixed-header">
 						<thead>
 							<tr>
-								<th colspan="2"><spring:message code="label.itemInformation.description" text="Description" /></th>
-								<th colspan="1"><spring:message code="label.itemInformation.value" text="Value" /></th>
+								<th colspan="1"><spring:message code="label.itemInformation.description" text="Description" /></th>
+								<th colspan="2"><spring:message code="label.itemInformation.value" text="Value" /></th>
 								
 							</tr>
 						</thead>
@@ -31,9 +31,9 @@
 						<tbody>
 							<c:forEach items="${itemInformations}" var="itemInformation">
 								<tr trick-class="ItemInformation" trick-id="${itemInformation.id}">
-									<td colspan="2">
+									<td colspan="1">
 									<spring:message code="label.itemInformation.${itemInformation.description.trim()}" text="${itemInformation.description}" htmlEscape="false" javaScriptEscape="true"/></td>
-									<td colspan="1" ondblclick="return editField(this.firstElementChild);" class="success">
+									<td colspan="2" ondblclick="return editField(this.firstElementChild);" class="success">
 									<pre trick-field="value" trick-content="text" trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
 								</tr>
 							</c:forEach>

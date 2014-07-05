@@ -21,14 +21,17 @@ function showMeasures(normId, languageId) {
 			oldBody = $("#showmeasuresbody");
 			$(oldHeader).html(header.html());
 			$(oldBody).html(body.html());
-			measureSortTable($("#showmeasuresbody")[0]);
+			// measureSortTable();
+			
 			$("#languageselect").change(function() {
 				var language = $(this).find("option:selected").attr("value");
 				var normId = $("#normId").attr("value");
 				showMeasures(normId, language);
 			});
-
 			$("#showMeasuresModel").modal("show");
+			setTimeout(function() {
+				fixedTableHeader($("#showmeasuresbody .table-fixed-header"));
+			}, 400);
 
 		}
 	});
@@ -114,7 +117,8 @@ function refreshMeasure(normId, measureId, languageId) {
 				oldBody = $("#showmeasuresbody");
 				$(oldHeader).html(header.html());
 				$(oldBody).html(body.html());
-				measureSortTable($("#showmeasuresbody")[0]);
+				// measureSortTable($("#showmeasuresbody"));
+				fixedTableHeader($("#showmeasuresbody .table-fixed-header"));
 				$("#languageselect").change(function() {
 					var language = $(this).find("option:selected").attr("value");
 					var normId = $("#normId").attr("value");
@@ -130,8 +134,11 @@ function refreshMeasure(normId, measureId, languageId) {
 			success : function(response) {
 
 				oldBody = $("#showmeasuresbody").find("[trick-id='" + measureId + "']");
-				$(oldBody).replaceWith(response);
-				measureSortTable($("#showmeasuresbody")[0]);
+				if (oldBody.length) {
+					$(oldBody).replaceWith(response);
+					fixedTableHeader($("#showmeasuresbody .table-fixed-header"));
+					// measureSortTable($("#showmeasuresbody"));
+				}
 			}
 		});
 	}

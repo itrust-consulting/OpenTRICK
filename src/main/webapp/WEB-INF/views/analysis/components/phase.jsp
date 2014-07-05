@@ -18,8 +18,8 @@
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return deletePhase();"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.delete.delete"	text="Delete" /> </a></li>
 			</ul>
 		</div>
-		<div class="panel-body" style="max-height: 700px; overflow: auto;">
-			<table class="table table-hover">
+		<div class="panel-body" class="autofitpanelbodydefinition">
+			<table class="table table-hover table-fixed-header">
 				<thead>
 					<tr>
 						<th class="checkboxtableheader"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'phase')"></th>

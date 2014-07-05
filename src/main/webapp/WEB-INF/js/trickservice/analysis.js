@@ -19,36 +19,31 @@ $(document).ready(function() {
 	// * fixed header tables
 	// ******************************************************************************************************************
 
-	$("div.autofitpanelbodydefinition").click(function() {
-
-		if ($(this).outerHeight() >= 600) {
-
-			if (!$(this).hasClass("panelbodydefinition"))
-				$(this).addClass("panelbodydefinition");
-
-			if (($(this).find("div.fht-table-wrapper")).length <= 0) {
-				initialisefixheadertables($(this).find("table:visible"));
-			}
-		}
-	});
-
-	$("div.autofitpanelbodydefinition").scroll(function() {
-
-		if ($(this).outerHeight() >= 600) {
-
-			if (!$(this).hasClass("panelbodydefinition"))
-				$(this).addClass("panelbodydefinition");
-
-			if (($(this).find("div.fht-table-wrapper")).length <= 0) {
-				initialisefixheadertables($(this).find("table:visible"));
-			}
-		}
-	});
+	/*
+	 * $("div.autofitpanelbodydefinition").click(function() {
+	 * 
+	 * if ($(this).outerHeight() >= 600) {
+	 * 
+	 * if (!$(this).hasClass("panelbodydefinition"))
+	 * $(this).addClass("panelbodydefinition");
+	 * 
+	 * if (($(this).find("div.fht-table-wrapper")).length <= 0) {
+	 * initialisefixheadertables($(this).find("table:visible")); } } });
+	 * 
+	 * $("div.autofitpanelbodydefinition").scroll(function() {
+	 * 
+	 * if ($(this).outerHeight() >= 600) {
+	 * 
+	 * if (!$(this).hasClass("panelbodydefinition"))
+	 * $(this).addClass("panelbodydefinition");
+	 * 
+	 * if (($(this).find("div.fht-table-wrapper")).length <= 0) {
+	 * initialisefixheadertables($(this).find("table:visible")); } } });
+	 */
 
 	// ******************************************************************************************************************
 	// * measure description in popover
 	// ******************************************************************************************************************
-
 	initmeasuredescriptionpopover();
 
 });
@@ -69,7 +64,7 @@ function initialisefixheadertables(parent) {
 		});
 
 		$(parentt).find("div[class='fht-tbody']").scroll(function() {
-			//console.log("ohe");
+			// console.log("ohe");
 
 			// check if a popover is active
 			if (el != null) {
@@ -382,21 +377,33 @@ function saveStandard(form) {
 
 // common
 
-function navToogled(section, navSelected) {
+function navToogled(section, navSelected, fixedHeader) {
 	var currentMenu = $("#" + section + " *[trick-nav-control='" + navSelected + "']");
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
 	var controls = $("#" + section + " *[trick-nav-control]");
 	var data = $("#" + section + " *[trick-nav-data]");
+
 	for (var i = 0; i < controls.length; i++) {
 		if ($(controls[i]).attr("trick-nav-control") == navSelected)
 			$(controls[i]).addClass("disabled");
 		else
 			$(controls[i]).removeClass("disabled");
-		if ($(data[i]).attr("trick-nav-data") != navSelected)
+		if ($(data[i]).attr("trick-nav-data") != navSelected) {
+			if (fixedHeader) {
+				var table = $(data[i]).find("table");
+				if (table.length)
+					$(table).floatThead("destroy");
+			}
 			$(data[i]).hide();
-		else
+		} else {
 			$(data[i]).show();
+			if (fixedHeader) {
+				var table = $(data[i]).find("table");
+				if (table.length)
+					fixedTableHeader(table);
+			}
+		}
 	}
 	return false;
 

@@ -15,8 +15,8 @@
 <script src="<spring:url value="/js/bootstrap/bootstrap-slider.js" />"></script>
 <script src="<spring:url value="/js/bootstrap/bootstrap-datepicker.js" />"></script>
 <script src="<spring:url value="/js/bootstrap/bootstrap-tooltip.js" />"></script>
+<script src="<spring:url value="/js/bootstrap/jquery.floatThead.js" />"></script>
 
-<script src="<spring:url value="/js/jquery.fixedheadertable.js" />"></script>
 
 <script src="<spring:url value="/js/tablesorter/jquery.tablesorter.min.js" />"></script>
 <script src="<spring:url value="/js/tablesorter/jquery.tablesorter.widgets.js" />"></script>

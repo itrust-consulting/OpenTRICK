@@ -23,16 +23,16 @@
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">
-			<table class="table table-hover headertofixtable" id="assetTable">
+			<table class="table table-hover table-fixed-header" id="assetTable">
 				<thead>
 					<tr>
-						<th class="checkboxtableheader" style="width:50px"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'asset')"></th>
-						<th style="width:50px"><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
-						<th><spring:message code="label.asset.name" text="Name" htmlEscape="true" /></th>
-						<th><spring:message code="label.asset.type" text="Type" htmlEscape="true" /></th>
-						<th><spring:message code="label.asset.value" text="Value" htmlEscape="true" /> (k&euro;)</th>
-						<th colspan="3"><spring:message code="label.asset.comment" text="Comment" htmlEscape="true" /></th>
-						<th colspan="3"><spring:message code="label.asset.comment" text="Hidden comment" htmlEscape="true" /></th>
+						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'asset')"></th>
+						<th><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
+						<th colspan="8"><spring:message code="label.asset.name" text="Name" htmlEscape="true" /></th>
+						<th colspan="2"><spring:message code="label.asset.type" text="Type" htmlEscape="true" /></th>
+						<th colspan="2"><spring:message code="label.asset.value" text="Value" htmlEscape="true" /> (k&euro;)</th>
+						<th colspan="10"><spring:message code="label.asset.comment" text="Comment" htmlEscape="true" /></th>
+						<th colspan="10"><spring:message code="label.asset.comment" text="Hidden comment" htmlEscape="true" /></th>
 					</tr>
 				</thead>
 				<tfoot></tfoot>
@@ -42,13 +42,13 @@
 							<c:set var="cssClass">
 								${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}
 							</c:set>
-							<td><input type="checkbox" class="checkbox checkboxselectable" onchange="return updateMenu('#section_asset','#menu_asset');"></td>
+							<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_asset','#menu_asset');"></td>
 							<td>${status.index+1}</td>
-							<td class="${cssClass}"><spring:message text="${asset.name}" /></td>
-							<td class="${cssClass}"><spring:message text="${ asset.assetType.type}" /></td>
-							<td class="${cssClass}" title='<fmt:formatNumber value="${asset.value}"/>&euro;'><fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="1" /></td>
-							<td class="${cssClass}" colspan="3"><pre><spring:message text="${asset.comment}" /></pre></td>
-							<td class="${cssClass}" colspan="3"><pre><spring:message text="${asset.hiddenComment}" /></pre></td>
+							<td class="${cssClass}" colspan="8"><spring:message text="${asset.name}" /></td>
+							<td class="${cssClass}" colspan="2"><spring:message text="${ asset.assetType.type}" /></td>
+							<td class="${cssClass}" colspan="2" title='<fmt:formatNumber value="${asset.value}"/>&euro;'><fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="1" /></td>
+							<td class="${cssClass}" colspan="10"><pre><spring:message text="${asset.comment}" /></pre></td>
+							<td class="${cssClass}" colspan="10"><pre><spring:message text="${asset.hiddenComment}" /></pre></td>
 						</tr>
 					</c:forEach>
 				</tbody>

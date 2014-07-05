@@ -122,7 +122,7 @@
 					<spring:message code="label.parameter.maturity_ilps" text="Required level of implmentation per SML" />
 				</div>
 				<div class="panel-body autofitpanelbodydefinition" style="max-height: 655px; overflow: auto; min-height: 655px">
-					<table class="table table-hover" id="tableMaturityIlps">
+					<table class="table table-hover table-fixed-header" id="tableMaturityIlps">
 						<thead>
 							<tr>
 								<th class="textaligncenter"><spring:message code="label.parameter.maturity.Category" text="Category" /></th>

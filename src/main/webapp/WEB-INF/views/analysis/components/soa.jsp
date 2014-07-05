@@ -23,15 +23,15 @@
 						<spring:message code="label.measure.${norm}" text="${norm}" />
 					</div>
 					<div class="panel-body autofitpanelbodydefinition">
-						<table class="table table-hover headertofixtable" id="table_SOA_${norm}">
+						<table class="table table-hover table-fixed-header" id="table_SOA_${norm}">
 							<thead>
 								<tr>
-									<th style="width:80px;"><spring:message code="label.measure.ref" text="Ref" /></th>
-									<th style="width:350px;"><spring:message code="label.measure.domain" text="Domain" /></th>
-									<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.phase" text="Phase" /></th>
-									<th><spring:message code="label.measure.SOA.risk" text="Risk" /></th>
-									<th><spring:message code="label.measure.SOA.comment" text="Comment" /></th>
-									<th><spring:message code="label.measure.SOA.reference" text="Reference" /></th>
+									<th><spring:message code="label.measure.ref" text="Ref" /></th>
+									<th colspan="2"><spring:message code="label.measure.domain" text="Domain" /></th>
+									<th><spring:message code="label.measure.phase" text="Phase" /></th>
+									<th colspan="2"><spring:message code="label.measure.SOA.risk" text="Risk" /></th>
+									<th colspan="3"><spring:message code="label.measure.SOA.comment" text="Comment" /></th>
+									<th colspan="3"><spring:message code="label.measure.SOA.reference" text="Reference" /></th>
 								</tr>
 							</thead>
 							<tfoot>
@@ -40,14 +40,10 @@
 								<c:forEach items="${measureSplited.get(norm)}" var="measure">
 									<c:choose>
 										<c:when test="${measure.measureDescription.computable==false }">
-											<tr style="background-color: LightGray">
+											<tr style="background-color: #F8F8F8;">
 												<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 												<td><spring:message text="${measure.measureDescription.reference}" /></td>
-												<td style="overflow:show;white-space: nowrap;"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-												<td></td>
-												<td></td>
-												<td></td>
-												<td></td>
+												<td colspan="11"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 											</tr>
 										</c:when>
 										<c:otherwise>
@@ -58,29 +54,23 @@
 													title="<spring:message text="${!empty measureDescriptionText? measureDescriptionText.description : ''}" />"> <spring:message
 															text="${measure.measureDescription.reference}" />
 												</a></td>
-												<td><div class="headertofixtablelargecolumn"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></div></td>
-												<td class="textaligncenter"><c:choose>
-														<c:when test="${measure.phase.number == 0}">
-																	NA
+												<td colspan="2"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+												<td><c:choose>
+														<c:when test="${measure.phase.number == 0}">NA
 																</c:when>
-														<c:otherwise>
-																	${measure.phase.number}
+														<c:otherwise>${measure.phase.number}
 																</c:otherwise>
 													</c:choose></td>
-												<td>
-													<div class="headertofixtablelargecolumn">
-														<spring:message text="${measure.measurePropertyList.getSoaRisk()}" />
-													</div>
+												<td colspan="2">
+													<spring:message text="${measure.measurePropertyList.getSoaRisk()}" />
 												</td>
-												<td class="success" ondblclick="return editField(this.firstElementChild);"  >
-													<div class="headertofixtablelargecolumn" trick-field="soaComment" trick-content="text" trick-field-type="string">
-														<spring:message text="${measure.measurePropertyList.getSoaComment()}" />
-													</div>
+												<td colspan="3" class="success" ondblclick="return editField(this.firstElementChild);"  >
+													<pre trick-field="soaComment" trick-content="text" trick-field-type="string"><spring:message text="${measure.measurePropertyList.getSoaComment()}" />
+													</pre>
 												</td>
-												<td class="success" ondblclick="return editField(this.firstElementChild);">
-													<div class="headertofixtablelargecolumn" trick-field="soaReference" trick-content="text" trick-field-type="string">
-														<spring:message text="${measure.measurePropertyList.getSoaReference()}" />
-													</div>
+												<td colspan="3" class="success" ondblclick="return editField(this.firstElementChild);">
+													<pre trick-field="soaReference" trick-content="text" trick-field-type="string"><spring:message text="${measure.measurePropertyList.getSoaReference()}" />
+													</pre>
 												</td>
 											</tr>
 										</c:otherwise>

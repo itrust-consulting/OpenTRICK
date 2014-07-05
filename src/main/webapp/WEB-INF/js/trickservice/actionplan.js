@@ -26,7 +26,7 @@ function displayActionPlanOptions(analysisId) {
 			dialog.setTitle(MessageResolver("title.actionplan.compute.options", "Compute Action Plan: Options"));
 
 			dialog.setBody(response);
-			
+
 			dialog.Show();
 
 		},
@@ -44,36 +44,35 @@ function removeModal(modalpopup) {
 }
 
 function calculateActionPlanWithOptions(analysisId, modalBox) {
-		
-	var form = $(modalBox+" #actionplancomputationoptionsform");
-	
-	var data= {};
-	
+
+	var form = $(modalBox + " #actionplancomputationoptionsform");
+
+	var data = {};
+
 	data["id"] = analysisId;
-	
+
 	var uncertainty = form.find(" input[name='uncertainty']").is(":checked");
-	
+
 	data["uncertainty"] = uncertainty;
-			
+
 	form.find("input[name^='norm_']").each(function() {
-		
+
 		var name = $(this).attr("name");
-		
+
 		var value = $(this).is(":checked");
-		
+
 		data[name] = value;
-				
+
 	});
-	
+
 	var jsonarray = JSON.stringify(data);
 
+	// removeModal(modalBox);
 
-	//removeModal(modalBox);
-	
 	$.ajax({
 		url : context + "/ActionPlan/Compute",
 		type : "post",
-		data: jsonarray,
+		data : jsonarray,
 		async : true,
 		contentType : "application/json",
 		success : function(response) {
@@ -89,9 +88,9 @@ function calculateActionPlanWithOptions(analysisId, modalBox) {
 			console.log(textStatus, errorThrown);
 		},
 	});
-	
+
 	return false;
-	
+
 }
 
 function hideActionplanAssets(sectionactionplan, menu) {
@@ -108,16 +107,16 @@ function hideActionplanAssets(sectionactionplan, menu) {
 }
 
 function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
-
 	var actionplantype = $(sectionactionplan).find(".disabled[trick-nav-control]").attr("trick-nav-control");
-
+	var table = $("#actionplantable_" + actionplantype);
+	table.floatThead('destroy');
 	$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
 	if ($("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
 		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
+		fixedTableHeader(table);
 	} else {
 		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;" + MessageResolver("action.actionplanassets.hide", "Hide Assets"));
 	}
-
 	return false;
 }
 

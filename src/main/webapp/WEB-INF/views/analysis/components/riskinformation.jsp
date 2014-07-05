@@ -23,27 +23,25 @@
 				<spring:message code="label.risk_information.${categoryRiskInformation}" text="${categoryRiskInformation}" />
 			</div>
 			<div class="panel-body autofitpanelbodydefinition">
-				<table id="${categoryRiskInformation}table" class="table table-condensed table-hover headertofixtable">
+				<table id="${categoryRiskInformation}table" class="table table-condensed table-hover table-fixed-header">
 					<thead>
 						<tr>
 							<th><spring:message code="label.risk_information.id" text="Id" /></th>
 							<c:choose>
 								<c:when test="${categoryRiskInformation == 'Threat'}">
-									<th><spring:message code="label.risk_information.threat" text="Threat" /></th>
+									<th colspan="3"><spring:message code="label.risk_information.threat" text="Threat" /></th>
+									<th title='<spring:message code="label.risk_information.acronym" text="Acronym" />'><spring:message code="label.risk_information.acro" text="Acro" /></th>
 								</c:when>
 								<c:when test="${categoryRiskInformation == 'Vul'}">
-									<th><spring:message code="label.risk_information.vulnerabilities" text="Vulnerabilies" /></th>
+									<th colspan="3"><spring:message code="label.risk_information.vulnerabilities" text="Vulnerabilies" /></th>
 								</c:when>
 								<c:otherwise>
-									<th><spring:message code="label.risk_information.risks" text="Risks" /></th>
+									<th colspan="3"><spring:message code="label.risk_information.risks" text="Risks" /></th>
 								</c:otherwise>
 							</c:choose>
-							<c:if test="${categoryRiskInformation == 'Threat'}">
-								<th title='<spring:message code="label.risk_information.acronym" text="Acronym" />'><spring:message code="label.risk_information.acro" text="Acro" /></th>
-							</c:if>
 							<th title='<spring:message code="label.risk_information.exposed" text="Exposed" />'><spring:message code="label.risk_information.expo" text="Expo" /></th>
-							<th><spring:message code="label.risk_information.comment" text="Comment" /></th>
-							<th><spring:message code="label.risk_information.comment_hidden" text="Hidden Comment" /></th>
+							<th colspan="4"><spring:message code="label.risk_information.comment" text="Comment" /></th>
+							<th colspan="4"><spring:message code="label.risk_information.comment_hidden" text="Hidden Comment" /></th>
 						</tr>
 					</thead>
 					<tfoot></tfoot>
@@ -58,7 +56,17 @@
 										<c:if test="${previewRisk.category != risk_information.category}">
 											<c:set var="previewRisk" value="${risk_information}" />
 											<tr>
-												<td colspan="5"></td>
+												<c:choose>
+													<c:when test="${categoryRiskInformation == 'Threat'}">
+														<td colspan="14"></td>
+													</c:when>
+													<c:when test="${categoryRiskInformation == 'Vul'}">
+														<td colspan="13"></td>
+													</c:when>
+													<c:otherwise>
+														<td colspan="13"></td>
+													</c:otherwise>
+												</c:choose>
 											</tr>
 										</c:if>
 									</c:otherwise>
@@ -70,31 +78,31 @@
 										<c:choose>
 											<c:when test="${categoryRiskInformation == 'Threat'}">
 												<td><strong><spring:message text="${risk_information.chapter}" /></strong></td>
-												<td colspan="5"><strong><spring:message text="${risk_information.label}" /></strong></td>
+												<td colspan="13"><strong><spring:message text="${risk_information.label}" /></strong></td>
 											</c:when>
 											<c:otherwise>
 												<td><strong><spring:message text="${risk_information.chapter}" /></strong></td>
-												<td><strong><spring:message text="${risk_information.label}" /></strong></td>
+												<td colspan="3"><strong><spring:message text="${risk_information.label}" /></strong></td>
 												<td class="success" trick-field="exposed" trick-choose=",++,+,N,-,--" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 														text="${risk_information.exposed}" /></td>
-												<td class="success" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);"><spring:message
+												<td colspan="4" class="success" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 														text="${risk_information.comment}" /></td>
-												<td class="success" trick-field="hiddenComment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);"><spring:message
+												<td colspan="4" class="success" trick-field="hiddenComment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 														text="${risk_information.hiddenComment}" /></td>
 											</c:otherwise>
 										</c:choose>
 									</c:when>
 									<c:otherwise>
 										<td><spring:message text="${risk_information.chapter}" /></td>
-										<td><spring:message text="${risk_information.label}" /></td>
+										<td colspan="3"><spring:message text="${risk_information.label}" /></td>
 										<c:if test="${categoryRiskInformation == 'Threat'}">
 											<td><spring:message text="${risk_information.acronym}" /></td>
 										</c:if>
 										<td class="success" trick-field="exposed" trick-choose=",++,+,N,-,--" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 												text="${risk_information.exposed}" /></td>
-										<td class="success" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);"><spring:message
+										<td colspan="4" class="success" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 												text="${risk_information.comment}" /></td>
-										<td class="success" trick-field="hiddenComment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);"><spring:message
+										<td colspan="4" class="success" trick-field="hiddenComment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 												text="${risk_information.hiddenComment}" /></td>
 									</c:otherwise>
 								</c:choose>

@@ -42,11 +42,11 @@ $(function() {
 	});
 
 	var trick_table = $(this).find("table[trick-table]");
-	if (!trick_table.length)
-		return false;
-	for (var i = 0; i < trick_table.length; i++) {
-		var table = new TrickCarousel(trick_table[i]);
-		table.initialise();
+	if (trick_table.length) {
+		for (var i = 0; i < trick_table.length; i++) {
+			var table = new TrickCarousel(trick_table[i]);
+			table.initialise();
+		}
 	}
 
 	$('.modal').on('shown', function() {
@@ -68,6 +68,14 @@ $(function() {
 		$('#alert-dialog').on('hidden.bs.modal', function() {
 			$("#alert-dialog .btn-danger").unbind("click");
 		});
+
+	if ($('.table-fixed-header').length) {
+		$('table.table-fixed-header').floatThead({
+			scrollContainer : function($table) {
+				return $table.closest('.panel-body');
+			}
+		});
+	}
 
 	var $window = $(window);
 	var previewScrollTop = $window.scrollTop();
@@ -222,6 +230,17 @@ function MessageResolver(code, defaulttext, params) {
 	return defaulttext;
 }
 
+function fixedTableHeader(table) {
+	if (table == undefined || $(table).length == 0)
+		return false;
+	$(table).floatThead({
+		scrollContainer : function($table) {
+			return $table.closest('.panel-body');
+		}
+	});
+	return true;
+}
+
 /**
  * success and error message display
  */
@@ -286,6 +305,10 @@ function reloadSection(section, subSection) {
 					section += "_" + subSection;
 				newSection = $(doc).find("*[id = '" + section + "']");
 				$("#" + section).replaceWith(newSection);
+				var tableFixedHeader = $("#" + section).find("table.table-fixed-header");
+				if (tableFixedHeader.length)
+					fixedTableHeader(tableFixedHeader);
+				
 				var callback = callbackBySection(section);
 				if ($.isFunction(callback))
 					callback();
@@ -439,10 +462,10 @@ function updateStatus(progressBar, idTask, callback, status) {
 				updateStatus(progressBar, idTask, callback);
 			}, 1500);
 		} else {
-			/*setTimeout(function() {
-				progressBar.Distroy();
-			}, 3000);*/
-			$(progressBar.progress).parent().parent().find("button").each(function(){
+			/*
+			 * setTimeout(function() { progressBar.Distroy(); }, 3000);
+			 */
+			$(progressBar.progress).parent().parent().find("button").each(function() {
 				$(this).removeAttr("disabled");
 			});
 			if (callback.success != undefined)
@@ -542,19 +565,19 @@ function findTrickID(element) {
 function versionComparator(version1, version2) {
 	var values1 = version1.split("\\.", 2);
 	var values2 = version2.split("\\.", 2);
-	
-	var vers1="";
-	
-	var vers2="";
-	
-	for(var i = 0;i<values1.length;i++)
+
+	var vers1 = "";
+
+	var vers2 = "";
+
+	for (var i = 0; i < values1.length; i++)
 		vers1 += values1[i];
-	
-	for(var i = 0;i<values2.length;i++)
+
+	for (var i = 0; i < values2.length; i++)
 		vers2 += values2[i];
-	
+
 	console.log(vers1 + "::" + vers2);
-	
+
 	return vers1 > vers2 ? 1 : -1;
 }
 

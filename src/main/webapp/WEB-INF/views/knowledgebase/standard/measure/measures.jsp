@@ -39,26 +39,26 @@
 				<div class="panel-body autofitpanelbodydefinition">
 					<c:choose>
 						<c:when test="${!empty measureDescriptions}">
-							<table id="measurestable">
+							<table id="measurestable" class="table table-hover table-fixed-header">
 								<thead>
 									<tr role="row">
 										<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'measure_description')"></th>
-										<th><spring:message code="label.measure.level" /></th>
-										<th><spring:message code="label.measure.reference" /></th>
-										<th><spring:message code="label.measure.domain" /></th>
-										<th><spring:message code="label.measure.description" /></th>
-										<th><spring:message code="label.measure.computable" /></th>
+										<th colspan="2"><spring:message code="label.measure.level" /></th>
+										<th colspan="2"><spring:message code="label.measure.reference" /></th>
+										<th colspan="10"><spring:message code="label.measure.domain" /></th>
+										<th colspan="10"><spring:message code="label.measure.description" /></th>
+										<th colspan="2"><spring:message code="label.measure.computable" /></th>
 									</tr>
 								</thead>
 								<tbody>
 									<c:forEach items="${measureDescriptions}" var="measureDescription">
 										<tr trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${norm.id}');">
 											<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_measure_description','#menu_measure_description');"></td>
-											<td>${measureDescription.level}</td>
-											<td>${measureDescription.reference}</td>
-											<td>${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:"&nbsp;"}</td>
-											<td>${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:"&nbsp;"}</td>
-											<td trick-computable="${measureDescription.computable}"><c:if test="${measureDescription.computable==true}">
+											<td colspan="2">${measureDescription.level}</td>
+											<td colspan="2">${measureDescription.reference}</td>
+											<td colspan="10">${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:"&nbsp;"}</td>
+											<td colspan="10">${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:"&nbsp;"}</td>
+											<td colspan="2" trick-computable="${measureDescription.computable}"><c:if test="${measureDescription.computable==true}">
 													<spring:message code="label.yes_no.true" />
 												</c:if> <c:if test="${measureDescription.computable==false}">
 													<spring:message code="label.yes_no.false" />

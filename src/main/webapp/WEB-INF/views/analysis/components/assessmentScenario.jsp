@@ -8,7 +8,7 @@
 	trick-name="<spring:message code="label.assessment.for.scenario" text="Assessment for ${scenario.name}" arguments="${scenario.name}" />">
 	<div class="panel panel-default">
 		<div class="panel-body" style="max-height: 700px; overflow: auto;">
-			<table class="table table-hover">
+			<table class="table table-hover table-fixed-header">
 				<thead>
 					<tr>
 						<th colspan="2"><spring:message code="label.assessment.asset" text="Asset" /></th>

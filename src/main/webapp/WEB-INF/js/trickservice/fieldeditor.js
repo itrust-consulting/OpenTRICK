@@ -41,7 +41,7 @@ function FieldEditor(element, validator) {
 		if (!this.choose.length) {
 			if (this.defaultValue.length > 100 || $(this.element).attr("trick-content") == "text") {
 				this.fieldEditor = document.createElement("textarea");
-				this.fieldEditor.setAttribute("style", "min-width:300px;");
+				this.fieldEditor.setAttribute("style", "min-width:200px; z-index:1864;");
 			} else {
 				this.fieldEditor = document.createElement("input");
 				this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;

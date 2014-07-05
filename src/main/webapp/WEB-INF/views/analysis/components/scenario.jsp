@@ -23,14 +23,14 @@
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">
-			<table id="scneariotable" class="table table-hover headertofixtable">
+			<table id="scneariotable" class="table table-hover table-fixed-header">
 				<thead>
 					<tr>
-						<th class="checkboxtableheader" style="width:50px"><input type="checkbox" class="checkbox checkboxselectable" onchange="return checkControlChange(this,'scenario')"></th>
-						<th style="width:50px"><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
-						<th colspan="2"><spring:message code="label.scenario.name" text="Name" htmlEscape="true" /></th>
-						<th><spring:message code="label.scenario.type" text="Type" htmlEscape="true" /></th>
-						<th colspan="2"><spring:message code="label.scenario.description" text="Description" htmlEscape="true" /></th>
+						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
+						<th><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
+						<th colspan="15"><spring:message code="label.scenario.name" text="Name" htmlEscape="true" /></th>
+						<th colspan="3"><spring:message code="label.scenario.type" text="Type" htmlEscape="true" /></th>
+						<th colspan="20"><spring:message code="label.scenario.description" text="Description" htmlEscape="true" /></th>
 					</tr>
 				</thead>
 				<tfoot></tfoot>
@@ -40,11 +40,11 @@
 								${scenario.selected? 'success' : ''}
 							</c:set>
 						<tr trick-id="${scenario.id}" trick-selected="${scenario.selected}" ondblclick="return editScenario(${scenario.id})">
-							<td><input type="checkbox" class="checkbox checkboxselectable" onchange="return updateMenu('#section_scenario','#menu_scenario');"></td>
+							<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_scenario','#menu_scenario');"></td>
 							<td>${status.index+1}</td>
-							<td class="${cssClass}" colspan="2"><spring:message text="${scenario.name}" /></td>
-							<td class="${cssClass}"><spring:message text="${scenario.scenarioType.name}" /></td>
-							<td class="${cssClass}" colspan="2"><pre><spring:message text="${scenario.description}" /></pre></td>
+							<td class="${cssClass}" colspan="15"><spring:message text="${scenario.name}" /></td>
+							<td class="${cssClass}" colspan="3"><spring:message text="${scenario.scenarioType.name}" /></td>
+							<td class="${cssClass}" colspan="20"><pre><spring:message text="${scenario.description}" /></pre></td>
 						</tr>
 					</c:forEach>
 				</tbody>

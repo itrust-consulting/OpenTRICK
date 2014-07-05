@@ -13,15 +13,14 @@
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading">&nbsp;</div>
-		<div class="panel-body" style="max-height: 700px; overflow: auto;">
+		<div class="panel-body" class="autofitpanelbodydefinition">
 			<table class="table table-hover">
 				<thead>
 					<tr>
-						<!--  <th><spring:message code="label.history.id" /></th>-->
 						<th><spring:message code="label.history.version" /></th>
 						<th><spring:message code="label.history.date" /></th>
 						<th><spring:message code="label.history.author" /></th>
-						<th><spring:message code="label.history.comment" /></th>
+						<th colspan="10"><spring:message code="label.history.comment" /></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -30,7 +29,8 @@
 							<td><spring:message text="${history.version}" /></td>
 							<td><fmt:formatDate value="${history.date}" pattern="dd/MM/yyyy" /></td>
 							<td trick-field="author" trick-field-type="string" class="success" ondblclick="editField(this);"><spring:message text="${history.author}" /></td>
-							<td trick-field="comment" trick-field-type="string" trick-content="text" class="success" ondblclick="editField(this);"><spring:message text="${history.comment}" /></td>
+							<td colspan="10" ondblclick="editField(this.firstElementChild);" class="success">
+<pre trick-field="comment" trick-field-type="string" trick-content="text"><spring:message text="${history.comment}" /></pre></td>
 						</tr>
 					</c:forEach>
 				</tbody>

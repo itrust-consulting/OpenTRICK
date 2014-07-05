@@ -22,26 +22,26 @@
 					<spring:message code="label.measure.${norm}" text="${norm}" />
 				</div>
 				<div class="panel-body autofitpanelbodydefinition">
-					<table class="table table-hover headertofixtable" id="table_Measure_${norm}">
+					<table class="table table-hover table-fixed-header" id="table_Measure_${norm}">
 						<thead>
 							<tr>
-								<th style="width: 80px;"><spring:message code="label.table.index" text="#" /></th>
-								<th style="width: 350px;"><spring:message code="label.measure.domain" text="Domain" /></th>
-								<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.st" text="Status" /></th>
-								<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.ir" text="IR (%)" /></th>
-								<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.iw" text="IW (md)" /></th>
-								<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.ew" text="EW (md)" /></th>
-								<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.inv" text="INV" /> (k&euro;)</th>
-								<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.lt" text="LT (y)" /></th>
-								<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.im" text="IM (md)" /></th>
-								<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.em" text="EM (md)" /></th>
-								<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.ri" text="RI" /> (k&euro;)</th>
-								<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.cs" text="CS" /> (k&euro;)</th>
-								<th class="textaligncenter cellwidth_80"><spring:message code="label.measure.phase" text="Phase" /></th>
-								<th><spring:message code="label.measure.comment" text="Comment" /></th>
-								<th><spring:message code="label.measure.todo" text="To do" /></th>
+								<th><spring:message code="label.table.index" text="#" /></th>
+								<th colspan="2"><spring:message code="label.measure.domain" text="Domain" /></th>
+								<th><spring:message code="label.measure.st" text="Status" /></th>
+								<th><spring:message code="label.measure.ir" text="IR (%)" /></th>
+								<th><spring:message code="label.measure.iw" text="IW (md)" /></th>
+								<th><spring:message code="label.measure.ew" text="EW (md)" /></th>
+								<th><spring:message code="label.measure.inv" text="INV" /> (k&euro;)</th>
+								<th><spring:message code="label.measure.lt" text="LT (y)" /></th>
+								<th><spring:message code="label.measure.im" text="IM (md)" /></th>
+								<th><spring:message code="label.measure.em" text="EM (md)" /></th>
+								<th><spring:message code="label.measure.ri" text="RI" /> (k&euro;)</th>
+								<th><spring:message code="label.measure.cs" text="CS" /> (k&euro;)</th>
+								<th><spring:message code="label.measure.phase" text="Phase" /></th>
+								<th colspan="3"><spring:message code="label.measure.comment" text="Comment" /></th>
+								<th colspan="3"><spring:message code="label.measure.todo" text="To do" /></th>
 								<c:if test="${measureSplited.get(norm).get(0).getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
-									<th><spring:message code="label.measure.tocheck" text="To check" /></th>
+									<th colspan="3"><spring:message code="label.measure.tocheck" text="To check" /></th>
 								</c:if>
 							</tr>
 						</thead>
@@ -49,30 +49,21 @@
 						</tfoot>
 						<tbody>
 							<c:set var="css" value="${measure.getImplementationRateValue()==100 || measure.getStatus().equals('NA')?'':'class=\"success\"'}" />
-							<c:set var="csscentered" value="${measure.getImplementationRateValue()==100 || measure.getStatus().equals('NA')?'':'class=\"success textaligncenter\"'}" />
+							<c:set var="csscentered" value="${measure.getImplementationRateValue()==100 || measure.getStatus().equals('NA')?'':'class=\"success\"'}" />
 							<c:forEach items="${measureSplited.get(norm)}" var="measure">
 								<c:choose>
 									<c:when test="${measure.measureDescription.computable==false }">
-										<tr style="background-color: LightGray">
+										<tr style="background-color: #F8F8F8;">
 											<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 											<td><spring:message text="${measure.measureDescription.reference}" /></td>
-											<td style="overflow: show; white-space: nowrap;"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<td></td>
-											<c:if test="${measure.getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
-												<td></td>
-											</c:if>
+											<c:choose>
+												<c:when test="${measure.getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
+													<td colspan="22"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+												</c:when>
+												<c:otherwise>
+													<td colspan="19"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+												</c:otherwise>
+											</c:choose>
 										</tr>
 									</c:when>
 									<c:otherwise>
@@ -82,9 +73,7 @@
 												title="<spring:message text="${!empty measureDescriptionText? measureDescriptionText.description : ''}" />"> <spring:message
 														text="${measure.measureDescription.reference}" />
 											</a></td>
-											<td><div class="headertofixtablelargecolumn">
-													<spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" />
-												</div></td>
+											<td colspan="2"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 											<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 													text="${measure.status}" /></td>
 											<c:choose>
@@ -123,7 +112,6 @@
 											<c:set var="cost">
 												<fmt:formatNumber value="${measure.cost*0.001}" maxFractionDigits="0" />
 											</c:set>
-
 											<c:choose>
 												<c:when test="${measure.getImplementationRateValue()==100 || measure.getStatus().equals('NA')}">
 													<td class='textaligncenter' title='<fmt:formatNumber value="${measure.cost}"/>&euro;'>${cost}</td>
@@ -137,22 +125,12 @@
 													<c:when test="${measure.phase.number == 0}">NA</c:when>
 													<c:otherwise>${measure.phase.number}</c:otherwise>
 												</c:choose></td>
-											<td ${css} ondblclick="return editField(this.firstElementChild);">
-												<div class="headertofixtablelargecolumn" trick-field="comment" trick-content="text" trick-field-type="string">
-													<spring:message text="${measure.comment}" />
-												</div>
-											</td>
-											<td ${css} ondblclick="return editField(this.firstElementChild);">
-												<div class="headertofixtablelargecolumn" trick-field="toDo" trick-content="text" trick-field-type="string">
-													<spring:message text="${measure.toDo}" />
-												</div>
-											</td>
+											<td colspan="3" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string"><spring:message
+													text="${measure.comment}" /></pre></td>
+											<td colspan="3" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toDo" trick-content="text" trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
 											<c:if test="${measure.getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
-												<td ${css} ondblclick="return editField(this.firstElementChild);">
-													<div class="headertofixtablelargecolumn" trick-field="toCheck" trick-content="text" trick-field-type="string">
-														<spring:message text="${measure.toCheck}" />
-													</div>
-												</td>
+												<td colspan="3" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toCheck" trick-content="text" trick-field-type="string"><spring:message
+														text="${measure.toCheck}" /></pre></td>
 											</c:if>
 										</tr>
 									</c:otherwise>

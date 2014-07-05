@@ -17,7 +17,7 @@
 			<ul class="nav nav-pills">
 				<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 					<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${actionPlanType.name}"><a href="#"
-						onclick="return navToogled('section_summary','${actionPlanType.name}');initialiseTableFixedHeaderRows('#summarytable_${actionPlanType.name}');"><spring:message
+						onclick="return navToogled('section_summary','${actionPlanType.name}', true);"><spring:message
 								code="label.actionPlanType.${actionPlanType.name}" text="${actionPlanType.name}" htmlEscape="true" /></a></li>
 				</c:forEach>
 			</ul>
@@ -26,7 +26,7 @@
 			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 				<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
 				<div trick-nav-data="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
-					<table class="table table-hover headertofixtable" id="summarytable_<spring:message text='${actionPlanType.name}' />">
+					<table class="table table-hover ${status.index>0?'':'table-fixed-header' }" id="summarytable_<spring:message text='${actionPlanType.name}' />">
 						<thead>
 							<tr>
 								<th style="width:250px;"><spring:message code="label.characteristic" text="Phase characteristic" /></th>
