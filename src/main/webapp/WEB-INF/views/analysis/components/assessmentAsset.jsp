@@ -36,7 +36,7 @@
 								</c:when>
 								<c:otherwise>
 									<td trick-field="impactRep" trick-field-type="string" class="success" ondblclick="return editField(this);" title='<fmt:formatNumber value="${assessment.impactRep}" />&euro;'><c:catch>
-											<fmt:formatNumber value="${assessment.impactRep*0.001}" maxFractionDigits="1" minFractionDigits="1" var="impactRep" />
+											<fmt:formatNumber value="${assessment.impactRep*0.001}" maxFractionDigits="1" minFractionDigits="0" var="impactRep" />
 										</c:catch> <c:choose>
 											<c:when test="${!empty impactRep}">
 												<spring:message text="${impactRep}" />
@@ -54,7 +54,7 @@
 								</c:when>
 								<c:otherwise>
 									<td trick-field="impactOp" trick-field-type="string" class="success" ondblclick="return editField(this);" title='<fmt:formatNumber value="${assessment.impactOp}" />&euro;'><c:catch>
-											<fmt:formatNumber value="${assessment.impactOp*0.001}" maxFractionDigits="1" minFractionDigits="1" var="impactOp" />
+											<fmt:formatNumber value="${assessment.impactOp*0.001}" maxFractionDigits="1" minFractionDigits="0" var="impactOp" />
 										</c:catch> <c:choose>
 											<c:when test="${!empty impactOp}">
 												<spring:message text="${impactOp}" />
@@ -72,7 +72,7 @@
 								</c:when>
 								<c:otherwise>
 									<td trick-field="impactLeg" trick-field-type="string" class="success" ondblclick="return editField(this);" title='<fmt:formatNumber value="${assessment.impactLeg}" />&euro;' ><c:catch>
-											<fmt:formatNumber value="${assessment.impactLeg*0.001}" maxFractionDigits="1" minFractionDigits="1" var="impactLeg" />
+											<fmt:formatNumber value="${assessment.impactLeg*0.001}" maxFractionDigits="1" minFractionDigits="0" var="impactLeg" />
 										</c:catch> <c:choose>
 											<c:when test="${!empty impactLeg}">
 												<spring:message text="${impactLeg}" />
@@ -90,7 +90,7 @@
 								</c:when>
 								<c:otherwise>
 									<td trick-field="impactFin" trick-field-type="string" class="success" ondblclick="return editField(this);" title='<fmt:formatNumber value="${assessment.impactFin}" />&euro;'><c:catch>
-											<fmt:formatNumber value="${assessment.impactFin*0.001}" var="impactFin" maxFractionDigits="1" minFractionDigits="1" />
+											<fmt:formatNumber value="${assessment.impactFin*0.001}" var="impactFin" maxFractionDigits="1" minFractionDigits="0" />
 										</c:catch> <c:choose>
 											<c:when test="${not empty impactFin}">
 												<spring:message text="${impactFin}" />
@@ -120,7 +120,7 @@
 								</c:otherwise>
 							</c:choose>
 							<td trick-field="uncertainty" trick-field-type="double" class="success" trick-real-value="${assessment.uncertainty}" ondblclick="return editField(this);"><fmt:formatNumber
-									value="${assessment.uncertainty}" maxFractionDigits="2" minFractionDigits="1" /></td>
+									value="${assessment.uncertainty}" maxFractionDigits="2" minFractionDigits="0" /></td>
 							<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${assessment.ALEO*0.001}"
 									maxFractionDigits="0" minFractionDigits="0" /></td>
 							<td title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${assessment.ALE*0.001}"

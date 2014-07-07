@@ -31,8 +31,8 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 		case "value":
 			if (candidate == null || !(candidate instanceof Double))
 				return "error.asset.value.unsupported::Value is not supported";
-			else if ((Double)candidate <= 0)
-				return "error.asset.value.invalid::Value has to be > 0";
+			else if ((Double)candidate <0)
+				return "error.asset.value.invalid::Value has to be >= 0";
 			break;
 		}
 		return null;

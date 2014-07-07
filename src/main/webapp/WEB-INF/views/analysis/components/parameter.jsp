@@ -82,6 +82,10 @@
 							</tr>
 						</thead>
 						<tbody>
+							<tr trick-class="ExtendedParameter" hidden="true">
+								<td trick-field="acronym" colspan="3"><spring:message code="label.parameter.proba.zero_value" text="NA" /></td>
+								<td trick-field="value" colspan="3">0</td>
+							</tr>
 							<c:forEach items="${extendedParameters[1]}" var="parameter" varStatus="status">
 								<tr trick-class="ExtendedParameter" trick-id="${parameter.id}">
 									<!--<td>${itemInformation.id}</td>-->

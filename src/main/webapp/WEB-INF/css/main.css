@@ -291,16 +291,23 @@ table th{
 }
 
 table td{
-	font-size: 12px;
+	font-size: 13px;
 	color: #101010;
 }
 
 td>pre {
 	border: none;
 	background-color: inherit;
-	z-index: -1;
-	color: #333333;
+	color: inherit;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 12px;
 	padding: inherit;
+	font-size: inherit;
 }
+
+.text-rotate-45{
+	transform: rotate(90deg);
+}
+
+td>pre>input, td>pre>textarea {
+	z-index: 1200;
+} 
