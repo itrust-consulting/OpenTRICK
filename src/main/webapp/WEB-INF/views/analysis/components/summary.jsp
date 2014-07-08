@@ -29,7 +29,7 @@
 					<table class="table table-hover ${status.index>0?'':'table-fixed-header' }" id="summarytable_<spring:message text='${actionPlanType.name}' />">
 						<thead>
 							<tr>
-								<th style="width:250px;"><spring:message code="label.characteristic" text="Phase characteristic" /></th>
+								<th colspan="5"><spring:message code="label.characteristic" text="Phase characteristic" /></th>
 								<c:forEach items='${summaryStages.get("label.characteristic")}' var="phase">
 									<th class="text-right"><spring:message text="${phase}" /></th>
 								</c:forEach>
@@ -42,10 +42,10 @@
 									<tr>
 										<c:choose>
 											<c:when test="${empty summaryStages.get(key)}">
-												<td colspan="${rowCount+1}"><strong><spring:message code="${key}" text="${key}" /></strong></td>
+												<td colspan="${rowCount+5}" style="background-color: #F8F8F8;"><strong><spring:message code="${key}" text="${key}" /></strong></td>
 											</c:when>
 											<c:otherwise>
-												<td><spring:message code="${key}" text="${key}" /></td>
+												<td colspan="5"><spring:message code="${key}" text="${key}" /></td>
 												<c:forEach items="${summaryStages.get(key)}" var="value">
 													<td class="text-right"><c:choose>
 															<c:when test='${key.endsWith("27002") || key.endsWith("27001") || key.endsWith("date")}'>

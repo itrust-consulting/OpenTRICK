@@ -39,17 +39,18 @@ function FieldEditor(element, validator) {
 		if (!this.LoadData())
 			return true;
 		if (!this.choose.length) {
+			var width = $(this.element).width();
 			if (this.defaultValue.length > 100 || $(this.element).attr("trick-content") == "text") {
 				this.fieldEditor = document.createElement("textarea");
-				this.fieldEditor.setAttribute("style", "min-width:200px; z-index:1864;");
+				this.fieldEditor.setAttribute("style", "min-width:" + width + "px; min-height:" + $(this.element).height() + "px;");
 			} else {
 				this.fieldEditor = document.createElement("input");
 				this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
-				this.fieldEditor.setAttribute("style", "min-width:80px;");
+				this.fieldEditor.setAttribute("style", "min-width:" + (width < 70 ? 70 : width) + "px;");
 			}
 		} else {
 			this.fieldEditor = document.createElement("select");
-			this.fieldEditor.setAttribute("style", "min-width:80px;");
+			this.fieldEditor.setAttribute("style", "min-width:70px;");
 			for (var i = 0; i < this.choose.length; i++) {
 				var option = document.createElement("option");
 				option.setAttribute("value", this.choose[i]);
@@ -133,7 +134,9 @@ function FieldEditor(element, validator) {
 			return false;
 		if (this.element == null || this.element == undefined)
 			return false;
+		var style = $(this.fieldEditor).attr("style");
 		$(this.fieldEditor).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
+		$(this.fieldEditor).attr("style", style + (style.endsWith(";")? ";" : "")  + "position: relative;")
 		$(this.element).html(this.fieldEditor);
 		$(this.fieldEditor).focus();
 		return false;
@@ -263,8 +266,6 @@ function ExtendedFieldEditor(element) {
 	};
 }
 
-
-
 MaturityMeasureFieldEditor.prototype = new FieldEditor();
 
 function MaturityMeasureFieldEditor(element) {
@@ -350,7 +351,7 @@ function AssessmentFieldEditor(element) {
 					error : function(jqXHR, textStatus, errorThrown) {
 						that.Rollback();
 						application.modal["AssessmentViewer"].ShowError(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-					},
+					}
 				});
 
 			} else {
@@ -385,7 +386,7 @@ function AssessmentExtendedParameterEditor(element) {
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("placeholder", value);
 		this.fieldEditor.setAttribute("value", value);
-		this.fieldEditor.setAttribute("style", "min-width:80px");
+		this.fieldEditor.setAttribute("style", "min-width:70px;");
 		var that = this;
 		$(this.fieldEditor).blur(function() {
 			return that.Save(that);
@@ -490,7 +491,7 @@ function AssessmentProbaFieldEditor(element) {
 		if (!this.LoadData())
 			return true;
 		this.fieldEditor = document.createElement("select");
-		this.fieldEditor.setAttribute("style", "min-width:80px;");
+		this.fieldEditor.setAttribute("style", "min-width:90px;");
 		for (var i = 0; i < this.choose.length; i++) {
 			var option = document.createElement("option");
 			option.setAttribute("value", this.acromym[i]);

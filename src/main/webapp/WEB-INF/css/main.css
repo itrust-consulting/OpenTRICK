@@ -302,12 +302,22 @@ td>pre {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	padding: inherit;
 	font-size: inherit;
+	margin-bottom: 0px;
+	padding-bottom: 2px;
 }
 
-.text-rotate-45{
+.text-rotate-90{
 	transform: rotate(90deg);
 }
 
-td>pre>input, td>pre>textarea {
-	z-index: 1200;
-} 
+.text-rotate-75{
+	transform: rotate(75deg);
+}
+
+.text-rotate-45{
+	transform: rotate(45deg);
+}
+
+.text-rotate-30{
+	transform: rotate(30deg);
+}

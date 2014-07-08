@@ -1,6 +1,11 @@
 /**
  * Main.js
  */
+
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
 var application = new Application();
 
 function Application() {
@@ -306,9 +311,11 @@ function reloadSection(section, subSection) {
 				newSection = $(doc).find("*[id = '" + section + "']");
 				$("#" + section).replaceWith(newSection);
 				var tableFixedHeader = $("#" + section).find("table.table-fixed-header");
-				if (tableFixedHeader.length)
-					fixedTableHeader(tableFixedHeader);
-				
+				if (tableFixedHeader.length) {
+					setTimeout(function() {
+						fixedTableHeader(tableFixedHeader);
+					}, 500);
+				}
 				var callback = callbackBySection(section);
 				if ($.isFunction(callback))
 					callback();

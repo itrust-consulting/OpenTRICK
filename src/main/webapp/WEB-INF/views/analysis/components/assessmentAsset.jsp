@@ -127,10 +127,8 @@
 									maxFractionDigits="0" minFractionDigits="0" /></td>
 							<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${assessment.ALEP*0.001}"
 									maxFractionDigits="0" minFractionDigits="0" /></td>
-							<td trick-field="comment" trick-field-type="string" colspan="3" trick-content="text" ondblclick="return editField(this);" class="success"><spring:message
-									text="${assessment.comment}" /></td>
-							<td trick-field="hiddenComment" trick-field-type="string" trick-content="text" colspan="3" ondblclick="return editField(this);" class="success"><spring:message
-									text="${assessment.hiddenComment}" /></td>
+							<td ondblclick="return editField(this.firstElementChild);" class="success"><pre trick-field="comment" trick-field-type="string" colspan="3" trick-content="text"><spring:message text="${assessment.comment}" /></pre></td>
+							<td colspan="3" ondblclick="return editField(this.firstElementChild);" class="success"><pre trick-field="hiddenComment" trick-field-type="string" trick-content="text"><spring:message text="${assessment.hiddenComment}" /></pre></td>
 						</tr>
 					</c:forEach>
 					<tr class="panel-footer" style="font-weight: bold;">

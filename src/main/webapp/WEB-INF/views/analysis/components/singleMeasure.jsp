@@ -11,7 +11,7 @@
 	<td><a href="#" class="descriptiontooltip" data-toggle="tooltip" data-html="true"
 		title="<spring:message text="${!empty measureDescriptionText? measureDescriptionText.description : ''}" />"> <spring:message text="${measure.measureDescription.reference}" />
 	</a></td>
-	<td colspan="2"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+	<td colspan="4"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 	<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 			text="${measure.status}" /></td>
 	<c:choose>
@@ -59,15 +59,9 @@
 			<c:when test="${measure.phase.number == 0}">NA</c:when>
 			<c:otherwise>${measure.phase.number}</c:otherwise>
 		</c:choose></td>
-	<td colspan="3" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string">
-<spring:message text="${measure.comment}" />
-</pre></td>
-	<td colspan="3" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toDo" trick-content="text" trick-field-type="string">
-<spring:message text="${measure.toDo}" />
-</pre></td>
+	<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
+	<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toDo" trick-content="text" trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
 	<c:if test="${measure.getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
-		<td colspan="3" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toCheck" trick-content="text" trick-field-type="string">
-<spring:message text="${measure.toCheck}" />
-</pre></td>
+		<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toCheck" trick-content="text" trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
 	</c:if>
 </tr>
