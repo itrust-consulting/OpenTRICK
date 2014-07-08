@@ -11,7 +11,7 @@
 			<table class="table table-hover table-fixed-header">
 				<thead>
 					<tr>
-						<th colspan="2"><spring:message code="label.assessment.asset" text="Asset" /></th>
+						<th colspan="4"><spring:message code="label.assessment.asset" text="Asset" /></th>
 						<th><spring:message code="label.assessment.asset.value" text="Asset value" /></th>
 						<th><spring:message code="label.assessment.impactRep" text="Rep." /> (k&euro;)</th>
 						<th><spring:message code="label.assessment.impactOp" text="Op." /> (k&euro;)</th>
@@ -22,8 +22,8 @@
 						<th><spring:message code="label.assessment.ALEP" text="ALEP" /> (k&euro;)</th>
 						<th><spring:message code="label.assessment.ALE" text="ALE" /> (k&euro;)</th>
 						<th><spring:message code="label.assessment.ALEO" text="ALEO" /> (k&euro;)</th>
-						<th colspan="3"><spring:message code="label.assessment.comment" text="Comment" /></th>
-						<th colspan="3"><spring:message code="label.assessment.hiddenComment" text="Hidden comment" /></th>
+						<th colspan="6"><spring:message code="label.assessment.comment" text="Comment" /></th>
+						<th colspan="6"><spring:message code="label.assessment.hiddenComment" text="Hidden comment" /></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -31,7 +31,7 @@
 					<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).Sort(assessments)" var="sortedAssessments" />
 					<c:forEach items="${sortedAssessments}" var="assessment">
 						<tr trick-class="Assessment" trick-id="${assessment.id}">
-							<td colspan="2"><spring:message text="${assessment.asset.name}" /></td>
+							<td colspan="4"><spring:message text="${assessment.asset.name}" /></td>
 							<td><fmt:formatNumber value="${assessment.asset.value}" maxFractionDigits="1" minFractionDigits="1" /></td>
 							<c:choose>
 								<c:when test="${parameters.containsKey(assessment.impactRep)}">
@@ -131,12 +131,12 @@
 									maxFractionDigits="2" minFractionDigits="0" /></td>
 							<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${assessment.ALEP*0.001}"
 									maxFractionDigits="2" minFractionDigits="0" /></td>
-							<td class="success" colspan="3" ondblclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-field-type="string" trick-content="text"><spring:message text="${assessment.comment}" /></pre></td>
-							<td class="success" colspan="3" ondblclick="return editField(this.firstElementChild);"><pre trick-field="hiddenComment" trick-content="text" trick-field-type="string"><spring:message text="${assessment.hiddenComment}" /></pre></td>
+							<td class="success" colspan="6" ondblclick="return editField(this);" trick-field="comment" trick-field-type="string" trick-content="text"><spring:message text="${assessment.comment}" /></td>
+							<td class="success" colspan="6" ondblclick="return editField(this);" trick-field="hiddenComment" trick-content="text" trick-field-type="string"><spring:message text="${assessment.hiddenComment}" /></td>
 						</tr>
 					</c:forEach>
 					<tr class="panel-footer" style="font-weight: bold;">
-						<td colspan="9"><spring:message code="label.assessment.total.ale" text="Total" /></td>
+						<td colspan="11"><spring:message code="label.assessment.total.ale" text="Total" /></td>
 						<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><spring:htmlEscape defaultHtmlEscape="true">
 								<fmt:formatNumber value="${aleo.value*0.001}" maxFractionDigits="2" minFractionDigits="0" />
 							</spring:htmlEscape></td>
@@ -146,7 +146,7 @@
 						<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><spring:htmlEscape defaultHtmlEscape="true">
 								<fmt:formatNumber value="${alep.value*0.001}" maxFractionDigits="2" minFractionDigits="0" />
 							</spring:htmlEscape></td>
-						<td colspan="6" />
+						<td colspan="12" />
 					</tr>
 				</tbody>
 			</table>

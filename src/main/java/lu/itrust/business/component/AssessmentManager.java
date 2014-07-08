@@ -349,7 +349,7 @@ public class AssessmentManager {
 		return assessments;
 	}
 
-	private static void ComputeALE(List<Assessment> assessments, ALE ale, ALE alep, ALE aleo) {
+	public static void ComputeALE(List<Assessment> assessments, ALE ale, ALE alep, ALE aleo) {
 		for (Assessment assessment : assessments) {
 			ale.setValue(ale.getValue() + assessment.getALE());
 			alep.setValue(alep.getValue() + assessment.getALEP());

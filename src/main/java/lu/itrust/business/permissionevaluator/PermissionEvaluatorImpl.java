@@ -194,7 +194,6 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception {
-
 		try {
 
 			if (analysisId == null || analysisId <= 0)

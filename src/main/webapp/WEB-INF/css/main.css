@@ -306,6 +306,21 @@ td>pre {
 	padding-bottom: 2px;
 }
 
+.text-rotate-360{
+	transform: rotate(360deg);
+}
+
+.text-rotate-270{
+	display: block;
+    margin-left: -5px;
+    padding-bottom: 5px;
+    transform: rotate(270deg);
+}
+
+.text-rotate-180{
+	transform: rotate(180deg);
+}
+
 .text-rotate-90{
 	transform: rotate(90deg);
 }

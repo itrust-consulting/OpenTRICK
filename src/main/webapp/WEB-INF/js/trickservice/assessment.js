@@ -12,6 +12,10 @@ function AssessmentViewer() {
 		return false;
 
 	};
+	
+	/*AssessmentViewer.prototype.setTitle= function(title){
+		return true;
+	};*/
 
 	AssessmentViewer.prototype.DefaultFooterButton = function() {
 		return false;
@@ -30,6 +34,47 @@ function AssessmentViewer() {
 
 	AssessmentViewer.prototype.Update = function() {
 		throw "Not implemented";
+	};
+
+	AssessmentViewer.prototype.SmartUpdate = function(assessments) {
+		var tableDestTrs = $(this.modal_body).find("tbody tr");
+		if (!tableDestTrs.length)
+			return true;
+		for (var i = 0; i < tableDestTrs.length; i++) {
+			var trickId = $(tableDestTrs[i]).attr("trick-id");
+			if (trickId == undefined && $(tableDestTrs[i]).hasClass("panel-footer")) {
+				var $tr = $(assessments).find("tbody tr.panel-footer");
+				if ($tr.length)
+					$(tableDestTrs[i]).replaceWith($tr);
+				else
+					$(tableDestTrs[i]).appendTo($(this.modal_body).find("tbody"));
+			} else {
+				var $tr = $(assessments).find("tbody tr[trick-id='" + trickId + "']");
+				if (!$tr.length)
+					$(tableDestTrs[i]).remove();
+				else
+					$(tableDestTrs[i]).replaceWith($tr);
+			}
+		}
+		var $tbody = $(this.modal_body).find("tbody");
+		var $footer = $(this.modal_body).find("tbody tr.panel-footer");
+		if (!$footer.length) {
+			$footer = $(assessments).find("tbody tr.panel-footer");
+			if ($footer.length)
+				$footer.appendTo($tbody);
+		}
+		var tableSourceTrs = $(assessments).find("tbody tr[trick-id]");
+		for (var i = 0; i < tableSourceTrs.length; i++) {
+			var trickId = $(tableSourceTrs[i]).attr("trick-id");
+			var $tr = $(this.modal_body).find("tbody tr[trick-id='" + trickId + "']");
+			if (!$tr.length) {
+				if ($footer.length)
+					$tr.before($footer);
+				else
+					$tr.appendTo($tbody);
+			}
+		}
+		return false;
 	};
 
 	AssessmentViewer.prototype.ShowError = function(message) {
@@ -70,6 +115,12 @@ function AssessmentAssetViewer(assetId) {
 					return true;
 				$(instance.modal_body).html($(assessments).html());
 				instance.setTitle($(assessments).attr("trick-name"));
+				var table = $(instance.modal_body).find('table.table-fixed-header');
+				if (table.length) {
+					setTimeout(function() {
+						fixedTableHeader(table);
+					}, 400);
+				}
 				if (callback != null && $.isFunction(callback))
 					return callback();
 				return false;
@@ -92,8 +143,10 @@ function AssessmentAssetViewer(assetId) {
 				var assessments = $(doc).find("*[id='section_asset_assessment']");
 				if (!assessments.length)
 					return true;
-				$(instance.modal_body).html($(assessments).html());
-				instance.setTitle($(assessments).attr("trick-name"));
+				if (instance.SmartUpdate.apply(instance, assessments)) {
+					$(instance.modal_body).html($(assessments).html());
+					instance.setTitle($(assessments).attr("trick-name"));
+				}
 				return false;
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
@@ -126,6 +179,13 @@ function AssessmentScenarioViewer(scenarioId) {
 					return true;
 				$(instance.modal_body).html($(assessments).html());
 				instance.setTitle($(assessments).attr("trick-name"));
+				var table = $(instance.modal_body).find('table.table-fixed-header');
+				if (table.length) {
+					setTimeout(function() {
+						fixedTableHeader(table);
+					}, 400);
+				}
+
 				if (callback != null && $.isFunction(callback))
 					return callback();
 				return false;
@@ -148,8 +208,10 @@ function AssessmentScenarioViewer(scenarioId) {
 				var assessments = $(doc).find("*[id='section_scenario_assessment']");
 				if (!assessments.length)
 					return true;
-				$(instance.modal_body).html($(assessments).html());
-				instance.setTitle($(assessments).attr("trick-name"));
+				if (instance.SmartUpdate.apply(instance, assessments)) {
+					$(instance.modal_body).html($(assessments).html());
+					instance.setTitle($(assessments).attr("trick-name"));
+				}
 				return false;
 			},
 			error : function(jqXHR, textStatus, errorThrown) {

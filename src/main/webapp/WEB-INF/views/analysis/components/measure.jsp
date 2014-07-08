@@ -27,7 +27,7 @@
 							<tr>
 								<th><spring:message code="label.table.index" text="#" /></th>
 								<th colspan="4"><spring:message code="label.measure.domain" text="Domain" /></th>
-								<th class="text-rotate-45"><spring:message code="label.measure.st" text="Status" /></th>
+								<th><label class="text-rotate-270"><spring:message code="label.measure.st" text="Status" /></label></th>
 								<th><spring:message code="label.measure.ir" text="IR (%)" /></th>
 								<th><spring:message code="label.measure.iw" text="IW (md)" /></th>
 								<th><spring:message code="label.measure.ew" text="EW (md)" /></th>
@@ -37,7 +37,7 @@
 								<th><spring:message code="label.measure.em" text="EM (md)" /></th>
 								<th><spring:message code="label.measure.ri" text="RI" /> (k&euro;)</th>
 								<th><spring:message code="label.measure.cs" text="CS" /> (k&euro;)</th>
-								<th class="text-rotate-45"><spring:message code="label.measure.phase" text="Phase" /></th>
+								<th><label class="text-rotate-270"><spring:message code="label.measure.phase" text="Phase" /></label></th>
 								<th colspan="8"><spring:message code="label.measure.comment" text="Comment" /></th>
 								<th colspan="8"><spring:message code="label.measure.todo" text="To do" /></th>
 								<c:if test="${measureSplited.get(norm).get(0).getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">

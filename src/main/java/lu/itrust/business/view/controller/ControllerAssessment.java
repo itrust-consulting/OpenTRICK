@@ -1,6 +1,7 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -15,6 +16,7 @@ import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.AssessmentComparator;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.component.helper.JsonMessage;
@@ -98,8 +100,7 @@ public class ControllerAssessment {
 	 */
 	@RequestMapping(value = "/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	String updateAssessment(HttpSession session, Locale locale, Principal principal) {
+	public @ResponseBody String updateAssessment(HttpSession session, Locale locale, Principal principal) {
 		try {
 
 			// retrieve analysis id
@@ -142,8 +143,7 @@ public class ControllerAssessment {
 	 */
 	@RequestMapping(value = "/Wipe", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	String deleteAssessments(HttpSession session, Locale locale, Principal principal) {
+	public @ResponseBody String deleteAssessments(HttpSession session, Locale locale, Principal principal) {
 
 		try {
 
@@ -206,7 +206,7 @@ public class ControllerAssessment {
 		Asset asset = serviceAsset.get(elementID);
 
 		// load assessments by asset into model
-		return assessmentByAsset(model, asset, serviceAssessment.getAllSelectedFromAsset(asset), idAnalysis);
+		return assessmentByAsset(model, asset, serviceAssessment.getAllSelectedFromAsset(asset), idAnalysis, true);
 	}
 
 	/**
@@ -219,9 +219,9 @@ public class ControllerAssessment {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Asset/{assetId}/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Asset/{elementID}/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String updateAsset(@PathVariable int assetId, Model model, HttpSession session, Locale locale, Principal principal) {
+	public String updateAsset(@PathVariable int elementID, Model model, HttpSession session, Locale locale, Principal principal) {
 
 		try {
 
@@ -231,7 +231,7 @@ public class ControllerAssessment {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			// retrieve asset by id
-			Asset asset = serviceAsset.get(assetId);
+			Asset asset = serviceAsset.get(elementID);
 			if (asset == null)
 				return null;
 
@@ -262,7 +262,7 @@ public class ControllerAssessment {
 			serviceAssessment.saveOrUpdate(assessments);
 
 			// add assessments of asset to model
-			return assessmentByAsset(model, asset, assessments, idAnalysis);
+			return assessmentByAsset(model, asset, assessments, idAnalysis, false);
 
 		} catch (Exception e) {
 
@@ -301,7 +301,7 @@ public class ControllerAssessment {
 		Scenario scenario = serviceScenario.get(elementID);
 
 		// load all assessments by scenario to model
-		return assessmentByScenario(model, scenario, serviceAssessment.getAllSelectedFromScenario(scenario), idAnalysis);
+		return assessmentByScenario(model, scenario, serviceAssessment.getAllSelectedFromScenario(scenario), idAnalysis, true);
 	}
 
 	/**
@@ -357,7 +357,7 @@ public class ControllerAssessment {
 			serviceAssessment.saveOrUpdate(assessments);
 
 			// load assessments of scenario to model
-			return assessmentByScenario(model, scenario, assessments, idAnalysis);
+			return assessmentByScenario(model, scenario, assessments, idAnalysis, false);
 
 		} catch (Exception e) {
 
@@ -381,8 +381,7 @@ public class ControllerAssessment {
 	 */
 	@RequestMapping(value = "/Update/Acronym/{elementID}/{acronym}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	String updateAcromyn(@PathVariable int elementID, @PathVariable String acronym, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public @ResponseBody String updateAcromyn(@PathVariable int elementID, @PathVariable String acronym, HttpSession session, Locale locale, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -419,14 +418,14 @@ public class ControllerAssessment {
 				serviceAssessment.saveOrUpdate(assessment);
 			}
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym ("
-				+ acronym + ") was successfully updated with (" + extendedParameter.getAcronym() + ")", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() },
+					"Assessment acronym (" + acronym + ") was successfully updated with (" + extendedParameter.getAcronym() + ")", locale));
 		} catch (Exception e) {
 
 			// return error message
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym (" + acronym
-				+ ") cannot be updated to (" + extendedParameter.getAcronym() + ")", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym ("
+					+ acronym + ") cannot be updated to (" + extendedParameter.getAcronym() + ")", locale));
 		}
 
 	}
@@ -447,10 +446,11 @@ public class ControllerAssessment {
 	 * @param model
 	 * @param asset
 	 * @param assessments
+	 * @param sort
 	 * @return
 	 * @throws Exception
 	 */
-	private String assessmentByAsset(Model model, Asset asset, List<Assessment> assessments, int idAnalysis) throws Exception {
+	private String assessmentByAsset(Model model, Asset asset, List<Assessment> assessments, int idAnalysis, boolean sort) throws Exception {
 		ALE ale = new ALE(asset.getName(), 0);
 		ALE aleo = new ALE(asset.getName(), 0);
 		ALE alep = new ALE(asset.getName(), 0);
@@ -459,7 +459,10 @@ public class ControllerAssessment {
 		model.addAttribute("alep", alep);
 		model.addAttribute("asset", asset);
 		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
-		model.addAttribute("assessments", AssessmentManager.Sort(assessments, ale, alep, aleo));
+		AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
+		if (sort)
+			Collections.sort(assessments, new AssessmentComparator());
+		model.addAttribute("assessments", assessments);
 		asset.setALE(ale.getValue());
 		asset.setALEO(aleo.getValue());
 		asset.setALEP(alep.getValue());
@@ -474,10 +477,11 @@ public class ControllerAssessment {
 	 * @param model
 	 * @param scenario
 	 * @param assessments
+	 * @param sort
 	 * @return
 	 * @throws Exception
 	 */
-	private String assessmentByScenario(Model model, Scenario scenario, List<Assessment> assessments, int idAnalysis) throws Exception {
+	private String assessmentByScenario(Model model, Scenario scenario, List<Assessment> assessments, int idAnalysis, boolean sort) throws Exception {
 		ALE ale = new ALE(scenario.getName(), 0);
 		ALE aleo = new ALE(scenario.getName(), 0);
 		ALE alep = new ALE(scenario.getName(), 0);
@@ -486,7 +490,10 @@ public class ControllerAssessment {
 		model.addAttribute("alep", alep);
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
-		model.addAttribute("assessments", AssessmentManager.Sort(assessments, ale, alep, aleo));
+		AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
+		if (sort)
+			Collections.sort(assessments, new AssessmentComparator());
+		model.addAttribute("assessments", assessments);
 		return "analysis/components/assessmentScenario";
 	}
 }

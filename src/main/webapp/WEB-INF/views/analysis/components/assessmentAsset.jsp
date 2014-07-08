@@ -10,7 +10,7 @@
 			<table class="table table-hover table-fixed-header">
 				<thead>
 					<tr>
-						<th colspan="3"><spring:message code="label.assessment.scenario" text="Scenario" /></th>
+						<th colspan="4"><spring:message code="label.assessment.scenario" text="Scenario" /></th>
 						<th><spring:message code="label.assessment.impactRep" text="Rep." /> (k&euro;)</th>
 						<th><spring:message code="label.assessment.impactOp" text="Op." /> (k&euro;)</th>
 						<th><spring:message code="label.assessment.impactLeg" text="Leg." /> (k&euro;)</th>
@@ -20,15 +20,15 @@
 						<th><spring:message code="label.assessment.ALEP" text="ALEP" /> (k&euro;)</th>
 						<th><spring:message code="label.assessment.ALE" text="ALE" /> (k&euro;)</th>
 						<th><spring:message code="label.assessment.ALEO" text="ALEO" /> (k&euro;)</th>
-						<th colspan="3"><spring:message code="label.assessment.comment" text="Comment" /></th>
-						<th colspan="3"><spring:message code="label.assessment.hiddenComment" text="Hidden comment" /></th>
+						<th colspan="6"><spring:message code="label.assessment.comment" text="Comment" /></th>
+						<th colspan="6"><spring:message code="label.assessment.hiddenComment" text="Hidden comment" /></th>
 					</tr>
 				</thead>
 				<tbody>
 					<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).Sort(assessments)" var="sortedAssessments" />
 					<c:forEach items="${sortedAssessments}" var="assessment">
 						<tr trick-class="Assessment" trick-id="${assessment.id}" trick-callback="chartALE()">
-							<td colspan="3"><spring:message text="${assessment.scenario.name}" /></td>
+							<td colspan="4"><spring:message text="${assessment.scenario.name}" /></td>
 							<c:choose>
 								<c:when test="${parameters.containsKey(assessment.impactRep)}">
 									<td trick-field="impactRep" trick-field-type="string" class="success" title='<fmt:formatNumber value="${parameters.get(assessment.impactRep)}" />'
@@ -127,19 +127,19 @@
 									maxFractionDigits="0" minFractionDigits="0" /></td>
 							<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${assessment.ALEP*0.001}"
 									maxFractionDigits="0" minFractionDigits="0" /></td>
-							<td ondblclick="return editField(this.firstElementChild);" class="success"><pre trick-field="comment" trick-field-type="string" colspan="3" trick-content="text"><spring:message text="${assessment.comment}" /></pre></td>
-							<td colspan="3" ondblclick="return editField(this.firstElementChild);" class="success"><pre trick-field="hiddenComment" trick-field-type="string" trick-content="text"><spring:message text="${assessment.hiddenComment}" /></pre></td>
+							<td colspan="6" ondblclick="return editField(this);" class="success" trick-field="comment" trick-field-type="string" colspan="3" trick-content="text"><spring:message text="${assessment.comment}" /></td>
+							<td colspan="6" ondblclick="return editField(this);" class="success" trick-field="hiddenComment" trick-field-type="string" trick-content="text"><spring:message text="${assessment.hiddenComment}" /></td>
 						</tr>
 					</c:forEach>
 					<tr class="panel-footer" style="font-weight: bold;">
-						<td colspan="9"><spring:message code="label.assessment.total.ale" text="Total" /></td>
+						<td colspan="10"><spring:message code="label.assessment.total.ale" text="Total" /></td>
 						<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${aleo.value*0.001}" maxFractionDigits="0"
 								minFractionDigits="0" /></td>
 						<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale.value*0.001}" maxFractionDigits="0"
 								minFractionDigits="0" /></td>
 						<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${alep.value*0.001}" maxFractionDigits="0"
 								minFractionDigits="0" /></td>
-						<td colspan="6" />
+						<td colspan="12" />
 					</tr>
 				</tbody>
 			</table>

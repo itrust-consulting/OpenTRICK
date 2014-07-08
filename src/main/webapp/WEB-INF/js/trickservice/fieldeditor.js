@@ -46,7 +46,7 @@ function FieldEditor(element, validator) {
 			} else {
 				this.fieldEditor = document.createElement("input");
 				this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
-				this.fieldEditor.setAttribute("style", "min-width:" + (width < 70 ? 70 : width) + "px;");
+				this.fieldEditor.setAttribute("style", "min-width:" + (width < 80 ? 80 : width) + "px;");
 			}
 		} else {
 			this.fieldEditor = document.createElement("select");
@@ -341,7 +341,7 @@ function AssessmentFieldEditor(element) {
 					success : function(response) {
 						if (response["success"] != undefined) {
 							if (application.modal["AssessmentViewer"] != undefined)
-								application.modal["AssessmentViewer"].Load();
+								application.modal["AssessmentViewer"].Update();
 						} else {
 							that.Rollback();
 							application.modal["AssessmentViewer"].ShowError(response["error"]);
@@ -386,7 +386,7 @@ function AssessmentExtendedParameterEditor(element) {
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("placeholder", value);
 		this.fieldEditor.setAttribute("value", value);
-		this.fieldEditor.setAttribute("style", "min-width:70px;");
+		this.fieldEditor.setAttribute("style", "min-width:90px;");
 		var that = this;
 		$(this.fieldEditor).blur(function() {
 			return that.Save(that);
@@ -491,7 +491,7 @@ function AssessmentProbaFieldEditor(element) {
 		if (!this.LoadData())
 			return true;
 		this.fieldEditor = document.createElement("select");
-		this.fieldEditor.setAttribute("style", "min-width:90px;");
+		this.fieldEditor.setAttribute("style", "min-width:100px;");
 		for (var i = 0; i < this.choose.length; i++) {
 			var option = document.createElement("option");
 			option.setAttribute("value", this.acromym[i]);

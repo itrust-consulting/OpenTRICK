@@ -164,33 +164,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6">
-			<span id="anchorParameter_ImplementationRate" class="anchor"></span>
-			<div class="panel panel-default" id="Maturity_implementation_rate">
-				<div class="panel-heading">
-					<spring:message code="label.parameter.simple.smt" text="Implementation scale of SMT" />
-				</div>
-				<div class="panel-body">
-					<table class="table table-hover">
-						<thead>
-							<tr>
-								<th class="textaligncenter"><spring:message code="label.parameter.Level" text="Level" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.percentage" text="Implementation" /> (%)</th>
-							</tr>
-						</thead>
-						<tbody>
-							<c:forEach items="${simpleParameters[2]}" var="parameter">
-								<tr trick-class="Parameter" trick-id="${parameter.id}">
-									<td class="textaligncenter"><spring:message code="label.parameter.simple.smt.level_${parameter.description}" text="${parameter.description}" /></td>
-									<td trick-field="value" trick-field-type="double" class="success textaligncenter" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.value}"
-											maxFractionDigits="0" /></td>
-								</tr>
-							</c:forEach>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
+
 		<div class="col-md-6">
 			<span id="anchorParameter_Various" class="anchor"></span>
 			<div class="panel panel-default">
@@ -247,6 +221,33 @@
 											value="${parameter.value}" maxFractionDigits="0" /></td>
 								</c:forEach>
 							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<span id="anchorParameter_ImplementationRate" class="anchor"></span>
+			<div class="panel panel-default" id="Maturity_implementation_rate">
+				<div class="panel-heading">
+					<spring:message code="label.parameter.simple.smt" text="Implementation scale of SMT" />
+				</div>
+				<div class="panel-body">
+					<table class="table table-hover">
+						<thead>
+							<tr>
+								<th class="textaligncenter"><spring:message code="label.parameter.Level" text="Level" /></th>
+								<th class="textaligncenter"><spring:message code="label.parameter.percentage" text="Implementation" /> (%)</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach items="${simpleParameters[2]}" var="parameter">
+								<tr trick-class="Parameter" trick-id="${parameter.id}">
+									<td class="textaligncenter"><spring:message code="label.parameter.simple.smt.level_${parameter.description}" text="${parameter.description}" /></td>
+									<td trick-field="value" trick-field-type="double" class="success textaligncenter" ondblclick="return editField(this);"><fmt:formatNumber value="${parameter.value}"
+											maxFractionDigits="0" /></td>
+								</tr>
+							</c:forEach>
 						</tbody>
 					</table>
 				</div>
