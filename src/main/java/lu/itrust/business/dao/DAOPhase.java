@@ -3,37 +3,38 @@ package lu.itrust.business.dao;
 import java.sql.Date;
 import java.util.List;
 
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Phase;
 
-/** 
+/**
  * DAOPhase.java: <br>
  * Detailed description...
- *
- * @author itrust consulting s.à.rl. :
- * @version 
+ * 
+ * @author eomar, itrust consulting s.a.rl. :
+ * @version
  * @since 16 janv. 2013
  */
 public interface DAOPhase {
-	
-	public Phase get(int id) throws Exception;
-	
-	public List<Phase> loadFromPhaseNumberAnalysis(int number, Analysis analysis) throws Exception;
-	
-	public List<Phase> loadByBeginDate(Date beginDate, Analysis analysis) throws Exception;
-	
-	public List<Phase> loadByEndDate(Date beginDate, Analysis analysis) throws Exception;
-	
-	public List<Phase> loadAllFromAnalysis(Analysis analysis) throws Exception;
-	
-	public List<Phase> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier, int version, String creationDate) throws Exception;
-	
-	public List<Phase> loadAll() throws Exception;
-	
-	public void save(Phase phase) throws Exception;
-	
-	public void saveOrUpdate(Phase phase) throws Exception;
-	
-	public void remove(Phase phase)throws Exception;
+	public Phase get(Integer id) throws Exception;
 
+	public Phase getFromAnalysisByPhaseNumber(Integer IdAnalysis, Integer number) throws Exception;
+
+	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase) throws Exception;
+
+	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId) throws Exception;
+
+	public boolean canBeDeleted(Integer idPhase) throws Exception;
+
+	public List<Phase> getAll() throws Exception;
+
+	public List<Phase> getAllFromAnalysis(Integer idAnalysis) throws Exception;
+
+	public List<Phase> getAllFromAnalysisByBeginDate(Integer idAnalysis, Date beginDate) throws Exception;
+
+	public List<Phase> getAllFromAnalysisByEndDate(Integer idAnalysis, Date beginDate) throws Exception;
+
+	public void save(Phase phase) throws Exception;
+
+	public void saveOrUpdate(Phase phase) throws Exception;
+
+	public void delete(Phase phase) throws Exception;
 }

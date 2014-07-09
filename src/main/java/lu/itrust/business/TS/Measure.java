@@ -1,6 +1,8 @@
 package lu.itrust.business.TS;
 
 import java.io.Serializable;
+import java.util.List;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
@@ -12,7 +14,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 2012-08-21
  */
-public abstract class Measure implements Serializable {
+public abstract class Measure implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -29,7 +31,7 @@ public abstract class Measure implements Serializable {
 
 	/** The Measure Domain */
 	private MeasureDescription measureDescription = null;
-
+	
 	/** The Measure Status (AP, NA, M) */
 	private String status = "NA";
 
@@ -48,9 +50,18 @@ public abstract class Measure implements Serializable {
 	/** The LifeTime of the Measure (in Years) */
 	private double lifetime = 0;
 
-	/** The Maintenance of the Measure (in percent) */
+	/** The old Maintenance of the Measure (in percent) */
 	private double maintenance = 0;
+	
+	/** The internal Maintenance of the Measure (in Man Days) */
+	private double internalMaintenance = 0;
 
+	/** The external Maintenance of the Measure (in Man Days) */
+	private double externalMaintenance = 0;
+	
+	/** The recurrent investment of maintenance  of the Measure (Currency) */
+	private double recurrentInvestment = 0;
+	
 	/** The Cost of the Measure (Currency) */
 	private double cost = 0;
 
@@ -447,5 +458,165 @@ public abstract class Measure implements Serializable {
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * ComputeCost: <br>
+	 * Description
+	 * 
+	 * @param measure
+	 * @param analysis
+	 */
+	@Deprecated
+	public static void ComputeCost(Measure measure, List<Parameter> parameters) {
+		// ****************************************************************
+		// * variable initialisation
+		// ****************************************************************
+		double cost = 0;
+		double externalSetupValue = -1;
+		double internalSetupValue = -1;
+		double lifetimeDefault = -1;
+		double maintenanceDefault = -1;
+
+		// ****************************************************************
+		// * select external and internal setup rate from parameters
+		// ****************************************************************
+
+		for (Parameter parameter : parameters) {
+			if(parameter.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE)) {
+				internalSetupValue = parameter.getValue();
+				break;
+			}
+				
+		}
+		
+		for (Parameter parameter : parameters) {
+			if(parameter.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE)) {
+				externalSetupValue = parameter.getValue();
+				break;
+			}
+				
+		}
+		
+		for (Parameter parameter : parameters) {
+			if(parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
+				lifetimeDefault = parameter.getValue();
+				break;
+			}
+				
+		}
+
+		for (Parameter parameter : parameters) {
+			if(parameter.getDescription().equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
+				maintenanceDefault = parameter.getValue();
+				break;
+			}
+				
+		}
+		
+		// calculate the cost
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getMaintenance(), measure.getInternalWL(), measure.getExternalWL(),
+				measure.getInvestment(), measure.getLifetime());
+		// return calculated cost
+		if (cost >= 0)
+			measure.setCost(cost);
+	}
+	
+	public static void ComputeCost(Measure measure, Analysis analysis) {
+		// ****************************************************************
+		// * variable initialisation
+		// ****************************************************************
+		double cost = 0;
+		double externalSetupValue = -1;
+		double internalSetupValue = -1;
+		double lifetimeDefault = -1;
+
+		// ****************************************************************
+		// * select external and internal setup rate from parameters
+		// ****************************************************************
+
+		internalSetupValue = analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+		
+		externalSetupValue = analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+		
+		lifetimeDefault = analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
+
+		// calculate the cost
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(),
+				measure.getInvestment(), measure.getLifetime());
+		// return calculated cost
+		if (cost >= 0)
+			measure.setCost(cost);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Measure clone() throws CloneNotSupportedException {
+		return (Measure) super.clone();
+	}
+
+	public Measure duplicate() throws CloneNotSupportedException {
+		Measure measure = (Measure) super.clone();
+		measure.id = -1;
+		return measure;
+	}
+
+	/** getInternalMaintenance: <br>
+	 * Returns the internalMaintenance field value.
+	 * 
+	 * @return The value of the internalMaintenance field
+	 */
+	public double getInternalMaintenance() {
+		return internalMaintenance;
+	}
+
+	/** setInternalMaintenance: <br>
+	 * Sets the Field "internalMaintenance" with a value.
+	 * 
+	 * @param internalMaintenance 
+	 * 			The Value to set the internalMaintenance field
+	 */
+	public void setInternalMaintenance(double internalMaintenance) {
+		this.internalMaintenance = internalMaintenance;
+	}
+
+	/** getExternalMaintenance: <br>
+	 * Returns the externalMaintenance field value.
+	 * 
+	 * @return The value of the externalMaintenance field
+	 */
+	public double getExternalMaintenance() {
+		return externalMaintenance;
+	}
+
+	/** setExternalMaintenance: <br>
+	 * Sets the Field "externalMaintenance" with a value.
+	 * 
+	 * @param externalMaintenance 
+	 * 			The Value to set the externalMaintenance field
+	 */
+	public void setExternalMaintenance(double externalMaintenance) {
+		this.externalMaintenance = externalMaintenance;
+	}
+
+	/** getRecurrentInvestment: <br>
+	 * Returns the recurrentInvestment field value.
+	 * 
+	 * @return The value of the recurrentInvestment field
+	 */
+	public double getRecurrentInvestment() {
+		return recurrentInvestment;
+	}
+
+	/** setRecurrentInvestment: <br>
+	 * Sets the Field "recurrentInvestment" with a value.
+	 * 
+	 * @param recurrentInvestment 
+	 * 			The Value to set the recurrentInvestment field
+	 */
+	public void setRecurrentInvestment(double recurrentInvestment) {
+		this.recurrentInvestment = recurrentInvestment;
 	}
 }

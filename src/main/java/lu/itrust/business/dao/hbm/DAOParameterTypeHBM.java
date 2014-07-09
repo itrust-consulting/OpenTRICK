@@ -5,16 +5,34 @@ import java.util.List;
 import lu.itrust.business.TS.ParameterType;
 import lu.itrust.business.dao.DAOParameterType;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /**
  * DAOParameterTypeHBM.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 31 janv. 2013
  */
-public class DAOParameterTypeHBM extends DAOHibernate implements
-		DAOParameterType {
+@Repository
+public class DAOParameterTypeHBM extends DAOHibernate implements DAOParameterType {
+
+	/**
+	 * Constructor: <br>
+	 */
+	public DAOParameterTypeHBM() {
+	}
+
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param session
+	 */
+	public DAOParameterTypeHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>
@@ -23,38 +41,31 @@ public class DAOParameterTypeHBM extends DAOHibernate implements
 	 * @see lu.itrust.business.dao.DAOParameterType#get(int)
 	 */
 	@Override
-	public ParameterType get(int id) throws Exception {
-
+	public ParameterType get(Integer id) throws Exception {
 		return (ParameterType) getSession().get(ParameterType.class, id);
-
 	}
 
 	/**
-	 * get: <br>
+	 * getByName: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOParameterType#get(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOParameterType#getByName(java.lang.String)
 	 */
 	@Override
-	public ParameterType get(String parameterTypeName) throws Exception {
-		return (ParameterType) getSession()
-				.createQuery("From ParameterType where type = :type")
-				.setString("type", parameterTypeName).uniqueResult();
-
+	public ParameterType getByName(String parameterTypeName) throws Exception {
+		return (ParameterType) getSession().createQuery("From ParameterType where label = :label").setParameter("label", parameterTypeName).uniqueResult();
 	}
 
 	/**
-	 * loadAll: <br>
+	 * getAllParameterTypes: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOParameterType#loadAll()
+	 * @see lu.itrust.business.dao.DAOParameterType#getAllParameterTypes()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ParameterType> loadAll() throws Exception {
-		return (List<ParameterType>) getSession().createQuery(
-				"From ParameterType").list();
-
+	public List<ParameterType> getAll() throws Exception {
+		return (List<ParameterType>) getSession().createQuery("From ParameterType").list();
 	}
 
 	/**
@@ -77,7 +88,6 @@ public class DAOParameterTypeHBM extends DAOHibernate implements
 	@Override
 	public void saveOrUpdate(ParameterType parameterType) throws Exception {
 		getSession().saveOrUpdate(parameterType);
-
 	}
 
 	/**
@@ -90,5 +100,4 @@ public class DAOParameterTypeHBM extends DAOHibernate implements
 	public void delete(ParameterType parameterType) throws Exception {
 		getSession().delete(parameterType);
 	}
-
 }

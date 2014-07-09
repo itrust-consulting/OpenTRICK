@@ -1,1 +1,0 @@
-﻿INSERT INTO customer VALUES (1,'itrust consulting','Munsbach','L-4545','Niederanven','Luxembourg','Carlo Harpes','+352123456789','contact1@organisation1.org');

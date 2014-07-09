@@ -3,7 +3,7 @@
                                    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
-	<class name="lu.itrust.business.TS.actionplan.ActionPlanEntry" table="actionplan">
+	<class name="lu.itrust.business.TS.actionplan.ActionPlanEntry" table="ActionPlan">
 		<id column="idActionPlanCalculation" name="id" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
@@ -15,18 +15,26 @@
 		<property column="dtDeltaALE" generated="never" lazy="false" name="deltaALE" type="double" not-null="true" />
 		<property column="dtCost" generated="never" lazy="false" name="cost" type="double" not-null="true" access="field" />
 		<property column="dtROI" generated="never" lazy="false" name="ROI" type="double" not-null="true" />
-		<bag  name="actionPlanAssets" table="actionPlanAsset" inverse="true" cascade="all">
+		<bag  name="actionPlanAssets" table="actionPlanAsset" inverse="true" cascade="all" order-by="currentALE DESC">
 			<key column="fiActionPlanCalculation"/>
 			<one-to-many class="lu.itrust.business.TS.actionplan.ActionPlanAsset" />
 		</bag>
 	</class>
-	<class name="lu.itrust.business.TS.actionplan.ActionPlanType" table="actionPlanType">
+	<class name="lu.itrust.business.TS.actionplan.ActionPlanType" table="ActionPlanType">
 		<id column="idActionPlanType" name="id" unsaved-value="-1">
 			<generator class="assigned" />
 		</id>
-		<property column="dtLabel" generated="never" lazy="false" name="name" not-null="true" unique="true" />
+		<property generated="never" lazy="false" name="name" not-null="true" unique="true" access="field">
+			<column name="dtLabel" />
+			<type name="org.hibernate.type.EnumType">
+				<param name="type">12</param>
+				<param name="useNamed">true</param>
+				<param name=""></param>
+				<param name="enumClass">lu.itrust.business.TS.actionplan.ActionPlanMode</param>
+			</type>
+		</property>
 	</class>
-	<class name="lu.itrust.business.TS.actionplan.ActionPlanAsset" table="actionPlanAsset">
+	<class name="lu.itrust.business.TS.actionplan.ActionPlanAsset" table="ActionPlanAsset">
 		<id column="idActionPlanAssetCalculation" name="id" unsaved-value="-1">
 			<generator class="increment" />
 		</id>

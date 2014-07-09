@@ -3,6 +3,7 @@ package lu.itrust.business.TS.actionplan;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * TMA: <br>
@@ -67,24 +68,25 @@ public class TMA {
 	 *            The Measure Object
 	 * @param RRF
 	 *            The RRF value
+	 * @throws TrickException 
 	 */
-	public TMA(ActionPlanMode mode, Assessment asessment, Measure measure, double RRF) {
+	public TMA(ActionPlanMode mode, Assessment asessment, Measure measure, double RRF) throws TrickException {
 
 		// the assessment (-> Asset + Scenario)
 		this.assessment = asessment;
 
 		// get ALE corresponding to type of computation
 		switch (mode) {
-			case NORMAL:
-			case PHASE_NORMAL:
+			case APN:
+			case APPN:
 				this.ALE = this.assessment.getALE();
 				break;
-			case OPTIMISTIC:
-			case PHASE_OPTIMISTIC:
+			case APO:
+			case APPO:
 				this.ALE = this.assessment.getALEO();
 				break;
-			case PESSIMISTIC:
-			case PHASE_PESSIMISTIC:
+			case APP:
+			case APPP:
 				this.ALE = this.assessment.getALEP();
 				break;
 		}
@@ -97,6 +99,12 @@ public class TMA {
 
 		// the calculated RRF
 		this.RRF = RRF;
+		
+		if(Double.isNaN(RRF))
+			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
+
+		//System.out.println(this.toString());
+
 	}
 
 	/***********************************************************************************************
@@ -107,17 +115,15 @@ public class TMA {
 	 * calculateDeltaALE: <br>
 	 * Calculates the delta ALE using the formula <br>
 	 * ALE * RRF * (1 - ImpRate / 1 - RRF * ImpRate)
+	 * @throws TrickException 
 	 */
-	public void calculateDeltaALE() {
-		this.deltaALE =
-			this.ALE
-				* RRF
-				* ((1. - (this.measure.getImplementationRateValue() / 100.)) / (1. - RRF
-					* (this.measure.getImplementationRateValue() / 100.)));
-		/*if(deltaALE==0)
-		{
-			System.out.println("ALE: "+this.ALE+" RRF: "+RRF+" part1ImpRate: "+this.measure.getImplementationRate());
-		}*/
+	public void calculateDeltaALE() throws TrickException {
+		if(Double.isNaN(RRF))
+			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
+		if(Double.isNaN(ALE))
+			throw new TrickException("error.tma.ale.nan", "Please check your data: ALE is not a number");
+		this.deltaALE = this.ALE * RRF * ((1. - (this.measure.getImplementationRateValue() / 100.)) / (1. - RRF * (this.measure.getImplementationRateValue() / 100.)));
+
 	}
 
 	/**
@@ -133,13 +139,14 @@ public class TMA {
 	 *            The Measure to calculate the deltaALE
 	 * 
 	 * @return the computed deltaALE for this measure using a given ALE
+	 * @throws TrickException 
 	 */
-	public static double calculateDeltaALE(double ALE, double RRF, Measure measure) {
-		
-		return ALE
-			* RRF
-			* ((1.0 - (measure.getImplementationRateValue() / 100.0)) / (1.0 - RRF
-				* (measure.getImplementationRateValue() / 100.0)));
+	public static double calculateDeltaALE(double ALE, double RRF, Measure measure) throws TrickException {
+		if(Double.isNaN(RRF))
+			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
+		if(Double.isNaN(ALE))
+			throw new TrickException("error.tma.ale.nan", "Please check your data: ALE is not a number");
+		return ALE * RRF * ((1.0 - (measure.getImplementationRateValue() / 100.0)) / (1.0 - RRF * (measure.getImplementationRateValue() / 100.0)));
 	}
 
 	/**
@@ -149,11 +156,8 @@ public class TMA {
 	 */
 	public void calculateDeltaALEMaturity() {
 		this.deltaALEMat =
-			this.ALE
-				* RRF
-				* (this.measure.getImplementationRateValue() / 100.)
-				* ((nMaxEff / 100. - cMaxEff / 100.) / (1. - RRF * cMaxEff / 100.
-					* (this.measure.getImplementationRateValue() / 100.)));
+			this.ALE * RRF * (this.measure.getImplementationRateValue() / 100.)
+				* ((nMaxEff / 100. - cMaxEff / 100.) / (1. - RRF * cMaxEff / 100. * (this.measure.getImplementationRateValue() / 100.)));
 	}
 
 	/***********************************************************************************************
@@ -349,23 +353,23 @@ public class TMA {
 		this.deltaALEMat = deltaALEMat;
 	}
 
-	
-	
-	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((assessment == null) ? 0 : assessment.hashCode());
+		result = prime * result + ((assessment == null) ? 0 : assessment.hashCode());
 		result = prime * result + ((measure == null) ? 0 : measure.hashCode());
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -388,6 +392,18 @@ public class TMA {
 		} else if (!measure.equals(other.measure))
 			return false;
 		return true;
+	}
+
+	/**
+	 * 
+	 */
+	@Override
+	public String toString() {
+		return "TMA [" + "Assessment [id=" + assessment.getId() + ", ALE=" + assessment.getALE() + ", ALEO=" + assessment.getALEO() + ", ALEP=" + assessment.getALEP() + ", Impact="
+			+ assessment.getImpactReal() + ", Likelihood=" + assessment.getLikelihoodReal() + ", Uncertainty=" + assessment.getUncertainty() + ", " + "Asset [id=" + assessment.getAsset().getId()
+			+ ", name=" + assessment.getAsset().getName() + "], " + "Scenario [id=" + assessment.getScenario().getName() + ", name=" + assessment.getScenario().getName() + "]], " + "Measure[id="
+			+ measure.getId() + ", Norm [ id=" + norm.getId() + ", name=" + norm.getLabel() + ", version=" + norm.getVersion() + "], reference=" + measure.getMeasureDescription().getReference() + "], "
+			+ "RRF="+RRF+", ALE="+ALE+", deltaALE="+deltaALE+", current SML Max Eff= "+cMaxEff+", next SML Max Eff="+nMaxEff+", deltaALE Maturtity="+deltaALEMat+"]";
 	}
 
 	/**

@@ -1,21 +1,22 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.dao.DAOActionPlanType;
 import lu.itrust.business.service.ServiceActionPlanType;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
- * @author oensuifudine
+ * ServiceActionPlanTypeImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Feb 7, 2013
  */
 @Service
 public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
@@ -23,57 +24,73 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 	@Autowired
 	private DAOActionPlanType daoActionPlanType;
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceActionPlanType#get(int)
 	 */
 	@Override
-	public ActionPlanType get(int id) throws Exception {
+	public ActionPlanType get(Integer id) throws Exception {
 		return daoActionPlanType.get(id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getByName: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceActionPlanType#get(java.lang.String)
+	 * @param name
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanType#getByName(java.lang.String)
 	 */
 	@Override
-	public ActionPlanType get(String name) throws Exception {
-		return daoActionPlanType.get(name);
+	public ActionPlanType getByName(String name) throws Exception {
+		return daoActionPlanType.getByName(name);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAll: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceActionPlanType#loadAll()
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanType#getAll()
 	 */
 	@Override
-	public List<ActionPlanType> loadAll() throws Exception {
-		return daoActionPlanType.loadAll();
+	public List<ActionPlanType> getAll() throws Exception {
+		return daoActionPlanType.getAll();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * save: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceActionPlanType#save(lu.itrust.business
-	 * .TS.actionplan.ActionPlanType)
+	 * @param actionPlanType
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanType#save(lu.itrust.business.TS.actionplan.ActionPlanType)
 	 */
 	@Transactional
 	@Override
 	public void save(ActionPlanType actionPlanType) throws Exception {
 		daoActionPlanType.save(actionPlanType);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceActionPlanType#saveOrUpdate(lu.itrust
-	 * .business.TS.actionplan.ActionPlanType)
+	 * @param actionPlanType
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanType#saveOrUpdate(lu.itrust.business.TS.actionplan.ActionPlanType)
 	 */
 	@Transactional
 	@Override
@@ -81,39 +98,33 @@ public class ServiceActionPlanTypeImpl implements ServiceActionPlanType {
 		daoActionPlanType.saveOrUpdate(actionPlanType);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * merge: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceActionPlanType#delete(lu.itrust.business
-	 * .TS.actionplan.ActionPlanType)
+	 * @param actionPlanType
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanType#merge(lu.itrust.business.TS.actionplan.ActionPlanType)
 	 */
-	@Transactional
-	@Override
-	public void delete(ActionPlanType actionPlanType) throws Exception {
-		daoActionPlanType.delete(actionPlanType);
-
-	}
-
-	/**
-	 * @return the daoActionPlanType
-	 */
-	public DAOActionPlanType getDaoActionPlanType() {
-		return daoActionPlanType;
-	}
-
-	/**
-	 * @param daoActionPlanType
-	 *            the daoActionPlanType to set
-	 */
-	public void setDaoActionPlanType(DAOActionPlanType daoActionPlanType) {
-		this.daoActionPlanType = daoActionPlanType;
-	}
-
 	@Transactional
 	@Override
 	public void merge(ActionPlanType actionPlanType) throws Exception {
 		this.daoActionPlanType.merge(actionPlanType);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param actionPlanType
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanType#delete(lu.itrust.business.TS.actionplan.ActionPlanType)
+	 */
+	@Transactional
+	@Override
+	public void delete(ActionPlanType actionPlanType) throws Exception {
+		daoActionPlanType.delete(actionPlanType);
+	}
 }

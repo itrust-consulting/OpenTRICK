@@ -1,1 +1,648 @@
-eval(function(p,a,c,k,e,r){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--)r[e(c)]=k[c]||e(c);k=[function(e){return r[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('9 1N(){$.y({z:t+"/1N",E:"j/p",v:G});k m}9 G(a){l b=S 1h();l c=b.1i(a,"j/p");$("#H").p(c.r("1j")==q?c.r("H").A:c.r("1j").1O);k m}9 1P(a,b){Z=w.1k("1z");Z.I("1A",a);Z.I("1B",a);l c=w.r("H");l d=w.1k("a");d.I("1C","#");d.I("1B","2q");d.I("2r","k $(\'#"+a+"\').1Q()");d.1l(w.1R("X"));Z.1l(d);c.1m(Z,c.1D);Z.1l(w.1R(b));k m}9 1S(a){l b=a[0];l c=a[1];1P(b,c);k m}9 1T(a){$.y({z:t+"/1T",1n:{N:a},E:"j/p",v:G});k m}9 1E(){$.y({z:t+"/2s",E:"j/p",v:9(a){l b=S 1h();l c=b.1i(a,"j/p");$("#1a").p(c.r("1a").A)}});k m}9 2t(a,b){o(b==q)b=1U;$.y({z:a,E:"j/p",v:b});k m}9 1U(a){l b=S 1h();l c=b.1i(a,"j/p");o(c.r("1j")!=q)$("#H").p(c.r("1j").1O);J $("#1a").p(c.r("1a").A);k m}9 2u(a,b,c){o(!b||2v(c)){$.y({z:a,E:"j/p",v:G})}k m}9 2w(a,b,c){$.y({z:a,1n:{2x:b},E:"j/p",v:G}).1o(9(){o(c)k 1E();k m});k m}9 1b(c,d,e,f){l g=$("#K-n").n({2y:m,10:B,1c:f==q?1d:f,11:9(a,b){1p();$(x).12().C().C(\'.13-n-14-s\').O()}});l h=$("#K"),1q=$(".T-2z");h.K({1e:0,2A:9(){1q.j(e+h.K("1e")+"%")},2B:9(){1q.j(c);1r();l a={1s:{j:$("#1t").j(),P:9(){$(x).n("s")}}};$("#K-n").n(\'1f\',\'U\',a);2C("$(\'#K-n\').n(\'s\')",2D)}});1q.j(d);g.n(\'1f\',\'U\',q);g.n(\'1f\',\'1F\',$(\'#L\').j());g.1V();k h}9 T(a,b){l c=a.K("1e")||0;o((V-(c+b))<c)a.K("1e",V);J a.K("1e",c+b);k m}9 1W(a,b,c){$.y({z:a,2E:"1W",1n:$("#"+b).2F(),v:G}).1o(9(){o(c)k 1E();k m});k m}9 1p(){Q=Q<0?1:Q+1;k Q}9 1r(){Q=Q<=0?0:Q-1;k Q}9 2G(){l f=1d;$("#2H").n({10:B,1c:f,11:9(a,b){1p();$(x).12().C().C(\'.13-n-14-s\').O()},s:9(a,b){1r();k m},U:{"1X 1Y":{j:$("#2I").j(),P:9(){$(x).n("s");l a=$("#1u").2J("2K");l b=$("#1u 1f").W;l c=1Z.20(V/(b-a));l d=$("#1u").u();l e=1b($("#1v").j(),$("#L").j()+"...",$("#L").j()+" ",f);1G(d,e,c);k m}},21:{j:$("#22").j(),P:9(){$(x).n("s");k m}}}});k m}9 23(a){l b=$("#1u 1f");24(l c=0;c<b.W;c++){o(b[c].j==a){o(b.W>c+1)k b[c+1].j;2L}}k q}9 1G(c,d,e){o(c==q)c=$("#N").u();o(d==q){d=1b($("#1v").j(),$("#L").j()+c+"...",$("#L").j()+" ")}$.y({25:B,z:t+"/2M/2N/"+c,E:"j/p",v:1S}).26(9(){o(e==q)T(d,V);1w($("#2O").j(),$("#2P").j()+2Q.R());$("#15").n({10:B,11:9(a,b){$(x).12().C().C(\'.13-n-14-s\').O()},U:{1s:{j:$("#1t").j(),P:9(){$(x).n("s")}}}});k m}).1o(9(){o(e==q){T(d,V)}J{c=23(c);T(d,e);o(c!=q)1G(c,d,e)}k m});k m}9 2R(a){$.y({z:t+"/27/28/"+a,E:"j/p",v:G});k m}9 2S(a){$.y({z:t+"/27/2T/28/"+a,E:"j/p",v:G});k m}9 1w(a,b){l c=w.r("15");o(c==q){l c=w.1k("1z");c.I("1A","15");c.I("1F",a);w.r("H").1l(c)}J c.I("1F",a);$("#15").p(b);k m}9 2U(){l d=1d;$("#2V").n({10:B,1c:d,11:9(a,b){1p();$(x).12().C().C(\'.13-n-14-s\').O()},s:9(a,b){1r();k m},U:{"1X 1Y":{j:$("#2W").j(),P:9(){$(x).n("s");l a=S 1H();l b=1Z.20(V/(a.R()-$("#29").u()+1));a.1I($("#29").u());l c=1b($("#1v").j(),$("#L").j()+"...",$("#L").j()+" ",d);1J(a,c,b)}},21:{j:$("#22").j(),P:9(){$(x).n("s")}}}});k m}9 1J(f,g,h){l i=q;o(h==q){f=$(\'#2X\').u();i=S 1H();i.1I(f);o(g==q){g=1b($("#1v").j(),$("#L").j()+f+"...",$("#L").j()+f+" ")}}J i=f;$.y({z:t+"/2Y/2Z/16/"+i.R(),25:B,v:G,2a:9(c,d,e){1w($("#30").j(),$("#31").j()+i.R());$("#15").n({10:B,1c:1d,11:9(a,b){$(x).12().C().C(\'.13-n-14-s\').O()},U:{1s:{j:$("#1t").j(),P:9(){$(x).n("s")}}}})}}).26(9(){1w($("#32").j(),$("#33").j()+i.R());$("#15").n({10:B,1c:1d,11:9(a,b){$(x).12().C().C(\'.13-n-14-s\').O()},U:{1s:{j:$("#1t").j(),P:9(){$(x).n("s")}}}})}).1o(9(){o(h==q){T(g,V)}J{l a=S 1H();T(g,h);o(i.R()<a.R()){i.1I(i.R()+1);1J(i,g,h)}}k m});k m}9 2b(){$("#2c").17({N:9(a,b){$.Y(t+"/1K/1L",{F:a.18},b)}})}9 2b(){$("#2c").17({N:9(a,b){$.Y(t+"/1K/1L",{D:a.18},b)}})}9 34(){$("#F").17({N:9(a,b){$.Y(t+"/1x/35",{F:a.18},b)}});$("#D").17({N:9(a,b){$.Y(t+"/1x/1L",{F:$("#F").u(),D:a.18},b)}});$("#19").17({N:9(a,b){$.Y(t+"/1x/36",{F:$("#F").u(),D:$("#D").u(),19:a.18},b)}});$("#1y").17({N:9(a,b){$.Y(t+"/1x/37",{F:$("#F").u(),D:$("#D").u(),19:$("#19").u(),1y:a.18},b)}});$("#16").O();k m}9 2d(a,b){l c=a.2e("2f").W;l d=a.38(c);d.M(0).A=b.39;d.M(1).A=b.3a;d.M(2).A=b.3b;d.M(3).A=b.3c;d.M(3).A=b.3d;d.M(5).A=b.3e;d.M(6).A=b.3f;d.M(7).A=\'<a 1C="2g://3g.3h.3i.3j/3k/3l/3m?3n=\'+b.D+\'" 2h="2i">\'+(b.D)+\'</a>\';d.M(8).A=\'<a 1C="2g://3o.3p.3q/3r/3s/1K?3t=✓&3u=\'+b.D.3v(4)+\'"2h="2i">3w</a>\';k m}9 2j(a){3x(B){l b=a.2e("2f");o(b.W>1)a.3y(1);J k m}}9 2k(a){l b=w.r("16");o(a==q||a.W==0){$("#16").O();k B}$("#16").1V();24(l i 3z a)2d(b,a[i]);2l();k m}9 2l(){k $.y({z:t+"/3A",E:"j/p",v:2m})}9 2m(a){l b=S 1h();l c=b.1i(a,"j/p");l d=w.r("H");o(w.r("1g")==q){l e=w.1k("1z");l f=d.3B;e.I("1A","1g");e.I("1B","H 1a 1g");f.1m(e,d)}l g=c.r("v");o(g!=q){c.r("H").2n(g);d.1m(g,d.1D)}J{l h=c.r("2a");o(h!=q){c.r("H").2n(h);d.1m(h,d.1D)}}o(1M)$("#1g").p(c.r("H").A);J 1M=B;2o();k m}9 3C(a){o(a==q)a=B;l b=w.r("16");2j(b);1M=a;k $.Y(t+"/3D/3E",{F:$("#F").u(),D:$("#D").u(),19:$("#19").u(),1y:$("#1y").u(),3F:a},2k)}9 2o(){l a=w.3G("3H");o(a.W==0){$("#1g").1Q();k B}k m}9 3I(a){l b=$("#3J"+a).u();$.y({z:t+"/2p/3K/3L/"+a,E:"j/p",1n:{2p:b},v:G});k m}',62,234,'|||||||||function||||||||||text|return|var|false|dialog|if|html|null|getElementById|close|context|val|success|document|this|ajax|url|innerHTML|true|children|name|contentType|vendor|extract|content|setAttribute|else|progressbar|label_dialog_waiting_indexing|insertCell|source|hide|click|confirmBeforeExit|getFullYear|new|progress|buttons|100|length||getJSON|container|modal|open|parent|ui|titlebar|info|vulnerabilities|autocomplete|term|version|content_side_left|createProgressbar|position|mousePosition|value|option|content_searchLog|DOMParser|parseFromString|login|createElement|appendChild|insertBefore|data|done|UpConfirmBeforeExit|progressLabel|DownConfirmBeforeExit|Close|dialog_button_close|selector_source_value|label_dialog_complete_indexing|createDialogInfo|software|edition|div|id|class|href|firstChild|refraichContentSideLeft|title|indexingSoftware|Date|setFullYear|updateCVE|search|findName|refraichSearchLog|changePassword|outerHTML|displayMessage|remove|createTextNode|messageResult|changeDisplay|extractLeftSide|show|post|Start|Indexing|Math|round|Cancel|dialog_button_cancel|nextSource|for|async|fail|usercomputer|computer|selector_year_value|error|searchAutocomplete|software_name|addVulnerabilities|getElementsByTagName|tr|http|target|_blank|clearVulnerabilities|updateVulnerabilities|updateReachHistoic|extractAdvance|removeChild|isEmptyContent|role|commandes|onclick|admin|leftSideOpenLink|openLink|confirm|openLinkWithReferer|redirection|closeOnEscape|label|change|complete|setTimeout|15000|type|serialize|selectStartWebSite|selector_source|dialog_button_start_indexing_updater|prop|selectedIndex|break|updater|indexing|info_abort_updater_indexing_title|info_abort_updater_indexing|startYear|loadInstallSoftware|loadUser|users|selectStartYear|selector_year|dialog_button_start_indexing|year|indexer|update|info_failed_scanning_title|info_failed_year|info_abort_scanning_title|info_abort_scanning|autocompleters|findVendor|findVersion|findEdition|insertRow|severity|published|modified|score|impactSubScore|exploitSubScore|baseScore|web|nvd|nist|gov|view|vuln|detail|vulnId|www|metasploit|com|modules|framework|utf8|cve|substring|Metasploit|while|deleteRow|in|searchhistory|parentNode|checkVulnerability|vulnerability|isVulnerable|log|getElementsByClassName|searchLog|addNewRole|role_|add|user'.split('|'),0,{}))
+/**
+ * Main.js
+ */
+
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
+var application = new Application();
+
+function Application() {
+	this.modal = {};
+	this.data = {};
+	this.localesMessages = {};
+}
+
+function unknowError(jqXHR, textStatus, errorThrown) {
+	$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+	$("#alert-dialog").modal("toggle");
+	return true;
+}
+
+$(function() {
+
+	$.extend($.tablesorter.themes.bootstrap, {
+		// these classes are added to the table. To see other table classes
+		// available,
+		// look here: http://twitter.github.com/bootstrap/base-css.html#tables
+		table : 'table',
+		caption : 'caption',
+		header : 'bootstrap-header', // give the header a gradient background
+		footerRow : '',
+		footerCells : '',
+		icons : '', // add "icon-white" to make them white; this icon class is
+		// added to the <i> in the header
+		sortNone : 'bootstrap-icon-unsorted',
+		sortAsc : 'icon-chevron-up glyphicon glyphicon-chevron-up', // includes
+		// classes
+		// for
+		// Bootstrap
+		// v2 & v3
+		sortDesc : 'icon-chevron-down glyphicon glyphicon-chevron-down', // includes
+		// classes
+		// for
+		// Bootstrap
+		// v2 &
+		// v3
+		active : '', // applied when column is sorted
+		hover : '', // use custom css here - bootstrap class may not override it
+		filterRow : '', // filter row class
+		even : '', // odd row zebra striping
+		odd : '' // even row zebra striping
+	});
+
+	var trick_table = $(this).find("table[trick-table]");
+	if (trick_table.length) {
+		for (var i = 0; i < trick_table.length; i++) {
+			var table = new TrickCarousel(trick_table[i]);
+			table.initialise();
+		}
+	}
+
+	$('.modal').on('shown', function() {
+		$('body').css({
+			overflow : 'hidden'
+		});
+	}).on('hidden', function() {
+		$('body').css({
+			overflow : ''
+		});
+	});
+
+	if ($('#confirm-dialog').length)
+		$('#confirm-dialog').on('hidden.bs.modal', function() {
+			$("#confirm-dialog .btn-danger").unbind("click");
+		});
+
+	if ($('#alert-dialog').length)
+		$('#alert-dialog').on('hidden.bs.modal', function() {
+			$("#alert-dialog .btn-danger").unbind("click");
+		});
+
+	if ($('.table-fixed-header').length) {
+		$('table.table-fixed-header').floatThead({
+			scrollContainer : function($table) {
+				return $table.closest('.panel-body');
+			}
+		});
+	}
+
+	var $window = $(window);
+	var previewScrollTop = $window.scrollTop();
+	if (!$(".navbar-custom").length)
+		return false;
+	var startPosition = $(".navbar-custom").position().top;
+	var previewPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
+	if (previewScrollTop != 0)
+		$(".navbar-custom").addClass("affix");
+	$window.scroll(function() {
+		var currentPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
+		var scrollTop = $window.scrollTop();
+		if (previewPosition > 0 && currentPosition <= 50 && scrollTop > previewScrollTop) {
+			$(".navbar-custom").addClass("affix");
+		} else if (scrollTop < startPosition && scrollTop < previewScrollTop && scrollTop < 50)
+			$(".navbar-custom").removeClass("affix");
+		previewPosition = currentPosition;
+		previewScrollTop = scrollTop;
+	});
+
+});
+
+$.fn.removeAttributes = function(only, except) {
+    if (only) {
+        only = $.map(only, function(item) {
+            return item.toString().toLowerCase();
+        });
+    };
+    if (except) {
+        except = $.map(except, function(item) {
+            return item.toString().toLowerCase();
+        });
+        if (only) {
+            only = $.grep(only, function(item, index) {
+                return $.inArray(item, except) == -1;
+            });
+        };
+    };
+    return this.each(function() {
+        var attributes;
+        if(!only){
+            attributes = $.map(this.attributes, function(item) {
+                return item.name.toString().toLowerCase();
+            });
+             if (except) {
+                attributes = $.grep(attributes, function(item, index) {
+                    return $.inArray(item, except) == -1;
+                });
+            };
+        } else {
+            attributes = only;
+        }      
+        var handle = $(this);
+        $.each(attributes, function(index, item) {
+            handle.removeAttr(item);
+        });
+    });
+};
+
+/**
+ * serializeJSON serialize an object to json string
+ * 
+ * @param $
+ */
+(function($) {
+
+	$.fn.serializeJSON = function() {
+		var json = {};
+		var form = $(this);
+		form.find('input, select, textarea').each(function() {
+			var val;
+			if (!this.name)
+				return;
+
+			if ('radio' === this.type) {
+				if (json[this.name]) {
+					return;
+				}
+
+				json[this.name] = this.checked ? this.value : '';
+			} else if ('checkbox' === this.type) {
+				val = json[this.name];
+
+				if (!this.checked) {
+					if (!val) {
+						json[this.name] = '';
+					}
+				} else {
+					json[this.name] = typeof val === 'string' ? [ val, this.value ] : $.isArray(val) ? $.merge(val, [ this.value ]) : this.value;
+				}
+			} else {
+				json[this.name] = this.value;
+			}
+		});
+		return json;
+	};
+
+})(jQuery);
+
+/**
+ * Analysis rights / user permissions
+ */
+
+var ANALYSIS_RIGHT = {
+	ALL : {
+		value : 0,
+		name : "ALL"
+	},
+	DELETE : {
+		value : 1,
+		name : "DELETE"
+	},
+	CALCULATE_RISK_REGISTER : {
+		value : 2,
+		name : "CALCULATE_RISK_REGISTER"
+	},
+	CALCULATE_ACTIONPLAN : {
+		value : 3,
+		name : "CALCULATE_ACTIONPLAN"
+	},
+	MODIFY : {
+		value : 4,
+		name : "MODIFY"
+	},
+	EXPORT : {
+		value : 5,
+		name : "EXPORT"
+	},
+	READ : {
+		value : 6,
+		name : "READ"
+	}
+};
+
+function permissionError() {
+	$("#alert-dialog .modal-body").html(MessageResolver("error.notAuthorized", "Insufficient permissions!"));
+	$("#alert-dialog").modal("toggle");
+	return false;
+}
+
+function findRight(idAnalysis) {
+	var right = $("*[trick-id='" + idAnalysis + "'][trick-rights-id]");
+	if (!right.length)
+		return undefined;
+	var idRight = $(right).attr('trick-rights-id');
+	if (!$.trim(idRight).length)
+		return undefined;
+	for ( var key in ANALYSIS_RIGHT)
+		if (ANALYSIS_RIGHT[key].value == idRight)
+			return ANALYSIS_RIGHT[key];
+	return undefined;
+}
+
+function userCan(idAnalysis, action) {
+	var right = findRight(idAnalysis);
+	if (right != undefined && action.value != undefined)
+		return right.value <= action.value;
+	return false;
+}
+
+/**
+ * MessageResolver
+ * 
+ * @param code
+ * @param defaulttext
+ * @param params
+ * @returns
+ */
+function MessageResolver(code, defaulttext, params) {
+	var uniqueCode = "|^|" + code + "__uPu_*+*_*+*_+*+_PuP__" + params + "|$|";// mdr
+	if (application.localesMessages[uniqueCode] != undefined)
+		return application.localesMessages[uniqueCode];
+	else
+		application.localesMessages[uniqueCode] = defaulttext;
+	$.ajax({
+		url : context + "/MessageResolver",
+		data : {
+			"code" : code,
+			"default" : defaulttext,
+			"params" : params
+		},
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			if (response == null || response == "")
+				return defaulttext;
+			return application.localesMessages[uniqueCode] = defaulttext = response;
+		}/*,error : unknowError*/
+	});
+	return defaulttext;
+}
+
+function fixedTableHeader(table) {
+	if (table == undefined || $(table).length == 0)
+		return false;
+	$(table).floatThead({
+		scrollContainer : function($table) {
+			return $table.closest('.panel-body');
+		}
+	});
+	return true;
+}
+
+/**
+ * success and error message display
+ */
+
+function showError(parent, text) {
+	var error = document.createElement("div");
+	var close = document.createElement("a");
+	close.setAttribute("class", "close");
+	close.setAttribute("href", "#");
+	close.setAttribute("data-dismiss", "alert");
+	error.setAttribute("class", "alert alert-error");
+	error.setAttribute("aria-hidden", "true");
+	error.setAttribute("style", "background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
+	close.appendChild(document.createTextNode("x"));
+	error.appendChild(close);
+	error.appendChild(document.createTextNode(text));
+	parent.insertBefore(error, parent.firstChild);
+	return false;
+}
+
+function showSuccess(parent, text) {
+	var success = document.createElement("div");
+	var close = document.createElement("a");
+	close.setAttribute("class", "close");
+	close.setAttribute("href", "#");
+	close.setAttribute("data-dismiss", "alert");
+	success.setAttribute("class", "alert alert-success");
+	success.setAttribute("aria-hidden", "true");
+	close.appendChild(document.createTextNode("x"));
+	success.appendChild(close);
+	success.appendChild(document.createTextNode(text));
+	parent.insertBefore(success, parent.firstChild);
+	return false;
+}
+
+/**
+ * reload sections
+ */
+
+function reloadSection(section, subSection) {
+	if (Array.isArray(section)) {
+		for (var int = 0; int < section.length; int++) {
+			if (Array.isArray(section[int]))
+				reloadSection(section[int][0], section[int][1]);
+			else
+				reloadSection(section[int]);
+		}
+	} else {
+		var controller = controllerBySection(section, subSection);
+		if (controller == null || controller == undefined)
+			return false;
+		$.ajax({
+			url : context + controller,
+			type : "get",
+			async : true,
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				var tag = response.substring(response.indexOf('<'));
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(tag, "text/html");
+				if (subSection != null && subSection != undefined)
+					section += "_" + subSection;
+				newSection = $(doc).find("*[id = '" + section + "']");
+				$("#" + section).replaceWith(newSection);
+				var tableFixedHeader = $("#" + section).find("table.table-fixed-header");
+				if (tableFixedHeader.length) {
+					setTimeout(function() {
+						fixedTableHeader(tableFixedHeader);
+					}, 500);
+				}
+				var callback = callbackBySection(section);
+				if ($.isFunction(callback))
+					callback();
+				return false;
+			},
+			error : unknowError
+		});
+	}
+}
+
+function controllerBySection(section, subSection) {
+	var controllers = {
+		"section_asset" : "/Asset/Section",
+		"section_parameter" : "/Parameter/Section",
+		"section_scenario" : "/Scenario/Section",
+		"section_assessment" : "/Assessment/Section",
+		"section_phase" : "/Phase/Section",
+		"section_analysis" : "/Analysis/Section",
+		"section_profile_analysis" : "/AnalysisProfile/Section",
+		"section_measure" : "/Measure/Section",
+		"section_customer" : "/KnowledgeBase/Customer/Section",
+		"section_language" : "/KnowledgeBase/Language/Section",
+		"section_norm" : "/KnowledgeBase/Norm/Section",
+		"section_user" : "/Admin/User/Section",
+		"section_actionplans" : "/ActionPlan/Section",
+		"section_summary" : "/ActionPlanSummary/Section",
+		"section_riskregister" : "/RiskRegister/Section"
+	};
+
+	if (subSection == null || subSection == undefined)
+		return controllers[section];
+	else
+		return controllers[section] + "/" + subSection;
+}
+
+function callbackBySection(section) {
+	var callbacks = {
+		"section_asset" : function() {
+			chartALE();
+			return false;
+		},
+		"section_scenario" : function() {
+			chartALE();
+			return false;
+		},
+		"section_analysis" : function() {
+			return analysisTableSortable();
+		},
+		"section_profile_analysis" : function() {
+			return analysisTableSortable();
+		},
+		"section_actionplans" : function() {
+			compliance('27001');
+			compliance('27002');
+			reloadSection("section_summary");
+			return false;
+		},
+		"section_summary" : function() {
+			summaryCharts();
+			return false;
+		}
+
+	};
+	return callbacks[section];
+}
+
+function sectionPretreatment(section) {
+	var pretreatment = {
+		"section_assessment" : function(data) {
+			var trickCarousel = new TrickCarousel($(data).find("table[trick-table]"));
+			trickCarousel.initialise();
+		}
+	};
+	return pretreatment[section];
+}
+
+/**
+ * section menu update
+ */
+
+function checkControlChange(checkbox, sectionName) {
+	var items = $("#section_" + sectionName + " tbody tr td:first-child input");
+	for (var i = 0; i < items.length; i++)
+		$(items[i]).prop("checked", $(checkbox).is(":checked"));
+	updateMenu("#section_" + sectionName, "#menu_" + sectionName);
+	return false;
+}
+
+function updateMenu(idsection, idMenu) {
+	var checkedCount = $(idsection + " tbody :checked").length;
+	if (checkedCount == 1) {
+		var $lis = $(idMenu + " li");
+		for (var i = 0; i < $lis.length; i++)
+			$($lis[i]).removeClass("disabled");
+	} else if (checkedCount > 1) {
+		var $lis = $(idMenu + " li");
+		for (var i = 0; i < $lis.length; i++) {
+			if ($($lis[i]).attr("trick-selectable") == undefined || $($lis[i]).attr("trick-selectable") === "multi")
+				$($lis[i]).removeClass("disabled");
+			else
+				$($lis[i]).addClass("disabled");
+		}
+	} else {
+		var $lis = $(idMenu + " li");
+		for (var i = 0; i < $lis.length; i++) {
+			if ($($lis[i]).attr("trick-selectable") != undefined)
+				$($lis[i]).addClass("disabled");
+			else
+				$($lis[i]).removeClass("disabled");
+		}
+	}
+	return false;
+}
+
+/**
+ * asynchronous task feedback
+ */
+
+function cancelTask(taskId) {
+	$.ajax({
+		url : context + "/Task/Stop/" + taskId,
+		async : true,
+		contentType : "application/json;charset=UTF-8",
+		success : function(reponse) {
+			$("#task_" + taskId).remove();
+		},error : unknowError
+	});
+}
+
+function updateStatus(progressBar, idTask, callback, status) {
+	if (status == null || status == undefined) {
+		$.ajax({
+			url : context + "/Task/Status/" + idTask,
+			async : true,
+			contentType : "application/json;charset=UTF-8",
+			success : function(reponse) {
+				if (reponse.flag == undefined) {
+					eval(callback.failed);
+					return false;
+				}
+				return updateStatus(progressBar, idTask, callback, reponse);
+			},error : unknowError
+		});
+	} else {
+		if (status.message != null)
+			progressBar.Update(status.progress, status.message);
+		if (status.flag == 3) {
+			setTimeout(function() {
+				updateStatus(progressBar, idTask, callback);
+			}, 1500);
+		} else {
+			/*
+			 * setTimeout(function() { progressBar.Distroy(); }, 3000);
+			 */
+			$(progressBar.progress).parent().parent().find("button").each(function() {
+				$(this).removeAttr("disabled");
+			});
+			if (callback.success != undefined)
+				eval(callback.success);
+			else if (status.asyncCallback != undefined && status.asyncCallback != null)
+				eval(status.asyncCallback.action);
+			else if (status.taskName != null && status.taskName != undefined)
+				eval(status.taskName.action);
+		}
+	}
+	return false;
+}
+
+function deleteAssetTypeValueDuplication() {
+	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+		$.ajax({
+			url : context + "/Scenario/Delete/AssetTypeValueDuplication",
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				if (response["error"] != undefined) {
+					$("#alert-dialog .modal-body").html(response["error"]);
+					$("#alert-dialog").modal("toggle");
+				} else if (response["success"] != undefined) {
+					$("#alert-dialog .modal-body").html(response["success"]);
+					$("#alert-dialog").modal("toggle");
+				}
+			},error : unknowError
+		});
+	} else
+		permissionError();
+	return false;
+}
+
+function serializeForm(formId) {
+	var form = $("#" + formId);
+	var data = form.serializeJSON();
+	return JSON.stringify(data);
+}
+
+function parseJson(data) {
+	try {
+		return JSON.parse(data);
+	} catch (e) {
+		return undefined;
+	}
+}
+
+function escape(key, val) {
+	if (typeof (val) != "string")
+		return val;
+	return val.replace(/[\\]/g, '\\\\').replace(/[\/]/g, '\\/').replace(/[\b]/g, '\\b').replace(/[\f]/g, '\\f').replace(/[\n]/g, '\\n').replace(/[\r]/g, '\\r').replace(/[\t]/g,
+			'\\t').replace(/[\"]/g, '\\"').replace(/\\'/g, "\\'");
+}
+
+function log(msg) {
+	setTimeout(function() {
+		throw new Error(msg);
+	}, 0);
+}
+
+function post(url, data, refraich) {
+	$.ajax({
+		url : url,
+		type : "post",
+		data : $("#" + data).serialize(),
+		success : extract
+	}).done(function() {
+		if (refraich)
+			refraichContentSideLeft();
+	});
+	return false;
+}
+
+function findSelectItemIdBySection(section) {
+	var selectedItem = [];
+	var $item = $("#" + section + " tbody :checked");
+	for (var i = 0; i < $item.length; i++) {
+		trickId = findTrickID($($item[i])[0]);
+		if (trickId == null || trickId == undefined)
+			return false;
+		selectedItem.push(trickId);
+	}
+	return selectedItem;
+}
+
+function findTrickID(element) {
+	if ($(element).attr("trick-id") != undefined)
+		return $(element).attr("trick-id");
+	else if ($(element).parent().prop("tagName") != "BODY")
+		return findTrickID($(element).parent());
+	else
+		return null;
+}
+
+function versionComparator(version1, version2) {
+	var values1 = version1.split("\\.", 2);
+	var values2 = version2.split("\\.", 2);
+
+	var vers1 = "";
+
+	var vers2 = "";
+
+	for (var i = 0; i < values1.length; i++)
+		vers1 += values1[i];
+
+	for (var i = 0; i < values2.length; i++)
+		vers2 += values2[i];
+
+	console.log(vers1 + "::" + vers2);
+
+	return vers1 > vers2 ? 1 : -1;
+}
+
+function oldversionComparator(version1, version2) {
+	var values1 = version1.split("\\.", 2);
+	var values2 = version2.split("\\.", 2);
+	var value1 = parseInt(values1[0]);
+	var value2 = parseInt(values2[0]);
+	if (value1 == value2) {
+		if (values1.length == 1 && values2.length == 1)
+			return 0;
+		else if (values1.length == 1 && values2.length > 1)
+			return -1;
+		else if (values1.length > 1 && values2.length == 1)
+			return 1;
+		else
+			return versionComparator(values1[1], values2[1]);
+	} else
+		return value1 > value2 ? 1 : -1;
+}

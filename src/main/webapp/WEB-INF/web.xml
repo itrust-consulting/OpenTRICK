@@ -1,84 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
-  <display-name>TrickService</display-name>
- <context-param>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+ http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0" metadata-complete="true">
+  <display-name>TRICKService</display-name>
+  
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  
+  <context-param>
+	   <param-name>defaultHtmlEscape</param-name>
+	   <param-value>true</param-value>
+	</context-param>
+	
+	<context-param>
+	 	<param-name>javax.servlet.jsp.jstl.fmt.locale</param-name>
+	     <param-value>fr_FR</param-value>
+	</context-param>
+  
+  <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>
       	classpath:spring/application-config.xml
- </param-value>
+ 	</param-value>
   </context-param>
-  <servlet>
-    <servlet-name>dispatcherServlet</servlet-name>
-    <servlet-class>
-            org.springframework.web.servlet.DispatcherServlet
-        </servlet-class>
-        <init-param>
-        	<param-name>contextConfigLocation</param-name>
-		    <param-value>
-		      	/WEB-INF/dispatcherServlet-config.xml
-		 	</param-value>
-        </init-param>
-        <init-param>
-        	<param-name>defaultHtmlEscape</param-name>
-			<param-value>true</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-  </servlet>
+ 
+  <!-- Security  --> 
   
   <filter>
     <filter-name>springSecurityFilterChain</filter-name>
     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    <async-supported>true</async-supported>
   </filter>
-  <listener>
-    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-  </listener>
-  <!--  
-  <listener>
-    <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-</listener>
--->
+  
+  <filter>
+        <filter-name>encoding-filter</filter-name>
+        <filter-class>
+            org.springframework.web.filter.CharacterEncodingFilter
+        </filter-class>
+        <async-supported>true</async-supported>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    
+    <session-config>
+	  <session-timeout>15</session-timeout>
+	</session-config>
+
+ <filter-mapping>
+     <filter-name>encoding-filter</filter-name>
+     <url-pattern>/*</url-pattern>
+ </filter-mapping>
+  
   <filter-mapping>
     <filter-name>springSecurityFilterChain</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-  <servlet-mapping>
+   <error-page>
+    <error-code>400</error-code>
+    <location>/WEB-INF/views/errors/400.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>401</error-code>
+    <location>/WEB-INF/views/errors/401.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>402</error-code>
+    <location>/WEB-INF/views/errors/404.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>403</error-code>
+    <location>/WEB-INF/views/errors/403.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>404</error-code>
+    <location>/WEB-INF/views/errors/404.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>405</error-code>
+    <location>/WEB-INF/views/errors/405.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>500</error-code>
+    <location>/WEB-INF/views/errors/500.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>505</error-code>
+    <location>/WEB-INF/views/errors/404.jsp</location>
+  </error-page>
+  <servlet>	
+	  <servlet-name>dispatcherServlet</servlet-name>
+	  <servlet-class>
+            org.springframework.web.servlet.DispatcherServlet
+        </servlet-class>
+	  	<init-param>
+	      <param-name>contextConfigLocation</param-name>
+	      <param-value>
+			      	/WEB-INF/dispatcherServlet-config.xml
+			 	</param-value>
+	    </init-param>
+	   <load-on-startup>1</load-on-startup>
+	   <async-supported>true</async-supported>
+ </servlet>
+ 
+ <servlet-mapping>
     <servlet-name>dispatcherServlet</servlet-name>
     <url-pattern>*.html</url-pattern>
     <url-pattern>/</url-pattern>
-  </servlet-mapping>
-  <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
-  </welcome-file-list> 
-  <error-page>
-	<error-code>400</error-code>
-	<location>/WEB-INF/views/400.jsp</location>
-  </error-page>
-   <error-page>
-	<error-code>401</error-code>
-	<location>/WEB-INF/views/401.jsp</location>
-  </error-page>
-   <error-page>
-	<error-code>402</error-code>
-	<location>/WEB-INF/views/404.jsp</location>
-  </error-page>
-  <error-page>
-	<error-code>403</error-code>
-	<location>/WEB-INF/views/403.jsp</location>
-  </error-page>
-  <error-page>
-	<error-code>404</error-code>
-	<location>/WEB-INF/views/404.jsp</location>
-  </error-page>
-  <error-page>
-	<error-code>405</error-code>
-	<location>/WEB-INF/views/405.jsp</location>
-  </error-page>
-    <error-page>
-	<error-code>500</error-code>
-	<location>/WEB-INF/views/500.jsp</location>
-  </error-page>
-  <error-page>
-	<error-code>505</error-code>
-	<location>/WEB-INF/views/404.jsp</location>
-  </error-page>
+ </servlet-mapping>
+ 
+ <welcome-file-list>
+    <welcome-file>home.html</welcome-file>
+ </welcome-file-list>
+ 
 </web-app>

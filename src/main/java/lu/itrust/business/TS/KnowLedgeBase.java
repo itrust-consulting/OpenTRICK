@@ -2,6 +2,7 @@ package lu.itrust.business.TS;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,15 +105,20 @@ public class KnowLedgeBase {
 		String text = "";
 		
 		// build path to structure from context
-		filename = "/WEB-INF/data/sqlitestructure.sql";
+		filename = context.getRealPath("/WEB-INF/data/sqlitestructure.sql");
 
+		File file = new File(filename);
+		
 		// retrieve file from context
-		inp = context.getResourceAsStream(filename);
+		//inp = context.getResourceAsStream(filename);
 		
 		// check if file is not null
-		if (inp != null) {
+		if (file.exists()) {
 			
 			// read line by line from file
+			
+			inp = new FileInputStream(file);
+			
 			isr = new InputStreamReader(inp);
 			reader = new BufferedReader(isr);
 			text = "";
@@ -122,6 +128,8 @@ public class KnowLedgeBase {
 				
 				// remove white spaces
 				text = text.trim();
+				
+				System.out.println(text);
 				
 				// check if line is a SQL command (not empty and not starting with "-")
 				if (!text.isEmpty() && !text.startsWith("-")) {
@@ -137,6 +145,7 @@ public class KnowLedgeBase {
 			
 			// close file
 			inp.close();
+			
 		}
 	}
 
@@ -229,8 +238,9 @@ public class KnowLedgeBase {
 				
 				importAnalysis.setAnalysis(analysis);
 				
+				 importAnalysis.ImportAnAnalysis();
 				// perform import
-				return importAnalysis.ImportAnAnalysis();
+				return null;
 			}
 			
 		} catch (Exception e) {
@@ -344,12 +354,12 @@ public class KnowLedgeBase {
 			// ****************************************************************
 			// * check if analysis has data to export -> YES
 			// ****************************************************************
-			if (!analysis.isEmpty()) {
+			if (analysis.hasData()) {
 				
 				// ****************************************************************
 				// * create file object
 				// ****************************************************************
-				sqlitefile = new File(servletContext.getRealPath("/WEB-INF/temp/"+fileName));
+				sqlitefile = new File(servletContext.getRealPath("/WEB-INF/tmp/"+fileName));
 
 				// check if file does not exists -> YES
 				if (!sqlitefile.exists()) {

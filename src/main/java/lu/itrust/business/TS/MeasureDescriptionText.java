@@ -1,5 +1,7 @@
 package lu.itrust.business.TS;
 
+import lu.itrust.business.TS.tsconstant.Constant;
+
 /**
  * MeasureDescriptionText: <br>
  * Represents the Domain and Description of a measure in a single language
@@ -8,7 +10,7 @@ package lu.itrust.business.TS;
  * @version 0.1
  * @since Jan 28, 2013
  */
-public class MeasureDescriptionText {
+public class MeasureDescriptionText implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -52,7 +54,8 @@ public class MeasureDescriptionText {
 	 */
 	public void setDomain(String domain) {
 		if ((domain == null) || (domain.trim().equals(""))) {
-			throw new IllegalArgumentException("Measure Domain cannot be null or empty!");
+			throw new IllegalArgumentException(
+					"Measure Domain cannot be null or empty!");
 		}
 		this.domain = domain;
 	}
@@ -75,14 +78,23 @@ public class MeasureDescriptionText {
 	 *            The Value to set the Measure Description
 	 */
 	public void setDescription(String description) {
-		if ((this.measureDescription.getLevel() == 1) || (this.measureDescription.getLevel() == 2)) {
+		if (this.measureDescription == null) {
+			throw new NullPointerException(
+					"Measuredescription field needs to be set before!");
+		}
+		if ((this.measureDescription.getLevel() == 1)
+				|| (this.measureDescription.getLevel() == 2)) {
 			this.description = "";
-		} else if (this.measureDescription == null || this.measureDescription.getLevel() == -1) {
+		} else if (this.measureDescription.getLevel() == -1) {
 			throw new IllegalArgumentException(
 					"Measure Level needs to be set before adding a Description!");
 		} else if (description == null) {
-			throw new IllegalArgumentException("Measure Description cannot be null");
+			throw new IllegalArgumentException(
+					"The description cannot be null or empty");
 		}
+
+		this.description = description;
+
 	}
 
 	/**
@@ -147,4 +159,24 @@ public class MeasureDescriptionText {
 	public void setMeasureDescription(MeasureDescription measureDescription) {
 		this.measureDescription = measureDescription;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public MeasureDescriptionText clone() throws CloneNotSupportedException {
+		return (MeasureDescriptionText) super.clone();
+	}
+
+	public MeasureDescriptionText duplicate() throws CloneNotSupportedException {
+		MeasureDescriptionText measureDescriptionText = (MeasureDescriptionText) super
+				.clone();
+		if (measureDescriptionText.measureDescription.getNorm().getLabel()
+				.equalsIgnoreCase(Constant.NORM_CUSTOM))
+			measureDescriptionText.id = -1;
+		return measureDescriptionText;
+	}
+
 }

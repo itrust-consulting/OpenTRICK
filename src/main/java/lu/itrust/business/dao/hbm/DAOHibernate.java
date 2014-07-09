@@ -1,7 +1,9 @@
 package lu.itrust.business.dao.hbm;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -9,34 +11,57 @@ import org.springframework.stereotype.Repository;
  * HibernateDAO.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 11 janv. 2013
  */
 @Repository
 public class DAOHibernate {
 
+	/** The Session */
+	private Session session;
+
 	@Autowired
 	private SessionFactory sessionFactory;
-	
-	
+
 	/**
-	 * setSessionFactory<br>
-	 * Session manager<br>
-	 * it uses by spring
-	 * @param sessionFactory
+	 * Constructor: <br>
 	 */
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-	
-	/**
-	 * getSession()<br>
-	 * retrieves current session
-	 * @return current session
-	 */
-	public Session getSession() {
-		return sessionFactory.getCurrentSession();
+	public DAOHibernate() {
 	}
 
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param session
+	 */
+	public DAOHibernate(Session session) {
+		this.session = session;
+	}
+
+	/**
+	 * getSession: <br>
+	 * retrieve current session
+	 * 
+	 * @return
+	 */
+	public Session getSession() {
+		return session == null ? sessionFactory.getCurrentSession() : session;
+	}
+
+	/**
+	 * Initialise: <br>
+	 * initialise given object
+	 * 
+	 * @param object
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T Initialise(T object) {
+		Hibernate.initialize(object);
+		if (object instanceof HibernateProxy) {
+			return (T) ((HibernateProxy) object).getHibernateLazyInitializer().getImplementation();
+		}
+		return object;
+	}
 }

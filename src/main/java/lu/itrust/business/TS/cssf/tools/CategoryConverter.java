@@ -2,6 +2,7 @@ package lu.itrust.business.TS.cssf.tools;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import lu.itrust.business.TS.Scenario;
 
 /**
@@ -374,11 +375,11 @@ public class CategoryConverter {
 
 	/**
 	 * getTypeFromScenario: <br>
-	 * retrieves CSSF genreic type or null
+	 * retrieves the cssf or cia generic type of the given scenario, or null
 	 * 
 	 * @param scenario
 	 *            scenario
-	 * @return CSSF type if scenario type is cssf otherwise null.
+	 * @return generic scenario type name
 	 */
 	public static String getTypeFromScenario(Scenario scenario) {
 
@@ -388,7 +389,24 @@ public class CategoryConverter {
 		}
 
 		// returns the type of the scneario if it is CSSF null when not
-		return  scenarioTypeToType.get(scenario.getType().getTypeName());
+		return  scenarioTypeToType.get(scenario.getScenarioType().getName());
+	}
+	
+	/**
+	 * getTypeFromScenarioType: <br>
+	 * retrieves CSSF genreic type or null
+	 * 
+	 * @param scenario
+	 *            scenario
+	 * @return CSSF type if scenario type is cssf otherwise null.
+	 */
+	public static String getTypeFromScenarioType(String scenarioType) {
+
+		// check if array is not yet initialised -> NO -> initialise
+		if (scenarioTypeToType == null) 
+			initialiseScenarioTypeToType();
+		// returns the type of the scneario if it is CSSF null when not
+		return  scenarioTypeToType.get(scenarioType);
 	}
 
 	/**
@@ -409,7 +427,7 @@ public class CategoryConverter {
 		for (String string : SCENARIO_TYPE_CSSF_KEYS) {
 
 			// scenario type was found in cssf
-			if (string.equals(scenario.getType().getTypeName()))
+			if (string.equals(scenario.getScenarioType().getName()))
 				return true;
 		}
 

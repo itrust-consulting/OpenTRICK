@@ -15,7 +15,7 @@ import java.io.Serializable;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Assessment implements Serializable {
+public class Assessment implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -37,28 +37,28 @@ public class Assessment implements Serializable {
 	private String hiddenComment = "";
 
 	/** The impactFin value of this assessment */
-	private String impactRep = "";
+	private String impactRep = "0";
 
 	/** The impactOp value of this assessment */
-	private String impactOp = "";
+	private String impactOp = "0";
 
 	/** The impactLeg value of this assessment */
-	private String impactLeg = "";
+	private String impactLeg = "0";
 
 	/** The impactFin value of this assessment */
-	private String impactFin = "";
+	private String impactFin = "0";
 
 	/** The impactFin value of this assessment */
 	private double impactReal = 0;
 
 	/** The likelihood value of this assessment */
-	private String likelihood = "";
+	private String likelihood = "0";
 
 	/** The likelihood value of this assessment */
 	private double likelihoodReal = 0;
 
 	/** The uncertainty value of this assessment */
-	private double uncertainty = 1 + 1e-15;
+	private double uncertainty = 2; //1 + 1e-7;
 
 	/** The Annual Loss Expectancy - Pessimistic */
 	private double ALEP = 0;
@@ -79,6 +79,16 @@ public class Assessment implements Serializable {
 	 * Getters and Setters
 	 **********************************************************************************************/
 
+	public Assessment(Asset asset, Scenario scenario) {
+		setAsset(asset);
+		setScenario(scenario);
+		setSelected(asset.isSelected() && scenario.isSelected()
+				&& scenario.hasInfluenceOnAsset(asset.getAssetType()));
+	}
+
+	public Assessment() {
+	}
+
 	/**
 	 * getId: <br>
 	 * Returns the field "id"
@@ -98,7 +108,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setId(int id) {
 		if (id < 1) {
-			throw new IllegalArgumentException("ID must be > 0!");
+			throw new IllegalArgumentException("error.assessment.id");
 		}
 		this.id = id;
 	}
@@ -217,16 +227,17 @@ public class Assessment implements Serializable {
 	public String getImpactFin() {
 		return impactFin;
 	}
-	
-	protected String checkImpact(String impact){
-		/*if (impact == null)
-			throw new IllegalArgumentException("Impact value is null");
-		else if (impact.trim().isEmpty())
-			impact = "0";
-		else if (!impact.matches(Constant.REGEXP_VALID_IMPACT))
-			throw new IllegalArgumentException(
-					"Impact does not meet the regular expression: "
-							+ Constant.REGEXP_VALID_IMPACT);*/
+
+	protected String checkImpact(String impact) {
+		/*
+		 * if (impact == null) throw new
+		 * IllegalArgumentException("Impact value is null"); else if
+		 * (impact.trim().isEmpty()) impact = "0"; else if
+		 * (!impact.matches(Constant.REGEXP_VALID_IMPACT)) throw new
+		 * IllegalArgumentException(
+		 * "Impact does not meet the regular expression: " +
+		 * Constant.REGEXP_VALID_IMPACT);
+		 */
 		return impact.toLowerCase();
 	}
 
@@ -238,7 +249,7 @@ public class Assessment implements Serializable {
 	 *            The value to set "impactFin"
 	 */
 	public void setImpactFin(String impact) {
-		
+
 		this.impactFin = checkImpact(impact);
 	}
 
@@ -248,8 +259,7 @@ public class Assessment implements Serializable {
 
 	public void setImpactReal(double impactReal) {
 		if (impactReal < 0) {
-			throw new IllegalArgumentException(
-					"Impact value should be greater or equal 0");
+			throw new IllegalArgumentException("error.assessment.impact_value");
 		}
 		this.impactReal = impactReal;
 	}
@@ -272,12 +282,13 @@ public class Assessment implements Serializable {
 	 *            The value to set "likelihood"
 	 */
 	public void setLikelihood(String likelihood) {
-		/*if ((likelihood == null)
-				|| (!likelihood.matches(Constant.REGEXP_VALID_LIKELIHOOD))) {
-			throw new IllegalArgumentException(
-					"Likelihood value is null or it does not meet the regular expression: "
-							+ Constant.REGEXP_VALID_LIKELIHOOD);
-		}*/
+		/*
+		 * if ((likelihood == null) ||
+		 * (!likelihood.matches(Constant.REGEXP_VALID_LIKELIHOOD))) { throw new
+		 * IllegalArgumentException(
+		 * "Likelihood value is null or it does not meet the regular expression: "
+		 * + Constant.REGEXP_VALID_LIKELIHOOD); }
+		 */
 		this.likelihood = likelihood;
 	}
 
@@ -300,8 +311,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setLikelihoodReal(double likelihood) {
 		if (likelihood < 0) {
-			throw new IllegalArgumentException(
-					"Likelihood real needs to be >= 0!");
+			throw new IllegalArgumentException("error.assessment.likelihood");
 		}
 		this.likelihoodReal = likelihood;
 	}
@@ -325,7 +335,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setUncertainty(double uncertainty) {
 		if (uncertainty <= 1.0) {
-			throw new IllegalArgumentException("uncertainty needs to be > 1!");
+			throw new IllegalArgumentException("error.assessment.uncertainty");
 		}
 		this.uncertainty = uncertainty;
 	}
@@ -349,7 +359,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setALEP(double ALEP) {
 		if (ALEP < 0) {
-			throw new IllegalArgumentException("ALEP needs to be >= 0!");
+			throw new IllegalArgumentException("error.assessment.alep");
 		}
 		this.ALEP = ALEP;
 	}
@@ -373,7 +383,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setALE(double ALE) {
 		if (ALE < 0) {
-			throw new IllegalArgumentException("ALE needs be >= 0!");
+			throw new IllegalArgumentException("error.assessment.ale");
 		}
 		this.ALE = ALE;
 	}
@@ -397,7 +407,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setALEO(double ALEO) {
 		if (ALEO < 0) {
-			throw new IllegalArgumentException("ALEO needs to be >= 0!");
+			throw new IllegalArgumentException("error.assessment.aleo");
 		}
 		this.ALEO = ALEO;
 	}
@@ -421,7 +431,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setAsset(Asset asset) {
 		if (asset == null) {
-			throw new IllegalArgumentException("Asset cannot be null!");
+			throw new IllegalArgumentException("error.assessment.asset");
 		}
 		this.asset = asset;
 	}
@@ -445,7 +455,7 @@ public class Assessment implements Serializable {
 	 */
 	public void setScenario(Scenario scenario) {
 		if (scenario == null) {
-			throw new IllegalArgumentException("Scenario cannot be null!");
+			throw new IllegalArgumentException("error.assessment.scenario");
 		}
 		this.scenario = scenario;
 	}
@@ -460,7 +470,8 @@ public class Assessment implements Serializable {
 	 */
 	public boolean isUsable() {
 		return (this.getAsset() == null) || (this.getScenario() == null) ? false
-				: (this.isSelected() && this.getAsset().isSelected() && this.getScenario().isSelected() && this.getALE() > 0);
+				: (this.isSelected() && this.getAsset().isSelected()
+						&& this.getScenario().isSelected() && this.getALE() > 0);
 	}
 
 	/**
@@ -535,11 +546,16 @@ public class Assessment implements Serializable {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-
+	public Assessment clone() throws CloneNotSupportedException {
 		Assessment assessment = (Assessment) super.clone();
 		assessment.asset = (Asset) asset.clone();
 		assessment.scenario = (Scenario) scenario.clone();
+		return assessment;
+	}
+
+	public Assessment duplicate() throws CloneNotSupportedException {
+		Assessment assessment = (Assessment) super.clone();
+		assessment.id = -1;
 		return assessment;
 	}
 

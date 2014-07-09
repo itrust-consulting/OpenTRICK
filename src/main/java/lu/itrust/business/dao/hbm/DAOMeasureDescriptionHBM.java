@@ -1,21 +1,38 @@
 package lu.itrust.business.dao.hbm;
 
-import lu.itrust.business.TS.Language;
+import java.util.List;
+
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.Norm;
 
-import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOMeasureDescription.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.a.r.l. :
  * @version
  * @since Feb 1, 2013
  */
-public class DAOMeasureDescriptionHBM extends DAOHibernate implements
-		lu.itrust.business.dao.DAOMeasureDescription {
+@Repository
+public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.business.dao.DAOMeasureDescription {
+
+	/**
+	 * Constructor: <br>
+	 */
+	public DAOMeasureDescriptionHBM() {
+	}
+
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param session
+	 */
+	public DAOMeasureDescriptionHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>
@@ -24,60 +41,94 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements
 	 * @see lu.itrust.business.dao.DAOMeasureDescription#get(int)
 	 */
 	@Override
-	public MeasureDescription get(int id) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public MeasureDescription get(Integer id) throws Exception {
+		return (MeasureDescription) getSession().get(MeasureDescription.class, id);
 	}
 
 	/**
-	 * getByReferenceNorm: <br>
+	 * getByReferenceAndNorm: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#getByReferenceNorm(java.lang.String,
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#getByReferenceAndNorm(java.lang.String,
 	 *      lu.itrust.business.TS.Norm)
 	 */
 	@Override
-	public MeasureDescription getByReferenceNorm(String Reference, Norm norm) throws Exception {
-	
-			Query query =
-				getSession().createQuery("From MeasureDescription where norm = :norm and reference = :reference");
-			query.setParameter("norm", norm);
-			query.setString("reference", Reference);
-			return (MeasureDescription) query.uniqueResult();
-		
+	public MeasureDescription getByReferenceAndNorm(String reference, Norm norm) throws Exception {
+		String query = "From MeasureDescription where norm = :norm and reference = :reference";
+		return (MeasureDescription) getSession().createQuery(query).setParameter("norm", norm).setParameter("reference", reference).uniqueResult();
 	}
 
-
 	/**
-	 * exists: <br>
+	 * existsForMeasureByReferenceAndNorm: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#exists(java.lang.String,
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#existsForMeasureByReferenceAndNorm(java.lang.String,
+	 *      int)
+	 */
+	@Override
+	public boolean existsForMeasureByReferenceAndNorm(String reference, Integer idNorm) throws Exception {
+		String query = "Select count(*) From MeasureDescription where norm.id = :idNorm and reference = :reference";
+		return (Long) getSession().createQuery(query).setParameter("idNorm", idNorm).setParameter("reference", reference).uniqueResult() >= 1;
+	}
+
+	/**
+	 * existsForMeasureByReferenceAndNorm: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#existsForMeasureByReferenceAndNorm(java.lang.String,
 	 *      lu.itrust.business.TS.Norm)
 	 */
 	@Override
-	public boolean exists(String Reference, Norm norm) throws Exception {
-	
-			Query query =
-				getSession().createQuery("Select count(*) From MeasureDescription where norm = :norm and reference = :reference");
-			query.setParameter("norm", norm);
-			query.setString("reference", Reference);
-			return (Long)query.uniqueResult() >=1;
-		
+	public boolean existsForMeasureByReferenceAndNorm(String reference, Norm norm) throws Exception {
+		return existsForMeasureByReferenceAndNorm(reference, norm.getId());
 	}
 
 	/**
-	 * existsWithLanguage: <br>
+	 * getAllMeasureDescriptions: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#existsWithLanguage(java.lang.String,
-	 *      lu.itrust.business.TS.Norm, lu.itrust.business.TS.Language)
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllMeasureDescriptions()
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public boolean existsWithLanguage(String Reference, Norm norm, Language language)
-			throws Exception {
-		// TODO Auto-generated method stub
-		return false;
+	public List<MeasureDescription> getAll() throws Exception {
+		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription").list();
+	}
+
+	/**
+	 * getAllMeasureDescriptionsByNorm: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllMeasureDescriptionsByNorm(java.lang.Integer)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<MeasureDescription> getAllByNorm(Integer normid) throws Exception {
+		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where norm.id = :normid").setParameter("normid", normid).list();
+	}
+
+	/**
+	 * getAllMeasureDescriptionsByNorm: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllMeasureDescriptionsByNorm(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<MeasureDescription> getAllByNorm(String label) throws Exception {
+		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where norm.label = :normLabel").setParameter("normLabel", label).list();
+	}
+
+	/**
+	 * getAllMeasureDescriptionsByNorm: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllMeasureDescriptionsByNorm(lu.itrust.business.TS.Norm)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<MeasureDescription> getAllByNorm(Norm norm) throws Exception {
+		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where norm = :norm").setParameter("norm", norm).list();
 	}
 
 	/**
@@ -88,32 +139,28 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements
 	 */
 	@Override
 	public void save(MeasureDescription measureDescription) throws Exception {
-
 		getSession().save(measureDescription);
 	}
 
 	/**
-	 * saveAndUpdate: <br>
+	 * saveOrUpdate: <br>
 	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOMeasureDescription#saveOrUpdate(lu.itrust.business.TS.MeasureDescription)
 	 */
 	@Override
 	public void saveOrUpdate(MeasureDescription measureDescription) throws Exception {
-
 		getSession().saveOrUpdate(measureDescription);
-	
-
 	}
 
 	/**
-	 * remove: <br>
+	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#remove(lu.itrust.business.TS.MeasureDescription)
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#delete(lu.itrust.business.TS.MeasureDescription)
 	 */
 	@Override
-	public void remove(MeasureDescription measureDescription) throws Exception {
+	public void delete(MeasureDescription measureDescription) throws Exception {
 		getSession().delete(measureDescription);
 	}
 }

@@ -12,7 +12,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 24 janv. 2013
  */
-public class Norm implements Serializable {
+public class Norm implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -23,9 +23,18 @@ public class Norm implements Serializable {
 
 	/** Norm ID */
 	private int id = -1;
-	
+
 	/** Norm Name */
 	private String label = "";
+
+	/** the norm verison */
+	private int version = 2013;
+
+	/** description of the norm */
+	private String description = "";
+
+	/** norm available for actionplan computation */
+	private boolean computable = true;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -44,9 +53,43 @@ public class Norm implements Serializable {
 	 *            The Norm Name
 	 */
 	public Norm(String label) {
-		if (label == null || !label.matches(Constant.REGEXP_VALID_NORM_NAME))
-			throw new IllegalArgumentException("Given Norm Name is not valid!");
-		this.label = label;
+		this.setLabel(label);
+	}
+
+	/**
+	 * Constructor:<br>
+	 * 
+	 * @param label
+	 *            The Norm Name
+	 */
+	public Norm(String label, int version) {
+		this.setLabel(label);
+		this.setVersion(version);
+	}
+
+	/**
+	 * Constructor:<br>
+	 * 
+	 * @param label
+	 *            The Norm Name
+	 */
+	public Norm(String label, int version, String description) {
+		this.setLabel(label);
+		this.setVersion(version);
+		this.setDescription(description);
+	}
+
+	/**
+	 * Constructor:<br>
+	 * 
+	 * @param label
+	 *            The Norm Name
+	 */
+	public Norm(String label, int version, String description, boolean computable) {
+		this.setLabel(label);
+		this.setVersion(version);
+		this.setDescription(description);
+		this.setComputable(computable);
 	}
 
 	/***********************************************************************************************
@@ -92,14 +135,13 @@ public class Norm implements Serializable {
 	 *            The Value to set the label field
 	 */
 	public void setLabel(String label) {
-		if (label == null || !label.matches(Constant.REGEXP_VALID_NORM_NAME))
+		if ((label == null) || (label.trim().equals(Constant.EMPTY_STRING)))
 			throw new IllegalArgumentException("Given Norm Name is not valid!");
 		this.label = label;
 	}
 
-	/**
-	 * hashCode: <br>
-	 * Description
+	/*
+	 * (non-Javadoc)
 	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -107,14 +149,16 @@ public class Norm implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + (computable ? 1231 : 1237);
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + id;
 		result = prime * result + ((label == null) ? 0 : label.hashCode());
+		result = prime * result + version;
 		return result;
 	}
 
-	/**
-	 * equals: <br>
-	 * Description
+	/*
+	 * (non-Javadoc)
 	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -128,23 +172,109 @@ public class Norm implements Serializable {
 			return false;
 		Norm other = (Norm) obj;
 		if (id != other.id)
-			return false;
+			if (id == -1 && other.id != -1)
+				return false;
 		if (label == null) {
 			if (other.label != null)
 				return false;
 		} else if (!label.equals(other.label))
 			return false;
+		if (version != other.version)
+			return false;
 		return true;
 	}
 
-	/**
-	 * toString: <br>
-	 * Description
-	 * 
+	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "Norm [id=" + id + ", label=" + label + "]";
+		return "Norm [id=" + id + ", label=" + label + ", version=" + version + ", description=" + description + ", computable=" + computable + "]";
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Norm clone() throws CloneNotSupportedException {
+		return (Norm) super.clone();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	public Norm duplicate() throws CloneNotSupportedException {
+		Norm norm = (Norm) super.clone();
+		if (norm.label.equalsIgnoreCase(Constant.NORM_CUSTOM))
+			norm.id = -1;
+		return norm;
+	}
+
+	/**
+	 * getVersion: <br>
+	 * Returns the version field value.
+	 * 
+	 * @return The value of the version field
+	 */
+	public int getVersion() {
+		return version;
+	}
+
+	/**
+	 * setVersion: <br>
+	 * Sets the Field "version" with a value.
+	 * 
+	 * @param version
+	 *            The Value to set the version field
+	 */
+	public void setVersion(int version) {
+		this.version = version;
+	}
+
+	/**
+	 * isComputable: <br>
+	 * Returns the computable field value.
+	 * 
+	 * @return The value of the computable field
+	 */
+	public boolean isComputable() {
+		return computable;
+	}
+
+	/**
+	 * setComputable: <br>
+	 * Sets the Field "computable" with a value.
+	 * 
+	 * @param computable
+	 *            The Value to set the computable field
+	 */
+	public void setComputable(boolean computable) {
+		this.computable = computable;
+	}
+
+	/**
+	 * getDescription: <br>
+	 * Returns the description field value.
+	 * 
+	 * @return The value of the description field
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * setDescription: <br>
+	 * Sets the Field "description" with a value.
+	 * 
+	 * @param description
+	 *            The Value to set the description field
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 }

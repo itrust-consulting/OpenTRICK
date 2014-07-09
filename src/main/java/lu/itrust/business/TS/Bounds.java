@@ -8,7 +8,7 @@ package lu.itrust.business.TS;
  * @version 0.1
  * @since 2012-12-17
  */
-public class Bounds {
+public class Bounds implements Cloneable{
 
 	/***********************************************************************************************
 	 * Fields
@@ -149,5 +149,13 @@ public class Bounds {
 				+ ") should be greater to To(" + to + ")");
 		}
 		this.to = to;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 }

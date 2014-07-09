@@ -2,6 +2,8 @@ package lu.itrust.business.TS;
 
 import java.util.List;
 
+import org.hibernate.proxy.HibernateProxy;
+
 /**
  * MaturityNorm: <br>
  * This class represents the MaturityNorm and its data
@@ -10,7 +12,7 @@ import java.util.List;
  * @version 0.1
  * @since 2012-08-21
  */
-public class MaturityNorm extends AnalysisNorm {
+public class MaturityNorm extends AnalysisNorm implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -77,7 +79,11 @@ public class MaturityNorm extends AnalysisNorm {
 			throw new IndexOutOfBoundsException("Maturtiy AnalysisNorm Index (" + index
 				+ ") needs be between 0 and " + (getMeasures().size() - 1) + "!");
 		}
-		return (MaturityMeasure) getMeasures().get(index);
+		if (getMeasures().get(index) instanceof HibernateProxy)
+			return MaturityMeasure.class.cast(((HibernateProxy) getMeasures().get(index)).getHibernateLazyInitializer().getImplementation());
+		else {
+			return MaturityMeasure.class.cast(getMeasures().get(index));
+		}
 	}
 
 	/**
@@ -87,13 +93,16 @@ public class MaturityNorm extends AnalysisNorm {
 	 * @param measures
 	 *            The Value to set the measures field
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setMeasures(List<Measure> measures) {
-		for (Measure measure : measures) {
-			if (!(measure instanceof MaturityMeasure))
-				throw new IllegalArgumentException("Excepted MaturityMeasure");
+		
+		if (measures instanceof HibernateProxy) {
+			List<Measure> deproxiedmeasures = (List<Measure>) ((HibernateProxy) measures).getHibernateLazyInitializer().getImplementation();
+			super.setMeasures(deproxiedmeasures);
+		} else {
+			super.setMeasures(measures);
 		}
-		super.setMeasures(measures);
 	}
 
 	/**
@@ -111,4 +120,22 @@ public class MaturityNorm extends AnalysisNorm {
 		measure.setAnalysisNorm(this);
 		this.getMeasures().add(measure);
 	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.AnalysisNorm#clone()
+	 */
+	@Override
+	public MaturityNorm clone() throws CloneNotSupportedException {
+		return (MaturityNorm) super.clone();
+	}
+
+	/* (non-Javadoc)
+	 * @see lu.itrust.business.TS.AnalysisNorm#basicClone()
+	 */
+	@Override
+	public MaturityNorm duplicate() throws CloneNotSupportedException {
+		return (MaturityNorm) super.duplicate();
+	}
+	
+	
 }

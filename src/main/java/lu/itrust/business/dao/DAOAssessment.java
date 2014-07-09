@@ -2,32 +2,56 @@ package lu.itrust.business.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Scenario;
 
-
-/** 
+/**
  * DAOAssessment.java: <br>
  * Detailed description...
- *
- * @author itrust consulting s.à.rl. :
- * @version 
+ * 
+ * @author itrust consulting s.ï¿½.rl. :
+ * @version
  * @since 16 janv. 2013
  */
 public interface DAOAssessment {
-	public Assessment get(int id) throws Exception;
-	public Assessment loadFromAssetAndScenarioAnalysis(Analysis analysis, Asset asset, Scenario scenario);
-	public List<Assessment> loadAllFromScenario(Scenario scenario) throws Exception;
-	public List<Assessment> loadAllFromScenarioId(int scenarioID) throws Exception;
-	public List<Assessment> loadAllFromAsset(Asset asset) throws Exception;
-	public List<Assessment> loadAllFromAssetId(int assetID) throws Exception;
-	public List<Assessment> loadAllFromAnalysis(Analysis analysis) throws Exception;
-	public List<Assessment> loadAllFromAnalysisID(int idAnalysis) throws Exception;
-	public List<Assessment> loadAllFromAnalysisIdentifierAndVersion(int idAnalysis, int identifier, int version) throws Exception;
-	public List<Assessment> loadAll() throws Exception;
+	public Assessment get(Integer id) throws Exception;
+
+	public Assessment getFromAnalysisById(Integer idAnalysis, Integer idAssessment) throws Exception;
+	
+	public boolean belongsToAnalysis(Integer analysisId, Integer assessmentId) throws Exception;
+
+	public List<Assessment> getAll() throws Exception;
+
+	public List<Assessment> getAllFromAnalysis(Integer idAnalysis) throws Exception;
+
+	public List<Assessment> getAllFromAnalysisAndImpactLikelihoodAcronym(Integer idAnalysis, String acronym) throws Exception;
+
+	public List<Assessment> getAllFromAnalysisAndSelectedScenario(Integer idAnalysis) throws Exception;
+
+	public List<Assessment> getAllFromScenario(Integer scenarioID) throws Exception;
+
+	public List<Assessment> getAllFromScenario(Scenario scenario) throws Exception;
+
+	public List<Assessment> getAllSelectedFromScenario(Scenario scenario) throws Exception;
+
+	public List<Assessment> getAllUnselectedFromScenario(Scenario scenario) throws Exception;
+
+	public List<Assessment> getAllFromAnalysisAndSelectedAsset(Integer idAnalysis) throws Exception;
+
+	public List<Assessment> getAllFromAsset(Integer assetID) throws Exception;
+
+	public List<Assessment> getAllFromAsset(Asset asset) throws Exception;
+
+	public List<Assessment> getAllSelectedFromAsset(Asset asset) throws Exception;
+
+	public List<Assessment> getAllUnSelectedFromAsset(Asset asset) throws Exception;
+
 	public void save(Assessment assessment) throws Exception;
+
 	public void saveOrUpdate(Assessment assessment) throws Exception;
-	public void remove(Assessment assessment)throws Exception;
+
+	public void saveOrUpdate(List<Assessment> assessments) throws Exception;
+
+	public void delete(Assessment assessment) throws Exception;
 }

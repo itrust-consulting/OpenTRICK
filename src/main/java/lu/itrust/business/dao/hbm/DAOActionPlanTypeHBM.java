@@ -6,6 +6,8 @@ import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.dao.DAOActionPlanType;
 
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOActionPlanTypeHBM.java: <br>
@@ -15,8 +17,23 @@ import org.hibernate.Query;
  * @version
  * @since 7 f�vr. 2013
  */
-public class DAOActionPlanTypeHBM extends DAOHibernate implements
-		DAOActionPlanType {
+@Repository
+public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanType {
+
+	/**
+	 * Constructor: <br>
+	 */
+	public DAOActionPlanTypeHBM() {
+	}
+
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param session
+	 */
+	public DAOActionPlanTypeHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>
@@ -25,38 +42,32 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements
 	 * @see lu.itrust.business.dao.DAOActionPlanType#get(int)
 	 */
 	@Override
-	public ActionPlanType get(int id) throws Exception {
-
+	public ActionPlanType get(Integer id) throws Exception {
 		return (ActionPlanType) getSession().get(ActionPlanType.class, id);
 	}
 
 	/**
-	 * 
-	 * get: <br>
+	 * getByName: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOActionPlanType#get(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOActionPlanType#getByName(java.lang.String)
 	 */
 	@Override
-	public ActionPlanType get(String name) throws Exception {
-		Query query = getSession().createQuery(
-				"From ActionPlanType where name = :name");
-		query.setString("name", name);
+	public ActionPlanType getByName(String name) throws Exception {
+		Query query = getSession().createQuery("From ActionPlanType where name = :name").setParameter("name", name.trim());
 		return (ActionPlanType) query.uniqueResult();
-
 	}
 
 	/**
-	 * loadAll: <br>
+	 * getAll: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOActionPlanType#loadAll()
+	 * @see lu.itrust.business.dao.DAOActionPlanType#getAll()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ActionPlanType> loadAll() throws Exception {
-		return (List<ActionPlanType>) getSession().createQuery(
-				"From ActionPlanType").list();
+	public List<ActionPlanType> getAll() throws Exception {
+		return (List<ActionPlanType>) getSession().createQuery("From ActionPlanType").list();
 	}
 
 	/**
@@ -82,6 +93,17 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements
 	}
 
 	/**
+	 * merge: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOActionPlanType#merge(lu.itrust.business.TS.actionplan.ActionPlanType)
+	 */
+	@Override
+	public void merge(ActionPlanType actionPlanType) throws Exception {
+		getSession().merge(actionPlanType);
+	}
+
+	/**
 	 * delete: <br>
 	 * Description
 	 * 
@@ -91,10 +113,4 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements
 	public void delete(ActionPlanType actionPlanType) throws Exception {
 		getSession().delete(actionPlanType);
 	}
-
-	@Override
-	public void merge(ActionPlanType actionPlanType) throws Exception {
-		getSession().merge(actionPlanType);
-	}
-
 }

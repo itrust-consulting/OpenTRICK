@@ -2,23 +2,37 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 
-import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOMeasureDescriptionText.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since Feb 1, 2013
  */
-public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements
-		lu.itrust.business.dao.DAOMeasureDescriptionText {
+@Repository
+public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itrust.business.dao.DAOMeasureDescriptionText {
+
+	/**
+	 * Constructor: <br>
+	 */
+	public DAOMeasureDescriptionTextHBM() {
+	}
+
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param session
+	 */
+	public DAOMeasureDescriptionTextHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>
@@ -27,97 +41,79 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements
 	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#get(int)
 	 */
 	@Override
-	public MeasureDescriptionText get(int id) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public MeasureDescriptionText get(Integer id) throws Exception {
+		return (MeasureDescriptionText) getSession().get(MeasureDescription.class, id);
 	}
 
 	/**
-	 * getByMeasureDescription: <br>
+	 * getMeasureDescriptionTextByIdAndLanguageId: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#getByMeasureDescription(int)
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#getMeasureDescriptionTextByIdAndLanguageId(int,
+	 *      int)
 	 */
 	@Override
-	public List<MeasureDescriptionText> getByMeasureDescription(int measureDescriptionID)
-			throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public MeasureDescriptionText getForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception {
+		String query = "from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage";
+		return (MeasureDescriptionText) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).uniqueResult();
 	}
 
 	/**
-	 * getByMeasureDescriptionReferenceNorm: <br>
+	 * existsForLanguageByMeasureDescriptionIdAndLanguageId: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#getByMeasureDescriptionReferenceNorm(java.lang.String,
-	 *      java.lang.String, lu.itrust.business.TS.Analysis)
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#existsForLanguageByMeasureDescriptionIdAndLanguageId(int,
+	 *      int)
 	 */
 	@Override
-	public List<MeasureDescriptionText> getByMeasureDescriptionReferenceNorm(String Reference,
-			String norm, Analysis analysis) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean existsForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception {
+		String query = "Select count(*) from MeasureDescriptionText where measureDescription.id = :idMeasureDescription and language.id = :idLanguage";
+		return (Long) getSession().createQuery(query).setParameter("idMeasureDescription", idMeasureDescription).setParameter("idLanguage", idLanguage).uniqueResult() >= 1;
 	}
 
 	/**
-	 * getByMeasureDescriptionReferenceNormLanguage: <br>
+	 * getAllMeasureDescriptionTextsByMeasureDescriptionId: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#getByMeasureDescriptionReferenceNormLanguage(java.lang.String,
-	 *      java.lang.String, lu.itrust.business.TS.Analysis, lu.itrust.business.TS.Language)
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#getAllMeasureDescriptionTextsByMeasureDescriptionId(int)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public MeasureDescriptionText getByMeasureDescriptionReferenceNormLanguage(String Reference,
-			String norm, Analysis analysis, Language language) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public List<MeasureDescriptionText> getAllFromMeasureDescription(Integer measureDescriptionID) throws Exception {
+		String query = "from MeasureDescriptionText where measureDescription.id = :measureDescriptionid";
+		return (List<MeasureDescriptionText>) getSession().createQuery(query).setParameter("measureDescriptionid", measureDescriptionID).list();
 	}
 
 	/**
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#save(lu.itrust.business.dao.DAOMeasureDescriptionText)
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#save(lu.itrust.business.TS.MeasureDescriptionText)
 	 */
 	@Override
-	public void save(MeasureDescriptionText measureDescription) throws Exception {
-		// TODO Auto-generated method stub
-
+	public void save(MeasureDescriptionText measureDescriptiontext) throws Exception {
+		getSession().save(measureDescriptiontext);
 	}
 
 	/**
-	 * saveAndUpdate: <br>
+	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#saveAndUpdate(lu.itrust.business.dao.DAOMeasureDescriptionText)
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#saveOrUpdate(lu.itrust.business.TS.MeasureDescriptionText)
 	 */
 	@Override
-	public void saveAndUpdate(MeasureDescriptionText measureDescription) throws Exception {
-		// TODO Auto-generated method stub
-
+	public void saveOrUpdate(MeasureDescriptionText measureDescriptiontext) throws Exception {
+		getSession().saveOrUpdate(measureDescriptiontext);
 	}
 
 	/**
-	 * remove: <br>
+	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#remove(lu.itrust.business.dao.DAOMeasureDescriptionText)
+	 * @see lu.itrust.business.dao.DAOMeasureDescriptionText#delete(lu.itrust.business.TS.MeasureDescriptionText)
 	 */
 	@Override
-	public void remove(MeasureDescriptionText measureDescription) throws Exception {
-		// TODO Auto-generated method stub
-
+	public void delete(MeasureDescriptionText measureDescriptiontext) throws Exception {
+		getSession().delete(measureDescriptiontext);
 	}
-
-	@Override
-	public boolean exists(MeasureDescription measureDescription, Language language)
-			throws Exception {
-			Query query =
-				getSession().createQuery("Select count(*) from MeasureDescriptionText where measureDescription = :measureDescription and language = :language");
-			query.setParameter("measureDescription", measureDescription);
-			query.setParameter("language", language);
-			return (Long) query.uniqueResult() >= 1;
-		
-	}
-
 }

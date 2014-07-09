@@ -1,22 +1,23 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.dao.DAONorm;
 import lu.itrust.business.service.ServiceNorm;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
- * @author oensuifudine
+ * ServiceNormImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Service
 @Transactional
@@ -25,136 +26,184 @@ public class ServiceNormImpl implements ServiceNorm {
 	@Autowired
 	private DAONorm daoNorm;
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceNorm#getNormByID(int)
+	 * @param idNorm
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#get(int)
 	 */
 	@Override
-	public Norm getNormByID(int idNorm) throws Exception {
-		return daoNorm.getNormByID(idNorm);
+	public Norm get(Integer idNorm) throws Exception {
+		return daoNorm.get(idNorm);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getNormByName: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceNorm#loadNotCustomNormByName(java.lang
-	 * .String)
+	 * @param norm
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#getNormByName(java.lang.String)
 	 */
 	@Override
-	public Norm loadNotCustomNormByName(String norm) throws Exception {
-		// TODO Auto-generated method stub
-		return daoNorm.loadNotCustomNormByName(norm);
+	public Norm getNormByName(String norm) throws Exception {
+		return daoNorm.getNormByName(norm);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getNormNotCustomByName: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceNorm#loadSingleNormByName(java.lang
-	 * .String)
+	 * @param norm
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#getNormNotCustomByName(java.lang.String)
 	 */
 	@Override
-	public Norm loadSingleNormByName(String norm) throws Exception {
-		// TODO Auto-generated method stub
-		return daoNorm.loadSingleNormByName(norm);
+	public Norm getNormNotCustomByName(String norm) throws Exception {
+		return daoNorm.getNormNotCustomByName(norm);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getNormByNameAndVersion: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceNorm#loadAllFromAnalysis(lu.itrust.
-	 * business.TS.Analysis)
+	 * @param label
+	 * @param version
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#getNormByNameAndVersion(java.lang.String, int)
 	 */
 	@Override
-	public List<Norm> loadAllFromAnalysis(Analysis analysis) throws Exception {
-		// TODO Auto-generated method stub
-		return daoNorm.loadAllFromAnalysis(analysis);
+	public Norm getNormByNameAndVersion(String label, int version) throws Exception {
+		return daoNorm.getNormByNameAndVersion(label, version);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * existsByNameAndVersion: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceNorm#
-	 * loadAllFromAnalysisIdentifierVersionCreationDate(int, java.lang.String,
-	 * java.lang.String)
+	 * @param label
+	 * @param version
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#existsByNameAndVersion(java.lang.String, int)
 	 */
 	@Override
-	public List<Norm> loadAllFromAnalysisIdentifierVersionCreationDate(
-			int identifier, String version, String creationDate)
-			throws Exception {
-		// TODO Auto-generated method stub
-		return daoNorm.loadAllFromAnalysisIdentifierVersionCreationDate(
-				identifier, version, creationDate);
+	public boolean existsByNameAndVersion(String label, int version) throws Exception {
+		return daoNorm.existsByNameAndVersion(label, version);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllNorms: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceNorm#loadAll()
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#getAllNorms()
 	 */
 	@Override
-	public List<Norm> loadAll() throws Exception {
-		// TODO Auto-generated method stub
-		return daoNorm.loadAll();
+	public List<Norm> getAll() throws Exception {
+		return daoNorm.getAll();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllFromAnalysisId: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceNorm#save(lu.itrust.business.TS.Norm)
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#getAllFromAnalysisId(int)
+	 */
+	@Override
+	public List<Norm> getAllFromAnalysis(Integer analysisId) throws Exception {
+		return daoNorm.getAllFromAnalysis(analysisId);
+	}
+
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#getAllFromAnalysis(lu.itrust.business.TS.Analysis)
+	 */
+	@Override
+	public List<Norm> getAllFromAnalysis(Analysis analysis) throws Exception {
+		return daoNorm.getAllFromAnalysis(analysis);
+	}
+
+	/**
+	 * getAllNormsNotInAnalysis: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#getAllNormsNotInAnalysis(int)
+	 */
+	@Override
+	public List<Norm> getAllNotInAnalysis(Integer idAnalysis) throws Exception {
+		return daoNorm.getAllNotInAnalysis(idAnalysis);
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param Norm
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#save(lu.itrust.business.TS.Norm)
 	 */
 	@Transactional
 	@Override
 	public void save(Norm Norm) throws Exception {
 		daoNorm.save(Norm);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceNorm#saveOrUpdate(lu.itrust.business
-	 * .TS.Norm)
+	 * @param Norm
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#saveOrUpdate(lu.itrust.business.TS.Norm)
 	 */
 	@Transactional
 	@Override
 	public void saveOrUpdate(Norm Norm) throws Exception {
 		daoNorm.saveOrUpdate(Norm);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceNorm#remove(lu.itrust.business.TS.Norm)
+	 * @param Norm
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceNorm#delete(lu.itrust.business.TS.Norm)
 	 */
 	@Transactional
 	@Override
-	public void remove(Norm Norm) throws Exception {
-		daoNorm.remove(Norm);
-
+	public void delete(Norm Norm) throws Exception {
+		daoNorm.delete(Norm);
 	}
-
-	/**
-	 * @return the daoNorm
-	 */
-	public DAONorm getDaoNorm() {
-		return daoNorm;
-	}
-
-	/**
-	 * @param daoNorm the daoNorm to set
-	 */
-	public void setDaoNorm(DAONorm daoNorm) {
-		this.daoNorm = daoNorm;
-	}
-	
-	
-
 }

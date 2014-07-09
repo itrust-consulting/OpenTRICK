@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import java.io.Serializable;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
@@ -103,10 +104,10 @@ public class Language implements Serializable {
 	 *            The value to set the Language Name
 	 */
 	public void setName(String name) {
-		if ((name == null) || (!name.matches(Constant.REGEXP_VALID_NAME))) {
-			throw new IllegalArgumentException(
-					"Language Name cannot be null or empty and must be valid!");
-		}
+//		if ((name == null) || (!name.matches(Constant.REGEXP_VALID_NAME))) {
+//			throw new IllegalArgumentException(
+//					"Language Name cannot be null or empty and must be valid!");
+//		}
 		this.name = name;
 	}
 
@@ -128,10 +129,10 @@ public class Language implements Serializable {
 	 *            The value to set the Alternative Language Name
 	 */
 	public void setAltName(String name) {
-		if ((name == null) || (!name.matches(Constant.REGEXP_VALID_NAME))) {
-			throw new IllegalArgumentException(
-					"Language Alternative Name cannot be null or empty and must be valid!");
-		}
+//		if ((name == null) || (!name.matches(Constant.REGEXP_VALID_NAME))) {
+//			throw new IllegalArgumentException(
+//					"Language Alternative Name cannot be null or empty and must be valid!");
+//		}
 		this.altName = name;
 	}
 

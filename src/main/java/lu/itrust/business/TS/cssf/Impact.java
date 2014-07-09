@@ -1,9 +1,12 @@
 package lu.itrust.business.TS.cssf;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import lu.itrust.business.TS.tsconstant.Constant;
+import java.util.Map;
+
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
  * 
@@ -19,9 +22,11 @@ import lu.itrust.business.TS.Parameter;
  * 
  * Features:
  * <ul>
- * <li>Auto evaluates the Maximum Impact of the Impact Categories (stored inside "real" field)</li>
+ * <li>Auto evaluates the Maximum Impact of the Impact Categories (stored inside
+ * "real" field)</li>
  * <li>Returns the Real Impact Category value (from impact fields)</li>
- * <li>Return Impact Acronym using a Real Impact Value as input (if such an acronym exists)</li>
+ * <li>Return Impact Acronym using a Real Impact Value as input (if such an
+ * acronym exists)</li>
  * </ul>
  * 
  * @author itrust consulting s.à.rl. : BJA, EOM, SME
@@ -56,7 +61,7 @@ public class Impact {
 	final static String ACRONYM_REGEX = "^c([0-9]|10)$";
 
 	/** The Analysis Parameters Array */
-	private List<Parameter> parameters;
+	private Map<String, Parameter> parameters;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -77,13 +82,12 @@ public class Impact {
 	 * @param parameters
 	 *            The Analysis Parameters Array
 	 */
-	public Impact(double reputation, double operational, double legal, double financial,
-			List<Parameter> parameters) {
+	public Impact(double reputation, double operational, double legal, double financial, Map<String, Parameter> parameters) {
+		this.setParameters(parameters);//must be first
 		this.setReputation(reputation);
 		this.setOperational(operational);
 		this.setLegal(legal);
 		this.setFinancial(financial);
-		this.setParameters(parameters);
 	}
 
 	/**
@@ -101,29 +105,21 @@ public class Impact {
 	 * @param parameters
 	 *            The Analysis Parameters Array
 	 */
-	public Impact(String reputation, String operational, String legal, String financial,
-			List<Parameter> parameters) {
+	public Impact(String reputation, String operational, String legal, String financial, Map<String, Parameter> parameters) {
+		this.setParameters(parameters);//must be first
 		this.setReputation(reputation);
 		this.setOperational(operational);
 		this.setLegal(legal);
 		this.setFinancial(financial);
-		this.setParameters(parameters);
+	}
+
+	public void setParameters(Map<String, Parameter> parameters2) {
+		this.parameters = parameters2;
 	}
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
-
-	/**
-	 * getParameters: <br>
-	 * Returns the "parameters" field value
-	 * 
-	 * @return The Analysis Parameters
-	 */
-	public List<Parameter> getParameters() {
-		return parameters;
-	}
-
 	/**
 	 * setParameters: <br>
 	 * Sets the "parameters" field with a value
@@ -132,13 +128,18 @@ public class Impact {
 	 *            The value to set the parameters
 	 */
 	public void setParameters(List<Parameter> parameters) {
-		this.parameters = parameters;
+		if (this.parameters != null)
+			this.parameters.clear();
+		this.parameters = new LinkedHashMap<String, Parameter>();
+		for (Parameter parameter : parameters)
+			if ((parameter instanceof ExtendedParameter) && parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+				this.parameters.put(((ExtendedParameter) parameter).getAcronym(), parameter);
 	}
 
 	/**
 	 * getReal: <br>
-	 * Returns the Real Maximum Impact value. This value will be auto computed if one of impacts has
-	 * changed (The "change" field is true).
+	 * Returns the Real Maximum Impact value. This value will be auto computed
+	 * if one of impacts has changed (The "change" field is true).
 	 * 
 	 * @return The Real Impact Value (the Maximum of the Categories)
 	 */
@@ -152,13 +153,13 @@ public class Impact {
 
 	/**
 	 * updateRealValue: <br>
-	 * Take the maximum of the 4 Impact Categories and sets the "real" field value.
+	 * Take the maximum of the 4 Impact Categories and sets the "real" field
+	 * value.
 	 */
 	protected void updateRealValue() {
 
 		// take the maximum and call setReal method
-		setReal(Math.max(getRealFinancial(), Math.max(getRealLegal(), Math.max(
-				getRealOperational(), getRealReputation()))));
+		setReal(Math.max(getRealFinancial(), Math.max(getRealLegal(), Math.max(getRealOperational(), getRealReputation()))));
 	}
 
 	/**
@@ -185,8 +186,8 @@ public class Impact {
 
 	/**
 	 * getAcronymOperational: <br>
-	 * if raw value is a string, it will be returned, otherwise it will try to convert numeric value
-	 * to acronym.
+	 * if raw value is a string, it will be returned, otherwise it will try to
+	 * convert numeric value to acronym.
 	 * 
 	 * @return
 	 */
@@ -206,8 +207,8 @@ public class Impact {
 
 	/**
 	 * getRealOperational: <br>
-	 * Returns the Real Operational Value. When the field "operational" is a String type, the value
-	 * will be converted to Double.
+	 * Returns the Real Operational Value. When the field "operational" is a
+	 * String type, the value will be converted to Double.
 	 * 
 	 * @return The Real Operational Impact value
 	 */
@@ -219,13 +220,15 @@ public class Impact {
 			// return the Double object
 			return (Double) operational;
 
-		// operational is a not a Double Object, convert the String to a Double Object
+		// operational is a not a Double Object, convert the String to a Double
+		// Object
 		return convertStringImpactToDouble((String) operational, parameters);
 	}
 
 	/**
 	 * setOperational:<br>
-	 * Set the Operational Impact with a double value and switch "change" to true.
+	 * Set the Operational Impact with a double value and switch "change" to
+	 * true.
 	 * 
 	 * @param operational
 	 *            The Real Operational Value
@@ -237,26 +240,26 @@ public class Impact {
 
 	/**
 	 * setOperational: <br>
-	 * Set the Operational Impact Value with a String value and switch "change" to true. When The
-	 * given operational value is not a valid Acronym, the value will be converted to Double.
+	 * Set the Operational Impact Value with a String value and switch "change"
+	 * to true. When The given operational value is not a valid Acronym, the
+	 * value will be converted to Double.
 	 * 
 	 * @param operational
 	 *            The String represenation of the Operational Impact
 	 */
 	public void setOperational(String operational) {
 
-		// checks if the parameter is a valid acronym -> TRUE: take this value; FALSE: try to
+		// checks if the parameter is a valid acronym -> TRUE: take this value;
+		// FALSE: try to
 		// convert to Real
-		this.operational =
-			isAcronym(operational) ? operational : convertStringImpactToDouble(operational,
-					parameters);
+		this.operational = isAcronym(operational) ? operational : convertStringImpactToDouble(operational, parameters);
 		this.change = true;
 	}
 
 	/**
 	 * getAcronymReputation: <br>
-	 * Returns the Acronym of the Reputation Impact. If the value is a Double value, it will be
-	 * converted into a valid Acronym.
+	 * Returns the Acronym of the Reputation Impact. If the value is a Double
+	 * value, it will be converted into a valid Acronym.
 	 * 
 	 * @return The Reputation Impact Acronym
 	 */
@@ -276,8 +279,8 @@ public class Impact {
 
 	/**
 	 * getRealReputation:<br>
-	 * Returns the Real Reputation Value. When the field "reputation" is a String type, the value
-	 * will be converted to Double.
+	 * Returns the Real Reputation Value. When the field "reputation" is a
+	 * String type, the value will be converted to Double.
 	 * 
 	 * @return The Real Reputation Impact value
 	 */
@@ -297,7 +300,8 @@ public class Impact {
 
 	/**
 	 * setReputation: <br>
-	 * Set the Reputation Impact with a double value and switch "change" to true.
+	 * Set the Reputation Impact with a double value and switch "change" to
+	 * true.
 	 * 
 	 * @param reputation
 	 *            The Real Reputation value
@@ -309,14 +313,15 @@ public class Impact {
 
 	/**
 	 * setReputation: <br>
-	 * Set the Reputation Impact Value with a String value and switch "change" to true. When The
-	 * given reputation value is not a valid Acronym, the value will be converted to Double.
+	 * Set the Reputation Impact Value with a String value and switch "change"
+	 * to true. When The given reputation value is not a valid Acronym, the
+	 * value will be converted to Double.
 	 * 
 	 * @param reputation
 	 *            The String representation of the Reputation Impact
 	 */
 	public void setReputation(String reputation) {
-		this.reputation = reputation;
+		this.reputation = isAcronym(reputation) ? reputation : convertStringImpactToDouble(reputation, parameters);
 		this.change = true;
 	}
 
@@ -332,8 +337,8 @@ public class Impact {
 
 	/**
 	 * getAcronymLegal: <br>
-	 * Returns the Acronym of the Legal Impact. If the value is a Double value, it will be converted
-	 * into a valid Acronym.
+	 * Returns the Acronym of the Legal Impact. If the value is a Double value,
+	 * it will be converted into a valid Acronym.
 	 * 
 	 * @return The Legal Impact Acronym
 	 */
@@ -353,8 +358,8 @@ public class Impact {
 
 	/**
 	 * getRealLegal:<br>
-	 * Returns the Real Legal Value. When the field "reputation" is a String type, the value will be
-	 * converted to Double.
+	 * Returns the Real Legal Value. When the field "reputation" is a String
+	 * type, the value will be converted to Double.
 	 * 
 	 * @return The Legal Impact value
 	 */
@@ -386,15 +391,17 @@ public class Impact {
 
 	/**
 	 * setLegal: <br>
-	 * Set the Legal Impact Value with a String value and switch "change" to true. When The given
-	 * Legal value is not a valid Acronym, the value will be converted to Double.
+	 * Set the Legal Impact Value with a String value and switch "change" to
+	 * true. When The given Legal value is not a valid Acronym, the value will
+	 * be converted to Double.
 	 * 
 	 * @param legal
 	 *            The String representation of the Legal Impact value
 	 */
 	public void setLegal(String legal) {
 
-		// check if parameter is a valid acronym -> TRUE: take parameter; FALSE: try to convert to
+		// check if parameter is a valid acronym -> TRUE: take parameter; FALSE:
+		// try to convert to
 		// Real
 		this.legal = isAcronym(legal) ? legal : convertStringImpactToDouble(legal, parameters);
 		this.change = true;
@@ -412,8 +419,8 @@ public class Impact {
 
 	/**
 	 * getAcronymFinancial: <br>
-	 * Returns the Acronym of the Financial Impact. If the value is a Double value, it will be
-	 * converted into a valid Acronym.
+	 * Returns the Acronym of the Financial Impact. If the value is a Double
+	 * value, it will be converted into a valid Acronym.
 	 * 
 	 * @return The Financial Impact Acronym
 	 */
@@ -433,8 +440,8 @@ public class Impact {
 
 	/**
 	 * getRealFinancial: <br>
-	 * Returns the Real Financial Value. When the field "financial" is a String type, the value will
-	 * be converted to Double.
+	 * Returns the Real Financial Value. When the field "financial" is a String
+	 * type, the value will be converted to Double.
 	 * 
 	 * @return The Real Financial Value
 	 */
@@ -472,10 +479,10 @@ public class Impact {
 	 */
 	public void setFinancial(String financial) {
 
-		// check if parameter is a valid acronym -> TRUE: take Parameter; FALSE: try to convert to
+		// check if parameter is a valid acronym -> TRUE: take Parameter; FALSE:
+		// try to convert to
 		// Real Value
-		this.financial =
-			isAcronym(financial) ? financial : convertStringImpactToDouble(financial, parameters);
+		this.financial = isAcronym(financial) ? financial : convertStringImpactToDouble(financial, parameters);
 		this.change = true;
 	}
 
@@ -485,63 +492,49 @@ public class Impact {
 	 * 
 	 * @param acronym
 	 *            The Acronym to check
-	 * @return True if value meets the {@link #ACRONYM_REGEX regular expression} ; False when not
+	 * @return True if value meets the {@link #ACRONYM_REGEX regular expression}
+	 *         ; False when not
 	 */
-	public static boolean isAcronym(String acronym) {
+	public boolean isAcronym(String acronym) {
 
 		// check if null and Regular Expression
-		return acronym == null ? false : acronym.matches(ACRONYM_REGEX);
+		return acronym == null || parameters == null ? false : parameters.containsKey(acronym);
 	}
 
 	/**
 	 * convertImpactToDouble: <br>
-	 * Takes a string value (value from SQLite file) and converts it into a valid double value.
+	 * Takes a string value (value from SQLite file) and converts it into a
+	 * valid double value.
 	 * 
 	 * @param impact
 	 *            The impact value as string
 	 * @return A valid Double value (k euro)
 	 */
-	public static double convertStringImpactToDouble(String impact, List<Parameter> parameters) {
+	public static double convertStringImpactToDouble(String impact, Map<String, Parameter> parameters) {
 
+		double value = 0;
 		// ****************************************************************
 		// * check value is a valid Acronym -> YES
 		// ****************************************************************
-		if (isAcronym(impact)) {
-
+		if (parameters.containsKey(impact))
+			value = parameters.get(impact).getValue();
+		else {
 			// ****************************************************************
-			// retrieve impact value
+			// * check if value can be transformed into double
 			// ****************************************************************
-
-			// parse parameters
-			for (int i = 0; i < parameters.size(); i++) {
-				if ((parameters.get(i).getType().getLabel()
-						.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-					&& ((ExtendedParameter) parameters.get(i)).getAcronym().equals(impact)) {
-
-					// return the impact value
-					return parameters.get(i).getValue();
-				}
+			try {
+				// return the value converted into double value
+				value = Double.parseDouble(impact);
+			} catch (NumberFormatException e) {
 			}
 		}
-
-		// ****************************************************************
-		// * check if value can be transformed into double
-		// ****************************************************************
-		try {
-
-			// return the value converted into double value
-			return Double.parseDouble(impact);
-		} catch (NumberFormatException e) {
-
-			// System.out.println("Error: " + impact + " does not exist; 0 returned");
-			return 0;
-		}
+		return value;
 	}
 
 	/**
 	 * convertDoubleImpactToAcronym: <br>
-	 * Returns The Acronym of a given Double Impact Value. The Acronym will be taken form the
-	 * Analysis Parameter Array.
+	 * Returns The Acronym of a given Double Impact Value. The Acronym will be
+	 * taken form the Analysis Parameter Array.
 	 * 
 	 * @param impact
 	 *            The Real Impact Value to get the Acronym
@@ -549,23 +542,22 @@ public class Impact {
 	 *            The Parameters Array to find the Acronym
 	 * @return The Acronym of the Impact Value
 	 */
-	public static String convertDoubleImpactToAcronym(double impact, List<Parameter> parameters) {
+	public static String convertDoubleImpactToAcronym(double impact, Map<String, Parameter> parameters) {
 
 		// check if impact < 0 -> YES
 		if (impact < 0) {
-			throw new IllegalArgumentException(
-					"Impact#impactToAcronym: value should be greater or equal 0");
+			throw new IllegalArgumentException("Impact#impactToAcronym: value should be greater or equal 0");
 		}
 
 		// parse parameters to find the matching impact
-		for (Parameter parameter : parameters) {
+		for (Parameter parameter : parameters.values()) {
 
-			// check if parameter is a ExtendedParameter (for impact and probability parameters) +
+			// check if parameter is a ExtendedParameter (for impact and
+			// probability parameters) +
 			// check if type of parameter is impact +
 			// check if impact value is in the parameter bounds
-			if ((parameter instanceof ExtendedParameter)
-				&& (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-				&& ((ExtendedParameter) parameter).getBounds().isInRange(impact)) {
+			if ((parameter instanceof ExtendedParameter) && (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
+					&& ((ExtendedParameter) parameter).getBounds().isInRange(impact)) {
 
 				// returns the Acronym
 				return ((ExtendedParameter) parameter).getAcronym();
@@ -582,7 +574,6 @@ public class Impact {
 	 */
 	@Override
 	public String toString() {
-		return "Impact [reputation=" + reputation + ", operational=" + operational + ", legal="
-			+ legal + ", financial=" + financial + ", real=" + real + "]";
+		return "Impact [reputation=" + reputation + ", operational=" + operational + ", legal=" + legal + ", financial=" + financial + ", real=" + real + "]";
 	}
 }

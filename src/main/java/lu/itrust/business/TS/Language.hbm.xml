@@ -3,12 +3,12 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS">
-	<class name="Language" table="language">
+	<class name="Language" table="Language">
 		<id column="idLanguage" name="id" unsaved-value="-1" type="int">
 			<generator class="increment" />
 		</id>
 		<property column="dtAlpha3" name="alpha3" length="3" type="java.lang.String" not-null="true" unique="true" />
-		<property column="dtName" name="name" type="java.lang.String" not-null="true" />
-		<property column="dtAlternativeName" name="altName" type="java.lang.String" not-null="true" />
+		<property column="dtName" name="name" type="java.lang.String" not-null="true" unique="true"/>
+		<property column="dtAlternativeName" name="altName" type="java.lang.String" not-null="true" unique="true"/>
 	</class>
 </hibernate-mapping>

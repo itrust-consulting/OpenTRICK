@@ -10,7 +10,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 2012-08-21
  */
-public class RiskInformation {
+public class RiskInformation implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -19,6 +19,9 @@ public class RiskInformation {
 	/** Risk Information id */
 	private int id = -1;
 
+	/** editable */
+	private boolean editable;
+	
 	/** The Risk Information Label */
 	private String label;
 
@@ -104,9 +107,13 @@ public class RiskInformation {
 	 *            The value to set the Exposed value
 	 */
 	public void setExposed(String expo) {
-		/*if (expo == null || !expo.matches(Constant.REGEXP_VALID_RISKINFORMATION_EXPOSED))
-			throw new IllegalArgumentException("Exposed should meet this regular expression "
-				+ Constant.REGEXP_VALID_RISKINFORMATION_EXPOSED);*/
+		/*
+		 * if (expo == null ||
+		 * !expo.matches(Constant.REGEXP_VALID_RISKINFORMATION_EXPOSED)) throw
+		 * new
+		 * IllegalArgumentException("Exposed should meet this regular expression "
+		 * + Constant.REGEXP_VALID_RISKINFORMATION_EXPOSED);
+		 */
 		this.exposed = expo;
 	}
 
@@ -170,9 +177,12 @@ public class RiskInformation {
 	 *            The value to set the Category
 	 */
 	public void setCategory(String category) {
-		if (category == null || !category.matches(Constant.REGEXP_VALID_RISKINFORMATION_TYPE))
-			throw new IllegalArgumentException("Category should meet this regular expression "
-				+ Constant.REGEXP_VALID_RISKINFORMATION_TYPE);
+		if (category == null
+				|| !category
+						.matches(Constant.REGEXP_VALID_RISKINFORMATION_TYPE))
+			throw new IllegalArgumentException(
+					"Category should meet this regular expression "
+							+ Constant.REGEXP_VALID_RISKINFORMATION_TYPE);
 		this.category = category;
 	}
 
@@ -217,4 +227,40 @@ public class RiskInformation {
 	public void setId(int id) {
 		this.id = id;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public RiskInformation clone() throws CloneNotSupportedException {
+		return (RiskInformation) super.clone();
+	}
+
+	public RiskInformation duplicate() throws CloneNotSupportedException {
+		RiskInformation riskInformation = (RiskInformation) super.clone();
+		riskInformation.id = -1;
+		return riskInformation;
+	}
+
+	/** isEditable: <br>
+	 * Returns the editable field value.
+	 * 
+	 * @return The value of the editable field
+	 */
+	public boolean isEditable() {
+		return editable;
+	}
+
+	/** setEditable: <br>
+	 * Sets the Field "editable" with a value.
+	 * 
+	 * @param editable 
+	 * 			The Value to set the editable field
+	 */
+	public void setEditable(boolean editable) {
+		this.editable = editable;
+	}
+
 }

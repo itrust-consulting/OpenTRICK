@@ -2,20 +2,20 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 import java.util.Date;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
  * History: <br>
  * This class represents an History and all its data.
  * 
- * This class is used to store History. Each analysis has only one single history. Each analysis in
- * the knowledgebase can be the same, but has different histories (versions).
+ * This class is used to store History. Each analysis has only one single
+ * history. Each analysis in the knowledgebase can be the same, but has
+ * different histories (versions).
  * 
  * @author itrust consulting s.à r.l. - SME,BJA
  * @version 0.1
  * @since 2012-08-21
  */
-public class History implements Serializable {
+public class History implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -33,7 +33,10 @@ public class History implements Serializable {
 	/** The Date when the History entry was created */
 	private Date date = null;
 
-	/** The Name of the Author that created the History Entry (The Analysis at this Version) */
+	/**
+	 * The Name of the Author that created the History Entry (The Analysis at
+	 * this Version)
+	 */
 	private String author = "";
 
 	/** The Comment an Author gave to the History Entry */
@@ -113,10 +116,6 @@ public class History implements Serializable {
 	 *            The value to set the Author Name
 	 */
 	public void setAuthor(String author) {
-		if ((author == null) || (author.trim().equals("")) || (!author.matches(Constant.REGEXP_VALID_NAME))) {
-			throw new IllegalArgumentException(
-					"History Author cannot be nullor empty and has to be a valid name!");
-		}
 		this.author = author;
 	}
 
@@ -149,10 +148,6 @@ public class History implements Serializable {
 	 *            The value to set the Version Identifier
 	 */
 	public void setVersion(String version) {
-		if (version == null) {
-			throw new IllegalArgumentException(
-					"History Version is null");
-		}
 		this.version = version;
 	}
 
@@ -165,7 +160,6 @@ public class History implements Serializable {
 	public String getVersion() {
 		return version;
 	}
-
 
 	/**
 	 * getId: <br>
@@ -196,8 +190,8 @@ public class History implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "History [id=" + id + ", version=" + version
-			+ ", date=" + date + ", author=" + author + ", comment=" + comment + "]";
+		return "History [id=" + id + ", version=" + version + ", date=" + date
+				+ ", author=" + author + ", comment=" + comment + "]";
 	}
 
 	/**
@@ -207,13 +201,19 @@ public class History implements Serializable {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		History history = new History();
-		history.author = author;
-		history.comment = comment;
-		history.date = new Date(date.getTime());
-		history.version = version;
-		history.id = id;
+	public History clone() throws CloneNotSupportedException {
+		return (History) super.clone();
+	}
+
+	/**
+	 * clone: <br>
+	 * Description
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	public History duplicate() throws CloneNotSupportedException {
+		History history = (History) super.clone();
+		history.id = -1;
 		return history;
 	}
 }

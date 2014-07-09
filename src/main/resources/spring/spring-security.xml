@@ -1,79 +1,64 @@
-<beans:beans xmlns="http://www.springframework.org/schema/security"
-	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans:beans xmlns="http://www.springframework.org/schema/security" xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+           http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security-3.1.xsd">
-           
-    <global-method-security secured-annotations="enabled"
-		access-decision-manager-ref="accessDecisionManager" />
-           
-    <http pattern="/api/trespass">
-    	<intercept-url pattern="/api/trespass*" access="ROLE_USER,ROLE_CONSULTANT,ROLE_ADMIN" />
-    	<http-basic/>
-    </http>
-           
+           http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+	<!-- access-decision-manager-ref="methodSecurityExpressionHandler" -->
+	<global-method-security pre-post-annotations="enabled">
+		<expression-handler ref="methodSecurityExpressionHandler" />
+	</global-method-security>
+
 	<http auto-config="true">
 		<intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/addUser*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<form-login login-page="/login" default-target-url="/index"
-			authentication-failure-url="/login" />
-		<logout invalidate-session="true" logout-success-url="/index" />
+		<form-login login-page="/login" default-target-url="/home" authentication-failure-url="/login/error" />
+		<logout logout-success-url="/home" />
 	</http>
 
 	<authentication-manager>
 		<authentication-provider>
-			<jdbc-user-service data-source-ref="dataSource"
-    users-by-username-query="
-        select dtLogin as username,dtPassword as password, dtEnable as enable
-        from user where dtLogin=?"
-    authorities-by-username-query="SELECT user1.dtLogin as username, role1.dtType 
-    FROM userRole userRole1, user user1, role role1 
-    WHERE userRole1.idUser = user1.idUser AND userRole1.idRole = role1.idRole AND user1.dtLogin = ?" />
+			<jdbc-user-service data-source-ref="dataSource" users-by-username-query="select dtLogin as username,dtPassword as password, dtEnable as enable from User where dtLogin=?"
+				authorities-by-username-query="SELECT User.dtLogin as username, Role.dtType FROM UserRole, User, Role WHERE UserRole.idUser = User.idUser AND UserRole.idRole = Role.idRole AND User.dtLogin = ?" />
 			<password-encoder ref="passwordEncoder">
-					<salt-source user-property="username"/>
-				</password-encoder>
+				<salt-source user-property="username" />
+			</password-encoder>
 		</authentication-provider>
 	</authentication-manager>
-	<beans:bean id="passwordEncoder"
-		class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
-			<beans:constructor-arg value="256"/>
-		</beans:bean>
 
-	<beans:bean id="authenticatedVoter"
-		class="org.springframework.security.access.vote.AuthenticatedVoter" />
+
+	<beans:bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
+		<beans:constructor-arg value="256" />
+	</beans:bean>
+
+	<beans:bean id="authenticatedVoter" class="org.springframework.security.access.vote.AuthenticatedVoter" />
 	<!-- this voter will have the default attributes -->
 
-	<beans:bean id="roleVoter"
-		class="org.springframework.security.access.vote.RoleVoter">
+	<beans:bean id="roleVoter" class="org.springframework.security.access.vote.RoleVoter">
 		<beans:property name="rolePrefix">
-		<beans:value>
-		ROLE_SUPERVISOR
-		ROLE_ADMIN
-		ROLE_CONSULTANT
-		ROLE_USER
-		</beans:value>
+			<beans:value>
+				ROLE_SUPERVISOR
+				ROLE_ADMIN
+				ROLE_CONSULTANT
+				ROLE_USER
+			</beans:value>
 		</beans:property>
 	</beans:bean>
 
-	<beans:bean id="accessDecisionManager"
-		class="org.springframework.security.access.vote.AffirmativeBased">
-		<beans:constructor-arg name="decisionVoters">
-			<beans:list>
-				<!--  <beans:ref bean="roleVoter" /> -->
-				<beans:ref bean="authenticatedVoter" />
-				<beans:ref bean="roleHierarchyVoter" />
-			</beans:list>
-		</beans:constructor-arg>
+	<beans:bean id="methodSecurityExpressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+		<beans:property name="roleHierarchy" ref="roleHierarchy" />
+		<beans:property name="permissionEvaluator" ref="permissionEvaluator" />
+		<!-- </beans:list> </beans:constructor-arg> -->
 	</beans:bean>
 
-	<beans:bean id="roleHierarchyVoter"
-		class="org.springframework.security.access.vote.RoleHierarchyVoter">
+	<beans:bean id="permissionEvaluator" class="lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl" />
+
+
+	<beans:bean id="roleHierarchyVoter" class="org.springframework.security.access.vote.RoleHierarchyVoter">
 		<beans:constructor-arg ref="roleHierarchy" />
 	</beans:bean>
 
-	<beans:bean id="roleHierarchy"
-		class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
+	<beans:bean id="roleHierarchy" class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
 		<beans:property name="hierarchy">
 			<beans:value>
 				ROLE_SUPERVISOR > ROLE_ADMIN

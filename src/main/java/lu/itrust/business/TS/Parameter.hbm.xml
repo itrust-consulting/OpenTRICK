@@ -3,35 +3,38 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS">
-	<class name="Parameter" table="parameter">
+	<class name="Parameter" table="Parameter">
 		<id name="id" column="idParameter" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
-		<many-to-one name="type" column="fiparameterType" not-null="true"/>
-		<property name="description" column="dtLabel" not-null="true" />
-		<property name="value" column="dtValue" not-null="true" />
-		<joined-subclass name="MaturityParameter" extends="Parameter"
-			table="maturityParameter">
+		<many-to-one name="type" column="fiparameterType" not-null="true" access="field" />
+		<property name="description" column="dtLabel" not-null="true" access="field" />
+		<property name="value" column="dtValue" not-null="true" access="field" />
+		<joined-subclass name="MaturityParameter" extends="Parameter" table="MaturityParameter">
 			<key column="idMaturityParameter" not-null="true" />
-			<property name="category" column="dtCategory" not-null="true" />
-			<property name="SMLLevel" column="dtSML" not-null="true" />
+			<property name="category" column="dtCategory" not-null="true" access="field" />
+			<property name="SMLLevel" column="dtSML" not-null="true" access="field" />
+			<property name="SMLLevel0" column="dtSML0" not-null="true" access="field" />
+			<property name="SMLLevel1" column="dtSML1" not-null="true" access="field" />
+			<property name="SMLLevel2" column="dtSML2" not-null="true" access="field" />
+			<property name="SMLLevel3" column="dtSML3" not-null="true" access="field" />
+			<property name="SMLLevel4" column="dtSML4" not-null="true" access="field" />
+			<property name="SMLLevel5" column="dtSML5" not-null="true" access="field" />
 		</joined-subclass>
-		<joined-subclass name="ExtendedParameter" extends="Parameter" table="extendedParameter">
-				<key column="idExtendedParameter" not-null="true" />
-				<component name="bounds" access="field">
-					<property name="from" column="dtFrom" not-null="true"
-						access="field" />
-					<property name="to" column="dtTo" not-null="true" access="field" />
-				</component>
-				<property name="level" column="dtLevel" not-null="true" />
-				<property name="acronym" column="dtAcronym" not-null="true" />
+		<joined-subclass name="ExtendedParameter" extends="Parameter" table="ExtendedParameter">
+			<key column="idExtendedParameter" not-null="true" />
+			<component name="bounds" access="field">
+				<property name="from" column="dtFrom" not-null="true" access="field" />
+				<property name="to" column="dtTo" not-null="true" access="field" />
+			</component>
+			<property name="level" column="dtLevel" not-null="true" access="field" />
+			<property name="acronym" column="dtAcronym" not-null="true" access="field" />
 		</joined-subclass>
 	</class>
-	<class name="ParameterType" table="parameterType">
+	<class name="ParameterType" table="ParameterType">
 		<id name="id" column="idParameterType">
 			<generator class="assigned" />
 		</id>
-		<property name="label" column="dtLabel" not-null="true"
-			unique="true" />
+		<property name="label" column="dtLabel" not-null="true" unique="true" access="field" />
 	</class>
 </hibernate-mapping>

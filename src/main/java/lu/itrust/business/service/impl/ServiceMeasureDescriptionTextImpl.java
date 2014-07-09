@@ -1,157 +1,136 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
+
+import lu.itrust.business.TS.MeasureDescriptionText;
+import lu.itrust.business.dao.DAOMeasureDescriptionText;
+import lu.itrust.business.service.ServiceMeasureDescriptionText;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.Language;
-import lu.itrust.business.TS.MeasureDescription;
-import lu.itrust.business.TS.MeasureDescriptionText;
-import lu.itrust.business.dao.DAOMeasureDescriptionText;
-import lu.itrust.business.service.ServiceMeasureDescriptionText;
-
 /**
- * @author oensuifudine
+ * ServiceMeasureDescriptionTextImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Service
 @Transactional
-public class ServiceMeasureDescriptionTextImpl implements
-		ServiceMeasureDescriptionText {
+public class ServiceMeasureDescriptionTextImpl implements ServiceMeasureDescriptionText {
 
 	@Autowired
 	private DAOMeasureDescriptionText daoMeasureDescriptionText;
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceMeasureDescriptionText#get(int)
 	 */
 	@Override
-	public MeasureDescriptionText get(int id) throws Exception {
-		// TODO Auto-generated method stub
+	public MeasureDescriptionText get(Integer id) throws Exception {
 		return daoMeasureDescriptionText.get(id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getMeasureDescriptionTextByIdAndLanguageId: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceMeasureDescriptionText#
-	 * getByMeasureDescription(int)
+	 * @param idMeasureDescription
+	 * @param idLanguage
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceMeasureDescriptionText#getMeasureDescriptionTextByIdAndLanguageId(int,
+	 *      int)
 	 */
 	@Override
-	public List<MeasureDescriptionText> getByMeasureDescription(
-			int measureDescriptionID) throws Exception {
-		// TODO Auto-generated method stub
-		return daoMeasureDescriptionText
-				.getByMeasureDescription(measureDescriptionID);
+	public MeasureDescriptionText getForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception {
+		return daoMeasureDescriptionText.getForMeasureDescriptionAndLanguage(idMeasureDescription, idLanguage);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * existsForLanguageByMeasureDescriptionIdAndLanguageId: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceMeasureDescriptionText#exists(lu.itrust
-	 * .business.TS.MeasureDescription, lu.itrust.business.TS.Language)
+	 * @param idMeasureDescription
+	 * @param idLanguage
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceMeasureDescriptionText#existsForLanguageByMeasureDescriptionIdAndLanguageId(int,
+	 *      int)
 	 */
 	@Override
-	public boolean exists(MeasureDescription mesDesc, Language language)
-			throws Exception {
-		// TODO Auto-generated method stub
-		return daoMeasureDescriptionText.exists(mesDesc, language);
+	public boolean existsForMeasureDescriptionAndLanguage(Integer idMeasureDescription, Integer idLanguage) throws Exception {
+		return daoMeasureDescriptionText.existsForMeasureDescriptionAndLanguage(idMeasureDescription, idLanguage);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllMeasureDescriptionTextsByMeasureDescriptionId: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceMeasureDescriptionText#
-	 * getByMeasureDescriptionReferenceNorm(java.lang.String, java.lang.String,
-	 * lu.itrust.business.TS.Analysis)
+	 * @param measureDescriptionID
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceMeasureDescriptionText#getAllMeasureDescriptionTextsByMeasureDescriptionId(int)
 	 */
 	@Override
-	public List<MeasureDescriptionText> getByMeasureDescriptionReferenceNorm(
-			String Reference, String norm, Analysis analysis) throws Exception {
-		// TODO Auto-generated method stub
-		return daoMeasureDescriptionText.getByMeasureDescriptionReferenceNorm(
-				Reference, norm, analysis);
+	public List<MeasureDescriptionText> getAllFromMeasureDescription(Integer measureDescriptionID) throws Exception {
+		return daoMeasureDescriptionText.getAllFromMeasureDescription(measureDescriptionID);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * save: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceMeasureDescriptionText#
-	 * getByMeasureDescriptionReferenceNormLanguage(java.lang.String,
-	 * java.lang.String, lu.itrust.business.TS.Analysis,
-	 * lu.itrust.business.TS.Language)
-	 */
-	@Override
-	public MeasureDescriptionText getByMeasureDescriptionReferenceNormLanguage(
-			String Reference, String norm, Analysis analysis, Language language)
-			throws Exception {
-		// TODO Auto-generated method stub
-		return daoMeasureDescriptionText
-				.getByMeasureDescriptionReferenceNormLanguage(Reference, norm,
-						analysis, language);
-	}
-
-	/*
-	 * (non-Javadoc)
+	 * @param measureDescription
+	 * @throws Exception
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceMeasureDescriptionText#save(lu.itrust
-	 * .business.TS.MeasureDescriptionText)
+	 * @see lu.itrust.business.service.ServiceMeasureDescriptionText#save(lu.itrust.business.TS.MeasureDescriptionText)
 	 */
 	@Transactional
 	@Override
-	public void save(MeasureDescriptionText measureDescription)
-			throws Exception {
+	public void save(MeasureDescriptionText measureDescription) throws Exception {
 		daoMeasureDescriptionText.save(measureDescription);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceMeasureDescriptionText#saveAndUpdate
-	 * (lu.itrust.business.TS.MeasureDescriptionText)
+	 * @param measureDescription
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceMeasureDescriptionText#saveOrUpdate(lu.itrust.business.TS.MeasureDescriptionText)
 	 */
 	@Transactional
 	@Override
-	public void saveAndUpdate(MeasureDescriptionText measureDescription)
-			throws Exception {
-		daoMeasureDescriptionText.saveAndUpdate(measureDescription);
-
+	public void saveOrUpdate(MeasureDescriptionText measureDescription) throws Exception {
+		daoMeasureDescriptionText.saveOrUpdate(measureDescription);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceMeasureDescriptionText#remove(lu.itrust
-	 * .business.TS.MeasureDescriptionText)
+	 * @param measureDescription
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceMeasureDescriptionText#delete(lu.itrust.business.TS.MeasureDescriptionText)
 	 */
 	@Transactional
 	@Override
-	public void remove(MeasureDescriptionText measureDescription)
-			throws Exception {
-		daoMeasureDescriptionText.remove(measureDescription);
-
+	public void delete(MeasureDescriptionText measureDescription) throws Exception {
+		daoMeasureDescriptionText.delete(measureDescription);
 	}
-
-	public DAOMeasureDescriptionText getDaoMeasureDescriptionText() {
-		return daoMeasureDescriptionText;
-	}
-
-	public void setDaoMeasureDescriptionText(
-			DAOMeasureDescriptionText daoMeasureDescriptionText) {
-		this.daoMeasureDescriptionText = daoMeasureDescriptionText;
-	}
-
 }

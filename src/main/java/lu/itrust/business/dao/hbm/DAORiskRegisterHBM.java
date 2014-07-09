@@ -3,78 +3,113 @@
  */
 package lu.itrust.business.dao.hbm;
 
-import lu.itrust.business.TS.Scenario;
+import java.util.List;
+
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.dao.DAORiskRegister;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /**
- * @author oensuifudine
+ * DAORiskRegisterHBM.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since Feb 18, 2014
  */
+@Repository
 public class DAORiskRegisterHBM extends DAOHibernate implements DAORiskRegister {
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Constructor: <br>
+	 */
+	public DAORiskRegisterHBM() {
+	}
+
+	/**
+	 * Constructor: <br>
 	 * 
-	 * @see lu.itrust.business.dao.DAORiskRegister#getRiskRegister(int)
+	 * @param session
+	 */
+	public DAORiskRegisterHBM(Session session) {
+		super(session);
+	}
+
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORiskRegister#get(int)
 	 */
 	@Override
-	public RiskRegisterItem getRiskRegister(int id) throws Exception {
-		// TODO Auto-generated method stub
+	public RiskRegisterItem get(Integer id) throws Exception {
 		return (RiskRegisterItem) getSession().get(RiskRegisterItem.class, id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAORiskRegister#getRiskRegisterItem(lu.itrust.
-	 * business.TS.Scenario)
+	 * @see lu.itrust.business.dao.DAORiskRegister#belongsToAnalysis(java.lang.Integer,
+	 *      java.lang.Integer)
 	 */
-	@Override
-	public RiskRegisterItem getRiskRegisterItem(Scenario scenario)
-			throws Exception {
-		// TODO Auto-generated method stub
-		return (RiskRegisterItem) getSession().createQuery(
-				"From RiskRegisterItem where scenario = :scenario")
-				.setParameter("scenario", scenario);
+	public boolean belongsToAnalysis(Integer riskregisterItemId, Integer analysisId) throws Exception {
+		String query = "Select count(riskregisterItem) From Analysis as analysis inner join analysis.riskRegister as riskregisterItem where analysis.id = :analysisid and phase.id = ";
+		query += ":riskregisterItemId";
+		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("riskregisterItemId", riskregisterItemId).uniqueResult()).intValue() > 0;
 	}
 
 	/*
-	 * (non-Javadoc)
+	 * @Override public RiskRegisterItem getByScenario(Scenario scenario) throws Exception { return
+	 * (RiskRegisterItem)
+	 * getSession().createQuery("From RiskRegister where scenario = :scenario").setParameter
+	 * ("scenario", scenario); }
+	 */
+	/**
+	 * getAllFromAnalysisId: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAORiskRegister#save(lu.itrust.business.TS.cssf
-	 * .RiskRegisterItem)
+	 * @see lu.itrust.business.dao.DAORiskRegister#getAllFromAnalysisId(java.lang.Integer)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<RiskRegisterItem> getAllFromAnalysis(Integer analysisId) throws Exception {
+		String query = "SELECT riskregisters FROM Analysis as analysis INNER JOIN analysis.riskRegisters as riskregisters WHERE analysis.id= :analysisID";
+		return (List<RiskRegisterItem>) getSession().createQuery(query).setParameter("analysisID", analysisId).list();
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAORiskRegister#save(lu.itrust.business.TS.cssf.RiskRegisterItem)
 	 */
 	@Override
 	public void save(RiskRegisterItem riskRegisterItem) throws Exception {
 		getSession().save(riskRegisterItem);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAORiskRegister#saveOrUpdate(lu.itrust.business
-	 * .TS.cssf.RiskRegisterItem)
+	 * @see lu.itrust.business.dao.DAORiskRegister#saveOrUpdate(lu.itrust.business.TS.cssf.RiskRegisterItem)
 	 */
 	@Override
-	public void saveOrUpdate(RiskRegisterItem riskRegisterItem)
-			throws Exception {
+	public void saveOrUpdate(RiskRegisterItem riskRegisterItem) throws Exception {
 		getSession().saveOrUpdate(riskRegisterItem);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.dao.DAORiskRegister#remove(lu.itrust.business.TS.cssf
-	 * .RiskRegisterItem)
+	 * @see lu.itrust.business.dao.DAORiskRegister#delete(lu.itrust.business.TS.cssf.RiskRegisterItem)
 	 */
 	@Override
-	public void remove(RiskRegisterItem riskRegisterItem) throws Exception {
+	public void delete(RiskRegisterItem riskRegisterItem) throws Exception {
 		getSession().delete(riskRegisterItem);
 	}
-
 }

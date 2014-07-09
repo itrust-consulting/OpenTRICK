@@ -5,15 +5,34 @@ import java.util.List;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.dao.DAOScenarioType;
 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
 /**
  * DAOScenarioTypeHBM.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 31 janv. 2013
  */
+@Repository
 public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType {
+
+	/**
+	 * Constructor: <br>
+	 */
+	public DAOScenarioTypeHBM() {
+	}
+
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param session
+	 */
+	public DAOScenarioTypeHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>
@@ -22,36 +41,31 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 * @see lu.itrust.business.dao.DAOScenarioType#get(int)
 	 */
 	@Override
-	public ScenarioType get(int id) throws Exception {
-	
-			return (ScenarioType) getSession().get(ScenarioType.class, id);
+	public ScenarioType get(Integer id) throws Exception {
+		return (ScenarioType) getSession().get(ScenarioType.class, id);
 	}
 
 	/**
-	 * get: <br>
+	 * getByTypeName: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOScenarioType#get(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOScenarioType#getByTypeName(java.lang.String)
 	 */
 	@Override
-	public ScenarioType get(String scenarioTypeName) throws Exception {
-			return (ScenarioType) getSession().createQuery("From ScenarioType where type = :type")
-					.setString("type", scenarioTypeName).uniqueResult();
-		
+	public ScenarioType getByName(String scenarioTypeName) throws Exception {
+		return (ScenarioType) getSession().createQuery("From ScenarioType where name = :type").setString("type", scenarioTypeName).uniqueResult();
 	}
 
 	/**
-	 * loadAll: <br>
+	 * getAllScenarioTypes: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOScenarioType#loadAll()
+	 * @see lu.itrust.business.dao.DAOScenarioType#getAllScenarioTypes()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ScenarioType> loadAll() throws Exception {
-	
-			return (List<ScenarioType>) getSession().createQuery("From ScenarioType").list();
-		
+	public List<ScenarioType> getAll() throws Exception {
+		return (List<ScenarioType>) getSession().createQuery("From ScenarioType").list();
 	}
 
 	/**
@@ -63,7 +77,6 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	@Override
 	public void save(ScenarioType scenarioType) throws Exception {
 		getSession().save(scenarioType);
-
 	}
 
 	/**
@@ -87,5 +100,4 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	public void delete(ScenarioType scenarioType) throws Exception {
 		getSession().delete(scenarioType);
 	}
-
 }

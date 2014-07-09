@@ -4,9 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * ActionPlanEntry: <br>
@@ -29,9 +29,7 @@ public class ActionPlanEntry implements Serializable {
 	/** The ID of the entry */
 	private int id = -1;
 
-	/** id unsaved value = null */
-	private Analysis analysis = null;
-
+	/** */
 	private ActionPlanType actionPlanType = null;
 
 	/** The Measure object reference */
@@ -84,12 +82,15 @@ public class ActionPlanEntry implements Serializable {
 	 * @param deltaALE
 	 *            The Delta ALE
 	 * @throws IllegalArgumentException
+	 * @throws TrickException 
 	 */
-	public ActionPlanEntry(Measure measure, double deltaALE) throws IllegalArgumentException {
+	public ActionPlanEntry(Measure measure, ActionPlanType actionplantype, double deltaALE) throws IllegalArgumentException, TrickException {
 
 		// the measure
 		setMeasure(measure);
 
+		setActionPlanType(actionplantype);
+		
 		// the delta ALE for the measure (normal,optimistic and pessimistic)
 		setDeltaALE(deltaALE);
 
@@ -114,9 +115,10 @@ public class ActionPlanEntry implements Serializable {
 	 *            The Total ALE value
 	 * @param deltaALE
 	 *            The Delta ALE value
+	 * @throws TrickException 
 	 */
 	public ActionPlanEntry(NormMeasure measure, ActionPlanType actionPlanType,
-			List<ActionPlanAsset> actionPlanAssets, double totalALE, double deltaALE) {
+			List<ActionPlanAsset> actionPlanAssets, double totalALE, double deltaALE) throws TrickException {
 
 		// the measure
 		setMeasure(measure);
@@ -308,8 +310,11 @@ public class ActionPlanEntry implements Serializable {
 	 * 
 	 * @param deltaALE
 	 *            The value to set the Delta ALE
+	 * @throws TrickException 
 	 */
-	public void setDeltaALE(double deltaALE) {
+	public void setDeltaALE(double deltaALE) throws TrickException {
+		if(Double.isNaN(deltaALE))
+			throw new TrickException("error.action_plan_entry.delta_ale.nan", "Please check your data: Delta ALE is not a number");
 		if (deltaALE < 0) {
 			throw new IllegalArgumentException("Delta ALE cannot be < 0!");
 		}
@@ -410,27 +415,6 @@ public class ActionPlanEntry implements Serializable {
 	}
 	
 	/**
-	 * getAnalysis: <br>
-	 * Returns the analysis field value.
-	 * 
-	 * @return The value of the analysis field
-	 */
-	public Analysis getAnalysis() {
-		return analysis;
-	}
-
-	/**
-	 * setAnalysis: <br>
-	 * Sets the Field "analysis" with a value.
-	 * 
-	 * @param analysis
-	 *            The Value to set the analysis field
-	 */
-	public void setAnalysis(Analysis analysis) {
-		this.analysis = analysis;
-	}
-
-	/**
 	 * getActionPlanType: <br>
 	 * Returns the actionPlanType field value.
 	 * 
@@ -498,4 +482,14 @@ public class ActionPlanEntry implements Serializable {
 //		actionPlanAsset.setActionPlanEntry(this);
 //		actionPlanAssessments.add(actionPlanAsset);
 //	}
+	
+	@Override
+	public String toString(){
+		return "ActionPlanEntry {id="+id+",actionplantype="+actionPlanType.getName()+",position="+position+",cost="+cost+",ROI="+ROI+",totalALE="+totalALE+","
+			+ "Measure {id="+measure.getId()+",norm="+measure.getAnalysisNorm().getNorm().getLabel()+",reference="+measure.getMeasureDescription().getReference()+",cost="+measure.getCost()+",IS="
+				+measure.getInternalWL()+",ES="+measure.getExternalWL()+",INV="+measure.getInvestment()+",phase="+measure.getPhase().getNumber()+"}} ";
+
+		
+	}
+	
 }

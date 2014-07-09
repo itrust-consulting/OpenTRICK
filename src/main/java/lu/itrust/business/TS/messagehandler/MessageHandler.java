@@ -1,5 +1,8 @@
 package lu.itrust.business.TS.messagehandler;
 
+import lu.itrust.business.component.helper.AsyncCallback;
+
+
 /** 
  * MessageHandler: <br>
  * Keeps information of a result and message used as return result in methods. One can check the 
@@ -12,12 +15,77 @@ package lu.itrust.business.TS.messagehandler;
  */
 public class MessageHandler {
 	
+	private long idTask = 0;
+	
+	private TaskStatus taskStatus;
+	
+	private TaskName taskName = null;
+	
+	private AsyncCallback asyncCallback = null;
+	
+	private String code = null;
+	
+	private Object [] parameters = null;
+	
+	private String message = null;
+	
+	private int progress = 0;
+	
 	/** The Exception */
+	
 	private Exception exception = null;
 
 	public MessageHandler(Exception e) {
 		this.exception = e;
 	}
+	
+	/**
+	 * @param code
+	 * @param message
+	 * @param exception
+	 */
+	public MessageHandler(String code, String message, Exception exception) {
+		this.code = code;
+		this.message = message;
+		this.exception = exception;
+	}
+
+	/**
+	 * @param code
+	 * @param message
+	 */
+	public MessageHandler(String code, String message, int progress) {
+		this.code = code;
+		this.message = message;
+		this.progress = progress;
+	}
+
+	/**
+	 * @param code
+	 * @param parameters
+	 * @param message
+	 */
+	public MessageHandler(String code, Object[] parameters, String message) {
+		this.code = code;
+		this.parameters = parameters;
+		this.message = message;
+	}
+
+	/**
+	 * @param code
+	 * @param parameters
+	 * @param message
+	 * @param exception
+	 */
+	public MessageHandler(String code, Object[] parameters, String message,
+			Exception exception) {
+		this.code = code;
+		this.parameters = parameters;
+		this.message = message;
+		this.exception = exception;
+	}
+
+
 
 	/** getException: <br>
 	 * Returns the exception field value.
@@ -36,5 +104,117 @@ public class MessageHandler {
 	 */
 	public void setException(Exception exception) {
 		this.exception = exception;
+	}
+
+	/**
+	 * @return the parameters
+	 */
+	public Object [] getParameters() {
+		return parameters;
+	}
+
+	/**
+	 * @param parameters the parameters to set
+	 */
+	public void setParameters(Object [] parameters) {
+		this.parameters = parameters;
+	}
+
+	/**
+	 * @return the message
+	 */
+	public String getMessage() {
+		return message;
+	}
+
+	/**
+	 * @param message the message to set
+	 */
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	/**
+	 * @return the code
+	 */
+	public String getCode() {
+		return code;
+	}
+
+	/**
+	 * @param code the code to set
+	 */
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	/**
+	 * @return the idTask
+	 */
+	public long getIdTask() {
+		return idTask;
+	}
+
+	/**
+	 * @param idTask the idTask to set
+	 */
+	public void setIdTask(long idTask) {
+		this.idTask = idTask;
+	}
+
+	/**
+	 * @return the taskName
+	 */
+	public TaskName getTaskName() {
+		return taskName;
+	}
+
+	/**
+	 * @param taskName the taskName to set
+	 */
+	public void setTaskName(TaskName taskName) {
+		this.taskName = taskName;
+	}
+
+	/**
+	 * @return the taskStatus
+	 */
+	public TaskStatus getTaskStatus() {
+		return taskStatus;
+	}
+
+	/**
+	 * @param taskStatus the taskStatus to set
+	 */
+	public void setTaskStatus(TaskStatus taskStatus) {
+		this.taskStatus = taskStatus;
+	}
+
+	/**
+	 * @return the progress
+	 */
+	public int getProgress() {
+		return progress;
+	}
+
+	/**
+	 * @param progress the progress to set
+	 */
+	public void setProgress(int progress) {
+		this.progress = progress;
+	}
+
+	/**
+	 * @return the asyncCallback
+	 */
+	public AsyncCallback getAsyncCallback() {
+		return asyncCallback;
+	}
+
+	/**
+	 * @param asyncCallback the asyncCallback to set
+	 */
+	public void setAsyncCallback(AsyncCallback asyncCallback) {
+		this.asyncCallback = asyncCallback;
 	}
 }

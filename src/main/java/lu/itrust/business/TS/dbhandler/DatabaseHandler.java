@@ -2,14 +2,15 @@ package lu.itrust.business.TS.dbhandler;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
 import java.sql.Savepoint;
 import java.util.List;
 import java.util.Vector;
-import lu.itrust.business.TS.tsconstant.Constant;
+
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
  * DatabaseHandler: 

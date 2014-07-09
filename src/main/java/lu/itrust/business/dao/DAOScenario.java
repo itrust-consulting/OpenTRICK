@@ -4,27 +4,37 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Scenario;
-import lu.itrust.business.TS.ScenarioType;
 
 /**
  * DAOScenario.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author eomar, itrust consulting s.a.rl. :
  * @version
  * @since 16 janv. 2013
  */
 public interface DAOScenario {
+	public Scenario get(Integer id) throws Exception;
 
-	public Scenario get(int id) throws Exception;
-	public Scenario loadFromNameAnalysis(String scenarioName, Analysis analysis) throws Exception;
-	public List<Scenario> loadAllFromScenarioType(ScenarioType scenarioType, Analysis analysis) throws Exception;
-	public List<Scenario> loadAllFromScenarioTypeID(int scenarioTypeID, Analysis analysis) throws Exception;
-	public List<Scenario> loadAllFromAnalysis(Analysis analysis) throws Exception;
-	public List<Scenario> loadAllFromAnalysisID(int idAnalysis) throws Exception;
-	public List<Scenario> loadAllFromAnalysisIdentifierAndVersion(int idAnalysis, int identifier, int version) throws Exception;
-	public List<Scenario> loadAll() throws Exception;
+	public Scenario getFromAnalysisById(Integer idAnalysis, Integer scenarioId) throws Exception;
+
+	public boolean belongsToAnalysis(Integer analysisId, Integer scenarioId) throws Exception;
+
+	public List<Scenario> getAll() throws Exception;
+
+	public List<Scenario> getAllFromAnalysis(Integer idAnalysis) throws Exception;
+
+	public List<Scenario> getAllSelectedFromAnalysis(Integer idAnalysis) throws Exception;
+
+	public List<Scenario> getAllFromAnalysisByType(Analysis analysis, Integer scenarioTypeID) throws Exception;
+
+	public List<Scenario> getAllFromAnalysisByIdList(Integer idAnalysis, List<Integer> scenarios) throws Exception;
+
 	public void save(Scenario scenario) throws Exception;
+
 	public void saveOrUpdate(Scenario scenario) throws Exception;
-	public void remove(Scenario scenario) throws Exception;
+
+	public Scenario merge(Scenario scenario) throws Exception;
+
+	public void delete(Scenario scenario) throws Exception;
 }

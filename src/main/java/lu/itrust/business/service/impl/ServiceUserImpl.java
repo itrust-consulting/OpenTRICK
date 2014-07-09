@@ -1,134 +1,241 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
+
+import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.dao.DAORole;
+import lu.itrust.business.dao.DAOUser;
+import lu.itrust.business.service.ServiceUser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.User;
-import lu.itrust.business.dao.DAOUser;
-import lu.itrust.business.service.ServiceUser;
-
 /**
- * @author oensuifudine
- *
+ * ServiceUserImpl.java: <br>
+ * Detailed description...
+ * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 1, 2013
  */
-@Transactional
 @Service
 public class ServiceUserImpl implements ServiceUser {
 
 	@Autowired
 	private DAOUser daoUser;
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceUser#get(long)
+
+	@Autowired
+	private DAORole daoRole;
+
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#get(int)
 	 */
 	@Override
-	public User get(long id) throws Exception {
-		// TODO Auto-generated method stub
+	public User get(Integer id) throws Exception {
 		return daoUser.get(id);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param login
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#get(java.lang.String)
 	 */
 	@Override
 	public User get(String login) throws Exception {
-		// TODO Auto-generated method stub
 		return daoUser.get(login);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param login
+	 * @param password
+	 * @return
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceUser#get(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public User get(String login, String password) throws Exception {
-		// TODO Auto-generated method stub
 		return daoUser.get(login, password);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceUser#loadAll()
+	/**
+	 * noUsers: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#noUsers()
 	 */
+	@Transactional
 	@Override
-	public List<User> loadAll() throws Exception {
-		// TODO Auto-generated method stub
-		return daoUser.loadAll();
+	public boolean noUsers() throws Exception {
+		return daoUser.noUsers();
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceUser#loadByName(java.lang.String)
+	/**
+	 * getAllUsers: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#getAllUsers()
 	 */
 	@Override
-	public List<User> loadByName(String name) throws Exception {
-		// TODO Auto-generated method stub
-		return daoUser.loadByName(name);
+	public List<User> getAll() throws Exception {
+		return daoUser.getAll();
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceUser#loadByCountry(java.lang.String)
+	/**
+	 * getAllByFirstName: <br>
+	 * Description
+	 * 
+	 * @param name
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#getAllByFirstName(java.lang.String)
 	 */
 	@Override
-	public List<User> loadByCountry(String name) throws Exception {
-		// TODO Auto-generated method stub
-		return daoUser.loadByCountry(name);
+	public List<User> getAllByFirstName(String name) throws Exception {
+		return daoUser.getAllByFirstName(name);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceUser#save(lu.itrust.business.TS.User)
+	/**
+	 * getAllByCountry: <br>
+	 * Description
+	 * 
+	 * @param name
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#getAllByCountry(java.lang.String)
+	 */
+	@Override
+	public List<User> getAllByCountry(String name) throws Exception {
+		return daoUser.getAllByCountry(name);
+	}
+
+	/**
+	 * getAllUsersFromCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#getAllUsersFromCustomer(int)
+	 */
+	@Override
+	public List<User> getAllFromCustomer(Integer customer) throws Exception {
+		return daoUser.getAllFromCustomer(customer);
+	}
+
+	/**
+	 * getAllUsersFromCustomer: <br>
+	 * Description
+	 * 
+	 * @param customer
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#getAllUsersFromCustomer(lu.itrust.business.TS.Customer)
+	 */
+	@Override
+	public List<User> getAllFromCustomer(Customer customer) throws Exception {
+		return daoUser.getAllFromCustomer(customer);
+	}
+
+	/**
+	 * 
+	 * hasRole: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#hasRole(lu.itrust.business.TS.usermanagement.User,
+	 *      lu.itrust.business.TS.usermanagement.Role)
+	 */
+	@Transactional
+	@Override
+	public boolean hasRole(User user, Role role) throws Exception {
+		return daoUser.hasRole(user, role);
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#save(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Transactional
 	@Override
 	public void save(User user) throws Exception {
 		daoUser.save(user);
-
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceUser#saveOrUpdate(lu.itrust.business.TS.User)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#saveOrUpdate(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Transactional
 	@Override
 	public void saveOrUpdate(User user) throws Exception {
 		daoUser.saveOrUpdate(user);
-
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceUser#delete(lu.itrust.business.TS.User)
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#delete(int)
+	 */
+	@Transactional
+	@Override
+	public void delete(Integer id) throws Exception {
+		daoUser.delete(id);
+	}
+
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceUser#delete(lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Transactional
 	@Override
 	public void delete(User user) throws Exception {
 		daoUser.delete(user);
-
 	}
-
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceUser#delete(long)
-	 */
-	@Transactional
-	@Override
-	public void delete(long id) throws Exception {
-		daoUser.delete(id);
-
-	}
-
-	public DAOUser getDaoUser() {
-		return daoUser;
-	}
-
-	public void setDaoUser(DAOUser daoUser) {
-		this.daoUser = daoUser;
-	}
-
-	@Override
-	public boolean isEmpty() throws Exception {
-		// TODO Auto-generated method stub
-		return daoUser.isEmpty();
-	}
-
 }

@@ -2,6 +2,7 @@ package lu.itrust.business.TS.actionplan;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import lu.itrust.business.TS.MeasureNorm;
 import lu.itrust.business.TS.NormMeasure;
 
@@ -10,7 +11,7 @@ import lu.itrust.business.TS.NormMeasure;
  * This class has all data to represent the action plan summary. It is used to store values between
  * stages.
  * 
- * @author itrust consulting s.à r.l. - SME,BJA
+ * @author itrust consulting s.a r.l. - SME,BJA
  * @version 0.1
  * @since 2012-10-17
  */
@@ -26,12 +27,20 @@ public class SummaryValues {
 	/** The 27002 AnalysisNorm Object with all 27002 Measures */
 	public MeasureNorm norm27002 = null;
 
+	/** The 27002 AnalysisNorm Object with all 27002 Measures */
+	public MeasureNorm normCustom = null;
+	
 	/** Measures that are to use as 100% Implemented 27001 AnalysisNorm Measures */
 	public List<NormMeasure> conformance27001measures = new ArrayList<NormMeasure>();
 
 	/** Measures that are to use as 100% Implemented 27002 AnalysisNorm Measures */
 	public List<NormMeasure> conformance27002measures = new ArrayList<NormMeasure>();
-
+	
+	/** Measures that are to use as 100% Implemented Custom AnalysisNorm Measures */
+	public List<NormMeasure> conformanceCustommeasures = new ArrayList<NormMeasure>();
+	
+	public SummaryStage previousStage = null;
+	
 	/** Number of Measures per Stage */
 	public int measureCount = 0;
 
@@ -41,6 +50,9 @@ public class SummaryValues {
 	/** Number of Measures in AnalysisNorm 27002 */
 	public int measureCount27002 = 0;
 
+	/** Number of Measures in AnalysisNorm Custom */
+	public int measureCountCustom = 0;
+	
 	/** Number of implemented measures (100%) */
 	public int implementedCount = 0;
 
@@ -53,6 +65,9 @@ public class SummaryValues {
 	/** Calculation Variable for AnalysisNorm 27002 Conformance */
 	public double conf27002 = 0;
 
+	/** Calculation Variable for AnalysisNorm Custom Conformance */
+	public double confCustom = 0;
+	
 	/** Risk Reduction at End of Stage */
 	public double deltaALE = 0;
 
@@ -80,6 +95,9 @@ public class SummaryValues {
 	/** Sum of External Maintenance to the Last Stage Entry */
 	public double externalMaintenance = 0;
 
+	/** Sum of recurrent investment to the Last Stage Entry */
+	public double recurrentInvestment = 0;
+	
 	/** Reccurent Cost of Stage */
 	public double recurrentCost = 0;
 

@@ -7,7 +7,7 @@
 		<id name="id" column="idRiskRegisterItem" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
-		<properties name="scenario_asset" unique="true">
+		<properties name="scenario_asset">
 			<many-to-one name="scenario" column="fiScenario" cascade="save-update" access="field" not-null="true"/>
 			<many-to-one name="asset" column="fiAsset" cascade="save-update" access="field" not-null="true"/>
 		</properties>

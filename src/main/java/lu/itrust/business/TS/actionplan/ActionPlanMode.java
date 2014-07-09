@@ -19,15 +19,13 @@ package lu.itrust.business.TS.actionplan;
 public enum ActionPlanMode {
 
 	/** ActionPlanMode Value Constants */
-	NORMAL(1), OPTIMISTIC(2), PESSIMISTIC(3), PHASE_NORMAL(4), PHASE_OPTIMISTIC(5), PHASE_PESSIMISTIC(
-			6);
+	APN(1), APO(2), APP(3), APPN(4), APPO(5), APPP(6);
 
 	/** ActionPlanModeValue */
 	private int value = 1;
 
-	/** List of ActionPlanMode Names */
-	private static String[] NAMES = { "APN", "APO", "APP", "APPN", "APPO", "APPP" };
-
+	private String[] NAMES = {"APN", "APO" , "APP", "APPN", "APPO", "APPP"};
+	
 	/**
 	 * Constructor:<br>
 	 * 
@@ -46,16 +44,6 @@ public enum ActionPlanMode {
 	 */
 	public int getValue() {
 		return value;
-	}
-
-	/**
-	 * getName: <br>
-	 * Returns the name of the actionplan mode: "APN", "APO", "APP", "APPN", "APPO", "APPP"
-	 * 
-	 * @return The Name of this ActionPlanMode object
-	 */
-	public String getName() {
-		return NAMES[value - 1];
 	}
 
 	/**
@@ -83,32 +71,15 @@ public enum ActionPlanMode {
 		return values[value - 1];
 	}
 
-	/**
-	 * getName: <br>
-	 * Returns the Name of a given actionplanmode (1 to 6)
-	 * 
-	 * @param value
-	 *            The value from 1 to 6 of actionplanmode
-	 * @return The Name of the actionplanmode
-	 */
-	public static String getName(int value) {
-		if (value < 1 || value > NAMES.length)
-			throw new IllegalArgumentException("Value should be between 1 and " + NAMES.length);
-		return NAMES[value - 1];
+	public String getName() {
+		return NAMES[this.value-1];
 	}
 
-	/**
-	 * getIndex: <br>
-	 * Returns the index of the actionplanmode given as name
-	 * 
-	 * @param name
-	 *            The name of the actionplanmode
-	 * @return The index of the actionplanmode (1 to 6)
-	 */
-	public static int getIndex(String name) {
-		for (int i = 0; i < NAMES.length; i++)
-			if (NAMES[i].equalsIgnoreCase(name))
-				return i + 1;
-		throw new IllegalArgumentException("Name should be APN, APO, APP, APPN, APPO or APPP");
+	public static ActionPlanMode getByName(String name) {
+		ActionPlanMode[] values = values();
+		for (int i = 0; i < values.length;i++)
+			if (values[i].getName().equals(name.trim()))
+				return values[i];
+		return null;
 	}
 }

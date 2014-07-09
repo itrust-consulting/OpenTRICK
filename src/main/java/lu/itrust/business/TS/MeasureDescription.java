@@ -3,6 +3,8 @@ package lu.itrust.business.TS;
 import java.util.ArrayList;
 import java.util.List;
 
+import lu.itrust.business.TS.tsconstant.Constant;
+
 /**
  * MeasureDescription: <br>
  * Represents the description of a Measure:
@@ -11,15 +13,15 @@ import java.util.List;
  * <li>The Level of Measure (1-3)</li>
  * <li>The Measure Reference inside the Norm</li>
  * <li>
- * Measure Description Texts which represents the Domain and Description f a Measure in one to more
- * languages</li>
+ * Measure Description Texts which represents the Domain and Description f a
+ * Measure in one to more languages</li>
  * </ul>
  * 
  * @author itrust consulting s.à r.l. : SME, BJA, EOM
  * @version 0.1
  * @since Jan 28, 2013
  */
-public class MeasureDescription {
+public class MeasureDescription implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -32,8 +34,7 @@ public class MeasureDescription {
 	private Norm norm = null;
 
 	/** Measure Description Text List (one entry represents one language) */
-	private List<MeasureDescriptionText> measureDescriptionTexts =
-		new ArrayList<MeasureDescriptionText>();
+	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */
 	private int level = -1;
@@ -41,6 +42,9 @@ public class MeasureDescription {
 	/** Measure Reference */
 	private String reference = "";
 
+	/** Flag to determine if measure can be used in the action plan (before: measure had to be level 3) */
+	private boolean computable = true;
+	
 	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/
@@ -48,14 +52,47 @@ public class MeasureDescription {
 	/**
 	 * Constructor:<br>
 	 * 
-	 * @param maturityRef
+	 * @param reference
 	 *            Reference of the Measure
 	 * @param norm
 	 *            Norm of the Measure
 	 */
-	public MeasureDescription(String maturityRef, Norm norm) {
+	public MeasureDescription(String reference, Norm norm, int level, boolean computable) {
 		this.norm = norm;
-		this.reference = maturityRef;
+		this.reference = reference;
+		this.level = level;
+		this.computable = computable;
+	}
+
+	public MeasureDescriptionText getMeasureDescriptionText(Language language) {
+		return getMeasureDescriptionTextByAlpha3(language.getAlpha3());
+	}
+
+	public MeasureDescriptionText findByLanguage(Language language) {
+		return findByAlph3(language.getAlpha3());
+	}
+
+	public MeasureDescriptionText findByAlph3(String alpha3) {
+		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts)
+			if (measureDescriptionText.getLanguage().getAlpha3().equalsIgnoreCase(alpha3))
+				return measureDescriptionText;
+		return null;
+	}
+
+	public MeasureDescriptionText getMeasureDescriptionTextByAlpha3(String alpha3) {
+
+		MeasureDescriptionText descriptionText = null;
+		MeasureDescriptionText descriptionTextEnglish = null;
+
+		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts) {
+			if (measureDescriptionText.getLanguage().getAlpha3().equalsIgnoreCase(alpha3))
+				return measureDescriptionText;
+			else if (measureDescriptionText.getLanguage().getAlpha3().equalsIgnoreCase("eng"))
+				descriptionTextEnglish = measureDescriptionText;
+		}
+
+		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish
+				: descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0) : descriptionText;
 	}
 
 	/**
@@ -210,5 +247,45 @@ public class MeasureDescription {
 		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts)
 			measureDescriptionText.setMeasureDescription(this);
 		this.measureDescriptionTexts = measureDescriptionTexts;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public MeasureDescription clone() throws CloneNotSupportedException {
+		return (MeasureDescription) super.clone();
+	}
+
+	/**
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
+	public MeasureDescription duplicate() throws CloneNotSupportedException {
+		MeasureDescription measureDescription = (MeasureDescription) super.clone();
+		if (norm.getLabel().equalsIgnoreCase(Constant.NORM_CUSTOM))
+			measureDescription.id = -1;
+		return measureDescription;
+	}
+
+	/** isComputable: <br>
+	 * Returns the computable field value.
+	 * 
+	 * @return The value of the computable field
+	 */
+	public boolean isComputable() {
+		return computable;
+	}
+
+	/** setComputable: <br>
+	 * Sets the Field "computable" with a value.
+	 * 
+	 * @param computable 
+	 * 			The Value to set the computable field
+	 */
+	public void setComputable(boolean computable) {
+		this.computable = computable;
 	}
 }

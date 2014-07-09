@@ -3,11 +3,11 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS">
-	<class name="AssetTypeValue" table="assetTypeValue">
-		<id column="idAssetTypeValue" name="id" unsaved-value="-1">
+	<class name="AssetTypeValue" table="AssetTypeValue">
+		<id column="idAssetTypeValue" name="id" unsaved-value="-1" access="field">
 			<generator class="increment" />
 		</id>
-		<many-to-one name="assetType" column="fiAssetType" not-null="true"/>
-		<property name="value" column="dtValue" not-null="true" />
+		<many-to-one name="assetType" column="fiAssetType" not-null="true" access="field"/>
+		<property name="value" column="dtValue" not-null="true" access="field" />
 	</class>
 </hibernate-mapping>

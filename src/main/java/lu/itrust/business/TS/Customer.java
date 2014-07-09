@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import java.io.Serializable;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
@@ -44,10 +45,12 @@ public class Customer implements Serializable {
 	private String contactPerson = "";
 
 	/** The Telephone Number of the Contact Person or Organisation */
-	private String telephoneNumber = "";
+	private String phoneNumber = "";
 
 	/** The Email of the Contact Person or Organisation */
 	private String email = "";
+	
+	private boolean canBeUsed = true; 
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -96,8 +99,7 @@ public class Customer implements Serializable {
 	 */
 	public void setOrganisation(String organisation) {
 		if ((organisation == null) || (organisation.trim().equals(""))) {
-			throw new IllegalArgumentException(
-					"Customer Organisation field cannot be null or empty!");
+			throw new IllegalArgumentException("Customer Organisation field cannot be null or empty!");
 		}
 		this.organisation = organisation;
 	}
@@ -215,10 +217,8 @@ public class Customer implements Serializable {
 	 *            The value to set the Contact Person Name
 	 */
 	public void setContactPerson(String contactPerson) {
-		if ((contactPerson == null) || (contactPerson.trim().equals(""))
-			|| (!contactPerson.matches(Constant.REGEXP_VALID_NAME))) {
-			throw new IllegalArgumentException(
-					"Customer Contact Person field cannot be null or empty!");
+		if ((contactPerson == null) || (contactPerson.trim().equals("")) || (!contactPerson.matches(Constant.REGEXP_VALID_NAME))) {
+			throw new IllegalArgumentException("Customer Contact Person field cannot be null or empty!");
 		}
 		this.contactPerson = contactPerson;
 	}
@@ -229,8 +229,8 @@ public class Customer implements Serializable {
 	 * 
 	 * @return The Telephone Number (from the Contact Person or Organisation)
 	 */
-	public String getTelephoneNumber() {
-		return telephoneNumber;
+	public String getPhoneNumber() {
+		return phoneNumber;
 	}
 
 	/**
@@ -240,14 +240,11 @@ public class Customer implements Serializable {
 	 * @param telephoneNumber
 	 *            The value to set the Telephone Number (from the Contact Person or Organisation)
 	 */
-	public void setTelephoneNumber(String telephoneNumber) {
-		if ((telephoneNumber == null) || (telephoneNumber.trim().equals(""))
-			|| (!telephoneNumber.matches(Constant.REGEXP_VALID_PHONE))) {
-			throw new IllegalArgumentException(
-					"Customer Telephone Number field cannot be null or empty and has to match Regualr Expression: "
-						+ Constant.REGEXP_VALID_PHONE);
+	public void setPhoneNumber(String telephoneNumber) {
+		if ((telephoneNumber == null) || (telephoneNumber.trim().equals(""))) {
+			throw new IllegalArgumentException("Customer Telephone Number field cannot be null or empty");
 		}
-		this.telephoneNumber = telephoneNumber;
+		this.phoneNumber = telephoneNumber;
 	}
 
 	/**
@@ -268,11 +265,24 @@ public class Customer implements Serializable {
 	 *            The value to set the Email (from the Contact Person or Organisation)
 	 */
 	public void setEmail(String email) {
-		if (((email == null) || (email.trim().equals("")) || (email.matches(Constant.REGEXP_VALID_EMAIL)))) {
-			throw new IllegalArgumentException(
-					"Customer Email field cannot be null or empty and needs to be valid!");
+		if (((email == null) || (email.trim().equals("")) || (!email.matches(Constant.REGEXP_VALID_EMAIL)))) {
+			throw new IllegalArgumentException("Customer Email field cannot be null or empty and needs to be valid!");
 		}
 		this.email = email;
+	}
+	
+	/**
+	 * @return the canBeUsed
+	 */
+	public boolean isCanBeUsed() {
+		return canBeUsed;
+	}
+
+	/**
+	 * @param canBeUsed the canBeUsed to set
+	 */
+	public void setCanBeUsed(boolean canBeUsed) {
+		this.canBeUsed = canBeUsed;
 	}
 
 	/**
@@ -326,9 +336,7 @@ public class Customer implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "Customer [id=" + id + ", organisation=" + organisation + ", address=" + address
-			+ ", city=" + city + ", ZIPCode=" + ZIPCode + ", country=" + country
-			+ ", contactPerson=" + contactPerson + ", telephoneNumber=" + telephoneNumber
-			+ ", email=" + email + "]";
+		return "Customer [id=" + id + ", organisation=" + organisation + ", address=" + address + ", city=" + city + ", ZIPCode=" + ZIPCode + ", country=" + country
+			+ ", contactPerson=" + contactPerson + ", telephoneNumber=" + phoneNumber + ", email=" + email + "]";
 	}
 }

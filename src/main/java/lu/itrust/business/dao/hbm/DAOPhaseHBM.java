@@ -3,109 +3,153 @@ package lu.itrust.business.dao.hbm;
 import java.sql.Date;
 import java.util.List;
 
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.dao.DAOPhase;
 
-/** 
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+
+/**
  * DAOPhaseHBM.java: <br>
  * Detailed description...
- *
- * @author itrust consulting s.à.rl. :
- * @version 
+ * 
+ * @author itrust consulting s.ï¿½.rl. :
+ * @version
  * @since Feb 1, 2013
  */
+@Repository
 public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
+
+	/**
+	 * Constructor: <br>
+	 */
+	public DAOPhaseHBM() {
+	}
+
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param session
+	 */
+	public DAOPhaseHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOPhase#get(int)
 	 */
 	@Override
-	public Phase get(int id) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public Phase get(Integer id) throws Exception {
+		return (Phase) getSession().get(Phase.class, id);
 	}
 
 	/**
-	 * loadFromPhaseNumberAnalysis: <br>
+	 * getPhaseFromAnalysisByPhaseNumber: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.dao.DAOPhase#loadFromPhaseNumberAnalysis(int, lu.itrust.business.TS.Analysis)
+	 * 
+	 * @see lu.itrust.business.dao.DAOPhase#getPhaseFromAnalysisByPhaseNumber(int, int)
 	 */
 	@Override
-	public List<Phase> loadFromPhaseNumberAnalysis(int number, Analysis analysis) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public Phase getFromAnalysisByPhaseNumber(Integer IdAnalysis, Integer number) throws Exception {
+		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.number = :phaseNumber";
+		return (Phase) getSession().createQuery(query).setParameter("idAnalysis", IdAnalysis).setParameter("phaseNumber", number).uniqueResult();
 	}
 
 	/**
-	 * loadByBeginDate: <br>
+	 * getPhaseFromAnalysisIdByPhaseId: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.dao.DAOPhase#loadByBeginDate(java.sql.Date, lu.itrust.business.TS.Analysis)
+	 * 
+	 * @see lu.itrust.business.dao.DAOPhase#getPhaseFromAnalysisIdByPhaseId(int, java.lang.Integer)
 	 */
 	@Override
-	public List<Phase> loadByBeginDate(Date beginDate, Analysis analysis) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase) throws Exception {
+		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.id = :idPhase";
+		return (Phase) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idPhase", idPhase).uniqueResult();
 	}
 
 	/**
-	 * loadByEndDate: <br>
+	 * canBeDeleted: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.dao.DAOPhase#loadByEndDate(java.sql.Date, lu.itrust.business.TS.Analysis)
+	 * 
+	 * @see lu.itrust.business.dao.DAOPhase#canBeDeleted(int)
 	 */
 	@Override
-	public List<Phase> loadByEndDate(Date beginDate, Analysis analysis) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean canBeDeleted(Integer idPhase) throws Exception {
+		String query = "Select count(measure) from Measure as measure where measure.phase.id = :idPhase";
+		return ((Long) getSession().createQuery(query).setParameter("idPhase", idPhase).uniqueResult()).intValue() == 0;
 	}
 
 	/**
-	 * loadAllFromAnalysis: <br>
+	 * belongsToAnalysis: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.dao.DAOPhase#loadAllFromAnalysis(lu.itrust.business.TS.Analysis)
+	 * 
+	 * @see lu.itrust.business.dao.DAOPhase#belongsToAnalysis(java.lang.Integer, java.lang.Integer)
 	 */
 	@Override
-	public List<Phase> loadAllFromAnalysis(Analysis analysis) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId) throws Exception {
+		String query = "Select count(phase) From Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :analysisid and phase.id = :phaseId";
+		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("phaseId", phaseId).uniqueResult()).intValue() > 0;
 	}
 
 	/**
-	 * loadAllFromAnalysisIdentifierVersionCreationDate: <br>
+	 * getAllPhases: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.dao.DAOPhase#loadAllFromAnalysisIdentifierVersionCreationDate(int, int, java.lang.String)
+	 * 
+	 * @see lu.itrust.business.dao.DAOPhase#getAllPhases()
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<Phase> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier,
-			int version, String creationDate) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Phase> getAll() throws Exception {
+		return getSession().createQuery("from Phase phase order by phase.number asc, phase.beginDate asc").list();
 	}
 
 	/**
-	 * loadAll: <br>
+	 * getAllFromAnalysis: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.dao.DAOPhase#loadAll()
+	 * 
+	 * @see lu.itrust.business.dao.DAOPhase#getAllFromAnalysis(int)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<Phase> loadAll() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Phase> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis order by phase.number asc";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+	}
+
+	/**
+	 * getAllPhasesFromAnalysisByBeginDate: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOPhase#getAllPhasesFromAnalysisByBeginDate(int, java.sql.Date)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Phase> getAllFromAnalysisByBeginDate(Integer idAnalysis, Date beginDate) throws Exception {
+		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.beginDate = :beginDate order by ";
+		query += "phase.number";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("beginDate", beginDate).list();
+	}
+
+	/**
+	 * getAllPhasesFromAnalysisByEndDate: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOPhase#getAllPhasesFromAnalysisByEndDate(int, java.sql.Date)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Phase> getAllFromAnalysisByEndDate(Integer idAnalysis, Date endDate) throws Exception {
+		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.endDate = :endDate order by phase.number";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("endDate", endDate).list();
 	}
 
 	/**
 	 * save: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOPhase#save(lu.itrust.business.TS.Phase)
 	 */
 	@Override
@@ -116,25 +160,22 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	/**
 	 * saveOrUpdate: <br>
 	 * Description
-	 *
+	 * 
 	 * @see lu.itrust.business.dao.DAOPhase#saveOrUpdate(lu.itrust.business.TS.Phase)
 	 */
 	@Override
 	public void saveOrUpdate(Phase phase) throws Exception {
 		getSession().saveOrUpdate(phase);
-
 	}
 
 	/**
-	 * remove: <br>
+	 * delete: <br>
 	 * Description
-	 *
-	 * @see lu.itrust.business.dao.DAOPhase#remove(lu.itrust.business.TS.Phase)
+	 * 
+	 * @see lu.itrust.business.dao.DAOPhase#delete(lu.itrust.business.TS.Phase)
 	 */
 	@Override
-	public void remove(Phase phase) throws Exception {
+	public void delete(Phase phase) throws Exception {
 		getSession().delete(phase);
-
 	}
-
 }

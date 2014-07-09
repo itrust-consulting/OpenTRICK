@@ -5,32 +5,36 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Norm;
 
-/** 
+/**
  * DAONorm.java: <br>
  * Detailed description...
- *
- * @author itrust consulting s.à.rl. :
- * @version 
+ * 
+ * @author eomar, itrust consulting s.a.rl. :
+ * @version
  * @since 16 janv. 2013
  */
 public interface DAONorm {
-	
-	public Norm getNormByID(int idNorm) throws Exception;
-		
-	public Norm loadNotCustomNormByName(String norm) throws Exception;
-	
-	public Norm loadSingleNormByName(String norm) throws Exception;
-	
-	public List<Norm> loadAllFromAnalysis(Analysis analysis) throws Exception;
-	
-	public List<Norm> loadAllFromAnalysisIdentifierVersionCreationDate(int identifier, String version, String creationDate) throws Exception;
-	
-	public List<Norm> loadAll() throws Exception;
-	
-	public void save(Norm Norm) throws Exception;
-	
-	public void saveOrUpdate(Norm Norm) throws Exception;
-	
-	public void remove(Norm Norm)throws Exception;
+	public Norm get(Integer id) throws Exception;
 
+	public Norm getNormByName(String norm) throws Exception;
+
+	public Norm getNormNotCustomByName(String norm) throws Exception;
+
+	public Norm getNormByNameAndVersion(String label, Integer version) throws Exception;
+
+	public boolean existsByNameAndVersion(String label, Integer version) throws Exception;
+
+	public List<Norm> getAll() throws Exception;
+
+	public List<Norm> getAllFromAnalysis(Integer analysisId) throws Exception;
+
+	public List<Norm> getAllFromAnalysis(Analysis analysis) throws Exception;
+
+	public List<Norm> getAllNotInAnalysis(Integer idAnalysis) throws Exception;
+
+	public void save(Norm Norm) throws Exception;
+
+	public void saveOrUpdate(Norm Norm) throws Exception;
+
+	public void delete(Norm Norm) throws Exception;
 }

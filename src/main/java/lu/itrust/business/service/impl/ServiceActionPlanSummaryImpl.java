@@ -1,13 +1,6 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
@@ -15,65 +8,157 @@ import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.dao.DAOActionPlanSummary;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
- * @author oensuifudine
- *
+ * ServiceActionPlanSummaryImpl.java: <br>
+ * Detailed description...
+ * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Service
 public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 
 	@Autowired
 	private DAOActionPlanSummary daoActionPlanSummary;
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceActionPlanSummary#get(long, lu.itrust.business.TS.actionplan.ActionPlanType, lu.itrust.business.TS.Analysis)
+
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param idSummaryStage
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanSummary#get(int)
 	 */
 	@Override
-	public SummaryStage get(int idSummaryStage) throws Exception {
-		// TODO Auto-generated method stub
+	public SummaryStage get(Integer idSummaryStage) throws Exception {
 		return daoActionPlanSummary.get(idSummaryStage);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceActionPlanSummary#loadAllFromType(lu.itrust.business.TS.actionplan.ActionPlanType, lu.itrust.business.TS.Analysis)
+	/**
+	 * getFromAnalysisById: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanSummary#getFromAnalysisById(java.lang.Integer,
+	 *      java.lang.Integer)
 	 */
 	@Override
-	public List<SummaryStage> loadAllFromType(ActionPlanType actionPlanType,
-			Analysis analysis) throws Exception {
-		// TODO Auto-generated method stub
-		return daoActionPlanSummary.loadAllFromType(actionPlanType, analysis);
+	public SummaryStage getFromAnalysisById(Integer id, Integer idAnalysis) throws Exception {
+		return daoActionPlanSummary.getFromAnalysisById(id, idAnalysis);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceActionPlanSummary#loadAllFromAnalysis(lu.itrust.business.TS.Analysis)
+	/**
+	 * belongsToAnalysis: <br>
+	 * Description
+	 * 
+	 * @param actionPlanSummaryId
+	 * @param analysisId
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanSummary#belongsToAnalysis(int, int)
 	 */
 	@Override
-	public List<SummaryStage> loadAllFromAnalysis(Analysis analysis)
-			throws Exception {
-		// TODO Auto-generated method stub
-		return daoActionPlanSummary.loadAllFromAnalysis(analysis);
+	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanSummaryId) throws Exception {
+		return daoActionPlanSummary.belongsToAnalysis(analysisId, actionPlanSummaryId);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceActionPlanSummary#loadAllFromAnalysisIdentifierVersionCreationDate(int, java.lang.String, java.lang.String)
+	/**
+	 * getAll: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanSummary#getAll()
 	 */
 	@Override
-	public List<SummaryStage> loadAllFromAnalysisIdentifierVersionCreationDate(
-			int identifier, String version, String creationDate)
-			throws Exception {
-		// TODO Auto-generated method stub
-		return daoActionPlanSummary.loadAllFromAnalysisIdentifierVersionCreationDate(identifier, version, creationDate);
+	public List<SummaryStage> getAll() throws Exception {
+		return daoActionPlanSummary.getAll();
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceActionPlanSummary#loadAll()
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanSummary#getAllFromAnalysis(java.lang.Integer)
 	 */
 	@Override
-	public List<SummaryStage> loadAll() throws Exception {
-		// TODO Auto-generated method stub
-		return daoActionPlanSummary.loadAll();
+	public List<SummaryStage> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+		return daoActionPlanSummary.getAllFromAnalysis(idAnalysis);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanSummary#getAllFromAnalysis(lu.itrust.business.TS.Analysis)
+	 */
+	@Override
+	public List<SummaryStage> getAllFromAnalysis(Analysis analysis) throws Exception {
+		return daoActionPlanSummary.getAllFromAnalysis(analysis);
+	}
+
+	/**
+	 * getFromAnalysisAndActionPlanType: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @param actionPlanType
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanSummary#getFromAnalysisAndActionPlanType(java.lang.Integer,
+	 *      java.lang.String)
+	 */
+	@Override
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType) throws Exception {
+		return daoActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType);
+	}
+
+	/**
+	 * getFromAnalysisAndActionPlanType: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 * @param actionPlanType
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanSummary#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.Analysis,
+	 *      lu.itrust.business.TS.actionplan.ActionPlanType)
+	 */
+	@Override
+	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Analysis analysis, ActionPlanType actionPlanType) throws Exception {
+		return daoActionPlanSummary.getAllFromAnalysisAndActionPlanType(analysis, actionPlanType);
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param summaryStage
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceActionPlanSummary#save(lu.itrust.business.TS.actionplan.SummaryStage)
 	 */
 	@Transactional
@@ -83,7 +168,13 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
+	 * 
+	 * @param summaryStage
+	 * @throws Exception
+	 * 
 	 * @see lu.itrust.business.service.ServiceActionPlanSummary#saveOrUpdate(lu.itrust.business.TS.actionplan.SummaryStage)
 	 */
 	@Transactional
@@ -93,21 +184,18 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.service.ServiceActionPlanSummary#remove(lu.itrust.business.TS.actionplan.SummaryStage)
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param summaryStage
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceActionPlanSummary#delete(lu.itrust.business.TS.actionplan.SummaryStage)
 	 */
 	@Transactional
 	@Override
-	public void remove(SummaryStage summaryStage) throws Exception {
-		daoActionPlanSummary.remove(summaryStage);
-
+	public void delete(SummaryStage summaryStage) throws Exception {
+		daoActionPlanSummary.delete(summaryStage);
 	}
-
-	/**
-	 * @param daoActionPlanSummary the daoActionPlanSummary to set
-	 */
-	public void setDaoActionPlanSummary(DAOActionPlanSummary daoActionPlanSummary) {
-		this.daoActionPlanSummary = daoActionPlanSummary;
-	}
-
 }

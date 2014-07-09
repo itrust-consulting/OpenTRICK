@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service;
 
 import java.util.List;
@@ -8,23 +5,25 @@ import java.util.List;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 
 /**
- * @author oensuifudine
+ * ServiceActionPlanType.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.à.rl.
+ * @version
+ * @since Feb 7, 2013
  */
 public interface ServiceActionPlanType {
-	
-	public ActionPlanType get(int id) throws Exception;
+	public ActionPlanType get(Integer id) throws Exception;
 
-	public ActionPlanType get(String name) throws Exception;
+	public ActionPlanType getByName(String name) throws Exception;
 
-	public List<ActionPlanType> loadAll() throws Exception;
+	public List<ActionPlanType> getAll() throws Exception;
 
 	public void save(ActionPlanType actionPlanType) throws Exception;
-	
+
 	public void merge(ActionPlanType actionPlanType) throws Exception;
-	
+
 	public void saveOrUpdate(ActionPlanType actionPlanType) throws Exception;
 
 	public void delete(ActionPlanType actionPlanType) throws Exception;
-
 }

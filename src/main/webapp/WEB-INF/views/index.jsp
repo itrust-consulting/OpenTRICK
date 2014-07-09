@@ -2,50 +2,25 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<%@ taglib prefix="sec"
-	uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<c:set scope="request" var="title">label.home</c:set>
 <html>
-<head>
-<title>Trick Service</title>
-<style>
-.error {
-	color: #ff0000;
-}
-</style>
-</head>
+<jsp:include page="header.jsp" />
 <body>
-	<form:errors cssClass="error" element="div" />
-	<table>
-		<tr>
-			<td><b>Commandes</b></td>
-		</tr>
-		<!--  
-		<tr>
-			<td><a href="user/${user.id}">My Profil</a></td>
-		</tr>
-		-->
-		<c:if test="${user.isAutorise('ROLE_CONSULTANT')}">
-			<tr>
-				<td><a href="import/analysis">Import Analysis</a></td>
-			</tr>
-			<tr>
-				<td><a href="analysis/all">All analysis</a></td>
-			</tr>
-			<tr>
-				<td><a href="analysis/customers">Analysis by customer</a></td>
-			</tr>
-			<c:if test="${user.isAutorise('ROLE_ADMIN')}">
-				<tr>
-					<td><a href="customer/all">All customers</a></td>
-				</tr>
-				<tr>
-					<td><a href="user/all">All users</a></td>
-				</tr>
-			</c:if>
-		</c:if>
-		<tr>
-			<td><a href='<c:url value="/j_spring_security_logout" />'>Logout</a></td>
-		</tr>
-	</table>
+	<div id="wrap">
+		<jsp:include page="menu.jsp" />
+		<div class="container">
+			<div class="page-header">
+				<h1 class="text-center" style="margin-top: 5%; margin-bottom: 2%;">
+					<spring:message code="label.welcome" text="Welcome to TRICK Service!" />
+				</h1>
+			</div>
+			<div class="content" id="content">
+				<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/Logo_TRICKService.png" /> style="width: 300px; height: auto;">
+			</div>
+		</div>
+		<jsp:include page="footer.jsp" />
+		<jsp:include page="scripts.jsp" />
+	</div>
 </body>
 </html>

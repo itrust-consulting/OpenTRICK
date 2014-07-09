@@ -3,7 +3,6 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
  * AnalysisNorm: <br>
@@ -13,7 +12,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 2012-08-21
  */
-public abstract class AnalysisNorm implements Serializable {
+public abstract class AnalysisNorm implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -25,14 +24,13 @@ public abstract class AnalysisNorm implements Serializable {
 	/** AnalysisNorm id */
 	private int id = -1;
 
-	/** AnalysisNorm Analysis object */
-	private Analysis analysis = null;
-
 	/** AnalysisNorm Norm Object */
 	private Norm norm = null;
 
 	/** AnalysisNorm List of measures */
 	private List<Measure> measures = new ArrayList<Measure>();
+
+	private Analysis analysis = null;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -100,9 +98,10 @@ public abstract class AnalysisNorm implements Serializable {
 	 *            The value to set the AnalysisNorm Name
 	 */
 	public void setNorm(Norm name) {
-		if (name == null || name.getLabel() == null || !name.getLabel().matches(Constant.REGEXP_VALID_NORM_NAME))
-			throw new IllegalArgumentException("Name should meet this regular expression "
-				+ Constant.REGEXP_VALID_NAME);
+		if (name == null)
+			throw new IllegalArgumentException("error.norm.null");
+		else if (name.getLabel() == null)
+			throw new IllegalArgumentException("error.norm.label_null");
 		this.norm = name;
 	}
 
@@ -168,4 +167,79 @@ public abstract class AnalysisNorm implements Serializable {
 	public void setMeasures(List<Measure> measures) {
 		this.measures = measures;
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		AnalysisNorm analysisNorm = (AnalysisNorm) super.clone();
+		analysisNorm.measures = new ArrayList<>();
+		for (Measure measure : measures) {
+			Measure measure2 = (Measure) measure.clone();
+			measure2.setAnalysisNorm(analysisNorm);
+			analysisNorm.measures.add(measure2);
+		}
+		return analysisNorm;
+	}
+
+	public AnalysisNorm duplicate() throws CloneNotSupportedException {
+		AnalysisNorm analysisNorm = (AnalysisNorm) super.clone();
+		analysisNorm.id = -1;
+		return analysisNorm;
+	}
+
+	/**
+	 * hashCode:<br>
+	 * Used inside equals method.
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result =
+			prime * result + ((norm == null) ? 0 : norm.hashCode());
+		result = prime * result + id;
+		return result;
+	}
+
+	/**
+	 * equals: <br>
+	 * Check if this object equals another object of the same type. Equal means: the field id,
+	 * description, domain and reference.
+	 * 
+	 * @param obj
+	 *            The other object to check on
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		AnalysisNorm other = (AnalysisNorm) obj;
+		if (norm == null) {
+			if (other.norm != null) {
+				return false;
+			}
+		} else if (!norm.equals(other.norm)) {
+			return false;
+		}
+		if (id != other.id) {
+			return false;
+		}
+		return true;
+	}
+	
 }

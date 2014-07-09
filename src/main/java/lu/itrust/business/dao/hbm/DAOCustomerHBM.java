@@ -1,22 +1,38 @@
 package lu.itrust.business.dao.hbm;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.dao.DAOCustomer;
 
-import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOCustomerHBM.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 16 janv. 2013
  */
+@Repository
 public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
+
+	/**
+	 * Constructor: <br>
+	 */
+	public DAOCustomerHBM() {
+	}
+
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param session
+	 */
+	public DAOCustomerHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>
@@ -25,64 +41,130 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * @see lu.itrust.business.dao.DAOCustomer#get(int)
 	 */
 	@Override
-	public Customer get(int id) throws Exception {
+	public Customer get(Integer id) throws Exception {
 		return (Customer) getSession().get(Customer.class, id);
-
 	}
 
 	/**
-	 * get: <br>
+	 * getProfileCustomer: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOCustomer#get(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOCustomer#getProfileCustomer()
 	 */
 	@Override
-	public Customer loadByCustomerName(String fullName) throws Exception {
-		Query query = getSession().createQuery(
-				"From Customer where contactPerson = :contactPerson");
-		query.setString("contactPerson", fullName);
-		return (Customer) query.uniqueResult();
-
+	public Customer getProfile() throws Exception {
+		return (Customer) getSession().createQuery("From Customer where canBeUsed = false").uniqueResult();
 	}
 
 	/**
-	 * loadByOrganasition: <br>
+	 * getCustomerFromContactPerson: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOCustomer#loadByOrganasition(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOCustomer#getCustomerFromContactPerson(java.lang.String)
 	 */
 	@Override
-	public List<Customer> loadByOrganasition(String organisation)
-			throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public Customer getFromContactPerson(String contactPerson) throws Exception {
+		return (Customer) getSession().createQuery("From Customer where contactPerson = :contactPerson").setParameter("contactPerson", contactPerson).uniqueResult();
 	}
 
 	/**
-	 * loadByCountry: <br>
+	 * isProfileCustomer: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOCustomer#loadByCountry(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOCustomer#isProfileCustomer(int)
 	 */
 	@Override
-	public List<Customer> loadByCountry(String city) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean isProfile(Integer idCustomer) throws Exception {
+		Boolean result =
+			(Boolean) getSession().createQuery("Select customer.canBeUsed From Customer as customer where customer.id = :idCustomer").setParameter("idCustomer", idCustomer).uniqueResult();
+		return result == null ? false : !result;
 	}
 
 	/**
-	 * loadAll: <br>
+	 * customerProfileExists: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOCustomer#loadAll()
+	 * @see lu.itrust.business.dao.DAOCustomer#customerProfileExists()
+	 */
+	@Override
+	public boolean profileExists() throws Exception {
+		return ((Long) getSession().createQuery("Select count(customer) From Customer as customer where customer.canBeUsed = false").uniqueResult()).intValue() == 1;
+	}
+
+	/**
+	 * customerHasUsers: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOCustomer#customerHasUsers(int)
+	 */
+	@Override
+	public boolean hasUsers(Integer idCustomer) throws Exception {
+		String query = "Select count(customer) From User as user inner join user.customers as customer where customer.id = :idCustomer";
+		return ((Long) getSession().createQuery(query).setParameter("idCustomer", idCustomer).uniqueResult()).intValue() != 0;
+	}
+
+	/**
+	 * customerExistsByOrganisation: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOCustomer#customerExistsByOrganisation(java.lang.String)
+	 */
+	@Override
+	public boolean existsByOrganisation(String organisation) throws Exception {
+		String query = "Select count(customer) From Customer as customer where customer.organisation = :organisation";
+		return ((Long) getSession().createQuery(query).setParameter("organisation", organisation).uniqueResult()).intValue() > 0;
+	}
+
+	/**
+	 * getAllCustomers: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOCustomer#getAllCustomers()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Customer> loadAll() throws Exception {
+	public List<Customer> getAll() throws Exception {
+		return (List<Customer>) getSession().createQuery("From Customer").list();
+	}
 
-		Query query = getSession().createQuery("From Customer");
+	/**
+	 * getAllCustomersAndProfileOfUser: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOCustomer#getAllCustomersAndProfileOfUser(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> getAllAndProfileOfUser(String username) throws Exception {
+		String query = "Select customer From Customer as customer where customer.canBeUsed = false or customer in (select customer1 From User as user inner join user.customers as customer1";
+		query += " where user.login = :username)  order by customer.canBeUsed asc, customer.organisation asc, customer.contactPerson asc";
+		return getSession().createQuery(query).setParameter("username", username).list();
+	}
 
-		return (ArrayList<Customer>) query.list();
+	/**
+	 * getAllCustomersNoProfilesOfUser: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOCustomer#getAllCustomersNoProfilesOfUser(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> getAllNotProfileOfUser(String username) throws Exception {
+		String query = "Select customer From User as user inner join user.customers as customer where user.login = :username and customer.canBeUsed = true order by customer.organisation ";
+		query += "asc, customer.contactPerson asc";
+		return getSession().createQuery(query).setParameter("username", username).list();
+	}
+
+	/**
+	 * getAllCustomersNoProfiles: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOCustomer#getAllCustomersNoProfiles()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Customer> getAllNotProfiles() throws Exception {
+		return (List<Customer>) getSession().createQuery("From Customer WHERE canBeUsed=true").list();
 	}
 
 	/**
@@ -108,29 +190,25 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	}
 
 	/**
-	 * remove: <br>
+	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOCustomer#remove(lu.itrust.business.TS.Customer)
+	 * @see lu.itrust.business.dao.DAOCustomer#delete(lu.itrust.business.TS.Customer)
 	 */
 	@Override
-	public void remove(Customer customer) throws Exception {
-		Query query = getSession().createQuery(
-				"delete from Analysis where Customer = :customer");
-		query.setParameter("customer", customer);
-		query.executeUpdate();
+	public void delete(Customer customer) throws Exception {
 		getSession().delete(customer);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOCustomer#delete(java.lang.Integer)
+	 */
 	@Override
-	public void remove(Integer customerId) {
-		Query query = getSession().createQuery(
-				"delete from Analysis where customer.id = :customerId");
-		query.setParameter("customerId", customerId);
-		query.executeUpdate();
-		query = getSession().createQuery("delete from Customer where id = :customerId");
-		query.setParameter("customerId", customerId);
-		query.executeUpdate();
+	public void delete(Integer customerId) throws Exception {
+		getSession().createQuery("delete from Analysis where customer.id = :customerId").setParameter("customerId", customerId).executeUpdate();
+		getSession().createQuery("delete from Customer where id = :customerId").setParameter("customerId", customerId).executeUpdate();
 	}
-
 }

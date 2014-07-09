@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
@@ -14,8 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author oensuifudine
+ * ServiceScenarioTypeImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Service
 @Transactional
@@ -24,87 +25,92 @@ public class ServiceScenarioTypeImpl implements ServiceScenarioType {
 	@Autowired
 	private DAOScenarioType daoScenarioType;
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceScenarioType#get(int)
 	 */
 	@Override
-	public ScenarioType get(int id) throws Exception {
-		// TODO Auto-generated method stub
+	public ScenarioType get(Integer id) throws Exception {
 		return daoScenarioType.get(id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getByTypeName: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceScenarioType#get(java.lang.String)
+	 * @param scenarioTypeName
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenarioType#getByTypeName(java.lang.String)
 	 */
 	@Override
-	public ScenarioType get(String scenarioTypeName) throws Exception {
-		// TODO Auto-generated method stub
-		return daoScenarioType.get(scenarioTypeName);
+	public ScenarioType getByName(String scenarioTypeName) throws Exception {
+		return daoScenarioType.getByName(scenarioTypeName);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getAllScenarioTypes: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceScenarioType#loadAll()
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenarioType#getAllScenarioTypes()
 	 */
 	@Override
-	public List<ScenarioType> loadAll() throws Exception {
-		// TODO Auto-generated method stub
-		return daoScenarioType.loadAll();
+	public List<ScenarioType> getAll() throws Exception {
+		return daoScenarioType.getAll();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * save: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceScenarioType#save(lu.itrust.business
-	 * .TS.ScenarioType)
+	 * @param scenarioType
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenarioType#save(lu.itrust.business.TS.ScenarioType)
 	 */
 	@Transactional
 	@Override
 	public void save(ScenarioType scenarioType) throws Exception {
 		daoScenarioType.save(scenarioType);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceScenarioType#saveOrUpdate(lu.itrust
-	 * .business.TS.ScenarioType)
+	 * @param scenarioType
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenarioType#saveOrUpdate(lu.itrust.business.TS.ScenarioType)
 	 */
 	@Transactional
 	@Override
 	public void saveOrUpdate(ScenarioType scenarioType) throws Exception {
 		daoScenarioType.saveOrUpdate(scenarioType);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceScenarioType#delete(lu.itrust.business
-	 * .TS.ScenarioType)
+	 * @param scenarioType
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceScenarioType#delete(lu.itrust.business.TS.ScenarioType)
 	 */
 	@Transactional
 	@Override
 	public void delete(ScenarioType scenarioType) throws Exception {
 		daoScenarioType.delete(scenarioType);
-
 	}
-
-	public DAOScenarioType getDaoScenarioType() {
-		return daoScenarioType;
-	}
-
-	public void setDaoScenarioType(DAOScenarioType daoScenarioType) {
-		this.daoScenarioType = daoScenarioType;
-	}
-
 }

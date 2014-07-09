@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 10:16:34 AM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping package="lu.itrust.business.TS">
-	<class name="Assessment" table="assessment">
+	<class name="Assessment" table="Assessment">
 		<id name="id" column="idAssessment" unsaved-value="-1">
 			<generator class="increment" />
 		</id>

@@ -9,7 +9,7 @@ package lu.itrust.business.TS;
  * @version 0.1
  * @since 2012-08-21
  */
-public class AssetTypeValue {
+public class AssetTypeValue implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -69,9 +69,15 @@ public class AssetTypeValue {
 	 *            The value to set the "assetType" field
 	 */
 	public void setAssetType(AssetType assetType) {
-		if ((assetType == null || assetType.getType() == null) || (assetType.getType().equals(""))) {
-			throw new IllegalArgumentException("AssetTypeValue Name cannot be null or empty!");
-		}
+		if (assetType == null)
+			throw new IllegalArgumentException(
+					"error.assettypevalue.assettype_null");
+		else if (assetType.getType() == null)
+			throw new IllegalArgumentException(
+					"error.asset.assettypevalue.type_null");
+		else if (assetType.getType().trim().isEmpty())
+			throw new IllegalArgumentException(
+					"error.asset.assettypevalue.type_empty");
 		this.assetType = assetType;
 	}
 
@@ -94,7 +100,7 @@ public class AssetTypeValue {
 	 */
 	public void setValue(int value) {
 		if ((value < -1) || (value > 101)) {
-			throw new IllegalArgumentException("AssetTypeValue Value should be between -1 and 101");
+			throw new IllegalArgumentException("error.asset.assettypevalue.value");
 		}
 		this.value = value;
 	}
@@ -106,10 +112,20 @@ public class AssetTypeValue {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public AssetTypeValue clone() throws CloneNotSupportedException {
+		return (AssetTypeValue) super.clone();
+	}
+	
+	/**
+	 * clone: <br>
+	 * Description
+	 * 
+	 * @see java.lang.Object#clone()
+	 */
+	public AssetTypeValue duplicate() throws CloneNotSupportedException {
 		AssetTypeValue assetTypeValue = (AssetTypeValue) super.clone();
-		assetTypeValue.assetType = (AssetType) assetType.clone();
-		return super.clone();
+		assetTypeValue.id = -1;
+		return assetTypeValue;
 	}
 
 	/**

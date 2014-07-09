@@ -1,12 +1,9 @@
-/**
- * 
- */
 package lu.itrust.business.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.Role;
-import lu.itrust.business.TS.User;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAORole;
 import lu.itrust.business.service.ServiceRole;
 
@@ -15,8 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * @author oensuifudine
+ * ServiceRoleImpl.java: <br>
+ * Detailed description...
  * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 16, 2013
  */
 @Transactional
 @Service
@@ -25,48 +26,34 @@ public class ServiceRoleImpl implements ServiceRole {
 	@Autowired
 	private DAORole daoRole;
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * get: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceRole#get(long)
 	 */
 	@Override
-	public Role get(long id) throws Exception {
+	public Role get(Integer id) throws Exception {
 		return daoRole.get(id);
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getRoleByName: <br>
+	 * Description
 	 * 
-	 * @see lu.itrust.business.service.ServiceRole#get(java.lang.String)
+	 * @param name
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRole#getRoleByName(java.lang.String)
 	 */
 	@Override
-	public List<Role> load(String login) throws Exception {
-		// TODO Auto-generated method stub
-		return daoRole.load(login);
-	}
-	
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.service.ServiceRole#get(java.lang.String)
-	 */
-	@Override
-	public List<Role> load(String login, String password) throws Exception {
-		// TODO Auto-generated method stub
-		return daoRole.load(login,password);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceRole#get(lu.itrust.business.TS.User)
-	 */
-	@Override
-	public List<Role> load(User user) throws Exception {
-		return daoRole.load(user);
+	public Role getByName(String name) throws Exception {
+		return this.daoRole.getByName(name);
 	}
 
 	/*
@@ -75,77 +62,91 @@ public class ServiceRoleImpl implements ServiceRole {
 	 * @see lu.itrust.business.service.ServiceRole#loadAll()
 	 */
 	@Override
-	public List<Role> loadAll() throws Exception {
-		return daoRole.loadAll();
+	public List<Role> getAll() throws Exception {
+		return daoRole.getAll();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * getFromUser: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceRole#save(lu.itrust.business.TS.Role)
+	 * @param login
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRole#getFromUser(java.lang.String)
+	 */
+	@Override
+	public List<Role> getAllFromUser(String login) throws Exception {
+		return daoRole.getAllFromUser(login);
+	}
+
+	/**
+	 * getFromUser: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRole#getFromUser(lu.itrust.business.TS.usermanagement.User)
+	 */
+	@Override
+	public List<Role> getAllFromUser(User user) throws Exception {
+		return daoRole.getAllFromUser(user);
+	}
+
+	/**
+	 * save: <br>
+	 * Description
+	 * 
+	 * @param role
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRole#save(lu.itrust.business.TS.usermanagement.Role)
 	 */
 	@Transactional
 	@Override
 	public void save(Role role) throws Exception {
 		daoRole.save(role);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * saveOrUpdate: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceRole#saveOrUpdate(lu.itrust.business
-	 * .TS.Role)
+	 * @param role
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRole#saveOrUpdate(lu.itrust.business.TS.usermanagement.Role)
 	 */
 	@Transactional
 	@Override
 	public void saveOrUpdate(Role role) throws Exception {
 		daoRole.saveOrUpdate(role);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceRole#delete(lu.itrust.business.TS.Role)
-	 */
-	@Transactional
-	@Override
-	public void delete(Role role) throws Exception {
-		daoRole.delete(role);
-
-	}
-
-	/*
-	 * (non-Javadoc)
+	 * @param id
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceRole#delete(long)
 	 */
 	@Transactional
 	@Override
-	public void delete(long id) throws Exception {
+	public void delete(Integer id) throws Exception {
 		daoRole.delete(id);
-
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * delete: <br>
+	 * Description
 	 * 
-	 * @see
-	 * lu.itrust.business.service.ServiceRole#delete(lu.itrust.business.TS.User)
-	 */
-	@Transactional
-	@Override
-	public void delete(User user) throws Exception {
-		daoRole.delete(user);
-
-	}
-
-	/*
-	 * (non-Javadoc)
+	 * @param login
+	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.service.ServiceRole#delete(java.lang.String)
 	 */
@@ -153,21 +154,35 @@ public class ServiceRoleImpl implements ServiceRole {
 	@Override
 	public void delete(String login) throws Exception {
 		daoRole.delete(login);
-
 	}
 
-	public DAORole getDaoRole() {
-		return daoRole;
-	}
-
-	public void setDaoRole(DAORole daoRole) {
-		this.daoRole = daoRole;
-	}
-
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param role
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRole#delete(lu.itrust.business.TS.usermanagement.Role)
+	 */
+	@Transactional
 	@Override
-	public Role findByName(String name) throws Exception {
-		// TODO Auto-generated method stub
-		return this.daoRole.findByName(name);
+	public void delete(Role role) throws Exception {
+		daoRole.delete(role);
 	}
 
+	/**
+	 * delete: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceRole#delete(lu.itrust.business.TS.usermanagement.User)
+	 */
+	@Transactional
+	@Override
+	public void delete(User user) throws Exception {
+		daoRole.delete(user);
+	}
 }

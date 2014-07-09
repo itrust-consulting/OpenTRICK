@@ -6,16 +6,34 @@ import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.dao.DAOAssetType;
 
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * DAOAssetTypeHBM.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.ï¿½.rl. :
  * @version
  * @since 31 janv. 2013
  */
+@Repository
 public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
+
+	/**
+	 * Constructor: <br>
+	 */
+	public DAOAssetTypeHBM() {
+	}
+
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param session
+	 */
+	public DAOAssetTypeHBM(Session session) {
+		super(session);
+	}
 
 	/**
 	 * get: <br>
@@ -24,37 +42,45 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 * @see lu.itrust.business.dao.DAOAssetType#get(int)
 	 */
 	@Override
-	public AssetType get(int id) throws Exception {
+	public AssetType get(Integer id) throws Exception {
 		return (AssetType) getSession().get(AssetType.class, id);
 	}
 
 	/**
-	 * get: <br>
+	 * getByName: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAssetType#get(java.lang.String)
+	 * @see lu.itrust.business.dao.DAOAssetType#getByName(java.lang.String)
 	 */
 	@Override
-	public AssetType get(String assetTypeName) throws Exception {
-		Query query = getSession().createQuery(
-				"From AssetType where type= :type");
-		query.setString("type", assetTypeName);
+	public AssetType getByName(String assetTypeName) throws Exception {
+		Query query = getSession().createQuery("From AssetType where type= :type").setParameter("type", assetTypeName);
 		return (AssetType) query.uniqueResult();
-
 	}
 
 	/**
-	 * loadAll: <br>
+	 * getAll: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAssetType#loadAll()
+	 * @see lu.itrust.business.dao.DAOAssetType#getAll()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<AssetType> loadAll() throws Exception {
-			Query query = getSession().createQuery("From AssetType");
+	public List<AssetType> getAll() throws Exception {
+		return (List<AssetType>) getSession().createQuery("From AssetType").list();
+	}
 
-			return (List<AssetType>) query.list();
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAssetType#getAllFromAnalysis(int)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AssetType> getAllFromAnalysis(Integer idAnalysis) throws Exception {
+		String query = "Select distinct(asset.assetType) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis order by asset.assetType.type asc";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
 
 	/**
@@ -76,7 +102,6 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	 */
 	@Override
 	public void saveOrUpdate(AssetType assetType) throws Exception {
-
 		getSession().saveOrUpdate(assetType);
 	}
 
@@ -90,5 +115,4 @@ public class DAOAssetTypeHBM extends DAOHibernate implements DAOAssetType {
 	public void delete(AssetType assetType) throws Exception {
 		getSession().delete(assetType);
 	}
-
 }
