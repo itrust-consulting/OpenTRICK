@@ -76,7 +76,7 @@ function deleteNorm(normId, name) {
 				}	
 				reloadSection("section_norm");
 				return false;
-			}
+			},error : unknowError
 		});
 		$("#deletenormbuttonYes").unbind("click");
 		$("#deleteNormModel").modal('toggle');
@@ -105,7 +105,7 @@ function uploadImportNormFile() {
 			});
 			$("#uploadNormModal").modal("toggle");
 			return false;
-		}
+		},error : unknowError
 	});
 	return false;
 }
@@ -171,6 +171,8 @@ function importNewNorm() {
 			}
 
 		},
+		error : unknowError
+		,
 		// error : errorHandler,
 		// Form data
 		data : formData,
@@ -230,7 +232,7 @@ function getImportNormTemplate() {
 	$.fileDownload(context + '/data/TL_TRICKService_NormImport_V1.1.xlsx').done(function() {
 		alert('File download a success!');
 	}).fail(function() {
-		alert('File download failed!');
+		unknowError();
 	});
 	return false;
 }
@@ -244,7 +246,7 @@ function exportSingleNorm(normId) {
 	}
 	
 	$.fileDownload(context + '/KnowledgeBase/Norm/Export/'+normId).fail(function() {
-		alert('File export failed!');
+		unknowError();
 	});
 	return false;
 	

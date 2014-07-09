@@ -22,10 +22,7 @@ function editScenario(rowTrickId, isAdd) {
 			$("#addScenarioModal").modal("toggle");
 			return false;
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			console.log(textStatus, errorThrown);
-			return false;
-		},
+		error : unknowError
 	});
 	return false;
 }
@@ -86,9 +83,7 @@ function saveScenario(form) {
 			}
 			return false;
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
-		},
+		error : unknowError
 	});
 }
 
@@ -114,7 +109,7 @@ function deleteScenario(scenarioId) {
 							$(row).remove();
 					}
 					return false;
-				}
+				},error : unknowError
 			});
 		}
 		setTimeout("reloadSection('section_scenario')", 100);
@@ -130,7 +125,7 @@ function deleteScenario(scenarioId) {
 			success : function(reponse) {
 				reloadSection("section_scenario");
 				return false;
-			}
+			},error : unknowError
 		});
 	});
 	$("#confirm-dialog").modal("toggle");
@@ -172,7 +167,7 @@ function selectScenario(scenarioId, value) {
 			success : function(reponse) {
 				reloadSection('section_scenario');
 				return false;
-			}
+			},error : unknowError
 		});
 	} else {
 		$.ajax({
@@ -182,7 +177,7 @@ function selectScenario(scenarioId, value) {
 			success : function(reponse) {
 				reloadSection("section_scenario");
 				return false;
-			}
+			},error : unknowError
 		});
 	}
 	return false;

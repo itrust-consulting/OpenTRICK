@@ -160,7 +160,7 @@ function reloadMeasureRow(idMeasure, norm) {
 				popover.popover("hide");
 				$('.popover').remove();
 			}
-		}
+		},error : unknowError
 	});
 	return false;
 }
@@ -186,7 +186,7 @@ function compliance(norm) {
 			if (response.chart == undefined || response.chart == null)
 				return;
 			$('#chart_compliance_' + norm).highcharts(response);
-		}
+		},error : unknowError
 	});
 	return false;
 }
@@ -204,7 +204,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			if (response.chart == undefined || response.chart == null)
 				return true;
 			$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
-		}
+		},error : unknowError
 	});
 }
 
@@ -221,7 +221,7 @@ function budgetByActionPlanType(actionPlanType) {
 			if (response.chart == undefined || response.chart == null)
 				return true;
 			$('#chart_budget_' + actionPlanType).highcharts(response);
-		}
+		},error : unknowError
 	});
 }
 
@@ -262,7 +262,7 @@ function chartALE() {
 			async : true,
 			success : function(response) {
 				$('#chart_ale_scenario_type').highcharts(response);
-			}
+			},error : unknowError
 		});
 	}
 	if ($('#chart_ale_scenario').length) {
@@ -274,7 +274,7 @@ function chartALE() {
 			async : true,
 			success : function(response) {
 				$('#chart_ale_scenario').highcharts(response);
-			}
+			},error : unknowError
 		});
 	}
 
@@ -287,7 +287,7 @@ function chartALE() {
 			async : true,
 			success : function(response) {
 				$('#chart_ale_asset').highcharts(response);
-			}
+			},error : unknowError
 		});
 	}
 	if ($('#chart_ale_asset_type').length) {
@@ -299,7 +299,7 @@ function chartALE() {
 			async : true,
 			success : function(response) {
 				$('#chart_ale_asset_type').highcharts(response);
-			}
+			},error : unknowError
 		});
 	}
 	return false;
@@ -328,7 +328,7 @@ function addStandard() {
 						$("#addStandardModal").modal("toggle");
 					}
 				}
-			}
+			},error : unknowError
 		});
 	} else
 		permissionError();
@@ -368,7 +368,7 @@ function saveStandard(form) {
 						$("#addStandardModal").modal("toggle");
 					}, 10000);
 				}
-			}
+			},error : unknowError
 		});
 	} else
 		permissionError();

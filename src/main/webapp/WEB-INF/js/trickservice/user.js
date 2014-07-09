@@ -102,7 +102,7 @@ function deleteUser(userId, name) {
 					$("#messages").html(str);
 				}
 				return false;
-			}
+			},error : unknowError
 		});
 		$("#deleteUserModel").modal('toggle');
 		return false;
@@ -127,9 +127,7 @@ function newUser() {
 		success : function(response) {
 			$("#rolescontainer").html(response);
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
-		},
+		error : unknowError
 	});
 
 	$("#addUserModel-title").text(MessageResolver("title.Administration.User.Add", "Add a new User"));
@@ -162,9 +160,7 @@ function editSingleUser(userId) {
 		success : function(response) {
 			$("#rolescontainer").html(response);
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
-		},
+		error : unknowError
 	});
 
 	$("#addUserModel-title").text(MessageResolver("title.user.Update", "Update a User"));

@@ -91,53 +91,57 @@ public class ControllerPhase {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Phase', #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Phase', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody
-	String delete(@PathVariable int idPhase, HttpSession session, Principal principal, Locale locale) throws Exception {
+	String delete(@PathVariable Integer elementID, HttpSession session, Principal principal, Locale locale) {
+		try {
+			// retrieve analysis id
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
-		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		if (idAnalysis == null)
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+			// check if phase can be deleted
+			if (!servicePhase.canBeDeleted(elementID))
+				return JsonMessage.Error(messageSource.getMessage("error.phase.cannot_delete", null, "Phase cannot be deleted", locale));
 
-		// check if phase can be deleted
-		if (!servicePhase.canBeDeleted(idPhase))
-			return JsonMessage.Error(messageSource.getMessage("error.phase.cannot_delete", null, "Phase cannot be deleted", locale));
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
+			// retrieve phases of analysis
+			List<Phase> phases = analysis.getUsedPhases();
 
-		// retrieve phases of analysis
-		List<Phase> phases = analysis.getUsedPhases();
+			// first phases cannot be deleted (0 and 1)
+			if (phases.size() < 2)
+				return JsonMessage.Error(messageSource.getMessage("error.phase.on_required", null, "This phase cannot be deleted", locale));
 
-		// first phases cannot be deleted (0 and 1)
-		if (phases.size() < 2)
-			return JsonMessage.Error(messageSource.getMessage("error.phase.on_required", null, "This phase cannot be deleted", locale));
+			// iterate through phases
+			Phase phase = null;
+			Iterator<Phase> iterator = phases.iterator();
+			while (iterator.hasNext()) {
 
-		// iterate through phases
-		Phase phase = null;
-		Iterator<Phase> iterator = phases.iterator();
-		while (iterator.hasNext()) {
-
-			// set next phase
-			if (phase == null) {
-				phase = iterator.next();
-				// delete phase
-				if (phase.getId() == idPhase) {
-					iterator.remove();
-					servicePhase.delete(phase);
-				} else
-					phase = null;
-			} else {
-				// update phase number of other phases
-				Phase phase2 = iterator.next();
-				phase2.setNumber(phase2.getNumber() - 1);
-				servicePhase.saveOrUpdate(phase2);
+				// set next phase
+				if (phase == null) {
+					phase = iterator.next();
+					// delete phase
+					if (phase.getId() == elementID) {
+						iterator.remove();
+						servicePhase.delete(phase);
+					} else
+						phase = null;
+				} else {
+					// update phase number of other phases
+					Phase phase2 = iterator.next();
+					phase2.setNumber(phase2.getNumber() - 1);
+					servicePhase.saveOrUpdate(phase2);
+				}
 			}
-		}
 
-		// return result
-		return phase == null ? JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale)) : JsonMessage.Success(messageSource.getMessage(
-				"success.delete.phase", null, "Phase was successfully deleted", locale));
+			// return result
+			return phase == null ? JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale)) : JsonMessage.Success(messageSource.getMessage(
+					"success.delete.phase", null, "Phase was successfully deleted", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.phase.on_required", null, "This phase cannot be deleted", locale));
+		}
 	}
 
 	/**

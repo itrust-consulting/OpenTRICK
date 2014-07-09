@@ -33,7 +33,7 @@ function showMeasures(normId, languageId) {
 				fixedTableHeader($("#showmeasuresbody .table-fixed-header"));
 			}, 400);
 
-		}
+		},error : unknowError
 	});
 	return false;
 }
@@ -86,10 +86,7 @@ function saveMeasure(form) {
 			}
 			return false;
 
-		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return false;
-		}
+		},error : unknowError
 	});
 	return false;
 }
@@ -124,7 +121,7 @@ function refreshMeasure(normId, measureId, languageId) {
 					var normId = $("#normId").attr("value");
 					showMeasures(normId, language);
 				});
-			}
+			},error : unknowError
 		});
 	} else {
 		$.ajax({
@@ -139,7 +136,7 @@ function refreshMeasure(normId, measureId, languageId) {
 					fixedTableHeader($("#showmeasuresbody .table-fixed-header"));
 					// measureSortTable($("#showmeasuresbody"));
 				}
-			}
+			},error : unknowError
 		});
 	}
 	return false;
@@ -168,7 +165,7 @@ function deleteMeasure(measureId, reference, norm) {
 				var normId = $("#normId").attr("value");
 				showMeasures(normId, language);
 				return false;
-			}
+			},error : unknowError
 		});
 		$("#deleteMeasureModel").modal('toggle');
 		return false;
@@ -207,9 +204,7 @@ function newMeasure(normId) {
 			$("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
 			return false;
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
-		},
+		error : unknowError
 	});
 
 	$("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
@@ -290,9 +285,7 @@ function editSingleMeasure(measureId, normId) {
 			return false;
 
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
-		},
+		error : unknowError
 	});
 
 	$("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Update", "Update new Measure"));

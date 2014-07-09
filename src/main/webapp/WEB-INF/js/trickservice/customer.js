@@ -118,7 +118,7 @@ function deleteCustomer(customerId, organisation) {
 				}				
 				reloadSection("section_customer");
 				return false;
-			}
+			},error : unknowError
 		});
 		$("#deleteCustomerModel").modal('toggle');
 		$("#deletecustomerbuttonYes").unbind();
@@ -200,9 +200,7 @@ function manageUsers(customerID) {
 			$("#customerusersform").prop("action", "Customer/" + customerID + "/Users/Update");
 			$("#customerusersbutton").attr("onclick", "updateManageUsers(" + customerID + ",'#customerusersform')");
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
-		},
+		error : unknowError
 	});
 	$("#manageCustomerUserModel").modal('toggle');
 	return false;
@@ -233,9 +231,7 @@ function updateManageUsers(customerID, form) {
 			$("#customerusersbody").html(response);
 			initUserCustomerList();
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return result;
-		},
+		error : unknowError
 	});
 	return false;
 }

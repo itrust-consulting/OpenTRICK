@@ -71,7 +71,7 @@ function deleteLanguage(languageId, name) {
 			success : function(response) {
 				reloadSection("section_language");
 				return false;
-			}
+			},error : unknowError
 		});
 		$("#deleteLanguageModel").modal('toggle');
 		return false;

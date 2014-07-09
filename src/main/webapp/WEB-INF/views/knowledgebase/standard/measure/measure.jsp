@@ -7,11 +7,11 @@
 <c:if test="${!empty(measureDescription)}">
 	<tr trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${norm.id}');">
 		<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_measure_description','#menu_measure_description');"></td>
-		<td>${measureDescription.level}</td>
-		<td>${measureDescription.reference}</td>
-		<td>${measureDescriptionText.domain.equals("")==false?measureDescriptionText.domain:"&nbsp;"}</td>
-		<td>${measureDescriptionText.description.equals("")==false?measureDescriptionText.description:"&nbsp;"}</td>
-		<td trick-computable="${measureDescription.computable}"><c:if test="${measureDescription.computable==true}">
+		<td colspan="2">${measureDescription.level}</td>
+		<td colspan="2">${measureDescription.reference}</td>
+		<td colspan="10">${measureDescriptionText.domain.equals("")==false?measureDescriptionText.domain:"&nbsp;"}</td>
+		<td colspan="10">${measureDescriptionText.description.equals("")==false?measureDescriptionText.description:"&nbsp;"}</td>
+		<td colspan="2" trick-computable="${measureDescription.computable}"><c:if test="${measureDescription.computable==true}">
 				<spring:message code="label.yes_no.true" />
 			</c:if> <c:if test="${measureDescription.computable==false}">
 				<spring:message code="label.yes_no.false" />

@@ -86,7 +86,7 @@ function RRFView() {
 
 				that.ReloadChart();
 				return false;
-			}
+			},error : unknowError
 		});
 		return true;
 	};
@@ -277,7 +277,7 @@ function ScenarioRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			}
+			},error : unknowError
 		});
 		return false;
 	};
@@ -319,7 +319,7 @@ function ScenarioRRFController(rrfView, container, name) {
 					that.CheckTypeValue();
 				}
 				return false;
-			}
+			},error : unknowError
 		});
 	};
 
@@ -394,7 +394,7 @@ function ScenarioRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			}
+			},error : unknowError
 		});
 	};
 }
@@ -507,7 +507,7 @@ function MeasureRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			}
+			},error : unknowError
 		});
 	};
 
@@ -548,7 +548,7 @@ function MeasureRRFController(rrfView, container, name) {
 					}
 				}
 				return false;
-			}
+			},error : unknowError
 		});
 	};
 
@@ -630,7 +630,7 @@ function MeasureRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			}
+			},error : unknowError
 		});
 	};
 	return false;

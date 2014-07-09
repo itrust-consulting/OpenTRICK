@@ -30,7 +30,7 @@ function selectAsset(assetId, value) {
 			success : function(reponse) {
 				reloadSection('section_asset');
 				return false;
-			}
+			},error : unknowError
 		});
 	} else {
 		$.ajax({
@@ -40,7 +40,7 @@ function selectAsset(assetId, value) {
 			success : function(reponse) {
 				reloadSection("section_asset");
 				return false;
-			}
+			},error : unknowError
 		});
 	}
 	return false;
@@ -82,7 +82,7 @@ function deleteAsset(assetId) {
 				}
 				
 				return false;
-			}
+			},error : unknowError
 		});
 	});
 	$("#confirm-dialog").modal("toggle");
@@ -111,7 +111,7 @@ function editAsset(rowTrickId, isAdd) {
 				$("#addAssetModal").html($(addAssetModal).html());
 			$("#addAssetModal").modal("toggle");
 			return false;
-		}
+		},error : unknowError
 	});
 	return false;
 }
@@ -196,7 +196,7 @@ function reloadAsset(id) {
 				return false;
 			$(newValue).find("td:nth-child(2)").text($(current).find("td:nth-child(2)").text());
 			$(current).replaceWith(newValue);
-		}
+		},error : unknowError
 	});
 	return false;
 }

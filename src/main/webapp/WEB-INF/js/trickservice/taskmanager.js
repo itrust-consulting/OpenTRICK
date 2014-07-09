@@ -54,7 +54,7 @@ function TaskManager(title) {
 					if (!instance.isEmpty())
 						instance.Show();
 				}
-			}
+			},error : unknowError
 		});
 		/*
 		 * setTimeout(function() { instance.UpdateTaskCount(); }, 10000);
@@ -130,7 +130,7 @@ function TaskManager(title) {
 						eval(reponse.taskName.action);
 				}
 				return false;
-			}
+			},error : unknowError
 		});
 	};
 };

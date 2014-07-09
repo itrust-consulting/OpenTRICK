@@ -68,7 +68,7 @@ TimeoutInterceptor.prototype = {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				authentificated = response === true;
-			}
+			},error : unknowError
 		});
 		this.loginShow = temp;
 		return authentificated;

@@ -14,6 +14,12 @@ function Application() {
 	this.localesMessages = {};
 }
 
+function unknowError(jqXHR, textStatus, errorThrown) {
+	$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+	$("#alert-dialog").modal("toggle");
+	return true;
+}
+
 $(function() {
 
 	$.extend($.tablesorter.themes.bootstrap, {
@@ -267,7 +273,7 @@ function MessageResolver(code, defaulttext, params) {
 			if (response == null || response == "")
 				return defaulttext;
 			return application.localesMessages[uniqueCode] = defaulttext = response;
-		}
+		}/*,error : unknowError*/
 	});
 	return defaulttext;
 }
@@ -358,9 +364,7 @@ function reloadSection(section, subSection) {
 					callback();
 				return false;
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return false;
-			},
+			error : unknowError
 		});
 	}
 }
@@ -480,7 +484,7 @@ function cancelTask(taskId) {
 		contentType : "application/json;charset=UTF-8",
 		success : function(reponse) {
 			$("#task_" + taskId).remove();
-		}
+		},error : unknowError
 	});
 }
 
@@ -496,7 +500,7 @@ function updateStatus(progressBar, idTask, callback, status) {
 					return false;
 				}
 				return updateStatus(progressBar, idTask, callback, reponse);
-			}
+			},error : unknowError
 		});
 	} else {
 		if (status.message != null)
@@ -538,7 +542,7 @@ function deleteAssetTypeValueDuplication() {
 					$("#alert-dialog .modal-body").html(response["success"]);
 					$("#alert-dialog").modal("toggle");
 				}
-			}
+			},error : unknowError
 		});
 	} else
 		permissionError();

@@ -71,6 +71,7 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 			});
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
+			unknowError();
 			return false;
 		},
 	});
@@ -156,6 +157,7 @@ function saveAnalysis(form, reloadaction) {
 			return false;
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
+			unknowError();
 			return false;
 		},
 	});
@@ -231,6 +233,7 @@ function createAnalysisProfile(analysisId, section_analysis) {
 
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
+				unknowError();
 				return false;
 			},
 		});
@@ -298,6 +301,7 @@ function newAnalysis() {
 			}
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
+			unknowError();
 			return false;
 		},
 	});
@@ -323,6 +327,7 @@ function addHistory(analysisId) {
 			$('#addHistoryModal').modal("toggle");
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
+			unknowError();
 			return result;
 		},
 	});
@@ -360,6 +365,7 @@ function editSingleAnalysis(analysisId) {
 				}
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
+				unknowError();
 				return fase;
 			},
 		});
@@ -428,6 +434,7 @@ function calculateActionPlan(analysisId) {
 				}
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
+				unknowError();
 				return result;
 			},
 		});
@@ -480,6 +487,7 @@ function calculateRiskRegister(analysisId) {
 				}
 			},
 			error : function(jqXHR, textStatus, errorThrown) {
+				unknowError();
 				return result;
 			},
 		});

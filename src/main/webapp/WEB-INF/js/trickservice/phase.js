@@ -1,6 +1,6 @@
-$(function(){
-if ($("#addPhaseModel").length) {
-		
+$(function() {
+	if ($("#addPhaseModel").length) {
+
 		var l_lang;
 		if (navigator.userLanguage) // Explorer
 			l_lang = navigator.userLanguage;
@@ -12,7 +12,7 @@ if ($("#addPhaseModel").length) {
 		if (l_lang == "en-US") {
 			l_lang = "en";
 		}
-		
+
 		if (l_lang != "en")
 			$.getScript(context + "/js/bootstrap/locales/bootstrap-datepicker." + l_lang + ".js");
 		$('#addPhaseModel').on('show.bs.modal', function() {
@@ -60,9 +60,7 @@ function savePhase(form) {
 			}
 			return result;
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return false;
-		},
+		error : unknowError
 	});
 	return false;
 }
@@ -83,20 +81,26 @@ function deletePhase(idPhase) {
 			async : true,
 			success : function(response) {
 				if (response["success"] != undefined) {
-					reloadSection("section_phase");
+					setTimeout(function() {
+						reloadSection("section_phase");
+					}, 400);
 				} else if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("toggle");
-				}
+					setTimeout(function() {
+						$("#alert-dialog .modal-body").html(response["error"]);
+						$("#alert-dialog").modal("toggle");
+					}, 400);
+				} else
+					unknowError();
 				return false;
-			}
+			},
+			error : unknowError
 		});
 	});
 	$("#confirm-dialog").modal("toggle");
 	return false;
 }
 
-//phase
+// phase
 
 function extractPhase(that) {
 	var phases = $("#section_phase *[trick-class='Phase']>*:nth-child(2)");

@@ -30,9 +30,7 @@ function displayActionPlanOptions(analysisId) {
 			dialog.Show();
 
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			console.log(textStatus, errorThrown);
-		},
+		error : unknowError
 	});
 	return false;
 }
@@ -84,9 +82,7 @@ function calculateActionPlanWithOptions(analysisId, modalBox) {
 				$("#alert-dialog").modal("toggle");
 			}
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			console.log(textStatus, errorThrown);
-		},
+		error : unknowError
 	});
 
 	return false;
@@ -132,7 +128,8 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
 				return false;
 			$("#section_actionplan_" + type + " tr[trick-id='" + idActionPlanEntry + "']").replaceWith(response);
 			return false;
-		}
+		},
+		error : unknowError
 	});
 	reloadMeasureRow(idMeasure, norm);
 	return false;

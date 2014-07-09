@@ -61,7 +61,7 @@ Login.prototype = {
 					view.Show();
 				}
 				return false;
-			}
+			},error : unknowError
 		});
 		return authentificate;
 	}

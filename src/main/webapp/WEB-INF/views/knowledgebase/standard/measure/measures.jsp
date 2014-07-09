@@ -36,7 +36,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="panel-body autofitpanelbodydefinition">
+				<div class="panel-body" style="max-height: 700px; overflow: auto;">
 					<c:choose>
 						<c:when test="${!empty measureDescriptions}">
 							<table id="measurestable" class="table table-hover table-fixed-header">

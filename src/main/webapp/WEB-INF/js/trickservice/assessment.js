@@ -155,9 +155,7 @@ function AssessmentAssetViewer(assetId) {
 					return callback();
 				return false;
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return true;
-			}
+			error : unknowError
 		});
 	};
 
@@ -179,9 +177,7 @@ function AssessmentAssetViewer(assetId) {
 				}
 				return false;
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return true;
-			}
+			error : unknowError
 		});
 	};
 }
@@ -220,9 +216,7 @@ function AssessmentScenarioViewer(scenarioId) {
 					return callback();
 				return false;
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return true;
-			}
+			error : unknowError
 		});
 	};
 
@@ -244,9 +238,7 @@ function AssessmentScenarioViewer(scenarioId) {
 				}
 				return false;
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return true;
-			}
+			error : unknowError
 		});
 	};
 }
@@ -286,9 +278,7 @@ function updateAssessmentAcronym(idParameter, acronym) {
 			}
 			return false;
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return true;
-		}
+		error : unknowError
 	});
 	return false;
 }
@@ -310,11 +300,7 @@ function computeAssessment() {
 			}
 			return false;
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			console.log(textStatus);
-			console.log(errorThrown);
-			return false;
-		},
+		error : unknowError
 	});
 	return false;
 }
@@ -335,11 +321,7 @@ function wipeAssessment() {
 			}
 			return false;
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			console.log(textStatus);
-			console.log(errorThrown);
-			return false;
-		},
+		error : unknowError
 	});
 	return false;
 }

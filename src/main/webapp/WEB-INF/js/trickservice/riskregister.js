@@ -41,9 +41,7 @@ function calculateRiskRegister(analysisId) {
 					$("#alert-dialog").modal("toggle");
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return result;
-			},
+			error : unknowError
 		});
 	} else
 		permissionError();

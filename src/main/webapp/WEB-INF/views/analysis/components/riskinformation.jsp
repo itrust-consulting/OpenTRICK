@@ -20,7 +20,17 @@
 		<span class="anchor" id="anchorRiskInformation_${categoryRiskInformation}"></span>
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<spring:message code="label.risk_information.${categoryRiskInformation}" text="${categoryRiskInformation}" />
+				<c:choose>
+					<c:when test="${categoryRiskInformation == 'Threat'}">
+						<spring:message code="label.risk_information.title.threat" text="Threats" />
+					</c:when>
+					<c:when test="${categoryRiskInformation == 'Vul'}">
+						<spring:message code="label.risk_information.title.vulnerabilities" text="Vulnerabilies" />
+					</c:when>
+					<c:otherwise>
+						<spring:message code="label.risk_information.title.risks" text="Risks" />
+					</c:otherwise>
+				</c:choose>
 			</div>
 			<div class="panel-body autofitpanelbodydefinition">
 				<table id="${categoryRiskInformation}table" class="table table-condensed table-hover table-fixed-header">
@@ -29,7 +39,7 @@
 							<th><spring:message code="label.risk_information.id" text="Id" /></th>
 							<c:choose>
 								<c:when test="${categoryRiskInformation == 'Threat'}">
-									<th colspan="3"><spring:message code="label.risk_information.threat" text="Threat" /></th>
+									<th colspan="3"><spring:message code="label.risk_information.threats" text="Threats" /></th>
 									<th title='<spring:message code="label.risk_information.acronym" text="Acronym" />'><spring:message code="label.risk_information.acro" text="Acro" /></th>
 								</c:when>
 								<c:when test="${categoryRiskInformation == 'Vul'}">

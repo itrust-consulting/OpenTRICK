@@ -38,9 +38,7 @@ function installTrickService() {
 				location.reload(true);
 			}
 		},
-		error : function(XMLHttpRequest, textStatus, errorThrown) {
-			console.log(textStatus, errorThrown);
-		},
+		error : unknowError
 	});
 
 	return false;
@@ -80,9 +78,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 				previous = this.value;
 			});
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return false;
-		},
+		error : unknowError
 	});
 	return false;
 }
@@ -110,9 +106,7 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 				previous = this.value;
 			});
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			return false;
-		},
+		error : unknowError
 	});
 }
 
@@ -154,7 +148,7 @@ function adminCustomerChange(selector) {
 			newSection = $(doc).find("*[id ='section_admin_analysis']");
 			$("#section_admin_analysis").replaceWith(newSection);
 			analysisTableSortable();
-		}
+		},error : unknowError
 	});
 	return false;
 }
