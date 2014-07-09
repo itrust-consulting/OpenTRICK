@@ -5,17 +5,47 @@ function AssessmentViewer() {
 	AssessmentViewer.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
 		$(this.modal_dialog).prop("style", "width: 95%; min-width:1170px;");
+		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale");
+		var probabilityScale = MessageResolver("label.menu.show.probability_scale", "Show probability scale");
+		$(this.modal_title).replaceWith(
+				$("<div class='modal-title'><h4 role='title' class=''></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
+						+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale + "</a></li><ul></div>"));
 		$(this.modal_footer).hide();
 		this.dialogError = $("#alert-dialog").clone();
 		$(this.dialogError).removeAttr("id");
 		$(this.dialogError).appendTo($(this.modal));
+		this.setTitle("Assessment");
+		$(this.modal_header).find("*[role='impact_scale']").on("click", function() {
+			var view = new Modal();
+			view.Intialise();
+			$(view.modal_footer).remove();
+			view.setTitle(MessageResolver("label.title.impact_scale", "Impact scale"));
+			view.setBody($("#Scale_Impact .panel-body").html());
+			$(view.modal_body).find("td").removeAttributes();
+			view.Show();
+		});
+		
+		$(this.modal_header).find("*[role='probability_scale']").on("click", function() {
+			var view = new Modal();
+			view.Intialise();
+			$(view.modal_footer).remove();
+			view.setTitle(MessageResolver("label.title.probability_scale", "Probability scale"));
+			view.setBody($("#Scale_Probability .panel-body").html());
+			$(view.modal_body).find("td").removeAttributes();
+			view.Show();
+		});
 		return false;
 
 	};
-	
-	/*AssessmentViewer.prototype.setTitle= function(title){
+
+	AssessmentViewer.prototype.setTitle = function(title) {
+		var $modalTile = $(this.modal_header).find("*[role='title']");
+		if ($modalTile.length) {
+			$modalTile.text(title);
+			return false;
+		}
 		return true;
-	};*/
+	};
 
 	AssessmentViewer.prototype.DefaultFooterButton = function() {
 		return false;

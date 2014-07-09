@@ -13,7 +13,8 @@
 <body>
 	<div id="wrap">
 		<div class="container">
-			<div class="form-signin" id="login" style="margin: 0 auto; max-width: 330px; padding: 15px;">
+			<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/Logo_TRICKService.png" /> style="width: 200px; height: auto;">
+			<div class="form-signin" id="login" style="margin: 0 auto; max-width: 330px;">
 				<h2 class="form-signin-heading">
 					<spring:message code="label.login.title" text="Sign in" />
 				</h2>
@@ -37,6 +38,7 @@
 						</button>
 					</div>
 				</form>
+
 			</div>
 		</div>
 		<jsp:include page="footer.jsp" />

@@ -49,18 +49,20 @@
 						</ul>
 					</div>
 					<div class="panel-body autofitpanelbodydefinition">
-						<p class="text-center">
-							<spring:message code="label.analysis.filter.customer" text="Analyses filtered by customer: " />
-						<div class="col-md-offset-5 col-md-2">
-							<select class="form-control" onchange="return customerChange(this)" style="margin-bottom: 10px">
-								<c:forEach items="${customers}" var="icustomer">
-									<option value="${icustomer.id}" ${customer != null && icustomer.id == customer? 'selected':'' }>
-										<spring:message text="${icustomer.organisation}" />
-									</option>
-								</c:forEach>
-							</select>
+						<div class="center-block">
+							<p class="text-center">
+								<spring:message code="label.analysis.filter.customer" text="Analyses filtered by customer: " />
+							</p>
+							<form class="col-md-offset-5 col-md-2 form-inline">
+								<select class="form-control" onchange="return customerChange(this)" style="margin-bottom: 10px">
+									<c:forEach items="${customers}" var="icustomer">
+										<option value="${icustomer.id}" ${customer != null && icustomer.id == customer? 'selected':'' }>
+											<spring:message text="${icustomer.organisation}" />
+										</option>
+									</c:forEach>
+								</select>
+							</form>
 						</div>
-						</p>
 						<table class="table table-hover">
 							<thead>
 								<tr>
