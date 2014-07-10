@@ -8,6 +8,13 @@ function Modal() {
 	this.modal_head_buttons = [];
 	this.modal_footer_buttons = [];
 
+	Modal.prototype.FormContent = function(content){
+		this.modal = $(content);
+		this.modal_dialog = $(this.modal).find(".modal-dialog");
+		this.modal_header = $(this.modal).find(".modal-header");
+		
+	};
+
 	Modal.prototype.Size = function(map) {
 		var size = 0;
 		for ( var value in map)
@@ -37,7 +44,7 @@ function Modal() {
 		this.modal_footer.appendChild(button_footer_cancel);
 		return false;
 	};
-
+	
 	Modal.prototype.__Create = function() {
 		// declare modal
 		this.modal = document.createElement("div");

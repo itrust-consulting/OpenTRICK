@@ -133,21 +133,23 @@ SectionSmartUpdate.prototype = {
 	__generic_update : function(src, dest, indexColnum) {
 		try {
 			var tableDestTrs = $(dest).find("tbody tr");
-			if (!tableDestTrs.length){
-				console.log("no tbody")
-				return true;
-			}
+			if (!tableDestTrs.length)
+				throw "tbody cannot be found";
 			for (var i = 0; i < tableDestTrs.length; i++) {
 				var trickId = $(tableDestTrs[i]).attr("trick-id");
-				if (trickId == undefined){
-					console.log("update");
-					return true;
-				}
+				if (trickId == undefined)
+					throw "trick-id cannot be found";
+				var $check = $(tableDestTrs[i]).find("td:first-child>input:checked");
 				var $tr = $(src).find("tbody tr[trick-id='" + trickId + "']");
-				if ($tr.length)
+				if ($tr.length) {
+					if ($check.length)
+						$($tr).find("td:first-child>input").prop("checked", true);
 					$(tableDestTrs[i]).replaceWith($tr);
-				else
+				} else {
+					if ($check.length)
+						$check.attr("checked", false).change();
 					$(tableDestTrs[i]).remove();
+				}
 			}
 			var $tbody = $(dest).find("tbody");
 			var tableSourceTrs = $(src).find("tbody tr[trick-id]");
@@ -162,12 +164,10 @@ SectionSmartUpdate.prototype = {
 				for (var i = 0; i < tableDestTrs.length; i++) {
 					var $td = $(tableDestTrs[i]).find("td");
 					if (!$td.length || $td.length < indexColnum)
-						return true;
-					$($td[indexColnum]).text(i+1);
-					console.log(i);
+						throw "Index out of bound";
+					$($td[indexColnum]).html(i + 1);
 				}
 			}
-			console.log("success");
 			return false;
 		} catch (e) {
 			console.log(e);

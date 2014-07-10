@@ -24,7 +24,7 @@
 
 <script src="<spring:url value="/js/main.js" />"></script>
 
-<script src="<spring:url value="/js/trickservice/smartReloadSection.js" />"></script>
+<script src="<spring:url value="/js/trickservice/reloadSection.js" />"></script>
 <script src="<spring:url value="/js/trickservice/login.js" />"></script>
 <script src="<spring:url value="/js/trickservice/timeoutinterceptor.js" />"></script>
 <script src="<spring:url value="/js/trickservice/taskmanager.js" />"></script>

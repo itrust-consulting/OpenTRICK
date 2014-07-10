@@ -16,10 +16,10 @@
 			<ul class="nav nav-pills" id="menu_asset">
 				<li><a href="#" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.asset.add" text="Add" /></a></li>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.asset.edit" text="Edit" /> </a></li>
-				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return deleteAsset();"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.asset.delete" text="Delete" /> </a></li>
+				<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteAsset();"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.asset.delete" text="Delete" /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectAsset(undefined,'true')"><span class="glyphicon glyphicon-plus-sign"></span> <spring:message	code="label.asset.select" text="Select" /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectAsset(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <spring:message	code="label.asset.unselect" text="Unselect" /> </a></li>
-				<li class="disabled" trick-selectable="true"><a href="#" onclick="return displayAssessmentByAsset()"><span class="glyphicon glyphicon-new-window"></span> <spring:message code="label.asset.assessment" text="Assessment" /> </a></li>
+				<li class="disabled" trick-selectable="true" trick-check="isSelected('asset')"><a href="#" onclick="return displayAssessmentByAsset()"><span class="glyphicon glyphicon-new-window"></span> <spring:message code="label.asset.assessment" text="Assessment" /> </a></li>
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">

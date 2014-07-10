@@ -3,7 +3,7 @@
  */
 
 String.prototype.endsWith = function(suffix) {
-    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+	return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
 var application = new Application();
@@ -52,33 +52,29 @@ $(function() {
 		odd : '' // even row zebra striping
 	});
 
-	var trick_table = $(this).find("table[trick-table]");
-	if (trick_table.length) {
-		for (var i = 0; i < trick_table.length; i++) {
-			var table = new TrickCarousel(trick_table[i]);
-			table.initialise();
-		}
-	}
+	if ($(".popover-element").length)
+		$(".popover-element").popover('hide');
 
-	$('.modal').on('shown', function() {
-		$('body').css({
-			overflow : 'hidden'
-		});
-	}).on('hidden', function() {
-		$('body').css({
-			overflow : ''
+	$('.modal').on('shown.bs.modal', function() {
+		$('body').on('wheel.modal mousewheel.modal', function() {
+			if ($(".modal-open").length || $(".modal.fade.in").length)
+				return false;
+			$('body').off('wheel.modal mousewheel.modal');
+			return true;
 		});
 	});
 
-	if ($('#confirm-dialog').length)
+	if ($('#confirm-dialog').length) {
 		$('#confirm-dialog').on('hidden.bs.modal', function() {
 			$("#confirm-dialog .btn-danger").unbind("click");
 		});
+	}
 
-	if ($('#alert-dialog').length)
+	if ($('#alert-dialog').length) {
 		$('#alert-dialog').on('hidden.bs.modal', function() {
 			$("#alert-dialog .btn-danger").unbind("click");
 		});
+	}
 
 	if ($('.table-fixed-header').length) {
 		$('table.table-fixed-header').floatThead({
@@ -88,62 +84,47 @@ $(function() {
 		});
 	}
 
-	var $window = $(window);
-	var previewScrollTop = $window.scrollTop();
-	if (!$(".navbar-custom").length)
-		return false;
-	var startPosition = $(".navbar-custom").position().top;
-	var previewPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
-	if (previewScrollTop != 0)
-		$(".navbar-custom").addClass("affix");
-	$window.scroll(function() {
-		var currentPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
-		var scrollTop = $window.scrollTop();
-		if (previewPosition > 0 && currentPosition <= 50 && scrollTop > previewScrollTop) {
-			$(".navbar-custom").addClass("affix");
-		} else if (scrollTop < startPosition && scrollTop < previewScrollTop && scrollTop < 50)
-			$(".navbar-custom").removeClass("affix");
-		previewPosition = currentPosition;
-		previewScrollTop = scrollTop;
-	});
-
 });
 
 $.fn.removeAttributes = function(only, except) {
-    if (only) {
-        only = $.map(only, function(item) {
-            return item.toString().toLowerCase();
-        });
-    };
-    if (except) {
-        except = $.map(except, function(item) {
-            return item.toString().toLowerCase();
-        });
-        if (only) {
-            only = $.grep(only, function(item, index) {
-                return $.inArray(item, except) == -1;
-            });
-        };
-    };
-    return this.each(function() {
-        var attributes;
-        if(!only){
-            attributes = $.map(this.attributes, function(item) {
-                return item.name.toString().toLowerCase();
-            });
-             if (except) {
-                attributes = $.grep(attributes, function(item, index) {
-                    return $.inArray(item, except) == -1;
-                });
-            };
-        } else {
-            attributes = only;
-        }      
-        var handle = $(this);
-        $.each(attributes, function(index, item) {
-            handle.removeAttr(item);
-        });
-    });
+	if (only) {
+		only = $.map(only, function(item) {
+			return item.toString().toLowerCase();
+		});
+	}
+	;
+	if (except) {
+		except = $.map(except, function(item) {
+			return item.toString().toLowerCase();
+		});
+		if (only) {
+			only = $.grep(only, function(item, index) {
+				return $.inArray(item, except) == -1;
+			});
+		}
+		;
+	}
+	;
+	return this.each(function() {
+		var attributes;
+		if (!only) {
+			attributes = $.map(this.attributes, function(item) {
+				return item.name.toString().toLowerCase();
+			});
+			if (except) {
+				attributes = $.grep(attributes, function(item, index) {
+					return $.inArray(item, except) == -1;
+				});
+			}
+			;
+		} else {
+			attributes = only;
+		}
+		var handle = $(this);
+		$.each(attributes, function(index, item) {
+			handle.removeAttr(item);
+		});
+	});
 };
 
 /**
@@ -273,7 +254,7 @@ function MessageResolver(code, defaulttext, params) {
 			if (response == null || response == "")
 				return defaulttext;
 			return application.localesMessages[uniqueCode] = defaulttext = response;
-		}/*,error : unknowError*/
+		}/* ,error : unknowError */
 	});
 	return defaulttext;
 }
@@ -324,10 +305,13 @@ function showSuccess(parent, text) {
 	return false;
 }
 
-
 /**
  * section menu update
  */
+
+function isSelected(sectionName){
+	return $("#section_" + sectionName + " tbody tr[trick-selected='true'] td:first-child input:checked").length>0;
+}
 
 function checkControlChange(checkbox, sectionName) {
 	var items = $("#section_" + sectionName + " tbody tr td:first-child input");
@@ -341,8 +325,11 @@ function updateMenu(idsection, idMenu) {
 	var checkedCount = $(idsection + " tbody :checked").length;
 	if (checkedCount == 1) {
 		var $lis = $(idMenu + " li");
-		for (var i = 0; i < $lis.length; i++)
-			$($lis[i]).removeClass("disabled");
+		for (var i = 0; i < $lis.length; i++) {
+			var checker = $($lis[i]).attr("trick-check");
+			if (checker == undefined || eval(checker))
+				$($lis[i]).removeClass("disabled");
+		}
 	} else if (checkedCount > 1) {
 		var $lis = $(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
@@ -374,7 +361,8 @@ function cancelTask(taskId) {
 		contentType : "application/json;charset=UTF-8",
 		success : function(reponse) {
 			$("#task_" + taskId).remove();
-		},error : unknowError
+		},
+		error : unknowError
 	});
 }
 
@@ -390,7 +378,8 @@ function updateStatus(progressBar, idTask, callback, status) {
 					return false;
 				}
 				return updateStatus(progressBar, idTask, callback, reponse);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	} else {
 		if (status.message != null)
@@ -432,7 +421,8 @@ function deleteAssetTypeValueDuplication() {
 					$("#alert-dialog .modal-body").html(response["success"]);
 					$("#alert-dialog").modal("toggle");
 				}
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	} else
 		permissionError();

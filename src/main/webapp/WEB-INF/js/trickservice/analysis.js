@@ -44,10 +44,10 @@ $(document).ready(function() {
 	// ******************************************************************************************************************
 	// * measure description in popover
 	// ******************************************************************************************************************
-	initmeasuredescriptionpopover();
+	//initmeasuredescriptionpopover();
 
 });
-
+/*
 function initialisefixheadertables(parent) {
 
 	if (parent.length !== 0) {
@@ -135,7 +135,7 @@ function initmeasuredescriptionpopover() {
 		}
 	});
 }
-
+*/
 // reload measures
 
 function reloadMeasureRow(idMeasure, norm) {
@@ -148,19 +148,12 @@ function reloadMeasureRow(idMeasure, norm) {
 			var element = document.createElement("div");
 			$(element).html(response);
 			var tag = $(element).find("tr[trick-id='" + idMeasure + "']");
-			if (tag.length) {
+			if (tag.length){
 				$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']").replaceWith(tag);
-				var popover = $(tag).find("a.descriptiontooltip");
-				$(popover).popover({
-					trigger : 'manual',
-					placement : 'bottom',
-					html : true,
-					container : ".panelbodydefinition"
-				});
-				popover.popover("hide");
-				$('.popover').remove();
+				$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
 			}
-		},error : unknowError
+		},
+		error : unknowError
 	});
 	return false;
 }
@@ -186,7 +179,8 @@ function compliance(norm) {
 			if (response.chart == undefined || response.chart == null)
 				return;
 			$('#chart_compliance_' + norm).highcharts(response);
-		},error : unknowError
+		},
+		error : unknowError
 	});
 	return false;
 }
@@ -204,7 +198,8 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 			if (response.chart == undefined || response.chart == null)
 				return true;
 			$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
-		},error : unknowError
+		},
+		error : unknowError
 	});
 }
 
@@ -221,7 +216,8 @@ function budgetByActionPlanType(actionPlanType) {
 			if (response.chart == undefined || response.chart == null)
 				return true;
 			$('#chart_budget_' + actionPlanType).highcharts(response);
-		},error : unknowError
+		},
+		error : unknowError
 	});
 }
 
@@ -262,7 +258,8 @@ function chartALE() {
 			async : true,
 			success : function(response) {
 				$('#chart_ale_scenario_type').highcharts(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	}
 	if ($('#chart_ale_scenario').length) {
@@ -274,7 +271,8 @@ function chartALE() {
 			async : true,
 			success : function(response) {
 				$('#chart_ale_scenario').highcharts(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	}
 
@@ -287,7 +285,8 @@ function chartALE() {
 			async : true,
 			success : function(response) {
 				$('#chart_ale_asset').highcharts(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	}
 	if ($('#chart_ale_asset_type').length) {
@@ -299,7 +298,8 @@ function chartALE() {
 			async : true,
 			success : function(response) {
 				$('#chart_ale_asset_type').highcharts(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	}
 	return false;
@@ -328,7 +328,8 @@ function addStandard() {
 						$("#addStandardModal").modal("toggle");
 					}
 				}
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	} else
 		permissionError();
@@ -368,7 +369,8 @@ function saveStandard(form) {
 						$("#addStandardModal").modal("toggle");
 					}, 10000);
 				}
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	} else
 		permissionError();

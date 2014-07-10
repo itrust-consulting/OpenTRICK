@@ -338,3 +338,6 @@ td>pre {
 .text-rotate-30{
 	transform: rotate(30deg);
 }
+.modal-open {
+	overflow: inherit;
+}

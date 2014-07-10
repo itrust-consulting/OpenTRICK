@@ -1,4 +1,4 @@
-function showMeasures(normId, languageId) {
+function showMeasures(normId, languageId, modal) {
 	if (normId == null || normId == undefined) {
 		var selectedScenario = findSelectItemIdBySection(("section_norm"));
 		if (selectedScenario.length != 1)
@@ -15,25 +15,29 @@ function showMeasures(normId, languageId) {
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
-			var header = $(doc).find("#measures_header");
-			var body = $(doc).find("#measures_body");
+			if (modal == null || modal == undefined) {
+				modal = new Modal();
+				modal.modal = $("#showMeasuresModel").clone()[0];
+				application["modal-measure"] = modal;
+			}
+		
 			oldHeader = $("#showMeasuresModel-title");
 			oldBody = $("#showmeasuresbody");
 			$(oldHeader).html(header.html());
-			$(oldBody).html(body.html());
-			// measureSortTable();
-			
-			$("#languageselect").change(function() {
+			modal.setBody($(doc).find("#measures_body"));
+			$(modal.modal_footer).remove();
+			$(modal.modal_body).find("#languageselect").change(function() {
 				var language = $(this).find("option:selected").attr("value");
 				var normId = $("#normId").attr("value");
-				showMeasures(normId, language);
+				showMeasures(normId, language, modal);
 			});
-			$("#showMeasuresModel").modal("show");
+			// $("#showMeasuresModel").modal("show");
 			setTimeout(function() {
-				fixedTableHeader($("#showmeasuresbody .table-fixed-header"));
+				fixedTableHeader($(modal.modal_body).find(".table-fixed-header"));
 			}, 400);
 
-		},error : unknowError
+		},
+		error : unknowError
 	});
 	return false;
 }
@@ -86,7 +90,8 @@ function saveMeasure(form) {
 			}
 			return false;
 
-		},error : unknowError
+		},
+		error : unknowError
 	});
 	return false;
 }
@@ -119,9 +124,10 @@ function refreshMeasure(normId, measureId, languageId) {
 				$("#languageselect").change(function() {
 					var language = $(this).find("option:selected").attr("value");
 					var normId = $("#normId").attr("value");
-					showMeasures(normId, language);
+					showMeasures(normId, language, application["modal-measure"]);
 				});
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	} else {
 		$.ajax({
@@ -136,7 +142,8 @@ function refreshMeasure(normId, measureId, languageId) {
 					fixedTableHeader($("#showmeasuresbody .table-fixed-header"));
 					// measureSortTable($("#showmeasuresbody"));
 				}
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	}
 	return false;
@@ -163,9 +170,10 @@ function deleteMeasure(measureId, reference, norm) {
 			success : function(response) {
 				var language = $("#languageselect").find("option:selected").attr("value");
 				var normId = $("#normId").attr("value");
-				showMeasures(normId, language);
+				showMeasures(normId, language, application["modal-measure"]);
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		$("#deleteMeasureModel").modal('toggle');
 		return false;

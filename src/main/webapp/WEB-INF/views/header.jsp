@@ -12,7 +12,6 @@
 <meta content="width=device-width" name="viewport" />
 <link href=<spring:url value="/images/favicon.ico" /> rel="shortcut icon" />
 <title><spring:message code="${title}" text="TRICK Service" /></title>
-<!--<link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.min.css" />' />-->
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/slider.css" />' />
