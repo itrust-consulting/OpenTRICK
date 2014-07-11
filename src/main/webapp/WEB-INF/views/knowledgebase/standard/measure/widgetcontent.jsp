@@ -3,7 +3,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="showMeasuresModel" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" data-aria-hidden="true">
+<div class="modal fade" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" data-aria-hidden="true">
 	<div class="modal-dialog" style="width: 80%">
 		<div class="modal-content">
 			<div id="measures_header" class="modal-header">
@@ -48,7 +48,7 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button id="addmeasurebutton" type="button" class="btn btn-primary" onclick="saveMeasure('measure_form')">
+				<button id="addmeasurebutton" type="button" class="btn btn-primary" onclick="saveMeasure()">
 					<spring:message code="label.norm.add.form" text="Add" />
 				</button>
 			</div>

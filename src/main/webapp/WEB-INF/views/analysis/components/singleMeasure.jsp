@@ -8,9 +8,20 @@
 <c:set var="csscentered" value="${measure.getImplementationRateValue()==100 || measure.getStatus().equals('NA')?'':'class=\"success\"'}" />
 <tr trick-class="Measure" trick-id="${measure.id}" trick-callback="reloadMeasureRow('${measure.id}','${norm}');">
 	<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
-	<td><a href="#" class="descriptiontooltip" data-toggle="tooltip" data-html="true"
-		title="<spring:message text="${!empty measureDescriptionText? measureDescriptionText.description : ''}" />"> <spring:message text="${measure.measureDescription.reference}" />
-	</a></td>
+	<c:choose>
+	<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
+	<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
+		data-content=''
+		title='<spring:message
+	text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
+	</c:when>
+	<c:otherwise>
+	<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
+		data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>'
+	title='<spring:message
+	text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
+	</c:otherwise>
+	</c:choose>
 	<td colspan="4"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 	<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 			text="${measure.status}" /></td>

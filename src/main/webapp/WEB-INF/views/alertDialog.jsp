@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="dialog-body">
-	<div id="info-dialog" class="bootbox modal fade bootbox-confirm in" role="dialog" tabindex="-1" style="display: none;" data-aria-hidden="true">
+	<div id="info-dialog" class="bootbox modal fade bootbox-confirm" role="dialog" tabindex="-1" style="display: none;" data-aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<!-- dialog body -->
@@ -18,7 +18,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="alert-dialog" class="bootbox modal fade bootbox-confirm in" role="dialog" tabindex="-1" style="display: none;" data-aria-hidden="true">
+	<div id="alert-dialog" class="bootbox modal fade bootbox-confirm" role="dialog" tabindex="-1" style="display: none;" data-aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<!-- dialog body -->
@@ -32,7 +32,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="confirm-dialog" class="bootbox modal fade bootbox-confirm in" role="dialog" tabindex="-1" style="display: none;" data-aria-hidden="true">
+	<div id="confirm-dialog" class="bootbox modal fade bootbox-confirm" role="dialog" tabindex="-1" style="display: none;" data-aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<!-- dialog body -->

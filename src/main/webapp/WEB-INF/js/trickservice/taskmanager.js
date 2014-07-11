@@ -28,9 +28,9 @@ function TaskManager(title) {
 		return this.tasks.length == 0;
 	};
 
-	TaskManager.prototype.Distroy = function() {
+	TaskManager.prototype.Destroy = function() {
 		if (this.view != null)
-			this.view.Distroy();
+			this.view.Destroy();
 		return true;
 	};
 
@@ -73,9 +73,9 @@ function TaskManager(title) {
 		progressBar.OnComplete(function(sender) {
 			progressBar.setInfo("Complete");
 			setTimeout(function() {
-				progressBar.Distroy();
+				progressBar.Destroy();
 				instance.Remove(taskId);
-				instance.Distroy();
+				instance.Destroy();
 			}, 10000);
 		});
 		return progressBar;
@@ -89,7 +89,7 @@ function TaskManager(title) {
 			this.progressBars[taskId].Remove();
 			this.progressBars.splice(taskId, 1);
 		}
-		this.Distroy();
+		this.Destroy();
 		return false;
 	};
 

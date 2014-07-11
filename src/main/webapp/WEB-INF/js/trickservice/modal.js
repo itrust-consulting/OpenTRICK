@@ -8,6 +8,21 @@ function Modal() {
 	this.modal_head_buttons = [];
 	this.modal_footer_buttons = [];
 
+	Modal.prototype.FromContent = function(content) {
+		this.modal = $(content);
+		this.modal_dialog = $(this.modal).find(".modal-dialog");
+		this.modal_header = $(this.modal).find(".modal-header");
+		this.modal_title = $(this.modal).find(".modal-title");
+		this.modal_body = $(this.modal).find(".modal-body");
+		this.modal_footer = $(this.modal).find(".modal-footer");
+		var $headerButtons = $(this.modal_header).find("button");
+		for (var i = 0; i < $headerButtons.length; i++)
+			this.modal_head_buttons.push($headerButtons[i]);
+		var $footerButtons = $(this.modal_footer).find("button");
+		for (var i = 0; i < $footerButtons.length; i++) 
+			this.modal_footer_buttons.push($footerButtons[i]);
+	};
+
 	Modal.prototype.Size = function(map) {
 		var size = 0;
 		for ( var value in map)
@@ -129,20 +144,21 @@ function Modal() {
 
 	Modal.prototype.Hide = function() {
 		try {
-			if (this.modal != null && this.modal != undefined)
+			if (!(this.modal == null || this.modal == undefined)){
 				$(this.modal).modal("hide");
+				$(instance.modal).remove();
+			}
 		} catch (e) {
 			console.log(e);
 		}
 	};
 
-	Modal.prototype.Distroy = function() {
+	Modal.prototype.Destroy = function() {
 		var instance = this;
 		instance.Hide();
-		instance.modal.remove();
 		setTimeout(function() {
 			delete instance;
-		}, 10);
+		}, 80);
 		return false;
 	};
 

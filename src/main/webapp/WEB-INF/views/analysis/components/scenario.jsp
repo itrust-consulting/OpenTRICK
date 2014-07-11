@@ -19,7 +19,7 @@
 				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return deleteScenario();"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.scenario.delete" text="Delete" /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span class="glyphicon glyphicon-plus-sign"></span> <spring:message code="label.scenario.select" text="Select" /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <spring:message code="label.scenario.unselect" text="Unselect" /> </a></li>
-				<li class="disabled" trick-selectable="true"><a href="#" onclick="return displayAssessmentByScenario()"><span class="glyphicon glyphicon-new-window"></span> <spring:message code="label.scenario.assessment" text="Assessment" /> </a></li>
+				<li class="disabled" trick-selectable="true" trick-check="isSelected('scenario')"><a href="#" onclick="return displayAssessmentByScenario()"><span class="glyphicon glyphicon-new-window"></span> <spring:message code="label.scenario.assessment" text="Assessment" /> </a></li>
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">

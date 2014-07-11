@@ -163,4 +163,10 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	public void delete(MeasureDescription measureDescription) throws Exception {
 		getSession().delete(measureDescription);
 	}
+
+	@Override
+	public void delete(int id) throws Exception {
+		delete(get(id));
+		
+	}
 }

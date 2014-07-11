@@ -118,7 +118,7 @@ function ProgressBar() {
 		return false;
 	};
 
-	ProgressBar.prototype.Distroy = function() {
+	ProgressBar.prototype.Destroy = function() {
 		this.Remove();
 		var instance = this;
 		setTimeout(function() {

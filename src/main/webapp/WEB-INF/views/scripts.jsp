@@ -24,12 +24,17 @@
 
 <script src="<spring:url value="/js/main.js" />"></script>
 
+<script src="<spring:url value="/js/trickservice/reloadSection.js" />"></script>
 <script src="<spring:url value="/js/trickservice/login.js" />"></script>
 <script src="<spring:url value="/js/trickservice/timeoutinterceptor.js" />"></script>
 <script src="<spring:url value="/js/trickservice/taskmanager.js" />"></script>
 <script src="<spring:url value="/js/trickservice/progressbar.js" />"></script>
 <script src="<spring:url value="/js/trickservice/modal.js" />"></script>
 <script src="<spring:url value="/js/trickservice/patch.js" />"></script>
+
+
+
+
 <script type="text/javascript">
 	<sec:authorize ifNotGranted="ROLE_ANONYMOUS" >
 	<!--

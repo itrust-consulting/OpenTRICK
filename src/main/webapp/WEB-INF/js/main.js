@@ -3,7 +3,7 @@
  */
 
 String.prototype.endsWith = function(suffix) {
-    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+	return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
 var application = new Application();
@@ -15,8 +15,10 @@ function Application() {
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
-	$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.occurred", "An unknown error occurred"));
-	$("#alert-dialog").modal("toggle");
+	var modal = new Modal();
+	modal.FromContent($("#alert-dialog").clone());
+	modal.setBody(MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+	modal.Show();
 	return true;
 }
 
@@ -52,33 +54,29 @@ $(function() {
 		odd : '' // even row zebra striping
 	});
 
-	var trick_table = $(this).find("table[trick-table]");
-	if (trick_table.length) {
-		for (var i = 0; i < trick_table.length; i++) {
-			var table = new TrickCarousel(trick_table[i]);
-			table.initialise();
-		}
-	}
+	if ($(".popover-element").length)
+		$(".popover-element").popover('hide');
 
-	$('.modal').on('shown', function() {
-		$('body').css({
-			overflow : 'hidden'
-		});
-	}).on('hidden', function() {
-		$('body').css({
-			overflow : ''
+	$('.modal').on('shown.bs.modal', function() {
+		$('body').on('wheel.modal mousewheel.modal', function() {
+			if ($(".modal-open").length || $(".modal.fade.in").length)
+				return false;
+			$('body').off('wheel.modal mousewheel.modal');
+			return true;
 		});
 	});
 
-	if ($('#confirm-dialog').length)
+	if ($('#confirm-dialog').length) {
 		$('#confirm-dialog').on('hidden.bs.modal', function() {
 			$("#confirm-dialog .btn-danger").unbind("click");
 		});
+	}
 
-	if ($('#alert-dialog').length)
+	if ($('#alert-dialog').length) {
 		$('#alert-dialog').on('hidden.bs.modal', function() {
 			$("#alert-dialog .btn-danger").unbind("click");
 		});
+	}
 
 	if ($('.table-fixed-header').length) {
 		$('table.table-fixed-header').floatThead({
@@ -88,62 +86,47 @@ $(function() {
 		});
 	}
 
-	var $window = $(window);
-	var previewScrollTop = $window.scrollTop();
-	if (!$(".navbar-custom").length)
-		return false;
-	var startPosition = $(".navbar-custom").position().top;
-	var previewPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
-	if (previewScrollTop != 0)
-		$(".navbar-custom").addClass("affix");
-	$window.scroll(function() {
-		var currentPosition = $(".navbar-custom").offset().top - $(".navbar-fixed-top").offset().top;
-		var scrollTop = $window.scrollTop();
-		if (previewPosition > 0 && currentPosition <= 50 && scrollTop > previewScrollTop) {
-			$(".navbar-custom").addClass("affix");
-		} else if (scrollTop < startPosition && scrollTop < previewScrollTop && scrollTop < 50)
-			$(".navbar-custom").removeClass("affix");
-		previewPosition = currentPosition;
-		previewScrollTop = scrollTop;
-	});
-
 });
 
 $.fn.removeAttributes = function(only, except) {
-    if (only) {
-        only = $.map(only, function(item) {
-            return item.toString().toLowerCase();
-        });
-    };
-    if (except) {
-        except = $.map(except, function(item) {
-            return item.toString().toLowerCase();
-        });
-        if (only) {
-            only = $.grep(only, function(item, index) {
-                return $.inArray(item, except) == -1;
-            });
-        };
-    };
-    return this.each(function() {
-        var attributes;
-        if(!only){
-            attributes = $.map(this.attributes, function(item) {
-                return item.name.toString().toLowerCase();
-            });
-             if (except) {
-                attributes = $.grep(attributes, function(item, index) {
-                    return $.inArray(item, except) == -1;
-                });
-            };
-        } else {
-            attributes = only;
-        }      
-        var handle = $(this);
-        $.each(attributes, function(index, item) {
-            handle.removeAttr(item);
-        });
-    });
+	if (only) {
+		only = $.map(only, function(item) {
+			return item.toString().toLowerCase();
+		});
+	}
+	;
+	if (except) {
+		except = $.map(except, function(item) {
+			return item.toString().toLowerCase();
+		});
+		if (only) {
+			only = $.grep(only, function(item, index) {
+				return $.inArray(item, except) == -1;
+			});
+		}
+		;
+	}
+	;
+	return this.each(function() {
+		var attributes;
+		if (!only) {
+			attributes = $.map(this.attributes, function(item) {
+				return item.name.toString().toLowerCase();
+			});
+			if (except) {
+				attributes = $.grep(attributes, function(item, index) {
+					return $.inArray(item, except) == -1;
+				});
+			}
+			;
+		} else {
+			attributes = only;
+		}
+		var handle = $(this);
+		$.each(attributes, function(index, item) {
+			handle.removeAttr(item);
+		});
+	});
 };
 
 /**
@@ -222,8 +205,10 @@ var ANALYSIS_RIGHT = {
 };
 
 function permissionError() {
-	$("#alert-dialog .modal-body").html(MessageResolver("error.notAuthorized", "Insufficient permissions!"));
-	$("#alert-dialog").modal("toggle");
+	var modal = new Modal();
+	modal.FromContent($("#alert-dialog").clone());
+	modal.setBody(MessageResolver("error.notAuthorized", "Insufficient permissions!"));
+	modal.Show();
 	return false;
 }
 
@@ -273,7 +258,7 @@ function MessageResolver(code, defaulttext, params) {
 			if (response == null || response == "")
 				return defaulttext;
 			return application.localesMessages[uniqueCode] = defaulttext = response;
-		}/*,error : unknowError*/
+		}/* ,error : unknowError */
 	});
 	return defaulttext;
 }
@@ -325,136 +310,34 @@ function showSuccess(parent, text) {
 }
 
 /**
- * reload sections
- */
-
-function reloadSection(section, subSection) {
-	if (Array.isArray(section)) {
-		for (var int = 0; int < section.length; int++) {
-			if (Array.isArray(section[int]))
-				reloadSection(section[int][0], section[int][1]);
-			else
-				reloadSection(section[int]);
-		}
-	} else {
-		var controller = controllerBySection(section, subSection);
-		if (controller == null || controller == undefined)
-			return false;
-		$.ajax({
-			url : context + controller,
-			type : "get",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				var tag = response.substring(response.indexOf('<'));
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(tag, "text/html");
-				if (subSection != null && subSection != undefined)
-					section += "_" + subSection;
-				newSection = $(doc).find("*[id = '" + section + "']");
-				$("#" + section).replaceWith(newSection);
-				var tableFixedHeader = $("#" + section).find("table.table-fixed-header");
-				if (tableFixedHeader.length) {
-					setTimeout(function() {
-						fixedTableHeader(tableFixedHeader);
-					}, 500);
-				}
-				var callback = callbackBySection(section);
-				if ($.isFunction(callback))
-					callback();
-				return false;
-			},
-			error : unknowError
-		});
-	}
-}
-
-function controllerBySection(section, subSection) {
-	var controllers = {
-		"section_asset" : "/Asset/Section",
-		"section_parameter" : "/Parameter/Section",
-		"section_scenario" : "/Scenario/Section",
-		"section_assessment" : "/Assessment/Section",
-		"section_phase" : "/Phase/Section",
-		"section_analysis" : "/Analysis/Section",
-		"section_profile_analysis" : "/AnalysisProfile/Section",
-		"section_measure" : "/Measure/Section",
-		"section_customer" : "/KnowledgeBase/Customer/Section",
-		"section_language" : "/KnowledgeBase/Language/Section",
-		"section_norm" : "/KnowledgeBase/Norm/Section",
-		"section_user" : "/Admin/User/Section",
-		"section_actionplans" : "/ActionPlan/Section",
-		"section_summary" : "/ActionPlanSummary/Section",
-		"section_riskregister" : "/RiskRegister/Section"
-	};
-
-	if (subSection == null || subSection == undefined)
-		return controllers[section];
-	else
-		return controllers[section] + "/" + subSection;
-}
-
-function callbackBySection(section) {
-	var callbacks = {
-		"section_asset" : function() {
-			chartALE();
-			return false;
-		},
-		"section_scenario" : function() {
-			chartALE();
-			return false;
-		},
-		"section_analysis" : function() {
-			return analysisTableSortable();
-		},
-		"section_profile_analysis" : function() {
-			return analysisTableSortable();
-		},
-		"section_actionplans" : function() {
-			compliance('27001');
-			compliance('27002');
-			reloadSection("section_summary");
-			return false;
-		},
-		"section_summary" : function() {
-			summaryCharts();
-			return false;
-		}
-
-	};
-	return callbacks[section];
-}
-
-function sectionPretreatment(section) {
-	var pretreatment = {
-		"section_assessment" : function(data) {
-			var trickCarousel = new TrickCarousel($(data).find("table[trick-table]"));
-			trickCarousel.initialise();
-		}
-	};
-	return pretreatment[section];
-}
-
-/**
  * section menu update
  */
 
-function checkControlChange(checkbox, sectionName) {
-	var items = $("#section_" + sectionName + " tbody tr td:first-child input");
+function isSelected(sectionName) {
+	return $("#section_" + sectionName + " tbody tr[trick-selected='true'] td:first-child input:checked").length > 0;
+}
+
+function checkControlChange(checkbox, sectionName, appModalVar) {
+	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input") : $(application[appModalVar].modal).find(
+			"tbody tr td:first-child input");
 	for (var i = 0; i < items.length; i++)
 		$(items[i]).prop("checked", $(checkbox).is(":checked"));
-	updateMenu("#section_" + sectionName, "#menu_" + sectionName);
+	updateMenu("#section_" + sectionName, "#menu_" + sectionName, appModalVar);
 	return false;
 }
 
-function updateMenu(idsection, idMenu) {
-	var checkedCount = $(idsection + " tbody :checked").length;
+function updateMenu(idsection, idMenu, appModalVar) {
+	var checkedCount = (appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked").length
+			: $(application[appModalVar].modal).find("tbody :checked").length;
 	if (checkedCount == 1) {
-		var $lis = $(idMenu + " li");
-		for (var i = 0; i < $lis.length; i++)
-			$($lis[i]).removeClass("disabled");
+		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
+		for (var i = 0; i < $lis.length; i++) {
+			var checker = $($lis[i]).attr("trick-check");
+			if (checker == undefined || eval(checker))
+				$($lis[i]).removeClass("disabled");
+		}
 	} else if (checkedCount > 1) {
-		var $lis = $(idMenu + " li");
+		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			if ($($lis[i]).attr("trick-selectable") == undefined || $($lis[i]).attr("trick-selectable") === "multi")
 				$($lis[i]).removeClass("disabled");
@@ -462,7 +345,7 @@ function updateMenu(idsection, idMenu) {
 				$($lis[i]).addClass("disabled");
 		}
 	} else {
-		var $lis = $(idMenu + " li");
+		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			if ($($lis[i]).attr("trick-selectable") != undefined)
 				$($lis[i]).addClass("disabled");
@@ -484,7 +367,8 @@ function cancelTask(taskId) {
 		contentType : "application/json;charset=UTF-8",
 		success : function(reponse) {
 			$("#task_" + taskId).remove();
-		},error : unknowError
+		},
+		error : unknowError
 	});
 }
 
@@ -500,7 +384,8 @@ function updateStatus(progressBar, idTask, callback, status) {
 					return false;
 				}
 				return updateStatus(progressBar, idTask, callback, reponse);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	} else {
 		if (status.message != null)
@@ -511,7 +396,7 @@ function updateStatus(progressBar, idTask, callback, status) {
 			}, 1500);
 		} else {
 			/*
-			 * setTimeout(function() { progressBar.Distroy(); }, 3000);
+			 * setTimeout(function() { progressBar.Destroy(); }, 3000);
 			 */
 			$(progressBar.progress).parent().parent().find("button").each(function() {
 				$(this).removeAttr("disabled");
@@ -542,16 +427,19 @@ function deleteAssetTypeValueDuplication() {
 					$("#alert-dialog .modal-body").html(response["success"]);
 					$("#alert-dialog").modal("toggle");
 				}
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	} else
 		permissionError();
 	return false;
 }
 
-function serializeForm(formId) {
-	var form = $("#" + formId);
-	var data = form.serializeJSON();
+function serializeForm(form) {
+	var $form = $(form);
+	if (!$form.length)
+		$form = $("#" + form);
+	var data = $form.serializeJSON();
 	return JSON.stringify(data);
 }
 
@@ -589,9 +477,9 @@ function post(url, data, refraich) {
 	return false;
 }
 
-function findSelectItemIdBySection(section) {
+function findSelectItemIdBySection(section, modal) {
 	var selectedItem = [];
-	var $item = $("#" + section + " tbody :checked");
+	var $item = (modal == null || modal == undefined)? $("#" + section + " tbody :checked") : $(modal).find("tbody :checked");
 	for (var i = 0; i < $item.length; i++) {
 		trickId = findTrickID($($item[i])[0]);
 		if (trickId == null || trickId == undefined)

@@ -245,7 +245,7 @@ function AssessmentScenarioViewer(scenarioId) {
 
 function displayAssessmentByScenario() {
 	var selectedItem = findSelectItemIdBySection("section_scenario");
-	if (selectedItem.length != 1)
+	if (selectedItem.length != 1 || !isSelected("scenario"))
 		return false;
 	application.modal["AssessmentViewer"] = new AssessmentScenarioViewer(selectedItem[0]);
 	application.modal["AssessmentViewer"].Show();
@@ -255,7 +255,7 @@ function displayAssessmentByScenario() {
 function displayAssessmentByAsset() {
 
 	var selectedItem = findSelectItemIdBySection("section_asset");
-	if (selectedItem.length != 1)
+	if (selectedItem.length != 1 || !isSelected("asset"))
 		return false;
 	application.modal["AssessmentViewer"] = new AssessmentAssetViewer(selectedItem[0]);
 	application.modal["AssessmentViewer"].Show();
