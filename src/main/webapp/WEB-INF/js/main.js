@@ -59,7 +59,7 @@ $(function() {
 
 	$('.modal').on('shown.bs.modal', function() {
 		$('body').on('wheel.modal mousewheel.modal', function() {
-			if ($(".modal-open").length)
+			if ($(".modal-open").length || $(".modal.fade.in").length)
 				return false;
 			$('body').off('wheel.modal mousewheel.modal');
 			return true;
@@ -477,9 +477,9 @@ function post(url, data, refraich) {
 	return false;
 }
 
-function findSelectItemIdBySection(section) {
+function findSelectItemIdBySection(section, modal) {
 	var selectedItem = [];
-	var $item = $("#" + section + " tbody :checked");
+	var $item = (modal == null || modal == undefined)? $("#" + section + " tbody :checked") : $(modal).find("tbody :checked");
 	for (var i = 0; i < $item.length; i++) {
 		trickId = findTrickID($($item[i])[0]);
 		if (trickId == null || trickId == undefined)

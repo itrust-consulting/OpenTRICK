@@ -191,6 +191,7 @@ public class CustomDelete {
 		while(iterator.hasNext()){
 			MeasureDescriptionText descriptionText = iterator.next();
 			iterator.remove();
+			descriptionText.setMeasureDescription(null);
 			daoMeasureDescriptionText.delete(descriptionText);
 		}
 		daoMeasureDescription.delete(measureDescription);

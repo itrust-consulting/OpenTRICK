@@ -95,7 +95,10 @@ function saveMeasure() {
 
 function deleteMeasure(measureId, reference, norm) {
 	if (measureId == null || measureId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(undefined, application["modal-measure"].modal);
+		var selectedScenario = findSelectItemIdBySection(undefined, application["modal-measure"].modal_body);
+
+		console.log(selectedScenario);
+
 		if (selectedScenario.length != 1)
 			return false;
 		measureId = selectedScenario[0];
@@ -153,21 +156,29 @@ function newMeasure(normId) {
 		async : true,
 		contentType : "application/json",
 		success : function(response) {
-			$(modalMeasureForm.modal).find("#measurelanguages").html(response);
-			$(modalMeasureForm.modal).find("#measurelanguageselect").change(function() {
-				var language = parseInt($(this).find("option:selected").attr("value"));
-				$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id!='" + language + "']").hide();
-				$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id='" + language + "']").show();
-			});
-			$(modalMeasureForm.modal).find("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
+			var doc = new DOMParser().parseFromString(response, "text/html");
+			if ($(doc).find("#measurelanguageselect").length) {
+				var language = $(application["modal-measure"].modal).find("#languageselect").val();
+				$(modalMeasureForm.modal).find("#measurelanguages").html(response);
+				$(modalMeasureForm.modal).find("#measurelanguageselect").change(function() {
+					var language = parseInt($(this).find("option:selected").attr("value"));
+					$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id!='" + language + "']").hide();
+					$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id='" + language + "']").show();
+				});
+				$(modalMeasureForm.modal).find("#measurelanguageselect option[value='"+language+"']").prop("selected", true);
+				$(modalMeasureForm.modal).find("#measurelanguageselect").change();
+				$(modalMeasureForm.modal).find("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
+				$(modalMeasureForm.modal).find("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
+				$(modalMeasureForm.modal).find("#addmeasurebutton").text(MessageResolver("label.action.add", "Add"));
+				application["modal-measure-form"] = modalMeasureForm;
+				modalMeasureForm.Show();
+			} else
+				unknowError();
 			return false;
 		},
 		error : unknowError
 	});
-	$(modalMeasureForm.modal).find("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
-	$(modalMeasureForm.modal).find("#addmeasurebutton").text(MessageResolver("label.action.add", "Add"));
-	application["modal-measure-form"] = modalMeasureForm;
-	modalMeasureForm.Show();
+
 	return false;
 }
 
@@ -207,47 +218,45 @@ function measureSortTable(element) {
 
 function editSingleMeasure(measureId, normId) {
 	if (measureId == null || measureId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_measure_description"));
+		var selectedScenario = findSelectItemIdBySection(undefined, application["modal-measure"].modal_body);
 		if (selectedScenario.length != 1)
 			return false;
 		measureId = selectedScenario[0];
-		normId = $("#normId").prop("value");
+		normId = $(application["modal-measure"].modal).find("#normId").val();
 	}
-	var alert = $("#addMeasureModel .label-danger");
-	if (alert.length)
-		alert.remove();
-	var rows = $("#measurestable").find("tr[trick-id='" + measureId + "'] td:not(:first-child)");
-	$("#measure_id").prop("value", measureId);
-	$("#measure_reference").prop("value", $(rows[1]).text());
-	$("#measure_level").prop("value", $(rows[0]).text());
-	if ($(rows[4]).attr("trick-computable") == "true") {
-		$("#measure_computable").prop("checked", true);
-	} else {
-		$("#measure_computable").prop("checked", false);
-	}
-
+	var modalMeasureForm = new Modal();
+	var rows = $(application["modal-measure"].modal_body).find("tr[trick-id='" + measureId + "'] td:not(:first-child)");
+	modalMeasureForm.FromContent($("#addMeasureModel").clone());
+	$(modalMeasureForm.modal).find("#measure_id").prop("value", measureId);
+	$(modalMeasureForm.modal).find("#measure_reference").prop("value", $(rows[1]).text());
+	$(modalMeasureForm.modal).find("#measure_level").prop("value", $(rows[0]).text());
+	$(modalMeasureForm.modal).find("#measure_computable").prop("checked", $(rows[4]).attr("trick-computable") == "true");
 	$.ajax({
 		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/" + measureId + "/Edit",
 		type : "post",
 		contentType : "application/json",
 		success : function(response) {
-			$("#measurelanguages").html(response);
-			$("#measurelanguageselect").change(function() {
-				var language = parseInt($(this).find("option:selected").attr("value"));
-				$("#measurelanguages div[trick-id][trick-id!='" + language + "']").hide();
-				$("#measurelanguages div[trick-id][trick-id='" + language + "']").show();
-			});
-			$("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
+			var doc = new DOMParser().parseFromString(response, "text/html");
+			if ($(doc).find("#measurelanguageselect").length) {
+				var language = $(application["modal-measure"].modal).find("#languageselect").val();
+				$(modalMeasureForm.modal).find("#measurelanguages").html(response);
+				$(modalMeasureForm.modal).find("#measurelanguageselect").change(function() {
+					var language = parseInt($(this).find("option:selected").attr("value"));
+					$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id!='" + language + "']").hide();
+					$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id='" + language + "']").show();
+				});
+				$(modalMeasureForm.modal).find("#measurelanguageselect option[value='"+language+"']").prop("selected", true);
+				$(modalMeasureForm.modal).find("#measurelanguageselect").change();
+				$(modalMeasureForm.modal).find("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
+				$(modalMeasureForm.modal).find("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Update", "Update new Measure"));
+				$(modalMeasureForm.modal).find("#addmeasurebutton").text(MessageResolver("label.action.edit", "Edit"));
+				application["modal-measure-form"] = modalMeasureForm;
+				modalMeasureForm.Show();
+			} else
+				unknowError();
 			return false;
-
 		},
 		error : unknowError
 	});
-
-	$("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Update", "Update new Measure"));
-	$("#addmeasurebutton").text(MessageResolver("label.action.edit", "Edit"));
-
-	$("#addMeasureModel").modal('toggle');
-	$("#addMeasureModel").children(":first").attr("style", "z-index:1080");
 	return false;
 }

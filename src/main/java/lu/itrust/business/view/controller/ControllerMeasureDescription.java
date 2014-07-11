@@ -1,5 +1,6 @@
 package lu.itrust.business.view.controller;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -13,6 +14,7 @@ import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.ComparatorMeasureDescription;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.MeasureManager;
 import lu.itrust.business.component.helper.JsonMessage;
@@ -123,7 +125,7 @@ public class ControllerMeasureDescription {
 				// add to measuredescription
 				mesDesc.addMeasureDescriptionText(mesDescText);
 			}
-
+			Collections.sort(mesDescs, new ComparatorMeasureDescription());
 			// put data to model
 			model.addAttribute("selectedLanguage", lang);
 			model.addAttribute("languages", serviceLanguage.getAll());
@@ -238,7 +240,7 @@ public class ControllerMeasureDescription {
 		for (Language lang : languages) {
 			boolean found = false;
 			for (MeasureDescriptionText mdt : mesDesc) {
-				if (mdt.getLanguage().equals(lang)) {
+				if (mdt.getLanguage().getId() == lang.getId()) {
 					found = true;
 					break;
 				}
@@ -344,7 +346,7 @@ public class ControllerMeasureDescription {
 		} catch (Exception e) {
 			// return error
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: it might be in used", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
 		}
 	}
 

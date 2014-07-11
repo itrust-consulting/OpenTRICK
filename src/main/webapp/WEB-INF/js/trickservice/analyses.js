@@ -19,9 +19,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
+				var doc = new DOMParser().parseFromString(response, "text/html");
 				newSection = $(doc).find("* div#manageAnalysisAccessModel");
 				$("div#manageAnalysisAccessModel").replaceWith(newSection);
 				$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
@@ -54,8 +52,7 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 		data : serializeForm(userrightsform),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
+			var doc =  new DOMParser().parseFromString(response, "text/html");
 			newSection = $(doc).find("* div.modal-content");
 			$("div#manageAnalysisAccessModel div.modal-content").html(newSection);
 			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
@@ -221,8 +218,7 @@ function createAnalysisProfile(analysisId, section_analysis) {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
+				var doc = new DOMParser().parseFromString(response, "text/html");
 				if ((analysisProfile = doc.getElementById("analysisProfileModal")) == null)
 					return false;
 				$(analysisProfile).appendTo("#wrap");
@@ -287,8 +283,7 @@ function newAnalysis() {
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
+			var doc = new DOMParser().parseFromString(response, "text/html");
 			if ((form = doc.getElementById("form_add_analysis")) == null) {
 				$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
 				$("#alert-dialog").modal("toggle");
@@ -351,8 +346,7 @@ function editSingleAnalysis(analysisId) {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
+				var doc = new DOMParser().parseFromString(response, "text/html");
 				if ((form = doc.getElementById("form_edit_analysis")) == null) {
 					$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
 					$("#alert-dialog").modal("toggle");

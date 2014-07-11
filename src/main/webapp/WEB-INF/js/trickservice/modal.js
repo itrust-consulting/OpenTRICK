@@ -144,8 +144,10 @@ function Modal() {
 
 	Modal.prototype.Hide = function() {
 		try {
-			if (this.modal != null && this.modal != undefined)
+			if (!(this.modal == null || this.modal == undefined)){
 				$(this.modal).modal("hide");
+				$(instance.modal).remove();
+			}
 		} catch (e) {
 			console.log(e);
 		}
@@ -154,10 +156,9 @@ function Modal() {
 	Modal.prototype.Destroy = function() {
 		var instance = this;
 		instance.Hide();
-		instance.modal.remove();
 		setTimeout(function() {
 			delete instance;
-		}, 10);
+		}, 80);
 		return false;
 	};
 
