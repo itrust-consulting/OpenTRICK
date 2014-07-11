@@ -30,7 +30,7 @@
 								<li><a href="#" onclick="return newMeasure();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.norm.add" text="Add" /> </a></li>
 								<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleMeasure();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 											code="label.norm.edit" text="Edit" /> </a></li>
-								<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteMeasure();"><span class="glyphicon glyphicon-remove"></span> <spring:message
+								<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteMeasure();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 											code="label.norm.delete" text="Delete" /> </a></li>
 							</ul>
 						</div>

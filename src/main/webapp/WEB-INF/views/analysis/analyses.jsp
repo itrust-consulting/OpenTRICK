@@ -34,18 +34,13 @@
 										code="label.analysis.editInfo" text="Edit info" /></a></li>
 							<li class="disabled" trick-selectable="true"><a href="#" onclick="return createAnalysisProfile(null, 'section_analysis');"> <span class="glyphicon glyphicon-file"></span>
 									<spring:message code="label.analysis.createAnalysisProfile" text="New profile" /></a></li>
-							<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteAnalysis();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
-										code="label.analysis.delete" text="Delete" /></a></li>
+							
 							<li class="disabled" trick-selectable="true"><a href="#" onclick="return exportAnalysis()"> <span class="glyphicon glyphicon-download-alt"></span> <spring:message
 										code="label.analysis.export" text="Export" /></a></li>
 							<li class="disabled" trick-selectable="true"><a href="#" onclick="return exportAnalysisReport()"> <span class="glyphicon glyphicon-download-alt"></span> <spring:message
 										code="label.analysis.export_report" text="Export Report" /></a></li>
-							<li class="disabled" trick-selectable="true"><a href="#" onclick="return exportAnalysisReportData()"> <span class="glyphicon glyphicon-download-alt"></span> <spring:message
-										code="label.analysis.export_report" text="Export Report (Data Only)" /></a></li>
-							<li class="disabled" trick-selectable="multi"><a href="#" onclick="return calculateActionPlan()"> <span class="glyphicon glyphicon-list"></span> <spring:message
-										code="label.analysis.compute.action_plan" text="Action plan" /></a></li>
-							<li class="disabled" trick-selectable="multi"><a href="#" onclick="return calculateRiskRegister()"> <span class="glyphicon glyphicon-list-alt"></span> <spring:message
-										code="label.analysis.compute.risk_register" text="Risk register" /></a></li>
+							<li class="disabled pull-right" trick-selectable="true"><a href="#" onclick="return deleteAnalysis();" class="text-danger"> <span class="glyphicon glyphicon-remove"></span> <spring:message
+										code="label.analysis.delete" text="Delete" /></a></li>
 						</ul>
 					</div>
 					<div class="panel-body autofitpanelbodydefinition">

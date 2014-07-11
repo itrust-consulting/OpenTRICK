@@ -16,7 +16,7 @@
 					<li><a href="#" onclick="return newUser();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" text="Add" /> </a></li>
 					<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleUser();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 								code="label.action.edit" text="Edit" /> </a></li>
-					<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteUser();"><span class="glyphicon glyphicon-remove"></span> <spring:message
+					<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteUser();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 								code="label.action.delete" text="Delete" /> </a></li>
 				</ul>
 			</div>

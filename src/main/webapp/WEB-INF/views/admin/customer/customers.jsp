@@ -15,7 +15,7 @@
 				<li><a href="#" onclick="return newCustomer();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.customer.add" text="Add" /> </a></li>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleCustomer();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 							code="label.customer.edit" text="Edit" /> </a></li>
-				<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span> <spring:message
+				<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 							code="label.customer.delete" text="Delete" /> </a></li>
 				<c:if test="${!empty(adminView)}">
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">

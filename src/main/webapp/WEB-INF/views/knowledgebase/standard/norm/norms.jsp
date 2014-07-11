@@ -11,7 +11,7 @@
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px">
-			<div class="col-md-8">
+			<div class="col-md-12">
 				<ul class="nav nav-pills" id="menu_norm">
 					<li><a href="#" onclick="return newNorm();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.norm.add" text="Add" /> </a></li>
 					<li class="disabled" trick-selectable="true"><a href="#" onclick="return showMeasures();"><span class="glyphicon glyphicon-new-window"></span> <spring:message
@@ -20,16 +20,12 @@
 								code="label.norm.export" text="Export" /> </a></li>
 					<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleNorm();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 								code="label.norm.edit" text="Edit" /> </a></li>
-					<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteNorm();"><span class="glyphicon glyphicon-remove"></span> <spring:message
-								code="label.norm.delete" text="Delete" /> </a></li>
-				</ul>
-			</div>
-			<div class="col-md-4">
-				<ul class="nav nav-pills" id="menu_actionplan">
-					<li><a href="#" onclick="return getImportNormTemplate();"><span class="glyphicon glyphicon-file"></span> <spring:message code="label.norm.get.ImportNormTemplate"
-								text="Get Import Template" /> </a></li>
+					<li><a href="#" onclick="return getImportNormTemplate();"><span class="glyphicon glyphicon-file"></span> <spring:message
+								code="label.norm.get.ImportNormTemplate" text="Get Import Template" /> </a></li>
 					<li><a href="#" onclick="return uploadImportNormFile();"><span class="glyphicon glyphicon-import"></span> <spring:message code="label.norm.import" text="Import Norm" />
 					</a></li>
+					<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteNorm();"><span class="glyphicon glyphicon-remove"></span>
+							<spring:message code="label.norm.delete" text="Delete" /> </a></li>
 				</ul>
 			</div>
 		</div>

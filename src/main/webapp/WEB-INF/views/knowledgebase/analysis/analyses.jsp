@@ -20,7 +20,7 @@
 							code="label.analysis.setdefault" text="Set As Default" /></a></li>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-edit"></span> <spring:message
 							code="label.analysis.editInfo" text="Edit info" /></a></li>
-				<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteAnalysis();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
+				<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteAnalysis();"> <span class="glyphicon glyphicon-remove"></span> <spring:message
 							code="label.analysis.delete" text="Delete" /></a></li>
 			</ul>
 		</div>

@@ -15,7 +15,7 @@
 				<li><a href="#" onclick="return newLanguage();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.language.add" text="Add" /> </a></li>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleLanguage();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 							code="label.language.edit" text="Edit" /> </a></li>
-				<li class="disabled" trick-selectable="true"><a href="#" onclick="return deleteLanguage();"><span class="glyphicon glyphicon-remove"></span> <spring:message
+				<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteLanguage();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 							code="label.language.delete" text="Delete" /> </a></li>
 			</ul>
 		</div>
