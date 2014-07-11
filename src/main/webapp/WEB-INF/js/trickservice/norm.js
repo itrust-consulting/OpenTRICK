@@ -120,7 +120,7 @@ function importNewNorm() {
 	$("#uploadNormModal .modal-header .close").prop("disabled", true);
 	
 	if(progressBar != undefined)
-		progressBar.Distroy();
+		progressBar.Destroy();
 	
 	var formData = new FormData($('#uploadNorm_form')[0]);
 	$.ajax({
@@ -145,12 +145,12 @@ function importNewNorm() {
 				$(progressBar.progress).appendTo($("#uploadNorm_form").parent());
 				callback = {
 					failed : function() {
-						progressBar.Distroy();
+						progressBar.Destroy();
 						$("#uploadNormModal").modal("toggle");
 						$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
 					},
 					success : function() {
-						progressBar.Distroy();
+						progressBar.Destroy();
 						reloadSection('section_norm');
 						$("#uploadNormModal").modal("toggle");
 					}

@@ -15,8 +15,10 @@ function Application() {
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
-	$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.occurred", "An unknown error occurred"));
-	$("#alert-dialog").modal("toggle");
+	var modal = new Modal();
+	modal.FromContent($("#alert-dialog").clone());
+	modal.setBody(MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+	modal.Show();
 	return true;
 }
 
@@ -57,7 +59,7 @@ $(function() {
 
 	$('.modal').on('shown.bs.modal', function() {
 		$('body').on('wheel.modal mousewheel.modal', function() {
-			if ($(".modal-open").length || $(".modal.fade.in").length)
+			if ($(".modal-open").length)
 				return false;
 			$('body').off('wheel.modal mousewheel.modal');
 			return true;
@@ -203,8 +205,10 @@ var ANALYSIS_RIGHT = {
 };
 
 function permissionError() {
-	$("#alert-dialog .modal-body").html(MessageResolver("error.notAuthorized", "Insufficient permissions!"));
-	$("#alert-dialog").modal("toggle");
+	var modal = new Modal();
+	modal.FromContent($("#alert-dialog").clone());
+	modal.setBody(MessageResolver("error.notAuthorized", "Insufficient permissions!"));
+	modal.Show();
 	return false;
 }
 
@@ -309,29 +313,31 @@ function showSuccess(parent, text) {
  * section menu update
  */
 
-function isSelected(sectionName){
-	return $("#section_" + sectionName + " tbody tr[trick-selected='true'] td:first-child input:checked").length>0;
+function isSelected(sectionName) {
+	return $("#section_" + sectionName + " tbody tr[trick-selected='true'] td:first-child input:checked").length > 0;
 }
 
-function checkControlChange(checkbox, sectionName) {
-	var items = $("#section_" + sectionName + " tbody tr td:first-child input");
+function checkControlChange(checkbox, sectionName, appModalVar) {
+	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input") : $(application[appModalVar].modal).find(
+			"tbody tr td:first-child input");
 	for (var i = 0; i < items.length; i++)
 		$(items[i]).prop("checked", $(checkbox).is(":checked"));
-	updateMenu("#section_" + sectionName, "#menu_" + sectionName);
+	updateMenu("#section_" + sectionName, "#menu_" + sectionName, appModalVar);
 	return false;
 }
 
-function updateMenu(idsection, idMenu) {
-	var checkedCount = $(idsection + " tbody :checked").length;
+function updateMenu(idsection, idMenu, appModalVar) {
+	var checkedCount = (appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked").length
+			: $(application[appModalVar].modal).find("tbody :checked").length;
 	if (checkedCount == 1) {
-		var $lis = $(idMenu + " li");
+		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			var checker = $($lis[i]).attr("trick-check");
 			if (checker == undefined || eval(checker))
 				$($lis[i]).removeClass("disabled");
 		}
 	} else if (checkedCount > 1) {
-		var $lis = $(idMenu + " li");
+		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			if ($($lis[i]).attr("trick-selectable") == undefined || $($lis[i]).attr("trick-selectable") === "multi")
 				$($lis[i]).removeClass("disabled");
@@ -339,7 +345,7 @@ function updateMenu(idsection, idMenu) {
 				$($lis[i]).addClass("disabled");
 		}
 	} else {
-		var $lis = $(idMenu + " li");
+		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			if ($($lis[i]).attr("trick-selectable") != undefined)
 				$($lis[i]).addClass("disabled");
@@ -390,7 +396,7 @@ function updateStatus(progressBar, idTask, callback, status) {
 			}, 1500);
 		} else {
 			/*
-			 * setTimeout(function() { progressBar.Distroy(); }, 3000);
+			 * setTimeout(function() { progressBar.Destroy(); }, 3000);
 			 */
 			$(progressBar.progress).parent().parent().find("button").each(function() {
 				$(this).removeAttr("disabled");
@@ -429,9 +435,11 @@ function deleteAssetTypeValueDuplication() {
 	return false;
 }
 
-function serializeForm(formId) {
-	var form = $("#" + formId);
-	var data = form.serializeJSON();
+function serializeForm(form) {
+	var $form = $(form);
+	if (!$form.length)
+		$form = $("#" + form);
+	var data = $form.serializeJSON();
 	return JSON.stringify(data);
 }
 

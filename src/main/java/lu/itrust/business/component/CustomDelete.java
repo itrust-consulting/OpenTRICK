@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.component;
 
+import java.util.Iterator;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
@@ -182,6 +183,17 @@ public class CustomDelete {
 		user.getCustomers().remove(customer);
 		if (!user.containsCustomer(customer))
 			daoUser.saveOrUpdate(user);
+	}
+	
+	@Transactional
+	public void delete(MeasureDescription measureDescription) throws Exception{
+		Iterator<MeasureDescriptionText> iterator = measureDescription.getMeasureDescriptionTexts().iterator();
+		while(iterator.hasNext()){
+			MeasureDescriptionText descriptionText = iterator.next();
+			iterator.remove();
+			daoMeasureDescriptionText.delete(descriptionText);
+		}
+		daoMeasureDescription.delete(measureDescription);
 	}
 
 }

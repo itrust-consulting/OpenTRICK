@@ -35,4 +35,6 @@ public interface ServiceMeasureDescription {
 	public void saveOrUpdate(MeasureDescription measureDescription) throws Exception;
 
 	public void delete(MeasureDescription measureDescription) throws Exception;
+
+	public void delete(int id) throws Exception;
 }

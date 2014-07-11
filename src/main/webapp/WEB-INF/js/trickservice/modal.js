@@ -8,11 +8,19 @@ function Modal() {
 	this.modal_head_buttons = [];
 	this.modal_footer_buttons = [];
 
-	Modal.prototype.FormContent = function(content){
+	Modal.prototype.FromContent = function(content) {
 		this.modal = $(content);
 		this.modal_dialog = $(this.modal).find(".modal-dialog");
 		this.modal_header = $(this.modal).find(".modal-header");
-		
+		this.modal_title = $(this.modal).find(".modal-title");
+		this.modal_body = $(this.modal).find(".modal-body");
+		this.modal_footer = $(this.modal).find(".modal-footer");
+		var $headerButtons = $(this.modal_header).find("button");
+		for (var i = 0; i < $headerButtons.length; i++)
+			this.modal_head_buttons.push($headerButtons[i]);
+		var $footerButtons = $(this.modal_footer).find("button");
+		for (var i = 0; i < $footerButtons.length; i++) 
+			this.modal_footer_buttons.push($footerButtons[i]);
 	};
 
 	Modal.prototype.Size = function(map) {
@@ -44,7 +52,7 @@ function Modal() {
 		this.modal_footer.appendChild(button_footer_cancel);
 		return false;
 	};
-	
+
 	Modal.prototype.__Create = function() {
 		// declare modal
 		this.modal = document.createElement("div");
@@ -143,7 +151,7 @@ function Modal() {
 		}
 	};
 
-	Modal.prototype.Distroy = function() {
+	Modal.prototype.Destroy = function() {
 		var instance = this;
 		instance.Hide();
 		instance.modal.remove();

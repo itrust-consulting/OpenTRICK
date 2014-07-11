@@ -254,13 +254,13 @@ function saveAnalysisProfile(form) {
 				$(progressBar.progress).appendTo($("#" + form).parent());
 				callback = {
 					failed : function() {
-						progressBar.Distroy();
+						progressBar.Destroy();
 						$("#analysisProfileModal").modal("toggle");
 						$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
 						$("#alert-dialog").modal("toggle");
 					},
 					success : function() {
-						progressBar.Distroy();
+						progressBar.Destroy();
 						$("#analysisProfileModal").modal("toggle");
 					}
 				};

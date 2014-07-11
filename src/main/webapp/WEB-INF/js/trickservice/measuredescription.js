@@ -7,7 +7,6 @@ function showMeasures(normId, languageId, modal) {
 		var language = $("#section_language tbody tr[trick-id]:first-child");
 		languageId = language.length ? $(language).attr('trick-id') : 1;
 	}
-
 	$.ajax({
 		url : context + "/KnowledgeBase/Norm/" + normId + "/language/" + languageId + "/Measures",
 		type : "POST",
@@ -15,45 +14,44 @@ function showMeasures(normId, languageId, modal) {
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
+			var isNew = false;
 			if (modal == null || modal == undefined) {
 				modal = new Modal();
-				modal.modal = $("#showMeasuresModel").clone()[0];
+				modal.Intialise();
+				$(modal.modal).attr('id', 'showMeasuresModel');
+				$(modal.modal_dialog).prop("style", "width: 95%; min-width:1170px;");
+				$(modal.modal_footer).remove();
 				application["modal-measure"] = modal;
-			}
-		
-			oldHeader = $("#showMeasuresModel-title");
-			oldBody = $("#showmeasuresbody");
-			$(oldHeader).html(header.html());
-			modal.setBody($(doc).find("#measures_body"));
-			$(modal.modal_footer).remove();
-			$(modal.modal_body).find("#languageselect").change(function() {
-				var language = $(this).find("option:selected").attr("value");
-				var normId = $("#normId").attr("value");
-				showMeasures(normId, language, modal);
-			});
-			// $("#showMeasuresModel").modal("show");
-			setTimeout(function() {
-				fixedTableHeader($(modal.modal_body).find(".table-fixed-header"));
-			}, 400);
-
+				modal.setBody($(doc).find("#measures_body"));
+				$(modal.modal_title).html($(doc).find("#Measures").html());
+				$(modal.modal_body).find("#languageselect").change(function(e) {
+					showMeasures($(modal.modal_header).find("#normId").val(), $(e.target).val(), modal);
+				});
+				modal.Show();
+				setTimeout(function() {
+					fixedTableHeader($(modal.modal).find(".table-fixed-header"));
+				}, 400);
+			} else
+				$(modal.modal_body).find("tbody").replaceWith($(doc).find("tbody"));
 		},
 		error : unknowError
 	});
 	return false;
 }
 
-function saveMeasure(form) {
+function saveMeasure() {
+	var modalMeasureForm = application["modal-measure-form"];
+	var form = $(modalMeasureForm.modal_body).find("form");
 	$.ajax({
-		url : $("#measure_form").prop("action"),
+		url : form.prop("action"),
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json",
 		success : function(response) {
-			var $formParent = $("#" + form).parent();
-			var alert = $formParent.find(".label-danger");
+			var alert = $(modalMeasureForm.modal_body).find(".label-danger");
 			if (alert.length)
 				alert.remove();
-			var languages = $("#" + form).find("#measurelanguageselect option");
+			var languages = form.find("select option");
 			var languageDataValidation = {};
 			for (var i = 0; i < languages.length; i++) {
 				var idLanguage = $(languages[i]).val();
@@ -66,27 +64,26 @@ function saveMeasure(form) {
 				$(errorElement).text(response[error]);
 				var languageData = languageDataValidation[error];
 				if (languageData != undefined) {
-					$(errorElement).appendTo($("#" + form).find(languageData).parent());
+					$(errorElement).appendTo(form.find(languageData).parent());
 					continue;
 				}
 				switch (error) {
 				case "measuredescription.reference":
-					$(errorElement).appendTo($("#" + form).find("#measure_reference").parent());
+					$(errorElement).appendTo(form.find("#measure_reference").parent());
 					break;
 				case "measuredescription.level":
-					$(errorElement).appendTo($("#" + form).find("#measure_level").parent());
+					$(errorElement).appendTo(form.find("#measure_level").parent());
 					break;
 				case "measureDescription":
-					$(errorElement).appendTo($("#" + form).parent());
+					$(errorElement).appendTo(form.parent());
 					break;
 				}
 			}
-			if (!$formParent.find(".label-danger").length) {
-				$("#addMeasureModel").modal("hide");
-				var language = $("#languageselect").find("option:selected").attr("value");
-				var normId = $("#normId").attr("value");
-				var measureId = $("#" + form).find("#measure_id").val();
-				return refreshMeasure(normId, measureId, language);
+			if (!$(modalMeasureForm.modal_body).find(".label-danger").length) {
+				modalMeasureForm.Destroy();
+				var language = $(application["modal-measure"].modal).find("#languageselect").val();
+				var normId = $(application["modal-measure"].modal).find("#normId").val();
+				return showMeasures(normId, language, application["modal-measure"]);
 			}
 			return false;
 
@@ -96,130 +93,81 @@ function saveMeasure(form) {
 	return false;
 }
 
-function refreshMeasure(normId, measureId, languageId) {
-	if (normId == null || normId == undefined) {
-		normId = $("#normId");
-	}
-	if (!languageId == null || languageId == undefined) {
-		languageId = $("#languageselect option[selected='selected']").value();
-	}
-
-	if (measureId == -1) {
-		$.ajax({
-			url : context + "/KnowledgeBase/Norm/" + normId + "/language/" + languageId + "/Measures",
-			type : "POST",
-			contentType : "application/json",
-			success : function(response) {
-
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				var header = $(doc).find("#measures_header");
-				var body = $(doc).find("#measures_body");
-				oldHeader = $("#showMeasuresModel-title");
-				oldBody = $("#showmeasuresbody");
-				$(oldHeader).html(header.html());
-				$(oldBody).html(body.html());
-				// measureSortTable($("#showmeasuresbody"));
-				fixedTableHeader($("#showmeasuresbody .table-fixed-header"));
-				$("#languageselect").change(function() {
-					var language = $(this).find("option:selected").attr("value");
-					var normId = $("#normId").attr("value");
-					showMeasures(normId, language, application["modal-measure"]);
-				});
-			},
-			error : unknowError
-		});
-	} else {
-		$.ajax({
-			url : context + "/KnowledgeBase/Norm/" + normId + "/language/" + languageId + "/Measures/" + measureId,
-			type : "GET",
-			contentType : "application/json",
-			success : function(response) {
-
-				oldBody = $("#showmeasuresbody").find("[trick-id='" + measureId + "']");
-				if (oldBody.length) {
-					$(oldBody).replaceWith(response);
-					fixedTableHeader($("#showmeasuresbody .table-fixed-header"));
-					// measureSortTable($("#showmeasuresbody"));
-				}
-			},
-			error : unknowError
-		});
-	}
-	return false;
-}
-
 function deleteMeasure(measureId, reference, norm) {
 	if (measureId == null || measureId == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_measure_description");
+		var selectedScenario = findSelectItemIdBySection(undefined, application["modal-measure"].modal);
 		if (selectedScenario.length != 1)
 			return false;
 		measureId = selectedScenario[0];
-		norm = $("#normLabel").prop("value");
-		reference = $("#section_measure_description tbody tr[trick-id='" + measureId + "'] td:nth-child(3)").text();
+		norm = $(application["modal-measure"].modal).find("#normLabel").val();
+		reference = $(application["modal-measure"].modal).find("tbody tr[trick-id='" + measureId + "'] td:nth-child(3)").text();
 	}
-	$("#deleteMeasureBody").html(
-			MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: ") + "&nbsp;<strong>" + reference
-					+ "</strong> from the norm <strong>" + norm + " </strong>?");
-	var normId = $("#normId").attr("value");
-	$("#deletemeasurebuttonYes").click(function() {
+	var deleteModal = new Modal();
+	deleteModal.FromContent($("#deleteMeasureModel").clone());
+	deleteModal.setBody(MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: ") + "&nbsp;<strong>" + reference
+			+ "</strong> from the norm <strong>" + norm + " </strong>?", [ reference, norm ]);
+	var normId = $(application["modal-measure"].modal).find("#normId").val();
+	$(deleteModal.modal_header).find("button").click(function() {
+		delete deleteModal;
+	});
+	$(deleteModal.modal_footer).find("#deletemeasurebuttonYes").click(function() {
 		$.ajax({
 			url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/Delete/" + measureId,
 			type : "POST",
 			contentType : "application/json",
+			async : false,
 			success : function(response) {
-				var language = $("#languageselect").find("option:selected").attr("value");
-				var normId = $("#normId").attr("value");
-				showMeasures(normId, language, application["modal-measure"]);
-				return false;
+				if (response.success) {
+					var language = $(application["modal-measure"].modal).find("#languageselect").val();
+					return showMeasures(normId, language, application["modal-measure"]);
+				} else if (response.error) {
+					var error = new Modal();
+					error.FromContent($("#alert-dialog").clone());
+					error.setBody(response.error);
+					error.Show();
+				} else
+					unknowError();
+				return true;
 			},
 			error : unknowError
 		});
-		$("#deleteMeasureModel").modal('toggle');
-		return false;
+		delete deleteModal;
+		return true;
 	});
-	$("#deleteMeasureModel").attr("style", "z-index:1060");
-	$("#deleteMeasureModel").modal('toggle');
+	deleteModal.Show();
 	return false;
 }
 
 function newMeasure(normId) {
 	if (normId == null || normId == undefined)
-		normId = $("#normId").prop("value");
-	var alert = $("#addMeasureModel .label-danger");
-	if (alert.length)
-		alert.remove();
-	$("#measure_id").prop("value", "-1");
-
-	$("#measure_reference").prop("value", "");
-
-	$("#measure_level").prop("value", "");
-
-	$("#measure_computable").prop("checked", "false");
-
+		normId = $(application["modal-measure"].modal).find("#normId").val();
+	var modalMeasureForm = new Modal();
+	modalMeasureForm.FromContent($("#addMeasureModel").clone());
+	$(modalMeasureForm.modal).find("#measure_id").prop("value", "-1");
+	$(modalMeasureForm.modal).find("#measure_reference").prop("value", "");
+	$(modalMeasureForm.modal).find("#measure_level").prop("value", "");
+	$(modalMeasureForm.modal).find("#measure_computable").prop("checked", "false");
 	$.ajax({
 		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/Add",
 		type : "get",
 		async : true,
 		contentType : "application/json",
 		success : function(response) {
-			$("#measurelanguages").html(response);
-			$("#measurelanguageselect").change(function() {
+			$(modalMeasureForm.modal).find("#measurelanguages").html(response);
+			$(modalMeasureForm.modal).find("#measurelanguageselect").change(function() {
 				var language = parseInt($(this).find("option:selected").attr("value"));
-				$("#measurelanguages div[trick-id][trick-id!='" + language + "']").hide();
-				$("#measurelanguages div[trick-id][trick-id='" + language + "']").show();
+				$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id!='" + language + "']").hide();
+				$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id='" + language + "']").show();
 			});
-			$("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
+			$(modalMeasureForm.modal).find("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
 			return false;
 		},
 		error : unknowError
 	});
-
-	$("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
-	$("#addmeasurebutton").text(MessageResolver("label.action.add", "Add"));
-
-	$("#addMeasureModel").modal('toggle');
-	$("#addMeasureModel").children(":first").attr("style", "z-index:1060");
+	$(modalMeasureForm.modal).find("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
+	$(modalMeasureForm.modal).find("#addmeasurebutton").text(MessageResolver("label.action.add", "Add"));
+	application["modal-measure-form"] = modalMeasureForm;
+	modalMeasureForm.Show();
 	return false;
 }
 
@@ -300,6 +248,6 @@ function editSingleMeasure(measureId, normId) {
 	$("#addmeasurebutton").text(MessageResolver("label.action.edit", "Edit"));
 
 	$("#addMeasureModel").modal('toggle');
-	$("#addMeasureModel").children(":first").attr("style", "z-index:1060");
+	$("#addMeasureModel").children(":first").attr("style", "z-index:1080");
 	return false;
 }
