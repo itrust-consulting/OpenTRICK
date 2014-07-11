@@ -162,43 +162,6 @@ public class ControllerActionPlan {
 			
 		// return view
 		return "analysis/components/actionplan";
-
-	}
-
-	/**
-	 * retrieveSingle: <br>
-	 * Description
-	 * 
-	 * @param entryID
-	 *            : The actionplanentry id
-	 * @param model
-	 *            : model to be used inside view
-	 * @param session
-	 *            : user session containing the selectedAnalysis id
-	 * @param principal
-	 *            : user principal (user of the session)
-	 * @return a html formated table line (tr < td) containing the single requested entry (with
-	 *         javascript)
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/RetrieveSingleEntry/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'ActionPlanEntry', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String retrieveSingle(@PathVariable("elementID") int elementID, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
-
-		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
-
-		String alpha3 = serviceAnalysis.getLanguageOfAnalysis(analysisID).getAlpha3();
-
-		// retrieve actionplan entry from the given entryID
-		ActionPlanEntry actionplanentry = serviceActionPlan.get(elementID);
-
-		// prepare model
-		model.put("actionplanentry", actionplanentry);
-		model.put("language", alpha3);
-
-		// return view
-		return "analysis/components/actionplanentry";
-
 	}
 
 	/**

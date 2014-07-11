@@ -84,7 +84,7 @@
 							</c:if>
 							<c:forEach items="${actionplansplitted.get(apt)}" var="ape">
 								<tr trick-class="ActionPlanEntry" trick-id="${ape.id}"
-									trick-callback="reloadActionPlanEntryRow('${ape.id}','${apt}', '${ape.measure.id}', '<spring:message text="${ape.measure.analysisNorm.norm.label}" />')">
+									trick-callback="reloadMeasureRow('${ape.measure.id}', '<spring:message text="${ape.measure.analysisNorm.norm.label}" />')">
 									<td><spring:message text="${ape.position}" /></td>
 									<td colspan="2"><spring:message text="${ape.measure.analysisNorm.norm.label}" /></td>
 									<td colspan="3"><spring:message text="${ape.measure.measureDescription.reference}" /></td>
