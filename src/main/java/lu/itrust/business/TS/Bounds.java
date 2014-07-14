@@ -1,14 +1,17 @@
 package lu.itrust.business.TS;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * Bounds: <br>
- * This class represents the bound of an extended parameter. Values from and to are represented.
+ * This class represents the bound of an extended parameter. Values from and to
+ * are represented.
  * 
  * @author itrust consulting s.� r.l. - SME,BJA,EOM
  * @version 0.1
  * @since 2012-12-17
  */
-public class Bounds implements Cloneable{
+public class Bounds implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields
@@ -50,9 +53,10 @@ public class Bounds implements Cloneable{
 
 	/**
 	 * updateBounds: <br>
-	 * Updates the Parameter From and To values using a Bounds object as previous To value (which
-	 * serves in the current Parameter as From value). If the prevBounds parameter is null, the
-	 * previous value will be used as 0 (there are no previous values).
+	 * Updates the Parameter From and To values using a Bounds object as
+	 * previous To value (which serves in the current Parameter as From value).
+	 * If the prevBounds parameter is null, the previous value will be used as 0
+	 * (there are no previous values).
 	 * 
 	 * @param prevBounds
 	 *            The previous Parameter Bounds
@@ -60,8 +64,9 @@ public class Bounds implements Cloneable{
 	 *            The current Parameter Value
 	 * @param nextValue
 	 *            The next Parameter Value
+	 * @throws TrickException 
 	 */
-	public void updateBounds(Bounds prevBounds, double value, double nextValue) {
+	public void updateBounds(Bounds prevBounds, double value, double nextValue) throws TrickException {
 		if (prevBounds == null) {
 			updateBounds(0, value, nextValue);
 		} else {
@@ -71,8 +76,8 @@ public class Bounds implements Cloneable{
 
 	/**
 	 * updateBounds: <br>
-	 * Updates the Parameter From and To values using a Bounds object as previous To value (which
-	 * serves in the current Parameter as From value).
+	 * Updates the Parameter From and To values using a Bounds object as
+	 * previous To value (which serves in the current Parameter as From value).
 	 * 
 	 * @param prevTo
 	 *            The previous Parameter To value
@@ -80,8 +85,9 @@ public class Bounds implements Cloneable{
 	 *            The current Parameter Value
 	 * @param nextValue
 	 *            The next Parameter Value
+	 * @throws TrickException
 	 */
-	public void updateBounds(double prevTo, double value, double nextValue) {
+	public void updateBounds(double prevTo, double value, double nextValue) throws TrickException {
 		setFrom(prevTo);
 		setTo(Math.sqrt(value * nextValue));
 	}
@@ -118,11 +124,11 @@ public class Bounds implements Cloneable{
 	 * Sets the "From" field value.
 	 * 
 	 * @param from
+	 * @throws TrickException
 	 */
-	protected void setFrom(double from) {
+	protected void setFrom(double from) throws TrickException {
 		if (from < 0)
-			throw new IllegalArgumentException("Bounds#setFrom: from (" + from
-				+ ") should be 0 or greater");
+			throw new TrickException("error.extended_parameter.bounds.from", from + " should be 0 or greater", Double.toString(from));
 		this.from = from;
 	}
 
@@ -142,16 +148,17 @@ public class Bounds implements Cloneable{
 	 * 
 	 * @param to
 	 *            The value to set the "to" field
+	 * @throws TrickException
 	 */
-	protected void setTo(double to) {
-		if (this.from > to) {
-			throw new IllegalArgumentException("Bounds#check: from(" + from
-				+ ") should be greater to To(" + to + ")");
-		}
+	protected void setTo(double to) throws TrickException {
+		if (this.from > to)
+			throw new TrickException("error.extended_parameter.bounds.to", String.format("%d should be %d or greater", to, from), String.valueOf(to), String.valueOf(from));
 		this.to = to;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#clone()
 	 */
 	@Override

@@ -3,6 +3,7 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * Customer: <br>
@@ -72,11 +73,11 @@ public class Customer implements Serializable {
 	 * 
 	 * @param id
 	 *            The value to set the Customer ID
+	 * @throws TrickException 
 	 */
-	public void setId(int id) {
-		if (id < 1) {
-			throw new IllegalArgumentException("Customer ID field cannot be < 1!");
-		}
+	public void setId(int id) throws TrickException {
+		if (id < 1)
+			throw new TrickException("error.customer.id","Customer id should be greater than 0");
 		this.id = id;
 	}
 
@@ -96,11 +97,11 @@ public class Customer implements Serializable {
 	 * 
 	 * @param organsiation
 	 *            The value to set the Name of the Organisation
+	 * @throws TrickException 
 	 */
-	public void setOrganisation(String organisation) {
-		if ((organisation == null) || (organisation.trim().equals(""))) {
-			throw new IllegalArgumentException("Customer Organisation field cannot be null or empty!");
-		}
+	public void setOrganisation(String organisation) throws TrickException {
+		if (organisation == null || organisation.trim().isEmpty()) 
+			throw new TrickException("error.customer.organisation.empty","Organisation cannot be empty!");
 		this.organisation = organisation;
 	}
 
@@ -120,11 +121,11 @@ public class Customer implements Serializable {
 	 * 
 	 * @param address
 	 *            The value to set the Address (from the Organisation Location)
+	 * @throws TrickException 
 	 */
-	public void setAddress(String address) {
-		if ((address == null) || (address.trim().equals(""))) {
-			throw new IllegalArgumentException("Customer Address field cannot be null or empty!");
-		}
+	public void setAddress(String address) throws TrickException {
+		if (address == null || address.trim().isEmpty())
+			throw new TrickException("error.customer.address.empty","Address cannot be empty!");
 		this.address = address;
 	}
 
@@ -144,11 +145,11 @@ public class Customer implements Serializable {
 	 * 
 	 * @param city
 	 *            The value to set the City Name (from the Organisation Location)
+	 * @throws TrickException 
 	 */
-	public void setCity(String city) {
-		if ((city == null) || (city.trim().equals("")) || (!city.matches(Constant.REGEXP_VALID_NAME))) {
-			throw new IllegalArgumentException("Customer City field cannot be null or empty!");
-		}
+	public void setCity(String city) throws TrickException {
+		if (city == null || !city.matches(Constant.REGEXP_VALID_NAME))
+			throw new TrickException("error.customer.address.rejected","City has been rejected!");
 		this.city = city;
 	}
 
@@ -167,11 +168,11 @@ public class Customer implements Serializable {
 	 * 
 	 * @param ZIPCode
 	 *            The value to set the ZIP Code (from the Organisation Location)
+	 * @throws TrickException 
 	 */
-	public void setZIPCode(String ZIPCode) {
-		if ((ZIPCode == null) || (ZIPCode.trim().equals(""))) {
-			throw new IllegalArgumentException("Customer ZIPCode field cannot be null or empty!");
-		}
+	public void setZIPCode(String ZIPCode) throws TrickException {
+		if (ZIPCode == null || ZIPCode.trim().isEmpty())
+			throw new TrickException("error.customer.zipcode.empty","ZIPCode cannot be empty!");
 		this.ZIPCode = ZIPCode;
 	}
 
@@ -191,11 +192,11 @@ public class Customer implements Serializable {
 	 * 
 	 * @param country
 	 *            The value to set the Country Name (from the Organisation Location)
+	 * @throws TrickException 
 	 */
-	public void setCountry(String country) {
-		if ((country == null) || (country.trim().equals("")) || (!country.matches(Constant.REGEXP_VALID_NAME))) {
-			throw new IllegalArgumentException("Customer Country field cannot be null or empty!");
-		}
+	public void setCountry(String country) throws TrickException {
+		if (country == null || !country.matches(Constant.REGEXP_VALID_NAME))
+			throw new TrickException("error.customer.country.empty","Country cannot be empty!");
 		this.country = country;
 	}
 
@@ -215,11 +216,11 @@ public class Customer implements Serializable {
 	 * 
 	 * @param contactPerson
 	 *            The value to set the Contact Person Name
+	 * @throws TrickException 
 	 */
-	public void setContactPerson(String contactPerson) {
-		if ((contactPerson == null) || (contactPerson.trim().equals("")) || (!contactPerson.matches(Constant.REGEXP_VALID_NAME))) {
-			throw new IllegalArgumentException("Customer Contact Person field cannot be null or empty!");
-		}
+	public void setContactPerson(String contactPerson) throws TrickException {
+		if (contactPerson == null || !contactPerson.matches(Constant.REGEXP_VALID_NAME))
+			throw new TrickException("error.customer.contact_person.empty","Contact person cannot be empty!");
 		this.contactPerson = contactPerson;
 	}
 
@@ -239,11 +240,11 @@ public class Customer implements Serializable {
 	 * 
 	 * @param telephoneNumber
 	 *            The value to set the Telephone Number (from the Contact Person or Organisation)
+	 * @throws TrickException 
 	 */
-	public void setPhoneNumber(String telephoneNumber) {
-		if ((telephoneNumber == null) || (telephoneNumber.trim().equals(""))) {
-			throw new IllegalArgumentException("Customer Telephone Number field cannot be null or empty");
-		}
+	public void setPhoneNumber(String telephoneNumber) throws TrickException {
+		if (telephoneNumber == null || telephoneNumber.trim().isEmpty())
+			throw new TrickException("error.customer.telephone_number.empty","Telephone number cannot be empty");
 		this.phoneNumber = telephoneNumber;
 	}
 
@@ -263,11 +264,11 @@ public class Customer implements Serializable {
 	 * 
 	 * @param email
 	 *            The value to set the Email (from the Contact Person or Organisation)
+	 * @throws TrickException 
 	 */
-	public void setEmail(String email) {
-		if (((email == null) || (email.trim().equals("")) || (!email.matches(Constant.REGEXP_VALID_EMAIL)))) {
-			throw new IllegalArgumentException("Customer Email field cannot be null or empty and needs to be valid!");
-		}
+	public void setEmail(String email) throws TrickException {
+		if (email == null || !email.matches(Constant.REGEXP_VALID_EMAIL))
+			throw new TrickException("error.customer.email.empty","Email address was rejected");
 		this.email = email;
 	}
 	

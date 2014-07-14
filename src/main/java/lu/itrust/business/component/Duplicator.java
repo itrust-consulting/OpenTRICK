@@ -26,6 +26,7 @@ import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.helper.AnalysisProfile;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceTaskFeedback;
 
 import org.springframework.stereotype.Component;
@@ -49,8 +50,9 @@ public class Duplicator {
 	 * @param copy
 	 * @return
 	 * @throws CloneNotSupportedException
+	 * @throws TrickException 
 	 */
-	public Analysis duplicateAnalysis(Analysis analysis, Analysis copy) throws CloneNotSupportedException {
+	public Analysis duplicateAnalysis(Analysis analysis, Analysis copy) throws CloneNotSupportedException, TrickException {
 
 		Map<Integer, Phase> phases = new LinkedHashMap<>();
 
@@ -256,7 +258,7 @@ public class Duplicator {
 			copy.setHistories(null);
 
 			// analysis rights
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.right", "Delete analysis rigths", 4));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.delete.right", "Delete analysis rights", 4));
 			copy.setUserRights(null);
 
 			// assets

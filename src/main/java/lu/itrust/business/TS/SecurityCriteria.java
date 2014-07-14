@@ -7,6 +7,7 @@ import java.util.Map;
 
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * SecurityCriteria: <br>
@@ -704,8 +705,9 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param preventive
 	 *            The value to set the Preventive
+	 * @throws TrickException 
 	 */
-	public void setPreventive(double preventive) {
+	public void setPreventive(double preventive) throws TrickException {
 		this.preventive = preventive;
 	}
 
@@ -725,8 +727,9 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param detective
 	 *            The value to set the Detective
+	 * @throws TrickException 
 	 */
-	public void setDetective(double detective) {
+	public void setDetective(double detective) throws TrickException {
 		this.detective = detective;
 	}
 
@@ -746,8 +749,9 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param limitative
 	 *            The value to set the Limitative
+	 * @throws TrickException 
 	 */
-	public void setLimitative(double limitative) {
+	public void setLimitative(double limitative) throws TrickException {
 		this.limitative = limitative;
 	}
 
@@ -767,8 +771,9 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param corrective
 	 *            The value to set the Corrective
+	 * @throws TrickException 
 	 */
-	public void setCorrective(double corrective) {
+	public void setCorrective(double corrective) throws TrickException {
 		this.corrective = corrective;
 	}
 
@@ -788,8 +793,9 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param intentional
 	 *            The value to set the Intentional
+	 * @throws TrickException 
 	 */
-	public void setIntentional(int intentional) {
+	public void setIntentional(int intentional) throws TrickException {
 		this.intentional = intentional;
 	}
 
@@ -809,8 +815,9 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param accidental
 	 *            The value to set the Accidental
+	 * @throws TrickException 
 	 */
-	public void setAccidental(int accidental) {
+	public void setAccidental(int accidental) throws TrickException {
 		this.accidental = accidental;
 	}
 
@@ -830,8 +837,9 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param environmental
 	 *            The value to set the Environmental
+	 * @throws TrickException 
 	 */
-	public void setEnvironmental(int environmental) {
+	public void setEnvironmental(int environmental) throws TrickException {
 		this.environmental = environmental;
 	}
 
@@ -851,8 +859,9 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param internalthreat
 	 *            The value to set the Internal Threat
+	 * @throws TrickException 
 	 */
-	public void setInternalThreat(int internalthreat) {
+	public void setInternalThreat(int internalthreat) throws TrickException {
 		this.internalThreat = internalthreat;
 	}
 
@@ -872,8 +881,9 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param externalthreat
 	 *            The value to set the External Threat
+	 * @throws TrickException 
 	 */
-	public void setExternalThreat(int externalthreat) {
+	public void setExternalThreat(int externalthreat) throws TrickException {
 		this.externalThreat = externalthreat;
 	}
 

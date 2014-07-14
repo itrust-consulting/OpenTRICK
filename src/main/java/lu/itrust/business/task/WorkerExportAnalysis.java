@@ -27,6 +27,7 @@ import lu.itrust.business.dao.DAOUserSqLite;
 import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.dao.hbm.DAOUserHBM;
 import lu.itrust.business.dao.hbm.DAOUserSqLiteHBM;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 
@@ -124,8 +125,14 @@ public class WorkerExportAnalysis implements Worker {
 			}
 		} catch (HibernateException e) {
 			this.error = e;
+			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", e));
 			e.printStackTrace();
-		} catch (Exception e) {
+		}catch (TrickException e) {
+			this.error = e;
+			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(),e.getMessage(), e));
+			e.printStackTrace();
+		} 
+		catch (Exception e) {
 			this.error = e;
 			serviceTaskFeedback.send(id, new MessageHandler("error.export.analysis", "Analysis export has failed", e));
 			e.printStackTrace();

@@ -3,6 +3,8 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.util.Date;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * History: <br>
  * This class represents an History and all its data.
@@ -90,11 +92,11 @@ public class History implements Serializable, Cloneable {
 	 * 
 	 * @param date
 	 *            The value to set the Date
+	 * @throws TrickException 
 	 */
-	public void setDate(Date date) {
-		if (date == null) {
-			throw new IllegalArgumentException("History Date cannot be null!");
-		}
+	public void setDate(Date date) throws TrickException {
+		if (date == null)
+			throw new TrickException("error.history.date.empty","Date cannot be empty!");
 		this.date = date;
 	}
 

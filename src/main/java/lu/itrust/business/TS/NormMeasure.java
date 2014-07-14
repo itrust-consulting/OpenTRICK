@@ -3,6 +3,8 @@ package lu.itrust.business.TS;
 import java.util.ArrayList;
 import java.util.List;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * NormMeasure: <br>
  * This class represents a AnalysisNorm Measure and its data. This class extends Measure, it is used
@@ -53,10 +55,11 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @param measurePropertyList
 	 *            The measureProperties Object to set the List of Properties
+	 * @throws TrickException 
 	 */
-	public void setMeasurePropertyList(MeasureProperties measurePropertyList) {
+	public void setMeasurePropertyList(MeasureProperties measurePropertyList) throws TrickException {
 		if (measurePropertyList == null)
-			throw new IllegalArgumentException("MeasureProperties should not be null");
+			throw new TrickException("error.norm_measure.measure_property.empty","Measure properties cannot be empty");
 		this.measurePropertyList = measurePropertyList;
 	}
 
@@ -103,10 +106,11 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @param assettypevalue
 	 *            The Asset Type Value object to add to list
+	 * @throws TrickException 
 	 */
-	public void addAnAssetTypeValue(AssetTypeValue assettypevalue) {
+	public void addAnAssetTypeValue(AssetTypeValue assettypevalue) throws TrickException {
 		if (assetTypeValues.contains(assettypevalue))
-			throw new IllegalArgumentException("AssetTypeValue cannot be duplicated");
+			throw new TrickException("error.norm_measure.asset_type_value","Assettype value cannot be duplicated");
 		this.assetTypeValues.add(assettypevalue);
 	}
 
@@ -162,10 +166,11 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @param implementationRate
 	 *            The Implementation Rate Value as object
+	 * @throws TrickException 
 	 * @see lu.itrust.business.TS.Measure#setImplementationRate(java.lang.Object)
 	 */
 	@Override
-	public void setImplementationRate(Object implementationRate) {
+	public void setImplementationRate(Object implementationRate) throws TrickException {
 		if (!(implementationRate instanceof Double)) {
 			throw new IllegalArgumentException("ImplementationRate needs to be of Type Double!");
 		}
@@ -178,9 +183,10 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @param implementationRate
 	 *            The Implementation Rate Value as Double
+	 * @throws TrickException 
 	 * @see lu.itrust.business.TS.Measure#setImplementationRate(java.lang.Object)
 	 */
-	public void setImplementationRate(double implementationRate) {
+	public void setImplementationRate(double implementationRate) throws TrickException {
 		super.setImplementationRate(implementationRate);
 	}
 

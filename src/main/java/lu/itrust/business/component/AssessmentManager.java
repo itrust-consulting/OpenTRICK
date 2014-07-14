@@ -19,6 +19,7 @@ import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
 import lu.itrust.business.dao.DAOParameter;
 import lu.itrust.business.dao.DAOScenario;
+import lu.itrust.business.exception.TrickException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -299,7 +300,7 @@ public class AssessmentManager {
 		}
 	}
 
-	public static void ComputeAlE(List<Assessment> assessments, List<ExtendedParameter> parameters) {
+	public static void ComputeAlE(List<Assessment> assessments, List<ExtendedParameter> parameters) throws TrickException {
 		Map<String, ExtendedParameter> parametersMapping = new LinkedHashMap<>(parameters.size());
 		try {
 			for (ExtendedParameter extendedParameter : parameters)
@@ -311,7 +312,7 @@ public class AssessmentManager {
 		}
 	}
 
-	public static void ComputeAlE(Assessment assessment, Map<String, ExtendedParameter> parameters) {
+	public static void ComputeAlE(Assessment assessment, Map<String, ExtendedParameter> parameters) throws TrickException {
 		double impactRep = StringToDouble(assessment.getImpactRep(), parameters);
 		double impactOP = StringToDouble(assessment.getImpactOp(), parameters);
 		double impactLeg = StringToDouble(assessment.getImpactLeg(), parameters);

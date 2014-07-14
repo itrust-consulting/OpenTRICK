@@ -1543,8 +1543,9 @@ public class ActionPlanComputation {
 	 * @return The Copy of the List of Assets
 	 * 
 	 * @throws InvalidAttributesException
+	 * @throws TrickException 
 	 */
-	private List<ActionPlanAsset> createSelectedAssetsList() throws InvalidAttributesException {
+	private List<ActionPlanAsset> createSelectedAssetsList() throws InvalidAttributesException, TrickException {
 
 		// ****************************************************************
 		// * initialise variables

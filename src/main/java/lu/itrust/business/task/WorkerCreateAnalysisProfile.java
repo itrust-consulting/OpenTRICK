@@ -16,6 +16,7 @@ import lu.itrust.business.dao.DAONorm;
 import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.dao.hbm.DAOCustomerHBM;
 import lu.itrust.business.dao.hbm.DAONormHBM;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 
@@ -82,7 +83,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 
 			Customer customer = daoCustomer.getProfile();
 			if (customer == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a customer profile before you can create your analysis profile", null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a customer profile before to create a analysis profile", null));
 				return;
 			}
 			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load.norm", "Load standards", 1));
@@ -97,7 +98,19 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			daoAnalysis.saveOrUpdate(copy);
 			transaction.commit();
 			serviceTaskFeedback.send(id, new MessageHandler("success.analysis.profile", "New analysis profile was successfully created", 100));
-		} catch (Exception e) {
+		}
+		catch (TrickException e) {
+			try {
+				this.error = e;
+				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(),e.getParameters(),e.getMessage(), e));
+				e.printStackTrace();
+				if (transaction != null)
+					transaction.rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+		catch (Exception e) {
 			try {
 				this.error = e;
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.profile", "Creating a profile analysis failed", e));

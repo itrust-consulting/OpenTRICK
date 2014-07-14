@@ -2,6 +2,8 @@ package lu.itrust.business.TS;
 
 import java.util.List;
 
+import lu.itrust.business.exception.TrickException;
+
 import org.hibernate.proxy.HibernateProxy;
 
 /**
@@ -69,8 +71,8 @@ public class MeasureNorm extends AnalysisNorm {
 	 *********************************************************************************************** 
 	 * 
 	 * /** getMeasure: <br>
-	 * Returns a NormMeasure Object at position "index" from the list of AnalysisNorm Measures
-	 * ("measures" field)
+	 * Returns a NormMeasure Object at position "index" from the list of
+	 * AnalysisNorm Measures ("measures" field)
 	 * 
 	 * @return The NormMeasure at position "index"
 	 */
@@ -112,11 +114,11 @@ public class MeasureNorm extends AnalysisNorm {
 	 * 
 	 * @param measure
 	 *            The new object to add
+	 * @throws TrickException 
 	 */
-	public void addMeasure(NormMeasure measure) {
-		if (this.getMeasures().contains(measure)) {
-			throw new IllegalArgumentException("Measure cannot be duplicated!");
-		}
+	public void addMeasure(NormMeasure measure) throws TrickException {
+		if (this.getMeasures().contains(measure))
+			throw new TrickException("error.measure_norm.measure.duplicate", "Measure duplicates not accepted!");
 		measure.setAnalysisNorm(this);
 		this.getMeasures().add(measure);
 	}

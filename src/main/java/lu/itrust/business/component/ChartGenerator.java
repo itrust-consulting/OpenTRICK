@@ -573,7 +573,7 @@ public class ChartGenerator {
 
 				serie = "";
 
-				serie = "{\"name\":\"" + messageSource.getMessage("label.phase", null, "Phase", locale) + " " + phase.getNumber() + "\", \"data\":" + data + ",\"valueDecimals\": 0}";
+				serie = "{\"name\":\"" + messageSource.getMessage("label.chart.phase", null, "Phase", locale) + " " + phase.getNumber() + "\", \"data\":" + data + ",\"valueDecimals\": 0}";
 
 				series += "," + serie;
 
@@ -604,7 +604,7 @@ public class ChartGenerator {
 
 		String title =
 			"\"title\": {\"text\":\""
-				+ messageSource.getMessage("label.title.chart.evolution_profitability_compliance." + actionPlanType, null, "Evolution of profitability and ISO compliance for " + actionPlanType,
+				+ messageSource.getMessage("label.title.chart.evolution_profitability_compliance." + actionPlanType.toLowerCase(), null, "Evolution of profitability and ISO compliance for " + actionPlanType,
 						locale) + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";

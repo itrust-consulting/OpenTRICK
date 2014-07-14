@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * ExtendedParameter: <br>
@@ -56,12 +57,11 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param level
 	 *            The value to set the Level
+	 * @throws TrickException
 	 */
-	public void setLevel(int level) {
-		if ((level < 0) || (level > 10)) {
-			throw new IllegalArgumentException(
-					"Extended Parameter Level needs to be between 0 and 10 included!");
-		}
+	public void setLevel(int level) throws TrickException {
+		if (level < 0 || level > 10)
+			throw new TrickException("error.extended_parameter.level", "Level needs to be between 0 and 10 included!");
 		this.level = level;
 	}
 
@@ -131,35 +131,21 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 		return parameter;
 	}
 
-	public static void ComputeScales(ExtendedParameter extendedParameter,
-			ExtendedParameter extendedParameterPrev,
-			ExtendedParameter extendedParameterNext) {
-		extendedParameter.setValue(Math.sqrt(extendedParameterPrev.getValue()
-				* extendedParameterNext.getValue()));
+	public static void ComputeScales(ExtendedParameter extendedParameter, ExtendedParameter extendedParameterPrev, ExtendedParameter extendedParameterNext) {
+		extendedParameter.setValue(Math.sqrt(extendedParameterPrev.getValue() * extendedParameterNext.getValue()));
 
 		if (extendedParameterPrev.level == 0) {
-			extendedParameterPrev.bounds = new Bounds(0,
-					Math.sqrt(extendedParameter.getValue()
-							* extendedParameterPrev.getValue()));
+			extendedParameterPrev.bounds = new Bounds(0, Math.sqrt(extendedParameter.getValue() * extendedParameterPrev.getValue()));
 		} else {
-			extendedParameterPrev.bounds = new Bounds(
-					extendedParameterPrev.bounds.getFrom(),
-					Math.sqrt(extendedParameter.getValue()
-							* extendedParameterPrev.getValue()));
+			extendedParameterPrev.bounds = new Bounds(extendedParameterPrev.bounds.getFrom(), Math.sqrt(extendedParameter.getValue() * extendedParameterPrev.getValue()));
 		}
-		
-		extendedParameter.bounds = new Bounds(
-				extendedParameterPrev.bounds.getTo(),
-				Math.sqrt(extendedParameter.getValue()
-						* extendedParameterNext.getValue()));
+
+		extendedParameter.bounds = new Bounds(extendedParameterPrev.bounds.getTo(), Math.sqrt(extendedParameter.getValue() * extendedParameterNext.getValue()));
 
 		if (extendedParameterNext.level == 10)
-			extendedParameterNext.bounds = new Bounds(
-					extendedParameter.bounds.getTo(), Constant.DOUBLE_MAX_VALUE);
+			extendedParameterNext.bounds = new Bounds(extendedParameter.bounds.getTo(), Constant.DOUBLE_MAX_VALUE);
 		else
-			extendedParameterNext.bounds = new Bounds(
-					extendedParameter.bounds.getTo(),
-					extendedParameter.bounds.getTo() + 1);
+			extendedParameterNext.bounds = new Bounds(extendedParameter.bounds.getTo(), extendedParameter.bounds.getTo() + 1);
 
 	}
 }

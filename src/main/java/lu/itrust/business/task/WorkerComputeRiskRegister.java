@@ -8,6 +8,7 @@ import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAORiskRegister;
 import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.dao.hbm.DAORiskRegisterHBM;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 
@@ -143,7 +144,17 @@ public class WorkerComputeRiskRegister implements Worker {
 			} catch (HibernateException e1) {
 				e1.printStackTrace();
 			}
-		} catch (Exception e) {
+		}catch (TrickException e) {
+			try {
+				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(),e.getParameters(), e.getMessage(), e));
+				e.printStackTrace();
+				if (session != null && session.getTransaction().isInitiator())
+					session.getTransaction().rollback();
+			} catch (HibernateException e1) {
+				e1.printStackTrace();
+			}
+		}
+		catch (Exception e) {
 			try {
 				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: "+e.getMessage(), e));
 				e.printStackTrace();

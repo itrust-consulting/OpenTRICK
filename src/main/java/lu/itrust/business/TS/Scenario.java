@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * Scenario: <br>
  * This class represents a Scenario and its data.
@@ -159,7 +161,7 @@ public class Scenario extends SecurityCriteria {
 		}
 	}
 
-	public void setAssetTypeValue(AssetType assetType, int value) {
+	public void setAssetTypeValue(AssetType assetType, int value) throws TrickException {
 		for (AssetTypeValue typeValue : assetTypeValues) {
 			if (typeValue.getAssetType().equals(assetType)) {
 				typeValue.setValue(value);

@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * AssetType: <br>
@@ -37,8 +38,9 @@ public class AssetType implements Cloneable {
 	 * 
 	 * @param type
 	 *            Type Name
+	 * @throws TrickException 
 	 */
-	public AssetType(String type) {
+	public AssetType(String type) throws TrickException {
 		setType(type);
 	}
 
@@ -83,12 +85,13 @@ public class AssetType implements Cloneable {
 	 * 
 	 * @param type
 	 *            The Value to set the type field
+	 * @throws TrickException 
 	 */
-	public void setType(String type) {
+	public void setType(String type) throws TrickException {
 		if (type == null)
-			throw new IllegalArgumentException("error.assettype.type_null");
+			throw new TrickException("error.assettype.type_null","Asset type cannot be empty");
 		else if (!type.trim().matches(Constant.REGEXP_VALID_ASSET_TYPE))
-			throw new IllegalArgumentException("error.assettype.type_no_meet");
+			throw new TrickException("error.assettype.type_no_meet","Asset type: wrong type");
 		this.type = type.trim();
 	}
 

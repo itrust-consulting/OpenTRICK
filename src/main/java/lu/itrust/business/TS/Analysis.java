@@ -141,7 +141,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @param analysis
 	 */
-	public static final void initialiseEmptyItemInformation(Analysis analysis) {
+	public static final void InitialiseEmptyItemInformation(Analysis analysis) {
 
 		if (analysis == null)
 			return;
@@ -209,17 +209,18 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param asset
 	 *            The Asset to get ALE from
 	 * @return The Total ALE of the Asset
+	 * @throws TrickException 
 	 */
-	public double getALEOfAsset(Asset asset) {
+	public double getALEOfAsset(Asset asset) throws TrickException {
 
 		// initialise return value
 		double result = 0;
 
 		// check if asset exists and if assessments are not empty
 		if (asset == null)
-			throw new IllegalArgumentException("error.ale.asset_null");
+			throw new TrickException("error.ale.asset_null","Asset cannot be empty");
 		if (this.assessments.isEmpty())
-			throw new IllegalArgumentException("error.ale.Assessments_empty");
+			throw new TrickException("error.ale.Assessments_empty", "Assessment cannot be empty");
 		// parse assessments
 		for (Assessment assessment : assessments) {
 
@@ -476,10 +477,10 @@ public class Analysis implements Serializable, Cloneable {
 
 		// check if properties and scenario are not null to avoid failures
 		if (properties == null)
-			throw new IllegalArgumentException("error.rrf.compute.properties_null");
+			throw new TrickException("error.rrf.compute.properties_null","Measure properties cannot be empty");
 
 		if (scenario == null)
-			throw new IllegalArgumentException("error.rrf.compute.scenario_null");
+			throw new TrickException("error.rrf.compute.scenario_null","Scenario cannot be empty");
 
 		// **************************************************************
 		// * intialise variables
@@ -1037,8 +1038,9 @@ public class Analysis implements Serializable, Cloneable {
 	 * This method will calculate the bounds of the extended parameters from and
 	 * to values. Since CSSF implementation, impact and probability values need
 	 * to be calculated using bounds.
+	 * @throws TrickException 
 	 */
-	public void computeParameterScales() {
+	public void computeParameterScales() throws TrickException {
 
 		// ****************************************************************
 		// * Variable initialisation

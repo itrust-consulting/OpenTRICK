@@ -1,5 +1,7 @@
 package lu.itrust.business.TS;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * MeasureProperties: <br>
  * This class represents a Measure Properties and its data
@@ -115,11 +117,11 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @param measure
 	 *            The value to set the Measure Strength
+	 * @throws TrickException
 	 */
-	public void setFMeasure(int measure) {
-		if ((measure < 0) || (measure > 10)) {
-			throw new IllegalArgumentException(
-					"Force Measure needs to be between 0 and 10 included!");
+	public void setFMeasure(int measure) throws TrickException {
+		if (measure < 0 || measure > 10) {
+			throw new TrickException("error.measure_property.measure.strenght", "Measure strenght needs to be between 0 and 10!");
 		}
 		this.fmeasure = measure;
 	}
@@ -140,12 +142,11 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @param fSectoral
 	 *            The value to set the Sectoral Strength
+	 * @throws TrickException
 	 */
-	public void setFSectoral(int fSectoral) {
-		if ((fSectoral < 0) || (fSectoral > 4)) {
-			throw new IllegalArgumentException(
-					"Force Sectoral needs to be between 0 and 4 included!");
-		}
+	public void setFSectoral(int fSectoral) throws TrickException {
+		if ((fSectoral < 0) || (fSectoral > 4))
+			throw new TrickException("error.measure_property.sectoral.strenght", "Sectoral strenght needs to be between 0 and 4!");
 		this.fsectoral = fSectoral;
 	}
 
@@ -155,12 +156,12 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @param preventive
 	 *            The value to set the Preventive
+	 * @throws TrickException 
 	 */
 	@Override
-	public void setPreventive(double preventive) {
-		if ((preventive < 0) || (preventive > 4)) {
-			throw new IllegalArgumentException("Preventive needs to be between 0 and 4 included!");
-		}
+	public void setPreventive(double preventive) throws TrickException {
+		if ((preventive < 0) || (preventive > 4))
+			throw new TrickException("error.measure_property.preventive", "Preventive needs to be between 0 and 4!");
 		super.setPreventive(preventive);
 	}
 
@@ -170,12 +171,12 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @param detective
 	 *            The value to set the Detective
+	 * @throws TrickException 
 	 */
 	@Override
-	public void setDetective(double detective) {
-		if ((detective < 0) || (detective > 4)) {
-			throw new IllegalArgumentException("Detective needs to be between 0 and 4 included!");
-		}
+	public void setDetective(double detective) throws TrickException {
+		if ((detective < 0) || (detective > 4)) 
+			throw new TrickException("error.measure_property.detective", "Detective needs to be between 0 and 4!");
 		super.setDetective(detective);
 	}
 
@@ -185,12 +186,12 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @param limitative
 	 *            The value to set the Limitative
+	 * @throws TrickException 
 	 */
 	@Override
-	public void setLimitative(double limitative) {
-		if ((limitative < 0) || (limitative > 4)) {
-			throw new IllegalArgumentException("Limitative needs to be between 0 and 4 included!");
-		}
+	public void setLimitative(double limitative) throws TrickException {
+		if ((limitative < 0) || (limitative > 4)) 
+			throw new TrickException("error.measure_property.limitative", "Limitative needs to be between 0 and 4!");
 		super.setLimitative(limitative);
 	}
 
@@ -200,12 +201,12 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @param corrective
 	 *            The value to set the Corrective
+	 * @throws TrickException 
 	 */
 	@Override
-	public void setCorrective(double corrective) {
-		if ((corrective < 0) || (corrective > 4)) {
-			throw new IllegalArgumentException("Corrective needs to be between 0 and 4 included!");
-		}
+	public void setCorrective(double corrective) throws TrickException {
+		if ((corrective < 0) || (corrective > 4)) 
+			throw new TrickException("error.measure_property.corrective", "Corrective needs to be between 0 and 4!");
 		super.setCorrective(corrective);
 	}
 
@@ -215,12 +216,13 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @param intentional
 	 *            The value to set the Intentional
+	 * @throws TrickException 
 	 */
 	@Override
-	public void setIntentional(int intentional) {
-		if (!isValidValue(intentional)) {
-			throw new IllegalArgumentException("Intentional needs to be between 0 and 4 included!");
-		}
+	public void setIntentional(int intentional) throws TrickException {
+		if (!isValidValue(intentional)) 
+			throw new TrickException("error.measure_property.intentional", "Intentional needs to be between 0 and 4!");
+		
 		super.setIntentional(intentional);
 	}
 
@@ -230,12 +232,12 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @param accidental
 	 *            The value to set the Accidental
+	 * @throws TrickException 
 	 */
 	@Override
-	public void setAccidental(int accidental) {
-		if (!isValidValue(accidental)) {
-			throw new IllegalArgumentException("Accidental needs to be between 0 and 4 included!");
-		}
+	public void setAccidental(int accidental) throws TrickException {
+		if (!isValidValue(accidental)) 
+			throw new TrickException("error.measure_property.accidental", "Accidental needs to be between 0 and 4!");
 		super.setAccidental(accidental);
 	}
 
@@ -245,13 +247,12 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @param environmental
 	 *            The value to set the Environmental
+	 * @throws TrickException 
 	 */
 	@Override
-	public void setEnvironmental(int environmental) {
-		if (!isValidValue(environmental)) {
-			throw new IllegalArgumentException(
-					"Environmental needs to be between 0 and 4 included!");
-		}
+	public void setEnvironmental(int environmental) throws TrickException {
+		if (!isValidValue(environmental)) 
+			throw new TrickException("error.measure_property.environmental", "Environmental needs to be between 0 and 4!");
 		super.setEnvironmental(environmental);
 	}
 
@@ -261,13 +262,12 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @param internalthreat
 	 *            The value to set the Internal Threat
+	 * @throws TrickException 
 	 */
 	@Override
-	public void setInternalThreat(int internalthreat) {
-		if (!isValidValue(internalthreat)) {
-			throw new IllegalArgumentException(
-					"Internal Threat needs to be between 0 and 4 included!");
-		}
+	public void setInternalThreat(int internalthreat) throws TrickException {
+		if (!isValidValue(internalthreat)) 
+			throw new TrickException("error.measure_property.internal_threat", "Internal threat needs to be between 0 and 4!");
 		super.setInternalThreat(internalthreat);
 	}
 
@@ -277,13 +277,12 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @param externalthreat
 	 *            The value to set the External Threat
+	 * @throws TrickException 
 	 */
 	@Override
-	public void setExternalThreat(int externalthreat) {
-		if (!isValidValue(externalthreat)) {
-			throw new IllegalArgumentException(
-					"External Threat needs to be between 0 and 4 included!");
-		}
+	public void setExternalThreat(int externalthreat) throws TrickException {
+		if (!isValidValue(externalthreat)) 
+			throw new TrickException("error.measure_property.extternal_threat", "External threat needs to be between 0 and 4!");
 		super.setExternalThreat(externalthreat);
 	}
 

@@ -3,6 +3,7 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * Norm: <br>
@@ -51,8 +52,9 @@ public class Norm implements Serializable, Cloneable {
 	 * 
 	 * @param label
 	 *            The Norm Name
+	 * @throws TrickException 
 	 */
-	public Norm(String label) {
+	public Norm(String label) throws TrickException {
 		this.setLabel(label);
 	}
 
@@ -61,8 +63,9 @@ public class Norm implements Serializable, Cloneable {
 	 * 
 	 * @param label
 	 *            The Norm Name
+	 * @throws TrickException 
 	 */
-	public Norm(String label, int version) {
+	public Norm(String label, int version) throws TrickException {
 		this.setLabel(label);
 		this.setVersion(version);
 	}
@@ -72,8 +75,9 @@ public class Norm implements Serializable, Cloneable {
 	 * 
 	 * @param label
 	 *            The Norm Name
+	 * @throws TrickException 
 	 */
-	public Norm(String label, int version, String description) {
+	public Norm(String label, int version, String description) throws TrickException {
 		this.setLabel(label);
 		this.setVersion(version);
 		this.setDescription(description);
@@ -84,8 +88,9 @@ public class Norm implements Serializable, Cloneable {
 	 * 
 	 * @param label
 	 *            The Norm Name
+	 * @throws TrickException 
 	 */
-	public Norm(String label, int version, String description, boolean computable) {
+	public Norm(String label, int version, String description, boolean computable) throws TrickException {
 		this.setLabel(label);
 		this.setVersion(version);
 		this.setDescription(description);
@@ -133,10 +138,11 @@ public class Norm implements Serializable, Cloneable {
 	 * 
 	 * @param label
 	 *            The Value to set the label field
+	 * @throws TrickException 
 	 */
-	public void setLabel(String label) {
-		if ((label == null) || (label.trim().equals(Constant.EMPTY_STRING)))
-			throw new IllegalArgumentException("Given Norm Name is not valid!");
+	public void setLabel(String label) throws TrickException {
+		if (label == null || label.trim().isEmpty())
+			throw new TrickException("error.norm.label","Name cannot be empty!");
 		this.label = label;
 	}
 
