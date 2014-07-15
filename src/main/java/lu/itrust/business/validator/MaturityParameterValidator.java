@@ -25,63 +25,74 @@ public class MaturityParameterValidator extends ValidatorFieldImpl {
 	protected static final String TYPE = "type";
 	protected static final String DESCRIPTION = "description";
 	protected static final String CATEGORY = "category";
-	private static final String ERROR_PARAMETER_TYPE_NULL = "error.parameter.type.null::Type cannot be empty";
-	private static final String ERROR_UNSUPPORTED_DATA_VALUE = "error.unsupported.data::Value is not supported";
-	private static final String ERROR_PARAMETER_DESC_NULL_OR_EMPTY = "error.parameter.null::Description Cannot be empty";
-	private static final String ERROR_PARAMETER_CAT_NULL_OR_EMPTY = "error.parameter.null::Category Cannot be empty";
-	private static final String ERROR_PARAMETER_SMLLEVEL_NULL = "error.parameter.null::SMLLevel cannot be null";
-	private static final String ERROR_PARAMETER_SMLLEVEL_INVALID = "error.parameter.null::SMLLevel value has to be: 0 <= VALUE <= 100!";
+	private static final String ERROR_PARAMETER_TYPE_NULL = "error.maturity_parameter.type.null::Type cannot be empty";
+	private static final String ERROR_UNSUPPORTED_DATA_VALUE = "error.maturity_parameter.%s.unsupporte::%s value is not supported";
+	private static final String ERROR_PARAMETER_DESC_NULL_OR_EMPTY = "error.maturity_parameter.description.null::Description cannot be empty";
+	private static final String ERROR_PARAMETER_CAT_NULL_OR_EMPTY = "error.maturity_parameter.category.null::Category cannot be empty";
+	private static final String ERROR_PARAMETER_SMLLEVEL_NULL = "error.maturity_parameter.sml_level_sml.null::SML level cannot be empty";
+	private static final String ERROR_PARAMETER_SMLLEVEL_INVALID = "error.maturity_parameter.sml_level.invalid:%d:SML level %d value has to be between 0 and 100!";
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.validator.Validator#validate(java.lang.Object, java.lang.String,
-	 * java.lang.Object)
+	 * @see lu.itrust.business.validator.Validator#validate(java.lang.Object,
+	 * java.lang.String, java.lang.Object)
 	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate) {
 		if (!supports(o.getClass()))
 			return null;
+		int level = -1;
 		switch (fieldName) {
-			case DESCRIPTION:
-				if (!(candidate instanceof String))
-					return ERROR_UNSUPPORTED_DATA_VALUE;
+		case DESCRIPTION:
+			if (!(candidate instanceof String))
+				return String.format(ERROR_UNSUPPORTED_DATA_VALUE, "description", "Description");
+			String description = (String) candidate;
+			if (description == null || description.trim().isEmpty())
+				return ERROR_PARAMETER_DESC_NULL_OR_EMPTY;
+			break;
+		case CATEGORY:
+			if (!(candidate instanceof String))
+				return String.format(ERROR_UNSUPPORTED_DATA_VALUE,"category", "Category");
 
-				String description = (String) candidate;
-				if (description == null || description.trim().isEmpty())
-					return ERROR_PARAMETER_DESC_NULL_OR_EMPTY;
-				break;
-			case CATEGORY:
-				if (!(candidate instanceof String))
-					return ERROR_UNSUPPORTED_DATA_VALUE;
-
-				String category = (String) candidate;
-				if (category == null || category.trim().isEmpty())
-					return ERROR_PARAMETER_CAT_NULL_OR_EMPTY;
-				break;
-			case TYPE:
-				if (candidate == null)
-					return ERROR_PARAMETER_TYPE_NULL;
-				else if (!(candidate instanceof ParameterType))
-					return ERROR_UNSUPPORTED_DATA_VALUE;
-				break;
-			case SMLLevel:
-				if (candidate == null)
-					return ERROR_PARAMETER_SMLLEVEL_NULL;
-				else if (!(candidate instanceof Integer))
-					return ERROR_UNSUPPORTED_DATA_VALUE;
-				break;
-			case SMLLevel0:
-			case SMLLevel1:
-			case SMLLevel2:
-			case SMLLevel3:
-			case SMLLevel4:
-			case SMLLevel5:
-				if (candidate == null || !(candidate instanceof Double))
-					return ERROR_UNSUPPORTED_DATA_VALUE;
-				Double value = (double) candidate;
-				if (value < 0 || value > 100)
-					return ERROR_PARAMETER_SMLLEVEL_INVALID;
+			String category = (String) candidate;
+			if (category == null || category.trim().isEmpty())
+				return ERROR_PARAMETER_CAT_NULL_OR_EMPTY;
+			break;
+		case TYPE:
+			if (candidate == null)
+				return ERROR_PARAMETER_TYPE_NULL;
+			else if (!(candidate instanceof ParameterType))
+				return String.format(ERROR_UNSUPPORTED_DATA_VALUE,TYPE,"Type");
+			break;
+		case SMLLevel:
+			if (candidate == null)
+				return ERROR_PARAMETER_SMLLEVEL_NULL;
+			else if (!(candidate instanceof Integer))
+				return String.format(ERROR_UNSUPPORTED_DATA_VALUE, "sml_level_sml", "SML level");
+			break;
+		case SMLLevel0:
+			level = 0;
+		case SMLLevel1:
+			if (level == -1)
+				level = 1;
+		case SMLLevel2:
+			if (level == -1)
+				level = 2;
+		case SMLLevel3:
+			if (level == -1)
+				level = 3;
+		case SMLLevel4:
+			if (level == -1)
+				level = 4;
+		case SMLLevel5:
+			if (level == -1)
+				level = 5;
+			if (candidate == null || !(candidate instanceof Double))
+				return String.format(ERROR_UNSUPPORTED_DATA_VALUE, "sml_level", String.format("SML Level %d", level));
+			Double value = (double) candidate;
+			if (value < 0 || value > 100)
+				return String.format(ERROR_PARAMETER_SMLLEVEL_INVALID, level, level);
 		}
 		return null;
 	}

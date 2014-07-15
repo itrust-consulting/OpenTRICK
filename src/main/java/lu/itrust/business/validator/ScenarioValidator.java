@@ -26,7 +26,7 @@ public class ScenarioValidator extends ValidatorFieldImpl implements Validator {
 			break;
 		case "scenarioType":
 			if (candidate == null || !(candidate instanceof ScenarioType))
-				return "error.scenario.scenarioType.unsupported::Scenario Type is not valid";
+				return "error.scenario.scenario_type.unsupported::Scenario Type is not valid";
 			break;
 		case "description":
 			if (candidate == null || !(candidate instanceof String))
@@ -64,7 +64,7 @@ public class ScenarioValidator extends ValidatorFieldImpl implements Validator {
 			arg1.rejectValue("name", "error.scenario.name.rejected", "Name is not valid");
 
 		if (!arg1.hasFieldErrors("scnearioType") && !(scenario.getScenarioType() instanceof ScenarioType))
-			arg1.rejectValue("scnearioType", "error.scenario.scnearioType.rejected", "Scenario Type is not valid");
+			arg1.rejectValue("scnearioType", "error.scenario.scneario_type.rejected", "Scenario Type is not valid");
 	}
 
 }

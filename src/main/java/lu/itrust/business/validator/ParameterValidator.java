@@ -15,14 +15,14 @@ import lu.itrust.business.validator.field.ValidatorFieldImpl;
  */
 public class ParameterValidator extends ValidatorFieldImpl {
 
-	protected static final String ERROR_EXTENDED_PARAMETER_VALUE_NULL = "error.extendedParameter.value.null::Value should be a numeric";
+	protected static final String ERROR_EXTENDED_PARAMETER_VALUE_NULL = "error.extended_parameter.value.null::Value should be a numeric";
 	protected static final String VALUE = "value";
 	protected static final String TYPE = "type";
 	protected static final String DESCRIPTION = "description";
-	private static final String ERROR_PARAMETER_TYPE_NULL_TYPE_CANNOT_BE_EMPTY = "error.parameter.type.null::Type cannot be empty";
-	private static final String ERROR_UNSUPPORTED_DATA_TYPE_TYPE_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data:type:Type value is not supported";
-	private static final String ERROR_UNSUPPORTED_DATA_DESCRIPTION_DESCRIPTION_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data:description:Description value is not supported";
-	private static final String ERROR_PARAMETER_DESCRIPTION_NULL_OR_EMPTY = "error.parameter.description.null::Description cannot be empty";
+	private static final String ERROR_PARAMETER_TYPE_NULL_TYPE_CANNOT_BE_EMPTY = "error.extended_parameter.type.null::Type cannot be empty";
+	private static final String ERROR_UNSUPPORTED_DATA_TYPE_TYPE_VALUE_IS_NOT_SUPPORTED = "error.extended_parameter.unsupported.type::Type value is not supported";
+	private static final String ERROR_UNSUPPORTED_DATA_DESCRIPTION_DESCRIPTION_VALUE_IS_NOT_SUPPORTED = "error.extended_parameter.unsupported.description::Description value is not supported";
+	private static final String ERROR_PARAMETER_DESCRIPTION_NULL_OR_EMPTY = "error.extended_parameter.description.null::Description cannot be empty";
 
 
 	/*

@@ -17,13 +17,13 @@ public class NormMeasureValidator extends MeasureValidator {
 	private static final String ASSET_TYPE_VALUES = "assetTypeValues";
 	private static final String MEASURE_PROPERTY_LIST = "measurePropertyList";
 	private static final String TO_CHECK = "toCheck";
-	private static final String ERROR_UNSUPPORTED_DATA_IMPLEMENTATION_RATE_IMPLEMENTATION_RATE_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.implementation_rate::Implementation rate value is not supported";
+	private static final String ERROR_UNSUPPORTED_DATA_IMPLEMENTATION_RATE_IMPLEMENTATION_RATE_VALUE_IS_NOT_SUPPORTED = "error.norm_measure.unsupported.implementation_rate::Implementation rate value is not supported";
 	protected static final String ERROR_NORM_MEASURE_IMPLEMENTATION_RATE_NULL_IMPLEMENTATION_RATE_SHOULD_BE_A_REAL_BETWEEN_0_AND_100 = "error.norm_measure.implementation_rate.null::Implementation rate should be a real between 0 and 100";
 	protected static final String ERROR_MEASURE_ASSET_TYPE_VALUES_NULL_A_MEASURE_SHOULD_ALWAYS_BE_HAVE_A_ASSET_TYPE_VALUES = "error.measure.asset_type_values.null::A measure should always be have a asset type values";
-	protected static final String ERROR_UNSUPPORTED_DATA_ASSET_TYPE_VALUES_ASSET_TYPE_VALUES_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.asset_type_values::Asset-type-values value is not supported";
+	protected static final String ERROR_UNSUPPORTED_DATA_ASSET_TYPE_VALUES_ASSET_TYPE_VALUES_VALUE_IS_NOT_SUPPORTED = "error.norm_measure.unsupported.asset_type_values::Asset-type-values value is not supported";
 	protected static final String ERROR_MEASURE_MEASURE_PROPERTY_LIST_NULL_A_MEASURE_SHOULD_ALWAYS_BE_HAVE_A_PROPERTIES = "error.measure.measure_property_list.null::A measure should always be have a properties";
-	protected static final String ERROR_UNSUPPORTED_DATA_MEASURE_PROPERTY_LIST_MEASURE_PROPERTIES_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.measure_property_list::Measure properties value is not supported";
-	protected static final String ERROR_UNSUPPORTED_DATA_TO_CHECK_TO_CHECK_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.to_check::To check value is not supported";
+	protected static final String ERROR_UNSUPPORTED_DATA_MEASURE_PROPERTY_LIST_MEASURE_PROPERTIES_VALUE_IS_NOT_SUPPORTED = "error.norm_measure.unsupported.measure_property_list::Measure properties value is not supported";
+	protected static final String ERROR_UNSUPPORTED_DATA_TO_CHECK_TO_CHECK_VALUE_IS_NOT_SUPPORTED = "error.norm_measure.unsupported.to_check::To check value is not supported";
 
 	/*
 	 * (non-Javadoc)

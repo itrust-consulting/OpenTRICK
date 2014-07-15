@@ -240,7 +240,7 @@ public class ControllerActionPlan {
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
 		} else {
-			return JsonMessage.Success(messageSource.getMessage("error.permissiondenied", null, "Permission denied!", locale));
+			return JsonMessage.Success(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		}
 	}
 }

@@ -18,13 +18,13 @@ public class LanguageValidator extends ValidatorFieldImpl {
 	private static final String ALT_NAME = "altName";
 	private static final String NAME = "name";
 	private static final String ALPHA3 = "alpha3";
-	private static final String ERROR_LANGUAGE_ALT_NAME_EMPTY_ALT_NAME_CANNOT_BE_EMPTY = "error.language.altName.empty::Alternative name cannot be empty";
-	private static final String ERROR_UNSUPPORTED_DATA_ALT_NAME_ALT_NAME_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.altName::Alternative name value is not supported";
+	private static final String ERROR_LANGUAGE_ALT_NAME_EMPTY_ALT_NAME_CANNOT_BE_EMPTY = "error.language.alt_name.empty::Alternative name cannot be empty";
+	private static final String ERROR_UNSUPPORTED_DATA_ALT_NAME_ALT_NAME_VALUE_IS_NOT_SUPPORTED = "error.language.alt_name.unsupported::Alternative name value is not supported";
 	private static final String ERROR_LANGUAGE_NAME_EMPTY_NAME_CANNOT_BE_EMPTY = "error.language.name.empty::Name cannot be empty";
-	private static final String ERROR_UNSUPPORTED_DATA_NAME_NAME_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.name::Name value is not supported";
+	private static final String ERROR_UNSUPPORTED_DATA_NAME_NAME_VALUE_IS_NOT_SUPPORTED = "error.language.name.unsupported::Name value is not supported";
 	private static final String ERROR_LANGUAGE_ALPHA3_INVALID_ALPHA3_SHOULD_BE_THREE_CHARACTERS = "error.language.alpha3.invalid::Alpha 3 code should be three characters";
-	private static final String ERROR_LANGUAGE_ALPHA3_EMPTY_ALPHA3_CANNOT_BE_EMPTY = "error.language.alpha3.empty::Alpha 3 code cannot be empty";
-	private static final String ERROR_UNSUPPORTED_DATA_ALPHA3_ALPHA3_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.alpha3::Alpha 3 code value is not supported";
+	private static final String ERROR_LANGUAGE_ALPHA3_EMPTY_ALPHA3_CANNOT_BE_EMPTY = "error.language.alpha_3.empty::Alpha 3 code cannot be empty";
+	private static final String ERROR_UNSUPPORTED_DATA_ALPHA3_ALPHA3_VALUE_IS_NOT_SUPPORTED = "error.language.alpha_3.unsupported::Alpha 3 code value is not supported";
 
 	/*
 	 * (non-Javadoc)

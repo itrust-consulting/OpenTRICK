@@ -17,12 +17,12 @@ public class NormValidator extends ValidatorFieldImpl {
 	private static final String LABEL2 = "label";
 	private static final String VERSION = "version";
 	private static final String DESCRIPTION2 = "description";
-	private static final String ERROR_UNSUPPORTED_DATA_LABEL_NAME_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.label::Name value is not supported";
+	private static final String ERROR_UNSUPPORTED_DATA_LABEL_NAME_VALUE_IS_NOT_SUPPORTED = "error.norm.unsupported.label::Name value is not supported";
 	private static final String ERROR_NORM_LABEL_EMPTY_NAME_CANNOT_BE_EMPTY = "error.norm.label.empty::Name cannot be empty";
 	private static final String ERROR_NORM_VERSION_VERSION_CANNOT_BE_EMPTY = "error.norm.version::Version cannot be empty";
-	private static final String ERROR_UNSUPPORTED_DATA_VERSION_VERSION_VALUE_SHOULD_BE_A_POSITIVE_INTEGER = "error.unsupported.data.version::Version value should be a positive integer";
+	private static final String ERROR_UNSUPPORTED_DATA_VERSION_VERSION_VALUE_SHOULD_BE_A_POSITIVE_INTEGER = "error.norm.unsupported.version::Version value should be a positive integer";
 	private static final String VERSION_SHOULD_BE_A_POSITIVE_INTEGER = "error.norm.version.zero_or_negative::Version should be a positive integer";
-	private static final String ERROR_UNSUPPORTED_DATA_DESCRIPTION_DESCRIPTION_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.description::Description value is not supported";
+	private static final String ERROR_UNSUPPORTED_DATA_DESCRIPTION_DESCRIPTION_VALUE_IS_NOT_SUPPORTED = "error.norm.unsupported.description::Description value is not supported";
 	private static final String ERROR_NORM_DESCRIPTION_EMPTY_DESCRIPTION_CANNOT_BE_EMPTY = "error.norm.description.empty::Description cannot be empty";
 
 	/*

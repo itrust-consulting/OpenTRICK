@@ -57,14 +57,14 @@ public class AssessmentValidator extends ValidatorFieldImpl {
 				return "error.assessment.invalid.value.probability::Probability should be a numeric";
 			double likelihoodReal = (double) candidate;
 			if (likelihoodReal <= 1)
-				return "error.assessment.negatif.value.likelihoodReal::Probability needs to be greater than 1";
+				return "error.assessment.negatif.value.probability::Probability needs to be greater than 1";
 			break;
 		case "impactReal":
 			if (candidate == null || !(candidate instanceof Double))
-				return "error.assessment.invalid.value:" + fieldName + ":" + fieldName + " should be a numeric";
+				return "error.assessment.invalid.value.impact_real::Real impact should be a numeric";
 			double impactReal = (double) candidate;
 			if (impactReal <= 1)
-				return "error.assessment.negatif.value.impactReal::Impact needs to be greater than 1";
+				return "error.assessment.negatif.value.impact_real::Impact needs to be greater than 1";
 			break;
 		case "asset":
 			if (candidate == null || !(candidate instanceof Asset))
@@ -97,33 +97,33 @@ public class AssessmentValidator extends ValidatorFieldImpl {
 		switch (fieldName) {
 		case "impactRep":
 			if (candidate == null || !(candidate instanceof String))
-				return "error.assessment.impactRep.null::Impact reputation cannot be empty";
+				return "error.assessment.impact_rep.null::Impact reputation cannot be empty";
 			else if (Double.isNaN(toNumeric(candidate.toString())) && !Contains(choose, candidate))
-				return "error.assessment.invalid.impactRep::Impact reputation is not valid";
+				return "error.assessment.invalid.impact_rep::Impact reputation is not valid";
 			break;
 		case "impactOp":
 			if (candidate == null || !(candidate instanceof String))
-				return "error.assessment.impactOp.null::Impact operationnel cannot be empty";
+				return "error.assessment.impact_op.null::Impact operational cannot be empty";
 			else if (Double.isNaN(toNumeric(candidate.toString())) && !Contains(choose, candidate))
-				return "error.assessment.invalid.impactOp::Impact operationnel is not valid";
+				return "error.assessment.invalid.impact_op::Impact operational is not valid";
 			break;
 		case "impactLeg":
 			if (candidate == null || !(candidate instanceof String))
-				return "error.assessment.impactLeg.null::Impact legal cannot be empty";
+				return "error.assessment.impact_leg.null::Impact legal cannot be empty";
 			else if (Double.isNaN(toNumeric(candidate.toString())) && !Contains(choose, candidate))
-				return "error.assessment.invalid.impactLeg::Impact legal is not valid";
+				return "error.assessment.invalid.impact_leg::Impact legal is not valid";
 			break;
 		case "impactFin":
 			if (candidate == null || !(candidate instanceof String))
-				return "error.assessment.impactFin.null::Impact financial cannot be empty";
+				return "error.assessment.impact_fin.null::Impact financial cannot be empty";
 			else if (Double.isNaN(toNumeric(candidate.toString())) && !Contains(choose, candidate))
-				return "error.assessment.invalid.impactFin::Impact financial is not valid";
+				return "error.assessment.invalid.impact_fin::Impact financial is not valid";
 			break;
 		case "likelihood":
 			if (candidate == null || !(candidate instanceof String))
-				return "error.assessment.likelihood.null::Probabilty cannot be empty";
+				return "error.assessment.probability.null::Probability cannot be empty";
 			else if (Double.isNaN(toNumeric(candidate.toString())) && !Contains(choose, candidate))
-				return "error.assessment.invalid.likelihood::Probabilty is not valid";
+				return "error.assessment.invalid.probability::Probability is not valid";
 			break;
 		}
 		return validate(o, fieldName, candidate);

@@ -20,6 +20,7 @@ import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.dao.hbm.DAOHibernate;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceDataValidation;
@@ -261,10 +262,10 @@ public class ControllerAdministration {
 					continue;
 
 				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
-			
-				for(UserAnalysisRight uar: analysis.getUserRights())
+
+				for (UserAnalysisRight uar : analysis.getUserRights())
 					uar.setUser(DAOHibernate.Initialise(uar.getUser()));
-				
+
 				UserAnalysisRight uar = analysis.getRightsforUser(user);
 
 				if (uar != null) {
@@ -295,8 +296,8 @@ public class ControllerAdministration {
 				}
 			}
 
-			model.addAttribute("success", messageSource
-					.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			model.addAttribute("success",
+					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
@@ -468,9 +469,7 @@ public class ControllerAdministration {
 					if (jsonNode.get(role.getType().name()).asText().equals(Constant.CHECKBOX_CONTROL_ON)) {
 						user.addRole(role);
 					}
-
 				}
-
 			}
 
 			if (errors.isEmpty())
@@ -478,6 +477,10 @@ public class ControllerAdministration {
 			else
 				return null;
 
+		} catch (TrickException e) {
+			errors.put("user", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			e.printStackTrace();
+			return null;
 		} catch (Exception e) {
 
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
@@ -499,8 +502,7 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json")
-	public @ResponseBody
-	Map<String, String> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
+	public @ResponseBody Map<String, String> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
@@ -535,8 +537,7 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping("/User/Delete/{userId}")
-	public @ResponseBody
-	Boolean delete(@PathVariable("userId") int userId, Principal principal) throws Exception {
+	public @ResponseBody Boolean delete(@PathVariable("userId") int userId, Principal principal) throws Exception {
 		try {
 
 			User user = serviceUser.get(userId);

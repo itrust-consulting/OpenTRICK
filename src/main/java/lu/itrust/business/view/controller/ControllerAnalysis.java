@@ -44,6 +44,7 @@ import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.dao.hbm.DAOHibernate;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceActionPlan;
@@ -232,7 +233,7 @@ public class ControllerAnalysis {
 				model.addAttribute("analysis", analysis);
 				model.addAttribute("KowledgeBaseView", analysis.isProfile());
 			} else {
-				attributes.addFlashAttribute("errors", messageSource.getMessage("error.notAuthorized", null, "Insufficient permissions!", locale));
+				attributes.addFlashAttribute("errors", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 				return "redirect:/Error/403";
 			}
 		} else {
@@ -265,7 +266,8 @@ public class ControllerAnalysis {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		List<Norm> norms = serviceNorm.getAllNotInAnalysis(idAnalysis);
 		if (norms.isEmpty()) {
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.analysis.add.standard", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
+			attributes.addFlashAttribute("error",
+					messageSource.getMessage("error.analysis.add.standard", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
 			return "redirect:/Error";
 		}
 		model.addAttribute("norms", norms);
@@ -276,8 +278,7 @@ public class ControllerAnalysis {
 
 	@RequestMapping(value = "/Save/Standard/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, RedirectAttributes attributes, Locale locale) throws Exception {
+	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, RedirectAttributes attributes, Locale locale) throws Exception {
 		try {
 			Norm norm = serviceNorm.get(idStandard);
 			if (norm == null)
@@ -325,6 +326,8 @@ public class ControllerAnalysis {
 			serviceAnalysis.saveOrUpdate(analysis);
 
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.add.standard", null, "A standard was successfully added", locale));
+		} catch (TrickException e) {
+			return JsonMessage.Success(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard", null, "An unknown error occurred during analysis saving", locale));
@@ -437,7 +440,8 @@ public class ControllerAnalysis {
 				}
 			}
 
-			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			model.addAttribute("success",
+					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
@@ -507,8 +511,7 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	String update(HttpSession session, Locale locale) {
+	public @ResponseBody String update(HttpSession session, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
@@ -655,8 +658,7 @@ public class ControllerAnalysis {
 	 * @return
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody
-	Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
 
@@ -672,7 +674,7 @@ public class ControllerAnalysis {
 			// check if it is a new analysis or the user is authorized to modify
 			// the analysis
 			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)
-				|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
+					|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
 
 				// create/update analysis object and set access rights
 				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
@@ -695,8 +697,7 @@ public class ControllerAnalysis {
 
 	@RequestMapping("/SetDefaultProfile/{analysisId}")
 	@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
-	public @ResponseBody
-	boolean setDefaultProfile(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
+	public @ResponseBody boolean setDefaultProfile(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
 
 		Analysis analysis = serviceAnalysis.get(analysisId);
 
@@ -737,8 +738,8 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
-	public @ResponseBody
-	String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session) throws Exception {
+	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session)
+			throws Exception {
 		try {
 
 			Analysis analysis = serviceAnalysis.getDefaultProfile();
@@ -811,8 +812,8 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/Duplicate/{analysisId}", headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale)
+			throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
@@ -940,8 +941,8 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Import/Execute")
-	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request, @RequestParam(value = "file") MultipartFile file,
-			final RedirectAttributes attributes, Locale locale) throws Exception {
+	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request,
+			@RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
 
 		// retrieve the customer
 		Customer customer = serviceCustomer.get(customerId);
@@ -1009,8 +1010,7 @@ public class ControllerAnalysis {
 	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
 	@RequestMapping(value = "/Export/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json")
-	public @ResponseBody
-	String exportAnalysis(@PathVariable int analysisId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
+	public @ResponseBody String exportAnalysis(@PathVariable int analysisId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 
 		// create worker
 		Worker worker = new WorkerExportAnalysis(serviceTaskFeedback, sessionFactory, principal, request.getServletContext(), workersPoolManager, analysisId);
@@ -1057,7 +1057,7 @@ public class ControllerAnalysis {
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""
-			+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) userSqLite.getSize());
@@ -1082,15 +1082,15 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/Export/Report/{analysisId}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
-	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal, Locale locale)
-			throws Exception {
+	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal,
+			Locale locale) throws Exception {
 
 		File file = null;
 
 		try {
 
 			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
-			
+
 			exportAnalysisReport.setMessageSource(messageSource);
 
 			file = exportAnalysisReport.exportToWordDocument(analysisId, request.getServletContext(), serviceAnalysis, true);
@@ -1124,8 +1124,8 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/Export/ReportData/{analysisId}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
-	public String exportReportData(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal, Locale locale)
-			throws Exception {
+	public String exportReportData(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal,
+			Locale locale) throws Exception {
 
 		File file = null;
 

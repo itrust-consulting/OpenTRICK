@@ -32,7 +32,7 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 			if (candidate == null || !(candidate instanceof Double))
 				return "error.asset.value.unsupported::Value is not supported";
 			else if ((Double)candidate <0)
-				return "error.asset.value.invalid::Value has to be >= 0";
+				return "error.asset.value.invalid::Value has to be 0 or greater";
 			break;
 		}
 		return null;
@@ -59,13 +59,13 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 
 		Asset asset = (Asset) arg0;
 		if (!arg1.hasFieldErrors("name") && !asset.getName().matches(Constant.REGEXP_VALID_NAME))
-			arg1.rejectValue("name", "error.asset.name.rejected", "Name is not valid");
+			arg1.rejectValue("name", "error.asset.name.invalid", "Name is not valid");
 
 		if (!arg1.hasFieldErrors("assetType") && !(asset.getAssetType() instanceof AssetType))
-			arg1.rejectValue("assetType", "error.asset.assetType.rejected", "Asset Type is not valid");
+			arg1.rejectValue("assetType", "error.asset.assetType.invalid", "Asset Type is not valid");
 
 		if (!arg1.hasFieldErrors("value") && asset.getValue() <= 0)
-			arg1.rejectValue("name", "error.asset.value.rejected", "Value has to be > 0");
+			arg1.rejectValue("name", "error.asset.value.invalid", "Value has to be 0 or greater");
 	}
 
 }
