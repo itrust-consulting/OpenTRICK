@@ -1,10 +1,12 @@
 package lu.itrust.business.TS.cssf;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * EvaluationResult: <br>
- * Represents the Evaluation of a Risk Importance. The Risk Importance can be calculated automaticly
- * when impact and probability values are set (Constructor). Or can be given as Constructor
- * parameter.<br>
+ * Represents the Evaluation of a Risk Importance. The Risk Importance can be
+ * calculated automaticly when impact and probability values are set
+ * (Constructor). Or can be given as Constructor parameter.<br>
  * This class contains:
  * <ul>
  * <li>Probability</li>
@@ -12,7 +14,7 @@ package lu.itrust.business.TS.cssf;
  * <li>Importance</li>
  * </ul>
  * 
- * @author itrust consulting s.à.rl. - BJA, SME, EOM
+ * @author itrust consulting s.ï¿½.rl. - BJA, SME, EOM
  * @version 0.1
  * @since 2012-12-11
  */
@@ -43,14 +45,16 @@ public class EvaluationResult {
 
 	/**
 	 * Constructor:<br>
-	 * Sets the Probability and Impact values and calculate the Importance Automaticly.
+	 * Sets the Probability and Impact values and calculate the Importance
+	 * Automaticly.
 	 * 
 	 * @param probability
 	 *            The Probability Value
 	 * @param impact
 	 *            The Impact Value
+	 * @throws TrickException 
 	 */
-	public EvaluationResult(double probability, double impact) {
+	public EvaluationResult(double probability, double impact) throws TrickException {
 		this.setProbability(probability);
 		this.setImpact(impact);
 	}
@@ -65,8 +69,9 @@ public class EvaluationResult {
 	 *            The Impact Value
 	 * @param importance
 	 *            The Importance Value
+	 * @throws TrickException 
 	 */
-	public EvaluationResult(double probability, double impact, double importance) {
+	public EvaluationResult(double probability, double impact, double importance) throws TrickException {
 		this.setProbability(probability);
 		this.setImpact(impact);
 		this.setImportance(importance);
@@ -105,11 +110,11 @@ public class EvaluationResult {
 	 * 
 	 * @param probability
 	 *            The value to set the Probability
+	 * @throws TrickException
 	 */
-	public void setProbability(double probability) {
+	public void setProbability(double probability) throws TrickException {
 		if (probability < 0)
-			throw new IllegalArgumentException("EvaluationResult#setProbability: " + probability
-				+ " should be a natural numbers");
+			throw new TrickException("error.evaluation_result.probability","Probability should be a natural numbers");
 		this.probability = probability;
 		computeImportance();
 	}
@@ -130,11 +135,11 @@ public class EvaluationResult {
 	 * 
 	 * @param impact
 	 *            The Impact Value to set
+	 * @throws TrickException 
 	 */
-	public void setImpact(double impact) {
+	public void setImpact(double impact) throws TrickException {
 		if (impact < 0)
-			throw new IllegalArgumentException("EvaluationResult#setImpact: " + impact
-				+ " should be a natural numbers");
+			throw new TrickException("error.evaluation_result.impact","Impact should be a natural numbers");
 		this.impact = impact;
 		computeImportance();
 	}

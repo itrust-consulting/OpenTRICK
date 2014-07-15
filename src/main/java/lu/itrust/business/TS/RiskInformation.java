@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * RiskInformation: <br>
@@ -107,13 +108,6 @@ public class RiskInformation implements Cloneable {
 	 *            The value to set the Exposed value
 	 */
 	public void setExposed(String expo) {
-		/*
-		 * if (expo == null ||
-		 * !expo.matches(Constant.REGEXP_VALID_RISKINFORMATION_EXPOSED)) throw
-		 * new
-		 * IllegalArgumentException("Exposed should meet this regular expression "
-		 * + Constant.REGEXP_VALID_RISKINFORMATION_EXPOSED);
-		 */
 		this.exposed = expo;
 	}
 
@@ -175,14 +169,14 @@ public class RiskInformation implements Cloneable {
 	 * 
 	 * @param category
 	 *            The value to set the Category
+	 * @throws TrickException 
 	 */
-	public void setCategory(String category) {
+	public void setCategory(String category) throws TrickException {
 		if (category == null
 				|| !category
 						.matches(Constant.REGEXP_VALID_RISKINFORMATION_TYPE))
-			throw new IllegalArgumentException(
-					"Category should meet this regular expression "
-							+ Constant.REGEXP_VALID_RISKINFORMATION_TYPE);
+			throw new TrickException("error.risk_information.category.invalid",
+					"Category is empty or invalid");
 		this.category = category;
 	}
 

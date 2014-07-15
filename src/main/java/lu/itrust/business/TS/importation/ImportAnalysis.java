@@ -420,12 +420,10 @@ public class ImportAnalysis {
 			System.out.println("Import Done!");
 
 			return true;
-
 		} catch (Exception e) {
 			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), e));
 			e.printStackTrace();
 			throw e;
-
 		} finally {
 			// clear maps
 			clearData();

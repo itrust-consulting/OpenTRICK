@@ -2,10 +2,12 @@ package lu.itrust.business.TS.cssf;
 
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Scenario;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * RiskRegisterItem: <br>
- * This Class represents a single Entry inside the Risk Register. A Item has as fields:<br>
+ * This Class represents a single Entry inside the Risk Register. A Item has as
+ * fields:<br>
  * <ul>
  * <li>Scenario Object</li>
  * <li>Position in the List</li>
@@ -30,7 +32,7 @@ public class RiskRegisterItem {
 
 	/** Scenario Object */
 	private Scenario scenario = null;
-	
+
 	private Asset asset = null;
 
 	/** Identifier */
@@ -40,13 +42,13 @@ public class RiskRegisterItem {
 	private int position = 0;
 
 	/** The Raw Evaluation Data (Probability, Impact and Importance) */
-	private EvaluationResult rawEvaluation = new EvaluationResult(0, 0);
+	private EvaluationResult rawEvaluation = null;
 
 	/** The Net Evaluation Data (Probability, Impact and Importance) */
-	private EvaluationResult expectedImportance = new EvaluationResult(0, 0);
+	private EvaluationResult expectedImportance = null;
 
 	/** The Expected Evaluation Data (Probability, Impact and Importance) */
-	private EvaluationResult netEvaluation = new EvaluationResult(0, 0);
+	private EvaluationResult netEvaluation = null;
 
 	/** Strategy */
 	private String strategy = "Shrink";
@@ -57,8 +59,13 @@ public class RiskRegisterItem {
 
 	/**
 	 * Constructors:<br>
+	 * 
+	 * @throws TrickException
 	 */
-	public RiskRegisterItem() {
+	public RiskRegisterItem() throws TrickException {
+		rawEvaluation = new EvaluationResult(0, 0);
+		expectedImportance = new EvaluationResult(0, 0);
+		netEvaluation = new EvaluationResult(0, 0);
 	}
 
 	/**
@@ -66,10 +73,14 @@ public class RiskRegisterItem {
 	 * 
 	 * @param scenario
 	 *            The Scenario of this item
+	 * @throws TrickException
 	 */
-	public RiskRegisterItem(Scenario scenario, Asset asset) {
+	public RiskRegisterItem(Scenario scenario, Asset asset) throws TrickException {
 		this.setScenario(scenario);
 		this.setAsset(asset);
+		rawEvaluation = new EvaluationResult(0, 0);
+		expectedImportance = new EvaluationResult(0, 0);
+		netEvaluation = new EvaluationResult(0, 0);
 	}
 
 	/***********************************************************************************************
@@ -134,11 +145,11 @@ public class RiskRegisterItem {
 	 * 
 	 * @param scenario
 	 *            The Scenario Object to set
+	 * @throws TrickException 
 	 */
-	public void setScenario(Scenario scenario) {
+	public void setScenario(Scenario scenario) throws TrickException {
 		if (scenario == null)
-			throw new IllegalArgumentException(
-					"RiskRegisterItem#setScenario: scenario can not be null");
+			throw new TrickException("error.risk_register.scenario.empty","Scenario cannot be empty");
 		this.scenario = scenario;
 	}
 
@@ -146,7 +157,8 @@ public class RiskRegisterItem {
 	 * getRawEvaluation: <br>
 	 * Returns the "rawEvaluation" field Object.
 	 * 
-	 * @return The Raw Evaluation Object (With Probability - Impact - Importance)
+	 * @return The Raw Evaluation Object (With Probability - Impact -
+	 *         Importance)
 	 */
 	public EvaluationResult getRawEvaluation() {
 		return rawEvaluation;
@@ -167,7 +179,8 @@ public class RiskRegisterItem {
 	 * getNetEvaluation: <br>
 	 * Returns the "netEvaluation" field Object.
 	 * 
-	 * @return The Net Evaluation Object (With Probability - Impact - Importance)
+	 * @return The Net Evaluation Object (With Probability - Impact -
+	 *         Importance)
 	 */
 	public EvaluationResult getNetEvaluation() {
 		return netEvaluation;
@@ -188,7 +201,8 @@ public class RiskRegisterItem {
 	 * getExpectedImportance: <br>
 	 * Returns the "expectedImportance" field Object.
 	 * 
-	 * @return The Expected Evaluation Object (With Probability - Impact - Importance)
+	 * @return The Expected Evaluation Object (With Probability - Impact -
+	 *         Importance)
 	 */
 	public EvaluationResult getExpectedImportance() {
 		return expectedImportance;
@@ -221,13 +235,13 @@ public class RiskRegisterItem {
 	 * 
 	 * @param strategy
 	 *            The Strategy to set
+	 * @throws TrickException 
 	 */
-	public void setStrategy(String strategy) {
+	public void setStrategy(String strategy) throws TrickException {
 
 		// check if strategy is Shrink or Accepted
 		if (strategy == null || !strategy.matches(ACCEPT_SHRINK))
-			throw new IllegalArgumentException("RiskRegisterItem#setStrategy " + strategy
-				+ " should meet this regular expression," + ACCEPT_SHRINK);
+			throw new TrickException("error.risk_register.strategy.empty","Strategy is not valid");
 		this.strategy = strategy;
 	}
 

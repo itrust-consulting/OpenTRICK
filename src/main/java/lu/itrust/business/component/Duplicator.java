@@ -142,8 +142,9 @@ public class Duplicator {
 	 * @param anonymize
 	 * @return
 	 * @throws CloneNotSupportedException
+	 * @throws TrickException 
 	 */
-	public AnalysisNorm duplicateAnalysisNorm(AnalysisNorm analysisNorm, Map<Integer, Phase> phases, Map<Integer, Parameter> parameters, boolean anonymize) throws CloneNotSupportedException {
+	public AnalysisNorm duplicateAnalysisNorm(AnalysisNorm analysisNorm, Map<Integer, Phase> phases, Map<Integer, Parameter> parameters, boolean anonymize) throws CloneNotSupportedException, TrickException {
 		AnalysisNorm norm = (AnalysisNorm) analysisNorm.duplicate();
 
 		List<Measure> measures = new ArrayList<>(analysisNorm.getMeasures().size());
@@ -167,8 +168,9 @@ public class Duplicator {
 	 * @param anonymize
 	 * @return
 	 * @throws CloneNotSupportedException
+	 * @throws TrickException 
 	 */
-	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisNorm norm, Map<Integer, Parameter> parameters, boolean anonymize) throws CloneNotSupportedException {
+	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisNorm norm, Map<Integer, Parameter> parameters, boolean anonymize) throws CloneNotSupportedException, TrickException {
 		Measure copy = measure.duplicate();
 		copy.setAnalysisNorm(norm);
 		copy.setPhase(phase);

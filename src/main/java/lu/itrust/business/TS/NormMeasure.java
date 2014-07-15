@@ -171,9 +171,8 @@ public class NormMeasure extends Measure {
 	 */
 	@Override
 	public void setImplementationRate(Object implementationRate) throws TrickException {
-		if (!(implementationRate instanceof Double)) {
-			throw new IllegalArgumentException("ImplementationRate needs to be of Type Double!");
-		}
+		if (!(implementationRate instanceof Double))
+			throw new TrickException("error.norm_measure.implementation_rate.invalid","ImplementationRate needs to be of Type Double!");
 		super.setImplementationRate((Double) implementationRate);
 	}
 

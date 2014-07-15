@@ -202,20 +202,20 @@ public class ExportAnalysis {
 			// ****************************************************************
 			// * Display error message
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler(e.getCode(), e.getMessage(), e));
+			MessageHandler handler = new MessageHandler(e);
+			serviceTaskFeedback.send(idTask, handler);
 			System.out.println(e.getMessage());
 			e.printStackTrace();
-			return new MessageHandler(e);
+			return handler;
 		} catch (Exception e) {
 			// ****************************************************************
 			// * Display error message
 			// ****************************************************************
-			serviceTaskFeedback.send(idTask, new MessageHandler("error.export.success", "Error while exporting", e));
+			serviceTaskFeedback.send(idTask, new MessageHandler("error.export.unknown", "An unknown error occurred while exporting", e));
 			System.out.println("Error while exporting!");
 			e.printStackTrace();
 			return new MessageHandler(e);
 			// set return value exception
-
 		}
 	}
 
@@ -2144,8 +2144,9 @@ public class ExportAnalysis {
 	 *            The SQL Parameter List
 	 * @param criteria
 	 *            The Object containing the Data to add
+	 * @throws TrickException 
 	 */
-	private void insertCategories(List<Object> params, SecurityCriteria criteria) {
+	private void insertCategories(List<Object> params, SecurityCriteria criteria) throws TrickException {
 
 		// parse all categories
 		for (String key : SecurityCriteria.getCategoryKeys())

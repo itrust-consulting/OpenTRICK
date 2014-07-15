@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.actionplan;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * ActionPlanMode <br>
  * <b>There are 6 modes:</b>
@@ -61,13 +63,14 @@ public enum ActionPlanMode {
 	 * @param value
 	 *            ActionPlanmode value from 1 to 6
 	 * @return ActionplanMode
+	 * @throws TrickException 
 	 * @throws IllegalArgumentException
 	 *             when value is not between 1 and 6
 	 */
-	public static ActionPlanMode valueOf(int value) {
+	public static ActionPlanMode valueOf(int value) throws TrickException {
 		ActionPlanMode[] values = values();
 		if (value < 1 || value > values.length)
-			throw new IllegalArgumentException("Value should be between 1 and " + values.length);
+			throw new TrickException("error.action_plan_mode.out_of_bound","Value should be between 1 and " + values.length, String.valueOf(1), String.valueOf(values.length));
 		return values[value - 1];
 	}
 

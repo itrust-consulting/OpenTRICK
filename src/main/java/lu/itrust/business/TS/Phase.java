@@ -3,6 +3,8 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.sql.Date;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * Parameter: <br>
  * This class represents a Parameter and its data.
@@ -97,13 +99,11 @@ public class Phase implements Serializable, Cloneable {
 	 * 
 	 * @param beginDate
 	 *            The value to set the Begin Date of the Phase
+	 * @throws TrickException
 	 */
-	public void setBeginDate(Date beginDate) {
-		if ((beginDate != null) && (this.endDate != null)
-				&& (!beginDate.before(endDate))) {
-			throw new IllegalArgumentException(
-					"Date is null or BeginDate is not less than EndDate");
-		}
+	public void setBeginDate(Date beginDate) throws TrickException {
+		if ((beginDate != null) && (this.endDate != null) && (!beginDate.before(endDate)))
+			throw new TrickException("error.phase.begin_date.invalid", "Begin date cannot be empty or later than end date");
 		this.beginDate = beginDate;
 	}
 
@@ -123,13 +123,11 @@ public class Phase implements Serializable, Cloneable {
 	 * 
 	 * @param endDate
 	 *            The value to set the End Date of the Phase
+	 * @throws TrickException
 	 */
-	public void setEndDate(Date endDate) {
-		if ((endDate != null) && (this.beginDate != null)
-				&& (!endDate.after(this.beginDate))) {
-			throw new IllegalArgumentException(
-					"Date is null or BeginDate is not less than EndDate");
-		}
+	public void setEndDate(Date endDate) throws TrickException {
+		if ((endDate != null) && (this.beginDate != null) && (!endDate.after(this.beginDate)))
+			throw new TrickException("error.phase.end_date.invalid", "End date cannot be empty or earlier than begin date");
 		this.endDate = endDate;
 	}
 
@@ -163,8 +161,7 @@ public class Phase implements Serializable, Cloneable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((analysis == null) ? 0 : analysis.hashCode());
+		result = prime * result + ((analysis == null) ? 0 : analysis.hashCode());
 		result = prime * result + number;
 		return result;
 	}

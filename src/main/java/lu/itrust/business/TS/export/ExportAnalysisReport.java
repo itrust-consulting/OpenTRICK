@@ -32,6 +32,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.RiskInformationManager;
 import lu.itrust.business.component.helper.ALE;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -102,11 +103,11 @@ public class ExportAnalysisReport {
 		InputStream inputStream = null;
 		try {
 			if (!serviceAnalysis.exists(analysisId)) {
-				throw new IllegalArgumentException("error.analysis.not_exist");
+				throw new TrickException("error.analysis.not_exist","Analysis not found");
 			} else if (serviceAnalysis.isProfile(analysisId)) {
-				throw new IllegalArgumentException("error.analysis.is_profile");
+				throw new TrickException("error.analysis.is_profile","Profile cannot be exported as repport");
 			} else if (!serviceAnalysis.hasData(analysisId)) {
-				throw new IllegalArgumentException("error.analysis.no_data");
+				throw new TrickException("error.analysis.no_data","Empty analysis cannot be exported");
 			}
 
 			Analysis analysis = serviceAnalysis.get(analysisId);

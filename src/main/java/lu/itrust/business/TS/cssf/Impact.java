@@ -7,6 +7,7 @@ import java.util.Map;
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * 
@@ -29,9 +30,9 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * acronym exists)</li>
  * </ul>
  * 
- * @author itrust consulting s.à.rl. : BJA, EOM, SME
+ * @author itrust consulting s.ï¿½.rl. : BJA, EOM, SME
  * @version 0.1
- * @since 11 déc. 2012
+ * @since 11 dï¿½c. 2012
  */
 public class Impact {
 
@@ -190,8 +191,9 @@ public class Impact {
 	 * convert numeric value to acronym.
 	 * 
 	 * @return
+	 * @throws TrickException 
 	 */
-	public String getAcronymOperational() {
+	public String getAcronymOperational() throws TrickException {
 
 		// checks if the operational object is of type String -> YES
 		if (operational instanceof String) {
@@ -262,8 +264,9 @@ public class Impact {
 	 * value, it will be converted into a valid Acronym.
 	 * 
 	 * @return The Reputation Impact Acronym
+	 * @throws TrickException 
 	 */
-	public String getAcronymReputation() {
+	public String getAcronymReputation() throws TrickException {
 
 		// check if reputation is a String -> YES
 		if (reputation instanceof String) {
@@ -341,8 +344,9 @@ public class Impact {
 	 * it will be converted into a valid Acronym.
 	 * 
 	 * @return The Legal Impact Acronym
+	 * @throws TrickException 
 	 */
-	public String getAcronymLegal() {
+	public String getAcronymLegal() throws TrickException {
 
 		// check if legal is an Acronym -> YES
 		if (legal instanceof String) {
@@ -423,8 +427,9 @@ public class Impact {
 	 * value, it will be converted into a valid Acronym.
 	 * 
 	 * @return The Financial Impact Acronym
+	 * @throws TrickException 
 	 */
-	public String getAcronymFinancial() {
+	public String getAcronymFinancial() throws TrickException {
 
 		// check if financial is a Acronym -> YES
 		if (financial instanceof String) {
@@ -541,13 +546,13 @@ public class Impact {
 	 * @param parameters
 	 *            The Parameters Array to find the Acronym
 	 * @return The Acronym of the Impact Value
+	 * @throws TrickException 
 	 */
-	public static String convertDoubleImpactToAcronym(double impact, Map<String, Parameter> parameters) {
+	public static String convertDoubleImpactToAcronym(double impact, Map<String, Parameter> parameters) throws TrickException {
 
 		// check if impact < 0 -> YES
-		if (impact < 0) {
-			throw new IllegalArgumentException("Impact#impactToAcronym: value should be greater or equal 0");
-		}
+		if (impact < 0) 
+			throw new TrickException("error.impact.impact","Impact should be a natural numbers");
 
 		// parse parameters to find the matching impact
 		for (Parameter parameter : parameters.values()) {
@@ -563,7 +568,7 @@ public class Impact {
 				return ((ExtendedParameter) parameter).getAcronym();
 			}
 		}
-		throw new IllegalArgumentException("Impact#impactToAcronym: Acronym cannot be found");
+		throw new TrickException("error.impact.impact.acronym_not_found","Acronym cannot be found");
 	}
 
 	/**
