@@ -26,7 +26,7 @@ function editSingleAnalysis(analysisId) {
 				$("#alert-dialog").modal("toggle");
 			} else {
 				$("#analysis_form").html($(form).html());
-				$("#addAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
+				$("#addAnalysisModel-title").text(MessageResolver("title.analysis.update", "Update an Analysis"));
 				$("#addAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
 				$("#analysis_form").prop("action", "/update");
 				$("#addAnalysisModel").modal('toggle');
@@ -143,7 +143,7 @@ function deleteAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis") + "?");
+	$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
 
 	$("#deleteanalysisbuttonYes").click(function() {
 		$("#deleteAnalysisModel .modal-header > .close").hide();

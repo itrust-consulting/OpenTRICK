@@ -90,7 +90,7 @@ public class ControllerLanguage {
 		if (language == null || language.getId() != languageId)
 			language = serviceLanguage.get(languageId);
 		if (language == null) {
-			String msg = messageSource.getMessage("errors.language.notexist", null, "Language does not exist", locale);
+			String msg = messageSource.getMessage("errors.language.not_exist", null, "Language does not exist", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
 			return "redirect:/KnowLedgeBase/Language";
 		}
@@ -116,7 +116,7 @@ public class ControllerLanguage {
 				return errors;
 			if (language.getId() < 1) {
 				if (serviceLanguage.existsByAlpha3(language.getAlpha3()))
-					errors.put("alpha3", messageSource.getMessage("error.language.alph3.duplicate", null, "Alpha 3 code is already in use", locale));
+					errors.put("alpha3", messageSource.getMessage("error.language.alph_3.duplicate", null, "Alpha 3 code is already in use", locale));
 				if (serviceLanguage.existsByAltName(language.getAltName()))
 					errors.put("altName", messageSource.getMessage("error.language.altName.duplicate", null, "Alternative name code is already in use", locale));
 				if (serviceLanguage.existsByName(language.getName()))

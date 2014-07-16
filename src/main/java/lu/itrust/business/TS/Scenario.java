@@ -218,8 +218,10 @@ public class Scenario extends SecurityCriteria {
 	 */
 	@Override
 	public void setPreventive(double preventive) throws TrickException {
-		if (preventive < 0 || preventive > 1)
+		if (preventive<0 || preventive >1){
+			System.out.println(preventive);
 			throw new TrickException("error.scenario.preventive.invalid","Preventive needs to be 0 or 1!");
+		}
 		super.setPreventive(preventive);
 	}
 
@@ -234,7 +236,7 @@ public class Scenario extends SecurityCriteria {
 	 */
 	@Override
 	public void setDetective(double detective) throws TrickException {
-		if (0<detective || detective >1)
+		if (detective<0 || detective>1)
 			throw new TrickException("error.scenario.detective.invalid","Detective needs to be 0 or 1!");
 		super.setDetective(detective);
 	}
@@ -250,7 +252,7 @@ public class Scenario extends SecurityCriteria {
 	 */
 	@Override
 	public void setLimitative(double limitative) throws TrickException {
-		if (0<limitative || limitative >1) 
+		if (limitative<0 || limitative > 1) 
 			throw new TrickException("error.scenario.limitative.invalid","Limitative needs to be 0 or 1!");
 		super.setLimitative(limitative);
 	}
@@ -266,7 +268,7 @@ public class Scenario extends SecurityCriteria {
 	 */
 	@Override
 	public void setCorrective(double corrective) throws TrickException {
-		if (0<corrective || corrective >1)
+		if (corrective<0 || corrective>1)
 			throw new TrickException("error.scenario.corrective.invalid","Corrective needs to be 0 or 1!");
 		super.setCorrective(corrective);
 	}

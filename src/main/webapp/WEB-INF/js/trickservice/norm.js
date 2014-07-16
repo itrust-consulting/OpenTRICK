@@ -63,7 +63,7 @@ function deleteNorm(normId, name) {
 		normId = selectedScenario[0];
 		name = $("#section_norm tbody tr[trick-id='" + normId + "']>td:nth-child(2)").text();
 	}
-	$("#deleteNormBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the norm") + "&nbsp;<strong>" + name + "</strong>?");
+	$("#deleteNormBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the norm <strong>" + name + "</strong>?",name));
 	$("#deletenormbuttonYes").click(function() {
 		$.ajax({
 			url : context + "/KnowledgeBase/Norm/Delete/" + normId,
@@ -195,7 +195,7 @@ function newNorm() {
 	$("#norm_version").prop("value", "");
 	$("#norm_description").prop("value", "");
 	$("#norm_computable").prop("checked", false);
-	$("#addNormModel-title").text(MessageResolver("title.knowledgebase.Norm.Add", "Add a new Norm"));
+	$("#addNormModel-title").text(MessageResolver("title.knowledgebase.norm.add", "Add a new Norm"));
 	$("#addnormbutton").text(MessageResolver("label.action.add", "Add"));
 	$("#norm_form").prop("action", "/Save");
 	$("#addNormModel").modal('toggle');
@@ -221,7 +221,7 @@ function editSingleNorm(normId) {
 
 	$("#norm_computable").prop("checked", $(rows[3]).attr("computable") == 'Yes' ? "checked" : "");
 
-	$("#addNormModel-title").text(MessageResolver("title.knowledgebase.Norm.Update", "Update a Norm"));
+	$("#addNormModel-title").text(MessageResolver("title.knowledgebase.norm.update", "Update a Norm"));
 	$("#addnormbutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#norm_form").prop("action", "/Save");
 	$("#addNormModel").modal('toggle');

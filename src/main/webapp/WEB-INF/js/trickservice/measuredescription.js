@@ -107,8 +107,8 @@ function deleteMeasure(measureId, reference, norm) {
 	}
 	var deleteModal = new Modal();
 	deleteModal.FromContent($("#deleteMeasureModel").clone());
-	deleteModal.setBody(MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: ") + "&nbsp;<strong>" + reference
-			+ "</strong> from the norm <strong>" + norm + " </strong>?", [ reference, norm ]);
+	deleteModal.setBody(MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: <strong>" + reference
+			+ "</strong> from the norm <strong>" + norm + " </strong>?", [ reference, norm ]));
 	var normId = $(application["modal-measure"].modal).find("#normId").val();
 	$(deleteModal.modal_header).find("button").click(function() {
 		delete deleteModal;
@@ -165,7 +165,7 @@ function newMeasure(normId) {
 					$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id!='" + language + "']").hide();
 					$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id='" + language + "']").show();
 				});
-				$(modalMeasureForm.modal).find("#measurelanguageselect option[value='"+language+"']").prop("selected", true);
+				$(modalMeasureForm.modal).find("#measurelanguageselect option[value='" + language + "']").prop("selected", true);
 				$(modalMeasureForm.modal).find("#measurelanguageselect").change();
 				$(modalMeasureForm.modal).find("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
 				$(modalMeasureForm.modal).find("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
@@ -245,10 +245,10 @@ function editSingleMeasure(measureId, normId) {
 					$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id!='" + language + "']").hide();
 					$(modalMeasureForm.modal).find("#measurelanguages div[trick-id][trick-id='" + language + "']").show();
 				});
-				$(modalMeasureForm.modal).find("#measurelanguageselect option[value='"+language+"']").prop("selected", true);
+				$(modalMeasureForm.modal).find("#measurelanguageselect option[value='" + language + "']").prop("selected", true);
 				$(modalMeasureForm.modal).find("#measurelanguageselect").change();
 				$(modalMeasureForm.modal).find("#measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
-				$(modalMeasureForm.modal).find("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Update", "Update new Measure"));
+				$(modalMeasureForm.modal).find("#addMeasureModel-title").text(MessageResolver("title.knowledgebase.measure.update", "Update new Measure"));
 				$(modalMeasureForm.modal).find("#addmeasurebutton").text(MessageResolver("label.action.edit", "Edit"));
 				application["modal-measure-form"] = modalMeasureForm;
 				modalMeasureForm.Show();

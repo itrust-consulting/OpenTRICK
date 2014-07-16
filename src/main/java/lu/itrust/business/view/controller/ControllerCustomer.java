@@ -179,7 +179,7 @@ public class ControllerCustomer {
 		if (customer == null || customer.getId() != customerId)
 			customer = serviceCustomer.get(customerId);
 		if (customer == null) {
-			String msg = messageSource.getMessage("errors.customer.notexist", null, "Customer does not exist", locale);
+			String msg = messageSource.getMessage("errors.customer.not_exist", null, "Customer does not exist", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
 			return "redirect:/KnowLedgeBase/Customer/Display";
 		}

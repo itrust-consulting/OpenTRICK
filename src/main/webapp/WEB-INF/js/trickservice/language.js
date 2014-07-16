@@ -62,7 +62,7 @@ function deleteLanguage(languageId, name) {
 		name = $("#section_language tbody tr[trick-id='" + languageId + "']>td:nth-child(3)").text();
 
 	}
-	$("#deleteLanguageBody").html(MessageResolver("label.language.question.delete", "Are you sure that you want to delete the language") + "&nbsp;<strong>" + name + "</strong>?");
+	$("#deleteLanguageBody").html(MessageResolver("label.language.question.delete", "Are you sure that you want to delete the language <strong>" + name + "</strong>?",name ));
 	$("#deletelanguagebuttonYes").click(function() {
 		$.ajax({
 			url : context + "/KnowledgeBase/Language/Delete/" + languageId,
@@ -89,7 +89,7 @@ function newLanguage() {
 	$("#language_alpha3").prop("value", "");
 	$("#language_name").prop("value", "");
 	$("#language_altName").prop("value", "");
-	$("#addLanguageModel-title").text(MessageResolver("title.knowledgebase.Language.Add", "Add a new Language"));
+	$("#addLanguageModel-title").text(MessageResolver("title.knowledgebase.language.add", "Add a new Language"));
 	$("#addlanguagebutton").text(MessageResolver("label.action.add", "Add"));
 	$("#language_form").prop("action", "Language/Save");
 	$("#addLanguageModel").modal('toggle');
@@ -112,7 +112,7 @@ function editSingleLanguage(languageId) {
 	$("#language_alpha3").prop("value", $(rows[0]).text());
 	$("#language_name").prop("value", $(rows[1]).text());
 	$("#language_altName").prop("value", $(rows[2]).text());
-	$("#addLanguageModel-title").text(MessageResolver("title.knowledgebase.Language.Update", "Update a Language"));
+	$("#addLanguageModel-title").text(MessageResolver("title.knowledgebase.language.update", "Update a Language"));
 	$("#addlanguagebutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#language_form").prop("action", "Language/Edit/" + languageId);
 	$("#addLanguageModel").modal('toggle');

@@ -13,7 +13,6 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.ExtendedParameter;
-import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentComparator;
@@ -174,6 +173,38 @@ public class ControllerAssessment {
 			// return error message
 			e.printStackTrace();
 			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.delete", null, "An error occurred during deletion", locale) + "\"}");
+		}
+	}
+	
+	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody String updateAle(HttpSession session, Locale locale, Principal principal) {
+		try {
+
+			// retrieve analysis id
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+
+			// check if analysis is not null
+			if (integer == null)
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale) + "\" }");
+
+			// load analysis object
+			Analysis analysis = serviceAnalysis.get(integer);
+
+			// check if analysis object is not null
+			if (analysis == null)
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
+			// update assessments of analysis
+			assessmentManager.UpdateAssetALE(analysis);
+			// update
+			serviceAnalysis.saveOrUpdate(analysis);
+			// return success message
+			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.ale.update", null, "Assessments ale were successfully updated", locale) + "\"}");
+		} catch (Exception e) {
+
+			// return error
+			e.printStackTrace();
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale) + "\"}");
 		}
 	}
 
@@ -364,68 +395,6 @@ public class ControllerAssessment {
 			// return null on error
 			e.printStackTrace();
 			return null;
-		}
-
-	}
-
-	/**
-	 * updateAcromyn: <br>
-	 * Description
-	 * 
-	 * @param idParameter
-	 * @param acronym
-	 * @param session
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Update/Acronym/{elementID}/{acronym}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String updateAcromyn(@PathVariable int elementID, @PathVariable String acronym, HttpSession session, Locale locale, Principal principal) throws Exception {
-
-		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		if (idAnalysis == null)
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-		// retrieve parameter id
-		Parameter parameter = serviceParameter.getFromAnalysisById(idAnalysis, elementID);
-		if (parameter == null || !(parameter instanceof ExtendedParameter))
-			return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
-
-		// load parameter by id
-		ExtendedParameter extendedParameter = (ExtendedParameter) parameter;
-
-		try {
-
-			// retrieve assessments by acronym and analysis
-			List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndImpactLikelihoodAcronym(idAnalysis, acronym);
-
-			// parse assessments and update impact value to parameter acronym
-			for (Assessment assessment : assessments) {
-				if (acronym.equals(assessment.getImpactFin()))
-					assessment.setImpactFin(extendedParameter.getAcronym());
-				else if (acronym.equals(assessment.getImpactLeg()))
-					assessment.setImpactLeg(extendedParameter.getAcronym());
-				else if (acronym.equals(assessment.getImpactOp()))
-					assessment.setImpactOp(extendedParameter.getAcronym());
-				else if (acronym.equals(assessment.getImpactRep()))
-					assessment.setImpactRep(extendedParameter.getAcronym());
-				else if (acronym.equals(assessment.getLikelihood()))
-					assessment.setLikelihood(extendedParameter.getAcronym());
-
-				// update assessment
-				serviceAssessment.saveOrUpdate(assessment);
-			}
-			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() },
-					"Assessment acronym (" + acronym + ") was successfully updated with (" + extendedParameter.getAcronym() + ")", locale));
-		} catch (Exception e) {
-
-			// return error message
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym ("
-					+ acronym + ") cannot be updated to (" + extendedParameter.getAcronym() + ")", locale));
 		}
 
 	}

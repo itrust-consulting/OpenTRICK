@@ -105,7 +105,7 @@ function deleteCustomer(customerId, organisation) {
 		customerId = selectedScenario[0];
 		organisation = $("#section_customer tbody tr[trick-id='" + customerId + "']>td:nth-child(2)").text();
 	}
-	$("#deleteCustomerBody").html(MessageResolver("label.customer.question.delete", "Are you sure that you want to delete the customer") + "&nbsp;<strong>" + organisation + "</strong>?");
+	$("#deleteCustomerBody").html(MessageResolver("label.customer.question.delete", "Are you sure that you want to delete the customer <strong>" + organisation + "</strong>?",organisation));
 	$("#deletecustomerbuttonYes").click(function() {
 		$.ajax({
 			url : context + "/KnowledgeBase/Customer/Delete/" + customerId,
@@ -115,10 +115,11 @@ function deleteCustomer(customerId, organisation) {
 				if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
-				}				
+				}
 				reloadSection("section_customer");
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		$("#deleteCustomerModel").modal('toggle');
 		$("#deletecustomerbuttonYes").unbind();

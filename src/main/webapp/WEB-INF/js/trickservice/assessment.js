@@ -24,7 +24,7 @@ function AssessmentViewer() {
 			$(view.modal_body).find("td").removeAttributes();
 			view.Show();
 		});
-		
+
 		$(this.modal_header).find("*[role='probability_scale']").on("click", function() {
 			var view = new Modal();
 			view.Intialise();
@@ -262,28 +262,7 @@ function displayAssessmentByAsset() {
 	return false;
 }
 
-function updateAssessmentAcronym(idParameter, acronym) {
-	$.ajax({
-		url : context + "/Assessment/Update/Acronym/" + idParameter + "/" + acronym,
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response["success"] != undefined) {
-				$("#info-dialog .modal-body").html(response["success"]);
-				$("#info-dialog").modal("toggle");
-				setTimeout("updateALE()", 2000);
-			} else if (response["error"] != undefined) {
-				$("#alert-dialog .modal-body").html(response["error"]);
-				$("#alert-dialog").modal("toggle");
-			}
-			return false;
-		},
-		error : unknowError
-	});
-	return false;
-}
-
-function computeAssessment() {
+function computeAssessment(silent) {
 	$.ajax({
 		url : context + "/Assessment/Update",
 		type : "get",
@@ -294,9 +273,34 @@ function computeAssessment() {
 				$("#info-dialog .modal-body").text(response['error']);
 				$("#info-dialog").modal("toggle");
 			} else if (response['success'] != undefined) {
-				$("#info-dialog .modal-body").text(response['success']);
-				$("#info-dialog").modal("toggle");
+				if (!silent) {
+					$("#info-dialog .modal-body").text(response['success']);
+					$("#info-dialog").modal("toggle");
+				}
 				chartALE();
+			}
+			return false;
+		},
+		error : unknowError
+	});
+	return false;
+}
+
+function updateAssessmentAle(silent) {
+	$.ajax({
+		url : context + "/Assessment/Update/ALE",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		async : true,
+		success : function(response) {
+			if (response['error'] != undefined) {
+				$("#info-dialog .modal-body").text(response['error']);
+				$("#info-dialog").modal("toggle");
+			} else if (response['success'] != undefined) {
+				if (!silent) {
+					$("#info-dialog .modal-body").text(response['success']);
+					$("#info-dialog").modal("toggle");
+				}
 			}
 			return false;
 		},

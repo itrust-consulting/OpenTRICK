@@ -6,7 +6,7 @@ function serializeAssetForm(formId) {
 		"id" : parseInt(data["assetType"]),
 		"type" : $("#asset_assettype_id option:selected").text()
 	};
-	//data["value"] = parseFloat(data["value"]);
+	// data["value"] = parseFloat(data["value"]);
 	data["selected"] = data["selected"] == "on";
 	return JSON.stringify(data);
 }
@@ -30,7 +30,8 @@ function selectAsset(assetId, value) {
 			success : function(reponse) {
 				reloadSection('section_asset');
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	} else {
 		$.ajax({
@@ -40,7 +41,8 @@ function selectAsset(assetId, value) {
 			success : function(reponse) {
 				reloadSection("section_asset");
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	}
 	return false;
@@ -48,15 +50,17 @@ function selectAsset(assetId, value) {
 
 function deleteAsset(assetId) {
 	if (assetId == null || assetId == undefined) {
-			var selectedScenario = $("#section_asset :checked");
-			if (selectedScenario.length != 1)
-				return false;
-			assetId = findTrickID(selectedScenario[0]);
+		var selectedScenario = $("#section_asset :checked");
+		if (selectedScenario.length != 1)
+			return false;
+		assetId = findTrickID(selectedScenario[0]);
 	}
 
 	var assetname = $("#section_asset tr[trick-id='" + assetId + "'] td:nth-child(3)").text();
 
-	$("#confirm-dialog .modal-body").html(MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset ")+ "\"<b>"+assetname+"\"</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!");
+	$("#confirm-dialog .modal-body").html(
+			MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset <b>" + assetname
+					+ "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", [assetname]));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Asset/Delete/" + assetId,
@@ -70,7 +74,7 @@ function deleteAsset(assetId) {
 						$(checked).removeAttr("checked");
 					if (row.length)
 						$(row).remove();
-					updateMenu('#section_asset','#menu_asset');
+					updateMenu('#section_asset', '#menu_asset');
 					reloadSection("section_actionplans");
 					reloadSection("section_summary");
 				} else if (response["error"] != undefined) {
@@ -80,9 +84,10 @@ function deleteAsset(assetId) {
 					$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset"));
 					$("#alert-dialog").modal("toggle");
 				}
-				
+
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	});
 	$("#confirm-dialog").modal("toggle");
@@ -111,7 +116,8 @@ function editAsset(rowTrickId, isAdd) {
 				$("#addAssetModal").html($(addAssetModal).html());
 			$("#addAssetModal").modal("toggle");
 			return false;
-		},error : unknowError
+		},
+		error : unknowError
 	});
 	return false;
 }
@@ -196,7 +202,8 @@ function reloadAsset(id) {
 				return false;
 			$(newValue).find("td:nth-child(2)").text($(current).find("td:nth-child(2)").text());
 			$(current).replaceWith(newValue);
-		},error : unknowError
+		},
+		error : unknowError
 	});
 	return false;
 }

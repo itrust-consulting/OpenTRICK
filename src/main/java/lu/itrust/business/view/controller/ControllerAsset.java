@@ -293,7 +293,7 @@ public class ControllerAsset {
 			// check if asset is to be created (new)
 			if (asset.getId() > 0) {
 				if (!serviceAsset.belongsToAnalysis(idAnalysis, asset.getId())) {
-					errors.put("asset", serviceDataValidation.ParseError("asset.not_belongs_to_analysis", messageSource, locale));
+					errors.put("asset", messageSource.getMessage("asset.not_belongs_to_analysis",null,"Asset does not belong to selected analysis" , locale));
 					return errors;
 				}
 				// update existing asset object

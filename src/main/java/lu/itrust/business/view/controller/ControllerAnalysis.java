@@ -44,6 +44,7 @@ import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.dao.hbm.DAOHibernate;
+import lu.itrust.business.exception.ResourceNotFoundException;
 import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
@@ -439,14 +440,11 @@ public class ControllerAnalysis {
 
 				}
 			}
-
 			model.addAttribute("success",
 					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
-
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
-
 			return "analysis/forms/manageUserAnalysisRights";
 		} catch (Exception e) {
 			// return errors
@@ -521,6 +519,8 @@ public class ControllerAnalysis {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 			assessmentManager.UpdateAssetALE(analysis);
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", locale));
+		} catch (TrickException e) {
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", locale));
@@ -615,13 +615,12 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Edit/{analysisId}")
-	public String requestEditAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model) throws Exception {
+	public String requestEditAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Locale locale) throws Exception {
 
 		// retrieve analysis
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null)
-			return "redirect:/Error/404";
-
+			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null,"Analysis cannot be found!",locale));
 		// prepare permission evaluator
 		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 
@@ -637,10 +636,9 @@ public class ControllerAnalysis {
 			model.put("analysis", analysis);
 
 			return "analysis/forms/editAnalysis";
-		} else {
-
-			return "redirect:/Error/403";
 		}
+		
+		throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null,"Permission denied!",locale));
 	}
 
 	// *****************************************************************
@@ -678,12 +676,9 @@ public class ControllerAnalysis {
 
 				// create/update analysis object and set access rights
 				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
-			} else {
-
+			} else 
 				// throw error
-				throw new AccessDeniedException("user.not.authorized");
-			}
-
+				throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		} catch (Exception e) {
 			errors.put("owner", messageSource.getMessage("error.user.not_found", null, "User cannot be found", locale));
 			e.printStackTrace();
@@ -745,7 +740,7 @@ public class ControllerAnalysis {
 			Analysis analysis = serviceAnalysis.getDefaultProfile();
 
 			if (analysis.getId() == analysisId)
-				return JsonMessage.Error(messageSource.getMessage("error.profile.delete.fail", null, "Default profile cannot be deleted!", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.profile.delete.failed", null, "Default profile cannot be deleted!", locale));
 
 			// delete the analysis
 			serviceAnalysis.delete(analysisId);
@@ -758,7 +753,6 @@ public class ControllerAnalysis {
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));
 		} catch (Exception e) {
-
 			// return error message
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));
@@ -824,7 +818,7 @@ public class ControllerAnalysis {
 
 			// check if object is not null
 			if (analysis == null)
-				errors.put("analysis", serviceDataValidation.ParseError("error.analysis.not_found::Analysis cannot be found!", messageSource, locale));
+				errors.put("analysis", messageSource.getMessage("error.analysis.not_found",null,"Analysis cannot be found!" ,locale));
 
 			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(History.class);
 
@@ -856,9 +850,9 @@ public class ControllerAnalysis {
 			else {
 
 				if (GeneralComperator.VersionComparator(oldVersion, version) >= 0)
-					errors.put("version", serviceDataValidation.ParseError("error.history.version.invalid::Version has to be bigger than based on verison", messageSource, locale));
+					errors.put("version", messageSource.getMessage("error.history.version.invalid", null, "Version has to be bigger than based on version", locale));
 				else if (serviceAnalysis.exists(analysis.getIdentifier(), version))
-					errors.put("version", serviceDataValidation.ParseError("error.history.version.exists::Version already exists for the analysis", messageSource, locale));
+					errors.put("version",  messageSource.getMessage("error.history.version.exists",null, "Version already exists for the analysis", locale));
 				else
 					history.setVersion(version);
 			}
@@ -890,20 +884,20 @@ public class ControllerAnalysis {
 
 			// save the new version
 			serviceAnalysis.saveOrUpdate(copy);
-
-			return errors;
+			
 		} catch (CloneNotSupportedException e) {
 			// return dubplicate error message
 			e.printStackTrace();
-			errors.put("analysis", serviceDataValidation.ParseError("error.analysis.duplicate::Analysis cannot be duplicated!", messageSource, locale));
-			return errors;
-		} catch (Exception e) {
-
+			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate",null,"Analysis cannot be duplicated!", locale));
+		} catch (TrickException e){
+			errors.put("analysis", messageSource.getMessage(e.getCode(),e.getParameters(),e.getMessage(), locale));
+		}
+		catch (Exception e) {
 			// return general error message
 			e.printStackTrace();
-			errors.put("analysis", serviceDataValidation.ParseError("error.analysis.duplicate.unknown::An unknown error occurred during duplication!", messageSource, locale));
-			return errors;
+			errors.put("analysis",  messageSource.getMessage("error.analysis.duplicate.unknown",null,"An unknown error occurred during duplication!", locale));
 		}
+		return errors;
 	}
 
 	// *****************************************************************
@@ -953,7 +947,7 @@ public class ControllerAnalysis {
 		// if the customer or the file are not correct
 		if (customer == null || file.isEmpty()) {
 			typeMessage = "errors";
-			message = messageSource.getMessage("error.customerorfile.import.analysis", null, "Customer or file are not set or empty!", locale);
+			message = messageSource.getMessage("error.customer_or_file.import.analysis", null, "Customer or file are not set or empty!", locale);
 			attributes.addFlashAttribute(typeMessage, message);
 			return "analysis/forms/importAnalysis";
 		}
@@ -1101,47 +1095,6 @@ public class ControllerAnalysis {
 				response.setContentLength((int) file.length());
 				response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
 				FileCopyUtils.copy(FileCopyUtils.copyToByteArray(file), response.getOutputStream());
-			}
-			return null;
-		} catch (Throwable t) {
-			t.printStackTrace();
-			attributes.addFlashAttribute("errors", messageSource.getMessage(t.getMessage(), null, t.getMessage(), locale));
-			return "redirect:/Analysis";
-		} finally {
-			if (file != null && file.exists())
-				file.delete();
-		}
-	}
-
-	/**
-	 * computeRiskRegister: <br>
-	 * Description
-	 * 
-	 * @param analysisId
-	 * @param attributes
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/Export/ReportData/{analysisId}")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
-	public String exportReportData(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal,
-			Locale locale) throws Exception {
-
-		File file = null;
-
-		try {
-
-			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
-
-			file = exportAnalysisReport.exportToWordDocument(analysisId, request.getServletContext(), serviceAnalysis, false);
-
-			if (file != null) {
-
-				response.setContentType("docx");
-				response.setContentLength((int) file.length());
-				response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-				FileCopyUtils.copy(FileCopyUtils.copyToByteArray(file), response.getOutputStream());
-
 			}
 			return null;
 		} catch (Throwable t) {

@@ -34,6 +34,9 @@ public class MessageHandler {
 	/** The Exception */
 
 	private Exception exception = null;
+	
+	public MessageHandler() {
+	}
 
 	public MessageHandler(Exception e) {
 		setException(e);

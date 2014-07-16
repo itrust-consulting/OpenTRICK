@@ -207,7 +207,7 @@ var ANALYSIS_RIGHT = {
 function permissionError() {
 	var modal = new Modal();
 	modal.FromContent($("#alert-dialog").clone());
-	modal.setBody(MessageResolver("error.notAuthorized", "Insufficient permissions!"));
+	modal.setBody(MessageResolver("error.not_authorized", "Insufficient permissions!"));
 	modal.Show();
 	return false;
 }
@@ -246,21 +246,29 @@ function MessageResolver(code, defaulttext, params) {
 		return application.localesMessages[uniqueCode];
 	else
 		application.localesMessages[uniqueCode] = defaulttext;
+	var data = {
+		"code" : code,
+		"message" : defaulttext,
+		parameters : []
+	}
+	if ($.isArray(params))
+		data.parameters = params;
+	else if (params && params.length)
+		data.parameters[0] = params;
 	$.ajax({
 		url : context + "/MessageResolver",
-		data : {
-			"code" : code,
-			"default" : defaulttext,
-			"params" : params
-		},
+		type : 'post',
+		data : JSON.stringify(data),
+		async : false,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			if (response == null || response == "")
+			if (response.message == null || !response.message.length)
 				return defaulttext;
-			return application.localesMessages[uniqueCode] = defaulttext = response;
-		}/* ,error : unknowError */
+			application.localesMessages[uniqueCode] = response.message
+			return true;
+		}
 	});
-	return defaulttext;
+	return application.localesMessages[uniqueCode];
 }
 
 function fixedTableHeader(table) {
@@ -479,7 +487,7 @@ function post(url, data, refraich) {
 
 function findSelectItemIdBySection(section, modal) {
 	var selectedItem = [];
-	var $item = (modal == null || modal == undefined)? $("#" + section + " tbody :checked") : $(modal).find("tbody :checked");
+	var $item = (modal == null || modal == undefined) ? $("#" + section + " tbody :checked") : $(modal).find("tbody :checked");
 	for (var i = 0; i < $item.length; i++) {
 		trickId = findTrickID($($item[i])[0]);
 		if (trickId == null || trickId == undefined)

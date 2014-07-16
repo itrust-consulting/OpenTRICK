@@ -171,7 +171,7 @@ function deleteAnalysis(analysisId) {
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.DELETE)) {
 
-		$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis") + "?");
+		$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
 
 		$("#deleteanalysisbuttonYes").click(function() {
 			$("#deleteAnalysisModel .modal-header > .close").hide();

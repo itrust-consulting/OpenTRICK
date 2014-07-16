@@ -91,6 +91,27 @@ public class AssessmentManager {
 		unSelectAsset(asset);
 	}
 
+	@Transactional
+	public void UpdateAcronym(int idAnalysis, ExtendedParameter extendedParameter, String acronym) throws Exception {
+		// retrieve assessments by acronym and analysis
+		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndImpactLikelihoodAcronym(idAnalysis, acronym);
+		// parse assessments and update impact value to parameter acronym
+		for (Assessment assessment : assessments) {
+			if (acronym.equals(assessment.getImpactFin()))
+				assessment.setImpactFin(extendedParameter.getAcronym());
+			else if (acronym.equals(assessment.getImpactLeg()))
+				assessment.setImpactLeg(extendedParameter.getAcronym());
+			else if (acronym.equals(assessment.getImpactOp()))
+				assessment.setImpactOp(extendedParameter.getAcronym());
+			else if (acronym.equals(assessment.getImpactRep()))
+				assessment.setImpactRep(extendedParameter.getAcronym());
+			else if (acronym.equals(assessment.getLikelihood()))
+				assessment.setLikelihood(extendedParameter.getAcronym());
+			// update assessment
+			daoAssessment.saveOrUpdate(assessment);
+		}
+	}
+
 	// /////////////////////////////////////////////////////////////////////////////////////////////
 
 	@Transactional

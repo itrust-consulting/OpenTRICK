@@ -1,76 +1,81 @@
 function saveUser(form) {
 	result = "";
-	$.ajax({
-		url : context + "/Admin/User/Save",
-		type : "post",
-		data : serializeForm(form),
-		contentType : "application/json",
-		success : function(response) {
-			$("#success").attr("hidden","hidden");
-			$("#success div").remove();
-			
-			var alert = $("#" + form + " .label-danger");
-			if (alert.length)
-				alert.remove();
-			
-			for ( var error in response) {
-				
-				$("#success").attr("hidden","hidden");
-				$("#success div").remove();
-				
-				var errorElement = document.createElement("label");
-				errorElement.setAttribute("class", "label label-danger");
+	$
+			.ajax({
+				url : context + "/Admin/User/Save",
+				type : "post",
+				data : serializeForm(form),
+				contentType : "application/json",
+				success : function(response) {
+					$("#success").attr("hidden", "hidden");
+					$("#success div").remove();
 
-				$(errorElement).text(response[error]);
-				switch (error) {
-				case "login":
-					$(errorElement).appendTo($("#"+ form + " #user_login").parent());
-					break;
-				case "password":
-					$(errorElement).appendTo($("#"+ form + " #user_password").parent());
-					break;
-				case "firstName":
-					$(errorElement).appendTo($("#"+ form + " #user_firstName").parent());
-					break;
-				case "lastName":
-					$(errorElement).appendTo($("#"+ form + " #user_lastName").parent());
-					break;
-				case "email":
-					$(errorElement).appendTo($("#"+ form + " #user_email").parent());
-					break;
-				case "user": {
-						var errElement = document.createElement("div");
-						errElement.setAttribute("class", "alert alert-danger");
-						$(errElement).text($(errorElement).text());
-						$(errElement).appendTo($("#success"));
+					var alert = $("#" + form + " .label-danger");
+					if (alert.length)
+						alert.remove();
+
+					for ( var error in response) {
+
+						$("#success").attr("hidden", "hidden");
+						$("#success div").remove();
+
+						var errorElement = document.createElement("label");
+						errorElement.setAttribute("class", "label label-danger");
+
+						$(errorElement).text(response[error]);
+						switch (error) {
+						case "login":
+							$(errorElement).appendTo($("#" + form + " #user_login").parent());
+							break;
+						case "password":
+							$(errorElement).appendTo($("#" + form + " #user_password").parent());
+							break;
+						case "firstName":
+							$(errorElement).appendTo($("#" + form + " #user_firstName").parent());
+							break;
+						case "lastName":
+							$(errorElement).appendTo($("#" + form + " #user_lastName").parent());
+							break;
+						case "email":
+							$(errorElement).appendTo($("#" + form + " #user_email").parent());
+							break;
+						case "user": {
+							var errElement = document.createElement("div");
+							errElement.setAttribute("class", "alert alert-danger");
+							$(errElement).text($(errorElement).text());
+							$(errElement).appendTo($("#success"));
+							$("#success").removeAttr("hidden");
+							$("#user_password").prop("value", "");
+						}
+						}
+					}
+
+					if (!$("#" + form + " .label-danger").length) {
+						var successElement = document.createElement("div");
+						successElement.setAttribute("class", "alert alert-success");
+						$(successElement).html(
+								"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
+										+ MessageResolver("label.user.update.success", "Profile successfully updated"));
+						$(successElement).appendTo($("#addUserModel .modal-body #success"));
 						$("#success").removeAttr("hidden");
 						$("#user_password").prop("value", "");
+						setTimeout(reloadSection("section_user"), 2000);
 					}
-				}
-			}
-			
-			if (!$("#" + form + " .label-danger").length) {
-				var successElement = document.createElement("div");
-				successElement.setAttribute("class", "alert alert-success");
-				$(successElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + MessageResolver("label.user.update.success", "Profile successfully updated"));
-				$(successElement).appendTo($("#addUserModel .modal-body #success"));
-				$("#success").removeAttr("hidden");
-				$("#user_password").prop("value", "");
-				setTimeout(reloadSection("section_user"),2000);
-			}
-		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			var alert = $("#addUserModel .label-danger");
-			if (alert.length)
-				alert.remove();
-			var errorElement = document.createElement("div");
-			errorElement.setAttribute("class", "alert alert-danger");
-			$(errorElement).text("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + MessageResolver("error.unknown.add.user", "An unknown error occurred during adding/updating users"));
-			$(errorElement).appendTo($("#addUserModel .modal-body #success"));
-			$("#user_password").prop("value", "");
-		},
-	});
-	
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					var alert = $("#addUserModel .label-danger");
+					if (alert.length)
+						alert.remove();
+					var errorElement = document.createElement("div");
+					errorElement.setAttribute("class", "alert alert-danger");
+					$(errorElement).text(
+							"<button type='button' class='close' data-dismiss='alert'>&times;</button>"
+									+ MessageResolver("error.unknown.add.user", "An unknown error occurred during adding/updating users"));
+					$(errorElement).appendTo($("#addUserModel .modal-body #success"));
+					$("#user_password").prop("value", "");
+				},
+			});
+
 	return false;
 }
 
@@ -92,17 +97,18 @@ function deleteUser(userId, name) {
 				if (response == false) {
 					str = '<div class="alert alert-error" aria-hidden="true">';
 					str = str + '<a class="close" href="#" data-dismiss="alert">x</a>';
-					str = str + MessageResolver("error.user.delete.failed", "Could not delete the user") + "&nbsp;<strong>" + name + "</strong>!</div>";
+					str = str + MessageResolver("error.user.delete.failed", "Could not delete the user <strong>" + name + "</strong>!", name) + "</div>";
 					$("#user_messages").html(str);
 				} else {
 					reloadSection("section_user");
 					str = '<div class="alert alert-success" aria-hidden="true">';
 					str = str + '<a class="close" href="#" data-dismiss="alert">x</a>';
-					str = str + MessageResolver("success.user.delete.done", "Deleted the user") + "&nbsp;<strong>" + name + "</strong>!</div>";
+					str = str + MessageResolver("success.user.delete.done", "Deleted the user <strong>" + name + "</strong>!", name) + "</div>";
 					$("#messages").html(str);
 				}
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		$("#deleteUserModel").modal('toggle');
 		return false;
@@ -130,7 +136,7 @@ function newUser() {
 		error : unknowError
 	});
 
-	$("#addUserModel-title").text(MessageResolver("title.Administration.User.Add", "Add a new User"));
+	$("#addUserModel-title").text(MessageResolver("title.administration.user.add", "Add a new User"));
 	$("#addUserbutton").text(MessageResolver("label.action.add", "Add"));
 	$("#user_form").prop("action", "/Save");
 	$("#addUserModel").modal('toggle');
@@ -163,7 +169,7 @@ function editSingleUser(userId) {
 		error : unknowError
 	});
 
-	$("#addUserModel-title").text(MessageResolver("title.user.Update", "Update a User"));
+	$("#addUserModel-title").text(MessageResolver("title.user.update", "Update a User"));
 	$("#addUserbutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#user_form").prop("action", "/Save");
 	$("#addUserModel").modal('toggle');

@@ -160,7 +160,7 @@ public class ControllerNorm {
 		if (norm == null) {
 
 			// retrun error if norm does not exist
-			String msg = messageSource.getMessage("errors.norm.notexist", null, "Norm does not exist", locale);
+			String msg = messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
 			return "redirect:/KnowLedgeBase/Norm";
 		}

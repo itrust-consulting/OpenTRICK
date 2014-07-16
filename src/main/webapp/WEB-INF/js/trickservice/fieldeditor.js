@@ -136,7 +136,7 @@ function FieldEditor(element, validator) {
 			return false;
 		var style = $(this.fieldEditor).attr("style");
 		$(this.fieldEditor).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
-		$(this.fieldEditor).attr("style", style + (style.endsWith(";")? ";" : "")  + "position: relative;")
+		$(this.fieldEditor).attr("style", style + (style.endsWith(";") ? ";" : "") + "position: relative;")
 		$(this.element).html(this.fieldEditor);
 		$(this.fieldEditor).focus();
 		return false;
@@ -239,9 +239,9 @@ function ExtendedFieldEditor(element) {
 					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
-							if (that.fieldName == "acronym")
-								setTimeout("updateAssessmentAcronym('" + that.classId + "', '" + that.defaultValue + "')", 100);
-							return reloadSection("section_parameter");
+							reloadSection("section_parameter");
+							if (that.fieldName == "value" || that.fieldName == "acronym")
+								updateAssessmentAle(true);
 						} else if (response["error"] != undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
 							$("#alert-dialog").modal("toggle");

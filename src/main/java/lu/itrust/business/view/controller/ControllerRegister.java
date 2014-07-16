@@ -128,10 +128,9 @@ public class ControllerRegister {
 			attributes.addFlashAttribute("login", user.getLogin());
 			return "redirect:/login";
 		} catch (ConstraintViolationException e) {
-
 			// return error and return to register page
 			e.printStackTrace();
-			attributes.addFlashAttribute("errors", messageSource.getMessage("error.create.account.unknown", null, "Account creation failed, Please try again", locale));
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.create.account.unknown", null, "Account creation failed, Please try again later", locale));
 			return "redirect:/Register";
 		}
 	}

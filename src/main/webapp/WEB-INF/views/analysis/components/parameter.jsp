@@ -40,8 +40,7 @@
 								<tr trick-class="ExtendedParameter" trick-id="${parameter.id}">
 									<!--<td>${itemInformation.id}</td>-->
 									<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
-									<td trick-field="acronym" trick-field-type="string" class="success textaligncenter" trick-callback="updateAssessmentAcronym('${parameter.id}')"
-										ondblclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
+									<td trick-field="acronym" trick-field-type="string" class="success textaligncenter" ondblclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
 									<td trick-field="description" trick-field-type="string" class="success textaligncenter" ondblclick="return editField(this);"><spring:message
 											text="${parameter.description}" /></td>
 									<td trick-field="value" trick-field-type="double" title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'
@@ -90,7 +89,7 @@
 								<tr trick-class="ExtendedParameter" trick-id="${parameter.id}">
 									<!--<td>${itemInformation.id}</td>-->
 									<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
-									<td trick-field="acronym" trick-field-type="string" class="success textaligncenter" trick-callback="updateAssessmentAcronym('${parameter.id}')"
+									<td trick-field="acronym" trick-field-type="string" class="success textaligncenter"
 										ondblclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
 									<td trick-field="description" trick-field-type="string" class="success textaligncenter" ondblclick="return editField(this);"><spring:message
 											text="${parameter.description}" /></td>
