@@ -19,7 +19,7 @@
 			<!-- #################################################################### Content ################################################################### -->
 			<div class="page-header">
 				<h1>
-					<spring:message code="title.administration" text="Administration" />
+					<spring:message code="label.title.administration" text="Administration" />
 				</h1>
 			</div>
 			<div class="content" id="content">

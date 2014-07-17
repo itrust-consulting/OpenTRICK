@@ -9,12 +9,12 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="manageAnalysisAccessModel-title">
-					<spring:message code="label.analysis.manage.access" text="Manage Analysis Access Rights" />
+					<spring:message code="label.title.analysis.manage.access" text="Manage Analysis Access Rights" />
 				</h4>
 			</div>
 			<div id="manageAnalysisAccessModelBody" class="modal-body">
 				<p>
-					<spring:message text="Description: ${analysis.label}, Version: ${analysis.version}, Customer: ${analysis.customer.organisation}" />
+					<spring:message code="label.analysis.anage.access.info" arguments="${analysis.label} , ${analysis.version} , ${analysis.customer.organisation}"  text="Description: ${analysis.label}, Version: ${analysis.version}, Customer: ${analysis.customer.organisation}" />
 				</p>
 				<jsp:include page="../../successErrors.jsp" />
 				<c:if test="${!empty userrights}">

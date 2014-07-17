@@ -8,24 +8,24 @@
 		<input name="id" value="${id}" type="hidden">
 	</c:if>
 	<h3>
-		<spring:message code="title.norms" text="Norms" />
+		<spring:message code="label.title.norms" text="Norms" />
 	</h3>
-	<spring:message code="title.options.selectnorm" text="<p>Select a norm to compute the action plan</p><p>(No options given means: all norms will be used to compute)</p>"
-		htmlEscape="false"></spring:message>
+	<p><spring:message code="label.title.options.select_norm" text="Select a norm to compute the action plan" /></p>
+	<p><spring:message code="label.title.options.select_norm.info" text="(No options given means: all norms will be used to compute)" /></p>
 	<table class="table text-center">
 		<c:choose>
 			<c:when test="${!empty(norms)}">
 				<thead>
 					<tr>
 						<c:forEach items="${norms}" var="analysisnorm">
-							<td><b><spring:message text="${analysisnorm.norm.label}" htmlEscape="true" /></b></td>
+							<td><b><spring:message text="${analysisnorm.norm.label}" /></b></td>
 						</c:forEach>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
 						<c:forEach items="${norms}" var="analysisnorm">
-							<td><input type="checkbox" name="<spring:message text="norm_${analysisnorm.id}" htmlEscape="true"/>" value="1" /></td>
+							<td><input type="checkbox" name="norm_${analysisnorm.id}" value="1" /></td>
 						</c:forEach>
 					</tr>
 				</tbody>
@@ -33,13 +33,13 @@
 		</c:choose>
 	</table>
 	<h3>
-		<spring:message code="title.uncertainty" text="Uncertainty computation" />
+		<spring:message code="label.title.uncertainty" text="Uncertainty computation" />
 	</h3>
 	<table class="table">
 		<tbody>
 			<tr>
-				<td><spring:message code="title.options.uncertainty" text="<p>Optimistic and pessimistic computation</p>" htmlEscape="false" /></td>
-				<td><input type="checkbox" name="<spring:message text="uncertainty" htmlEscape="true"/>" value="1" /></td>
+				<td><p><spring:message code="label.title.options.uncertainty" text="Optimistic and pessimistic computation"/></p></td>
+				<td><input type="checkbox" name="uncertainty" value="1" /></td>
 			</tr>
 		</tbody>
 	</table>

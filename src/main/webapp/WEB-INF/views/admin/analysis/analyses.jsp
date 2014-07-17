@@ -34,12 +34,12 @@
 				<thead>
 					<tr>
 						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'admin_analysis')"></th>
-						<th><spring:message code="label.analysis.identifier" /></th>
-						<th><spring:message code="label.analysis.label" /></th>
-						<th><spring:message code="label.analysis.creationDate" /></th>
-						<th><spring:message code="label.analysis.version" /></th>
+						<th><spring:message code="label.analysis.identifier" text="Identifier"/></th>
+						<th><spring:message code="label.analysis.label" text="Name"/></th>
+						<th><spring:message code="label.analysis.creation_date" text="Create"/></th>
+						<th><spring:message code="label.analysis.version" text="Version"/></th>
 						<th><spring:message code="label.analysis.owner" text="Owner" /></th>
-						<th><spring:message code="label.analysis.language" /></th>
+						<th><spring:message code="label.analysis.language" text="Language"/></th>
 						<th><spring:message code="label.analysis.profile" text="Profile" />
 					</tr>
 				</thead>
@@ -58,9 +58,9 @@
 								<c:when test="${analysis.profile == true}">
 									<td><spring:message code="label.yes" text="Yes" /></td>
 								</c:when>
-								<c:when test="${analysis.profile == false}">
+								<c:otherwise>
 									<td><spring:message code="label.no" text="No" /></td>
-								</c:when>
+								</c:otherwise>
 							</c:choose>
 						</tr>
 					</c:forEach>

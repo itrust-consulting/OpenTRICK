@@ -274,7 +274,7 @@ public class ControllerAnalysis {
 		model.addAttribute("norms", norms);
 		model.addAttribute("currentNorms", serviceNorm.getAllFromAnalysis(idAnalysis));
 		model.addAttribute("idAnalysis", idAnalysis);
-		return "analysis/components/forms/addStandard";
+		return "analysis/components/forms/standard";
 	}
 
 	@RequestMapping(value = "/Save/Standard/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")

@@ -295,7 +295,7 @@ public class ControllerScenario {
 	public String add(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("scenariotypes", serviceScenarioType.getAll());
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
-		return "analysis/components/forms/addOrEditScenario";
+		return "analysis/components/forms/scenario";
 	}
 
 	/**
@@ -322,7 +322,7 @@ public class ControllerScenario {
 		// add scenario to model
 		model.addAttribute("scenario", serviceScenario.getFromAnalysisById(idAnalysis, elementID));
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
-		return "analysis/components/forms/addOrEditScenario";
+		return "analysis/components/forms/scenario";
 	}
 
 	@RequestMapping(value = "/Delete/AssetTypeValueDuplication", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")

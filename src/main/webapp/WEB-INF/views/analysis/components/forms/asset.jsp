@@ -3,13 +3,14 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="modal fade" id="addAssetModal" tabindex="-1" role="dialog" data-aria-labelledby="addNewAsset" data-aria-hidden="true" data-backdrop="static" data-keyboard="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addAssetModel-title">
-					<spring:message code="label.asset.${empty(asset)? 'add':'edit'}" text="${empty(asset)? 'Add new asset':'Edit asset'}" />
+					<spring:message code="label.title.asset.${empty(asset)? 'add':'edit'}" text="${empty(asset)? 'Add new asset':'Edit asset'}" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -38,7 +39,7 @@
 									<c:when test="${!empty(assettypes)}">
 										<option value='-1'><spring:message code="label.asset.type.select" text="Select the type of asset" /></option>
 										<c:forEach items="${assettypes}" var="assettype">
-											<option value="${assettype.id}" ${asset.assetType == assettype?'selected':''}>${assettype.type}</option>
+											<option value="${assettype.id}" ${asset.assetType == assettype?'selected':''}><spring:message code="label.asset_type.${fn:toLowerCase(assettype.type)}" text="${assettype.type}" /></option>
 										</c:forEach>
 									</c:when>
 									<c:otherwise>

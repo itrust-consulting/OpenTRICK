@@ -146,7 +146,7 @@ function Modal() {
 		try {
 			if (!(this.modal == null || this.modal == undefined)){
 				$(this.modal).modal("hide");
-				$(instance.modal).remove();
+				$(this.modal).remove();
 			}
 		} catch (e) {
 			console.log(e);

@@ -8,7 +8,7 @@
 <div class="section" id="section_parameter">
 	<div class="page-header">
 		<h3 id="Parameter">
-			<spring:message code="label.parameter" text="Parameters" />
+			<spring:message code="label.title.parameter" text="Parameters" />
 		</h3>
 	</div>
 	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitParameters(parameters)" var="parametersSplited" />
@@ -21,7 +21,7 @@
 			<span id="anchorParameter_Impact" class="anchor"></span>
 			<div class="panel panel-default" id="Scale_Impact">
 				<div class="panel-heading">
-					<spring:message code="label.parameter.extended.impact" text="Impact of threat" />
+					<spring:message code="label.title.parameter.extended.impact" text="Impact of threat" />
 				</div>
 				<div class="panel-body">
 					<table class="table table-hover">
@@ -75,14 +75,14 @@
 								<th class="textaligncenter"><spring:message code="label.parameter.level" text="Level" /></th>
 								<th class="textaligncenter"><spring:message code="label.parameter.acronym" text="Acronym" /></th>
 								<th class="textaligncenter"><spring:message code="label.parameter.qualification" text="Qualification" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.value" text="Value" /> /y</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.value" text="Value" /> <spring:message code="label.assessment.likelihood.unit" text="/y"/></th>
 								<th class="textaligncenter"><spring:message code="label.parameter.range.min" text="Range Min" /></th>
 								<th class="textaligncenter"><spring:message code="label.parameter.range.max" text="Range max" /></th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr trick-class="ExtendedParameter" hidden="true">
-								<td trick-field="acronym" colspan="3"><spring:message code="label.parameter.proba.zero_value" text="NA" /></td>
+								<td trick-field="acronym" colspan="3"><spring:message text="NA" /></td>
 								<td trick-field="value" colspan="3">0</td>
 							</tr>
 							<c:forEach items="${extendedParameters[1]}" var="parameter" varStatus="status">
@@ -122,14 +122,14 @@
 			<span id="anchorParameter_ILPS" class="anchor"></span>
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<spring:message code="label.parameter.maturity_ilps" text="Required level of implmentation per SML" />
+					<spring:message code="label.title.parameter.maturity_ilps" text="Required level of implmentation per SML" />
 				</div>
 				<div class="panel-body autofitpanelbodydefinition" style="max-height: 655px; overflow: auto; min-height: 655px">
 					<table class="table table-hover table-fixed-header" id="tableMaturityIlps">
 						<thead>
 							<tr>
-								<th class="textaligncenter"><spring:message code="label.parameter.maturity.Category" text="Category" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.maturity.Task" text="Task" /></th>
+								<th class="textaligncenter"><spring:message code="label.parameter.maturity.category" text="Category" /></th>
+								<th class="textaligncenter"><spring:message code="label.parameter.maturity.task" text="Task" /></th>
 								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml0" text="SML0" /> (%)</th>
 								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml1" text="SML1" /> (%)</th>
 								<th class="textaligncenter"><spring:message code="label.parameter.maturity.sml2" text="SML2" /> (%)</th>
@@ -142,8 +142,8 @@
 						<tbody>
 							<c:forEach items="${maturityParameters}" var="parameter">
 								<tr trick-class="MaturityParameter" trick-id="${parameter.id}">
-									<td class="textaligncenter"><spring:message code="label.parameter.maturity.RSML.${parameter.category}" text="${parameter.category}" /></td>
-									<td class="textaligncenter"><spring:message code="label.parameter.maturity.RSML.${parameter.description}" text="${parameter.description}" /></td>
+									<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.category.${fn:toLowerCase(parameter.category)}" text="${parameter.category}" /></td>
+									<td class="textaligncenter"><spring:message code="label.parameter.maturity.rsml.description.${fn:toLowerCase(fn:replace(parameter.description,' ','_'))}" text="${parameter.description}" /></td>
 									<td class="success textaligncenter" trick-field="SMLLevel0" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
 											value="${parameter.SMLLevel0*100}" maxFractionDigits="0" /></td>
 									<td class="success textaligncenter" trick-field="SMLLevel1" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
@@ -168,7 +168,7 @@
 			<span id="anchorParameter_Various" class="anchor"></span>
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<spring:message code="label.parameter.simple.various" text="Various parameters" />
+					<spring:message code="label.title.parameter.simple.various" text="Various parameters" />
 				</div>
 				<div class="panel-body">
 					<table class="table table-hover">
@@ -199,7 +199,7 @@
 			<span id="anchorParameter_MaxEfficiency" class="anchor"></span>
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<spring:message code="label.parameter.simple.maturity_level" text="Maximal efficiency rate per security maturity level" />
+					<spring:message code="label.title.parameter.simple.maturity_level" text="Maximal efficiency rate per security maturity level" />
 				</div>
 				<div class="panel-body">
 					<table class="table table-hover">
@@ -229,14 +229,14 @@
 			<span id="anchorParameter_ImplementationRate" class="anchor"></span>
 			<div class="panel panel-default" id="Maturity_implementation_rate">
 				<div class="panel-heading">
-					<spring:message code="label.parameter.simple.smt" text="Implementation scale of SMT" />
+					<spring:message code="label.title.parameter.simple.smt" text="Implementation scale of SMT" />
 				</div>
 				<div class="panel-body">
 					<table class="table table-hover">
 						<thead>
 							<tr>
 								<th class="textaligncenter"><spring:message code="label.parameter.Level" text="Level" /></th>
-								<th class="textaligncenter"><spring:message code="label.parameter.percentage" text="Implementation" /> (%)</th>
+								<th class="textaligncenter"><spring:message code="label.parameter.implementation" text="Implementation" /> (%)</th>
 							</tr>
 						</thead>
 						<tbody>

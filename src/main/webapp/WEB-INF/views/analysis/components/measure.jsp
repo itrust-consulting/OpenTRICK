@@ -8,7 +8,7 @@
 <div class="section" id="section_measure" style="z-index: 3">
 	<div class="page-header">
 		<h3 id="Measure">
-			<spring:message code="label.measure" text="Measures" />
+			<spring:message code="label.title.measure" text="Measures" />
 		</h3>
 	</div>
 	<c:if test="${empty(measureSplited)}">
@@ -19,7 +19,7 @@
 		<div id="section_measure_${norm}">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<spring:message code="label.measure.${norm}" text="${norm}" />
+					<spring:message text="${norm}" />
 				</div>
 				<div class="panel-body autofitpanelbodydefinition">
 					<table class="table table-hover table-fixed-header" id="table_Measure_${norm}">
@@ -27,7 +27,7 @@
 							<tr>
 								<th><spring:message code="label.table.index" text="#" /></th>
 								<th colspan="4"><spring:message code="label.measure.domain" text="Domain" /></th>
-								<th><label class="text-rotate-270"><spring:message code="label.measure.st" text="Status" /></label></th>
+								<th><label class="text-rotate-270"><spring:message code="label.measure.status" text="Status" /></label></th>
 								<th><spring:message code="label.measure.ir" text="IR (%)" /></th>
 								<th><spring:message code="label.measure.iw" text="IW (md)" /></th>
 								<th><spring:message code="label.measure.ew" text="EW (md)" /></th>
@@ -36,7 +36,7 @@
 								<th><spring:message code="label.measure.im" text="IM (md)" /></th>
 								<th><spring:message code="label.measure.em" text="EM (md)" /></th>
 								<th><spring:message code="label.measure.ri" text="RI" /> (k&euro;)</th>
-								<th><spring:message code="label.measure.cs" text="CS" /> (k&euro;)</th>
+								<th><spring:message code="label.measure.cost" text="CS" /> (k&euro;)</th>
 								<th><label class="text-rotate-270"><spring:message code="label.measure.phase" text="Phase" /></label></th>
 								<th colspan="8"><spring:message code="label.measure.comment" text="Comment" /></th>
 								<th colspan="8"><spring:message code="label.measure.todo" text="To do" /></th>

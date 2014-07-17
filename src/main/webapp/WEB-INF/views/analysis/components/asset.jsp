@@ -14,12 +14,12 @@
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_asset">
-				<li><a href="#" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.asset.add" text="Add" /></a></li>
-				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.asset.edit" text="Edit" /> </a></li>
-				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectAsset(undefined,'true')"><span class="glyphicon glyphicon-plus-sign"></span> <spring:message	code="label.asset.select" text="Select" /> </a></li>
-				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectAsset(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <spring:message	code="label.asset.unselect" text="Unselect" /> </a></li>
-				<li class="disabled" trick-selectable="true" trick-check="isSelected('asset')"><a href="#" onclick="return displayAssessmentByAsset()"><span class="glyphicon glyphicon-new-window"></span> <spring:message code="label.asset.assessment" text="Assessment" /> </a></li>
-				<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteAsset();"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.asset.delete" text="Delete" /> </a></li>
+				<li><a href="#" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add.asset" text="Add" /></a></li>
+				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.action.edit.asset" text="Edit" /> </a></li>
+				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectAsset(undefined,'true')"><span class="glyphicon glyphicon-plus-sign"></span> <spring:message	code="label.action.select.asset" text="Select" /> </a></li>
+				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectAsset(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <spring:message	code="label.action.unselect.asset" text="Unselect" /> </a></li>
+				<li class="disabled" trick-selectable="true" trick-check="isSelected('asset')"><a href="#" onclick="return displayAssessmentByAsset()"><span class="glyphicon glyphicon-new-window"></span> <spring:message code="label.action.show.asset.assessment" text="Assessment" /> </a></li>
+				<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteAsset();"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete.asset" text="Delete" /> </a></li>
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">
@@ -32,7 +32,7 @@
 						<th colspan="2"><spring:message code="label.asset.type" text="Type" htmlEscape="true" /></th>
 						<th colspan="2"><spring:message code="label.asset.value" text="Value" htmlEscape="true" /> (k&euro;)</th>
 						<th colspan="10"><spring:message code="label.asset.comment" text="Comment" htmlEscape="true" /></th>
-						<th colspan="10"><spring:message code="label.asset.comment" text="Hidden comment" htmlEscape="true" /></th>
+						<th colspan="10"><spring:message code="label.asset.hidden_comment" text="Hidden comment" htmlEscape="true" /></th>
 					</tr>
 				</thead>
 				<tfoot></tfoot>

@@ -7,14 +7,14 @@
 <div class="section" id="section_chart">
 	<div class="page-header">
 		<h3 id="Charts">
-			<spring:message code="label.charts" text="Charts" />
+			<spring:message code="label.title.charts" text="Charts" />
 		</h3>
 	</div>
 	<span class="anchor" id="anchorChartAsset"></span>
 	<div id="chart_asset" class="sectionpanel">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<spring:message code="label.chart.title.asset" text="Asset" />
+				<spring:message code="label.title.chart.asset" text="Asset" />
 			</div>
 			<div class="panel-body">
 				<div id="chart_ale_asset"></div>
@@ -27,7 +27,7 @@
 	<div id="chart_scenario" class="sectionpanel">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<spring:message code="label.chart.title.scenario" text="Scenario" />
+				<spring:message code="label.title.chart.scenario" text="Scenario" />
 			</div>
 			<div class="panel-body">
 				<div id="chart_ale_scenario"></div>
@@ -40,7 +40,7 @@
 	<div id="chart_compliance" class="sectionpanel">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<spring:message code="label.chart.title.compliance" text="Compliance" />
+				<spring:message code="label.title.chart.compliance" text="Compliance" />
 			</div>
 			<div class="panel-body">
 				<div id="chart_compliance_27001"></div>
@@ -53,7 +53,7 @@
 	<div id="chart_evolution" class="sectionpanel">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<spring:message code="label.chart.title.evolution.profitability.compliance" text="Evolution of profitability and ISO compliance" />
+				<spring:message code="label.title.chart.evolution.profitability.compliance" text="Evolution of profitability and ISO compliance" />
 			</div>
 			<div class="panel-body">
 				<div id="chart_evolution_profitability_compliance_APPN"></div>
@@ -68,7 +68,7 @@
 	<div id="chart_budget" class="sectionpanel">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<spring:message code="label.chart.title.budget" text="Budget" />
+				<spring:message code="label.title.chart.budget" text="Budget" />
 			</div>
 			<div class="panel-body">
 				<div id="chart_budget_APPN"></div>

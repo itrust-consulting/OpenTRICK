@@ -9,7 +9,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="phaseNewModal-title">
-					<spring:message code="label.phase.${empty(phase)? 'add':'edit'}" text="${empty(phase)? 'Add new phase':'Edit phase'}" />
+					<spring:message code="label.title.phase.${empty(phase)? 'add':'edit'}" text="${empty(phase)? 'Add new phase':'Edit phase'}" />
 				</h4>
 			</div>
 			<div class="modal-body">

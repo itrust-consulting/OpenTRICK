@@ -4,11 +4,12 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <span class="anchor" id="anchorActionPlan"></span>
 <div class="section" id="section_actionplans">
 	<div class="page-header">
 		<h3 id="ActionPlan">
-			<spring:message code="label.actionplan" text="Action Plan" />
+			<spring:message code="label.title.action_plan" text="Action Plan" />
 		</h3>
 	</div>
 	<spring:eval expression="T(lu.itrust.business.component.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
@@ -19,7 +20,7 @@
 					<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 						<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${apt}"><a href="#"
 							onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan'); return navToogled('section_actionplans','${apt}',true);"> <spring:message
-									code="label.actionPlanType.${apt}" text="${apt}" htmlEscape="true" />
+									code="label.action_plan_type.${fn:toLowerCase(apt)}" text="${apt}" htmlEscape="true" />
 						</a></li>
 					</c:forEach>
 				</ul>
@@ -28,7 +29,7 @@
 				<ul class="nav nav-pills" id="menu_actionplan">
 					<c:if test="${!actionplansplitted.isEmpty()}">
 						<li><a href="#" onclick="return toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');"> <span class="glyphicon glyphicon-chevron-down"></span>&nbsp;<spring:message
-									code="action.actionplanassets.show" text="Show Assets" />
+									code="label.action_plan_assets.show" text="Show Assets" />
 						</a></li>
 					</c:if>
 				</ul>
@@ -43,15 +44,15 @@
 								<th><spring:message code="label.table.index" text="#" /></th>
 								<th colspan="2"><spring:message code="label.measure.norm" text="Norm" /></th>
 								<th colspan="3"><spring:message code="label.measure.reference" text="Reference" /></th>
-								<th colspan="20"><spring:message code="label.actionplan.todo" text="To Do" /></th>
-								<th colspan="3"><spring:message code="label.actionplan.totalale" text="ALE" /> (k&euro;)</th>
-								<th colspan="3"><spring:message code="label.actionplan.deltaale" text="DeltaALE" /> (k&euro;)</th>
-								<th colspan="3"><spring:message code="label.measure.cs" text="Cost" /> (k&euro;)</th>
-								<th colspan="3"><spring:message code="label.actionplan.roi" text="ROI" /> (k&euro;)</th>
-								<th colspan="3"><spring:message code="label.actionplan.internal_setup" text="Internal Setup" /> (md)</th>
-								<th colspan="3"><spring:message code="label.actionplan.external_setup" text="External Setup" /> (md)</th>
-								<th colspan="3"><spring:message code="label.actionplan.investment" text="Investment" /> (k&euro;)</th>
-								<th colspan="2"><spring:message code="label.actionplan.phase" text="Phase" /></th>
+								<th colspan="20"><spring:message code="label.action_plan.todo" text="To Do" /></th>
+								<th colspan="3"><spring:message code="label.action_plan.total_ale" text="ALE" /> (k&euro;)</th>
+								<th colspan="3"><spring:message code="label.action_plan.delta_ale" text="DeltaALE" /> (k&euro;)</th>
+								<th colspan="3"><spring:message code="label.measure.cost" text="Cost" /> (k&euro;)</th>
+								<th colspan="3"><spring:message code="label.action_plan.roi" text="ROI" /> (k&euro;)</th>
+								<th colspan="3"><spring:message code="label.action_plan.internal_setup" text="Internal Setup" /> (md)</th>
+								<th colspan="3"><spring:message code="label.action_plan.external_setup" text="External Setup" /> (md)</th>
+								<th colspan="3"><spring:message code="label.action_plan.investment" text="Investment" /> (k&euro;)</th>
+								<th colspan="2"><spring:message code="label.action_plan.phase" text="Phase" /></th>
 								<spring:eval expression="T(lu.itrust.business.component.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
 								<c:forEach items="${actionplanassets}" var="asset">
 									<th colspan="6" class="actionplanasset actionplanassethidden" >

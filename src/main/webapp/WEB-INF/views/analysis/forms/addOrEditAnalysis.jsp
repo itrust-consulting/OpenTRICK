@@ -10,7 +10,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addAnalysisModel-title">
-					<spring:message code="label.analysis.add.menu" text="Add new Analysis" />
+					<spring:message code="label.title.add.analysis" text="Add new Analysis" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -21,7 +21,7 @@
 			</div>
 			<div class="modal-footer">
 				<button id="addAnalysisButton" type="button" class="btn btn-primary" onclick="saveAnalysis('analysis_form')">
-					<spring:message code="label.analysis.add.form" text="Add Analysis" />
+					<spring:message code="label.action.add.analysis" text="Add Analysis" />
 				</button>
 			</div>
 		</div>

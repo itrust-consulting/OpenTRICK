@@ -3,10 +3,11 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="section" id="section_customer">
 	<div class="page-header">
 		<h3 id="Customers">
-			<spring:message code="menu.knowledgebase.customers" />
+			<spring:message code="menu.knowledgebase.customers" text="Customers"/>
 		</h3>
 	</div>
 	<div class="panel panel-default">
@@ -32,14 +33,14 @@
 						<thead>
 							<tr>
 								<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'customer')"></th>
-								<th><spring:message code="label.customer.organisation" /></th>
-								<th><spring:message code="label.customer.contactPerson" /></th>
-								<th><spring:message code="label.customer.phoneNumber" /></th>
-								<th><spring:message code="label.customer.email" /></th>
-								<th><spring:message code="label.customer.address" /></th>
-								<th><spring:message code="label.customer.city" /></th>
-								<th><spring:message code="label.customer.ZIPCode" /></th>
-								<th><spring:message code="label.customer.country" /></th>
+								<th><spring:message code="label.customer.organisation" text="Company"/></th>
+								<th><spring:message code="label.customer.contact_person" text="Contact person"/></th>
+								<th><spring:message code="label.customer.phone_number" text="Phone number"/></th>
+								<th><spring:message code="label.customer.email" text="Email address"/></th>
+								<th><spring:message code="label.customer.address" text="Address"/></th>
+								<th><spring:message code="label.customer.city" text="City"/></th>
+								<th><spring:message code="label.customer.zip_code" text="ZIP code"/></th>
+								<th><spring:message code="label.customer.country" text="Country"/></th>
 								<c:if test="${!empty(adminView)}">
 									<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
 										<th><spring:message code="label.customer.can_be_used" text="Profile only" /></th>
@@ -61,7 +62,7 @@
 									<td><spring:message text="${customer.country}" /></td>
 									<c:if test="${!empty(adminView)}">
 										<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-											<td trick-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${!customer.canBeUsed}" text="${!customer.canBeUsed}" /></td>
+											<td trick-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${fn:toLowerCase(!customer.canBeUsed)}" text="${!customer.canBeUsed?'Yes':'No'}" /></td>
 										</sec:authorize>
 									</c:if>
 								</tr>
@@ -71,7 +72,7 @@
 				</c:when>
 				<c:otherwise>
 					<h4>
-						<spring:message code="label.customer.notexist" />
+						<spring:message code="label.customer.empty" text="No customer"/>
 					</h4>
 				</c:otherwise>
 			</c:choose>

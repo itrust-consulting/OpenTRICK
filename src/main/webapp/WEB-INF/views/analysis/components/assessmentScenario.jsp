@@ -13,17 +13,17 @@
 					<tr>
 						<th colspan="4"><spring:message code="label.assessment.asset" text="Asset" /></th>
 						<th><spring:message code="label.assessment.asset.value" text="Asset value" /></th>
-						<th><spring:message code="label.assessment.impactRep" text="Rep." /> (k&euro;)</th>
-						<th><spring:message code="label.assessment.impactOp" text="Op." /> (k&euro;)</th>
-						<th><spring:message code="label.assessment.impactLeg" text="Leg." /> (k&euro;)</th>
-						<th><spring:message code="label.assessment.impactFin" text="Fin." /> (k&euro;)</th>
+						<th><spring:message code="label.assessment.impact_rep" text="Rep." /> (k&euro;)</th>
+						<th><spring:message code="label.assessment.impact_op" text="Op." /> (k&euro;)</th>
+						<th><spring:message code="label.assessment.impact_leg" text="Leg." /> (k&euro;)</th>
+						<th><spring:message code="label.assessment.impact_fin" text="Fin." /> (k&euro;)</th>
 						<th><spring:message code="label.assessment.likelihood" text="Pro." /> (<spring:message code="label.assessment.likelihood.unit" text="/y"/>)</th>
 						<th><spring:message code="label.assessment.uncertainty" text="Unc." /></th>
-						<th><spring:message code="label.assessment.ALEP" text="ALEP" /> (k&euro;)</th>
-						<th><spring:message code="label.assessment.ALE" text="ALE" /> (k&euro;)</th>
-						<th><spring:message code="label.assessment.ALEO" text="ALEO" /> (k&euro;)</th>
+						<th><spring:message code="label.assessment.alep" text="ALEP" /> (k&euro;)</th>
+						<th><spring:message code="label.assessment.ale" text="ALE" /> (k&euro;)</th>
+						<th><spring:message code="label.assessment.aleo" text="ALEO" /> (k&euro;)</th>
 						<th colspan="6"><spring:message code="label.assessment.comment" text="Comment" /></th>
-						<th colspan="6"><spring:message code="label.assessment.hiddenComment" text="Hidden comment" /></th>
+						<th colspan="6"><spring:message code="label.assessment.hidden_comment" text="Hidden comment" /></th>
 					</tr>
 				</thead>
 				<tbody>

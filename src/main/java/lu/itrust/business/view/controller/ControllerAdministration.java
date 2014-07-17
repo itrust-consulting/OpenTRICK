@@ -370,7 +370,7 @@ public class ControllerAdministration {
 
 		model.put("userRoles", roleTypes);
 		model.put("roles", RoleType.values());
-		return "admin/user/userRoles";
+		return "admin/user/roles";
 
 	}
 
