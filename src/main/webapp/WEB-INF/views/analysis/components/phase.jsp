@@ -32,7 +32,7 @@
 					<c:forEach items="${phases}" var="phase">
 						<c:if test="${phase.number>0}">
 							<tr trick-id='${phase.id}' trick-class="Phase">
-								<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_phase','#menu_phase');"></td>
+								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_phase','#menu_phase');"></td>
 								<td><spring:message text="${phase.number}" /></td>
 								<td colspan="15" class="success" trick-field="beginDate" trick-field-type="date" ondblclick="editField(this);"><spring:message text="${phase.beginDate}" /></td>
 								<td colspan="15" class="success" trick-field="endDate" trick-field-type="date" ondblclick="editField(this);"><spring:message text="${phase.endDate}" /></td>

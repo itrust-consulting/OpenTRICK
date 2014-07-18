@@ -51,7 +51,7 @@
 						<tbody>
 							<c:forEach items="${customers}" var="customer">
 								<tr trick-id="${customer.id}" ondblclick="return editSingleCustomer('${customer.id}');">
-									<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_customer','#menu_customer');"></td>
+									<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_customer','#menu_customer');"></td>
 									<td><spring:message text="${customer.organisation}" /></td>
 									<td><spring:message text="${customer.contactPerson}" /></td>
 									<td><spring:message text="${customer.phoneNumber}" /></td>

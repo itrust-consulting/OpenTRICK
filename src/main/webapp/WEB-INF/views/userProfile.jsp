@@ -71,9 +71,9 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="roles" class="col-sm-2 control-label"> <spring:message code="label.user.account.role" text="Roles" />
+						<label for="roles" class="col-sm-3 control-label"> <spring:message code="label.user.account.role" text="Roles" />
 						</label>
-						<div class="col-sm-10">
+						<div class="col-sm-9">
 							<ul class="list-group">
 								<c:forEach items="${user.roles}" var="role">
 									<c:set var="role_value" value="${fn:replace(role.type,'ROLE_','')}" />

@@ -37,7 +37,7 @@
 					<tbody>
 						<c:forEach items="${users}" var="user">
 							<tr trick-id="${user.id}" ondblclick="return editSingleUser(${user.id});">
-								<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_user','#menu_user');"></td>
+								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_user','#menu_user');"></td>
 								<td>${user.login}</td>
 								<td>${user.firstName}</td>
 								<td>${user.lastName}</td>

@@ -322,19 +322,25 @@ function showSuccess(parent, text) {
  */
 
 function isSelected(sectionName) {
+	console.log($("#section_" + sectionName + " tbody tr[trick-selected='true'] td:first-child input:checked").length > 0);
 	return $("#section_" + sectionName + " tbody tr[trick-selected='true'] td:first-child input:checked").length > 0;
 }
 
 function checkControlChange(checkbox, sectionName, appModalVar) {
 	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input") : $(application[appModalVar].modal).find(
 			"tbody tr td:first-child input");
-	for (var i = 0; i < items.length; i++)
+	for (var i = 0; i < items.length; i++) {
 		$(items[i]).prop("checked", $(checkbox).is(":checked"));
-	updateMenu("#section_" + sectionName, "#menu_" + sectionName, appModalVar);
+		if ($(checkbox).is(":checked"))
+			$(items[i]).parent().parent().addClass("info")
+		else
+			$(items[i]).parent().parent().removeClass("info")
+	}
+	updateMenu(undefined, "#section_" + sectionName, "#menu_" + sectionName, appModalVar);
 	return false;
 }
 
-function updateMenu(idsection, idMenu, appModalVar) {
+function updateMenu(sender, idsection, idMenu, appModalVar) {
 	var checkedCount = (appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked").length
 			: $(application[appModalVar].modal).find("tbody :checked").length;
 	if (checkedCount == 1) {
@@ -343,6 +349,8 @@ function updateMenu(idsection, idMenu, appModalVar) {
 			var checker = $($lis[i]).attr("trick-check");
 			if (checker == undefined || eval(checker))
 				$($lis[i]).removeClass("disabled");
+			else
+				$($lis[i]).addClass("disabled");
 		}
 	} else if (checkedCount > 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
@@ -360,6 +368,12 @@ function updateMenu(idsection, idMenu, appModalVar) {
 			else
 				$($lis[i]).removeClass("disabled");
 		}
+	}
+	if (sender) {
+		if ($(sender).is(":checked"))
+			$(sender).parent().parent().addClass("info")
+		else
+			$(sender).parent().parent().removeClass("info")
 	}
 	return false;
 }

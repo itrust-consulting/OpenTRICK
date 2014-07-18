@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Language;
@@ -28,6 +29,7 @@ import lu.itrust.business.component.helper.RRFFieldEditor;
 import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceLanguage;
@@ -92,6 +94,9 @@ public class ControllerScenario {
 
 	@Autowired
 	private AssessmentManager assessmentManager;
+	
+	@Autowired
+	private ServiceAssessment serviceAssessment;
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
@@ -216,8 +221,10 @@ public class ControllerScenario {
 		if (integer == null)
 			return null;
 		// load all scenarios from analysis
-		model.addAttribute("scenarios", serviceScenario.getAllFromAnalysis(integer));
-
+		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);
+		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
+		model.addAttribute("scenarios", scenarios);
+		model.addAttribute("scenarioALE", AssessmentManager.ComputeScenarioALE(scenarios, assessments));
 		return "analysis/components/scenario";
 	}
 

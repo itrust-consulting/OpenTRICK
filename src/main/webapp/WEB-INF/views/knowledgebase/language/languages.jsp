@@ -34,10 +34,10 @@
 						<tbody>
 							<c:forEach items="${languages}" var="language">
 								<tr trick-id="${language.id}" ondblclick="return editSingleLanguage('${language.id}');">
-									<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_language','#menu_language');"></td>
+									<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_language','#menu_language');"></td>
 									<td><spring:message text="${language.alpha3}" htmlEscape="true" /></td>
-									<td><spring:message code="${language.name}" /></td>
-									<td><spring:message code="${language.altName}" /></td>
+									<td><spring:message text="${language.name}" /></td>
+									<td><spring:message text="${language.altName}" /></td>
 								</tr>
 							</c:forEach>
 						</tbody>

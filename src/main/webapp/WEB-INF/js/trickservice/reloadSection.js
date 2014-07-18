@@ -159,6 +159,9 @@ SectionSmartUpdate.prototype = {
 				if (!$tr.length)
 					$(tableSourceTrs[i]).appendTo($tbody);
 			}
+			var checked = $($tbody).find("td:first-child>input:checked");
+			if(checked.length)
+				$(checked).change();
 			if (indexColnum >= 0) {
 				var tableDestTrs = $(dest).find("tbody tr");
 				for (var i = 0; i < tableDestTrs.length; i++) {

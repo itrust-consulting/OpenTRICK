@@ -6,7 +6,7 @@
 <%@ page trimDirectiveWhitespaces="true"%>
 <c:if test="${!empty(measureDescription)}">
 	<tr trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${norm.id}');">
-		<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_measure_description','#menu_measure_description');"></td>
+		<td><input type="checkbox" class="checkbox" onchange="return updateMenu('this,#section_measure_description','#menu_measure_description');"></td>
 		<td colspan="2">${measureDescription.level}</td>
 		<td colspan="2">${measureDescription.reference}</td>
 		<td colspan="10">${measureDescriptionText.domain.equals("")==false?measureDescriptionText.domain:"&nbsp;"}</td>

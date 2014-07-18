@@ -52,7 +52,7 @@
 								<tbody>
 									<c:forEach items="${measureDescriptions}" var="measureDescription">
 										<tr trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${norm.id}');">
-											<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_measure_description','#menu_measure_description','modal-measure');"></td>
+											<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_measure_description','#menu_measure_description','modal-measure');"></td>
 											<td colspan="2">${measureDescription.level}</td>
 											<td colspan="3">${measureDescription.reference}</td>
 											<td colspan="20">${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:"&nbsp;"}</td>

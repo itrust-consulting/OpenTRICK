@@ -40,7 +40,7 @@
 				<tbody>
 					<c:forEach items="${analyses}" var="analysis">
 						<tr trick-id="${analysis.id}" trick-rights-id="0" data="${analysis.hasData()}" ondblclick="return editSingleAnalysis(${analysis.id});">
-							<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_profile_analysis','#menu_analysis');"></td>
+							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_profile_analysis','#menu_analysis');"></td>
 							<td><spring:message text="${analysis.identifier}"/></td>
 							<td><spring:message text="${analysis.label}"/></td>
 							<td><spring:message text="${analysis.creationDate}"/></td>

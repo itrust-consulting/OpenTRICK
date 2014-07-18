@@ -74,7 +74,7 @@
 								<c:forEach items="${analyses}" var="analysis">
 									<tr trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}" data="${analysis.hasData()}"
 										ondblclick="return editSingleAnalysis(${analysis.id});">
-										<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_analysis','#menu_analysis');"></td>
+										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 										<td trick-version="${analysis.version}">${analysis.version}</td>
 										<td><spring:message text="${analysis.label}"/></td>
 										<td><spring:message text="${analysis.creationDate}"/></td>

@@ -47,7 +47,7 @@
 					<c:forEach items="${analyses}" var="analysis">
 						<tr trick-id="${analysis.id}" trick-rights-id="0" data="${analysis.hasData()}" trick-isProfile="${analysis.profile}">
 							<td><input type="checkbox" class="checkbox"
-								onchange="updateMenu('#section_admin_analysis','#menu_analysis');return disableifprofile('#section_admin_analysis','#menu_analysis');"></td>
+								onchange="updateMenu(this,'#section_admin_analysis','#menu_analysis');return disableifprofile('#section_admin_analysis','#menu_analysis');"></td>
 							<td>${analysis.identifier}</td>
 							<td>${analysis.label}</td>
 							<td>${analysis.creationDate}</td>

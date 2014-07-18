@@ -2486,9 +2486,11 @@ public class Analysis implements Serializable, Cloneable {
 		return assessmentMap;
 	}
 
-	public Map<Integer, List<Assessment>> mappedAssessmentByScenario() {
+	public static Map<Integer, List<Assessment>> MappedSelectedAssessmentByScenario(List<Assessment> assessments2) {
 		Map<Integer, List<Assessment>> mappings = new LinkedHashMap<>();
-		for (Assessment assessment : assessments) {
+		for (Assessment assessment : assessments2) {
+			if(!assessment.isSelected())
+				continue;
 			Scenario scenario = assessment.getScenario();
 			List<Assessment> assessments = mappings.get(scenario.getId());
 			if (assessments == null)
@@ -2498,13 +2500,41 @@ public class Analysis implements Serializable, Cloneable {
 		return mappings;
 	}
 	
-	public Map<Integer, List<Assessment>> mappedAssessmentByAsset() {
+	public static Map<Integer, List<Assessment>> MappedSelectedAssessmentByAsset(List<Assessment> assessments2) {
 		Map<Integer, List<Assessment>> mappings = new LinkedHashMap<>();
-		for (Assessment assessment : assessments) {
+		for (Assessment assessment : assessments2) {
+			if(!assessment.isSelected())
+				continue;
 			Asset asset = assessment.getAsset();
 			List<Assessment> assessments = mappings.get(asset.getId());
 			if (assessments == null)
 				mappings.put(asset.getId(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		}
+		return mappings;
+	}
+
+	/**
+	 * Mapping selected assessment by asset and scenario
+	 * @return Length : 2, 0 : Asset, 1 : Scenario
+	 */
+	@SuppressWarnings("unchecked")
+	public static Map<Integer, List<Assessment>>[] MappedSelectedAssessment(List<Assessment> assessments2) {
+		Map<Integer, List<Assessment>> [] mappings = new LinkedHashMap[2];
+		for (int i = 0; i < mappings.length; i++) 
+			mappings[i]= new LinkedHashMap<Integer, List<Assessment>>();
+		for (Assessment assessment : assessments2) {
+			if(!assessment.isSelected())
+				continue;
+			Asset asset = assessment.getAsset();
+			List<Assessment> assessments = mappings[0].get(asset.getId());
+			if (assessments == null)
+				mappings[0].put(asset.getId(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+			Scenario scenario = assessment.getScenario();
+			assessments = mappings[1].get(scenario.getId());
+			if (assessments == null)
+				mappings[1].put(scenario.getId(), assessments = new ArrayList<Assessment>());
 			assessments.add(assessment);
 		}
 		return mappings;

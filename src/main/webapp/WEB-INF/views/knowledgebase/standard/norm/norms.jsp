@@ -45,7 +45,7 @@
 						<tbody>
 							<c:forEach items="${norms}" var="norm">
 								<tr trick-id="${norm.id}" ondblclick="return editSingleNorm('${norm.id}');">
-									<td><input type="checkbox" class="checkbox" onchange="return updateMenu('#section_norm','#menu_norm');"></td>
+									<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_norm','#menu_norm');"></td>
 									<td><spring:message text="${norm.label}"/></td>
 									<td><spring:message text="${norm.version}"/></td>
 									<td><spring:message text="${norm.description}"/></td>

@@ -14,6 +14,8 @@ import java.util.Map;
 import javax.naming.directory.InvalidAttributesException;
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -22,6 +24,7 @@ import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceDataValidation;
@@ -70,6 +73,9 @@ public class ControllerAsset {
 
 	@Autowired
 	private ChartGenerator chartGenerator;
+	
+	@Autowired
+	private ServiceAssessment serviceAssessment;
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
@@ -207,10 +213,12 @@ public class ControllerAsset {
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 		if (integer == null)
 			return null;
-
+		
+		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
+		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		// load all assets of analysis to model
-		model.addAttribute("assets", serviceAsset.getAllFromAnalysis(integer));
-
+		model.addAttribute("assetALE", AssessmentManager.ComputeAssetALE(assets, assessments));
+		model.addAttribute("assets", assets);
 		return "analysis/components/asset";
 	}
 

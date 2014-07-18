@@ -330,4 +330,10 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	public void delete(Assessment assessment) throws Exception {
 		daoAssessment.delete(assessment);
 	}
+
+	@Override
+	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis) {
+		// TODO Auto-generated method stub
+		return daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
+	}
 }
