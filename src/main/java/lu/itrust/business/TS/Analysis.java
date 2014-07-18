@@ -209,7 +209,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param asset
 	 *            The Asset to get ALE from
 	 * @return The Total ALE of the Asset
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public double getALEOfAsset(Asset asset) throws TrickException {
 
@@ -218,7 +218,7 @@ public class Analysis implements Serializable, Cloneable {
 
 		// check if asset exists and if assessments are not empty
 		if (asset == null)
-			throw new TrickException("error.ale.asset_null","Asset cannot be empty");
+			throw new TrickException("error.ale.asset_null", "Asset cannot be empty");
 		if (this.assessments.isEmpty())
 			throw new TrickException("error.ale.Assessments_empty", "Assessment cannot be empty");
 		// parse assessments
@@ -402,7 +402,7 @@ public class Analysis implements Serializable, Cloneable {
 		// * Category calculation
 		// ****************************************************************
 		category = calculateRRFCategory(measure.getMeasurePropertyList(), scenario);
-		
+
 		if (Double.isNaN(category))
 			throw new TrickException("error.analysis.rrf.scenario.category.nan", String.format("RRF computation: please check categories for scenario (%s)", scenario.getName()),
 					scenario.getName());
@@ -414,9 +414,9 @@ public class Analysis implements Serializable, Cloneable {
 				+ (measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective())) / 4.;
 
 		if (Double.isNaN(type))
-			throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number", scenario.getName(), measure
-					.getMeasureDescription().getReference(), measure.getAnalysisNorm().getNorm().getLabel()), scenario.getName(), measure.getMeasureDescription().getReference(),
-					measure.getAnalysisNorm().getNorm().getLabel());
+			throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number",
+					scenario.getName(), measure.getMeasureDescription().getReference(), measure.getAnalysisNorm().getNorm().getLabel()), scenario.getName(), measure
+					.getMeasureDescription().getReference(), measure.getAnalysisNorm().getNorm().getLabel());
 
 		// ****************************************************************
 		// * Source calculation
@@ -477,10 +477,10 @@ public class Analysis implements Serializable, Cloneable {
 
 		// check if properties and scenario are not null to avoid failures
 		if (properties == null)
-			throw new TrickException("error.rrf.compute.properties_null","Measure properties cannot be empty");
+			throw new TrickException("error.rrf.compute.properties_null", "Measure properties cannot be empty");
 
 		if (scenario == null)
-			throw new TrickException("error.rrf.compute.scenario_null","Scenario cannot be empty");
+			throw new TrickException("error.rrf.compute.scenario_null", "Scenario cannot be empty");
 
 		// **************************************************************
 		// * intialise variables
@@ -1038,7 +1038,8 @@ public class Analysis implements Serializable, Cloneable {
 	 * This method will calculate the bounds of the extended parameters from and
 	 * to values. Since CSSF implementation, impact and probability values need
 	 * to be calculated using bounds.
-	 * @throws TrickException 
+	 * 
+	 * @throws TrickException
 	 */
 	public void computeParameterScales() throws TrickException {
 
@@ -2483,5 +2484,29 @@ public class Analysis implements Serializable, Cloneable {
 			if (assessment.getAsset().getId() == id)
 				assessmentMap.put(assessment.getScenario().getId(), assessment);
 		return assessmentMap;
+	}
+
+	public Map<Integer, List<Assessment>> mappedAssessmentByScenario() {
+		Map<Integer, List<Assessment>> mappings = new LinkedHashMap<>();
+		for (Assessment assessment : assessments) {
+			Scenario scenario = assessment.getScenario();
+			List<Assessment> assessments = mappings.get(scenario.getId());
+			if (assessments == null)
+				mappings.put(scenario.getId(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		}
+		return mappings;
+	}
+	
+	public Map<Integer, List<Assessment>> mappedAssessmentByAsset() {
+		Map<Integer, List<Assessment>> mappings = new LinkedHashMap<>();
+		for (Assessment assessment : assessments) {
+			Asset asset = assessment.getAsset();
+			List<Assessment> assessments = mappings.get(asset.getId());
+			if (assessments == null)
+				mappings.put(asset.getId(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		}
+		return mappings;
 	}
 }

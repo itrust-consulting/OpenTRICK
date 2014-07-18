@@ -30,6 +30,9 @@
 						<th><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
 						<th colspan="15"><spring:message code="label.scenario.name" text="Name" htmlEscape="true" /></th>
 						<th colspan="3"><spring:message code="label.scenario.type" text="Type" htmlEscape="true" /></th>
+						<th colspan="2"><spring:message code="label.scenario.alep" text="ALEP" /> (k&euro;)</th>
+						<th colspan="2"><spring:message code="label.scenario.ale" text="ALE" /> (k&euro;)</th>
+						<th colspan="2"><spring:message code="label.scenario.aleo" text="ALEO" /> (k&euro;)</th>
 						<th colspan="20"><spring:message code="label.scenario.description" text="Description" htmlEscape="true" /></th>
 					</tr>
 				</thead>
@@ -44,6 +47,9 @@
 							<td>${status.index+1}</td>
 							<td class="${cssClass}" colspan="15"><spring:message text="${scenario.name}" /></td>
 							<td class="${cssClass}" colspan="3"><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.scenarioType.name,'-','_'))}" text="${scenario.scenarioType.name}" /></td>
+							<td class="${cssClass}" colspan="2" name="alep"></td>
+							<td class="${cssClass}" colspan="2" name="ale"></td>
+							<td class="${cssClass}" colspan="2" name="aleo"></td>
 							<td class="${cssClass}" colspan="20"><pre><spring:message text="${scenario.description}" /></pre></td>
 						</tr>
 					</c:forEach>

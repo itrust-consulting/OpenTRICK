@@ -56,8 +56,6 @@ public class AssessmentManager {
 		asset.setSelected(true);
 		List<Assessment> assessments = daoAssessment.getAllUnSelectedFromAsset(asset);
 		for (Assessment assessment : assessments) {
-			System.out.println(assessment.getScenario().hasInfluenceOnAsset(asset.getAssetType()));
-			System.out.println(assessment.getScenario().isSelected());
 			if (assessment.getScenario().isSelected() && assessment.getScenario().hasInfluenceOnAsset(asset.getAssetType())) {
 				assessment.setSelected(true);
 				daoAssessment.saveOrUpdate(assessment);
@@ -380,6 +378,37 @@ public class AssessmentManager {
 			aleo.setValue(aleo.getValue() + assessment.getALEO());
 		}
 
+	}
+
+	/**
+	 * @param analysis
+	 * @return Size = 2, [0] for Asset, [1] for Scenario
+	 */
+	@SuppressWarnings("unchecked")
+	public static Map<Integer, ALE[]>[] ComputeALE(Analysis analysis) {
+		Map<Integer, ALE[]>[] ales = new LinkedHashMap[2];
+		for (int i = 0; i < 2; i++)
+			ales[i] = new LinkedHashMap<Integer, ALE[]>();
+		Map<Integer, List<Assessment>> assessments = analysis.mappedAssessmentByScenario();
+		for (Scenario scenario : analysis.getScenarios()) {
+			ALE[] ales2 = new ALE[3];
+			for (int i = 0; i < ales2.length; i++)
+				ales2[i] = new ALE(scenario.getName(), 0);
+			ComputeALE(assessments.get(scenario.getId()), ales2[1], ales2[2], ales2[1]);
+			ales[1].put(scenario.getId(), ales2);
+		}
+
+		assessments.clear();
+		assessments = analysis.mappedAssessmentByAsset();
+		for (Asset asset : analysis.getAssets()) {
+			ALE[] ales2 = new ALE[3];
+			for (int i = 0; i < ales2.length; i++)
+				ales2[i] = new ALE(asset.getName(), 0);
+			ComputeALE(assessments.get(asset.getId()), ales2[1], ales2[2], ales2[0]);
+			ales[0].put(asset.getId(), ales2);
+		}
+		assessments.clear();
+		return ales;
 	}
 
 }
