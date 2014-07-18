@@ -53,7 +53,7 @@ public class AssessmentManager {
 	@Transactional
 	public void selectAsset(Asset asset) throws Exception {
 		asset.setSelected(true);
-		List<Assessment> assessments = daoAssessment.getAllSelectedFromAsset(asset);
+		List<Assessment> assessments = daoAssessment.getAllUnSelectedFromAsset(asset);
 		for (Assessment assessment : assessments) {
 			if (assessment.getScenario().isSelected() && assessment.getScenario().hasInfluenceOnAsset(asset.getAssetType())) {
 				assessment.setSelected(true);
