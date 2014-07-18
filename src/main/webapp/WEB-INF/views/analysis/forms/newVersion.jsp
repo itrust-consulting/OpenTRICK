@@ -9,35 +9,35 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="historyModal-title">
-					<spring:message code="label.history.add" text="Add new version" />
+					<spring:message code="label.title.add.analysis.version" text="Add new version" />
 				</h4>
 			</div>
 			<div class="modal-body">
 				<jsp:include page="../../successErrors.jsp" />
 				<form name="history" action="${pageContext.request.contextPath}/History/Analysis/${analysisId}/NewVersion/Save" class="form-horizontal" id="history_form" method="post">
 					<div class="form-group">
-						<label for="author" class="col-sm-2 control-label"> <spring:message code="label.history.author" text="Author" />
+						<label for="author" class="col-sm-2 control-label"> <spring:message code="label.analysis.author" text="Author" />
 						</label>
 						<div class="col-sm-10">
 							<input name="author" id="history_author" class="form-control" value="<spring:message text="${author}"/>" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for=basedOnVersion class="col-sm-2 control-label"> <spring:message code="label.history.basedOn" text="Based on Version" />
+						<label for=basedOnVersion class="col-sm-2 control-label"> <spring:message code="label.analysis.based_on" text="Based on version" />
 						</label>
 						<div class="col-sm-10">
 							<input name="oldVersion" id="history_oldVersion" class="form-control" value=<spring:message text="${oldVersion}"/> readonly />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for=version class="col-sm-2 control-label"> <spring:message code="label.history.version" text="Version" />
+						<label for=version class="col-sm-2 control-label"> <spring:message code="label.analysis.version" text="Version" />
 						</label>
 						<div class="col-sm-10">
 							<input name="version" id="history_version" class="form-control" value="" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.history.comment" text="Comment" />
+						<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.comment" text="Comment" />
 						</label>
 						<div class="col-sm-10">
 							<textarea name="comment" class="form-control" id="history_comment"></textarea>

@@ -12,7 +12,7 @@
 				<!-- dialog buttons -->
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" data-dismiss="modal">
-						<spring:message code="label.dialog.button.ok" text="OK" />
+						<spring:message code="label.action.ok" text="OK" />
 					</button>
 				</div>
 			</div>
@@ -26,7 +26,7 @@
 				<!-- dialog buttons -->
 				<div class="modal-footer">
 					<button type="button" class="btn btn-danger" data-dismiss="modal">
-						<spring:message code="label.dialog.button.ok" text="OK" />
+						<spring:message code="label.action.ok" text="OK" />
 					</button>
 				</div>
 			</div>
@@ -40,10 +40,10 @@
 				<!-- dialog buttons -->
 				<div class="modal-footer">
 					<button type="button" class="btn btn-danger" data-dismiss="modal">
-						<spring:message code="label.dialog.button.ok" text="OK" />
+						<spring:message code="label.action.confirm.ok" text="OK" />
 					</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">
-						<spring:message code="label.dialog.button.cancel" text="Cancel" />
+						<spring:message code="label.action.cancel" text="Cancel" />
 					</button>
 				</div>
 			</div>

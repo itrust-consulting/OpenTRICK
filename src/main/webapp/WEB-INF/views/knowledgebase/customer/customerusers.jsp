@@ -8,11 +8,11 @@
 	<form action="Update" name="usercustomer" id="customerusersform">
 		<div>
 			<input type="hidden" value="${customer.id}" name="customerid" />
-			<spring:message code="label.users.customer.access" text="Users having access to customer: " />
-			<b>${customer.organisation}</b>
+			<spring:message code="label.users.customer.access" text="Users having access to customer" />:
+			<b><spring:message text="${customer.organisation}"/></b>
 			<hr />
 			<p>
-				<b>Note: press CTRL or COMMAND button to select multiple entries! On normal click: previous values are reset</b>
+				<b><spring:message code="label.users.customer.access.note_info" text="Note: press CTRL or COMMAND button to select multiple entries! On normal click: previous values are reset" /></b>
 			</p>
 		</div>
 		<div class="panel-body">
@@ -20,13 +20,13 @@
 				<c:when test="${!empty users}">
 					<select multiple id="usercustomer" name="usercustomer" class="form-control">
 						<c:forEach items="${users}" var="user">
-							<option value="user_${user.id}" ${customerusers.contains(user) ? 'selected="selected"' : ""}>${user.firstName.concat(' ').concat(user.lastName)}</option>
+							<option value="user_${user.id}" ${customerusers.contains(user) ? 'selected="selected"' : ""}><spring:message text="${user.firstName}" />&nbsp;<spring:message text="${user.lastName}"/></option>
 						</c:forEach>
 					</select>
 				</c:when>
 				<c:otherwise>
 					<h4>
-						<spring:message code="label.user.notexist" text="no users exist" />
+						<spring:message code="label.user.empty" text="No user" />
 					</h4>
 				</c:otherwise>
 			</c:choose>

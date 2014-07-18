@@ -530,7 +530,7 @@ public class ChartGenerator {
 
 		String serie = "";
 
-		serie = "{\"name\":\"" + messageSource.getMessage("label.chart.series.currentlevel", null, "Current Level", locale) + "\", \"data\":" + data + ",\"valueDecimals\": 0}";
+		serie = "{\"name\":\"" + messageSource.getMessage("label.chart.series.current_level", null, "Current Level", locale) + "\", \"data\":" + data + ",\"valueDecimals\": 0}";
 
 		series += serie;
 
@@ -721,7 +721,7 @@ public class ChartGenerator {
 
 		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": false}";
 
-		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.budget." + actionPlanType, null, "Budget for " + actionPlanType, locale) + "\"}";
+		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.budget." + actionPlanType.toLowerCase(), null, "Budget for " + actionPlanType, locale) + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";
 

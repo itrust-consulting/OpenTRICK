@@ -11,10 +11,7 @@
 		<td colspan="2">${measureDescription.reference}</td>
 		<td colspan="10">${measureDescriptionText.domain.equals("")==false?measureDescriptionText.domain:"&nbsp;"}</td>
 		<td colspan="10">${measureDescriptionText.description.equals("")==false?measureDescriptionText.description:"&nbsp;"}</td>
-		<td colspan="2" trick-computable="${measureDescription.computable}"><c:if test="${measureDescription.computable==true}">
-				<spring:message code="label.yes_no.true" />
-			</c:if> <c:if test="${measureDescription.computable==false}">
-				<spring:message code="label.yes_no.false" />
-			</c:if></td>
+		<td colspan="2" trick-computable="${measureDescription.computable}"><spring:message code="label.yes_no.${measureDescription.computable}"
+				text="${measureDescription.computable?'Yes','No'}" /></td>
 	</tr>
 </c:if>

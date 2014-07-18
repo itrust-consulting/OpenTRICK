@@ -24,14 +24,14 @@
 				<li ${menu.equals("home")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/home"> <spring:message code="label.menu.home" text="Home" /></a></li>
 				<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')">
 					<li ${menu.startsWith("KnowledgeBase")? "class='active'" : ""}>
-						<a href="${pageContext.request.contextPath}/KnowledgeBase"> <spring:message	code="label.menu.analysis.knowledgebase" text="Knowledge Base" /></a>
+						<a href="${pageContext.request.contextPath}/KnowledgeBase"> <spring:message	code="label.menu.analysis.knowledgebase" text="Knowledge base" /></a>
 					</li>
 				</sec:authorize>
 				<li ${menu.startsWith('Analysis') && !menu.startsWith('Analysis/Import')?'class="active"':''}>
 					<a href="${pageContext.request.contextPath}/Analysis"> <spring:message code="label.menu.analysis.all" text="Analysis" /></a>
 				</li>
 				<li ${menu.startsWith('Analysis/Import')?'class="active"':''}>
-					<a href="${pageContext.request.contextPath}/Analysis/Import"> <spring:message code="label.menu.analysis.import" text="Import" /></a>
+					<a href="${pageContext.request.contextPath}/Analysis/Import"> <spring:message code="label.menu.import.analysis" text="Import" /></a>
 				</li>
 			</ul>
 			<ul class="nav navbar-nav navbar-right">

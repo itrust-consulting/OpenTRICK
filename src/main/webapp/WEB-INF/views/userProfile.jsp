@@ -3,7 +3,8 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<c:set scope="request" var="title">title.Profile</c:set>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<c:set scope="request" var="title">label.title.profile</c:set>
 <html>
 <!-- Include Header -->
 <jsp:include page="header.jsp" />
@@ -13,21 +14,21 @@
 		<div class="container">
 			<div class="page-header">
 				<h1>
-					<spring:message code="title.Profile" text="Profile" />
+					<spring:message code="label.title.profile" text="Profile" />
 				</h1>
 			</div>
 			<span id="success" hidden="hidden"></span>
 			<div style="margin: 0 auto; max-width: 600px; padding: 15px;">
 				<form id="updateprofileform" name="updateprofileform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/Profile/Update">
 					<div class="form-group">
-						<label for="login" class="col-sm-3 control-label"> <spring:message code="label.user.login" />
+						<label for="login" class="col-sm-3 control-label"> <spring:message code="label.user.login" text="Username" />
 						</label>
 						<div class="col-sm-9">
 							<input class="form-control" disabled="disabled" value="${user.login}" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="oldPassword" class="col-sm-3 control-label"> <spring:message code="label.user.currentpassword" text="Current Password" />
+						<label for="oldPassword" class="col-sm-3 control-label"> <spring:message code="label.user.current_password" text="Current Password" />
 						</label>
 						<div class="col-sm-9">
 							<input type="password" id="currentPassword" name="currentPassword" class="form-control" required="required" />
@@ -41,28 +42,28 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="repeatPassword" class="col-sm-3 control-label"> <spring:message code="label.user.repeatPassword" text="Repeat password" />
+						<label for="repeatPassword" class="col-sm-3 control-label"> <spring:message code="label.user.repeat_password" text="Repeat password" />
 						</label>
 						<div class="col-sm-9">
 							<input type="password" id="repeatPassword" name="repeatPassword" class="form-control" required="required" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="firstName" class="col-sm-3 control-label"> <spring:message code="label.user.firstName" />
+						<label for="firstName" class="col-sm-3 control-label"> <spring:message code="label.user.first_name" text="Firstname" />
 						</label>
 						<div class="col-sm-9">
 							<input type="text" id="firstName" name="firstName" class="form-control" required value="${user.firstName}" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="lastName" class="col-sm-3 control-label"> <spring:message code="label.user.lastName" />
+						<label for="lastName" class="col-sm-3 control-label"> <spring:message code="label.user.last_name" text="Lastname" />
 						</label>
 						<div class="col-sm-9">
 							<input type="text" id="lastName" name="lastName" class="form-control" required value="${user.lastName}" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="email" class="col-sm-3 control-label"> <spring:message code="label.user.email" />
+						<label for="email" class="col-sm-3 control-label"> <spring:message code="label.user.email" text="Email address" />
 						</label>
 						<div class="col-sm-9">
 							<input type="text" id="email" name="email" class="form-control" required pattern='^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$'
@@ -70,12 +71,13 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="roles" class="col-sm-2 control-label"> <spring:message code="label.role" />
+						<label for="roles" class="col-sm-2 control-label"> <spring:message code="label.user.account.role" text="Roles" />
 						</label>
 						<div class="col-sm-10">
 							<ul class="list-group">
 								<c:forEach items="${user.roles}" var="role">
-									<li class="list-group-item"><spring:message code="label.role.${role.type}" /></li>
+									<c:set var="role_value" value="${fn:replace(role.type,'ROLE_','')}" />
+									<li class="list-group-item pull-left" style="margin-right: 5px;"><spring:message code="label.role.${fn:toLowerCase(role_value)}" text="${role_value}" /></li>
 								</c:forEach>
 							</ul>
 						</div>

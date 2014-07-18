@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css"
 	href='<spring:url value="/css/main.css" />' />
 <META HTTP-EQUIV="refresh"
-	CONTENT="<spring:message code='label.error.405.redirect.value' text='3' />;${pageContext.request.contextPath}/index">
+	CONTENT="3;${pageContext.request.contextPath}/index">
 </head>
 <body>
 	<div class="container">
@@ -20,11 +20,11 @@
 				<c:when
 					test="${'XMLHttpRequest' != request.getHeader('X-Requested-With')}">
 					<spring:message
-						code="errors.405.method.not.allowed error.405.method.not.allowed.redirect.value error.405.method.not.allowed.redirect.unit"
+						code="error.405.method.not.allowed"
 						text="Method Not Allowed, You will be redirected in 3 seconds" />
 				</c:when>
 				<c:otherwise>
-					<spring:message code="errors.405.method.not.allowed" text="Method Not Allowed" />
+					<spring:message code="error.405.method.not.allowed" text="Method Not Allowed" />
 				</c:otherwise>
 			</c:choose>
 		</div>

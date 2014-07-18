@@ -3,7 +3,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<c:set scope="request" var="title">title.analysis.import</c:set>
+<c:set scope="request" var="title">label.title.analysis.import</c:set>
 <html>
 <jsp:include page="../../header.jsp" />
 <body>

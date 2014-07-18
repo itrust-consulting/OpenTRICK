@@ -20,28 +20,27 @@
 			<div class="row">
 				<div class="page-header">
 					<h1>
-						<spring:message code="label.norm" />
-						: ${norm.name}
+						<spring:message code="label.title.norm" text="Standard"/>: <spring:message text="${norm.name}"/>
 					</h1>
 				</div>
 				<div class="content col-md-10" id="content" role="main" data-spy="scroll">
 					<c:if test="${!empty norm}">
 						<table class="table" border="1">
 							<tr>
-								<td><spring:message code="label.norm.id" /></td>
+								<td><spring:message code="label.norm.id" text="Id"/></td>
 								<td>${norm.id}</td>
 							</tr>
 							<tr>
-								<td><spring:message code="label.norm.label" /></td>
-								<td>${norm.label}</td>
+								<td><spring:message code="label.norm.label" text="Name"/></td>
+								<td><spring:message text="${norm.label}"/></td>
 							</tr>
 							<tr>
-								<td><spring:message code="label.norm.version" /></td>
-								<td>${norm.version}</td>
+								<td><spring:message code="label.norm.version" text="Version"/></td>
+								<td><spring:message text="${norm.version}"/></td>
 							</tr>
 							<tr>
-								<td><spring:message code="label.norm.Computable" /></td>
-								<td>${norm.computable?'Yes':'No'}</td>
+								<td><spring:message code="label.norm.computable" text="Computable"/></td>
+								<td><spring:message code="label.yes_no.${norm.computable}" text="${norm.computable?'Yes':'No'}" /></td>
 							</tr>
 						</table>
 					</c:if>

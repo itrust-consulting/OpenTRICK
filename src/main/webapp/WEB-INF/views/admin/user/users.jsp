@@ -31,7 +31,7 @@
 							<th><spring:message code="label.user.last_name" text="Lastname"/></th>
 							<th><spring:message code="label.user.email" text="Email address"/></th>
 							<th><spring:message code="label.user.account.status" text="Status"/></th>
-							<th><spring:message code="label.user.account.role" text="Role"/></th>
+							<th><spring:message code="label.user.account.role" text="Roles"/></th>
 						</tr>
 					</thead>
 					<tbody>

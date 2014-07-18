@@ -20,7 +20,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addMeasureModel-title">
-					<spring:message code="label.measure.add.menu" text="Add new Measure" />
+					<spring:message code="label.tile.add.measure" text="Add new Measure" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -49,7 +49,7 @@
 			</div>
 			<div class="modal-footer">
 				<button id="addmeasurebutton" type="button" class="btn btn-primary" onclick="saveMeasure()">
-					<spring:message code="label.norm.add.form" text="Add" />
+					<spring:message code="label.action.add.norm" text="Add" />
 				</button>
 			</div>
 		</div>
@@ -61,16 +61,16 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteMeasureModel-title">
-					<spring:message code="title.measure.delete" text="Delete a measure" />
+					<spring:message code="lable.title.delete.measure" text="Delete a measure" />
 				</h4>
 			</div>
 			<div id="deleteMeasureBody" class="modal-body">Your question here...</div>
 			<div class="modal-footer">
 				<button id="deletemeasurebuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
-					<spring:message code="label.answer.yes" text="Yes" />
+					<spring:message code="label.action.confirm.yes" text="Yes" />
 				</button>
 				<button id="deletemeasurebuttonCancel" type="button" class="btn" data-dismiss="modal">
-					<spring:message code="label.answer.cancel" text="Cancel" />
+					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>
 		</div>

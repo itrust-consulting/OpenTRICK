@@ -9,7 +9,7 @@
 		<div class="col-sm-10">
 			<select id="measurelanguageselect" class="form-control" style="width: auto;">
 				<c:forEach items="${languages}" var="language">
-					<option ${language.id == selectedLanguage.id?'selected="selected"':""} value="${language.id}">${language.name}</option>
+					<option ${language.id == selectedLanguage.id?'selected="selected"':""} value="${language.id}"> <spring:message text="${language.name}"/></option>
 				</c:forEach>
 			</select>
 		</div>

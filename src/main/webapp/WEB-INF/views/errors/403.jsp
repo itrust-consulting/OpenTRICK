@@ -21,11 +21,11 @@
 			<!-- #################################################################### Content ################################################################### -->
 			<div class="page-header">
 				<h1>
-					<spring:message code="error.403" text="403: Permission denied" />
+					<spring:message code="title.error.403" text="403: Permission denied" />
 				</h1>
 			</div>
 			<div class="content" id="content" role="main" data-spy="scroll">
-				<spring:message code="errors.403.access.denied" text="You do not have the nessesary permissions to perform this action!" />
+				<spring:message code="error.403.access.denied" text="You do not have the nessesary permissions to perform this action!" />
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>

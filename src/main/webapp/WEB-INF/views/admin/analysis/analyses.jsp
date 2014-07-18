@@ -15,7 +15,7 @@
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_analysis">
 				<li class="disabled profilemenu"><a href="#" onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="glyphicon glyphicon-plus primary"></span>
-						<spring:message code="label.analysis.manage.access" text="Manage Access Rights" /></a></li>
+						<spring:message code="label.menu.manage.access.analysis" text="Manage access rights" /></a></li>
 			</ul>
 		</div>
 		<div class="panel-body">
@@ -35,8 +35,8 @@
 					<tr>
 						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'admin_analysis')"></th>
 						<th><spring:message code="label.analysis.identifier" text="Identifier"/></th>
-						<th><spring:message code="label.analysis.label" text="Name"/></th>
-						<th><spring:message code="label.analysis.creation_date" text="Create"/></th>
+						<th><spring:message code="label.analysis.comment" text="Comment"/></th>
+						<th><spring:message code="label.analysis.creation_date" text="Create date"/></th>
 						<th><spring:message code="label.analysis.version" text="Version"/></th>
 						<th><spring:message code="label.analysis.owner" text="Owner" /></th>
 						<th><spring:message code="label.analysis.language" text="Language"/></th>
