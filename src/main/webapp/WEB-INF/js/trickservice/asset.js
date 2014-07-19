@@ -200,8 +200,13 @@ function reloadAsset(id) {
 			var current = $("#section_asset tr[trick-id='" + id + "']");
 			if (!current.length)
 				return false;
+			var checked = $(current).find("input:checked");
+			if(checked.length)
+				$(newValue).find("input:checked").prop("checked", true);
 			$(newValue).find("td:nth-child(2)").text($(current).find("td:nth-child(2)").text());
 			$(current).replaceWith(newValue);
+			if(checked.length)
+				$(current).find("input:checked").change();
 		},
 		error : unknowError
 	});

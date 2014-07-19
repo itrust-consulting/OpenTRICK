@@ -547,6 +547,28 @@ public class ControllerAnalysis {
 		session.setAttribute("selectedAnalysis", analysisId);
 		return "redirect:/Analysis";
 	}
+	
+	/**
+	 * selectAnalysis: <br>
+	 * selects or deselects an analysis
+	 * 
+	 * @param principal
+	 * @param analysisId
+	 * @param model
+	 * @param session
+	 * @param attributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/{analysisId}/SelectOnly",headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
+		// select the analysis
+		session.setAttribute("selectedAnalysis", analysisId);
+		return session.getAttribute("selectedAnalysis")==analysisId;
+	}
+
 
 	/**
 	 * selectAnalysis: <br>

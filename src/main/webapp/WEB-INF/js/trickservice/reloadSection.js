@@ -6,9 +6,9 @@ function reloadSection(section, subSection) {
 	if (Array.isArray(section)) {
 		for (var int = 0; int < section.length; int++) {
 			if (Array.isArray(section[int]))
-				reloadSection(section[int][0], section[int][1]);
+				return reloadSection(section[int][0], section[int][1]);
 			else
-				reloadSection(section[int]);
+				return reloadSection(section[int]);
 		}
 	} else {
 		var controller = controllerBySection(section, subSection);
@@ -44,6 +44,7 @@ function reloadSection(section, subSection) {
 			error : unknowError
 		});
 	}
+	return false;
 }
 
 function controllerBySection(section, subSection) {

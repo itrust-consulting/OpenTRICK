@@ -51,7 +51,7 @@ Login.prototype = {
 								if ($($htmlResult).find("#login").length)
 									$(view.modal_body).prepend($($htmlResult).find(".alert"));
 								else {
-									view.Destroy();
+									$(view.modal).modal("hide");
 									that.timeoutInterceptor.Start(that);
 								}
 							}

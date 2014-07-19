@@ -10,7 +10,7 @@ function AssessmentViewer() {
 		$(this.modal_title).replaceWith(
 				$("<div class='modal-title'><h4 role='title' class=''></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
 						+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale + "</a></li><ul></div>"));
-		$(this.modal_footer).hide();
+		$(this.modal_footer).remove();
 		this.dialogError = $("#alert-dialog").clone();
 		$(this.dialogError).removeAttr("id");
 		$(this.dialogError).appendTo($(this.modal));

@@ -14,18 +14,20 @@
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_asset">
-				<li><a href="#" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add.asset"
-							text="Add" /></a></li>
-				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
+				<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message
+							code="label.action.add.asset" text="Add" /></a></li>
+				<li><a href="#anchorAsset" onclick="return reloadSection('section_asset');"><span class="glyphicon glyphicon-refresh primary"></span> <spring:message
+							code="label.action.reload.asset" text="Reload" /></a></li>
+				<li class="disabled" trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 							code="label.action.edit.asset" text="Edit" /> </a></li>
-				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectAsset(undefined,'true')"><span class="glyphicon glyphicon-plus-sign"></span> <spring:message
-							code="label.action.select.asset" text="Select" /> </a></li>
-				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectAsset(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <spring:message
-							code="label.action.unselect.asset" text="Unselect" /> </a></li>
-				<li class="disabled" trick-selectable="true" trick-check="isSelected('asset')"><a href="#" onclick="return displayAssessmentByAsset()"><span
+				<li class="disabled" trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span class="glyphicon glyphicon-plus-sign"></span>
+						<spring:message code="label.action.select.asset" text="Select" /> </a></li>
+				<li class="disabled" trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span>
+						<spring:message code="label.action.unselect.asset" text="Unselect" /> </a></li>
+				<li class="disabled" trick-selectable="true" trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return displayAssessmentByAsset()"><span
 						class="glyphicon glyphicon-new-window"></span> <spring:message code="label.action.show.asset.assessment" text="Assessment" /> </a></li>
-				<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteAsset();"><span class="glyphicon glyphicon-remove"></span>
-						<spring:message code="label.action.delete.asset" text="Delete" /> </a></li>
+				<li class="disabled pull-right" trick-selectable="true"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
+						class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete.asset" text="Delete" /> </a></li>
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">
@@ -48,10 +50,8 @@
 				<tbody>
 					<c:forEach items="${assets}" var="asset" varStatus="status">
 						<tr trick-id="${asset.id}" trick-selected="${asset.selected}" ondblclick="return editAsset('${asset.id}');">
-							<c:set var="ale" value="${assetALE[asset.id]}"/>
-							<c:set var="cssClass">
-								${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}
-							</c:set>
+							<c:set var="ale" value="${assetALE[asset.id]}" />
+							<c:set var="cssClass">${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}</c:set>
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset');"></td>
 							<td>${status.index+1}</td>
 							<td class="${cssClass}" colspan="8"><spring:message text="${asset.name}" /></td>

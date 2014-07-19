@@ -14,7 +14,6 @@ import java.util.Map;
 import javax.naming.directory.InvalidAttributesException;
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
@@ -22,6 +21,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
+import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssessment;
@@ -225,13 +225,16 @@ public class ControllerAsset {
 	@RequestMapping(value = "/SingleAsset/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String singleAsset(@PathVariable Integer elementID, Model model, Principal principal, HttpSession session, Locale locale) throws Exception {
-
 		// add all assettypes to model
-		model.addAttribute("assettypes", serviceAssetType.getAll());
-
+		Asset asset = serviceAsset.get(elementID);
+		List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
+		ALE [] ales = new ALE[3];
+		for (int i = 0; i < ales.length; i++)
+			ales[i] = new ALE(asset.getName(), 0);
+		AssessmentManager.ComputeALE(assessments, ales[1], ales[2], ales[0]);
 		// add asset object to model
-		model.addAttribute("asset", serviceAsset.get(elementID));
-
+		model.addAttribute("asset", asset);
+		model.addAttribute("ale", ales);
 		return "analysis/components/forms/assetRow";
 	}
 

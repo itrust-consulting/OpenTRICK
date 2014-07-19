@@ -6,6 +6,7 @@ function TimeoutInterceptor() {
 	this.timer = {};
 	this.loginShow = false;
 	this.TIME_TO_DISPLAY_ALERT = 0;
+	this.alertDialog = null;
 	this.messages = {
 		Alert : "",
 		Logout : ""
@@ -27,12 +28,13 @@ TimeoutInterceptor.prototype = {
 	},
 	ShowLogin : function() {
 		this.Stop();
-		$("#alert-dialog").modal("hide");
+		if (this.alertDialog != null)
+			this.alertDialog.Hide();
 		var url = undefined;
 		if ($("#nav-container").length) {
-			var idAnalysis = $("*[trick-class='Analysis']").attr("trick-id");
+			var idAnalysis = $("#nav-container").attr("trick-id");
 			if (idAnalysis != undefined)
-				url = context + "/Analysis/" + idAnalysis + "/Select";
+				url = context + "/Analysis/" + idAnalysis + "/SelectOnly";
 		}
 		if (url == undefined)
 			url = document.URL;
@@ -42,15 +44,21 @@ TimeoutInterceptor.prototype = {
 	},
 	AlertTimout : function() {
 		var that = this;
-		$("#alert-dialog .modal-body").html(this.messages.Alert.replace("%d", Math.floor((this.LIMIT_SESSION - this.CurrentTime()) * 0.001)));
-		$("#alert-dialog").modal("show");
-		$("#alert-dialog .btn-danger").on("click", function() {
-			if(!that.Reinitialise())
-				return that.ShowLogin();
-			return false;
-		});
+		if (this.alertDialog == null) {
+			this.alertDialog = new Modal();
+			this.alertDialog.FromContent($("#alert-dialog").clone());
+			$(this.alertDialog.modal).find(".btn-danger").on("click", function() {
+				setTimeout(function() {
+					if (!that.Reinitialise())
+						return that.ShowLogin();
+				},2000);
+				return false;
+			});
+		}
+		this.alertDialog.setBody(this.messages.Alert.replace("%d", Math.floor((this.LIMIT_SESSION - this.CurrentTime()) * 0.001)));
+		this.alertDialog.Show();
 		setTimeout(function() {
-			$("#alert-dialog").modal("hide");
+			that.alertDialog.Hide();
 		}, 5000);
 		return false;
 	},
@@ -58,6 +66,7 @@ TimeoutInterceptor.prototype = {
 		this.messages.Alert = MessageResolver("info.session.expired", "Your session will be expired in %d secondes");
 		this.messages.Logout = MessageResolver("info.session.expired.alert", "Your session has been expired");
 		this.TIME_TO_DISPLAY_ALERT = this.LIMIT_SESSION - this.ALERT_TIME;
+
 	},
 	Reinitialise : function() {
 		var temp = this.loginShow;
@@ -66,15 +75,15 @@ TimeoutInterceptor.prototype = {
 		$.ajax({
 			url : context + "/IsAuthenticate",
 			contentType : "application/json;charset=UTF-8",
+			async : false,
 			success : function(response) {
 				authentificated = response === true;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		this.loginShow = temp;
 		return authentificated;
-	}
-	
-	,
+	},
 	Check : function() {
 		if (this.CurrentTime() > this.LIMIT_SESSION) {
 			this.ShowLogin();

@@ -15,6 +15,8 @@ function Application() {
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
+	if(exception === 'abort')
+		return false;
 	var modal = new Modal();
 	modal.FromContent($("#alert-dialog").clone());
 	modal.setBody(MessageResolver("error.unknown.occurred", "An unknown error occurred"));
@@ -322,7 +324,6 @@ function showSuccess(parent, text) {
  */
 
 function isSelected(sectionName) {
-	console.log($("#section_" + sectionName + " tbody tr[trick-selected='true'] td:first-child input:checked").length > 0);
 	return $("#section_" + sectionName + " tbody tr[trick-selected='true'] td:first-child input:checked").length > 0;
 }
 

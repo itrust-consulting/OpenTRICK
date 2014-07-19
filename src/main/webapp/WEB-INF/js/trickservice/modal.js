@@ -7,6 +7,9 @@ function Modal() {
 	this.modal_footer = null;
 	this.modal_head_buttons = [];
 	this.modal_footer_buttons = [];
+	this.isDisposed = false;
+	this.isDisposing = false;
+	this.isHidden = true;
 
 	Modal.prototype.FromContent = function(content) {
 		this.modal = $(content);
@@ -144,32 +147,50 @@ function Modal() {
 
 	Modal.prototype.Hide = function() {
 		try {
-			if (!(this.modal == null || this.modal == undefined)){
+			this.isHidden = true;
+			if (!(this.modal == null || this.modal == undefined))
 				$(this.modal).modal("hide");
-				$(this.modal).remove();
-			}
 		} catch (e) {
 			console.log(e);
 		}
 	};
+	
+	Modal.prototype.Dispose = function() {
+		try {
+			this.isDisposing = true;
+			if (!(this.modal == null || this.modal == undefined) && $(this.modal).isShown)
+				$(this.modal).modal("hide");
+		} catch (e) {
+			console.log(e);
+		}
+		this.isShown
+	};
 
 	Modal.prototype.Destroy = function() {
 		var instance = this;
-		instance.Hide();
+		instance.Dispose();
 		setTimeout(function() {
+			$(instance.modal).remove();
+			instance.isDisposed = true;
 			delete instance;
-		}, 80);
+		}, 30);
 		return false;
 	};
 
 	Modal.prototype.Show = function() {
 		try {
 			if (this.modal != null && this.modal != undefined)
-				$(this.modal).modal("toggle");
+				$(this.modal).modal("show");
 			else {
 				this.Intialise();
-				$(this.modal).modal("toggle");
+				$(this.modal).modal("show");
 			}
+			var instance = this;
+			$(this.modal).on("hidden.bs.modal",function(){
+				if(!(instance.isDisposing || instance.isHidden))
+					instance.Destroy();
+			});
+			this.isHidden = false;
 		} catch (e) {
 			console.log(e);
 		}
