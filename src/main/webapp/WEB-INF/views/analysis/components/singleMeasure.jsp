@@ -9,19 +9,19 @@
 	<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 	<c:choose>
 	<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
-	<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
+	<td colspan="2" class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
 		data-content=''
 		title='<spring:message
 	text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
 	</c:when>
 	<c:otherwise>
-	<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
+	<td colspan="2" class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
 		data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>'
 	title='<spring:message
 	text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
 	</c:otherwise>
 	</c:choose>
-	<td colspan="4"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+	<td colspan="5"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 	<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 			text="${measure.status}" /></td>
 	<c:choose>

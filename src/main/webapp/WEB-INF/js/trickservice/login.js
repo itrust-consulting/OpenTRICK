@@ -28,7 +28,7 @@ Login.prototype = {
 		view.Intialise();
 		$(view.modal_footer).remove();
 		$.ajax({
-			url : this.url,
+			url : context,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var login = $($.parseHTML(response)).find("#login");
@@ -51,8 +51,13 @@ Login.prototype = {
 								if ($($htmlResult).find("#login").length)
 									$(view.modal_body).prepend($($htmlResult).find(".alert"));
 								else {
-									$(view.modal).modal("hide");
-									that.timeoutInterceptor.Start(that);
+									$.ajax({
+										url : that.url,
+										contentType : "application/json;charset=UTF-8"
+									}).done(function() {
+										view.Destroy();
+										that.timeoutInterceptor.Start(that);
+									});
 								}
 							}
 						});
@@ -61,7 +66,8 @@ Login.prototype = {
 					view.Show();
 				}
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		return authentificate;
 	}

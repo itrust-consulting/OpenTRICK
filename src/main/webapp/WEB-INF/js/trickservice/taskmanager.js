@@ -10,11 +10,13 @@ function TaskManager(title) {
 		setTimeout(function() {
 			instance.UpdateTaskCount();
 		}, 1000);
+		return this;
 	};
 
 	TaskManager.prototype.__CreateView = function() {
 		this.view = new Modal();
 		this.view.Intialise();
+		$(this.view.modal_footer).remove();
 		this.view.setTitle(this.title);
 	};
 
@@ -56,9 +58,6 @@ function TaskManager(title) {
 				}
 			},error : unknowError
 		});
-		/*
-		 * setTimeout(function() { instance.UpdateTaskCount(); }, 10000);
-		 */
 		return false;
 	};
 
@@ -76,7 +75,7 @@ function TaskManager(title) {
 				progressBar.Destroy();
 				instance.Remove(taskId);
 				instance.Destroy();
-			}, 10000);
+			}, 120000);
 		});
 		return progressBar;
 	};
@@ -120,7 +119,7 @@ function TaskManager(title) {
 				} else {
 					setTimeout(function() {
 						instance.Remove(taskId);
-					}, 3000);
+					}, 120000);
 					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null) {
 						if (reponse.asyncCallback.args !=null && reponse.asyncCallback.args.length)
 							window[reponse.asyncCallback.action].apply(null, reponse.asyncCallback.args);

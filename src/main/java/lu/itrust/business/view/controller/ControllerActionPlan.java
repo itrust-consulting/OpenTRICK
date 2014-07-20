@@ -181,7 +181,7 @@ public class ControllerActionPlan {
 
 		model.put("norms", serviceAnalysisNorm.getAllFromAnalysis(analysisID));
 
-		return "analysis/components/actionplanoptions";
+		return "analysis/components/forms/actionplanoptions";
 	}
 
 	/**

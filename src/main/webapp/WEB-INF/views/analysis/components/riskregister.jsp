@@ -18,14 +18,14 @@
 				<table class="table table-hover table-fixed-header">
 					<thead>
 						<tr>
-							<th rowspan="2"><spring:message code="label.risk_register.category" text="Category" /></th>
+							<th rowspan="2" colspan="2"><spring:message code="label.risk_register.category" text="Category" /></th>
 							<th rowspan="2"><spring:message code="label.risk_register.id" text="ID" /></th>
-							<th rowspan="2"><spring:message code="label.risk_register.risk_title" text="Risk Title" /></th>
-							<th rowspan="2"><spring:message code="label.risk_register.asset" text="Asset" /></th>
+							<th rowspan="2" colspan="8"><spring:message code="label.risk_register.risk_title" text="Risk Title" /></th>
+							<th rowspan="2" colspan="6"><spring:message code="label.risk_register.asset" text="Asset" /></th>
 							<th colspan="3"><spring:message code="label.risk_register.raw_eval" text="Raw Eval." /></th>
 							<th colspan="3"><spring:message code="label.risk_register.net_eval" text="Net Eval." /></th>
 							<th colspan="3"><spring:message code="label.risk_register.exp_eval" text="Exp Eval." /></th>
-							<th rowspan="2"><spring:message code="label.risk_register.strategy" text="Response strategy" /></th>
+							<th rowspan="2" colspan="2"><spring:message code="label.risk_register.strategy" text="Response strategy" /></th>
 						</tr>
 						<tr>
 							<th class="text-center" title='<spring:message code="label.risk_register.probability" text="Probability" />'><spring:message code="label.risk_register.acro.probability"
@@ -48,10 +48,10 @@
 					<tbody>
 						<c:forEach items="${riskregister}" var="item" varStatus="status">
 							<tr>
-								<td><spring:message text="${item.scenario.scenarioType.name}" /></td>
+								<td colspan="2"><spring:message text="${item.scenario.scenarioType.name}" /></td>
 								<td><spring:message text="${item.position}" /></td>
-								<td><spring:message text="${item.scenario.name}" /></td>
-								<td><spring:message text="${item.asset.name}" /></td>
+								<td colspan="8"><spring:message text="${item.scenario.name}" /></td>
+								<td colspan="6"><spring:message text="${item.asset.name}" /></td>
 								<td class="text-right" title=<fmt:formatNumber value='${item.rawEvaluation.probability}' />><fmt:formatNumber value="${item.rawEvaluation.probability}"
 										maxFractionDigits="2" minFractionDigits="2" /></td>
 								<td class="text-right" title=<fmt:formatNumber value="${item.rawEvaluation.impact}" />><fmt:formatNumber value="${item.rawEvaluation.impact*0.001}"
@@ -70,7 +70,7 @@
 										maxFractionDigits="0" /></td>
 								<td class="text-right" title=<fmt:formatNumber value="${item.expectedImportance.importance}"/>><fmt:formatNumber value="${item.expectedImportance.importance*0.001}"
 										maxFractionDigits="0" /></td>
-								<td><spring:message code="label.risk_register.strategy.${fn:toLowerCase(item.strategy)}" text="${item.strategy}" /></td>
+								<td colspan="2"><spring:message code="label.risk_register.strategy.${fn:toLowerCase(item.strategy)}" text="${item.strategy}" /></td>
 							</tr>
 						</c:forEach>
 					</tbody>

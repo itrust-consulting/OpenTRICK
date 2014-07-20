@@ -1,5 +1,5 @@
 function calculateRiskRegister(analysisId) {
-	
+
 	var analysisID = -1;
 
 	if (analysisId == null || analysisId == undefined) {
@@ -32,11 +32,9 @@ function calculateRiskRegister(analysisId) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				if (response["success"] != undefined) {
-					if (taskManager == undefined)
-						taskManager = new TaskManager();
-					taskManager.Start();
-				} else if (message["error"]) {
+				if (response["success"] != undefined)
+					new TaskManager().Start();
+				else if (message["error"]) {
 					$("#alert-dialog .modal-body").html(message["error"]);
 					$("#alert-dialog").modal("toggle");
 				}

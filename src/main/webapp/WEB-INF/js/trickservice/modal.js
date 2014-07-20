@@ -22,7 +22,7 @@ function Modal() {
 		for (var i = 0; i < $headerButtons.length; i++)
 			this.modal_head_buttons.push($headerButtons[i]);
 		var $footerButtons = $(this.modal_footer).find("button");
-		for (var i = 0; i < $footerButtons.length; i++) 
+		for (var i = 0; i < $footerButtons.length; i++)
 			this.modal_footer_buttons.push($footerButtons[i]);
 	};
 
@@ -154,26 +154,26 @@ function Modal() {
 			console.log(e);
 		}
 	};
-	
+
 	Modal.prototype.Dispose = function() {
 		try {
 			this.isDisposing = true;
-			if (!(this.modal == null || this.modal == undefined) && $(this.modal).isShown)
+			if (!(this.modal == null || this.modal == undefined))
 				$(this.modal).modal("hide");
 		} catch (e) {
 			console.log(e);
 		}
-		this.isShown
 	};
 
 	Modal.prototype.Destroy = function() {
 		var instance = this;
-		instance.Dispose();
-		setTimeout(function() {
-			$(instance.modal).remove();
+		$(this.modal).on("hidden.bs.modal", function() {
+			console.log("deleting");
 			instance.isDisposed = true;
+			$(instance.modal).remove();
 			delete instance;
-		}, 30);
+		});
+		instance.Dispose();
 		return false;
 	};
 
@@ -186,9 +186,15 @@ function Modal() {
 				$(this.modal).modal("show");
 			}
 			var instance = this;
-			$(this.modal).on("hidden.bs.modal",function(){
-				if(!(instance.isDisposing || instance.isHidden))
+			$(this.modal).on("hidden.bs.modal", function() {
+				if (!(instance.isDisposing || instance.isHidden)){
 					instance.Destroy();
+					if ($(instance.modal).length) {
+						instance.isDisposed = true;
+						$(instance.modal).remove();
+					}
+					delete instance;
+				}
 			});
 			this.isHidden = false;
 		} catch (e) {

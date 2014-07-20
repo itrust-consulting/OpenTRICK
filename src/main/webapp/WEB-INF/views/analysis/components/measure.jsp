@@ -25,8 +25,8 @@
 					<table class="table table-hover table-fixed-header" id="table_Measure_${norm}">
 						<thead>
 							<tr>
-								<th><spring:message code="label.table.index" text="#" /></th>
-								<th colspan="4"><spring:message code="label.measure.domain" text="Domain" /></th>
+								<th colspan="2"><spring:message code="label.measure.ref" text="Ref." /></th>
+								<th colspan="5"><spring:message code="label.measure.domain" text="Domain" /></th>
 								<th><label class="text-rotate-270"><spring:message code="label.measure.status" text="Status" /></label></th>
 								<th><spring:message code="label.measure.ir" text="IR (%)" /></th>
 								<th><spring:message code="label.measure.iw" text="IW (md)" /></th>
@@ -54,13 +54,13 @@
 									<c:when test="${measure.measureDescription.computable==false }">
 										<tr style="background-color: #F8F8F8;">
 											<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
-											<td><spring:message text="${measure.measureDescription.reference}" /></td>
+											<td colspan="2"><spring:message text="${measure.measureDescription.reference}" /></td>
 											<c:choose>
 												<c:when test="${measure.getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
-													<td colspan="39"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+													<td colspan="40"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 												</c:when>
 												<c:otherwise>
-													<td colspan="31"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+													<td colspan="32"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 												</c:otherwise>
 											</c:choose>
 										</tr>
@@ -70,19 +70,19 @@
 											<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 											<c:choose>
 												<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
-													<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
+													<td colspan="2" class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
 														data-content=''
 														title='<spring:message
 														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
 												</c:when>
 												<c:otherwise>
-													<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
+													<td colspan="2" class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
 														data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>'
 														title='<spring:message
 														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
 												</c:otherwise>
 											</c:choose>
-											<td colspan="4"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+											<td colspan="5"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 											<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 													text="${measure.status}" /></td>
 											<c:choose>

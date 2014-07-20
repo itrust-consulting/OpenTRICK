@@ -77,7 +77,7 @@ function RRFView() {
 					"scenario" : new ScenarioRRFController(that, $(that.modal_body).find("#control_rrf_scenario"), "scenario"),
 					"measure" : new MeasureRRFController(that, $(that.modal_body).find("#control_rrf_measure"), "measure")
 				};
-
+				
 				for ( var controller in that.controllers)
 					that.controllers[controller].Initialise();
 
@@ -242,25 +242,18 @@ function ScenarioRRFController(rrfView, container, name) {
 
 	ScenarioRRFController.prototype.CheckTypeValue = function() {
 		var sum = 0;
-		for (var i = 0; i < this.sliders.length; i++) {
-			if (this.DependencyFields[this.sliders[i].prop("name")] != undefined) {
-				var slider = $(this.sliders[i]).slider();
-				sum += parseFloat(slider.prop("value"));
-			}
-		}
+		for ( var field in this.DependencyFields) 
+			sum+=this.DependencyFields[field];
 		var types = $(this.container).find("*[trick-type='type']");
-		if (sum != 1) {
-			if ($(types).hasClass("success")) {
-				$(types).removeClass("success");
-				$(types).addClass("danger");
-			}
-
+		if (Math.abs(1-sum)>0.01) {
+			$(types).removeClass("success");
+			$(types).addClass("danger");
 		} else {
-			if ($(types).hasClass("danger")) {
-				$(types).removeClass("danger");
-				$(types).addClass("success");
-			}
+			$(types).removeClass("danger");
+			$(types).addClass("success");
 		}
+		console.log(Math.abs(1-sum));
+		console.log(sum);
 		return false;
 	};
 
@@ -268,8 +261,10 @@ function ScenarioRRFController(rrfView, container, name) {
 		var that = this;
 		if (this.idScenario < 1 || this.idScenario == undefined)
 			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
-		if (this.DependencyFields[fiedName] != undefined)
+		if (this.DependencyFields[fiedName] != undefined){
+			this.DependencyFields[fiedName] = value;
 			this.CheckTypeValue();
+		}
 		$.ajax({
 			url : context + "/Scenario/RRF/Update",
 			type : "post",
@@ -307,6 +302,8 @@ function ScenarioRRFController(rrfView, container, name) {
 							if (fieldValue == undefined)
 								continue;
 						}
+						if (that.DependencyFields[field] != undefined)//update preventive, limitative, detective and corrective
+							that.DependencyFields[field] = fieldValue;
 						$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", fieldValue);
 						$(clone).attr("value", fieldValue);
 						$(clone).attr("data-slider-value", fieldValue);
