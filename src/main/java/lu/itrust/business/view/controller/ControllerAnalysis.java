@@ -251,9 +251,9 @@ public class ControllerAnalysis {
 				// use first customer as selected customer
 				session.setAttribute("currentCustomer", customer = customers.get(0).getId());
 			if (customer != null)
-
 				// load model with objects by the selected customer
 				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
+			
 			model.addAttribute("customer", customer);
 			model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 			model.addAttribute("login", principal.getName());

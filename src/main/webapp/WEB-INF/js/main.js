@@ -15,12 +15,9 @@ function Application() {
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
-	if(exception === 'abort')
+	if (typeof exception != 'undefined' && exception === 'abort')
 		return false;
-	var modal = new Modal();
-	modal.FromContent($("#alert-dialog").clone());
-	modal.setBody(MessageResolver("error.unknown.occurred", "An unknown error occurred"));
-	modal.Show();
+	new Modal($("#alert-dialog").clone(), MessageResolver("error.unknown.occurred", "An unknown error occurred")).Show();
 	return true;
 }
 

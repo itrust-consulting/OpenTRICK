@@ -1,4 +1,4 @@
-function Modal() {
+function Modal(content,body) {
 	this.modal = null;
 	this.modal_dialog = null;
 	this.modal_header = null;
@@ -10,7 +10,7 @@ function Modal() {
 	this.isDisposed = false;
 	this.isDisposing = false;
 	this.isHidden = true;
-
+	
 	Modal.prototype.FromContent = function(content) {
 		this.modal = $(content);
 		this.modal_dialog = $(this.modal).find(".modal-dialog");
@@ -24,6 +24,7 @@ function Modal() {
 		var $footerButtons = $(this.modal_footer).find("button");
 		for (var i = 0; i < $footerButtons.length; i++)
 			this.modal_footer_buttons.push($footerButtons[i]);
+		return this;
 	};
 
 	Modal.prototype.Size = function(map) {
@@ -112,7 +113,7 @@ function Modal() {
 	Modal.prototype.setBody = function(body) {
 		if (this.modal_body != null)
 			$(this.modal_body).html(body);
-		return false;
+		return this;
 	};
 
 	Modal.prototype.__addHeadButton = function() {
@@ -202,4 +203,10 @@ function Modal() {
 			console.log(e);
 		}
 	};
+	
+	if(content!=undefined)
+		Modal.prototype.FromContent.apply(this, content);
+	if(body!=undefined)
+		Modal.prototype.setBody.apply(this,body);
+	
 }

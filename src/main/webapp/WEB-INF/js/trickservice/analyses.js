@@ -52,7 +52,7 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 		data : serializeForm(userrightsform),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			var doc =  new DOMParser().parseFromString(response, "text/html");
+			var doc = new DOMParser().parseFromString(response, "text/html");
 			newSection = $(doc).find("* div.modal-content");
 			$("div#manageAnalysisAccessModel div.modal-content").html(newSection);
 			$("#manageAnalysisAccessModelButton").attr("onclick", "updatemanageAnalysisAccess(" + analysisId + ",'userrightsform')");
@@ -170,11 +170,14 @@ function deleteAnalysis(analysisId) {
 	}
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.DELETE)) {
-
 		$("#deleteAnalysisBody").html(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
-
+		$("#deleteAnalysisModel .btn").unbind();
+		$("#deleteanalysisbuttonNo").click(function() {
+			$("#deleteAnalysisModel .btn").unbind();
+			$("#deleteAnalysisModel").modal("hide");
+		});
 		$("#deleteanalysisbuttonYes").click(function() {
-			$("#deleteAnalysisModel .modal-header > .close").hide();
+			$("#deleteAnalysisModel .btn").unbind();
 			$("#deleteprogressbar").show();
 			$("#deleteanalysisbuttonYes").prop("disabled", true);
 			$.ajax({
@@ -184,7 +187,7 @@ function deleteAnalysis(analysisId) {
 				success : function(response) {
 					$("#deleteprogressbar").hide();
 					$("#deleteanalysisbuttonYes").prop("disabled", false);
-					$("#deleteAnalysisModel").modal('toggle');
+					$("#deleteAnalysisModel").modal('hide');
 					if (response.success != undefined) {
 						reloadSection("section_analysis");
 					} else if (response.error != undefined) {
@@ -194,11 +197,10 @@ function deleteAnalysis(analysisId) {
 					return false;
 				}
 			});
-			$("#deleteanalysisbuttonYes").unbind();
+
 			return false;
 		});
-		$("#deleteanalysisbuttonYes").prop("disabled", false);
-		$("#deleteAnalysisModel .modal-header > .close").show();
+		$("#deleteAnalysisModel .btn").prop("disabled", false);
 		$("#deleteAnalysisModel").modal('show');
 	} else
 		permissionError();

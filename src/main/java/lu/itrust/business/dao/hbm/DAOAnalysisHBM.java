@@ -360,4 +360,10 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 			delete(analysis);
 		}
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllFromCustomer(Integer id) {
+		return (List<Analysis>) getSession().createQuery("From Analysis where customer.id = :idCustomer").setParameter("idCustomer", id).list();
+	}
 }

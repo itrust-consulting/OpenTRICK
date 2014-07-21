@@ -22,3 +22,4 @@
 		</div>
 	</div>
 </div>
+<jsp:include page="../../analysis/forms/deleteAnalysis.jsp" />

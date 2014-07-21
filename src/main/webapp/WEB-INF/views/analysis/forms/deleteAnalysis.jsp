@@ -8,7 +8,6 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteAnalysisModel-title">
 					<spring:message code="label.title.delete.analysis" text="Delete an analysis" />
 				</h4>
@@ -22,8 +21,11 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button id="deleteanalysisbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal">
-					<spring:message code="label.yes_no.yes" text="Yes" />
+				<button id="deleteanalysisbuttonYes" type="button" class="btn btn-danger">
+					<spring:message code="label.yes_no.true" text="Yes" />
+				</button>
+				<button id="deleteanalysisbuttonNo" type="button" class="btn btn-default">
+					<spring:message code="label.yes_no.false" text="No" />
 				</button>
 			</div>
 		</div>

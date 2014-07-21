@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.component;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -126,7 +127,7 @@ public class CustomDelete {
 	@Transactional
 	public void deleteNorm(Norm norm) throws Exception {
 		if (daoAnalysisNorm.getAllFromNorm(norm).size() > 0)
-			throw new TrickException("error.delete.norm.analyses_with_norm","Standard could not be deleted: it is used in analyses!");
+			throw new TrickException("error.delete.norm.analyses_with_norm", "Standard could not be deleted: it is used in analyses!");
 
 		List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByNorm(norm);
 		for (MeasureDescription measureDescription : measureDescriptions) {
@@ -155,7 +156,7 @@ public class CustomDelete {
 			return;
 		List<Analysis> analyses = daoAnalysis.getAllFromCustomer(customer);
 		if (analyses.size() > 0)
-			throw new TrickException("error.delete.customer.has_analyses","Customer could not be deleted: there are still analyses of this customer!");
+			throw new TrickException("error.delete.customer.has_analyses", "Customer could not be deleted: there are still analyses of this customer!");
 
 		for (Analysis analysis : analyses)
 			daoAnalysis.delete(analysis);
@@ -185,17 +186,30 @@ public class CustomDelete {
 		if (!user.containsCustomer(customer))
 			daoUser.saveOrUpdate(user);
 	}
-	
+
 	@Transactional
-	public void delete(MeasureDescription measureDescription) throws Exception{
+	public void delete(MeasureDescription measureDescription) throws Exception {
 		Iterator<MeasureDescriptionText> iterator = measureDescription.getMeasureDescriptionTexts().iterator();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
 			MeasureDescriptionText descriptionText = iterator.next();
 			iterator.remove();
 			descriptionText.setMeasureDescription(null);
 			daoMeasureDescriptionText.delete(descriptionText);
 		}
 		daoMeasureDescription.delete(measureDescription);
+	}
+
+	@Transactional
+	public boolean deleteAnalysis(List<Integer> ids) {
+		try {
+			Collections.sort(ids, Collections.reverseOrder());
+			for (Integer id : ids)
+				daoAnalysis.delete(id);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 }

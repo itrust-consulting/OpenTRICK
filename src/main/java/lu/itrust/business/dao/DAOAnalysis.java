@@ -68,4 +68,6 @@ public interface DAOAnalysis {
 	public void delete(Integer idAnalysis) throws Exception;
 
 	public void delete(Analysis analysis) throws Exception;
+
+	public List<Analysis> getAllFromCustomer(Integer id);
 }

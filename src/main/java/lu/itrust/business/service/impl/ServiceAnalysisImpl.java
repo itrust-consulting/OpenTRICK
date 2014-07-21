@@ -430,4 +430,10 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 		daoAnalysis.delete(analysisId);
 	}
 
+	@Override
+	public List<Analysis> getAllFromCustomer(Integer id) {
+		// TODO Auto-generated method stub
+		return daoAnalysis.getAllFromCustomer(id);
+	}
+
 }
