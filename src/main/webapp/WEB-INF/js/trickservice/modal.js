@@ -168,7 +168,6 @@ function Modal() {
 	Modal.prototype.Destroy = function() {
 		var instance = this;
 		$(this.modal).on("hidden.bs.modal", function() {
-			console.log("deleting");
 			instance.isDisposed = true;
 			$(instance.modal).remove();
 			delete instance;
@@ -179,6 +178,8 @@ function Modal() {
 
 	Modal.prototype.Show = function() {
 		try {
+			if(!this.isHidden)
+				return;
 			if (this.modal != null && this.modal != undefined)
 				$(this.modal).modal("show");
 			else {

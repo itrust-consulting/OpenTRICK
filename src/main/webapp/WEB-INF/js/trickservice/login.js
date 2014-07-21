@@ -9,6 +9,7 @@ Login.prototype = {
 		$.ajax({
 			url : context + "/IsAuthenticate",
 			contentType : "application/json;charset=UTF-8",
+			async:false,
 			success : function(response) {
 				authentificated = response === true;
 			}
@@ -18,13 +19,10 @@ Login.prototype = {
 	Display : function() {
 		this.timeoutInterceptor.Stop();
 		this.timeoutInterceptor.loginShow = true;
-		var authentificate = this.IsAuthenticate();
-		if (authentificate)
+		if (this.IsAuthenticate())
 			return this.timeoutInterceptor.Start(this);
 		var view = new Modal();
 		var that = this;
-		view.DefaultFooterButton = function() {
-		};
 		view.Intialise();
 		$(view.modal_footer).remove();
 		$.ajax({
@@ -69,6 +67,6 @@ Login.prototype = {
 			},
 			error : unknowError
 		});
-		return authentificate;
+		return this.timeoutInterceptor;
 	}
 };
