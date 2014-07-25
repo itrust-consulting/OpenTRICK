@@ -261,10 +261,11 @@ public class User implements Serializable {
 	 * @return
 	 */
 	public boolean hasRole(RoleType roleType) {
+		if(roles == null || roleType == null)
+			return false;
 		for (Role role : roles) {
-			if (role.getType().equals(roleType)) {
+			if (role.getType().equals(roleType))
 				return true;
-			}
 		}
 		return false;
 	}

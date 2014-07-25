@@ -35,7 +35,6 @@ import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.export.ExportAnalysisReport;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
@@ -210,23 +209,15 @@ public class ControllerAnalysis {
 
 			if (analysis == null) {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-				return "redirect:/Error/404";
+				throw new ResourceNotFoundException((String) attributes.getFlashAttributes().get("errors"));
 			}
 
 			User user = serviceUser.get(principal.getName());
 
-			Role roleconsultant = serviceRole.getByName(RoleType.ROLE_CONSULTANT.name());
+			permissiondenied = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : permissionEvaluator.userIsAuthorized(selected,
+					principal, AnalysisRight.READ);
 
-			Role roleadmin = serviceRole.getByName(RoleType.ROLE_ADMIN.name());
-
-			if (analysis.isProfile()) {
-				if (!serviceUser.hasRole(user, roleconsultant) && !serviceUser.hasRole(user, roleadmin))
-					permissiondenied = true;
-			} else if (!permissionEvaluator.userIsAuthorized(selected, principal, AnalysisRight.READ))
-				permissiondenied = true;
-
-			if (!permissiondenied) {
-
+			if (permissiondenied) {
 				// initialise and send data to the data model
 				Hibernate.initialize(analysis.getLanguage());
 				model.addAttribute("login", principal.getName());
@@ -235,7 +226,7 @@ public class ControllerAnalysis {
 				model.addAttribute("KowledgeBaseView", analysis.isProfile());
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
-				return "redirect:/Error/403";
+				throw new AccessDeniedException((String) attributes.getFlashAttributes().get("errors"));
 			}
 		} else {
 
@@ -253,7 +244,7 @@ public class ControllerAnalysis {
 			if (customer != null)
 				// load model with objects by the selected customer
 				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
-			
+
 			model.addAttribute("customer", customer);
 			model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 			model.addAttribute("login", principal.getName());
@@ -547,7 +538,7 @@ public class ControllerAnalysis {
 		session.setAttribute("selectedAnalysis", analysisId);
 		return "redirect:/Analysis";
 	}
-	
+
 	/**
 	 * selectAnalysis: <br>
 	 * selects or deselects an analysis
@@ -561,14 +552,13 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/{analysisId}/SelectOnly",headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
 		// select the analysis
 		session.setAttribute("selectedAnalysis", analysisId);
-		return session.getAttribute("selectedAnalysis")==analysisId;
+		return session.getAttribute("selectedAnalysis") == analysisId;
 	}
-
 
 	/**
 	 * selectAnalysis: <br>
@@ -642,7 +632,7 @@ public class ControllerAnalysis {
 		// retrieve analysis
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null)
-			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null,"Analysis cannot be found!",locale));
+			throw new ResourceNotFoundException(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 		// prepare permission evaluator
 		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
 
@@ -659,8 +649,8 @@ public class ControllerAnalysis {
 
 			return "analysis/forms/editAnalysis";
 		}
-		
-		throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null,"Permission denied!",locale));
+
+		throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 	}
 
 	// *****************************************************************
@@ -698,7 +688,7 @@ public class ControllerAnalysis {
 
 				// create/update analysis object and set access rights
 				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
-			} else 
+			} else
 				// throw error
 				throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		} catch (Exception e) {
@@ -840,7 +830,7 @@ public class ControllerAnalysis {
 
 			// check if object is not null
 			if (analysis == null)
-				errors.put("analysis", messageSource.getMessage("error.analysis.not_found",null,"Analysis cannot be found!" ,locale));
+				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
 
 			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(History.class);
 
@@ -874,7 +864,7 @@ public class ControllerAnalysis {
 				if (GeneralComperator.VersionComparator(oldVersion, version) >= 0)
 					errors.put("version", messageSource.getMessage("error.history.version.invalid", null, "Version has to be bigger than based on version", locale));
 				else if (serviceAnalysis.exists(analysis.getIdentifier(), version))
-					errors.put("version",  messageSource.getMessage("error.history.version.exists",null, "Version already exists for the analysis", locale));
+					errors.put("version", messageSource.getMessage("error.history.version.exists", null, "Version already exists for the analysis", locale));
 				else
 					history.setVersion(version);
 			}
@@ -906,18 +896,17 @@ public class ControllerAnalysis {
 
 			// save the new version
 			serviceAnalysis.saveOrUpdate(copy);
-			
+
 		} catch (CloneNotSupportedException e) {
 			// return dubplicate error message
 			e.printStackTrace();
-			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate",null,"Analysis cannot be duplicated!", locale));
-		} catch (TrickException e){
-			errors.put("analysis", messageSource.getMessage(e.getCode(),e.getParameters(),e.getMessage(), locale));
-		}
-		catch (Exception e) {
+			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicated!", locale));
+		} catch (TrickException e) {
+			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
 			// return general error message
 			e.printStackTrace();
-			errors.put("analysis",  messageSource.getMessage("error.analysis.duplicate.unknown",null,"An unknown error occurred during duplication!", locale));
+			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate.unknown", null, "An unknown error occurred during duplication!", locale));
 		}
 		return errors;
 	}
@@ -963,14 +952,9 @@ public class ControllerAnalysis {
 		// retrieve the customer
 		Customer customer = serviceCustomer.get(customerId);
 
-		String message = null;
-		String typeMessage = null;
-
 		// if the customer or the file are not correct
 		if (customer == null || file.isEmpty()) {
-			typeMessage = "errors";
-			message = messageSource.getMessage("error.customer_or_file.import.analysis", null, "Customer or file are not set or empty!", locale);
-			attributes.addFlashAttribute(typeMessage, message);
+			attributes.addFlashAttribute("errors", messageSource.getMessage("error.customer_or_file.import.analysis", null, "Customer or file are not set or empty!", locale));
 			return "analysis/forms/importAnalysis";
 		}
 
@@ -988,24 +972,13 @@ public class ControllerAnalysis {
 		worker.setPoolManager(workersPoolManager);
 
 		// register worker to tasklist
-		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
-
+		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
 			// execute task
 			executor.execute(worker);
-
-			// prepare success return message
-			typeMessage = "success";
-			message = messageSource.getMessage("success.start.import.analysis", null, "Analysis importation was started successfully", locale);
-		} else {
-
+		else
 			// prepare error return message
-			typeMessage = "errors";
-			message = messageSource.getMessage("failed.start.import.analysis", null, "Analysis importation was failed", locale);
-		}
-
-		// add return message
-		attributes.addFlashAttribute(typeMessage, message);
-
+			// add return message
+			attributes.addFlashAttribute("errors", messageSource.getMessage("failed.start.import.analysis", null, "Analysis importation was failed", locale));
 		return "redirect:/Analysis/Import";
 	}
 
@@ -1225,6 +1198,7 @@ public class ControllerAnalysis {
 				if (analysis.getAnalysisNorms().size() > 0)
 					analysis.setData(true);
 
+				analysis.getHistories().clear();
 				analysis.setBasedOnAnalysis(null);
 				analysis.setCreationDate(creationDate);
 				analysis.setCustomer(customer);
@@ -1236,7 +1210,6 @@ public class ControllerAnalysis {
 				analysis.setVersion(version);
 				History history = new History(version, date, author, comment);
 				analysis.addAHistory(history);
-
 				UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
 				analysis.addUserRight(uar);
 				serviceAnalysis.save(analysis);

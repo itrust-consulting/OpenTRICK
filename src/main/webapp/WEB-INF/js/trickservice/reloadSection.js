@@ -2,7 +2,7 @@
  * reload sections
  */
 
-function reloadSection(section, subSection) {
+function reloadSection(section, subSection, refreshOnly) {
 	if (Array.isArray(section)) {
 		for (var int = 0; int < section.length; int++) {
 			if (Array.isArray(section[int]))
@@ -36,9 +36,12 @@ function reloadSection(section, subSection) {
 						}, 500);
 					}
 				}
-				var callback = callbackBySection(section);
-				if ($.isFunction(callback))
-					callback();
+
+				if (!refreshOnly) {
+					var callback = callbackBySection(section);
+					if ($.isFunction(callback))
+						callback();
+				}
 				return false;
 			},
 			error : unknowError
@@ -161,7 +164,7 @@ SectionSmartUpdate.prototype = {
 					$(tableSourceTrs[i]).appendTo($tbody);
 			}
 			var checked = $($tbody).find("td:first-child>input:checked");
-			if(checked.length)
+			if (checked.length)
 				$(checked).change();
 			if (indexColnum >= 0) {
 				var tableDestTrs = $(dest).find("tbody tr");

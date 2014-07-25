@@ -177,9 +177,9 @@ function deleteAnalysis(analysisId) {
 			$("#deleteAnalysisModel").modal("hide");
 		});
 		$("#deleteanalysisbuttonYes").click(function() {
-			$("#deleteAnalysisModel .btn").unbind();
 			$("#deleteprogressbar").show();
-			$("#deleteanalysisbuttonYes").prop("disabled", true);
+			$("#deleteAnalysisModel .btn").unbind();
+			$("#deleteAnalysisModel .btn").prop("disabled", true);
 			$.ajax({
 				url : context + "/Analysis/Delete/" + analysisId,
 				type : "GET",

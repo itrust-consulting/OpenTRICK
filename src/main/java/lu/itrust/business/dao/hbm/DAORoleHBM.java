@@ -3,6 +3,7 @@ package lu.itrust.business.dao.hbm;
 import java.util.List;
 
 import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAORole;
 
@@ -54,7 +55,7 @@ public class DAORoleHBM extends DAOHibernate implements DAORole {
 	 */
 	@Override
 	public Role getByName(String name) throws Exception {
-		return (Role) getSession().createQuery("FROM Role WHERE dtType=:RoleType").setString("RoleType", name).uniqueResult();
+		return (Role) getSession().createQuery("FROM Role role WHERE role.type = :type").setParameter("type",RoleType.valueOf(name)).uniqueResult();
 	}
 
 	/**

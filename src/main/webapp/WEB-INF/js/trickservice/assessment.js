@@ -15,6 +15,12 @@ function AssessmentViewer() {
 		$(this.dialogError).removeAttr("id");
 		$(this.dialogError).appendTo($(this.modal));
 		this.setTitle("Assessment");
+		
+		$(this.modal).on("hidden.bs.modal", function() {
+			reloadSection("section_asset",undefined,true);
+			reloadSection("section_scenario",undefined,true);
+		});
+		
 		$(this.modal_header).find("*[role='impact_scale']").on("click", function() {
 			var view = new Modal();
 			view.Intialise();

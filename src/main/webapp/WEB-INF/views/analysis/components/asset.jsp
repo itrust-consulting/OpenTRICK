@@ -16,8 +16,6 @@
 			<ul class="nav nav-pills" id="menu_asset">
 				<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message
 							code="label.action.add.asset" text="Add" /></a></li>
-				<li><a href="#anchorAsset" onclick="return reloadSection('section_asset');"><span class="glyphicon glyphicon-refresh primary"></span> <spring:message
-							code="label.action.reload.asset" text="Reload" /></a></li>
 				<li class="disabled" trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 							code="label.action.edit.asset" text="Edit" /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span class="glyphicon glyphicon-plus-sign"></span>

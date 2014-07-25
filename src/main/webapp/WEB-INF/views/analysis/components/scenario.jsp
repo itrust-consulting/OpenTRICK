@@ -16,8 +16,6 @@
 			<ul class="nav nav-pills" id="menu_scenario">
 				<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.scenario"
 							text="Add" /> </a></li>
-				<li><a href="#anchorScenario" onclick="return reloadSection('section_scenario');"><span class="glyphicon glyphicon-refresh primary"></span> <spring:message
-							code="label.action.reload.scenario" text="Reload" /></a></li>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editScenario();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 							code="label.menu.edit.scenario" text="Edit" /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span class="glyphicon glyphicon-plus-sign"></span> <spring:message
