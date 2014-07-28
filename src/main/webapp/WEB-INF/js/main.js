@@ -211,6 +211,30 @@ function permissionError() {
 	return false;
 }
 
+function updateSettings(element, group, name, entryKey) {
+	$.ajax({
+		url : context + "/Settings/Update",
+		type : 'post',
+		data : {
+			'group' : group,
+			'name' : name,
+			'key' : entryKey,
+			'value' : !$(element).hasClass('glyphicon-ok')
+		},
+		async : false,
+		success : function(response) {
+			console.log(response)
+			if (response == undefined || response !== true)
+				unknowError();
+			else
+				location.reload();
+			return true;
+		},
+		error : unknowError
+	});
+	return false;
+}
+
 function findRight(idAnalysis) {
 	var right = $("*[trick-id='" + idAnalysis + "'][trick-rights-id]");
 	if (!right.length)

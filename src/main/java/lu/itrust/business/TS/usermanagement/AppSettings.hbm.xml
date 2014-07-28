@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                                   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 12, 2013 5:51:35 PM by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping package="lu.itrust.business.TS.usermanagement">
+	<class name="AppSettings" table="AppSettings">
+		<id name="id" type="long" unsaved-value="-1" access="field">
+			<column name="idAppSettings" />
+			<generator class="increment" />
+		</id>
+		<many-to-one name="user" column="idUser" unique="true" cascade="save-update" access="field" />
+		<bag name="entries"  cascade="save-update" order-by="group,name" access="field">
+			<key column="fiAppSettings" />
+			<one-to-many class="AppSettingEntry" />
+		</bag>
+	</class>
+
+	<class name="AppSettingEntry" table="AppSettingEntry">
+		<id name="id" type="long" unsaved-value="-1" access="field">
+			<column name="idAppSettingEntry" />
+			<generator class="increment" />
+		</id>
+		<property name="group" column="dtGroup" access="field" type="string"/>
+		<property name="name" column="dtName" access="field" type="string"/>
+		<map name="values" table="AppSettingEntryValues" cascade="save-update" order-by="entryKey" access="field">
+			<key column="idAppSettingEntry" />
+			<map-key column="entryKey" type="string"/>
+			<element column="entryValue" type="string" />
+		</map> 
+	</class>
+	
+</hibernate-mapping>

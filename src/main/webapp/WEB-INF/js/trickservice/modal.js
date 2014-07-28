@@ -205,8 +205,8 @@ function Modal(content,body) {
 	};
 	
 	if(content!=undefined)
-		Modal.prototype.FromContent.apply(this, content);
+		this.FromContent(content);
 	if(body!=undefined)
-		Modal.prototype.setBody.apply(this,body);
+		this.setBody(body);
 	
 }

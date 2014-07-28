@@ -35,6 +35,7 @@ import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.export.ExportAnalysisReport;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.AppSettingEntry;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
@@ -51,6 +52,7 @@ import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceActionPlanType;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceDataValidation;
@@ -167,6 +169,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceMeasureDescription serviceMeasureDescription;
+	
+	@Autowired
+	private ServiceAppSettingEntry serviceAppSettingEntry;
 
 	@Autowired
 	private ServiceRole serviceRole;
@@ -210,6 +215,14 @@ public class ControllerAnalysis {
 			if (analysis == null) {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 				throw new ResourceNotFoundException((String) attributes.getFlashAttributes().get("errors"));
+			}
+			
+			
+			AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", selected.toString());
+			
+			if (settings != null) {
+				model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
+				model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
 			}
 
 			User user = serviceUser.get(principal.getName());

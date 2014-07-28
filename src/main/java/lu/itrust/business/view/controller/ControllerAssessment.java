@@ -15,11 +15,13 @@ import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.AppSettingEntry;
 import lu.itrust.business.component.AssessmentComparator;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceParameter;
@@ -64,6 +66,9 @@ public class ControllerAssessment {
 
 	@Autowired
 	private MessageSource messageSource;
+
+	@Autowired
+	private ServiceAppSettingEntry serviceAppSettingEntry;
 
 	/**
 	 * section: <br>
@@ -175,7 +180,7 @@ public class ControllerAssessment {
 			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.delete", null, "An error occurred during deletion", locale) + "\"}");
 		}
 	}
-	
+
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody String updateAle(HttpSession session, Locale locale, Principal principal) {
@@ -204,7 +209,8 @@ public class ControllerAssessment {
 
 			// return error
 			e.printStackTrace();
-			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale) + "\"}");
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale)
+					+ "\"}");
 		}
 	}
 
@@ -232,6 +238,13 @@ public class ControllerAssessment {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		if (analysis == null)
 			return null;
+
+		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
+
+		if (settings != null) {
+			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
+			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
+		}
 
 		// retrieve asset
 		Asset asset = serviceAsset.get(elementID);
@@ -265,6 +278,13 @@ public class ControllerAssessment {
 			Asset asset = serviceAsset.get(elementID);
 			if (asset == null)
 				return null;
+
+			AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
+
+			if (settings != null) {
+				model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
+				model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
+			}
 
 			// retrieve extended paramters of analysis
 			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
@@ -328,6 +348,13 @@ public class ControllerAssessment {
 		if (analysis == null)
 			return null;
 
+		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
+
+		if (settings != null) {
+			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
+			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
+		}
+
 		// retrieve scenario from given id
 		Scenario scenario = serviceScenario.get(elementID);
 
@@ -360,6 +387,13 @@ public class ControllerAssessment {
 			Scenario scenario = serviceScenario.get(elementID);
 			if (scenario == null)
 				return null;
+
+			AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
+
+			if (settings != null) {
+				model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
+				model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
+			}
 
 			// load extended parameters
 			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);

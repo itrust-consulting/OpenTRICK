@@ -74,6 +74,15 @@
 			</c:if>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
+			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.settings" text="Settings" /><span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li>
+						<a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_cssf');"><c:if test="${empty(show_cssf) or show_cssf}"><span class="glyphicon glyphicon-ok"></span>&nbsp;</c:if><spring:message code="label.settings.show_cssf" text="Display CSSF"/></a>
+					</li>
+					<li>
+						<a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_uncertainty');"><c:if test="${empty(show_uncertainty) or show_uncertainty}"><span class="glyphicon glyphicon-ok"></span>&nbsp;</c:if><spring:message code="label.settings.show_uncertainty" text="Display Uncertainty"/></a>
+					</li>
+				</ul></li>
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.actions" text="Actions" /><span class="caret"></span></a>
 				<ul class="dropdown-menu">
 					<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <spring:message code="label.action.close.analysis" text="Close analysis" /></a></li>
