@@ -49,22 +49,22 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 		User user = (User) target;
 
 		if (!errors.hasFieldErrors("login") && !user.getLogin().matches(Constant.REGEXP_VALID_NAME))
-			errors.rejectValue("login", "errors.user.login.invalid", "Login is not valid");
+			errors.rejectValue("login", "error.user.login.invalid", "Login is not valid");
 		
 		if (!errors.hasFieldErrors("password") && !user.getPassword().matches(Constant.REGEXP_VALID_PASSWORD))
-			errors.rejectValue("password", "errors.user.password.invalid", "Password does not match policy (8 characters, at least one digit, one lower and one uppercase)");
+			errors.rejectValue("password", "error.user.password.invalid", "Password does not match policy (8 characters, at least one digit, one lower and one uppercase)");
 
 		if (!errors.hasFieldErrors("repeatPassword") && !user.getRepeatPassword().equals(user.getPassword()))
-			errors.rejectValue("repeatPassword", "errors.user.repeatPassword.not_same", "Passwords are not the same");
+			errors.rejectValue("repeatPassword", "error.user.repeatPassword.not_same", "Passwords are not the same");
 
 		if (!errors.hasFieldErrors("firstName") && !user.getFirstName().matches(Constant.REGEXP_VALID_NAME))
-			errors.rejectValue("firstName", "errors.user.firstname.invalid", "First name is not valid");
+			errors.rejectValue("firstName", "error.user.firstname.invalid", "First name is not valid");
 
 		if (!errors.hasFieldErrors("lastName") && !user.getLastName().matches(Constant.REGEXP_VALID_NAME))
-			errors.rejectValue("lastName", "errors.user.lastname.invalid", "Last name is not valid");
+			errors.rejectValue("lastName", "error.user.lastname.invalid", "Last name is not valid");
 
 		if (!errors.hasFieldErrors("email") && !user.getEmail().matches(Constant.REGEXP_VALID_EMAIL))
-			errors.rejectValue("email", "errors.user.email.invalid", "Email address is not valid");
+			errors.rejectValue("email", "error.user.email.invalid", "Email address is not valid");
 	}
 
 	@Override

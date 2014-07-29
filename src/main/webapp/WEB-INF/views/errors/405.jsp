@@ -20,7 +20,7 @@
 				<c:when
 					test="${'XMLHttpRequest' != request.getHeader('X-Requested-With')}">
 					<spring:message
-						code="error.405.method.not.allowed"
+						code="error.405.method.not.allowed.redirect"
 						text="Method Not Allowed, You will be redirected in 3 seconds" />
 				</c:when>
 				<c:otherwise>

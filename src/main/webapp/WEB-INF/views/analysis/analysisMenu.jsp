@@ -26,7 +26,7 @@
 					<li><a href="#anchorParameter_ILPS"><spring:message code="label.menu.analysis.parameter.ilps" text="Required level of implmentation per SML" /></a></li>
 					<li><a href="#anchorParameter_Various"><spring:message code="label.menu.analysis.parameter.various" text="Various" /></a></li>
 					<li><a href="#anchorParameter_MaxEfficiency"><spring:message code="label.menu.analysis.parameter.maxeff" text="Maximal efficiency rate per security maturity level" /></a></li>
-					<li><a href="#anchorParameter_ImplementationRate"><spring:message code="label.menu.analysis.parameter.implmentation_rate" text="Implementation scale of SMT" /></a></li>
+					<li><a href="#anchorParameter_ImplementationRate"><spring:message code="label.menu.analysis.parameter.implementation_rate" text="Implementation scale of SMT" /></a></li>
 				</ul></li>
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_information"
 						text="Risk Information" /><span class="caret"></span></a>

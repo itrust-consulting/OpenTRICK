@@ -191,14 +191,14 @@ function FieldEditor(element, validator) {
 							$("#alert-dialog .modal-body").html(response["error"]);
 							$("#alert-dialog").modal("toggle");
 						} else {
-							$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+							$("#alert-dialog .modal-body").text(MessageResolver("error.field_editor.unknown.save.data", "An unknown error occurred when saving data"));
 							$("#alert-dialog").modal("toggle");
 						}
 						return true;
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
 						that.Rollback();
-						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+						$("#alert-dialog .modal-body").text(MessageResolver("error.field_editor.unknown.save.data", "An unknown error occurred when saving data"));
 						$("#alert-dialog").modal("toggle");
 					},
 				});
@@ -246,14 +246,14 @@ function ExtendedFieldEditor(element) {
 							$("#alert-dialog .modal-body").html(response["error"]);
 							$("#alert-dialog").modal("toggle");
 						} else {
-							$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+							$("#alert-dialog .modal-body").text(MessageResolver("error.field_editor.unknown.save.data", "An unknown error occurred when saving data"));
 							$("#alert-dialog").modal("toggle");
 						}
 						return true;
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
 						that.Rollback();
-						$("#alert-dialog .modal-body").text(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+						$("#alert-dialog .modal-body").text(MessageResolver("error.field_editor.unknown.save.data", "An unknown error occurred when saving data"));
 						$("#alert-dialog").modal("toggle");
 					},
 				});
@@ -350,7 +350,7 @@ function AssessmentFieldEditor(element) {
 					},
 					error : function(jqXHR, textStatus, errorThrown) {
 						that.Rollback();
-						application.modal["AssessmentViewer"].ShowError(MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+						application.modal["AssessmentViewer"].ShowError(MessageResolver("error.field_editor.unknown.save.data", "An unknown error occurred when saving data"));
 					}
 				});
 

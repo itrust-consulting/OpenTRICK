@@ -43,7 +43,7 @@ public class HistoryValidator extends ValidatorFieldImpl implements Validator {
 		else if (!arg1.hasFieldErrors("version") && !history.getVersion().matches(
 				Constant.REGEXP_VALID_ANALYSIS_VERSION))
 			arg1.rejectValue("version", "error.history.version.not_meet_regex",
-					"History version not acceptable");
+					"Version not compliant");
 
 		if (history.getComment() == null)
 			arg1.rejectValue("comment", "error.history.comment.null",
@@ -76,7 +76,7 @@ public class HistoryValidator extends ValidatorFieldImpl implements Validator {
 				return "error.history.version.unsupported::Version value is not supported";
 			if (!candidate.toString().matches(
 					Constant.REGEXP_VALID_ANALYSIS_VERSION))
-				return "error.history.version.not_meet_regex::Version not acceptable";
+				return "error.history.version.not_meet_regex::Version not compliant";
 			break;
 		case "comment":
 			if (candidate == null || !(candidate instanceof String))

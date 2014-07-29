@@ -132,11 +132,11 @@ public class ControllerTask {
 				worker.cancel();
 
 				// return success messages
-				return messageSource.getMessage("success.task.canceled", null, "Task was canceled successfully", locale);
+				return messageSource.getMessage("success.task.cancelled", null, "Task was cancelled successfully", locale);
 			} else
 
 				// return task not running
-				return messageSource.getMessage("failed.task.canceled", null, "Sorry, Task is not running", locale);
+				return messageSource.getMessage("failed.task.cancelled", null, "Sorry, Task is not running", locale);
 		} else
 
 			// return task not found
