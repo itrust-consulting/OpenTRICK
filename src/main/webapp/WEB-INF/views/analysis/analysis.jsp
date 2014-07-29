@@ -30,11 +30,11 @@
 				<jsp:include page="./components/parameter.jsp" />
 				<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 				<jsp:include page="./components/riskinformation.jsp" />
-				<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeALE(analysis)" var="ales"/>
-				<c:set var="assetALE"  value="${ales[0]}" scope="request"/>
+				<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeALE(analysis)" var="ales" />
+				<c:set var="assetALE" value="${ales[0]}" scope="request" />
 				<c:set var="assets" value="${analysis.assets}" scope="request" />
 				<jsp:include page="./components/asset.jsp" />
-				<c:set var="scenarioALE"  value="${ales[1]}" scope="request"/>
+				<c:set var="scenarioALE" value="${ales[1]}" scope="request" />
 				<c:set var="scenarios" value="${analysis.scenarios}" scope="request" />
 				<jsp:include page="./components/scenario.jsp" />
 				<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
@@ -46,8 +46,10 @@
 					<jsp:include page="./components/actionplan.jsp" />
 					<c:set var="summaries" scope="request" value="${analysis.summaries}" />
 					<jsp:include page="./components/summary.jsp" />
-					<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
-					<jsp:include page="./components/riskregister.jsp" />
+					<c:if test="${empty(show_cssf) or show_cssf}">
+						<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
+						<jsp:include page="./components/riskregister.jsp" />
+					</c:if>
 					<jsp:include page="./components/charts.jsp" />
 				</c:if>
 			</div>

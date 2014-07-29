@@ -38,17 +38,19 @@
 			</c:when>
 		</c:choose>
 	</table>
-	<h3>
-		<spring:message code="label.title.uncertainty" text="Uncertainty computation" />
-	</h3>
-	<table class="table">
-		<tbody>
-			<tr>
-				<td><p>
-						<spring:message code="label.title.options.uncertainty" text="Optimistic and pessimistic computation" />
-					</p></td>
-				<td><input type="checkbox" name="uncertainty" value="1" /></td>
-			</tr>
-		</tbody>
-	</table>
+	<c:if test="${empty(show_uncertainty) or show_uncertainty}">
+		<h3>
+			<spring:message code="label.title.uncertainty" text="Uncertainty computation" />
+		</h3>
+		<table class="table">
+			<tbody>
+				<tr>
+					<td><p>
+							<spring:message code="label.title.options.uncertainty" text="Optimistic and pessimistic computation" />
+						</p></td>
+					<td><input type="checkbox" name="uncertainty" value="1" /></td>
+				</tr>
+			</tbody>
+		</table>
+	</c:if>
 </form>

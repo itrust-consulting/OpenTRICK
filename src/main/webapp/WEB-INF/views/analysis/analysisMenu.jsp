@@ -59,7 +59,9 @@
 				<li><a href="#anchorSOA"> <spring:message code="label.menu.analysis.soa" text="SOA" /></a></li>
 				<li><a href="#anchorActionPlan"> <spring:message code="label.menu.analysis.action_plan" text="Action Plan" /></a></li>
 				<li><a href="#anchorSummary"> <spring:message code="label.menu.analysis.summary" text="Action plan summary" /></a></li>
-				<li><a href="#anchorRiskRegister"> <spring:message code="label.menu.analysis.risk_register" text="Risk register" /></a></li>
+				<c:if test="${empty(show_cssf) or show_cssf}">
+					<li><a href="#anchorRiskRegister"> <spring:message code="label.menu.analysis.risk_register" text="Risk register" /></a></li>
+				</c:if>
 			</c:if>
 			<c:if test="${!KowledgeBaseView }">
 				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.analysis.chart" text="Charts" /><span
@@ -87,15 +89,17 @@
 						<li class="divider"></li>
 						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.action.compute.action_plan" text="Compute action plan" />
 						</a></li>
-						<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <spring:message code="label.action.compute.risk_register" text="Compute registers" /></a></li>
+						<c:if test="${empty(show_cssf) or show_cssf}">
+							<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <spring:message code="label.action.compute.risk_register" text="Compute registers" /></a></li>
+						</c:if>
 						<li class="divider"></li>
 						<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" text="Reload charts" /></a></li>
 						<li class="divider"></li>
 					</c:if>
 					<li class="dropdown-header"><spring:message code="label.settings" text="Settings" /></li>
 					<li><a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_cssf');" style="padding: 6px;"><span
-							class="glyphicon ${empty(show_cssf) or show_cssf? 'glyphicon-ok' : ''}" style="min-width: 12px;" trick-reload="false"></span><span>&nbsp;<spring:message
-									code="label.settings.show_cssf" text="Display CSSF" /></span></a></li>
+							class="glyphicon ${empty(show_cssf) or show_cssf? 'glyphicon-ok' : ''}" style="min-width: 12px;"></span><span>&nbsp;<spring:message code="label.settings.show_cssf"
+									text="Display CSSF" /></span></a></li>
 					<li><a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_uncertainty');" style="padding: 6px;"><span
 							class="glyphicon ${empty(show_uncertainty) or show_uncertainty? 'glyphicon-ok':''}" style="min-width: 12px;" trick-section-dependency="section_asset,section_scenario">
 						</span><span>&nbsp;<spring:message code="label.settings.show_uncertainty" text="Display Uncertainty" /></span></a></li>
