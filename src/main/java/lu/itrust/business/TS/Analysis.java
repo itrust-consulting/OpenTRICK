@@ -1441,10 +1441,11 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @param asset
 	 *            The asset Object to Add
+	 * @throws TrickException
 	 */
-	public void addAnAsset(Asset asset) {
+	public void addAnAsset(Asset asset) throws TrickException {
 		if (this.assets.contains(asset))
-			throw new IllegalArgumentException("error.asset.duplicate");
+			throw new TrickException("error.asset.duplicate", String.format("Asset (%s) is duplicated", asset.getName()), asset.getName());
 		this.assets.add(asset);
 	}
 
@@ -2489,7 +2490,7 @@ public class Analysis implements Serializable, Cloneable {
 	public static Map<Integer, List<Assessment>> MappedSelectedAssessmentByScenario(List<Assessment> assessments2) {
 		Map<Integer, List<Assessment>> mappings = new LinkedHashMap<>();
 		for (Assessment assessment : assessments2) {
-			if(!assessment.isSelected())
+			if (!assessment.isSelected())
 				continue;
 			Scenario scenario = assessment.getScenario();
 			List<Assessment> assessments = mappings.get(scenario.getId());
@@ -2499,11 +2500,11 @@ public class Analysis implements Serializable, Cloneable {
 		}
 		return mappings;
 	}
-	
+
 	public static Map<Integer, List<Assessment>> MappedSelectedAssessmentByAsset(List<Assessment> assessments2) {
 		Map<Integer, List<Assessment>> mappings = new LinkedHashMap<>();
 		for (Assessment assessment : assessments2) {
-			if(!assessment.isSelected())
+			if (!assessment.isSelected())
 				continue;
 			Asset asset = assessment.getAsset();
 			List<Assessment> assessments = mappings.get(asset.getId());
@@ -2516,15 +2517,16 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * Mapping selected assessment by asset and scenario
+	 * 
 	 * @return Length : 2, 0 : Asset, 1 : Scenario
 	 */
 	@SuppressWarnings("unchecked")
 	public static Map<Integer, List<Assessment>>[] MappedSelectedAssessment(List<Assessment> assessments2) {
-		Map<Integer, List<Assessment>> [] mappings = new LinkedHashMap[2];
-		for (int i = 0; i < mappings.length; i++) 
-			mappings[i]= new LinkedHashMap<Integer, List<Assessment>>();
+		Map<Integer, List<Assessment>>[] mappings = new LinkedHashMap[2];
+		for (int i = 0; i < mappings.length; i++)
+			mappings[i] = new LinkedHashMap<Integer, List<Assessment>>();
 		for (Assessment assessment : assessments2) {
-			if(!assessment.isSelected())
+			if (!assessment.isSelected())
 				continue;
 			Asset asset = assessment.getAsset();
 			List<Assessment> assessments = mappings[0].get(asset.getId());

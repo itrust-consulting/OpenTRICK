@@ -60,7 +60,7 @@ function deleteAsset(assetId) {
 
 	$("#confirm-dialog .modal-body").html(
 			MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset <b>" + assetname
-					+ "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", [assetname]));
+					+ "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", [ assetname ]));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Asset/Delete/" + assetId,
@@ -133,38 +133,42 @@ function saveAsset(form) {
 			var alert = $("#addAssetModal .label-danger");
 			if (alert.length)
 				alert.remove();
+			var alert = $("#addAssetModal .alert");
+			if (alert.length)
+				alert.remove();
 			for ( var error in response) {
-				var errorElement = document.createElement("label");
-				errorElement.setAttribute("class", "label label-danger");
+				if (error != "asset") {
+					var errorElement = document.createElement("label");
+					errorElement.setAttribute("class", "label label-danger");
+					$(errorElement).text(response[error]);
+					switch (error) {
+					case "name":
+						$(errorElement).appendTo($("#asset_form #asset_name").parent());
+						break;
+					case "assetType":
+						$(errorElement).appendTo($("#asset_form #asset_assettype_id").parent());
+						break;
+					case "value":
+						$(errorElement).appendTo($("#asset_form #asset_value").parent());
+						break;
+					case "selected":
+						$(errorElement).appendTo($("#asset_form #asset_selected").parent());
+						break;
+					case "comment":
+						$(errorElement).appendTo($("#asset_form #asset_comment").parent());
+						break;
+					case "hiddenComment":
+						$(errorElement).appendTo($("#asset_form #asset_hiddenComment").parent());
+						break;
+					}
+				} else
+					showError($("#asset_form").parent()[0], response[error]);
 
-				$(errorElement).text(response[error]);
-				switch (error) {
-				case "name":
-					$(errorElement).appendTo($("#asset_form #asset_name").parent());
-					break;
-				case "assetType":
-					$(errorElement).appendTo($("#asset_form #asset_assettype_id").parent());
-					break;
-				case "value":
-					$(errorElement).appendTo($("#asset_form #asset_value").parent());
-					break;
-				case "selected":
-					$(errorElement).appendTo($("#asset_form #asset_selected").parent());
-					break;
-				case "comment":
-					$(errorElement).appendTo($("#asset_form #asset_comment").parent());
-					break;
-				case "hiddenComment":
-					$(errorElement).appendTo($("#asset_form #asset_hiddenComment").parent());
-					break;
-				}
 			}
-			if (!$("#addAssetModal .label-danger").length) {
+			if (!($("#addAssetModal .label-danger").length || $("#addAssetModal .alert").length)) {
 				$("#addAssetModal").modal("toggle");
-
 				var id = $("#" + form + " input[name='id']").attr("value");
 				setTimeout(reloadAsset(id), 10);
-
 			}
 			return false;
 		},
@@ -201,11 +205,11 @@ function reloadAsset(id) {
 			if (!current.length)
 				return false;
 			var checked = $(current).find("input:checked");
-			if(checked.length)
+			if (checked.length)
 				$(newValue).find("input:checked").prop("checked", true);
 			$(newValue).find("td:nth-child(2)").text($(current).find("td:nth-child(2)").text());
 			$(current).replaceWith(newValue);
-			if(checked.length)
+			if (checked.length)
 				$(current).find("input:checked").change();
 		},
 		error : unknowError

@@ -465,6 +465,13 @@ public class ControllerAssessment {
 		AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
+		for (Assessment assessment : assessments) {
+			if (assessment.isCSSF()) {
+				model.addAttribute("show_cssf", true);
+				break;
+			}
+		}
+
 		model.addAttribute("assessments", assessments);
 		asset.setALE(ale.getValue());
 		asset.setALEO(aleo.getValue());
@@ -493,6 +500,12 @@ public class ControllerAssessment {
 		model.addAttribute("alep", alep);
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
+		for (Assessment assessment : assessments) {
+			if (assessment.isCSSF()) {
+				model.addAttribute("show_cssf", true);
+				break;
+			}
+		}
 		AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());

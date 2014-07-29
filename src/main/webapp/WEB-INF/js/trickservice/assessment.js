@@ -15,12 +15,12 @@ function AssessmentViewer() {
 		$(this.dialogError).removeAttr("id");
 		$(this.dialogError).appendTo($(this.modal));
 		this.setTitle("Assessment");
-		
+
 		$(this.modal).on("hidden.bs.modal", function() {
-			reloadSection("section_asset",undefined,true);
-			reloadSection("section_scenario",undefined,true);
+			reloadSection("section_asset", undefined, true);
+			reloadSection("section_scenario", undefined, true);
 		});
-		
+
 		$(this.modal_header).find("*[role='impact_scale']").on("click", function() {
 			var view = new Modal();
 			view.Intialise();
@@ -74,7 +74,7 @@ function AssessmentViewer() {
 
 	AssessmentViewer.prototype.SmartUpdate = function(assessments) {
 		var tableDestTrs = $(this.modal_body).find("tbody tr");
-		if (!tableDestTrs.length)
+		if (!(tableDestTrs.length && $(tableDestTrs[0]).find("td").length == $(assessments).find("tbody>tr:first>td").length))
 			return true;
 		for (var i = 0; i < tableDestTrs.length; i++) {
 			var trickId = $(tableDestTrs[i]).attr("trick-id");
@@ -178,8 +178,14 @@ function AssessmentAssetViewer(assetId) {
 				if (!assessments.length)
 					return true;
 				if (instance.SmartUpdate.apply(instance, assessments)) {
-					$(instance.modal_body).html($(assessments).html());
+					instance.setBody(assessments);
 					instance.setTitle($(assessments).attr("trick-name"));
+					var table = $(instance.modal_body).find('table.table-fixed-header');
+					if (table.length) {
+						setTimeout(function() {
+							fixedTableHeader(table);
+						}, 400);
+					}
 				}
 				return false;
 			},
@@ -239,8 +245,14 @@ function AssessmentScenarioViewer(scenarioId) {
 				if (!assessments.length)
 					return true;
 				if (instance.SmartUpdate.apply(instance, assessments)) {
-					$(instance.modal_body).html($(assessments).html());
+					instance.setBody(assessments);
 					instance.setTitle($(assessments).attr("trick-name"));
+					var table = $(instance.modal_body).find('table.table-fixed-header');
+					if (table.length) {
+						setTimeout(function() {
+							fixedTableHeader(table);
+						}, 400);
+					}
 				}
 				return false;
 			},

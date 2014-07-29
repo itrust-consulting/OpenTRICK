@@ -18,12 +18,15 @@ import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.AppSettingEntry;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.component.helper.JsonMessage;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceAssetType;
@@ -73,12 +76,15 @@ public class ControllerAsset {
 
 	@Autowired
 	private ChartGenerator chartGenerator;
-	
+
 	@Autowired
 	private ServiceAssessment serviceAssessment;
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
+
+	@Autowired
+	private ServiceAppSettingEntry serviceAppSettingEntry;
 
 	/**
 	 * select: <br>
@@ -180,14 +186,13 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
-	public @ResponseBody
-	String delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
+	public @ResponseBody String delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
 		try {
 			// delete asset ( delete asset from from assessments) then from
 			// assets
 			customDelete.deleteAsset(serviceAsset.get(elementID));
 			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale));
-			
+
 		} catch (Exception e) {
 
 			e.printStackTrace();
@@ -213,7 +218,12 @@ public class ControllerAsset {
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 		if (integer == null)
 			return null;
-		
+
+		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", integer.toString());
+		if (settings != null) {
+			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
+			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
+		}
 		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		// load all assets of analysis to model
@@ -228,10 +238,17 @@ public class ControllerAsset {
 		// add all assettypes to model
 		Asset asset = serviceAsset.get(elementID);
 		List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
-		ALE [] ales = new ALE[3];
+		ALE[] ales = new ALE[3];
 		for (int i = 0; i < ales.length; i++)
 			ales[i] = new ALE(asset.getName(), 0);
 		AssessmentManager.ComputeALE(assessments, ales[1], ales[2], ales[0]);
+
+		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", session.getAttribute("selectedAnalysis").toString());
+		if (settings != null) {
+			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
+			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
+		}
+
 		// add asset object to model
 		model.addAttribute("asset", asset);
 		model.addAttribute("ale", ales);
@@ -284,7 +301,7 @@ public class ControllerAsset {
 				errors.put("asset", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 				return errors;
 			}
-			
+
 			// create new asset object
 			Asset asset = new Asset();
 
@@ -296,36 +313,43 @@ public class ControllerAsset {
 				return errors;
 
 			asset.setValue(asset.getValue() * 1000);
-			
+
+			if (asset.getId() > 0) {
+				if (!serviceAsset.belongsToAnalysis(idAnalysis, asset.getId())) {
+					errors.put("asset", messageSource.getMessage("error.asset.not_belongs_to_analysis", null, "Asset does not belong to selected analysis", locale));
+					return errors;
+				}
+			} else if (serviceAsset.exist(idAnalysis, asset.getName())) {
+				errors.put("name",
+						messageSource.getMessage("error.asset.duplicate", new String[] { asset.getName() }, String.format("Asset (%s) is duplicated", asset.getName()), locale));
+				return errors;
+			}
 			// create assessments for the new asset and save asset and
 			// Assessments into analysis
 			assessmentManager.build(asset, idAnalysis);
 
 			// check if asset is to be created (new)
-			if (asset.getId() > 0) {
-				if (!serviceAsset.belongsToAnalysis(idAnalysis, asset.getId())) {
-					errors.put("asset", messageSource.getMessage("asset.not_belongs_to_analysis",null,"Asset does not belong to selected analysis" , locale));
-					return errors;
-				}
-				// update existing asset object
-				serviceAsset.merge(asset);
 
-				// update selected status
-				if (asset.isSelected())
-					assessmentManager.selectAsset(asset);
-				else
-					assessmentManager.unSelectAsset(asset);
-			}
+			// update existing asset object
+			serviceAsset.merge(asset);
+
+			// update selected status
+			if (asset.isSelected())
+				assessmentManager.selectAsset(asset);
+			else
+				assessmentManager.unSelectAsset(asset);
+		} catch (TrickException e) {
+			// add general error
+			errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			e.printStackTrace();
 			// return errors
-			return errors;
 		} catch (Exception e) {
-
 			// add general error
 			errors.put("asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			// return errors
-			return errors;
 		}
+		return errors;
 	}
 
 	/**
@@ -408,7 +432,7 @@ public class ControllerAsset {
 			AssetType assetType = serviceAssetType.get(node.get("id").asInt());
 
 			double value = NumberFormat.getInstance(Locale.FRANCE).parse(jsonNode.get("value").asText()).doubleValue();
-			
+
 			String error = null;
 
 			asset.setComment(jsonNode.get("comment").asText());
@@ -437,8 +461,11 @@ public class ControllerAsset {
 			// return success message
 			return true;
 
+		} catch (TrickException e) {
+			// return error message
+			errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			e.printStackTrace();
 		} catch (Exception e) {
-
 			// return error message
 			errors.put("asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();

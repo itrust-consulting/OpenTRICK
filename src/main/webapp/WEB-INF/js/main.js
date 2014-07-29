@@ -223,11 +223,23 @@ function updateSettings(element, group, name, entryKey) {
 		},
 		async : false,
 		success : function(response) {
-			console.log(response)
 			if (response == undefined || response !== true)
 				unknowError();
-			else
-				location.reload();
+			else {
+				if ($(element).hasClass('glyphicon-ok'))
+					$(element).removeClass('glyphicon-ok');
+				else
+					$(element).addClass('glyphicon-ok');
+				var sections = $(element).attr("trick-section-dependency");
+				if (sections != undefined)
+					return reloadSection(sections.split(','));
+				var callBack = $(element).attr("trick-callback");
+				if (callBack != undefined)
+					return eval(callBack);
+				var reload = $(element).attr("trick-reload");
+				if (reload == undefined || reload == 'true')
+					location.reload();
+			}
 			return true;
 		},
 		error : unknowError

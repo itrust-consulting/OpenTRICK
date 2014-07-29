@@ -6,9 +6,8 @@ function reloadSection(section, subSection, refreshOnly) {
 	if (Array.isArray(section)) {
 		for (var int = 0; int < section.length; int++) {
 			if (Array.isArray(section[int]))
-				return reloadSection(section[int][0], section[int][1]);
-			else
-				return reloadSection(section[int]);
+				reloadSection(section[int][0], section[int][1], refreshOnly);
+			else reloadSection(section[int], subSection, refreshOnly);
 		}
 	} else {
 		var controller = controllerBySection(section, subSection);
@@ -36,7 +35,6 @@ function reloadSection(section, subSection, refreshOnly) {
 						}, 500);
 					}
 				}
-
 				if (!refreshOnly) {
 					var callback = callbackBySection(section);
 					if ($.isFunction(callback))
@@ -139,6 +137,10 @@ SectionSmartUpdate.prototype = {
 			var tableDestTrs = $(dest).find("tbody tr");
 			if (!tableDestTrs.length)
 				throw "tbody cannot be found";
+			
+			if ($(tableDestTrs[0]).find("td").length != $(src).find("tbody>tr:first>td").length)
+				throw "Table header has been changed";
+
 			for (var i = 0; i < tableDestTrs.length; i++) {
 				var trickId = $(tableDestTrs[i]).attr("trick-id");
 				if (trickId == undefined)

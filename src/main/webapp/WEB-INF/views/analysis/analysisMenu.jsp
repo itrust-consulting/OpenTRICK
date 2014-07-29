@@ -11,7 +11,7 @@
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
-<div class="navbar navbar-default navbar-fixed-top navbar-custom affix" style="z-index:1029">
+<div class="navbar navbar-default navbar-fixed-top navbar-custom affix" style="z-index: 1029">
 	<div id="analysismenu" class="container">
 		<ul class="nav navbar-nav">
 			<c:if test="${!KowledgeBaseView}">
@@ -28,8 +28,8 @@
 					<li><a href="#anchorParameter_MaxEfficiency"><spring:message code="label.menu.analysis.parameter.maxeff" text="Maximal efficiency rate per security maturity level" /></a></li>
 					<li><a href="#anchorParameter_ImplementationRate"><spring:message code="label.menu.analysis.parameter.implmentation_rate" text="Implementation scale of SMT" /></a></li>
 				</ul></li>
-			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_information" text="Risk Information" /><span
-					class="caret"></span></a>
+			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_information"
+						text="Risk Information" /><span class="caret"></span></a>
 				<ul class="dropdown-menu">
 					<li><a href="#anchorRiskInformation_Threat"><spring:message code="label.menu.analysis.threat" text="Threats" /></a></li>
 					<li><a href="#anchorRiskInformation_Vul"><spring:message code="label.menu.analysis.vulnerability" text="Vulnerabilities" /></a></li>
@@ -74,17 +74,9 @@
 			</c:if>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
-			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.settings" text="Settings" /><span class="caret"></span></a>
-				<ul class="dropdown-menu">
-					<li>
-						<a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_cssf');"><c:if test="${empty(show_cssf) or show_cssf}"><span class="glyphicon glyphicon-ok"></span>&nbsp;</c:if><spring:message code="label.settings.show_cssf" text="Display CSSF"/></a>
-					</li>
-					<li>
-						<a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_uncertainty');"><c:if test="${empty(show_uncertainty) or show_uncertainty}"><span class="glyphicon glyphicon-ok"></span>&nbsp;</c:if><spring:message code="label.settings.show_uncertainty" text="Display Uncertainty"/></a>
-					</li>
-				</ul></li>
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.actions" text="Actions" /><span class="caret"></span></a>
 				<ul class="dropdown-menu">
+					<li class="dropdown-header"><spring:message code="label.analysis" text="Analysis" /></li>
 					<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <spring:message code="label.action.close.analysis" text="Close analysis" /></a></li>
 					<li class="divider"></li>
 					<li><a href="#" onclick="return editRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.action.edit.rrf" text="Edit RRF" /></a></li>
@@ -98,7 +90,16 @@
 						<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <spring:message code="label.action.compute.risk_register" text="Compute registers" /></a></li>
 						<li class="divider"></li>
 						<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" text="Reload charts" /></a></li>
+						<li class="divider"></li>
 					</c:if>
+					<li class="dropdown-header"><spring:message code="label.settings" text="Settings" /></li>
+					<li><a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_cssf');" style="padding: 6px;"><span
+							class="glyphicon ${empty(show_cssf) or show_cssf? 'glyphicon-ok' : ''}" style="min-width: 12px;" trick-reload="false"></span><span>&nbsp;<spring:message
+									code="label.settings.show_cssf" text="Display CSSF" /></span></a></li>
+					<li><a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_uncertainty');" style="padding: 6px;"><span
+							class="glyphicon ${empty(show_uncertainty) or show_uncertainty? 'glyphicon-ok':''}" style="min-width: 12px;" trick-section-dependency="section_asset,section_scenario">
+						</span><span>&nbsp;<spring:message code="label.settings.show_uncertainty" text="Display Uncertainty" /></span></a></li>
+
 				</ul></li>
 		</ul>
 	</div>

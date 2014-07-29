@@ -252,8 +252,8 @@ function ScenarioRRFController(rrfView, container, name) {
 			$(types).removeClass("danger");
 			$(types).addClass("success");
 		}
-		console.log(Math.abs(1-sum));
-		console.log(sum);
+		//console.log(Math.abs(1-sum));
+		//console.log(sum);
 		return false;
 	};
 

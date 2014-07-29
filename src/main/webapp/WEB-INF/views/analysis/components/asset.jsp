@@ -37,9 +37,16 @@
 						<th colspan="8"><spring:message code="label.asset.name" text="Name" htmlEscape="true" /></th>
 						<th colspan="2"><spring:message code="label.asset.type" text="Type" htmlEscape="true" /></th>
 						<th colspan="2"><spring:message code="label.asset.value" text="Value" htmlEscape="true" /> (k&euro;)</th>
-						<th colspan="2"><spring:message code="label.asset.aleo" text="ALEO" /> (k&euro;)</th>
-						<th colspan="2"><spring:message code="label.asset.ale" text="ALE" /> (k&euro;)</th>
-						<th colspan="2"><spring:message code="label.asset.alep" text="ALEP" /> (k&euro;)</th>
+						<c:choose>
+							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+								<th colspan="2"><spring:message code="label.asset.aleo" text="ALEO" /> (k&euro;)</th>
+								<th colspan="2"><spring:message code="label.asset.ale" text="ALE" /> (k&euro;)</th>
+								<th colspan="2"><spring:message code="label.asset.alep" text="ALEP" /> (k&euro;)</th>
+							</c:when>
+							<c:otherwise>
+								<th colspan="2"><spring:message code="label.asset.ale" text="ALE" /> (k&euro;)</th>
+							</c:otherwise>
+						</c:choose>
 						<th colspan="14"><spring:message code="label.asset.comment" text="Comment" htmlEscape="true" /></th>
 						<th colspan="14"><spring:message code="label.asset.hidden_comment" text="Hidden comment" htmlEscape="true" /></th>
 					</tr>
@@ -55,12 +62,20 @@
 							<td class="${cssClass}" colspan="8"><spring:message text="${asset.name}" /></td>
 							<td class="${cssClass}" colspan="2"><spring:message text="${ asset.assetType.type}" /></td>
 							<td class="${cssClass}" colspan="2" title='<fmt:formatNumber value="${asset.value}"/>&euro;'><fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="1" /></td>
-							<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
-									maxFractionDigits="2" minFractionDigits="0" /></td>
-							<td colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
-									maxFractionDigits="2" minFractionDigits="0" /></td>
-							<td colspan="2" title="<fmt:formatNumber value="${ale[2].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[2].value*0.001}"
-									maxFractionDigits="2" minFractionDigits="0" /></td>
+							<c:choose>
+								<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+									<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
+											maxFractionDigits="2" minFractionDigits="0" /></td>
+									<td colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
+											maxFractionDigits="2" minFractionDigits="0" /></td>
+									<td colspan="2" title="<fmt:formatNumber value="${ale[2].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[2].value*0.001}"
+											maxFractionDigits="2" minFractionDigits="0" /></td>
+								</c:when>
+								<c:otherwise>
+									<td colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
+											maxFractionDigits="2" minFractionDigits="0" /></td>
+								</c:otherwise>
+							</c:choose>
 							<td class="${cssClass}" colspan="14"><pre><spring:message text="${asset.comment}" /></pre></td>
 							<td class="${cssClass}" colspan="14"><pre><spring:message text="${asset.hiddenComment}" /></pre></td>
 						</tr>

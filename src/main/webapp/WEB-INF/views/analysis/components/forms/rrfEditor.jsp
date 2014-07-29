@@ -114,7 +114,7 @@
 												data-slider-max="4" data-slider-step="1" data-slider-value="${selectedScenario.accidental}" name="accidental" data-slider-orientation="vertical"
 												data-slider-selection="after" data-slider-tooltip="show"></td>
 											<td class="warning" trick-type="source"><input type="text" class="slider" id="scenario_environmental" value="${selectedScenario.environmental}" data-slider-min="0"
-												data-slider-max="4" data-slider-step="2" data-slider-value="${selectedScenario.environmental}" name="environmental" data-slider-orientation="vertical"
+												data-slider-max="4" data-slider-step="1" data-slider-value="${selectedScenario.environmental}" name="environmental" data-slider-orientation="vertical"
 												data-slider-selection="after" data-slider-tooltip="show"></td>
 											<td class="warning" trick-type="source"><input type="text" class="slider" id="scenario_internalThreat" value="${selectedScenario.internalThreat}"
 												data-slider-min="0" data-slider-max="4" data-slider-step="1" data-slider-value="${selectedScenario.internalThreat}" name="internalThreat"

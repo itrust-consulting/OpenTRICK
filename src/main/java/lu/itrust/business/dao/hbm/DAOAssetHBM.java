@@ -85,7 +85,8 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 * getFromAnalysisByPageAndSize: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAsset#getFromAnalysisByPageAndSize(int, int, int)
+	 * @see lu.itrust.business.dao.DAOAsset#getFromAnalysisByPageAndSize(int,
+	 *      int, int)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -188,5 +189,12 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@Override
 	public void delete(Asset asset) throws Exception {
 		getSession().delete(asset);
+	}
+
+	@Override
+	public boolean exist(Integer idAnalysis, String name) {
+		return 0 < (Long) getSession()
+				.createQuery("Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.name = :name")
+				.setInteger("idAnalysis", idAnalysis).setString("name", name).uniqueResult();
 	}
 }

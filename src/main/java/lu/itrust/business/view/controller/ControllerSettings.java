@@ -41,7 +41,7 @@ public class ControllerSettings {
 		if (appSettings == null)
 			appSettings = new AppSettings(serviceUser.get(principal.getName()));
 		appSettings.update(group, name, key, value);
-		System.out.println(String.format("Group: %s, name: %s, key:%s, value: %s ", group, name, key, value));
+		//System.out.println(String.format("Group: %s, name: %s, key:%s, value: %s ", group, name, key, value));
 		serviceAppSettings.saveOrUpdate(appSettings);
 
 		return appSettings.findByGroupAndNameAndKey(group, name, key) == value;
