@@ -327,7 +327,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			importRiskInformation();
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.item_information.importing", "Import item information", 5));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.risk_information.importing", "Import item information", 5));
 
 			// ****************************************************************
 			// * import item information

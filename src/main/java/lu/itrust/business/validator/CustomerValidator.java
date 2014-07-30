@@ -59,11 +59,11 @@ public class CustomerValidator extends ValidatorFieldImpl implements Validator {
 				else if (!candidate.toString().matches(Constant.REGEXP_VALID_NAME))
 					return "error.customer.contactPerson.invalid::Contact Person is not valid";
 				break;
-			case "phone_number":
+			case "phoneNumber":
 				if (candidate == null || !(candidate instanceof String))
-					return "error.customer.phone_number.unsupported::Phone number value is not supported";
+					return "error.customer.phoneNumber.unsupported::Phone number value is not supported";
 				else if (candidate.toString().trim().isEmpty())
-					return "error.customer.phone_number.empty::Phone number cannot be empty";
+					return "error.customer.phoneNumber.empty::Phone number cannot be empty";
 				break;
 			case "email":
 				if (candidate == null || !(candidate instanceof String))
@@ -97,11 +97,11 @@ public class CustomerValidator extends ValidatorFieldImpl implements Validator {
 		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "organisation", "error.customer.organisation.empty", "Name cannot be empty");
 		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "address", "error.customer.address.empty", "Address cannot be empty");
 		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "city", "error.customer.city.empty", "City cannot be empty");
-		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "ZIPCode", "error.customer.zipcode.empty", "ZIP code cannot be empty");
+		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "ZIPCode", "error.customer.ZIPCode.empty", "ZIP code cannot be empty");
 		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "country", "error.customer.country.empty", "Country cannot be empty");
 		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "contactPerson", "error.customer.contactPerson.empty", "Contact Person cannot be empty");
-		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "phone_number", "error.customer.phone_number.empty", "Phone Number cannot be empty");
-		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "email", "error.customer.email.empty", "Email address cannot be empty");
+		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "phoneNumber", "error.customer.phoneNumber.empty", "Phone Number cannot be empty");
+		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "email", "error.customer.email.empty", "Email cannot be empty");
 		Customer customer = (Customer) arg0;
 		if (!arg1.hasFieldErrors("city") && !customer.getCity().matches(Constant.REGEXP_VALID_NAME))
 			arg1.rejectValue("city", "error.customer.city.invalid", "City name is not valid");

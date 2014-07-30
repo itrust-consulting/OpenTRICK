@@ -57,14 +57,14 @@ public class ScenarioValidator extends ValidatorFieldImpl implements Validator {
 
 	@Override
 	public void validate(Object arg0, Errors arg1) {
-		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "name", "error.scenario.name.empty", "Name cannot be empty");
+		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "name", "error.scneario.name.empty", "Name cannot be empty");
 
 		Scenario scenario = (Scenario) arg0;
 		if (!arg1.hasFieldErrors("name") && !scenario.getName().matches(Constant.REGEXP_VALID_NAME))
 			arg1.rejectValue("name", "error.scenario.name.rejected", "Name is not valid");
 
 		if (!arg1.hasFieldErrors("scnearioType") && !(scenario.getScenarioType() instanceof ScenarioType))
-			arg1.rejectValue("scnearioType", "error.scenario.scenario_type.rejected", "Scenario Type is not valid");
+			arg1.rejectValue("scnearioType", "error.scenario.scneario_type.rejected", "Scenario Type is not valid");
 	}
 
 }

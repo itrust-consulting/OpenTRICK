@@ -164,7 +164,7 @@ public class ControllerRiskRegister {
 			WorkerComputeRiskRegister worker = new WorkerComputeRiskRegister(workersPoolManager, sessionFactory, serviceTaskFeedback, analysisId, reloadSection);
 
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-				return JsonMessage.Error(messageSource.getMessage("failed.start.compute.riskregister", null, "Risk Register computation was failed", locale));
+				return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Risk Register computation was failed", locale));
 
 			// execute task
 			executor.execute(worker);

@@ -13,7 +13,7 @@
 <body>
 	<div id="wrap">
 		<div class="container">
-			<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/Logo_TRICKService.png" /> style="width: 200px; height: auto;">
+			<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/TrickService.png" /> style="height: 200px; width auto;">
 			<div class="form-signin" id="login" style="margin: 0 auto; max-width: 330px;">
 				<h2 class="form-signin-heading">
 					<spring:message code="label.title.login" text="Sign in" />

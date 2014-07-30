@@ -33,12 +33,12 @@ public class RiskInformationValidator extends ValidatorFieldImpl{
 			if(candidate == null)
 				return "error.risk_information.category.null::Category cannot be empty";
 			else if(!(candidate instanceof String))
-				return "error.risk_information.unsupported.category:: The value of category is not supported";
+				return "error.risk_information.unsupported.category::Category value is not supported";
 			String category = (String) candidate;
 			if(category.trim().isEmpty())
 				return "error.risk_information.exposed.empty::Exposed cannot be empty";
 			else if(!category.matches(Constant.REGEXP_VALID_RISKINFORMATION_TYPE))
-				return "error.risk_information.category.invalid::The value of category  cannot be accepted";
+				return "error.risk_information.category.invalid::Category value cannot be accepted";
 			break;
 		case "exposed":
 			if(candidate == null)

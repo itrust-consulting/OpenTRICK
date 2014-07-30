@@ -101,7 +101,7 @@ public class Customer implements Serializable {
 	 */
 	public void setOrganisation(String organisation) throws TrickException {
 		if (organisation == null || organisation.trim().isEmpty()) 
-			throw new TrickException("error.customer.organisation.empty","Name cannot be empty!");
+			throw new TrickException("error.customer.organisation.empty","Organisation cannot be empty!");
 		this.organisation = organisation;
 	}
 
@@ -268,7 +268,7 @@ public class Customer implements Serializable {
 	 */
 	public void setEmail(String email) throws TrickException {
 		if (email == null || !email.matches(Constant.REGEXP_VALID_EMAIL))
-			throw new TrickException("error.customer.email.empty","Email address cannot be empty");
+			throw new TrickException("error.customer.email.empty","Email address was rejected");
 		this.email = email;
 	}
 	

@@ -10,14 +10,13 @@
 	<div id="wrap">
 		<jsp:include page="menu.jsp" />
 		<div class="container">
-			<div class="page-header">
-				<h1 class="text-center" style="margin-top: 5%; margin-bottom: 2%;">
-					<spring:message code="label.welcome" text="Welcome to TRICK Service!" />
-				</h1>
-			</div>
 			<div class="content" id="content">
-				<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/Logo_TRICKService.png" /> style="width: 300px; height: auto;">
+				<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/TrickService.png" /> style="height: 300px;">
 			</div>
+			<hr>
+			<h1 class="text-center" style="margin-top: 5%; margin-bottom: 2%;">
+				<spring:message code="label.welcome" text="Welcome!" />
+			</h1>
 		</div>
 		<jsp:include page="footer.jsp" />
 		<jsp:include page="scripts.jsp" />

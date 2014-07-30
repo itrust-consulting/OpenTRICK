@@ -272,7 +272,7 @@ public class ControllerAnalysis {
 		List<Norm> norms = serviceNorm.getAllNotInAnalysis(idAnalysis);
 		if (norms.isEmpty()) {
 			attributes.addFlashAttribute("error",
-					messageSource.getMessage("error.analysis.add.standard.extend", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
+					messageSource.getMessage("error.analysis.add.standard", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
 			return "redirect:/Error";
 		}
 		model.addAttribute("norms", norms);

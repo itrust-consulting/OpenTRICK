@@ -239,12 +239,12 @@ public class WorkerComputeActionPlan implements Worker {
 	 */
 	private void deleteActionPlan(Analysis analysis) throws Exception {
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan_summary", "Action Plan summary is deleting", null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan summary is deleting", null));
 
 		while (!analysis.getSummaries().isEmpty())
 			daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting", null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan is deleting", null));
 
 		while (!analysis.getActionPlans().isEmpty())
 			daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));

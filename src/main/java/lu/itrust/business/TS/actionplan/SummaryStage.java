@@ -415,7 +415,7 @@ public class SummaryStage {
 		if(Double.isNaN(externalWorkload))
 			throw new TrickException("error.summary.external_workload.nan", "Please ckeck your data: External workload is not a number");
 		if (externalWorkload < 0)
-			throw new TrickException("error.summary.external_workload.less_zero","External workload should be 0 or greater");
+			throw new TrickException("error.summary.external_workload.nan","External workload should be 0 or greater");
 		this.externalWorkload = externalWorkload;
 	}
 
