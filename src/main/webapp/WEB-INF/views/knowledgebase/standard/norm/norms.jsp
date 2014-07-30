@@ -6,7 +6,7 @@
 <div class="section" id="section_norm">
 	<div class="page-header">
 		<h3 id="Norms">
-			<spring:message code="menu.knowledgebase.Standards" />
+			<spring:message code="label.menu.knowledgebase.standards" text="Standards"/>
 		</h3>
 	</div>
 	<div class="panel panel-default">
