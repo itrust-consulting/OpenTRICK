@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <!-- ################################################################ Set Page Title ################################################################ -->
-<c:set scope="request" var="title">label.signin.login</c:set>
+<c:set scope="request" var="title">label.title.signin</c:set>
 <!-- ###################################################################### HTML #################################################################### -->
 <html>
 <!-- Include Header -->
