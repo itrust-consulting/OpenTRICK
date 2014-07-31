@@ -5,6 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.usermanagement.User;
 
@@ -70,4 +71,6 @@ public interface ServiceAnalysis {
 	public void delete(Analysis analysis) throws Exception;
 
 	public List<Analysis> getAllFromCustomer(Integer id);
+
+	public List<Analysis> getAllProfileContainsNorm(List<Norm> norms);
 }

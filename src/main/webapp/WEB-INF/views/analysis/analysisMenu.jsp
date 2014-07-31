@@ -81,19 +81,23 @@
 					<li class="dropdown-header"><spring:message code="label.analysis" text="Analysis" /></li>
 					<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <spring:message code="label.action.close.analysis" text="Close analysis" /></a></li>
 					<li class="divider"></li>
-					<li><a href="#" onclick="return editRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.action.edit.rrf" text="Edit RRF" /></a></li>
+					<li class="dropdown-header"><spring:message code="label.title.rrf" text="RRF" /></li>
+					<li><a href="#" onclick="return editRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.action.edit" text="Edit" /></a></li>
+					<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.action.import.rrf" text="Import from profile" /></a></li>
 					<c:if test="${!KowledgeBaseView }">
 						<li class="divider"></li>
-						<li><a href="#" onclick="return computeAssessment();" class="text-danger"> <spring:message code="label.action.generate.missing" text="Update assessments" /></a></li>
-						<li><a href="#" onclick="return wipeAssessment();"> <spring:message code="label.action.clear.assessment" text="Clear assessments" /></a></li>
-						<li class="divider"></li>
-						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.action.compute.action_plan" text="Compute action plan" />
+						<li class="dropdown-header"><spring:message code="label.title.computation" text="Computation" /></li>
+						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.action.compute.action_plan" text="Action plan" />
 						</a></li>
 						<c:if test="${empty(show_cssf) or show_cssf}">
-							<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <spring:message code="label.action.compute.risk_register" text="Compute registers" /></a></li>
+							<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <spring:message code="label.action.compute.risk_register" text="Registers" /></a></li>
 						</c:if>
 						<li class="divider"></li>
 						<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" text="Reload charts" /></a></li>
+						<li class="divider"></li>
+						<li class="dropdown-header"><spring:message code="label.title.assessment" text="Assessment" /></li>
+						<li><a href="#" onclick="return computeAssessment();" class="text-danger"> <spring:message code="label.action.generate.missing" text="Update" /></a></li>
+						<li class="label-warning"><a href="#" onclick="return wipeAssessment();"><spring:message code="label.action.clear.assessment" text="Clear" /></a></li>
 						<li class="divider"></li>
 					</c:if>
 					<li class="dropdown-header"><spring:message code="label.settings" text="Settings" /></li>

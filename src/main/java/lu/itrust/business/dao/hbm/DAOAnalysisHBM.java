@@ -5,6 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAnalysis;
@@ -89,7 +90,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 * exists: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAnalysis#exists(java.lang.String, java.lang.String)
+	 * @see lu.itrust.business.dao.DAOAnalysis#exists(java.lang.String,
+	 *      java.lang.String)
 	 */
 	@Override
 	public boolean exists(String identifier, String version) throws Exception {
@@ -216,7 +218,8 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public List<Analysis> getAllFromUserAndCustomerByPageAndSizeIndex(String login, Integer customer, Integer pageIndex, Integer pageSize) throws Exception {
 		String query = "Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.customer.id = :customer ";
 		query += "order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc, userAnalysis.analysis.data desc";
-		return getSession().createQuery(query).setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize).setFirstResult((pageIndex - 1) * pageSize).list();
+		return getSession().createQuery(query).setParameter("username", login).setParameter("customer", customer).setMaxResults(pageSize)
+				.setFirstResult((pageIndex - 1) * pageSize).list();
 	}
 
 	/**
@@ -365,5 +368,14 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public List<Analysis> getAllFromCustomer(Integer id) {
 		return (List<Analysis>) getSession().createQuery("From Analysis where customer.id = :idCustomer").setParameter("idCustomer", id).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Analysis> getAllProfileContainsNorm(List<Norm> norms) {
+		return getSession()
+				.createQuery(
+						"Select distinct analysis From Analysis analysis inner join analysis.analysisNorms analysisNorm where analysis.profile = true and analysisNorm.norm in :norms")
+				.setParameterList("norms", norms).list();
 	}
 }
