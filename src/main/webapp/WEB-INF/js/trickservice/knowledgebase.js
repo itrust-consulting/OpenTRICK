@@ -158,7 +158,7 @@ function deleteAnalysis(analysisId) {
 				$("#deleteanalysisbuttonYes").prop("disabled", false);
 				$("#deleteAnalysisModel").modal('toggle');
 				if (response.success != undefined) {
-					reloadSection("section_analysis");
+					reloadSection("section_profile_analysis");
 				} else if (response.error != undefined) {
 					$("#alert-dialog .modal-body").html(response.error);
 					$("#alert-dialog").modal("toggle");

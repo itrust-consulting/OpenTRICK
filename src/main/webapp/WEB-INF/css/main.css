@@ -215,6 +215,10 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	margin-bottom: 0;
 }
 
+.datepicker.datepicker.dropdown-menu{
+	z-index: 1001;
+}
+
 .tt-dropdown-menu {
 	min-width: 160px;
 	margin-top: 2px;

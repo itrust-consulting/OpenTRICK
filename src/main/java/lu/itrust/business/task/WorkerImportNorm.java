@@ -291,10 +291,7 @@ public class WorkerImportNorm implements Worker {
 
 								measureDescription.setLevel((int) sheet.getRow(indexRow).getCell(0).getNumericCellValue());
 								measureDescription.setReference(sheet.getRow(indexRow).getCell(1).getStringCellValue());
-								if (measureDescription.getLevel() == 3)
-									measureDescription.setComputable(true);
-								else
-									measureDescription.setComputable(false);
+								measureDescription.setComputable(sheet.getRow(indexRow).getCell(2).getBooleanCellValue());
 
 								if (startColSheet + 3 <= endColSheet) {
 

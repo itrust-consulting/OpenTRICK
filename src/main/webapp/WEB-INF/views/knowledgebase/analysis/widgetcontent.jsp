@@ -15,8 +15,10 @@
 			</div>
 			<div class="modal-body">
 				<form name="analysis" action="" class="form-horizontal" id="analysis_form"></form>
-				<div class="progress progress-striped active" hidden="true">
-					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
+				<div class="col-sm-12" style="margin: 5px auto -10px auto;">
+					<div class="progress progress-striped active" hidden="true">
+						<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
+					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
@@ -39,8 +41,10 @@
 			<div class="modal-body">
 				<div id="deleteAnalysisBody"></div>
 			</div>
-			<div id="deleteprogressbar" class="progress progress-striped active" hidden="true" style="width: 95%">
-				<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
+			<div class="col-sm-12" style="margin: 5px auto -10px auto;">
+				<div id="deleteprogressbar" class="progress progress-striped active" hidden="true">
+					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
+				</div>
 			</div>
 			<div class="modal-footer">
 				<button id="deleteanalysisbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">

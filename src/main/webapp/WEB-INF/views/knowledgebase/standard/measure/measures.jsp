@@ -44,8 +44,8 @@
 										<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'measure_description','modal-measure')"></th>
 										<th colspan="2"><spring:message code="label.measure.level" text="Level"/></th>
 										<th colspan="3"><spring:message code="label.measure.reference" text="Reference"/></th>
-										<th colspan="20"><spring:message code="label.measure.domain"  text="Domain"/></th>
-										<th colspan="20"><spring:message code="label.measure.description" text="Description"/></th>
+										<th colspan="8"><spring:message code="label.measure.domain"  text="Domain"/></th>
+										<th colspan="30"><spring:message code="label.measure.description" text="Description"/></th>
 										<th colspan="3"><spring:message code="label.measure.computable" text="Computable"/></th>
 									</tr>
 								</thead>
@@ -54,12 +54,10 @@
 										<tr trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${norm.id}');">
 											<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_measure_description','#menu_measure_description','modal-measure');"></td>
 											<td colspan="2">${measureDescription.level}</td>
-											<td colspan="3">${measureDescription.reference}</td>
-											<td colspan="20">${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:"&nbsp;"}</td>
-											<td colspan="20">${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:"&nbsp;"}</td>
-											<td colspan="3" trick-computable="${measureDescription.computable}">
-													<spring:message code="label.yes_no.${measureDescription.computable}" text="${measureDescription.computable?'Yes':'No'}" />
-												</td>
+											<td colspan="3"><spring:message text='${measureDescription.reference}'/></td>
+											<td colspan="8"><spring:message text='${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:""}'/></td>
+											<td colspan="30"><pre><spring:message text='${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:""}' /></pre></td>
+											<td colspan="3" trick-computable="${measureDescription.computable}"><spring:message code="label.yes_no.${measureDescription.computable}" text="${measureDescription.computable?'Yes':'No'}" /></td>
 										</tr>
 									</c:forEach>
 								</tbody>
