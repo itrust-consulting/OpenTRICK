@@ -589,8 +589,15 @@ public class ControllerAnalysis {
 	@RequestMapping("/Deselect")
 	public String DeselectAnalysis(HttpSession session) throws Exception {
 		// retrieve selected analysis
-		session.removeAttribute("selectedAnalysis");
-		return "redirect:/Analysis";
+		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+		if(integer!=null){
+			session.removeAttribute("selectedAnalysis");
+			if(serviceAnalysis.isProfile(integer))
+				return "redirect:/KnowledgeBase";
+			else return "redirect:/Analysis";
+		}
+		return "redirect:/home";
+		
 	}
 
 	// *****************************************************************

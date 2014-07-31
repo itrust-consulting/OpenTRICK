@@ -22,7 +22,7 @@
 								code="label.menu.edit.norm" text="Edit" /> </a></li>
 					<li><a href="#" onclick="return getImportNormTemplate();"><span class="glyphicon glyphicon-file"></span> <spring:message
 								code="label.menu.norm.download.import_norm_template" text="Get Import Template" /> </a></li>
-					<li><a href="#" onclick="return uploadImportNormFile();"><span class="glyphicon glyphicon-import"></span> <spring:message code="label.menu.import.norm" text="Import norm" />
+					<li><a href="#" onclick="return uploadImportNormFile();"><span class="glyphicon glyphicon-import"></span> <spring:message code="label.menu.import.norm" text="Import Standard" />
 					</a></li>
 					<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteNorm();"><span class="glyphicon glyphicon-remove"></span>
 							<spring:message code="label.action.delete.norm" text="Delete" /> </a></li>

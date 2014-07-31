@@ -25,7 +25,7 @@
 							<li><a href="#" onclick="return newAnalysis();"> <span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.analysis"
 										text="New analysis" /></a></li>
 							<li class="disabled" trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span class="glyphicon glyphicon-folder-open"></span>
-									&nbsp;<spring:message code="label.menu.edit.analysis" text="Edit analysis" /></a></li>
+									&nbsp;<spring:message code="label.menu.open.analysis" text="Open analysis" /></a></li>
 							<li class="disabled profilemenu" trick-selectable="true"><a href="#" onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span
 									class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.manage.access.analysis" text="Manage Access Rights" /></a></li>
 							<li class="disabled" trick-selectable="true"><a href="#" onclick="return addHistory()"> <span class="glyphicon glyphicon-new-window"></span> <spring:message

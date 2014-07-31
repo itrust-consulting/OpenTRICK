@@ -229,7 +229,7 @@ public class WorkerAnalysisImport implements Worker {
 			importAnalysis.setDatabaseHandler(DatabaseHandler);
 			if (importAnalysis.ImportAnAnalysis()) {
 				MessageHandler messageHandler = new MessageHandler("success.analysis.import", "Import Done!", 100);
-				messageHandler.setAsyncCallback(new AsyncCallback(String.format("window.location.assign(\"../Analysis/%d/Select\")",analysis.getId()), null));
+				messageHandler.setAsyncCallback(new AsyncCallback("window.location.assign(\"../Analysis\")", null));
 				importAnalysis.getServiceTaskFeedback().send(getId(), messageHandler);
 			}
 
