@@ -77,6 +77,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.AccessDeniedException;
@@ -175,6 +176,12 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceRole serviceRole;
+	
+	@Value("${app.settings.report.template.name}")
+	private String reportName;
+	
+	@Value("${app.settings.report.template.version}")
+	private String reportVersion;
 
 	// ******************************************************************************************************************
 	// * Request mappers
@@ -1099,6 +1106,10 @@ public class ControllerAnalysis {
 		try {
 
 			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
+			
+			exportAnalysisReport.setReportName(reportName);
+			
+			exportAnalysisReport.setReportVersion(reportVersion);
 
 			exportAnalysisReport.setMessageSource(messageSource);
 
