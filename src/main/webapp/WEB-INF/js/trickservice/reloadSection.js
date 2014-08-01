@@ -7,7 +7,8 @@ function reloadSection(section, subSection, refreshOnly) {
 		for (var int = 0; int < section.length; int++) {
 			if (Array.isArray(section[int]))
 				reloadSection(section[int][0], section[int][1], refreshOnly);
-			else reloadSection(section[int], subSection, refreshOnly);
+			else
+				reloadSection(section[int], subSection, refreshOnly);
 		}
 	} else {
 		var controller = controllerBySection(section, subSection);
@@ -86,9 +87,6 @@ function callbackBySection(section) {
 		"section_analysis" : function() {
 			return analysisTableSortable();
 		},
-		"section_profile_analysis" : function() {
-			return analysisTableSortable();
-		},
 		"section_actionplans" : function() {
 			compliance('27001');
 			compliance('27002');
@@ -126,6 +124,11 @@ SectionSmartUpdate.prototype = {
 		case "section_asset":
 		case "section_scenario":
 		case "section_phase":
+		case "section_norm":
+		case "section_profile_analysis":
+		case "section_language":
+		case "section_customer":
+		case "section_user":
 			return this.__generic_update(this.data, "#" + this.sectionName, 1);
 		default:
 			break;
@@ -137,7 +140,7 @@ SectionSmartUpdate.prototype = {
 			var tableDestTrs = $(dest).find("tbody tr");
 			if (!tableDestTrs.length)
 				throw "tbody cannot be found";
-			
+
 			if ($(tableDestTrs[0]).find("td").length != $(src).find("tbody>tr:first>td").length)
 				throw "Table header has been changed";
 

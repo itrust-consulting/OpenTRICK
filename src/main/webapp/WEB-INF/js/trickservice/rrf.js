@@ -77,7 +77,7 @@ function RRFView() {
 					"scenario" : new ScenarioRRFController(that, $(that.modal_body).find("#control_rrf_scenario"), "scenario"),
 					"measure" : new MeasureRRFController(that, $(that.modal_body).find("#control_rrf_measure"), "measure")
 				};
-				
+
 				for ( var controller in that.controllers)
 					that.controllers[controller].Initialise();
 
@@ -86,7 +86,8 @@ function RRFView() {
 
 				that.ReloadChart();
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		return true;
 	};
@@ -242,18 +243,18 @@ function ScenarioRRFController(rrfView, container, name) {
 
 	ScenarioRRFController.prototype.CheckTypeValue = function() {
 		var sum = 0;
-		for ( var field in this.DependencyFields) 
-			sum+=this.DependencyFields[field];
+		for ( var field in this.DependencyFields)
+			sum += this.DependencyFields[field];
 		var types = $(this.container).find("*[trick-type='type']");
-		if (Math.abs(1-sum)>0.01) {
+		if (Math.abs(1 - sum) > 0.01) {
 			$(types).removeClass("success");
 			$(types).addClass("danger");
 		} else {
 			$(types).removeClass("danger");
 			$(types).addClass("success");
 		}
-		//console.log(Math.abs(1-sum));
-		//console.log(sum);
+		// console.log(Math.abs(1-sum));
+		// console.log(sum);
 		return false;
 	};
 
@@ -261,7 +262,7 @@ function ScenarioRRFController(rrfView, container, name) {
 		var that = this;
 		if (this.idScenario < 1 || this.idScenario == undefined)
 			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
-		if (this.DependencyFields[fiedName] != undefined){
+		if (this.DependencyFields[fiedName] != undefined) {
 			this.DependencyFields[fiedName] = value;
 			this.CheckTypeValue();
 		}
@@ -272,7 +273,8 @@ function ScenarioRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		return false;
 	};
@@ -302,7 +304,12 @@ function ScenarioRRFController(rrfView, container, name) {
 							if (fieldValue == undefined)
 								continue;
 						}
-						if (that.DependencyFields[field] != undefined)//update preventive, limitative, detective and corrective
+						if (that.DependencyFields[field] != undefined)// update
+							// preventive,
+							// limitative,
+							// detective
+							// and
+							// corrective
 							that.DependencyFields[field] = fieldValue;
 						$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", fieldValue);
 						$(clone).attr("value", fieldValue);
@@ -316,7 +323,8 @@ function ScenarioRRFController(rrfView, container, name) {
 					that.CheckTypeValue();
 				}
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 
@@ -391,7 +399,8 @@ function ScenarioRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 }
@@ -504,7 +513,8 @@ function MeasureRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 
@@ -545,7 +555,8 @@ function MeasureRRFController(rrfView, container, name) {
 					}
 				}
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 
@@ -627,7 +638,8 @@ function MeasureRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 	return false;
@@ -639,6 +651,82 @@ function editRRF(idAnalysis) {
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.READ)) {
 		var modal = new RRFView();
 		modal.Show();
+	} else
+		permissionError();
+	return false;
+}
+
+function importRRF(idAnalysis) {
+	if (idAnalysis == null || idAnalysis == undefined)
+		idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+		$.ajax({
+			url : context + "/KnowledgeBase/Norm/Import/RRF",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(response, "text/html");
+				if ($(doc).find("#importMeasureCharacteristics").length) {
+					var modal = new Modal($(doc).find("#importMeasureCharacteristics").clone());
+					var $norms = $(modal.modal_body).find("select[name='norms']");
+					var $profileSelector = $(modal.modal_body).find("select[name='profile']");
+					$profileSelector.on("change", function(e) {
+						var value = $(e.target).val();
+						if (value == undefined)
+							value = -1;
+						$norms.find("option[name!='" + value + "']").hide().prop("selected", false);
+						$norms.find("option[name='" + value + "']").show();
+					});
+					var $importButton = $(modal.modal_footer).find("button[name='import']");
+					var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
+					var $progressBar = $(modal.modal_body).find(".progress");
+					$importButton.click(function() {
+						if ($importButton.is(":disabled"))
+							return false;
+						$progressBar.show();
+						$importButton.prop("disabled", true);
+						$cancelButton.prop("disabled", true);
+						$(modal.modal_body).find(".alert").remove();
+						$.ajax({
+							url : context + "/KnowledgeBase/Norm/Import/RRF/Save",
+							type : "post",
+							data : $(modal.modal_body).find("form").serialize(),
+							success : function(response) {
+								if (response.success != undefined)
+									showSuccess($(modal.modal_body)[0], response.success);
+								else {
+									if (response.error != undefined)
+										showError($(modal.modal_body)[0], response.error);
+									else
+										unknowError();
+								}
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								$progressBar.hide();
+								$importButton.prop("disabled", false);
+								$cancelButton.prop("disabled", false);
+								showError($(modal.modal_body)[0], MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+							}
+						}).done(function() {
+							$progressBar.hide();
+							$importButton.prop("disabled", false);
+							$cancelButton.prop("disabled", false);
+						});
+						return false;
+					});
+					$cancelButton.click(function() {
+						if (!$cancelButton.is(":disabled"))
+							modal.Destroy();
+						return false;
+					});
+					$profileSelector.change();
+
+					modal.Show();
+				} else
+					unknowError();
+			},
+			error : unknowError
+		});
 	} else
 		permissionError();
 	return false;

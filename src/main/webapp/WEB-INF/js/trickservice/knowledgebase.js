@@ -47,7 +47,6 @@ function setAsDefaultProfile(analysisId) {
 		type : "get",
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-
 			reloadSection("section_profile_analysis");
 		},
 		error : unknowError

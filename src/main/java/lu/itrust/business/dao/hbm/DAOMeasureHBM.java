@@ -1,6 +1,9 @@
 package lu.itrust.business.dao.hbm;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
@@ -268,5 +271,20 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@Override
 	public void delete(Integer id) throws Exception {
 		delete(get(id));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<String, Measure> mappingAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm) {
+		Iterator<Measure> iterator = getSession()
+				.createQuery(
+						"Select  measure From AnalysisNorm analysisNorm inner join analysisNorm.measures as measure where analysisNorm.norm.id = :idNorm and  analysisNorm.analysis.id= :idAnalysis")
+				.setParameter("idAnalysis", idAnalysis).setParameter("idNorm", idNorm).iterate();
+		Map<String, Measure> result = new LinkedHashMap<String, Measure>();
+		while(iterator.hasNext()){
+			Measure measure = iterator.next();
+			result.put(measure.getMeasureDescription().getReference(), measure);
+		}
+		return result;
 	}
 }

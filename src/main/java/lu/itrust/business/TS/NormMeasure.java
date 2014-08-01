@@ -214,6 +214,12 @@ public class NormMeasure extends Measure {
 		normMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.duplicate();
 		return normMeasure;
 	}
+
+	public void copyMeasureCharacteristicsTo(NormMeasure measure) throws TrickException {
+		if(this.getMeasurePropertyList() == null || measure == null || measure.getMeasurePropertyList() == null)
+			return;
+		measurePropertyList.copyTo(measure.measurePropertyList);
+	}
 	
 	
 }

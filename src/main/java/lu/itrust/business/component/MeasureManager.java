@@ -24,10 +24,12 @@ import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.helper.Chapter;
+import lu.itrust.business.component.helper.ImportRRFForm;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAnalysisNorm;
 import lu.itrust.business.dao.DAOAssetType;
 import lu.itrust.business.dao.DAOMeasure;
+import lu.itrust.business.dao.hbm.DAOHibernate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -179,4 +181,23 @@ public class MeasureManager {
 			}
 		}
 	}
+
+	@Transactional
+	public void importNorm(Integer idAnalysis, ImportRRFForm rrfForm) throws Exception {
+		for (Integer idNorm : rrfForm.getNorms()) {
+			
+			Map<String, Measure> profileMeasures = daoMeasure.mappingAllFromAnalysisAndNorm(rrfForm.getProfile(), idNorm);
+			List<Measure> measures = daoMeasure.getAllFromAnalysisAndNorm(idAnalysis, idNorm);
+			for (Measure measure : measures) {
+				NormMeasure normMeasure = (NormMeasure) profileMeasures.get(measure.getMeasureDescription().getReference());
+				if(normMeasure == null)
+					continue;
+				((NormMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormMeasure) measure).getMeasurePropertyList()));//Force hibernate to initialise data
+				normMeasure.setMeasurePropertyList(DAOHibernate.Initialise(normMeasure.getMeasurePropertyList()));//Force hibernate to initialise data
+				normMeasure.copyMeasureCharacteristicsTo(((NormMeasure)measure));
+				daoMeasure.saveOrUpdate(measure);
+			}
+		}
+	}
+
 }

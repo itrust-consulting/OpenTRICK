@@ -23,6 +23,8 @@ import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.CustomDelete;
+import lu.itrust.business.component.MeasureManager;
+import lu.itrust.business.component.helper.ImportRRFForm;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceDataValidation;
@@ -57,6 +59,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -114,6 +117,9 @@ public class ControllerNorm {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
+	private MeasureManager measureManager;
 
 	/**
 	 * displayAll: <br>
@@ -275,7 +281,7 @@ public class ControllerNorm {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Import", headers = "Accept=application/json")
+	@RequestMapping(value = "/Import", headers = "Accept=application/json;charset=UTF-8")
 	public String importNewNorm(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
 			throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
@@ -301,7 +307,7 @@ public class ControllerNorm {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Export/{normId}", headers = "Accept=application/json")
+	@RequestMapping(value = "/Export/{normId}", headers = "Accept=application/json;charset=UTF-8")
 	public String exportNorm(@PathVariable("normId") Integer normId, Principal principal, HttpServletRequest request, Locale locale, HttpServletResponse response) throws Exception {
 
 		Norm norm = serviceNorm.get(normId);
@@ -561,17 +567,38 @@ public class ControllerNorm {
 	}
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String importRRF(HttpSession session, Principal principal, Model model) throws Exception{
+	@RequestMapping(value = "/Import/RRF", headers = "Accept=application/json;charset=UTF-8")
+	public String importRRF(HttpSession session, Principal principal, Model model) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		List<Norm> norms = serviceNorm.getAllFromAnalysis(idAnalysis);
 		List<Integer> idNomrs = new ArrayList<Integer>(norms.size());
-		for (Norm norm : norms) 
-			idNomrs.add(norm.getId());
+		for (Norm norm : norms) {
+			if (!Constant.NORM_MATURITY.equalsIgnoreCase(norm.getLabel()))
+				idNomrs.add(norm.getId());
+		}
 		List<Analysis> profiles = serviceAnalysis.getAllProfileContainsNorm(norms);
 		model.addAttribute("idNorms", idNomrs);
 		model.addAttribute("profiles", profiles);
 		return "analysis/components/forms/importMeasureCharacteristics";
-		
+
+	}
+
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Import/RRF/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Object importRRFSave(@ModelAttribute ImportRRFForm rrfForm, HttpSession session, Principal principal, Locale locale) {
+		try {
+			if (rrfForm.getProfile() < 1)
+				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.no_profile", null, "No profile", locale));
+			else if (rrfForm.getNorms() == null || rrfForm.getNorms().isEmpty())
+				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
+			measureManager.importNorm((Integer) session.getAttribute("selectedAnalysis"), rrfForm);
+
+			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+
 	}
 
 	/**

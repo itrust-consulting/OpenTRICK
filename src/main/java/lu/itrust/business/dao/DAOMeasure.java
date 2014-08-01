@@ -1,6 +1,7 @@
 package lu.itrust.business.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
@@ -50,4 +51,6 @@ public interface DAOMeasure {
 	public void delete(Integer id) throws Exception;
 
 	public void delete(Measure measure) throws Exception;
+
+	public Map<String,Measure> mappingAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm);
 }

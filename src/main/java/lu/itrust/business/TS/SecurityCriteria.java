@@ -116,7 +116,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            the value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDirect1(int value) throws TrickException {
 		setCategoryValue("Direct1", value);
@@ -139,7 +139,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDirect2(int value) throws TrickException {
 		setCategoryValue("Direct2", value);
@@ -162,7 +162,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDirect3(int value) throws TrickException {
 		setCategoryValue("Direct3", value);
@@ -185,7 +185,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDirect4(int value) throws TrickException {
 		setCategoryValue("Direct4", value);
@@ -208,7 +208,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDirect5(int value) throws TrickException {
 		setCategoryValue("Direct5", value);
@@ -231,7 +231,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDirect6(int value) throws TrickException {
 		setCategoryValue("Direct6", value);
@@ -254,7 +254,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDirect61(int value) throws TrickException {
 		setCategoryValue("Direct6.1", value);
@@ -277,7 +277,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDirect62(int value) throws TrickException {
 		setCategoryValue("Direct6.2", value);
@@ -300,7 +300,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDirect63(int value) throws TrickException {
 		setCategoryValue("Direct6.3", value);
@@ -323,7 +323,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDirect64(int value) throws TrickException {
 		setCategoryValue("Direct6.4", value);
@@ -346,7 +346,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDirect7(int value) throws TrickException {
 		setCategoryValue("Direct7", value);
@@ -369,7 +369,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect1(int value) throws TrickException {
 		setCategoryValue("Indirect1", value);
@@ -392,7 +392,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect2(int value) throws TrickException {
 		setCategoryValue("Indirect2", value);
@@ -415,7 +415,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect3(int value) throws TrickException {
 		setCategoryValue("Indirect3", value);
@@ -438,7 +438,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect4(int value) throws TrickException {
 		setCategoryValue("Indirect4", value);
@@ -461,7 +461,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect5(int value) throws TrickException {
 		setCategoryValue("Indirect5", value);
@@ -484,7 +484,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect6(int value) throws TrickException {
 		setCategoryValue("Indirect6", value);
@@ -507,7 +507,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect7(int value) throws TrickException {
 		setCategoryValue("Indirect7", value);
@@ -530,7 +530,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect8(int value) throws TrickException {
 		setCategoryValue("Indirect8", value);
@@ -553,7 +553,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect81(int value) throws TrickException {
 		setCategoryValue("Indirect8.1", value);
@@ -576,7 +576,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect82(int value) throws TrickException {
 		setCategoryValue("Indirect8.2", value);
@@ -599,7 +599,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect83(int value) throws TrickException {
 		setCategoryValue("Indirect8.3", value);
@@ -622,7 +622,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect84(int value) throws TrickException {
 		setCategoryValue("Indirect8.4", value);
@@ -645,7 +645,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect9(int value) throws TrickException {
 		setCategoryValue("Indirect9", value);
@@ -668,7 +668,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIndirect10(int value) throws TrickException {
 		setCategoryValue("Indirect10", value);
@@ -692,7 +692,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setConfidentiality(int value) throws TrickException {
 		setCategoryValue("Confidentiality", value);
@@ -715,7 +715,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setIntegrity(int value) throws TrickException {
 		setCategoryValue("Integrity", value);
@@ -739,7 +739,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @param value
 	 *            Value to set the Availability
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setAvailability(int value) throws TrickException {
 		setCategoryValue("Availability", value);
@@ -1190,6 +1190,32 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 			securityCriteria.categories.put(key, categories.get(key));
 		securityCriteria.id = -1;
 		return securityCriteria;
+	}
+
+	public void copyTo(SecurityCriteria securityCriteria) {
+		if (securityCriteria == null)
+			return;
+		/** The Preventive value */
+		securityCriteria.preventive = preventive;
+		/** The Detective value */
+		securityCriteria.detective = detective;
+		/** The Limitative value */
+		securityCriteria.limitative = limitative;
+		/** The Corrective value */
+		securityCriteria.corrective = corrective;
+		/** The Intentional value */
+		securityCriteria.intentional = intentional;
+		/** The Accidental value */
+		securityCriteria.accidental = accidental;
+		/** The Environmental value */
+		securityCriteria.environmental = environmental;
+		/** The Internal Threat value */
+		securityCriteria.internalThreat = internalThreat;
+		/** The External Threat value */
+		securityCriteria.externalThreat = externalThreat;
+		for (String category : getCategoryKeys())
+			securityCriteria.categories.put(category, categories.get(category));
+
 	}
 
 }
