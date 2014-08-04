@@ -31,17 +31,17 @@
 							<th class="text-center" title='<spring:message code="label.risk_register.probability" text="Probability" />'><spring:message code="label.risk_register.acro.probability"
 									text="P." /></th>
 							<th class="text-center" title='<spring:message code="label.risk_register.impact" text="Impact" />'><spring:message code="label.risk_register.acro.impact" text="I." /></th>
-							<th class="text-center" title='<spring:message code="label.risk_register.importance" text="Importance" />'><spring:message code="label.risk_register.importance"
+							<th class="text-center" title='<spring:message code="label.risk_register.importance" text="Importance" />'><spring:message code="label.risk_register.acro.importance"
 									text="Imp." /></th>
 							<th class="text-center" title='<spring:message code="label.risk_register.probability" text="Probability" />'><spring:message code="label.risk_register.acro.probability"
 									text="P." /></th>
 							<th class="text-center" title='<spring:message code="label.risk_register.impact" text="Impact" />'><spring:message code="label.risk_register.acro.impact" text="I." /></th>
-							<th class="text-center" title='<spring:message code="label.risk_register.importance" text="Importance" />'><spring:message code="label.risk_register.importance"
+							<th class="text-center" title='<spring:message code="label.risk_register.importance" text="Importance" />'><spring:message code="label.risk_register.acro.importance"
 									text="Imp." /></th>
 							<th class="text-center" title='<spring:message code="label.risk_register.probability" text="Probability" />'><spring:message code="label.risk_register.acro.probability"
 									text="P." /></th>
 							<th class="text-center" title='<spring:message code="label.risk_register.impact" text="Impact" />'><spring:message code="label.risk_register.acro.impact" text="I." /></th>
-							<th class="text-center" title='<spring:message code="label.risk_register.importance" text="Importance" />'><spring:message code="label.risk_register.importance"
+							<th class="text-center" title='<spring:message code="label.risk_register.importance" text="Importance" />'><spring:message code="label.risk_register.acro.importance"
 									text="Imp." /></th>
 						</tr>
 					</thead>
