@@ -260,7 +260,7 @@ public class ControllerScenario {
 		model.addAttribute("measures", MeasureManager.SplitByChapter(normMeasures));
 		model.addAttribute("categories", CategoryConverter.JAVAKEYS);
 		model.addAttribute("scenarios", ScenarioManager.SplitByType(scenarios));
-		model.addAttribute("assetTypes", serviceAssetType.getAllFromAnalysis(idAnalysis));
+		model.addAttribute("assetTypes", serviceAssetType.getAll());
 		Language language = serviceLanguage.getFromAnalysis(idAnalysis);
 		model.addAttribute("language", language == null ? locale.getISO3Language() : language.getAlpha3());
 		return "analysis/components/forms/rrfEditor";

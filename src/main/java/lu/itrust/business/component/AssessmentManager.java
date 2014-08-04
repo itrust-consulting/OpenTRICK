@@ -223,6 +223,12 @@ public class AssessmentManager {
 		}
 		UpdateAssetALE(analysis);
 	}
+	
+	@Transactional
+	public void Refresh(Analysis analysis) throws Exception{
+		WipeAssessment(analysis);
+		UpdateAssessment(analysis);
+	}
 
 	@Transactional
 	public void WipeAssessment(Analysis analysis) throws Exception {

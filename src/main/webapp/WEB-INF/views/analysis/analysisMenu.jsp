@@ -96,8 +96,8 @@
 						<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" text="Reload charts" /></a></li>
 						<li class="divider"></li>
 						<li class="dropdown-header"><spring:message code="label.title.assessment" text="Assessment" /></li>
-						<li><a href="#" onclick="return computeAssessment();" class="text-danger"> <spring:message code="label.action.generate.missing" text="Update" /></a></li>
-						<li class="label-warning"><a href="#" onclick="return wipeAssessment();"><spring:message code="label.action.clear.assessment" text="Clear" /></a></li>
+						<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.action.generate.missing" text="Update" /></a></li>
+						<li><a href="#" onclick="return refreshAssessment();"><spring:message code="label.action.refresh.assessment" text="Refresh" /></a></li>
 						<li class="divider"></li>
 					</c:if>
 					<li class="dropdown-header"><spring:message code="label.settings" text="Settings" /></li>

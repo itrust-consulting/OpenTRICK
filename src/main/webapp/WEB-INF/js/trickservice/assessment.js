@@ -271,7 +271,6 @@ function displayAssessmentByScenario() {
 }
 
 function displayAssessmentByAsset() {
-
 	var selectedItem = findSelectItemIdBySection("section_asset");
 	if (selectedItem.length != 1 || !isSelected("asset"))
 		return false;
@@ -281,69 +280,88 @@ function displayAssessmentByAsset() {
 }
 
 function computeAssessment(silent) {
-	$.ajax({
-		url : context + "/Assessment/Update",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response['error'] != undefined) {
-				$("#info-dialog .modal-body").text(response['error']);
-				$("#info-dialog").modal("toggle");
-			} else if (response['success'] != undefined) {
-				if (!silent) {
-					$("#info-dialog .modal-body").text(response['success']);
+	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+		$.ajax({
+			url : context + "/Assessment/Update",
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			async : true,
+			success : function(response) {
+				if (response['error'] != undefined) {
+					$("#info-dialog .modal-body").text(response['error']);
 					$("#info-dialog").modal("toggle");
+				} else if (response['success'] != undefined) {
+					if (!silent) {
+						$("#info-dialog .modal-body").text(response['success']);
+						$("#info-dialog").modal("toggle");
+					}
+					chartALE();
 				}
-				chartALE();
-			}
-			return false;
-		},
-		error : unknowError
-	});
+				return false;
+			},
+			error : unknowError
+		});
+	} else
+		permissionError();
+
+	return false;
+}
+
+function refreshAssessment() {
+	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+		$("#confirm-dialog .modal-body").html(MessageResolver("confirm.refresh.assessment", "Are you sure, you want to rebuild all assessments"));
+		$("#confirm-dialog .btn-danger").click(function() {
+			$.ajax({
+				url : context + "/Assessment/Refresh",
+				type : "get",
+				contentType : "application/json;charset=UTF-8",
+				async : true,
+				success : function(response) {
+					if (response['error'] != undefined) {
+						$("#info-dialog .modal-body").text(response['error']);
+						$("#info-dialog").modal("toggle");
+					} else if (response['success'] != undefined) {
+						$("#info-dialog .modal-body").text(response['success']);
+						$("#info-dialog").modal("toggle");
+						chartALE();
+					}
+					return false;
+				},
+				error : unknowError
+			});
+		});
+		$("#confirm-dialog").modal("show");
+	} else
+		permissionError();
 	return false;
 }
 
 function updateAssessmentAle(silent) {
-	$.ajax({
-		url : context + "/Assessment/Update/ALE",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response['error'] != undefined) {
-				$("#info-dialog .modal-body").text(response['error']);
-				$("#info-dialog").modal("toggle");
-			} else if (response['success'] != undefined) {
-				if (!silent) {
-					$("#info-dialog .modal-body").text(response['success']);
+	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+		$.ajax({
+			url : context + "/Assessment/Update/ALE",
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			async : true,
+			success : function(response) {
+				if (response['error'] != undefined) {
+					$("#info-dialog .modal-body").text(response['error']);
 					$("#info-dialog").modal("toggle");
+				} else if (response['success'] != undefined) {
+					if (!silent) {
+						$("#info-dialog .modal-body").text(response['success']);
+						$("#info-dialog").modal("toggle");
+					}
 				}
-			}
-			return false;
-		},
-		error : unknowError
-	});
-	return false;
-}
+				return false;
+			},
+			error : unknowError
+		});
+	} else
+		permissionError();
 
-function wipeAssessment() {
-	$.ajax({
-		url : context + "/Assessment/Wipe",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response['error'] != undefined) {
-				$("#info-dialog .modal-body").text(response['error']);
-				$("#info-dialog").modal("toggle");
-			} else if (response['success'] != undefined) {
-				$("#info-dialog .modal-body").text(response['success']);
-				$("#info-dialog").modal("toggle");
-			}
-			return false;
-		},
-		error : unknowError
-	});
 	return false;
 }

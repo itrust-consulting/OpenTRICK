@@ -20,6 +20,7 @@ import lu.itrust.business.component.AssessmentComparator;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.component.helper.JsonMessage;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAssessment;
@@ -102,11 +103,10 @@ public class ControllerAssessment {
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Refresh", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String updateAssessment(HttpSession session, Locale locale, Principal principal) {
+	public @ResponseBody String refreshAssessment(HttpSession session, Locale locale, Principal principal) {
 		try {
-
 			// retrieve analysis id
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
@@ -120,66 +120,66 @@ public class ControllerAssessment {
 			// check if analysis object is not null
 			if (analysis == null)
 				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
-
 			// update assessments of analysis
-			assessmentManager.UpdateAssessment(analysis);
-
+			assessmentManager.Refresh(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
-
 			// return success message
-			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", locale) + "\"}");
-		} catch (Exception e) {
-
+			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", locale) + "\"}");
+		} catch(TrickException e){
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}
+		catch (Exception e) {
 			// return error
 			e.printStackTrace();
 			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
 		}
 	}
+	
 
 	/**
-	 * deleteAssessments: <br>
+	 * updateAssessment: <br>
 	 * Description
 	 * 
 	 * @param session
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "/Wipe", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String deleteAssessments(HttpSession session, Locale locale, Principal principal) {
-
+	public @ResponseBody String updateAssessment(HttpSession session, Locale locale, Principal principal) {
 		try {
-
 			// retrieve analysis id
 			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
-			// check if analysis id is not null
+			// check if analysis is not null
 			if (integer == null)
 				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale) + "\" }");
 
 			// load analysis object
 			Analysis analysis = serviceAnalysis.get(integer);
 
-			// check if analysis is not null
+			// check if analysis object is not null
 			if (analysis == null)
 				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
-
-			// delete all assessments
-			assessmentManager.WipeAssessment(analysis);
-
+			// update assessments of analysis
+			assessmentManager.UpdateAssessment(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
-
 			// return success message
-			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.wipe", null, "Assessments were successfully deleted", locale) + "\"}");
-		} catch (Exception e) {
-
-			// return error message
+			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", locale) + "\"}");
+		} catch(TrickException e){
 			e.printStackTrace();
-			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.delete", null, "An error occurred during deletion", locale) + "\"}");
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}
+		catch (Exception e) {
+			// return error
+			e.printStackTrace();
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
 		}
 	}
+
 
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")

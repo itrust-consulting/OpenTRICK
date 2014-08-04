@@ -825,7 +825,7 @@ public class ChartGenerator {
 	private Map<String, RRFAssetType> computeRRFByScenario(Scenario scenario, List<AssetType> assetTypes, List<NormMeasure> measures, int idAnalysis) throws Exception {
 		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		if (assetTypes == null)
-			assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
+			assetTypes = daoAssetType.getAll();
 		if (measures == null)
 			measures = daoMeasure.getAllNormMeasuresFromAnalysisAndComputable(idAnalysis);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
@@ -844,7 +844,7 @@ public class ChartGenerator {
 	private Map<String, RRFAssetType> computeRRFByMeasure(NormMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
 		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		if (assetTypes == null)
-			assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
+			assetTypes = daoAssetType.getAll();
 		if (scenarios == null)
 			scenarios = daoScenario.getAllFromAnalysis(idAnalysis);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
@@ -881,7 +881,7 @@ public class ChartGenerator {
 
 			String series = "\"series\":[";
 
-			List<AssetType> assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
+			List<AssetType> assetTypes = daoAssetType.getAll();
 
 			List<NormMeasure> measures = null;
 
@@ -962,7 +962,7 @@ public class ChartGenerator {
 
 			String series = "\"series\":[";
 
-			List<AssetType> assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
+			List<AssetType> assetTypes = daoAssetType.getAll();
 
 			List<Scenario> scenarios = null;
 

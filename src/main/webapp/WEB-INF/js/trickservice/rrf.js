@@ -253,8 +253,6 @@ function ScenarioRRFController(rrfView, container, name) {
 			$(types).removeClass("danger");
 			$(types).addClass("success");
 		}
-		// console.log(Math.abs(1-sum));
-		// console.log(sum);
 		return false;
 	};
 
@@ -304,12 +302,9 @@ function ScenarioRRFController(rrfView, container, name) {
 							if (fieldValue == undefined)
 								continue;
 						}
-						if (that.DependencyFields[field] != undefined)// update
-							// preventive,
-							// limitative,
-							// detective
-							// and
-							// corrective
+						// update preventive, limitative,detective and
+						// corrective
+						if (that.DependencyFields[field] != undefined)
 							that.DependencyFields[field] = fieldValue;
 						$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", fieldValue);
 						$(clone).attr("value", fieldValue);
@@ -359,13 +354,14 @@ function ScenarioRRFController(rrfView, container, name) {
 		RRFController.prototype.GenerateFilter.call(this);
 		var element = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active");
 		if (element.length == 1) {
-			this.rrfView.filter["measures"] = $.makeArray($(element.parent()).find("a[trick-class='Measure']")).map(function(item) {
+			this.rrfView.filter["measures"] = $.makeArray($(element.parent().parent()).find("a[trick-class='Measure']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));
 			});
 		} else {
 			this.rrfView.filter["measures"] = [];
 			for (var i = 0; i < element.length; i++)
-				this.rrfView.filter["measures"].push($(element[i]).attr('trick-id'));
+				if ($(element[i]).attr('trick-class') == "Measure")
+					this.rrfView.filter["measures"].push($(element[i]).attr('trick-id'));
 		}
 		return false;
 	};
@@ -375,14 +371,14 @@ function ScenarioRRFController(rrfView, container, name) {
 		var trickClass = $(element).attr("trick-class");
 		var trickId = $(element).attr("trick-id");
 		if (trickClass == "Norm") {
-			this.rrfView.filter["measures"] = $.makeArray($(element).parent().find("a[trick-class='Measure']")).map(function(item) {
+			this.rrfView.filter["measures"] = $.makeArray($(element).parent().parent().find("a[trick-class='Measure']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));
 			});
 			this.SelectFirstItem();
 			this.rrfView.SwitchController(this);
 			return this.ReloadChart();
-		}
-		this.rrfView.filter["measures"] = [ parseInt(trickId) ];
+		} else
+			this.rrfView.filter["measures"] = [ parseInt(trickId) ];
 		return false;
 	};
 
@@ -590,13 +586,14 @@ function MeasureRRFController(rrfView, container, name) {
 		RRFController.prototype.GenerateFilter.apply(this);
 		var element = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active");
 		if (element.length == 1) {
-			this.rrfView.filter["scenarios"] = $.makeArray($(element.parent()).find("a[trick-class='Scenario']")).map(function(item) {
+			this.rrfView.filter["scenarios"] = $.makeArray($(element.parent().parent()).find("a[trick-class='Scenario']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));
 			});
 		} else {
 			this.rrfView.filter["scenarios"] = [];
 			for (var i = 0; i < element.length; i++)
-				this.rrfView.filter["scenarios"].push($(element[i]).attr('trick-id'));
+				if ($(element[i]).attr('trick-class') == 'Scenario')
+					this.rrfView.filter["scenarios"].push($(element[i]).attr('trick-id'));
 		}
 		return false;
 	};
@@ -614,14 +611,14 @@ function MeasureRRFController(rrfView, container, name) {
 		var trickId = $(element).attr("trick-id");
 		// this.SynchronizeSlider(); rejected by product owner
 		if (trickClass == "ScenarioType") {
-			this.rrfView.filter["scenarios"] = $.makeArray($(element).parent().find("a[trick-class='Scenario']")).map(function(item) {
+			this.rrfView.filter["scenarios"] = $.makeArray($(element).parent().parent().find("a[trick-class='Scenario']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));
 			});
 			this.SelectFirstItem();
 			this.rrfView.SwitchController(this);
 			return this.ReloadChart();
-		}
-		this.rrfView.filter["scenarios"] = [ parseInt(trickId) ];
+		} else
+			this.rrfView.filter["scenarios"] = [ parseInt(trickId) ];
 		return false;
 	};
 

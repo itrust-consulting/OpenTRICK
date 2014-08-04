@@ -4,6 +4,7 @@ import java.io.File;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
 import lu.itrust.business.component.AssessmentManager;
+import lu.itrust.business.component.ComparatorItemInformation;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.component.helper.JsonMessage;
@@ -238,6 +240,8 @@ public class ControllerAnalysis {
 					principal, AnalysisRight.READ);
 
 			if (permissiondenied) {
+				
+				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 				// initialise and send data to the data model
 				Hibernate.initialize(analysis.getLanguage());
 				model.addAttribute("login", principal.getName());

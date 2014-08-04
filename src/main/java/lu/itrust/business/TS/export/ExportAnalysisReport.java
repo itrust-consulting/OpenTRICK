@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -30,6 +31,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
+import lu.itrust.business.component.ComparatorItemInformation;
 import lu.itrust.business.component.RiskInformationManager;
 import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.exception.TrickException;
@@ -1046,6 +1048,8 @@ public class ExportAnalysisReport {
 		paragraph = findParagraphByText("<Scope>");
 
 		List<ItemInformation> iteminformations = analysis.getItemInformations();
+		
+		Collections.sort(iteminformations, new ComparatorItemInformation());
 
 		if (paragraph != null && iteminformations.size() > 0) {
 
