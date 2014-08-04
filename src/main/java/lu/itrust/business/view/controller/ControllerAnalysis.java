@@ -328,8 +328,10 @@ public class ControllerAnalysis {
 			if (phase == null)
 				analysis.addUsedPhase(phase = new Phase(Constant.PHASE_DEFAULT));
 			measure.setPhase(phase);
+			
 			analysisNorm.setAnalysis(analysis);
 			analysisNorm.setNorm(norm);
+			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
 			measure.setImplementationRate(implementationRate);
 			for (MeasureDescription measureDescription : measureDescriptions) {
 				Measure measure2 = measure.duplicate();
