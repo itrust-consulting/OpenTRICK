@@ -24,7 +24,7 @@ public class RiskInformationValidator extends ValidatorFieldImpl{
 			if(candidate == null)
 				return "error.risk_information.label.null::Label cannot be empty";
 			else if(!(candidate instanceof String))
-				return "error.unsupported.data:label:Label value is not supported";
+				return "error.risk_information.unsupported.label::Label value is not supported";
 			String label = (String) candidate;
 			if(label.trim().isEmpty())
 				return "error.risk_information.label.empty::Label cannot be empty";
@@ -33,7 +33,7 @@ public class RiskInformationValidator extends ValidatorFieldImpl{
 			if(candidate == null)
 				return "error.risk_information.category.null::Category cannot be empty";
 			else if(!(candidate instanceof String))
-				return "error.unsupported.data:category:Category value is not supported";
+				return "error.risk_information.unsupported.category::Category value is not supported";
 			String category = (String) candidate;
 			if(category.trim().isEmpty())
 				return "error.risk_information.exposed.empty::Exposed cannot be empty";
@@ -44,7 +44,7 @@ public class RiskInformationValidator extends ValidatorFieldImpl{
 			if(candidate == null)
 				return "error.risk_information.exposed.null::Exposed cannot be empty";
 			else if(!(candidate instanceof String))
-				return "error.unsupported.data:exposed:Exposed value is not supported";
+				return "error.risk_information.unsupported.exposed::Exposed value is not supported";
 			String exposed = (String) candidate;
 			if(!exposed.matches(Constant.REGEXP_VALID_RISKINFORMATION_EXPOSED))
 				return "error.risk_information.exposed.invalid::Exposed value cannot be accepted";
@@ -53,7 +53,7 @@ public class RiskInformationValidator extends ValidatorFieldImpl{
 			if(candidate == null)
 				return "error.risk_information.chapter.null::Chapter cannot be empty";
 			else if(!(candidate instanceof String))
-				return "error.unsupported.data:Chapter:Chapter value is not supported";
+				return "error.risk_information.unsupported.chapter::Chapter value is not supported";
 			String chapter = (String) candidate;
 			if(!chapter.matches(Constant.REGEXP_VALID_RISKINFORMATION_EXPOSED))
 				return "error.risk_information.chapter.invalid::Chapter value cannot be accepted";
@@ -62,19 +62,19 @@ public class RiskInformationValidator extends ValidatorFieldImpl{
 			if(candidate == null)
 				return "error.risk_information.acronym.null::Acronym cannot be empty";
 			else if(!(candidate instanceof String))
-				return "error.unsupported.data:Acronym:Acronym value is not supported";
+				return "error.risk_information.unsupported.acronym::Acronym value is not supported";
 			break;
 		case "comment":
 			if(candidate == null)
 				return "error.risk_information.comment.null::Label cannot be empty";
 			else if(!(candidate instanceof String))
-				return "error.unsupported.data:Comment:Comment value is not supported";
+				return "error.risk_information.unsupported.comment::Comment value is not supported";
 			break;
 		case "hiddenComment":
 			if(candidate == null)
 				return "error.risk_information.hiddenComment.null::Hidden comment cannot be empty";
 			else if(!(candidate instanceof String))
-				return "error.unsupported.data:hiddenComment:Hidden comment value is not supported";
+				return "error.risk_information.unsupported.hidden_comment::Hidden comment value is not supported";
 			break;
 		default:
 			break;

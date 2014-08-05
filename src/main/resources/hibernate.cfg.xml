@@ -26,5 +26,6 @@
   <mapping resource="lu/itrust/business/TS/ItemInformation.hbm.xml"/>
   <mapping resource="lu/itrust/business/TS/usermanagement/User.hbm.xml"/>
   <mapping resource="lu/itrust/business/TS/usermanagement/Role.hbm.xml"/>
+  <mapping resource="lu/itrust/business/TS/usermanagement/AppSettings.hbm.xml"/>
  </session-factory>
 </hibernate-configuration>

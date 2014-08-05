@@ -10,11 +10,13 @@ function TaskManager(title) {
 		setTimeout(function() {
 			instance.UpdateTaskCount();
 		}, 1000);
+		return this;
 	};
 
 	TaskManager.prototype.__CreateView = function() {
 		this.view = new Modal();
 		this.view.Intialise();
+		$(this.view.modal_footer).remove();
 		this.view.setTitle(this.title);
 	};
 
@@ -28,9 +30,9 @@ function TaskManager(title) {
 		return this.tasks.length == 0;
 	};
 
-	TaskManager.prototype.Distroy = function() {
+	TaskManager.prototype.Destroy = function() {
 		if (this.view != null)
-			this.view.Distroy();
+			this.view.Destroy();
 		return true;
 	};
 
@@ -56,9 +58,6 @@ function TaskManager(title) {
 				}
 			},error : unknowError
 		});
-		/*
-		 * setTimeout(function() { instance.UpdateTaskCount(); }, 10000);
-		 */
 		return false;
 	};
 
@@ -73,9 +72,9 @@ function TaskManager(title) {
 		progressBar.OnComplete(function(sender) {
 			progressBar.setInfo("Complete");
 			setTimeout(function() {
-				progressBar.Distroy();
+				progressBar.Destroy();
 				instance.Remove(taskId);
-				instance.Distroy();
+				instance.Destroy();
 			}, 10000);
 		});
 		return progressBar;
@@ -89,7 +88,7 @@ function TaskManager(title) {
 			this.progressBars[taskId].Remove();
 			this.progressBars.splice(taskId, 1);
 		}
-		this.Distroy();
+		this.Destroy();
 		return false;
 	};
 
@@ -120,7 +119,7 @@ function TaskManager(title) {
 				} else {
 					setTimeout(function() {
 						instance.Remove(taskId);
-					}, 3000);
+					}, 10000);
 					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null) {
 						if (reponse.asyncCallback.args !=null && reponse.asyncCallback.args.length)
 							window[reponse.asyncCallback.action].apply(null, reponse.asyncCallback.args);

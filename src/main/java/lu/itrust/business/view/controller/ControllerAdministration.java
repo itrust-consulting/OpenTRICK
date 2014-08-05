@@ -18,8 +18,10 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.dao.hbm.DAOHibernate;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceDataValidation;
@@ -73,6 +75,9 @@ public class ControllerAdministration {
 	private ServiceAnalysis serviceAnalysis;
 
 	@Autowired
+	private CustomDelete customDelete;
+
+	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
@@ -93,32 +98,41 @@ public class ControllerAdministration {
 	public String showAdministration(HttpSession session, Principal principal, Map<String, Object> model) throws Exception {
 		model.put("adminView", true);
 		model.put("users", serviceUser.getAll());
-
-		List<Customer> customers = serviceCustomer.getAllNotProfiles();
-
-		Integer customerID = (Integer) session.getAttribute("currentCustomer");
-
+		List<Customer> customers = serviceCustomer.getAll();
+		Integer customerID = (Integer) session.getAttribute("currentAdminCustomer");
 		// check if the current customer is set -> no
-		if (customerID == null && !customers.isEmpty())
-
-			// use first customer as selected customer
-			session.setAttribute("currentCustomer", customerID = customers.get(0).getId());
-
-		customers = serviceCustomer.getAll();
-
-		model.put("status", getStatus());
-
-		if (customers != null && customers.size() > 0) {
-
-			model.put("customers", customers);
-
-			if (customerID != null) {
-				model.put("currentcustomer", customerID);
-				model.put("analyses", serviceAnalysis.getAllFromCustomerAndProfile(customerID));
-			} else {
-				model.put("currentcustomer", null);
-				model.put("analyses", serviceAnalysis.getAll());
+		Integer profileId = null;
+		if (customerID == null) {
+			for (Customer customer : customers) {
+				if (customer.isCanBeUsed()) {
+					// use first customer as selected customer
+					session.setAttribute("currentAdminCustomer", customerID = customer.getId());
+					break;
+				} else
+					profileId = customer.getId();
 			}
+			if (customerID == null)
+				customerID = profileId;
+		} else {
+			boolean find = false;
+			for (Customer customer : customers) {
+				if (customer.getId() == customerID) {
+					find = true;
+					break;
+				} else if (!customer.isCanBeUsed())
+					profileId = customer.getId();
+			}
+			if (!find)
+				customerID = profileId;
+		}
+		model.put("status", getStatus());
+		if (customers != null && customers.size() > 0) {
+			model.put("customers", customers);
+			if (customerID != null) {
+				model.put("customer", customerID);
+				model.put("analyses", serviceAnalysis.getAllFromCustomer(customerID));
+			} else
+				model.put("analyses", serviceAnalysis.getAll());
 		}
 		return "admin/administration";
 	}
@@ -174,11 +188,24 @@ public class ControllerAdministration {
 	 */
 	@RequestMapping("/Analysis/DisplayByCustomer/{customerSection}")
 	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
-		session.setAttribute("currentCustomer", customerSection);
+		session.setAttribute("currentAdminCustomer", customerSection);
 		model.addAttribute("customer", customerSection);
-		model.addAttribute("analyses", serviceAnalysis.getAllFromCustomerAndProfile(customerSection));
+		model.addAttribute("analyses", serviceAnalysis.getAllFromCustomer(customerSection));
 		model.addAttribute("customers", serviceCustomer.getAll());
 		return "admin/analysis/analyses";
+	}
+
+	@RequestMapping(value = "/Analysis/Delete", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody boolean deleteAnalysis(@RequestBody List<Integer> ids, HttpSession session) {
+		try {
+			Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+			if (selected != null && ids.contains(selected))
+				session.removeAttribute("selectedAnalysis");
+			return customDelete.deleteAnalysis(ids);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/**
@@ -261,10 +288,10 @@ public class ControllerAdministration {
 					continue;
 
 				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
-			
-				for(UserAnalysisRight uar: analysis.getUserRights())
+
+				for (UserAnalysisRight uar : analysis.getUserRights())
 					uar.setUser(DAOHibernate.Initialise(uar.getUser()));
-				
+
 				UserAnalysisRight uar = analysis.getRightsforUser(user);
 
 				if (uar != null) {
@@ -295,8 +322,8 @@ public class ControllerAdministration {
 				}
 			}
 
-			model.addAttribute("success", messageSource
-					.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			model.addAttribute("success",
+					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
@@ -369,7 +396,7 @@ public class ControllerAdministration {
 
 		model.put("userRoles", roleTypes);
 		model.put("roles", RoleType.values());
-		return "admin/user/userRoles";
+		return "admin/user/roles";
 
 	}
 
@@ -468,9 +495,7 @@ public class ControllerAdministration {
 					if (jsonNode.get(role.getType().name()).asText().equals(Constant.CHECKBOX_CONTROL_ON)) {
 						user.addRole(role);
 					}
-
 				}
-
 			}
 
 			if (errors.isEmpty())
@@ -478,6 +503,10 @@ public class ControllerAdministration {
 			else
 				return null;
 
+		} catch (TrickException e) {
+			errors.put("user", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			e.printStackTrace();
+			return null;
 		} catch (Exception e) {
 
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
@@ -499,8 +528,7 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json")
-	public @ResponseBody
-	Map<String, String> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
+	public @ResponseBody Map<String, String> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
@@ -535,8 +563,7 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping("/User/Delete/{userId}")
-	public @ResponseBody
-	Boolean delete(@PathVariable("userId") int userId, Principal principal) throws Exception {
+	public @ResponseBody Boolean delete(@PathVariable("userId") int userId, Principal principal) throws Exception {
 		try {
 
 			User user = serviceUser.get(userId);

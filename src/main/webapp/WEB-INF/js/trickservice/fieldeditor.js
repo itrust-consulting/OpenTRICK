@@ -136,7 +136,7 @@ function FieldEditor(element, validator) {
 			return false;
 		var style = $(this.fieldEditor).attr("style");
 		$(this.fieldEditor).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
-		$(this.fieldEditor).attr("style", style + (style.endsWith(";")? ";" : "")  + "position: relative;")
+		$(this.fieldEditor).attr("style", style + (style.endsWith(";") ? ";" : "") + "position: relative;")
 		$(this.element).html(this.fieldEditor);
 		$(this.fieldEditor).focus();
 		return false;
@@ -216,6 +216,51 @@ function FieldEditor(element, validator) {
 	};
 }
 
+PhaseFieldEditor.prototype = new FieldEditor();
+
+function PhaseFieldEditor(element) {
+	FieldEditor.call(this, element);
+	PhaseFieldEditor.prototype.GeneratefieldEditor = function() {
+		var result = FieldEditor.prototype.GeneratefieldEditor.apply(this);
+		if (!result) {
+
+			var l_lang;
+			if (navigator.userLanguage) // Explorer
+				l_lang = navigator.userLanguage;
+			else if (navigator.language) // FF
+				l_lang = navigator.language;
+			else
+				l_lang = "en";
+
+			if (l_lang == "en-US") {
+				l_lang = "en";
+			}
+
+			var that = this;
+
+			$(this.fieldEditor).unbind("blur");
+
+			$(this.fieldEditor).css({
+				'z-index' : 1000
+			});
+
+			$(this.fieldEditor).attr("readonly", "true");
+
+			$(this.fieldEditor).datepicker({
+				format : "yyyy-mm-dd",
+				language : l_lang
+			}).on("hide", function() {
+				if ($(that.fieldEditor).val() == "")
+					that.Rollback();
+				else
+					that.Save(that);
+			});
+		}
+		return result;
+	}
+
+}
+
 ExtendedFieldEditor.prototype = new FieldEditor();
 
 function ExtendedFieldEditor(element) {
@@ -239,9 +284,9 @@ function ExtendedFieldEditor(element) {
 					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
-							if (that.fieldName == "acronym")
-								setTimeout("updateAssessmentAcronym('" + that.classId + "', '" + that.defaultValue + "')", 100);
-							return reloadSection("section_parameter");
+							reloadSection("section_parameter");
+							if (that.fieldName == "value" || that.fieldName == "acronym")
+								updateAssessmentAle(true);
 						} else if (response["error"] != undefined) {
 							$("#alert-dialog .modal-body").html(response["error"]);
 							$("#alert-dialog").modal("toggle");
@@ -535,9 +580,10 @@ function editField(element, controller, id, field, type) {
 				fieldEditor = new AssessmentFieldEditor(element);
 		} else if (controller == "MaturityMeasure")
 			fieldEditor = new MaturityMeasureFieldEditor(element);
+		else if (controller == "Phase")
+			fieldEditor = new PhaseFieldEditor(element);
 		else
 			fieldEditor = new FieldEditor(element);
-
 		if (!fieldEditor.Initialise())
 			fieldEditor.Show();
 	} else

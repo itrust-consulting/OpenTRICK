@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * AnalysisNorm: <br>
  * This class represents a AnalysisNorm and its data
@@ -96,12 +98,13 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	 * 
 	 * @param name
 	 *            The value to set the AnalysisNorm Name
+	 * @throws TrickException 
 	 */
-	public void setNorm(Norm name) {
+	public void setNorm(Norm name) throws TrickException {
 		if (name == null)
-			throw new IllegalArgumentException("error.norm.null");
+			throw new TrickException("error.norm.null", "Standard cannot be empty");
 		else if (name.getLabel() == null)
-			throw new IllegalArgumentException("error.norm.label_null");
+			throw new TrickException("error.norm.label_null","Standard name cannot be empty");
 		this.norm = name;
 	}
 

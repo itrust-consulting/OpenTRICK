@@ -2,6 +2,7 @@ package lu.itrust.business.view.controller;
 
 import java.security.Principal;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.importation.ImportAnalysis;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceTrickService;
@@ -20,6 +22,7 @@ import lu.itrust.business.service.ServiceUser;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,6 +55,9 @@ public class ControllerIntstallation {
 
 	@Autowired
 	private SessionFactory sessionFactory;
+	
+	@Autowired
+	private MessageSource messageSource;
 
 	@RequestMapping("/Install")
 	public String install(Model model, Principal principal, HttpServletRequest request) throws Exception {
@@ -60,22 +66,22 @@ public class ControllerIntstallation {
 
 	@RequestMapping("/InstallTS")
 	public @ResponseBody
-	Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request) throws Exception {
+	Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request,Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		TrickService status = serviceTrickService.getStatus();
 
 		if (status == null) {
-			errors.put("status", "Call analysis status before installing TRICK Service!");
+			errors.put("status", messageSource.getMessage( "error.application.no_install", null, "Please install TRICK Service!", locale));
 			return errors;
 		}
 
 		String fileName = request.getServletContext().getRealPath("/WEB-INF/data") + "/TL1.4_TRICKService_DefaultProfile_v1.1.sqlite";
 
-		installProfileCustomer(errors);
+		installProfileCustomer(errors, locale);
 
-		installDefaultProfile(fileName, principal, errors);
+		installDefaultProfile(fileName, principal, errors, locale);
 
 		status.setVersion(Constant.TRICKSERVICE_VERSION);
 		
@@ -96,11 +102,9 @@ public class ControllerIntstallation {
 		return "redirect:/InstallTS";
 	}
 
-	private Customer installProfileCustomer(Map<String, String> errors) {
+	private Customer installProfileCustomer(Map<String, String> errors, Locale locale) {
 		try {
-
 			Customer customer = serviceCustomer.getProfile();
-
 			if (customer == null) {
 				customer = new Customer();
 				customer.setOrganisation("Profile");
@@ -114,17 +118,19 @@ public class ControllerIntstallation {
 				customer.setCanBeUsed(false);
 				serviceCustomer.save(customer);
 			}
-
 			return customer;
-		} catch (Exception e) {
+		}catch(TrickException e) {
+			errors.put("installProfileCustomer", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return null;
+		}
+		catch (Exception e) {
 			e.printStackTrace();
-
 			errors.put("installProfileCustomer", e.getMessage());
 			return null;
 		}
 	}
 
-	private boolean installDefaultProfile(String fileName, Principal principal, Map<String, String> errors) {
+	private boolean installDefaultProfile(String fileName, Principal principal, Map<String, String> errors, Locale locale) {
 
 		Customer customer;
 
@@ -140,10 +146,10 @@ public class ControllerIntstallation {
 			customer = serviceCustomer.getProfile();
 
 			if (customer == null) {
-				customer = installProfileCustomer(errors);
+				customer = installProfileCustomer(errors, locale);
 				if (customer == null) {
 					System.out.println("Customer could not be installed!");
-					errors.put("installDefaultProfile - Customer", "Could not find profile customer!");
+					errors.put("installDefaultProfile - Customer", messageSource.getMessage( "error.customer_profile.no_found", null, "Could not find profile customer!", locale));
 					return false;
 				}
 			}
@@ -153,7 +159,7 @@ public class ControllerIntstallation {
 
 			if (owner == null) {
 				System.out.println("Could not determine owner! Canceling default Profile creation...");
-				errors.put("installDefaultProfile - Owner", "Could not determine owner!");
+				errors.put("installDefaultProfile - Owner", messageSource.getMessage( "error.analysis.owner.no_found", null, "Could not determine owner!", locale));
 				return false;
 			}
 
@@ -179,7 +185,13 @@ public class ControllerIntstallation {
 
 			return returnvalue;
 
-		} catch (Exception e) {
+			
+			
+		} catch(TrickException e) {
+			errors.put("installDefaultProfile - Create Profile", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return false;
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 			errors.put("installDefaultProfile - Create Profile", e.getMessage());
 			return false;

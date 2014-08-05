@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ import lu.itrust.business.TS.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
+import lu.itrust.business.component.ComparatorHistoryVersion;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAssetType;
 import lu.itrust.business.dao.DAOLanguage;
@@ -63,6 +65,7 @@ import lu.itrust.business.dao.hbm.DAOMeasureDescriptionTextHBM;
 import lu.itrust.business.dao.hbm.DAONormHBM;
 import lu.itrust.business.dao.hbm.DAOParameterTypeHBM;
 import lu.itrust.business.dao.hbm.DAOScenarioTypeHBM;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceTaskFeedback;
 
 import org.hibernate.Session;
@@ -71,7 +74,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ImportAnalysis: <br>
- * This class is for importing an Analysis from an TRICK Light SQLite file into Java objects.
+ * This class is for importing an Analysis from an TRICK Light SQLite file into
+ * Java objects.
  * 
  * @author itrust consulting s.a r.l. - BJA,SME
  * @version 0.1
@@ -288,7 +292,8 @@ public class ImportAnalysis {
 
 	/**
 	 * ImportAnAnalysis: <br>
-	 * Method used to import and given analysis using an sqlite file into the mysql database.
+	 * Method used to import and given analysis using an sqlite file into the
+	 * mysql database.
 	 * 
 	 * @throws Exception
 	 */
@@ -420,12 +425,10 @@ public class ImportAnalysis {
 			System.out.println("Import Done!");
 
 			return true;
-
 		} catch (Exception e) {
 			serviceTaskFeedback.send(idTask, new MessageHandler(e.getMessage(), e.getMessage(), e));
 			e.printStackTrace();
 			throw e;
-
 		} finally {
 			// clear maps
 			clearData();
@@ -458,7 +461,8 @@ public class ImportAnalysis {
 	 * <ul>
 	 * <li>Creates Analysis ID from Sqlite File</li>
 	 * <li>Creates Analysis Versions from Sqlite History Table</li>
-	 * <li>Sets the Language Object of the Analysis and set the "language" field</li>
+	 * <li>Sets the Language Object of the Analysis and set the "language" field
+	 * </li>
 	 * </ul>
 	 * 
 	 * @throws Exception
@@ -576,6 +580,9 @@ public class ImportAnalysis {
 		this.analysis.setCreationDate(new Timestamp(System.currentTimeMillis()));
 
 		// initialise analysis version to the last history version
+		
+		Collections.sort(this.analysis.getHistories(), new ComparatorHistoryVersion());
+		
 		this.analysis.setVersion(this.analysis.getLastHistory().getVersion());
 
 		// ****************************************************************
@@ -643,14 +650,15 @@ public class ImportAnalysis {
 			// check if the analysis has already data -> YES
 			if (!analysis.hasData()) {
 
-				// fill the analysis with data and change flag of hasData analysis
+				// fill the analysis with data and change flag of hasData
+				// analysis
 				System.out.println("Your file has already been imported without data");
 				this.analysis = analysis;
 				this.analysis.setData(true);
 			} else {
-
 				// analysis had already been imported and has data
-				throw new IllegalArgumentException("Your file has already been imported, whether it is a new version, do not forget to increase version");
+				throw new TrickException("error.import.analysis.version.exist", String.format(
+						"Your file has already been imported, whether it is a new version( %s ), do not forget to increase version", analysis.getVersion()), analysis.getVersion());
 			}
 		}
 
@@ -1290,8 +1298,9 @@ public class ImportAnalysis {
 			parameter.setType(parameterType);
 			parameter.setValue(rs.getInt(Constant.PARAMETER_TUNING));
 			/*
-			 * // **************************************************************** // * add instance
-			 * to list of parameters //
+			 * //
+			 * ****************************************************************
+			 * // * add instance to list of parameters //
 			 * ****************************************************************
 			 */
 			this.analysis.addAParameter(parameter);
@@ -1314,8 +1323,9 @@ public class ImportAnalysis {
 			this.analysis.addAParameter(parameter);
 
 			/*
-			 * // **************************************************************** // * add instance
-			 * to list of parameters //
+			 * //
+			 * ****************************************************************
+			 * // * add instance to list of parameters //
 			 * ****************************************************************
 			 */
 			parameter = new Parameter(parameterType, Constant.IMPORTANCE_THRESHOLD, rs.getDouble(Constant.IMPORTANCE_THRESHOLD));
@@ -1425,24 +1435,24 @@ public class ImportAnalysis {
 			String desc = "ImpScale";
 
 			switch (rs.getInt(Constant.MATURITY_IS_LINE)) {
-				case 1:
-					desc = Constant.IS_NOT_ACHIEVED;
-					break;
-				case 2:
-					desc = Constant.IS_RUDIMENTARY_ACHIEVED;
-					break;
-				case 3:
-					desc = Constant.IS_PARTIALLY_ACHIEVED;
-					break;
-				case 4:
-					desc = Constant.IS_LARGELY_ACHIEVED;
-					break;
-				case 5:
-					desc = Constant.IS_FULLY_ACHIEVED;
-					break;
-				default:
-					desc = "ImpScale" + String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE));
-					break;
+			case 1:
+				desc = Constant.IS_NOT_ACHIEVED;
+				break;
+			case 2:
+				desc = Constant.IS_RUDIMENTARY_ACHIEVED;
+				break;
+			case 3:
+				desc = Constant.IS_PARTIALLY_ACHIEVED;
+				break;
+			case 4:
+				desc = Constant.IS_LARGELY_ACHIEVED;
+				break;
+			case 5:
+				desc = Constant.IS_FULLY_ACHIEVED;
+				break;
+			default:
+				desc = "ImpScale" + String.valueOf(rs.getInt(Constant.MATURITY_IS_LINE));
+				break;
 			}
 
 			parameter.setDescription(desc);
@@ -1665,12 +1675,12 @@ public class ImportAnalysis {
 		rs = sqlite.query(query, null);
 
 		List<MaturityParameter> parameters = new ArrayList<MaturityParameter>();
-		
+
 		// retrieve the name, and with the name find out the category
 		while (rs.next()) {
 
 			maturityParameter = null;
-			
+
 			// ****************************************************************
 			// * set the label and category of the maturity parameter
 			// ****************************************************************
@@ -1699,64 +1709,62 @@ public class ImportAnalysis {
 				}
 			}
 
-			for(MaturityParameter parameter : parameters)
-				if(parameter.getCategory().equals(cat) && parameter.getDescription().equals(label)) {
+			for (MaturityParameter parameter : parameters)
+				if (parameter.getCategory().equals(cat) && parameter.getDescription().equals(label)) {
 					maturityParameter = parameter;
 					break;
 				}
-			
+
 			// ****************************************************************
 			// * create instance
 			// ****************************************************************
-			
-			if(maturityParameter == null) {
+
+			if (maturityParameter == null) {
 				maturityParameter = new MaturityParameter();
 				maturityParameter.setCategory(cat);
 				maturityParameter.setDescription(label);
 				maturityParameter.setType(parameterType);
 				parameters.add(maturityParameter);
 			}
-			
-			
-			
-			switch(rs.getInt(Constant.MATURITY_REQUIRED_LIPS_SML)) {
-				case 0:{
-					maturityParameter.setSMLLevel0(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
-				case 1:{
-					maturityParameter.setSMLLevel1(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
-				case 2:{
-					maturityParameter.setSMLLevel2(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
-				case 3:{
-					maturityParameter.setSMLLevel3(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
-				case 4:{
-					maturityParameter.setSMLLevel4(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
-				case 5:{
-					maturityParameter.setSMLLevel5(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
-					maturityParameter.setValue(-1);
-					break;
-				}
+
+			switch (rs.getInt(Constant.MATURITY_REQUIRED_LIPS_SML)) {
+			case 0: {
+				maturityParameter.setSMLLevel0(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+				maturityParameter.setValue(-1);
+				break;
+			}
+			case 1: {
+				maturityParameter.setSMLLevel1(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+				maturityParameter.setValue(-1);
+				break;
+			}
+			case 2: {
+				maturityParameter.setSMLLevel2(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+				maturityParameter.setValue(-1);
+				break;
+			}
+			case 3: {
+				maturityParameter.setSMLLevel3(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+				maturityParameter.setValue(-1);
+				break;
+			}
+			case 4: {
+				maturityParameter.setSMLLevel4(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+				maturityParameter.setValue(-1);
+				break;
+			}
+			case 5: {
+				maturityParameter.setSMLLevel5(rs.getDouble(Constant.MATURITY_REQUIRED_LIPS_VALUE));
+				maturityParameter.setValue(-1);
+				break;
+			}
 			}
 
 		}
 
-		for(Parameter parameter : parameters)
-		this.analysis.addAParameter(parameter);
-		
+		for (Parameter parameter : parameters)
+			this.analysis.addAParameter(parameter);
+
 		// close result
 		rs.close();
 	}
@@ -1858,12 +1866,14 @@ public class ImportAnalysis {
 	/**
 	 * importNormMeasures: <br>
 	 * <ul>
-	 * <li>Imports all AnalysisNorm Measures (27001,27002,custom) except maturity</li>
+	 * <li>Imports all AnalysisNorm Measures (27001,27002,custom) except
+	 * maturity</li>
 	 * <li>Create Objects for each AnalysisNorm</li>
 	 * <li>Create Objects for each Measure</li>
 	 * <li>Create Objects for the Measure Phase</li>
 	 * <li>Adds the Phase to the Measure Object</li>
-	 * <li>Adds the Measure Objects to the their cosresponding AnalysisNorm (int the "norms" field)</li>
+	 * <li>Adds the Measure Objects to the their cosresponding AnalysisNorm (int
+	 * the "norms" field)</li>
 	 * </ul>
 	 * 
 	 * @throws Exception
@@ -2006,8 +2016,9 @@ public class ImportAnalysis {
 				mesText.setDescription(rs.getString(Constant.MEASURE_QUESTION_MEASURE));
 
 				/*
-				 * System.out.println(mesDesc.getReference() + ":::" + mesDesc.getNorm().getLabel()
-				 * + ":::" + mesText.getDomain() + ":::" + mesText.getDescription());
+				 * System.out.println(mesDesc.getReference() + ":::" +
+				 * mesDesc.getNorm().getLabel() + ":::" + mesText.getDomain() +
+				 * ":::" + mesText.getDescription());
 				 */
 
 				mesText.setLanguage(this.analysis.getLanguage());
@@ -2067,10 +2078,9 @@ public class ImportAnalysis {
 			normMeasure.getMeasureDescription().setComputable(measurecomputable);
 
 			// calculate cost
-			cost =
-				Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE), this.analysis
-						.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), normMeasure.getInternalMaintenance(), normMeasure.getExternalMaintenance(), normMeasure.getRecurrentInvestment(),
-						normMeasure.getInternalWL(), normMeasure.getExternalWL(), normMeasure.getInvestment(), normMeasure.getLifetime());
+			cost = Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
+					this.analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), normMeasure.getInternalMaintenance(), normMeasure.getExternalMaintenance(),
+					normMeasure.getRecurrentInvestment(), normMeasure.getInternalWL(), normMeasure.getExternalWL(), normMeasure.getInvestment(), normMeasure.getLifetime());
 
 			normMeasure.setCost(cost);
 
@@ -2508,7 +2518,8 @@ public class ImportAnalysis {
 			status = rs.getString(Constant.MEASURE_STATUS);
 
 			// set status and by default not applicable (NA)
-			if ((!status.equals(Constant.MEASURE_STATUS_APPLICABLE)) && (!status.equals(Constant.MEASURE_STATUS_MANDATORY)) && (!status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))) {
+			if ((!status.equals(Constant.MEASURE_STATUS_APPLICABLE)) && (!status.equals(Constant.MEASURE_STATUS_MANDATORY))
+					&& (!status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))) {
 
 				// set default status
 				status = Constant.MEASURE_STATUS_NOT_APPLICABLE;
@@ -2519,14 +2530,13 @@ public class ImportAnalysis {
 
 			// check if status is not NA -> YES
 			if ((rs.getString(Constant.MEASURE_STATUS).replace("'", "''").equals(Constant.MEASURE_STATUS_APPLICABLE))
-				|| (rs.getString(Constant.MEASURE_STATUS).replace("'", "''").equals(Constant.MEASURE_STATUS_MANDATORY))) {
+					|| (rs.getString(Constant.MEASURE_STATUS).replace("'", "''").equals(Constant.MEASURE_STATUS_MANDATORY))) {
 
 				// calculate cost
-				cost =
-					Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
-							this.analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), rs.getInt("internal_maintenance"), rs.getInt("external_maintenance"), rs
-									.getInt("recurrent_investment"), rs.getInt(Constant.MATURITY_INTWL), rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT), rs
-									.getInt(Constant.MEASURE_LIFETIME));
+				cost = Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE),
+						this.analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), rs.getInt("internal_maintenance"), rs.getInt("external_maintenance"),
+						rs.getInt("recurrent_investment"), rs.getInt(Constant.MATURITY_INTWL), rs.getInt(Constant.MATURITY_EXTWL), rs.getInt(Constant.MATURITY_INVESTMENT),
+						rs.getInt(Constant.MEASURE_LIFETIME));
 			} else {
 
 				// check if status is not NA -> NO
@@ -2677,11 +2687,13 @@ public class ImportAnalysis {
 	 * Scenario categories are: <br>
 	 * <ul>
 	 * <li>Direct: d1, d2, d3, d4, d5, d6, d6.1, d6.2, d6.3, d6.4, d7</li>
-	 * <li>Indirect: i1, i2, i3, i4, i5, i6, i7, i8, i8.1, i8.2, i8.3, i8.4, i9, i10</li>
+	 * <li>Indirect: i1, i2, i3, i4, i5, i6, i7, i8, i8.1, i8.2, i8.3, i8.4, i9,
+	 * i10</li>
 	 * </ul>
 	 * 
 	 * @param criteria
-	 *            The scenario or measure object to set the categories with values
+	 *            The scenario or measure object to set the categories with
+	 *            values
 	 * @param resultSet
 	 *            The ResultSet from where the categorie values come from
 	 * 
@@ -2771,7 +2783,8 @@ public class ImportAnalysis {
 
 	/**
 	 * convertImpactToDouble: <br>
-	 * Takes a string value (value from SQLite file) and converts it into a valid double value.
+	 * Takes a string value (value from SQLite file) and converts it into a
+	 * valid double value.
 	 * 
 	 * @param impact
 	 *            The impact value as string
@@ -2844,8 +2857,8 @@ public class ImportAnalysis {
 
 	/**
 	 * createAssetTypeDefaultValuesInDatabase: <br>
-	 * This method Inserts the Default Asset Type Values from the Sqlite File. Values of -1 are
-	 * changed into 101 (still illegal value).
+	 * This method Inserts the Default Asset Type Values from the Sqlite File.
+	 * Values of -1 are changed into 101 (still illegal value).
 	 * 
 	 * @throws Exception
 	 */
@@ -2911,7 +2924,8 @@ public class ImportAnalysis {
 	/**
 	 * updateAssetTypeValue: <br>
 	 * <ul>
-	 * <li>Update a given Asset Type Value for a given Measure in a given AnalysisNorm</li>
+	 * <li>Update a given Asset Type Value for a given Measure in a given
+	 * AnalysisNorm</li>
 	 * </ul>
 	 * 
 	 * @param newMeasureNorm

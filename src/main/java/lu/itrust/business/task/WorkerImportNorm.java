@@ -23,6 +23,7 @@ import lu.itrust.business.dao.hbm.DAONormHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -290,10 +291,7 @@ public class WorkerImportNorm implements Worker {
 
 								measureDescription.setLevel((int) sheet.getRow(indexRow).getCell(0).getNumericCellValue());
 								measureDescription.setReference(sheet.getRow(indexRow).getCell(1).getStringCellValue());
-								if (measureDescription.getLevel() == 3)
-									measureDescription.setComputable(true);
-								else
-									measureDescription.setComputable(false);
+								measureDescription.setComputable(sheet.getRow(indexRow).getCell(2).getBooleanCellValue());
 
 								if (startColSheet + 3 <= endColSheet) {
 
@@ -301,7 +299,10 @@ public class WorkerImportNorm implements Worker {
 
 									for (int indexCol = startColSheet + 3; indexCol <= endColSheet; indexCol++) {
 										pattern = Pattern.compile("(Domain|Description)_(\\w{3})");
-										matcher = pattern.matcher(sheet.getRow(startRowSheet).getCell(indexCol).getStringCellValue());
+										XSSFCell cell = sheet.getRow(startRowSheet).getCell(indexCol);
+										if(cell == null)
+											continue;
+										matcher = pattern.matcher(cell.getStringCellValue());
 										if (matcher.matches()) {
 
 											if ((indexCol - startColSheet) % 2 == 1) {
@@ -358,15 +359,10 @@ public class WorkerImportNorm implements Worker {
 										}
 									}
 								}
-
 								daoMeasureDescription.saveOrUpdate(measureDescription);
-								// System.out.println("Save measure:::"+
-								// measureDescription.getNorm().getLabel() + "->" +
-								// measureDescription.getReference());
 							}
 					}
 				}
-
 				if (measureDescription == null || measureDescriptionText == null || measureDescriptionTexts == null) {
 					messageHandler = new MessageHandler("error.import.norm.measure", null, "There was problem during import of measures. Please check measure content!");
 					serviceTaskFeedback.send(id, messageHandler);

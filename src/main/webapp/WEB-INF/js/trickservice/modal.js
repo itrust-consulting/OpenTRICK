@@ -1,4 +1,4 @@
-function Modal() {
+function Modal(content,body) {
 	this.modal = null;
 	this.modal_dialog = null;
 	this.modal_header = null;
@@ -7,6 +7,25 @@ function Modal() {
 	this.modal_footer = null;
 	this.modal_head_buttons = [];
 	this.modal_footer_buttons = [];
+	this.isDisposed = false;
+	this.isDisposing = false;
+	this.isHidden = true;
+	
+	Modal.prototype.FromContent = function(content) {
+		this.modal = $(content);
+		this.modal_dialog = $(this.modal).find(".modal-dialog");
+		this.modal_header = $(this.modal).find(".modal-header");
+		this.modal_title = $(this.modal).find(".modal-title");
+		this.modal_body = $(this.modal).find(".modal-body");
+		this.modal_footer = $(this.modal).find(".modal-footer");
+		var $headerButtons = $(this.modal_header).find("button");
+		for (var i = 0; i < $headerButtons.length; i++)
+			this.modal_head_buttons.push($headerButtons[i]);
+		var $footerButtons = $(this.modal_footer).find("button");
+		for (var i = 0; i < $footerButtons.length; i++)
+			this.modal_footer_buttons.push($footerButtons[i]);
+		return this;
+	};
 
 	Modal.prototype.Size = function(map) {
 		var size = 0;
@@ -94,7 +113,7 @@ function Modal() {
 	Modal.prototype.setBody = function(body) {
 		if (this.modal_body != null)
 			$(this.modal_body).html(body);
-		return false;
+		return this;
 	};
 
 	Modal.prototype.__addHeadButton = function() {
@@ -129,33 +148,65 @@ function Modal() {
 
 	Modal.prototype.Hide = function() {
 		try {
-			if (this.modal != null && this.modal != undefined)
+			this.isHidden = true;
+			if (!(this.modal == null || this.modal == undefined))
 				$(this.modal).modal("hide");
 		} catch (e) {
 			console.log(e);
 		}
 	};
 
-	Modal.prototype.Distroy = function() {
+	Modal.prototype.Dispose = function() {
+		try {
+			this.isDisposing = true;
+			if (!(this.modal == null || this.modal == undefined))
+				$(this.modal).modal("hide");
+		} catch (e) {
+			console.log(e);
+		}
+	};
+
+	Modal.prototype.Destroy = function() {
 		var instance = this;
-		instance.Hide();
-		instance.modal.remove();
-		setTimeout(function() {
+		$(this.modal).on("hidden.bs.modal", function() {
+			instance.isDisposed = true;
+			$(instance.modal).remove();
 			delete instance;
-		}, 10);
+		});
+		instance.Dispose();
 		return false;
 	};
 
 	Modal.prototype.Show = function() {
 		try {
+			if(!this.isHidden)
+				return;
 			if (this.modal != null && this.modal != undefined)
-				$(this.modal).modal("toggle");
+				$(this.modal).modal("show");
 			else {
 				this.Intialise();
-				$(this.modal).modal("toggle");
+				$(this.modal).modal("show");
 			}
+			var instance = this;
+			$(this.modal).on("hidden.bs.modal", function() {
+				if (!(instance.isDisposing || instance.isHidden)){
+					instance.Destroy();
+					if ($(instance.modal).length) {
+						instance.isDisposed = true;
+						$(instance.modal).remove();
+					}
+					delete instance;
+				}
+			});
+			this.isHidden = false;
 		} catch (e) {
 			console.log(e);
 		}
 	};
+	
+	if(content!=undefined)
+		this.FromContent(content);
+	if(body!=undefined)
+		this.setBody(body);
+	
 }

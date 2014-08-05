@@ -9,7 +9,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addCustomerModel-title">
-					<spring:message code="label.customer.add.menu" text="Add new customer" />
+					<spring:message code="label.title.add.customer" text="Add new customer" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -23,21 +23,21 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="contactPerson" class="col-sm-2 control-label"> <spring:message code="label.customer.contactPerson" text="Contact Person" />
+						<label for="contactPerson" class="col-sm-2 control-label"> <spring:message code="label.customer.contact_person" text="Contact person" />
 						</label>
 						<div class="col-sm-10">
 							<input name="contactPerson" id="customer_contactPerson" class="form-control" type="text" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="phoneNumber" class="col-sm-2 control-label"> <spring:message code="label.customer.phoneNumber" text="Phone Number" />
+						<label for="phoneNumber" class="col-sm-2 control-label"> <spring:message code="label.customer.phone_number" text="Phone number" />
 						</label>
 						<div class="col-sm-10">
 							<input name="phoneNumber" id="customer_phoneNumber" class="form-control" type="text" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="email" class="col-sm-2 control-label"> <spring:message code="label.customer.email" text="Email" />
+						<label for="email" class="col-sm-2 control-label"> <spring:message code="label.customer.email" text="Email address" />
 						</label>
 						<div class="col-sm-10">
 							<input name="email" id="customer_email" class="form-control" type="text" />
@@ -58,7 +58,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="ZIPCode" class="col-sm-2 control-label"> <spring:message code="label.customer.ZIPCode" text="ZIP Code" />
+						<label for="ZIPCode" class="col-sm-2 control-label"> <spring:message code="label.customer.zip_code" text="Zip code" />
 						</label>
 						<div class="col-sm-10">
 							<input name="ZIPCode" id="customer_ZIPCode" class="form-control" type="text" />
@@ -86,7 +86,7 @@
 			</div>
 			<div class="modal-footer">
 				<button id="addcustomerbutton" type="button" class="btn btn-primary" onclick="saveCustomer('customer_form')">
-					<spring:message code="label.customer.add.form" text="Add Customer" />
+					<spring:message code="label.action.add.customer" text="Add Customer" />
 				</button>
 			</div>
 		</div>
@@ -98,13 +98,13 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addCustomerModel-title">
-					<spring:message code="label.customer.manage.users" text="Manage customer users" />
+					<spring:message code="label.menu.manage.access.user_customer" text="Manage customer users" />
 				</h4>
 			</div>
 			<div class="modal-body" id="customerusersbody"></div>
 			<div class="modal-footer">
 				<button id="customerusersbutton" type="button" class="btn btn-primary" onclick="">
-					<spring:message code="label.submit.update" text="Update" />
+					<spring:message code="label.action.update" text="Update" />
 				</button>
 			</div>
 		</div>
@@ -116,16 +116,16 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteCustomerModel-title">
-					<spring:message code="title.customer.delete" text="Delete a customer" />
+					<spring:message code="label.title.delete.customer" text="Delete a customer" />
 				</h4>
 			</div>
 			<div id="deleteCustomerBody" class="modal-body">Your question here...</div>
 			<div class="modal-footer">
 				<button id="deletecustomerbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
-					<spring:message code="label.answer.yes" text="Yes" />
+					<spring:message code="label.action.comfirm.yes" text="Yes" />
 				</button>
 				<button id="deletecustomerbuttonCancel" type="button" class="btn" data-dismiss="modal">
-					<spring:message code="label.answer.cancel" text="Cancel" />
+					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>
 		</div>

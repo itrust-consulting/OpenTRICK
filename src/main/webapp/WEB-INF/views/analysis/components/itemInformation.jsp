@@ -8,7 +8,7 @@
 <div class="section" id="section_itemInformation">
 	<div class="page-header">
 		<h3 id="ItemInformation">
-			<spring:message code="label.scope" text="Scope" />
+			<spring:message code="label.title.scope" text="Scope" />
 		</h3>
 	</div>
 	<c:set var="newline" value="(\r\n|\n\r|\r|\n)"/>
@@ -22,8 +22,8 @@
 					<table id="iteminformationtable" class="table table-condensed table-hover table-fixed-header">
 						<thead>
 							<tr>
-								<th colspan="1"><spring:message code="label.itemInformation.description" text="Description" /></th>
-								<th colspan="2"><spring:message code="label.itemInformation.value" text="Value" /></th>
+								<th colspan="1"><spring:message code="label.item_information.description" text="Description" /></th>
+								<th colspan="2"><spring:message code="label.item_information.value" text="Value" /></th>
 								
 							</tr>
 						</thead>
@@ -32,9 +32,8 @@
 							<c:forEach items="${itemInformations}" var="itemInformation">
 								<tr trick-class="ItemInformation" trick-id="${itemInformation.id}">
 									<td colspan="1">
-									<spring:message code="label.itemInformation.${itemInformation.description.trim()}" text="${itemInformation.description}" htmlEscape="false" javaScriptEscape="true"/></td>
-									<td colspan="2" ondblclick="return editField(this.firstElementChild);" class="success">
-									<pre trick-field="value" trick-content="text" trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
+									<spring:message code="label.item_information.${itemInformation.description.trim()}" text="${itemInformation.description}" javaScriptEscape="true"/></td>
+									<td colspan="2" ondblclick="return editField(this.firstElementChild);" class="success"><pre trick-field="value" trick-content="text" trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
 								</tr>
 							</c:forEach>
 						</tbody>

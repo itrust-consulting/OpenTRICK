@@ -122,16 +122,8 @@ function findTrickisProfile(element) {
 		return null;
 }
 
-function disableifprofile(section, menu) {
-	var element = $(menu + " li[class='profilemenu']");
-	element.addClass("disabled");
-	var isProfile = findTrickisProfile($(section + " tbody :checked"));
-	if (isProfile != undefined && isProfile != null) {
-		if (isProfile == "true")
-			element.addClass("disabled");
-		else
-			element.removeClass("disabled");
-	}
+function isProfile(section){
+	return findTrickisProfile($(section + " tbody :checked"))!="true";
 }
 
 function adminCustomerChange(selector) {
@@ -139,17 +131,61 @@ function adminCustomerChange(selector) {
 	$.ajax({
 		url : context + "/Admin/Analysis/DisplayByCustomer/" + customer,
 		type : "get",
-		async : true,
 		contentType : "application/json;charset=UTF-8",
-		async : true,
 		success : function(response) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			newSection = $(doc).find("*[id ='section_admin_analysis']");
 			$("#section_admin_analysis").replaceWith(newSection);
 			analysisTableSortable();
-		},error : unknowError
+		},
+		error : unknowError
 	});
+	return false;
+}
+
+function deleteAdminAnalysis(analysisId, section_analysis) {
+	var selectedAnalysis = [];
+	if (analysisId == null || analysisId == undefined) {
+		selectedAnalysis = findSelectItemIdBySection(section_analysis);
+		if (!selectedAnalysis.length)
+			return false;
+	} else if (!Array.isArray(analysisId))
+		selectedAnalysis[selectedAnalysis.length] = analysisId;
+	else
+		selectedAnalysis = analysisId;
+
+	var modal = new Modal($("#deleteAnalysisModel").clone()).setBody(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
+	$(modal.modal).find("#deleteanalysisbuttonNo").click(function() {modal.Destroy();});
+	$(modal.modal).find("#deleteanalysisbuttonYes").click(function() {
+		$(modal.modal).find("#deleteprogressbar").show();
+		$(modal.modal).find(".btn").prop("disabled", true);
+		$.ajax({
+			url : context + "/Admin/Analysis/Delete",
+			type : "post",
+			contentType : "application/json;charset=UTF-8",
+			data : JSON.stringify(selectedAnalysis),
+			success : function(response) {
+				if (response === true)
+					$("#section_admin_analysis select").change();
+				else if (response === false) {
+					var error = new Modal($("#alert-dialog").clone())
+					if (selectedAnalysis.length == 1)
+						error.setBody(MessageResolver("failed.delete.analysis", "Analysis cannot be deleted!"));
+					else
+						error.setBody(MessageResolver("failed.delete.analyses", "Analyses cannot be deleted!"));
+					error.Show();
+				} else
+					unknowError();
+				return false;
+			},
+			error : unknowError
+		});
+		modal.Destroy();
+		return false;
+	});
+	$(modal.modal).find("#deleteanalysisbuttonYes").prop("disabled", false);
+	modal.Show();
 	return false;
 }
 

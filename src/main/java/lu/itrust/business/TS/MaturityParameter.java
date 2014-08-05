@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * MaturityParameter: <br>
@@ -56,11 +57,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param category
 	 *            The value to set the Maturity Category Name
+	 * @throws TrickException 
 	 */
-	public void setCategory(String category) {
-		if ((category == null) || (!category.matches(Constant.REGEXP_VALID_MATURITY_CATEGORY))) {
-			throw new IllegalArgumentException("Maturtiy Parameter Categories need to be one of the following: " + "Policies|Procedure|Implementation|Test|Integration!");
-		}
+	public void setCategory(String category) throws TrickException {
+		if (category == null || !category.matches(Constant.REGEXP_VALID_MATURITY_CATEGORY))
+			throw new TrickException("error.measure_parameter.category","Categories need to be one of the following: Policies|Procedure|Implementation|Test|Integration!");
 		this.category = category;
 	}
 
@@ -80,11 +81,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
+	 * @throws TrickException 
 	 */
-	public void setSMLLevel0(double SMLLevel) {
-		if ((SMLLevel < 0) || (SMLLevel > 5)) {
-			throw new IllegalArgumentException("Maturtiy Parameter SML Level needs to be: 0 >= SML <= 5 !");
-		}
+	public void setSMLLevel0(double SMLLevel) throws TrickException {
+		if ((SMLLevel < 0) || (SMLLevel > 5))
+			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
 		this.SMLLevel0 = SMLLevel;
 	}
 
@@ -104,11 +105,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
+	 * @throws TrickException 
 	 */
-	public void setSMLLevel1(double SMLLevel) {
-		if ((SMLLevel < 0) || (SMLLevel > 5)) {
-			throw new IllegalArgumentException("Maturtiy Parameter SML Level needs to be: 0 >= SML <= 5 !");
-		}
+	public void setSMLLevel1(double SMLLevel) throws TrickException {
+		if ((SMLLevel < 0) || (SMLLevel > 5))
+			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
 		this.SMLLevel1 = SMLLevel;
 	}
 
@@ -128,11 +129,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
+	 * @throws TrickException 
 	 */
-	public void setSMLLevel2(double SMLLevel) {
-		if ((SMLLevel < 0) || (SMLLevel > 5)) {
-			throw new IllegalArgumentException("Maturtiy Parameter SML Level needs to be: 0 >= SML <= 5 !");
-		}
+	public void setSMLLevel2(double SMLLevel) throws TrickException {
+		if ((SMLLevel < 0) || (SMLLevel > 5))
+			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
 		this.SMLLevel2 = SMLLevel;
 	}
 
@@ -152,11 +153,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
+	 * @throws TrickException 
 	 */
-	public void setSMLLevel3(double SMLLevel) {
-		if ((SMLLevel < 0) || (SMLLevel > 5)) {
-			throw new IllegalArgumentException("Maturtiy Parameter SML Level needs to be: 0 >= SML <= 5 !");
-		}
+	public void setSMLLevel3(double SMLLevel) throws TrickException {
+		if ((SMLLevel < 0) || (SMLLevel > 5))
+			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
 		this.SMLLevel3 = SMLLevel;
 	}
 
@@ -176,11 +177,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
+	 * @throws TrickException 
 	 */
-	public void setSMLLevel4(double SMLLevel) {
-		if ((SMLLevel < 0) || (SMLLevel > 5)) {
-			throw new IllegalArgumentException("Maturtiy Parameter SML Level needs to be: 0 >= SML <= 5 !");
-		}
+	public void setSMLLevel4(double SMLLevel) throws TrickException {
+		if ((SMLLevel < 0) || (SMLLevel > 5))
+			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
 		this.SMLLevel4 = SMLLevel;
 	}
 
@@ -200,11 +201,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
+	 * @throws TrickException 
 	 */
-	public void setSMLLevel5(double SMLLevel) {
-		if ((SMLLevel < 0) || (SMLLevel > 5)) {
-			throw new IllegalArgumentException("Maturtiy Parameter SML Level needs to be: 0 >= SML <= 5 !");
-		}
+	public void setSMLLevel5(double SMLLevel) throws TrickException {
+		if ((SMLLevel < 0) || (SMLLevel > 5))
+			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
 		this.SMLLevel5 = SMLLevel;
 	}
 	

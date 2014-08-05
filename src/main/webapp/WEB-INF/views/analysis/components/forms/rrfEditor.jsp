@@ -68,32 +68,32 @@
 					<div class="panel-body">
 						<div style="overflow: auto;">
 							<c:if test="${!empty(selectedScenario)}">
-								<c:set var="typeClass">
-									${selectedScenario.preventive + selectedScenario.limitative+ selectedScenario.detective+selectedScenario.corrective!=1? "danger" : "success"}
-								</c:set>
+								<c:set var="sum_prev_lim_dect_corr" value="${selectedScenario.preventive + selectedScenario.limitative+selectedScenario.detective+selectedScenario.corrective}" />
+								<c:set var="abs_prev_lim_dect_corr" value="${sum_prev_lim_dect_corr>1? sum_prev_lim_dect_corr - 1 : 1 - sum_prev_lim_dect_corr }" />
+								<c:set var="typeClass" value="${abs_prev_lim_dect_corr>0.01 ? 'danger' : 'success'}" />
 								<table class="table">
 									<thead>
 										<tr>
 											<c:forEach items="${assetTypes}" var="assetType">
 												<th class="warning"><spring:message code='label.assetType.${assetType.type}' text="${assetType.type}" /></th>
 											</c:forEach>
-											<th class="${typeClass}" trick-type="type"><spring:message code="label.scenario.preventive" text="Preventive" /></th>
-											<th class="${typeClass}" trick-type="type"><spring:message code="label.scenario.detective" text="Detective" /></th>
-											<th class="${typeClass}" trick-type="type"><spring:message code="label label.scenario.limitative" text="Limitative" /></th>
-											<th class="${typeClass}" trick-type="type"><spring:message code="label.scenario.corrective" text="Corrective" /></th>
-											<th class="warning" trick-type="source"><spring:message code="label.scenario.intentional" text="Intentional" /></th>
-											<th class="warning" trick-type="source"><spring:message code="label.scenario.accidental" text="Accidental" /></th>
-											<th class="warning" trick-type="source"><spring:message code="label.scenario.environmental" text="Environmental" /></th>
-											<th class="warning" trick-type="source"><spring:message code="label.scenario.internalThreat" text="Internal-threat" /></th>
-											<th class="warning" trick-type="source"><spring:message code="label.scenario.externalThreat" text="External-threat" /></th>
+											<th class="${typeClass}" trick-type="type"><spring:message code="label.rrf.scenario.preventive" text="Preventive" /></th>
+											<th class="${typeClass}" trick-type="type"><spring:message code="label.rrf.scenario.detective" text="Detective" /></th>
+											<th class="${typeClass}" trick-type="type"><spring:message code="label.rrf.scenario.limitative" text="Limitative" /></th>
+											<th class="${typeClass}" trick-type="type"><spring:message code="label.rrf.scenario.corrective" text="Corrective" /></th>
+											<th class="warning" trick-type="source"><spring:message code="label.rrf.scenario.intentional" text="Intentional" /></th>
+											<th class="warning" trick-type="source"><spring:message code="label.rrf.scenario.accidental" text="Accidental" /></th>
+											<th class="warning" trick-type="source"><spring:message code="label.rrf.scenario.environmental" text="Environmental" /></th>
+											<th class="warning" trick-type="source"><spring:message code="label.rrf.scenario.internalThreat" text="Internal-threat" /></th>
+											<th class="warning" trick-type="source"><spring:message code="label.rrf.scenario.externalThreat" text="External-threat" /></th>
 										</tr>
 									</thead>
 									<tbody>
 										<tr>
 											<c:forEach items="${assetTypes}" var="assetType">
 												<td class="warning" trick-class="AssetType"><input type="text" class="slider" id='scenario_assetType_<spring:message text="${assetType.type}"/>' value="50"
-													data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0" name=<spring:message text="${assetType.type}"/>
-													data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+													data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0" name='<spring:message text="${assetType.type}"/>' data-slider-orientation="vertical"
+													data-slider-selection="after" data-slider-tooltip="show"></td>
 											</c:forEach>
 											<td class="${typeClass}" trick-type="type"><input type="text" id="scenario_preventive" class="slider" value="${selectedScenario.preventive}" data-slider-min="0"
 												data-slider-max="1" data-slider-step="0.1" data-slider-value="${selectedScenario.preventive}" data-slider-orientation="vertical" data-slider-selection="after"
@@ -114,7 +114,7 @@
 												data-slider-max="4" data-slider-step="1" data-slider-value="${selectedScenario.accidental}" name="accidental" data-slider-orientation="vertical"
 												data-slider-selection="after" data-slider-tooltip="show"></td>
 											<td class="warning" trick-type="source"><input type="text" class="slider" id="scenario_environmental" value="${selectedScenario.environmental}" data-slider-min="0"
-												data-slider-max="4" data-slider-step="2" data-slider-value="${selectedScenario.environmental}" name="environmental" data-slider-orientation="vertical"
+												data-slider-max="4" data-slider-step="1" data-slider-value="${selectedScenario.environmental}" name="environmental" data-slider-orientation="vertical"
 												data-slider-selection="after" data-slider-tooltip="show"></td>
 											<td class="warning" trick-type="source"><input type="text" class="slider" id="scenario_internalThreat" value="${selectedScenario.internalThreat}"
 												data-slider-min="0" data-slider-max="4" data-slider-step="1" data-slider-value="${selectedScenario.internalThreat}" name="internalThreat"
@@ -162,22 +162,22 @@
 							<table class="table">
 								<thead>
 									<tr>
-										<th class="warning"><spring:message code="label.scenario.fmeasure" text="Strength Measure" /></th>
-										<th class="warning"><spring:message code="label.scenario.fSectoral" text="Strength Sectoral" /></th>
+										<th class="warning"><spring:message code="label.rrf.scenario.strength_measure" text="Strength measure" /></th>
+										<th class="warning"><spring:message code="label.rrf.scenario.strength_sectoral" text="Strength sectoral" /></th>
 										<c:forEach items="${categories}" var="category">
-											<th class="info" trick-class="Category" trick-value=<spring:message text="${category}" />><spring:message code="label.category.${category}" text="${category}" /></th>
+											<th class="info" trick-class="Category" trick-value=<spring:message text="${category}" />><spring:message code="label.rrf.category.${fn:toLowerCase(category)}" text="${category}" /></th>
 										</c:forEach>
-										<th class="success"><spring:message code="label.scenario.preventive" text="Preventive" /></th>
-										<th class="success"><spring:message code="label.scenario.detective" text="Detective" /></th>
-										<th class="success"><spring:message code="label label.scenario.limitative" text="Limitative" /></th>
-										<th class="success"><spring:message code="label.scenario.corrective" text="Corrective" /></th>
-										<th class="warning"><spring:message code="label.scenario.intentional" text="Intentional" /></th>
-										<th class="warning"><spring:message code="label.scenario.accidental" text="Accidental" /></th>
-										<th class="warning"><spring:message code="label.scenario.environmental" text="Environmental" /></th>
-										<th class="warning"><spring:message code="label.scenario.internalThreat" text="Internal threat" /></th>
-										<th class="warning"><spring:message code="label.scenario.externalThreat" text="External threat" /></th>
+										<th class="success"><spring:message code="label.rrf.measure.preventive" text="Preventive" /></th>
+										<th class="success"><spring:message code="label.rrf.measure.detective" text="Detective" /></th>
+										<th class="success"><spring:message code="label.rrf.measure.limitative" text="Limitative" /></th>
+										<th class="success"><spring:message code="label.rrf.measure.corrective" text="Corrective" /></th>
+										<th class="warning"><spring:message code="label.rrf.measure.intentional" text="Intentional" /></th>
+										<th class="warning"><spring:message code="label.rrf.measure.accidental" text="Accidental" /></th>
+										<th class="warning"><spring:message code="label.rrf.measure.environmental" text="Environmental" /></th>
+										<th class="warning"><spring:message code="label.rrf.measure.internal_threat" text="Internal threat" /></th>
+										<th class="warning"><spring:message code="label.rrf.measure.external_threat" text="External threat" /></th>
 										<c:forEach items="${assetTypes}" var="assetType">
-											<th><spring:message code='label.assetType.${assetType.type}' text="${assetType.type}" /></th>
+											<th><spring:message code='label.asset_type.${fn:toLowerCase(assetType.type)}' text="${assetType.type}" /></th>
 										</c:forEach>
 									</tr>
 								</thead>
@@ -211,8 +211,8 @@
 										<td class="warning"><input type="text" class="slider" id="measure_externalThreat" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"
 											data-slider-value="0" name="externalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 										<c:forEach items="${assetTypes}" var="assetType">
-											<td trick-class="AssetType"><input type="text" class="slider" id='measure_assetType_<spring:message text="${assetType.type}"/>' value="50"
-												data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="50" name=<spring:message text="${assetType.type}"/> data-slider-orientation="vertical"
+											<td trick-class="AssetType"><input type="text" class="slider" id='measure_assetType_<spring:message text="${assetType.type}"/>' value="50" data-slider-min="0"
+												data-slider-max="100" data-slider-step="1" data-slider-value="50" name=<spring:message text="${assetType.type}"/> data-slider-orientation="vertical"
 												data-slider-selection="after" data-slider-tooltip="show"></td>
 										</c:forEach>
 									</tr>
@@ -234,8 +234,8 @@
 										<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_internalThreat_value" value="0" name="internalThreat"></td>
 										<td class="warning"><input type="text" readonly="readonly" class="form-control" value="0" id="measure_externalThreat_value" name="externalThreat"></td>
 										<c:forEach items="${assetTypes}" var="assetType">
-											<td trick-class="AssetType"><input type="text" id='measure_assetType_<spring:message text="${assetType.type}"/>_value' style="min-width: 50px;"
-												readonly="readonly" class="form-control" value="50" name="<spring:message text="${assetType.type}" />"></td>
+											<td trick-class="AssetType"><input type="text" id='measure_assetType_<spring:message text="${assetType.type}"/>_value' style="min-width: 50px;" readonly="readonly"
+												class="form-control" value="50" name="<spring:message text="${assetType.type}" />"></td>
 										</c:forEach>
 									</tr>
 								</tbody>

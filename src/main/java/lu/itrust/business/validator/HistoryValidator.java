@@ -60,27 +60,27 @@ public class HistoryValidator extends ValidatorFieldImpl implements Validator {
 		case "date":
 			if (history.getId() > 1 && history.getDate() != null
 					&& !history.getDate().equals(candidate))
-				return "error.history.data.not_editable:date:History date cannot be edited";
+				return "error.history.date.not_editable::History date cannot be edited";
 			if (candidate == null || !(candidate instanceof Date))
-				return "error.history.data.unsupported:date:Date value is not supported";
+				return "error.history.date.unsupported::Date value is not supported";
 			break;
 		case "author":
 			if (candidate == null || !(candidate instanceof String))
-				return "error.history.data.unsupported:author:Author value is not supported";
+				return "error.history.author.unsupported::Author value is not supported";
 			String author = (String) candidate;
 			if (author.trim().isEmpty())
-				return "error.history.author.empty";
+				return "error.history.author.empty::Author value cannot be empty";
 			break;
 		case "version":
 			if (candidate == null || !(candidate instanceof String))
-				return "error.history.data.unsupported:Author:Author value is not supported";
+				return "error.history.version.unsupported::Version value is not supported";
 			if (!candidate.toString().matches(
 					Constant.REGEXP_VALID_ANALYSIS_VERSION))
 				return "error.history.version.not_meet_regex::Version not acceptable";
 			break;
 		case "comment":
 			if (candidate == null || !(candidate instanceof String))
-				return "error.history.data.unsupported:comment:Comment value is not supported";
+				return "error.history.comment.unsupported::Comment value is not supported";
 			if (candidate.toString().trim().isEmpty())
 				return "error.history.comment.empty::Comment cannot be empty";
 			break;

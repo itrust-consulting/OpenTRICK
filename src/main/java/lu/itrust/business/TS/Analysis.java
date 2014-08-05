@@ -141,7 +141,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @param analysis
 	 */
-	public static final void initialiseEmptyItemInformation(Analysis analysis) {
+	public static final void InitialiseEmptyItemInformation(Analysis analysis) {
 
 		if (analysis == null)
 			return;
@@ -209,17 +209,18 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param asset
 	 *            The Asset to get ALE from
 	 * @return The Total ALE of the Asset
+	 * @throws TrickException
 	 */
-	public double getALEOfAsset(Asset asset) {
+	public double getALEOfAsset(Asset asset) throws TrickException {
 
 		// initialise return value
 		double result = 0;
 
 		// check if asset exists and if assessments are not empty
 		if (asset == null)
-			throw new IllegalArgumentException("error.ale.asset_null");
+			throw new TrickException("error.ale.asset_null", "Asset cannot be empty");
 		if (this.assessments.isEmpty())
-			throw new IllegalArgumentException("error.ale.Assessments_empty");
+			throw new TrickException("error.ale.Assessments_empty", "Assessment cannot be empty");
 		// parse assessments
 		for (Assessment assessment : assessments) {
 
@@ -401,7 +402,7 @@ public class Analysis implements Serializable, Cloneable {
 		// * Category calculation
 		// ****************************************************************
 		category = calculateRRFCategory(measure.getMeasurePropertyList(), scenario);
-		
+
 		if (Double.isNaN(category))
 			throw new TrickException("error.analysis.rrf.scenario.category.nan", String.format("RRF computation: please check categories for scenario (%s)", scenario.getName()),
 					scenario.getName());
@@ -413,9 +414,9 @@ public class Analysis implements Serializable, Cloneable {
 				+ (measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective())) / 4.;
 
 		if (Double.isNaN(type))
-			throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number", scenario.getName(), measure
-					.getMeasureDescription().getReference(), measure.getAnalysisNorm().getNorm().getLabel()), scenario.getName(), measure.getMeasureDescription().getReference(),
-					measure.getAnalysisNorm().getNorm().getLabel());
+			throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number",
+					scenario.getName(), measure.getMeasureDescription().getReference(), measure.getAnalysisNorm().getNorm().getLabel()), scenario.getName(), measure
+					.getMeasureDescription().getReference(), measure.getAnalysisNorm().getNorm().getLabel());
 
 		// ****************************************************************
 		// * Source calculation
@@ -476,10 +477,10 @@ public class Analysis implements Serializable, Cloneable {
 
 		// check if properties and scenario are not null to avoid failures
 		if (properties == null)
-			throw new IllegalArgumentException("error.rrf.compute.properties_null");
+			throw new TrickException("error.rrf.compute.properties_null", "Measure properties cannot be empty");
 
 		if (scenario == null)
-			throw new IllegalArgumentException("error.rrf.compute.scenario_null");
+			throw new TrickException("error.rrf.compute.scenario_null", "Scenario cannot be empty");
 
 		// **************************************************************
 		// * intialise variables
@@ -1037,8 +1038,10 @@ public class Analysis implements Serializable, Cloneable {
 	 * This method will calculate the bounds of the extended parameters from and
 	 * to values. Since CSSF implementation, impact and probability values need
 	 * to be calculated using bounds.
+	 * 
+	 * @throws TrickException
 	 */
-	public void computeParameterScales() {
+	public void computeParameterScales() throws TrickException {
 
 		// ****************************************************************
 		// * Variable initialisation
@@ -1438,10 +1441,11 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @param asset
 	 *            The asset Object to Add
+	 * @throws TrickException
 	 */
-	public void addAnAsset(Asset asset) {
+	public void addAnAsset(Asset asset) throws TrickException {
 		if (this.assets.contains(asset))
-			throw new IllegalArgumentException("error.asset.duplicate");
+			throw new TrickException("error.asset.duplicate", String.format("Asset (%s) is duplicated", asset.getName()), asset.getName());
 		this.assets.add(asset);
 	}
 
@@ -2481,5 +2485,60 @@ public class Analysis implements Serializable, Cloneable {
 			if (assessment.getAsset().getId() == id)
 				assessmentMap.put(assessment.getScenario().getId(), assessment);
 		return assessmentMap;
+	}
+
+	public static Map<Integer, List<Assessment>> MappedSelectedAssessmentByScenario(List<Assessment> assessments2) {
+		Map<Integer, List<Assessment>> mappings = new LinkedHashMap<>();
+		for (Assessment assessment : assessments2) {
+			if (!assessment.isSelected())
+				continue;
+			Scenario scenario = assessment.getScenario();
+			List<Assessment> assessments = mappings.get(scenario.getId());
+			if (assessments == null)
+				mappings.put(scenario.getId(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		}
+		return mappings;
+	}
+
+	public static Map<Integer, List<Assessment>> MappedSelectedAssessmentByAsset(List<Assessment> assessments2) {
+		Map<Integer, List<Assessment>> mappings = new LinkedHashMap<>();
+		for (Assessment assessment : assessments2) {
+			if (!assessment.isSelected())
+				continue;
+			Asset asset = assessment.getAsset();
+			List<Assessment> assessments = mappings.get(asset.getId());
+			if (assessments == null)
+				mappings.put(asset.getId(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		}
+		return mappings;
+	}
+
+	/**
+	 * Mapping selected assessment by asset and scenario
+	 * 
+	 * @return Length : 2, 0 : Asset, 1 : Scenario
+	 */
+	@SuppressWarnings("unchecked")
+	public static Map<Integer, List<Assessment>>[] MappedSelectedAssessment(List<Assessment> assessments2) {
+		Map<Integer, List<Assessment>>[] mappings = new LinkedHashMap[2];
+		for (int i = 0; i < mappings.length; i++)
+			mappings[i] = new LinkedHashMap<Integer, List<Assessment>>();
+		for (Assessment assessment : assessments2) {
+			if (!assessment.isSelected())
+				continue;
+			Asset asset = assessment.getAsset();
+			List<Assessment> assessments = mappings[0].get(asset.getId());
+			if (assessments == null)
+				mappings[0].put(asset.getId(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+			Scenario scenario = assessment.getScenario();
+			assessments = mappings[1].get(scenario.getId());
+			if (assessments == null)
+				mappings[1].put(scenario.getId(), assessments = new ArrayList<Assessment>());
+			assessments.add(assessment);
+		}
+		return mappings;
 	}
 }

@@ -2,6 +2,8 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * Assessment: <br>
  * This class represents an assessments and all its data.
@@ -58,7 +60,7 @@ public class Assessment implements Serializable, Cloneable {
 	private double likelihoodReal = 0;
 
 	/** The uncertainty value of this assessment */
-	private double uncertainty = 2; //1 + 1e-7;
+	private double uncertainty = 2; // 1 + 1e-7;
 
 	/** The Annual Loss Expectancy - Pessimistic */
 	private double ALEP = 0;
@@ -77,16 +79,23 @@ public class Assessment implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Getters and Setters
+	 * 
+	 * @throws TrickException
 	 **********************************************************************************************/
 
-	public Assessment(Asset asset, Scenario scenario) {
+	public Assessment(Asset asset, Scenario scenario) throws TrickException {
 		setAsset(asset);
 		setScenario(scenario);
-		setSelected(asset.isSelected() && scenario.isSelected()
-				&& scenario.hasInfluenceOnAsset(asset.getAssetType()));
+		setSelected(asset.isSelected() && scenario.isSelected() && scenario.hasInfluenceOnAsset(asset.getAssetType()));
 	}
 
 	public Assessment() {
+	}
+
+	public boolean isCSSF() {
+		return !((impactLeg == null || impactLeg.trim().equals("0") || impactLeg.trim().equals("0.0"))
+				&& (impactOp == null || impactOp.trim().equals("0") || impactOp.trim().equals("0.0")) && (impactRep == null || impactRep.trim().equals("0") || impactRep.trim()
+				.equals("0.0")));
 	}
 
 	/**
@@ -105,11 +114,11 @@ public class Assessment implements Serializable, Cloneable {
 	 * 
 	 * @param id
 	 *            The value to set "id"
+	 * @throws TrickException
 	 */
-	public void setId(int id) {
-		if (id < 1) {
-			throw new IllegalArgumentException("error.assessment.id");
-		}
+	public void setId(int id) throws TrickException {
+		if (id < 1)
+			throw new TrickException("error.assessment.id", "Assessment id should be greater than 0");
 		this.id = id;
 	}
 
@@ -257,10 +266,9 @@ public class Assessment implements Serializable, Cloneable {
 		return impactReal;
 	}
 
-	public void setImpactReal(double impactReal) {
-		if (impactReal < 0) {
-			throw new IllegalArgumentException("error.assessment.impact_value");
-		}
+	public void setImpactReal(double impactReal) throws TrickException {
+		if (impactReal < 0)
+			throw new TrickException("error.assessment.impact_value", "Impact value cannot be negative");
 		this.impactReal = impactReal;
 	}
 
@@ -308,11 +316,11 @@ public class Assessment implements Serializable, Cloneable {
 	 * 
 	 * @param likelihood
 	 *            The value to set "likelihood"
+	 * @throws TrickException
 	 */
-	public void setLikelihoodReal(double likelihood) {
-		if (likelihood < 0) {
-			throw new IllegalArgumentException("error.assessment.likelihood");
-		}
+	public void setLikelihoodReal(double likelihood) throws TrickException {
+		if (likelihood < 0)
+			throw new TrickException("error.assessment.likelihood", "Probabilty value cannot be negative");
 		this.likelihoodReal = likelihood;
 	}
 
@@ -332,11 +340,11 @@ public class Assessment implements Serializable, Cloneable {
 	 * 
 	 * @param uncertainty
 	 *            The value to set "uncertainty"
+	 * @throws TrickException
 	 */
-	public void setUncertainty(double uncertainty) {
-		if (uncertainty <= 1.0) {
-			throw new IllegalArgumentException("error.assessment.uncertainty");
-		}
+	public void setUncertainty(double uncertainty) throws TrickException {
+		if (uncertainty <= 1.0)
+			throw new TrickException("error.assessment.uncertainty", "Uncertainty value should be greater than 1");
 		this.uncertainty = uncertainty;
 	}
 
@@ -356,11 +364,11 @@ public class Assessment implements Serializable, Cloneable {
 	 * 
 	 * @param ALEP
 	 *            The value to set "ALEP"
+	 * @throws TrickException
 	 */
-	public void setALEP(double ALEP) {
-		if (ALEP < 0) {
-			throw new IllegalArgumentException("error.assessment.alep");
-		}
+	public void setALEP(double ALEP) throws TrickException {
+		if (ALEP < 0)
+			throw new TrickException("error.assessment.alep", "ALEP value cannot be negative");
 		this.ALEP = ALEP;
 	}
 
@@ -380,11 +388,11 @@ public class Assessment implements Serializable, Cloneable {
 	 * 
 	 * @param ALE
 	 *            The value to set "ALE"
+	 * @throws TrickException
 	 */
-	public void setALE(double ALE) {
-		if (ALE < 0) {
-			throw new IllegalArgumentException("error.assessment.ale");
-		}
+	public void setALE(double ALE) throws TrickException {
+		if (ALE < 0)
+			throw new TrickException("error.assessment.ale", "ALE value cannot be negative");
 		this.ALE = ALE;
 	}
 
@@ -404,11 +412,11 @@ public class Assessment implements Serializable, Cloneable {
 	 * 
 	 * @param ALEO
 	 *            The value to set "ALEO"
+	 * @throws TrickException
 	 */
-	public void setALEO(double ALEO) {
-		if (ALEO < 0) {
-			throw new IllegalArgumentException("error.assessment.aleo");
-		}
+	public void setALEO(double ALEO) throws TrickException {
+		if (ALEO < 0)
+			throw new TrickException("error.assessment.aleo", "ALEO value cannot be negative");
 		this.ALEO = ALEO;
 	}
 
@@ -428,11 +436,11 @@ public class Assessment implements Serializable, Cloneable {
 	 * 
 	 * @param asset
 	 *            The Asset object to set
+	 * @throws TrickException
 	 */
-	public void setAsset(Asset asset) {
-		if (asset == null) {
-			throw new IllegalArgumentException("error.assessment.asset");
-		}
+	public void setAsset(Asset asset) throws TrickException {
+		if (asset == null)
+			throw new TrickException("error.assessment.asset", "Asset cannot be empty");
 		this.asset = asset;
 	}
 
@@ -452,11 +460,11 @@ public class Assessment implements Serializable, Cloneable {
 	 * 
 	 * @param scenario
 	 *            The Scenario object to set
+	 * @throws TrickException
 	 */
-	public void setScenario(Scenario scenario) {
-		if (scenario == null) {
-			throw new IllegalArgumentException("error.assessment.scenario");
-		}
+	public void setScenario(Scenario scenario) throws TrickException {
+		if (scenario == null)
+			throw new TrickException("error.assessment.scenario", "Scenario cannot be empty");
 		this.scenario = scenario;
 	}
 
@@ -469,9 +477,8 @@ public class Assessment implements Serializable, Cloneable {
 	 *         usable
 	 */
 	public boolean isUsable() {
-		return (this.getAsset() == null) || (this.getScenario() == null) ? false
-				: (this.isSelected() && this.getAsset().isSelected()
-						&& this.getScenario().isSelected() && this.getALE() > 0);
+		return (this.getAsset() == null) || (this.getScenario() == null) ? false : (this.isSelected() && this.getAsset().isSelected() && this.getScenario().isSelected() && this
+				.getALE() > 0);
 	}
 
 	/**
@@ -490,8 +497,7 @@ public class Assessment implements Serializable, Cloneable {
 		long temp;
 		temp = Double.doubleToLongBits(id);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result
-				+ ((scenario == null) ? 0 : scenario.hashCode());
+		result = prime * result + ((scenario == null) ? 0 : scenario.hashCode());
 		return result;
 	}
 

@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * ScenarioType: <br>
@@ -37,12 +38,10 @@ public class ScenarioType {
 	 * 
 	 * @param type
 	 *            The Scenario Type Name
+	 * @throws TrickException 
 	 */
-	public ScenarioType(String type) {
-		//System.out.println(type);
-		if (type == null || !type.trim().matches(Constant.REGEXP_VALID_SCENARIO_TYPE)) 
-			throw new IllegalArgumentException("Scenario Type is not valid!");
-		this.name = type.trim();
+	public ScenarioType(String type) throws TrickException {
+		setName(type);
 	}
 
 	/***********************************************************************************************
@@ -86,11 +85,12 @@ public class ScenarioType {
 	 * 
 	 * @param type
 	 *            The Value to set the type field
+	 * @throws TrickException 
 	 */
-	public void setName(String type) {
-		if (type == null || !type.matches(Constant.REGEXP_VALID_SCENARIO_TYPE)) 
-			throw new IllegalArgumentException("Scenario Type is not valid!");
-		this.name = type;
+	public void setName(String type) throws TrickException {
+		if (type == null || !type.trim().matches(Constant.REGEXP_VALID_SCENARIO_TYPE)) 
+			throw new TrickException("error.scenario_type.invalid","Type is invalid!");
+		this.name = type.trim();
 	}
 
 	/**

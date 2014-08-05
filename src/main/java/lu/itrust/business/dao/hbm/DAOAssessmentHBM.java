@@ -282,4 +282,11 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	public void delete(Assessment assessment) throws Exception {
 		getSession().delete(assessment);
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis) {
+		String query = "Select assessment From Analysis as analysis inner join analysis.assessments as assessment where analysis.id = :idAnalysis and assessment.selected = true";
+		return getSession().createQuery(query).setInteger("idAnalysis", idAnalysis).list();
+	}
 }

@@ -12,15 +12,15 @@ import lu.itrust.business.TS.ExtendedParameter;
  */
 public class ExtendedParameterValidator extends ParameterValidator {
 
-	private static final String ERROR_EXTENDED_PARAMETER_BOUNDS_NULL = "error.extendedParameter.bounds.null::Bounds cannot be empty";
-	private static final String ERROR_UNSUPPORTED_DATA_BOUNDS = "error.unsupported.data:bounds:Bounds value is not supported";
-	private static final String ERROR_EXTENDED_PARAMETER_LEVEL_NULL = "error.extendedParameter.level.null::Level cannot be empty";
-	private static final String ERROR_UNSUPPORTED_DATA_LEVEL = "error.unsupported.data:level:Level value is not supported";
-	private static final String ERROR_EXTENDED_PARAMETER_LEVEL_NOT_IN_BOUNDS = "error.extendedParameter.level.not_in_bounds:level:Level needs to be between 0 and 10 included";
-	private static final String ERROR_EXTENDED_PARAMETER_ACRONYM_NULL = "error.extendedParameter.acronym.null::Acronym cannot be empty";
-	private static final String ERROR_EXTENDED_PARAMETER_VALUE_NEGATIF = "error.extendedParameter.value.negatif:Value:Value needs to be greater or equal 0";
-	private static final String ERROR_EXTENDED_PARAMETER_VALUE_NULL = "error.extendedParameter.value.null::Value should be a numeric";
-	private static final String ERROR_UNSUPPORTED_DATA_ACRONYM = "error.unsupported.data:acronym:Acronym value is not supported";
+	private static final String ERROR_EXTENDED_PARAMETER_BOUNDS_NULL = "error.extended_parameter.bounds.null::Bounds cannot be empty";
+	private static final String ERROR_UNSUPPORTED_DATA_BOUNDS = "error.extended_parameter.bounds.unsupported::Bounds value is not supported";
+	private static final String ERROR_EXTENDED_PARAMETER_LEVEL_NULL = "error.extended_parameter.level.null::Level cannot be empty";
+	private static final String ERROR_UNSUPPORTED_DATA_LEVEL = "error.extended_parameter.level.unsupported::Level value is not supported";
+	private static final String ERROR_EXTENDED_PARAMETER_LEVEL_NOT_IN_BOUNDS = "error.extended_parameter.level.not_in_bounds::Level needs to be between 0 and 10 included";
+	private static final String ERROR_EXTENDED_PARAMETER_ACRONYM_NULL = "error.extended_parameter.acronym.null::Acronym cannot be empty";
+	private static final String ERROR_EXTENDED_PARAMETER_VALUE_NEGATIF = "error.extended_parameter.value.negatif::Value needs to be greater or equal 0";
+	private static final String ERROR_EXTENDED_PARAMETER_VALUE_NULL = "error.extended_parameter.value.null::Value should be a numeric";
+	private static final String ERROR_UNSUPPORTED_DATA_ACRONYM = "error.extended_parameter.acronym.unsupported::Acronym value is not supported";
 	protected static final String BOUNDS = "bounds";
 	protected static final String LEVEL = "level";
 	protected static final String ACRONYM = "acronym";

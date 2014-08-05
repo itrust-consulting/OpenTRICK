@@ -92,42 +92,48 @@ function deleteScenario(scenarioId) {
 		var selectedScenario = findSelectItemIdBySection(("section_scenario"));
 		if (!selectedScenario.length)
 			return false;
-		while (selectedScenario.length) {
-			rowTrickId = selectedScenario.pop();
+		var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") : MessageResolver(
+				"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios");
+		$("#confirm-dialog .modal-body").text(text);
+		$("#confirm-dialog .btn-danger").click(function() {
+			while (selectedScenario.length) {
+				rowTrickId = selectedScenario.pop();
+				$.ajax({
+					url : context + "/Scenario/Delete/" + rowTrickId,
+					contentType : "application/json;charset=UTF-8",
+					async : false,
+					success : function(response) {
+						var trickSelect = parseJson(response);
+						if (trickSelect != undefined && trickSelect["success"] != undefined) {
+							var row = $("#section_scenario tr[trick-id='" + rowTrickId + "']");
+							var checked = $("#section_scenario tr[trick-id='" + rowTrickId + "'] :checked");
+							if (checked.length)
+								$(checked).removeAttr("checked");
+							if (row.length)
+								$(row).remove();
+						}
+						return false;
+					},
+					error : unknowError
+				});
+			}
+			reloadSection('section_scenario');
+		});
+	} else {
+		$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario"));
+		$("#confirm-dialog .btn-danger").click(function() {
 			$.ajax({
-				url : context + "/Scenario/Delete/" + rowTrickId,
+				url : context + "/Scenario/Delete/" + scenarioId,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
-				success : function(response) {
-					var trickSelect = parseJson(response);
-					if (trickSelect != undefined && trickSelect["success"] != undefined) {
-						var row = $("#section_scenario tr[trick-id='" + rowTrickId + "']");
-						var checked = $("#section_scenario tr[trick-id='" + rowTrickId + "'] :checked");
-						if (checked.length)
-							$(checked).removeAttr("checked");
-						if (row.length)
-							$(row).remove();
-					}
+				success : function(reponse) {
+					reloadSection("section_scenario");
 					return false;
-				},error : unknowError
+				},
+				error : unknowError
 			});
-		}
-		setTimeout("reloadSection('section_scenario')", 100);
-		return false;
-	}
-
-	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario"));
-	$("#confirm-dialog .btn-danger").click(function() {
-		$.ajax({
-			url : context + "/Scenario/Delete/" + scenarioId,
-			contentType : "application/json;charset=UTF-8",
-			async : true,
-			success : function(reponse) {
-				reloadSection("section_scenario");
-				return false;
-			},error : unknowError
 		});
-	});
+	}
 	$("#confirm-dialog").modal("toggle");
 	return false;
 
@@ -167,7 +173,8 @@ function selectScenario(scenarioId, value) {
 			success : function(reponse) {
 				reloadSection('section_scenario');
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	} else {
 		$.ajax({
@@ -177,7 +184,8 @@ function selectScenario(scenarioId, value) {
 			success : function(reponse) {
 				reloadSection("section_scenario");
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	}
 	return false;

@@ -19,6 +19,7 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.helper.JsonMessage;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServicePhase;
 
@@ -92,8 +93,7 @@ public class ControllerPhase {
 	 */
 	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Phase', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	String delete(@PathVariable Integer elementID, HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody String delete(@PathVariable Integer elementID, HttpSession session, Principal principal, Locale locale) {
 		try {
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -102,7 +102,7 @@ public class ControllerPhase {
 
 			// check if phase can be deleted
 			if (!servicePhase.canBeDeleted(elementID))
-				return JsonMessage.Error(messageSource.getMessage("error.phase.cannot_delete", null, "Phase cannot be deleted", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.phase.in_used", null, "Phase is in used", locale));
 
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
@@ -136,11 +136,11 @@ public class ControllerPhase {
 			}
 
 			// return result
-			return phase == null ? JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale)) : JsonMessage.Success(messageSource.getMessage(
-					"success.delete.phase", null, "Phase was successfully deleted", locale));
+			return phase == null ? JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale)) : JsonMessage.Success(messageSource
+					.getMessage("success.delete.phase", null, "Phase was successfully deleted", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.phase.on_required", null, "This phase cannot be deleted", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.phase.unknown", null, "An unknown error occurred while phase deleting", locale));
 		}
 	}
 
@@ -156,8 +156,7 @@ public class ControllerPhase {
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	List<String[]> save(@RequestBody String source, HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody List<String[]> save(@RequestBody String source, HttpSession session, Principal principal, Locale locale) {
 
 		// create result array
 		List<String[]> errors = new LinkedList<>();
@@ -180,7 +179,7 @@ public class ControllerPhase {
 				// load analysis
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
 				if (analysis == null) {
-					errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.no_found", null, "Selected analysis cannot be found", locale) });
+					errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.no_found", null, "Analysis cannot be found", locale) });
 					return errors;
 				}
 
@@ -193,11 +192,11 @@ public class ControllerPhase {
 					// check if correct begin and end date and retrun errors
 					if (phase.getBeginDate().before(phase2.getBeginDate())) {
 						errors.add(new String[] { "beginDate",
-							messageSource.getMessage("error.phase.beginDate.less_previous", null, "Begin-date has to be greater than previous phase begin-date", locale) });
+								messageSource.getMessage("error.phase.beginDate.less_previous", null, "Begin-date has to be greater than previous phase begin-date", locale) });
 						return errors;
 					} else if (phase.getEndDate().before(phase2.getEndDate())) {
 						errors.add(new String[] { "endDate",
-							messageSource.getMessage("error.phase.endDate.less_previous", null, "Begin-end has to be greater than previous phase begin-end", locale) });
+								messageSource.getMessage("error.phase.endDate.less_previous", null, "Begin-end has to be greater than previous phase begin-end", locale) });
 						return errors;
 					}
 				}
@@ -209,15 +208,17 @@ public class ControllerPhase {
 				serviceAnalysis.saveOrUpdate(analysis);
 			}
 
-			// return empty errors (no errors -> success)
-			return errors;
-
+		} catch (TrickException e) {
+			e.printStackTrace();
+			errors.add(new String[] { "endDate", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale) });
 		} catch (Exception e) {
 			// return errors
 			e.printStackTrace();
 			errors.add(new String[] { "endDate", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale) });
-			return errors;
 		}
+		// return empty errors (no errors -> success)
+		return errors;
+
 	}
 
 	/**

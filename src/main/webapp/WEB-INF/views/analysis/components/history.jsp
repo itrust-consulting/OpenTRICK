@@ -8,7 +8,7 @@
 <div class="section" id="section_history">
 	<div class="page-header">
 		<h3 id="History">
-			<spring:message code="label.history" text="History" />
+			<spring:message code="label.title.history" text="History" />
 		</h3>
 	</div>
 	<div class="panel panel-default">
@@ -17,10 +17,10 @@
 			<table class="table table-hover">
 				<thead>
 					<tr>
-						<th><spring:message code="label.history.version" /></th>
-						<th><spring:message code="label.history.date" /></th>
-						<th><spring:message code="label.history.author" /></th>
-						<th colspan="10"><spring:message code="label.history.comment" /></th>
+						<th><spring:message code="label.history.version" text="Version"/></th>
+						<th><spring:message code="label.history.date" text="Date"/></th>
+						<th><spring:message code="label.history.author" text="Author"/></th>
+						<th colspan="10"><spring:message code="label.history.comment" text="Comment"/></th>
 					</tr>
 				</thead>
 				<tbody>

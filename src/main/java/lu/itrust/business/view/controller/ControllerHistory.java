@@ -137,7 +137,7 @@ public class ControllerHistory {
 		} else {
 			try {
 				serviceHistory.saveOrUpdate(history);
-				String msg = messageSource.getMessage("success.history.update.success", null, "History had been updated!", locale);
+				String msg = messageSource.getMessage("success.history.update", null, "History had been updated!", locale);
 				redirectAttributes.addFlashAttribute("success", msg);
 			} catch (Exception e) {
 				String msg = messageSource.getMessage("errors.history.update.fail", null, "History update failed!", locale);

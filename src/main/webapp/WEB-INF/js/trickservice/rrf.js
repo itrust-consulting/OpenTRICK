@@ -63,6 +63,7 @@ function RRFView() {
 
 	RRFView.prototype.LoadData = function() {
 		var that = this;
+		this.setTitle(MessageResolver("label.title.editor.rrf", "Risk reduction factor"));
 		$.ajax({
 			url : context + "/Scenario/RRF",
 			type : "get",
@@ -86,7 +87,8 @@ function RRFView() {
 
 				that.ReloadChart();
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		return true;
 	};
@@ -242,24 +244,15 @@ function ScenarioRRFController(rrfView, container, name) {
 
 	ScenarioRRFController.prototype.CheckTypeValue = function() {
 		var sum = 0;
-		for (var i = 0; i < this.sliders.length; i++) {
-			if (this.DependencyFields[this.sliders[i].prop("name")] != undefined) {
-				var slider = $(this.sliders[i]).slider();
-				sum += parseFloat(slider.prop("value"));
-			}
-		}
+		for ( var field in this.DependencyFields)
+			sum += this.DependencyFields[field];
 		var types = $(this.container).find("*[trick-type='type']");
-		if (sum != 1) {
-			if ($(types).hasClass("success")) {
-				$(types).removeClass("success");
-				$(types).addClass("danger");
-			}
-
+		if (Math.abs(1 - sum) > 0.01) {
+			$(types).removeClass("success");
+			$(types).addClass("danger");
 		} else {
-			if ($(types).hasClass("danger")) {
-				$(types).removeClass("danger");
-				$(types).addClass("success");
-			}
+			$(types).removeClass("danger");
+			$(types).addClass("success");
 		}
 		return false;
 	};
@@ -268,8 +261,10 @@ function ScenarioRRFController(rrfView, container, name) {
 		var that = this;
 		if (this.idScenario < 1 || this.idScenario == undefined)
 			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
-		if (this.DependencyFields[fiedName] != undefined)
+		if (this.DependencyFields[fiedName] != undefined) {
+			this.DependencyFields[fiedName] = value;
 			this.CheckTypeValue();
+		}
 		$.ajax({
 			url : context + "/Scenario/RRF/Update",
 			type : "post",
@@ -277,7 +272,8 @@ function ScenarioRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		return false;
 	};
@@ -307,6 +303,10 @@ function ScenarioRRFController(rrfView, container, name) {
 							if (fieldValue == undefined)
 								continue;
 						}
+						// update preventive, limitative,detective and
+						// corrective
+						if (that.DependencyFields[field] != undefined)
+							that.DependencyFields[field] = fieldValue;
 						$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", fieldValue);
 						$(clone).attr("value", fieldValue);
 						$(clone).attr("data-slider-value", fieldValue);
@@ -319,7 +319,8 @@ function ScenarioRRFController(rrfView, container, name) {
 					that.CheckTypeValue();
 				}
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 
@@ -354,13 +355,14 @@ function ScenarioRRFController(rrfView, container, name) {
 		RRFController.prototype.GenerateFilter.call(this);
 		var element = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active");
 		if (element.length == 1) {
-			this.rrfView.filter["measures"] = $.makeArray($(element.parent()).find("a[trick-class='Measure']")).map(function(item) {
+			this.rrfView.filter["measures"] = $.makeArray($(element.parent().parent()).find("a[trick-class='Measure']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));
 			});
 		} else {
 			this.rrfView.filter["measures"] = [];
 			for (var i = 0; i < element.length; i++)
-				this.rrfView.filter["measures"].push($(element[i]).attr('trick-id'));
+				if ($(element[i]).attr('trick-class') == "Measure")
+					this.rrfView.filter["measures"].push($(element[i]).attr('trick-id'));
 		}
 		return false;
 	};
@@ -370,14 +372,14 @@ function ScenarioRRFController(rrfView, container, name) {
 		var trickClass = $(element).attr("trick-class");
 		var trickId = $(element).attr("trick-id");
 		if (trickClass == "Norm") {
-			this.rrfView.filter["measures"] = $.makeArray($(element).parent().find("a[trick-class='Measure']")).map(function(item) {
+			this.rrfView.filter["measures"] = $.makeArray($(element).parent().parent().find("a[trick-class='Measure']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));
 			});
 			this.SelectFirstItem();
 			this.rrfView.SwitchController(this);
 			return this.ReloadChart();
-		}
-		this.rrfView.filter["measures"] = [ parseInt(trickId) ];
+		} else
+			this.rrfView.filter["measures"] = [ parseInt(trickId) ];
 		return false;
 	};
 
@@ -394,7 +396,8 @@ function ScenarioRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 }
@@ -507,7 +510,8 @@ function MeasureRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 
@@ -548,7 +552,8 @@ function MeasureRRFController(rrfView, container, name) {
 					}
 				}
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 
@@ -582,13 +587,14 @@ function MeasureRRFController(rrfView, container, name) {
 		RRFController.prototype.GenerateFilter.apply(this);
 		var element = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active");
 		if (element.length == 1) {
-			this.rrfView.filter["scenarios"] = $.makeArray($(element.parent()).find("a[trick-class='Scenario']")).map(function(item) {
+			this.rrfView.filter["scenarios"] = $.makeArray($(element.parent().parent()).find("a[trick-class='Scenario']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));
 			});
 		} else {
 			this.rrfView.filter["scenarios"] = [];
 			for (var i = 0; i < element.length; i++)
-				this.rrfView.filter["scenarios"].push($(element[i]).attr('trick-id'));
+				if ($(element[i]).attr('trick-class') == 'Scenario')
+					this.rrfView.filter["scenarios"].push($(element[i]).attr('trick-id'));
 		}
 		return false;
 	};
@@ -606,14 +612,14 @@ function MeasureRRFController(rrfView, container, name) {
 		var trickId = $(element).attr("trick-id");
 		// this.SynchronizeSlider(); rejected by product owner
 		if (trickClass == "ScenarioType") {
-			this.rrfView.filter["scenarios"] = $.makeArray($(element).parent().find("a[trick-class='Scenario']")).map(function(item) {
+			this.rrfView.filter["scenarios"] = $.makeArray($(element).parent().parent().find("a[trick-class='Scenario']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));
 			});
 			this.SelectFirstItem();
 			this.rrfView.SwitchController(this);
 			return this.ReloadChart();
-		}
-		this.rrfView.filter["scenarios"] = [ parseInt(trickId) ];
+		} else
+			this.rrfView.filter["scenarios"] = [ parseInt(trickId) ];
 		return false;
 	};
 
@@ -630,7 +636,8 @@ function MeasureRRFController(rrfView, container, name) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				return that.rrfView.UpdateChartView(response);
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 	return false;
@@ -642,6 +649,99 @@ function editRRF(idAnalysis) {
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.READ)) {
 		var modal = new RRFView();
 		modal.Show();
+	} else
+		permissionError();
+	return false;
+}
+
+function importRRF(idAnalysis) {
+	if (idAnalysis == null || idAnalysis == undefined)
+		idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
+		$.ajax({
+			url : context + "/KnowledgeBase/Norm/Import/RRF",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(response, "text/html");
+				if ($(doc).find("#importMeasureCharacteristics").length) {
+					var modal = new Modal($(doc).find("#importMeasureCharacteristics").clone());
+					var $norms = $(modal.modal_body).find("select[name='norms']");
+					var $profileSelector = $(modal.modal_body).find("select[name='profile']");
+					$profileSelector.on("change", function(e) {
+						var value = $(e.target).val();
+						if (value == undefined)
+							value = -1;
+						$norms.find("option[name!='" + value + "']").hide().prop("selected", false);
+						$norms.find("option[name='" + value + "']").show();
+					});
+					var $closeButton = $(modal.modal_header).find("button");
+					var $switchRRFButton = $(modal.modal_footer).find("button[name='show_rrf']");
+					var $importButton = $(modal.modal_footer).find("button[name='import']");
+					var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
+					var $progressBar = $(modal.modal_body).find(".progress");
+					//Rejected by Product owner
+					$switchRRFButton.hide();
+					
+					$importButton.click(function() {
+						if ($importButton.is(":disabled"))
+							return false;
+						$progressBar.show();
+						$(modal.modal).find("button").prop("disabled", true);
+						$(modal.modal_body).find(".alert").remove();
+						$.ajax({
+							url : context + "/KnowledgeBase/Norm/Import/RRF/Save",
+							type : "post",
+							data : $(modal.modal_body).find("form").serialize(),
+							success : function(response) {
+								if (response.success != undefined)
+									showSuccess($(modal.modal_body)[0], response.success);
+								else {
+									if (response.error != undefined)
+										showError($(modal.modal_body)[0], response.error);
+									else
+										unknowError();
+								}
+							},
+							error : function(jqXHR, textStatus, errorThrown) {
+								$progressBar.hide();
+								$(modal.modal).find("button").prop("disabled", false);
+								showError($(modal.modal_body)[0], MessageResolver("error.unknown.occurred", "An unknown error occurred"));
+							}
+						}).done(function() {
+							$progressBar.hide();
+							$(modal.modal).find("button").prop("disabled", false);
+						});
+						return false;
+					});
+					$cancelButton.click(function() {
+						if (!$cancelButton.is(":disabled"))
+							modal.Destroy();
+						return false;
+					});
+
+					$closeButton.click(function() {
+						if (!$closeButton.is(":disabled"))
+							modal.Destroy();
+						return false;
+					});
+
+					$switchRRFButton.click(function() {
+						if (!$switchRRFButton.is(":disabled")) {
+							modal.Destroy();
+							editRRF(idAnalysis);
+						}
+						return false;
+					});
+
+					$profileSelector.change();
+
+					modal.Show();
+				} else
+					unknowError();
+			},
+			error : unknowError
+		});
 	} else
 		permissionError();
 	return false;

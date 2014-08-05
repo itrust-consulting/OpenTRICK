@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <!-- ################################################################ Set Page Title ################################################################ -->
-<c:set scope="request" var="title">title.register</c:set>
+<c:set scope="request" var="title">label.title.register</c:set>
 <!-- ###################################################################### HTML #################################################################### -->
 <html>
 <!-- ##################################################################### Header ################################################################### -->
@@ -18,11 +18,11 @@
 			<h2 class="form-signin-heading col-sm-offset-5">
 				<spring:message code="title.user.register" />
 			</h2>
-			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/login" style="margin-top: -35px;"><spring:message code="menu.navigate.back" /></a>
+			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/login" style="margin-top: -35px;"><spring:message code="label.menu.navigate.back" text="Back"/></a>
 			<form:form cssClass="form-horizontal" method="post" action="${pageContext.request.contextPath}/DoRegister" commandName="user">
 				<div class="form-group">
 					<form:label path="login" cssClass="col-sm-3 control-label">
-						<spring:message code="label.user.login" />
+						<spring:message code="label.user.login" text="Username"/>
 					</form:label>
 					<div class="col-sm-9">
 						<form:input path="login" cssClass="form-control" htmlEscape="true" required='true' />
@@ -31,7 +31,7 @@
 				</div>
 				<div class="form-group">
 					<form:label path="password" cssClass="col-sm-3 control-label">
-						<spring:message code="label.user.password" arguments="" />
+						<spring:message code="label.user.password" text="Password"/>
 					</form:label>
 					<div class="col-sm-9">
 						<form:password path="password" cssClass="form-control" required='true' htmlEscape="true" />
@@ -40,7 +40,7 @@
 				</div>
 				<div class="form-group">
 					<form:label path="repeatPassword" cssClass="col-sm-3 control-label">
-						<spring:message code="label.user.repeatPassword" text="Repeat password" />
+						<spring:message code="label.user.repeat_password" text="Repeat password" />
 					</form:label>
 					<div class="col-sm-9">
 						<form:password path="repeatPassword" cssClass="form-control" htmlEscape="true" required='true' />
@@ -49,7 +49,7 @@
 				</div>
 				<div class="form-group">
 					<form:label path="firstName" cssClass="col-sm-3 control-label">
-						<spring:message code="label.user.firstName" />
+						<spring:message code="label.user.first_name" text="Firstname"/>
 					</form:label>
 					<div class="col-sm-9">
 						<form:input path="firstName" cssClass="form-control" htmlEscape="true" required='true' />
@@ -58,7 +58,7 @@
 				</div>
 				<div class="form-group">
 					<form:label path="lastName" cssClass="col-sm-3 control-label">
-						<spring:message code="label.user.lastName" />
+						<spring:message code="label.user.last_name" text="Lastname"/>
 					</form:label>
 					<div class="col-sm-9">
 						<form:input path="lastName" cssClass="form-control" required='true' htmlEscape="true" />
@@ -67,7 +67,7 @@
 				</div>
 				<div class="form-group">
 					<form:label path="email" cssClass="col-sm-3 control-label">
-						<spring:message code="label.user.email" />
+						<spring:message code="label.user.email" text="Email address"/>
 					</form:label>
 					<div class="col-sm-9">
 						<form:input path="email" cssClass="form-control" htmlEscape="true" required='true'
@@ -78,7 +78,7 @@
 				<div class="form-group">
 					<div class="col-sm-offset-3 col-sm-9">
 						<button class="btn btn-default" type="submit">
-							<spring:message code="label.user.submit" />
+							<spring:message code="label.action.sign_up.user" text="Signup"/>
 						</button>
 					</div>
 				</div>

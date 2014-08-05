@@ -1,5 +1,7 @@
 package lu.itrust.business.TS;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * AssetTypeValue: <br>
  * This class represents an AssetTypeValue and all its data. This class is used to store
@@ -67,17 +69,12 @@ public class AssetTypeValue implements Cloneable {
 	 * 
 	 * @param assetType
 	 *            The value to set the "assetType" field
+	 * @throws TrickException 
 	 */
-	public void setAssetType(AssetType assetType) {
-		if (assetType == null)
-			throw new IllegalArgumentException(
-					"error.assettypevalue.assettype_null");
-		else if (assetType.getType() == null)
-			throw new IllegalArgumentException(
-					"error.asset.assettypevalue.type_null");
-		else if (assetType.getType().trim().isEmpty())
-			throw new IllegalArgumentException(
-					"error.asset.assettypevalue.type_empty");
+	public void setAssetType(AssetType assetType) throws TrickException {
+		if (assetType == null || assetType.getType() == null)
+			throw new TrickException(
+					"error.assettypevalue.assettype_null","Asset type value cannot be empty");
 		this.assetType = assetType;
 	}
 
@@ -97,11 +94,11 @@ public class AssetTypeValue implements Cloneable {
 	 * 
 	 * @param value
 	 *            The value to set the "value" field
+	 * @throws TrickException 
 	 */
-	public void setValue(int value) {
-		if ((value < -1) || (value > 101)) {
-			throw new IllegalArgumentException("error.asset.assettypevalue.value");
-		}
+	public void setValue(int value) throws TrickException {
+		if ((value < -1) || (value > 101)) 
+			throw new TrickException("error.asset.assettypevalue.value","Asset type value: value should be between 0 and 100");
 		this.value = value;
 	}
 

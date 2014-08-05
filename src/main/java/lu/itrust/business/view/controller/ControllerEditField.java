@@ -34,6 +34,7 @@ import lu.itrust.business.component.ParameterManager;
 import lu.itrust.business.component.helper.FieldEditor;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.dao.hbm.DAOHibernate;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssessment;
@@ -107,6 +108,9 @@ public class ControllerEditField {
 	private ServiceRiskInformation serviceRiskInformation;
 
 	@Autowired
+	private AssessmentManager assessmentManager;
+
+	@Autowired
 	private ServicePhase servicePhase;
 
 	/**
@@ -135,7 +139,7 @@ public class ControllerEditField {
 			// get item information object from id
 			ItemInformation itemInformation = serviceItemInformation.getFromAnalysisById(id, elementID);
 			if (itemInformation == null)
-				return JsonMessage.Error(messageSource.getMessage("error.itemInformation.not_found", null, "ItemInformation cannot be found", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.item_information.not_found", null, "Item information cannot be found", locale));
 
 			// initialise field
 			Field field = itemInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
@@ -148,7 +152,7 @@ public class ControllerEditField {
 				serviceItemInformation.saveOrUpdate(itemInformation);
 
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.itemInformation.updated", null, "ItemInformation was successfully updated", locale));
+				return JsonMessage.Success(messageSource.getMessage("success.item_information.updated", null, "Item information was successfully updated", locale));
 			} else
 
 				// return error message
@@ -173,6 +177,10 @@ public class ControllerEditField {
 			// return error
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		} catch (TrickException e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 
 			// return error
@@ -272,7 +280,15 @@ public class ControllerEditField {
 			// return error
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-		} catch (Exception e) {
+		}
+
+		catch (TrickException e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}
+
+		catch (Exception e) {
 
 			// return error
 			e.printStackTrace();
@@ -308,6 +324,8 @@ public class ControllerEditField {
 			if (parameter == null)
 				return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
 
+			String acronym = parameter.getAcronym();
+
 			// set validator and validate parameter
 			if (!serviceDataValidation.isRegistred(parameter.getClass()))
 				serviceDataValidation.register(new ExtendedParameterValidator());
@@ -334,6 +352,16 @@ public class ControllerEditField {
 			if (SetFieldData(field, parameter, fieldEditor, null)) {
 				if ("value".equals(fieldEditor.getFieldName()) && Constant.PARAMETERTYPE_TYPE_IMPACT_NAME.equalsIgnoreCase(parameter.getType().getLabel()))
 					parameter.setValue(parameter.getValue() * 1000);
+
+				if (field.getName().equals("acronym")) {
+					try {
+						assessmentManager.UpdateAcronym(id, parameter, acronym);
+					} catch (Exception e) {
+						e.printStackTrace();
+						return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, parameter.getAcronym() },
+								"Assessment acronym (" + acronym + ") cannot be updated to (" + parameter.getAcronym() + ")", locale));
+					}
+				}
 				// update field
 				serviceParameter.saveOrUpdate(parameter);
 
@@ -382,6 +410,10 @@ public class ControllerEditField {
 			// return error
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		} catch (TrickException e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 
 			// return error
@@ -475,6 +507,10 @@ public class ControllerEditField {
 			// return error
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+		} catch (TrickException e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 
 			// return error
@@ -568,6 +604,10 @@ public class ControllerEditField {
 
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.assessment.updated", null, "Assessment was successfully updated", locale));
+		} catch (TrickException e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 
 			// return error
@@ -662,6 +702,10 @@ public class ControllerEditField {
 			// return error rmessage
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.format.date", null, "Date expected", locale));
+		} catch (TrickException e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 
 			// return error rmessage
@@ -743,6 +787,10 @@ public class ControllerEditField {
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
 
+		} catch (TrickException e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 
 			// return error
@@ -797,6 +845,10 @@ public class ControllerEditField {
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", locale));
 
+		} catch (TrickException e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 
 			// return error
@@ -868,6 +920,10 @@ public class ControllerEditField {
 
 				// update as if it would be a normal measure
 				return measure(elementID, fieldEditor, session, locale, principal);
+		} catch (TrickException e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 
 			// return error
@@ -921,6 +977,10 @@ public class ControllerEditField {
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.ationplan.updated", null, "ActionPlan entry was successfully updated", locale));
 
+		} catch (TrickException e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 
 			// retrun error message
@@ -1003,6 +1063,10 @@ public class ControllerEditField {
 			serviceRiskInformation.saveOrUpdate(riskInformation);
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.risk_information.updated", null, "Risk information was successfully updated", locale));
+		} catch (TrickException e) {
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));

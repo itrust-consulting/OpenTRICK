@@ -3,13 +3,14 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="modal fade" id="addStandardModal" tabindex="-1" role="dialog" data-aria-labelledby="addStandardForm" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="phaseNewModal-title">
-					<spring:message code="label.analysis.add.standard" text="Add a standard" />
+					<spring:message code="label.title.analysis.add.standard" text="Add a standard" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -28,7 +29,7 @@
 								<td><spring:message code="label.standard.${norm.label}" text="${norm.label}" /></td>
 								<td><spring:message text="${norm.version}" /></td>
 								<td><spring:message text="${norm.description}" /></td>
-								<td><spring:message code="label.yes_no.${norm.computable}" text="${norm.computable? 'Yes' : 'No'}" /></td>
+								<td><spring:message code="label.yes_no.${fn:toLowerCase(norm.computable)}" text="${norm.computable? 'Yes' : 'No'}" /></td>
 							</tr>
 						</c:forEach>
 					</tbody>
@@ -40,8 +41,7 @@
 						</label> <select name="idNorm" class="form-control" onchange="$('#selectedStandardDescription').html($('#addStandardForm select option:selected').attr('title'));" >
 							<c:forEach items="${norms}" var="norm">
 								<option title='<spring:message text="${norm.description}"/>' value="${norm.id}">
-									<spring:message code="label.standard.${norm.label}" text="${norm.label}" /> -
-									<spring:message text="${norm.version}" />
+									<spring:message text="${norm.label}" /> - <spring:message text="${norm.version}" />
 								</option>
 							</c:forEach>
 						</select>

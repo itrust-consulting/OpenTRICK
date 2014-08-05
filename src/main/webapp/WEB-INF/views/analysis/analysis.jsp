@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<c:set scope="request" var="title">title.analysis</c:set>
+<c:set scope="request" var="title">label.title.analysis</c:set>
 <html>
 <jsp:include page="../header.jsp" />
 <body data-spy="scroll" data-target="#analysismenu" data-offset="40">
@@ -24,14 +24,21 @@
 				<c:if test="${KowledgeBaseView}">
 					<h2>${analysis.identifier}|${ analysis.version }</h2>
 				</c:if>
-				<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
-				<jsp:include page="./components/itemInformation.jsp" />
+				<c:if test="${!KowledgeBaseView }">
+					<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
+					<jsp:include page="./components/itemInformation.jsp" />
+				</c:if>
 				<c:set var="parameters" value="${analysis.parameters}" scope="request" />
 				<jsp:include page="./components/parameter.jsp" />
 				<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 				<jsp:include page="./components/riskinformation.jsp" />
-				<c:set var="assets" value="${analysis.assets}" scope="request" />
-				<jsp:include page="./components/asset.jsp" />
+				<c:if test="${!KowledgeBaseView }">
+					<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeALE(analysis)" var="ales" />
+					<c:set var="assetALE" value="${ales[0]}" scope="request" />
+					<c:set var="assets" value="${analysis.assets}" scope="request" />
+					<jsp:include page="./components/asset.jsp" />
+					<c:set var="scenarioALE" value="${ales[1]}" scope="request" />
+				</c:if>
 				<c:set var="scenarios" value="${analysis.scenarios}" scope="request" />
 				<jsp:include page="./components/scenario.jsp" />
 				<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
@@ -43,8 +50,10 @@
 					<jsp:include page="./components/actionplan.jsp" />
 					<c:set var="summaries" scope="request" value="${analysis.summaries}" />
 					<jsp:include page="./components/summary.jsp" />
-					<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
-					<jsp:include page="./components/riskregister.jsp" />
+					<c:if test="${empty(show_cssf) or show_cssf}">
+						<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
+						<jsp:include page="./components/riskregister.jsp" />
+					</c:if>
 					<jsp:include page="./components/charts.jsp" />
 				</c:if>
 			</div>
@@ -57,6 +66,7 @@
 		<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>
 		<script src="<spring:url value="/js/highcharts/exporting.js" />"></script>
 		<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script>
 		<c:if test="${!KowledgeBaseView}">
 			<script type="text/javascript" src="<spring:url value="js/trickservice/actionplan.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/assessment.js" />"></script>
@@ -64,7 +74,6 @@
 			<script type="text/javascript" src="<spring:url value="js/trickservice/fieldeditor.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/bootstrap/typeahead.bundle.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/phase.js" />"></script>
-			<script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/scenario.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/riskregister.js" />"></script>
 		</c:if>

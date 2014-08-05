@@ -1,12 +1,16 @@
 package lu.itrust.business.TS;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
+import lu.itrust.business.exception.TrickException;
 
 /**
  * NormMeasure: <br>
- * This class represents a AnalysisNorm Measure and its data. This class extends Measure, it is used
- * to represent measures that are NOT Maturity Measures. <br>
+ * This class represents a AnalysisNorm Measure and its data. This class extends
+ * Measure, it is used to represent measures that are NOT Maturity Measures. <br>
  * <br>
  * - Asset Type Values <br>
  * - Data for measures of AnalysisNorm 27001, 27002 and custom norms
@@ -53,17 +57,18 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @param measurePropertyList
 	 *            The measureProperties Object to set the List of Properties
+	 * @throws TrickException
 	 */
-	public void setMeasurePropertyList(MeasureProperties measurePropertyList) {
+	public void setMeasurePropertyList(MeasureProperties measurePropertyList) throws TrickException {
 		if (measurePropertyList == null)
-			throw new IllegalArgumentException("MeasureProperties should not be null");
+			throw new TrickException("error.norm_measure.measure_property.empty", "Measure properties cannot be empty");
 		this.measurePropertyList = measurePropertyList;
 	}
 
 	/**
 	 * getAssetTypeValue: <br>
-	 * Returns the Asset Type value at position "index" of the Asset Type Value List
-	 * ("assetTypeValues" field)
+	 * Returns the Asset Type value at position "index" of the Asset Type Value
+	 * List ("assetTypeValues" field)
 	 * 
 	 * @param index
 	 *            The index of the element position to retrieve from the list
@@ -71,14 +76,14 @@ public class NormMeasure extends Measure {
 	 */
 	public AssetTypeValue getAssetTypeValue(int index) {
 		if (index < 0 || index >= assetTypeValues.size())
-			throw new IndexOutOfBoundsException("Index (" + index + ") should be between 0 and "
-				+ (assetTypeValues.size() - 1));
+			throw new IndexOutOfBoundsException("Index (" + index + ") should be between 0 and " + (assetTypeValues.size() - 1));
 		return assetTypeValues.get(index);
 	}
 
 	/**
 	 * getAssetTypeValueList: <br>
-	 * Returns the List of Asset Type Values for this Measure ("assetTypeValue" field)
+	 * Returns the List of Asset Type Values for this Measure ("assetTypeValue"
+	 * field)
 	 * 
 	 * @return The List of all Asset Type Values
 	 */
@@ -93,20 +98,22 @@ public class NormMeasure extends Measure {
 	 * @param assetTypeValues
 	 *            The Value to set the assetTypeValues field
 	 */
-	protected void setAssetTypeValues(List<AssetTypeValue> assetTypeValues) {
+	public void setAssetTypeValues(List<AssetTypeValue> assetTypeValues) {
 		this.assetTypeValues = assetTypeValues;
 	}
 
 	/**
 	 * addAnAssetTypeValue: <br>
-	 * Adds a new Asset Type Value object to the list of Asset Type Values ("assetTypeValue" field)
+	 * Adds a new Asset Type Value object to the list of Asset Type Values
+	 * ("assetTypeValue" field)
 	 * 
 	 * @param assettypevalue
 	 *            The Asset Type Value object to add to list
+	 * @throws TrickException
 	 */
-	public void addAnAssetTypeValue(AssetTypeValue assettypevalue) {
+	public void addAnAssetTypeValue(AssetTypeValue assettypevalue) throws TrickException {
 		if (assetTypeValues.contains(assettypevalue))
-			throw new IllegalArgumentException("AssetTypeValue cannot be duplicated");
+			throw new TrickException("error.norm_measure.asset_type_value", "Assettype value cannot be duplicated");
 		this.assetTypeValues.add(assettypevalue);
 	}
 
@@ -145,7 +152,8 @@ public class NormMeasure extends Measure {
 
 	/**
 	 * getImplementationRateValue: <br>
-	 * Returns the Implementation Rate value using the getImplementationRate method.
+	 * Returns the Implementation Rate value using the getImplementationRate
+	 * method.
 	 * 
 	 * @return Implementation Rate Value
 	 * @see lu.itrust.business.TS.Measure#getImplementationRateValue()
@@ -162,13 +170,13 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @param implementationRate
 	 *            The Implementation Rate Value as object
+	 * @throws TrickException
 	 * @see lu.itrust.business.TS.Measure#setImplementationRate(java.lang.Object)
 	 */
 	@Override
-	public void setImplementationRate(Object implementationRate) {
-		if (!(implementationRate instanceof Double)) {
-			throw new IllegalArgumentException("ImplementationRate needs to be of Type Double!");
-		}
+	public void setImplementationRate(Object implementationRate) throws TrickException {
+		if (!(implementationRate instanceof Double))
+			throw new TrickException("error.norm_measure.implementation_rate.invalid", "ImplementationRate needs to be of Type Double!");
 		super.setImplementationRate((Double) implementationRate);
 	}
 
@@ -178,13 +186,16 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @param implementationRate
 	 *            The Implementation Rate Value as Double
+	 * @throws TrickException
 	 * @see lu.itrust.business.TS.Measure#setImplementationRate(java.lang.Object)
 	 */
-	public void setImplementationRate(double implementationRate) {
+	public void setImplementationRate(double implementationRate) throws TrickException {
 		super.setImplementationRate(implementationRate);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.Measure#clone()
 	 */
 	@Override
@@ -197,7 +208,9 @@ public class NormMeasure extends Measure {
 		return normMeasure;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.Measure#duplicate()
 	 */
 	@Override
@@ -209,6 +222,32 @@ public class NormMeasure extends Measure {
 		normMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.duplicate();
 		return normMeasure;
 	}
-	
-	
+
+	public void copyMeasureCharacteristicsTo(NormMeasure measure) throws TrickException, CloneNotSupportedException {
+		if (this.getMeasurePropertyList() == null || measure == null || measure.getMeasurePropertyList() == null)
+			return;
+		measurePropertyList.copyTo(measure.measurePropertyList);
+		if (assetTypeValues == null || measure.getAssetTypeValues() == null)
+			return;
+		Map<Integer, AssetTypeValue> mappedAssetTypeValues = new LinkedHashMap<Integer, AssetTypeValue>(getAssetTypeValues().size());
+		for (AssetTypeValue assetTypeValue : measure.getAssetTypeValues())
+			mappedAssetTypeValues.put(assetTypeValue.getAssetType().getId(), assetTypeValue);
+		measure.assetTypeValues.clear();
+		
+		for (AssetTypeValue assetTypeValue : getAssetTypeValues()) {
+			AssetTypeValue typeValue = mappedAssetTypeValues.get(assetTypeValue.getAssetType().getId());
+			if (typeValue == null)
+				typeValue = assetTypeValue.duplicate();
+			else
+				typeValue.setValue(assetTypeValue.getValue());
+			measure.assetTypeValues.add(typeValue);
+			mappedAssetTypeValues.remove(assetTypeValue.getAssetType().getId());
+		}
+
+		for (AssetTypeValue assetTypeValue : mappedAssetTypeValues.values()) {
+			assetTypeValue.setValue(0);
+			measure.assetTypeValues.add(assetTypeValue);
+		}
+	}
+
 }

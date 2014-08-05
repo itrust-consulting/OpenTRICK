@@ -9,7 +9,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addNormModel-title">
-					<spring:message code="label.norm.add.menu" text="Add new Norm" />
+					<spring:message code="label.title.add.norm" text="Add new Norm" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -47,7 +47,7 @@
 			</div>
 			<div class="modal-footer">
 				<button id="addnormbutton" type="button" class="btn btn-primary" onclick="saveNorm('norm_form')">
-					<spring:message code="label.norm.add.form" text="Add" />
+					<spring:message code="label.action.add.norm" text="Add" />
 				</button>
 			</div>
 		</div>
@@ -59,16 +59,16 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteNormModel-title">
-					<spring:message code="title.norm.delete" text="Delete a norm" />
+					<spring:message code="label.title.delete.norm" text="Delete a norm" />
 				</h4>
 			</div>
 			<div id="deleteNormBody" class="modal-body">Your question here...</div>
 			<div class="modal-footer">
 				<button id="deletenormbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
-					<spring:message code="label.answer.yes" text="Yes" />
+					<spring:message code="label.action.confirm.yes" text="Yes" />
 				</button>
 				<button id="deletenormbuttonCancel" type="button" class="btn" data-dismiss="modal">
-					<spring:message code="label.answer.cancel" text="Cancel" />
+					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>
 		</div>

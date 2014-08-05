@@ -11,7 +11,7 @@
 		</label>
 		<div class="col-sm-10" id="analysiscustomercontainer">
 			<select class="form-control" name="analysiscustomer">
-				<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose ..." />
+				<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
 					<c:forEach items="${customers}" var="customer">
 						<option value="${customer.id}">${customer.organisation}</option>
 					</c:forEach>
@@ -23,7 +23,7 @@
 		</label>
 		<div class="col-sm-10" id="analysislanguagecontainer">
 			<select name="analysislanguage" class="form-control">
-				<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose ..." />
+				<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
 					<c:forEach items="${languages}" var="language">
 						<option value="${language.id}">${language.name}</option>
 					</c:forEach>
@@ -31,11 +31,11 @@
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="profile" class="col-sm-2 control-label"> <spring:message code="label.analysis.profileAnalysis" text="Profile" />
+		<label for="profile" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile_analysis" text="Profile" />
 		</label>
 		<div class="col-sm-10">
 			<select name="profile" id="analysis_profile" class="form-control">
-				<option value="-1"><spring:message code="label.select.analysisProfile" text="Select a profile" /></option>
+				<option value="-1"><spring:message code="label.action.choose.analysis_profile" text="Choose..." /></option>
 				<c:forEach items="${profiles}" var="profile">
 					<option value="${profile.id }"><spring:message text="${profile.identifier}" /></option>
 				</c:forEach>
@@ -60,7 +60,7 @@
 		<label for="version" class="col-sm-2 control-label"> <spring:message code="label.analysis.version" text="Version" />
 		</label>
 		<div class="col-sm-10">
-			<input name="version" id="analysis_version" class="form-control" type="text" value="0.0.1" />
+			<input name="version" id="analysis_version" class="form-control" type="text" value="0.0.1"/>
 		</div>
 	</div>
 </div>

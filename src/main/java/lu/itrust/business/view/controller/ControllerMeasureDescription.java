@@ -1,5 +1,6 @@
 package lu.itrust.business.view.controller;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -13,7 +14,10 @@ import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.ComparatorMeasureDescription;
+import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.MeasureManager;
+import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasureDescription;
@@ -62,6 +66,9 @@ public class ControllerMeasureDescription {
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
+	
+	@Autowired
+	private CustomDelete customDelete;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -118,7 +125,7 @@ public class ControllerMeasureDescription {
 				// add to measuredescription
 				mesDesc.addMeasureDescriptionText(mesDescText);
 			}
-
+			Collections.sort(mesDescs, new ComparatorMeasureDescription());
 			// put data to model
 			model.addAttribute("selectedLanguage", lang);
 			model.addAttribute("languages", serviceLanguage.getAll());
@@ -140,7 +147,8 @@ public class ControllerMeasureDescription {
 	 * @throws Exception
 	 */
 	@RequestMapping("KnowledgeBase/Norm/{normId}/language/{idLanguage}/Measures/{idMeasure}")
-	public String displaySingle(@PathVariable int normId, @PathVariable int idLanguage, @PathVariable int idMeasure, HttpServletRequest request, HttpServletResponse response, Model model, Locale locale) throws Exception {
+	public String displaySingle(@PathVariable int normId, @PathVariable int idLanguage, @PathVariable int idMeasure, HttpServletRequest request, HttpServletResponse response,
+			Model model, Locale locale) throws Exception {
 
 		// load all measuredescriptions of a norm
 		MeasureDescription mesDesc = serviceMeasureDescription.get(idMeasure);
@@ -164,10 +172,10 @@ public class ControllerMeasureDescription {
 			model.addAttribute("measureDescription", mesDesc);
 			model.addAttribute("measureDescriptionText", mesDescText);
 		}
-		
+
 		response.setContentType("text/html");
-	    response.setCharacterEncoding("UTF-8");
-		
+		response.setCharacterEncoding("UTF-8");
+
 		return "knowledgebase/standard/measure/measure";
 	}
 
@@ -232,7 +240,7 @@ public class ControllerMeasureDescription {
 		for (Language lang : languages) {
 			boolean found = false;
 			for (MeasureDescriptionText mdt : mesDesc) {
-				if (mdt.getLanguage().equals(lang)) {
+				if (mdt.getLanguage().getId() == lang.getId()) {
 					found = true;
 					break;
 				}
@@ -268,8 +276,7 @@ public class ControllerMeasureDescription {
 	 * @return
 	 */
 	@RequestMapping(value = "KnowledgeBase/Norm/{normId}/Measures/Save", method = RequestMethod.POST, headers = "Accept=application/json")
-	public @ResponseBody
-	Map<String, String> save(@PathVariable("normId") int normId, @RequestBody String value, Locale locale) {
+	public @ResponseBody Map<String, String> save(@PathVariable("normId") int normId, @RequestBody String value, Locale locale) {
 		// create error list
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
@@ -291,7 +298,8 @@ public class ControllerMeasureDescription {
 					errors.put("measureDescription.norm", messageSource.getMessage("error.norm.not_found", null, "Standard is not exist", locale));
 				measureDescription.setNorm(norm);
 			} else if (measureDescription.getNorm().getId() != normId)
-				errors.put("measureDescription.norm", messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
+				errors.put("measureDescription.norm",
+						messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
 
 			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale)) {
 				serviceMeasureDescription.saveOrUpdate(measureDescription);
@@ -326,23 +334,19 @@ public class ControllerMeasureDescription {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "KnowledgeBase/Norm/{normId}/Measures/Delete/{measureid}", method = RequestMethod.POST, headers = "Accept=application/json")
-	public @ResponseBody
-	String[] deleteMeasureDescription(@PathVariable("normId") int normId, @PathVariable("measureid") int measureid, Locale locale) throws Exception {
-
+	public @ResponseBody String deleteMeasureDescription(@PathVariable("normId") int normId, @PathVariable("measureid") int measureid, Locale locale) {
 		try {
-
 			// try to delete measure
-			if (serviceMeasureDescription.get(measureid).getNorm().getId() == normId)
-				serviceMeasureDescription.delete(serviceMeasureDescription.get(measureid));
-
+			MeasureDescription measureDescription = serviceMeasureDescription.get(measureid);
+			if (measureDescription == null || measureDescription.getNorm().getId() != normId)
+				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+			customDelete.delete(measureDescription);
 			// return success message
-			return new String[] { "success", messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale) };
-
+			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
 		} catch (Exception e) {
-
 			// return error
 			e.printStackTrace();
-			return new String[] { "error", messageSource.getMessage("error.measure.delete.failed", null, "Measure deletion failed", locale) };
+			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
 		}
 	}
 
@@ -381,7 +385,8 @@ public class ControllerMeasureDescription {
 				errors.put("measuredescription.reference", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
 				if (measuredescription.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndNorm(reference, measuredescription.getNorm()))
-					errors.put("measuredescription.reference", messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
+					errors.put("measuredescription.reference",
+							messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
 				else
 					measuredescription.setReference(reference);
 			}

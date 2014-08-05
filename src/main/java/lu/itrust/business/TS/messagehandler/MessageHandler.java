@@ -1,44 +1,47 @@
 package lu.itrust.business.TS.messagehandler;
 
 import lu.itrust.business.component.helper.AsyncCallback;
+import lu.itrust.business.exception.TrickException;
 
-
-/** 
+/**
  * MessageHandler: <br>
- * Keeps information of a result and message used as return result in methods. One can check the 
- * field exception on errors, if no error was made, the field is null, on errors, the field contains
- * the exception thrown.
+ * Keeps information of a result and message used as return result in methods.
+ * One can check the field exception on errors, if no error was made, the field
+ * is null, on errors, the field contains the exception thrown.
  *
  * @author itrust consulting s.�.rl. : BJA, SME, EOM
  * @version 0.1
  * @since 10 janv. 2013
  */
 public class MessageHandler {
-	
+
 	private long idTask = 0;
-	
+
 	private TaskStatus taskStatus;
-	
+
 	private TaskName taskName = null;
-	
+
 	private AsyncCallback asyncCallback = null;
-	
+
 	private String code = null;
-	
-	private Object [] parameters = null;
-	
+
+	private Object[] parameters = null;
+
 	private String message = null;
-	
+
 	private int progress = 0;
-	
+
 	/** The Exception */
-	
+
 	private Exception exception = null;
+	
+	public MessageHandler() {
+	}
 
 	public MessageHandler(Exception e) {
-		this.exception = e;
+		setException(e);
 	}
-	
+
 	/**
 	 * @param code
 	 * @param message
@@ -47,7 +50,7 @@ public class MessageHandler {
 	public MessageHandler(String code, String message, Exception exception) {
 		this.code = code;
 		this.message = message;
-		this.exception = exception;
+		setException(exception);
 	}
 
 	/**
@@ -77,17 +80,15 @@ public class MessageHandler {
 	 * @param message
 	 * @param exception
 	 */
-	public MessageHandler(String code, Object[] parameters, String message,
-			Exception exception) {
+	public MessageHandler(String code, Object[] parameters, String message, Exception exception) {
 		this.code = code;
 		this.parameters = parameters;
 		this.message = message;
-		this.exception = exception;
+		setException(exception);
 	}
 
-
-
-	/** getException: <br>
+	/**
+	 * getException: <br>
 	 * Returns the exception field value.
 	 * 
 	 * @return The value of the exception field
@@ -96,27 +97,40 @@ public class MessageHandler {
 		return exception;
 	}
 
-	/** setException: <br>
+	/**
+	 * setException: <br>
 	 * Sets the Field "exception" with a value.
 	 * 
-	 * @param exception 
-	 * 			The Value to set the exception field
+	 * @param exception
+	 *            The Value to set the exception field
 	 */
 	public void setException(Exception exception) {
-		this.exception = exception;
+		if (exception instanceof TrickException)
+			setException((TrickException) exception);
+		else
+			this.exception = exception;
+	}
+
+	public void setException(TrickException e) {
+		this.code = e.getCode();
+		this.parameters = e.getParameters();
+		this.message = e.getMessage();
+		this.exception = e;
+		this.exception = e;
 	}
 
 	/**
 	 * @return the parameters
 	 */
-	public Object [] getParameters() {
+	public Object[] getParameters() {
 		return parameters;
 	}
 
 	/**
-	 * @param parameters the parameters to set
+	 * @param parameters
+	 *            the parameters to set
 	 */
-	public void setParameters(Object [] parameters) {
+	public void setParameters(Object[] parameters) {
 		this.parameters = parameters;
 	}
 
@@ -128,7 +142,8 @@ public class MessageHandler {
 	}
 
 	/**
-	 * @param message the message to set
+	 * @param message
+	 *            the message to set
 	 */
 	public void setMessage(String message) {
 		this.message = message;
@@ -142,7 +157,8 @@ public class MessageHandler {
 	}
 
 	/**
-	 * @param code the code to set
+	 * @param code
+	 *            the code to set
 	 */
 	public void setCode(String code) {
 		this.code = code;
@@ -156,7 +172,8 @@ public class MessageHandler {
 	}
 
 	/**
-	 * @param idTask the idTask to set
+	 * @param idTask
+	 *            the idTask to set
 	 */
 	public void setIdTask(long idTask) {
 		this.idTask = idTask;
@@ -170,7 +187,8 @@ public class MessageHandler {
 	}
 
 	/**
-	 * @param taskName the taskName to set
+	 * @param taskName
+	 *            the taskName to set
 	 */
 	public void setTaskName(TaskName taskName) {
 		this.taskName = taskName;
@@ -184,7 +202,8 @@ public class MessageHandler {
 	}
 
 	/**
-	 * @param taskStatus the taskStatus to set
+	 * @param taskStatus
+	 *            the taskStatus to set
 	 */
 	public void setTaskStatus(TaskStatus taskStatus) {
 		this.taskStatus = taskStatus;
@@ -198,7 +217,8 @@ public class MessageHandler {
 	}
 
 	/**
-	 * @param progress the progress to set
+	 * @param progress
+	 *            the progress to set
 	 */
 	public void setProgress(int progress) {
 		this.progress = progress;
@@ -212,7 +232,8 @@ public class MessageHandler {
 	}
 
 	/**
-	 * @param asyncCallback the asyncCallback to set
+	 * @param asyncCallback
+	 *            the asyncCallback to set
 	 */
 	public void setAsyncCallback(AsyncCallback asyncCallback) {
 		this.asyncCallback = asyncCallback;

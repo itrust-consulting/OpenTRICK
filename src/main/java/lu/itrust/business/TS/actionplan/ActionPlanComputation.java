@@ -300,7 +300,7 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - pessimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", 40));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPP);
@@ -319,7 +319,7 @@ public class ActionPlanComputation {
 				progress = 60;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.determinepositions", "Compute Action Plan -  computing positions", 40));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.determinepositions", "Compute Action Plan -  computing positions", progress));
 
 			// compute
 			determinePositions();
@@ -337,7 +337,7 @@ public class ActionPlanComputation {
 				progress = 80;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", 50));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", progress));
 
 			if (normalcomputation) {
 				computeSummary(ActionPlanMode.APN);
@@ -407,7 +407,7 @@ public class ActionPlanComputation {
 			return null;
 		} catch (TrickException e) {
 			e.printStackTrace();
-			MessageHandler messageHandler = new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e);
+			MessageHandler messageHandler = new MessageHandler(e);
 			serviceTaskFeedback.send(idTask, messageHandler);
 			return messageHandler;
 		} catch (Exception e) {
@@ -424,8 +424,9 @@ public class ActionPlanComputation {
 	 * determinePositions: <br>
 	 * Calculates the Position of each Action Plan Entry refered to the Normal
 	 * Action Plan Calculation
+	 * @throws TrickException 
 	 */
-	private void determinePositions() {
+	private void determinePositions() throws TrickException {
 
 		// ****************************************************************
 		// initialise variable
@@ -1543,8 +1544,9 @@ public class ActionPlanComputation {
 	 * @return The Copy of the List of Assets
 	 * 
 	 * @throws InvalidAttributesException
+	 * @throws TrickException 
 	 */
-	private List<ActionPlanAsset> createSelectedAssetsList() throws InvalidAttributesException {
+	private List<ActionPlanAsset> createSelectedAssetsList() throws InvalidAttributesException, TrickException {
 
 		// ****************************************************************
 		// * initialise variables

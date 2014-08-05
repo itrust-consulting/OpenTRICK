@@ -3,7 +3,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<c:set scope="request" var="title">title.analysis.import</c:set>
+<c:set scope="request" var="title">label.title.analysis.import</c:set>
 <html>
 <jsp:include page="../../header.jsp" />
 <body>
@@ -12,70 +12,71 @@
 		<div class="container">
 			<div class="page-header">
 				<h1>
-					<spring:message code="label.analysis.import.title" text="Import a new Analysis" />
+					<spring:message code="label.title.import.analysis" text="Import a new Analysis" />
 				</h1>
 				<jsp:include page="../../successErrors.jsp" />
 			</div>
-			<c:if test="${!empty customers}">
-				<h3>
-					<b> <spring:message code="label.analysis.import.description" text="Please select a customer then, choose a sqlite file and click on submit" />
-					</b>
-				</h3>
-				<form id="importform" name="importform" method="post" action="${pageContext.request.contextPath}/Analysis/Import/Execute" enctype="multipart/form-data">
-					<div class="row">
-						<div class="col-lg-12" style="margin-bottom: 10px;">
-							<div class="input-group">
-								<div class="row">
-									<h4 class="col-lg-10">
-										1.
-										<spring:message code="label.analysis.import.select.customer" />
-									</h4>
-									<div class="col-lg-10">
-										<select id="customerId" name="customerId" onchange="customerChanged()" class="form-control" style="width: 250px">
-											<option value="-1">
-												<spring:message code="label.action.choose" />
-											</option>
-											<c:forEach items="${customers}" var="customer">
-												<option value="${customer.id}">${customer.organisation}</option>
-											</c:forEach>
-										</select>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-lg-12" style="margin-bottom: 10px;">
-							<div class="input-group">
-								<div class="row">
-									<h4 class="col-lg-10">
-										2.
-										<spring:message code="label.analysis.import.select.sqlite" />
-									</h4>
-									<div class="col-lg-10">
-										<div class="input-group-btn">
-											<input id="file" onchange="checkFile(true)" type="file" name="file" style="display: none;" disabled /> <input id="upload-file-info" class="form-control"
-												readonly="readonly" />
-											<button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=file]').click();" disabled>Browse</button>
+			<div id="import-container">
+				<c:if test="${!empty customers}">
+					<h3>
+						<spring:message code="label.import.analysis.description" text="Please select a customer then, choose a sqlite file and click on submit" />
+					</h3>
+					<form id="importform" name="importform" method="post" action="${pageContext.request.contextPath}/Analysis/Import/Execute" enctype="multipart/form-data">
+						<div class="row">
+							<div class="col-lg-12" style="margin-bottom: 10px;">
+								<div class="input-group">
+									<div class="row">
+										<h4 class="col-lg-10">
+											<b>1.</b>
+											<spring:message code="label.import.analysis.select.customer" text="Select a customer" />
+										</h4>
+										<div class="col-lg-10">
+											<select id="customerId" name="customerId" onchange="customerChanged()" class="form-control" style="width: 250px">
+												<option value="-1">
+													<spring:message code="label.action.choose" />
+												</option>
+												<c:forEach items="${customers}" var="customer">
+													<option value="${customer.id}">${customer.organisation}</option>
+												</c:forEach>
+											</select>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-						<div class="col-lg-2">
-							<button id="validation" type="submit" class="btn btn-primary btn-block" disabled>
-								<spring:message code="label.analysis.import.submit" />
-							</button>
+						<div class="row">
+							<div class="col-lg-12" style="margin-bottom: 10px;">
+								<div class="input-group">
+									<div class="row">
+										<h4 class="col-lg-10">
+											<b>2.</b>
+											<spring:message code="label.import.analysis.select.sqlite" text="Select a sqlite file" />
+										</h4>
+										<div class="col-lg-10">
+											<div class="input-group-btn">
+												<input id="file" onchange="checkFile(true)" type="file" name="file" style="display: none;" disabled /> <input id="upload-file-info" class="form-control"
+													readonly="readonly" />
+												<button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=file]').click();" disabled>Browse</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-2">
+								<button id="validation" type="submit" class="btn btn-primary btn-block" disabled>
+									<spring:message code="label.action.import.analysis" text="Start import" />
+								</button>
+							</div>
 						</div>
-					</div>
-				</form>
-			</c:if>
-			<c:if test="${empty customers}">
-				<h2>
-					<spring:message code="label.import.no.customer"
-						text="You do not have access to any customers, create a new customer or contact an administrator to get access to you customers!" />
-				</h2>
-			</c:if>
+					</form>
+				</c:if>
+				<c:if test="${empty customers}">
+					<h2>
+						<spring:message code="label.import.no_customer"
+							text="You do not have access to any customers, create a new customer or contact an administrator to get access to you customers!" />
+					</h2>
+				</c:if>
+			</div>
 		</div>
 		<jsp:include page="../../footer.jsp" />
 		<jsp:include page="../../scripts.jsp" />
@@ -108,8 +109,11 @@
 					break;
 				default:
 					document.getElementById("validation").disabled = true;
-					if (b)
-						alert("You must import a .sqlite file!");
+					if (b){
+						if($("#import-container .alert.alert-error").length)
+							$("#import-container .alert.alert-error").remove();
+						showError($('#import-container')[0], '<spring:message code="error.import.analysis.selected_file" text="You must import a .sqlite file!"/>');
+					}
 					break;
 				}
 			}

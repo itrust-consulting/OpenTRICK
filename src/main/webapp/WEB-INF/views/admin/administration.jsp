@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <!-- ################################################################ Set Page Title ################################################################ -->
-<c:set scope="request" var="title">title.administration</c:set>
+<c:set scope="request" var="title">label.title.administration</c:set>
 <!-- ###################################################################### HTML #################################################################### -->
 <html>
 <!-- Include Header -->
@@ -19,7 +19,7 @@
 			<!-- #################################################################### Content ################################################################### -->
 			<div class="page-header">
 				<h1>
-					<spring:message code="title.administration" text="Administration" />
+					<spring:message code="label.title.administration" text="Administration" />
 				</h1>
 			</div>
 			<div class="content" id="content">

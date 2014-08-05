@@ -9,6 +9,7 @@ Login.prototype = {
 		$.ajax({
 			url : context + "/IsAuthenticate",
 			contentType : "application/json;charset=UTF-8",
+			async:false,
 			success : function(response) {
 				authentificated = response === true;
 			}
@@ -18,17 +19,14 @@ Login.prototype = {
 	Display : function() {
 		this.timeoutInterceptor.Stop();
 		this.timeoutInterceptor.loginShow = true;
-		var authentificate = this.IsAuthenticate();
-		if (authentificate)
+		if (this.IsAuthenticate())
 			return this.timeoutInterceptor.Start(this);
 		var view = new Modal();
 		var that = this;
-		view.DefaultFooterButton = function() {
-		};
 		view.Intialise();
 		$(view.modal_footer).remove();
 		$.ajax({
-			url : this.url,
+			url : context,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var login = $($.parseHTML(response)).find("#login");
@@ -51,8 +49,13 @@ Login.prototype = {
 								if ($($htmlResult).find("#login").length)
 									$(view.modal_body).prepend($($htmlResult).find(".alert"));
 								else {
-									view.Distroy();
-									that.timeoutInterceptor.Start(that);
+									$.ajax({
+										url : that.url,
+										contentType : "application/json;charset=UTF-8"
+									}).done(function() {
+										view.Destroy();
+										that.timeoutInterceptor.Start(that);
+									});
 								}
 							}
 						});
@@ -61,8 +64,9 @@ Login.prototype = {
 					view.Show();
 				}
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
-		return authentificate;
+		return this.timeoutInterceptor;
 	}
 };

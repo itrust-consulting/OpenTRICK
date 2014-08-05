@@ -13,6 +13,7 @@ import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * @author eomar
@@ -35,23 +36,22 @@ public class ActionPlanManager {
 	}
 
 	public static List<Asset> getAssetsByActionPlanType(List<ActionPlanEntry> entries) {
-
 		try {
-
 			ActionPlanEntry ape = null;
 			List<Asset> assets = new ArrayList<Asset>();
 			if (entries != null && entries.size() > 0) {
 				ape = entries.get(0);
-			} else {
-				throw new IllegalArgumentException("Action plan is empty!");
-			}
-
-			for (ActionPlanAsset apa : ape.getActionPlanAssets()) {
+			} else 
+				throw new TrickException("error.action.plan.empty", "Action plan is empty!");
+			for (ActionPlanAsset apa : ape.getActionPlanAssets()) 
 				assets.add(apa.getAsset());
-			}
 			return assets;
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
+		} catch(TrickException e){
+			e.printStackTrace();
+			return null;
+		}
+		catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 	}

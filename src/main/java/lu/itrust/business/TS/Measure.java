@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * Measure: <br>
@@ -168,8 +169,9 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param implementationRate
 	 *            The value to set the Implementation Rate
+	 * @throws TrickException 
 	 */
-	public void setImplementationRate(Object implementationRate) {
+	public void setImplementationRate(Object implementationRate) throws TrickException {
 		this.implementationRate = implementationRate;
 	}
 
@@ -197,11 +199,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param internalWL
 	 *            The value to set the Internal Workload
+	 * @throws TrickException 
 	 */
-	public void setInternalWL(double internalWL) {
-		if (internalWL < 0) {
-			throw new IllegalArgumentException("Measure InternalWL needs to be >= 0!");
-		}
+	public void setInternalWL(double internalWL) throws TrickException {
+		if (internalWL < 0) 
+			throw new TrickException("error.measure.internal_workload","Internal workload cannot be negative");
 		this.internalWL = internalWL;
 	}
 
@@ -221,11 +223,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param externalWL
 	 *            The value to set the External Workload
+	 * @throws TrickException 
 	 */
-	public void setExternalWL(double externalWL) {
-		if (externalWL < 0) {
-			throw new IllegalArgumentException("Measure ExternalWL needs to be >= 0!");
-		}
+	public void setExternalWL(double externalWL) throws TrickException {
+		if (externalWL < 0)
+			throw new TrickException("error.measure.external_workload","External workload cannot be negative");
 		this.externalWL = externalWL;
 	}
 
@@ -245,11 +247,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param investment
 	 *            The value to set the Investment
+	 * @throws TrickException 
 	 */
-	public void setInvestment(double investment) {
-		if (investment < 0) {
-			throw new IllegalArgumentException("Measure Investment needs to be >= 0!");
-		}
+	public void setInvestment(double investment) throws TrickException {
+		if (investment < 0) 
+			throw new TrickException("error.measure.investment","Investment cannot be negative");
 		this.investment = investment;
 	}
 
@@ -269,11 +271,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param lifetime
 	 *            The value to set the Lifetime
+	 * @throws TrickException 
 	 */
-	public void setLifetime(double lifetime) {
-		if (lifetime < 0) {
-			throw new IllegalArgumentException("Measure Lifetime needs to be >= 0!");
-		}
+	public void setLifetime(double lifetime) throws TrickException {
+		if (lifetime < 0) 
+			throw new TrickException("error.measure.lifetime","Lifetime cannot be negative");
 		this.lifetime = lifetime;
 	}
 
@@ -293,11 +295,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param maintenance
 	 *            The value to set the Maintenance
+	 * @throws TrickException 
 	 */
-	public void setMaintenance(double maintenance) {
-		if (maintenance < 0 && maintenance!=-1) {
-			throw new IllegalArgumentException("Measure Maintenance needs to be >= 0!");
-		}
+	public void setMaintenance(double maintenance) throws TrickException {
+		if (maintenance < 0 && maintenance!=-1) 
+			throw new TrickException("error.measure.maintenance","Maintenance cannot be negative except -1");
 		this.maintenance = maintenance;
 	}
 
@@ -317,11 +319,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param cost
 	 *            The value to set the Cost
+	 * @throws TrickException 
 	 */
-	public void setCost(double cost) {
-		if (cost < 0) {
-			throw new IllegalArgumentException("Measure Cost needs to be >= 0!");
-		}
+	public void setCost(double cost) throws TrickException {
+		if (cost < 0) 
+			throw new TrickException("error.measure.cost","Cost cannot be negative");
 		this.cost = cost;
 	}
 
@@ -466,9 +468,10 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param measure
 	 * @param analysis
+	 * @throws TrickException 
 	 */
 	@Deprecated
-	public static void ComputeCost(Measure measure, List<Parameter> parameters) {
+	public static void ComputeCost(Measure measure, List<Parameter> parameters) throws TrickException {
 		// ****************************************************************
 		// * variable initialisation
 		// ****************************************************************
@@ -522,7 +525,7 @@ public abstract class Measure implements Serializable, Cloneable {
 			measure.setCost(cost);
 	}
 	
-	public static void ComputeCost(Measure measure, Analysis analysis) {
+	public static void ComputeCost(Measure measure, Analysis analysis) throws TrickException {
 		// ****************************************************************
 		// * variable initialisation
 		// ****************************************************************

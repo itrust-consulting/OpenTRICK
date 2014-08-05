@@ -213,11 +213,11 @@ public class ActionPlanEntry implements Serializable {
 	 * 
 	 * @param id
 	 *            The value to set the Action Plan Entry ID
+	 * @throws TrickException 
 	 */
-	public void setId(int id) {
-		if (id < 1) {
-			throw new IllegalArgumentException("ID needs to be > 1");
-		}
+	public void setId(int id) throws TrickException {
+		if (id < 1) 
+			throw new TrickException("error.action_plan_entry.id","Id should be greater than 0");
 		this.id = id;
 	}
 
@@ -237,11 +237,11 @@ public class ActionPlanEntry implements Serializable {
 	 * 
 	 * @param measure
 	 *            The value to set the Measure
+	 * @throws TrickException 
 	 */
-	public void setMeasure(Measure measure) {
-		if (measure == null) {
-			throw new IllegalArgumentException("Measure cannot be null!");
-		}
+	public void setMeasure(Measure measure) throws TrickException {
+		if (measure == null)
+			throw new TrickException("error.action_plan_entry.measure","Measure cannot be empty!");
 		this.measure = measure;
 	}
 
@@ -261,12 +261,11 @@ public class ActionPlanEntry implements Serializable {
 	 * 
 	 * @param position
 	 *            The value to set the Entry Position
+	 * @throws TrickException 
 	 */
-	public void setPosition(String position) {
-		if ((position == null) || (!position.matches(POSITION_REGEX))) {
-			throw new IllegalArgumentException("Position should meet this regular expression "
-				+ POSITION_REGEX);
-		}
+	public void setPosition(String position) throws TrickException {
+		if (position == null || !position.matches(POSITION_REGEX))
+			throw new TrickException("error.action_plan_entry.position","Position is not valid");
 		this.position = position;
 	}
 
@@ -286,11 +285,11 @@ public class ActionPlanEntry implements Serializable {
 	 * 
 	 * @param totalALE
 	 *            The value to set the Total ALE
+	 * @throws TrickException 
 	 */
-	public void setTotalALE(double totalALE) {
-		if (totalALE < 0) {
-			throw new IllegalArgumentException("Total ALE cannot be < 0!");
-		}
+	public void setTotalALE(double totalALE) throws TrickException {
+		if (totalALE < 0) 
+			throw new TrickException("error.action_plan_entry.total_ale","Total ALE cannot be negative!");
 		this.totalALE = totalALE;
 	}
 
@@ -315,9 +314,8 @@ public class ActionPlanEntry implements Serializable {
 	public void setDeltaALE(double deltaALE) throws TrickException {
 		if(Double.isNaN(deltaALE))
 			throw new TrickException("error.action_plan_entry.delta_ale.nan", "Please check your data: Delta ALE is not a number");
-		if (deltaALE < 0) {
-			throw new IllegalArgumentException("Delta ALE cannot be < 0!");
-		}
+		if (deltaALE < 0) 
+			throw new TrickException("error.action_plan_entry.delta_ale","Delta ALE cannot be negative!");
 		this.deltaALE = deltaALE;
 	}
 
@@ -338,11 +336,11 @@ public class ActionPlanEntry implements Serializable {
 	 * 
 	 * @param cost
 	 *            The value to set the Cost of the Measure
+	 * @throws TrickException 
 	 */
-	public void setCost(double cost) {
-		if (cost < 0) {
-			throw new IllegalArgumentException("Cost needs to be >= 0");
-		}
+	public void setCost(double cost) throws TrickException {
+		if (cost < 0) 
+			throw new TrickException("error.action_plan_entry","Cost cannot be negative");
 		this.cost = cost;
 		calculcateROI();
 	}

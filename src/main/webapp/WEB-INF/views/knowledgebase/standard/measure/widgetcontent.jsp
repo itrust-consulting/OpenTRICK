@@ -3,7 +3,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="showMeasuresModel" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" data-aria-hidden="true">
+<div class="modal fade" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" data-aria-hidden="true">
 	<div class="modal-dialog" style="width: 80%">
 		<div class="modal-content">
 			<div id="measures_header" class="modal-header">
@@ -20,7 +20,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addMeasureModel-title">
-					<spring:message code="label.measure.add.menu" text="Add new Measure" />
+					<spring:message code="label.tile.add.measure" text="Add new Measure" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -48,8 +48,8 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button id="addmeasurebutton" type="button" class="btn btn-primary" onclick="saveMeasure('measure_form')">
-					<spring:message code="label.norm.add.form" text="Add" />
+				<button id="addmeasurebutton" type="button" class="btn btn-primary" onclick="saveMeasure()">
+					<spring:message code="label.action.add.norm" text="Add" />
 				</button>
 			</div>
 		</div>
@@ -61,16 +61,16 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteMeasureModel-title">
-					<spring:message code="title.measure.delete" text="Delete a measure" />
+					<spring:message code="lable.title.delete.measure" text="Delete a measure" />
 				</h4>
 			</div>
 			<div id="deleteMeasureBody" class="modal-body">Your question here...</div>
 			<div class="modal-footer">
 				<button id="deletemeasurebuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
-					<spring:message code="label.answer.yes" text="Yes" />
+					<spring:message code="label.action.confirm.yes" text="Yes" />
 				</button>
 				<button id="deletemeasurebuttonCancel" type="button" class="btn" data-dismiss="modal">
-					<spring:message code="label.answer.cancel" text="Cancel" />
+					<spring:message code="label.action.cancel" text="Cancel" />
 				</button>
 			</div>
 		</div>

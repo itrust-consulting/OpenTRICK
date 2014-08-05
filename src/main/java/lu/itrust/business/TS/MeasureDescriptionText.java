@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * MeasureDescriptionText: <br>
@@ -51,12 +52,11 @@ public class MeasureDescriptionText implements Cloneable {
 	 * 
 	 * @param domain
 	 *            The value to set the Domain
+	 * @throws TrickException
 	 */
-	public void setDomain(String domain) {
-		if ((domain == null) || (domain.trim().equals(""))) {
-			throw new IllegalArgumentException(
-					"Measure Domain cannot be null or empty!");
-		}
+	public void setDomain(String domain) throws TrickException {
+		if (domain == null || domain.trim().isEmpty())
+			throw new TrickException("error.measure_description.domain", "Measure Domain cannot be empty!");
 		this.domain = domain;
 	}
 
@@ -76,25 +76,18 @@ public class MeasureDescriptionText implements Cloneable {
 	 * 
 	 * @param description
 	 *            The Value to set the Measure Description
+	 * @throws TrickException
 	 */
-	public void setDescription(String description) {
-		if (this.measureDescription == null) {
-			throw new NullPointerException(
-					"Measuredescription field needs to be set before!");
-		}
-		if ((this.measureDescription.getLevel() == 1)
-				|| (this.measureDescription.getLevel() == 2)) {
+	public void setDescription(String description) throws TrickException {
+		if (this.measureDescription == null)
+			throw new NullPointerException("Measuredescription field needs to be set before!");
+		if ((this.measureDescription.getLevel() == 1) || (this.measureDescription.getLevel() == 2))
 			this.description = "";
-		} else if (this.measureDescription.getLevel() == -1) {
-			throw new IllegalArgumentException(
-					"Measure Level needs to be set before adding a Description!");
-		} else if (description == null) {
-			throw new IllegalArgumentException(
-					"The description cannot be null or empty");
-		}
-
+		else if (this.measureDescription.getLevel() == -1)
+			throw new TrickException("error.measure_description.description.early.initialise", "Level needs to be initialise before adding a description!");
+		else if (description == null)
+			throw new TrickException("error.measure_description.description", "The description cannot be empty");
 		this.description = description;
-
 	}
 
 	/**
@@ -171,10 +164,8 @@ public class MeasureDescriptionText implements Cloneable {
 	}
 
 	public MeasureDescriptionText duplicate() throws CloneNotSupportedException {
-		MeasureDescriptionText measureDescriptionText = (MeasureDescriptionText) super
-				.clone();
-		if (measureDescriptionText.measureDescription.getNorm().getLabel()
-				.equalsIgnoreCase(Constant.NORM_CUSTOM))
+		MeasureDescriptionText measureDescriptionText = (MeasureDescriptionText) super.clone();
+		if (measureDescriptionText.measureDescription.getNorm().getLabel().equalsIgnoreCase(Constant.NORM_CUSTOM))
 			measureDescriptionText.id = -1;
 		return measureDescriptionText;
 	}

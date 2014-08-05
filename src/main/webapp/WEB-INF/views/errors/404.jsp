@@ -21,11 +21,11 @@
 			<!-- #################################################################### Content ################################################################### -->
 			<div class="page-header">
 				<h1>
-					<spring:message code="error.404" text="404: Page not found" />
+					<spring:message code="title.error.404" text="404: Page not found" />
 				</h1>
 			</div>
 			<div class="content" id="content" data-spy="scroll">
-				<spring:message code="error.404.PageNotFound" text="The page you trying to access could not be found!" />
+				<spring:message code="error.404.page_not_found" text="The page you trying to access could not be found!" />
 			</div>
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>

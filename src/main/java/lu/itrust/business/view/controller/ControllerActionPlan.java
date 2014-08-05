@@ -14,6 +14,7 @@ import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.AppSettingEntry;
 import lu.itrust.business.component.ActionPlanManager;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
@@ -21,6 +22,7 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAnalysisNorm;
+import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
@@ -89,6 +91,9 @@ public class ControllerActionPlan {
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
+
+	@Autowired
+	private ServiceAppSettingEntry serviceAppSettingEntry;
 
 	/**
 	 * showActionPlan: <br>
@@ -159,46 +164,9 @@ public class ControllerActionPlan {
 			model.put("assets", assets);
 		} else
 			model.put("actionplans", actionplans);
-			
+
 		// return view
 		return "analysis/components/actionplan";
-
-	}
-
-	/**
-	 * retrieveSingle: <br>
-	 * Description
-	 * 
-	 * @param entryID
-	 *            : The actionplanentry id
-	 * @param model
-	 *            : model to be used inside view
-	 * @param session
-	 *            : user session containing the selectedAnalysis id
-	 * @param principal
-	 *            : user principal (user of the session)
-	 * @return a html formated table line (tr < td) containing the single requested entry (with
-	 *         javascript)
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/RetrieveSingleEntry/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'ActionPlanEntry', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String retrieveSingle(@PathVariable("elementID") int elementID, Map<String, Object> model, HttpSession session, Principal principal) throws Exception {
-
-		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
-
-		String alpha3 = serviceAnalysis.getLanguageOfAnalysis(analysisID).getAlpha3();
-
-		// retrieve actionplan entry from the given entryID
-		ActionPlanEntry actionplanentry = serviceActionPlan.get(elementID);
-
-		// prepare model
-		model.put("actionplanentry", actionplanentry);
-		model.put("language", alpha3);
-
-		// return view
-		return "analysis/components/actionplanentry";
-
 	}
 
 	/**
@@ -212,13 +180,18 @@ public class ControllerActionPlan {
 	 */
 	@RequestMapping(value = "/{analysisID}/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
-	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model, @PathVariable("analysisID") Integer analysisID) throws Exception {
-
+	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model, @PathVariable("analysisID") Integer analysisID)
+			throws Exception {
+		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", analysisID.toString());
+		if (settings != null) {
+			model.put("show_uncertainty", settings.findByKey("show_uncertainty"));
+			model.put("show_cssf", settings.findByKey("show_cssf"));
+		}
 		model.put("id", analysisID);
 
 		model.put("norms", serviceAnalysisNorm.getAllFromAnalysis(analysisID));
 
-		return "analysis/components/actionplanoptions";
+		return "analysis/components/forms/actionplanoptions";
 	}
 
 	/**
@@ -231,8 +204,7 @@ public class ControllerActionPlan {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody
-	String computeActionPlan(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
+	public @ResponseBody String computeActionPlan(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 
 		// prepare permission verifier
 		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
@@ -277,7 +249,7 @@ public class ControllerActionPlan {
 			executor.execute(worker);
 			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
 		} else {
-			return JsonMessage.Success(messageSource.getMessage("error.permissiondenied", null, "Permission denied!", locale));
+			return JsonMessage.Success(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 		}
 	}
 }

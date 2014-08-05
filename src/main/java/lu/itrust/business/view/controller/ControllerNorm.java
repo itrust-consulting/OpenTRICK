@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -13,14 +14,19 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.CustomDelete;
+import lu.itrust.business.component.MeasureManager;
+import lu.itrust.business.component.helper.ImportRRFForm;
 import lu.itrust.business.component.helper.JsonMessage;
+import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasureDescription;
@@ -53,6 +59,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -108,6 +115,12 @@ public class ControllerNorm {
 	@Autowired
 	private CustomDelete customDelete;
 
+	@Autowired
+	private ServiceAnalysis serviceAnalysis;
+
+	@Autowired
+	private MeasureManager measureManager;
+
 	/**
 	 * displayAll: <br>
 	 * Description
@@ -160,7 +173,7 @@ public class ControllerNorm {
 		if (norm == null) {
 
 			// retrun error if norm does not exist
-			String msg = messageSource.getMessage("errors.norm.notexist", null, "Norm does not exist", locale);
+			String msg = messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
 			return "redirect:/KnowLedgeBase/Norm";
 		}
@@ -180,8 +193,7 @@ public class ControllerNorm {
 	 * @return
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody
-	Map<String, String> save(@RequestBody String value, Locale locale) {
+	public @ResponseBody Map<String, String> save(@RequestBody String value, Locale locale) {
 
 		// init errors list
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -224,8 +236,7 @@ public class ControllerNorm {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{normId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody
-	String deleteNorm(@PathVariable("normId") Integer normId, Locale locale) throws Exception {
+	public @ResponseBody String deleteNorm(@PathVariable("normId") Integer normId, Locale locale) throws Exception {
 
 		try {
 
@@ -270,8 +281,9 @@ public class ControllerNorm {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Import", headers = "Accept=application/json")
-	public String importNewNorm(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale) throws Exception {
+	@RequestMapping(value = "/Import", headers = "Accept=application/json;charset=UTF-8")
+	public String importNewNorm(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
+			throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 		file.transferTo(importFile);
 		Worker worker = new WorkerImportNorm(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
@@ -295,7 +307,7 @@ public class ControllerNorm {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Export/{normId}", headers = "Accept=application/json")
+	@RequestMapping(value = "/Export/{normId}", headers = "Accept=application/json;charset=UTF-8")
 	public String exportNorm(@PathVariable("normId") Integer normId, Principal principal, HttpServletRequest request, Locale locale, HttpServletResponse response) throws Exception {
 
 		Norm norm = serviceNorm.get(normId);
@@ -432,7 +444,8 @@ public class ControllerNorm {
 
 		CellReference ref1 = table.getStartCellReference();
 
-		// update the table. coumn headers must match the corresponding cells in the sheet
+		// update the table. coumn headers must match the corresponding cells in
+		// the sheet
 		CTTableColumns cols = table.getCTTable().getTableColumns();
 		cols.setTableColumnArray(null);
 		cols.setCount(colnumber);
@@ -449,7 +462,8 @@ public class ControllerNorm {
 		table.getCTTable().setRef(new CellRangeAddress((ref1.getRow()), measuredescriptions.size(), (ref1.getCol()), colnumber).formatAsString());
 
 		// System.out.println("Rows: ("+(ref1.getRow()+1)
-		// +":"+measuredescriptions.size()+"):::Cols: ("+ (ref1.getCol()+1) + ":"+ colnumber +")");
+		// +":"+measuredescriptions.size()+"):::Cols: ("+ (ref1.getCol()+1) +
+		// ":"+ colnumber +")");
 
 		row = 1;
 
@@ -550,6 +564,41 @@ public class ControllerNorm {
 
 		// return
 		return null;
+	}
+
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Import/RRF", headers = "Accept=application/json;charset=UTF-8")
+	public String importRRF(HttpSession session, Principal principal, Model model) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		List<Norm> norms = serviceNorm.getAllFromAnalysis(idAnalysis);
+		List<Integer> idNomrs = new ArrayList<Integer>(norms.size());
+		for (Norm norm : norms) {
+			if (!Constant.NORM_MATURITY.equalsIgnoreCase(norm.getLabel()))
+				idNomrs.add(norm.getId());
+		}
+		List<Analysis> profiles = serviceAnalysis.getAllProfileContainsNorm(norms);
+		model.addAttribute("idNorms", idNomrs);
+		model.addAttribute("profiles", profiles);
+		return "analysis/components/forms/importMeasureCharacteristics";
+
+	}
+
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Import/RRF/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Object importRRFSave(@ModelAttribute ImportRRFForm rrfForm, HttpSession session, Principal principal, Locale locale) {
+		try {
+			if (rrfForm.getProfile() < 1)
+				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.no_profile", null, "No profile", locale));
+			else if (rrfForm.getNorms() == null || rrfForm.getNorms().isEmpty())
+				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
+			measureManager.importNorm((Integer) session.getAttribute("selectedAnalysis"), rrfForm);
+
+			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+
 	}
 
 	/**

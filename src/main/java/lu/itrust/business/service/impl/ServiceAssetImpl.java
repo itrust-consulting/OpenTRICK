@@ -221,4 +221,9 @@ public class ServiceAssetImpl implements ServiceAsset {
 	public void delete(Asset asset) throws Exception {
 		daoAsset.delete(asset);
 	}
+
+	@Override
+	public boolean exist(Integer idAnalysis, String name) {
+		return daoAsset.exist(idAnalysis, name);
+	}
 }

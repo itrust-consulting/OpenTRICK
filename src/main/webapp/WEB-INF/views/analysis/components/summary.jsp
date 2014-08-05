@@ -8,7 +8,7 @@
 <div class="section" id="section_summary">
 	<div class="page-header">
 		<h3 id="Summary">
-			<spring:message code="label.summary" text="Action Plan Summary" />
+			<spring:message code="label.title.summary" text="Action Plan Summary" />
 		</h3>
 	</div>
 	<spring:eval expression="T(lu.itrust.business.component.ActionPlanSummaryManager).buildTables(summaries,phases)" var="summariesStages" />
@@ -18,7 +18,7 @@
 				<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 					<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${actionPlanType.name}"><a href="#"
 						onclick="return navToogled('section_summary','${actionPlanType.name}', true);"><spring:message
-								code="label.actionPlanType.${actionPlanType.name}" text="${actionPlanType.name}" htmlEscape="true" /></a></li>
+								code="label.action_plan_type.${actionPlanType.name}" text="${fn:toLowerCase(actionPlanType.name)}" htmlEscape="true" /></a></li>
 				</c:forEach>
 			</ul>
 		</div>

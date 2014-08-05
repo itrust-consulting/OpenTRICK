@@ -24,19 +24,18 @@
 			</div>
 		</c:if>
 		<div class="form-group">
-			<label for="creationDate" class="col-sm-2 control-label"> <spring:message code="label.analysis.creationdate" text="Creation Date" />
+			<label for="creationDate" class="col-sm-2 control-label"> <spring:message code="label.analysis.creation_date" text="Creation date" />
 			</label>
 			<div class="col-sm-10">
 				<input name="creationDate" id="analysis_creationDate" class="form-control" type="text" value="${analysis.creationDate}" readonly />
 			</div>
 		</div>
-		<c:if test="${analysis.profile == false }">
+		<c:if test="${not(analysis.profile || empty analysis.basedOnAnalysis)}">
 			<div class="form-group">
-				<label for="basedOnAnalysis" class="col-sm-2 control-label"> <spring:message code="label.analysis.basedOnAnalysis" text="Based On Analysis Version" />
+				<label for="basedOnAnalysis" class="col-sm-2 control-label"> <spring:message code="label.analysis.based_on_analysis" text="Based on analysis version" />
 				</label>
 				<div class="col-sm-10">
-					<input name="basedOnAnalysis" id="analysis_basedOnAnalysis" class="form-control" type="text" value="${analysis.basedOnAnalysis!=null?analysis.basedOnAnalysis.version:'None'}"
-						readonly />
+					<input name="basedOnAnalysis" id="analysis_basedOnAnalysis" class="form-control" type="text" value="${analysis.basedOnAnalysis.version}" readonly />
 				</div>
 			</div>
 		</c:if>
@@ -44,12 +43,12 @@
 			<label for="owner" class="col-sm-2 control-label"> <spring:message code="label.analysis.owner" text="Owner" />
 			</label>
 			<div class="col-sm-10">
-				<input name="owner" id="analysis_owner" class="form-control" type="text" value="${analysis.owner.firstName}" readonly />
+				<input name="owner" id="analysis_owner" class="form-control" type="text" value="${analysis.owner.firstName} ${analysis.owner.lastName}" readonly />
 			</div>
 		</div>
 		<c:if test="${analysis.profile == false }">
 			<div class="form-group">
-				<label for="hasData" class="col-sm-2 control-label"> <spring:message code="label.analysis.hasData" text="Has Data" />
+				<label for="hasData" class="col-sm-2 control-label"> <spring:message code="label.analysis.has_data" text="Has Data" />
 				</label>
 				<div class="col-sm-10">
 					<input name="hasData" id="analysis_hasData" class="form-control" type="checkbox" ${analysis.hasData()?"checked='checked'":""} disabled="disabled" />

@@ -42,4 +42,6 @@ public interface DAOCustomer {
 	public void delete(Customer customer) throws Exception;
 
 	public void delete(Integer customerId) throws Exception;
+
+	public Customer getOneNoProfile();
 }

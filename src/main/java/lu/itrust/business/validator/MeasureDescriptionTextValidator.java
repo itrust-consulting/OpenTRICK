@@ -20,12 +20,12 @@ public class MeasureDescriptionTextValidator extends ValidatorFieldImpl {
 	private static final String DOMAIN = "domain";
 	private static final String DESCRIPTION = "description";
 	private static final String ERROR_MEASURE_DESCRIPTION_TEXT_MEASURE_DESCRIPTION_NULL_A_MEASURE_DESCRIPTION_TEXT_SHOULD_ALWAYS_BE_ATTACHED_TO_A_MEASURE_DESCRIPTION = "error.measure_description_text.measure_description.null::A measure description text should always be attached to a measure description";
-	private static final String ERROR_UNSUPPORTED_DATA_MEASURE_DESCRIPTION_MEASURE_DESCRIPTION_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.measure_description::Measure description value is not supported";
+	private static final String ERROR_UNSUPPORTED_DATA_MEASURE_DESCRIPTION_MEASURE_DESCRIPTION_VALUE_IS_NOT_SUPPORTED = "error.measure_description_text.unsupported.data.measure_description::Measure description value is not supported";
 	private static final String ERROR_MEASURE_DESCRIPTION_TEXT_LANGUAGE_NULL_A_MEASURE_DESCRIPTION_TEXT_SHOULD_ALWAYS_HAVE_A_LANGUAGE = "error.measure_description_text.language.null::A measure description text should always have a language";
-	private static final String ERROR_UNSUPPORTED_DATA_LANGUAGE_LANGUAGE_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.language::Language value is not supported";
-	private static final String ERROR_UNSUPPORTED_DATA_DOMAIN_DOMAIN_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.domain::Domain value is not supported";
+	private static final String ERROR_UNSUPPORTED_DATA_LANGUAGE_LANGUAGE_VALUE_IS_NOT_SUPPORTED = "error.measure_description_text.unsupported.data.language::Language value is not supported";
+	private static final String ERROR_UNSUPPORTED_DATA_DOMAIN_DOMAIN_VALUE_IS_NOT_SUPPORTED = "error.measure_description_text.unsupported.data.domain::Domain value is not supported";
 	private static final String ERROR_MEASURE_DESCRIPTION_TEXT_DOMAIN_DOMAIN_CANNOT_BE_EMPTY = "error.measure_description_text.domain::Domain cannot be empty";
-	private static final String ERROR_UNSUPPORTED_DATA_DESCRIPTION_DESCRIPTION_VALUE_IS_NOT_SUPPORTED = "error.unsupported.data.description::Description value is not supported";
+	private static final String ERROR_UNSUPPORTED_DATA_DESCRIPTION_DESCRIPTION_VALUE_IS_NOT_SUPPORTED = "error.measure_description_text.unsupported.data.description::Description value is not supported";
 	private static final String ERROR_MEASURE_DESCRIPTION_TEXT_DESCRIPTION_DESCRIPTION_CANNOT_BE_EMPTY = "error.measure_description_text.description::Description cannot be empty";
 
 	/*

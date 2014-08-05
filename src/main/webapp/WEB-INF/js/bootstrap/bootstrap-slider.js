@@ -350,13 +350,13 @@
 
 	$.fn.slider = function(option, val) {
 		return this.each(function() {
-			var $this = $(this), data = $this.data('slider'), options = typeof option === 'object' && option;
-			if (!data) {
+			var $this = $(this);
+			var data = $this.data('slider');
+			var options = typeof option === 'object' && option;
+			if (!data)
 				$this.data('slider', (data = new Slider(this, $.extend({}, $.fn.slider.defaults, options))));
-			}
-			if (typeof option == 'string') {
+			if (typeof option == 'string')
 				data[option](val);
-			}
 		});
 	};
 

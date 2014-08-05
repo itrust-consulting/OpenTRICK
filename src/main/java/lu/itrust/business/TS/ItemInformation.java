@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * ItemInformation: <br>
@@ -30,20 +31,22 @@ public class ItemInformation implements Cloneable {
 	/** The Item Information Type */
 	private String type = "";
 
-	public ItemInformation(){}
-	
+	public ItemInformation() {
+	}
+
 	/**
 	 * Constructor: <br>
+	 * 
 	 * @param description
 	 * @param type
 	 * @param value
 	 */
-	public ItemInformation(String description, String type, String value){
+	public ItemInformation(String description, String type, String value) {
 		this.description = description;
 		this.type = type;
 		this.value = value;
 	}
-	
+
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
@@ -85,12 +88,11 @@ public class ItemInformation implements Cloneable {
 	 * 
 	 * @param description
 	 *            The value to set the Item Information Description
+	 * @throws TrickException
 	 */
-	public void setDescription(String description) {
-		if ((description == null) || (description.trim().isEmpty())) {
-			throw new IllegalArgumentException(
-					"Item Information Description cannot be empty or null!");
-		}
+	public void setDescription(String description) throws TrickException {
+		if (description == null || description.trim().isEmpty())
+			throw new TrickException("error.item_information.description.empty", "Description cannot be empty!");
 		this.description = description;
 	}
 
@@ -109,13 +111,13 @@ public class ItemInformation implements Cloneable {
 	 * Sets the "type" field with a value
 	 * 
 	 * @param type
-	 *            The value to set the Item Information Type (Scope or Organisation)
+	 *            The value to set the Item Information Type (Scope or
+	 *            Organisation)
+	 * @throws TrickException 
 	 */
-	public void setType(String type) {
-		if ((type == null) || (!type.matches(Constant.REGEXP_VALID_ITEMINFORMATION_TYPE))) {
-			throw new IllegalArgumentException(
-					"Item Information Type needs to be Scope or Organisation only!");
-		}
+	public void setType(String type) throws TrickException {
+		if (type == null || !type.matches(Constant.REGEXP_VALID_ITEMINFORMATION_TYPE))
+			throw new TrickException("error.item_information.type.empty","Type needs to be Scope or Organisation only!");
 		this.type = type;
 	}
 
@@ -140,19 +142,20 @@ public class ItemInformation implements Cloneable {
 		this.id = id;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public ItemInformation clone() throws CloneNotSupportedException {
 		return (ItemInformation) super.clone();
 	}
-	
+
 	public ItemInformation duplicate() throws CloneNotSupportedException {
 		ItemInformation itemInformation = (ItemInformation) super.clone();
 		itemInformation.id = -1;
 		return itemInformation;
 	}
-	
 
 }

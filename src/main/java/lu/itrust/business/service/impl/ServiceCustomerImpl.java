@@ -244,4 +244,10 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	public void delete(Customer customer) throws Exception {
 		daoCustomer.delete(customer);
 	}
+
+	@Override
+	public Customer getOneNoProfile() {
+		// TODO Auto-generated method stub
+		return daoCustomer.getOneNoProfile();
+	}
 }

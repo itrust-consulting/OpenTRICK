@@ -194,4 +194,10 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	public void delete(MeasureDescription measureDescription) throws Exception {
 		daoMeasureDescription.delete(measureDescription);
 	}
+
+	@Transactional
+	@Override
+	public void delete(int id) throws Exception {
+		daoMeasureDescription.delete(id);
+	}
 }

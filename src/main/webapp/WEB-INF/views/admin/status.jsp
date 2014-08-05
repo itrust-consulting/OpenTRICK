@@ -6,7 +6,7 @@
 <div class="section" id="section_status">
 	<div class="page-header">
 		<h3 id="Status">
-			<spring:message code="menu.admin.status" text="Status" />
+			<spring:message code="label.menu.installation.status" text="Status" />
 		</h3>
 	</div>
 	<div class="panel panel-default">
@@ -16,10 +16,10 @@
 					<a href="#" onclick="return installTrickService();">
 						<c:choose>
 							<c:when test="${status.installed == true}">
-								<spring:message code="label.reinstall" text="Reinstall TRICK Service" />
+								<spring:message code="label.installation.re_install" text="Reinstall TRICK Service" />
 							</c:when>
 							<c:otherwise>
-								<spring:message code="label.installed.no" text="Install TRICK Service" />
+								<spring:message code="label.installation.install" text="Install TRICK Service" />
 							</c:otherwise>
 						</c:choose>
 					</a>
@@ -32,8 +32,8 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th style="text-align: center;"><spring:message code="label.status.version" /></th>
-							<th style="text-align: center;"><spring:message code="label.status.installed" /></th>
+							<th style="text-align: center;"><spring:message code="label.installation.status.version" text="Version"/></th>
+							<th style="text-align: center;"><spring:message code="label.installation.status.installed" text="Installed"/></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -41,10 +41,10 @@
 							<td style="text-align: center;">${status.version}</td>
 							<c:choose>
 								<c:when test="${status.installed == true}">
-									<td style="text-align: center;"><spring:message code="label.installed.yes" text="Installed" /></td>
+									<td style="text-align: center;"><spring:message code="label.installation.status.installed.yes" text="Installed" /></td>
 								</c:when>
 								<c:when test="${status.installed == false}">
-									<td style="text-align: center;"><spring:message code="label.installed.no" text="Not installed" /></td>
+									<td style="text-align: center;"><spring:message code="label.installation.status.installed.no" text="Not installed" /></td>
 								</c:when>
 							</c:choose>
 						</tr>

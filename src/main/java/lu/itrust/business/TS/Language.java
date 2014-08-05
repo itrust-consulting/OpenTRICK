@@ -3,6 +3,7 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * Language: <br>
@@ -53,11 +54,11 @@ public class Language implements Serializable {
 	 * 
 	 * @param id
 	 *            The value to set the Language Identifier
+	 * @throws TrickException 
 	 */
-	public void setId(int id) {
-		if (id < 1) {
-			throw new IllegalArgumentException("Language ID needs to be >= 1!");
-		}
+	public void setId(int id) throws TrickException {
+		if (id < 1)
+			throw new TrickException("error.language.id","ID should be greater than 0");
 		this.id = id;
 	}
 
@@ -77,12 +78,11 @@ public class Language implements Serializable {
 	 * 
 	 * @param alpha3
 	 *            The value to set the Alpha3 Code
+	 * @throws TrickException 
 	 */
-	public void setAlpha3(String alpha3) {
-		if ((alpha3 == null) || (!alpha3.matches(Constant.REGEXP_VALID_ALPHA_3))) {
-			throw new IllegalArgumentException(
-					"Language Alpha3 should meet this regular expression " + Constant.REGEXP_VALID_ALPHA_3);
-		}
+	public void setAlpha3(String alpha3) throws TrickException {
+		if (alpha3 == null || !alpha3.matches(Constant.REGEXP_VALID_ALPHA_3))
+			throw new TrickException("error.language.alpha3.rejected","Alpha3 has been rejected");
 		this.alpha3 = alpha3;
 	}
 
@@ -104,10 +104,6 @@ public class Language implements Serializable {
 	 *            The value to set the Language Name
 	 */
 	public void setName(String name) {
-//		if ((name == null) || (!name.matches(Constant.REGEXP_VALID_NAME))) {
-//			throw new IllegalArgumentException(
-//					"Language Name cannot be null or empty and must be valid!");
-//		}
 		this.name = name;
 	}
 
@@ -129,10 +125,6 @@ public class Language implements Serializable {
 	 *            The value to set the Alternative Language Name
 	 */
 	public void setAltName(String name) {
-//		if ((name == null) || (!name.matches(Constant.REGEXP_VALID_NAME))) {
-//			throw new IllegalArgumentException(
-//					"Language Alternative Name cannot be null or empty and must be valid!");
-//		}
 		this.altName = name;
 	}
 

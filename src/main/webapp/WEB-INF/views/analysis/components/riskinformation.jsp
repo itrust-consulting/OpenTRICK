@@ -9,7 +9,7 @@
 <div class="section" id="section_risk_information">
 	<div class="page-header">
 		<h3>
-			<spring:message code="label.risk_information" text="Risk information" />
+			<spring:message code="label.title.risk_information" text="Risk information" />
 		</h3>
 	</div>
 	<c:if test="${empty(riskInformationSplited)}">
@@ -22,13 +22,13 @@
 			<div class="panel-heading">
 				<c:choose>
 					<c:when test="${categoryRiskInformation == 'Threat'}">
-						<spring:message code="label.risk_information.title.threat" text="Threats" />
+						<spring:message code="label.title.risk_information.threat" text="Threats" />
 					</c:when>
 					<c:when test="${categoryRiskInformation == 'Vul'}">
-						<spring:message code="label.risk_information.title.vulnerabilities" text="Vulnerabilies" />
+						<spring:message code="label.title.risk_information.vulnerabilities" text="Vulnerabilies" />
 					</c:when>
 					<c:otherwise>
-						<spring:message code="label.risk_information.title.risks" text="Risks" />
+						<spring:message code="label.title.risk_information.risks" text="Risks" />
 					</c:otherwise>
 				</c:choose>
 			</div>

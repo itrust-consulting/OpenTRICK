@@ -13,14 +13,16 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.ExtendedParameter;
-import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.AppSettingEntry;
 import lu.itrust.business.component.AssessmentComparator;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.component.helper.JsonMessage;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceParameter;
@@ -66,6 +68,9 @@ public class ControllerAssessment {
 	@Autowired
 	private MessageSource messageSource;
 
+	@Autowired
+	private ServiceAppSettingEntry serviceAppSettingEntry;
+
 	/**
 	 * section: <br>
 	 * Description
@@ -98,9 +103,88 @@ public class ControllerAssessment {
 	 * @param locale
 	 * @return
 	 */
+	@RequestMapping(value = "/Refresh", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody String refreshAssessment(HttpSession session, Locale locale, Principal principal) {
+		try {
+			// retrieve analysis id
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+
+			// check if analysis is not null
+			if (integer == null)
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale) + "\" }");
+
+			// load analysis object
+			Analysis analysis = serviceAnalysis.get(integer);
+
+			// check if analysis object is not null
+			if (analysis == null)
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
+			// update assessments of analysis
+			assessmentManager.WipeAssessment(analysis);
+			assessmentManager.UpdateAssessment(analysis);
+			// update
+			serviceAnalysis.saveOrUpdate(analysis);
+			// return success message
+			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.refresh", null, "Assessments were successfully refreshed", locale) + "\"}");
+		} catch(TrickException e){
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}
+		catch (Exception e) {
+			// return error
+			e.printStackTrace();
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
+		}
+	}
+	
+
+	/**
+	 * updateAssessment: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param locale
+	 * @return
+	 */
 	@RequestMapping(value = "/Update", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody String updateAssessment(HttpSession session, Locale locale, Principal principal) {
+		try {
+			// retrieve analysis id
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+
+			// check if analysis is not null
+			if (integer == null)
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale) + "\" }");
+
+			// load analysis object
+			Analysis analysis = serviceAnalysis.get(integer);
+
+			// check if analysis object is not null
+			if (analysis == null)
+				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
+			// update assessments of analysis
+			assessmentManager.UpdateAssessment(analysis);
+			// update
+			serviceAnalysis.saveOrUpdate(analysis);
+			// return success message
+			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", locale) + "\"}");
+		} catch(TrickException e){
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}
+		catch (Exception e) {
+			// return error
+			e.printStackTrace();
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
+		}
+	}
+
+
+	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody String updateAle(HttpSession session, Locale locale, Principal principal) {
 		try {
 
 			// retrieve analysis id
@@ -116,64 +200,18 @@ public class ControllerAssessment {
 			// check if analysis object is not null
 			if (analysis == null)
 				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
-
 			// update assessments of analysis
-			assessmentManager.UpdateAssessment(analysis);
-
+			assessmentManager.UpdateAssetALE(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
-
 			// return success message
-			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.update", null, "Assessments were successfully updated", locale) + "\"}");
+			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.ale.update", null, "Assessments ale were successfully updated", locale) + "\"}");
 		} catch (Exception e) {
 
 			// return error
 			e.printStackTrace();
-			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.generation", null, "An error occurred during the generation", locale) + "\"}");
-		}
-	}
-
-	/**
-	 * deleteAssessments: <br>
-	 * Description
-	 * 
-	 * @param session
-	 * @param locale
-	 * @return
-	 */
-	@RequestMapping(value = "/Wipe", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String deleteAssessments(HttpSession session, Locale locale, Principal principal) {
-
-		try {
-
-			// retrieve analysis id
-			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
-
-			// check if analysis id is not null
-			if (integer == null)
-				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale) + "\" }");
-
-			// load analysis object
-			Analysis analysis = serviceAnalysis.get(integer);
-
-			// check if analysis is not null
-			if (analysis == null)
-				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
-
-			// delete all assessments
-			assessmentManager.WipeAssessment(analysis);
-
-			// update
-			serviceAnalysis.saveOrUpdate(analysis);
-
-			// return success message
-			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.wipe", null, "Assessments were successfully deleted", locale) + "\"}");
-		} catch (Exception e) {
-
-			// return error message
-			e.printStackTrace();
-			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.delete", null, "An error occurred during deletion", locale) + "\"}");
+			return new String("{\"error\":\"" + messageSource.getMessage("error.internal.assessment.ale.update", null, "Assessment ale update failed: an error occurred", locale)
+					+ "\"}");
 		}
 	}
 
@@ -201,6 +239,13 @@ public class ControllerAssessment {
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
 		if (analysis == null)
 			return null;
+
+		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
+
+		if (settings != null) {
+			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
+			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
+		}
 
 		// retrieve asset
 		Asset asset = serviceAsset.get(elementID);
@@ -234,6 +279,13 @@ public class ControllerAssessment {
 			Asset asset = serviceAsset.get(elementID);
 			if (asset == null)
 				return null;
+
+			AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
+
+			if (settings != null) {
+				model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
+				model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
+			}
 
 			// retrieve extended paramters of analysis
 			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
@@ -297,6 +349,13 @@ public class ControllerAssessment {
 		if (analysis == null)
 			return null;
 
+		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
+
+		if (settings != null) {
+			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
+			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
+		}
+
 		// retrieve scenario from given id
 		Scenario scenario = serviceScenario.get(elementID);
 
@@ -329,6 +388,13 @@ public class ControllerAssessment {
 			Scenario scenario = serviceScenario.get(elementID);
 			if (scenario == null)
 				return null;
+
+			AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
+
+			if (settings != null) {
+				model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
+				model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
+			}
 
 			// load extended parameters
 			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
@@ -368,68 +434,6 @@ public class ControllerAssessment {
 
 	}
 
-	/**
-	 * updateAcromyn: <br>
-	 * Description
-	 * 
-	 * @param idParameter
-	 * @param acronym
-	 * @param session
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Update/Acronym/{elementID}/{acronym}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Parameter', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String updateAcromyn(@PathVariable int elementID, @PathVariable String acronym, HttpSession session, Locale locale, Principal principal) throws Exception {
-
-		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		if (idAnalysis == null)
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-
-		// retrieve parameter id
-		Parameter parameter = serviceParameter.getFromAnalysisById(idAnalysis, elementID);
-		if (parameter == null || !(parameter instanceof ExtendedParameter))
-			return JsonMessage.Error(messageSource.getMessage("error.parameter.not_found", null, "Parameter cannot be found", locale));
-
-		// load parameter by id
-		ExtendedParameter extendedParameter = (ExtendedParameter) parameter;
-
-		try {
-
-			// retrieve assessments by acronym and analysis
-			List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndImpactLikelihoodAcronym(idAnalysis, acronym);
-
-			// parse assessments and update impact value to parameter acronym
-			for (Assessment assessment : assessments) {
-				if (acronym.equals(assessment.getImpactFin()))
-					assessment.setImpactFin(extendedParameter.getAcronym());
-				else if (acronym.equals(assessment.getImpactLeg()))
-					assessment.setImpactLeg(extendedParameter.getAcronym());
-				else if (acronym.equals(assessment.getImpactOp()))
-					assessment.setImpactOp(extendedParameter.getAcronym());
-				else if (acronym.equals(assessment.getImpactRep()))
-					assessment.setImpactRep(extendedParameter.getAcronym());
-				else if (acronym.equals(assessment.getLikelihood()))
-					assessment.setLikelihood(extendedParameter.getAcronym());
-
-				// update assessment
-				serviceAssessment.saveOrUpdate(assessment);
-			}
-			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() },
-					"Assessment acronym (" + acronym + ") was successfully updated with (" + extendedParameter.getAcronym() + ")", locale));
-		} catch (Exception e) {
-
-			// return error message
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.assessment.acronym.updated", new String[] { acronym, extendedParameter.getAcronym() }, "Assessment acronym ("
-					+ acronym + ") cannot be updated to (" + extendedParameter.getAcronym() + ")", locale));
-		}
-
-	}
-
 	private Map<String, Double> generateAcronymValueMatching(int idAnalysis) throws Exception {
 		List<ExtendedParameter> extendedParameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
 		Map<String, Double> matchingParameters = new LinkedHashMap<String, Double>(extendedParameters.size());
@@ -462,6 +466,13 @@ public class ControllerAssessment {
 		AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
+		for (Assessment assessment : assessments) {
+			if (assessment.isCSSF()) {
+				model.addAttribute("show_cssf", true);
+				break;
+			}
+		}
+
 		model.addAttribute("assessments", assessments);
 		asset.setALE(ale.getValue());
 		asset.setALEO(aleo.getValue());
@@ -490,6 +501,12 @@ public class ControllerAssessment {
 		model.addAttribute("alep", alep);
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
+		for (Assessment assessment : assessments) {
+			if (assessment.isCSSF()) {
+				model.addAttribute("show_cssf", true);
+				break;
+			}
+		}
 		AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());

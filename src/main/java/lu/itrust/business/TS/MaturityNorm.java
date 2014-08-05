@@ -2,6 +2,8 @@ package lu.itrust.business.TS;
 
 import java.util.List;
 
+import lu.itrust.business.exception.TrickException;
+
 import org.hibernate.proxy.HibernateProxy;
 
 /**
@@ -70,15 +72,14 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 
 	/**
 	 * getAMeasure: <br>
-	 * Returns the Measure object at position "index" from the measure list ("measures" field)
+	 * Returns the Measure object at position "index" from the measure list
+	 * ("measures" field)
 	 * 
 	 * @return The Maturity Measure Object at position "index"
 	 */
 	public MaturityMeasure getMeasure(int index) {
-		if ((index < 0) || (index >= getMeasures().size())) {
-			throw new IndexOutOfBoundsException("Maturtiy AnalysisNorm Index (" + index
-				+ ") needs be between 0 and " + (getMeasures().size() - 1) + "!");
-		}
+		if (index < 0 || getMeasures() == null || index >= getMeasures().size())
+			throw new IndexOutOfBoundsException("Maturtiy AnalysisNorm Index (" + index + ") needs be between 0 and " + (getMeasures().size() - 1) + "!");
 		if (getMeasures().get(index) instanceof HibernateProxy)
 			return MaturityMeasure.class.cast(((HibernateProxy) getMeasures().get(index)).getHibernateLazyInitializer().getImplementation());
 		else {
@@ -96,7 +97,7 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setMeasures(List<Measure> measures) {
-		
+
 		if (measures instanceof HibernateProxy) {
 			List<Measure> deproxiedmeasures = (List<Measure>) ((HibernateProxy) measures).getHibernateLazyInitializer().getImplementation();
 			super.setMeasures(deproxiedmeasures);
@@ -107,21 +108,23 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 
 	/**
 	 * addMeasure: <br>
-	 * Adds a new Maturity Measure Object to the list of measures ("measures" field)
+	 * Adds a new Maturity Measure Object to the list of measures ("measures"
+	 * field)
 	 * 
 	 * @param measure
 	 *            The Maturity Measure Object to add
+	 * @throws TrickException
 	 */
-	public void addMeasure(MaturityMeasure measure) {
-		if (getMeasures().contains(measure)) {
-			throw new IllegalArgumentException(
-					"Maturtiy AnalysisNorm Measure duplicates not accepted!");
-		}
+	public void addMeasure(MaturityMeasure measure) throws TrickException {
+		if (getMeasures().contains(measure))
+			throw new TrickException("error.maturity_norm.measure.duplicate", "Measure duplicates not accepted!");
 		measure.setAnalysisNorm(this);
 		this.getMeasures().add(measure);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.AnalysisNorm#clone()
 	 */
 	@Override
@@ -129,13 +132,14 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 		return (MaturityNorm) super.clone();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see lu.itrust.business.TS.AnalysisNorm#basicClone()
 	 */
 	@Override
 	public MaturityNorm duplicate() throws CloneNotSupportedException {
 		return (MaturityNorm) super.duplicate();
 	}
-	
-	
+
 }

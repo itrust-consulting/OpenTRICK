@@ -1,5 +1,7 @@
 package lu.itrust.business.TS;
 
+import lu.itrust.business.exception.TrickException;
+
 /** 
  * AnalysisRight: <br>
  * Detailed description...
@@ -30,11 +32,12 @@ public enum AnalysisRight {
 	 * 
 	 * @param value
 	 * @return
+	 * @throws TrickException 
 	 */
-	public static AnalysisRight valueOf(int value) {
+	public static AnalysisRight valueOf(int value) throws TrickException {
 		AnalysisRight[] values = values();
 		if (value < 0 || value > values.length-1)
-			throw new IllegalArgumentException("Value should be between 0 and " + (values.length-1));
+			throw new TrickException("error.analysis_right.out_of_bounds","Value should be between 0 and " + (values.length-1),Integer.toString(values.length-1));
 		return values[value];
 	}
 	

@@ -3,13 +3,14 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="modal fade" id="addScenarioModal" tabindex="-1" role="dialog" data-aria-labelledby="addNewScenario" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addScenarioModel-title">
-					<spring:message code="label.scenario.${empty(scenario)? 'add':'edit'}" text="${empty(scenario)? 'Add new scenario':'Edit scenario'}" />
+					<spring:message code="label.title.scenario.${empty(scenario)? 'add':'edit'}" text="${empty(scenario)? 'Add new scenario':'Edit scenario'}" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -38,7 +39,7 @@
 									<c:when test="${!empty(scenariotypes)}">
 										<option value='-1'><spring:message code="label.scenario.type.select" text="Select the type of scenario" /></option>
 										<c:forEach items="${scenariotypes}" var="scenariotype">
-											<option value="${scenariotype.id}" ${scenario.scenarioType == scenariotype?'selected':''}><spring:message text="${scenariotype.name}" /></option>
+											<option value="${scenariotype.id}" ${scenario.scenarioType == scenariotype?'selected':''}><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(scenariotype.name,'-','_'))}" text="${scenariotype.name}" /></option>
 										</c:forEach>
 									</c:when>
 									<c:otherwise>
@@ -71,13 +72,13 @@
 										<thead>
 											<tr>
 												<c:forEach items="${scenario.assetTypeValues}" var="assettypevalue" varStatus="status">
-													<td><spring:message code="label.assetTypeValue.${assettypevalue.assetType.type}" text="${assettypevalue.assetType.type}" /></td>
+													<td><spring:message code="label.asset_type.${fn:toLowerCase(assettypevalue.assetType.type)}" text="${assettypevalue.assetType.type}" /></td>
 												</c:forEach>
 											</tr>
 										</thead>
 										<tbody>
 											<tr>
-												<c:forEach items="${scenario.assetTypeValues }" var="assetTypeValue" varStatus="status">
+												<c:forEach items="${scenario.assetTypeValues}" var="assetTypeValue" varStatus="status">
 													<td>
 														<input type="checkbox" ${assetTypeValue.value > 0 ? 'checked' : ''} value="1" name="<spring:message text="${assetTypeValue.assetType.type}" />" />
 													</td>
@@ -89,7 +90,7 @@
 										<thead>
 											<tr>
 												<c:forEach items="${assetTypes}" var="assetType">
-													<td><spring:message code="label.assetTypeValue.${assetType.type}" text="${assetType.type}" /></td>
+													<td><spring:message code="label.asset_type.${fn:toLowerCase(assetType.type)}" text="${assetType.type}" /></td>
 												</c:forEach>
 											</tr>
 										</thead>

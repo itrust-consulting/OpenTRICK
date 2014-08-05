@@ -18,6 +18,7 @@ import lu.itrust.business.dao.hbm.DAOActionPlanHBM;
 import lu.itrust.business.dao.hbm.DAOActionPlanSummaryHBM;
 import lu.itrust.business.dao.hbm.DAOActionPlanTypeHBM;
 import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 
@@ -164,6 +165,16 @@ public class WorkerComputeActionPlan implements Worker {
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
+				e1.printStackTrace();
+			}
+		}
+		catch (TrickException e) {
+			try {
+				serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters() , e.getCode(), e));
+				e.printStackTrace();
+				if (session != null && session.getTransaction().isInitiator())
+					session.getTransaction().rollback();
+			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		} catch (Exception e) {

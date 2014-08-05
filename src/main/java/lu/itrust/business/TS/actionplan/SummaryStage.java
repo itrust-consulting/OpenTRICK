@@ -117,10 +117,11 @@ public class SummaryStage {
 	 * 
 	 * @param id
 	 *            The value to set the Summary Stage ID
+	 * @throws TrickException 
 	 */
-	public void setId(int id) {
+	public void setId(int id) throws TrickException {
 		if (id < 1)
-			throw new IllegalArgumentException("Id should be 1 or greater");
+			throw new TrickException("error.summary_stage.id","Id should be greater than 0!");
 		this.id = id;
 	}
 
@@ -140,10 +141,11 @@ public class SummaryStage {
 	 * 
 	 * @param stage
 	 *            The value to set the Stage Title
+	 * @throws TrickException 
 	 */
-	public void setStage(String stage) {
+	public void setStage(String stage) throws TrickException {
 		if (stage == null || !stage.matches(STAGE_REGEX))
-			throw new IllegalArgumentException("Stage should meet this regular expression " + STAGE_REGEX);
+			throw new TrickException("error.summary_stage.stage","Stage is not valid");
 		this.stage = stage;
 	}
 
@@ -163,10 +165,11 @@ public class SummaryStage {
 	 * 
 	 * @param conformance27001
 	 *            The value to set the Percentage of AnalysisNorm 27001 Conformance
+	 * @throws TrickException 
 	 */
-	public void setConformance27001(double conformance27001) {
+	public void setConformance27001(double conformance27001) throws TrickException {
 		if (conformance27001 < 0 || conformance27001 > 1)
-			throw new IllegalArgumentException("Conformance27001 should be between 0 and 1 :" + conformance27001);
+			throw new TrickException("error.summary_stage.conformance","Conformance 27001 should be between 0 and 1","27001");
 		this.conformance27001 = conformance27001;
 	}
 
@@ -186,10 +189,11 @@ public class SummaryStage {
 	 * 
 	 * @param conformance27002
 	 *            The value to set the Percentage of AnalysisNorm 27002 Conformance
+	 * @throws TrickException 
 	 */
-	public void setConformance27002(double conformance27002) {
+	public void setConformance27002(double conformance27002) throws TrickException {
 		if (conformance27002 < 0 || conformance27002 > 1)
-			throw new IllegalArgumentException("Conformance27002 should be between 0 and 1 :" + conformance27002);
+			throw new TrickException("error.summary_stage.conformance","Conformance 27002 should be between 0 and 1","27002");
 		this.conformance27002 = conformance27002;
 	}
 
@@ -209,11 +213,11 @@ public class SummaryStage {
 	 * 
 	 * @param measureCount
 	 *            The value to set the Number of Measures of this Stage
+	 * @throws TrickException 
 	 */
-	public void setMeasureCount(int measureCount) {
-		if (measureCount < 0) {
-			throw new IllegalArgumentException("MeasureCount should be 0 or greater");
-		}
+	public void setMeasureCount(int measureCount) throws TrickException {
+		if (measureCount < 0)
+			throw new TrickException("error.summary_stage.measure_count","Measure count should be 0 or greater");
 		this.measureCount = measureCount;
 	}
 
@@ -233,10 +237,11 @@ public class SummaryStage {
 	 * 
 	 * @param implementedMeasuresCount
 	 *            The value to set the Number of Implemented Measures in this Stage
+	 * @throws TrickException 
 	 */
-	public void setImplementedMeasuresCount(int implementedMeasuresCount) {
+	public void setImplementedMeasuresCount(int implementedMeasuresCount) throws TrickException {
 		if (implementedMeasuresCount < 0)
-			throw new IllegalArgumentException("ImplementedMeasuresCount should be 0 or greater");
+			throw new TrickException("error.summary_stage.implemented_measures_count","Implemented measures count should be 0 or greater");
 		this.implementedMeasuresCount = implementedMeasuresCount;
 	}
 
@@ -256,10 +261,11 @@ public class SummaryStage {
 	 * 
 	 * @param totalALE
 	 *            The value to set the Total ALE at the End of the Stage
+	 * @throws TrickException 
 	 */
-	public void setTotalALE(double totalALE) {
+	public void setTotalALE(double totalALE) throws TrickException {
 		if (totalALE < 0)
-			throw new IllegalArgumentException("TotalALE should be 0 or greater");
+			throw new TrickException("error.summary_stage.total_ale","Total ALE should be 0 or greater");
 		this.totalALE = totalALE;
 	}
 
@@ -279,10 +285,11 @@ public class SummaryStage {
 	 * 
 	 * @param deltaALE
 	 *            The value to set the Delta ALE
+	 * @throws TrickException 
 	 */
-	public void setDeltaALE(double deltaALE) {
+	public void setDeltaALE(double deltaALE) throws TrickException {
 		if (deltaALE < 0)
-			throw new IllegalArgumentException("DeltaALE should be 0 or greater");
+			throw new TrickException("error.summary_stage.delta_ale","Delta ALE should be 0 or greater");
 		this.deltaALE = deltaALE;
 	}
 
@@ -308,7 +315,7 @@ public class SummaryStage {
 		if(Double.isNaN(costOfMeasures))
 			throw new TrickException("error.summary.cost_of_measure.nan", "Please ckeck your data: Cost of measure is not a number");
 		if (costOfMeasures < 0) 
-			throw new IllegalArgumentException("CostOfMeasures should be 1 or greater");
+			throw new TrickException("error.summary.cost_of_measure","Measures cost should be 1 or greater");
 		this.costOfMeasures = costOfMeasures;
 	}
 
@@ -382,7 +389,7 @@ public class SummaryStage {
 		if(Double.isNaN(internalWorkload))
 			throw new TrickException("error.summary.internal_workload.nan", "Please ckeck your data: Internal workload is not a number");
 		if (internalWorkload < 0)
-			throw new IllegalArgumentException("InternalWorkload should be 0 or greater");
+			throw new TrickException("error.summary.internal_workload","Internal workload should be 0 or greater");
 		this.internalWorkload = internalWorkload;
 	}
 
@@ -408,7 +415,7 @@ public class SummaryStage {
 		if(Double.isNaN(externalWorkload))
 			throw new TrickException("error.summary.external_workload.nan", "Please ckeck your data: External workload is not a number");
 		if (externalWorkload < 0)
-			throw new IllegalArgumentException("ExternalWorkload should be 0 or greater");
+			throw new TrickException("error.summary.external_workload.nan","External workload should be 0 or greater");
 		this.externalWorkload = externalWorkload;
 	}
 
@@ -434,7 +441,7 @@ public class SummaryStage {
 		if(Double.isNaN(investment))
 			throw new TrickException("error.summary.investment.nan", "Please ckeck your data: Investment is not a number");
 		if (investment < 0)
-			throw new IllegalArgumentException("Investment should be 0 or greater");
+			throw new TrickException("error.summary.investment","Investment should be 0 or greater");
 		this.investment = investment;
 	}
 
@@ -460,7 +467,7 @@ public class SummaryStage {
 		if(Double.isNaN(internalMaintenance))
 			throw new TrickException("error.summary.internal_maintenance.nan", "Please ckeck your data: Internal maintenance is not a number");
 		if (internalMaintenance < 0)
-			throw new IllegalArgumentException("InternalMaintenance should be 0 or greater");
+			throw new TrickException("error.summary.internal_maintenance","Internal maintenance should be 0 or greater");
 		this.internalMaintenance = internalMaintenance;
 	}
 
@@ -486,7 +493,7 @@ public class SummaryStage {
 		if(Double.isNaN(externalMaintenance))
 			throw new TrickException("error.summary.external_maintenance.nan", "Please ckeck your data: External maintenance is not a number");
 		if (externalMaintenance < 0)
-			throw new IllegalArgumentException("ExternalMaintenance should be 0 or greater");
+			throw new TrickException("error.summary.external_maintenance","External maintenance should be 0 or greater");
 		this.externalMaintenance = externalMaintenance;
 	}
 
@@ -512,7 +519,7 @@ public class SummaryStage {
 		if(Double.isNaN(recurrentCost))
 			throw new TrickException("error.summary.recurrent_cost.nan", "Please ckeck your data: Recurrent cost is not a number");
 		if (recurrentCost < 0)
-			throw new IllegalArgumentException("RecurrentCost should be 0 or greater");
+			throw new TrickException("error.summary.recurrent_cost","Recurrent cost should be 0 or greater");
 		this.recurrentCost = recurrentCost;
 	}
 
@@ -538,7 +545,7 @@ public class SummaryStage {
 		if(Double.isNaN(recurrentCost))
 			throw new TrickException("error.summary.total_cost_of_stage.nan", "Please ckeck your data: Total cost of stage is not a number");
 		if (totalCostofStage < 0)
-			throw new IllegalArgumentException("TotalCostofStage should be 0 or greater");
+			throw new TrickException("error.summary.total_cost_of_stage", "Stage total cost should be 0 or greater");
 		this.totalCostofStage = totalCostofStage;
 	}
 

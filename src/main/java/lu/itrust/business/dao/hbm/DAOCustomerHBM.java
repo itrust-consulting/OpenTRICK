@@ -211,4 +211,9 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 		getSession().createQuery("delete from Analysis where customer.id = :customerId").setParameter("customerId", customerId).executeUpdate();
 		getSession().createQuery("delete from Customer where id = :customerId").setParameter("customerId", customerId).executeUpdate();
 	}
+
+	@Override
+	public Customer getOneNoProfile() {
+		return (Customer) getSession().createQuery("From Customer where canBeUsed = true").setMaxResults(1).uniqueResult();
+	}
 }

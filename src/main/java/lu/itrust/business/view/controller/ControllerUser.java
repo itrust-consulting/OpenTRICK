@@ -176,7 +176,7 @@ public class ControllerUser {
 			if(currentPassword!=Constant.EMPTY_STRING) {
 			
 				if (!oldPassword.equals(passwordEncoder.encodePassword(currentPassword, user.getLogin())))
-					errors.put("currentPassword", messageSource.getMessage("error.user.currentPassword.not_matching", null, "Current Password is not correct", locale));
+					errors.put("currentPassword", messageSource.getMessage("error.user.current_password.not_matching", null, "Current Password is not correct", locale));
 				
 				error = validator.validate(user, "password", password);
 				if (error != null)

@@ -5,6 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAnalysis;
@@ -428,6 +429,17 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public void delete(Integer analysisId) throws Exception {
 		daoAnalysis.delete(analysisId);
+	}
+
+	@Override
+	public List<Analysis> getAllFromCustomer(Integer id) {
+		// TODO Auto-generated method stub
+		return daoAnalysis.getAllFromCustomer(id);
+	}
+
+	@Override
+	public List<Analysis> getAllProfileContainsNorm(List<Norm> norms) {
+		return daoAnalysis.getAllProfileContainsNorm(norms);
 	}
 
 }

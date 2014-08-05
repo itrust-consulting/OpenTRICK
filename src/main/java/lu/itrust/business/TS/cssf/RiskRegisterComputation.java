@@ -279,9 +279,10 @@ public class RiskRegisterComputation {
 	 *            The delta ALE List
 	 * @param parameters
 	 *            The Parameters List
+	 * @throws TrickException 
 	 */
 	private static void cssfFinalComputation(Map<String, RiskRegisterItem> riskRegisters, Map<String, Double> netALEs, Map<String, Impact> impacts,
-			Map<String, double[]> probabilityRelativeImpacts, Map<String, Double> rawALEs, Map<String, Double> deltaALEs, List<Parameter> parameters) {
+			Map<String, double[]> probabilityRelativeImpacts, Map<String, Double> rawALEs, Map<String, Double> deltaALEs, List<Parameter> parameters) throws TrickException {
 
 		// parse all risk register items
 		for (RiskRegisterItem registerItem : riskRegisters.values()) {
@@ -352,9 +353,10 @@ public class RiskRegisterComputation {
 	 *            The Array of Assessments
 	 * @param parameters
 	 *            The Array of Analysis Parameters
+	 * @throws TrickException 
 	 */
 	public static void netEvaluationComputationData(Map<String, RiskRegisterItem> riskRegisters, Map<String, Double> netALE, Map<String, Impact> impacts, final List<Assessment> assessments,
-			final List<Parameter> parameters) {
+			final List<Parameter> parameters) throws TrickException {
 
 		// ********************************************************
 		// * first step: generate the sum of each impact category Categories are: reputation , operational , legal, financial
@@ -469,8 +471,9 @@ public class RiskRegisterComputation {
 	 *            The parameters List
 	 * 
 	 * @return The initialised list of the risk register
+	 * @throws TrickException 
 	 */
-	private static Map<String, RiskRegisterItem> computeNetALE(Map<String, Double> netALEs, final Map<String, Impact> impacts, final List<Assessment> assessments, final List<Parameter> parameters) {
+	private static Map<String, RiskRegisterItem> computeNetALE(Map<String, Double> netALEs, final Map<String, Impact> impacts, final List<Assessment> assessments, final List<Parameter> parameters) throws TrickException {
 
 		Map<String, Parameter> mapParameters = new LinkedHashMap<String, Parameter>();
 		
@@ -945,9 +948,10 @@ public class RiskRegisterComputation {
 	 *            the calculated relativeimpact list
 	 * @param parameters
 	 *            The List of Parameters
+	 * @throws TrickException 
 	 * @see #computeRawALE(Map, Map, List, List)
 	 */
-	public static void rawEvaluationComputation(RiskRegisterItem riskRegisters, final double netALE, final Double rawALE, double[] probabilityRelativeImpact, final List<Parameter> parameters) {
+	public static void rawEvaluationComputation(RiskRegisterItem riskRegisters, final double netALE, final Double rawALE, double[] probabilityRelativeImpact, final List<Parameter> parameters) throws TrickException {
 
 		// retrieve net impact
 		double netImpact = riskRegisters.getNetEvaluation().getImpact();
@@ -1041,9 +1045,10 @@ public class RiskRegisterComputation {
 	 *            The probability relative impact list
 	 * @param parameters
 	 *            The Parameters List
+	 * @throws TrickException 
 	 */
 	public static void expectedImportanceComputation(RiskRegisterItem riskRegisters, final Double deltaALE, final double netALE, final double[] probabilityRelativeImpact,
-			final List<Parameter> parameters) {
+			final List<Parameter> parameters) throws TrickException {
 
 		// retrieve net impact
 		double netImpact = riskRegisters.getNetEvaluation().getImpact();
@@ -1122,8 +1127,9 @@ public class RiskRegisterComputation {
 	 *            the Risk Register Item
 	 * @param probabilityRelativeImpacts
 	 *            the list of probability relative impacts
+	 * @throws TrickException 
 	 */
-	public static EvaluationResult computeImpactAndProbability(final double x, final double currentImpact, final double currentProbability, final double importance) {
+	public static EvaluationResult computeImpactAndProbability(final double x, final double currentImpact, final double currentProbability, final double importance) throws TrickException {
 
 		if (Double.isNaN(x)) {
 			System.err.println("A nan was detected X: " + x);

@@ -75,8 +75,7 @@ function calculateActionPlanWithOptions(analysisId, modalBox) {
 		contentType : "application/json",
 		success : function(response) {
 			if (response["success"] != undefined) {
-				var taskManager = new TaskManager(MessageResolver("title.actionplan.compute", "Compute Action Plan"));
-				taskManager.Start();
+				new TaskManager(MessageResolver("title.actionplan.compute", "Compute Action Plan")).Start();
 			} else if (message["error"]) {
 				$("#alert-dialog .modal-body").html(message["error"]);
 				$("#alert-dialog").modal("toggle");

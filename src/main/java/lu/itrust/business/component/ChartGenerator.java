@@ -530,7 +530,7 @@ public class ChartGenerator {
 
 		String serie = "";
 
-		serie = "{\"name\":\"" + messageSource.getMessage("label.chart.series.currentlevel", null, "Current Level", locale) + "\", \"data\":" + data + ",\"valueDecimals\": 0}";
+		serie = "{\"name\":\"" + messageSource.getMessage("label.chart.series.current_level", null, "Current Level", locale) + "\", \"data\":" + data + ",\"valueDecimals\": 0}";
 
 		series += serie;
 
@@ -573,7 +573,7 @@ public class ChartGenerator {
 
 				serie = "";
 
-				serie = "{\"name\":\"" + messageSource.getMessage("label.phase", null, "Phase", locale) + " " + phase.getNumber() + "\", \"data\":" + data + ",\"valueDecimals\": 0}";
+				serie = "{\"name\":\"" + messageSource.getMessage("label.chart.phase", null, "Phase", locale) + " " + phase.getNumber() + "\", \"data\":" + data + ",\"valueDecimals\": 0}";
 
 				series += "," + serie;
 
@@ -604,7 +604,7 @@ public class ChartGenerator {
 
 		String title =
 			"\"title\": {\"text\":\""
-				+ messageSource.getMessage("label.title.chart.evolution_profitability_compliance." + actionPlanType, null, "Evolution of profitability and ISO compliance for " + actionPlanType,
+				+ messageSource.getMessage("label.title.chart.evolution_profitability_compliance." + actionPlanType.toLowerCase(), null, "Evolution of profitability and ISO compliance for " + actionPlanType,
 						locale) + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";
@@ -721,7 +721,7 @@ public class ChartGenerator {
 
 		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": false}";
 
-		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.budget." + actionPlanType, null, "Budget for " + actionPlanType, locale) + "\"}";
+		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.budget." + actionPlanType.toLowerCase(), null, "Budget for " + actionPlanType, locale) + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";
 
@@ -825,7 +825,7 @@ public class ChartGenerator {
 	private Map<String, RRFAssetType> computeRRFByScenario(Scenario scenario, List<AssetType> assetTypes, List<NormMeasure> measures, int idAnalysis) throws Exception {
 		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		if (assetTypes == null)
-			assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
+			assetTypes = daoAssetType.getAll();
 		if (measures == null)
 			measures = daoMeasure.getAllNormMeasuresFromAnalysisAndComputable(idAnalysis);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
@@ -844,7 +844,7 @@ public class ChartGenerator {
 	private Map<String, RRFAssetType> computeRRFByMeasure(NormMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
 		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		if (assetTypes == null)
-			assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
+			assetTypes = daoAssetType.getAll();
 		if (scenarios == null)
 			scenarios = daoScenario.getAllFromAnalysis(idAnalysis);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
@@ -881,7 +881,7 @@ public class ChartGenerator {
 
 			String series = "\"series\":[";
 
-			List<AssetType> assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
+			List<AssetType> assetTypes = daoAssetType.getAll();
 
 			List<NormMeasure> measures = null;
 
@@ -962,7 +962,7 @@ public class ChartGenerator {
 
 			String series = "\"series\":[";
 
-			List<AssetType> assetTypes = daoAssetType.getAllFromAnalysis(idAnalysis);
+			List<AssetType> assetTypes = daoAssetType.getAll();
 
 			List<Scenario> scenarios = null;
 

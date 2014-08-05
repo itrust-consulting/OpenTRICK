@@ -4,8 +4,8 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="widgets">
-	<jsp:include page="./forms/addOrEditAsset.jsp" />
-	<jsp:include page="./forms/addOrEditScenario.jsp" />
-	<jsp:include page="./forms/addPhase.jsp" />
-	<jsp:include page="./forms/addStandard.jsp" />
+	<jsp:include page="./forms/asset.jsp" />
+	<jsp:include page="./forms/scenario.jsp" />
+	<jsp:include page="./forms/phase.jsp" />
+	<jsp:include page="./forms/standard.jsp" />
 </div>

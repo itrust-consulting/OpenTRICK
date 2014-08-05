@@ -1,6 +1,7 @@
 package lu.itrust.business.TS;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.exception.TrickException;
 
 /**
  * ParameterType: <br>
@@ -37,11 +38,10 @@ public class ParameterType {
 	 * 
 	 * @param label
 	 *            The Parameter Type Label
+	 * @throws TrickException 
 	 */
-	public ParameterType(String label) {
-		if (label == null || !label.trim().matches(Constant.REGEXP_VALID_PARAMETERTYPE))
-				throw new IllegalArgumentException("Given Parameter Name does not exist!");
-		this.label = label.trim();
+	public ParameterType(String label) throws TrickException {
+		setLabel(label);
 	}
 
 	/***********************************************************************************************
@@ -85,10 +85,11 @@ public class ParameterType {
 	 * 
 	 * @param label
 	 *            The Value to set the label field
+	 * @throws TrickException 
 	 */
-	public void setLabel(String label) {
+	public void setLabel(String label) throws TrickException {
 		if (label == null || !label.trim().matches(Constant.REGEXP_VALID_PARAMETERTYPE))
-				throw new IllegalArgumentException("Given Parameter Name does not exist!");
+			throw new TrickException("error.parameter_type.name.not_exist","Parameter name does not exist!");
 		this.label = label.trim();
 	}
 }

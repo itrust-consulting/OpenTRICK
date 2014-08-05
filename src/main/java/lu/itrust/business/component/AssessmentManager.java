@@ -19,6 +19,7 @@ import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
 import lu.itrust.business.dao.DAOParameter;
 import lu.itrust.business.dao.DAOScenario;
+import lu.itrust.business.exception.TrickException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -88,6 +89,27 @@ public class AssessmentManager {
 		if (asset == null)
 			return;
 		unSelectAsset(asset);
+	}
+
+	@Transactional
+	public void UpdateAcronym(int idAnalysis, ExtendedParameter extendedParameter, String acronym) throws Exception {
+		// retrieve assessments by acronym and analysis
+		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndImpactLikelihoodAcronym(idAnalysis, acronym);
+		// parse assessments and update impact value to parameter acronym
+		for (Assessment assessment : assessments) {
+			if (acronym.equals(assessment.getImpactFin()))
+				assessment.setImpactFin(extendedParameter.getAcronym());
+			else if (acronym.equals(assessment.getImpactLeg()))
+				assessment.setImpactLeg(extendedParameter.getAcronym());
+			else if (acronym.equals(assessment.getImpactOp()))
+				assessment.setImpactOp(extendedParameter.getAcronym());
+			else if (acronym.equals(assessment.getImpactRep()))
+				assessment.setImpactRep(extendedParameter.getAcronym());
+			else if (acronym.equals(assessment.getLikelihood()))
+				assessment.setLikelihood(extendedParameter.getAcronym());
+			// update assessment
+			daoAssessment.saveOrUpdate(assessment);
+		}
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////////////
@@ -201,7 +223,7 @@ public class AssessmentManager {
 		}
 		UpdateAssetALE(analysis);
 	}
-
+	
 	@Transactional
 	public void WipeAssessment(Analysis analysis) throws Exception {
 		Iterator<Assessment> iterator = analysis.getAssessments().iterator();
@@ -299,7 +321,7 @@ public class AssessmentManager {
 		}
 	}
 
-	public static void ComputeAlE(List<Assessment> assessments, List<ExtendedParameter> parameters) {
+	public static void ComputeAlE(List<Assessment> assessments, List<ExtendedParameter> parameters) throws TrickException {
 		Map<String, ExtendedParameter> parametersMapping = new LinkedHashMap<>(parameters.size());
 		try {
 			for (ExtendedParameter extendedParameter : parameters)
@@ -311,7 +333,7 @@ public class AssessmentManager {
 		}
 	}
 
-	public static void ComputeAlE(Assessment assessment, Map<String, ExtendedParameter> parameters) {
+	public static void ComputeAlE(Assessment assessment, Map<String, ExtendedParameter> parameters) throws TrickException {
 		double impactRep = StringToDouble(assessment.getImpactRep(), parameters);
 		double impactOP = StringToDouble(assessment.getImpactOp(), parameters);
 		double impactLeg = StringToDouble(assessment.getImpactLeg(), parameters);
@@ -350,12 +372,72 @@ public class AssessmentManager {
 	}
 
 	public static void ComputeALE(List<Assessment> assessments, ALE ale, ALE alep, ALE aleo) {
+		if (assessments == null)
+			return;
 		for (Assessment assessment : assessments) {
 			ale.setValue(ale.getValue() + assessment.getALE());
 			alep.setValue(alep.getValue() + assessment.getALEP());
 			aleo.setValue(aleo.getValue() + assessment.getALEO());
 		}
 
+	}
+
+	public static Map<Integer, ALE[]> ComputeAssetALE(List<Asset> assets, List<Assessment> assessments2) {
+		Map<Integer, ALE[]> ales = new LinkedHashMap<>();
+		Map<Integer, List<Assessment>> assessments = Analysis.MappedSelectedAssessmentByAsset(assessments2);
+		for (Asset asset : assets) {
+			ALE[] ales2 = new ALE[3];
+			for (int i = 0; i < ales2.length; i++)
+				ales2[i] = new ALE(asset.getName(), 0);
+			ComputeALE(assessments.get(asset.getId()), ales2[1], ales2[2], ales2[0]);
+			ales.put(asset.getId(), ales2);
+		}
+		return ales;
+
+	}
+
+	public static Map<Integer, ALE[]> ComputeScenarioALE(List<Scenario> scenarios, List<Assessment> assessments2) {
+		Map<Integer, ALE[]> ales = new LinkedHashMap<>();
+		Map<Integer, List<Assessment>> assessments = Analysis.MappedSelectedAssessmentByScenario(assessments2);
+		for (Scenario scenario : scenarios) {
+			ALE[] ales2 = new ALE[3];
+			for (int i = 0; i < ales2.length; i++)
+				ales2[i] = new ALE(scenario.getName(), 0);
+			ComputeALE(assessments.get(scenario.getId()), ales2[1], ales2[2], ales2[0]);
+			ales.put(scenario.getId(), ales2);
+		}
+		return ales;
+
+	}
+
+	/**
+	 * Generate ALE: ALEO, ALE,ALEP for each scenario and asset
+	 * @param analysis
+	 * @return Length : 2, [0] for Assets, [1] for Scenarios
+	 */
+	@SuppressWarnings("unchecked")
+	public static Map<Integer, ALE[]>[] ComputeALE(Analysis analysis) {
+		Map<Integer, ALE[]>[] ales = new LinkedHashMap[2];
+		for (int i = 0; i < 2; i++)
+			ales[i] = new LinkedHashMap<Integer, ALE[]>();
+		Map<Integer, List<Assessment>>[] assessments = Analysis.MappedSelectedAssessment(analysis.getAssessments());
+		for (Asset asset : analysis.getAssets()) {
+			ALE[] ales2 = new ALE[3];
+			for (int i = 0; i < ales2.length; i++)
+				ales2[i] = new ALE(asset.getName(), 0);
+			ComputeALE(assessments[0].get(asset.getId()), ales2[1], ales2[2], ales2[0]);
+			ales[0].put(asset.getId(), ales2);
+		}
+		for (Scenario scenario : analysis.getScenarios()) {
+			ALE[] ales2 = new ALE[3];
+			for (int i = 0; i < ales2.length; i++)
+				ales2[i] = new ALE(scenario.getName(), 0);
+			ComputeALE(assessments[1].get(scenario.getId()), ales2[1], ales2[2], ales2[0]);
+			ales[1].put(scenario.getId(), ales2);
+		}
+		for (int i = 0; i < assessments.length; i++)
+			assessments[i].clear();
+		return ales;
 	}
 
 }

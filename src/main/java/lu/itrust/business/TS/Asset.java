@@ -2,6 +2,8 @@ package lu.itrust.business.TS;
 
 import javax.naming.directory.InvalidAttributesException;
 
+import lu.itrust.business.exception.TrickException;
+
 /**
  * Asset: <br>
  * This class represents an asset and all its data
@@ -69,11 +71,11 @@ public class Asset implements Cloneable {
 	 * 
 	 * @param id
 	 *            The value to set the "id" field
+	 * @throws TrickException 
 	 */
-	public void setId(int id) {
-		if (id < 1) {
-			throw new IllegalArgumentException("error.asset.invalid.id");
-		}
+	public void setId(int id) throws TrickException {
+		if (id < 1) 
+			throw new TrickException("error.asset.invalid.id","Asset id should be greater than 0");
 		this.id = id;
 	}
 
@@ -93,12 +95,11 @@ public class Asset implements Cloneable {
 	 * 
 	 * @param name
 	 *            The value to set the Asset "name" field
+	 * @throws TrickException 
 	 */
-	public void setName(String name) {
-		if (name == null)
-			throw new IllegalArgumentException("error.asset.label_null");
-		else if (name.trim().isEmpty())
-			throw new IllegalArgumentException("error.asset.label_empty");
+	public void setName(String name) throws TrickException {
+		if (name == null || name.trim().isEmpty())
+			throw new TrickException("error.asset.label_null","Asset name cannot be empty");
 		this.name = name;
 	}
 
@@ -118,16 +119,11 @@ public class Asset implements Cloneable {
 	 * 
 	 * @param assetType
 	 *            The value to set the Asset "assetType" field
+	 * @throws TrickException 
 	 */
-	public void setAssetType(AssetType assetType) {
-		if (assetType == null)
-			throw new IllegalArgumentException("error.asset.assettype_null");
-		else if (assetType.getType() == null)
-			throw new IllegalArgumentException(
-					"error.asset.assettype.type_null");
-		else if (assetType.getType().trim().isEmpty())
-			throw new IllegalArgumentException(
-					"error.asset.assettype.type_empty");
+	public void setAssetType(AssetType assetType) throws TrickException {
+		if (assetType == null || assetType.getType() == null || assetType.getType().trim().isEmpty())
+			throw new TrickException("error.asset.assettype_null","Asset type cannot be empty");
 		this.assetType = assetType;
 	}
 
@@ -147,11 +143,11 @@ public class Asset implements Cloneable {
 	 * 
 	 * @param value
 	 *            The value to set the Asset "value" field
+	 * @throws TrickException 
 	 */
-	public void setValue(double value) {
-		if (value < 0) {
-			throw new IllegalArgumentException("error.asset.value");
-		}
+	public void setValue(double value) throws TrickException {
+		if (value < 0)
+			throw new TrickException("error.asset.value", "Asset value cannot be negative");
 		this.value = value;
 	}
 
