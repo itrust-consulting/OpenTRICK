@@ -121,7 +121,8 @@ public class ControllerAssessment {
 			if (analysis == null)
 				return new String("{\"error\":\"" + messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale) + "\" }");
 			// update assessments of analysis
-			assessmentManager.Refresh(analysis);
+			assessmentManager.WipeAssessment(analysis);
+			assessmentManager.UpdateAssessment(analysis);
 			// update
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return success message

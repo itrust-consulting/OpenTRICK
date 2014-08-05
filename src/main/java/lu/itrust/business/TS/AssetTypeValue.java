@@ -97,9 +97,8 @@ public class AssetTypeValue implements Cloneable {
 	 * @throws TrickException 
 	 */
 	public void setValue(int value) throws TrickException {
-		if ((value < -1) || (value > 101)) {
+		if ((value < -1) || (value > 101)) 
 			throw new TrickException("error.asset.assettypevalue.value","Asset type value: value should be between 0 and 100");
-		}
 		this.value = value;
 	}
 

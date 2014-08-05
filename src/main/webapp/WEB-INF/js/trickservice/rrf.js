@@ -63,6 +63,7 @@ function RRFView() {
 
 	RRFView.prototype.LoadData = function() {
 		var that = this;
+		this.setTitle(MessageResolver("label.title.editor.rrf", "Risk reduction factor"));
 		$.ajax({
 			url : context + "/Scenario/RRF",
 			type : "get",
@@ -674,6 +675,8 @@ function importRRF(idAnalysis) {
 						$norms.find("option[name!='" + value + "']").hide().prop("selected", false);
 						$norms.find("option[name='" + value + "']").show();
 					});
+					var $closeButton = $(modal.modal_header).find("button");
+					var $switchRRFButton = $(modal.modal_footer).find("button[name='show_rrf']");
 					var $importButton = $(modal.modal_footer).find("button[name='import']");
 					var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
 					var $progressBar = $(modal.modal_body).find(".progress");
@@ -681,8 +684,7 @@ function importRRF(idAnalysis) {
 						if ($importButton.is(":disabled"))
 							return false;
 						$progressBar.show();
-						$importButton.prop("disabled", true);
-						$cancelButton.prop("disabled", true);
+						$(modal.modal).find("button").prop("disabled", true);
 						$(modal.modal_body).find(".alert").remove();
 						$.ajax({
 							url : context + "/KnowledgeBase/Norm/Import/RRF/Save",
@@ -700,14 +702,12 @@ function importRRF(idAnalysis) {
 							},
 							error : function(jqXHR, textStatus, errorThrown) {
 								$progressBar.hide();
-								$importButton.prop("disabled", false);
-								$cancelButton.prop("disabled", false);
+								$(modal.modal).find("button").prop("disabled", false);
 								showError($(modal.modal_body)[0], MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 							}
 						}).done(function() {
 							$progressBar.hide();
-							$importButton.prop("disabled", false);
-							$cancelButton.prop("disabled", false);
+							$(modal.modal).find("button").prop("disabled", false);
 						});
 						return false;
 					});
@@ -716,6 +716,21 @@ function importRRF(idAnalysis) {
 							modal.Destroy();
 						return false;
 					});
+
+					$closeButton.click(function() {
+						if (!$closeButton.is(":disabled"))
+							modal.Destroy();
+						return false;
+					});
+
+					$switchRRFButton.click(function() {
+						if (!$switchRRFButton.is(":disabled")) {
+							modal.Destroy();
+							editRRF(idAnalysis);
+						}
+						return false;
+					});
+
 					$profileSelector.change();
 
 					modal.Show();

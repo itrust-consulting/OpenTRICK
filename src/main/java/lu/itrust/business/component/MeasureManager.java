@@ -185,15 +185,15 @@ public class MeasureManager {
 	@Transactional
 	public void importNorm(Integer idAnalysis, ImportRRFForm rrfForm) throws Exception {
 		for (Integer idNorm : rrfForm.getNorms()) {
-			
 			Map<String, Measure> profileMeasures = daoMeasure.mappingAllFromAnalysisAndNorm(rrfForm.getProfile(), idNorm);
 			List<Measure> measures = daoMeasure.getAllFromAnalysisAndNorm(idAnalysis, idNorm);
 			for (Measure measure : measures) {
 				NormMeasure normMeasure = (NormMeasure) profileMeasures.get(measure.getMeasureDescription().getReference());
 				if(normMeasure == null)
 					continue;
-				((NormMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormMeasure) measure).getMeasurePropertyList()));//Force hibernate to initialise data
-				normMeasure.setMeasurePropertyList(DAOHibernate.Initialise(normMeasure.getMeasurePropertyList()));//Force hibernate to initialise data
+				//Force hibernate to initialise data
+				((NormMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormMeasure) measure).getMeasurePropertyList()));
+				normMeasure.setMeasurePropertyList(DAOHibernate.Initialise(normMeasure.getMeasurePropertyList()));
 				normMeasure.copyMeasureCharacteristicsTo(((NormMeasure)measure));
 				daoMeasure.saveOrUpdate(measure);
 			}

@@ -225,12 +225,6 @@ public class AssessmentManager {
 	}
 	
 	@Transactional
-	public void Refresh(Analysis analysis) throws Exception{
-		WipeAssessment(analysis);
-		UpdateAssessment(analysis);
-	}
-
-	@Transactional
 	public void WipeAssessment(Analysis analysis) throws Exception {
 		Iterator<Assessment> iterator = analysis.getAssessments().iterator();
 		while (iterator.hasNext()) {

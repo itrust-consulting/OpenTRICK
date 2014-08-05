@@ -22,8 +22,10 @@
 							code="label.menu.select.scenario" text="Select" /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <spring:message
 							code="label.menu.unselect.scenario" text="Unselect" /> </a></li>
-				<li class="disabled" trick-selectable="true" trick-check="isSelected('scenario')"><a href="#" onclick="return displayAssessmentByScenario()"><span
-						class="glyphicon glyphicon-new-window"></span> <spring:message code="label.menu.show.assessment" text="Assessment" /> </a></li>
+				<c:if test="${!KowledgeBaseView }">
+					<li class="disabled" trick-selectable="true" trick-check="isSelected('scenario')"><a href="#" onclick="return displayAssessmentByScenario()"><span
+							class="glyphicon glyphicon-new-window"></span> <spring:message code="label.menu.show.assessment" text="Assessment" /> </a></li>
+				</c:if>
 				<li class="disabled pull-right" trick-selectable="multi"><a href="#" class="text-danger" onclick="return deleteScenario();"><span class="glyphicon glyphicon-remove"></span>
 						<spring:message code="label.menu.delete.scenario" text="Delete" /> </a></li>
 			</ul>
@@ -76,7 +78,9 @@
 											maxFractionDigits="2" minFractionDigits="0" /></td>
 								</c:otherwise>
 							</c:choose>
-							<td class="${cssClass}" colspan="20"><pre><spring:message text="${scenario.description}" /></pre></td>
+							<td class="${cssClass}" colspan="20"><pre>
+									<spring:message text="${scenario.description}" />
+								</pre></td>
 						</tr>
 					</c:forEach>
 				</tbody>

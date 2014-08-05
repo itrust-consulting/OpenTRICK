@@ -16,8 +16,8 @@
 		<ul class="nav navbar-nav">
 			<c:if test="${!KowledgeBaseView}">
 				<li><a href="#anchorHistory"><spring:message code="label.menu.analysis.history" text="History" /></a></li>
+				<li><a href="#anchorScope"><spring:message code="label.menu.analysis.item_information" text="Scope" /></a></li>
 			</c:if>
-			<li><a href="#anchorScope"><spring:message code="label.menu.analysis.item_information" text="Scope" /></a></li>
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.parmeter" text="Parameters" /><span
 					class="caret"></span></a>
 				<ul class="dropdown-menu">
@@ -28,14 +28,17 @@
 					<li><a href="#anchorParameter_MaxEfficiency"><spring:message code="label.menu.analysis.parameter.maxeff" text="Maximal efficiency rate per security maturity level" /></a></li>
 					<li><a href="#anchorParameter_ImplementationRate"><spring:message code="label.menu.analysis.parameter.implmentation_rate" text="Implementation scale of SMT" /></a></li>
 				</ul></li>
-			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_information"
-						text="Risk Information" /><span class="caret"></span></a>
-				<ul class="dropdown-menu">
-					<li><a href="#anchorRiskInformation_Threat"><spring:message code="label.menu.analysis.threat" text="Threats" /></a></li>
-					<li><a href="#anchorRiskInformation_Vul"><spring:message code="label.menu.analysis.vulnerability" text="Vulnerabilities" /></a></li>
-					<li><a href="#anchorRiskInformation_Risk"><spring:message code="label.menu.analysis.risk" text="Risks" /></a></li>
-				</ul></li>
-			<li><a href="#anchorAsset"><spring:message code="label.menu.analysis.asset" text="Assets" /></a></li>
+			<c:if test="${!KowledgeBaseView }">
+				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_information"
+							text="Risk Information" /><span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="#anchorRiskInformation_Threat"><spring:message code="label.menu.analysis.threat" text="Threats" /></a></li>
+						<li><a href="#anchorRiskInformation_Vul"><spring:message code="label.menu.analysis.vulnerability" text="Vulnerabilities" /></a></li>
+						<li><a href="#anchorRiskInformation_Risk"><spring:message code="label.menu.analysis.risk" text="Risks" /></a></li>
+					</ul></li>
+
+				<li><a href="#anchorAsset"><spring:message code="label.menu.analysis.asset" text="Assets" /></a></li>
+			</c:if>
 			<li><a href="#anchorScenario"><spring:message code="label.menu.analysis.scenario" text="Scenarios" /></a></li>
 			<li><a href="#anchorPhase"> <spring:message code="label.menu.analysis.phase" text="Phases" /></a></li>
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.analysis.standards" text="Standard" /><span
@@ -62,8 +65,6 @@
 				<c:if test="${empty(show_cssf) or show_cssf}">
 					<li><a href="#anchorRiskRegister"> <spring:message code="label.menu.analysis.risk_register" text="Risk register" /></a></li>
 				</c:if>
-			</c:if>
-			<c:if test="${!KowledgeBaseView }">
 				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.analysis.chart" text="Charts" /><span
 						class="caret"></span></a>
 					<ul class="dropdown-menu">
@@ -82,8 +83,8 @@
 					<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <spring:message code="label.action.close.analysis" text="Close analysis" /></a></li>
 					<li class="divider"></li>
 					<li class="dropdown-header"><spring:message code="label.title.rrf" text="RRF" /></li>
-					<li><a href="#" onclick="return editRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.action.edit" text="Edit" /></a></li>
-					<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.action.import.rrf" text="Import from profile" /></a></li>
+					<li><a href="#" onclick="return editRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.action.open" text="Open" /></a></li>
+					<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.action.import.rrf" text="Import" /></a></li>
 					<c:if test="${!KowledgeBaseView }">
 						<li class="divider"></li>
 						<li class="dropdown-header"><spring:message code="label.title.computation" text="Computation" /></li>
@@ -101,9 +102,11 @@
 						<li class="divider"></li>
 					</c:if>
 					<li class="dropdown-header"><spring:message code="label.settings" text="Settings" /></li>
-					<li><a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_cssf');" style="padding: 6px;"><span
-							class="glyphicon ${empty(show_cssf) or show_cssf? 'glyphicon-ok' : ''}" style="min-width: 12px;"></span><span>&nbsp;<spring:message code="label.settings.show_cssf"
-									text="Display CSSF" /></span></a></li>
+					<c:if test="${!KowledgeBaseView }">
+						<li><a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_cssf');" style="padding: 6px;"><span
+								class="glyphicon ${empty(show_cssf) or show_cssf? 'glyphicon-ok' : ''}" style="min-width: 12px;"></span><span>&nbsp;<spring:message code="label.settings.show_cssf"
+										text="Display CSSF" /></span></a></li>
+					</c:if>
 					<li><a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_uncertainty');" style="padding: 6px;"><span
 							class="glyphicon ${empty(show_uncertainty) or show_uncertainty? 'glyphicon-ok':''}" style="min-width: 12px;" trick-section-dependency="section_asset,section_scenario">
 						</span><span>&nbsp;<spring:message code="label.settings.show_uncertainty" text="Display Uncertainty" /></span></a></li>

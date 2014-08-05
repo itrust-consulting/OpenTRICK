@@ -9,6 +9,7 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="phaseNewModal-title">
 					<spring:message code="label.title.rrf.import.measure_characteristics" text="Import security measure characteristics" />
 				</h4>
@@ -38,6 +39,9 @@
 				</div>
 			</div>
 			<div class="modal-footer">
+				<button type="button" class="btn btn-danger pull-left" name="show_rrf">
+					<spring:message code="label.action.switch.rrf" text="Switch to RRF" />
+				</button>
 				<button type="button" class="btn btn-primary" name="import">
 					<spring:message code="label.action.import" text="Import" />
 				</button>
