@@ -680,6 +680,9 @@ function importRRF(idAnalysis) {
 					var $importButton = $(modal.modal_footer).find("button[name='import']");
 					var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
 					var $progressBar = $(modal.modal_body).find(".progress");
+					//Rejected by Product owner
+					$switchRRFButton.hide();
+					
 					$importButton.click(function() {
 						if ($importButton.is(":disabled"))
 							return false;
