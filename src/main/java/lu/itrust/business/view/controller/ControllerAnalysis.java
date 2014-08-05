@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -172,16 +173,16 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceMeasureDescription serviceMeasureDescription;
-	
+
 	@Autowired
 	private ServiceAppSettingEntry serviceAppSettingEntry;
 
 	@Autowired
 	private ServiceRole serviceRole;
-	
+
 	@Value("${app.settings.report.template.name}")
 	private String reportName;
-	
+
 	@Value("${app.settings.report.template.version}")
 	private String reportVersion;
 
@@ -225,10 +226,9 @@ public class ControllerAnalysis {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 				throw new ResourceNotFoundException((String) attributes.getFlashAttributes().get("errors"));
 			}
-			
-			
+
 			AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", selected.toString());
-			
+
 			if (settings != null) {
 				model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
 				model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
@@ -240,7 +240,7 @@ public class ControllerAnalysis {
 					principal, AnalysisRight.READ);
 
 			if (permissiondenied) {
-				
+
 				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 				// initialise and send data to the data model
 				Hibernate.initialize(analysis.getLanguage());
@@ -328,7 +328,7 @@ public class ControllerAnalysis {
 			if (phase == null)
 				analysis.addUsedPhase(phase = new Phase(Constant.PHASE_DEFAULT));
 			measure.setPhase(phase);
-			
+
 			analysisNorm.setAnalysis(analysis);
 			analysisNorm.setNorm(norm);
 			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
@@ -603,14 +603,15 @@ public class ControllerAnalysis {
 	public String DeselectAnalysis(HttpSession session) throws Exception {
 		// retrieve selected analysis
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
-		if(integer!=null){
+		if (integer != null) {
 			session.removeAttribute("selectedAnalysis");
-			if(serviceAnalysis.isProfile(integer))
+			if (serviceAnalysis.isProfile(integer))
 				return "redirect:/KnowledgeBase";
-			else return "redirect:/Analysis";
+			else
+				return "redirect:/Analysis";
 		}
 		return "redirect:/home";
-		
+
 	}
 
 	// *****************************************************************
@@ -643,6 +644,35 @@ public class ControllerAnalysis {
 		model.put("author", user.getFirstName() + " " + user.getLastName());
 
 		return "analysis/forms/newAnalysis";
+	}
+
+	@RequestMapping(value = "/Build", method = RequestMethod.GET)
+	public String buildCustom(HttpSession session, Principal principal, Model model, Locale locale) throws Exception {
+
+		// add languages
+		model.addAttribute("languages", serviceLanguage.getAll());
+		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
+		// add only customers of the current user
+		model.addAttribute("customers", customers);
+		Map<Customer, List<Analysis>> mappedAnalysis = new LinkedHashMap<Customer, List<Analysis>>();
+		Iterator<Customer> iterator = customers.iterator();
+		while (iterator.hasNext()) {
+			Customer customer = iterator.next();
+			List<Analysis> analysis = serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer.getId());
+			if (analysis.isEmpty())
+				continue;
+			else
+				mappedAnalysis.put(customer, analysis);
+		}
+
+		model.addAttribute("customerAnalysis", mappedAnalysis);
+
+		User user = serviceUser.get(principal.getName());
+
+		model.addAttribute("author", user.getFirstName() + " " + user.getLastName());
+
+		return "analysis/forms/buildAnalysis";
+
 	}
 
 	// *****************************************************************
@@ -1112,9 +1142,9 @@ public class ControllerAnalysis {
 		try {
 
 			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
-			
+
 			exportAnalysisReport.setReportName(reportName);
-			
+
 			exportAnalysisReport.setReportVersion(reportVersion);
 
 			exportAnalysisReport.setMessageSource(messageSource);

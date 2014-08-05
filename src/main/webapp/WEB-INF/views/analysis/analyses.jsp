@@ -22,8 +22,10 @@
 				<div class="panel panel-default">
 					<div class="panel-heading" style="min-height: 60px">
 						<ul class="nav nav-pills" id="menu_analysis">
-							<li><a href="#" onclick="return newAnalysis();"> <span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.analysis"
+							<li><a href="#" onclick="return newAnalysis(this);"> <span class="glyphicon glyphicon-plus"></span> <spring:message code="label.menu.add.analysis"
 										text="New analysis" /></a></li>
+							<li><a href="#" onclick="return customAnalysis(this);"> <span class="glyphicon glyphicon-wrench"></span> <spring:message code="label.menu.build.analysis"
+										text="Build an analysis" /></a></li>
 							<li class="disabled" trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span class="glyphicon glyphicon-folder-open"></span>
 									&nbsp;<spring:message code="label.menu.open.analysis" text="Open analysis" /></a></li>
 							<li class="disabled profilemenu" trick-selectable="true"><a href="#" onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span
@@ -61,13 +63,13 @@
 							<thead>
 								<tr>
 									<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'analysis')"></th>
-									<th><spring:message code="label.analysis.version" text="version"/></th>
-									<th><spring:message code="label.analysis.comment" text="Comment"/></th>
-									<th><spring:message code="label.analysis.creation_date" text="Create date"/></th>
-									<th><spring:message code="label.analysis.author" text="Author"/></th>
-									<th><spring:message code="label.analysis.based_on_analysis" text="Based on"/></th>
-									<th><spring:message code="label.analysis.language" text="Language"/></th>
-									<th><spring:message code="label.analysis.rights" text="Access"/></th>
+									<th><spring:message code="label.analysis.version" text="version" /></th>
+									<th><spring:message code="label.analysis.comment" text="Comment" /></th>
+									<th><spring:message code="label.analysis.creation_date" text="Create date" /></th>
+									<th><spring:message code="label.analysis.author" text="Author" /></th>
+									<th><spring:message code="label.analysis.based_on_analysis" text="Based on" /></th>
+									<th><spring:message code="label.analysis.language" text="Language" /></th>
+									<th><spring:message code="label.analysis.rights" text="Access" /></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -76,20 +78,20 @@
 										ondblclick="return editSingleAnalysis(${analysis.id});">
 										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 										<td trick-version="${analysis.version}">${analysis.version}</td>
-										<td><spring:message text="${analysis.label}"/></td>
-										<td><spring:message text="${analysis.creationDate}"/></td>
-										<td><spring:message text="${analysis.getLastHistory().author}"/></td>
+										<td><spring:message text="${analysis.label}" /></td>
+										<td><spring:message text="${analysis.creationDate}" /></td>
+										<td><spring:message text="${analysis.getLastHistory().author}" /></td>
 										<c:choose>
 											<c:when test="${analysis.basedOnAnalysis == null}">
-												<td><spring:message code="label.analysis.based_on_self" text="None"/></td>
+												<td><spring:message code="label.analysis.based_on_self" text="None" /></td>
 											</c:when>
 											<c:when test="${analysis.basedOnAnalysis.id != analysis.id}">
 												<td><spring:message text="${analysis.basedOnAnalysis.version}" /></td>
 											</c:when>
 										</c:choose>
 										<td><spring:message text="${analysis.language.name}" /></td>
-										<c:set var="right" value="${analysis.getRightsforUserString(login).right}"/>
-										<td><spring:message code="label.analysis.right.${fn:toLowerCase(right)}" text="${fn:replace(right,'_', ' ')}"/> </td>
+										<c:set var="right" value="${analysis.getRightsforUserString(login).right}" />
+										<td><spring:message code="label.analysis.right.${fn:toLowerCase(right)}" text="${fn:replace(right,'_', ' ')}" /></td>
 									</tr>
 								</c:forEach>
 							</tbody>

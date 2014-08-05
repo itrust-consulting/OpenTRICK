@@ -381,7 +381,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			var checker = $($lis[i]).attr("trick-check");
-			if (checker == undefined || eval(checker))
+			if ($($lis[i]).attr("trick-selectable") != undefined && (checker == undefined || eval(checker)))
 				$($lis[i]).removeClass("disabled");
 			else
 				$($lis[i]).addClass("disabled");
@@ -389,7 +389,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 	} else if (checkedCount > 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			if ($($lis[i]).attr("trick-selectable") == undefined || $($lis[i]).attr("trick-selectable") === "multi")
+			if ($($lis[i]).attr("trick-selectable") === "multi")
 				$($lis[i]).removeClass("disabled");
 			else
 				$($lis[i]).addClass("disabled");

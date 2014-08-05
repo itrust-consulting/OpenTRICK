@@ -35,9 +35,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 					previous = this.value;
 				});
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return false;
-			},
+			error : unknowError
 		});
 	} else
 		permissionError();
@@ -67,10 +65,7 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 				previous = this.value;
 			});
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			unknowError();
-			return false;
-		},
+		error : unknowError
 	});
 }
 
@@ -153,10 +148,7 @@ function saveAnalysis(form, reloadaction) {
 			}
 			return false;
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			unknowError();
-			return false;
-		},
+		error : unknowError
 	});
 	return false;
 }
@@ -195,7 +187,8 @@ function deleteAnalysis(analysisId) {
 						$("#alert-dialog").modal("toggle");
 					}
 					return false;
-				}
+				},
+				error : unknowError
 			});
 
 			return false;
@@ -230,10 +223,7 @@ function createAnalysisProfile(analysisId, section_analysis) {
 				$(analysisProfile).modal("toggle");
 
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				unknowError();
-				return false;
-			},
+			error : unknowError
 		});
 	}
 	return false;
@@ -272,12 +262,35 @@ function saveAnalysisProfile(form) {
 					return false;
 				}
 			}
-		}
+		},
+		error : unknowError
 	});
 	return false;
 }
 
-function newAnalysis() {
+function customAnalysis(element) {
+	if ($(element).parent().hasClass("disabled"))
+		return false;
+	$.ajax({
+		url : context + "/Analysis/Build",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			var doc = new DOMParser().parseFromString(response, "text/html");
+			if($(doc).find("#buildAnalysisModal").length){
+				var modal = new Modal($(doc).find("#buildAnalysisModal").clone());
+				modal.Show();
+			}else unknowError();
+			return false;
+		},
+		error : unknowError
+	});
+	return false;
+}
+
+function newAnalysis(element) {
+	if ($(element).parent().hasClass("disabled"))
+		return false;
 	$("#addAnalysisModel .progress").hide();
 	$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
 	$.ajax({
@@ -297,12 +310,8 @@ function newAnalysis() {
 				$("#addAnalysisModel").modal('toggle');
 			}
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			unknowError();
-			return false;
-		},
+		error : unknowError
 	});
-
 	return false;
 }
 
@@ -323,10 +332,7 @@ function addHistory(analysisId) {
 			$("#addHistoryModal").replaceWith(response);
 			$('#addHistoryModal').modal("toggle");
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			unknowError();
-			return result;
-		},
+		error : unknowError
 	});
 
 	return false;
@@ -360,10 +366,7 @@ function editSingleAnalysis(analysisId) {
 					$("#addAnalysisModel").modal('toggle');
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				unknowError();
-				return fase;
-			},
+			error : unknowError
 		});
 	} else
 		permissionError();
@@ -429,10 +432,7 @@ function calculateActionPlan(analysisId) {
 					$("#alert-dialog").modal("toggle");
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				unknowError();
-				return result;
-			},
+			error : unknowError
 		});
 	} else
 		permissionError();
@@ -482,10 +482,7 @@ function calculateRiskRegister(analysisId) {
 					$("#alert-dialog").modal("toggle");
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				unknowError();
-				return result;
-			},
+			error : unknowError
 		});
 	} else
 		permissionError();
@@ -515,9 +512,7 @@ function exportAnalysis(analysisId) {
 					$("#alert-dialog").modal("toggle");
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return result;
-			},
+			error : unknowError
 		});
 	} else
 		permissionError();
@@ -532,9 +527,7 @@ function exportAnalysisReport(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
-		$.fileDownload(context + '/Analysis/Export/Report/' + analysisId).fail(function() {
-			alert('File export failed!');
-		});
+		$.fileDownload(context + '/Analysis/Export/Report/' + analysisId).fail(unknowError);
 		return false;
 	} else
 		permissionError();
@@ -549,9 +542,7 @@ function exportAnalysisReportData(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
-		$.fileDownload(context + '/Analysis/Export/ReportData/' + analysisId).fail(function() {
-			alert('File export failed!');
-		});
+		$.fileDownload(context + '/Analysis/Export/ReportData/' + analysisId).fail(unknowError);
 		return false;
 	} else
 		permissionError();
@@ -623,7 +614,8 @@ function duplicateAnalysis(form, analyisId) {
 				setTimeout("location.reload()", 2000);
 			}
 
-		}
+		},
+		error : unknowError
 	});
 	return false;
 }
@@ -730,9 +722,7 @@ function analysisTableSortable() {
 }
 
 function downloadExportedSqLite(idFile) {
-	$.fileDownload(context + '/Analysis/Download/' + idFile).fail(function() {
-		alert('File download failed!');
-	});
+	$.fileDownload(context + '/Analysis/Download/' + idFile).fail(unknowError);
 	return false;
 }
 
@@ -750,7 +740,8 @@ function customerChange(selector) {
 			newSection = $(doc).find("*[id ='section_analysis']");
 			$("#section_analysis").replaceWith(newSection);
 			analysisTableSortable();
-		}
+		},
+		error : unknowError
 	});
 	return false;
 }
