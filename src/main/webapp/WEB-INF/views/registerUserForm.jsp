@@ -16,7 +16,7 @@
 	<div class="container">
 		<div style="margin: 0 auto; max-width: 600px; padding: 15px;">
 			<h2 class="form-signin-heading col-sm-offset-5">
-				<spring:message code="title.user.register" />
+				<spring:message code="label.title.user.register" text="Sign up"/>
 			</h2>
 			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/login" style="margin-top: -35px;"><spring:message code="label.menu.navigate.back" text="Back"/></a>
 			<form:form cssClass="form-horizontal" method="post" action="${pageContext.request.contextPath}/DoRegister" commandName="user">
