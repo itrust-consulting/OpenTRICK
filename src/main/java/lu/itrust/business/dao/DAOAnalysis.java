@@ -8,6 +8,7 @@ import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.component.helper.AnalysisBaseInfo;
 
 /**
  * DAOAnalysis.java: <br>
@@ -73,4 +74,8 @@ public interface DAOAnalysis {
 	public List<Analysis> getAllFromCustomer(Integer id);
 
 	public List<Analysis> getAllProfileContainsNorm(List<Norm> norms);
+
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name);
+
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier);
 }

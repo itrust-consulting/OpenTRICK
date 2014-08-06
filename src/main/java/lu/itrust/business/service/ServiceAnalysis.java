@@ -8,6 +8,7 @@ import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.component.helper.AnalysisBaseInfo;
 
 /**
  * ServiceAnalysis.java: <br>
@@ -49,6 +50,8 @@ public interface ServiceAnalysis {
 	public List<Analysis> getAllFromCustomerAndProfile(Integer idCustomer) throws Exception;
 
 	public List<Analysis> getAllFromCustomerAndProfileByPageAndSizeIndex(Integer customerID, Integer pageIndex, Integer pageSize) throws Exception;
+	
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name);
 
 	public List<Analysis> getAllFromUser(User user) throws Exception;
 
@@ -73,4 +76,8 @@ public interface ServiceAnalysis {
 	public List<Analysis> getAllFromCustomer(Integer id);
 
 	public List<Analysis> getAllProfileContainsNorm(List<Norm> norms);
+
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String name, String identifier);
+
+	
 }

@@ -6,7 +6,6 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -45,6 +44,7 @@ import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ComparatorItemInformation;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.GeneralComperator;
+import lu.itrust.business.component.helper.AnalysisBaseInfo;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.exception.ResourceNotFoundException;
@@ -651,21 +651,8 @@ public class ControllerAnalysis {
 
 		// add languages
 		model.addAttribute("languages", serviceLanguage.getAll());
-		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
 		// add only customers of the current user
-		model.addAttribute("customers", customers);
-		Map<Customer, List<Analysis>> mappedAnalysis = new LinkedHashMap<Customer, List<Analysis>>();
-		Iterator<Customer> iterator = customers.iterator();
-		while (iterator.hasNext()) {
-			Customer customer = iterator.next();
-			List<Analysis> analysis = serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer.getId());
-			if (analysis.isEmpty())
-				continue;
-			else
-				mappedAnalysis.put(customer, analysis);
-		}
-
-		model.addAttribute("customerAnalysis", mappedAnalysis);
+		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 
 		User user = serviceUser.get(principal.getName());
 
@@ -674,6 +661,17 @@ public class ControllerAnalysis {
 		return "analysis/forms/buildAnalysis";
 
 	}
+
+	@RequestMapping(value = "/Build/Customer/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody List<AnalysisBaseInfo> findByCustomer(@PathVariable Integer id, Principal principal) {
+		return serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName());
+	}
+	
+	@RequestMapping(value = "/Build/Customer/{id}/Identifier/{identifier}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable Integer id, @PathVariable String identifier, Principal principal) {
+		return serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id,principal.getName(), identifier);
+	}
+	
 
 	// *****************************************************************
 	// * request edit analysis

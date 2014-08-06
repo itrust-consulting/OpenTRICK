@@ -277,10 +277,61 @@ function customAnalysis(element) {
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
 			var doc = new DOMParser().parseFromString(response, "text/html");
-			if($(doc).find("#buildAnalysisModal").length){
+			if ($(doc).find("#buildAnalysisModal").length) {
 				var modal = new Modal($(doc).find("#buildAnalysisModal").clone());
+
+				// Event user select a customer
+				$(modal.modal_body).find("#selector-customer").on("change", function(e) {
+					$(modal.modal_body).find("#selector-analysis").find("option[value!=-1]").remove();
+					$(modal.modal_body).find("#analysis-versions li[class!='disabled']").remove();
+					if ($(e.target).val() < 1)
+						$(modal.modal_body).find("#selector-analysis").find("option[value=-1]").prop("selected", true);
+					else {
+						$.ajax({
+							url : context + "/Analysis/Build/Customer/" + $(e.target).val(),
+							type : "get",
+							contentType : "application/json;charset=UTF-8",
+							success : function(response) {
+								if (typeof response == 'object') {
+									var $analysisSelector = $(modal.modal_body).find("#selector-analysis");
+									for (var i = 0; i < response.length; i++)
+										$("<option value='" + response[i].identifier + "'>" + response[i].label + "</option>").appendTo($analysisSelector);
+								} else
+									unknowError();
+							},
+							error : unknowError
+						});
+					}
+				});
+
+				
+				$(modal.modal_body).find("#selector-analysis").on(
+						"change",
+						function(e) {
+							$(modal.modal_body).find("#analysis-versions li[class!='disabled']").remove();
+							if ($(e.target).val() != -1) {
+								$.ajax({
+									url : context + "/Analysis/Build/Customer/" + $(modal.modal_body).find("#selector-customer").val() + "/Identifier/" + $(e.target).val(),
+									type : "get",
+									contentType : "application/json;charset=UTF-8",
+									success : function(response) {
+										if (typeof response == 'object') {
+											var $analysisVersions = $(modal.modal_body).find("#analysis-versions");
+											for (var i = 0; i < response.length; i++)
+												$(
+														"<li class='list-group-item' trick-id='" + response[i].id + "' title='" + response[i].label + " v." + response[i].version
+																+ "'>" +response[i].version + "</li>").appendTo($analysisVersions);
+										} else
+											unknowError();
+									},
+									error : unknowError
+								});
+							}
+						});
+
 				modal.Show();
-			}else unknowError();
+			} else
+				unknowError();
 			return false;
 		},
 		error : unknowError

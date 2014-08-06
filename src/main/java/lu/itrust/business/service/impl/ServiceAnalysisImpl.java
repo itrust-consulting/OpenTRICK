@@ -8,6 +8,7 @@ import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.component.helper.AnalysisBaseInfo;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.service.ServiceAnalysis;
 
@@ -440,6 +441,16 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	@Override
 	public List<Analysis> getAllProfileContainsNorm(List<Norm> norms) {
 		return daoAnalysis.getAllProfileContainsNorm(norms);
+	}
+
+	@Override
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String username) {
+		return daoAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id,username);
+	}
+
+	@Override
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier) {
+		return daoAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id,username,identifier );
 	}
 
 }
