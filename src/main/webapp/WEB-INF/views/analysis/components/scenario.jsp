@@ -27,7 +27,7 @@
 							class="glyphicon glyphicon-new-window"></span> <spring:message code="label.menu.show.assessment" text="Assessment" /> </a></li>
 				</c:if>
 				<li class="disabled pull-right" trick-selectable="multi"><a href="#" class="text-danger" onclick="return deleteScenario();"><span class="glyphicon glyphicon-remove"></span>
-						<spring:message code="label.menu.delete.scenario" text="Delete" /> </a></li>
+						<spring:message code="label.action.delete" text="Delete" /> </a></li>
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">

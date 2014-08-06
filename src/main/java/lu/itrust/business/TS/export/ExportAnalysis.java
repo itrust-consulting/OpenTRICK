@@ -18,6 +18,8 @@ import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.MaturityMeasure;
 import lu.itrust.business.TS.MaturityNorm;
 import lu.itrust.business.TS.MaturityParameter;
+import lu.itrust.business.TS.MeasureDescription;
+import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.MeasureNorm;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
@@ -1774,7 +1776,8 @@ public class ExportAnalysis {
 					measureparams.add(maturity.getAnalysisNorm().getNorm().isComputable());
 					measureparams.add(maturity.getMeasureDescription().getReference());
 					measureparams.add(maturity.getMeasureDescription().isComputable());
-					measureparams.add(maturity.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage()).getDomain());
+					MeasureDescriptionText measureDescriptionText = maturity.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage());
+					measureparams.add(measureDescriptionText == null? "" : measureDescriptionText.getDomain());
 					measureparams.add(maturity.getPhase().getNumber());
 					measureparams.add(maturity.getMeasureDescription().getLevel());
 					measureparams.add(maturity.getStatus());
