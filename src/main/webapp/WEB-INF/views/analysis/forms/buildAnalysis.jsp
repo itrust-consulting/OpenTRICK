@@ -70,28 +70,30 @@
 
 					<div id="group_2" class="tab-pane" style="padding-top: 10px; height: 320;">
 						<div class="col-sm-4">
-							<div class="form-group">
-								<label for="analysisCustomer" class="control-label col-sm-offset-1"> <spring:message code="label.analysis.customer" text="Customers" /></label>
-								<div class="col-sm-12">
-									<select class="form-control" name="analysisCustomer" id="selector-customer">
-										<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
-											<c:forEach items="${customers}" var="customer">
-												<option value="${customer.id}"><spring:message text="${customer.organisation}" /></option>
-											</c:forEach>
-									</select>
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="analyses" class="control-label col-sm-offset-1"><spring:message code="label.analyses" text="Analyses" /></label>
-								<div class="col-sm-12">
-									<select class="form-control" name="analyses" id="selector-analysis">
-										<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
-									</select>
-								</div>
-							</div>
-							<div class="list-group" style="max-height: 200px; overflow: auto;" id="analysis-versions">
-								 <a href="#" class="list-group-item disabled"><spring:message code="label.analysis.versions" text="Versions" /></a>
-							</div>
+
+							<h4> <spring:message code="label.analysis.customer" text="Customers" /></h4> 
+							
+							<select class="form-control"
+								name="analysisCustomer" id="selector-customer">
+								<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
+									<c:forEach items="${customers}" var="customer">
+										<option value="${customer.id}"><spring:message text="${customer.organisation}" /></option>
+									</c:forEach>
+							</select>
+
+							<h4>
+								<spring:message code="label.analyses" text="Analyses" />
+							</h4>
+
+							<select class="form-control" name="analyses" id="selector-analysis">
+								<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
+							</select>
+							<h4>
+								<spring:message code="label.analysis.versions" text="Versions" />
+							</h4>
+
+							<ul class="list-group" style="max-height: 195px; overflow: auto;" id="analysis-versions">
+							</ul>
 						</div>
 						<div class="col-sm-8" style="border-left: 1px solid #e5e5e5;">
 							<div class="form-group">
