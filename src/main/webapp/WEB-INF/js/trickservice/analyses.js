@@ -303,8 +303,7 @@ function customAnalysis(element) {
 						});
 					}
 				});
-
-				
+				var $emptyText = $(modal.modal_body).find("*[dropzone='true']>div:first").text();
 				$(modal.modal_body).find("#selector-analysis").on(
 						"change",
 						function(e) {
@@ -317,10 +316,28 @@ function customAnalysis(element) {
 									success : function(response) {
 										if (typeof response == 'object') {
 											var $analysisVersions = $(modal.modal_body).find("#analysis-versions");
-											for (var i = 0; i < response.length; i++)
-												$(
-														"<li class='list-group-item' trick-id='" + response[i].id + "' title='" + response[i].label + " v." + response[i].version
-																+ "'>" +response[i].version + "</li>").appendTo($analysisVersions);
+											for (var i = 0; i < response.length; i++) {
+												var $li = $("<li class='list-group-item' trick-id='" + response[i].id + "' title='" + response[i].label + " v."
+														+ response[i].version + "'>" + response[i].version + "</li>");
+												$li.appendTo($analysisVersions);
+											}
+											$(modal.modal_body).find("#analysis-versions li").hover(function() {
+												$(this).css('cursor', 'move');
+											})
+											$(modal.modal_body).find("#analysis-versions li").draggable({
+												helper : "clone",
+												cancel : "span.glyphicon-remove-sign",
+												revert : "invalid",
+												containment : "#buildAnalysisModal #group_2",
+												accept : "*[dropzone='true']",
+												cursor : "move",
+												start : function(e, ui) {
+													$(ui.helper).css({
+														'z-index' : '1085',
+														'min-width' : '232px'
+													});
+												}
+											});
 										} else
 											unknowError();
 									},
@@ -328,6 +345,50 @@ function customAnalysis(element) {
 								});
 							}
 						});
+
+				var checkPhase = function() {
+					$(modal.modal_body).find("input[name='phase']").prop("disabled", $(modal.modal_body).find("#analysis-build-standards .well").attr("trick-id") == undefined);
+					$(modal.modal_body).find("input[name='phase']").prop("checked", false);
+				}
+
+				var checkEstimation = function() {
+					var trick_id_asset = $(modal.modal_body).find("#analysis-build-assets .well").attr("trick-id");
+					var trick_id_scenario = $(modal.modal_body).find("#analysis-build-scenarios .well").attr("trick-id");
+					$(modal.modal_body).find("input[name='assessment']").prop("disabled", trick_id_asset != trick_id_scenario || trick_id_asset == undefined);
+					$(modal.modal_body).find("input[name='assessment']").prop("checked", false);
+				}
+
+				$(modal.modal_body).find("#analysis-build-scenarios").attr("trick-callback", "checkEstimation()");
+				$(modal.modal_body).find("#analysis-build-assets").attr("trick-callback", "checkEstimation()");
+				$(modal.modal_body).find("#analysis-build-standards").attr("trick-callback", "checkPhase()");
+
+				$(modal.modal_body).find("*[dropzone='true']>div").droppable({
+					accept : "li.list-group-item",
+					activeClass : "warning",
+					drop : function(event, ui) {
+						$(this).attr("trick-id", ui.draggable.attr("trick-id"));
+						$(this).attr("title", ui.draggable.attr("title"));
+						$(this).text(ui.draggable.attr("title"));
+						$(this).addClass("success");
+						var callback = $(this).parent().attr("trick-callback");
+
+						$("<a href='#' class='pull-right text-danger'><span class='glyphicon glyphicon-remove-sign'></span></a>").appendTo($(this)).click(function() {
+							var $parent = $(this).parent();
+							$(this).remove();
+							$parent.removeAttr("trick-id");
+							$parent.removeAttr("title");
+							$parent.removeClass("success");
+							$parent.text($emptyText);
+
+							if (callback != undefined)
+								eval(callback);
+
+						});
+
+						if (callback != undefined)
+							eval(callback);
+					}
+				});
 
 				modal.Show();
 			} else

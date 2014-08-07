@@ -8,6 +8,8 @@
 
 <script src="<spring:url value="/js/jquery-2.0.js" />"></script>
 
+<script src="<spring:url value="/js/jquery-ui.min.js" />"></script>
+
 <script src="<spring:url value="/js/dom-parser.js" />"></script>
 
 <script src="<spring:url value="/js/bootstrap/bootstrap.min.js" />"></script>
