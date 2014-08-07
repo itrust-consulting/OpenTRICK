@@ -73,4 +73,6 @@ public class TrickException extends Exception {
 		this.parameters = parameters;
 	}
 	
+	
+	
 }

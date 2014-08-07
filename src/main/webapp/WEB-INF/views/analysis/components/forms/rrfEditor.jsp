@@ -189,7 +189,7 @@
 											data-slider-value="0" name="fsectoral" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 										<c:forEach items="${categories}" var="category">
 											<td class="info" trick-class="Category" trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
-												id="measure_category_${fn:replace(category,'.','_')}" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0"
+												id="measure_category_${fn:replace(category,'.','_')}" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="4" data-slider-value="0"
 												name=<spring:message text="${category}" /> data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 										</c:forEach>
 										<td class="success"><input type="text" id="measure_preventive" class="slider" value="0" data-slider-min="0" data-slider-max="4" data-slider-step="1"

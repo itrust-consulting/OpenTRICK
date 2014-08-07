@@ -967,6 +967,8 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 */
 	protected abstract boolean isValidValue(int value);
 
+	protected abstract int valueFixer(String category, int value) throws TrickException;
+
 	/**
 	 * hasCSSFInfluence: <br>
 	 * Check if this object has CSSF Categories that are influenced. (CSSF
@@ -1093,11 +1095,9 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!"), category);
 
 		// check if category key exists in MAP -> NO
-		if (!categories.containsKey(category)) {
-
+		if (!categories.containsKey(category))
 			// add category with default value 0 to MAP
 			categories.put(category, 0);
-		}
 
 		// return value of Category (At this moment, the Key is valid and
 		// already exists in MAP)
@@ -1123,18 +1123,20 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 		// * Check if Category is valid
 		// ***********************************************************************
 		if (!isCategoryKey(category))
-			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!"), category);
+			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!", category), category);
 
 		// ***********************************************************************
 		// * Check if Value is valid
 		// ***********************************************************************
-		else if (!isValidValue(value))
-			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!"), category);
+		// else if (!isValidValue(value))
+		// throw new TrickException("error.security_criteria.category.invalid",
+		// String.format("'%s' is not valid!"), category);
 
 		// ***********************************************************************
 		// * Add valid value to the valid Category
 		// ***********************************************************************
-		categories.put(category, value);
+		categories.put(category, valueFixer(category, value));
+
 	}
 
 	/**

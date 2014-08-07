@@ -218,10 +218,8 @@ public class Scenario extends SecurityCriteria {
 	 */
 	@Override
 	public void setPreventive(double preventive) throws TrickException {
-		if (preventive<0 || preventive >1){
-			System.out.println(preventive);
+		if (preventive<0 || preventive >1)
 			throw new TrickException("error.scenario.preventive.invalid","Preventive needs to be 0 or 1!");
-		}
 		super.setPreventive(preventive);
 	}
 
@@ -515,5 +513,12 @@ public class Scenario extends SecurityCriteria {
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
 			scenario.addAssetTypeValue(assetTypeValue.duplicate());
 		return scenario;
+	}
+
+	@Override
+	protected int valueFixer(String category, int value) throws TrickException {
+		if (value < 0 || value > 4)
+			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!", category), category);
+		return value == 0 ? 0 : 4;
 	}
 }

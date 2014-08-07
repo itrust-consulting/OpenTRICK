@@ -18,7 +18,6 @@ import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.MaturityMeasure;
 import lu.itrust.business.TS.MaturityNorm;
 import lu.itrust.business.TS.MaturityParameter;
-import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.MeasureNorm;
 import lu.itrust.business.TS.NormMeasure;

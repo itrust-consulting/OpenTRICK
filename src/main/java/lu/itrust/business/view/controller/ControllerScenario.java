@@ -512,7 +512,7 @@ public class ControllerScenario {
 					scenario.setCategoryValue(key, 0);
 
 				// set category according to value of scenario type
-				scenario.setCategoryValue(CategoryConverter.getTypeFromScenario(scenario), 1);
+				scenario.setCategoryValue(CategoryConverter.getTypeFromScenario(scenario), 4);
 			}
 
 			for (AssetType assetType : assetTypes) {

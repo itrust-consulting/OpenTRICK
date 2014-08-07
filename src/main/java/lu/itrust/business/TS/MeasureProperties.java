@@ -304,4 +304,11 @@ public class MeasureProperties extends SecurityCriteria {
 		measurePropertyList.fsectoral = fsectoral;
 
 	}
+
+	@Override
+	protected int valueFixer(String category, int value) throws TrickException {
+		if (value < 0 || value > 4)
+			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!", category), category);
+		return value == 0 ? 0 : 4;
+	}
 }
