@@ -1,4 +1,6 @@
 /jdbc.properties_prod
 /jdbc.properties_testing
 /jdbc.properties_ben
-/jdbc.properties
+/jdbc.properties_trickservice_dev
+/jdbc.properties_trickservice
+/jdbc.properties_smenghi
