@@ -405,4 +405,11 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 			analysisBaseInfos.add(new AnalysisBaseInfo(iterator.next()));
 		return analysisBaseInfos;
 	}
+
+	@Override
+	public int getDefaultProfileId() {
+		Integer id = (Integer) getSession().createQuery("Select analysis.id From Analysis as analysis where analysis.defaultProfile = true and analysis.profile = true")
+				.uniqueResult();
+		return id == null ? -1 : id;
+	}
 }

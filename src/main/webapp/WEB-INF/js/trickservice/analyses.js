@@ -303,7 +303,9 @@ function customAnalysis(element) {
 						});
 					}
 				});
+
 				var $emptyText = $(modal.modal_body).find("*[dropzone='true']>div:first").text();
+
 				$(modal.modal_body).find("#selector-analysis").on(
 						"change",
 						function(e) {
@@ -370,8 +372,8 @@ function customAnalysis(element) {
 						$(this).attr("title", ui.draggable.attr("title"));
 						$(this).text(ui.draggable.attr("title"));
 						$(this).addClass("success");
+						$(this).parent().find('input').attr("value", ui.draggable.attr("trick-id"));
 						var callback = $(this).parent().attr("trick-callback");
-
 						$("<a href='#' class='pull-right text-danger'><span class='glyphicon glyphicon-remove-sign'></span></a>").appendTo($(this)).click(function() {
 							var $parent = $(this).parent();
 							$(this).remove();
@@ -379,15 +381,77 @@ function customAnalysis(element) {
 							$parent.removeAttr("title");
 							$parent.removeClass("success");
 							$parent.text($emptyText);
-
+							$parent.parent().find('input').attr("value", '-1');
 							if (callback != undefined)
 								eval(callback);
-
 						});
 
 						if (callback != undefined)
 							eval(callback);
 					}
+				});
+
+				var $saveButton = $(modal.modal_footer).find("button[name='save']");
+				var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
+				var $progress_bar = $(modal.modal_footer).find(".progress");
+				$cancelButton.click(function() {
+					if (!$cancelButton.is(":disabled"))
+						modal.Destroy();
+					return false;
+				});
+
+				$saveButton.click(function() {
+					$(modal.modal).find(".label-danger, .alert").remove();
+					$(modal.modal_dialog).find("button").prop("disabled", true);
+					$progress_bar.show();
+					$.ajax({
+						url : context + "/Analysis/Build/Save",
+						type : "post",
+						data : $(modal.modal_body).find("form").serialize(),
+						async : false,
+						success : function(response) {
+							if (typeof response == 'object') {
+								for ( var error in response) {
+									if (error == "analysis") {
+
+									} else {
+										var errorElement = document.createElement("label");
+										errorElement.setAttribute("class", "label label-danger");
+										$(errorElement).text(response[error]);
+										switch (error) {
+										case "customer":
+										case "language":
+										case "comment":
+										case "author":
+										case "version":
+										case "assessment":
+											$(errorElement).appendTo($(modal.modal_body).find("form *[name='" + error + "']").parent());
+											break;
+										case "riskInformation":
+										case "scope":
+											$(errorElement).appendTo($(modal.modal_body).find("#analysis-build-" + error));
+											break;
+										case "asset":
+										case "scenario":
+										case "standard":
+										case "parameter":
+											$(errorElement).appendTo($(modal.modal_body).find("#analysis-build-" + error + "s"));
+											break;
+										}
+									}
+								}
+
+								if (!$(modal.modal).find(".label-danger,.alert-danger").length) {
+									modal.Destroy();
+									reloadSection("section_analysis");
+								}
+							} else
+								unknowError();
+						},
+						error : unknowError
+					});
+					$(modal.modal_dialog).find("button").prop("disabled", false);
+					$progress_bar.hide();
 				});
 
 				modal.Show();

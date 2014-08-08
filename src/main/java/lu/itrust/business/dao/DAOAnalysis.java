@@ -78,4 +78,6 @@ public interface DAOAnalysis {
 	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name);
 
 	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier);
+
+	public int getDefaultProfileId();
 }

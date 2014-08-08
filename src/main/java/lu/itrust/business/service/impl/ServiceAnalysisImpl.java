@@ -453,4 +453,9 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 		return daoAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id,username,identifier );
 	}
 
+	@Override
+	public int getDefaultProfileId() {
+		return daoAnalysis.getDefaultProfileId();
+	}
+
 }

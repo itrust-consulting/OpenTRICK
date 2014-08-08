@@ -79,5 +79,7 @@ public interface ServiceAnalysis {
 
 	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String name, String identifier);
 
+	public int getDefaultProfileId();
+
 	
 }

@@ -44,4 +44,6 @@ public interface ServiceCustomer {
 	public void delete(Integer customerId) throws Exception;
 
 	public Customer getOneNoProfile();
+
+	public Customer getFromUsernameAndId(String username, int idCustomer);
 }

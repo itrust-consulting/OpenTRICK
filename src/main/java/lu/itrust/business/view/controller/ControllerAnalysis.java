@@ -18,10 +18,13 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AnalysisRight;
+import lu.itrust.business.TS.Assessment;
+import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.History;
+import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MaturityMeasure;
 import lu.itrust.business.TS.MaturityNorm;
@@ -33,6 +36,8 @@ import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
+import lu.itrust.business.TS.RiskInformation;
+import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.export.ExportAnalysisReport;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -45,6 +50,7 @@ import lu.itrust.business.component.ComparatorItemInformation;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.component.helper.AnalysisBaseInfo;
+import lu.itrust.business.component.helper.CustomAnalysisForm;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.exception.ResourceNotFoundException;
@@ -56,15 +62,23 @@ import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceActionPlanType;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAppSettingEntry;
+import lu.itrust.business.service.ServiceAssessment;
+import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceHistory;
+import lu.itrust.business.service.ServiceItemInformation;
 import lu.itrust.business.service.ServiceLanguage;
+import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceMeasureDescription;
 import lu.itrust.business.service.ServiceNorm;
+import lu.itrust.business.service.ServiceParameter;
+import lu.itrust.business.service.ServicePhase;
+import lu.itrust.business.service.ServiceRiskInformation;
 import lu.itrust.business.service.ServiceRiskRegister;
 import lu.itrust.business.service.ServiceRole;
+import lu.itrust.business.service.ServiceScenario;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.ServiceUserAnalysisRight;
@@ -73,6 +87,7 @@ import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerAnalysisImport;
 import lu.itrust.business.task.WorkerExportAnalysis;
+import lu.itrust.business.validator.CustomAnalysisValidator;
 import lu.itrust.business.validator.HistoryValidator;
 
 import org.codehaus.jackson.JsonNode;
@@ -89,6 +104,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -178,7 +194,31 @@ public class ControllerAnalysis {
 	private ServiceAppSettingEntry serviceAppSettingEntry;
 
 	@Autowired
+	private ServiceRiskInformation serviceRiskInformation;
+
+	@Autowired
+	private ServiceItemInformation serviceItemInformation;
+
+	@Autowired
+	private ServiceAsset serviceAsset;
+
+	@Autowired
+	private ServiceScenario serviceScenario;
+
+	@Autowired
+	private ServiceParameter serviceParameter;
+
+	@Autowired
+	private ServiceMeasure serviceMeasure;
+
+	@Autowired
+	private ServicePhase servicePhase;
+
+	@Autowired
 	private ServiceRole serviceRole;
+
+	@Autowired
+	private ServiceAssessment serviceAssessment;
 
 	@Value("${app.settings.report.template.name}")
 	private String reportName;
@@ -662,16 +702,135 @@ public class ControllerAnalysis {
 
 	}
 
+	@RequestMapping(value = "/Build/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Object buildCustomSave(@ModelAttribute CustomAnalysisForm customAnalysisForm, Principal principal, Locale locale) throws Exception {
+		if (!serviceDataValidation.isRegistred(CustomAnalysisForm.class))
+			serviceDataValidation.register(new CustomAnalysisValidator());
+		Map<String, String> errors = serviceDataValidation.validate(customAnalysisForm);
+		for (String error : errors.keySet())
+			errors.put(error, serviceDataValidation.ParseError(errors.get(error), messageSource, locale));
+		int defaultProfileId = serviceAnalysis.getDefaultProfileId();
+		customAnalysisForm.setDefaultProfile(defaultProfileId);
+
+		if (customAnalysisForm.getAsset() > 0 && !serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getAsset(), principal.getName(), AnalysisRight.READ))
+			errors.put("asset", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
+		if (customAnalysisForm.getScenario() > 0 && !serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getScenario(), principal.getName(), AnalysisRight.READ))
+			errors.put("scenario", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
+		if (customAnalysisForm.getStandard() > 0 && !serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getStandard(), principal.getName(), AnalysisRight.READ))
+			errors.put("standard", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
+		if (customAnalysisForm.isAssessment() && (customAnalysisForm.getScenario() < 1 || customAnalysisForm.getScenario() != customAnalysisForm.getAsset()))
+			errors.put("assessment", messageSource.getMessage("error.analysis_custom.assessment.invalid", null, "Risk estimation cannot be selected", locale));
+
+		if (customAnalysisForm.getScope() < 1)
+			errors.put("scope", messageSource.getMessage("error.error.analysis_custom.scope.empty", null, "Scope cannot be empty", locale));
+		else if (!(customAnalysisForm.getScope() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getScope(), principal.getName(),
+				AnalysisRight.READ)))
+			errors.put("scope", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
+		if (customAnalysisForm.getParameter() < 1)
+			errors.put("parameter", messageSource.getMessage("error.error.analysis_custom.parameter.empty", null, "Parameter cannot be empty", locale));
+		else if (!(customAnalysisForm.getParameter() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getParameter(), principal.getName(),
+				AnalysisRight.READ)))
+			errors.put("parameter", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
+		if (customAnalysisForm.getRiskInformation() < 1)
+			errors.put("riskInformation", messageSource.getMessage("error.error.analysis_custom.risk_information.empty", null, "Parameter cannot be empty", locale));
+		else if (!(customAnalysisForm.getRiskInformation() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getRiskInformation(),
+				principal.getName(), AnalysisRight.READ)))
+			errors.put("riskInformation", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
+		Customer customer = null;
+		Language language = null;
+
+		if (customAnalysisForm.getLanguage() > 0) {
+			language = serviceLanguage.get(customAnalysisForm.getLanguage());
+			if (language == null)
+				errors.put("language", messageSource.getMessage("error.language.not_found", null, "Language cannot be found", locale));
+		}
+
+		if (customAnalysisForm.getCustomer() > 0) {
+			customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customAnalysisForm.getCustomer());
+			if (customer == null)
+				errors.put("customer", messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
+			else if (!customer.isCanBeUsed())
+				errors.put("customer", messageSource.getMessage("error.customer.invalid", null, "Customer cannot be used", locale));
+		}
+
+		if (!errors.isEmpty())
+			return errors;
+
+		History history = customAnalysisForm.generateHistory();
+		String identifier = language.getAlpha3() + "_" + new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(history.getDate());
+		Analysis analysis = new Analysis();
+		analysis.setIdentifier(identifier);
+		analysis.setCustomer(customer);
+		analysis.setLanguage(language);
+		analysis.addAHistory(history);
+		analysis.setCreationDate((Timestamp) history.getDate());
+		analysis.setVersion(customAnalysisForm.getVersion());
+		analysis.setOwner(serviceUser.get(principal.getName()));
+		analysis.addUserRight(analysis.getOwner(), AnalysisRight.ALL);
+
+		List<ItemInformation> itemInformations = serviceItemInformation.getAllFromAnalysis(customAnalysisForm.getScope());
+		for (ItemInformation itemInformation : itemInformations)
+			analysis.addAnItemInformation(itemInformation.duplicate());
+
+		List<RiskInformation> riskInformations = serviceRiskInformation.getAllFromAnalysis(customAnalysisForm.getRiskInformation());
+		for (RiskInformation riskInformation : riskInformations)
+			analysis.addARiskInformation(riskInformation.duplicate());
+
+		List<Parameter> parameters = serviceParameter.getAllFromAnalysis(customAnalysisForm.getParameter());
+		for (Parameter parameter : parameters)
+			analysis.addAParameter(parameter.duplicate());
+		List<Asset> assets = serviceAsset.getAllFromAnalysis(customAnalysisForm.getAsset());
+
+		Map<Integer, Asset> mappingAssets = customAnalysisForm.isAssessment() ? new LinkedHashMap<Integer, Asset>(assets.size()) : null;
+
+		for (Asset asset : assets) {
+			Asset duplication = asset.duplicate();
+			analysis.addAnAsset(duplication);
+			if (mappingAssets != null)
+				mappingAssets.put(asset.getId(), duplication);
+		}
+		
+		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(customAnalysisForm.getScenario());
+		Map<Integer, Scenario> mappingScenarios = customAnalysisForm.isAssessment() ? new LinkedHashMap<Integer, Scenario>(scenarios.size()) : null;
+		for (Scenario scenario : scenarios) {
+			Scenario duplication = scenario.duplicate();
+			analysis.addAScenario(duplication);
+			if (mappingScenarios != null)
+				mappingScenarios.put(scenario.getId(), duplication);
+		}
+
+		if (customAnalysisForm.isAssessment()) {
+			List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(customAnalysisForm.getScenario());
+			for (Assessment assessment : assessments) {
+				Assessment duplication = assessment.duplicate();
+				duplication.setScenario(mappingScenarios.get(assessment.getScenario().getId()));
+				duplication.setAsset(mappingAssets.get(assessment.getAsset().getId()));
+				analysis.addAnAssessment(duplication);
+			}
+		}
+		
+		
+		
+		
+
+		return JsonMessage.Success("Your analysis has been successfully created");
+	}
+
 	@RequestMapping(value = "/Build/Customer/{id}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomer(@PathVariable Integer id, Principal principal) {
 		return serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName());
 	}
-	
+
 	@RequestMapping(value = "/Build/Customer/{id}/Identifier/{identifier}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable Integer id, @PathVariable String identifier, Principal principal) {
-		return serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id,principal.getName(), identifier);
+		return serviceAnalysis.getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(id, principal.getName(), identifier);
 	}
-	
 
 	// *****************************************************************
 	// * request edit analysis
