@@ -16,7 +16,9 @@ import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.GeneralComperator;
+import lu.itrust.business.component.MeasureManager;
 import lu.itrust.business.component.helper.JsonMessage;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceMeasure;
@@ -70,18 +72,19 @@ public class ControllerPatch {
 	@Autowired
 	private AssessmentManager assessmentManager;
 
+	@Autowired
+	private MeasureManager measureManager;
+
 	@RequestMapping(value = "/Update/ScenarioCategoryValue", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	String updateAllScenario(Locale locale) {
-
+	public @ResponseBody String updateAllScenario(Locale locale) {
 		try {
 
 			List<Scenario> scenarios = serviceScenario.getAll();
 			for (Scenario scenario : scenarios) {
 				for (String key : CategoryConverter.JAVAKEYS)
 					scenario.setCategoryValue(key, 0);
-				scenario.setCategoryValue(CategoryConverter.getTypeFromScenario(scenario), 1);
+				scenario.setCategoryValue(CategoryConverter.getTypeFromScenario(scenario), 4);
 				serviceScenario.saveOrUpdate(scenario);
 			}
 
@@ -94,10 +97,22 @@ public class ControllerPatch {
 		}
 	}
 
+	@RequestMapping(value = "/Update/Measure/AssettypeValue", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
+	public @ResponseBody String removeMeasureAssetTypeValueDuplicate(Locale locale) throws Exception {
+		try {
+			measureManager.patchMeasureAssetypeValueDuplicated();
+		} catch (TrickException e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		}
+		return JsonMessage.Success(messageSource.getMessage("success.remove.measure.asset_type_value.duplication", null,
+				"The duplications of measure characteristics for the assets were successfully removed", locale));
+	}
+
 	@RequestMapping(value = "/Update/Assessments", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	Map<String, String> updateAssessments(Locale locale) {
+	public @ResponseBody Map<String, String> updateAssessments(Locale locale) {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
@@ -124,46 +139,40 @@ public class ControllerPatch {
 			return errors;
 		}
 	}
-	
 
 	@RequestMapping(value = "/Update/ParameterImplementationScale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	Map<String, String> updateImplementationScaleNames(Locale locale) {
+	public @ResponseBody Map<String, String> updateImplementationScaleNames(Locale locale) {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
 		try {
-
 			List<Parameter> parameters = serviceParameter.getAll();
-
 			for (Parameter parameter : parameters) {
-
 				if (!parameter.getDescription().startsWith("ImpScale"))
 					continue;
 				else {
-
 					Integer line = Integer.valueOf(parameter.getDescription().substring(8));
 					String desc = "";
 					switch (line) {
-						case 1:
-							desc = Constant.IS_NOT_ACHIEVED;
-							break;
-						case 2:
-							desc = Constant.IS_RUDIMENTARY_ACHIEVED;
-							break;
-						case 3:
-							desc = Constant.IS_PARTIALLY_ACHIEVED;
-							break;
-						case 4:
-							desc = Constant.IS_LARGELY_ACHIEVED;
-							break;
-						case 5:
-							desc = Constant.IS_FULLY_ACHIEVED;
-							break;
-						default:
-							desc = "ImpScale" + String.valueOf(line);
-							break;
+					case 1:
+						desc = Constant.IS_NOT_ACHIEVED;
+						break;
+					case 2:
+						desc = Constant.IS_RUDIMENTARY_ACHIEVED;
+						break;
+					case 3:
+						desc = Constant.IS_PARTIALLY_ACHIEVED;
+						break;
+					case 4:
+						desc = Constant.IS_LARGELY_ACHIEVED;
+						break;
+					case 5:
+						desc = Constant.IS_FULLY_ACHIEVED;
+						break;
+					default:
+						desc = "ImpScale" + String.valueOf(line);
+						break;
 					}
 
 					parameter.setDescription(desc);
@@ -183,11 +192,11 @@ public class ControllerPatch {
 		}
 	}
 
-	// @RequestMapping(value = "/Update/MeasureMaintenance", method = RequestMethod.GET, headers =
+	// @RequestMapping(value = "/Update/MeasureMaintenance", method =
+	// RequestMethod.GET, headers =
 	// "Accept=application/json; charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	String updateMaintenance(Locale locale) {
+	public @ResponseBody String updateMaintenance(Locale locale) {
 
 		String patchversion = "0.0.2";
 
@@ -238,8 +247,9 @@ public class ControllerPatch {
 
 					measure.setRecurrentInvestment(recurrentInvestment);
 
-					measure.setCost(Analysis.computeCost(internalSetupRate.getValue(), externalSetupRate.getValue(), defaultLifetime.getValue(), measure.getInternalMaintenance(), measure
-							.getExternalMaintenance(), measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime()));
+					measure.setCost(Analysis.computeCost(internalSetupRate.getValue(), externalSetupRate.getValue(), defaultLifetime.getValue(), measure.getInternalMaintenance(),
+							measure.getExternalMaintenance(), measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(),
+							measure.getLifetime()));
 
 					serviceMeasure.saveOrUpdate(measure);
 
@@ -273,8 +283,7 @@ public class ControllerPatch {
 
 	@RequestMapping(value = "/Update/ParameterMaturityILPS", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	Map<String, String> updateILPS(Locale locale) {
+	public @ResponseBody Map<String, String> updateILPS(Locale locale) {
 
 		String patchversion = "0.0.3";
 
@@ -307,36 +316,36 @@ public class ControllerPatch {
 						}
 
 						switch (matparam.getSMLLevel()) {
-							case 0: {
-								param.setSMLLevel0(matparam.getValue());
-								param.setValue(-1);
-								break;
-							}
-							case 1: {
-								param.setSMLLevel1(matparam.getValue());
-								param.setValue(-1);
-								break;
-							}
-							case 2: {
-								param.setSMLLevel2(matparam.getValue());
-								param.setValue(-1);
-								break;
-							}
-							case 3: {
-								param.setSMLLevel3(matparam.getValue());
-								param.setValue(-1);
-								break;
-							}
-							case 4: {
-								param.setSMLLevel4(matparam.getValue());
-								param.setValue(-1);
-								break;
-							}
-							case 5: {
-								param.setSMLLevel5(matparam.getValue());
-								param.setValue(-1);
-								break;
-							}
+						case 0: {
+							param.setSMLLevel0(matparam.getValue());
+							param.setValue(-1);
+							break;
+						}
+						case 1: {
+							param.setSMLLevel1(matparam.getValue());
+							param.setValue(-1);
+							break;
+						}
+						case 2: {
+							param.setSMLLevel2(matparam.getValue());
+							param.setValue(-1);
+							break;
+						}
+						case 3: {
+							param.setSMLLevel3(matparam.getValue());
+							param.setValue(-1);
+							break;
+						}
+						case 4: {
+							param.setSMLLevel4(matparam.getValue());
+							param.setValue(-1);
+							break;
+						}
+						case 5: {
+							param.setSMLLevel5(matparam.getValue());
+							param.setValue(-1);
+							break;
+						}
 						}
 
 						if (candelete)

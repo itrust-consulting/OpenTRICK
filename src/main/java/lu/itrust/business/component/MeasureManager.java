@@ -5,6 +5,7 @@ package lu.itrust.business.component;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,7 @@ import lu.itrust.business.component.helper.ImportRRFForm;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAnalysisNorm;
 import lu.itrust.business.dao.DAOAssetType;
+import lu.itrust.business.dao.DAOAssetTypeValue;
 import lu.itrust.business.dao.DAOMeasure;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 
@@ -57,6 +59,9 @@ public class MeasureManager {
 
 	@Autowired
 	private DAOAssetType daoAssetType;
+
+	@Autowired
+	private DAOAssetTypeValue daoAssetTypeValue;
 
 	/**
 	 * SplitByNorm: <br>
@@ -189,15 +194,52 @@ public class MeasureManager {
 			List<Measure> measures = daoMeasure.getAllFromAnalysisAndNorm(idAnalysis, idNorm);
 			for (Measure measure : measures) {
 				NormMeasure normMeasure = (NormMeasure) profileMeasures.get(measure.getMeasureDescription().getReference());
-				if(normMeasure == null)
+				if (normMeasure == null)
 					continue;
-				//Force hibernate to initialise data
+				// Force hibernate to initialise data
 				((NormMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormMeasure) measure).getMeasurePropertyList()));
 				normMeasure.setMeasurePropertyList(DAOHibernate.Initialise(normMeasure.getMeasurePropertyList()));
-				normMeasure.copyMeasureCharacteristicsTo(((NormMeasure)measure));
+				normMeasure.copyMeasureCharacteristicsTo(((NormMeasure) measure));
 				daoMeasure.saveOrUpdate(measure);
 			}
 		}
+	}
+
+	@Transactional
+	public void patchMeasureAssetypeValueDuplicated() throws Exception {
+		int count = daoMeasure.countNormMeasure(), pageSize = 30;
+		if (count == 0)
+			return;
+		else if (count < pageSize)
+			count = pageSize;
+		int pageCount = (int) Math.ceil(count/(double)pageSize) + 1;
+		for (int pageIndex = 1; pageIndex < pageCount; pageIndex++)
+			for (NormMeasure normMeasure : daoMeasure.getAllNormMeasure(pageIndex, pageSize))
+				removeDuplicationAssetypeValue(normMeasure);
+	}
+
+	@Transactional
+	public void removeDuplicationAssetypeValue(NormMeasure measure) throws Exception {
+		if (measure.getAssetTypeValues() == null || measure.getAssetTypeValues().isEmpty())
+			return;
+		Map<Integer, AssetTypeValue> indexAsssetType = new LinkedHashMap<Integer, AssetTypeValue>();
+		Iterator<AssetTypeValue> iterator = measure.getAssetTypeValues().iterator();
+		boolean saveRequired = false;
+		while (iterator.hasNext()) {
+			AssetTypeValue typeValue = iterator.next();
+			if (indexAsssetType.containsKey(typeValue.getAssetType().getId())) {
+				AssetTypeValue typeValue2 = indexAsssetType.get(typeValue.getAssetType().getId());
+				if (typeValue.getValue() > typeValue2.getValue())
+					typeValue2.setValue(typeValue.getValue());
+				iterator.remove();
+				daoAssetTypeValue.delete(typeValue);
+				saveRequired = true;
+			} else
+				indexAsssetType.put(typeValue.getAssetType().getId(), typeValue);
+		}
+		indexAsssetType.clear();
+		if (saveRequired)
+			daoMeasure.saveOrUpdate(measure);
 	}
 
 }

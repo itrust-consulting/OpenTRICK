@@ -11,7 +11,6 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
-import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.MaturityMeasure;
@@ -213,10 +212,6 @@ public class Duplicator {
 				normmeasure.getMeasurePropertyList().setSoaComment(Constant.EMPTY_STRING);
 				normmeasure.getMeasurePropertyList().setSoaReference(Constant.EMPTY_STRING);
 				normmeasure.getMeasurePropertyList().setSoaRisk(Constant.EMPTY_STRING);
-				NormMeasure tmpnormmeasure = (NormMeasure) measure;
-				for (AssetTypeValue atv : tmpnormmeasure.getAssetTypeValues()) {
-					normmeasure.addAnAssetTypeValue(atv.duplicate());
-				}
 			}
 		}
 		return copy;

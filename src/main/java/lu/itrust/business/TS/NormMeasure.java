@@ -112,8 +112,10 @@ public class NormMeasure extends Measure {
 	 * @throws TrickException
 	 */
 	public void addAnAssetTypeValue(AssetTypeValue assettypevalue) throws TrickException {
-		if (assetTypeValues.contains(assettypevalue))
-			throw new TrickException("error.norm_measure.asset_type_value", "Assettype value cannot be duplicated");
+		if (assetTypeValues.contains(assettypevalue)) {
+			System.err.println("Assettype value cannot be duplicated");
+			return;
+		}
 		this.assetTypeValues.add(assettypevalue);
 	}
 
@@ -233,7 +235,7 @@ public class NormMeasure extends Measure {
 		for (AssetTypeValue assetTypeValue : measure.getAssetTypeValues())
 			mappedAssetTypeValues.put(assetTypeValue.getAssetType().getId(), assetTypeValue);
 		measure.assetTypeValues.clear();
-		
+
 		for (AssetTypeValue assetTypeValue : getAssetTypeValues()) {
 			AssetTypeValue typeValue = mappedAssetTypeValues.get(assetTypeValue.getAssetType().getId());
 			if (typeValue == null)

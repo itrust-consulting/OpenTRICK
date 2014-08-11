@@ -53,4 +53,8 @@ public interface DAOMeasure {
 	public void delete(Measure measure) throws Exception;
 
 	public Map<String,Measure> mappingAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm);
+
+	public int countNormMeasure();
+
+	public List<NormMeasure> getAllNormMeasure(int pageIndex, int pageSize);
 }

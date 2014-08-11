@@ -45,6 +45,7 @@
 					<li class="dropdown-submenu" ><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.runtime" text="Runtime" /><span
 					class="caret"></span></a>
 						<ul class="dropdown-menu">
+							<li><a href="#" onclick="return fixMeasureAssetTypeValue()"><spring:message code="label.measure.fix.asset_type_value" text="Update measure characteristics for the assets" /></a></li>
 							<li><a href="#" onclick="return fixAllScenarioCategories()"><spring:message code="label.scenario.fix.categories" text="Update category of Scenarios from all analyses"/></a></li>
 							<li class="divider"></li>
 							<li><a href="#" onclick="return fixAllAssessments()"><spring:message code="label.scenario.fix.assessments" text="Update assessments of all analyses"/></a></li>

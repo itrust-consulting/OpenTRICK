@@ -287,4 +287,15 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 		}
 		return result;
 	}
+
+	@Override
+	public int countNormMeasure() {
+		return ((Long) getSession().createQuery("Select count(*) From NormMeasure").uniqueResult()).intValue();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<NormMeasure> getAllNormMeasure(int pageIndex, int pageSize) {
+		return getSession().createQuery("From NormMeasure").setFirstResult((pageIndex-1)*pageSize).setMaxResults(pageSize).list();
+	}
 }
