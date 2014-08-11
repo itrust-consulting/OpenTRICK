@@ -217,10 +217,8 @@ public class Duplicator {
 				normmeasure.getMeasurePropertyList().setSoaComment(Constant.EMPTY_STRING);
 				normmeasure.getMeasurePropertyList().setSoaReference(Constant.EMPTY_STRING);
 				normmeasure.getMeasurePropertyList().setSoaRisk(Constant.EMPTY_STRING);
-			}
-			NormMeasure tmpnormmeasure = (NormMeasure) measure;
-			for (AssetTypeValue atv : tmpnormmeasure.getAssetTypeValues()) {
-				normmeasure.addAnAssetTypeValue(atv.duplicate());
+				for (AssetTypeValue assetTypeValue : normmeasure.getAssetTypeValues())
+					assetTypeValue.setValue(0);
 			}
 		}
 		return copy;

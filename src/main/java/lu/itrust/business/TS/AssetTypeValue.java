@@ -4,8 +4,8 @@ import lu.itrust.business.exception.TrickException;
 
 /**
  * AssetTypeValue: <br>
- * This class represents an AssetTypeValue and all its data. This class is used to store
- * AssetTypeValues of either Scenarios or Measures.
+ * This class represents an AssetTypeValue and all its data. This class is used
+ * to store AssetTypeValues of either Scenarios or Measures.
  * 
  * @author itrust consulting s.à r.l. - SME,BJA
  * @version 0.1
@@ -19,7 +19,7 @@ public class AssetTypeValue implements Cloneable {
 
 	/** assetTypeValue identifier, unsaved value = -1 */
 	private int id = -1;
-	
+
 	/** Name of the Asset Type */
 	private AssetType assetType = null;
 
@@ -44,7 +44,7 @@ public class AssetTypeValue implements Cloneable {
 	 * @param value
 	 *            The Value to set
 	 */
-	public AssetTypeValue( AssetType assetType, int value) {
+	public AssetTypeValue(AssetType assetType, int value) {
 		this.assetType = assetType;
 		this.value = value;
 	}
@@ -69,12 +69,11 @@ public class AssetTypeValue implements Cloneable {
 	 * 
 	 * @param assetType
 	 *            The value to set the "assetType" field
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setAssetType(AssetType assetType) throws TrickException {
 		if (assetType == null || assetType.getType() == null)
-			throw new TrickException(
-					"error.assettypevalue.assettype_null","Asset type value cannot be empty");
+			throw new TrickException("error.assettypevalue.assettype_null", "Asset type value cannot be empty");
 		this.assetType = assetType;
 	}
 
@@ -94,11 +93,11 @@ public class AssetTypeValue implements Cloneable {
 	 * 
 	 * @param value
 	 *            The value to set the "value" field
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setValue(int value) throws TrickException {
-		if ((value < -1) || (value > 101)) 
-			throw new TrickException("error.asset.assettypevalue.value","Asset type value: value should be between 0 and 100");
+		if ((value < -1) || (value > 101))
+			throw new TrickException("error.asset.assettypevalue.value", "Asset type value: value should be between 0 and 100");
 		this.value = value;
 	}
 
@@ -112,7 +111,7 @@ public class AssetTypeValue implements Cloneable {
 	public AssetTypeValue clone() throws CloneNotSupportedException {
 		return (AssetTypeValue) super.clone();
 	}
-	
+
 	/**
 	 * clone: <br>
 	 * Description
@@ -145,4 +144,34 @@ public class AssetTypeValue implements Cloneable {
 	public void setId(int id) {
 		this.id = id;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((assetType == null) ? 0 : assetType.hashCode());
+		result = prime * result + id;
+		result = prime * result + value;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AssetTypeValue other = (AssetTypeValue) obj;
+		if (assetType == null) {
+			if (other.assetType != null)
+				return false;
+		} else if (!assetType.equals(other.assetType))
+			return false;
+		if (id != other.id && (id != -1 || other.id == -1))
+			return false;
+		return true;
+	}
+
 }

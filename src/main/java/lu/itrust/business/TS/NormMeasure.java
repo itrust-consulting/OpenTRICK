@@ -96,7 +96,7 @@ public class NormMeasure extends Measure {
 	 * Sets the Field "assetTypeValues" with a value.
 	 * 
 	 * @param assetTypeValues
-	 *            The Value to set the assetTypeValues field
+	 *            The Value to set the assetTypeValues field 18802
 	 */
 	public void setAssetTypeValues(List<AssetTypeValue> assetTypeValues) {
 		this.assetTypeValues = assetTypeValues;
@@ -111,9 +111,11 @@ public class NormMeasure extends Measure {
 	 *            The Asset Type Value object to add to list
 	 * @throws TrickException
 	 */
-	public void addAnAssetTypeValue(AssetTypeValue assettypevalue) throws TrickException {
-		if (assetTypeValues.contains(assettypevalue))
-			throw new TrickException("error.norm_measure.asset_type_value", "Assettype value cannot be duplicated");
+	public void addAnAssetTypeValue(AssetTypeValue assettypevalue) {
+		if (assetTypeValues.contains(assettypevalue)) {
+			System.err.println("Assettype value duplicated: the addition was ignored");
+			return;
+		}
 		this.assetTypeValues.add(assettypevalue);
 	}
 
@@ -203,7 +205,7 @@ public class NormMeasure extends Measure {
 		NormMeasure normMeasure = (NormMeasure) super.clone();
 		normMeasure.assetTypeValues = new ArrayList<>();
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
-			normMeasure.assetTypeValues.add(assetTypeValue.clone());
+			normMeasure.addAnAssetTypeValue(assetTypeValue.clone());
 		normMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.clone();
 		return normMeasure;
 	}
@@ -233,7 +235,7 @@ public class NormMeasure extends Measure {
 		for (AssetTypeValue assetTypeValue : measure.getAssetTypeValues())
 			mappedAssetTypeValues.put(assetTypeValue.getAssetType().getId(), assetTypeValue);
 		measure.assetTypeValues.clear();
-		
+
 		for (AssetTypeValue assetTypeValue : getAssetTypeValues()) {
 			AssetTypeValue typeValue = mappedAssetTypeValues.get(assetTypeValue.getAssetType().getId());
 			if (typeValue == null)
