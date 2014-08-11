@@ -411,10 +411,17 @@ function customAnalysis(element) {
 						async : false,
 						success : function(response) {
 							if (typeof response == 'object') {
-								for ( var error in response) {
-									if (error == "analysis") {
 
-									} else {
+								if (response.error != undefined)
+									showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error);
+								else if (response.success != undefined) {
+									showSuccess($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.success);
+									setTimeout(function() {
+										modal.Destroy();
+										reloadSection("section_analysis");
+									}, 5000);
+								} else {
+									for ( var error in response) {
 										var errorElement = document.createElement("label");
 										errorElement.setAttribute("class", "label label-danger");
 										$(errorElement).text(response[error]);
@@ -439,11 +446,6 @@ function customAnalysis(element) {
 											break;
 										}
 									}
-								}
-
-								if (!$(modal.modal).find(".label-danger,.alert-danger").length) {
-									modal.Destroy();
-									reloadSection("section_analysis");
 								}
 							} else
 								unknowError();

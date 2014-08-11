@@ -42,6 +42,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class Duplicator {
 
+	public static final String KEY_PARAMETER_FORMAT = "%s-#-_##_-#-%s";
+
 	/**
 	 * duplicateAnalysis: <br>
 	 * Description
@@ -60,7 +62,7 @@ public class Duplicator {
 
 		Map<Integer, Asset> assets = new LinkedHashMap<Integer, Asset>(analysis.getAssets().size());
 
-		Map<Integer, Parameter> parameters = new LinkedHashMap<>(analysis.getParameters().size());
+		Map<String, Parameter> parameters = new LinkedHashMap<>(analysis.getParameters().size());
 
 		try {
 			copy = analysis.duplicateTo(copy);
@@ -82,8 +84,9 @@ public class Duplicator {
 
 			copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
 			for (Parameter parameter : analysis.getParameters()) {
-				parameters.put(parameter.getId(), parameter.duplicate());
-				copy.getParameters().add(parameters.get(parameter.getId()));
+				Parameter parameter2 = parameter.duplicate();
+				parameters.put(String.format(KEY_PARAMETER_FORMAT, parameter.getType().getLabel(), parameter.getDescription()), parameter2);
+				copy.getParameters().add(parameter2);
 			}
 
 			copy.setRiskInformations(new ArrayList<RiskInformation>(analysis.getRiskInformations().size()));
@@ -144,7 +147,7 @@ public class Duplicator {
 	 * @throws CloneNotSupportedException
 	 * @throws TrickException
 	 */
-	public AnalysisNorm duplicateAnalysisNorm(AnalysisNorm analysisNorm, Map<Integer, Phase> phases, Map<Integer, Parameter> parameters, boolean anonymize)
+	public AnalysisNorm duplicateAnalysisNorm(AnalysisNorm analysisNorm, Map<Integer, Phase> phases, Map<String, Parameter> parameters, boolean anonymize)
 			throws CloneNotSupportedException, TrickException {
 		AnalysisNorm norm = (AnalysisNorm) analysisNorm.duplicate();
 
@@ -153,7 +156,10 @@ public class Duplicator {
 			if (anonymize)
 				measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), norm, parameters, anonymize));
 			else
-				measures.add(duplicateMeasure(measure, phases.get(measure.getPhase().getNumber()), norm, parameters, anonymize));
+				measures.add(duplicateMeasure(measure,
+						phases.containsKey(measure.getPhase().getNumber()) ? phases.get(measure.getPhase().getNumber()) : phases.get(Constant.PHASE_DEFAULT), norm, parameters,
+						anonymize));
+
 		norm.setMeasures(measures);
 		return norm;
 	}
@@ -171,21 +177,11 @@ public class Duplicator {
 	 * @throws CloneNotSupportedException
 	 * @throws TrickException
 	 */
-	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisNorm norm, Map<Integer, Parameter> parameters, boolean anonymize) throws CloneNotSupportedException,
+	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisNorm norm, Map<String, Parameter> parameters, boolean anonymize) throws CloneNotSupportedException,
 			TrickException {
 		Measure copy = measure.duplicate();
 		copy.setAnalysisNorm(norm);
 		copy.setPhase(phase);
-
-		// get default implementationrate as parameter (0%)
-		Parameter imprate = null;
-		List<Parameter> parameterlist = new ArrayList<Parameter>(parameters.values());
-		for (Parameter param : parameterlist) {
-			if (param.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && param.getValue() == 0) {
-				imprate = param;
-				break;
-			}
-		}
 
 		if (anonymize) {
 			copy.setComment(Constant.EMPTY_STRING);
@@ -199,7 +195,17 @@ public class Duplicator {
 		}
 		if (copy instanceof MaturityMeasure) {
 			MaturityMeasure matmeasure = (MaturityMeasure) copy;
-			matmeasure.setImplementationRate(imprate);
+			Parameter parameter = parameters.get(String.format(KEY_PARAMETER_FORMAT, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME, anonymize ? Constant.IS_NOT_ACHIEVED
+					: ((MaturityMeasure) measure).getImplementationRate().getDescription()));
+			if (parameter == null) {
+				for (Parameter param : parameters.values()) {
+					if (param.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && param.getValue() == 0) {
+						// get default implementationrate as parameter (0%)
+						matmeasure.setImplementationRate(param);
+						break;
+					}
+				}
+			}
 			if (anonymize) {
 				matmeasure.setReachedLevel(1);
 				matmeasure.setSML1Cost(0);
@@ -208,6 +214,7 @@ public class Duplicator {
 				matmeasure.setSML4Cost(0);
 				matmeasure.setSML5Cost(0);
 			}
+
 		} else {
 			NormMeasure normmeasure = (NormMeasure) copy;
 			if (anonymize) {
@@ -239,7 +246,7 @@ public class Duplicator {
 
 		try {
 
-			Map<Integer, Parameter> parameters = new LinkedHashMap<>();
+			Map<String, Parameter> parameters = new LinkedHashMap<>();
 
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.start", "Duplicate analysis base information", 2));
 
@@ -296,8 +303,9 @@ public class Duplicator {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.parameter", "Copy parameters", 45));
 			copy.setParameters(new ArrayList<Parameter>(analysis.getParameters().size()));
 			for (Parameter parameter : analysis.getParameters()) {
-				parameters.put(parameter.getId(), parameter.duplicate());
-				copy.getParameters().add(parameters.get(parameter.getId()));
+				Parameter parameter2 = parameter.duplicate();
+				parameters.put(String.format(KEY_PARAMETER_FORMAT, parameter.getType().getLabel(), parameter.getDescription()), parameter2);
+				copy.getParameters().add(parameter2);
 			}
 
 			// phases
