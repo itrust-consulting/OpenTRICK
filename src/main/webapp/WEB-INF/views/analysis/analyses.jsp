@@ -62,7 +62,7 @@
 						<table class="table table-hover">
 							<thead>
 								<tr>
-									<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'analysis')"></th>
+									<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'analysis')" disabled="disabled"></th>
 									<th><spring:message code="label.analysis.version" text="version" /></th>
 									<th><spring:message code="label.analysis.comment" text="Comment" /></th>
 									<th><spring:message code="label.analysis.creation_date" text="Create date" /></th>

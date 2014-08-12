@@ -150,7 +150,6 @@ public class Duplicator {
 	public AnalysisNorm duplicateAnalysisNorm(AnalysisNorm analysisNorm, Map<Integer, Phase> phases, Map<String, Parameter> parameters, boolean anonymize)
 			throws CloneNotSupportedException, TrickException {
 		AnalysisNorm norm = (AnalysisNorm) analysisNorm.duplicate();
-
 		List<Measure> measures = new ArrayList<>(analysisNorm.getMeasures().size());
 		for (Measure measure : analysisNorm.getMeasures())
 			if (anonymize)

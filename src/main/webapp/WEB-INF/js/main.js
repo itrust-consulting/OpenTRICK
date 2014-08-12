@@ -324,22 +324,26 @@ function fixedTableHeader(table) {
 function showError(parent, text) {
 	var error = document.createElement("div");
 	var close = document.createElement("a");
+	var content = document.createElement("p");
 	close.setAttribute("class", "close");
 	close.setAttribute("href", "#");
 	close.setAttribute("data-dismiss", "alert");
 	error.setAttribute("class", "alert alert-error");
 	error.setAttribute("aria-hidden", "true");
-	error.setAttribute("style", "background-color: #F2DEDE; border-color: #EBCCD1; color: #B94A48;");
+	error.setAttribute("style", "background-color: #F2DEDE; border-color: #EBCCD1;color: #B94A48;");
 	close.appendChild(document.createTextNode("x"));
 	error.appendChild(close);
-	error.appendChild(document.createTextNode(text));
+	content.setAttribute("style", "text-align: left");
+	content.appendChild(document.createTextNode(text));
+	error.appendChild(content);
 	parent.insertBefore(error, parent.firstChild);
-	return false;
+	return error;
 }
 
 function showSuccess(parent, text) {
 	var success = document.createElement("div");
 	var close = document.createElement("a");
+	var content = document.createElement("p");
 	close.setAttribute("class", "close");
 	close.setAttribute("href", "#");
 	close.setAttribute("data-dismiss", "alert");
@@ -347,9 +351,11 @@ function showSuccess(parent, text) {
 	success.setAttribute("aria-hidden", "true");
 	close.appendChild(document.createTextNode("x"));
 	success.appendChild(close);
-	success.appendChild(document.createTextNode(text));
+	content.setAttribute("style", "text-align: left");
+	content.appendChild(document.createTextNode(text));
+	success.appendChild(content);
 	parent.insertBefore(success, parent.firstChild);
-	return false;
+	return success;
 }
 
 /**

@@ -833,8 +833,11 @@ public class ControllerAnalysis {
 
 			if (phases != null) {
 				mappingPhases = new LinkedHashMap<Integer, Phase>(phases.size());
-				for (Phase phase : phases)
-					mappingPhases.put(phase.getNumber(), phase.duplicate());
+				for (Phase phase : phases){
+					Phase phase1 = phase.duplicate();
+					analysis.addUsedPhase(phase1);
+					mappingPhases.put(phase.getNumber(), phase1);
+				}
 			} else {
 				mappingPhases = new LinkedHashMap<Integer, Phase>(2);
 				Calendar calendar = Calendar.getInstance();

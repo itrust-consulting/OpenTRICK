@@ -28,7 +28,7 @@
 			<table class="table table-hover table-fixed-header">
 				<thead>
 					<tr>
-						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'analysis')"></th>
+						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'analysis')" disabled="disabled"></th>
 						<th colspan="4"><spring:message code="label.analysis.identifier" text="Name"/></th>
 						<th colspan="10"><spring:message code="label.analysis.comment" text="Comment"/></th>
 						<th colspan="3"><spring:message code="label.analysis.creation_date" text="Create date"/></th>

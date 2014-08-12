@@ -16,15 +16,21 @@
 				<ul class="nav nav-tabs" role="tablist" style="margin-top: 0px;">
 					<li class="active" role="tab_group_1"><a href="#group_1" data-toggle="tab"><spring:message code="label.menu.build.analyis.general" text="General" /></a></li>
 					<li><a href="#group_2" data-toggle="tab"><spring:message code="label.menu.build.analyis.others" text="Others" /></a></li>
+					<li class="col-sm-6 pull-right">
+						<div class="progress progress-striped" hidden="true" style="margin-bottom: 5px; margin-top: 8px;">
+							<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
+						</div>
+					</li>
 				</ul>
-				<form action="#" class="form-horizontal tab-content" id="tabs" style="height:420">
+
+				<form action="#" class="form-horizontal tab-content" id="tabs" style="height: 420">
 					<div id="group_1" class="tab-pane active" style="padding-top: 10px;">
 						<div class="form-group">
 							<label for="customer" class="col-sm-3 control-label"> <spring:message code="label.customer.organisation" text="Customer" />
 							</label>
 							<div class="col-sm-9">
 								<select class="form-control" name="customer" required="required">
-									<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..."/>
+									<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
 										<c:forEach items="${customers}" var="customer">
 											<option value="${customer.id}">${customer.organisation}</option>
 										</c:forEach>
@@ -47,7 +53,7 @@
 							<label for="author" class="col-sm-3 control-label"> <spring:message code="label.analysis.author" text="Author" />
 							</label>
 							<div class="col-sm-9">
-								<input type="text" class="form-control" name="author" value="${author}" required="required"/>
+								<input type="text" class="form-control" name="author" value="${author}" required="required" />
 							</div>
 						</div>
 						<div class="form-group">
@@ -177,17 +183,11 @@
 						</div>
 					</div>
 				</form>
-				<span style="display: block;clear: both; margin:0; padding: 0"></span>
+				<span style="display: block; clear: both; margin: 0; padding: 0"></span>
 			</div>
 			<div class="modal-footer" style="margin-top: 0">
-				<div class="col-sm-6" id="build-analysis-modal-error">
-				</div>
-				<div class="col-sm-3">
-					<div class="progress progress-striped" hidden="true" style="margin-bottom:5px; margin-top: 8px;">
-						<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
-					</div>
-				</div>
-				<div class="col-sm-3">
+				<div class="col-sm-8" id="build-analysis-modal-error"></div>
+				<div class="col-sm-4">
 					<button type="button" class="btn btn-primary" name="save">
 						<spring:message code="label.action.save" text="Save" />
 					</button>

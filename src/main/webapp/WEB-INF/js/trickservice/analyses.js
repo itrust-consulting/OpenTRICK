@@ -384,22 +384,22 @@ function customAnalysis(element) {
 							$parent.parent().find('input').attr("value", '-1');
 							if (callback != undefined)
 								eval(callback);
+							return false;
 						});
 
 						if (callback != undefined)
 							eval(callback);
 					}
 				});
-
 				var $saveButton = $(modal.modal_footer).find("button[name='save']");
 				var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
-				var $progress_bar = $(modal.modal_footer).find(".progress");
+				var $progress_bar = $(modal.modal_body).find(".progress");
 				$cancelButton.click(function() {
 					if (!$cancelButton.is(":disabled"))
 						modal.Destroy();
 					return false;
 				});
-
+				
 				$saveButton.click(function() {
 					$(modal.modal).find(".label-danger, .alert").remove();
 					$(modal.modal_dialog).find("button").prop("disabled", true);
@@ -413,13 +413,19 @@ function customAnalysis(element) {
 							if (typeof response == 'object') {
 
 								if (response.error != undefined)
-									showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error);
+									$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error)).css({
+										'margin-bottom' : '0',
+										'padding' : '6px 10px'
+									});
 								else if (response.success != undefined) {
-									showSuccess($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.success);
+									$(showSuccess($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.success)).css({
+										'margin-bottom' : '0',
+										'padding' : '6px 10px'
+									});
 									setTimeout(function() {
 										modal.Destroy();
 										reloadSection("section_analysis");
-									}, 5000);
+									}, 3000);
 								} else {
 									for ( var error in response) {
 										var errorElement = document.createElement("label");

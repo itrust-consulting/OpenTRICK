@@ -35,7 +35,7 @@
 					<table class="table text-left">
 						<thead>
 							<tr>
-								<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'norm')"></th>
+								<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'norm')" disabled="disabled"></th>
 								<th><spring:message code="label.norm.label" text="Name"/></th>
 								<th><spring:message code="label.norm.version" text="Version" /></th>
 								<th><spring:message code="label.norm.description" text="Description" /></th>

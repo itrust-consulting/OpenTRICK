@@ -32,7 +32,7 @@
 					<table class="table">
 						<thead>
 							<tr>
-								<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'customer')"></th>
+								<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'customer')" disabled="disabled"></th>
 								<th><spring:message code="label.customer.organisation" text="Company"/></th>
 								<th><spring:message code="label.customer.contact_person" text="Contact person" /></th>
 								<th><spring:message code="label.customer.phone_number" text="Phone number"/></th>
