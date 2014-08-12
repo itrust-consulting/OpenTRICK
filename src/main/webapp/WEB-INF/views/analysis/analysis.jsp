@@ -17,12 +17,12 @@
 			<jsp:include page="../successErrors.jsp" />
 			<div id="nav-container" trick-id="${analysis.id}" trick-class="Analysis" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}">
 				<c:if test="${!KowledgeBaseView}">
-					<h2><spring:message text="${analysis.label}|${ analysis.version }"/></h2>
+					<h2>${analysis.label}|${ analysis.version }</h2>
 					<c:set var="histories" value="${analysis.histories}" scope="request" />
 					<jsp:include page="./components/history.jsp" />
 				</c:if>
 				<c:if test="${KowledgeBaseView}">
-					<h2><spring:message text="${analysis.identifier}|${ analysis.version }"/></h2>
+					<h2>${analysis.identifier}|${ analysis.version }</h2>
 				</c:if>
 				<c:if test="${!KowledgeBaseView }">
 					<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />

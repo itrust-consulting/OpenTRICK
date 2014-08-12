@@ -15,6 +15,7 @@ import lu.itrust.business.validator.UserValidator;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -127,11 +128,14 @@ public class ControllerRegister {
 			attributes.addFlashAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
 			attributes.addFlashAttribute("login", user.getLogin());
 			return "redirect:/login";
-		} catch (ConstraintViolationException e) {
-			// return error and return to register page
-			e.printStackTrace();
-			attributes.addFlashAttribute("errors", messageSource.getMessage("error.create.account.unknown", null, "Account creation failed, Please try again later", locale));
-			return "redirect:/Register";
+		}
+		catch (ConstraintViolationException | DataIntegrityViolationException e) {
+			if(e.getMessage().contains("dtEmail"))
+				result.rejectValue("email", "error.user.email.in_use", "Eemail is already in use");
+			else if(e.getMessage().contains("dtLogin"))
+				result.rejectValue("login", "error.user.username.in_use", "Username is not available");
+			// return to form
+			return "registerUserForm";
 		}
 	}
 }

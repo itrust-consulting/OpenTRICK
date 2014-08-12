@@ -22,7 +22,7 @@
 			<table class="table table-hover table-fixed-header">
 				<thead>
 					<tr>
-						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'phase')"></th>
+						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'phase')" disabled="disabled"></th>
 						<th><spring:message code="label.table.index" text="#" /></th>
 						<th colspan="15"><spring:message code="label.phase.begin_date" text="Begin" /></th>
 						<th colspan="15"><spring:message code="label.phase.end_date" text="End" /></th>

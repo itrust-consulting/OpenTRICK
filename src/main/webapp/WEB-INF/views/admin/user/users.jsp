@@ -25,7 +25,7 @@
 				<table class="table">
 					<thead>
 						<tr>
-							<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'user')"></th>
+							<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'user')" disabled="disabled"></th>
 							<th><spring:message code="label.user.login" text="Username"/></th>
 							<th><spring:message code="label.user.first_name" text="Firstname"/></th>
 							<th><spring:message code="label.user.last_name" text="Lastname"/></th>

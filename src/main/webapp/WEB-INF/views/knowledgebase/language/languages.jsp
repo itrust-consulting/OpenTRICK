@@ -25,7 +25,7 @@
 					<table class="table">
 						<thead>
 							<tr>
-								<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'language')"></th>
+								<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'language')" disabled="disabled"></th>
 								<th><spring:message code="label.language.alpha3" text="Alpha3"/></th>
 								<th><spring:message code="label.language.name" text="Name" /></th>
 								<th><spring:message code="label.language.alt_name" text="Alternative name"/></th>

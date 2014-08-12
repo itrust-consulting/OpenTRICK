@@ -19,7 +19,7 @@
 			<!-- #################################################################### Content ################################################################### -->
 			<div class="page-header">
 				<h1>
-					<spring:message code="label.title.knowledgebase" text="Knowledge Base" />
+					<spring:message code="title.knowledgebase" text="Knowledge Base" />
 				</h1>
 			</div>
 			<div class="content" id="content" role="main" data-spy="scroll">

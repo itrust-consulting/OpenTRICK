@@ -215,7 +215,7 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	margin-bottom: 0;
 }
 
-.datepicker.datepicker.dropdown-menu{
+.datepicker.datepicker.dropdown-menu {
 	z-index: 1001;
 }
 
@@ -290,11 +290,11 @@ table.floatThead-table {
 	resize: vertical;
 }
 
-table th{
+table th {
 	font-size: 14px;
 }
 
-table td{
+table td {
 	font-size: 13px;
 	color: #101010;
 }
@@ -312,39 +312,82 @@ td>pre {
 	padding-bottom: 2px;
 	word-break: normal;
 }
-.popover-content>pre{
+
+.popover-content>pre {
 	word-break: normal;
 }
-.text-rotate-360{
+
+.text-rotate-360 {
 	transform: rotate(360deg);
 }
 
-.text-rotate-270{
+.text-rotate-270 {
 	display: block;
-    margin-left: -5px;
-    padding-bottom: 5px;
-    transform: rotate(270deg);
+	margin-left: -5px;
+	padding-bottom: 5px;
+	transform: rotate(270deg);
 }
 
-.text-rotate-180{
+.text-rotate-180 {
 	transform: rotate(180deg);
 }
 
-.text-rotate-90{
+.text-rotate-90 {
 	transform: rotate(90deg);
 }
 
-.text-rotate-75{
+.text-rotate-75 {
 	transform: rotate(75deg);
 }
 
-.text-rotate-45{
+.text-rotate-45 {
 	transform: rotate(45deg);
 }
 
-.text-rotate-30{
+.text-rotate-30 {
 	transform: rotate(30deg);
 }
+
 .modal-open {
 	overflow: inherit;
 }
+
+#buildAnalysisModal .well.well-sm {
+	margin-bottom: inherit;
+}
+
+.well.warning {
+	background-color: #fcf8e3;
+	border-color: #faebcc;
+	color: #8a6d3b;
+	background-image: inherit;
+	background-repeat: inherit;
+}
+
+.well.danger {
+	background-color: #f2dede;
+	border-color: #ebccd1;
+	color: #a94442;
+	background-image: inherit;
+	background-repeat: inherit;
+}
+
+.well.success {
+	background-color: #dff0d8;
+	border-color: #d6e9c6;
+	color: #3c763d;
+	background-image: inherit;
+	background-repeat: inherit;
+}
+
+.well.info {
+	background-color: #d9edf7;
+	border-color: #bce8f1;
+	color: #31708f;
+	background-image: inherit;
+	background-repeat: inherit;
+}
+
+/*.ui-draggable:HOVER{
+	cursor:move;
+}*/

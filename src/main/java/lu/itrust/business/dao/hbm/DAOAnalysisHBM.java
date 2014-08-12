@@ -1,5 +1,7 @@
 package lu.itrust.business.dao.hbm;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
@@ -8,6 +10,7 @@ import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.component.helper.AnalysisBaseInfo;
 import lu.itrust.business.dao.DAOAnalysis;
 
 import org.hibernate.Query;
@@ -377,5 +380,36 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 				.createQuery(
 						"Select distinct analysis From Analysis analysis inner join analysis.analysisNorms analysisNorm where analysis.profile = true and analysisNorm.norm in :norms")
 				.setParameterList("norms", norms).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AnalysisBaseInfo> getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(Integer id, String name) {
+		List<AnalysisBaseInfo> analysisBaseInfos = new ArrayList<AnalysisBaseInfo>();
+		String query = "Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.data = true and ";
+		query += "userAnalysis.analysis.customer.id = :customer group by userAnalysis.analysis.identifier order by userAnalysis.analysis.identifier";
+		Iterator<Analysis> iterator = getSession().createQuery(query).setParameter("username", name).setParameter("customer", id).iterate();
+		while (iterator.hasNext())
+			analysisBaseInfos.add(new AnalysisBaseInfo(iterator.next()));
+		return analysisBaseInfos;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier) {
+		List<AnalysisBaseInfo> analysisBaseInfos = new ArrayList<AnalysisBaseInfo>();
+		String query = "Select userAnalysis.analysis from UserAnalysisRight as userAnalysis where userAnalysis.user.login = :username and userAnalysis.analysis.identifier = :identifier  and userAnalysis.analysis.data = true and ";
+		query += "userAnalysis.analysis.customer.id = :customer order by userAnalysis.analysis.creationDate desc, userAnalysis.analysis.identifier asc, userAnalysis.analysis.version desc";
+		Iterator<Analysis> iterator = getSession().createQuery(query).setParameter("username", username).setString("identifier", identifier).setParameter("customer", id).iterate();
+		while (iterator.hasNext())
+			analysisBaseInfos.add(new AnalysisBaseInfo(iterator.next()));
+		return analysisBaseInfos;
+	}
+
+	@Override
+	public int getDefaultProfileId() {
+		Integer id = (Integer) getSession().createQuery("Select analysis.id From Analysis as analysis where analysis.defaultProfile = true and analysis.profile = true")
+				.uniqueResult();
+		return id == null ? -1 : id;
 	}
 }

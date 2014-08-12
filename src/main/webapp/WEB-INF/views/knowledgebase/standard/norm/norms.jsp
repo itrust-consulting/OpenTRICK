@@ -6,7 +6,7 @@
 <div class="section" id="section_norm">
 	<div class="page-header">
 		<h3 id="Norms">
-			<spring:message code="label.title.knowledgebase.standards" text="Standards"/>
+			<spring:message code="label.menu.knowledgebase.standards" text="Standards"/>
 		</h3>
 	</div>
 	<div class="panel panel-default">
@@ -35,7 +35,7 @@
 					<table class="table text-left">
 						<thead>
 							<tr>
-								<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'norm')"></th>
+								<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'norm')" disabled="disabled"></th>
 								<th><spring:message code="label.norm.label" text="Name"/></th>
 								<th><spring:message code="label.norm.version" text="Version" /></th>
 								<th><spring:message code="label.norm.description" text="Description" /></th>

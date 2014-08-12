@@ -124,13 +124,12 @@ SectionSmartUpdate.prototype = {
 		case "section_asset":
 		case "section_scenario":
 		case "section_phase":
-			return this.__generic_update(this.data, "#" + this.sectionName, 1);
 		case "section_norm":
 		case "section_profile_analysis":
 		case "section_language":
 		case "section_customer":
 		case "section_user":
-			return this.__generic_update(this.data, "#" + this.sectionName, -1);
+			return this.__generic_update(this.data, "#" + this.sectionName, 1);
 		default:
 			break;
 		}

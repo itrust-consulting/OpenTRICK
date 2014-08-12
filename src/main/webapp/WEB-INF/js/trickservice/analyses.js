@@ -35,9 +35,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 					previous = this.value;
 				});
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return false;
-			},
+			error : unknowError
 		});
 	} else
 		permissionError();
@@ -67,10 +65,7 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 				previous = this.value;
 			});
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			unknowError();
-			return false;
-		},
+		error : unknowError
 	});
 }
 
@@ -153,10 +148,7 @@ function saveAnalysis(form, reloadaction) {
 			}
 			return false;
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			unknowError();
-			return false;
-		},
+		error : unknowError
 	});
 	return false;
 }
@@ -195,7 +187,8 @@ function deleteAnalysis(analysisId) {
 						$("#alert-dialog").modal("toggle");
 					}
 					return false;
-				}
+				},
+				error : unknowError
 			});
 
 			return false;
@@ -230,10 +223,7 @@ function createAnalysisProfile(analysisId, section_analysis) {
 				$(analysisProfile).modal("toggle");
 
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				unknowError();
-				return false;
-			},
+			error : unknowError
 		});
 	}
 	return false;
@@ -272,12 +262,219 @@ function saveAnalysisProfile(form) {
 					return false;
 				}
 			}
-		}
+		},
+		error : unknowError
 	});
 	return false;
 }
 
-function newAnalysis() {
+function customAnalysis(element) {
+	if ($(element).parent().hasClass("disabled"))
+		return false;
+	$.ajax({
+		url : context + "/Analysis/Build",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			var doc = new DOMParser().parseFromString(response, "text/html");
+			if ($(doc).find("#buildAnalysisModal").length) {
+				var modal = new Modal($(doc).find("#buildAnalysisModal").clone());
+
+				// Event user select a customer
+				$(modal.modal_body).find("#selector-customer").on("change", function(e) {
+					$(modal.modal_body).find("#selector-analysis").find("option[value!=-1]").remove();
+					$(modal.modal_body).find("#analysis-versions li[class!='disabled']").remove();
+					if ($(e.target).val() < 1)
+						$(modal.modal_body).find("#selector-analysis").find("option[value=-1]").prop("selected", true);
+					else {
+						$.ajax({
+							url : context + "/Analysis/Build/Customer/" + $(e.target).val(),
+							type : "get",
+							contentType : "application/json;charset=UTF-8",
+							success : function(response) {
+								if (typeof response == 'object') {
+									var $analysisSelector = $(modal.modal_body).find("#selector-analysis");
+									for (var i = 0; i < response.length; i++)
+										$("<option value='" + response[i].identifier + "'>" + response[i].label + "</option>").appendTo($analysisSelector);
+								} else
+									unknowError();
+							},
+							error : unknowError
+						});
+					}
+				});
+
+				var $emptyText = $(modal.modal_body).find("*[dropzone='true']>div:first").text();
+
+				$(modal.modal_body).find("#selector-analysis").on(
+						"change",
+						function(e) {
+							$(modal.modal_body).find("#analysis-versions li[class!='disabled']").remove();
+							if ($(e.target).val() != -1) {
+								$.ajax({
+									url : context + "/Analysis/Build/Customer/" + $(modal.modal_body).find("#selector-customer").val() + "/Identifier/" + $(e.target).val(),
+									type : "get",
+									contentType : "application/json;charset=UTF-8",
+									success : function(response) {
+										if (typeof response == 'object') {
+											var $analysisVersions = $(modal.modal_body).find("#analysis-versions");
+											for (var i = 0; i < response.length; i++) {
+												var $li = $("<li class='list-group-item' trick-id='" + response[i].id + "' title='" + response[i].label + " v."
+														+ response[i].version + "'>" + response[i].version + "</li>");
+												$li.appendTo($analysisVersions);
+											}
+											$(modal.modal_body).find("#analysis-versions li").hover(function() {
+												$(this).css('cursor', 'move');
+											})
+											$(modal.modal_body).find("#analysis-versions li").draggable({
+												helper : "clone",
+												cancel : "span.glyphicon-remove-sign",
+												revert : "invalid",
+												containment : "#buildAnalysisModal #group_2",
+												accept : "*[dropzone='true']",
+												cursor : "move",
+												start : function(e, ui) {
+													$(ui.helper).css({
+														'z-index' : '1085',
+														'min-width' : '232px'
+													});
+												}
+											});
+										} else
+											unknowError();
+									},
+									error : unknowError
+								});
+							}
+						});
+
+				var checkPhase = function() {
+					$(modal.modal_body).find("input[name='phase']").prop("disabled", $(modal.modal_body).find("#analysis-build-standards .well").attr("trick-id") == undefined);
+					$(modal.modal_body).find("input[name='phase']").prop("checked", false);
+				}
+
+				var checkEstimation = function() {
+					var trick_id_asset = $(modal.modal_body).find("#analysis-build-assets .well").attr("trick-id");
+					var trick_id_scenario = $(modal.modal_body).find("#analysis-build-scenarios .well").attr("trick-id");
+					$(modal.modal_body).find("input[name='assessment']").prop("disabled", trick_id_asset != trick_id_scenario || trick_id_asset == undefined);
+					$(modal.modal_body).find("input[name='assessment']").prop("checked", false);
+				}
+
+				$(modal.modal_body).find("#analysis-build-scenarios").attr("trick-callback", "checkEstimation()");
+				$(modal.modal_body).find("#analysis-build-assets").attr("trick-callback", "checkEstimation()");
+				$(modal.modal_body).find("#analysis-build-standards").attr("trick-callback", "checkPhase()");
+
+				$(modal.modal_body).find("*[dropzone='true']>div").droppable({
+					accept : "li.list-group-item",
+					activeClass : "warning",
+					drop : function(event, ui) {
+						$(this).attr("trick-id", ui.draggable.attr("trick-id"));
+						$(this).attr("title", ui.draggable.attr("title"));
+						$(this).text(ui.draggable.attr("title"));
+						$(this).addClass("success");
+						$(this).parent().find('input').attr("value", ui.draggable.attr("trick-id"));
+						var callback = $(this).parent().attr("trick-callback");
+						$("<a href='#' class='pull-right text-danger'><span class='glyphicon glyphicon-remove-sign'></span></a>").appendTo($(this)).click(function() {
+							var $parent = $(this).parent();
+							$(this).remove();
+							$parent.removeAttr("trick-id");
+							$parent.removeAttr("title");
+							$parent.removeClass("success");
+							$parent.text($emptyText);
+							$parent.parent().find('input').attr("value", '-1');
+							if (callback != undefined)
+								eval(callback);
+							return false;
+						});
+
+						if (callback != undefined)
+							eval(callback);
+					}
+				});
+				var $saveButton = $(modal.modal_footer).find("button[name='save']");
+				var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
+				var $progress_bar = $(modal.modal_body).find(".progress");
+				$cancelButton.click(function() {
+					if (!$cancelButton.is(":disabled"))
+						modal.Destroy();
+					return false;
+				});
+				
+				$saveButton.click(function() {
+					$(modal.modal).find(".label-danger, .alert").remove();
+					$(modal.modal_dialog).find("button").prop("disabled", true);
+					$progress_bar.show();
+					$.ajax({
+						url : context + "/Analysis/Build/Save",
+						type : "post",
+						data : $(modal.modal_body).find("form").serialize(),
+						async : false,
+						success : function(response) {
+							if (typeof response == 'object') {
+
+								if (response.error != undefined)
+									$(showError($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.error)).css({
+										'margin-bottom' : '0',
+										'padding' : '6px 10px'
+									});
+								else if (response.success != undefined) {
+									$(showSuccess($(modal.modal_footer).find("#build-analysis-modal-error")[0], response.success)).css({
+										'margin-bottom' : '0',
+										'padding' : '6px 10px'
+									});
+									setTimeout(function() {
+										modal.Destroy();
+										reloadSection("section_analysis");
+									}, 3000);
+								} else {
+									for ( var error in response) {
+										var errorElement = document.createElement("label");
+										errorElement.setAttribute("class", "label label-danger");
+										$(errorElement).text(response[error]);
+										switch (error) {
+										case "customer":
+										case "language":
+										case "comment":
+										case "author":
+										case "version":
+										case "assessment":
+											$(errorElement).appendTo($(modal.modal_body).find("form *[name='" + error + "']").parent());
+											break;
+										case "riskInformation":
+										case "scope":
+											$(errorElement).appendTo($(modal.modal_body).find("#analysis-build-" + error));
+											break;
+										case "asset":
+										case "scenario":
+										case "standard":
+										case "parameter":
+											$(errorElement).appendTo($(modal.modal_body).find("#analysis-build-" + error + "s"));
+											break;
+										}
+									}
+								}
+							} else
+								unknowError();
+						},
+						error : unknowError
+					});
+					$(modal.modal_dialog).find("button").prop("disabled", false);
+					$progress_bar.hide();
+				});
+
+				modal.Show();
+			} else
+				unknowError();
+			return false;
+		},
+		error : unknowError
+	});
+	return false;
+}
+
+function newAnalysis(element) {
+	if ($(element).parent().hasClass("disabled"))
+		return false;
 	$("#addAnalysisModel .progress").hide();
 	$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
 	$.ajax({
@@ -297,12 +494,8 @@ function newAnalysis() {
 				$("#addAnalysisModel").modal('toggle');
 			}
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			unknowError();
-			return false;
-		},
+		error : unknowError
 	});
-
 	return false;
 }
 
@@ -323,10 +516,7 @@ function addHistory(analysisId) {
 			$("#addHistoryModal").replaceWith(response);
 			$('#addHistoryModal').modal("toggle");
 		},
-		error : function(jqXHR, textStatus, errorThrown) {
-			unknowError();
-			return result;
-		},
+		error : unknowError
 	});
 
 	return false;
@@ -360,10 +550,7 @@ function editSingleAnalysis(analysisId) {
 					$("#addAnalysisModel").modal('toggle');
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				unknowError();
-				return fase;
-			},
+			error : unknowError
 		});
 	} else
 		permissionError();
@@ -429,10 +616,7 @@ function calculateActionPlan(analysisId) {
 					$("#alert-dialog").modal("toggle");
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				unknowError();
-				return result;
-			},
+			error : unknowError
 		});
 	} else
 		permissionError();
@@ -482,10 +666,7 @@ function calculateRiskRegister(analysisId) {
 					$("#alert-dialog").modal("toggle");
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				unknowError();
-				return result;
-			},
+			error : unknowError
 		});
 	} else
 		permissionError();
@@ -515,9 +696,7 @@ function exportAnalysis(analysisId) {
 					$("#alert-dialog").modal("toggle");
 				}
 			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				return result;
-			},
+			error : unknowError
 		});
 	} else
 		permissionError();
@@ -532,9 +711,7 @@ function exportAnalysisReport(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
-		$.fileDownload(context + '/Analysis/Export/Report/' + analysisId).fail(function() {
-			alert('File export failed!');
-		});
+		$.fileDownload(context + '/Analysis/Export/Report/' + analysisId).fail(unknowError);
 		return false;
 	} else
 		permissionError();
@@ -549,9 +726,7 @@ function exportAnalysisReportData(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
-		$.fileDownload(context + '/Analysis/Export/ReportData/' + analysisId).fail(function() {
-			alert('File export failed!');
-		});
+		$.fileDownload(context + '/Analysis/Export/ReportData/' + analysisId).fail(unknowError);
 		return false;
 	} else
 		permissionError();
@@ -623,7 +798,8 @@ function duplicateAnalysis(form, analyisId) {
 				setTimeout("location.reload()", 2000);
 			}
 
-		}
+		},
+		error : unknowError
 	});
 	return false;
 }
@@ -730,9 +906,7 @@ function analysisTableSortable() {
 }
 
 function downloadExportedSqLite(idFile) {
-	$.fileDownload(context + '/Analysis/Download/' + idFile).fail(function() {
-		alert('File download failed!');
-	});
+	$.fileDownload(context + '/Analysis/Download/' + idFile).fail(unknowError);
 	return false;
 }
 
@@ -750,7 +924,8 @@ function customerChange(selector) {
 			newSection = $(doc).find("*[id ='section_analysis']");
 			$("#section_analysis").replaceWith(newSection);
 			analysisTableSortable();
-		}
+		},
+		error : unknowError
 	});
 	return false;
 }

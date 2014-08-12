@@ -41,7 +41,7 @@
 							<table id="measurestable" class="table table-hover table-fixed-header">
 								<thead>
 									<tr role="row">
-										<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'measure_description','modal-measure')"></th>
+										<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'measure_description','modal-measure')" disabled="disabled"></th>
 										<th colspan="2"><spring:message code="label.measure.level" text="Level"/></th>
 										<th colspan="3"><spring:message code="label.measure.reference" text="Reference"/></th>
 										<th colspan="8"><spring:message code="label.measure.domain"  text="Domain"/></th>

@@ -75,8 +75,8 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 */
 	@Override
 	public boolean isProfile(Integer idCustomer) throws Exception {
-		Boolean result =
-			(Boolean) getSession().createQuery("Select customer.canBeUsed From Customer as customer where customer.id = :idCustomer").setParameter("idCustomer", idCustomer).uniqueResult();
+		Boolean result = (Boolean) getSession().createQuery("Select customer.canBeUsed From Customer as customer where customer.id = :idCustomer")
+				.setParameter("idCustomer", idCustomer).uniqueResult();
 		return result == null ? false : !result;
 	}
 
@@ -215,5 +215,11 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	@Override
 	public Customer getOneNoProfile() {
 		return (Customer) getSession().createQuery("From Customer where canBeUsed = true").setMaxResults(1).uniqueResult();
+	}
+
+	@Override
+	public Customer getFromUsernameAndId(String username, int idCustomer) {
+		String query = "Select customer From User as user inner join user.customers as customer where user.login = :username and customer.id = :idCustomer";
+		return (Customer) getSession().createQuery(query).setParameter("username", username).setInteger("idCustomer", idCustomer).uniqueResult();
 	}
 }

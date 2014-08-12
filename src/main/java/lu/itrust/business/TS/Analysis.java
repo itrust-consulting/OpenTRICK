@@ -1742,7 +1742,7 @@ public class Analysis implements Serializable, Cloneable {
 		if (!usedPhases.contains(phase))
 			usedPhases.add(phase);
 		else
-			System.out.println("pahse not add : " + phase.getNumber());
+			System.err.println("pahse not add : " + phase.getNumber());
 	}
 
 	/**
