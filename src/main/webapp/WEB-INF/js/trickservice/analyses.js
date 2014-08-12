@@ -426,6 +426,7 @@ function customAnalysis(element) {
 										modal.Destroy();
 										reloadSection("section_analysis");
 									}, 3000);
+									$saveButton.unbind();
 								} else {
 									for ( var error in response) {
 										var errorElement = document.createElement("label");

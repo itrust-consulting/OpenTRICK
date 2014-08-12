@@ -80,4 +80,6 @@ public interface DAOAnalysis {
 	public List<AnalysisBaseInfo> getBaseInfoByCustmerIdAndUsernamerAndIdentifierAndNotEmpty(Integer id, String username, String identifier);
 
 	public int getDefaultProfileId();
+
+	public String getLabelFromId(int idAnalysis);
 }

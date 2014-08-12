@@ -9,7 +9,7 @@
 		</id>
 		<property name="version" column="dtVersion" length="12" not-null="true" />
 		<property column="dtAuthor" generated="never" lazy="false" name="author" not-null="true" />
-		<property column="dtComment" generated="never" lazy="false" name="comment" not-null="true" />
+		<property column="dtComment" generated="never" lazy="false" length="2048" name="comment" not-null="true" />
 		<property column="dtDateComment" generated="never" lazy="false" name="date" not-null="true" />
 	</class>
 </hibernate-mapping>

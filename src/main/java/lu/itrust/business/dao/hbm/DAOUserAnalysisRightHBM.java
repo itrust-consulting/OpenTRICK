@@ -88,11 +88,16 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 		query += ":login";
 		AnalysisRight analysisRight = (AnalysisRight) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("login", username).uniqueResult();
 		User user = (User) getSession().createQuery("FROM User as user where user.login = :username").setParameter("username", username).uniqueResult();
-		Boolean isProfile = (Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.id = :id").setParameter("id", idAnalysis).uniqueResult();
+		Boolean isProfile = (Boolean) getSession().createQuery("Select analysis.profile From Analysis as analysis where analysis.id = :id").setParameter("id", idAnalysis)
+				.uniqueResult();
 		if (isProfile == null)
 			isProfile = false;
-		if (user.hasRole(RoleType.ROLE_CONSULTANT) || isProfile)
-			analysisRight = AnalysisRight.ALL;
+		if (analysisRight == null && isProfile) {
+			if (user.isAutorised(RoleType.ROLE_CONSULTANT))
+				analysisRight = AnalysisRight.ALL;
+			else
+				analysisRight = AnalysisRight.READ;
+		}
 		return analysisRight == null ? false : analysisRight.ordinal() <= right.ordinal();
 	}
 
@@ -101,7 +106,8 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * Description
 	 * 
 	 * @see lu.itrust.business.dao.DAOUserAnalysisRight#isUserAuthorized(lu.itrust.business.TS.Analysis,
-	 *      lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.AnalysisRight)
+	 *      lu.itrust.business.TS.usermanagement.User,
+	 *      lu.itrust.business.TS.AnalysisRight)
 	 */
 	@Override
 	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception {

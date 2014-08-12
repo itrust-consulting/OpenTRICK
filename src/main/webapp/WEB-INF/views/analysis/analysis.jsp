@@ -67,14 +67,14 @@
 		<script src="<spring:url value="/js/highcharts/exporting.js" />"></script>
 		<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/fieldeditor.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/scenario.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/phase.js" />"></script>
 		<c:if test="${!KowledgeBaseView}">
 			<script type="text/javascript" src="<spring:url value="js/trickservice/actionplan.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/assessment.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/asset.js" />"></script>
-			<script type="text/javascript" src="<spring:url value="js/trickservice/fieldeditor.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/bootstrap/typeahead.bundle.js" />"></script>
-			<script type="text/javascript" src="<spring:url value="js/trickservice/phase.js" />"></script>
-			<script type="text/javascript" src="<spring:url value="js/trickservice/scenario.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/riskregister.js" />"></script>
 		</c:if>
 	</div>

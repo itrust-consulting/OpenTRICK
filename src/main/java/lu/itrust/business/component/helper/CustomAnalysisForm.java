@@ -21,6 +21,8 @@ public class CustomAnalysisForm {
 
 	private String comment;
 
+	private int profile;
+
 	private int customer;
 
 	private int language;
@@ -167,7 +169,20 @@ public class CustomAnalysisForm {
 			riskInformation = defaultProfileId;
 		if (parameter < 1)
 			parameter = defaultProfileId;
+		if (profile > 0 && defaultProfileId == profile) {
+			if (standard < 1)
+				standard = defaultProfileId;
+			if (scenario < 1)
+				scenario = defaultProfileId;
+		}
+	}
 
+	public int getProfile() {
+		return profile;
+	}
+
+	public void setProfile(int profile) {
+		this.profile = profile;
 	}
 
 }

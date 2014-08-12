@@ -81,5 +81,7 @@ public interface ServiceAnalysis {
 
 	public int getDefaultProfileId();
 
+	public String getLabelFromId(int idAnalysis);
+
 	
 }

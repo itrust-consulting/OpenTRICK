@@ -8,7 +8,7 @@
 <div class="section" id="section_asset">
 	<div class="page-header">
 		<h3 id="Asset">
-			<spring:message code="label.asset" text="Asset" />
+			<spring:message code="label.title.asset" text="Asset" />
 		</h3>
 	</div>
 	<div class="panel panel-default">

@@ -78,9 +78,7 @@
 											maxFractionDigits="2" minFractionDigits="0" /></td>
 								</c:otherwise>
 							</c:choose>
-							<td class="${cssClass}" colspan="20"><pre>
-									<spring:message text="${scenario.description}" />
-								</pre></td>
+							<td class="${cssClass}" colspan="20"><pre><spring:message text="${scenario.description}" /></pre></td>
 						</tr>
 					</c:forEach>
 				</tbody>

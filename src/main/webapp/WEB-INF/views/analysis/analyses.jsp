@@ -22,9 +22,7 @@
 				<div class="panel panel-default">
 					<div class="panel-heading" style="min-height: 60px">
 						<ul class="nav nav-pills" id="menu_analysis">
-							<li><a href="#" onclick="return newAnalysis(this);"> <span class="glyphicon glyphicon-plus"></span> <spring:message code="label.menu.add.analysis"
-										text="New analysis" /></a></li>
-							<li><a href="#" onclick="return customAnalysis(this);"> <span class="glyphicon glyphicon-wrench"></span> <spring:message code="label.menu.build.analysis"
+							<li><a href="#" onclick="return customAnalysis(this);"> <span class="glyphicon glyphicon-plus"></span> <spring:message code="label.menu.build.analysis"
 										text="Build an analysis" /></a></li>
 							<li class="disabled" trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span class="glyphicon glyphicon-folder-open"></span>
 									&nbsp;<spring:message code="label.menu.open.analysis" text="Open analysis" /></a></li>

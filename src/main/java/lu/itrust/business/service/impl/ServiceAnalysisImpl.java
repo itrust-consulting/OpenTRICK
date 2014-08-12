@@ -458,4 +458,10 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 		return daoAnalysis.getDefaultProfileId();
 	}
 
+	@Override
+	public String getLabelFromId(int idAnalysis) {
+		return daoAnalysis.getLabelFromId(idAnalysis);
+	}
+
+
 }

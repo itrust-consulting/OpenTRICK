@@ -14,21 +14,21 @@
 			</div>
 			<div class="modal-body" style="padding-top: 2px;">
 				<ul class="nav nav-tabs" role="tablist" style="margin-top: 0px;">
-					<li class="active" role="tab_group_1"><a href="#group_1" data-toggle="tab"><spring:message code="label.menu.build.analyis.general" text="General" /></a></li>
-					<li><a href="#group_2" data-toggle="tab"><spring:message code="label.menu.build.analyis.others" text="Others" /></a></li>
+					<li class="active" role="tab_group_1"><a href="#group_1" data-toggle="tab"><spring:message code="label.menu.build.analyis.default" text="Default" /></a></li>
+					<li><a href="#group_2" data-toggle="tab"><spring:message code="label.menu.build.analyis.advance" text="Advance" /></a></li>
 					<li class="col-sm-6 pull-right">
 						<div class="progress progress-striped" hidden="true" style="margin-bottom: 5px; margin-top: 8px;">
 							<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
 						</div>
 					</li>
 				</ul>
-
+				
 				<form action="#" class="form-horizontal tab-content" id="tabs" style="height: 420">
 					<div id="group_1" class="tab-pane active" style="padding-top: 10px;">
 						<div class="form-group">
-							<label for="customer" class="col-sm-3 control-label"> <spring:message code="label.customer.organisation" text="Customer" />
+							<label for="customer" class="col-sm-2 control-label"> <spring:message code="label.customer.organisation" text="Customer" />
 							</label>
-							<div class="col-sm-9">
+							<div class="col-sm-10">
 								<select class="form-control" name="customer" required="required">
 									<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
 										<c:forEach items="${customers}" var="customer">
@@ -38,9 +38,9 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="language" class="col-sm-3 control-label"> <spring:message code="label.analysis.language" text="Language" />
+							<label for="language" class="col-sm-2 control-label"> <spring:message code="label.analysis.language" text="Language" />
 							</label>
-							<div class="col-sm-9">
+							<div class="col-sm-10">
 								<select name="language" class="form-control" required="required">
 									<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
 										<c:forEach items="${languages}" var="language">
@@ -49,26 +49,40 @@
 								</select>
 							</div>
 						</div>
+
 						<div class="form-group">
-							<label for="author" class="col-sm-3 control-label"> <spring:message code="label.analysis.author" text="Author" />
+							<label for="profile" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile_analysis" text="Profile" />
 							</label>
-							<div class="col-sm-9">
+							<div class="col-sm-10">
+								<select name="profile" id="analysis_profile" class="form-control">
+									<option value="-1"><spring:message code="label.action.choose.analysis_profile" text="Choose..." /></option>
+									<c:forEach items="${profiles}" var="profile">
+										<option value="${profile.id }"><spring:message text="${profile.identifier}" /></option>
+									</c:forEach>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="author" class="col-sm-2 control-label"> <spring:message code="label.analysis.author" text="Author" />
+							</label>
+							<div class="col-sm-10">
 								<input type="text" class="form-control" name="author" value="${author}" required="required" />
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="version" class="col-sm-3 control-label"> <spring:message code="label.analysis.version" text="Version" />
+							<label for="version" class="col-sm-2 control-label"> <spring:message code="label.analysis.version" text="Version" />
 							</label>
-							<div class="col-sm-9">
+							<div class="col-sm-10">
 								<input name="version" class="form-control" type="text" value="0.0.1" required="required" />
 							</div>
 						</div>
 
 						<div class="form-group">
-							<label for="label" class="col-sm-3 control-label"> <spring:message code="label.analysis.description" text="Description" />
+							<label for="label" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
 							</label>
-							<div class="col-sm-9">
-								<textarea name="comment" class="form-control resize_vectical_only" rows="12" required="required"></textarea>
+							<div class="col-sm-10">
+								<textarea name="comment" class="form-control resize_vectical_only" rows="11" required="required"></textarea>
 							</div>
 						</div>
 					</div>
