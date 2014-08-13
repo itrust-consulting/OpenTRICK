@@ -38,11 +38,12 @@
 								<th><spring:message code="label.measure.ri" text="RI" /> (k&euro;)</th>
 								<th><spring:message code="label.measure.cost" text="CS" /> (k&euro;)</th>
 								<th><label class="text-rotate-270"><spring:message code="label.measure.phase" text="Phase" /></label></th>
-								<th colspan="8"><spring:message code="label.measure.comment" text="Comment" /></th>
-								<th colspan="8"><spring:message code="label.measure.todo" text="To do" /></th>
 								<c:if test="${measureSplited.get(norm).get(0).getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
 									<th colspan="8"><spring:message code="label.measure.tocheck" text="To check" /></th>
 								</c:if>
+								<th colspan="8"><spring:message code="label.measure.comment" text="Comment" /></th>
+								<th colspan="8"><spring:message code="label.measure.todo" text="To do" /></th>
+								
 							</tr>
 						</thead>
 						<tfoot>
@@ -134,13 +135,14 @@
 													<c:when test="${measure.phase.number == 0}">NA</c:when>
 													<c:otherwise>${measure.phase.number}</c:otherwise>
 												</c:choose></td>
-											<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string"><spring:message
-													text="${measure.comment}" /></pre></td>
-											<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toDo" trick-content="text" trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
 											<c:if test="${measure.getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
 												<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toCheck" trick-content="text" trick-field-type="string"><spring:message
 														text="${measure.toCheck}" /></pre></td>
 											</c:if>
+											<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string"><spring:message
+													text="${measure.comment}" /></pre></td>
+											<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toDo" trick-content="text" trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
+											
 										</tr>
 									</c:otherwise>
 								</c:choose>

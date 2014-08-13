@@ -69,9 +69,10 @@
 			<c:when test="${measure.phase.number == 0}">NA</c:when>
 			<c:otherwise>${measure.phase.number}</c:otherwise>
 		</c:choose></td>
-	<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
-	<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toDo" trick-content="text" trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
 	<c:if test="${measure.getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
 		<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toCheck" trick-content="text" trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
 	</c:if>
+	<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>
+	<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toDo" trick-content="text" trick-field-type="string"><spring:message text="${measure.toDo}" /></pre></td>
+	
 </tr>

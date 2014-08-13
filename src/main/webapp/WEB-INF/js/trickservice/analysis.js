@@ -256,14 +256,25 @@ function enableButtonSaveStandardState(state) {
 		$("#add_standard_progressbar").show();
 	else
 		$("#add_standard_progressbar").hide();
+
 	$("#btn_save_standard").prop("disabled", !state);
 	$("#addStandardModal").find("a[role='remove-standard']").prop("disabled", !state);
+
+	if (state) {
+		$("#btn_save_standard").removeClass("disabled");
+		$("#addStandardModal").find("a[role='remove-standard']").removeClass("disabled");
+	} else {
+		$("#btn_save_standard").addClass("disabled");
+		$("#addStandardModal").find("a[role='remove-standard']").addClass("disabled");
+	}
 	return false;
 }
 
 function saveStandard(form) {
 	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.ALL)) {
+		if ($("#btn_save_standard").is(":disabled"))
+			return false;
 		enableButtonSaveStandardState(false);
 		var normId = $("#" + form + " select").val();
 		$.ajax({
