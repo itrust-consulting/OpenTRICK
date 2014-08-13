@@ -23,9 +23,13 @@ import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
+import lu.itrust.business.TS.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.helper.Chapter;
 import lu.itrust.business.component.helper.ImportRRFForm;
+import lu.itrust.business.dao.DAOActionPlan;
+import lu.itrust.business.dao.DAOActionPlanSummary;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAnalysisNorm;
 import lu.itrust.business.dao.DAOAssetType;
@@ -62,6 +66,12 @@ public class MeasureManager {
 
 	@Autowired
 	private DAOAssetTypeValue daoAssetTypeValue;
+
+	@Autowired
+	private DAOActionPlanSummary daoActionPlanSummary;
+
+	@Autowired
+	private DAOActionPlan daoActionPlan;
 
 	/**
 	 * SplitByNorm: <br>
@@ -212,7 +222,7 @@ public class MeasureManager {
 			return;
 		else if (count < pageSize)
 			count = pageSize;
-		int pageCount = (int) Math.ceil(count/(double)pageSize) + 1;
+		int pageCount = (int) Math.ceil(count / (double) pageSize) + 1;
 		for (int pageIndex = 1; pageIndex < pageCount; pageIndex++)
 			for (NormMeasure normMeasure : daoMeasure.getAllNormMeasure(pageIndex, pageSize))
 				removeDuplicationAssetypeValue(normMeasure);
@@ -240,6 +250,18 @@ public class MeasureManager {
 		indexAsssetType.clear();
 		if (saveRequired)
 			daoMeasure.saveOrUpdate(measure);
+	}
+
+	@Transactional
+	public void removeNormFromAnalysis(Integer idAnalysis, int idNorm) throws Exception {
+		AnalysisNorm analysisNorm = daoAnalysisNorm.getFromAnalysisIdAndNormId(idAnalysis, idNorm);
+		List<SummaryStage> summaryStages = daoActionPlanSummary.getAllFromAnalysis(idAnalysis);
+		for (SummaryStage summaryStage : summaryStages)
+			daoActionPlanSummary.delete(summaryStage);
+		List<ActionPlanEntry> actionPlanEntries = daoActionPlan.getAllFromAnalysis(idAnalysis);
+		for (ActionPlanEntry actionPlanEntry : actionPlanEntries)
+			daoActionPlan.delete(actionPlanEntry);
+		daoAnalysisNorm.delete(analysisNorm);
 	}
 
 }

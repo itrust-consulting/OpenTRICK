@@ -30,4 +30,6 @@ public interface DAOAnalysisNorm {
 	public void saveOrUpdate(AnalysisNorm analysisNorm) throws Exception;
 
 	public void delete(AnalysisNorm analysisNorm) throws Exception;
+
+	public AnalysisNorm getFromAnalysisIdAndNormId(Integer idAnalysis, int idNorm);
 }

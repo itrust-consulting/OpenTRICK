@@ -3,7 +3,8 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" id="analysisProfileModal" tabindex="-1" role="dialog" data-aria-labelledby="newAnalysisProfile" data-aria-hidden="true" data-backdrop="static" data-keyboard="true">
+<div class="modal fade" id="analysisProfileModal" tabindex="-1" role="dialog" data-aria-labelledby="newAnalysisProfile" data-aria-hidden="true" data-backdrop="static"
+	data-keyboard="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -21,7 +22,7 @@
 						</c:forEach>
 					</spring:bind>
 				</spring:hasBindErrors>
-				<form:form commandName="analysisProfile">
+				<form:form commandName="analysisProfile" cssClass="form">
 					<form:hidden path="idAnalysis" />
 					<form:errors element="label" path="idAnalysis" cssClass="label label-danger" />
 					<div class="form-group">
@@ -33,24 +34,16 @@
 					</div>
 					<div class="form-group">
 						<form:label path="norms">
-							<spring:message code="label.analysis.profile.norms" text="Standards" />
+							<spring:message code="label.analysis.profile.norms" text="Standards to include in profile" />
 						</form:label>
 						<form:select path="norms" multiple="true" cssClass="form-control" itemValue="id" itemLabel="label" items="${norms}" />
 					</div>
-					<table class="table">
-						<thead>
-							<tr>
-								<th><form:label path="scenario">
-										<spring:message code="label.analysis.profile.scenario" text="Scenarios" />
-									</form:label></th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td><form:checkbox path="scenario" /></td>
-							</tr>
-						</tbody>
-					</table>
+					<div class="form-group">
+						<label for="scenario"><spring:message code="label.analysis.profile.scenario" text="Include risk scenarios of analysis in profile" /></label>
+						
+							<input name="scenario" style="max-width: 20px; float: none; display: inline; margin-top: -3px;" type="checkbox" class="form-control"/>
+						
+					</div>
 					<div class="form-group">
 						<form:label path="comment">
 							<spring:message code="label.analysis.profile.description" text="Description" />

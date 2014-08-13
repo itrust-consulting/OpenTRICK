@@ -306,6 +306,8 @@ function customAnalysis(element) {
 
 				var $emptyText = $(modal.modal_body).find("*[dropzone='true']>div:first").text();
 
+				var $removeText = MessageResolver("label.action.delete", "Delete");
+
 				$(modal.modal_body).find("#selector-analysis").on(
 						"change",
 						function(e) {
@@ -364,33 +366,36 @@ function customAnalysis(element) {
 				$(modal.modal_body).find("#analysis-build-assets").attr("trick-callback", "checkEstimation()");
 				$(modal.modal_body).find("#analysis-build-standards").attr("trick-callback", "checkPhase()");
 
-				$(modal.modal_body).find("*[dropzone='true']>div").droppable({
-					accept : "li.list-group-item",
-					activeClass : "warning",
-					drop : function(event, ui) {
-						$(this).attr("trick-id", ui.draggable.attr("trick-id"));
-						$(this).attr("title", ui.draggable.attr("title"));
-						$(this).text(ui.draggable.attr("title"));
-						$(this).addClass("success");
-						$(this).parent().find('input').attr("value", ui.draggable.attr("trick-id"));
-						var callback = $(this).parent().attr("trick-callback");
-						$("<a href='#' class='pull-right text-danger'><span class='glyphicon glyphicon-remove-sign'></span></a>").appendTo($(this)).click(function() {
-							var $parent = $(this).parent();
-							$(this).remove();
-							$parent.removeAttr("trick-id");
-							$parent.removeAttr("title");
-							$parent.removeClass("success");
-							$parent.text($emptyText);
-							$parent.parent().find('input').attr("value", '-1');
-							if (callback != undefined)
-								eval(callback);
-							return false;
-						});
+				$(modal.modal_body).find("*[dropzone='true']>div").droppable(
+						{
+							accept : "li.list-group-item",
+							activeClass : "warning",
+							drop : function(event, ui) {
+								$(this).attr("trick-id", ui.draggable.attr("trick-id"));
+								$(this).attr("title", ui.draggable.attr("title"));
+								$(this).text(ui.draggable.attr("title"));
+								$(this).addClass("success");
+								$(this).parent().find('input').attr("value", ui.draggable.attr("trick-id"));
+								var callback = $(this).parent().attr("trick-callback");
+								$(
+										"<a href='#' class='pull-right text-danger' title='" + $removeText
+												+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($(this)).click(function() {
+									var $parent = $(this).parent();
+									$(this).remove();
+									$parent.removeAttr("trick-id");
+									$parent.removeAttr("title");
+									$parent.removeClass("success");
+									$parent.text($emptyText);
+									$parent.parent().find('input').attr("value", '-1');
+									if (callback != undefined)
+										eval(callback);
+									return false;
+								});
 
-						if (callback != undefined)
-							eval(callback);
-					}
-				});
+								if (callback != undefined)
+									eval(callback);
+							}
+						});
 				var $saveButton = $(modal.modal_footer).find("button[name='save']");
 				var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
 				var $progress_bar = $(modal.modal_body).find(".progress");
@@ -399,7 +404,7 @@ function customAnalysis(element) {
 						modal.Destroy();
 					return false;
 				});
-				
+
 				$saveButton.click(function() {
 					$(modal.modal).find(".label-danger, .alert").remove();
 					$(modal.modal_dialog).find("button").prop("disabled", true);

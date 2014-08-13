@@ -14,130 +14,9 @@ $(document).ready(function() {
 	// ******************************************************************************************************************
 
 	$("input[type='checkbox']").removeAttr("checked");
-
-	// ******************************************************************************************************************
-	// * fixed header tables
-	// ******************************************************************************************************************
-
-	/*
-	 * $("div.autofitpanelbodydefinition").click(function() {
-	 * 
-	 * if ($(this).outerHeight() >= 600) {
-	 * 
-	 * if (!$(this).hasClass("panelbodydefinition"))
-	 * $(this).addClass("panelbodydefinition");
-	 * 
-	 * if (($(this).find("div.fht-table-wrapper")).length <= 0) {
-	 * initialisefixheadertables($(this).find("table:visible")); } } });
-	 * 
-	 * $("div.autofitpanelbodydefinition").scroll(function() {
-	 * 
-	 * if ($(this).outerHeight() >= 600) {
-	 * 
-	 * if (!$(this).hasClass("panelbodydefinition"))
-	 * $(this).addClass("panelbodydefinition");
-	 * 
-	 * if (($(this).find("div.fht-table-wrapper")).length <= 0) {
-	 * initialisefixheadertables($(this).find("table:visible")); } } });
-	 */
-
-	// ******************************************************************************************************************
-	// * measure description in popover
-	// ******************************************************************************************************************
-	//initmeasuredescriptionpopover();
-
 });
-/*
-function initialisefixheadertables(parent) {
 
-	if (parent.length !== 0) {
-		// initialise fixedheader table with parameters
-		$(parent).fixedHeaderTable("destroy");
-		var parentt = $(parent).parent();
-		$(parentt).find("table:visible").not("[id]").remove();
-		$(parent).fixedHeaderTable({
-			footer : false,
-			cloneHeadToFoot : false,
-			fixedColumn : false,
-			width : "100%",
-			themeClass : 'table table-hover'
-		});
-
-		$(parentt).find("div[class='fht-tbody']").scroll(function() {
-			// console.log("ohe");
-
-			// check if a popover is active
-			if (el != null) {
-
-				// hide popover
-				el.popover('hide');
-
-				// remove popover from dom (to avoid unclickable references)
-				$('.popover').remove();
-
-				// set watcher to null (no popover is active)
-				el = null;
-			}
-		});
-
-		// first data row has wrong margin top
-		// $('.headertofixtable').css("margin-top", "-49px");
-
-		// remove small scrolling which causes scrolling inside panel
-		$('div [class="fht-table-wrapper table table-hover"]').css("margin", "0");
-		$('div [class="fht-table-wrapper table table-hover"]').css("padding", "0");
-	}
-}
-
-function initmeasuredescriptionpopover() {
-	// tooltip / popover click on reference
-	$(document).on("click", ".descriptiontooltip", function() {
-
-		// check if the same reference had been clicked to hide
-		if (el != null && el.attr("data-original-title") != $(this).attr("data-original-title")) {
-
-			// hide opened popover
-			el.popover("hide");
-
-			// set watcher to null (no popover active)
-			el = null;
-		}
-
-		// set current popover as active
-		el = $(this);
-
-		// initialise popover and toggle visablility
-		$(this).popover({
-			trigger : 'manual',
-			placement : 'bottom',
-			html : true,
-			container : ".autofitpanelbodydefinition"
-		}).popover('toggle');
-
-		// avoid scroll top
-		return false;
-	});
-
-	// when table is scrolled, hide popover
-	$("div[class='autofitpanelbodydefinition']").scroll(function() {
-		// console.log("ohe");
-		// check if a popover is active
-		if (el != null) {
-
-			// hide popover
-			el.popover('hide');
-
-			// remove popover from dom (to avoid unclickable references)
-			$('.popover').remove();
-
-			// set watcher to null (no popover is active)
-			el = null;
-		}
-	});
-}
-*/
 // reload measures
-
 function reloadMeasureRow(idMeasure, norm) {
 	$.ajax({
 		url : context + "/Measure/SingleMeasure/" + idMeasure,
@@ -148,7 +27,7 @@ function reloadMeasureRow(idMeasure, norm) {
 			var element = document.createElement("div");
 			$(element).html(response);
 			var tag = $(element).find("tr[trick-id='" + idMeasure + "']");
-			if (tag.length){
+			if (tag.length) {
 				$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']").replaceWith(tag);
 				$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
 			}
@@ -293,9 +172,7 @@ function chartALE() {
 		$.ajax({
 			url : context + "/Asset/Chart/Type/Ale",
 			type : "get",
-			async : true,
 			contentType : "application/json;charset=UTF-8",
-			async : true,
 			success : function(response) {
 				$('#chart_ale_asset_type').highcharts(response);
 			},
@@ -307,45 +184,80 @@ function chartALE() {
 
 // add new standard to analysis
 
-function addStandard() {
+function manageStandard() {
 	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.ALL)) {
-		enableButtonSaveStandardState(true);
 		$.ajax({
 			url : context + "/Analysis/Add/Standard",
 			type : "get",
-			contentType : "application/json;charset=UTF-8",
+			async : false,
 			success : function(response) {
 				if (response["error"] != undefined)
 					showError($("#addStandardModal .modal-body")[0], response["error"]);
 				else {
-					var forms = $.parseHTML(response);
-					if (!$(forms).find("#addStandardForm").length) {
+					var parser = new DOMParser();
+					var doc = parser.parseFromString(response, "text/html");
+					var forms = $(doc).find("#addStandardModal");
+					if (!forms.length) {
 						showError($("#addStandardModal .modal-body")[0], MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
 					} else {
-						$("#addStandardModal").replaceWith($(forms));
-						enableButtonSaveStandardState(true);
+						$("#addStandardModal").replaceWith(forms);
 						$("#addStandardModal").modal("toggle");
+						$("#addStandardModal").find("a[role='remove-standard']").click(
+								function() {
+									if ($(this).is(":disabled"))
+										return false;
+									var modal = new Modal($("#confirm-dialog").clone(), MessageResolver("confirm.delete.analysis.norm",
+											"Are you sure, you want to remove this standard from this analysis?"));
+									var selectedNorm = this;
+									$(modal.modal_footer).find("button[name='yes']").click(function() {
+										if ($(selectedNorm).is(":disabled"))
+											return false;
+										enableButtonSaveStandardState(false);
+										$.ajax({
+											url : context + "/Analysis/Delete/Standard/" + $(selectedNorm).attr("trick-id"),
+											type : "get",
+											async : false,
+											contentType : "application/json;charset=UTF-8",
+											success : function(response) {
+												if (response["error"] != undefined) {
+													enableButtonSaveStandardState(true);
+													showError($("#addStandardModal .modal-footer")[0], response["error"]);
+												} else if (response["success"] != undefined) {
+													showSuccess($("#addStandardModal .modal-footer")[0], response["success"]);
+													location.reload();
+													setTimeout(function() {
+														$("#addStandardModal").modal("hide");
+													}, 10000);
+												} else
+													unknowError();
+											},
+											error : unknowError
+										});
+									});
+									modal.Show();
+								});
 					}
 				}
 			},
 			error : unknowError
 		});
+		enableButtonSaveStandardState(true);
 	} else
 		permissionError();
 	return false;
 }
 
 function enableButtonSaveStandardState(state) {
-	if (!$("#btn_save_standard").length)
+	if (!($("#btn_save_standard").length || $("#addStandardModal").find("a[role='remove-standard']").length))
 		return false;
-	if ($("#addStandardModal .alert").length)
-		$("#addStandardModal .alert").remove();
+	$("#addStandardModal .alert").remove();
 	if (!state)
 		$("#add_standard_progressbar").show();
 	else
 		$("#add_standard_progressbar").hide();
 	$("#btn_save_standard").prop("disabled", !state);
+	$("#addStandardModal").find("a[role='remove-standard']").prop("disabled", !state);
 	return false;
 }
 
@@ -361,12 +273,12 @@ function saveStandard(form) {
 			success : function(response) {
 				if (response["error"] != undefined) {
 					enableButtonSaveStandardState(true);
-					showError($("#addStandardModal .modal-body")[0], response["error"]);
+					showError($("#addStandardModal .modal-footer")[0], response["error"]);
 				} else if (response["success"] != undefined) {
-					showSuccess($("#addStandardModal .modal-body")[0], response["success"]);
+					showSuccess($("#addStandardModal .modal-footer")[0], response["success"]);
 					location.reload();
 					setTimeout(function() {
-						$("#addStandardModal").modal("toggle");
+						$("#addStandardModal").modal("hide");
 					}, 10000);
 				}
 			},

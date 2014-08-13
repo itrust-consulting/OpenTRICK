@@ -50,6 +50,7 @@ import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ComparatorItemInformation;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.GeneralComperator;
+import lu.itrust.business.component.MeasureManager;
 import lu.itrust.business.component.helper.AnalysisBaseInfo;
 import lu.itrust.business.component.helper.CustomAnalysisForm;
 import lu.itrust.business.component.helper.JsonMessage;
@@ -223,6 +224,9 @@ public class ControllerAnalysis {
 	private ServiceAnalysisNorm serviceAnalysisNorm;
 
 	@Autowired
+	private MeasureManager measureManager;
+
+	@Autowired
 	private ServiceAssessment serviceAssessment;
 
 	@Value("${app.settings.report.template.name}")
@@ -322,23 +326,26 @@ public class ControllerAnalysis {
 	}
 
 	@RequestMapping(value = "/Add/Standard", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
 	public String addStandardForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		List<Norm> norms = serviceNorm.getAllNotInAnalysis(idAnalysis);
-		if (norms.isEmpty()) {
-			attributes.addFlashAttribute("error",
-					messageSource.getMessage("error.analysis.add.standard", null, "Unfortunately, you cannot append a new standard to this analysis", locale));
-			return "redirect:/Error";
-		}
 		model.addAttribute("norms", norms);
 		model.addAttribute("currentNorms", serviceNorm.getAllFromAnalysis(idAnalysis));
 		model.addAttribute("idAnalysis", idAnalysis);
 		return "analysis/components/forms/standard";
 	}
 
+	@RequestMapping(value = "/Delete/Standard/{idNorm}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
+	public @ResponseBody String removeStandard(@PathVariable int idNorm, HttpSession session, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		measureManager.removeNormFromAnalysis(idAnalysis, idNorm);
+		return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", locale));
+	}
+
 	@RequestMapping(value = "/Save/Standard/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, RedirectAttributes attributes, Locale locale) throws Exception {
 		try {
 			Norm norm = serviceNorm.get(idStandard);
@@ -848,7 +855,7 @@ public class ControllerAnalysis {
 									String.format("Phase based on: %s version: %s", label, version), locale);
 				}
 			}
-			
+
 			history.setComment(history.getComment() + baseAnalysis);
 			List<ItemInformation> itemInformations = serviceItemInformation.getAllFromAnalysis(customAnalysisForm.getScope());
 			for (ItemInformation itemInformation : itemInformations)

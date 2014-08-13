@@ -204,10 +204,7 @@ var ANALYSIS_RIGHT = {
 };
 
 function permissionError() {
-	var modal = new Modal();
-	modal.FromContent($("#alert-dialog").clone());
-	modal.setBody(MessageResolver("error.not_authorized", "Insufficient permissions!"));
-	modal.Show();
+	new Modal($("#alert-dialog").clone(), MessageResolver("error.not_authorized", "Insufficient permissions!")).Show();
 	return false;
 }
 

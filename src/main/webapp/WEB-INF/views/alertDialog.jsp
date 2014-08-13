@@ -39,10 +39,10 @@
 				<div class="modal-body"></div>
 				<!-- dialog buttons -->
 				<div class="modal-footer">
-					<button type="button" class="btn btn-danger" data-dismiss="modal">
+					<button type="button" name="yes" class="btn btn-danger" data-dismiss="modal">
 						<spring:message code="label.action.confirm.yes" text="Yes" />
 					</button>
-					<button type="button" class="btn btn-default" data-dismiss="modal">
+					<button type="button" name="no" class="btn btn-default" data-dismiss="modal">
 						<spring:message code="label.action.confirm.no" text="No" />
 					</button>
 				</div>

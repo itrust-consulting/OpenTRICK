@@ -21,7 +21,7 @@
 			<span id="anchorParameter_Impact" class="anchor"></span>
 			<div class="panel panel-default" id="Scale_Impact">
 				<div class="panel-heading">
-					<spring:message code="label.title.parameter.extended.impact" text="Impact of threat" />
+					<spring:message code="label.title.parameter.extended.impact" text="Impact scale" />
 				</div>
 				<div class="panel-body">
 					<table class="table table-hover">
@@ -66,7 +66,7 @@
 			<span id="anchorParameter_Probability" class="anchor"></span>
 			<div class="panel panel-default" id="Scale_Probability">
 				<div class="panel-heading">
-					<spring:message code="label.parameter.extended.probability" text="Probability of threat occurrence" />
+					<spring:message code="label.parameter.extended.probability" text="Probability scale" />
 				</div>
 				<div class="panel-body">
 					<table class="table table-hover">
@@ -124,7 +124,7 @@
 				<div class="panel-heading">
 					<spring:message code="label.title.parameter.maturity_ilps" text="Required level of implmentation per SML" />
 				</div>
-				<div class="panel-body autofitpanelbodydefinition" style="max-height: 655px; overflow: auto; min-height: 655px">
+				<div class="panel-body autofitpanelbodydefinition" style="max-height: 619px; overflow: auto; min-height: 619px">
 					<table class="table table-hover table-fixed-header" id="tableMaturityIlps">
 						<thead>
 							<tr>

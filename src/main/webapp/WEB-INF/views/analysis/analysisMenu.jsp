@@ -55,7 +55,7 @@
 						<c:if test="${!measureSplited.isEmpty()}">
 							<li class="divider"></li>
 						</c:if>
-						<li><a href="#" onclick="return addStandard();"> <spring:message code="label.menu.add.standard" text="Add a standard" /></a></li>
+						<li><a href="#" onclick="return manageStandard();"> <spring:message code="label.menu.manage.standard" text="Manage standard" /></a></li>
 					</c:if>
 				</ul></li>
 			<c:if test="${!KowledgeBaseView }">

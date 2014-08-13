@@ -127,4 +127,9 @@ public class DAOAnalysisNormHBM extends DAOHibernate implements DAOAnalysisNorm 
 	public void delete(AnalysisNorm analysisNorm) throws Exception {
 		getSession().delete(analysisNorm);
 	}
+
+	@Override
+	public AnalysisNorm getFromAnalysisIdAndNormId(Integer idAnalysis, int idNorm) {
+		return (AnalysisNorm) getSession().createQuery("From AnalysisNorm where analysis.id = :idAnalysis and norm.id = :idNorm").setParameter("idAnalysis", idAnalysis).setParameter("idNorm", idNorm).uniqueResult();
+	}
 }
