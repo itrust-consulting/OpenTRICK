@@ -62,7 +62,7 @@ function deleteLanguage(languageId, name) {
 		name = $("#section_language tbody tr[trick-id='" + languageId + "']>td:nth-child(3)").text();
 
 	}
-	$("#deleteLanguageBody").html(MessageResolver("label.language.question.delete", "Are you sure that you want to delete the language <strong>" + name + "</strong>?",name ));
+	$("#deleteLanguageBody").html(MessageResolver("label.language.question.delete", "Are you sure that you want to delete the language <strong>" + name + "</strong>?", name));
 	$("#deletelanguagebuttonYes").click(function() {
 		$.ajax({
 			url : context + "/KnowledgeBase/Language/Delete/" + languageId,
@@ -71,7 +71,8 @@ function deleteLanguage(languageId, name) {
 			success : function(response) {
 				reloadSection("section_language");
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		$("#deleteLanguageModel").modal('toggle');
 		return false;
@@ -81,6 +82,8 @@ function deleteLanguage(languageId, name) {
 }
 
 function newLanguage() {
+	if (findSelectItemIdBySection("section_language").length)
+		return false;
 	var alert = $("#addLanguageModel .label-danger");
 	if (alert.length)
 		alert.remove();

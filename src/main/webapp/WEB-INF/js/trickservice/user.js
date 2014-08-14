@@ -118,6 +118,8 @@ function deleteUser(userId, name) {
 }
 
 function newUser() {
+	if (findSelectItemIdBySection(("section_user")).length > 0)
+		return false;
 	$("#user_id").prop("value", "-1");
 	$("#user_login").prop("value", "");
 	$("#user_login").removeAttr("disabled");

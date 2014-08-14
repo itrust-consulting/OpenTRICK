@@ -82,12 +82,14 @@
 							</ul>
 						</div>
 					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-sm-9">
+							<button class="btn btn-primary" onclick="return updateProfile('updateprofileform');" type="button">
+								<spring:message code="label.user.update" text="Update" />
+							</button>
+						</div>
+					</div>
 				</form>
-				<div style="text-align: center">
-					<button class="btn btn-primary" onclick="return updateProfile('updateprofileform');" type="button">
-						<spring:message code="label.user.update" text="Update" />
-					</button>
-				</div>
 			</div>
 		</div>
 		<jsp:include page="footer.jsp" />

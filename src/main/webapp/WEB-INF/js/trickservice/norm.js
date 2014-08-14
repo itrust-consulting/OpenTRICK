@@ -63,7 +63,7 @@ function deleteNorm(normId, name) {
 		normId = selectedScenario[0];
 		name = $("#section_norm tbody tr[trick-id='" + normId + "']>td:nth-child(2)").text();
 	}
-	$("#deleteNormBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the norm <strong>" + name + "</strong>?",name));
+	$("#deleteNormBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the norm <strong>" + name + "</strong>?", name));
 	$("#deletenormbuttonYes").click(function() {
 		$.ajax({
 			url : context + "/KnowledgeBase/Norm/Delete/" + normId,
@@ -73,10 +73,11 @@ function deleteNorm(normId, name) {
 				if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
-				}	
+				}
 				reloadSection("section_norm");
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		$("#deletenormbuttonYes").unbind("click");
 		$("#deleteNormModel").modal('toggle');
@@ -87,6 +88,8 @@ function deleteNorm(normId, name) {
 }
 
 function uploadImportNormFile() {
+	if (findSelectItemIdBySection("section_norm").length)
+		return false;
 	$.ajax({
 		url : context + "/KnowledgeBase/Norm/Upload",
 		async : true,
@@ -105,7 +108,8 @@ function uploadImportNormFile() {
 			});
 			$("#uploadNormModal").modal("toggle");
 			return false;
-		},error : unknowError
+		},
+		error : unknowError
 	});
 	return false;
 }
@@ -116,12 +120,14 @@ function onSelectFile(file) {
 }
 
 function importNewNorm() {
+	if (findSelectItemIdBySection("section_norm").length)
+		return false;
 	$("#uploadNormModal .modal-footer .btn").prop("disabled", true);
 	$("#uploadNormModal .modal-header .close").prop("disabled", true);
-	
-	if(progressBar != undefined)
+
+	if (progressBar != undefined)
 		progressBar.Destroy();
-	
+
 	var formData = new FormData($('#uploadNorm_form')[0]);
 	$.ajax({
 		url : context + "/KnowledgeBase/Norm/Import",
@@ -171,8 +177,7 @@ function importNewNorm() {
 			}
 
 		},
-		error : unknowError
-		,
+		error : unknowError,
 		// error : errorHandler,
 		// Form data
 		data : formData,
@@ -186,6 +191,8 @@ function importNewNorm() {
 }
 
 function newNorm() {
+	if (findSelectItemIdBySection("section_norm").length)
+		return false;
 	var alert = $("#addNormModel .label-danger");
 	if (alert.length)
 		alert.remove();
@@ -204,7 +211,7 @@ function newNorm() {
 
 function editSingleNorm(normId) {
 	if (normId == null || normId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_norm"));
+		var selectedScenario = findSelectItemIdBySection("section_norm");
 		if (selectedScenario.length != 1)
 			return false;
 		normId = selectedScenario[0];
@@ -229,6 +236,8 @@ function editSingleNorm(normId) {
 }
 
 function getImportNormTemplate() {
+	if (findSelectItemIdBySection("section_norm").length)
+		return false;
 	$.fileDownload(context + '/data/TL_TRICKService_NormImport_V1.1.xlsx').done(function() {
 		alert('File download a success!');
 	}).fail(function() {
@@ -239,15 +248,15 @@ function getImportNormTemplate() {
 
 function exportSingleNorm(normId) {
 	if (normId == null || normId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_norm"));
+		var selectedScenario = findSelectItemIdBySection("section_norm");
 		if (selectedScenario.length != 1)
 			return false;
 		normId = selectedScenario[0];
 	}
-	
-	$.fileDownload(context + '/KnowledgeBase/Norm/Export/'+normId).fail(function() {
+
+	$.fileDownload(context + '/KnowledgeBase/Norm/Export/' + normId).fail(function() {
 		unknowError();
 	});
 	return false;
-	
+
 }

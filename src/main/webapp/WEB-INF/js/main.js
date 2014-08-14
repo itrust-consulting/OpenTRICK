@@ -366,6 +366,13 @@ function isSelected(sectionName) {
 function checkControlChange(checkbox, sectionName, appModalVar) {
 	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input") : $(application[appModalVar].modal).find(
 			"tbody tr td:first-child input");
+	var multiSelectAllowed = ((appModalVar == undefined || appModalVar == null) ? $("#menu_" + sectionName + " li[trick-selectable='multi']") : $(application[appModalVar].modal)
+			.find("#menu_" + sectionName + " li[trick-selectable='multi']")).length > 0;
+	if (!multiSelectAllowed) {
+		$(checkbox).prop("disabled", true);
+		$(checkbox).prop("checked", false);
+		return false;
+	}
 	for (var i = 0; i < items.length; i++) {
 		$(items[i]).prop("checked", $(checkbox).is(":checked"));
 		if ($(checkbox).is(":checked"))
@@ -378,21 +385,38 @@ function checkControlChange(checkbox, sectionName, appModalVar) {
 }
 
 function updateMenu(sender, idsection, idMenu, appModalVar) {
-	var checkedCount = (appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked").length
-			: $(application[appModalVar].modal).find("tbody :checked").length;
-	if (checkedCount == 1) {
+	if (sender) {
+		if ($(sender).is(":checked")) {
+			$(sender).parent().parent().addClass("info")
+			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $(idMenu + " li[trick-selectable='multi']") : $(application[appModalVar].modal).find(
+					idMenu + " li[trick-selectable='multi']")).length == 0;
+			if (multiSelectNotAllowed) {
+				var items = (appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked");
+				for (var i = 0; i < items.length; i++) {
+					if (sender == $(items[i])[0])
+						continue;
+					$(items[i]).prop("checked", false);
+					$(items[i]).parent().parent().removeClass("info")
+				}
+			}
+		} else
+			$(sender).parent().parent().removeClass("info")
+	}
+
+	var checkedCount = ((appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked")).length;
+	if (checkedCount > 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			var checker = $($lis[i]).attr("trick-check");
-			if ($($lis[i]).attr("trick-selectable") != undefined && (checker == undefined || eval(checker)))
+			if ($($lis[i]).attr("trick-selectable") === "multi")
 				$($lis[i]).removeClass("disabled");
 			else
 				$($lis[i]).addClass("disabled");
 		}
-	} else if (checkedCount > 1) {
+	} else if (checkedCount == 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			if ($($lis[i]).attr("trick-selectable") === "multi")
+			var checker = $($lis[i]).attr("trick-check");
+			if ($($lis[i]).attr("trick-selectable") != undefined && (checker == undefined || eval(checker)))
 				$($lis[i]).removeClass("disabled");
 			else
 				$($lis[i]).addClass("disabled");
@@ -406,12 +430,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 				$($lis[i]).removeClass("disabled");
 		}
 	}
-	if (sender) {
-		if ($(sender).is(":checked"))
-			$(sender).parent().parent().addClass("info")
-		else
-			$(sender).parent().parent().removeClass("info")
-	}
+
 	return false;
 }
 
