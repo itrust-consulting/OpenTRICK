@@ -83,16 +83,17 @@
 								</c:choose>
 							</c:if>
 							<tr trick-class="RiskInformation" trick-id="${risk_information.id}">
+								<c:set var="codeLabel">label.risk_information.${fn:toLowerCase(categoryRiskInformation)}.${fn:replace(risk_information.chapter,'.','_')}</c:set>
 								<c:choose>
 									<c:when test='${fct:matches(risk_information.chapter,chapterRegex)}'>
 										<c:choose>
 											<c:when test="${categoryRiskInformation == 'Threat'}">
 												<td><strong><spring:message text="${risk_information.chapter}" /></strong></td>
-												<td colspan="13"><strong><spring:message text="${risk_information.label}" /></strong></td>
+												<td colspan="13"><strong><spring:message code="${codeLabel}" text="${risk_information.label}" /></strong></td>
 											</c:when>
 											<c:otherwise>
 												<td><strong><spring:message text="${risk_information.chapter}" /></strong></td>
-												<td colspan="3"><strong><spring:message text="${risk_information.label}" /></strong></td>
+												<td colspan="3"><strong><spring:message code="${codeLabel}" text="${risk_information.label}" /></strong></td>
 												<td class="success" trick-field="exposed" trick-choose=",++,+,N,-,--" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 														text="${risk_information.exposed}" /></td>
 												<td colspan="4" class="success" trick-field="comment" trick-content="text" trick-field-type="string" ondblclick="return editField(this);"><spring:message
@@ -104,7 +105,7 @@
 									</c:when>
 									<c:otherwise>
 										<td><spring:message text="${risk_information.chapter}" /></td>
-										<td colspan="3"><spring:message text="${risk_information.label}" /></td>
+										<td colspan="3"><spring:message code="${codeLabel}" text="${risk_information.label}" /></td>
 										<c:if test="${categoryRiskInformation == 'Threat'}">
 											<td><spring:message text="${risk_information.acronym}" /></td>
 										</c:if>
@@ -116,6 +117,7 @@
 												text="${risk_information.hiddenComment}" /></td>
 									</c:otherwise>
 								</c:choose>
+								<% System.out.println( pageContext.findAttribute("codeLabel")); %>
 							</tr>
 						</c:forEach>
 					</tbody>

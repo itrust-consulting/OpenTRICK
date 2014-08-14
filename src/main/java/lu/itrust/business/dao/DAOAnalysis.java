@@ -82,4 +82,6 @@ public interface DAOAnalysis {
 	public int getDefaultProfileId();
 
 	public String getLabelFromId(int idAnalysis);
+
+	public String getCustomerNameFromId(int idAnalysis);
 }

@@ -83,5 +83,7 @@ public interface ServiceAnalysis {
 
 	public String getLabelFromId(int idAnalysis);
 
+	public String getCustomerNameFromId(int scenario);
+
 	
 }

@@ -30,9 +30,9 @@
 				</c:if>
 				<c:set var="parameters" value="${analysis.parameters}" scope="request" />
 				<jsp:include page="./components/parameter.jsp" />
-				<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
-				<jsp:include page="./components/riskinformation.jsp" />
 				<c:if test="${!KowledgeBaseView }">
+					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
+					<jsp:include page="./components/riskinformation.jsp" />
 					<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeALE(analysis)" var="ales" />
 					<c:set var="assetALE" value="${ales[0]}" scope="request" />
 					<c:set var="assets" value="${analysis.assets}" scope="request" />

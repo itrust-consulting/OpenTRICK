@@ -142,6 +142,8 @@ function deleteMeasure(measureId, reference, norm) {
 }
 
 function newMeasure(normId) {
+	if (findSelectItemIdBySection(undefined, application["modal-measure"].modal_body).length)
+		return false;
 	if (normId == null || normId == undefined)
 		normId = $(application["modal-measure"].modal).find("#normId").val();
 	var modalMeasureForm = new Modal();

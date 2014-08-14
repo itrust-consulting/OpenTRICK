@@ -818,7 +818,9 @@ public class ExportAnalysisReport {
 					row = table.createRow();
 					chapter = riskinfo.getChapter().matches("\\d(\\.0){2}");
 					row.getCell(0).setText(riskinfo.getChapter());
-					row.getCell(1).setText(riskinfo.getLabel());
+					row.getCell(1).setText(
+							getMessage(String.format("label.risk_information.%s.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")), null,
+									riskinfo.getLabel(), locale));
 					if (riskinfo.getCategory().equals("Threat")) {
 						for (int i = 0; i < 3; i++)
 							row.getCell(i).setColor(chapter ? HEADER_COLOR : SUB_HEADER_COLOR);
@@ -1048,7 +1050,7 @@ public class ExportAnalysisReport {
 		paragraph = findParagraphByText("<Scope>");
 
 		List<ItemInformation> iteminformations = analysis.getItemInformations();
-		
+
 		Collections.sort(iteminformations, new ComparatorItemInformation());
 
 		if (paragraph != null && iteminformations.size() > 0) {
@@ -1086,7 +1088,7 @@ public class ExportAnalysisReport {
 	}
 
 	private String getMessage(String code, Object[] parameters, String defaultMessage, Locale locale) {
-		// System.out.println(String.format("%s=%s", code, defaultMessage));
+		//System.out.println(String.format("%s=%s", code, defaultMessage));
 		return messageSource.getMessage(code, parameters, defaultMessage, locale);
 	}
 

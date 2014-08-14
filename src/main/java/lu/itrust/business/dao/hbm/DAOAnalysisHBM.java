@@ -417,4 +417,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public String getLabelFromId(int idAnalysis) {
 		return (String) getSession().createQuery("SELECT label From Analysis where id = :id").setParameter("id", idAnalysis).uniqueResult();
 	}
+
+	@Override
+	public String getCustomerNameFromId(int idAnalysis) {
+		return (String) getSession().createQuery("SELECT customer.organisation From Analysis where id = :id").setParameter("id", idAnalysis).uniqueResult();
+	}
 }

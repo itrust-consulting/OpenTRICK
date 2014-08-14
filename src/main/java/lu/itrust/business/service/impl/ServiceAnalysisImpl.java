@@ -463,5 +463,10 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 		return daoAnalysis.getLabelFromId(idAnalysis);
 	}
 
+	@Override
+	public String getCustomerNameFromId(int idAnalysis) {
+		return daoAnalysis.getCustomerNameFromId(idAnalysis);
+	}
+
 
 }
