@@ -444,6 +444,7 @@ function customAnalysis(element) {
 										case "author":
 										case "version":
 										case "assessment":
+										case "profile":
 											$(errorElement).appendTo($(modal.modal_body).find("form *[name='" + error + "']").parent());
 											break;
 										case "riskInformation":

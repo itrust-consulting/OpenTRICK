@@ -741,21 +741,27 @@ public class ControllerAnalysis {
 			if (customAnalysisForm.isAssessment() && (customAnalysisForm.getScenario() < 1 || customAnalysisForm.getScenario() != customAnalysisForm.getAsset()))
 				errors.put("assessment", messageSource.getMessage("error.analysis_custom.assessment.invalid", null, "Risk estimation cannot be selected", locale));
 
-			if (customAnalysisForm.getScope() < 1)
-				errors.put("scope", messageSource.getMessage("error.error.analysis_custom.scope.empty", null, "Scope cannot be empty", locale));
-			else if (!(customAnalysisForm.getScope() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getScope(), principal.getName(),
+			if (customAnalysisForm.getScope() < 1) {
+				if (!errors.containsKey("profile"))
+					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
+				errors.put("scope", messageSource.getMessage("error.analysis_custom.scope.empty", null, "No default profile, scope cannot be empty", locale));
+			} else if (!(customAnalysisForm.getScope() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getScope(), principal.getName(),
 					AnalysisRight.READ)))
 				errors.put("scope", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			if (customAnalysisForm.getParameter() < 1)
-				errors.put("parameter", messageSource.getMessage("error.error.analysis_custom.parameter.empty", null, "Parameter cannot be empty", locale));
-			else if (!(customAnalysisForm.getParameter() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getParameter(), principal.getName(),
+			if (customAnalysisForm.getParameter() < 1) {
+				if (!errors.containsKey("profile"))
+					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
+				errors.put("parameter", messageSource.getMessage("error.analysis_custom.parameter.empty", null, "No default profile, parameter cannot be empty", locale));
+			} else if (!(customAnalysisForm.getParameter() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getParameter(), principal.getName(),
 					AnalysisRight.READ)))
 				errors.put("parameter", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
-			if (customAnalysisForm.getRiskInformation() < 1)
-				errors.put("riskInformation", messageSource.getMessage("error.error.analysis_custom.risk_information.empty", null, "Parameter cannot be empty", locale));
-			else if (!(customAnalysisForm.getRiskInformation() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getRiskInformation(),
+			if (customAnalysisForm.getRiskInformation() < 1) {
+				if (!errors.containsKey("profile"))
+					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
+				errors.put("riskInformation", messageSource.getMessage("error.analysis_custom.risk_information.empty", null, "No default profile, risk information cannot be empty", locale));
+			} else if (!(customAnalysisForm.getRiskInformation() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getRiskInformation(),
 					principal.getName(), AnalysisRight.READ)))
 				errors.put("riskInformation", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 

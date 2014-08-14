@@ -117,7 +117,7 @@
 												text="${risk_information.hiddenComment}" /></td>
 									</c:otherwise>
 								</c:choose>
-								<% System.out.println( pageContext.findAttribute("codeLabel")); %>
+<%-- 								<% System.out.println( pageContext.findAttribute("codeLabel")); %> --%>
 							</tr>
 						</c:forEach>
 					</tbody>
