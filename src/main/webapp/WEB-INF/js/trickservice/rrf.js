@@ -28,7 +28,8 @@ function RRFView() {
 		else if (response.error != undefined) {
 			$(this.modal_body).find("#chart_rrf").html('<div style="width: 1151px; height: 400px; padding-top: 12%"></div>');
 			showError($(this.modal_body).find("#chart_rrf div")[0], response.error);
-		}
+		} else
+			unknowError();
 		return false;
 	};
 
@@ -72,6 +73,10 @@ function RRFView() {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
 				newSection = $(doc).find("*[id ='section_rrf']");
+				if (!newSection.length) {
+					unknowError();
+					return false;
+				}
 				that.setBody($(newSection)[0].outerHTML);
 				// initialise controllers
 				that.controllers = {
@@ -317,7 +322,9 @@ function ScenarioRRFController(rrfView, container, name) {
 						});
 					}
 					that.CheckTypeValue();
-				}
+				} else
+					unknowError();
+
 				return false;
 			},
 			error : unknowError
@@ -680,9 +687,9 @@ function importRRF(idAnalysis) {
 					var $importButton = $(modal.modal_footer).find("button[name='import']");
 					var $cancelButton = $(modal.modal_footer).find("button[name='cancel']");
 					var $progressBar = $(modal.modal_body).find(".progress");
-					//Rejected by Product owner
+					// Rejected by Product owner
 					$switchRRFButton.hide();
-					
+
 					$importButton.click(function() {
 						if ($importButton.is(":disabled"))
 							return false;

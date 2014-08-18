@@ -15,7 +15,7 @@ function Application() {
 }
 
 function unknowError(jqXHR, textStatus, errorThrown) {
-	if (typeof exception != 'undefined' && exception === 'abort')
+	if (typeof exception != 'undefined' && exception === 'abort' || application["isReloading"])
 		return false;
 	new Modal($("#alert-dialog").clone(), MessageResolver("error.unknown.occurred", "An unknown error occurred")).Show();
 	return true;
@@ -51,6 +51,11 @@ $(function() {
 		filterRow : '', // filter row class
 		even : '', // odd row zebra striping
 		odd : '' // even row zebra striping
+	});
+
+	//prevent unknown error modal display
+	$("a[role='changeUILanguage'], div[role='main-menu'] a").click(function() {
+		application["isReloading"] = true;
 	});
 
 	if ($(".popover-element").length)
@@ -93,7 +98,6 @@ $.fn.removeAttributes = function(only, except) {
 			return item.toString().toLowerCase();
 		});
 	}
-	;
 	if (except) {
 		except = $.map(except, function(item) {
 			return item.toString().toLowerCase();
@@ -103,9 +107,7 @@ $.fn.removeAttributes = function(only, except) {
 				return $.inArray(item, except) == -1;
 			});
 		}
-		;
 	}
-	;
 	return this.each(function() {
 		var attributes;
 		if (!only) {
@@ -117,7 +119,6 @@ $.fn.removeAttributes = function(only, except) {
 					return $.inArray(item, except) == -1;
 				});
 			}
-			;
 		} else {
 			attributes = only;
 		}
