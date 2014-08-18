@@ -34,24 +34,24 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class KnowLedgeBase {
+public class KnowLedgeBase {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	@ManyToOne private ExportAnalysis exportAnalysis;
+	private ExportAnalysis exportAnalysis;
 
-	@ManyToOne private ImportAnalysis importAnalysis;
+	private ImportAnalysis importAnalysis;
 
 	/** The List of all Analyses */
-	@OneToMany private Vector<Analysis> analyses = new Vector<Analysis>();
+	private Vector<Analysis> analyses = new Vector<Analysis>();
 
 	/** The List of all Languages */
-	@OneToMany private Vector<Language> languages = new Vector<Language>();
+	private Vector<Language> languages = new Vector<Language>();
 
 	/** The List of all Clients */
-	@OneToMany private Vector<Customer> clients = new Vector<Customer>();
+	private Vector<Customer> clients = new Vector<Customer>();
 
 	/***********************************************************************************************
 	 * Constructor

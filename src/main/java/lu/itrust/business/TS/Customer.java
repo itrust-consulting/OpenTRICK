@@ -2,9 +2,12 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Transient;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -18,42 +21,55 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class Customer implements Serializable {
+@Entity 
+public class Customer implements Serializable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The customer ID */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idCustomer")
+	private int id = -1;
 
 	/** The Name of the organisation */
+	@Column(name="dtOrganisation")
 	private String organisation = "";
 
 	/** The Address of the Organisation */
+	@Column(name="dtAddress")
 	private String address = "";
 
 	/** The City where the Organisation is located */
+	@Column(name="dtCity")
 	private String city = "";
 
 	/** The ZIP Code of the Organisation location */
+	@Column(name="dtZIP")
 	private String ZIPCode = "";
 
 	/** The Country where the Organisation is located */
+	@Column(name="dtCountry")
 	private String country = "";
 
 	/** The Name of the Contact Person in the Organisation */
+	@Column(name="dtContactPerson")
 	private String contactPerson = "";
 
 	/** The Telephone Number of the Contact Person or Organisation */
+	@Column(name="dtPhoneNumber")
 	private String phoneNumber = "";
 
 	/** The Email of the Contact Person or Organisation */
+	@Column(name="dtEmail")
 	private String email = "";
 	
+	@Column(name="dtCanBeUsed")
 	private boolean canBeUsed = true; 
 
 	/***********************************************************************************************

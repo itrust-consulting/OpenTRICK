@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.cssf;
 
-import javax.persistence.Entity;
+import javax.persistence.Embeddable;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -19,7 +20,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-12-11
  */
-@Entity public class EvaluationResult {
+@Embeddable public class EvaluationResult {
 
 	/***********************************************************************************************
 	 * Fields

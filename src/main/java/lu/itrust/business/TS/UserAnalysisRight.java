@@ -2,11 +2,15 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
+
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -17,31 +21,41 @@ import lu.itrust.business.TS.usermanagement.User;
  * @version 0.1
  * @since Jan 9, 2014
  */
-@Entity public class UserAnalysisRight implements Serializable,Cloneable {
+@Entity 
+public class UserAnalysisRight implements Serializable,Cloneable {
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** id */
-	@Id @GeneratedValue private long id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idUserAnalysisRight")
+	private long id = -1;
 
 	/** User */
-	@ManyToOne private User user;
+	@ManyToOne 
+	@JoinColumn(name="fiUser")
+	private User user;
 
 	/** Analysis */
-	@ManyToOne private Analysis analysis;
+	@ManyToOne 
+	@JoinColumn(name="fiAnalysis")
+	private Analysis analysis;
 
 	/** rights */
-	@Enumerated private AnalysisRight right;
+	@Enumerated 
+	@Column(name="dtRight")
+	private AnalysisRight right;
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public UserAnalysisRight() {
 	}
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 * @param user
 	 * @param analysis
 	 * @param right

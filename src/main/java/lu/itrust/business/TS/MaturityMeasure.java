@@ -1,6 +1,10 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -11,31 +15,39 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class MaturityMeasure extends Measure implements Cloneable {
+@Embeddable 
+public class MaturityMeasure extends Measure implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The Reached Security Maturity Level */
+	@Column(name="dtReachedLevel")
 	private int reachedLevel = 0;
 
 	/** The Cost to get to the Security Maturity Level 1 */
+	@Column(name="dtSML1Cost")
 	private double SML1Cost = 0;
 
 	/** The Cost to get to the Security Maturity Level 2 */
+	@Column(name="dtSML2Cost")
 	private double SML2Cost = 0;
 
 	/** The Cost to get to the Security Maturity Level 3 */
+	@Column(name="dtSML3Cost")
 	private double SML3Cost = 0;
 
 	/** The Cost to get to the Security Maturity Level 4 */
+	@Column(name="dtSML4Cost")
 	private double SML4Cost = 0;
 
 	/** The Cost to get to the Security Maturity Level 5 */
+	@Column(name="dtSML5Cost")
 	private double SML5Cost = 0;
 
 	/***********************************************************************************************

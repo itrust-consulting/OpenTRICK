@@ -1,7 +1,14 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -21,23 +28,29 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class ExtendedParameter extends Parameter implements Cloneable {
+@Entity 
+public class ExtendedParameter extends Parameter implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The Extended Parameter Level (default: 0-5 or 0-6 -> NOT restricted) */
+	@Column(name="dtLevel")
 	private int level = 0;
 
 	/** The Extended Parameter Acronym */
+	@Column(name="dtAcronym")
 	private String acronym = "";
 
 	/** Extended Parameter From And To values */
-	@ManyToOne private Bounds bounds = null;
+	@ManyToOne
+	@JoinColumns({@JoinColumn(name="from"), @JoinColumn(name="to")})
+	private Bounds bounds = null;
 
 	/***********************************************************************************************
 	 * Getters and Setters

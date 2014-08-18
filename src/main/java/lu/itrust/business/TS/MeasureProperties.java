@@ -1,6 +1,9 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -11,28 +14,35 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class MeasureProperties extends SecurityCriteria {
+@Entity 
+public class MeasureProperties extends SecurityCriteria {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** Strength Measure */
+	@Column(name="dtStrengthMeasure")
 	private int fmeasure = 0;
 
 	/** Strength Sectoral */
+	@Column(name="dtStrengthSectoral")
 	private int fsectoral = 0;
 
 	/** SOA Reference */
+	@Column(name="dtSOAReference")
 	private String soaReference = "";
 
 	/** SOA Comment */
+	@Column(name="dtSOAComment")
 	private String soaComment = "";
 
 	/** SOA Risk */
+	@Column(name="dtSOARisk")
 	private String soaRisk = "";
 
 	/***********************************************************************************************

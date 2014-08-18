@@ -3,10 +3,14 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -19,64 +23,85 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@MappedSuperclass public abstract class Measure implements Serializable, Cloneable {
+@MappedSuperclass 
+public abstract class Measure implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 		
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The Measure Identifier */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idMeasure")
+	private int id = -1;
 
 	/** Analysis Norm Object */
-	@ManyToOne private AnalysisNorm analysisNorm = null;
+	@ManyToOne 
+	@JoinColumn(name="fiAnalysisNorm")
+	private AnalysisNorm analysisNorm = null;
 
 	/** The Measure Domain */
-	@ManyToOne private MeasureDescription measureDescription = null;
+	@ManyToOne 
+	@Column(name="fiMeasureDescription")
+	private MeasureDescription measureDescription = null;
 	
 	/** The Measure Status (AP, NA, M) */
+	@Column(name="dtStatus")
 	private String status = "NA";
 
 	/** The Implementation Rate */
 	private Object implementationRate = null;
 
 	/** The Internal WorkLoad (in Man Days) */
+	@Column(name="dtInternalWorkload")
 	private double internalWL = 0;
 
 	/** The External WorkLoad (in Man Days) */
+	@Column(name="dtExternalWorkload")
 	private double externalWL = 0;
 
 	/** The Investment of the Measure (Currency) */
+	@Column(name="dtInvestment")
 	private double investment = 0;
 
 	/** The LifeTime of the Measure (in Years) */
+	@Column(name="dtLifetime")
 	private double lifetime = 0;
 
 	/** The old Maintenance of the Measure (in percent) */
+	@Column(name="dtMaintenance")
 	private double maintenance = 0;
 	
 	/** The internal Maintenance of the Measure (in Man Days) */
+	@Column(name="dtInternalMaintenance")
 	private double internalMaintenance = 0;
 
 	/** The external Maintenance of the Measure (in Man Days) */
+	@Column(name="dtExternalMaintenance")
 	private double externalMaintenance = 0;
 	
 	/** The recurrent investment of maintenance  of the Measure (Currency) */
+	@Column(name="dtRecurrentInvestment")
 	private double recurrentInvestment = 0;
 	
 	/** The Cost of the Measure (Currency) */
+	@Column(name="dtCost")
 	private double cost = 0;
 
 	/** The Comment on this Measure */
+	@Column(name="dtComment")
 	private String comment = "";
 
 	/** The "ToDo" comment of this Measure */
+	@Column(name="dtToDo")
 	private String toDo = "";
 
 	/** The Phase object for this measure */
+	@Column(name="fiPhase")
 	@ManyToOne private Phase phase = null;
 
 	/***********************************************************************************************

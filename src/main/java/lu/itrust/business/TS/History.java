@@ -3,9 +3,12 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Transient;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -20,31 +23,39 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class History implements Serializable, Cloneable {
+@Entity 
+public class History implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** id History unsaved */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idHistory")
+	private int id = -1;
 
 	/** The Analysis Version (Version of the History entry) */
+	@Column(name="dtVersion")
 	private String version = "";
 
 	/** The Date when the History entry was created */
+	@Column(name="dtDateComment")
 	private Date date = null;
 
 	/**
 	 * The Name of the Author that created the History Entry (The Analysis at
 	 * this Version)
 	 */
+	@Column(name="dtAuthor")
 	private String author = "";
 
 	/** The Comment an Author gave to the History Entry */
+	@Column(name="dtComment")
 	private String comment = "";
 
 	/***********************************************************************************************

@@ -1,10 +1,14 @@
 package lu.itrust.business.TS;
 
 import java.io.Serializable;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 /**
  * Parameter: <br>
@@ -14,9 +18,11 @@ import javax.persistence.ManyToOne;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class Parameter implements Serializable, Cloneable {
+@Entity 
+public class Parameter implements Serializable, Cloneable {
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/***********************************************************************************************
@@ -24,16 +30,22 @@ import javax.persistence.ManyToOne;
 	 **********************************************************************************************/
 
 	/** id unsaved value = -1 */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idParameter")
+	private int id = -1;
 
 	/** The Parameter Description */
+	@Column(name="dtDescription")
 	private String description = "";
 
 	/** The Parameter Value */
+	@Column(name="dtValue")
 	private double value = 0;
 
 	/** The Parameter Type */
-	@ManyToOne private ParameterType type = null;
+	@ManyToOne
+	@JoinColumn(name="fiParameterType")
+	private ParameterType type = null;
 
 	/***********************************************************************************************
 	 * Getters and Setters

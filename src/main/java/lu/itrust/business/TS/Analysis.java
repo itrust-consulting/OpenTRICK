@@ -14,6 +14,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -66,15 +68,6 @@ public class Analysis implements Serializable, Cloneable {
 	@Column(name="idAnalysis")
 	private int id = -1;
 
-	@Column(name="dtProfile")
-	private boolean profile = false;
-
-	@Column(name="dtDefaultProfile")
-	private boolean defaultProfile = false;
-
-	/** The Customer object */
-	@ManyToOne private Customer customer;
-
 	/** ID of the Analysis */
 	private String identifier;
 
@@ -84,58 +77,101 @@ public class Analysis implements Serializable, Cloneable {
 	/** Creation Date of the Analysis (and a specific version) */
 	private Timestamp creationDate;
 
+	@Column(name="dtProfile")
+	private boolean profile = false;
+
+	@Column(name="dtDefaultProfile")
+	private boolean defaultProfile = false;
+
+	/** The Customer object */
+	@ManyToOne
+	@JoinColumn(name="fiCustomer")
+	private Customer customer;
+	
 	/** Analysis owner (the one that created or imported it) */
-	@ManyToOne private User owner;
+	@ManyToOne
+	@JoinColumn(name="fiOwner")
+	private User owner;
 
 	/** Based on analysis */
-	@OneToOne(mappedBy="basedOnAnalysis") private Analysis basedOnAnalysis;
+	@OneToOne(mappedBy="basedOnAnalysis")
+	@JoinColumn(name="fiBasedOnAnalysis")
+	private Analysis basedOnAnalysis;
 
 	/** The Label of this Analysis */
+	@Column(name="dtLabel")
 	private String label;
 
 	/** Language object of the Analysis */
-	@ManyToOne private Language language;
+	@ManyToOne
+	@JoinColumn(name="fiLanguage")
+	private Language language;
 
 	/** flag to determine if analysis has data */
+	@Column(name="dtData")
 	private boolean data;
 
 	/** List of users and their access rights */
-	@OneToMany(mappedBy="analysis") private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
+	@OneToMany(mappedBy="analysis")
+	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
 
 	/** List of History data of the Analysis */
-	@OneToMany private List<History> histories = new ArrayList<History>();
+	@OneToMany 
+	@JoinTable(name="History", joinColumns=@JoinColumn(name="fiAnalysis"))
+	private List<History> histories = new ArrayList<History>();
 
 	/** List of Item Information */
-	@OneToMany private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
+	@OneToMany 
+	@JoinTable(name="ItemInformation", joinColumns=@JoinColumn(name="fiAnalysis"))
+	private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
 
 	/** List of parameters */
-	@OneToMany private List<Parameter> parameters = new ArrayList<Parameter>();
+	@OneToMany 
+	@JoinTable(name="Parameter", joinColumns=@JoinColumn(name="fiAnalysis"))
+	private List<Parameter> parameters = new ArrayList<Parameter>();
 
 	/** List of assets */
-	@OneToMany private List<Asset> assets = new ArrayList<Asset>();
+	@OneToMany 
+	@JoinTable(name="Asset", joinColumns=@JoinColumn(name="fiAnalysis"))
+	private List<Asset> assets = new ArrayList<Asset>();
 
 	/** List of Risk Information */
-	@OneToMany private List<RiskInformation> riskInformations = new ArrayList<RiskInformation>();
+	@OneToMany 
+	@JoinTable(name="RiskInformation", joinColumns=@JoinColumn(name="fiAnalysis"))
+	private List<RiskInformation> riskInformations = new ArrayList<RiskInformation>();
 
 	/** List of Scenarios */
-	@OneToMany private List<Scenario> scenarios = new ArrayList<Scenario>();
+	@OneToMany
+	@JoinTable(name="Scenario", joinColumns=@JoinColumn(name="fiAnalysis"))
+	private List<Scenario> scenarios = new ArrayList<Scenario>();
 
 	/** List of Assessment */
-	@OneToMany private List<Assessment> assessments = new ArrayList<Assessment>();
+	@OneToMany 
+	@JoinTable(name="Assessment", joinColumns=@JoinColumn(name="fiAnalysis"))
+	private List<Assessment> assessments = new ArrayList<Assessment>();
 
 	/** List of Norms */
-	@OneToMany(mappedBy="analysis") private List<AnalysisNorm> analysisNorms = new ArrayList<AnalysisNorm>();
+	@OneToMany(mappedBy="analysis") 
+	@JoinTable(name="AnalysisNorm", joinColumns=@JoinColumn(name="fiAnalysis"))
+	private List<AnalysisNorm> analysisNorms = new ArrayList<AnalysisNorm>();
 
 	/** List of Phases that is used for Action Plan Computation */
-	@OneToMany(mappedBy="analysis") private List<Phase> usedPhases = new ArrayList<Phase>();
+	@OneToMany(mappedBy="analysis")
+	@JoinTable(name="Phase", joinColumns=@JoinColumn(name="fiAnalysis"))
+	private List<Phase> usedPhases = new ArrayList<Phase>();
 
 	/** The Final Action Plan without Phase Computation - Normal */
-	@OneToMany private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
+	@OneToMany 
+	@JoinTable(name="ActionPlan", joinColumns=@JoinColumn(name="fiAnalysis"))
+	private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
 
 	/** The Action Plan Summary without Phase Computation - Normal */
-	@OneToMany(mappedBy="analysis") private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
+	@OneToMany(mappedBy="analysis")
+	@JoinTable(name="ActionPlanSummary", joinColumns=@JoinColumn(name="fiAnalysis"))
+	private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
 
-	/** The Action Plan Summary with Phase Computation Pessimistic */
+	/** The Risk Register (CSSF) */
+	@JoinTable(name="RiskRegister", joinColumns=@JoinColumn(name="fiAnalysis"))
 	@OneToMany private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
 
 	/***********************************************************************************************

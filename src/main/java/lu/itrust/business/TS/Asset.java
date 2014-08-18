@@ -1,11 +1,12 @@
 package lu.itrust.business.TS;
 
 import javax.naming.directory.InvalidAttributesException;
-
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -18,40 +19,53 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class Asset implements Cloneable {
+@Entity 
+public class Asset implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** Asset Identifier */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue
+	@Column(name="idAsset")
+	private int id = -1;
 
 	/** The Asset Name */
+	@Column(name="dtName")
 	private String name = "";
 
 	/** The Asset Type Name */
-	@ManyToOne private AssetType assetType = null;
+	@ManyToOne
+	@Column(name="fiAssetType")
+	private AssetType assetType = null;
 
 	/** The Asset Value */
+	@Column(name="dtValue")
 	private double value = 0;
 
 	/** The Asset Comment */
+	@Column(name="dtComment")
 	private String comment = "";
 
 	/** The Asset Hidden Comment */
+	@Column(name="dtHiddenComment")
 	private String hiddenComment = "";
 
 	/** The Flag to determine if the Asset is selected for calculations */
+	@Column(name="dtSelected")
 	private boolean selected = false;
 	
 	/** The Annual Loss Expectancy - Pessimistic */
+	@Column(name="dtALEP")
 	private double ALEP = 0;
 
 	/** The Annual Loss Expectancy - Normal */
+	@Column(name="dtALE")
 	private double ALE = 0;
 
 	/** The Annual Loss Expectancy - Optimistic */
+	@Column(name="dtALEO")
 	private double ALEO = 0;
 
 

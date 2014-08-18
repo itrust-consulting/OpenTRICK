@@ -1,9 +1,12 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -15,25 +18,34 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since Jan 28, 2013
  */
-@Entity public class MeasureDescriptionText implements Cloneable {
+@Entity 
+public class MeasureDescriptionText implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** The MeasureDescriptionText id */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idMeasureDescriptionText")
+	private int id = -1;
 
 	/** The Measure Description Reference (Reference to the measure) */
-	@ManyToOne private MeasureDescription measureDescription = null;
+	@ManyToOne 
+	@JoinColumn(name="idMeasureDescription")
+	private MeasureDescription measureDescription = null;
 
 	/** The Language Object */
-	@ManyToOne private Language language = null;
+	@ManyToOne 
+	@JoinColumn(name="fiLanguage")
+	private Language language = null;
 
 	/** The Domain Text */
+	@Column(name="dtDomain")
 	private String domain = "";
 
 	/** The Description Text */
+	@Column(name="dtDescription")
 	private String description = "";
 
 	/***********************************************************************************************

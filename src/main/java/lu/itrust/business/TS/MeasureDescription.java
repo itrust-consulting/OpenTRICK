@@ -3,11 +3,16 @@ package lu.itrust.business.TS;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
@@ -26,28 +31,38 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since Jan 28, 2013
  */
-@Entity public class MeasureDescription implements Cloneable {
+@Entity 
+public class MeasureDescription implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** Measure Description id */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idMeasureDescription")
+	private int id = -1;
 
 	/** Measure Norm Object */
-	@ManyToOne private Norm norm = null;
+	@ManyToOne
+	@JoinColumn(name="fiNorm")
+	private Norm norm = null;
 
 	/** Measure Description Text List (one entry represents one language) */
-	@OneToMany(mappedBy="measureDescription") private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
+	@OneToMany(mappedBy="measureDescription")
+	@JoinTable(name="MeasureDescriptionText", joinColumns=@JoinColumn(name="idMeasureDescription"))
+	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */
+	@Column(name="dtLevel")
 	private int level = -1;
 
 	/** Measure Reference */
+	@Column(name="dtReference")
 	private String reference = "";
 
 	/** Flag to determine if measure can be used in the action plan (before: measure had to be level 3) */
+	@Column(name="dtComputable")
 	private boolean computable = true;
 	
 	/***********************************************************************************************

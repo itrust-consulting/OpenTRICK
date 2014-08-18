@@ -7,9 +7,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -20,28 +25,36 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class Scenario extends SecurityCriteria {
+@Entity 
+public class Scenario extends SecurityCriteria {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The Scenario Name */
+	@Column(name="dtName")
 	private String name = "";
 
 	/** The Scenario Type */
-	@ManyToOne private ScenarioType scenarioType = new ScenarioType();
+	@ManyToOne 
+	@JoinColumn(name="fiScenarioType")
+	private ScenarioType scenarioType = new ScenarioType();
 
 	/** The Selected Flag (Selected for calculation) */
+	@Column(name="dtSelected")
 	private boolean selected = false;
 
 	/** The Scenario Description */
+	@Column(name="dtDescription")
 	private String description = "";
 
 	/** List of Asset Type Values */
+	@JoinTable(name="ScenarioAssetTypeValue", joinColumns=@JoinColumn(name="idScenario"))
 	@OneToMany private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
 
 	/**

@@ -1,8 +1,7 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.Entity;
-
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -14,16 +13,19 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-12-17
  */
-@Embeddable public class Bounds implements Cloneable {
+@Embeddable 
+public class Bounds implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
 
 	/** Value From */
+	@Column(name="dtFrom")
 	private double from = 0;
 
 	/** Value To */
+	@Column(name="dtTo")
 	private double to = 0;
 
 	/***********************************************************************************************

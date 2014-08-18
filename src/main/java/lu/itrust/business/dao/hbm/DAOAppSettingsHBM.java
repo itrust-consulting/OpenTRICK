@@ -1,18 +1,18 @@
 /**
  * 
  */
-package lu.itrust.business.TS;
+package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
 import javax.persistence.Entity;
+
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 import lu.itrust.business.TS.usermanagement.AppSettings;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAppSettings;
-import lu.itrust.business.dao.hbm.DAOHibernate;
 
 /**
  * @author eomar

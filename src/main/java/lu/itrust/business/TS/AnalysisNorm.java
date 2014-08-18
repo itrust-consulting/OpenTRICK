@@ -4,11 +4,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -19,25 +24,35 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@MappedSuperclass public abstract class AnalysisNorm implements Serializable, Cloneable {
+@MappedSuperclass 
+public abstract class AnalysisNorm implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** AnalysisNorm id */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idAnalysisNorm")
+	private int id = -1;
 
 	/** AnalysisNorm Norm Object */
-	@ManyToOne private Norm norm = null;
+	@ManyToOne
+	@JoinTable(name="Norm", joinColumns=@JoinColumn(name="fiNorm"))
+	private Norm norm = null;
 
 	/** AnalysisNorm List of measures */
-	@OneToMany(mappedBy="analysisNorm") private List<Measure> measures = new ArrayList<Measure>();
+	@OneToMany(mappedBy="analysisNorm")
+	@JoinTable(name="Measure", joinColumns=@JoinColumn(name="fiAnalysisNorm"))
+	private List<Measure> measures = new ArrayList<Measure>();
 
-	@ManyToOne private Analysis analysis = null;
+	@ManyToOne
+	@Column(name="fiAnalysis")
+	private Analysis analysis = null;
 
 	/***********************************************************************************************
 	 * Constructor

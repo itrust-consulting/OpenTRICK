@@ -1,9 +1,14 @@
 package lu.itrust.business.TS.cssf;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.exception.TrickException;
@@ -46,13 +51,25 @@ import lu.itrust.business.exception.TrickException;
 	private int position = 0;
 
 	/** The Raw Evaluation Data (Probability, Impact and Importance) */
-	@ManyToOne private EvaluationResult rawEvaluation = null;
+	@Embedded
+	@AttributeOverrides({ @AttributeOverride(name = "probability", column = @Column(name = "rawEvaluationProbability")),
+			@AttributeOverride(name = "impact", column = @Column(name = "rawEvaluationImpact")),
+			@AttributeOverride(name = "importance", column = @Column(name = "rawEvaluationImportance")) })
+	private EvaluationResult rawEvaluation = null;
 
 	/** The Net Evaluation Data (Probability, Impact and Importance) */
-	@ManyToOne private EvaluationResult expectedImportance = null;
+	@Embedded
+	@AttributeOverrides({ @AttributeOverride(name = "probability", column = @Column(name = "expectedImportanceProbability")),
+		@AttributeOverride(name = "impact", column = @Column(name = "expectedImportanceImpact")),
+		@AttributeOverride(name = "importance", column = @Column(name = "expectedImportanceImportance")) })
+	private EvaluationResult expectedImportance = null;
 
 	/** The Expected Evaluation Data (Probability, Impact and Importance) */
-	@ManyToOne private EvaluationResult netEvaluation = null;
+	@Embedded
+	@AttributeOverrides({ @AttributeOverride(name = "probability", column = @Column(name = "netEvaluationProbability")),
+		@AttributeOverride(name = "impact", column = @Column(name = "netEvaluationImpact")),
+		@AttributeOverride(name = "importance", column = @Column(name = "netEvaluationImportance")) })
+	private EvaluationResult netEvaluation = null;
 
 	/** Strategy */
 	private String strategy = "Shrink";

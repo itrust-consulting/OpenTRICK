@@ -5,9 +5,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -22,23 +27,30 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class NormMeasure extends Measure {
+@Entity 
+public class NormMeasure extends Measure {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The "To Check" comment */
+	@Column(name="dtToCheck")
 	private String toCheck;
 
 	/** The List of AssetTypeValues */
-	@OneToMany private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
+	@OneToMany
+	@JoinTable(name="MeasureAssetTypeValue", joinColumns=@JoinColumn(name="idNormMeasure"))
+	private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
 
 	/** The List of Measure Properties */
-	@ManyToOne private MeasureProperties measurePropertyList;
+	@ManyToOne 
+	@JoinColumn(name="fiMeasureProperties")
+	private MeasureProperties measurePropertyList;
 
 	/***********************************************************************************************
 	 * Getters and Setters

@@ -5,9 +5,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
+
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -21,43 +24,56 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-11-26
  */
-@MappedSuperclass public abstract class SecurityCriteria implements Serializable, Cloneable {
+@MappedSuperclass 
+public abstract class SecurityCriteria implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The Scenario Identifier */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idSecurityCriteria")
+	private int id = -1;
 
 	/** The Preventive value */
+	@Column(name="dtPreventive")
 	private double preventive = 0;
 
 	/** The Detective value */
+	@Column(name="dtDetective")
 	private double detective = 0;
 
 	/** The Limitative value */
+	@Column(name="dtLimitative")
 	private double limitative = 0;
 
 	/** The Corrective value */
+	@Column(name="dtCorrective")
 	private double corrective = 0;
 
 	/** The Intentional value */
+	@Column(name="dtIntentional")
 	private int intentional = 0;
 
 	/** The Accidental value */
+	@Column(name="dtAccidental")
 	private int accidental = 0;
 
 	/** The Environmental value */
+	@Column(name="dtEnvironmental")
 	private int environmental = 0;
 
 	/** The Internal Threat value */
+	@Column(name="InternalThreat")
 	private int internalThreat = 0;
 
 	/** The External Threat value */
+	@Column(name="dtExternalThreat")
 	private int externalThreat = 0;
 
 	/** The Map of Scenario Categories */
@@ -108,6 +124,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The "Direct1" value
 	 * @throws TrickException
 	 */
+	@Column(name="dtDirect1Cat")
 	public int getDirect1() throws TrickException {
 		return getCategoryValue("Direct1");
 	}
@@ -121,6 +138,7 @@ import lu.itrust.business.exception.TrickException;
 	 *            the value to set
 	 * @throws TrickException
 	 */
+	
 	public void setDirect1(int value) throws TrickException {
 		setCategoryValue("Direct1", value);
 	}
@@ -132,6 +150,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The "Direct2" value
 	 * @throws TrickException
 	 */
+	@Column(name="dtDirect2Cat")
 	public int getDirect2() throws TrickException {
 		return getCategoryValue("Direct2");
 	}
@@ -155,6 +174,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Direct3 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtDirect3Cat")
 	public int getDirect3() throws TrickException {
 		return getCategoryValue("Direct3");
 	}
@@ -178,6 +198,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Direct4 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtDirect4Cat")
 	public int getDirect4() throws TrickException {
 		return getCategoryValue("Direct4");
 	}
@@ -201,6 +222,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Direct5 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtDirect5Cat")
 	public int getDirect5() throws TrickException {
 		return getCategoryValue("Direct5");
 	}
@@ -224,6 +246,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Direct6 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtDirect6Cat")
 	public int getDirect6() throws TrickException {
 		return getCategoryValue("Direct6");
 	}
@@ -247,6 +270,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Direct6.1 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtDirect6.1Cat")
 	public int getDirect61() throws TrickException {
 		return getCategoryValue("Direct6.1");
 	}
@@ -270,6 +294,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Direct6.2 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtDirect6.2Cat")
 	public int getDirect62() throws TrickException {
 		return getCategoryValue("Direct6.2");
 	}
@@ -293,6 +318,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Direct6.3 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtDirect6.3Cat")
 	public int getDirect63() throws TrickException {
 		return getCategoryValue("Direct6.3");
 	}
@@ -316,6 +342,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Direct6.4 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtDirect6.4Cat")
 	public int getDirect64() throws TrickException {
 		return getCategoryValue("Direct6.4");
 	}
@@ -339,6 +366,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Direct7 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtDirect7Cat")
 	public int getDirect7() throws TrickException {
 		return getCategoryValue("Direct7");
 	}
@@ -362,6 +390,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect1 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect1Cat")
 	public int getIndirect1() throws TrickException {
 		return getCategoryValue("Indirect1");
 	}
@@ -385,6 +414,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect2 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect2Cat")
 	public int getIndirect2() throws TrickException {
 		return getCategoryValue("Indirect2");
 	}
@@ -408,6 +438,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect3 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect3Cat")
 	public int getIndirect3() throws TrickException {
 		return getCategoryValue("Indirect3");
 	}
@@ -431,6 +462,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect4 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect4Cat")
 	public int getIndirect4() throws TrickException {
 		return getCategoryValue("Indirect4");
 	}
@@ -454,6 +486,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect5 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect5Cat")
 	public int getIndirect5() throws TrickException {
 		return getCategoryValue("Indirect5");
 	}
@@ -477,6 +510,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect6 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect6Cat")
 	public int getIndirect6() throws TrickException {
 		return getCategoryValue("Indirect6");
 	}
@@ -500,6 +534,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect7 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect7Cat")
 	public int getIndirect7() throws TrickException {
 		return getCategoryValue("Indirect7");
 	}
@@ -523,6 +558,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect8 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect8Cat")
 	public int getIndirect8() throws TrickException {
 		return getCategoryValue("Indirect8");
 	}
@@ -546,6 +582,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect8.1 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect8.1Cat")
 	public int getIndirect81() throws TrickException {
 		return getCategoryValue("Indirect8.1");
 	}
@@ -569,6 +606,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect8.2 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect8.2Cat")
 	public int getIndirect82() throws TrickException {
 		return getCategoryValue("Indirect8.2");
 	}
@@ -592,6 +630,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect8.3 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect8.3Cat")
 	public int getIndirect83() throws TrickException {
 		return getCategoryValue("Indirect8.3");
 	}
@@ -615,6 +654,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect8.4 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect8.4Cat")
 	public int getIndirect84() throws TrickException {
 		return getCategoryValue("Indirect8.4");
 	}
@@ -638,6 +678,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect9 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect9Cat")
 	public int getIndirect9() throws TrickException {
 		return getCategoryValue("Indirect9");
 	}
@@ -661,6 +702,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Indirect10 value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIndirect10Cat")
 	public int getIndirect10() throws TrickException {
 		return getCategoryValue("Indirect10");
 	}
@@ -684,6 +726,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Confidentifality Value
 	 * @throws TrickException
 	 */
+	@Column(name="dtConfidentialityCat")
 	public int getConfidentiality() throws TrickException {
 		return getCategoryValue("Confidentiality");
 	}
@@ -708,6 +751,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Integrity Value
 	 * @throws TrickException
 	 */
+	@Column(name="dtIntegrityCat")
 	public int getIntegrity() throws TrickException {
 		return getCategoryValue("Integrity");
 	}
@@ -731,6 +775,7 @@ import lu.itrust.business.exception.TrickException;
 	 * @return The Availability value
 	 * @throws TrickException
 	 */
+	@Column(name="dtAvailabilityCat")
 	public int getAvailability() throws TrickException {
 		return getCategoryValue("Availability");
 	}

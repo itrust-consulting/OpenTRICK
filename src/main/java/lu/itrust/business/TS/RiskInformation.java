@@ -1,8 +1,10 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -21,30 +23,40 @@ import lu.itrust.business.exception.TrickException;
 	 **********************************************************************************************/
 
 	/** Risk Information id */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idRiskInformation")
+	private int id = -1;
 
 	/** editable */
+	//@Column(name="dtEditable")
 	private boolean editable;
 	
 	/** The Risk Information Label */
+	@Column(name="dtLabel")
 	private String label;
 
 	/** The Risk Information Exposed Value */
+	@Column(name="dtExposed")
 	private String exposed;
 
 	/** The Risk Information Comment */
+	@Column(name="dtComment")
 	private String comment;
 
 	/** The Risk Information Hidden Comment */
+	@Column(name="dtHiddenComment")
 	private String hiddenComment;
 
 	/** The Risk Information Category */
+	@Column(name="dtCategory")
 	private String category;
 
 	/** The Risk Information Chapter */
+	@Column(name="dtChapter")
 	private String chapter;
 
 	/** The Risk Information Acronym */
+	@Column(name="dtAcronym")
 	private String acronym;
 
 	/***********************************************************************************************

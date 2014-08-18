@@ -1,6 +1,10 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -12,30 +16,40 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class MaturityParameter extends Parameter implements Cloneable {
+@Embeddable
+public class MaturityParameter extends Parameter implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The Maturity Category of Parameter */
+	@Column(name="dtCategory")
 	private String category = "";
 
+	@Column(name="dtSML")
 	private int SMLLevel = 0;
 	
+	@Column(name="dtSML0")
 	private double SMLLevel0 = 0;
 
+	@Column(name="dtSML1")
 	private double SMLLevel1 = 0;
 
+	@Column(name="dtSML2")
 	private double SMLLevel2 = 0;
 
+	@Column(name="dtSML3")
 	private double SMLLevel3 = 0;
 
+	@Column(name="dtSML4")
 	private double SMLLevel4 = 0;
 
+	@Column(name="dtSML5")
 	private double SMLLevel5 = 0;
 
 	/***********************************************************************************************
