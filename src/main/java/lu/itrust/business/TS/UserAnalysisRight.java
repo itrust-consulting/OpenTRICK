@@ -2,6 +2,11 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**
@@ -12,22 +17,22 @@ import lu.itrust.business.TS.usermanagement.User;
  * @version 0.1
  * @since Jan 9, 2014
  */
-public class UserAnalysisRight implements Serializable,Cloneable {
+@Entity public class UserAnalysisRight implements Serializable,Cloneable {
 
 	/** serialVersionUID */
 	private static final long serialVersionUID = 1L;
 
 	/** id */
-	private long id = -1;
+	@Id @GeneratedValue private long id = -1;
 
 	/** User */
-	private User user;
+	@ManyToOne private User user;
 
 	/** Analysis */
-	private Analysis analysis;
+	@ManyToOne private Analysis analysis;
 
 	/** rights */
-	private AnalysisRight right;
+	@Enumerated private AnalysisRight right;
 
 	/**
 	 * 

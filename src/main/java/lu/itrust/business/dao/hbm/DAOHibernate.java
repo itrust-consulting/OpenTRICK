@@ -1,5 +1,6 @@
 package lu.itrust.business.dao.hbm;
 
+import javax.persistence.Entity;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Repository;
  * @version
  * @since 11 janv. 2013
  */
-@Repository
+@Entity @Repository
 public class DAOHibernate {
 
 	/** The Session */

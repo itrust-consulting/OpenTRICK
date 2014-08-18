@@ -3,6 +3,11 @@ package lu.itrust.business.TS;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
@@ -21,20 +26,20 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since Jan 28, 2013
  */
-public class MeasureDescription implements Cloneable {
+@Entity public class MeasureDescription implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** Measure Description id */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** Measure Norm Object */
-	private Norm norm = null;
+	@ManyToOne private Norm norm = null;
 
 	/** Measure Description Text List (one entry represents one language) */
-	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
+	@OneToMany(mappedBy="measureDescription") private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */
 	private int level = -1;

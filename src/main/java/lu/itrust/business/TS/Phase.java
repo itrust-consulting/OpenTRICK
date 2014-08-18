@@ -3,6 +3,10 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.sql.Date;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -13,7 +17,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Phase implements Serializable, Cloneable {
+@Entity public class Phase implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -23,10 +27,10 @@ public class Phase implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** phase identifier, unsaved value = -1 */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** Analysis Object */
-	private Analysis analysis = null;
+	@ManyToOne private Analysis analysis = null;
 
 	/** The Phase Number */
 	private int number;

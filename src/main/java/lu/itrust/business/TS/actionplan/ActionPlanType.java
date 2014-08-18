@@ -1,5 +1,10 @@
 package lu.itrust.business.TS.actionplan;
 
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
 /**
  * ActionPlanType: <br>
  * Represents the actionplan type by name.
@@ -8,17 +13,17 @@ package lu.itrust.business.TS.actionplan;
  * @version 0.1
  * @since 28 janv. 2013
  */
-public class ActionPlanType {
+@Entity public class ActionPlanType {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** actionplantype id */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** ActionplanType name */
-	private ActionPlanMode name;
+	@Enumerated private ActionPlanMode name;
 
 	/***********************************************************************************************
 	 * Constructors

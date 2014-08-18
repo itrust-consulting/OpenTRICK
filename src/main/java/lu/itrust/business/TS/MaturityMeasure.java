@@ -1,5 +1,6 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Entity;
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -10,7 +11,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class MaturityMeasure extends Measure implements Cloneable {
+@Entity public class MaturityMeasure extends Measure implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration

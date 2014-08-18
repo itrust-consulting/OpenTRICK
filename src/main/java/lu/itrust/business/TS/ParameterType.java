@@ -1,5 +1,8 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -11,14 +14,14 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 25 janv. 2013
  */
-public class ParameterType {
+@Entity public class ParameterType {
 
 	/***********************************************************************************************
 	 * Field declarations
 	 **********************************************************************************************/
 
 	/** Parameter Type Identifier */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** Parameter Type Label */
 	private String label = "";

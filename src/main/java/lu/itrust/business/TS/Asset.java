@@ -2,6 +2,10 @@ package lu.itrust.business.TS;
 
 import javax.naming.directory.InvalidAttributesException;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -14,20 +18,20 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Asset implements Cloneable {
+@Entity public class Asset implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** Asset Identifier */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** The Asset Name */
 	private String name = "";
 
 	/** The Asset Type Name */
-	private AssetType assetType = null;
+	@ManyToOne private AssetType assetType = null;
 
 	/** The Asset Value */
 	private double value = 0;

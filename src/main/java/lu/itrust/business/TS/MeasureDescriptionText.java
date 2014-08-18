@@ -1,5 +1,9 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -11,20 +15,20 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since Jan 28, 2013
  */
-public class MeasureDescriptionText implements Cloneable {
+@Entity public class MeasureDescriptionText implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** The MeasureDescriptionText id */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** The Measure Description Reference (Reference to the measure) */
-	private MeasureDescription measureDescription = null;
+	@ManyToOne private MeasureDescription measureDescription = null;
 
 	/** The Language Object */
-	private Language language = null;
+	@ManyToOne private Language language = null;
 
 	/** The Domain Text */
 	private String domain = "";

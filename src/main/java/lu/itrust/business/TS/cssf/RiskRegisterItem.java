@@ -1,5 +1,9 @@
 package lu.itrust.business.TS.cssf;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.exception.TrickException;
@@ -21,7 +25,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-12-11
  */
-public class RiskRegisterItem {
+@Entity public class RiskRegisterItem {
 
 	/***********************************************************************************************
 	 * Fields
@@ -31,24 +35,24 @@ public class RiskRegisterItem {
 	public static final String ACCEPT_SHRINK = "Accept|Shrink";
 
 	/** Scenario Object */
-	private Scenario scenario = null;
+	@ManyToOne private Scenario scenario = null;
 
-	private Asset asset = null;
+	@ManyToOne private Asset asset = null;
 
 	/** Identifier */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** Position in the RiskRegister */
 	private int position = 0;
 
 	/** The Raw Evaluation Data (Probability, Impact and Importance) */
-	private EvaluationResult rawEvaluation = null;
+	@ManyToOne private EvaluationResult rawEvaluation = null;
 
 	/** The Net Evaluation Data (Probability, Impact and Importance) */
-	private EvaluationResult expectedImportance = null;
+	@ManyToOne private EvaluationResult expectedImportance = null;
 
 	/** The Expected Evaluation Data (Probability, Impact and Importance) */
-	private EvaluationResult netEvaluation = null;
+	@ManyToOne private EvaluationResult netEvaluation = null;
 
 	/** Strategy */
 	private String strategy = "Shrink";

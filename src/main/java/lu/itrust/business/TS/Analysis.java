@@ -10,6 +10,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
@@ -34,10 +44,13 @@ import lu.itrust.business.exception.TrickException;
  * </ul>
  * 
  * 
- * @author itrust consulting s.� r.l. - SME,BJA
+ * @author itrust consulting s.a r.l. - SME,BJA
  * @version 0.1
  * @since 2012-08-21
  */
+
+@Entity
+@Table(name="Analysis")
 public class Analysis implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -45,17 +58,22 @@ public class Analysis implements Serializable, Cloneable {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** Analysis id unsaved value = -1 */
+	@Id @GeneratedValue
+	@Column(name="idAnalysis")
 	private int id = -1;
 
+	@Column(name="dtProfile")
 	private boolean profile = false;
 
+	@Column(name="dtDefaultProfile")
 	private boolean defaultProfile = false;
 
 	/** The Customer object */
-	private Customer customer;
+	@ManyToOne private Customer customer;
 
 	/** ID of the Analysis */
 	private String identifier;
@@ -67,58 +85,58 @@ public class Analysis implements Serializable, Cloneable {
 	private Timestamp creationDate;
 
 	/** Analysis owner (the one that created or imported it) */
-	private User owner;
+	@ManyToOne private User owner;
 
 	/** Based on analysis */
-	private Analysis basedOnAnalysis;
+	@OneToOne(mappedBy="basedOnAnalysis") private Analysis basedOnAnalysis;
 
 	/** The Label of this Analysis */
 	private String label;
 
 	/** Language object of the Analysis */
-	private Language language;
+	@ManyToOne private Language language;
 
 	/** flag to determine if analysis has data */
 	private boolean data;
 
 	/** List of users and their access rights */
-	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
+	@OneToMany(mappedBy="analysis") private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
 
 	/** List of History data of the Analysis */
-	private List<History> histories = new ArrayList<History>();
+	@OneToMany private List<History> histories = new ArrayList<History>();
 
 	/** List of Item Information */
-	private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
+	@OneToMany private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
 
 	/** List of parameters */
-	private List<Parameter> parameters = new ArrayList<Parameter>();
+	@OneToMany private List<Parameter> parameters = new ArrayList<Parameter>();
 
 	/** List of assets */
-	private List<Asset> assets = new ArrayList<Asset>();
+	@OneToMany private List<Asset> assets = new ArrayList<Asset>();
 
 	/** List of Risk Information */
-	private List<RiskInformation> riskInformations = new ArrayList<RiskInformation>();
+	@OneToMany private List<RiskInformation> riskInformations = new ArrayList<RiskInformation>();
 
 	/** List of Scenarios */
-	private List<Scenario> scenarios = new ArrayList<Scenario>();
+	@OneToMany private List<Scenario> scenarios = new ArrayList<Scenario>();
 
 	/** List of Assessment */
-	private List<Assessment> assessments = new ArrayList<Assessment>();
+	@OneToMany private List<Assessment> assessments = new ArrayList<Assessment>();
 
 	/** List of Norms */
-	private List<AnalysisNorm> analysisNorms = new ArrayList<AnalysisNorm>();
+	@OneToMany(mappedBy="analysis") private List<AnalysisNorm> analysisNorms = new ArrayList<AnalysisNorm>();
 
 	/** List of Phases that is used for Action Plan Computation */
-	private List<Phase> usedPhases = new ArrayList<Phase>();
+	@OneToMany(mappedBy="analysis") private List<Phase> usedPhases = new ArrayList<Phase>();
 
 	/** The Final Action Plan without Phase Computation - Normal */
-	private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
+	@OneToMany private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
 
 	/** The Action Plan Summary without Phase Computation - Normal */
-	private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
+	@OneToMany(mappedBy="analysis") private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
 
 	/** The Action Plan Summary with Phase Computation Pessimistic */
-	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
+	@OneToMany private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
 
 	/***********************************************************************************************
 	 * Constructor

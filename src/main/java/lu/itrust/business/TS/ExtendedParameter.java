@@ -1,5 +1,7 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -19,7 +21,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class ExtendedParameter extends Parameter implements Cloneable {
+@Entity public class ExtendedParameter extends Parameter implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -35,7 +37,7 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 	private String acronym = "";
 
 	/** Extended Parameter From And To values */
-	private Bounds bounds = null;
+	@ManyToOne private Bounds bounds = null;
 
 	/***********************************************************************************************
 	 * Getters and Setters

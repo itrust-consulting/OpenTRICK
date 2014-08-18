@@ -1,4 +1,8 @@
 package lu.itrust.business.TS.actionplan;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lu.itrust.business.TS.Asset;
 
 /**
@@ -9,20 +13,20 @@ import lu.itrust.business.TS.Asset;
  * @version 0.1
  * @since 29 janv. 2013
  */
-public class ActionPlanAsset {
+@Entity public class ActionPlanAsset {
 
 	/***********************************************************************************************
 	 * Fields Declaration
 	 **********************************************************************************************/
 
 	/** The ActionPlanAsset id */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** The ActionPlanEntry Object */
-	private ActionPlanEntry actionPlanEntry = null;
+	@ManyToOne private ActionPlanEntry actionPlanEntry = null;
 
 	/** The Assessment Object */
-	private Asset asset = null;
+	@ManyToOne private Asset asset = null;
 	
 	/** The ALE value */
 	private double currentALE = 0;

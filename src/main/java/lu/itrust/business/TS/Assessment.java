@@ -2,6 +2,10 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -17,7 +21,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Assessment implements Serializable, Cloneable {
+@Entity public class Assessment implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -27,7 +31,7 @@ public class Assessment implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** identifier from the database */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** Assessment selected flag */
 	private boolean selected = false;
@@ -72,10 +76,10 @@ public class Assessment implements Serializable, Cloneable {
 	private double ALEO = 0;
 
 	/** The asset object reference */
-	private Asset asset = null;
+	@ManyToOne private Asset asset = null;
 
 	/** The scenario object reference */
-	private Scenario scenario = null;
+	@ManyToOne private Scenario scenario = null;
 
 	/***********************************************************************************************
 	 * Getters and Setters

@@ -4,12 +4,16 @@
 package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 /**
  * @author oensuifudine
  * 
  */
-public class Role implements Serializable {
+@Entity public class Role implements Serializable {
 
 	/**
 	 * 
@@ -17,9 +21,9 @@ public class Role implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 
-	private long id = - 1;
+	@Id @GeneratedValue private long id = - 1;
 
-	private RoleType type = null;
+	@Enumerated private RoleType type = null;
 
 	/**
 	 * 

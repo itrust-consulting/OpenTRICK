@@ -1,5 +1,8 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -13,14 +16,14 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class ItemInformation implements Cloneable {
+@Entity public class ItemInformation implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** id unsaved value = -1 */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** The Item Information Value */
 	private String value = "";

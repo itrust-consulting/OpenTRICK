@@ -1,5 +1,9 @@
 package lu.itrust.business.TS.actionplan;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.exception.TrickException;
 
@@ -11,19 +15,19 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-10-09
  */
-public class SummaryStage {
+@Entity public class SummaryStage {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** ID of Stage */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** id unsaved value = null */
-	private Analysis analysis = null;
+	@ManyToOne private Analysis analysis = null;
 
-	private ActionPlanType actionPlanType = null;
+	@ManyToOne private ActionPlanType actionPlanType = null;
 
 	/** Name or Identifier of the Stage */
 	private String stage = "";

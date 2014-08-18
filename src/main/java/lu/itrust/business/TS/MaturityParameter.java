@@ -1,5 +1,6 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Entity;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -11,7 +12,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class MaturityParameter extends Parameter implements Cloneable {
+@Entity public class MaturityParameter extends Parameter implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration

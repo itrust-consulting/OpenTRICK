@@ -1,6 +1,10 @@
 package lu.itrust.business.TS;
 
 import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 /**
  * Parameter: <br>
@@ -10,7 +14,7 @@ import java.io.Serializable;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Parameter implements Serializable, Cloneable {
+@Entity public class Parameter implements Serializable, Cloneable {
 
 	/** serialVersionUID */
 	private static final long serialVersionUID = 1L;
@@ -20,7 +24,7 @@ public class Parameter implements Serializable, Cloneable {
 	 **********************************************************************************************/
 
 	/** id unsaved value = -1 */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** The Parameter Description */
 	private String description = "";
@@ -29,7 +33,7 @@ public class Parameter implements Serializable, Cloneable {
 	private double value = 0;
 
 	/** The Parameter Type */
-	private ParameterType type = null;
+	@ManyToOne private ParameterType type = null;
 
 	/***********************************************************************************************
 	 * Getters and Setters

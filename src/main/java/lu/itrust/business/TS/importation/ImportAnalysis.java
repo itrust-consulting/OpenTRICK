@@ -13,6 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AnalysisRight;
@@ -81,59 +86,59 @@ import org.springframework.transaction.annotation.Transactional;
  * @version 0.1
  * @since 2012-12-14
  */
-public class ImportAnalysis {
+@Entity public class ImportAnalysis {
 
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
 
-	private long idTask;
+	@Id @GeneratedValue private long idTask;
 
-	private DAOParameterType daoParameterType;
+	@ManyToOne private DAOParameterType daoParameterType;
 
-	private DAOAssetType daoAssetType;
+	@ManyToOne private DAOAssetType daoAssetType;
 
-	private DAOScenarioType daoScenarioType;
+	@ManyToOne private DAOScenarioType daoScenarioType;
 
-	private DAOAnalysis daoAnalysis;
+	@ManyToOne private DAOAnalysis daoAnalysis;
 
-	private DAOLanguage daoLanguage;
+	@ManyToOne private DAOLanguage daoLanguage;
 
-	private DAOMeasureDescription daoMeasureDescription;
+	@ManyToOne private DAOMeasureDescription daoMeasureDescription;
 
-	private DAOMeasureDescriptionText daoMeasureDescriptionText;
+	@ManyToOne private DAOMeasureDescriptionText daoMeasureDescriptionText;
 
-	private DAONorm daoNorm;
+	@ManyToOne private DAONorm daoNorm;
 
-	private ServiceTaskFeedback serviceTaskFeedback;
+	@ManyToOne private ServiceTaskFeedback serviceTaskFeedback;
 
 	private SessionFactory sessionFactory;
 
 	private String currentSqliteTable = "";
 
 	/** The Analysis Object */
-	private Analysis analysis = null;
+	@ManyToOne private Analysis analysis = null;
 
 	/** The SQLite Database Handler */
-	private DatabaseHandler sqlite = null;
+	@ManyToOne private DatabaseHandler sqlite = null;
 
 	/** Map of Assets */
-	private Map<Integer, Asset> assets = null;
+	@OneToMany private Map<Integer, Asset> assets = null;
 
 	/** Map of Scenarios */
-	private Map<Integer, Scenario> scenarios = null;
+	@OneToMany private Map<Integer, Scenario> scenarios = null;
 
 	/** Map of Phases */
-	private Map<Integer, Phase> phases = null;
+	@OneToMany private Map<Integer, Phase> phases = null;
 
 	/** Map of AnalysisNorms */
-	private Map<Norm, AnalysisNorm> analysisNorms = null;
+	@OneToMany private Map<Norm, AnalysisNorm> analysisNorms = null;
 
 	/** Map of Norms */
-	private Map<String, Norm> norms = null;
+	@OneToMany private Map<String, Norm> norms = null;
 
 	/** Map of Measures */
-	private Map<String, Measure> measures = null;
+	@OneToMany private Map<String, Measure> measures = null;
 
 	/***********************************************************************************************
 	 * Constructor

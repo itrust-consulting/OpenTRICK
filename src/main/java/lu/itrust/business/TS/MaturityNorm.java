@@ -2,6 +2,7 @@ package lu.itrust.business.TS;
 
 import java.util.List;
 
+import javax.persistence.Entity;
 import lu.itrust.business.exception.TrickException;
 
 import org.hibernate.proxy.HibernateProxy;
@@ -14,7 +15,7 @@ import org.hibernate.proxy.HibernateProxy;
  * @version 0.1
  * @since 2012-08-21
  */
-public class MaturityNorm extends AnalysisNorm implements Cloneable {
+@Entity public class MaturityNorm extends AnalysisNorm implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration

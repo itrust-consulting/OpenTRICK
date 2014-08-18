@@ -11,6 +11,9 @@ import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.Vector;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.servlet.ServletContext;
 
 import lu.itrust.business.TS.dbhandler.DatabaseHandler;
@@ -31,28 +34,31 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class KnowLedgeBase {
+@Entity public class KnowLedgeBase {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	private ExportAnalysis exportAnalysis;
+	@ManyToOne private ExportAnalysis exportAnalysis;
 
-	private ImportAnalysis importAnalysis;
+	@ManyToOne private ImportAnalysis importAnalysis;
 
 	/** The List of all Analyses */
-	private Vector<Analysis> analyses = new Vector<Analysis>();
+	@OneToMany private Vector<Analysis> analyses = new Vector<Analysis>();
 
 	/** The List of all Languages */
-	private Vector<Language> languages = new Vector<Language>();
+	@OneToMany private Vector<Language> languages = new Vector<Language>();
 
 	/** The List of all Clients */
-	private Vector<Customer> clients = new Vector<Customer>();
+	@OneToMany private Vector<Customer> clients = new Vector<Customer>();
 
 	/***********************************************************************************************
 	 * Constructor
 	 **********************************************************************************************/
+
+	protected KnowLedgeBase() {
+	}
 
 	/***********************************************************************************************
 	 * Methods

@@ -71,9 +71,7 @@
 
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
-		<property name="configLocation">
-			<value>classpath:hibernate.cfg.xml</value>
-		</property>
+		<property name="packagesToScan" value="lu.itrust.business.TS" />
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">${jdbc.dialect}</prop>

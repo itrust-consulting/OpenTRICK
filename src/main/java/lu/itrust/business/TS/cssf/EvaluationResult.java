@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.cssf;
 
+import javax.persistence.Entity;
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -18,7 +19,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-12-11
  */
-public class EvaluationResult {
+@Entity public class EvaluationResult {
 
 	/***********************************************************************************************
 	 * Fields

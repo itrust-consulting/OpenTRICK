@@ -5,6 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -19,7 +22,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class NormMeasure extends Measure {
+@Entity public class NormMeasure extends Measure {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -32,10 +35,10 @@ public class NormMeasure extends Measure {
 	private String toCheck;
 
 	/** The List of AssetTypeValues */
-	private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
+	@OneToMany private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
 
 	/** The List of Measure Properties */
-	private MeasureProperties measurePropertyList;
+	@ManyToOne private MeasureProperties measurePropertyList;
 
 	/***********************************************************************************************
 	 * Getters and Setters

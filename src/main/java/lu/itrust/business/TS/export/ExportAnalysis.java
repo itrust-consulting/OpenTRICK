@@ -8,6 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.AssetType;
@@ -47,29 +51,32 @@ import org.hibernate.Session;
  * @version 0.1
  * @since 2012-12-17
  */
-public class ExportAnalysis {
+@Entity public class ExportAnalysis {
 
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
 
 	/** SQLite Database Handler */
-	private DatabaseHandler sqlite = null;
+	@ManyToOne private DatabaseHandler sqlite = null;
 
-	private long idTask = 0;
+	@Id @GeneratedValue private long idTask = 0;
 
 	/** Analysis object */
-	private Analysis analysis = null;
+	@ManyToOne private Analysis analysis = null;
 
-	private ServiceTaskFeedback serviceTaskFeedback;
+	@ManyToOne private ServiceTaskFeedback serviceTaskFeedback;
 
-	private DAOAssetType serviceAssetType;
+	@ManyToOne private DAOAssetType serviceAssetType;
 
-	private DAOScenarioType serviceScenarioType;
+	@ManyToOne private DAOScenarioType serviceScenarioType;
 
 	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/
+
+	protected ExportAnalysis() {
+	}
 
 	/***********************************************************************************************
 	 * Methods

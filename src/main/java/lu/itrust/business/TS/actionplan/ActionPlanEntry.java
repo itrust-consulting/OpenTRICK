@@ -4,6 +4,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.exception.TrickException;
@@ -17,7 +22,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-09-13
  */
-public class ActionPlanEntry implements Serializable {
+@Entity public class ActionPlanEntry implements Serializable {
 
 	/** serialVersionUID */
 	private static final long serialVersionUID = 1L;
@@ -27,13 +32,13 @@ public class ActionPlanEntry implements Serializable {
 	 **********************************************************************************************/
 
 	/** The ID of the entry */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** */
-	private ActionPlanType actionPlanType = null;
+	@ManyToOne private ActionPlanType actionPlanType = null;
 
 	/** The Measure object reference */
-	private Measure measure = null;
+	@ManyToOne private Measure measure = null;
 
 	/** The position refered from the normal action plan */
 	private String position = "";
@@ -59,7 +64,7 @@ public class ActionPlanEntry implements Serializable {
 	/** Vector of assets at this state in the final action plan */
 	//private List<ActionPlanAssessment> actionPlanAssessments = new ArrayList<ActionPlanAssessment>();
 
-	private List<ActionPlanAsset> actionPlanAssets = new ArrayList<ActionPlanAsset>();
+	@OneToMany(mappedBy="actionPlanEntry") private List<ActionPlanAsset> actionPlanAssets = new ArrayList<ActionPlanAsset>();
 	
 	/***********************************************************************************************
 	 * Constructor

@@ -7,20 +7,24 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import lu.itrust.business.TS.Customer;
 
 /**
  * @author oensuifudine
  * 
  */
-public class User implements Serializable {
+@Entity public class User implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private Integer id = -1;
+	@Id @GeneratedValue private Integer id = -1;
 
 	private String login = null;
 
@@ -36,9 +40,9 @@ public class User implements Serializable {
 
 	private boolean enable = true;
 
-	private List<Role> roles = new ArrayList<Role>();
+	@OneToMany private List<Role> roles = new ArrayList<Role>();
 
-	private List<Customer> customers = new ArrayList<Customer>();
+	@OneToMany private List<Customer> customers = new ArrayList<Customer>();
 
 	/**
 	 * @param login

@@ -1,5 +1,8 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -11,7 +14,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-12-17
  */
-public class Bounds implements Cloneable {
+@Embeddable public class Bounds implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields

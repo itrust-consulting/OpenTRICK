@@ -2,6 +2,9 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -15,7 +18,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Customer implements Serializable {
+@Entity public class Customer implements Serializable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -25,7 +28,7 @@ public class Customer implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/** The customer ID */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** The Name of the organisation */
 	private String organisation = "";

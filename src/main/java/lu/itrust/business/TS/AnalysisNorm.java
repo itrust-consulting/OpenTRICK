@@ -4,6 +4,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -14,7 +19,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public abstract class AnalysisNorm implements Serializable, Cloneable {
+@MappedSuperclass public abstract class AnalysisNorm implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -24,15 +29,15 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** AnalysisNorm id */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** AnalysisNorm Norm Object */
-	private Norm norm = null;
+	@ManyToOne private Norm norm = null;
 
 	/** AnalysisNorm List of measures */
-	private List<Measure> measures = new ArrayList<Measure>();
+	@OneToMany(mappedBy="analysisNorm") private List<Measure> measures = new ArrayList<Measure>();
 
-	private Analysis analysis = null;
+	@ManyToOne private Analysis analysis = null;
 
 	/***********************************************************************************************
 	 * Constructor

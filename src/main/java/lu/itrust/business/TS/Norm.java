@@ -2,6 +2,9 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -13,7 +16,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 24 janv. 2013
  */
-public class Norm implements Serializable, Cloneable {
+@Entity public class Norm implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -23,7 +26,7 @@ public class Norm implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** Norm ID */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** Norm Name */
 	private String label = "";

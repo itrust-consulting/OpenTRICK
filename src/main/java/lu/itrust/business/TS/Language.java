@@ -2,6 +2,9 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -13,7 +16,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-09-24
  */
-public class Language implements Serializable {
+@Entity public class Language implements Serializable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -23,7 +26,7 @@ public class Language implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/** The Language Identifier */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** The Alpha3 Code */
 	private String alpha3 = "";

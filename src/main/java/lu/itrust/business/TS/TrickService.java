@@ -1,5 +1,8 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import lu.itrust.business.TS.tsconstant.Constant;
 
 /** 
@@ -10,10 +13,10 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 
  * @since Apr 23, 2014
  */
-public class TrickService {
+@Entity public class TrickService {
 
 	/** database ID */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 	
 	private String version = Constant.TRICKSERVICE_VERSION;
 	

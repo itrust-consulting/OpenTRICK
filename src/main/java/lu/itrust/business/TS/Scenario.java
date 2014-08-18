@@ -7,6 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -17,7 +20,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class Scenario extends SecurityCriteria {
+@Entity public class Scenario extends SecurityCriteria {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -30,7 +33,7 @@ public class Scenario extends SecurityCriteria {
 	private String name = "";
 
 	/** The Scenario Type */
-	private ScenarioType scenarioType = new ScenarioType();
+	@ManyToOne private ScenarioType scenarioType = new ScenarioType();
 
 	/** The Selected Flag (Selected for calculation) */
 	private boolean selected = false;
@@ -39,7 +42,7 @@ public class Scenario extends SecurityCriteria {
 	private String description = "";
 
 	/** List of Asset Type Values */
-	private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
+	@OneToMany private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
 
 	/**
 	 * Constructor: <br>

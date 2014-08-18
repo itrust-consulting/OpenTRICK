@@ -3,6 +3,10 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -15,7 +19,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public abstract class Measure implements Serializable, Cloneable {
+@MappedSuperclass public abstract class Measure implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -25,13 +29,13 @@ public abstract class Measure implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** The Measure Identifier */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** Analysis Norm Object */
-	private AnalysisNorm analysisNorm = null;
+	@ManyToOne private AnalysisNorm analysisNorm = null;
 
 	/** The Measure Domain */
-	private MeasureDescription measureDescription = null;
+	@ManyToOne private MeasureDescription measureDescription = null;
 	
 	/** The Measure Status (AP, NA, M) */
 	private String status = "NA";
@@ -73,7 +77,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	private String toDo = "";
 
 	/** The Phase object for this measure */
-	private Phase phase = null;
+	@ManyToOne private Phase phase = null;
 
 	/***********************************************************************************************
 	 * Getters and Setters

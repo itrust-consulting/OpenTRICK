@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -18,7 +21,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-11-26
  */
-public abstract class SecurityCriteria implements Serializable, Cloneable {
+@MappedSuperclass public abstract class SecurityCriteria implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -28,7 +31,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** The Scenario Identifier */
-	private int id = -1;
+	@Id @GeneratedValue private int id = -1;
 
 	/** The Preventive value */
 	private double preventive = 0;
