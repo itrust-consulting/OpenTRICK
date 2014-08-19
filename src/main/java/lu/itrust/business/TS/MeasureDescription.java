@@ -50,7 +50,6 @@ public class MeasureDescription implements Cloneable {
 
 	/** Measure Description Text List (one entry represents one language) */
 	@OneToMany(mappedBy="measureDescription")
-	@JoinTable(name="MeasureDescriptionText", joinColumns=@JoinColumn(name="idMeasureDescription"))
 	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */

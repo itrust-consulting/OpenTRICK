@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
@@ -24,7 +27,9 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@MappedSuperclass 
+@Entity
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="dtDiscriminator")
 public abstract class AnalysisNorm implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -34,7 +39,7 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	/** serialVersionUID */
 	@Transient
 	private static final long serialVersionUID = 1L;
-
+	
 	/** AnalysisNorm id */
 	@Id @GeneratedValue 
 	@Column(name="idAnalysisNorm")
@@ -42,16 +47,15 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 
 	/** AnalysisNorm Norm Object */
 	@ManyToOne
-	@JoinTable(name="Norm", joinColumns=@JoinColumn(name="fiNorm"))
+	@JoinColumn(name="fiNorm")
 	private Norm norm = null;
 
 	/** AnalysisNorm List of measures */
 	@OneToMany(mappedBy="analysisNorm")
-	@JoinTable(name="Measure", joinColumns=@JoinColumn(name="fiAnalysisNorm"))
 	private List<Measure> measures = new ArrayList<Measure>();
 
 	@ManyToOne
-	@Column(name="fiAnalysis")
+	@JoinColumn(name="fiAnalysis")
 	private Analysis analysis = null;
 
 	/***********************************************************************************************

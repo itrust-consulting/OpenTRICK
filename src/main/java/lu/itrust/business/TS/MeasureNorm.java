@@ -3,6 +3,9 @@ package lu.itrust.business.TS;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
@@ -18,7 +21,8 @@ import org.hibernate.proxy.HibernateProxy;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
+@Entity
+@DiscriminatorValue("MeasureNorm")
 public class MeasureNorm extends AnalysisNorm {
 
 	/***********************************************************************************************

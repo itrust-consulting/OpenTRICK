@@ -1,34 +1,48 @@
 package lu.itrust.business.TS.actionplan;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
 import lu.itrust.business.TS.Asset;
 
 /**
  * ActionPlanAsset: <br>
  * Represents a Asset with its ALE value inside a specific Action Plan Entry.
  * 
- * @author itrust consulting s.???.rl. : EOM, BJA, SME
+ * @author itrust consulting s.a.rl. : EOM, BJA, SME
  * @version 0.1
  * @since 29 janv. 2013
  */
-@Entity public class ActionPlanAsset {
+@Entity 
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"fiActionPlanCalculation", "fiAsset"}))
+public class ActionPlanAsset {
 
 	/***********************************************************************************************
 	 * Fields Declaration
 	 **********************************************************************************************/
 
 	/** The ActionPlanAsset id */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idActionPlanAsset")
+	private int id = -1;
 
 	/** The ActionPlanEntry Object */
-	@ManyToOne private ActionPlanEntry actionPlanEntry = null;
+	@ManyToOne 
+	@JoinColumn(name="fiActionPlanCalculation")
+	private ActionPlanEntry actionPlanEntry = null;
 
 	/** The Assessment Object */
-	@ManyToOne private Asset asset = null;
+	@ManyToOne 
+	@JoinColumn(name="fiAsset")
+	private Asset asset = null;
 	
 	/** The ALE value */
+	@Column(name="dtCurrentALE")
 	private double currentALE = 0;
 
 	/***********************************************************************************************

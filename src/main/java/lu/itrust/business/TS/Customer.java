@@ -38,7 +38,7 @@ public class Customer implements Serializable {
 	private int id = -1;
 
 	/** The Name of the organisation */
-	@Column(name="dtOrganisation")
+	@Column(name="dtOrganisation", unique=true)
 	private String organisation = "";
 
 	/** The Address of the Organisation */

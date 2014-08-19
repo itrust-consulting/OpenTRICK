@@ -6,8 +6,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.exception.TrickException;
 
@@ -25,6 +28,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity
+@Table(uniqueConstraints=@UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }))
 public class Assessment implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -98,12 +102,12 @@ public class Assessment implements Serializable, Cloneable {
 
 	/** The asset object reference */
 	@ManyToOne
-	@Column(name="fiAsset")
+	@JoinColumn(name="fiAsset")
 	private Asset asset = null;
 
 	/** The scenario object reference */
 	@ManyToOne
-	@Column(name="fiScenario")
+	@JoinColumn(name="fiScenario")
 	private Scenario scenario = null;
 
 	/***********************************************************************************************

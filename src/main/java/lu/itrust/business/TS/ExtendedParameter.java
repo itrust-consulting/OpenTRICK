@@ -3,10 +3,7 @@ package lu.itrust.business.TS;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -29,6 +26,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity 
+@PrimaryKeyJoinColumn(name="idExtendedParameter")
 public class ExtendedParameter extends Parameter implements Cloneable {
 
 	/***********************************************************************************************
@@ -48,8 +46,7 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 	private String acronym = "";
 
 	/** Extended Parameter From And To values */
-	@ManyToOne
-	@JoinColumns({@JoinColumn(name="from"), @JoinColumn(name="to")})
+	@Embedded
 	private Bounds bounds = null;
 
 	/***********************************************************************************************

@@ -4,33 +4,39 @@
 package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 /**
- * @author oensuifudine
- * 
+ * Role.java: <br>
+ * Detailed description...
+ *
+ * @author eomar itrust consulting s.a.rl.:
+ * @version 
+ * @since Aug 19, 2012
  */
 @Entity public class Role implements Serializable {
 
-	/**
-	 * 
-	 */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
+	@Id @GeneratedValue 
+	@Column(name="idRole")
+	private long id = - 1;
 
-	@Id @GeneratedValue private long id = - 1;
-
-	@Enumerated private RoleType type = null;
+	@Enumerated 
+	@Column(name="dtType")
+	private RoleType type = null;
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
-	public Role() {
-		// TODO Auto-generated constructor stub
-	}
+	public Role() {	}
 
 	/**
 	 * @param user

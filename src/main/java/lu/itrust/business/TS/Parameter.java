@@ -2,12 +2,16 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 /**
@@ -18,7 +22,8 @@ import javax.persistence.Transient;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
+@Entity
+@Inheritance(strategy=InheritanceType.JOINED)
 public class Parameter implements Serializable, Cloneable {
 
 	/** serialVersionUID */

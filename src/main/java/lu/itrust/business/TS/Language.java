@@ -36,15 +36,15 @@ public class Language implements Serializable {
 	private int id = -1;
 
 	/** The Alpha3 Code */
-	@Column(name="dtAlpha3")
+	@Column(name="dtAlpha3", unique=true)
 	private String alpha3 = "";
 
 	/** The Language Name */
-	@Column(name="dtName")
+	@Column(name="dtName", unique=true)
 	private String name = "";
 
 	/** The Language Alternative Name */
-	@Column(name="dtAlternativeName")
+	@Column(name="dtAlternativeName", unique=true)
 	private String altName = "";
 
 	/***********************************************************************************************

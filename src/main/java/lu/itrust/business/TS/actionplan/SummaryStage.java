@@ -1,9 +1,13 @@
 package lu.itrust.business.TS.actionplan;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.exception.TrickException;
 
@@ -11,73 +15,101 @@ import lu.itrust.business.exception.TrickException;
  * SummaryStage: <br>
  * Has all data for a single stage (phase of summary)
  * 
- * @author itrust consulting s.� r.l. - SME,BJA
+ * @author itrust consulting s.a r.l. - SME,BJA
  * @version 0.1
  * @since 2012-10-09
  */
-@Entity public class SummaryStage {
+@Entity
+@Table(name="ActionPlanSummary")
+public class SummaryStage {
 
+	/** Regular exptression of Phase Names */
+	public static final String STAGE_REGEX = "Start\\(P0\\)|Phase [1-9]\\d*|Anticipated|All Measures";
+	
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** ID of Stage */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idActionPlanSummary")
+	private int id = -1;
 
 	/** id unsaved value = null */
-	@ManyToOne private Analysis analysis = null;
+	@ManyToOne 
+	@JoinColumn(name="fiAnalysis")
+	private Analysis analysis = null;
 
-	@ManyToOne private ActionPlanType actionPlanType = null;
+	@ManyToOne 
+	@JoinColumn(name="fiActionPlanType")
+	private ActionPlanType actionPlanType = null;
 
 	/** Name or Identifier of the Stage */
+	@Column(name="dtStage")
 	private String stage = "";
 
 	/** Percentage of AnalysisNorm 27001 Conformance for this Stage */
+	@Column(name="dt27001Conformance")
 	private double conformance27001 = 0;
 
 	/** Percentage of AnalysisNorm 27002 Conformance for this Stage */
+	@Column(name="dt27002Conformance")
 	private double conformance27002 = 0;
 
 	/** Number of Measures in this Stage */
+	@Column(name="dtMeasureCount")
 	private int measureCount = 0;
 
 	/** Number of Implemented Measures in this Stage */
+	@Column(name="dtImplementedMeasureCount")
 	private int implementedMeasuresCount = 0;
 
 	/** Total ALE for this Stage */
+	@Column(name="dtTotalALE")
 	private double totalALE = 0;
-
+		
 	/** Delta ALE for this Stage (calculate sum of deltaALE from actionplan entries) */
+	@Column(name="dtDeltaALE")
 	private double deltaALE = 0;
-
+	
 	/** Cost of Measures for this Stage (calculate sum of cost from measures in actionplan) */
+	@Column(name="dtCostOfMeasures")
 	private double costOfMeasures = 0;
-
+	
 	/** ROSI for this Stage (take last actionplan entry's ROSI value) */
+	@Column(name="dtROSI")
 	private double ROSI = 0;
 
 	/** ROSI / Cost Of Measures */
+	@Column(name="dtRelativeROSI")
 	private double relativeROSI = 0;
 
 	/** Sum of Internal Workloads taken from Action Plan Entries */
+	@Column(name="dtInternalWorkload")
 	private double internalWorkload = 0;
 
 	/** Sum of External Workloads taken from Action Plan Entries */
+	@Column(name="dtExternalWorkload")
 	private double externalWorkload = 0;
 
 	/** Sum of Investments taken from Action Plan Entries */
+	@Column(name="dtInvestment")
 	private double investment = 0;
 
 	/** Sum of ((InternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
+	@Column(name="dtInternalMaintenance")
 	private double internalMaintenance = 0;
 
 	/** Sum of ((ExternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
+	@Column(name="dtExternalMaintenance")
 	private double externalMaintenance = 0;
 
 	/** Sum of recurrent Investment */
+	@Column(name="dtRecurrentInvestment")
 	private double recurrentInvestment = 0;
 
 	/** Sum of ((Investments * Maintenance) / 100) taken from Action Plan Entries */
+	@Column(name="dtRecurrentCost")
 	private double recurrentCost = 0;
 
 	/**
@@ -86,11 +118,10 @@ import lu.itrust.business.exception.TrickException;
 	 * (((ExternalWorkload * Maintenance) / 100) * ExternalSetupRate) + ((Investments * Maintenance)
 	 * / 100)
 	 **/
+	@Column(name="dtTotalCost")
 	private double totalCostofStage;
 
-	/** Regular exptression of Phase Names */
-	public static final String STAGE_REGEX = "Start\\(P0\\)|Phase [1-9]\\d*|Anticipated|All Measures";
-
+	
 	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/

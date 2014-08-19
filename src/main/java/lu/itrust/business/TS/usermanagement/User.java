@@ -1,48 +1,67 @@
-/**
- * 
- */
 package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
 import lu.itrust.business.TS.Customer;
 
 /**
- * @author oensuifudine
- * 
+ * User: <br>
+ * Detailed description...
+ *
+ * @author oensuifudine itrust consulting s.a.rl.:
+ * @version 
+ * @since Aug 19, 2012
  */
 @Entity public class User implements Serializable {
 
-	/**
-	 * 
-	 */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
-	@Id @GeneratedValue private Integer id = -1;
+	/** Fields */
+	
+	@Id @GeneratedValue 
+	@Column(name="idUser")
+	private Integer id = -1;
 
+	@Column(name="dtLogin")
 	private String login = null;
 
+	@Column(name="dtPassword")
 	private String password = null;
 
+	@Transient
 	private String repeatPassword = null;
 
+	@Column(name="dtFirstName")
 	private String firstName = null;
 
+	@Column(name="dtLastName")
 	private String lastName = null;
 
+	@Column(name="dtEmail")
 	private String email = null;
 
+	@Column(name="dtEnable")
 	private boolean enable = true;
 
-	@OneToMany private List<Role> roles = new ArrayList<Role>();
+	@OneToMany 
+	@JoinTable(name="UserRole", joinColumns=@JoinColumn(name="idUser"))
+	private List<Role> roles = new ArrayList<Role>();
 
-	@OneToMany private List<Customer> customers = new ArrayList<Customer>();
+	@OneToMany 
+	@JoinTable(name="UserCustomer", joinColumns=@JoinColumn(name="fiUser"))
+	private List<Customer> customers = new ArrayList<Customer>();
 
 	/**
 	 * @param login

@@ -23,7 +23,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class DatabaseHandler {
+public class DatabaseHandler {
 
     /***********************************************************************************************
      * Fields declaration

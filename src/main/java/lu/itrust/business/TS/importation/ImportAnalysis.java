@@ -86,59 +86,59 @@ import org.springframework.transaction.annotation.Transactional;
  * @version 0.1
  * @since 2012-12-14
  */
-@Entity public class ImportAnalysis {
+public class ImportAnalysis {
 
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
 
-	@Id @GeneratedValue private long idTask;
+	private long idTask;
 
-	@ManyToOne private DAOParameterType daoParameterType;
+	private DAOParameterType daoParameterType;
 
-	@ManyToOne private DAOAssetType daoAssetType;
+	private DAOAssetType daoAssetType;
 
-	@ManyToOne private DAOScenarioType daoScenarioType;
+	private DAOScenarioType daoScenarioType;
 
-	@ManyToOne private DAOAnalysis daoAnalysis;
+	private DAOAnalysis daoAnalysis;
 
-	@ManyToOne private DAOLanguage daoLanguage;
+	private DAOLanguage daoLanguage;
 
-	@ManyToOne private DAOMeasureDescription daoMeasureDescription;
+	private DAOMeasureDescription daoMeasureDescription;
 
-	@ManyToOne private DAOMeasureDescriptionText daoMeasureDescriptionText;
+	private DAOMeasureDescriptionText daoMeasureDescriptionText;
 
-	@ManyToOne private DAONorm daoNorm;
+	private DAONorm daoNorm;
 
-	@ManyToOne private ServiceTaskFeedback serviceTaskFeedback;
+	private ServiceTaskFeedback serviceTaskFeedback;
 
 	private SessionFactory sessionFactory;
 
 	private String currentSqliteTable = "";
 
 	/** The Analysis Object */
-	@ManyToOne private Analysis analysis = null;
+	private Analysis analysis = null;
 
 	/** The SQLite Database Handler */
-	@ManyToOne private DatabaseHandler sqlite = null;
+	private DatabaseHandler sqlite = null;
 
 	/** Map of Assets */
-	@OneToMany private Map<Integer, Asset> assets = null;
+	private Map<Integer, Asset> assets = null;
 
 	/** Map of Scenarios */
-	@OneToMany private Map<Integer, Scenario> scenarios = null;
+	private Map<Integer, Scenario> scenarios = null;
 
 	/** Map of Phases */
-	@OneToMany private Map<Integer, Phase> phases = null;
+	private Map<Integer, Phase> phases = null;
 
 	/** Map of AnalysisNorms */
-	@OneToMany private Map<Norm, AnalysisNorm> analysisNorms = null;
+	private Map<Norm, AnalysisNorm> analysisNorms = null;
 
 	/** Map of Norms */
-	@OneToMany private Map<String, Norm> norms = null;
+	private Map<String, Norm> norms = null;
 
 	/** Map of Measures */
-	@OneToMany private Map<String, Measure> measures = null;
+	private Map<String, Measure> measures = null;
 
 	/***********************************************************************************************
 	 * Constructor

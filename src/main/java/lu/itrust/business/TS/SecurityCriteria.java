@@ -6,9 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Transient;
 
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
@@ -24,7 +26,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-11-26
  */
-@MappedSuperclass 
+@Entity
+@Inheritance(strategy=InheritanceType.JOINED)
 public abstract class SecurityCriteria implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -77,6 +80,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	private int externalThreat = 0;
 
 	/** The Map of Scenario Categories */
+	@Transient
 	private Map<String, Integer> categories = new HashMap<String, Integer>(25);
 
 	/***********************************************************************************************

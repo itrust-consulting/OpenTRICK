@@ -51,25 +51,25 @@ import org.hibernate.Session;
  * @version 0.1
  * @since 2012-12-17
  */
-@Entity public class ExportAnalysis {
+public class ExportAnalysis {
 
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
 
 	/** SQLite Database Handler */
-	@ManyToOne private DatabaseHandler sqlite = null;
+	private DatabaseHandler sqlite = null;
 
-	@Id @GeneratedValue private long idTask = 0;
+	private long idTask = 0;
 
 	/** Analysis object */
-	@ManyToOne private Analysis analysis = null;
+	private Analysis analysis = null;
 
-	@ManyToOne private ServiceTaskFeedback serviceTaskFeedback;
+	private ServiceTaskFeedback serviceTaskFeedback;
 
-	@ManyToOne private DAOAssetType serviceAssetType;
+	private DAOAssetType serviceAssetType;
 
-	@ManyToOne private DAOScenarioType serviceScenarioType;
+	private DAOScenarioType serviceScenarioType;
 
 	/***********************************************************************************************
 	 * Constructors

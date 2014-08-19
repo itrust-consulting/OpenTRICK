@@ -1,8 +1,10 @@
 package lu.itrust.business.TS;
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 
 import lu.itrust.business.exception.TrickException;
@@ -15,7 +17,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Embeddable 
+@Entity 
+@PrimaryKeyJoinColumn(name="idMaturityMeasure")
 public class MaturityMeasure extends Measure implements Cloneable {
 
 	/***********************************************************************************************
@@ -206,6 +209,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * @see lu.itrust.business.TS.Measure#getImplementationRate()
 	 */
 	@Override
+	@OneToMany(mappedBy="implementationRate")
 	public Parameter getImplementationRate() {
 		return (Parameter) super.getImplementationRate();
 	}

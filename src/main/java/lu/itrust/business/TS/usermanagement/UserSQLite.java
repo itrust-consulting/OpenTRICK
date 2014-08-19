@@ -5,30 +5,45 @@ package lu.itrust.business.TS.usermanagement;
 
 import java.sql.Timestamp;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
 /**
  * @author eomar
  * 
  */
+@Entity
 public class UserSQLite {
 
+	@Id @GeneratedValue
+	@Column(name="idUserSQLite")
 	private int id = -1;
 
+	@Column(name="dtFileName")
 	private String fileName = null;
 
+	@Column(name="dtAnalysisIdentifier")
 	private String analysisIdentifier = null;
 
+	@Column(name="fiUser")
 	private User user = null;
 
+	@Column(name="dtSize")
 	private long size = 0;
 
+	@Column(name="dtSQLite")
 	private byte[] sqLite;
 
+	@Column(name="dtExportTime")
 	private Timestamp exportTime = null;
 
+	@Column(name="dtDeleteTime")
 	private Timestamp deleteTime = null;
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
 	public UserSQLite() {
 	}

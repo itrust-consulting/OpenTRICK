@@ -4,11 +4,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.exception.TrickException;
@@ -18,53 +23,65 @@ import lu.itrust.business.exception.TrickException;
  * Contains an entry in the action plan: This entry's structure is: AnalysisNorm object, Measure
  * object, the total ALE, delta ALE and the ROSI/ROSMI.
  * 
- * @author itrust consulting s.��� r.l. - BJA,SME
+ * @author itrust consulting s.a r.l. - BJA,SME
  * @version 0.1
  * @since 2012-09-13
  */
-@Entity public class ActionPlanEntry implements Serializable {
+@Entity 
+@Table(name="ActionPlan")
+public class ActionPlanEntry implements Serializable {
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
+	/** Regular expression to match valid entry position (positive or negative number or =) */
+	public static final String POSITION_REGEX = "[-+]\\d+|=|\\d+";
+	
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** The ID of the entry */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idActionPlanCalculation")
+	private int id = -1;
 
-	/** */
-	@ManyToOne private ActionPlanType actionPlanType = null;
+	/** action plan type */
+	@ManyToOne 
+	@JoinColumn(name="fiActionPlanType")
+	private ActionPlanType actionPlanType = null;
 
 	/** The Measure object reference */
-	@ManyToOne private Measure measure = null;
+	@ManyToOne 
+	@JoinColumn(name="fiMeasure")
+	private Measure measure = null;
 
 	/** The position refered from the normal action plan */
+	@Column(name="dtOrder")
 	private String position = "";
 
 	/** The total ALE of each mode (normal, pessimistic, optimistic) */
+	@Column(name="dtTotalALE")
 	private double totalALE = 0;
 
 	/** The Delta ALE of each mode (normal, pessimistic, optimistic) */
+	@Column(name="dtDeltaALE")
 	private double deltaALE = 0;
 
 	/** The cost of the measure */
+	@Column(name="dtCost")
 	private double cost = 0;
 
-	/** Regular expression to match valid entry position (positive or negative number or =) */
-	public static final String POSITION_REGEX = "[-+]\\d+|=|\\d+";
-
-	/**
-	 * Return of investment for Security and Maturity investment of each mode (normal, pessimistic,
-	 * optimistic)
-	 **/
+	/** Return of investment for Security and Maturity investment of each mode (normal, pessimistic, optimistic) */
+	@Column(name="dtROI")
 	private double ROI = 0;
 
 	/** Vector of assets at this state in the final action plan */
 	//private List<ActionPlanAssessment> actionPlanAssessments = new ArrayList<ActionPlanAssessment>();
 
-	@OneToMany(mappedBy="actionPlanEntry") private List<ActionPlanAsset> actionPlanAssets = new ArrayList<ActionPlanAsset>();
+	@OneToMany(mappedBy="actionPlanEntry")
+	private List<ActionPlanAsset> actionPlanAssets = new ArrayList<ActionPlanAsset>();
 	
 	/***********************************************************************************************
 	 * Constructor

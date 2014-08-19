@@ -7,7 +7,9 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Scenario;
@@ -26,11 +28,13 @@ import lu.itrust.business.exception.TrickException;
  * <li>Strategy</li>
  * </ul>
  * 
- * @author itrust consulting s.� r.l. - BJA, SME, EOM
+ * @author itrust consulting s.a r.l. - BJA, SME, EOM
  * @version 0.1
  * @since 2012-12-11
  */
-@Entity public class RiskRegisterItem {
+@Entity 
+@Table(name="RiskRegister")
+public class RiskRegisterItem {
 
 	/***********************************************************************************************
 	 * Fields
@@ -40,38 +44,52 @@ import lu.itrust.business.exception.TrickException;
 	public static final String ACCEPT_SHRINK = "Accept|Shrink";
 
 	/** Scenario Object */
-	@ManyToOne private Scenario scenario = null;
+	@ManyToOne 
+	@JoinColumn(name="fiScenario")
+	private Scenario scenario = null;
 
-	@ManyToOne private Asset asset = null;
+	@ManyToOne 
+	@JoinColumn(name="fiAsset")
+	private Asset asset = null;
 
 	/** Identifier */
-	@Id @GeneratedValue private int id = -1;
+	@Id @GeneratedValue 
+	@Column(name="idRiskRegisterItem")
+	private int id = -1;
 
 	/** Position in the RiskRegister */
+	@Column(name="dtPosition")
 	private int position = 0;
 
+	/** The Expected Evaluation Data (Probability, Impact and Importance) */
+	@Embedded
+	@AttributeOverrides({ 
+		@AttributeOverride(name = "impact", column = @Column(name = "dtNetEvaluationImpact")),
+		@AttributeOverride(name = "probability", column = @Column(name = "dtNetEvaluationProbability")),
+		@AttributeOverride(name = "importance", column = @Column(name = "dtNetEvaluationImportance")) 
+	})
+	private EvaluationResult netEvaluation = null;
+	
 	/** The Raw Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
-	@AttributeOverrides({ @AttributeOverride(name = "probability", column = @Column(name = "rawEvaluationProbability")),
-			@AttributeOverride(name = "impact", column = @Column(name = "rawEvaluationImpact")),
-			@AttributeOverride(name = "importance", column = @Column(name = "rawEvaluationImportance")) })
+	@AttributeOverrides({ 
+		@AttributeOverride(name = "impact", column = @Column(name = "dtRawEvaluationImpact")),
+		@AttributeOverride(name = "probability", column = @Column(name = "dtRawEvaluationProbability")),
+		@AttributeOverride(name = "importance", column = @Column(name = "dtRawEvaluationImportance")) 
+	})
 	private EvaluationResult rawEvaluation = null;
 
 	/** The Net Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
-	@AttributeOverrides({ @AttributeOverride(name = "probability", column = @Column(name = "expectedImportanceProbability")),
-		@AttributeOverride(name = "impact", column = @Column(name = "expectedImportanceImpact")),
-		@AttributeOverride(name = "importance", column = @Column(name = "expectedImportanceImportance")) })
+	@AttributeOverrides({ 
+		@AttributeOverride(name = "impact", column = @Column(name = "dtExpImportanceImpact")),
+		@AttributeOverride(name = "probability", column = @Column(name = "dtExpImportanceProbability")),
+		@AttributeOverride(name = "importance", column = @Column(name = "dtExpImportanceImportance")) 
+	})
 	private EvaluationResult expectedImportance = null;
 
-	/** The Expected Evaluation Data (Probability, Impact and Importance) */
-	@Embedded
-	@AttributeOverrides({ @AttributeOverride(name = "probability", column = @Column(name = "netEvaluationProbability")),
-		@AttributeOverride(name = "impact", column = @Column(name = "netEvaluationImpact")),
-		@AttributeOverride(name = "importance", column = @Column(name = "netEvaluationImportance")) })
-	private EvaluationResult netEvaluation = null;
-
 	/** Strategy */
+	@Column(name="dtStrategy")
 	private String strategy = "Shrink";
 
 	/***********************************************************************************************

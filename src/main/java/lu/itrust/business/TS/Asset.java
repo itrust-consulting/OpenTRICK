@@ -5,6 +5,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import lu.itrust.business.exception.TrickException;
@@ -37,7 +38,7 @@ public class Asset implements Cloneable {
 
 	/** The Asset Type Name */
 	@ManyToOne
-	@Column(name="fiAssetType")
+	@JoinColumn(name="fiAssetType")
 	private AssetType assetType = null;
 
 	/** The Asset Value */

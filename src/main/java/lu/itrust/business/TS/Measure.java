@@ -4,11 +4,13 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -23,7 +25,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@MappedSuperclass 
+@Entity 
+@Inheritance(strategy=InheritanceType.JOINED)
 public abstract class Measure implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -46,7 +49,7 @@ public abstract class Measure implements Serializable, Cloneable {
 
 	/** The Measure Domain */
 	@ManyToOne 
-	@Column(name="fiMeasureDescription")
+	@JoinColumn(name="fiMeasureDescription")
 	private MeasureDescription measureDescription = null;
 	
 	/** The Measure Status (AP, NA, M) */
@@ -54,6 +57,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	private String status = "NA";
 
 	/** The Implementation Rate */
+	@Transient
 	private Object implementationRate = null;
 
 	/** The Internal WorkLoad (in Man Days) */
@@ -101,8 +105,9 @@ public abstract class Measure implements Serializable, Cloneable {
 	private String toDo = "";
 
 	/** The Phase object for this measure */
-	@Column(name="fiPhase")
-	@ManyToOne private Phase phase = null;
+	@ManyToOne
+	@JoinColumn(name="fiPhase")
+	private Phase phase = null;
 
 	/***********************************************************************************************
 	 * Getters and Setters

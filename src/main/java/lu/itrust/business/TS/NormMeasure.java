@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 
 import lu.itrust.business.exception.TrickException;
@@ -28,6 +29,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity 
+@PrimaryKeyJoinColumn(name="idNormMeasure")
 public class NormMeasure extends Measure {
 
 	/***********************************************************************************************
@@ -163,6 +165,7 @@ public class NormMeasure extends Measure {
 	 * @see lu.itrust.business.TS.Measure#getImplementationRate()
 	 */
 	@Override
+	@Column(name="dtImplmentationRate")
 	public Double getImplementationRate() {
 		return (Double) super.getImplementationRate();
 	}

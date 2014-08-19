@@ -3,6 +3,7 @@ package lu.itrust.business.TS;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -16,7 +17,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Embeddable
+@Entity
+@PrimaryKeyJoinColumn(name="idMaturityParameter")
 public class MaturityParameter extends Parameter implements Cloneable {
 
 	/***********************************************************************************************

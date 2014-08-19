@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.cssf;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 import lu.itrust.business.exception.TrickException;
@@ -16,11 +17,12 @@ import lu.itrust.business.exception.TrickException;
  * <li>Importance</li>
  * </ul>
  * 
- * @author itrust consulting s.�.rl. - BJA, SME, EOM
+ * @author itrust consulting s.a.rl. - BJA, SME, EOM
  * @version 0.1
  * @since 2012-12-11
  */
-@Embeddable public class EvaluationResult {
+@Embeddable 
+public class EvaluationResult {
 
 	/***********************************************************************************************
 	 * Fields
