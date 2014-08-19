@@ -410,7 +410,7 @@ public class ChartGenerator {
 	 * @param norm
 	 * @return
 	 */
-	public static Map<String, Object[]> ComputeComplianceBefore(List<Measure> measures, String norm) {
+	public static Map<String, Object[]> ComputeComplianceBefore(List<? extends Measure> measures, String norm) {
 		Map<String, Object[]> compliances = new LinkedHashMap<String, Object[]>();
 		for (Measure measure : measures) {
 			if (measure.getAnalysisNorm().getNorm().getLabel().equals(norm) && measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {

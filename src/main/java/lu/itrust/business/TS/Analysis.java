@@ -2541,4 +2541,44 @@ public class Analysis implements Serializable, Cloneable {
 		}
 		return mappings;
 	}
+
+	public List<? extends Measure> findMeasureByNorm(String string) {
+		for (AnalysisNorm analysisNorm : analysisNorms)
+			if (analysisNorm.getNorm().getLabel().equalsIgnoreCase(string))
+				return analysisNorm.getMeasures();
+		return null;
+	}
+
+	public List<Measure> findMeasuresByActionPlan(ActionPlanMode appn) {
+		List<Measure> measures = new ArrayList<Measure>();
+		for (ActionPlanEntry planEntry : actionPlans)
+			if (planEntry.getActionPlanType().getActionPlanMode() == appn)
+				measures.add(planEntry.getMeasure());
+		return measures;
+	}
+
+	public List<Measure> findMeasuresByActionPlanAndNotToImplement(ActionPlanMode appn) {
+		List<Measure> measures = new ArrayList<Measure>();
+		for (ActionPlanEntry planEntry : actionPlans)
+			if (planEntry.getActionPlanType().getActionPlanMode() == appn && planEntry.getROI() < 0)
+				measures.add(planEntry.getMeasure());
+		return measures;
+	}
+
+	public List<Phase> findUsablePhase() {
+		List<Phase> phases = new ArrayList<Phase>();
+		for (Phase phase : usedPhases)
+			if (phase.getNumber() > 0)
+				phases.add(phase);
+		return phases;
+
+	}
+
+	public List<Assessment> findAssessmentBySelectedScenario() {
+		List<Assessment> assessments = new ArrayList<Assessment>();
+		for (Assessment assessment : this.assessments)
+			if (assessment.getScenario().isSelected())
+				assessments.add(assessment);
+		return assessments;
+	}
 }

@@ -3,6 +3,7 @@ package lu.itrust.business.TS.export;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
@@ -10,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -24,6 +26,7 @@ import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
@@ -31,13 +34,20 @@ import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
+import lu.itrust.business.component.AssetComparatorByALE;
+import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.ComparatorItemInformation;
 import lu.itrust.business.component.RiskInformationManager;
 import lu.itrust.business.component.helper.ALE;
+import lu.itrust.business.component.helper.ReportExcelSheet;
 import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
 
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackagePart;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -176,6 +186,8 @@ public class ExportAnalysisReport {
 
 			generateMeasures();
 
+			generateGraphics();
+
 			document.write(new FileOutputStream(doctemp));
 
 			return doctemp;
@@ -183,6 +195,133 @@ public class ExportAnalysisReport {
 			if (inputStream != null)
 				inputStream.close();
 		}
+	}
+
+	private void generateGraphics() throws OpenXML4JException, IOException {
+		Map<String, ReportExcelSheet> reportExcelSheets = findExcelPart();
+		generateComplianceGraphic(reportExcelSheets.get("Compliance27001"));
+		generateComplianceGraphic(reportExcelSheets.get("Compliance27002"));
+		generateALEByScenarioTypeGraphic(reportExcelSheets.get("ALEByScenarioType"));
+		generateALEByScenarioGraphic(reportExcelSheets.get("ALEByScenario"));
+		generateALEByAssetTypeGraphic(reportExcelSheets.get("ALEByAssetType"));
+		generateALEByAssetGraphic(reportExcelSheets.get("ALEByAsset"));
+	}
+
+	private void generateALEByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) {
+
+	}
+
+	private void generateALEByAssetGraphic(ReportExcelSheet reportExcelSheet) {
+	}
+
+	private void generateALEByScenarioGraphic(ReportExcelSheet reportExcelSheet) {
+		if (reportExcelSheet == null)
+			return;
+		List<Assessment> assessments = analysis.findAssessmentBySelectedScenario();
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getScenario().getId());
+			if (ale == null) {
+				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
+
+	}
+
+	private void generateALEByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) {
+		if (reportExcelSheet == null)
+			return;
+		List<Assessment> assessments = analysis.findAssessmentBySelectedScenario();
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getScenario().getScenarioType().getId());
+			if (ale == null) {
+				ales.put(assessment.getScenario().getScenarioType().getId(), ale = new ALE(assessment.getScenario().getScenarioType().getName(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowCount = 0;
+		for (ALE ale: ales2) {
+			if(xssfSheet.getRow(rowCount)==null)
+				xssfSheet.createRow(rowCount);
+			if(xssfSheet.getRow(rowCount).getCell(0) == null)
+				xssfSheet.getRow(rowCount).createCell(0);
+			if(xssfSheet.getRow(rowCount).getCell(1) == null)
+				xssfSheet.getRow(rowCount).createCell(1);
+		}
+		
+		
+	}
+
+	@SuppressWarnings("unchecked")
+	private void generateComplianceGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+		if (reportExcelSheet == null)
+			return;
+		String norm = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
+		List<Measure> measures = (List<Measure>) analysis.findMeasureByNorm(norm);
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, norm);
+		int rowCount = 0;
+		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
+		xssfSheet.getRow(rowCount).createCell(0);
+		xssfSheet.getRow(rowCount).createCell(1);
+		xssfSheet.getRow(rowCount).getCell(0).setCellValue(getMessage("report.compliance.chapter", null, "Chapter", locale));
+		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(phaseLabel);
+		for (String key : compliances.keySet()) {
+			Object[] compliance = compliances.get(key);
+			if (xssfSheet.getRow(rowCount) == null)
+				xssfSheet.createRow(rowCount);
+			if (xssfSheet.getRow(rowCount).getCell(0) == null)
+				xssfSheet.getRow(rowCount).createCell(0);
+			if (xssfSheet.getRow(rowCount).getCell(1) == null)
+				xssfSheet.getRow(rowCount).createCell(1, Cell.CELL_TYPE_NUMERIC);
+			xssfSheet.getRow(rowCount).getCell(0).setCellValue(key);
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(Math.floor(((Double) compliance[1]) / ((Integer) compliance[0] * 100.0)));
+		}
+		List<Measure> actionplanmeasuresnottoimplement = analysis.findMeasuresByActionPlanAndNotToImplement(ActionPlanMode.APPN);
+		List<Measure> actionplanmeasures = analysis.findMeasuresByActionPlan(ActionPlanMode.APPN);
+		List<Phase> phases = analysis.findUsablePhase();
+		int columnIndex = 2;
+		for (Phase phase : phases) {
+			compliances = ChartGenerator.ComputeCompliance(measures, norm, actionplanmeasures, actionplanmeasuresnottoimplement, phase, compliances);
+			if (xssfSheet.getRow(rowCount) == null)
+				xssfSheet.createRow(rowCount);
+			if (xssfSheet.getRow(rowCount).getCell(rowCount = 0) == null)
+				xssfSheet.getRow(rowCount).createCell(columnIndex);
+			xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(getMessage("label.chart.phase", null, "Phase", locale) + " " + phase.getNumber());
+			for (String key : compliances.keySet()) {
+				Object[] compliance = compliances.get(key);
+				if (xssfSheet.getRow(rowCount) == null)
+					xssfSheet.createRow(rowCount);
+				if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
+					xssfSheet.getRow(rowCount).createCell(columnIndex, Cell.CELL_TYPE_NUMERIC);
+				xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(Math.floor(((Double) compliance[1]) / ((Integer) compliance[0] * 100.0)));
+			}
+		}
+		reportExcelSheet.save();
+	}
+
+	private Map<String, ReportExcelSheet> findExcelPart() throws OpenXML4JException, IOException {
+		Map<String, ReportExcelSheet> reportExcelSheets = new LinkedHashMap<String, ReportExcelSheet>();
+		if (this.document == null)
+			return reportExcelSheets;
+
+		for (PackagePart packagePart : this.document.getPackage().getParts()) {
+			if (packagePart.getPartName().getExtension().contains("xls")) {
+				ReportExcelSheet reportExcelSheet = new ReportExcelSheet(packagePart);
+				reportExcelSheets.put(reportExcelSheet.getName(), reportExcelSheet);
+			}
+		}
+
+		return reportExcelSheets;
 	}
 
 	private void generatePlaceholders() {
@@ -558,11 +697,8 @@ public class ExportAnalysisReport {
 					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getTotalCostofStage() * 0.001)));
 				break;
 			}
-
 			}
-
 			rownumber++;
-
 		}
 
 	}
@@ -900,7 +1036,7 @@ public class ExportAnalysisReport {
 			row = table.createRow();
 			for (int i = 1; i < 5; i++)
 				row.addNewTableCell().setColor("c6d9f1");
-			;
+
 			row.getCell(0).setText(getMessage("report.assessment.total_ale.assets", null, "Total ALE of Assets", locale));
 			addCellNumber(row.getCell(3), numberFormat.format(totalale * 0.001));
 
@@ -1088,7 +1224,7 @@ public class ExportAnalysisReport {
 	}
 
 	private String getMessage(String code, Object[] parameters, String defaultMessage, Locale locale) {
-		//System.out.println(String.format("%s=%s", code, defaultMessage));
+		// System.out.println(String.format("%s=%s", code, defaultMessage));
 		return messageSource.getMessage(code, parameters, defaultMessage, locale);
 	}
 
