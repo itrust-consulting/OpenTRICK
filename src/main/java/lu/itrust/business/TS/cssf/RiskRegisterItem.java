@@ -89,7 +89,7 @@ public class RiskRegisterItem {
 	private EvaluationResult expectedImportance = null;
 
 	/** Strategy */
-	@Column(name="dtStrategy")
+	@Column(name="dtResponseStrategy")
 	private String strategy = "Shrink";
 
 	/***********************************************************************************************

@@ -6,7 +6,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -20,6 +22,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 24 janv. 2013
  */
 @Entity 
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"dtLabel","dtVersion"}))
 public class Norm implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -36,19 +39,19 @@ public class Norm implements Serializable, Cloneable {
 	private int id = -1;
 
 	/** Norm Name */
-	@Column(name="dtLabel")
+	@Column(name="dtLabel", nullable=false)
 	private String label = "";
 
 	/** the norm verison */
-	@Column(name="dtVersion")
+	@Column(name="dtVersion", nullable=false)
 	private int version = 2013;
 
 	/** description of the norm */
-	@Column(name="dtDescription")
+	@Column(name="dtDescription", nullable=false)
 	private String description = "";
 
 	/** norm available for actionplan computation */
-	@Column(name="dtComputable")
+	@Column(name="dtComputable", nullable=false)
 	private boolean computable = true;
 
 	/***********************************************************************************************

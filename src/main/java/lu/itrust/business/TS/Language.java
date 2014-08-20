@@ -6,7 +6,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -20,6 +22,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-09-24
  */
 @Entity 
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"dtAlpha3","dtName"}))
 public class Language implements Serializable {
 
 	/***********************************************************************************************
@@ -36,15 +39,15 @@ public class Language implements Serializable {
 	private int id = -1;
 
 	/** The Alpha3 Code */
-	@Column(name="dtAlpha3", unique=true)
+	@Column(name="dtAlpha3", length=3, nullable=false)
 	private String alpha3 = "";
 
 	/** The Language Name */
-	@Column(name="dtName", unique=true)
+	@Column(name="dtName", nullable=false)
 	private String name = "";
 
 	/** The Language Alternative Name */
-	@Column(name="dtAlternativeName", unique=true)
+	@Column(name="dtAlternativeName", nullable=false)
 	private String altName = "";
 
 	/***********************************************************************************************

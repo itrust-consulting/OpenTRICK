@@ -5,14 +5,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.exception.TrickException;
 
@@ -41,17 +47,12 @@ public class NormMeasure extends Measure {
 	private static final long serialVersionUID = 1L;
 
 	/** The "To Check" comment */
-	@Column(name="dtToCheck")
 	private String toCheck;
 
 	/** The List of AssetTypeValues */
-	@OneToMany
-	@JoinTable(name="MeasureAssetTypeValue", joinColumns=@JoinColumn(name="idNormMeasure"))
 	private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
 
 	/** The List of Measure Properties */
-	@ManyToOne 
-	@JoinColumn(name="fiMeasureProperties")
 	private MeasureProperties measurePropertyList;
 
 	/***********************************************************************************************
@@ -64,6 +65,9 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @return The Measure Properties List object
 	 */
+	@ManyToOne 
+	@JoinColumn(name="fiMeasureProperties", nullable=false)
+	@Cascade(CascadeType.ALL)
 	public MeasureProperties getMeasurePropertyList() {
 		return measurePropertyList;
 	}
@@ -104,6 +108,12 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @return The List of all Asset Type Values
 	 */
+	@ManyToMany
+	@JoinTable(name = "MeasureAssetTypeValue", 
+			   joinColumns = { @JoinColumn(name = "idNormMeasure", nullable = false) }, 
+			   inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetTypeValue", nullable = false) },
+			   uniqueConstraints = @UniqueConstraint(columnNames = {"idNormMeasure", "idMeasureAssetTypeValue"})
+	)
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}
@@ -142,6 +152,7 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @return The To Check Value
 	 */
+	@Column(name="dtToCheck", nullable=false)
 	public String getToCheck() {
 		return this.toCheck;
 	}
@@ -165,7 +176,8 @@ public class NormMeasure extends Measure {
 	 * @see lu.itrust.business.TS.Measure#getImplementationRate()
 	 */
 	@Override
-	@Column(name="dtImplmentationRate")
+	@Column(name="dtImplmentationRate", nullable=false)
+	@Access(AccessType.FIELD)
 	public Double getImplementationRate() {
 		return (Double) super.getImplementationRate();
 	}
@@ -180,6 +192,7 @@ public class NormMeasure extends Measure {
 	 * @see lu.itrust.business.TS.NormMeasure#getImplementationRate()
 	 */
 	@Override
+	@Transient
 	public double getImplementationRateValue() {
 		return getImplementationRate();
 	}

@@ -1,5 +1,7 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
@@ -30,28 +32,36 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** The Maturity Category of Parameter */
-	@Column(name="dtCategory")
+	@Column(name="dtCategory", nullable=false)
+	@Access(AccessType.FIELD)
 	private String category = "";
 
-	@Column(name="dtSML")
+	@Column(name="dtSML", nullable=false)
+	@Access(AccessType.FIELD)
 	private int SMLLevel = 0;
 	
-	@Column(name="dtSML0")
+	@Column(name="dtSML0", nullable=false)
+	@Access(AccessType.FIELD)
 	private double SMLLevel0 = 0;
 
-	@Column(name="dtSML1")
+	@Column(name="dtSML1", nullable=false)
+	@Access(AccessType.FIELD)
 	private double SMLLevel1 = 0;
 
-	@Column(name="dtSML2")
+	@Column(name="dtSML2", nullable=false)
+	@Access(AccessType.FIELD)
 	private double SMLLevel2 = 0;
 
-	@Column(name="dtSML3")
+	@Column(name="dtSML3", nullable=false)
+	@Access(AccessType.FIELD)
 	private double SMLLevel3 = 0;
 
-	@Column(name="dtSML4")
+	@Column(name="dtSML4", nullable=false)
+	@Access(AccessType.FIELD)
 	private double SMLLevel4 = 0;
 
-	@Column(name="dtSML5")
+	@Column(name="dtSML5", nullable=false)
+	@Access(AccessType.FIELD)
 	private double SMLLevel5 = 0;
 
 	/***********************************************************************************************

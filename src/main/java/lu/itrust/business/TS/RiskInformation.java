@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -29,6 +30,7 @@ import lu.itrust.business.exception.TrickException;
 
 	/** editable */
 	//@Column(name="dtEditable")
+	@Transient
 	private boolean editable;
 	
 	/** The Risk Information Label */

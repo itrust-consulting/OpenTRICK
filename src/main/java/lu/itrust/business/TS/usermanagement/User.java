@@ -10,8 +10,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.Customer;
 
@@ -23,7 +26,9 @@ import lu.itrust.business.TS.Customer;
  * @version 
  * @since Aug 19, 2012
  */
-@Entity public class User implements Serializable {
+@Entity
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"dtLogin","dtEmail"}))
+public class User implements Serializable {
 
 	@Transient
 	private static final long serialVersionUID = 1L;
@@ -52,15 +57,21 @@ import lu.itrust.business.TS.Customer;
 	@Column(name="dtEmail")
 	private String email = null;
 
-	@Column(name="dtEnable")
+	@Column(name="dtEnabled")
 	private boolean enable = true;
 
-	@OneToMany 
-	@JoinTable(name="UserRole", joinColumns=@JoinColumn(name="idUser"))
+	@ManyToMany
+	@JoinTable(name = "UserRole", 
+			   joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, 
+			   inverseJoinColumns = { @JoinColumn(name = "fiRole", nullable = false, updatable = false) }
+	)
 	private List<Role> roles = new ArrayList<Role>();
 
-	@OneToMany 
-	@JoinTable(name="UserCustomer", joinColumns=@JoinColumn(name="fiUser"))
+	@ManyToMany
+	@JoinTable(name = "UserCustomer", 
+			   joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, 
+			   inverseJoinColumns = { @JoinColumn(name = "fiCustomer", nullable = false, updatable = false) }
+	)
 	private List<Customer> customers = new ArrayList<Customer>();
 
 	/**

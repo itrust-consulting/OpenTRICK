@@ -1,9 +1,11 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 
@@ -30,27 +32,21 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** The Reached Security Maturity Level */
-	@Column(name="dtReachedLevel")
 	private int reachedLevel = 0;
 
 	/** The Cost to get to the Security Maturity Level 1 */
-	@Column(name="dtSML1Cost")
 	private double SML1Cost = 0;
 
 	/** The Cost to get to the Security Maturity Level 2 */
-	@Column(name="dtSML2Cost")
 	private double SML2Cost = 0;
 
 	/** The Cost to get to the Security Maturity Level 3 */
-	@Column(name="dtSML3Cost")
 	private double SML3Cost = 0;
 
 	/** The Cost to get to the Security Maturity Level 4 */
-	@Column(name="dtSML4Cost")
 	private double SML4Cost = 0;
 
 	/** The Cost to get to the Security Maturity Level 5 */
-	@Column(name="dtSML5Cost")
 	private double SML5Cost = 0;
 
 	/***********************************************************************************************
@@ -63,6 +59,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The reached SML
 	 */
+	@Column(name="dtReachedLevel", nullable=false)
 	public int getReachedLevel() {
 		return reachedLevel;
 	}
@@ -87,6 +84,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The Cost to reach the SML 1
 	 */
+	@Column(name="dtSML1Cost", nullable=false)
 	public double getSML1Cost() {
 		return SML1Cost;
 	}
@@ -111,6 +109,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The Cost to reach the SML 2
 	 */
+	@Column(name="dtSML2Cost", nullable=false)
 	public double getSML2Cost() {
 		return SML2Cost;
 	}
@@ -135,6 +134,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The Cost to reach the SML 3
 	 */
+	@Column(name="dtSML3Cost", nullable=false)
 	public double getSML3Cost() {
 		return SML3Cost;
 	}
@@ -159,6 +159,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The Cost to reach the SML 4
 	 */
+	@Column(name="dtSML4Cost", nullable=false)
 	public double getSML4Cost() {
 		return SML4Cost;
 	}
@@ -183,6 +184,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The Cost to reach the SML 5
 	 */
+	@Column(name="dtSML5Cost", nullable=false)
 	public double getSML5Cost() {
 		return SML5Cost;
 	}
@@ -209,7 +211,9 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * @see lu.itrust.business.TS.Measure#getImplementationRate()
 	 */
 	@Override
-	@OneToMany(mappedBy="implementationRate")
+	@ManyToOne
+	@JoinColumn(name="fiImplementationRateParameter", nullable=false)
+	@Access(AccessType.FIELD)
 	public Parameter getImplementationRate() {
 		return (Parameter) super.getImplementationRate();
 	}
@@ -237,6 +241,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * @see lu.itrust.business.TS.Measure#getImplementationRateValue()
 	 */
 	@Override
+	@Transient
 	public double getImplementationRateValue() {
 		return getImplementationRate() != null ? getImplementationRate().getValue() : 0;
 	}

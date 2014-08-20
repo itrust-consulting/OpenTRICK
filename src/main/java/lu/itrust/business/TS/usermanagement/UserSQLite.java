@@ -9,6 +9,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  * @author eomar
@@ -21,13 +23,14 @@ public class UserSQLite {
 	@Column(name="idUserSQLite")
 	private int id = -1;
 
-	@Column(name="dtFileName")
+	@Column(name="dtFileName", unique=true)
 	private String fileName = null;
 
 	@Column(name="dtAnalysisIdentifier")
 	private String analysisIdentifier = null;
 
-	@Column(name="fiUser")
+	@ManyToOne
+	@JoinColumn(name="fiUser")
 	private User user = null;
 
 	@Column(name="dtSize")

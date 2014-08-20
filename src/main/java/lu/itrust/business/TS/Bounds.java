@@ -1,7 +1,10 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -21,11 +24,13 @@ public class Bounds implements Cloneable {
 	 **********************************************************************************************/
 
 	/** Value From */
-	@Column(name="dtFrom")
+	@Column(name="dtFrom", nullable=false)
+	@Access(AccessType.FIELD)
 	private double from = 0;
 
 	/** Value To */
-	@Column(name="dtTo")
+	@Column(name="dtTo", nullable=false)
+	@Access(AccessType.FIELD)
 	private double to = 0;
 
 	/***********************************************************************************************

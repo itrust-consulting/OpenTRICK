@@ -7,15 +7,23 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import lu.itrust.business.exception.TrickException;
 
@@ -29,7 +37,8 @@ import lu.itrust.business.exception.TrickException;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="dtDiscriminator")
+@DiscriminatorColumn(name="dtDiscriminator", length=12)
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","fiNorm"}))
 public abstract class AnalysisNorm implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -46,16 +55,18 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	private int id = -1;
 
 	/** AnalysisNorm Norm Object */
-	@ManyToOne
-	@JoinColumn(name="fiNorm")
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="fiNorm", nullable=false)
 	private Norm norm = null;
 
 	/** AnalysisNorm List of measures */
 	@OneToMany(mappedBy="analysisNorm")
+	@Cascade(CascadeType.ALL)
 	private List<Measure> measures = new ArrayList<Measure>();
 
 	@ManyToOne
-	@JoinColumn(name="fiAnalysis")
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@JoinColumn(name="fiAnalysis", nullable=false)
 	private Analysis analysis = null;
 
 	/***********************************************************************************************

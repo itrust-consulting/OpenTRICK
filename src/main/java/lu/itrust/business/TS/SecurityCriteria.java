@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.persistence.Access;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.AccessType;
 
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -35,52 +38,39 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
-	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The Scenario Identifier */
-	@Id @GeneratedValue 
-	@Column(name="idSecurityCriteria")
 	private int id = -1;
 
 	/** The Preventive value */
-	@Column(name="dtPreventive")
 	private double preventive = 0;
 
 	/** The Detective value */
-	@Column(name="dtDetective")
 	private double detective = 0;
 
 	/** The Limitative value */
-	@Column(name="dtLimitative")
 	private double limitative = 0;
 
 	/** The Corrective value */
-	@Column(name="dtCorrective")
 	private double corrective = 0;
 
 	/** The Intentional value */
-	@Column(name="dtIntentional")
 	private int intentional = 0;
 
 	/** The Accidental value */
-	@Column(name="dtAccidental")
 	private int accidental = 0;
 
 	/** The Environmental value */
-	@Column(name="dtEnvironmental")
 	private int environmental = 0;
 
 	/** The Internal Threat value */
-	@Column(name="InternalThreat")
 	private int internalThreat = 0;
 
 	/** The External Threat value */
-	@Column(name="dtExternalThreat")
 	private int externalThreat = 0;
 
 	/** The Map of Scenario Categories */
-	@Transient
 	private Map<String, Integer> categories = new HashMap<String, Integer>(25);
 
 	/***********************************************************************************************
@@ -103,6 +93,8 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Scenario ID
 	 */
+	@Id @GeneratedValue 
+	@Column(name="idSecurityCriteria")
 	public int getId() {
 		return id;
 	}
@@ -274,7 +266,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * @return The Direct6.1 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtDirect6.1Cat")
+	@Column(name="`dtDirect6.1Cat`")
 	public int getDirect61() throws TrickException {
 		return getCategoryValue("Direct6.1");
 	}
@@ -298,7 +290,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * @return The Direct6.2 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtDirect6.2Cat")
+	@Column(name="`dtDirect6.2Cat`")
 	public int getDirect62() throws TrickException {
 		return getCategoryValue("Direct6.2");
 	}
@@ -322,7 +314,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * @return The Direct6.3 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtDirect6.3Cat")
+	@Column(name="`dtDirect6.3Cat`")
 	public int getDirect63() throws TrickException {
 		return getCategoryValue("Direct6.3");
 	}
@@ -346,7 +338,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * @return The Direct6.4 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtDirect6.4Cat")
+	@Column(name="`dtDirect6.4Cat`")
 	public int getDirect64() throws TrickException {
 		return getCategoryValue("Direct6.4");
 	}
@@ -586,7 +578,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * @return The Indirect8.1 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect8.1Cat")
+	@Column(name="`dtIndirect8.1Cat`")
 	public int getIndirect81() throws TrickException {
 		return getCategoryValue("Indirect8.1");
 	}
@@ -610,7 +602,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * @return The Indirect8.2 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect8.2Cat")
+	@Column(name="`dtIndirect8.2Cat`")
 	public int getIndirect82() throws TrickException {
 		return getCategoryValue("Indirect8.2");
 	}
@@ -634,7 +626,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * @return The Indirect8.3 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect8.3Cat")
+	@Column(name="`dtIndirect8.3Cat`")
 	public int getIndirect83() throws TrickException {
 		return getCategoryValue("Indirect8.3");
 	}
@@ -658,7 +650,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * @return The Indirect8.4 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect8.4Cat")
+	@Column(name="`dtIndirect8.4Cat`")
 	public int getIndirect84() throws TrickException {
 		return getCategoryValue("Indirect8.4");
 	}
@@ -803,6 +795,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Preventive Value
 	 */
+	@Column(name="dtPreventive")
 	public double getPreventive() {
 		return preventive;
 	}
@@ -825,6 +818,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Detective Value
 	 */
+	@Column(name="dtDetective")
 	public double getDetective() {
 		return detective;
 	}
@@ -847,6 +841,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Limitative Value
 	 */
+	@Column(name="dtLimitative")
 	public double getLimitative() {
 		return limitative;
 	}
@@ -869,6 +864,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Corrective Value
 	 */
+	@Column(name="dtCorrective")
 	public double getCorrective() {
 		return corrective;
 	}
@@ -891,6 +887,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Intentional Value
 	 */
+	@Column(name="dtIntentional")
 	public int getIntentional() {
 		return intentional;
 	}
@@ -913,6 +910,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Accidental Value
 	 */
+	@Column(name="dtAccidental")
 	public int getAccidental() {
 		return accidental;
 	}
@@ -935,6 +933,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Environmental Value
 	 */
+	@Column(name="dtEnvironmental")
 	public int getEnvironmental() {
 		return environmental;
 	}
@@ -957,6 +956,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Internal Threat
 	 */
+	@Column(name="dtInternalThreat")
 	public int getInternalThreat() {
 		return internalThreat;
 	}
@@ -979,6 +979,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The External Threat
 	 */
+	@Column(name="dtExternalThreat")
 	public int getExternalThreat() {
 		return externalThreat;
 	}
@@ -1030,6 +1031,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 *         none are influenced
 	 * @throws TrickException
 	 */
+	@Transient
 	public boolean hasCSSFInfluence() throws TrickException {
 
 		// ***********************************************************************
@@ -1067,6 +1069,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 *         influenced
 	 * @throws TrickException
 	 */
+	@Transient
 	public boolean hasCIAInfluence() throws TrickException {
 
 		// ***********************************************************************
@@ -1103,6 +1106,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 *         none of both Categories are influenced.
 	 * @throws TrickException
 	 */
+	@Transient
 	public boolean hasInfluenceOnAllCategories() throws TrickException {
 
 		// ***********************************************************************
@@ -1120,6 +1124,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 *         not influenced.
 	 * @throws TrickException
 	 */
+	@Transient
 	public boolean hasInfluenceOnCategory(String key) throws TrickException {
 		return isCategoryKey(key) && getCategoryValue(key) != 0;
 	}
@@ -1140,6 +1145,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
+	@Transient
 	public int getCategoryValue(String category) throws TrickException {
 
 		// check if the category key is valid -> NO

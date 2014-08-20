@@ -40,22 +40,22 @@ public class History implements Serializable, Cloneable {
 	private int id = -1;
 
 	/** The Analysis Version (Version of the History entry) */
-	@Column(name="dtVersion")
+	@Column(name="dtVersion", nullable=false, length=12)
 	private String version = "";
 
 	/** The Date when the History entry was created */
-	@Column(name="dtDateComment")
+	@Column(name="dtDateComment", nullable=false)
 	private Date date = null;
 
 	/**
 	 * The Name of the Author that created the History Entry (The Analysis at
 	 * this Version)
 	 */
-	@Column(name="dtAuthor")
+	@Column(name="dtAuthor", nullable=false)
 	private String author = "";
 
 	/** The Comment an Author gave to the History Entry */
-	@Column(name="dtComment")
+	@Column(name="dtComment", nullable=false, columnDefinition="TEXT")
 	private String comment = "";
 
 	/***********************************************************************************************

@@ -2,6 +2,8 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,16 +42,19 @@ public class Parameter implements Serializable, Cloneable {
 	private int id = -1;
 
 	/** The Parameter Description */
-	@Column(name="dtDescription")
+	@Column(name="dtDescription", nullable=false)
+	@Access(AccessType.FIELD)
 	private String description = "";
 
 	/** The Parameter Value */
-	@Column(name="dtValue")
+	@Column(name="dtValue", nullable=false)
+	@Access(AccessType.FIELD)
 	private double value = 0;
 
 	/** The Parameter Type */
 	@ManyToOne
-	@JoinColumn(name="fiParameterType")
+	@Access(AccessType.FIELD)
+	@JoinColumn(name="fiParameterType", nullable=false)
 	private ParameterType type = null;
 
 	/***********************************************************************************************

@@ -2,6 +2,8 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -34,42 +36,52 @@ public class Customer implements Serializable {
 
 	/** The customer ID */
 	@Id @GeneratedValue 
+	@Access(AccessType.FIELD)
 	@Column(name="idCustomer")
 	private int id = -1;
 
 	/** The Name of the organisation */
-	@Column(name="dtOrganisation", unique=true)
+	@Column(name="dtOrganisation", unique=true, nullable=false)
+	@Access(AccessType.FIELD)
 	private String organisation = "";
 
 	/** The Address of the Organisation */
-	@Column(name="dtAddress")
+	@Column(name="dtAddress", nullable=false)
+	@Access(AccessType.FIELD)
 	private String address = "";
 
 	/** The City where the Organisation is located */
-	@Column(name="dtCity")
+	@Column(name="dtCity", nullable=false)
+	@Access(AccessType.FIELD)
 	private String city = "";
 
 	/** The ZIP Code of the Organisation location */
-	@Column(name="dtZIP")
+	@Column(name="dtZIP", nullable=false, length=20)
+	@Access(AccessType.FIELD)
 	private String ZIPCode = "";
 
 	/** The Country where the Organisation is located */
-	@Column(name="dtCountry")
+	@Column(name="dtCountry", nullable=false)
+	@Access(AccessType.FIELD)
 	private String country = "";
 
 	/** The Name of the Contact Person in the Organisation */
-	@Column(name="dtContactPerson")
+	@Column(name="dtContactPerson", nullable=false)
+	@Access(AccessType.FIELD)
 	private String contactPerson = "";
 
 	/** The Telephone Number of the Contact Person or Organisation */
-	@Column(name="dtPhoneNumber")
+	@Column(name="dtPhoneNumber", nullable=false)
+	@Access(AccessType.FIELD)
 	private String phoneNumber = "";
 
 	/** The Email of the Contact Person or Organisation */
-	@Column(name="dtEmail")
+	@Column(name="dtEmail", nullable=false)
+	@Access(AccessType.FIELD)
 	private String email = "";
 	
-	@Column(name="dtCanBeUsed")
+	@Column(name="dtCanBeUsed", nullable=false)
+	@Access(AccessType.FIELD)
 	private boolean canBeUsed = true; 
 
 	/***********************************************************************************************

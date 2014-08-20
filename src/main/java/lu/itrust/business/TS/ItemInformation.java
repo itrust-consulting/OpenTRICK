@@ -31,15 +31,15 @@ public class ItemInformation implements Cloneable {
 	private int id = -1;
 
 	/** The Item Information Value */
-	@Column(name="dtValue")
+	@Column(name="dtValue", nullable=false, columnDefinition="LONGTEXT")
 	private String value = "";
 
 	/** The Item Information description */
-	@Column(name="dtLabel")
+	@Column(name="dtLabel", nullable=false)
 	private String description = "";
 
 	/** The Item Information Type */
-	@Column(name="dtType")
+	@Column(name="dtType", nullable=false)
 	private String type = "";
 
 	public ItemInformation() {

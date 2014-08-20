@@ -24,12 +24,12 @@ public class ParameterType {
 	 **********************************************************************************************/
 
 	/** Parameter Type Identifier */
-	@Id @GeneratedValue 
+	@Id
 	@Column(name="idParameterType")
 	private int id = -1;
 
 	/** Parameter Type Label */
-	@Column(name="dtLabel")
+	@Column(name="dtLabel", unique=true, nullable=false)
 	private String label = "";
 
 	/***********************************************************************************************

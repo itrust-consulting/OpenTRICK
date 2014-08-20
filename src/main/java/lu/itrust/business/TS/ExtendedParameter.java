@@ -1,5 +1,7 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -38,11 +40,13 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** The Extended Parameter Level (default: 0-5 or 0-6 -> NOT restricted) */
-	@Column(name="dtLevel")
+	@Column(name="dtLevel", nullable=false)
+	@Access(AccessType.FIELD)
 	private int level = 0;
 
 	/** The Extended Parameter Acronym */
-	@Column(name="dtAcronym")
+	@Column(name="dtAcronym", nullable=false)
+	@Access(AccessType.FIELD)
 	private String acronym = "";
 
 	/** Extended Parameter From And To values */

@@ -3,6 +3,8 @@ package lu.itrust.business.TS;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,6 +14,9 @@ import javax.persistence.JoinColumns;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 
@@ -45,23 +50,27 @@ public class MeasureDescription implements Cloneable {
 
 	/** Measure Norm Object */
 	@ManyToOne
-	@JoinColumn(name="fiNorm")
+	@JoinColumn(name="fiNorm", nullable=false)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private Norm norm = null;
 
 	/** Measure Description Text List (one entry represents one language) */
 	@OneToMany(mappedBy="measureDescription")
+	@Cascade(CascadeType.ALL)
 	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */
-	@Column(name="dtLevel")
+	@Column(name="dtLevel", nullable=false)
+	@Access(AccessType.FIELD)
 	private int level = -1;
 
 	/** Measure Reference */
-	@Column(name="dtReference")
+	@Column(name="dtReference", nullable=false)
+	@Access(AccessType.FIELD)
 	private String reference = "";
 
 	/** Flag to determine if measure can be used in the action plan (before: measure had to be level 3) */
-	@Column(name="dtComputable")
+	@Column(name="dtComputable", nullable=false)
 	private boolean computable = true;
 	
 	/***********************************************************************************************

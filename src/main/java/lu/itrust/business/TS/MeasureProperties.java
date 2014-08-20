@@ -2,6 +2,7 @@ package lu.itrust.business.TS;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 
 import lu.itrust.business.exception.TrickException;
@@ -15,6 +16,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity 
+@PrimaryKeyJoinColumn(name="idMeasureProperties")
 public class MeasureProperties extends SecurityCriteria {
 
 	/***********************************************************************************************
@@ -22,27 +24,21 @@ public class MeasureProperties extends SecurityCriteria {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
-	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** Strength Measure */
-	@Column(name="dtStrengthMeasure")
 	private int fmeasure = 0;
 
 	/** Strength Sectoral */
-	@Column(name="dtStrengthSectoral")
 	private int fsectoral = 0;
 
 	/** SOA Reference */
-	@Column(name="dtSOAReference")
 	private String soaReference = "";
 
 	/** SOA Comment */
-	@Column(name="dtSOAComment")
 	private String soaComment = "";
 
 	/** SOA Risk */
-	@Column(name="dtSOARisk")
 	private String soaRisk = "";
 
 	/***********************************************************************************************
@@ -55,6 +51,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The SOA Reference
 	 */
+	@Column(name="dtSOAReference")
 	public String getSoaReference() {
 		return soaReference;
 	}
@@ -76,6 +73,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The SOA Comment
 	 */
+	@Column(name="dtSOAComment")
 	public String getSoaComment() {
 		return soaComment;
 	}
@@ -97,6 +95,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The SOA Risk
 	 */
+	@Column(name="dtSOARisk")
 	public String getSoaRisk() {
 		return soaRisk;
 	}
@@ -118,6 +117,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The Measure Strength value
 	 */
+	@Column(name="dtStrengthMeasure")
 	public int getFMeasure() {
 		return fmeasure;
 	}
@@ -143,6 +143,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The Sectoral Strength value
 	 */
+	@Column(name="dtStrengthSectoral")
 	public int getFSectoral() {
 		return fsectoral;
 	}

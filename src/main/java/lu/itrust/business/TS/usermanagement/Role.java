@@ -6,7 +6,9 @@ package lu.itrust.business.TS.usermanagement;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -28,8 +30,8 @@ import javax.persistence.Transient;
 	@Id @GeneratedValue 
 	@Column(name="idRole")
 	private long id = - 1;
-
-	@Enumerated 
+ 
+	@Enumerated(EnumType.STRING)
 	@Column(name="dtType")
 	private RoleType type = null;
 

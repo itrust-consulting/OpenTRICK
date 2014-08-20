@@ -10,18 +10,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
@@ -30,6 +33,12 @@ import lu.itrust.business.TS.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.exception.TrickException;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * Analysis: <br>
@@ -53,7 +62,7 @@ import lu.itrust.business.exception.TrickException;
  */
 
 @Entity
-@Table(name="Analysis", uniqueConstraints=@UniqueConstraint(columnNames = {"dtIdentifier", "dtVersion", "dtCreationDate"}))
+@Table(uniqueConstraints=@UniqueConstraint(columnNames = {"dtIdentifier", "dtVersion", "dtCreationDate"}))
 public class Analysis implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -70,101 +79,127 @@ public class Analysis implements Serializable, Cloneable {
 	private int id = -1;
 
 	/** ID of the Analysis */
-	@Column(name="dtIdentifier")
+	@Column(name="dtIdentifier", nullable=false, length=23)
 	private String identifier;
 
 	/** Version of the Analysis */
-	@Column(name="dtVersion")
+	@Column(name="dtVersion", nullable=false, length=12)
 	private String version;
 
 	/** Creation Date of the Analysis (and a specific version) */
-	@Column(name="dtCreationDate")
+	@Column(name="dtCreationDate", nullable=false, columnDefinition="datetime")
 	private Timestamp creationDate;
 
-	@Column(name="dtProfile")
+	@Column(name="dtProfile", nullable=false)
 	private boolean profile = false;
 
-	@Column(name="dtDefaultProfile")
+	@Column(name="dtDefaultProfile", nullable=false)
 	private boolean defaultProfile = false;
 
 	/** The Customer object */
-	@ManyToOne
-	@JoinColumn(name="fiCustomer")
+	@Access(AccessType.FIELD)
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="fiCustomer", nullable=false)
 	private Customer customer;
 	
 	/** Analysis owner (the one that created or imported it) */
 	@ManyToOne
-	@JoinColumn(name="fiOwner")
+	@JoinColumn(name="fiOwner", nullable=false)
 	private User owner;
 
 	/** Based on analysis */
-	@ManyToOne
-	@JoinColumn(name="fiBasedOnAnalysis")
+	@Access(AccessType.FIELD)
+	@ManyToOne(fetch=FetchType.EAGER)
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@JoinColumn(name="fiBasedOnAnalysis", nullable=true)
 	private Analysis basedOnAnalysis;
 
 	/** The Label of this Analysis */
-	@Column(name="dtLabel")
+	@Column(name="dtLabel", nullable=false)
 	private String label;
 
 	/** Language object of the Analysis */
 	@ManyToOne
-	@JoinColumn(name="fiLanguage")
+	@JoinColumn(name="fiLanguage", nullable=false)
 	private Language language;
 
 	/** flag to determine if analysis has data */
-	@Column(name="dtData")
+	@Column(name="dtData", nullable=false)
 	private boolean data;
 
 	/** List of users and their access rights */
 	@OneToMany(mappedBy="analysis")
+	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.ALL)
+	@NotNull
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
 
 	/** List of History data of the Analysis */
 	@OneToMany 
-	@JoinColumn(name="fiAnalysis")
+	@JoinColumn(name="fiAnalysis", nullable=false)
+	@Cascade(CascadeType.ALL)
 	private List<History> histories = new ArrayList<History>();
 
 	/** List of Item Information */
 	@OneToMany 
-	@JoinColumn(name="fiAnalysis")
+	@JoinColumn(name="fiAnalysis", nullable=false)
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
 	private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
 
 	/** List of parameters */
 	@OneToMany 
-	@JoinColumn(name="fiAnalysis")
+	@JoinColumn(name="fiAnalysis", nullable=false)
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
 	private List<Parameter> parameters = new ArrayList<Parameter>();
 
 	/** List of assets */
 	@OneToMany 
-	@JoinColumn(name="fiAnalysis")
+	@JoinColumn(name="fiAnalysis", nullable=false)
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
+	@OrderBy("value DESC, ALE DESC, name ASC")
 	private List<Asset> assets = new ArrayList<Asset>();
 
 	/** List of Risk Information */
 	@OneToMany 
-	@JoinColumn(name="fiAnalysis")
+	@JoinColumn(name="fiAnalysis", nullable=false)
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
 	private List<RiskInformation> riskInformations = new ArrayList<RiskInformation>();
 
 	/** List of Scenarios */
-	@OneToMany
-	@JoinColumn(name="fiAnalysis")
+	@OneToMany 
+	@JoinColumn(name="fiAnalysis", nullable=false)
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
+	@OrderBy("scenarioType.id ASC, name ASC")
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
 
 	/** List of Assessment */
 	@OneToMany 
-	@JoinColumn(name="fiAnalysis")
+	@JoinColumn(name="fiAnalysis", nullable=false)
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
 	private List<Assessment> assessments = new ArrayList<Assessment>();
 
 	/** List of Norms */
 	@OneToMany(mappedBy="analysis") 
+	@OrderBy("norm.id ASC")
 	private List<AnalysisNorm> analysisNorms = new ArrayList<AnalysisNorm>();
 
 	/** List of Phases that is used for Action Plan Computation */
 	@OneToMany(mappedBy="analysis")
+	@OrderBy("number ASC")
 	private List<Phase> usedPhases = new ArrayList<Phase>();
 
 	/** The Final Action Plan without Phase Computation - Normal */
-	@OneToMany
-	@JoinColumn(name="fiAnalysis")
+	@OneToMany 
+	@JoinColumn(name="fiAnalysis", nullable=false)
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
+	@OrderBy("id ASC, measure.phase.number ASC, ROI ASC")
 	private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
 
 	/** The Action Plan Summary without Phase Computation - Normal */
@@ -172,8 +207,11 @@ public class Analysis implements Serializable, Cloneable {
 	private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
 
 	/** The Risk Register (CSSF) */
-	@JoinColumn(name="fiAnalysis")
-	@OneToMany private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
+	@OneToMany 
+	@JoinColumn(name="fiAnalysis", nullable=false)
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
+	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
 
 	/***********************************************************************************************
 	 * Constructor
