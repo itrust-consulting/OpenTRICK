@@ -33,6 +33,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.ActionPlanSummaryManager;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.AssetComparatorByALE;
 import lu.itrust.business.component.ChartGenerator;
@@ -47,6 +48,7 @@ import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -205,16 +207,102 @@ public class ExportAnalysisReport {
 		generateALEByScenarioGraphic(reportExcelSheets.get("ALEByScenario"));
 		generateALEByAssetTypeGraphic(reportExcelSheets.get("ALEByAssetType"));
 		generateALEByAssetGraphic(reportExcelSheets.get("ALEByAsset"));
+		generateEvolutionOfProfitabilityGraphic(reportExcelSheets.get("EvolutionOfProfitability"));
+		generateBudgetGraphic(reportExcelSheets.get("Budget"));
+		
 	}
 
-	private void generateALEByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) {
-
+	private void generateEvolutionOfProfitabilityGraphic(ReportExcelSheet reportExcelSheet) {
+		if(reportExcelSheet == null)
+			return;
+		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(analysis.getSummaries(), analysis.getUsedPhases());
+		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getUsedPhases(), ActionPlanSummaryManager.extractPhaseRow(analysis.getSummaries()));
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowIndex = 1;
+		for (Phase phase : usesPhases.values()) {
+			if(xssfSheet.getRow(rowIndex) == null)
+				xssfSheet.createRow(rowIndex);
+			//if(xssfSheet.getRow(rowIndex).getCell(0));
+		}
+		
+		
 	}
 
-	private void generateALEByAssetGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateBudgetGraphic(ReportExcelSheet reportExcelSheet) {
+		
 	}
 
-	private void generateALEByScenarioGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateALEByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+		if (reportExcelSheet == null)
+			return;
+		List<Assessment> assessments = analysis.findAssessmentBySelectedAsset();
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
+			if (ale == null) {
+				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowCount = 0;
+		if (xssfSheet.getRow(rowCount) == null)
+			xssfSheet.createRow(rowCount);
+		if (xssfSheet.getRow(rowCount).getCell(1) == null)
+			xssfSheet.getRow(rowCount).createCell(1);
+		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.asset_type", null, "Asset type", locale));
+		for (ALE ale : ales2) {
+			if (xssfSheet.getRow(rowCount) == null)
+				xssfSheet.createRow(rowCount);
+			if (xssfSheet.getRow(rowCount).getCell(0) == null)
+				xssfSheet.getRow(rowCount).createCell(0);
+			if (xssfSheet.getRow(rowCount).getCell(1) == null)
+				xssfSheet.getRow(rowCount).createCell(1);
+			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
+		}
+		reportExcelSheet.save();
+	}
+
+	private void generateALEByAssetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+		if (reportExcelSheet == null)
+			return;
+		List<Assessment> assessments = analysis.findAssessmentBySelectedAsset();
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
+			if (ale == null) {
+				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowCount = 0;
+		if (xssfSheet.getRow(rowCount) == null)
+			xssfSheet.createRow(rowCount);
+		if (xssfSheet.getRow(rowCount).getCell(1) == null)
+			xssfSheet.getRow(rowCount).createCell(1);
+		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.asset", null, "Asset", locale));
+		for (ALE ale : ales2) {
+			if (xssfSheet.getRow(rowCount) == null)
+				xssfSheet.createRow(rowCount);
+			if (xssfSheet.getRow(rowCount).getCell(0) == null)
+				xssfSheet.getRow(rowCount).createCell(0);
+			if (xssfSheet.getRow(rowCount).getCell(1) == null)
+				xssfSheet.getRow(rowCount).createCell(1);
+			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
+		}
+		reportExcelSheet.save();
+	}
+
+	private void generateALEByScenarioGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		List<Assessment> assessments = analysis.findAssessmentBySelectedScenario();
@@ -230,9 +318,28 @@ public class ExportAnalysisReport {
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowCount = 0;
+		if (xssfSheet.getRow(rowCount) == null)
+			xssfSheet.createRow(rowCount);
+		if (xssfSheet.getRow(rowCount).getCell(1) == null)
+			xssfSheet.getRow(rowCount).createCell(1);
+		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.scenario", null, "Scenario", locale));
+		for (ALE ale : ales2) {
+			if (xssfSheet.getRow(rowCount) == null)
+				xssfSheet.createRow(rowCount);
+			if (xssfSheet.getRow(rowCount).getCell(0) == null)
+				xssfSheet.getRow(rowCount).createCell(0);
+			if (xssfSheet.getRow(rowCount).getCell(1) == null)
+				xssfSheet.getRow(rowCount).createCell(1);
+			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
+		}
+		reportExcelSheet.save();
+
 	}
 
-	private void generateALEByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateALEByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
 		List<Assessment> assessments = analysis.findAssessmentBySelectedScenario();
@@ -249,16 +356,23 @@ public class ExportAnalysisReport {
 		Collections.sort(ales2, new AssetComparatorByALE());
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
 		int rowCount = 0;
-		for (ALE ale: ales2) {
-			if(xssfSheet.getRow(rowCount)==null)
+		if (xssfSheet.getRow(rowCount) == null)
+			xssfSheet.createRow(rowCount);
+		if (xssfSheet.getRow(rowCount).getCell(1) == null)
+			xssfSheet.getRow(rowCount).createCell(1);
+		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.scenario_type", null, "Scenario type", locale));
+		for (ALE ale : ales2) {
+			if (xssfSheet.getRow(rowCount) == null)
 				xssfSheet.createRow(rowCount);
-			if(xssfSheet.getRow(rowCount).getCell(0) == null)
+			if (xssfSheet.getRow(rowCount).getCell(0) == null)
 				xssfSheet.getRow(rowCount).createCell(0);
-			if(xssfSheet.getRow(rowCount).getCell(1) == null)
+			if (xssfSheet.getRow(rowCount).getCell(1) == null)
 				xssfSheet.getRow(rowCount).createCell(1);
+			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
 		}
-		
-		
+		reportExcelSheet.save();
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -268,7 +382,7 @@ public class ExportAnalysisReport {
 		String norm = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
 		List<Measure> measures = (List<Measure>) analysis.findMeasureByNorm(norm);
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures, norm);
+		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures);
 		int rowCount = 0;
 		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
 		xssfSheet.getRow(rowCount).createCell(0);
@@ -284,14 +398,14 @@ public class ExportAnalysisReport {
 			if (xssfSheet.getRow(rowCount).getCell(1) == null)
 				xssfSheet.getRow(rowCount).createCell(1, Cell.CELL_TYPE_NUMERIC);
 			xssfSheet.getRow(rowCount).getCell(0).setCellValue(key);
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(Math.floor(((Double) compliance[1]) / ((Integer) compliance[0] * 100.0)));
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
 		}
-		List<Measure> actionplanmeasuresnottoimplement = analysis.findMeasuresByActionPlanAndNotToImplement(ActionPlanMode.APPN);
-		List<Measure> actionplanmeasures = analysis.findMeasuresByActionPlan(ActionPlanMode.APPN);
+
+		Map<Integer, Boolean> actionPlanMeasures = analysis.findIdMeasuresImplementedByActionPlanType(ActionPlanMode.APPN);
 		List<Phase> phases = analysis.findUsablePhase();
 		int columnIndex = 2;
 		for (Phase phase : phases) {
-			compliances = ChartGenerator.ComputeCompliance(measures, norm, actionplanmeasures, actionplanmeasuresnottoimplement, phase, compliances);
+			compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances);
 			if (xssfSheet.getRow(rowCount) == null)
 				xssfSheet.createRow(rowCount);
 			if (xssfSheet.getRow(rowCount).getCell(rowCount = 0) == null)
@@ -303,8 +417,9 @@ public class ExportAnalysisReport {
 					xssfSheet.createRow(rowCount);
 				if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
 					xssfSheet.getRow(rowCount).createCell(columnIndex, Cell.CELL_TYPE_NUMERIC);
-				xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(Math.floor(((Double) compliance[1]) / ((Integer) compliance[0] * 100.0)));
+				xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
 			}
+			columnIndex++;
 		}
 		reportExcelSheet.save();
 	}

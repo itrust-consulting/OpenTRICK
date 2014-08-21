@@ -2560,7 +2560,7 @@ public class Analysis implements Serializable, Cloneable {
 	public List<Measure> findMeasuresByActionPlanAndNotToImplement(ActionPlanMode appn) {
 		List<Measure> measures = new ArrayList<Measure>();
 		for (ActionPlanEntry planEntry : actionPlans)
-			if (planEntry.getActionPlanType().getActionPlanMode() == appn && planEntry.getROI() < 0)
+			if (planEntry.getActionPlanType().getActionPlanMode() == appn && planEntry.getROI() <= 0.0)
 				measures.add(planEntry.getMeasure());
 		return measures;
 	}
@@ -2580,5 +2580,21 @@ public class Analysis implements Serializable, Cloneable {
 			if (assessment.getScenario().isSelected())
 				assessments.add(assessment);
 		return assessments;
+	}
+
+	public List<Assessment> findAssessmentBySelectedAsset() {
+		List<Assessment> assessments = new ArrayList<Assessment>();
+		for (Assessment assessment : this.assessments)
+			if (assessment.getAsset().isSelected())
+				assessments.add(assessment);
+		return assessments;
+	}
+
+	public Map<Integer, Boolean> findIdMeasuresImplementedByActionPlanType(ActionPlanMode appn) {
+		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>();
+		for (ActionPlanEntry planEntry : actionPlans)
+			if (planEntry.getActionPlanType().getActionPlanMode() == appn && planEntry.getROI() > 0)
+				actionPlanMeasures.put(planEntry.getMeasure().getId(), true);
+		return actionPlanMeasures;
 	}
 }
