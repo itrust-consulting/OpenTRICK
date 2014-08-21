@@ -100,7 +100,7 @@ public class ChartGenerator {
 				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
@@ -181,7 +181,7 @@ public class ChartGenerator {
 				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
@@ -261,7 +261,7 @@ public class ChartGenerator {
 				ales.put(assessment.getScenario().getScenarioType().getId(), ale = new ALE(assessment.getScenario().getScenarioType().getName(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
@@ -341,7 +341,7 @@ public class ChartGenerator {
 				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
