@@ -91,7 +91,7 @@ public class ChartGenerator {
 	 */
 	public String aleByAsset(int idAnalysis, Locale locale) throws Exception {
 
-		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelectedAsset(idAnalysis);
+		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -172,7 +172,7 @@ public class ChartGenerator {
 	 */
 	public String aleByAssetType(int idAnalysis, Locale locale) throws Exception {
 
-		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelectedAsset(idAnalysis);
+		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -252,7 +252,7 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	public String aleByScenarioType(Integer idAnalysis, Locale locale) throws Exception {
-		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelectedScenario(idAnalysis);
+		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -332,7 +332,7 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	public String aleByScenario(Integer idAnalysis, Locale locale) throws Exception {
-		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelectedScenario(idAnalysis);
+		List<Assessment> assessments = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
