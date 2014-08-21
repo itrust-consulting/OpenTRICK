@@ -48,7 +48,6 @@ import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -209,27 +208,66 @@ public class ExportAnalysisReport {
 		generateALEByAssetGraphic(reportExcelSheets.get("ALEByAsset"));
 		generateEvolutionOfProfitabilityGraphic(reportExcelSheets.get("EvolutionOfProfitability"));
 		generateBudgetGraphic(reportExcelSheets.get("Budget"));
-		
+
 	}
 
-	private void generateEvolutionOfProfitabilityGraphic(ReportExcelSheet reportExcelSheet) {
-		if(reportExcelSheet == null)
+	private void generateEvolutionOfProfitabilityGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+		if (reportExcelSheet == null)
 			return;
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(analysis.getSummaries(), analysis.getUsedPhases());
 		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getUsedPhases(), ActionPlanSummaryManager.extractPhaseRow(analysis.getSummaries()));
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
 		int rowIndex = 1;
 		for (Phase phase : usesPhases.values()) {
-			if(xssfSheet.getRow(rowIndex) == null)
+			if (xssfSheet.getRow(rowIndex) == null)
 				xssfSheet.createRow(rowIndex);
-			//if(xssfSheet.getRow(rowIndex).getCell(0));
+			if (xssfSheet.getRow(rowIndex).getCell(0) == null)
+				xssfSheet.getRow(rowIndex).createCell(0);
+			xssfSheet.getRow(rowIndex++).getCell(0).setCellValue(String.format("P%d", phase.getNumber()));
 		}
-		
-		
+
+		List<String> dataCompliance27001s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001);
+		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27002);
+		List<String> dataALEs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
+		List<String> dataRiskReductions = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION);
+		List<String> dataROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI);
+		List<String> dataRelatifROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF);
+		List<String> dataPhaseAnnualCosts = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_PHASE_ANNUAL_COST);
+
+		for (int j = 1; j < 8; j++) {
+			if (xssfSheet.getRow(0) == null)
+				xssfSheet.createRow(0);
+			if (xssfSheet.getRow(0).getCell(j) == null)
+				xssfSheet.getRow(0).createCell(j);
+		}
+		xssfSheet.getRow(0).getCell(1).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001, null, "Compliance 27001", locale));
+		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27002, null, "Compliance 27002", locale));
+		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale));
+		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale));
+		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_PHASE_ANNUAL_COST, null, "Phase annual cost", locale));
+		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale));
+		xssfSheet.getRow(0).getCell(7).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale));
+		rowIndex = 1;
+		for (int i = 0; i < dataCompliance27001s.size(); i++) {
+			for (int j = 1; j < 8; j++) {
+				if (xssfSheet.getRow(rowIndex) == null)
+					xssfSheet.createRow(rowIndex);
+				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
+					xssfSheet.getRow(rowIndex).createCell(j);
+			}
+			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble(dataCompliance27001s.get(i))*0.01);
+			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble(dataCompliance27002s.get(i))*0.01);
+			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataALEs.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataRiskReductions.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataROSIs.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(6).setCellValue(Double.parseDouble(dataRelatifROSIs.get(i)));
+			xssfSheet.getRow(rowIndex++).getCell(7).setCellValue(Double.parseDouble(dataPhaseAnnualCosts.get(i)));
+		}
+		reportExcelSheet.save();
 	}
 
 	private void generateBudgetGraphic(ReportExcelSheet reportExcelSheet) {
-		
+
 	}
 
 	private void generateALEByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
