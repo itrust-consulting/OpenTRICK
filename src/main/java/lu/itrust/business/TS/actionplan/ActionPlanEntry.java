@@ -11,8 +11,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.NormMeasure;
@@ -36,6 +40,7 @@ public class ActionPlanEntry implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/** Regular expression to match valid entry position (positive or negative number or =) */
+	@Transient
 	public static final String POSITION_REGEX = "[-+]\\d+|=|\\d+";
 	
 	/***********************************************************************************************
@@ -49,38 +54,41 @@ public class ActionPlanEntry implements Serializable {
 
 	/** action plan type */
 	@ManyToOne 
-	@JoinColumn(name="fiActionPlanType")
+	@JoinColumn(name="fiActionPlanType", nullable=false)
 	private ActionPlanType actionPlanType = null;
 
 	/** The Measure object reference */
 	@ManyToOne 
-	@JoinColumn(name="fiMeasure")
+	@JoinColumn(name="fiMeasure", nullable=false)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private Measure measure = null;
 
 	/** The position refered from the normal action plan */
-	@Column(name="dtOrder")
+	@Column(name="dtOrder", nullable=false, length=5)
 	private String position = "";
 
 	/** The total ALE of each mode (normal, pessimistic, optimistic) */
-	@Column(name="dtTotalALE")
+	@Column(name="dtTotalALE", nullable=false)
 	private double totalALE = 0;
 
 	/** The Delta ALE of each mode (normal, pessimistic, optimistic) */
-	@Column(name="dtDeltaALE")
+	@Column(name="dtDeltaALE", nullable=false)
 	private double deltaALE = 0;
 
 	/** The cost of the measure */
-	@Column(name="dtCost")
+	@Column(name="dtCost", nullable=false)
 	private double cost = 0;
 
 	/** Return of investment for Security and Maturity investment of each mode (normal, pessimistic, optimistic) */
-	@Column(name="dtROI")
+	@Column(name="dtROI", nullable=false)
 	private double ROI = 0;
 
 	/** Vector of assets at this state in the final action plan */
 	//private List<ActionPlanAssessment> actionPlanAssessments = new ArrayList<ActionPlanAssessment>();
 
 	@OneToMany(mappedBy="actionPlanEntry")
+	@Cascade(CascadeType.ALL)
+	@OrderBy("currentALE DESC")
 	private List<ActionPlanAsset> actionPlanAssets = new ArrayList<ActionPlanAsset>();
 	
 	/***********************************************************************************************

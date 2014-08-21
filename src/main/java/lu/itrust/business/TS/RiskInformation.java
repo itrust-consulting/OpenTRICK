@@ -1,5 +1,6 @@
 package lu.itrust.business.TS;
 
+import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -34,31 +35,31 @@ import lu.itrust.business.exception.TrickException;
 	private boolean editable;
 	
 	/** The Risk Information Label */
-	@Column(name="dtLabel")
+	@Column(name="dtLabel", nullable=false)
 	private String label;
 
 	/** The Risk Information Exposed Value */
-	@Column(name="dtExposed")
+	@Column(name="dtExposed", nullable=false)
 	private String exposed;
 
 	/** The Risk Information Comment */
-	@Column(name="dtComment")
+	@Column(name="dtComment", nullable=false, columnDefinition="LONGTEXT")
 	private String comment;
 
 	/** The Risk Information Hidden Comment */
-	@Column(name="dtHiddenComment")
+	@Column(name="dtHiddenComment", nullable=false, columnDefinition="LONGTEXT")
 	private String hiddenComment;
 
 	/** The Risk Information Category */
-	@Column(name="dtCategory")
+	@Column(name="dtCategory", nullable=false)
 	private String category;
 
 	/** The Risk Information Chapter */
-	@Column(name="dtChapter")
+	@Column(name="dtChapter", nullable=false)
 	private String chapter;
 
 	/** The Risk Information Acronym */
-	@Column(name="dtAcronym")
+	@Column(name="dtAcronym", nullable=false, length=15)
 	private String acronym;
 
 	/***********************************************************************************************

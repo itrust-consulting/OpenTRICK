@@ -16,6 +16,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.Customer;
 
 /**
@@ -72,6 +75,7 @@ public class User implements Serializable {
 			   joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, 
 			   inverseJoinColumns = { @JoinColumn(name = "fiCustomer", nullable = false, updatable = false) }
 	)
+	@Cascade(CascadeType.ALL)
 	private List<Customer> customers = new ArrayList<Customer>();
 
 	/**

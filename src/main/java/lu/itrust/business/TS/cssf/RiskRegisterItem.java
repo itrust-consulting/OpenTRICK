@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.cssf;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -10,6 +12,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Scenario;
@@ -36,60 +42,68 @@ import lu.itrust.business.exception.TrickException;
 @Table(name="RiskRegister")
 public class RiskRegisterItem {
 
+	/** Regular Expression for Strategy */
+	@Transient
+	public static final String ACCEPT_SHRINK = "Accept|Shrink";
+	
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
-
-	/** Regular Expression for Strategy */
-	public static final String ACCEPT_SHRINK = "Accept|Shrink";
-
-	/** Scenario Object */
-	@ManyToOne 
-	@JoinColumn(name="fiScenario")
-	private Scenario scenario = null;
-
-	@ManyToOne 
-	@JoinColumn(name="fiAsset")
-	private Asset asset = null;
 
 	/** Identifier */
 	@Id @GeneratedValue 
 	@Column(name="idRiskRegisterItem")
 	private int id = -1;
+	
+	/** Scenario Object */
+	@ManyToOne 
+	@JoinColumn(name="fiScenario", nullable=false)
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
+	private Scenario scenario = null;
+
+	@ManyToOne 
+	@JoinColumn(name="fiAsset", nullable=false)
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
+	private Asset asset = null;
 
 	/** Position in the RiskRegister */
-	@Column(name="dtPosition")
+	@Column(name="dtPosition", nullable=false)
 	private int position = 0;
 
 	/** The Expected Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
 	@AttributeOverrides({ 
-		@AttributeOverride(name = "impact", column = @Column(name = "dtNetEvaluationImpact")),
-		@AttributeOverride(name = "probability", column = @Column(name = "dtNetEvaluationProbability")),
-		@AttributeOverride(name = "importance", column = @Column(name = "dtNetEvaluationImportance")) 
+		@AttributeOverride(name = "impact", column = @Column(name = "dtNetEvaluationImpact", nullable=false)),
+		@AttributeOverride(name = "probability", column = @Column(name = "dtNetEvaluationProbability", nullable=false)),
+		@AttributeOverride(name = "importance", column = @Column(name = "dtNetEvaluationImportance", nullable=false)) 
 	})
+	@Access(AccessType.FIELD)
 	private EvaluationResult netEvaluation = null;
 	
 	/** The Raw Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
 	@AttributeOverrides({ 
-		@AttributeOverride(name = "impact", column = @Column(name = "dtRawEvaluationImpact")),
-		@AttributeOverride(name = "probability", column = @Column(name = "dtRawEvaluationProbability")),
-		@AttributeOverride(name = "importance", column = @Column(name = "dtRawEvaluationImportance")) 
+		@AttributeOverride(name = "impact", column = @Column(name = "dtRawEvaluationImpact", nullable=false)),
+		@AttributeOverride(name = "probability", column = @Column(name = "dtRawEvaluationProbability", nullable=false)),
+		@AttributeOverride(name = "importance", column = @Column(name = "dtRawEvaluationImportance", nullable=false)) 
 	})
+	@Access(AccessType.FIELD)
 	private EvaluationResult rawEvaluation = null;
 
 	/** The Net Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
 	@AttributeOverrides({ 
-		@AttributeOverride(name = "impact", column = @Column(name = "dtExpImportanceImpact")),
-		@AttributeOverride(name = "probability", column = @Column(name = "dtExpImportanceProbability")),
-		@AttributeOverride(name = "importance", column = @Column(name = "dtExpImportanceImportance")) 
+		@AttributeOverride(name = "impact", column = @Column(name = "dtExpImportanceImpact", nullable=false)),
+		@AttributeOverride(name = "probability", column = @Column(name = "dtExpImportanceProbability", nullable=false)),
+		@AttributeOverride(name = "importance", column = @Column(name = "dtExpImportanceImportance", nullable=false)) 
 	})
+	@Access(AccessType.FIELD)
 	private EvaluationResult expectedImportance = null;
 
 	/** Strategy */
-	@Column(name="dtResponseStrategy")
+	@Column(name="dtResponseStrategy", nullable=false)
 	private String strategy = "Shrink";
 
 	/***********************************************************************************************

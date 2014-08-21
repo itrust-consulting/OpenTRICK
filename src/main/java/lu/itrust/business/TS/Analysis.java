@@ -20,7 +20,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -38,6 +37,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.OrderBy;
 import org.springframework.context.annotation.Lazy;
 
 /**
@@ -159,7 +159,7 @@ public class Analysis implements Serializable, Cloneable {
 	@JoinColumn(name="fiAnalysis", nullable=false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	@OrderBy("value DESC, ALE DESC, name ASC")
+	@OrderBy(clause = "value DESC, ALE DESC, name ASC")
 	private List<Asset> assets = new ArrayList<Asset>();
 
 	/** List of Risk Information */
@@ -174,7 +174,7 @@ public class Analysis implements Serializable, Cloneable {
 	@JoinColumn(name="fiAnalysis", nullable=false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	@OrderBy("scenarioType.id ASC, name ASC")
+	@OrderBy(clause = "fiScenarioType, dtName")
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
 
 	/** List of Assessment */
@@ -186,12 +186,14 @@ public class Analysis implements Serializable, Cloneable {
 
 	/** List of Norms */
 	@OneToMany(mappedBy="analysis") 
-	@OrderBy("norm.id ASC")
+	@OrderBy(clause = "fiNorm")
+	@Cascade(CascadeType.ALL)
 	private List<AnalysisNorm> analysisNorms = new ArrayList<AnalysisNorm>();
 
 	/** List of Phases that is used for Action Plan Computation */
 	@OneToMany(mappedBy="analysis")
-	@OrderBy("number ASC")
+	@OrderBy(clause = "dtNumber")
+	@Cascade(CascadeType.ALL)
 	private List<Phase> usedPhases = new ArrayList<Phase>();
 
 	/** The Final Action Plan without Phase Computation - Normal */
@@ -199,11 +201,13 @@ public class Analysis implements Serializable, Cloneable {
 	@JoinColumn(name="fiAnalysis", nullable=false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	@OrderBy("id ASC, measure.phase.number ASC, ROI ASC")
+	@javax.persistence.OrderBy("id, ROI")
 	private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
 
 	/** The Action Plan Summary without Phase Computation - Normal */
 	@OneToMany(mappedBy="analysis")
+	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
 	private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
 
 	/** The Risk Register (CSSF) */

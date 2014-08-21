@@ -1,7 +1,10 @@
 package lu.itrust.business.TS.actionplan;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -22,13 +25,14 @@ public class ActionPlanType {
 	 **********************************************************************************************/
 
 	/** actionplantype id */
-	@Id @GeneratedValue 
+	@Id 
 	@Column(name="idActionPlanType")
 	private int id = -1;
 
 	/** ActionplanType name */
-	@Enumerated 
-	@Column(name="dtLabel")
+	@Enumerated(EnumType.STRING) 
+	@Column(name="dtLabel", nullable=false, unique=true)
+	@Access(AccessType.FIELD)
 	private ActionPlanMode name;
 
 	/***********************************************************************************************

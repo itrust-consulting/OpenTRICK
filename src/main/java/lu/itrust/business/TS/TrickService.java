@@ -23,10 +23,10 @@ public class TrickService {
 	@Column(name="idTrickService")
 	private int id = -1;
 	
-	@Column(name="dtVersion")
+	@Column(name="dtVersion", nullable=false)
 	private String version = Constant.TRICKSERVICE_VERSION;
 	
-	@Column(name="dtInstalled")
+	@Column(name="dtInstalled", nullable=false)
 	private boolean installed = false;
 
 	/**

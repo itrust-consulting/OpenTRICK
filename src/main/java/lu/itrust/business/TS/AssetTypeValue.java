@@ -30,13 +30,11 @@ public class AssetTypeValue implements Cloneable {
 	/** assetTypeValue identifier, unsaved value = -1 */
 	@Id @GeneratedValue 
 	@Column(name="idAssetTypeValue")
-	@Access(AccessType.FIELD)
 	private int id = -1;
 
 	/** Name of the Asset Type */
 	@ManyToOne 
 	@JoinColumn(name="fiAssetType", nullable=false)
-	@Access(AccessType.FIELD)
 	private AssetType assetType = null;
 
 	/** The Asset Type Value */

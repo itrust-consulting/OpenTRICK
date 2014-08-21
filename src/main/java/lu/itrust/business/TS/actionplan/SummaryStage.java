@@ -37,79 +37,79 @@ public class SummaryStage {
 
 	/** id unsaved value = null */
 	@ManyToOne 
-	@JoinColumn(name="fiAnalysis")
+	@JoinColumn(name="fiAnalysis", nullable=false)
 	private Analysis analysis = null;
 
 	@ManyToOne 
-	@JoinColumn(name="fiActionPlanType")
+	@JoinColumn(name="fiActionPlanType", nullable=false)
 	private ActionPlanType actionPlanType = null;
 
 	/** Name or Identifier of the Stage */
-	@Column(name="dtStage")
+	@Column(name="dtStage", nullable=false)
 	private String stage = "";
 
 	/** Percentage of AnalysisNorm 27001 Conformance for this Stage */
-	@Column(name="dt27001Conformance")
+	@Column(name="dt27001Conformance", nullable=false)
 	private double conformance27001 = 0;
 
 	/** Percentage of AnalysisNorm 27002 Conformance for this Stage */
-	@Column(name="dt27002Conformance")
+	@Column(name="dt27002Conformance", nullable=false)
 	private double conformance27002 = 0;
 
 	/** Number of Measures in this Stage */
-	@Column(name="dtMeasureCount")
+	@Column(name="dtMeasureCount", nullable=false)
 	private int measureCount = 0;
 
 	/** Number of Implemented Measures in this Stage */
-	@Column(name="dtImplementedMeasureCount")
+	@Column(name="dtImplementedMeasureCount", nullable=false)
 	private int implementedMeasuresCount = 0;
 
 	/** Total ALE for this Stage */
-	@Column(name="dtTotalALE")
+	@Column(name="dtTotalALE", nullable=false)
 	private double totalALE = 0;
 		
 	/** Delta ALE for this Stage (calculate sum of deltaALE from actionplan entries) */
-	@Column(name="dtDeltaALE")
+	@Column(name="dtDeltaALE", nullable=false)
 	private double deltaALE = 0;
 	
 	/** Cost of Measures for this Stage (calculate sum of cost from measures in actionplan) */
-	@Column(name="dtCostOfMeasures")
+	@Column(name="dtCostOfMeasures", nullable=false)
 	private double costOfMeasures = 0;
 	
 	/** ROSI for this Stage (take last actionplan entry's ROSI value) */
-	@Column(name="dtROSI")
+	@Column(name="dtROSI", nullable=false)
 	private double ROSI = 0;
 
 	/** ROSI / Cost Of Measures */
-	@Column(name="dtRelativeROSI")
+	@Column(name="dtRelativeROSI", nullable=false)
 	private double relativeROSI = 0;
 
 	/** Sum of Internal Workloads taken from Action Plan Entries */
-	@Column(name="dtInternalWorkload")
+	@Column(name="dtInternalWorkload", nullable=false)
 	private double internalWorkload = 0;
 
 	/** Sum of External Workloads taken from Action Plan Entries */
-	@Column(name="dtExternalWorkload")
+	@Column(name="dtExternalWorkload", nullable=false)
 	private double externalWorkload = 0;
 
 	/** Sum of Investments taken from Action Plan Entries */
-	@Column(name="dtInvestment")
+	@Column(name="dtInvestment", nullable=false)
 	private double investment = 0;
 
 	/** Sum of ((InternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
-	@Column(name="dtInternalMaintenance")
+	@Column(name="dtInternalMaintenance", nullable=false)
 	private double internalMaintenance = 0;
 
 	/** Sum of ((ExternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
-	@Column(name="dtExternalMaintenance")
+	@Column(name="dtExternalMaintenance", nullable=false)
 	private double externalMaintenance = 0;
 
 	/** Sum of recurrent Investment */
-	@Column(name="dtRecurrentInvestment")
+	@Column(name="dtRecurrentInvestment", nullable=false)
 	private double recurrentInvestment = 0;
 
 	/** Sum of ((Investments * Maintenance) / 100) taken from Action Plan Entries */
-	@Column(name="dtRecurrentCost")
+	@Column(name="dtRecurrentCost", nullable=false)
 	private double recurrentCost = 0;
 
 	/**
@@ -118,7 +118,7 @@ public class SummaryStage {
 	 * (((ExternalWorkload * Maintenance) / 100) * ExternalSetupRate) + ((Investments * Maintenance)
 	 * / 100)
 	 **/
-	@Column(name="dtTotalCost")
+	@Column(name="dtTotalCost", nullable=false)
 	private double totalCostofStage;
 
 	

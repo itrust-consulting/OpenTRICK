@@ -15,6 +15,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 /**
  * AppSettings.java: <br>
  * Detailed description...
@@ -34,11 +37,13 @@ public class AppSettings {
 	/** user object */
 	@ManyToOne
 	@JoinColumn(name="fiUser", unique=true)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private User user;
 
 	/** list of settings for this user */
 	@OneToMany
 	@JoinColumn(name="fiAppSettings")
+	@Cascade(CascadeType.ALL)
 	private List<AppSettingEntry> entries = new ArrayList<AppSettingEntry>();
 
 	/**

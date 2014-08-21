@@ -372,7 +372,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Measure Comment
 	 */
-	@Column(name="dtComment", nullable=false)
+	@Column(name="dtComment", nullable=false, columnDefinition="LONGTEXT")
 	@Access(AccessType.FIELD)
 	public String getComment() {
 		return comment;
@@ -395,7 +395,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The "ToDo" Comment
 	 */
-	@Column(name="dtToDo", nullable=false)
+	@Column(name="dtToDo", nullable=false, columnDefinition="LONGTEXT")
 	@Access(AccessType.FIELD)
 	public String getToDo() {
 		return toDo;
@@ -445,6 +445,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	@ManyToOne 
 	@JoinColumn(name="fiMeasureDescription", nullable=false)
 	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.ALL)
 	public MeasureDescription getMeasureDescription() {
 		return measureDescription;
 	}

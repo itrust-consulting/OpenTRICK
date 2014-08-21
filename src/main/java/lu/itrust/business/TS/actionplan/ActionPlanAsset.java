@@ -1,4 +1,6 @@
 package lu.itrust.business.TS.actionplan;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,16 +35,19 @@ public class ActionPlanAsset {
 
 	/** The ActionPlanEntry Object */
 	@ManyToOne 
-	@JoinColumn(name="fiActionPlanCalculation")
+	@JoinColumn(name="fiActionPlanCalculation", nullable=false)
+	@Access(AccessType.FIELD)
 	private ActionPlanEntry actionPlanEntry = null;
 
 	/** The Assessment Object */
 	@ManyToOne 
-	@JoinColumn(name="fiAsset")
+	@JoinColumn(name="fiAsset", nullable=false)
+	@Access(AccessType.FIELD)
 	private Asset asset = null;
 	
 	/** The ALE value */
-	@Column(name="dtCurrentALE")
+	@Column(name="dtCurrentALE", nullable=false)
+	@Access(AccessType.FIELD)
 	private double currentALE = 0;
 
 	/***********************************************************************************************

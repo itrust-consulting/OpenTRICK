@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -18,6 +20,9 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.exception.TrickException;
 
@@ -84,7 +89,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Name
 	 */
-	@Column(name="dtName")
+	@Column(name="dtName", nullable=false)
 	public String getName() {
 		return name;
 	}
@@ -110,7 +115,8 @@ public class Scenario extends SecurityCriteria {
 	 * @return The Scenario Type
 	 */
 	@ManyToOne 
-	@JoinColumn(name="fiScenarioType")
+	@JoinColumn(name="fiScenarioType", nullable=false)
+	@Access(AccessType.FIELD)
 	public ScenarioType getScenarioType() {
 		return scenarioType;
 	}
@@ -135,7 +141,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Selected Flag
 	 */
-	@Column(name="dtSelected")
+	@Column(name="dtSelected", nullable=false)
 	public boolean isSelected() {
 		return selected;
 	}
@@ -160,7 +166,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Description
 	 */
-	@Column(name="dtDescription")
+	@Column(name="dtDescription", nullable=false, columnDefinition="LONGTEXT")
 	public String getDescription() {
 		return description;
 	}
@@ -443,6 +449,7 @@ public class Scenario extends SecurityCriteria {
 			   inverseJoinColumns = { @JoinColumn(name = "idScenarioAssetTypeValue", nullable = false, updatable = false) },
 			   uniqueConstraints = @UniqueConstraint(columnNames = {"idScenario", "idScenarioAssetTypeValue"})
 	)
+	@Cascade(CascadeType.ALL)
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}

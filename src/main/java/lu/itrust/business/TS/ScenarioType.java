@@ -29,7 +29,7 @@ public class ScenarioType {
 	private int id = -1;
 
 	/** scenario type name */
-	@Column(name="dtLabel", unique=true)
+	@Column(name="dtLabel", unique=true, nullable=false)
 	private String name = "";
 
 	/***********************************************************************************************

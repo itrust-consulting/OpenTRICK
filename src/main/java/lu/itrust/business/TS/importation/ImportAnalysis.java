@@ -2067,7 +2067,11 @@ public class ImportAnalysis {
 			// insertID = mysql.getLastInsertId();
 			NormMeasure normMeasure = new NormMeasure();
 			normMeasure.setMeasureDescription(mesDesc);
-			normMeasure.setComment(rs.getString(Constant.MEASURE_COMMENT));
+			if(rs.getString(Constant.MEASURE_REVISION)==null)
+				normMeasure.setComment("");
+			else
+				normMeasure.setComment(rs.getString(Constant.MEASURE_COMMENT));
+			
 			normMeasure.setInternalWL(rs.getInt(Constant.MEASURE_INTERNAL_SETUP));
 			normMeasure.setExternalWL(rs.getInt(Constant.MEASURE_EXTERNAL_SETUP));
 			normMeasure.setImplementationRate(rs.getDouble(Constant.MEASURE_IMPLEMENTATION_RATE));
@@ -2078,7 +2082,10 @@ public class ImportAnalysis {
 			normMeasure.setExternalMaintenance(rs.getDouble("external_maintenance"));
 			normMeasure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
 			normMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS));
-			normMeasure.setToCheck(rs.getString(Constant.MEASURE_REVISION));
+			if(rs.getString(Constant.MEASURE_REVISION)==null)
+				normMeasure.setToCheck("");
+			else
+				normMeasure.setToCheck(rs.getString(Constant.MEASURE_REVISION));
 			normMeasure.setToDo(rs.getString(Constant.MEASURE_TODO));
 			normMeasure.getMeasureDescription().setComputable(measurecomputable);
 

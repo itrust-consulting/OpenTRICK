@@ -47,13 +47,13 @@ public class NormMeasure extends Measure {
 	private static final long serialVersionUID = 1L;
 
 	/** The "To Check" comment */
-	private String toCheck;
+	private String toCheck = "";
 
 	/** The List of AssetTypeValues */
 	private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
 
 	/** The List of Measure Properties */
-	private MeasureProperties measurePropertyList;
+	private MeasureProperties measurePropertyList = null;
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -114,6 +114,7 @@ public class NormMeasure extends Measure {
 			   inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetTypeValue", nullable = false) },
 			   uniqueConstraints = @UniqueConstraint(columnNames = {"idNormMeasure", "idMeasureAssetTypeValue"})
 	)
+	@Cascade(CascadeType.ALL)
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}

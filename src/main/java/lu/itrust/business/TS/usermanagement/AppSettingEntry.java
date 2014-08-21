@@ -12,6 +12,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 /**
  * AppSettingEntry.java: <br>
  * Detailed description...
@@ -37,6 +40,7 @@ public class AppSettingEntry {
     @MapKeyColumn(name="idEntryKey")
     @Column(name="dtEntryValue")
     @CollectionTable(name="AppSettingEntryValues", joinColumns=@JoinColumn(name="idAppSettingEntry"))
+	@Cascade(CascadeType.ALL)
 	private Map<String, String> values = new LinkedHashMap<String, String>();
 
 	/**

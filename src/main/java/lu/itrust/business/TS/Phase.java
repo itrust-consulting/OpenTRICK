@@ -13,6 +13,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -42,11 +45,11 @@ public class Phase implements Serializable, Cloneable {
 
 	/** Analysis Object */
 	@ManyToOne 
-	@JoinColumn(name="fiAnalysis")
+	@JoinColumn(name="fiAnalysis", nullable=false)
 	private Analysis analysis = null;
 
 	/** The Phase Number */
-	@Column(name="dtNumber")
+	@Column(name="dtNumber", nullable=false)
 	private int number;
 
 	/** The Begin Date of the Phase */
