@@ -23,23 +23,23 @@ public class UserSQLite {
 	@Column(name="idUserSQLite")
 	private int id = -1;
 
-	@Column(name="dtFileName", unique=true)
+	@Column(name="dtFileName", unique=true, nullable=false)
 	private String fileName = null;
 
-	@Column(name="dtAnalysisIdentifier")
+	@Column(name="dtAnalysisIdentifier", nullable=false)
 	private String analysisIdentifier = null;
 
 	@ManyToOne
-	@JoinColumn(name="fiUser")
+	@JoinColumn(name="fiUser", nullable=false)
 	private User user = null;
 
-	@Column(name="dtSize")
+	@Column(name="dtSize", nullable=false)
 	private long size = 0;
 
-	@Column(name="dtSQLite")
+	@Column(name="dtSQLite", columnDefinition="MEDIUMBLOB", nullable=false)
 	private byte[] sqLite;
 
-	@Column(name="dtExportTime")
+	@Column(name="dtExportTime", nullable=false)
 	private Timestamp exportTime = null;
 
 	@Column(name="dtDeleteTime")
