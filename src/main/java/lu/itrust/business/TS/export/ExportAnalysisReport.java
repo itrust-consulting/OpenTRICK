@@ -266,14 +266,69 @@ public class ExportAnalysisReport {
 		reportExcelSheet.save();
 	}
 
-	private void generateBudgetGraphic(ReportExcelSheet reportExcelSheet) {
+	private void generateBudgetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(analysis.getSummaries(), analysis.getUsedPhases());
+		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getUsedPhases(), ActionPlanSummaryManager.extractPhaseRow(analysis.getSummaries()));
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowIndex = 1;
+		for (Phase phase : usesPhases.values()) {
+			if (xssfSheet.getRow(rowIndex) == null)
+				xssfSheet.createRow(rowIndex);
+			if (xssfSheet.getRow(rowIndex).getCell(0) == null)
+				xssfSheet.getRow(rowIndex).createCell(0);
+			xssfSheet.getRow(rowIndex++).getCell(0).setCellValue(String.format("P%d", phase.getNumber()));
+		}
+		
+		List<String> dataInternalWorkload = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD);
 
+		List<String> dataExternalWorkload = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD);
+
+		List<String> dataInternalMaintenace = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
+
+		List<String> dataExternalMaintenance = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
+
+		List<String> dataInvestment = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT);
+
+		List<String> dataCurrentCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_CURRENT_COST);
+
+		List<String> dataTotalPhaseCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
+		
+		for (int j = 1; j < 8; j++) {
+			if (xssfSheet.getRow(0) == null)
+				xssfSheet.createRow(0);
+			if (xssfSheet.getRow(0).getCell(j) == null)
+				xssfSheet.getRow(0).createCell(j);
+		}
+		xssfSheet.getRow(0).getCell(1).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD, null, "Internal workload", locale));
+		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, null, "External workload", locale));
+		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, null, "Internal maintenance", locale));
+		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, null, "External maintenance", locale));
+		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale));
+		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, null, "Investment", locale));
+		xssfSheet.getRow(0).getCell(7).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_CURRENT_COST, null, "Current cost", locale));
+		rowIndex = 1;
+		for (int i = 0; i < dataInternalWorkload.size(); i++) {
+			for (int j = 1; j < 8; j++) {
+				if (xssfSheet.getRow(rowIndex) == null)
+					xssfSheet.createRow(rowIndex);
+				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
+					xssfSheet.getRow(rowIndex).createCell(j,Cell.CELL_TYPE_NUMERIC);
+			}
+			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble(dataInternalWorkload.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble(dataExternalWorkload.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataInternalMaintenace.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataExternalMaintenance.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataInvestment.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(6).setCellValue(Double.parseDouble(dataCurrentCost.get(i)));
+			xssfSheet.getRow(rowIndex++).getCell(7).setCellValue(Double.parseDouble(dataTotalPhaseCost.get(i)));
+		}
+		reportExcelSheet.save();
 	}
 
 	private void generateALEByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
-		List<Assessment> assessments = analysis.findAssessmentBySelectedAsset();
+		List<Assessment> assessments = analysis.getSelectedAssessments();
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -282,7 +337,7 @@ public class ExportAnalysisReport {
 				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
@@ -308,7 +363,7 @@ public class ExportAnalysisReport {
 	private void generateALEByAssetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
-		List<Assessment> assessments = analysis.findAssessmentBySelectedAsset();
+		List<Assessment> assessments = analysis.getSelectedAssessments();
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -317,7 +372,7 @@ public class ExportAnalysisReport {
 				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
@@ -343,7 +398,7 @@ public class ExportAnalysisReport {
 	private void generateALEByScenarioGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
-		List<Assessment> assessments = analysis.findAssessmentBySelectedScenario();
+		List<Assessment> assessments = analysis.getSelectedAssessments();
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -352,7 +407,7 @@ public class ExportAnalysisReport {
 				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
@@ -380,7 +435,7 @@ public class ExportAnalysisReport {
 	private void generateALEByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
-		List<Assessment> assessments = analysis.findAssessmentBySelectedScenario();
+		List<Assessment> assessments = analysis.getSelectedAssessments();
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
@@ -389,7 +444,7 @@ public class ExportAnalysisReport {
 				ales.put(assessment.getScenario().getScenarioType().getId(), ale = new ALE(assessment.getScenario().getScenarioType().getName(), 0));
 				ales2.add(ale);
 			}
-			ale.setValue(assessment.getALE() * 0.0001 + ale.getValue());
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
