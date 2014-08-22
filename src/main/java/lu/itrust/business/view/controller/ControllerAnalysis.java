@@ -290,7 +290,11 @@ public class ControllerAnalysis {
 
 			if (permissiondenied) {
 
-				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
+				analysis.setActionPlans(serviceActionPlan.getAllFromAnalysis(selected));
+				analysis.setAssets(serviceAsset.getAllFromAnalysis(selected));
+				analysis.setScenarios(serviceScenario.getAllFromAnalysis(selected));
+				analysis.setItemInformations(serviceItemInformation.getAllFromAnalysis(selected));
+				//Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 				// initialise and send data to the data model
 				Hibernate.initialize(analysis.getLanguage());
 				model.addAttribute("login", principal.getName());
