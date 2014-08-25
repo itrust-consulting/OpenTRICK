@@ -149,7 +149,7 @@ public class ExportAnalysisReport {
 
 			if (template) {
 				File doctemplate = new File(this.getContext().getRealPath(
-						String.format("/WEB-INF/data/%s-%s_V%s.dotx", reportName, locale == Locale.FRENCH ? "FR" : "EN", reportVersion)));
+						String.format("/WEB-INF/data/%s-%s_V%s.dotm", reportName, locale == Locale.FRENCH ? "FR" : "EN", reportVersion)));
 				OPCPackage pkg = OPCPackage.open(doctemplate.getAbsoluteFile());
 				pkg.replaceContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml",
 						"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml");
@@ -157,7 +157,7 @@ public class ExportAnalysisReport {
 				document = new XWPFDocument(inputStream = new FileInputStream(doctemp));
 			} else {
 				XWPFDocument templateDocx = new XWPFDocument(inputStream = new FileInputStream(new File(this.getContext().getRealPath(
-						String.format("/WEB-INF/data/%s-%s_V%s.dotx", reportName, locale == Locale.FRENCH ? "FR" : "EN", reportVersion)))));
+						String.format("/WEB-INF/data/%s-%s_V%s.dotm", reportName, locale == Locale.FRENCH ? "FR" : "EN", reportVersion)))));
 				document = new XWPFDocument();
 				XWPFStyles xwpfStyles = document.createStyles();
 				xwpfStyles.setStyles(templateDocx.getStyle());
