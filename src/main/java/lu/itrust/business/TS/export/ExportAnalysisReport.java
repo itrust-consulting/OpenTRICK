@@ -142,7 +142,7 @@ public class ExportAnalysisReport {
 
 			XWPFDocument document = null;
 
-			File doctemp = new File(this.getContext().getRealPath(String.format("/WEB-INF/tmp/STA_%s_V%s.docx", analysis.getLabel(), analysis.getVersion())));
+			File doctemp = new File(this.getContext().getRealPath(String.format("/WEB-INF/tmp/STA_%s_V%s.doc", analysis.getLabel(), analysis.getVersion())));
 
 			if (!doctemp.exists())
 				doctemp.createNewFile();
