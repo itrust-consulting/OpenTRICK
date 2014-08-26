@@ -8,6 +8,7 @@ import java.util.Map;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOMeasure;
 
@@ -281,7 +282,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 						"Select  measure From AnalysisNorm analysisNorm inner join analysisNorm.measures as measure where analysisNorm.norm.id = :idNorm and  analysisNorm.analysis.id= :idAnalysis")
 				.setParameter("idAnalysis", idAnalysis).setParameter("idNorm", idNorm).iterate();
 		Map<String, Measure> result = new LinkedHashMap<String, Measure>();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
 			Measure measure = iterator.next();
 			result.put(measure.getMeasureDescription().getReference(), measure);
 		}
@@ -292,10 +293,19 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	public int countNormMeasure() {
 		return ((Long) getSession().createQuery("Select count(*) From NormMeasure").uniqueResult()).intValue();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<NormMeasure> getAllNormMeasure(int pageIndex, int pageSize) {
-		return getSession().createQuery("From NormMeasure").setFirstResult((pageIndex-1)*pageSize).setMaxResults(pageSize).list();
+		return getSession().createQuery("From NormMeasure").setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Integer> getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndNorm(int idAnalysis, String norm, ActionPlanMode actionPlanMode) {
+		return getSession()
+				.createQuery(
+						"Select measure.id From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :idAnalysis and analysisNorm.norm.label = :norm and measure.id in (Select actionplan.measure.id From Analysis a inner join a.actionPlans actionplan where a.id = :idAnalysis and actionplan.actionPlanType.name = :actionPlanType and actionplan.ROI > 0 )")
+				.setParameter("idAnalysis", idAnalysis).setString("norm", norm).setParameter("actionPlanType", actionPlanMode).list();
 	}
 }
