@@ -1,48 +1,86 @@
-Attribute VB_Name = "NewMacros"
+Attribute VB_Name = "UpdateChart"
+
 Private Function FindChart() As Scripting.dictionary
     Dim dictionary2 As Scripting.dictionary
     Dim shape As InlineShape
-    Set dictionary2 = New Scripting.dictionary
+    Set dictionary2 = CreateObject("Scripting.dictionary")
     For Each shape In ActiveDocument.InlineShapes
         If shape.HasChart Then
-            dictionary2.Add shape.chart.ChartData.workbook.Sheets(1).Name, shape.chart
+            shape.chart.ChartData.Activate
+            dictionary2.Add shape.chart.ChartData.Workbook.Sheets(1).Name, shape.chart
         End If
     Next shape
     Set FindChart = dictionary2
 End Function
 
-Private Sub UpdateALEByAsset(mychart)
+Private Sub UpdateALE(mychart)
     Dim chart As chart
     Dim workSheet As Excel.workSheet
     Dim lastNotEmptyRow As Integer
     Set chart = mychart
-    Set workSheet = chart.ChartData.workbook.Sheets(1)
+    Set workSheet = chart.ChartData.Workbook.Sheets(1)
     lastNotEmptyRow = workSheet.Range("A" & workSheet.Rows.Count).End(xlUp).Row
-    chart.SetSourceData Source:= _
-        workSheet.Range("A1:E5")
-   
+    chart.SetSourceData Source:="'" & workSheet.Name & "'!" & workSheet.Range("A1:B" & lastNotEmptyRow).Address
+    chart.PlotBy = xlColumns
+    chart.ChartData.Workbook.Close
 End Sub
-Private Sub UpdateALEByAssetType(mychart)
-
-End Sub
-Private Sub UpdateALEByScenario(mychart)
-
-End Sub
-Private Sub UpdateALEByScenarioType(mychart)
-
-End Sub
-Private Sub UpdateCompliance27001(mychart)
-'DernCol = Cells(1, Cells.Columns.Count).End(xlToLeft).Column
-
-End Sub
-Private Sub UpdateCompliance27002(mychart)
+Private Sub UpdateCompliance(mychart)
+    Dim chart As chart
+    Dim workSheet As Excel.workSheet
+    Dim lastNotEmptyRow As Integer
+    Set chart = mychart
+    Set workSheet = chart.ChartData.Workbook.Sheets(1)
+    If Not IsEmpty(workSheet.Cells(1, 1)) Then
+        chart.SetSourceData Source:="'" & workSheet.Name & "'!" & workSheet.Range(workSheet.Cells(1, 1), workSheet.Cells(workSheet.Range("A1").End(xlDown).Row, workSheet.Range("B1").End(xlToRight).Column)).Address
+        chart.Axes(xlValue).MaximumScale = 1
+        chart.Axes(xlValue).MinimumScale = 0
+        chart.PlotBy = xlColumns
+    End If
+    chart.ChartData.Workbook.Close
 
 End Sub
 Private Sub UpdateBudget(mychart)
-
+    Dim chart As chart
+    Dim workSheet As Excel.workSheet
+    Dim lastNotEmptyRow As Integer
+    Set chart = mychart
+    Set workSheet = chart.ChartData.Workbook.Sheets(1)
+    chart.SetSourceData Source:="'" & workSheet.Name & "'!" & workSheet.Range(workSheet.Cells(1, 1), workSheet.Cells(workSheet.Range("A2").End(xlDown).Row, workSheet.Range("B2").End(xlToRight).Column)).Address
+    chart.PlotBy = xlColumns
+    
+    'Move all series to primary axis
+    For Each serie In chart.SeriesCollection
+        serie.AxisGroup = xlPrimary
+    Next serie
+    
+    chart.HasAxis(xlCategory, xlSecondary) = True
+    
+    For i = 1 To 4
+        chart.SeriesCollection(i).AxisGroup = xlSecondary
+    Next
+    
+    chart.ChartData.Workbook.Close
 End Sub
 Private Sub UpdateEvolutionOfProfitability(mychart)
-
+    Dim chart As chart
+    Dim workSheet As Excel.workSheet
+    Dim lastNotEmptyRow As Integer
+    Set chart = mychart
+    Set workSheet = chart.ChartData.Workbook.Sheets(1)
+    chart.SetSourceData Source:="'" & workSheet.Name & "'!" & workSheet.Range(workSheet.Cells(1, 1), workSheet.Cells(workSheet.Range("A2").End(xlDown).Row, workSheet.Range("B2").End(xlToRight).Column)).Address
+    chart.PlotBy = xlColumns
+    
+    For Each serie In chart.SeriesCollection
+        serie.AxisGroup = xlPrimary
+    Next serie
+    
+    chart.HasAxis(xlCategory, xlSecondary) = True
+    
+    For i = 1 To 2
+        chart.SeriesCollection(i).AxisGroup = xlSecondary
+    Next
+    
+    chart.ChartData.Workbook.Close
 End Sub
 
 Sub UpdateGraphics()
@@ -56,18 +94,10 @@ Attribute UpdateGraphics.VB_ProcData.VB_Invoke_Func = "TemplateProject.NewMacros
     Set charts = FindChart()
     For Each chartName In charts.Keys
         Select Case chartName
-            Case "ALEByAsset"
-                UpdateALEByAsset (charts(chartName))
-            Case "ALEByAssetType"
-                UpdateALEByAssetType (charts(chartName))
-            Case "ALEByScenario"
-                UpdateALEByScenario (charts(chartName))
-            Case "ALEByScenarioType"
-                UpdateALEByScenarioType (charts(chartName))
-             Case "Compliance27001"
-                UpdateCompliance27001 (charts(chartName))
-            Case "Compliance27002"
-                UpdateCompliance27002 (charts(chartName))
+            Case "ALEByAsset", "ALEByAssetType", "ALEByScenario", "ALEByScenarioType"
+                UpdateALE (charts(chartName))
+             Case "Compliance27001", "Compliance27002"
+                UpdateCompliance (charts(chartName))
             Case "Budget"
                 UpdateBudget (charts(chartName))
             Case "EvolutionOfProfitability"

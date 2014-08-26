@@ -25,6 +25,8 @@ import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.Measure;
+import lu.itrust.business.TS.MeasureDescription;
+import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.RiskInformation;
@@ -142,7 +144,7 @@ public class ExportAnalysisReport {
 
 			XWPFDocument document = null;
 
-			File doctemp = new File(this.getContext().getRealPath(String.format("/WEB-INF/tmp/STA_%s_V%s.doc", analysis.getLabel(), analysis.getVersion())));
+			File doctemp = new File(this.getContext().getRealPath(String.format("/WEB-INF/tmp/STA_%s_V%s.docm", analysis.getLabel(), analysis.getVersion())));
 
 			if (!doctemp.exists())
 				doctemp.createNewFile();
@@ -151,8 +153,7 @@ public class ExportAnalysisReport {
 				File doctemplate = new File(this.getContext().getRealPath(
 						String.format("/WEB-INF/data/%s-%s_V%s.dotm", reportName, locale == Locale.FRENCH ? "FR" : "EN", reportVersion)));
 				OPCPackage pkg = OPCPackage.open(doctemplate.getAbsoluteFile());
-				pkg.replaceContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml",
-						"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml");
+				pkg.replaceContentType("application/vnd.ms-word.template.macroEnabledTemplate.main+xml", "application/vnd.ms-word.document.macroEnabled.main+xml");
 				pkg.save(doctemp);
 				document = new XWPFDocument(inputStream = new FileInputStream(doctemp));
 			} else {
@@ -255,8 +256,8 @@ public class ExportAnalysisReport {
 				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
 					xssfSheet.getRow(rowIndex).createCell(j);
 			}
-			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble(dataCompliance27001s.get(i))*0.01);
-			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble(dataCompliance27002s.get(i))*0.01);
+			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble(dataCompliance27001s.get(i)) * 0.01);
+			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble(dataCompliance27002s.get(i)) * 0.01);
 			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataALEs.get(i)));
 			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataRiskReductions.get(i)));
 			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataROSIs.get(i)));
@@ -278,7 +279,7 @@ public class ExportAnalysisReport {
 				xssfSheet.getRow(rowIndex).createCell(0);
 			xssfSheet.getRow(rowIndex++).getCell(0).setCellValue(String.format("P%d", phase.getNumber()));
 		}
-		
+
 		List<String> dataInternalWorkload = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD);
 
 		List<String> dataExternalWorkload = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD);
@@ -292,7 +293,7 @@ public class ExportAnalysisReport {
 		List<String> dataCurrentCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_CURRENT_COST);
 
 		List<String> dataTotalPhaseCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
-		
+
 		for (int j = 1; j < 8; j++) {
 			if (xssfSheet.getRow(0) == null)
 				xssfSheet.createRow(0);
@@ -312,7 +313,7 @@ public class ExportAnalysisReport {
 				if (xssfSheet.getRow(rowIndex) == null)
 					xssfSheet.createRow(rowIndex);
 				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
-					xssfSheet.getRow(rowIndex).createCell(j,Cell.CELL_TYPE_NUMERIC);
+					xssfSheet.getRow(rowIndex).createCell(j, Cell.CELL_TYPE_NUMERIC);
 			}
 			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble(dataInternalWorkload.get(i)));
 			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble(dataExternalWorkload.get(i)));
@@ -499,9 +500,9 @@ public class ExportAnalysisReport {
 		int columnIndex = 2;
 		for (Phase phase : phases) {
 			compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances);
-			if (xssfSheet.getRow(rowCount) == null)
+			if (xssfSheet.getRow(rowCount = 0) == null)
 				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(rowCount = 0) == null)
+			if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
 				xssfSheet.getRow(rowCount).createCell(columnIndex);
 			xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(getMessage("label.chart.phase", null, "Phase", locale) + " " + phase.getNumber());
 			for (String key : compliances.keySet()) {
@@ -651,7 +652,8 @@ public class ExportAnalysisReport {
 						row.createCell();
 
 					row.getCell(0).setText(measure.getMeasureDescription().getReference());
-					row.getCell(1).setText(measure.getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain());
+					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
+					row.getCell(1).setText(description == null ? "" : description.getDomain());
 					if (measure.getMeasureDescription().getLevel() < 3) {
 						while (row.getCtRow().getTcList().size() > 2)
 							row.getCtRow().getTcList().remove(2);
