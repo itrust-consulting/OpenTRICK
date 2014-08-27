@@ -1967,8 +1967,8 @@ public class ExportAnalysis {
 			params.add(summaryStages.get(index).getId());
 			params.add(summaryStages.get(index).getActionPlanType().getId());
 			params.add(summaryStages.get(index).getStage());
-			params.add(summaryStages.get(index).getConformance27001());
-			params.add(summaryStages.get(index).getConformance27002());
+			params.add(summaryStages.get(index).getSingleConformance("27001"));
+			params.add(summaryStages.get(index).getSingleConformance("27002"));
 			params.add(summaryStages.get(index).getMeasureCount());
 			params.add(summaryStages.get(index).getImplementedMeasuresCount());
 			params.add(summaryStages.get(index).getTotalALE());

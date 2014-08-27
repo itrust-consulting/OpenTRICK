@@ -641,9 +641,9 @@ public class ChartGenerator {
 		for (Phase phase : usesPhases.values())
 			categories += "\"P" + phase.getNumber() + "\",";
 
-		List<String> dataCompliance27001s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001);
+		List<String> dataCompliance27001s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE+"27001");
 
-		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27002);
+		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE+"27002");
 
 		List<String> dataALEs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
 
@@ -690,9 +690,9 @@ public class ChartGenerator {
 
 		xAxis = "\"xAxis\":{\"categories\":" + categories + "}";
 		series +=
-			"\"series\":[{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001, null, "Compliance 27001", locale) + "\", \"data\":" + compliance27001
+			"\"series\":[{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " 27001\", \"data\":" + compliance27001
 				+ ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1, \"tooltip\": {\"valueSuffix\": \"%\"}}, {\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27002, null, "Compliance 27002", locale) + "\", \"data\":" + compliance27002
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " 27002\", \"data\":" + compliance27002
 				+ ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale) + "\", \"data\":" + ale
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"},  {\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale)

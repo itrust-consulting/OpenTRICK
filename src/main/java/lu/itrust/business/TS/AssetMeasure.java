@@ -43,6 +43,36 @@ public class AssetMeasure extends Measure implements Cloneable {
 	/** The List of AssetTypeValues */
 	private List<MeasureAssetValue> measureAssetValues = new ArrayList<MeasureAssetValue>();
 	
+	/** The List of Measure Properties */
+	private MeasureProperties measurePropertyList = null;
+	
+	/**
+	 * getMeasurePropertyList: <br>
+	 * Returns the MeasureProperties object which has all property values
+	 * 
+	 * @return The Measure Properties List object
+	 */
+	@ManyToOne 
+	@JoinColumn(name="fiMeasureProperties", nullable=false)
+	@Cascade(CascadeType.ALL)
+	public MeasureProperties getMeasurePropertyList() {
+		return measurePropertyList;
+	}
+
+	/**
+	 * setMeasurePropertyList: <br>
+	 * Sets the "measurePropertyList" field with a measureProperties object
+	 * 
+	 * @param measurePropertyList
+	 *            The measureProperties Object to set the List of Properties
+	 * @throws TrickException
+	 */
+	public void setMeasurePropertyList(MeasureProperties measurePropertyList) throws TrickException {
+		if (measurePropertyList == null)
+			throw new TrickException("error.norm_measure.measure_property.empty", "Measure properties cannot be empty");
+		this.measurePropertyList = measurePropertyList;
+	}
+	
 	/**
 	 * getAssetTypeValue: <br>
 	 * Returns the Asset Type value at position "index" of the Asset Type Value

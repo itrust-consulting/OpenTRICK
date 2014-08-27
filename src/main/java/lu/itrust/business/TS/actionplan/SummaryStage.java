@@ -1,14 +1,26 @@
 package lu.itrust.business.TS.actionplan;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -31,12 +43,12 @@ public class SummaryStage {
 	 **********************************************************************************************/
 
 	/** ID of Stage */
-	@Id @GeneratedValue 
+	@Id @GeneratedValue(strategy=GenerationType.TABLE)
 	@Column(name="idActionPlanSummary")
 	private int id = -1;
 
 	/** id unsaved value = null */
-	@ManyToOne 
+	@ManyToOne
 	@JoinColumn(name="fiAnalysis", nullable=false)
 	private Analysis analysis = null;
 
@@ -48,13 +60,10 @@ public class SummaryStage {
 	@Column(name="dtStage", nullable=false)
 	private String stage = "";
 
-	/** Percentage of AnalysisNorm 27001 Conformance for this Stage */
-	@Column(name="dt27001Conformance", nullable=false)
-	private double conformance27001 = 0;
-
-	/** Percentage of AnalysisNorm 27002 Conformance for this Stage */
-	@Column(name="dt27002Conformance", nullable=false)
-	private double conformance27002 = 0;
+	@OneToMany
+	@JoinColumn(name="fiActionPlanSummary", nullable=false)
+	@Cascade(CascadeType.ALL)
+	private List<SummaryStandardConformance> conformances = new ArrayList<SummaryStandardConformance>();
 
 	/** Number of Measures in this Stage */
 	@Column(name="dtMeasureCount", nullable=false)
@@ -190,48 +199,44 @@ public class SummaryStage {
 	 * 
 	 * @return The Percentage of AnalysisNorm 27001 Conformance
 	 */
-	public double getConformance27001() {
-		return conformance27001;
+	public Double getSingleConformance(String label) {
+		for(SummaryStandardConformance conformance : this.conformances)
+			if(conformance.getNorm().getLabel().equals(label))
+				return conformance.getConformance();
+		return null;
 	}
 
 	/**
-	 * setConformance27001: <br>
-	 * Sets the "conformance27001" field with a value
+	 * getConformances: <br>
+	 * Description
 	 * 
-	 * @param conformance27001
-	 *            The value to set the Percentage of AnalysisNorm 27001 Conformance
-	 * @throws TrickException 
+	 * @return
 	 */
-	public void setConformance27001(double conformance27001) throws TrickException {
-		if (conformance27001 < 0 || conformance27001 > 1)
-			throw new TrickException("error.summary_stage.conformance","Conformance 27001 should be between 0 and 1","27001");
-		this.conformance27001 = conformance27001;
+	public List<SummaryStandardConformance> getConformances() {
+		return this.conformances;
+	}
+	
+	/**
+	 * setConformances: <br>
+	 * Description
+	 * 
+	 * @param conformances
+	 */
+	public void setConformances(List<SummaryStandardConformance> conformances) {
+		this.conformances = conformances;
 	}
 
 	/**
-	 * getConformance27002: <br>
-	 * Returns the "conformance27002" field value
+	 * addConformance: <br>
+	 * Description
 	 * 
-	 * @return The Percentage of AnalysisNorm 27002 Conformance
+	 * @param analysisNorm
+	 * @param conformance
 	 */
-	public double getConformance27002() {
-		return conformance27002;
+	public void addConformance(AnalysisNorm analysisNorm, double conformance) {
+		this.conformances.add(new SummaryStandardConformance(analysisNorm.getNorm(),conformance));
 	}
-
-	/**
-	 * setConformance27002: <br>
-	 * Sets the "conformance27002" field with a value
-	 * 
-	 * @param conformance27002
-	 *            The value to set the Percentage of AnalysisNorm 27002 Conformance
-	 * @throws TrickException 
-	 */
-	public void setConformance27002(double conformance27002) throws TrickException {
-		if (conformance27002 < 0 || conformance27002 > 1)
-			throw new TrickException("error.summary_stage.conformance","Conformance 27002 should be between 0 and 1","27002");
-		this.conformance27002 = conformance27002;
-	}
-
+	
 	/**
 	 * getMeasureCount: <br>
 	 * Returns the "measureCount" field value

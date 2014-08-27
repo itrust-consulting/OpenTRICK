@@ -14,6 +14,7 @@ import org.hibernate.Hibernate;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.TS.actionplan.SummaryStage;
+import lu.itrust.business.TS.actionplan.SummaryStandardConformance;
 
 /**
  * @author eomar
@@ -39,8 +40,7 @@ public class ActionPlanSummaryManager {
 	public static final String LABEL_COUNT_MEASURE_IMPLEMENTED = "label.count.measure.implemented";
 	public static final String LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED = "label.characteristic.count.measure.implemented";
 	public static final String LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE = "label.characteristic.count.measure.phase";
-	public static final String LABEL_CHARACTERISTIC_COMPLIANCE_27002 = "label.characteristic.compliance.27002";
-	public static final String LABEL_CHARACTERISTIC_COMPLIANCE_27001 = "label.characteristic.compliance.27001";
+	public static final String LABEL_CHARACTERISTIC_COMPLIANCE = "label.characteristic.compliance";
 	public static final String LABEL_PHASE_END_DATE = "label.phase.end.date";
 	public static final String LABEL_PHASE_BEGIN_DATE = "label.phase.begin.date";
 	public static final String LABEL_CHARACTERISTIC = "label.characteristic";
@@ -53,13 +53,13 @@ public class ActionPlanSummaryManager {
 		return phases;
 	}
 
-	public static List<String> buildFisrtRow() {
+	public static List<String> buildFirstRow(List<SummaryStandardConformance> conformances) {
 		List<String> rows = new ArrayList<String>();
 		rows.add(LABEL_CHARACTERISTIC);
 		rows.add(LABEL_PHASE_BEGIN_DATE);
 		rows.add(LABEL_PHASE_END_DATE);
-		rows.add(LABEL_CHARACTERISTIC_COMPLIANCE_27001);
-		rows.add(LABEL_CHARACTERISTIC_COMPLIANCE_27002);
+		for(SummaryStandardConformance conformance : conformances)
+			rows.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getNorm().getLabel());
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
 		rows.add(LABEL_PROFITABILITY);
@@ -116,7 +116,7 @@ public class ActionPlanSummaryManager {
 	}
 
 	public static Map<String, List<String>> buildTable(List<SummaryStage> summaryStages, List<Phase> phases) {
-		List<String> firstRows = buildFisrtRow();
+		List<String> firstRows = buildFirstRow(summaryStages.get(0).getConformances());
 
 		Map<String, List<String>> summaries = new LinkedHashMap<String, List<String>>(firstRows.size());
 
@@ -162,11 +162,12 @@ public class ActionPlanSummaryManager {
 				}
 			}
 
-			summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE_27001);
-			summary.add(index, (int) (summaryStage.getConformance27001() * 100) + "");
-
-			summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE_27002);
-			summary.add(index, (int) (summaryStage.getConformance27002() * 100) + "");
+			for(SummaryStandardConformance conformance : summaryStage.getConformances()) {
+			
+				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getNorm().getLabel());
+				summary.add(index, (int) (conformance.getConformance() * 100) + "");
+			
+			}
 
 			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
 			summary.add(index, summaryStage.getMeasureCount() + "");

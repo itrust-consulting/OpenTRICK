@@ -15,12 +15,11 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import lu.itrust.business.TS.Measure;
+import lu.itrust.business.exception.TrickException;
+
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-
-import lu.itrust.business.TS.Measure;
-import lu.itrust.business.TS.NormMeasure;
-import lu.itrust.business.exception.TrickException;
 
 /**
  * ActionPlanEntry: <br>
@@ -64,7 +63,11 @@ public class ActionPlanEntry implements Serializable {
 	private Measure measure = null;
 
 	/** The position refered from the normal action plan */
-	@Column(name="dtOrder", nullable=false, length=5)
+	@Column(name="dtOrder", nullable=false)
+	private int order = 0;
+	
+	/** The position refered from the normal action plan */
+	@Column(name="dtPosition", nullable=false, length=5)
 	private String position = "";
 
 	/** The total ALE of each mode (normal, pessimistic, optimistic) */
@@ -147,7 +150,7 @@ public class ActionPlanEntry implements Serializable {
 	 *            The Delta ALE value
 	 * @throws TrickException 
 	 */
-	public ActionPlanEntry(NormMeasure measure, ActionPlanType actionPlanType,
+	public ActionPlanEntry(Measure measure, ActionPlanType actionPlanType,
 			List<ActionPlanAsset> actionPlanAssets, double totalALE, double deltaALE) throws TrickException {
 
 		// the measure
@@ -297,6 +300,25 @@ public class ActionPlanEntry implements Serializable {
 		if (position == null || !position.matches(POSITION_REGEX))
 			throw new TrickException("error.action_plan_entry.position","Position is not valid");
 		this.position = position;
+	}
+
+	/** getIndex: <br>
+	 * Returns the index field value.
+	 * 
+	 * @return The value of the index field
+	 */
+	public int getOrder() {
+		return order;
+	}
+
+	/** setIndex: <br>
+	 * Sets the Field "index" with a value.
+	 * 
+	 * @param index 
+	 * 			The Value to set the index field
+	 */
+	public void setOrder(int order) {
+		this.order = order;
 	}
 
 	/**
