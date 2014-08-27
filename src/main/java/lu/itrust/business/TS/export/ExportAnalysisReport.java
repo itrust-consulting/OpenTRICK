@@ -25,7 +25,6 @@ import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.Measure;
-import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
