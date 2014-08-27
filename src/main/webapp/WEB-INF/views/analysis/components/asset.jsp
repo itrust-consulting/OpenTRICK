@@ -33,10 +33,10 @@
 				<thead>
 					<tr>
 						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'asset')"></th>
-						<th><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
-						<th colspan="8"><spring:message code="label.asset.name" text="Name" htmlEscape="true" /></th>
-						<th colspan="2"><spring:message code="label.asset.type" text="Type" htmlEscape="true" /></th>
-						<th colspan="2"><spring:message code="label.asset.value" text="Value" htmlEscape="true" /> (k&euro;)</th>
+						<th><spring:message code="label.row.index" text="#" /></th>
+						<th colspan="8"><spring:message code="label.asset.name" text="Name" /></th>
+						<th colspan="2"><spring:message code="label.asset.type" text="Type" /></th>
+						<th colspan="2"><spring:message code="label.asset.value" text="Value" /> (k&euro;)</th>
 						<c:choose>
 							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
 								<th colspan="2"><spring:message code="label.asset.aleo" text="ALEO" /> (k&euro;)</th>
@@ -47,8 +47,8 @@
 								<th colspan="2"><spring:message code="label.asset.ale" text="ALE" /> (k&euro;)</th>
 							</c:otherwise>
 						</c:choose>
-						<th colspan="14"><spring:message code="label.asset.comment" text="Comment" htmlEscape="true" /></th>
-						<th colspan="14"><spring:message code="label.asset.hidden_comment" text="Hidden comment" htmlEscape="true" /></th>
+						<th colspan="14"><spring:message code="label.asset.comment" text="Comment" /></th>
+						<th colspan="14"><spring:message code="label.asset.hidden_comment" text="Hidden comment" /></th>
 					</tr>
 				</thead>
 				<tfoot></tfoot>

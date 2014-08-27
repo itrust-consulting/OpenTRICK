@@ -18,7 +18,7 @@
 				<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 					<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${actionPlanType.name}"><a href="#"
 						onclick="return navToogled('section_summary','${actionPlanType.name}', true);"><spring:message
-								code="label.action_plan_type.${actionPlanType.name}" text="${fn:toLowerCase(actionPlanType.name)}" htmlEscape="true" /></a></li>
+								code="label.action_plan_type.${actionPlanType.name}" text="${fn:toLowerCase(actionPlanType.name)}" /></a></li>
 				</c:forEach>
 			</ul>
 		</div>

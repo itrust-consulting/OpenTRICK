@@ -449,7 +449,7 @@ public abstract class Measure implements Serializable, Cloneable {
 		}
 		Measure other = (Measure) obj;
 
-		if (getId() == other.getId())
+		if (getId() > 0 && getId() == other.getId())
 			return true;
 		else if (getId() > 0 && other.getId() > 0)
 			return false;

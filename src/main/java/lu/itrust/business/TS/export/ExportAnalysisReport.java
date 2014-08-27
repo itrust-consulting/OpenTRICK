@@ -199,16 +199,36 @@ public class ExportAnalysisReport {
 	}
 
 	private void generateGraphics() throws OpenXML4JException, IOException {
-		Map<String, ReportExcelSheet> reportExcelSheets = findExcelPart();
-		generateComplianceGraphic(reportExcelSheets.get("Compliance27001"));
-		generateComplianceGraphic(reportExcelSheets.get("Compliance27002"));
-		generateALEByScenarioTypeGraphic(reportExcelSheets.get("ALEByScenarioType"));
-		generateALEByScenarioGraphic(reportExcelSheets.get("ALEByScenario"));
-		generateALEByAssetTypeGraphic(reportExcelSheets.get("ALEByAssetType"));
-		generateALEByAssetGraphic(reportExcelSheets.get("ALEByAsset"));
-		generateEvolutionOfProfitabilityGraphic(reportExcelSheets.get("EvolutionOfProfitability"));
-		generateBudgetGraphic(reportExcelSheets.get("Budget"));
-
+		for (PackagePart packagePart : this.document.getPackage().getParts())
+			if (packagePart.getPartName().getExtension().contains("xls")) {
+				ReportExcelSheet reportExcelSheet = new ReportExcelSheet(packagePart);
+				switch (reportExcelSheet.getName()) {
+				case "Compliance27001":
+				case "Compliance27002":
+					generateComplianceGraphic(reportExcelSheet);
+					break;
+				case "ALEByScenarioType":
+					generateALEByScenarioTypeGraphic(reportExcelSheet);
+					break;
+				case "ALEByScenario":
+					generateALEByScenarioGraphic(reportExcelSheet);
+					break;
+				case "ALEByAssetType":
+					generateALEByAssetTypeGraphic(reportExcelSheet);
+					break;
+				case "ALEByAsset":
+					generateALEByAssetGraphic(reportExcelSheet);
+					break;
+				case "EvolutionOfProfitability":
+					generateEvolutionOfProfitabilityGraphic(reportExcelSheet);
+					break;
+				case "Budget":
+					generateBudgetGraphic(reportExcelSheet);
+					break;
+				}
+				//reportExcelSheet.getPackagePart().
+			}
+		
 	}
 
 	private void generateEvolutionOfProfitabilityGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
@@ -515,21 +535,6 @@ public class ExportAnalysisReport {
 			columnIndex++;
 		}
 		reportExcelSheet.save();
-	}
-
-	private Map<String, ReportExcelSheet> findExcelPart() throws OpenXML4JException, IOException {
-		Map<String, ReportExcelSheet> reportExcelSheets = new LinkedHashMap<String, ReportExcelSheet>();
-		if (this.document == null)
-			return reportExcelSheets;
-
-		for (PackagePart packagePart : this.document.getPackage().getParts()) {
-			if (packagePart.getPartName().getExtension().contains("xls")) {
-				ReportExcelSheet reportExcelSheet = new ReportExcelSheet(packagePart);
-				reportExcelSheets.put(reportExcelSheet.getName(), reportExcelSheet);
-			}
-		}
-
-		return reportExcelSheets;
 	}
 
 	private void generatePlaceholders() {

@@ -61,6 +61,7 @@ public class ReportExcelSheet {
 		if (this.xssfWorkbook == null || this.packagePart == null)
 			return false;
 		this.xssfWorkbook.write(this.packagePart.getOutputStream());
+		this.xssfWorkbook.getPackage().close();
 		return true;
 	}
 
