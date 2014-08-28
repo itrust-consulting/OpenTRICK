@@ -976,7 +976,8 @@ public class ExportAnalysisReport {
 				row.getCell(0).setText("" + nr);
 				row.getCell(1).setText(entry.getMeasure().getAnalysisNorm().getNorm().getLabel());
 				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
-				paragraph = addCellParagraph(row.getCell(3), entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage()).getDomain() + ":");
+				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
+				paragraph = addCellParagraph(row.getCell(3), descriptionText == null? "" :  descriptionText.getDomain() + ":");
 				for (XWPFRun run : paragraph.getRuns())
 					run.setBold(true);
 				paragraph.createRun().addBreak();

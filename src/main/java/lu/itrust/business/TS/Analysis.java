@@ -2593,7 +2593,7 @@ public class Analysis implements Serializable, Cloneable {
 	public Map<Integer, Boolean> findIdMeasuresImplementedByActionPlanType(ActionPlanMode appn) {
 		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>();
 		for (ActionPlanEntry planEntry : actionPlans)
-			if (planEntry.getActionPlanType().getActionPlanMode() == appn && planEntry.getROI() > 0)
+			if (planEntry.getActionPlanType().getActionPlanMode() == appn)
 				actionPlanMeasures.put(planEntry.getMeasure().getId(), true);
 		return actionPlanMeasures;
 	}
