@@ -199,9 +199,10 @@ public class ExportAnalysisReport {
 	}
 
 	private void generateGraphics() throws OpenXML4JException, IOException {
+		System.out.println(this.document.getAllEmbedds());
 		for (PackagePart packagePart : this.document.getPackage().getParts())
 			if (packagePart.getPartName().getExtension().contains("xls")) {
-				ReportExcelSheet reportExcelSheet = new ReportExcelSheet(packagePart);
+				ReportExcelSheet reportExcelSheet = new ReportExcelSheet(packagePart, context.getRealPath("/WEB-INF/tmp/"));
 				switch (reportExcelSheet.getName()) {
 				case "Compliance27001":
 				case "Compliance27002":
@@ -498,6 +499,8 @@ public class ExportAnalysisReport {
 		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures);
 		int rowCount = 0;
 		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
+		if(xssfSheet.getRow(rowCount) == null)
+			xssfSheet.createRow(rowCount);
 		xssfSheet.getRow(rowCount).createCell(0);
 		xssfSheet.getRow(rowCount).createCell(1);
 		xssfSheet.getRow(rowCount).getCell(0).setCellValue(getMessage("report.compliance.chapter", null, "Chapter", locale));

@@ -3,8 +3,11 @@
  */
 package lu.itrust.business.component.helper;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -21,10 +24,15 @@ public class ReportExcelSheet {
 
 	private XSSFWorkbook xssfWorkbook;
 
+	private String tempPath = null;
+
+	private File file = null;
+
 	public ReportExcelSheet() {
 	}
 
-	public ReportExcelSheet(PackagePart packagePart) throws IOException {
+	public ReportExcelSheet(PackagePart packagePart, String tempPath) throws IOException, InvalidFormatException {
+		setTempPath(tempPath);
 		setPackagePart(packagePart);
 	}
 
@@ -40,11 +48,13 @@ public class ReportExcelSheet {
 		return packagePart;
 	}
 
-	public void setPackagePart(PackagePart packagePart) throws IOException {
+	public void setPackagePart(PackagePart packagePart) throws IOException, InvalidFormatException {
 		this.packagePart = packagePart;
-		if (this.packagePart != null)
-			setXssfWorkbook(new XSSFWorkbook(this.packagePart.getInputStream()));
-
+		if (this.packagePart != null) {
+			file = new File(String.format("%s/%d.xslx", tempPath, System.nanoTime()));
+			Files.copy(this.packagePart.getInputStream(), file.toPath());
+			setXssfWorkbook(new XSSFWorkbook(file.getCanonicalFile()));
+		}
 	}
 
 	public XSSFWorkbook getXssfWorkbook() {
@@ -58,11 +68,32 @@ public class ReportExcelSheet {
 	}
 
 	public boolean save() throws OpenXML4JException, IOException {
-		if (this.xssfWorkbook == null || this.packagePart == null)
-			return false;
-		this.xssfWorkbook.write(this.packagePart.getOutputStream());
-		this.xssfWorkbook.getPackage().close();
+		try {
+			if (this.xssfWorkbook == null || this.packagePart == null)
+				return false;
+			this.xssfWorkbook.write(this.packagePart.getOutputStream());
+		} finally {
+			if (file != null && file.exists())
+				file.delete();
+		}
+
 		return true;
+	}
+
+	public String getTempPath() {
+		return tempPath;
+	}
+
+	public void setTempPath(String tempPath) {
+		this.tempPath = tempPath;
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public void setFile(File file) {
+		this.file = file;
 	}
 
 }
