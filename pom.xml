@@ -2,11 +2,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>TrickService</artifactId>
-	<version>0.5.3g</version>
+	<version>0.6.1</version>
 	<packaging>war</packaging>
 	<properties>
-		<org.springframework.version>3.2.6.RELEASE</org.springframework.version>
-		<org.springframework.security.version>3.2.0.RELEASE</org.springframework.security.version>
+		<org.springframework.version>4.0.6.RELEASE</org.springframework.version>
+		<org.springframework.security.version>3.2.5.RELEASE</org.springframework.security.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>
-			<version>2.2</version>
+			<version>3.1</version>
 		</dependency>
 
 		<!-- Hibernate dependencies -->
@@ -112,29 +112,29 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>4.1.9.Final</version>
+			<version>4.3.6.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.0-api</artifactId>
-			<version>1.0.1.Final</version>
+			<artifactId>hibernate-jpa-2.1-api</artifactId>
+			<version>1.0.0.Final</version>
 		</dependency>
 
 		<!-- Hibernate Validator -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
-			<version>4.2.0.Final</version>
+			<version>5.1.2.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.jboss.spec.javax.transaction</groupId>
-			<artifactId>jboss-transaction-api_1.1_spec</artifactId>
-			<version>1.0.1.Final</version>
+			<artifactId>jboss-transaction-api_1.2_spec</artifactId>
+			<version>1.0.0.Final</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.directory.studio</groupId>
-			<artifactId>org.dom4j.dom4j</artifactId>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
 			<version>1.6.1</version>
 		</dependency>
 		<dependency>
@@ -145,7 +145,7 @@
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
-			<version>3.17.1-GA</version>
+			<version>3.18.2-GA</version>
 		</dependency>
 
 		<dependency>
@@ -153,11 +153,11 @@
 			<artifactId>standard</artifactId>
 			<version>1.1.2</version>
 		</dependency>
-
+		
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.1.2</version>
+			<groupId>javax.servlet.jsp.jstl</groupId>
+			<artifactId>javax.servlet.jsp.jstl-api</artifactId>
+			<version>1.2.1</version>
 		</dependency>
 
 		<dependency>
@@ -202,11 +202,7 @@
 			<version>1.2.2</version>
 		</dependency>
 
-		<dependency>
-			<groupId>javax.servlet.jsp.jstl</groupId>
-			<artifactId>javax.servlet.jsp.jstl-api</artifactId>
-			<version>1.2.1</version>
-		</dependency>
+		
 
 		<!-- AJAX json -->
 		<dependency>

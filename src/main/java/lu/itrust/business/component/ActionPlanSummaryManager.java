@@ -200,10 +200,10 @@ public class ActionPlanSummaryManager {
 			summary.add(index, Math.floor(summaryStage.getInvestment() * 0.001) + "");
 			
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
-			summary.add(index, Math.floor(summaryStage.getInternalMaintenance() /** 0.001*/) + "");
+			summary.add(index, Math.floor(summaryStage.getInternalMaintenance()) + "");
 
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
-			summary.add(index, Math.floor(summaryStage.getExternalMaintenance() /** 0.001*/) + "");
+			summary.add(index, Math.floor(summaryStage.getExternalMaintenance()) + "");
 
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
 			summary.add(index, Math.floor(summaryStage.getRecurrentInvestment() * 0.001) + "");

@@ -20,7 +20,7 @@
 					<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 						<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${apt}"><a href="#"
 							onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan'); return navToogled('section_actionplans','${apt}',true);"> <spring:message
-									code="label.action_plan_type.${fn:toLowerCase(apt)}" text="${apt}" htmlEscape="true" />
+									code="label.action_plan_type.${fn:toLowerCase(apt)}" text="${apt}" />
 						</a></li>
 					</c:forEach>
 				</ul>

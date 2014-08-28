@@ -23,8 +23,9 @@ import lu.itrust.business.exception.TrickException;
 
 /**
  * Measure: <br>
- * This class represents a Measure and its data. This class has fields that are used in Maturity and
- * AnalysisNorm Meaure classes. (Both are extended by this class)
+ * This class represents a Measure and its data. This class has fields that are
+ * used in Maturity and AnalysisNorm Meaure classes. (Both are extended by this
+ * class)
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
@@ -37,7 +38,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-		
+
 	/** serialVersionUID */
 	@Transient
 	private static final long serialVersionUID = 1L;
@@ -50,7 +51,7 @@ public abstract class Measure implements Serializable, Cloneable {
 
 	/** The Measure Domain */
 	private MeasureDescription measureDescription = null;
-	
+
 	/** The Measure Status (AP, NA, M) */
 	private String status = "NA";
 
@@ -71,16 +72,16 @@ public abstract class Measure implements Serializable, Cloneable {
 
 	/** The old Maintenance of the Measure (in percent) */
 	private double maintenance = 0;
-	
+
 	/** The internal Maintenance of the Measure (in Man Days) */
 	private double internalMaintenance = 0;
 
 	/** The external Maintenance of the Measure (in Man Days) */
 	private double externalMaintenance = 0;
-	
-	/** The recurrent investment of maintenance  of the Measure (Currency) */
+
+	/** The recurrent investment of maintenance of the Measure (Currency) */
 	private double recurrentInvestment = 0;
-	
+
 	/** The Cost of the Measure (Currency) */
 	private double cost = 0;
 
@@ -171,8 +172,7 @@ public abstract class Measure implements Serializable, Cloneable {
 		if ((status == null) || (status.trim().isEmpty())) {
 			this.status = Constant.MEASURE_STATUS_NOT_APPLICABLE;
 		} else if (!status.trim().matches(Constant.REGEXP_VALID_MEASURE_STATUS)) {
-			throw new IllegalArgumentException(
-					"Measure Status value needs to be one of these values (AP, NA, M)!");
+			throw new IllegalArgumentException("Measure Status value needs to be one of these values (AP, NA, M)!");
 		} else {
 			this.status = status.trim();
 		}
@@ -195,7 +195,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param implementationRate
 	 *            The value to set the Implementation Rate
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setImplementationRate(Object implementationRate) throws TrickException {
 		this.implementationRate = implementationRate;
@@ -228,11 +228,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param internalWL
 	 *            The value to set the Internal Workload
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setInternalWL(double internalWL) throws TrickException {
-		if (internalWL < 0) 
-			throw new TrickException("error.measure.internal_workload","Internal workload cannot be negative");
+		if (internalWL < 0)
+			throw new TrickException("error.measure.internal_workload", "Internal workload cannot be negative");
 		this.internalWL = internalWL;
 	}
 
@@ -254,11 +254,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param externalWL
 	 *            The value to set the External Workload
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setExternalWL(double externalWL) throws TrickException {
 		if (externalWL < 0)
-			throw new TrickException("error.measure.external_workload","External workload cannot be negative");
+			throw new TrickException("error.measure.external_workload", "External workload cannot be negative");
 		this.externalWL = externalWL;
 	}
 
@@ -280,11 +280,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param investment
 	 *            The value to set the Investment
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setInvestment(double investment) throws TrickException {
-		if (investment < 0) 
-			throw new TrickException("error.measure.investment","Investment cannot be negative");
+		if (investment < 0)
+			throw new TrickException("error.measure.investment", "Investment cannot be negative");
 		this.investment = investment;
 	}
 
@@ -306,11 +306,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param lifetime
 	 *            The value to set the Lifetime
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setLifetime(double lifetime) throws TrickException {
-		if (lifetime < 0) 
-			throw new TrickException("error.measure.lifetime","Lifetime cannot be negative");
+		if (lifetime < 0)
+			throw new TrickException("error.measure.lifetime", "Lifetime cannot be negative");
 		this.lifetime = lifetime;
 	}
 
@@ -332,11 +332,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param maintenance
 	 *            The value to set the Maintenance
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setMaintenance(double maintenance) throws TrickException {
-		if (maintenance < 0 && maintenance!=-1) 
-			throw new TrickException("error.measure.maintenance","Maintenance cannot be negative except -1");
+		if (maintenance < 0 && maintenance != -1)
+			throw new TrickException("error.measure.maintenance", "Maintenance cannot be negative except -1");
 		this.maintenance = maintenance;
 	}
 
@@ -358,11 +358,11 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @param cost
 	 *            The value to set the Cost
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setCost(double cost) throws TrickException {
-		if (cost < 0) 
-			throw new TrickException("error.measure.cost","Cost cannot be negative");
+		if (cost < 0)
+			throw new TrickException("error.measure.cost", "Cost cannot be negative");
 		this.cost = cost;
 	}
 
@@ -471,16 +471,15 @@ public abstract class Measure implements Serializable, Cloneable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result =
-			prime * result + ((measureDescription == null) ? 0 : measureDescription.hashCode());
+		result = prime * result + ((measureDescription == null) ? 0 : measureDescription.hashCode());
 		result = prime * result + id;
 		return result;
 	}
 
 	/**
 	 * equals: <br>
-	 * Check if this object equals another object of the same type. Equal means: the field id,
-	 * description, domain and reference.
+	 * Check if this object equals another object of the same type. Equal means:
+	 * the field id, description, domain and reference.
 	 * 
 	 * @param obj
 	 *            The other object to check on
@@ -499,26 +498,28 @@ public abstract class Measure implements Serializable, Cloneable {
 			return false;
 		}
 		Measure other = (Measure) obj;
-		if (measureDescription == null) {
+
+		if (getId() > 0 && getId() == other.getId())
+			return true;
+		else if (getId() > 0 && other.getId() > 0)
+			return false;
+		else if (measureDescription == null) {
 			if (other.measureDescription != null) {
 				return false;
 			}
 		} else if (!measureDescription.equals(other.measureDescription)) {
 			return false;
 		}
-		if (id != other.id) {
-			return false;
-		}
 		return true;
 	}
-	
+
 	/**
 	 * ComputeCost: <br>
 	 * Description
 	 * 
 	 * @param measure
 	 * @param analysis
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	@Deprecated
 	public static void ComputeCost(Measure measure, List<Parameter> parameters) throws TrickException {
@@ -536,45 +537,45 @@ public abstract class Measure implements Serializable, Cloneable {
 		// ****************************************************************
 
 		for (Parameter parameter : parameters) {
-			if(parameter.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE)) {
+			if (parameter.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE)) {
 				internalSetupValue = parameter.getValue();
 				break;
 			}
-				
-		}
-		
-		for (Parameter parameter : parameters) {
-			if(parameter.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE)) {
-				externalSetupValue = parameter.getValue();
-				break;
-			}
-				
-		}
-		
-		for (Parameter parameter : parameters) {
-			if(parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
-				lifetimeDefault = parameter.getValue();
-				break;
-			}
-				
+
 		}
 
 		for (Parameter parameter : parameters) {
-			if(parameter.getDescription().equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
+			if (parameter.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE)) {
+				externalSetupValue = parameter.getValue();
+				break;
+			}
+
+		}
+
+		for (Parameter parameter : parameters) {
+			if (parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
+				lifetimeDefault = parameter.getValue();
+				break;
+			}
+
+		}
+
+		for (Parameter parameter : parameters) {
+			if (parameter.getDescription().equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
 				maintenanceDefault = parameter.getValue();
 				break;
 			}
-				
+
 		}
-		
+
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getMaintenance(), measure.getInternalWL(), measure.getExternalWL(),
-				measure.getInvestment(), measure.getLifetime());
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getMaintenance(), measure.getInternalWL(),
+				measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
 		// return calculated cost
 		if (cost >= 0)
 			measure.setCost(cost);
 	}
-	
+
 	public static void ComputeCost(Measure measure, Analysis analysis) throws TrickException {
 		// ****************************************************************
 		// * variable initialisation
@@ -589,20 +590,22 @@ public abstract class Measure implements Serializable, Cloneable {
 		// ****************************************************************
 
 		internalSetupValue = analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
-		
+
 		externalSetupValue = analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
-		
+
 		lifetimeDefault = analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(),
-				measure.getInvestment(), measure.getLifetime());
+		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(),
+				measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
 		// return calculated cost
 		if (cost >= 0)
 			measure.setCost(cost);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -616,7 +619,8 @@ public abstract class Measure implements Serializable, Cloneable {
 		return measure;
 	}
 
-	/** getInternalMaintenance: <br>
+	/**
+	 * getInternalMaintenance: <br>
 	 * Returns the internalMaintenance field value.
 	 * 
 	 * @return The value of the internalMaintenance field
@@ -627,17 +631,19 @@ public abstract class Measure implements Serializable, Cloneable {
 		return internalMaintenance;
 	}
 
-	/** setInternalMaintenance: <br>
+	/**
+	 * setInternalMaintenance: <br>
 	 * Sets the Field "internalMaintenance" with a value.
 	 * 
-	 * @param internalMaintenance 
-	 * 			The Value to set the internalMaintenance field
+	 * @param internalMaintenance
+	 *            The Value to set the internalMaintenance field
 	 */
 	public void setInternalMaintenance(double internalMaintenance) {
 		this.internalMaintenance = internalMaintenance;
 	}
 
-	/** getExternalMaintenance: <br>
+	/**
+	 * getExternalMaintenance: <br>
 	 * Returns the externalMaintenance field value.
 	 * 
 	 * @return The value of the externalMaintenance field
@@ -648,17 +654,19 @@ public abstract class Measure implements Serializable, Cloneable {
 		return externalMaintenance;
 	}
 
-	/** setExternalMaintenance: <br>
+	/**
+	 * setExternalMaintenance: <br>
 	 * Sets the Field "externalMaintenance" with a value.
 	 * 
-	 * @param externalMaintenance 
-	 * 			The Value to set the externalMaintenance field
+	 * @param externalMaintenance
+	 *            The Value to set the externalMaintenance field
 	 */
 	public void setExternalMaintenance(double externalMaintenance) {
 		this.externalMaintenance = externalMaintenance;
 	}
 
-	/** getRecurrentInvestment: <br>
+	/**
+	 * getRecurrentInvestment: <br>
 	 * Returns the recurrentInvestment field value.
 	 * 
 	 * @return The value of the recurrentInvestment field
@@ -669,13 +677,15 @@ public abstract class Measure implements Serializable, Cloneable {
 		return recurrentInvestment;
 	}
 
-	/** setRecurrentInvestment: <br>
+	/**
+	 * setRecurrentInvestment: <br>
 	 * Sets the Field "recurrentInvestment" with a value.
 	 * 
-	 * @param recurrentInvestment 
-	 * 			The Value to set the recurrentInvestment field
+	 * @param recurrentInvestment
+	 *            The Value to set the recurrentInvestment field
 	 */
 	public void setRecurrentInvestment(double recurrentInvestment) {
 		this.recurrentInvestment = recurrentInvestment;
 	}
+
 }

@@ -15,6 +15,7 @@ import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.MaturityMeasure;
+import lu.itrust.business.TS.MaturityParameter;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormMeasure;
@@ -199,13 +200,13 @@ public class Duplicator {
 					: ((MaturityMeasure) measure).getImplementationRate().getDescription()));
 			if (parameter == null) {
 				for (Parameter param : parameters.values()) {
-					if (param.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && param.getValue() == 0) {
-						// get default implementationrate as parameter (0%)
-						matmeasure.setImplementationRate(param);
+					if (param instanceof MaturityParameter && param.getValue() == 0) {
+						parameter = param;
 						break;
 					}
 				}
 			}
+			matmeasure.setImplementationRate(parameter);
 			if (anonymize) {
 				matmeasure.setReachedLevel(1);
 				matmeasure.setSML1Cost(0);
@@ -214,7 +215,6 @@ public class Duplicator {
 				matmeasure.setSML4Cost(0);
 				matmeasure.setSML5Cost(0);
 			}
-
 		} else {
 			NormMeasure normmeasure = (NormMeasure) copy;
 			if (anonymize) {

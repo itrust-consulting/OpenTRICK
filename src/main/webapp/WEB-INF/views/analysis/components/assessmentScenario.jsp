@@ -41,7 +41,7 @@
 					<c:forEach items="${sortedAssessments}" var="assessment">
 						<tr trick-class="Assessment" trick-id="${assessment.id}">
 							<td colspan="4"><spring:message text="${assessment.asset.name}" /></td>
-							<td><fmt:formatNumber value="${assessment.asset.value}" maxFractionDigits="1" minFractionDigits="1" /></td>
+							<td title="${assessment.asset.value}&euro;"><fmt:formatNumber value="${assessment.asset.value*0.001}" maxFractionDigits="1" minFractionDigits="1" /></td>
 							<c:if test="${empty(show_cssf) or show_cssf}">
 								<c:choose>
 									<c:when test="${parameters.containsKey(assessment.impactRep)}">
