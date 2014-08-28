@@ -103,7 +103,7 @@ public class ChartGenerator {
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale) + "\"}";
 
@@ -185,7 +185,7 @@ public class ChartGenerator {
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale) + "\"}";
 
@@ -266,7 +266,7 @@ public class ChartGenerator {
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale) + "\"}";
 
@@ -347,7 +347,7 @@ public class ChartGenerator {
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale) + "\"}";
 
@@ -416,13 +416,16 @@ public class ChartGenerator {
 	public static Map<String, Object[]> ComputeComplianceBefore(List<? extends Measure> measures) {
 		Map<String, Object[]> compliances = new LinkedHashMap<String, Object[]>();
 		for (Measure measure : measures) {
-			if (measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
+			if (measure.getMeasureDescription().isComputable()) {
 				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
 				Object[] compliance = compliances.get(chapter);
 				if (compliance == null)
 					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
 				compliance[0] = (Integer) compliance[0] + 1;
-				compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue();
+				if(!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+					compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue();
+				else 
+					compliance[1] = (Double) compliance[1] + Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE;
 			}
 		}
 		return compliances;
@@ -445,17 +448,13 @@ public class ChartGenerator {
 
 		for (Measure measure : measures) {
 
-			Integer measureLevel = measure.getMeasureDescription().getLevel();
-
 			String status = measure.getStatus();
 
 			Boolean goodPhase = measure.getPhase().getNumber() == phase.getNumber();
 
-			if (measureLevel >= Constant.MEASURE_LEVEL_3 && !status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && goodPhase) {
+			if (measure.getMeasureDescription().isComputable() && !status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && goodPhase) {
 				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
 				Object[] compliance = compliances.get(chapter);
-				if (compliance == null)
-					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
 				if (actionPlanMeasures.containsKey(measure.getId()))
 					compliance[1] = ((Double) compliance[1] + Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) - measure.getImplementationRateValue();
 			}
@@ -478,7 +477,7 @@ public class ChartGenerator {
 
 		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures);
 
-		String chart = "\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30},  \"scrollbar\": {\"enabled\": false}";
+		String chart = "\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30, \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { norm }, norm + " measure compliance", locale)
 				+ "\"}";
@@ -534,7 +533,7 @@ public class ChartGenerator {
 
 		idMeasureInActionPlans.clear();
 
-		List<Phase> phases = daoPhase.getAllFromAnalysis(idAnalysis);
+		List<Phase> phases = daoPhase.getAllFromAnalysisActionPlan(idAnalysis);
 
 		Hibernate.initialize(phases);
 
@@ -598,7 +597,7 @@ public class ChartGenerator {
 
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": false}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
 		String title = "\"title\": {\"text\":\""
 				+ messageSource.getMessage("label.title.chart.evolution_profitability_compliance." + actionPlanType.toLowerCase(), null,
@@ -718,7 +717,7 @@ public class ChartGenerator {
 
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": false}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
 		String title = "\"title\": {\"text\":\""
 				+ messageSource.getMessage("label.title.chart.budget." + actionPlanType.toLowerCase(), null, "Budget for " + actionPlanType, locale) + "\"}";
@@ -903,7 +902,7 @@ public class ChartGenerator {
 				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": " + (!filter.getSeries().contains(key)) + "},";
 			}
 
-			String chart = "\"chart\":{ \"type\":\"" + (measures.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": "
+			String chart = "\"chart\":{ \"type\":\"" + (measures.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": "
 					+ (measures.size() > 9) + "}";
 
 			if (series.endsWith(","))
@@ -980,7 +979,7 @@ public class ChartGenerator {
 				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": " + (!filter.getSeries().contains(key)) + "},";
 			}
 
-			String chart = "\"chart\":{ \"type\":\"" + (scenarios.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": "
+			String chart = "\"chart\":{ \"type\":\"" + (scenarios.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": "
 					+ (scenarios.size() > 9) + "}";
 
 			if (series.endsWith(","))

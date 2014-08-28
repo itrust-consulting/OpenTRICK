@@ -305,7 +305,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	public List<Integer> getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndNorm(int idAnalysis, String norm, ActionPlanMode actionPlanMode) {
 		return getSession()
 				.createQuery(
-						"Select measure.id From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :idAnalysis and analysisNorm.norm.label = :norm and measure.id in (Select actionplan.measure.id From Analysis a inner join a.actionPlans actionplan where a.id = :idAnalysis and actionplan.actionPlanType.name = :actionPlanType and actionplan.ROI > 0 )")
+						"Select measure.id From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :idAnalysis and analysisNorm.norm.label = :norm and measure.id in (Select actionplan.measure.id From Analysis a inner join a.actionPlans actionplan where a.id = :idAnalysis and actionplan.actionPlanType.name = :actionPlanType)")
 				.setParameter("idAnalysis", idAnalysis).setString("norm", norm).setParameter("actionPlanType", actionPlanMode).list();
 	}
 }
