@@ -35,6 +35,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ActionPlanSummaryManager;
+import lu.itrust.business.component.AssessmentComparator;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.AssetComparatorByALE;
 import lu.itrust.business.component.ChartGenerator;
@@ -492,13 +493,13 @@ public class ExportAnalysisReport {
 			return;
 		String norm = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
 		List<Measure> measures = (List<Measure>) analysis.findMeasureByNorm(norm);
-		if(measures == null)
+		if (measures == null)
 			return;
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
 		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures);
 		int rowCount = 0;
 		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
-		if(xssfSheet.getRow(rowCount) == null)
+		if (xssfSheet.getRow(rowCount) == null)
 			xssfSheet.createRow(rowCount);
 		xssfSheet.getRow(rowCount).createCell(0);
 		xssfSheet.getRow(rowCount).createCell(1);
@@ -976,7 +977,7 @@ public class ExportAnalysisReport {
 				row.getCell(1).setText(entry.getMeasure().getAnalysisNorm().getNorm().getLabel());
 				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
 				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
-				paragraph = addCellParagraph(row.getCell(3), descriptionText == null? "" :  descriptionText.getDomain() + ":");
+				paragraph = addCellParagraph(row.getCell(3), descriptionText == null ? "" : descriptionText.getDomain() + ":");
 				for (XWPFRun run : paragraph.getRuns())
 					run.setBold(true);
 				paragraph.createRun().addBreak();
@@ -1200,6 +1201,8 @@ public class ExportAnalysisReport {
 
 		List<Assessment> assessments = analysis.getSelectedAssessments();
 
+		Collections.sort(assessments, new AssessmentComparator());
+
 		double totalale = 0;
 
 		for (Assessment assessment : assessments)
@@ -1214,6 +1217,15 @@ public class ExportAnalysisReport {
 			Map<String, List<Assessment>> assessementsmap = new LinkedHashMap<String, List<Assessment>>();
 
 			AssessmentManager.SplitAssessment(assessments, alesmap, assessementsmap);
+
+			List<ALE> ales = new ArrayList<ALE>(alesmap.size());
+
+			for (ALE ale : alesmap.values())
+				ales.add(ale);
+
+			alesmap.clear();
+
+			Collections.sort(ales, new AssetComparatorByALE());
 
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
@@ -1257,9 +1269,8 @@ public class ExportAnalysisReport {
 			row.getCell(0).setText(getMessage("report.assessment.total_ale.assets", null, "Total ALE of Assets", locale));
 			addCellNumber(row.getCell(3), numberFormat.format(totalale * 0.001));
 
-			for (String assetname : assessementsmap.keySet()) {
-				List<Assessment> assessmentsofasset = assessementsmap.get(assetname);
-				ALE ale = alesmap.get(assetname);
+			for (ALE ale : ales) {
+				List<Assessment> assessmentsofasset = assessementsmap.get(ale.getAssetName());
 				row = table.createRow();
 				for (int i = 1; i < 5; i++)
 					row.addNewTableCell().setColor("c6d9f1");
@@ -1276,7 +1287,8 @@ public class ExportAnalysisReport {
 					addCellParagraph(row.getCell(4), assessment.getComment());
 				}
 			}
-
+			assessementsmap.clear();
+			ales.clear();
 		}
 	}
 
