@@ -492,6 +492,8 @@ public class ExportAnalysisReport {
 			return;
 		String norm = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
 		List<Measure> measures = (List<Measure>) analysis.findMeasureByNorm(norm);
+		if(measures == null)
+			return;
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
 		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures);
 		int rowCount = 0;
