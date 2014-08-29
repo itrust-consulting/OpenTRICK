@@ -66,24 +66,27 @@
 										<c:if test="${previewRisk.category != risk_information.category}">
 											<c:set var="previewRisk" value="${risk_information}" />
 											<tr>
-												<c:choose>
-													<c:when test="${categoryRiskInformation == 'Threat'}">
-														<td colspan="14"></td>
-													</c:when>
-													<c:when test="${categoryRiskInformation == 'Vul'}">
-														<td colspan="13"></td>
-													</c:when>
-													<c:otherwise>
-														<td colspan="13"></td>
-													</c:otherwise>
-												</c:choose>
+												<td colspan="13"></td>
 											</tr>
 										</c:if>
 									</c:otherwise>
 								</c:choose>
 							</c:if>
 							<tr trick-class="RiskInformation" trick-id="${risk_information.id}">
-								<c:set var="codeLabel">label.risk_information.${fn:toLowerCase(categoryRiskInformation)}.${fn:replace(risk_information.chapter,'.','_')}</c:set>
+<%-- 								<c:set var="codeText" value="${risk_information.label}"/> --%>
+								<c:choose>
+									<c:when test="${risk_information.category == 'Risk_TBA'}">
+										<c:set var="codeLabel">label.risk_information.${fn:toLowerCase(categoryRiskInformation)}_tba.${fn:replace(risk_information.chapter,'.','_')}</c:set>
+<%-- 										<% System.out.println( pageContext.findAttribute("codeLabel")+"="+pageContext.findAttribute("codeText")); %> --%>
+									</c:when>
+									<c:when test="${risk_information.category == 'Risk_TBS'}">
+										<c:set var="codeLabel">label.risk_information.tba.${fn:toLowerCase(categoryRiskInformation)}_tbs.${fn:replace(risk_information.chapter,'.','_')}</c:set>
+<%-- 										<% System.out.println( pageContext.findAttribute("codeLabel")+"="+pageContext.findAttribute("codeText")); %> --%>
+									</c:when>
+									<c:otherwise>
+										<c:set var="codeLabel">label.risk_information.${fn:toLowerCase(categoryRiskInformation)}.${fn:replace(risk_information.chapter,'.','_')}</c:set>
+									</c:otherwise>
+								</c:choose>
 								<c:choose>
 									<c:when test='${fct:matches(risk_information.chapter,chapterRegex)}'>
 										<c:choose>
@@ -117,7 +120,6 @@
 												text="${risk_information.hiddenComment}" /></td>
 									</c:otherwise>
 								</c:choose>
-<%-- 								<% System.out.println( pageContext.findAttribute("codeLabel")); %> --%>
 							</tr>
 						</c:forEach>
 					</tbody>
