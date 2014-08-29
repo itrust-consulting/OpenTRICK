@@ -199,7 +199,6 @@ public class ExportAnalysisReport {
 	}
 
 	private void generateGraphics() throws OpenXML4JException, IOException {
-		System.out.println(this.document.getAllEmbedds());
 		for (PackagePart packagePart : this.document.getPackage().getParts())
 			if (packagePart.getPartName().getExtension().contains("xls")) {
 				ReportExcelSheet reportExcelSheet = new ReportExcelSheet(packagePart, context.getRealPath("/WEB-INF/tmp/"));
@@ -227,9 +226,7 @@ public class ExportAnalysisReport {
 					generateBudgetGraphic(reportExcelSheet);
 					break;
 				}
-				//reportExcelSheet.getPackagePart().
 			}
-		
 	}
 
 	private void generateEvolutionOfProfitabilityGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
