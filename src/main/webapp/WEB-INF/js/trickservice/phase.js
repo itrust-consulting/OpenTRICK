@@ -15,7 +15,9 @@ $(function() {
 
 		if (l_lang != "en")
 			$.getScript(context + "/js/bootstrap/locales/bootstrap-datepicker." + l_lang + ".js");
-		$('#addPhaseModel').on('show.bs.modal', function() {
+		$('#addPhaseModel').on('show.bs.modal', function(e) {
+			if($(e.target)[0]!=this)//prevent datepicker show event
+				return false;
 			var lastDate = $("#section_phase td").last();
 			if (lastDate.length) {
 				var beginDate = lastDate.text();
