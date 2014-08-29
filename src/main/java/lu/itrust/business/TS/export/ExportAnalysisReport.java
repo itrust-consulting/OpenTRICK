@@ -842,7 +842,7 @@ public class ExportAnalysisReport {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText(getMessage("report.summary_stage.rosi.relative", null, "Relative ROSI", locale));
 				for (SummaryStage stage : summary)
-					addCellNumber(row.getCell(++cellnumber), numberFormat.format(Math.floor(stage.getRelativeROSI() * 0.001)));
+					addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getRelativeROSI()));
 				break;
 			}
 			case 13: {
