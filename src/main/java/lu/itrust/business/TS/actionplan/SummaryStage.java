@@ -57,7 +57,7 @@ public class SummaryStage {
 	private ActionPlanType actionPlanType = null;
 
 	/** Name or Identifier of the Stage */
-	@Column(name="dtStage", nullable=false)
+	@Column(name="dtName", nullable=false)
 	private String stage = "";
 
 	@OneToMany
@@ -74,15 +74,15 @@ public class SummaryStage {
 	private int implementedMeasuresCount = 0;
 
 	/** Total ALE for this Stage */
-	@Column(name="dtTotalALE", nullable=false)
+	@Column(name="dtCurrentTotalALE", nullable=false)
 	private double totalALE = 0;
 		
 	/** Delta ALE for this Stage (calculate sum of deltaALE from actionplan entries) */
-	@Column(name="dtDeltaALE", nullable=false)
+	@Column(name="dtCurrentDeltaALE", nullable=false)
 	private double deltaALE = 0;
 	
 	/** Cost of Measures for this Stage (calculate sum of cost from measures in actionplan) */
-	@Column(name="dtCostOfMeasures", nullable=false)
+	@Column(name="dtCurrentCostMeasures", nullable=false)
 	private double costOfMeasures = 0;
 	
 	/** ROSI for this Stage (take last actionplan entry's ROSI value) */
@@ -94,11 +94,11 @@ public class SummaryStage {
 	private double relativeROSI = 0;
 
 	/** Sum of Internal Workloads taken from Action Plan Entries */
-	@Column(name="dtInternalWorkload", nullable=false)
+	@Column(name="dtTotalInternalWorkLoad", nullable=false)
 	private double internalWorkload = 0;
 
 	/** Sum of External Workloads taken from Action Plan Entries */
-	@Column(name="dtExternalWorkload", nullable=false)
+	@Column(name="dtTotalExternalWorkload", nullable=false)
 	private double externalWorkload = 0;
 
 	/** Sum of Investments taken from Action Plan Entries */
@@ -106,11 +106,11 @@ public class SummaryStage {
 	private double investment = 0;
 
 	/** Sum of ((InternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
-	@Column(name="dtInternalMaintenance", nullable=false)
+	@Column(name="dtTotalInternalMaintenance", nullable=false)
 	private double internalMaintenance = 0;
 
 	/** Sum of ((ExternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
-	@Column(name="dtExternalMaintenance", nullable=false)
+	@Column(name="dtTotalExternalMaintenance", nullable=false)
 	private double externalMaintenance = 0;
 
 	/** Sum of recurrent Investment */
