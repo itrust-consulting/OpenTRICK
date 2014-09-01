@@ -1181,7 +1181,7 @@ public class ExportAnalysisReport {
 						break;
 					case "Risk_TBS":
 						row.getCell(1).setText(
-								getMessage(String.format("label.risk_information.%s.tbs.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")), null,
+								getMessage(String.format("label.risk_information.%s_tbs.%s", riskinfo.getCategory().toLowerCase(), riskinfo.getChapter().replace(".", "_")), null,
 										riskinfo.getLabel(), locale));
 						break;
 					default:

@@ -73,15 +73,15 @@
 								</c:choose>
 							</c:if>
 							<tr trick-class="RiskInformation" trick-id="${risk_information.id}">
-<%-- 								<c:set var="codeText" value="${risk_information.label}"/> --%>
+								<c:set var="codeText" value="${risk_information.label}"/>
 								<c:choose>
 									<c:when test="${risk_information.category == 'Risk_TBA'}">
 										<c:set var="codeLabel">label.risk_information.${fn:toLowerCase(categoryRiskInformation)}_tba.${fn:replace(risk_information.chapter,'.','_')}</c:set>
-<%-- 										<% System.out.println( pageContext.findAttribute("codeLabel")+"="+pageContext.findAttribute("codeText")); %> --%>
+										<% System.out.println( pageContext.findAttribute("codeLabel")+"="+pageContext.findAttribute("codeText")); %>
 									</c:when>
 									<c:when test="${risk_information.category == 'Risk_TBS'}">
-										<c:set var="codeLabel">label.risk_information.tba.${fn:toLowerCase(categoryRiskInformation)}_tbs.${fn:replace(risk_information.chapter,'.','_')}</c:set>
-<%-- 										<% System.out.println( pageContext.findAttribute("codeLabel")+"="+pageContext.findAttribute("codeText")); %> --%>
+										<c:set var="codeLabel">label.risk_information.${fn:toLowerCase(categoryRiskInformation)}_tbs.${fn:replace(risk_information.chapter,'.','_')}</c:set>
+										<% System.out.println( pageContext.findAttribute("codeLabel")+"="+pageContext.findAttribute("codeText")); %>
 									</c:when>
 									<c:otherwise>
 										<c:set var="codeLabel">label.risk_information.${fn:toLowerCase(categoryRiskInformation)}.${fn:replace(risk_information.chapter,'.','_')}</c:set>
