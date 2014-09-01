@@ -807,9 +807,9 @@ public class ChartGenerator {
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, null, "External workload", locale) + "\", \"data\":"
 				+ externalWorkload + ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, null, "Internal maintenance", locale) + "\", \"data\":"
-				+ internalMaintenace + ",\"valueDecimals\": 0,\"type\": \"line\"},  {\"name\":\""
+				+ internalMaintenace + ",\"valueDecimals\": 0,\"type\": \"column\",\"yAxis\": 1},  {\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, null, "External maintenance", locale) + "\", \"data\":"
-				+ externalMaintenance + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
+				+ externalMaintenance + ",\"valueDecimals\": 0,\"type\": \"column\",\"yAxis\": 1},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale) + "\", \"data\":" + totalPhaseCost
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, null, "Investment", locale) + "\", \"data\":" + investment

@@ -322,9 +322,10 @@ public class ExportAnalysisReport {
 		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, null, "External workload", locale));
 		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, null, "Internal maintenance", locale));
 		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, null, "External maintenance", locale));
-		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale));
-		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, null, "Investment", locale));
-		xssfSheet.getRow(0).getCell(7).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_CURRENT_COST, null, "Current cost", locale));
+		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, null, "Investment", locale));
+		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_CURRENT_COST, null, "Current cost", locale));
+		xssfSheet.getRow(0).getCell(7).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale));
+		
 		rowIndex = 1;
 		for (int i = 0; i < dataInternalWorkload.size(); i++) {
 			for (int j = 1; j < 8; j++) {
@@ -388,7 +389,7 @@ public class ExportAnalysisReport {
 		for (Assessment assessment : assessments) {
 			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
 			if (ale == null) {
-				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
+				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
 				ales2.add(ale);
 			}
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
