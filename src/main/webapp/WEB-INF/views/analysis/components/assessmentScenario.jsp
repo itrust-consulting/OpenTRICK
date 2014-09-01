@@ -162,10 +162,10 @@
 							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
 								<c:choose>
 									<c:when test="${empty(show_cssf) or show_cssf}">
-										<td colspan="11"><spring:message code="label.assessment.total.ale" text="Total" /></td>
+										<td colspan="11"><spring:message code="label.total.ale" text="Total" /></td>
 									</c:when>
 									<c:otherwise>
-										<td colspan="8"><spring:message code="label.assessment.total.ale" text="Total" /></td>
+										<td colspan="8"><spring:message code="label.total.ale" text="Total" /></td>
 									</c:otherwise>
 								</c:choose>
 								<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${aleo.value*0.001}"
@@ -178,10 +178,10 @@
 							<c:otherwise>
 								<c:choose>
 									<c:when test="${empty(show_cssf) or show_cssf}">
-										<td colspan="10"><spring:message code="label.assessment.total.ale" text="Total" /></td>
+										<td colspan="10"><spring:message code="label.total.ale" text="Total" /></td>
 									</c:when>
 									<c:otherwise>
-										<td colspan="7"><spring:message code="label.assessment.total.ale" text="Total" /></td>
+										<td colspan="7"><spring:message code="label.total.ale" text="Total" /></td>
 									</c:otherwise>
 								</c:choose>
 								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale.value*0.001}"

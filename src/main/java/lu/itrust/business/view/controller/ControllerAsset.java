@@ -22,7 +22,6 @@ import lu.itrust.business.TS.usermanagement.AppSettingEntry;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
-import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
@@ -213,12 +212,10 @@ public class ControllerAsset {
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
-
 		// retrieve analysis id
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 		if (integer == null)
 			return null;
-
 		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", integer.toString());
 		if (settings != null) {
 			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
@@ -230,29 +227,6 @@ public class ControllerAsset {
 		model.addAttribute("assetALE", AssessmentManager.ComputeAssetALE(assets, assessments));
 		model.addAttribute("assets", assets);
 		return "analysis/components/asset";
-	}
-
-	@RequestMapping(value = "/SingleAsset/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String singleAsset(@PathVariable Integer elementID, Model model, Principal principal, HttpSession session, Locale locale) throws Exception {
-		// add all assettypes to model
-		Asset asset = serviceAsset.get(elementID);
-		List<Assessment> assessments = serviceAssessment.getAllSelectedFromAsset(asset);
-		ALE[] ales = new ALE[3];
-		for (int i = 0; i < ales.length; i++)
-			ales[i] = new ALE(asset.getName(), 0);
-		AssessmentManager.ComputeALE(assessments, ales[1], ales[2], ales[0]);
-
-		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", session.getAttribute("selectedAnalysis").toString());
-		if (settings != null) {
-			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
-			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
-		}
-
-		// add asset object to model
-		model.addAttribute("asset", asset);
-		model.addAttribute("ale", ales);
-		return "analysis/components/forms/assetRow";
 	}
 
 	/**

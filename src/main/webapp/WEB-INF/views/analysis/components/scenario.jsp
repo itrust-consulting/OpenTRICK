@@ -82,6 +82,27 @@
 						</tr>
 					</c:forEach>
 				</tbody>
+				<tfoot>
+					<tr>
+						<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeTotalALE(scenarioALE)" var="ale" />
+						<td colspan="20"><spring:message code="label.total.ale" text="Total" /></td>
+						<c:choose>
+							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+								<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+								<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+								<td colspan="2" title="<fmt:formatNumber value="${ale[2].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[2].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+							</c:when>
+							<c:otherwise>
+								<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+							</c:otherwise>
+						</c:choose>
+						<td colspan="20"></td>
+					</tr>
+				</tfoot>
 			</table>
 		</div>
 	</div>

@@ -55,9 +55,7 @@ function deleteAsset(assetId) {
 			return false;
 		assetId = findTrickID(selectedScenario[0]);
 	}
-
 	var assetname = $("#section_asset tr[trick-id='" + assetId + "'] td:nth-child(3)").text();
-
 	$("#confirm-dialog .modal-body").html(
 			MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset <b>" + assetname
 					+ "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", [ assetname ]));
@@ -67,24 +65,15 @@ function deleteAsset(assetId) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				if (response["success"] != undefined) {
-					var row = $("#section_asset tr[trick-id='" + assetId + "']");
-					var checked = $("#section_asset tr[trick-id='" + assetId + "'] :checked");
-					if (checked.length)
-						$(checked).removeAttr("checked");
-					if (row.length)
-						$(row).remove();
-					updateMenu('#section_asset', '#menu_asset');
-					reloadSection("section_actionplans");
-					reloadSection("section_summary");
-				} else if (response["error"] != undefined) {
+				if (response["success"] != undefined)
+					reloadSection("section_asset");
+				 else if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
 				} else {
 					$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset"));
 					$("#alert-dialog").modal("toggle");
 				}
-
 				return false;
 			},
 			error : unknowError
@@ -166,9 +155,8 @@ function saveAsset(form) {
 
 			}
 			if (!($("#addAssetModal .label-danger").length || $("#addAssetModal .alert").length)) {
-				$("#addAssetModal").modal("toggle");
-				var id = $("#" + form + " input[name='id']").attr("value");
-				setTimeout(reloadAsset(id), 10);
+				$("#addAssetModal").modal("hide");
+				reloadSection("section_asset");
 			}
 			return false;
 		},
@@ -183,36 +171,4 @@ function saveAsset(form) {
 			return false;
 		},
 	});
-}
-
-function reloadAsset(id) {
-	if (id == -1 || id == undefined) {
-		reloadSection("section_asset");
-		return false;
-	}
-	$.ajax({
-		url : context + "/Asset/SingleAsset/" + id,
-		type : "get",
-		dataType : "html",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
-			var element = document.createElement("div");
-			$(element).html(response);
-			var newValue = $(element).find("tr[trick-id='" + id + "']");
-			if (!newValue.length)
-				return false;
-			var current = $("#section_asset tr[trick-id='" + id + "']");
-			if (!current.length)
-				return false;
-			var checked = $(current).find("input:checked");
-			if (checked.length)
-				$(newValue).find("input:checked").prop("checked", true);
-			$(newValue).find("td:nth-child(2)").text($(current).find("td:nth-child(2)").text());
-			$(current).replaceWith(newValue);
-			if (checked.length)
-				$(current).find("input:checked").change();
-		},
-		error : unknowError
-	});
-	return false;
 }
