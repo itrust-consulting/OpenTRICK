@@ -59,7 +59,7 @@
 			<one-to-many class="lu.itrust.business.TS.actionplan.SummaryStage" />
 		</bag>
 
-		<bag name="actionPlans" table="Actionplan" cascade="all" access="field" order-by="id ASC, (measure.phase.number) ASC, ROI ASC">
+		<bag name="actionPlans" table="Actionplan" cascade="all" access="field" order-by="position ASC, (measure.phase.number) ASC, totalALE DESC">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="lu.itrust.business.TS.actionplan.ActionPlanEntry" />
 		</bag>
@@ -69,7 +69,7 @@
 			<one-to-many class="Assessment" />
 		</bag>
 
-		<bag name="scenarios" table="Scenario" cascade="all" access="field" order-by="(scenarioType.id) ASC, name ASC">
+		<bag name="scenarios" table="Scenario" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Scenario" />
 		</bag>
@@ -89,7 +89,7 @@
 			<one-to-many class="Parameter" />
 		</bag>
 
-		<bag name="assets" table="Asset" cascade="all" access="field" order-by="value DESC, ALE DESC, name ASC">
+		<bag name="assets" table="Asset" cascade="all" access="field">
 			<key column="fiAnalysis" not-null="true" />
 			<one-to-many class="Asset" />
 		</bag>

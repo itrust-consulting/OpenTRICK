@@ -18,10 +18,11 @@
 			<div class="col-md-10">
 				<ul class="nav nav-pills">
 					<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
-						<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${apt}"><a href="#"
-							onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan'); return navToogled('section_actionplans','${apt}',true);"> <spring:message
-									code="label.action_plan_type.${fn:toLowerCase(apt)}" text="${apt}" />
-						</a></li>
+						<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${apt}">
+							<a href="#" onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan'); return navToogled('section_actionplans','${apt}',true);"> 
+								<spring:message code="label.action_plan_type.${fn:toLowerCase(apt)}" text="${fn:toUpperCase(apt)}" />
+							</a>
+						</li>
 					</c:forEach>
 				</ul>
 			</div>
@@ -86,7 +87,7 @@
 							<c:forEach items="${actionplansplitted.get(apt)}" var="ape">
 								<tr trick-class="ActionPlanEntry" trick-id="${ape.id}"
 									trick-callback="reloadMeasureRow('${ape.measure.id}', '<spring:message text="${ape.measure.analysisNorm.norm.label}" />')">
-									<td><spring:message text="${ape.position}" /></td>
+									<td><spring:message text="${ape.order}" /></td>
 									<td colspan="2"><spring:message text="${ape.measure.analysisNorm.norm.label}" /></td>
 									<td colspan="3"><spring:message text="${ape.measure.measureDescription.reference}" /></td>
 									<td colspan="20"><b><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionTextByAlpha3(language).getDomain()}" /></b> <br /> <spring:message

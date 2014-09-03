@@ -34,9 +34,12 @@ public class ActionPlanEntry implements Serializable {
 
 	/** The Measure object reference */
 	private Measure measure = null;
-
+	
 	/** The position refered from the normal action plan */
-	private String position = "";
+	private String order = "";
+	
+	/** the order inside the action plan type */
+	private int position = 0;
 
 	/** The total ALE of each mode (normal, pessimistic, optimistic) */
 	private double totalALE = 0;
@@ -251,8 +254,8 @@ public class ActionPlanEntry implements Serializable {
 	 * 
 	 * @return The Position of the Entry
 	 */
-	public String getPosition() {
-		return position;
+	public String getOrder() {
+		return order;
 	}
 
 	/**
@@ -263,9 +266,29 @@ public class ActionPlanEntry implements Serializable {
 	 *            The value to set the Entry Position
 	 * @throws TrickException 
 	 */
-	public void setPosition(String position) throws TrickException {
-		if (position == null || !position.matches(POSITION_REGEX))
+	public void setOrder(String order) throws TrickException {
+		if (order == null || !order.matches(POSITION_REGEX))
 			throw new TrickException("error.action_plan_entry.position","Position is not valid");
+		this.order = order;
+	}
+
+	/**
+	 * getPosition: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public int getPosition() {
+		return position;
+	}
+
+	/**
+	 * setPosition: <br>
+	 * Description
+	 * 
+	 * @param position
+	 */
+	public void setPosition(int position) {
 		this.position = position;
 	}
 

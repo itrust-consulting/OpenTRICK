@@ -2,10 +2,12 @@ package lu.itrust.business.view.controller;
 
 import java.lang.reflect.Field;
 import java.security.Principal;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
@@ -17,6 +19,7 @@ import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAnalysisNorm;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceParameter;
@@ -67,6 +70,9 @@ public class ControllerMeasure {
 	@Autowired
 	private ServiceActionPlanSummary serviceActionPlanSummary;
 
+	@Autowired
+	private ServiceAnalysisNorm serviceAnalysisNorm;
+	
 	/**
 	 * section: <br>
 	 * Description
@@ -235,7 +241,7 @@ public class ControllerMeasure {
 		try {
 
 			// return chart of either norm 27001 or 27002 or null
-			return (norm.equals(Constant.NORM_27001) || norm.equals(Constant.NORM_27002)) ? chartGenerator.compliance(idAnalysis, norm, locale) : null;
+			return chartGenerator.compliance(idAnalysis, norm, locale);
 
 		} catch (Exception e) {
 
@@ -245,6 +251,56 @@ public class ControllerMeasure {
 		}
 	}
 
+	/**
+	 * compliance: <br>
+	 * Description
+	 * 
+	 * @param norm
+	 * @param session
+	 * @param locale
+	 * @return
+	 */
+	@RequestMapping(value = "/Compliances", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@ResponseBody
+	public String compliances(HttpSession session, Locale locale, Principal principal) {
+
+		// retrieve analysis id
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+		try {
+
+			List<AnalysisNorm> norms = serviceAnalysisNorm.getAllFromAnalysis(idAnalysis);
+			
+			String value = "{\"norms\":{";
+			
+			for (AnalysisNorm norm : norms){
+				
+				value += "\""+norm.getNorm().getLabel()+"\":[";
+				
+				value += chartGenerator.compliance(idAnalysis, norm.getNorm().getLabel(), locale);
+				
+				value += "],";
+			}
+			
+			value = value.substring(0, value.length()-1);
+			
+			value += "}}";
+			
+			//System.out.println(value);
+			
+			// return chart of either norm 27001 or 27002 or null
+			
+			return value;
+
+		} catch (Exception e) {
+
+			// retrun error
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	@RequestMapping(value = "/SOA", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String getSOA(HttpSession session, Principal principal, Model model) throws Exception {

@@ -104,7 +104,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Asset> getAllFromAnalysis(Integer analysisId) throws Exception {
-		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId order by asset.value desc, asset.ALE desc, asset.name asc";
+		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId order by asset.selected desc, asset.value desc, asset.ALE asc, asset.name asc";
 		return getSession().createQuery(query).setParameter("analysisId", analysisId).list();
 	}
 

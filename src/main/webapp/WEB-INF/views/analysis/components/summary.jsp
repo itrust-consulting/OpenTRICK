@@ -45,7 +45,16 @@
 												<td colspan="${rowCount+5}" style="background-color: #F8F8F8;"><strong><spring:message code="${key}" text="${key}" /></strong></td>
 											</c:when>
 											<c:otherwise>
+											<c:choose>
+											<c:when test="${fn:startsWith(key, 'label.characteristic.compliance')}">
+												<c:set var="normlabel" value="${fn:substring(key, 31, key.length())}" />
+												<td colspan="5"><spring:message code="label.characteristic.compliance" text="Compliance" /> <spring:message text="${normlabel}" /> (%)</td>
+											</c:when>
+											<c:otherwise>
 												<td colspan="5"><spring:message code="${key}" text="${key}" /></td>
+											</c:otherwise>	
+											</c:choose>
+												
 												<c:forEach items="${summaryStages.get(key)}" var="value">
 													<td class="text-right"><c:choose>
 															<c:when test='${key.endsWith("27002") || key.endsWith("27001") || key.endsWith("date")}'>
