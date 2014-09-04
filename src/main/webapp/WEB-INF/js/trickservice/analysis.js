@@ -45,6 +45,37 @@ function reloadMeausreAndCompliance(norm, idMeasure) {
 
 // charts
 
+function compliances() {
+	$.ajax({
+		url : context + "/Measure/Compliances",
+		type : "get",
+		async : true,
+		contentType : "application/json;charset=UTF-8",
+		async : true,
+		success : function(response) {
+
+			if (response.norms == undefined || response.norms == null)
+				return;
+			
+			var panelbody = $("#chart_compliance .panel-body");
+			
+			$(panelbody).html("");
+			
+			$.each(response.norms, function (key, data) {
+			    //console.log(key); 
+			    
+			    $(panelbody).append("<div id='chart_compliance_"+ key +"'></div>");
+			    
+				$('#chart_compliance_' + key).highcharts(data[0]);
+			    
+			});
+			
+		},
+		error : unknowError
+	});
+	return false;
+}
+
 function compliance(norm) {
 	if (!$('#chart_compliance_' + norm).length)
 		return false;
@@ -117,8 +148,9 @@ function summaryCharts() {
 
 function reloadCharts() {
 	chartALE();
-	compliance('27001');
-	compliance('27002');
+	compliances();
+	// compliance('27001');
+	// compliance('27002');
 	summaryCharts();
 	return false;
 };
@@ -203,40 +235,38 @@ function manageStandard() {
 					} else {
 						$("#addStandardModal").replaceWith(forms);
 						$("#addStandardModal").modal("toggle");
-						$("#addStandardModal").find("a[role='remove-standard']").click(
-								function() {
-									if ($(this).is(":disabled"))
-										return false;
-									var modal = new Modal($("#confirm-dialog").clone(), MessageResolver("confirm.delete.analysis.norm",
-											"Are you sure, you want to remove this standard from this analysis?"));
-									var selectedNorm = this;
-									$(modal.modal_footer).find("button[name='yes']").click(function() {
-										if ($(selectedNorm).is(":disabled"))
-											return false;
-										enableButtonSaveStandardState(false);
-										$.ajax({
-											url : context + "/Analysis/Delete/Standard/" + $(selectedNorm).attr("trick-id"),
-											type : "get",
-											async : false,
-											contentType : "application/json;charset=UTF-8",
-											success : function(response) {
-												if (response["error"] != undefined) {
-													enableButtonSaveStandardState(true);
-													showError($("#addStandardModal .modal-footer")[0], response["error"]);
-												} else if (response["success"] != undefined) {
-													showSuccess($("#addStandardModal .modal-footer")[0], response["success"]);
-													location.reload();
-													setTimeout(function() {
-														$("#addStandardModal").modal("hide");
-													}, 10000);
-												} else
-													unknowError();
-											},
-											error : unknowError
-										});
-									});
-									modal.Show();
+						$("#addStandardModal").find("a[role='remove-standard']").click(function() {
+							if ($(this).is(":disabled"))
+								return false;
+							var modal = new Modal($("#confirm-dialog").clone(), MessageResolver("confirm.delete.analysis.norm", "Are you sure, you want to remove this standard from this analysis?"));
+							var selectedNorm = this;
+							$(modal.modal_footer).find("button[name='yes']").click(function() {
+								if ($(selectedNorm).is(":disabled"))
+									return false;
+								enableButtonSaveStandardState(false);
+								$.ajax({
+									url : context + "/Analysis/Delete/Standard/" + $(selectedNorm).attr("trick-id"),
+									type : "get",
+									async : false,
+									contentType : "application/json;charset=UTF-8",
+									success : function(response) {
+										if (response["error"] != undefined) {
+											enableButtonSaveStandardState(true);
+											showError($("#addStandardModal .modal-footer")[0], response["error"]);
+										} else if (response["success"] != undefined) {
+											showSuccess($("#addStandardModal .modal-footer")[0], response["success"]);
+											location.reload();
+											setTimeout(function() {
+												$("#addStandardModal").modal("hide");
+											}, 10000);
+										} else
+											unknowError();
+									},
+									error : unknowError
 								});
+							});
+							modal.Show();
+						});
 					}
 				}
 			},

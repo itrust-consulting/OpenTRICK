@@ -245,8 +245,8 @@ public class ExportAnalysisReport {
 			xssfSheet.getRow(rowIndex++).getCell(0).setCellValue(String.format("P%d", phase.getNumber()));
 		}
 
-		List<String> dataCompliance27001s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001);
-		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27002);
+		List<String> dataCompliance27001s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE+"27001");
+		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE+"27002");
 		List<String> dataALEs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
 		List<String> dataRiskReductions = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION);
 		List<String> dataROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI);
@@ -259,8 +259,8 @@ public class ExportAnalysisReport {
 			if (xssfSheet.getRow(0).getCell(j) == null)
 				xssfSheet.getRow(0).createCell(j);
 		}
-		xssfSheet.getRow(0).getCell(1).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001, null, "Compliance 27001", locale));
-		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27002, null, "Compliance 27002", locale));
+		xssfSheet.getRow(0).getCell(1).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale)+" 27001");
+		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale)+" 27002");
 		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale));
 		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale));
 		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_PHASE_ANNUAL_COST, null, "Phase annual cost", locale));
@@ -778,14 +778,14 @@ public class ExportAnalysisReport {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText(getMessage("report.summary_stage.compliance.level", new Object[] { "27001" }, "Compliance level 27001 (%)...", locale));
 				for (SummaryStage stage : summary)
-					addCellNumber(row.getCell(++cellnumber), String.valueOf((int) (stage.getConformance27001() * 100)));
+					addCellNumber(row.getCell(++cellnumber), String.valueOf((int) (stage.getSingleConformance("27001") * 100)));
 				break;
 			}
 			case 4: {
 				int cellnumber = 0;
 				row.getCell(cellnumber).setText(getMessage("report.summary_stage.compliance.level", new Object[] { "27002" }, "Compliance level 27002 (%)...", locale));
 				for (SummaryStage stage : summary)
-					addCellNumber(row.getCell(++cellnumber), String.valueOf((int) (stage.getConformance27002() * 100)));
+					addCellNumber(row.getCell(++cellnumber), String.valueOf((int) (stage.getSingleConformance("27002") * 100)));
 				break;
 			}
 			case 5: {
@@ -984,7 +984,7 @@ public class ExportAnalysisReport {
 				paragraph.createRun().addBreak();
 				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo());
 				addCellNumber(row.getCell(4), numberFormat.format(entry.getTotalALE() * 0.001));
-				addCellNumber(row.getCell(5), entry.getPosition());
+				addCellNumber(row.getCell(5), entry.getOrder());
 				addCellNumber(row.getCell(6), numberFormat.format(entry.getMeasure().getCost() * 0.001));
 				addCellNumber(row.getCell(7), numberFormat.format(entry.getROI() * 0.001));
 				addCellNumber(row.getCell(8), "" + entry.getMeasure().getInternalWL());

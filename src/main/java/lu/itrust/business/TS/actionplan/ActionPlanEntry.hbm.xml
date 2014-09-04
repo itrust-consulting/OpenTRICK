@@ -9,8 +9,8 @@
 		</id>
 		<many-to-one column="fiActionPlanType" name="actionPlanType" not-null="true"/>
 		<many-to-one column="fiMeasure" name="measure" cascade="save-update" not-null="true"/>
-		<property column="dtOrder" generated="never" lazy="false" name="position" type="java.lang.String"
-			length="5" not-null="true" access="field"/>
+		<property column="dtOrder" generated="never" lazy="false" name="order" type="java.lang.String" length="5" not-null="true" access="field" />
+		<property column="dtPosition" generated="never" lazy="false" name="position" not-null="true" access="field"/>
 		<property column="dtTotalALE" generated="never" lazy="false" name="totalALE" type="double" not-null="true" />
 		<property column="dtDeltaALE" generated="never" lazy="false" name="deltaALE" type="double" not-null="true" />
 		<property column="dtCost" generated="never" lazy="false" name="cost" type="double" not-null="true" access="field" />

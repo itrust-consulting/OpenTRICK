@@ -34,7 +34,7 @@
 		</joined-subclass>
 		<joined-subclass name="NormMeasure" extends="Measure" table="NormMeasure">
 			<key column="idNormMeasure" not-null="true" />
-			<many-to-one name="measurePropertyList" column="fiMeasureProperties" cascade="all" not-null="true" />
+			<many-to-one name="measurePropertyList" column="fiMeasureProperties" access="field" cascade="all" not-null="true" />
 			<property name="implementationRate" access="field" column="dtImplementationRate" not-null="true" />
 			<property name="toCheck" column="dtToCheck" />
 			<bag name="assetTypeValues" table="MeasureAssetTypeValue" cascade="all">

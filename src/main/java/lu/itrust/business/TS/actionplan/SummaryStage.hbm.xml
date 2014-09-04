@@ -3,11 +3,22 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 25, 2013 3:41:26 PM by Hibernate Tools 3.4.0.CR1 -->
 <hibernate-mapping>
+	<class name="lu.itrust.business.TS.actionplan.SummaryStandardConformance" table="ActionPlanSummaryStandardConformance">
+		<id name="id" type="int" column="idActionPlanSummaryStandardConformance" unsaved-value="-1">
+			<generator class="increment" />
+		</id>
+		<many-to-one name="norm" column="fiNorm" cascade="save-update" not-null="true" access="field" />
+		<property name="conformance" type="double" column="dtConformance" not-null="true" />
+	</class>
 	<class name="lu.itrust.business.TS.actionplan.SummaryStage" table="ActionPlanSummary">
 		<id name="id" type="int" column="idActionPlanSummary" unsaved-value="-1">
 			<generator class="increment" />
 		</id>
 		<many-to-one name="actionPlanType" column="fiActionPlanType" not-null="true"/>
+		<bag name="conformances" table="ActionPlanSummaryStandardConformance" cascade="all" access="field">
+			<key column="fiActionPlanSummary" not-null="true" />
+			<one-to-many class="lu.itrust.business.TS.actionplan.SummaryStandardConformance" />
+		</bag>
 		<property name="stage" type="java.lang.String" column="dtName" />
 		<property name="conformance27001" type="double" column="dt27001Conformance" />
 		<property name="conformance27002" type="double" column="dt27002Conformance" />
@@ -27,4 +38,6 @@
 		<property name="recurrentCost" type="double" column="dtRecurrentCost" />
 		<property name="totalCostofStage" type="double" column="dtTotalCost" />
 	</class>
+	
+
 </hibernate-mapping>

@@ -1,8 +1,11 @@
 package lu.itrust.business.TS.actionplan;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.MeasureNorm;
 import lu.itrust.business.TS.NormMeasure;
 
@@ -21,6 +24,8 @@ public class SummaryValues {
 	 * Fields declaration
 	 **********************************************************************************************/
 
+	public Map<String, SummaryStandardHelper> conformanceHelper = new HashMap<String, SummaryStandardHelper>();
+	
 	/** The 27001 AnalysisNorm Object with all 27001 Measures */
 	public MeasureNorm norm27001 = null;
 
@@ -103,4 +108,10 @@ public class SummaryValues {
 
 	/** Total Cost of Stage */
 	public double totalCost = 0;
+	
+	public SummaryValues(List<AnalysisNorm> norms) {
+		conformanceHelper.clear();
+		for(AnalysisNorm an : norms)
+			conformanceHelper.put(an.getNorm().getLabel(), new SummaryStandardHelper(an));
+	}
 }

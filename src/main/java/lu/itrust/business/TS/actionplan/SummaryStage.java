@@ -1,6 +1,10 @@
 package lu.itrust.business.TS.actionplan;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -28,6 +32,8 @@ public class SummaryStage {
 	/** Name or Identifier of the Stage */
 	private String stage = "";
 
+	private List<SummaryStandardConformance> conformances = new ArrayList<SummaryStandardConformance>();
+	
 	/** Percentage of AnalysisNorm 27001 Conformance for this Stage */
 	private double conformance27001 = 0;
 
@@ -149,6 +155,13 @@ public class SummaryStage {
 		this.stage = stage;
 	}
 
+	public Double getSingleConformance(String label) {
+		for(SummaryStandardConformance conformance : this.conformances)
+			if(conformance.getNorm().getLabel().equals(label))
+				return conformance.getConformance();
+		return null;
+	}
+	
 	/**
 	 * getConformance27001: <br>
 	 * Returns the "conformance27001" field value
@@ -159,6 +172,26 @@ public class SummaryStage {
 		return conformance27001;
 	}
 
+	/**
+	 * getConformances: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public List<SummaryStandardConformance> getConformances() {
+		return this.conformances;
+	}
+	
+	/**
+	 * setConformances: <br>
+	 * Description
+	 * 
+	 * @param conformances
+	 */
+	public void setConformances(List<SummaryStandardConformance> conformances) {
+		this.conformances = conformances;
+	}
+	
 	/**
 	 * setConformance27001: <br>
 	 * Sets the "conformance27001" field with a value
@@ -173,6 +206,17 @@ public class SummaryStage {
 		this.conformance27001 = conformance27001;
 	}
 
+	/**
+	 * addConformance: <br>
+	 * Description
+	 * 
+	 * @param analysisNorm
+	 * @param conformance
+	 */
+	public void addConformance(AnalysisNorm analysisNorm, double conformance) {
+		this.conformances.add(new SummaryStandardConformance(analysisNorm.getNorm(),conformance));
+	}
+	
 	/**
 	 * getConformance27002: <br>
 	 * Returns the "conformance27002" field value
