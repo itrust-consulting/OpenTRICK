@@ -2,6 +2,7 @@ package lu.itrust.business.TS.actionplan;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -896,6 +897,30 @@ public class ActionPlanComputation {
 						}
 					}
 				}
+				
+				Map<String, Double> deltamaturities = new LinkedHashMap<String, Double>();
+				
+				for(TMA tma : TMAList){
+					
+					if(tma.getNorm().getLabel().equals("27002")) {
+					
+					if(deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference())== null) {
+						deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), tma.getDeltaALEMat());
+					} else {
+						Double val = deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference());
+						val += tma.getDeltaALEMat();
+						deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), val);
+					}
+						
+						
+					
+					}
+				}
+				
+				for(String key :deltamaturities.keySet())
+					System.out.println(key + ":::" + deltamaturities.get(key));
+				
+				
 			} else {
 
 				// ****************************************************************
@@ -904,6 +929,30 @@ public class ActionPlanComputation {
 				// do nothing
 				// ****************************************************************
 				TMAList = generateTMAList(this.analysis, usedMeasures, mode, this.analysis.getAPhase(phase).getNumber(), false, maturitycomputation, norms);
+				
+				Map<String, Double> deltamaturities = new LinkedHashMap<String, Double>();
+				
+				for(TMA tma : TMAList){
+					
+					if(tma.getNorm().getLabel().equals("27002")) {
+					
+					if(deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference())== null) {
+						deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), tma.getDeltaALEMat());
+					} else {
+						Double val = deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference());
+						val += tma.getDeltaALEMat();
+						deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), val);
+					}
+						
+						
+					
+					}
+				}
+				
+				for(String key :deltamaturities.keySet())
+					System.out.println(key + "::" + deltamaturities.get(key));
+				
+				
 			}
 
 			// ****************************************************************
@@ -2387,8 +2436,9 @@ public class ActionPlanComputation {
 				// temporary store measure norm
 				measureNorm = (MeasureNorm) analysis.getAnalysisNorm(i);
 
-				// leave loop
-				break;
+				if(measureNorm.getNorm().getLabel().equals(Constant.NORM_27002))				
+					// leave loop
+					break;
 			}
 		}
 
