@@ -210,11 +210,11 @@ public class ControllerPatch {
 	public @ResponseBody
 	String updateCompliances(Locale locale) {
 
-		String patchversion = "0.6.3a";
+		String patchversion = "0.6.3b";
 
 		try {
 
-			System.out.println("Patching compliance (version 0.6.3a)");
+			System.out.println("Patching compliance (version 0.6.3b)");
 
 			if(serviceTrickService.getStatus().getVersion().equals(patchversion)) {
 				System.out.println("Patch already installed!");
