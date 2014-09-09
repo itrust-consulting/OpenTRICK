@@ -240,7 +240,7 @@ public class ControllerPatch {
 							boolean found = false;
 							
 							for(SummaryStandardConformance conformance : summary.getConformances())
-								if(conformance.getNorm().getLabel().equals(norm.getNorm().getLabel())) {
+								if(conformance.getAnalysisNorm().getNorm().getLabel().equals(norm.getNorm().getLabel())) {
 									found = true;
 									break;
 								}
@@ -252,7 +252,7 @@ public class ControllerPatch {
 							boolean found = false;
 							
 							for(SummaryStandardConformance conformance : summary.getConformances())
-								if(conformance.getNorm().getLabel().equals(norm.getNorm().getLabel())) {
+								if(conformance.getAnalysisNorm().getNorm().getLabel().equals(norm.getNorm().getLabel())) {
 									found = true;
 									break;
 								}
@@ -264,7 +264,7 @@ public class ControllerPatch {
 							boolean found = false;
 							
 							for(SummaryStandardConformance conformance : summary.getConformances())
-								if(conformance.getNorm().getLabel().equals(norm.getNorm().getLabel())) {
+								if(conformance.getAnalysisNorm().getNorm().getLabel().equals(norm.getNorm().getLabel())) {
 									found = true;
 									break;
 								}

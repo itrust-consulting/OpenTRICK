@@ -1,6 +1,12 @@
 package lu.itrust.business.TS;
 
 import javax.naming.directory.InvalidAttributesException;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import lu.itrust.business.exception.TrickException;
 
@@ -14,6 +20,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity 
 public class Asset implements Cloneable {
 
 	/***********************************************************************************************
@@ -21,33 +28,45 @@ public class Asset implements Cloneable {
 	 **********************************************************************************************/
 
 	/** Asset Identifier */
+	@Id @GeneratedValue
+	@Column(name="idAsset")
 	private int id = -1;
 
 	/** The Asset Name */
+	@Column(name="dtLabel", nullable=false)
 	private String name = "";
 
 	/** The Asset Type Name */
+	@ManyToOne
+	@JoinColumn(name="fiAssetType", nullable=false)
 	private AssetType assetType = null;
 
 	/** The Asset Value */
+	@Column(name="dtValue", nullable=false)
 	private double value = 0;
 
 	/** The Asset Comment */
+	@Column(name="dtComment", nullable=false, columnDefinition="LONGTEXT")
 	private String comment = "";
 
 	/** The Asset Hidden Comment */
+	@Column(name="dtHiddenComment", nullable=false, columnDefinition="LONGTEXT")
 	private String hiddenComment = "";
 
 	/** The Flag to determine if the Asset is selected for calculations */
+	@Column(name="dtSelected", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean selected = false;
 	
 	/** The Annual Loss Expectancy - Pessimistic */
+	@Column(name="dtALEP", nullable=false)
 	private double ALEP = 0;
 
 	/** The Annual Loss Expectancy - Normal */
+	@Column(name="dtALE", nullable=false)
 	private double ALE = 0;
 
 	/** The Annual Loss Expectancy - Optimistic */
+	@Column(name="dtALEO", nullable=false)
 	private double ALEO = 0;
 
 

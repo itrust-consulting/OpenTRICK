@@ -2,6 +2,14 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -13,6 +21,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-09-24
  */
+@Entity 
 public class Language implements Serializable {
 
 	/***********************************************************************************************
@@ -20,18 +29,24 @@ public class Language implements Serializable {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The Language Identifier */
+	@Id @GeneratedValue 
+	@Column(name="idLanguage")
 	private int id = -1;
 
 	/** The Alpha3 Code */
+	@Column(name="dtAlpha3", length=3, nullable=false, unique=true)
 	private String alpha3 = "";
 
 	/** The Language Name */
+	@Column(name="dtName", nullable=false)
 	private String name = "";
 
 	/** The Language Alternative Name */
+	@Column(name="dtAlternativeName", nullable=false)
 	private String altName = "";
 
 	/***********************************************************************************************

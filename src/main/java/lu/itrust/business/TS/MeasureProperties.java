@@ -1,6 +1,14 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.PrimaryKeyJoinColumn;
+
 import lu.itrust.business.exception.TrickException;
+
+import org.jboss.logging.Field;
 
 /**
  * MeasureProperties: <br>
@@ -10,6 +18,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity 
+@PrimaryKeyJoinColumn(name="idMeasureProperties")
 public class MeasureProperties extends SecurityCriteria {
 
 	/***********************************************************************************************
@@ -44,6 +54,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The SOA Reference
 	 */
+	@Column(name="dtSOAReference", nullable=false)
 	public String getSoaReference() {
 		return soaReference;
 	}
@@ -65,6 +76,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The SOA Comment
 	 */
+	@Column(name="dtSOAComment", nullable=false)
 	public String getSoaComment() {
 		return soaComment;
 	}
@@ -86,6 +98,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The SOA Risk
 	 */
+	@Column(name="dtSOARisk", nullable=false)
 	public String getSoaRisk() {
 		return soaRisk;
 	}
@@ -107,6 +120,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The Measure Strength value
 	 */
+	@Column(name="dtStrengthMeasure", nullable=false)
 	public int getFMeasure() {
 		return fmeasure;
 	}
@@ -132,6 +146,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The Sectoral Strength value
 	 */
+	@Column(name="dtStrengthSectoral", nullable=false)
 	public int getFSectoral() {
 		return fsectoral;
 	}

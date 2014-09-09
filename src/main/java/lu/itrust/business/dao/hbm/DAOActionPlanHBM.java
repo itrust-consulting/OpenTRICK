@@ -97,7 +97,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ActionPlanEntry> getAllFromAnalysis(Integer id) throws Exception {
-		String query = "Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.position ASC, actionplan.measure.phase.number ASC, actionplan.totalALE DESC";
+		String query = "Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.position ASC, actionplan.totalALE DESC";
 		return (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("analysisID", id).list();
 	}
 
@@ -111,7 +111,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Integer analysisID, ActionPlanMode mode) throws Exception {
-		String query = "SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplan where analysis.id = :analysisID and actionplan.actionPlanType.name = :mode ORDER BY actionplan.position ASC";
+		String query = "SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplan where analysis.id = :analysisID and actionplan.actionPlanType.name = :mode ORDER BY actionplan.position ASC, actionplan.totalALE DESC";
 		return (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("mode", mode).setParameter("analysisID", analysisID).list();
 	}
 

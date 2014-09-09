@@ -5,28 +5,40 @@ package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
 
-/**
- * @author oensuifudine
- * 
- */
-public class Role implements Serializable {
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Transient;
 
-	/**
-	 * 
-	 */
+/**
+ * Role.java: <br>
+ * Detailed description...
+ *
+ * @author eomar itrust consulting s.a.rl.:
+ * @version 
+ * @since Aug 19, 2012
+ */
+@Entity public class Role implements Serializable {
+
+	@Transient
 	private static final long serialVersionUID = 1L;
 
-
-	private long id = - 1;
-
+	@Id @GeneratedValue 
+	@Column(name="idRole")
+	private int id = - 1;
+ 
+	@Enumerated(EnumType.STRING)
+	@Column(name="dtType")
 	private RoleType type = null;
 
 	/**
-	 * 
+	 * Constructor: <br>
 	 */
-	public Role() {
-		// TODO Auto-generated constructor stub
-	}
+	public Role() {	}
 
 	/**
 	 * @param user
@@ -39,7 +51,7 @@ public class Role implements Serializable {
 	/**
 	 * @return the id
 	 */
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -47,7 +59,7 @@ public class Role implements Serializable {
 	 * @param id
 	 *            the id to set
 	 */
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -90,5 +102,4 @@ public class Role implements Serializable {
 			return false;
 		return true;
 	}
-
 }

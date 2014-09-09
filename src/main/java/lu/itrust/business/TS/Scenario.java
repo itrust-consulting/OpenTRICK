@@ -7,6 +7,23 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -17,6 +34,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity 
+@PrimaryKeyJoinColumn(name="idScenario")
 public class Scenario extends SecurityCriteria {
 
 	/***********************************************************************************************
@@ -70,6 +89,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Name
 	 */
+	@Column(name="dtLabel", nullable=false)
 	public String getName() {
 		return name;
 	}
@@ -94,6 +114,9 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Type
 	 */
+	@ManyToOne 
+	@JoinColumn(name="fiScenarioType", nullable=false)
+	@Access(AccessType.FIELD)
 	public ScenarioType getScenarioType() {
 		return scenarioType;
 	}
@@ -118,6 +141,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Selected Flag
 	 */
+	@Column(name="dtSelected", nullable=false, columnDefinition="TINYINT(1)")
 	public boolean isSelected() {
 		return selected;
 	}
@@ -142,6 +166,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Description
 	 */
+	@Column(name="dtDescription", nullable=false, columnDefinition="LONGTEXT")
 	public String getDescription() {
 		return description;
 	}
@@ -170,6 +195,7 @@ public class Scenario extends SecurityCriteria {
 		assetTypeValues.add(new AssetTypeValue(assetType, value));
 	}
 
+	@Transient
 	public List<AssetTypeValue> deleteAssetTypeDuplication() {
 		List<AssetTypeValue> deletedAssetTypeValues = new LinkedList<>();
 		Map<AssetType, Boolean> mapping = new LinkedHashMap<>();
@@ -417,6 +443,13 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The List of AssetTypeValues
 	 */
+	@ManyToMany
+	@JoinTable(name = "ScenarioAssetTypeValue", 
+			   joinColumns = { @JoinColumn(name = "idScenario", nullable = false, updatable = false) }, 
+			   inverseJoinColumns = { @JoinColumn(name = "idScenarioAssetTypeValue", nullable = false, updatable = false) },
+			   uniqueConstraints = @UniqueConstraint(columnNames = {"idScenario", "idScenarioAssetTypeValue"})
+	)
+	@Cascade(CascadeType.ALL)
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}

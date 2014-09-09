@@ -3,6 +3,21 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -16,6 +31,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity 
+@Inheritance(strategy=InheritanceType.JOINED)
 public abstract class Measure implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -23,6 +40,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The Measure Identifier */
@@ -70,7 +88,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	/** The Comment on this Measure */
 	private String comment = "";
 
-	/** The "ToDo" comment of this Measure */
+	/** The "ToDo" of this Measure */
 	private String toDo = "";
 
 	/** The Phase object for this measure */
@@ -86,6 +104,10 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Phase object
 	 */
+	@ManyToOne
+	@JoinColumn(name="fiPhase", nullable=false)
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
 	public Phase getPhase() {
 		return phase;
 	}
@@ -107,6 +129,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Measure Identifier
 	 */
+	@Id @GeneratedValue 
+	@Column(name="idMeasure")
 	public int getId() {
 		return id;
 	}
@@ -131,6 +155,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Status of the Measure
 	 */
+	@Column(name="dtStatus", nullable=false)
 	public String getStatus() {
 		return status;
 	}
@@ -159,6 +184,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Implementation Rate Value as Object
 	 */
+	@Transient
 	public Object getImplementationRate() {
 		return this.implementationRate;
 	}
@@ -181,6 +207,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Implementation Rate Real Value
 	 */
+	@Transient
 	public abstract double getImplementationRateValue();
 
 	/**
@@ -189,6 +216,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Internal Workload
 	 */
+	@Column(name="dtInternalWorkLoad", nullable=false)
+	@Access(AccessType.FIELD)
 	public double getInternalWL() {
 		return internalWL;
 	}
@@ -213,6 +242,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The External Workload
 	 */
+	@Column(name="dtExternalWorkLoad", nullable=false)
+	@Access(AccessType.FIELD)
 	public double getExternalWL() {
 		return externalWL;
 	}
@@ -237,6 +268,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Investment fo the measure
 	 */
+	@Column(name="dtInvestment", nullable=false)
+	@Access(AccessType.FIELD)
 	public double getInvestment() {
 		return investment;
 	}
@@ -261,6 +294,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Lifetime value
 	 */
+	@Column(name="dtLifetime", nullable=false)
+	@Access(AccessType.FIELD)
 	public double getLifetime() {
 		return lifetime;
 	}
@@ -285,6 +320,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Maintenance
 	 */
+	@Column(name="dtMaintenance", nullable=false)
+	@Access(AccessType.FIELD)
 	public double getMaintenance() {
 		return maintenance;
 	}
@@ -309,6 +346,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Cost of the Measure
 	 */
+	@Column(name="dtCost", nullable=false)
+	@Access(AccessType.FIELD)
 	public double getCost() {
 		return cost;
 	}
@@ -333,6 +372,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Measure Comment
 	 */
+	@Column(name="dtComment", nullable=false, columnDefinition="LONGTEXT")
+	@Access(AccessType.FIELD)
 	public String getComment() {
 		return comment;
 	}
@@ -354,6 +395,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The "ToDo" Comment
 	 */
+	@Column(name="dtToDo", nullable=false, columnDefinition="LONGTEXT")
+	@Access(AccessType.FIELD)
 	public String getToDo() {
 		return toDo;
 	}
@@ -375,6 +418,9 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The value of the analysisNorm field
 	 */
+	@ManyToOne 
+	@JoinColumn(name="fiAnalysisNorm", nullable=false)
+	@Access(AccessType.FIELD)
 	public AnalysisNorm getAnalysisNorm() {
 		return analysisNorm;
 	}
@@ -396,6 +442,10 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The value of the measureDescription field
 	 */
+	@ManyToOne 
+	@JoinColumn(name="fiMeasureDescription", nullable=false)
+	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.ALL)
 	public MeasureDescription getMeasureDescription() {
 		return measureDescription;
 	}
@@ -575,6 +625,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The value of the internalMaintenance field
 	 */
+	@Column(name="dtInternalMaintenance", nullable=false)
+	@Access(AccessType.FIELD)
 	public double getInternalMaintenance() {
 		return internalMaintenance;
 	}
@@ -596,6 +648,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The value of the externalMaintenance field
 	 */
+	@Column(name="dtExternalMaintenance", nullable=false)
+	@Access(AccessType.FIELD)
 	public double getExternalMaintenance() {
 		return externalMaintenance;
 	}
@@ -617,6 +671,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The value of the recurrentInvestment field
 	 */
+	@Column(name="dtRecurrentInvestment", nullable=false)
+	@Access(AccessType.FIELD)
 	public double getRecurrentInvestment() {
 		return recurrentInvestment;
 	}

@@ -1,5 +1,22 @@
 package lu.itrust.business.TS.cssf;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.exception.TrickException;
@@ -17,40 +34,76 @@ import lu.itrust.business.exception.TrickException;
  * <li>Strategy</li>
  * </ul>
  * 
- * @author itrust consulting s.� r.l. - BJA, SME, EOM
+ * @author itrust consulting s.a r.l. - BJA, SME, EOM
  * @version 0.1
  * @since 2012-12-11
  */
+@Entity 
+@Table(name="RiskRegister")
 public class RiskRegisterItem {
 
+	/** Regular Expression for Strategy */
+	@Transient
+	public static final String ACCEPT_SHRINK = "Accept|Shrink";
+	
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
 
-	/** Regular Expression for Strategy */
-	public static final String ACCEPT_SHRINK = "Accept|Shrink";
-
+	/** Identifier */
+	@Id @GeneratedValue 
+	@Column(name="idRiskRegisterItem")
+	private int id = -1;
+	
 	/** Scenario Object */
+	@ManyToOne 
+	@JoinColumn(name="fiScenario", nullable=false)
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
 	private Scenario scenario = null;
 
+	@ManyToOne 
+	@JoinColumn(name="fiAsset", nullable=false)
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
 	private Asset asset = null;
 
-	/** Identifier */
-	private int id = -1;
-
 	/** Position in the RiskRegister */
+	@Column(name="dtOrder", nullable=false)
 	private int position = 0;
 
+	/** The Expected Evaluation Data (Probability, Impact and Importance) */
+	@Embedded
+	@AttributeOverrides({ 
+		@AttributeOverride(name = "impact", column = @Column(name = "dtNetEvaluationImpact", nullable=false)),
+		@AttributeOverride(name = "probability", column = @Column(name = "dtNetEvaluationProbability", nullable=false)),
+		@AttributeOverride(name = "importance", column = @Column(name = "dtNetEvaluationImportance", nullable=false)) 
+	})
+	@Access(AccessType.FIELD)
+	private EvaluationResult netEvaluation = null;
+	
 	/** The Raw Evaluation Data (Probability, Impact and Importance) */
+	@Embedded
+	@AttributeOverrides({ 
+		@AttributeOverride(name = "impact", column = @Column(name = "dtRawEvaluationImpact", nullable=false)),
+		@AttributeOverride(name = "probability", column = @Column(name = "dtRawEvaluationProbability", nullable=false)),
+		@AttributeOverride(name = "importance", column = @Column(name = "dtRawEvaluationImportance", nullable=false)) 
+	})
+	@Access(AccessType.FIELD)
 	private EvaluationResult rawEvaluation = null;
 
 	/** The Net Evaluation Data (Probability, Impact and Importance) */
+	@Embedded
+	@AttributeOverrides({ 
+		@AttributeOverride(name = "impact", column = @Column(name = "dtExpEvaluationImpact", nullable=false)),
+		@AttributeOverride(name = "probability", column = @Column(name = "dtExpEvaluationProbability", nullable=false)),
+		@AttributeOverride(name = "importance", column = @Column(name = "dtExpEvaluationImportance", nullable=false)) 
+	})
+	@Access(AccessType.FIELD)
 	private EvaluationResult expectedImportance = null;
 
-	/** The Expected Evaluation Data (Probability, Impact and Importance) */
-	private EvaluationResult netEvaluation = null;
-
 	/** Strategy */
+	@Column(name="dtResponseStrategy", nullable=false)
 	private String strategy = "Shrink";
 
 	/***********************************************************************************************

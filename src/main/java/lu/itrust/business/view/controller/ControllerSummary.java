@@ -191,7 +191,7 @@ public class ControllerSummary {
 			Hibernate.initialize(stage);
 			for(SummaryStandardConformance conformance : stage.getConformances()) {
 				Hibernate.initialize(conformance);
-				Hibernate.initialize(conformance.getNorm());
+				Hibernate.initialize(conformance.getAnalysisNorm().getNorm());
 			}
 		}
 			

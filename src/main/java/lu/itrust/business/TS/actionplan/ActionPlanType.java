@@ -1,13 +1,23 @@
 package lu.itrust.business.TS.actionplan;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
 /**
  * ActionPlanType: <br>
  * Represents the actionplan type by name.
  * 
- * @author itrust consulting s.�.rl. : EOM, BJA, SME
+ * @author itrust consulting s.a.rl. : EOM, BJA, SME
  * @version 0.1
  * @since 28 janv. 2013
  */
+@Entity 
 public class ActionPlanType {
 
 	/***********************************************************************************************
@@ -15,9 +25,14 @@ public class ActionPlanType {
 	 **********************************************************************************************/
 
 	/** actionplantype id */
+	@Id 
+	@Column(name="idActionPlanType")
 	private int id = -1;
 
 	/** ActionplanType name */
+	@Enumerated(EnumType.STRING) 
+	@Column(name="dtLabel", nullable=false, unique=true)
+	@Access(AccessType.FIELD)
 	private ActionPlanMode name;
 
 	/***********************************************************************************************

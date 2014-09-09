@@ -3,6 +3,19 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.sql.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -13,6 +26,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity 
+@Table(uniqueConstraints=@UniqueConstraint(columnNames = { "fiAnalysis","dtNumber" }))
 public class Phase implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -20,21 +35,29 @@ public class Phase implements Serializable, Cloneable {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** phase identifier, unsaved value = -1 */
+	@Id @GeneratedValue 
+	@Column(name="idPhase")
 	private int id = -1;
 
 	/** Analysis Object */
+	@ManyToOne 
+	@JoinColumn(name="fiAnalysis", nullable=false)
 	private Analysis analysis = null;
 
 	/** The Phase Number */
+	@Column(name="dtNumber", nullable=false)
 	private int number;
 
 	/** The Begin Date of the Phase */
+	@Column(name="dtBeginDate")
 	private Date beginDate;
 
 	/** The End Date of the Phase */
+	@Column(name="dtEndDate")
 	private Date endDate;
 
 	/***********************************************************************************************

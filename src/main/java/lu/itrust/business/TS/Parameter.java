@@ -2,6 +2,20 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.AttributeOverride;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
+
 /**
  * Parameter: <br>
  * This class represents a Parameter and its data.
@@ -10,9 +24,12 @@ import java.io.Serializable;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity
+@Inheritance(strategy=InheritanceType.JOINED)
 public class Parameter implements Serializable, Cloneable {
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/***********************************************************************************************
@@ -20,15 +37,24 @@ public class Parameter implements Serializable, Cloneable {
 	 **********************************************************************************************/
 
 	/** id unsaved value = -1 */
+	@Id @GeneratedValue 
+	@Column(name="idParameter")
 	private int id = -1;
 
 	/** The Parameter Description */
+	@Column(name="dtLabel", nullable=false)
+	@Access(AccessType.FIELD)
 	private String description = "";
 
 	/** The Parameter Value */
+	@Column(name="dtValue", nullable=false)
+	@Access(AccessType.FIELD)
 	private double value = 0;
 
 	/** The Parameter Type */
+	@ManyToOne
+	@Access(AccessType.FIELD)
+	@JoinColumn(name="fiParameterType", nullable=false)
 	private ParameterType type = null;
 
 	/***********************************************************************************************

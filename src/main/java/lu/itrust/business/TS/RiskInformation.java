@@ -1,5 +1,12 @@
 package lu.itrust.business.TS;
 
+import javax.annotation.Generated;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -11,37 +18,48 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-public class RiskInformation implements Cloneable {
+@Entity public class RiskInformation implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** Risk Information id */
+	@Id @GeneratedValue 
+	@Column(name="idRiskInformation")
 	private int id = -1;
 
 	/** editable */
+	//@Column(name="dtEditable")
+	@Transient
 	private boolean editable;
 	
 	/** The Risk Information Label */
+	@Column(name="dtLabel", nullable=false)
 	private String label;
 
 	/** The Risk Information Exposed Value */
+	@Column(name="dtExposed", nullable=false)
 	private String exposed;
 
 	/** The Risk Information Comment */
+	@Column(name="dtComment", nullable=false, columnDefinition="LONGTEXT")
 	private String comment;
 
 	/** The Risk Information Hidden Comment */
+	@Column(name="dtHiddenComment", nullable=false, columnDefinition="LONGTEXT")
 	private String hiddenComment;
 
 	/** The Risk Information Category */
+	@Column(name="dtCategory", nullable=false)
 	private String category;
 
 	/** The Risk Information Chapter */
+	@Column(name="dtChapter", nullable=false)
 	private String chapter;
 
 	/** The Risk Information Acronym */
+	@Column(name="dtAcronym", nullable=false, length=15)
 	private String acronym;
 
 	/***********************************************************************************************

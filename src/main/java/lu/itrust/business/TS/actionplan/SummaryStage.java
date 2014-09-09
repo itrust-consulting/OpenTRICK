@@ -3,6 +3,19 @@ package lu.itrust.business.TS.actionplan;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.exception.TrickException;
@@ -11,75 +24,106 @@ import lu.itrust.business.exception.TrickException;
  * SummaryStage: <br>
  * Has all data for a single stage (phase of summary)
  * 
- * @author itrust consulting s.� r.l. - SME,BJA
+ * @author itrust consulting s.a r.l. - SME,BJA
  * @version 0.1
  * @since 2012-10-09
  */
+@Entity
+@Table(name="ActionPlanSummary")
 public class SummaryStage {
 
+	/** Regular exptression of Phase Names */
+	public static final String STAGE_REGEX = "Start\\(P0\\)|Phase [1-9]\\d*|Anticipated|All Measures";
+	
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** ID of Stage */
+	@Id @GeneratedValue 
+	@Column(name="idActionPlanSummary")
 	private int id = -1;
 
 	/** id unsaved value = null */
+	@ManyToOne 
+	@JoinColumn(name="fiAnalysis", nullable=false)
 	private Analysis analysis = null;
 
+	@ManyToOne 
+	@JoinColumn(name="fiActionPlanType", nullable=false)
 	private ActionPlanType actionPlanType = null;
 
 	/** Name or Identifier of the Stage */
+	@Column(name="dtName", nullable=false)
 	private String stage = "";
 
+	@OneToMany
+	@JoinColumn(name="fiActionPlanSummary", nullable=false)
+	@Cascade(CascadeType.ALL)
 	private List<SummaryStandardConformance> conformances = new ArrayList<SummaryStandardConformance>();
 	
 	/** Percentage of AnalysisNorm 27001 Conformance for this Stage */
+	@Column(name="dt27001Conformance", nullable=false)
 	private double conformance27001 = 0;
 
 	/** Percentage of AnalysisNorm 27002 Conformance for this Stage */
+	@Column(name="dt27002Conformance", nullable=false)
 	private double conformance27002 = 0;
 
 	/** Number of Measures in this Stage */
+	@Column(name="dtMeasureCount", nullable=false)
 	private int measureCount = 0;
 
 	/** Number of Implemented Measures in this Stage */
+	@Column(name="dtImplementedMeasureCount", nullable=false)
 	private int implementedMeasuresCount = 0;
 
 	/** Total ALE for this Stage */
+	@Column(name="dtCurrentTotalALE", nullable=false)
 	private double totalALE = 0;
-
+		
 	/** Delta ALE for this Stage (calculate sum of deltaALE from actionplan entries) */
+	@Column(name="dtCurrentDeltaALE", nullable=false)
 	private double deltaALE = 0;
-
+	
 	/** Cost of Measures for this Stage (calculate sum of cost from measures in actionplan) */
+	@Column(name="dtCurrentCostOfMeasures", nullable=false)
 	private double costOfMeasures = 0;
-
+	
 	/** ROSI for this Stage (take last actionplan entry's ROSI value) */
+	@Column(name="dtROSI", nullable=false)
 	private double ROSI = 0;
 
 	/** ROSI / Cost Of Measures */
+	@Column(name="dtRelativeROSI", nullable=false)
 	private double relativeROSI = 0;
 
 	/** Sum of Internal Workloads taken from Action Plan Entries */
+	@Column(name="dtTotalInternalWorkLoad", nullable=false)
 	private double internalWorkload = 0;
 
 	/** Sum of External Workloads taken from Action Plan Entries */
+	@Column(name="dtTotalExternalWorkLoad", nullable=false)
 	private double externalWorkload = 0;
 
 	/** Sum of Investments taken from Action Plan Entries */
+	@Column(name="dtInvestment", nullable=false)
 	private double investment = 0;
 
 	/** Sum of ((InternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
+	@Column(name="dtTotalInternalMaintenance", nullable=false)
 	private double internalMaintenance = 0;
 
 	/** Sum of ((ExternalWorkload * Maintenance) / 100) taken from Action Plan Entries */
+	@Column(name="dtTotalExternalMaintenance", nullable=false)
 	private double externalMaintenance = 0;
 
 	/** Sum of recurrent Investment */
+	@Column(name="dtRecurrentInvestment", nullable=false)
 	private double recurrentInvestment = 0;
 
 	/** Sum of ((Investments * Maintenance) / 100) taken from Action Plan Entries */
+	@Column(name="dtRecurrentCost", nullable=false)
 	private double recurrentCost = 0;
 
 	/**
@@ -88,11 +132,10 @@ public class SummaryStage {
 	 * (((ExternalWorkload * Maintenance) / 100) * ExternalSetupRate) + ((Investments * Maintenance)
 	 * / 100)
 	 **/
+	@Column(name="dtTotalCost", nullable=false)
 	private double totalCostofStage;
 
-	/** Regular exptression of Phase Names */
-	public static final String STAGE_REGEX = "Start\\(P0\\)|Phase [1-9]\\d*|Anticipated|All Measures";
-
+	
 	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/
@@ -157,7 +200,7 @@ public class SummaryStage {
 
 	public Double getSingleConformance(String label) {
 		for(SummaryStandardConformance conformance : this.conformances)
-			if(conformance.getNorm().getLabel().equals(label))
+			if(conformance.getAnalysisNorm().getNorm().getLabel().equals(label))
 				return conformance.getConformance();
 		return null;
 	}
@@ -214,7 +257,7 @@ public class SummaryStage {
 	 * @param conformance
 	 */
 	public void addConformance(AnalysisNorm analysisNorm, double conformance) {
-		this.conformances.add(new SummaryStandardConformance(analysisNorm.getNorm(),conformance));
+		this.conformances.add(new SummaryStandardConformance(analysisNorm,conformance));
 	}
 	
 	/**

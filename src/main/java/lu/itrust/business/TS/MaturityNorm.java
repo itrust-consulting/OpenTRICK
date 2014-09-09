@@ -2,6 +2,11 @@ package lu.itrust.business.TS;
 
 import java.util.List;
 
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
+
 import lu.itrust.business.exception.TrickException;
 
 import org.hibernate.proxy.HibernateProxy;
@@ -14,6 +19,8 @@ import org.hibernate.proxy.HibernateProxy;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity
+@DiscriminatorValue("MaturityNorm")
 public class MaturityNorm extends AnalysisNorm implements Cloneable {
 
 	/***********************************************************************************************
@@ -21,6 +28,7 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/***********************************************************************************************

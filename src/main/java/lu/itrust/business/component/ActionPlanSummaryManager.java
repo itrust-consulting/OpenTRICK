@@ -59,7 +59,7 @@ public class ActionPlanSummaryManager {
 		rows.add(LABEL_PHASE_BEGIN_DATE);
 		rows.add(LABEL_PHASE_END_DATE);
 		for(SummaryStandardConformance conformance : conformances)
-			rows.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getNorm().getLabel());
+			rows.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisNorm().getNorm().getLabel());
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
 		rows.add(LABEL_PROFITABILITY);
@@ -116,6 +116,8 @@ public class ActionPlanSummaryManager {
 	}
 
 	public static Map<String, List<String>> buildTable(List<SummaryStage> summaryStages, List<Phase> phases) {
+		if(summaryStages.isEmpty())
+			return null;
 		List<String> firstRows = buildFirstRow(summaryStages.get(0).getConformances());
 
 		Map<String, List<String>> summaries = new LinkedHashMap<String, List<String>>(firstRows.size());
@@ -164,7 +166,7 @@ public class ActionPlanSummaryManager {
 
 			for(SummaryStandardConformance conformance : summaryStage.getConformances()) {
 			
-				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getNorm().getLabel());
+				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisNorm().getNorm().getLabel());
 				summary.add(index, (int) (conformance.getConformance() * 100) + "");
 			
 			}

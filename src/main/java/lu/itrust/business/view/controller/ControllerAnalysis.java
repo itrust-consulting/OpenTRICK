@@ -293,6 +293,7 @@ public class ControllerAnalysis {
 				analysis.setAssets(serviceAsset.getAllFromAnalysis(selected));
 				analysis.setScenarios(serviceScenario.getAllFromAnalysis(selected));
 				analysis.setItemInformations(serviceItemInformation.getAllFromAnalysis(selected));
+
 				Hibernate.initialize(analysis.getLanguage());
 				model.addAttribute("login", principal.getName());
 				model.addAttribute("language", analysis.getLanguage().getAlpha3());
