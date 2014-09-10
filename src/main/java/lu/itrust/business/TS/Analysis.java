@@ -20,6 +20,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -35,10 +36,6 @@ import lu.itrust.business.exception.TrickException;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.OrderBy;
-import org.springframework.context.annotation.Lazy;
 
 /**
  * Analysis: <br>
@@ -159,7 +156,7 @@ public class Analysis implements Serializable, Cloneable {
 	@JoinColumn(name="fiAnalysis", nullable=false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	@OrderBy(clause = "value DESC, ALE DESC, name ASC")
+	@OrderBy("value DESC, ALE DESC, name ASC")
 	private List<Asset> assets = new ArrayList<Asset>();
 
 	/** List of Risk Information */
@@ -174,7 +171,7 @@ public class Analysis implements Serializable, Cloneable {
 	@JoinColumn(name="fiAnalysis", nullable=false)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
-	@OrderBy(clause = "fiScenarioType, dtName")
+	@OrderBy("scenarioType.id, name")
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
 
 	/** List of Assessment */
@@ -186,13 +183,13 @@ public class Analysis implements Serializable, Cloneable {
 
 	/** List of Norms */
 	@OneToMany(mappedBy="analysis") 
-	@OrderBy(clause = "fiNorm")
+	@OrderBy("norm")
 	@Cascade(CascadeType.ALL)
 	private List<AnalysisNorm> analysisNorms = new ArrayList<AnalysisNorm>();
 
 	/** List of Phases that is used for Action Plan Computation */
 	@OneToMany(mappedBy="analysis")
-	@OrderBy(clause = "dtNumber")
+	@OrderBy("number")
 	@Cascade(CascadeType.ALL)
 	private List<Phase> usedPhases = new ArrayList<Phase>();
 

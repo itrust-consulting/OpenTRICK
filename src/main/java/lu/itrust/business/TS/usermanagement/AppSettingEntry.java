@@ -28,7 +28,7 @@ public class AppSettingEntry {
 
 	@Id @GeneratedValue 
 	@Column(name="idAppSettingEntry")
-	private long id = -1;
+	private int id = -1;
 
 	@Column(name="dtGroup")
 	private String group;
@@ -65,7 +65,7 @@ public class AppSettingEntry {
 	 * 
 	 * @return
 	 */
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -75,7 +75,7 @@ public class AppSettingEntry {
 	 * 
 	 * @param id
 	 */
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 

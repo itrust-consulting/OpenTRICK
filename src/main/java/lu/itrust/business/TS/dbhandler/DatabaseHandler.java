@@ -9,9 +9,6 @@ import java.sql.Savepoint;
 import java.util.List;
 import java.util.Vector;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.tsconstant.Constant;
 

@@ -2,7 +2,6 @@ package lu.itrust.business.TS;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 import lu.itrust.business.TS.tsconstant.Constant;

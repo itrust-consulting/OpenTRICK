@@ -2,7 +2,6 @@ package lu.itrust.business.TS;
 
 import java.util.List;
 
-import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;

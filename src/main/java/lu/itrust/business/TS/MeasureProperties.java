@@ -1,14 +1,10 @@
 package lu.itrust.business.TS;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 
 import lu.itrust.business.exception.TrickException;
-
-import org.jboss.logging.Field;
 
 /**
  * MeasureProperties: <br>

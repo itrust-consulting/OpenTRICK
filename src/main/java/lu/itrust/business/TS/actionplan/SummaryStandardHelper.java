@@ -3,7 +3,6 @@ package lu.itrust.business.TS.actionplan;
 import java.util.ArrayList;
 import java.util.List;
 
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.Measure;
 

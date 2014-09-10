@@ -32,7 +32,7 @@ public class AppSettings {
 	/** id */
 	@Id @GeneratedValue
 	@Column(name="idAppSettings")
-	private long id = -1;
+	private int id = -1;
 	
 	/** user object */
 	@ManyToOne
@@ -176,7 +176,7 @@ public class AppSettings {
 	 * 
 	 * @return
 	 */
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -186,7 +186,7 @@ public class AppSettings {
 	 * 
 	 * @param id
 	 */
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 }
