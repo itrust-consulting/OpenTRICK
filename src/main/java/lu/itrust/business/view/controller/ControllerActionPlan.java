@@ -188,7 +188,7 @@ public class ControllerActionPlan {
 		}
 		model.put("id", analysisID);
 
-		model.put("norms", serviceAnalysisNorm.getAllFromAnalysis(analysisID));
+		model.put("norms", serviceAnalysisNorm.getAllComputableFromAnalysis(analysisID));
 
 		return "analysis/components/forms/actionplanoptions";
 	}

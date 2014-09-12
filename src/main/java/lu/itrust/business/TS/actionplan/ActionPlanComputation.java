@@ -149,7 +149,7 @@ public class ActionPlanComputation {
 		// determine norm 27002
 		for (AnalysisNorm anorm : this.analysis.getAnalysisNorms()) {
 
-			if (anorm.getNorm().getLabel().equals(Constant.NORM_27002)) {
+			if (anorm.getNorm().getLabel().equals(Constant.NORM_27002) && anorm.getNorm().isComputable()) {
 				tmp27002norm = anorm;
 				break;
 			}
@@ -162,7 +162,8 @@ public class ActionPlanComputation {
 			List<AnalysisNorm> tmpnorms = new ArrayList<AnalysisNorm>();
 
 			for (AnalysisNorm anorm : this.analysis.getAnalysisNorms()) {
-				tmpnorms.add(anorm);
+				if(anorm.getNorm().isComputable())
+					tmpnorms.add(anorm);
 			}
 
 			this.norms = tmpnorms;
@@ -174,7 +175,7 @@ public class ActionPlanComputation {
 		// if no: select 27002
 		for (AnalysisNorm norm : this.norms) {
 
-			if (norm.getNorm().getLabel().equals(Constant.NORM_MATURITY)) {
+			if (norm.getNorm().getLabel().equals(Constant.NORM_MATURITY) && norm.getNorm().isComputable()) {
 
 				this.maturitycomputation = true;
 

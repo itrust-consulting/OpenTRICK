@@ -21,6 +21,8 @@ public interface DAOAnalysisNorm {
 
 	public List<AnalysisNorm> getAllFromAnalysis(Integer analysisId) throws Exception;
 
+	public List<AnalysisNorm> getAllComputableFromAnalysis(Integer analysisId) throws Exception;
+	
 	public List<AnalysisNorm> getAllFromAnalysis(Analysis analysis) throws Exception;
 
 	public List<AnalysisNorm> getAllFromNorm(Norm norm) throws Exception;

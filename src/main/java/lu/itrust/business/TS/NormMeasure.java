@@ -177,7 +177,7 @@ public class NormMeasure extends Measure {
 	 * @see lu.itrust.business.TS.Measure#getImplementationRate()
 	 */
 	@Override
-	@Column(name="dtImplmentationRate", nullable=false)
+	@Column(name="dtImplementationRate", nullable=false)
 	@Access(AccessType.FIELD)
 	public Double getImplementationRate() {
 		return (Double) super.getImplementationRate();

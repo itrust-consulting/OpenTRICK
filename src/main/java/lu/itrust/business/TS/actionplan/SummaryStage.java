@@ -86,7 +86,7 @@ public class SummaryStage {
 	private double deltaALE = 0;
 	
 	/** Cost of Measures for this Stage (calculate sum of cost from measures in actionplan) */
-	@Column(name="dtCurrentCostOfMeasures", nullable=false)
+	@Column(name="dtCurrentCostMeasures", nullable=false)
 	private double costOfMeasures = 0;
 	
 	/** ROSI for this Stage (take last actionplan entry's ROSI value) */

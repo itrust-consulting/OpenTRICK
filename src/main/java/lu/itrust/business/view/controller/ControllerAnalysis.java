@@ -931,9 +931,7 @@ public class ControllerAnalysis {
 				phase.setBeginDate(new java.sql.Date(calendar.getTimeInMillis()));
 				calendar.add(Calendar.YEAR, 1);
 				phase.setEndDate(new java.sql.Date(calendar.getTimeInMillis()));
-				mappingPhases.put(Constant.PHASE_NOT_USABLE, new Phase(Constant.PHASE_NOT_USABLE));
 				mappingPhases.put(Constant.PHASE_DEFAULT, phase);
-				analysis.addUsedPhase(mappingPhases.get(Constant.PHASE_NOT_USABLE));
 				analysis.addUsedPhase(phase);
 			}
 

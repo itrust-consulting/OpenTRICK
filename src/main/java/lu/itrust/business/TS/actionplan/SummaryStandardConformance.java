@@ -30,7 +30,6 @@ public class SummaryStandardConformance {
 	
 	@ManyToOne 
 	@JoinColumn(name="fiAnalysisNorm", nullable=false)
-	@Cascade(CascadeType.SAVE_UPDATE)
 	private AnalysisNorm norm = null;
 	
 	@Column(name="dtConformance", nullable=false)

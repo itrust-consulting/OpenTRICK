@@ -74,6 +74,21 @@ public class ServiceAnalysisNormImpl implements ServiceAnalysisNorm {
 	 * getAllFromAnalysis: <br>
 	 * Description
 	 * 
+	 * @param analysisID
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.service.ServiceAnalysisNorm#getAllFromAnalysis(java.lang.Integer)
+	 */
+	@Override
+	public List<AnalysisNorm> getAllComputableFromAnalysis(Integer analysisID) throws Exception {
+		return this.daoAnalysisNorm.getAllComputableFromAnalysis(analysisID);
+	}
+	
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
 	 * @param analysis
 	 * @return
 	 * @throws Exception
