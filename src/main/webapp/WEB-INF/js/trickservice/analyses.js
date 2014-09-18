@@ -815,15 +815,7 @@ function analysisTableSortable() {
 
 	// check if datatable has to be initialised
 	var tables = $("#section_analysis table");
-	if (!tables.length) {
-		tables = $("#section_admin_analysis table");
-		if (!tables.length) {
-			tables = $("#section_profile_analysis table");
-			if (!tables.length)
-				return false;
-		}
-	}
-
+	
 	// define sort order of text
 	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
 

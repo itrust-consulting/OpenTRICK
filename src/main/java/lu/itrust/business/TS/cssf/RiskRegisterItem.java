@@ -58,13 +58,11 @@ public class RiskRegisterItem {
 	/** Scenario Object */
 	@ManyToOne 
 	@JoinColumn(name="fiScenario", nullable=false)
-	@Cascade(CascadeType.SAVE_UPDATE)
 	@Access(AccessType.FIELD)
 	private Scenario scenario = null;
 
-	@ManyToOne 
+	@ManyToOne
 	@JoinColumn(name="fiAsset", nullable=false)
-	@Cascade(CascadeType.SAVE_UPDATE)
 	@Access(AccessType.FIELD)
 	private Asset asset = null;
 

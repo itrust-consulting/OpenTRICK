@@ -2,6 +2,7 @@ package lu.itrust.business.component;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -253,12 +254,21 @@ public class Duplicator {
 			// duplicate the analysis
 			Analysis copy = analysis.duplicate();
 
+			Timestamp ts = new Timestamp(System.currentTimeMillis());
+			
+			SimpleDateFormat outDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			
+			String tsstring = outDateFormat.format(ts);
+			
+			tsstring = copy.getLanguage().getAlpha3() + "_" + tsstring;
+			
 			// set basic values
 			copy.setVersion("0.0.1");
 			copy.setBasedOnAnalysis(null);
-			copy.setIdentifier(analysisProfile.getName());
-			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
-			copy.setLabel(analysisProfile.getComment());
+			// language 3char code + creation date and time
+			copy.setIdentifier(tsstring);
+			copy.setCreationDate(ts);
+			copy.setLabel(analysisProfile.getName());
 			copy.setProfile(true);
 			copy.setData(false);
 

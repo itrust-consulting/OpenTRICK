@@ -58,11 +58,10 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 
 	/** AnalysisNorm List of measures */
 	@OneToMany(mappedBy="analysisNorm")
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<Measure> measures = new ArrayList<Measure>();
 
 	@ManyToOne
-	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name="fiAnalysis", nullable=false)
 	private Analysis analysis = null;
 

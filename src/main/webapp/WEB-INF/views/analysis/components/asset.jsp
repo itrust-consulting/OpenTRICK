@@ -82,7 +82,7 @@
 					</c:forEach>
 				</tbody>
 				<tfoot>
-					<tr>
+					<tr class="panel-footer" style="font-weight: bold;">
 						<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeTotalALE(assetALE)" var="ale" />
 						<td colspan="14"><spring:message code="label.total.ale" text="Total" /></td>
 						<c:choose>

@@ -107,7 +107,6 @@ public class Analysis implements Serializable, Cloneable {
 	/** Based on analysis */
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch=FetchType.EAGER)
-	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name="fiBasedOnAnalysis", nullable=true)
 	private Analysis basedOnAnalysis;
 
@@ -127,34 +126,33 @@ public class Analysis implements Serializable, Cloneable {
 	/** List of users and their access rights */
 	@OneToMany(mappedBy="analysis")
 	@Access(AccessType.FIELD)
-	@Cascade(CascadeType.ALL)
-	@NotNull
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
 
 	/** List of History data of the Analysis */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<History> histories = new ArrayList<History>();
 
 	/** List of Item Information */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
 
 	/** List of parameters */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<Parameter> parameters = new ArrayList<Parameter>();
 
 	/** List of assets */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	@OrderBy("value DESC, ALE DESC, name ASC")
 	private List<Asset> assets = new ArrayList<Asset>();
@@ -162,14 +160,14 @@ public class Analysis implements Serializable, Cloneable {
 	/** List of Risk Information */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<RiskInformation> riskInformations = new ArrayList<RiskInformation>();
 
 	/** List of Scenarios */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	@OrderBy("scenarioType.id, name")
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
@@ -177,40 +175,40 @@ public class Analysis implements Serializable, Cloneable {
 	/** List of Assessment */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<Assessment> assessments = new ArrayList<Assessment>();
 
 	/** List of Norms */
 	@OneToMany(mappedBy="analysis") 
 	@OrderBy("norm")
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<AnalysisNorm> analysisNorms = new ArrayList<AnalysisNorm>();
 
 	/** List of Phases that is used for Action Plan Computation */
 	@OneToMany(mappedBy="analysis")
 	@OrderBy("number")
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<Phase> usedPhases = new ArrayList<Phase>();
 
 	/** The Final Action Plan without Phase Computation - Normal */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	@javax.persistence.OrderBy("id, ROI")
 	private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
 
 	/** The Action Plan Summary without Phase Computation - Normal */
 	@OneToMany(mappedBy="analysis")
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
 
 	/** The Risk Register (CSSF) */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
 

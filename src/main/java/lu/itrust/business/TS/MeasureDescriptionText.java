@@ -38,13 +38,12 @@ public class MeasureDescriptionText implements Cloneable {
 	/** The Measure Description Reference (Reference to the measure) */
 	@ManyToOne 
 	@JoinColumn(name="fiMeasureDescription", nullable=false)
-	@Cascade(CascadeType.SAVE_UPDATE)
 	private MeasureDescription measureDescription = null;
 
 	/** The Language Object */
 	@ManyToOne 
 	@JoinColumn(name="fiLanguage", nullable=false)
-	@Cascade(CascadeType.SAVE_UPDATE)
+	@Cascade({CascadeType.SAVE_UPDATE})
 	private Language language = null;
 
 	/** The Domain Text */

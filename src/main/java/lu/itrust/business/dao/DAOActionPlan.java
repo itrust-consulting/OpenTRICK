@@ -44,4 +44,7 @@ public interface DAOActionPlan {
 	public void saveOrUpdate(ActionPlanEntry actionPlanEntry) throws Exception;
 
 	public void delete(ActionPlanEntry actionPlanEntry) throws Exception;
+	
+	public void deleteAllFromAnalysis(Integer analysisID) throws Exception;
+	
 }

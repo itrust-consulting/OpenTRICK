@@ -5,6 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Measure;
+import lu.itrust.business.TS.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.dao.DAOActionPlan;
@@ -214,5 +215,28 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	@Override
 	public void delete(ActionPlanEntry actionPlanEntry) throws Exception {
 		getSession().delete(actionPlanEntry);
+	}
+
+	/**
+	 * deleteAllFromAnalysis: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOActionPlan#deleteAllFromAnalysis(java.lang.Integer)
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
+		String query = "Select actionplans FROM Analysis analysis INNER JOIN analysis.actionPlans actionplans WHERE analysis.id= :analysisID";
+		 
+		List<ActionPlanEntry> actionplans = (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("analysisID", analysisID).list();
+		 for(ActionPlanEntry entry : actionplans) {
+			 List<ActionPlanAsset> assets = entry.getActionPlanAssets();
+			 for(ActionPlanAsset asset : assets)
+				 getSession().delete(asset);
+			 getSession().delete(entry);
+		 }
+		
 	}
 }

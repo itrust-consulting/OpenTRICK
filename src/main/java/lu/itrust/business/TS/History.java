@@ -47,10 +47,7 @@ public class History implements Serializable, Cloneable {
 	@Column(name="dtDateComment", nullable=false)
 	private Date date = null;
 
-	/**
-	 * The Name of the Author that created the History Entry (The Analysis at
-	 * this Version)
-	 */
+	/** The Name of the Author that created the History Entry (The Analysis at this Version) */
 	@Column(name="dtAuthor", nullable=false)
 	private String author = "";
 

@@ -19,7 +19,7 @@
 			</button>
 		</div>
 		<sec:authorize access="isAuthenticated()">
-			<a class="navbar-brand" href="#">TRICK SERVICE</a>
+			<a class="navbar-brand" style="color:#ffffff;font-weight:bold;" href="${pageContext.request.contextPath}/home">TRICK SERVICE</a>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
 					<li ${menu.equals("home")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/home"> <spring:message code="label.menu.home" text="Home" /></a></li>

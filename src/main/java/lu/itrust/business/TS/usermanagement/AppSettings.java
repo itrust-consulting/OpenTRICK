@@ -36,14 +36,13 @@ public class AppSettings {
 	
 	/** user object */
 	@ManyToOne
-	@JoinColumn(name="fiUser", unique=true)
-	@Cascade(CascadeType.SAVE_UPDATE)
+	@JoinColumn(name="fiUser", unique=true, nullable=false)
 	private User user;
 
 	/** list of settings for this user */
 	@OneToMany
-	@JoinColumn(name="fiAppSettings")
-	@Cascade(CascadeType.ALL)
+	@JoinColumn(name="fiAppSettings", nullable=false)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<AppSettingEntry> entries = new ArrayList<AppSettingEntry>();
 
 	/**

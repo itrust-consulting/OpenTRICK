@@ -38,6 +38,6 @@ public interface DAOAsset {
 	public void delete(Integer id) throws Exception;
 
 	public void delete(Asset asset) throws Exception;
-
+	
 	public boolean exist(Integer idAnalysis, String name);
 }

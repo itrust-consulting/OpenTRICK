@@ -27,20 +27,20 @@ import org.hibernate.annotations.CascadeType;
 public class AppSettingEntry {
 
 	@Id @GeneratedValue 
-	@Column(name="idAppSettingEntry")
+	@Column(name="idAppSettingEntry", nullable=false)
 	private int id = -1;
 
-	@Column(name="dtGroup")
+	@Column(name="dtGroup", nullable=false)
 	private String group;
 
-	@Column(name="dtName")
+	@Column(name="dtName", nullable=false)
 	private String name;
 	
 	@ElementCollection
-    @MapKeyColumn(name="idEntryKey")
-    @Column(name="dtEntryValue")
-    @CollectionTable(name="AppSettingEntryValues", joinColumns=@JoinColumn(name="idAppSettingEntry"))
-	@Cascade(CascadeType.ALL)
+    @MapKeyColumn(name="idEntryKey", nullable=false)
+    @Column(name="dtEntryValue", nullable=false)
+    @CollectionTable(name="AppSettingEntryValues", joinColumns=@JoinColumn(name="idAppSettingEntry", nullable=false))
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private Map<String, String> values = new LinkedHashMap<String, String>();
 
 	/**

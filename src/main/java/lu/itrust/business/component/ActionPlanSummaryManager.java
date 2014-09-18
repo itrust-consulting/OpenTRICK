@@ -23,7 +23,7 @@ import lu.itrust.business.TS.actionplan.SummaryStandardConformance;
 public class ActionPlanSummaryManager {
 
 	public static final String LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST = "label.resource.planning.total.phase.cost";
-	public static final String LABEL_RESOURCE_PLANNING_CURRENT_COST = "label.resource.planning.current.cost";
+	public static final String LABEL_RESOURCE_PLANNING_RECURRENT_COST = "label.resource.planning.recurrent.cost";
 	public static final String LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT = "label.resource.planning.recurrent.investment";
 	public static final String LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE = "label.resource.planning.external.maintenance";
 	public static final String LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE = "label.resource.planning.internal.maintenance";
@@ -33,11 +33,9 @@ public class ActionPlanSummaryManager {
 	public static final String LABEL_RESOURCE_PLANNING = "label.resource.planning";
 	public static final String LABEL_PROFITABILITY_ROSI_RELATIF = "label.profitability.rosi.relatif";
 	public static final String LABEL_PROFITABILITY_ROSI = "label.profitability.rosi";
-	public static final String LABEL_PROFITABILITY_PHASE_ANNUAL_COST = "label.profitability.phase.annual.cost";
 	public static final String LABEL_PROFITABILITY_RISK_REDUCTION = "label.profitability.risk.reduction";
 	public static final String LABEL_PROFITABILITY_ALE_UNTIL_END = "label.profitability.ale.until.end";
 	public static final String LABEL_PROFITABILITY = "label.profitability";
-	public static final String LABEL_COUNT_MEASURE_IMPLEMENTED = "label.count.measure.implemented";
 	public static final String LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED = "label.characteristic.count.measure.implemented";
 	public static final String LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE = "label.characteristic.count.measure.phase";
 	public static final String LABEL_CHARACTERISTIC_COMPLIANCE = "label.characteristic.compliance";
@@ -58,14 +56,13 @@ public class ActionPlanSummaryManager {
 		rows.add(LABEL_CHARACTERISTIC);
 		rows.add(LABEL_PHASE_BEGIN_DATE);
 		rows.add(LABEL_PHASE_END_DATE);
-		for(SummaryStandardConformance conformance : conformances)
+		for (SummaryStandardConformance conformance : conformances)
 			rows.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisNorm().getNorm().getLabel());
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
 		rows.add(LABEL_PROFITABILITY);
 		rows.add(LABEL_PROFITABILITY_ALE_UNTIL_END);
 		rows.add(LABEL_PROFITABILITY_RISK_REDUCTION);
-		rows.add(LABEL_PROFITABILITY_PHASE_ANNUAL_COST);
 		rows.add(LABEL_PROFITABILITY_ROSI);
 		rows.add(LABEL_PROFITABILITY_ROSI_RELATIF);
 		rows.add(LABEL_RESOURCE_PLANNING);
@@ -75,28 +72,28 @@ public class ActionPlanSummaryManager {
 		rows.add(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
 		rows.add(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
 		rows.add(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
-		rows.add(LABEL_RESOURCE_PLANNING_CURRENT_COST);
+		rows.add(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
 		rows.add(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
 		return rows;
 	}
 
-	public static Map<String, Phase> buildPhase(List<Phase> phases,List<String> extractedPhases) {
+	public static Map<String, Phase> buildPhase(List<Phase> phases, List<String> extractedPhases) {
 		Map<String, Phase> phaseStages = new LinkedHashMap<String, Phase>();
-		
+
 		Phase tmpphase = new Phase(0);
-		
+
 		phaseStages.put("Start(P0)", tmpphase);
-		
+
 		for (Phase phase : phases) {
 			Hibernate.initialize(phase);
-			String stage = "Phase " + phase.getNumber();				
-			if(extractedPhases.contains(stage))
+			String stage = "Phase " + phase.getNumber();
+			if (extractedPhases.contains(stage))
 				phaseStages.put(stage, phase);
 		}
 		return phaseStages;
 	}
 
-	private static Map<ActionPlanType, List<SummaryStage>> SplitByActionPlanType (List<SummaryStage> summaryStages) {
+	private static Map<ActionPlanType, List<SummaryStage>> SplitByActionPlanType(List<SummaryStage> summaryStages) {
 		Map<ActionPlanType, List<SummaryStage>> actionPlanTypes = new LinkedHashMap<ActionPlanType, List<SummaryStage>>();
 		for (SummaryStage summaryStage : summaryStages) {
 			List<SummaryStage> stages = actionPlanTypes.get(summaryStage.getActionPlanType());
@@ -106,17 +103,17 @@ public class ActionPlanSummaryManager {
 		}
 		return actionPlanTypes;
 	}
-	
-	public static Map<ActionPlanType, Map<String, List<String>>> buildTables(List<SummaryStage> summaryStages, List<Phase> phases){
+
+	public static Map<ActionPlanType, Map<String, List<String>>> buildTables(List<SummaryStage> summaryStages, List<Phase> phases) {
 		Map<ActionPlanType, List<SummaryStage>> summariesByActionPlanType = SplitByActionPlanType(summaryStages);
-		Map<ActionPlanType, Map<String, List<String>>> summaries = new LinkedHashMap<ActionPlanType, Map<String,List<String>>>(summariesByActionPlanType.size());
+		Map<ActionPlanType, Map<String, List<String>>> summaries = new LinkedHashMap<ActionPlanType, Map<String, List<String>>>(summariesByActionPlanType.size());
 		for (ActionPlanType actionPlanType : summariesByActionPlanType.keySet())
 			summaries.put(actionPlanType, buildTable(summariesByActionPlanType.get(actionPlanType), phases));
 		return summaries;
 	}
 
 	public static Map<String, List<String>> buildTable(List<SummaryStage> summaryStages, List<Phase> phases) {
-		if(summaryStages.isEmpty())
+		if (summaryStages.isEmpty())
 			return null;
 		List<String> firstRows = buildFirstRow(summaryStages.get(0).getConformances());
 
@@ -136,7 +133,7 @@ public class ActionPlanSummaryManager {
 			}
 			if (rows.isEmpty() && LABEL_CHARACTERISTIC.equals(string))
 				rows.addAll(rowHeaders);
-			
+
 		}
 
 		List<String> summary = null;
@@ -164,11 +161,11 @@ public class ActionPlanSummaryManager {
 				}
 			}
 
-			for(SummaryStandardConformance conformance : summaryStage.getConformances()) {
-			
+			for (SummaryStandardConformance conformance : summaryStage.getConformances()) {
+
 				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisNorm().getNorm().getLabel());
 				summary.add(index, (int) (conformance.getConformance() * 100) + "");
-			
+
 			}
 
 			summary = summaries.get(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
@@ -182,9 +179,6 @@ public class ActionPlanSummaryManager {
 
 			summary = summaries.get(LABEL_PROFITABILITY_RISK_REDUCTION);
 			summary.add(index, Math.floor(summaryStage.getDeltaALE() * 0.001) + "");
-
-			summary = summaries.get(LABEL_PROFITABILITY_PHASE_ANNUAL_COST);
-			summary.add(index, Math.floor(summaryStage.getCostOfMeasures() * 0.001) + "");
 
 			summary = summaries.get(LABEL_PROFITABILITY_ROSI);
 			summary.add(index, Math.floor(summaryStage.getROSI() * 0.001) + "");
@@ -200,7 +194,7 @@ public class ActionPlanSummaryManager {
 
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_INVESTMENT);
 			summary.add(index, Math.floor(summaryStage.getInvestment() * 0.001) + "");
-			
+
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
 			summary.add(index, Math.floor(summaryStage.getInternalMaintenance()) + "");
 
@@ -209,8 +203,8 @@ public class ActionPlanSummaryManager {
 
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
 			summary.add(index, Math.floor(summaryStage.getRecurrentInvestment() * 0.001) + "");
-			
-			summary = summaries.get(LABEL_RESOURCE_PLANNING_CURRENT_COST);
+
+			summary = summaries.get(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
 			summary.add(index, Math.floor(summaryStage.getRecurrentCost() * 0.001) + "");
 
 			summary = summaries.get(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
@@ -218,4 +212,152 @@ public class ActionPlanSummaryManager {
 		}
 		return summaries;
 	}
+
+	public static Map<ActionPlanType, Map<String, Map<Integer, Object>>> getRows(List<SummaryStage> summaryStages, List<Phase> phases) {
+
+		Map<ActionPlanType, Map<String, Map<Integer, Object>>> result = new LinkedHashMap<ActionPlanType, Map<String, Map<Integer, Object>>>();
+
+		Map<ActionPlanType, List<SummaryStage>> summariesByActionPlanType = SplitByActionPlanType(summaryStages);
+
+		for (ActionPlanType apt : summariesByActionPlanType.keySet()) {
+
+			result.put(apt, generateRowsForActionPlanType(summariesByActionPlanType.get(apt), phases));
+
+		}
+
+		return result;
+	}
+
+	private static Map<String, Map<Integer, Object>> generateRowsForActionPlanType(List<SummaryStage> summaryStages, List<Phase> phases) {
+
+		Map<String, Map<Integer, Object>> rowdata = new LinkedHashMap<String, Map<Integer, Object>>();
+
+		SummaryStage stage = getStageFromPhase(0, summaryStages);
+
+		List<String> datas = generateDataList(stage.getConformances());
+
+		int colnumber = 0;
+		
+		for (String data : datas)
+			setValue(data, rowdata, stage, null, colnumber);
+
+		colnumber++;
+		
+		for (Phase phase : phases) {
+			
+			stage = getStageFromPhase(phase.getNumber(), summaryStages);
+			
+			for (String data : datas){
+				
+				if(stage != null)
+					setValue(data, rowdata, stage, phase, colnumber);
+			}
+			
+			colnumber++;
+
+		}
+		
+		return rowdata;
+	}
+
+	public static List<String> generateDataList(List<SummaryStandardConformance> conformances) {
+		List<String> result = new ArrayList<String>();
+
+		result.add(LABEL_CHARACTERISTIC);
+		result.add(LABEL_PHASE_BEGIN_DATE);
+		result.add(LABEL_PHASE_END_DATE);
+		for (SummaryStandardConformance conformance : conformances)
+			result.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisNorm().getNorm().getLabel());
+		result.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
+		result.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
+		result.add(LABEL_PROFITABILITY);
+		result.add(LABEL_PROFITABILITY_ALE_UNTIL_END);
+		result.add(LABEL_PROFITABILITY_RISK_REDUCTION);
+		result.add(LABEL_PROFITABILITY_ROSI);
+		result.add(LABEL_PROFITABILITY_ROSI_RELATIF);
+		result.add(LABEL_RESOURCE_PLANNING);
+		result.add(LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD);
+		result.add(LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD);
+		result.add(LABEL_RESOURCE_PLANNING_INVESTMENT);
+		result.add(LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
+		result.add(LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
+		result.add(LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT);
+		result.add(LABEL_RESOURCE_PLANNING_RECURRENT_COST);
+		result.add(LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
+		return result;
+	}
+
+	private static SummaryStage getStageFromPhase(Integer phasenumber, List<SummaryStage> stages) {
+
+		for (SummaryStage stage : stages) {
+			if (phasenumber == 0) {
+				if (stage.getStage().equals("Start(P0)"))
+					return stage;
+			} else {
+				if (stage.getStage().equals("Phase " + String.valueOf(phasenumber)))
+					return stage;
+			}
+		}
+
+		return null;
+	}
+
+	private static void setValue(String data, Map<String, Map<Integer, Object>> values, SummaryStage stage, Phase phase, Integer colnumber) {
+
+		Map<Integer, Object> value = null;
+
+		if (values.get(data) == null)
+			values.put(data, value = new LinkedHashMap<Integer, Object>());
+		else
+			value = values.get(data);
+
+		if(data.startsWith(LABEL_CHARACTERISTIC_COMPLIANCE)) {
+
+			for (SummaryStandardConformance conformance : stage.getConformances())
+				if(data.equals(LABEL_CHARACTERISTIC_COMPLIANCE+conformance.getAnalysisNorm().getNorm().getLabel()))
+					value.put(colnumber, conformance.getConformance());
+			return;
+		}
+		
+		switch (data) {
+			case LABEL_CHARACTERISTIC:
+				value.put(colnumber, stage.getStage());
+				break;
+			case LABEL_PHASE_BEGIN_DATE: {
+				if (phase == null)
+					value.put(colnumber, null);
+				else
+					value.put(colnumber, phase.getBeginDate());
+				break;
+			}
+			case LABEL_PHASE_END_DATE: {
+				if (phase == null)
+					value.put(colnumber, null);
+				else
+					value.put(colnumber, phase.getEndDate());
+				break;
+			}
+
+			case LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE:value.put(colnumber, stage.getMeasureCount());break;
+			case LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED:value.put(colnumber, stage.getImplementedMeasuresCount());break;
+			case LABEL_PROFITABILITY:value.put(colnumber, null);break;
+			case LABEL_PROFITABILITY_ALE_UNTIL_END:value.put(colnumber, stage.getTotalALE());break;
+			case LABEL_PROFITABILITY_RISK_REDUCTION:value.put(colnumber, stage.getDeltaALE());break;
+			case LABEL_PROFITABILITY_ROSI:value.put(colnumber, stage.getROSI());break;
+			case LABEL_PROFITABILITY_ROSI_RELATIF:value.put(colnumber, stage.getRelativeROSI());break;
+			case LABEL_RESOURCE_PLANNING:value.put(colnumber, null);break;
+			case LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD:value.put(colnumber, stage.getInternalWorkload());break;
+			case LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD:value.put(colnumber, stage.getExternalWorkload());break;
+			case LABEL_RESOURCE_PLANNING_INVESTMENT:value.put(colnumber, stage.getInvestment());break;
+			case LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE:value.put(colnumber, stage.getInternalMaintenance());break;
+			case LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE:value.put(colnumber, stage.getExternalMaintenance());break;
+			case LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT:value.put(colnumber, stage.getRecurrentInvestment());break;
+			case LABEL_RESOURCE_PLANNING_RECURRENT_COST:value.put(colnumber, stage.getRecurrentCost());break;
+			case LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST:value.put(colnumber, stage.getTotalCostofStage());break;
+		}
+
+		
+
+	}
+
 }

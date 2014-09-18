@@ -42,6 +42,10 @@ public class ItemInformation implements Cloneable {
 	@Column(name="dtType", nullable=false)
 	private String type = "";
 
+	/**
+	 * Constructor: <br>
+	 *
+	 */
 	public ItemInformation() {
 	}
 

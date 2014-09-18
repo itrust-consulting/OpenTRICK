@@ -220,4 +220,18 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	public void delete(ActionPlanEntry actionPlanEntry) throws Exception {
 		daoActionPlan.delete(actionPlanEntry);
 	}
+
+	/**
+	 * deleteAllFromAnalysis: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceActionPlan#deleteAllFromAnalysis(java.lang.Integer)
+	 */
+	@Transactional
+	@Override
+	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
+		daoActionPlan.deleteAllFromAnalysis(analysisID);
+	}
 }

@@ -1,6 +1,8 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -22,6 +24,7 @@ import lu.itrust.business.service.ServiceUser;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -64,6 +67,9 @@ public class ControllerIntstallation {
 		return "redirect:/RemoveDefaultProfile";
 	}
 
+	@Value("${app.settings.version}")
+	private String version;
+	
 	@RequestMapping("/InstallTS")
 	public @ResponseBody
 	Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request,Locale locale) throws Exception {
@@ -83,7 +89,7 @@ public class ControllerIntstallation {
 
 		installDefaultProfile(fileName, principal, errors, locale);
 
-		status.setVersion(Constant.TRICKSERVICE_VERSION);
+		status.setVersion(version);
 		
 		serviceTrickService.saveOrUpdate(status);
 		
@@ -178,8 +184,15 @@ public class ControllerIntstallation {
 
 			boolean returnvalue = importAnalysis.simpleAnalysisImport();
 
-			importAnalysis.getAnalysis().setLabel("Default Profile from installer");
-			importAnalysis.getAnalysis().setIdentifier("SME");
+			importAnalysis.getAnalysis().setLabel("SME: Small and Medium Entreprises (Default Profile from installer)");
+			
+			Timestamp ts = new Timestamp(System.currentTimeMillis());
+			
+			SimpleDateFormat outDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			
+			String tsstring = outDateFormat.format(ts);
+			
+			importAnalysis.getAnalysis().setIdentifier(importAnalysis.getAnalysis().getLanguage().getAlpha3()+"_"+tsstring);
 
 			serviceAnalysis.saveOrUpdate(importAnalysis.getAnalysis());
 

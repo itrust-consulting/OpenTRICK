@@ -36,4 +36,6 @@ public interface ServiceActionPlanSummary {
 	public void saveOrUpdate(SummaryStage summaryStage) throws Exception;
 
 	public void delete(SummaryStage summaryStage) throws Exception;
+	
+	public void deleteAllFromAnalysis(Integer analysisID) throws Exception;
 }

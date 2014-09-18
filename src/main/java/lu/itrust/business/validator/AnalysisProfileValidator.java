@@ -16,7 +16,6 @@ public class AnalysisProfileValidator implements Validator {
 	@Override
 	public void validate(Object arg0, Errors arg1) {
 		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "name", "error.analysis.profile.name.empty", "Name cannot be empty");
-		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "comment", "error.analysis.profile.comment.empty", "Comment cannot be empty");
 		AnalysisProfile analysisProfile = (AnalysisProfile) arg0;
 		
 		if(analysisProfile.getIdAnalysis() <1)

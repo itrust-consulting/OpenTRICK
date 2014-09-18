@@ -60,7 +60,6 @@ public class ActionPlanEntry implements Serializable {
 	/** The Measure object reference */
 	@ManyToOne 
 	@JoinColumn(name="fiMeasure", nullable=false)
-	@Cascade(CascadeType.SAVE_UPDATE)
 	private Measure measure = null;
 	
 	/** The position refered from the normal action plan */
@@ -91,7 +90,7 @@ public class ActionPlanEntry implements Serializable {
 	//private List<ActionPlanAssessment> actionPlanAssessments = new ArrayList<ActionPlanAssessment>();
 
 	@OneToMany(mappedBy="actionPlanEntry")
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@OrderBy("currentALE DESC")
 	private List<ActionPlanAsset> actionPlanAssets = new ArrayList<ActionPlanAsset>();
 	

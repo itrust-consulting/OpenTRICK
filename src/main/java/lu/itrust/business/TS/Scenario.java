@@ -447,7 +447,7 @@ public class Scenario extends SecurityCriteria {
 			   inverseJoinColumns = { @JoinColumn(name = "idScenarioAssetTypeValue", nullable = false, updatable = false) },
 			   uniqueConstraints = @UniqueConstraint(columnNames = {"idScenario", "idScenarioAssetTypeValue"})
 	)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.ALL, CascadeType.DELETE})
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}

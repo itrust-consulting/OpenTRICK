@@ -198,4 +198,18 @@ public class ServiceActionPlanSummaryImpl implements ServiceActionPlanSummary {
 	public void delete(SummaryStage summaryStage) throws Exception {
 		daoActionPlanSummary.delete(summaryStage);
 	}
+
+	/**
+	 * deleteAllFromAnalysis: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceActionPlanSummary#deleteAllFromAnalysis(java.lang.Integer)
+	 */
+	@Transactional
+	@Override
+	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
+		daoActionPlanSummary.deleteAllFromAnalysis(analysisID);		
+	}
 }

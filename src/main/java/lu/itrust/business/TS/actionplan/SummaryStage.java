@@ -58,7 +58,7 @@ public class SummaryStage {
 
 	@OneToMany
 	@JoinColumn(name="fiActionPlanSummary", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<SummaryStandardConformance> conformances = new ArrayList<SummaryStandardConformance>();
 	
 	/** Percentage of AnalysisNorm 27001 Conformance for this Stage */

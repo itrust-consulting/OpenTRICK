@@ -54,7 +54,7 @@ public class MeasureDescription implements Cloneable {
 
 	/** Measure Description Text List (one entry represents one language) */
 	@OneToMany(mappedBy="measureDescription")
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */

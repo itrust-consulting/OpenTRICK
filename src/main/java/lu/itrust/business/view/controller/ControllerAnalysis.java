@@ -1101,6 +1101,13 @@ public class ControllerAnalysis {
 				return JsonMessage.Error(messageSource.getMessage("error.profile.delete.failed", null, "Default profile cannot be deleted!", locale));
 
 			// delete the analysis
+			
+			serviceActionPlan.deleteAllFromAnalysis(analysisId);
+			
+			serviceActionPlanSummary.deleteAllFromAnalysis(analysisId);
+			
+			serviceRiskRegister.deleteAllFromAnalysis(analysisId);
+			
 			serviceAnalysis.delete(analysisId);
 
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");

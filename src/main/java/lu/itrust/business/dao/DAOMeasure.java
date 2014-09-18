@@ -52,7 +52,7 @@ public interface DAOMeasure {
 	public void delete(Integer id) throws Exception;
 
 	public void delete(Measure measure) throws Exception;
-
+	
 	public Map<String,Measure> mappingAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm);
 
 	public int countNormMeasure();

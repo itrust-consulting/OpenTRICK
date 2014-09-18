@@ -42,13 +42,11 @@ public class UserAnalysisRight implements Serializable,Cloneable {
 
 	/** User */
 	@ManyToOne
-	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name="fiUser", nullable=false)
 	private User user;
 
 	/** Analysis */
 	@ManyToOne 
-	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name="fiAnalysis", nullable=false)
 	private Analysis analysis;
 
