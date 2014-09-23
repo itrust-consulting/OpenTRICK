@@ -66,7 +66,7 @@
 							<c:if test="${actionplansplitted.get(apt).size()>0}">
 								<tr>
 									<td colspan="6">&nbsp;</td>
-									<td colspan="20"><spring:message code="label.actionplan.todo.currentALE" text="Current ALE" /></td>
+									<td colspan="20"><spring:message code="label.action_plan.current_ale" text="Current ALE" /></td>
 									<spring:eval expression="${actionplansplitted.get(apt).get(0).totalALE+actionplansplitted.get(apt).get(0).deltaALE}" var="totalALE"></spring:eval>
 									<td colspan="23" ${totalALE == 0? "class='danger'" : "" } title="${totalALE}"><fmt:formatNumber value="${totalALE*0.001}" maxFractionDigits="0" /></td>
 									<c:forEach items="${actionplanassets}" var="asset">
