@@ -7,8 +7,6 @@ import javax.persistence.Id;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import lu.itrust.business.TS.tsconstant.Constant;
-
 /** 
  * TrickService.java: <br>
  * Detailed description...

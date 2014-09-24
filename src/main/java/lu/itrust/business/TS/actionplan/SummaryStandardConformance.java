@@ -10,9 +10,6 @@ import javax.persistence.Table;
 
 import lu.itrust.business.TS.AnalysisNorm;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
 /** SummaryStandardConformance.java: <br>
  * Detailed description...
  *

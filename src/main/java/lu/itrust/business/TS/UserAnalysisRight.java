@@ -16,9 +16,6 @@ import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.usermanagement.User;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
 /**
  * UserAnalysisRight.java: <br>
  * Detailed description...

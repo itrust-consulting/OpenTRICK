@@ -894,7 +894,7 @@ public class ExportAnalysisReport {
 				}
 				case 17: {
 					int cellnumber = 0;
-					row.getCell(cellnumber).setText(getMessage("report.summary_stage.investment", null, "Internal maintenance (md)", locale));
+					row.getCell(cellnumber).setText(getMessage("report.summary_stage.maintenance.internal", null, "Internal maintenance (md)", locale));
 					for (SummaryStage stage : summary)
 						addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getInternalMaintenance()));
 					break;

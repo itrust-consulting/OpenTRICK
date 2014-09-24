@@ -695,7 +695,7 @@ function exportAnalysis(analysisId) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response["success"] != undefined) {
-					if (taskManager == undefined)
+					//if (taskManager == undefined)
 						taskManager = new TaskManager();
 					taskManager.Start();
 				} else if (message["error"]) {

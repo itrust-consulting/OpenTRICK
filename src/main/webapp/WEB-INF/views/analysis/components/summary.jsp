@@ -133,7 +133,7 @@
 							<tr>
 								<td colspan="5"><spring:message text="Relative ROSI" code="label.profitability.rosi.relatif" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
-									<fmt:formatNumber value="${relativerosis.get(i)*0.001}" maxFractionDigits="0" var="value" />
+									<fmt:formatNumber value="${relativerosis.get(i)}" maxFractionDigits="2" var="value" />
    									<td class="text-right" title="${relativerosis.get(i)}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>
@@ -146,7 +146,7 @@
 								<td colspan="5"><spring:message text="Internal workload (md)" code="label.resource.planning.internal.workload" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
 									<fmt:formatNumber value="${internalworkloads.get(i)}" maxFractionDigits="0" var="value" />
-   									<td class="text-right" title="${internalworkloads.get(i)}"><spring:message text="${value}" /></td>
+   									<td class="text-right" title="${value}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>
 							
@@ -154,7 +154,7 @@
 								<td colspan="5"><spring:message text="External workload (md)" code="label.resource.planning.external.workload" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
 									<fmt:formatNumber value="${externalworkloads.get(i)}" maxFractionDigits="0" var="value" />
-   									<td class="text-right" title="${externalworkloads.get(i)}"><spring:message text="${value}" /></td>
+   									<td class="text-right" title="${value}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>
 							

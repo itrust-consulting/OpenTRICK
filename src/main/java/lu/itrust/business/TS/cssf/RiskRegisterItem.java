@@ -14,9 +14,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.exception.TrickException;

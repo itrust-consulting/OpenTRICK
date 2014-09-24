@@ -24,7 +24,6 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
 
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
@@ -112,6 +111,7 @@ public class Analysis implements Serializable, Cloneable {
 
 	/** The Label of this Analysis */
 	@Column(name="dtLabel", nullable=false)
+	@Access(AccessType.FIELD)
 	private String label;
 
 	/** Language object of the Analysis */
