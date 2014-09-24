@@ -5,8 +5,8 @@ package lu.itrust.business.view.controller;
 
 import java.security.Principal;
 
+import lu.itrust.business.TS.settings.AppSettings;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.AppSettings;
 import lu.itrust.business.service.ServiceAppSettings;
 import lu.itrust.business.service.ServiceUser;
 

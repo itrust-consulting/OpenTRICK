@@ -118,6 +118,8 @@ public class ControllerRegister {
 				}
 			}
 
+			user.getRoles().clear();
+			
 			// set role of new user
 			user.addRole(role);
 

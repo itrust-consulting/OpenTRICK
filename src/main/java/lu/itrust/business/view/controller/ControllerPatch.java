@@ -13,7 +13,11 @@ import lu.itrust.business.TS.TrickService;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.actionplan.SummaryStandardConformance;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
+import lu.itrust.business.TS.settings.AnalysisSetting;
+import lu.itrust.business.TS.settings.AppSettingEntry;
+import lu.itrust.business.TS.settings.ApplicationSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.GeneralComperator;
@@ -24,10 +28,12 @@ import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAnalysisNorm;
+import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceParameter;
 import lu.itrust.business.service.ServiceScenario;
 import lu.itrust.business.service.ServiceTrickService;
+import lu.itrust.business.service.ServiceUser;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +90,13 @@ public class ControllerPatch {
 	@Autowired
 	private ServiceAnalysisNorm serviceAnalysisNorm;
 	
+	@Autowired
+	private ServiceUser serviceUser;
+	
+	@Autowired
+	private ServiceAppSettingEntry serviceAppSettingEntry;
+	
+		
 	@RequestMapping(value = "/Update/ScenarioCategoryValue", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
 	public @ResponseBody
@@ -311,5 +324,91 @@ public class ControllerPatch {
 			return JsonMessage.Error(e.getMessage());
 		}
 	}
+	
+	@RequestMapping(value = "/Update/ApplicationSettings", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
+	public @ResponseBody String createDefaultSettingsForUsers(Locale locale){
+		
+		System.out.println("Patching compliance (version 0.6.3b)");
+
+		String patchversion = "0.6.3d";
+
+		try{
+		
+		if(serviceTrickService.getStatus().getVersion().equals(patchversion)) {
+			System.out.println("Patch already installed!");
+			return JsonMessage.Error(messageSource.getMessage("error.patch.installed", null, "The Patch is already installed!", locale));
+		}
+		
+		List<User> users = serviceUser.getAll();
+		
+		for(User user: users) {
+
+			if(!user.applicationSettingExists("DEFAULT_UI_LANGUAGE")){
+				ApplicationSetting setting = new ApplicationSetting("UI_LANGUAGE","en");
+				user.addApplicationSetting(setting);
+			}
+			
+			if(!user.applicationSettingExists("DEFAULT_SHOW_UNCERTAINTY")){
+				ApplicationSetting setting = new ApplicationSetting("DEFAULT_SHOW_UNCERTAINTY","true");
+				user.addApplicationSetting(setting);
+			}
+				
+			if(!user.applicationSettingExists("DEFAULT_SHOW_CSSF")){
+				ApplicationSetting setting = new ApplicationSetting("DEFAULT_SHOW_CSSF","false");
+				user.addApplicationSetting(setting);
+			}
+			
+			
+			
+			List<Analysis> analyses = serviceAnalysis.getAllFromUser(user);
+			
+			for(Analysis analysis : analyses){
+				
+				AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(user.getLogin(), "analysis", String.valueOf(analysis.getId()));
+				
+				String uncertainty = settings.findByKey("show_uncertainty");
+				
+				String cssf = settings.findByKey("show_cssf");
+				
+				String defaultuncertainty = "true";
+				
+				String defaultcssf = "false";
+				
+				if(uncertainty==null){
+					if(!user.analysisSettingExists("SHOW_UNCERTAINTY")){
+						AnalysisSetting analysisSetting = new AnalysisSetting("SHOW_UNCERTAINTY",defaultuncertainty, analysis);
+						user.addAnalysisSetting(analysisSetting);
+					}
+				}
+				
+				if(cssf==null){
+					if(!user.analysisSettingExists("SHOW_CSSF")){
+						AnalysisSetting analysisSetting = new AnalysisSetting("SHOW_UNCERTAINTY",defaultcssf, analysis);
+						user.addAnalysisSetting(analysisSetting);
+					}
+				}
+			}
+			
+			serviceUser.saveOrUpdate(user);
+			
+		}
+		
+		TrickService ts = serviceTrickService.getStatus();
+		if (GeneralComperator.VersionComparator(ts.getVersion(), patchversion) == -1) {
+
+			ts.setVersion(patchversion);
+			serviceTrickService.saveOrUpdate(ts);
+
+		}
+		System.out.println("Done...");
+		return JsonMessage.Success(messageSource.getMessage("success.maintenance.update.all", null, "Measures were successfully updated", locale));
+	} catch (Exception e) {
+		e.printStackTrace();
+		return JsonMessage.Error(e.getMessage());
+	}
+		
+	}
+	
 
 }

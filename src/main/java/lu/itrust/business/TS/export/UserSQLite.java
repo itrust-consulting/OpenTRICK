@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.usermanagement;
+package lu.itrust.business.TS.export;
 
 import java.sql.Timestamp;
 
@@ -11,6 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author eomar

@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
-import lu.itrust.business.TS.usermanagement.AppSettings;
+import lu.itrust.business.TS.settings.AppSettings;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAppSettings;
 

@@ -11,11 +11,15 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.settings.AnalysisSetting;
+import lu.itrust.business.TS.settings.ApplicationSetting;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -77,7 +81,18 @@ public class User implements Serializable {
 	@Cascade(CascadeType.ALL)
 	private List<Customer> customers = new ArrayList<Customer>();
 
+	@OneToMany 
+	@JoinColumn(name="fiUser", nullable=false)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	private List<ApplicationSetting> applicationSettings = new ArrayList<ApplicationSetting>();
+	
+	@OneToMany 
+	@JoinColumn(name="fiUser", nullable=false)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	private List<AnalysisSetting> analysisSettings = new ArrayList<AnalysisSetting>();
+	
 	/**
+	 * Constructor: <br>
 	 * @param login
 	 * @param password
 	 * @param firstName
@@ -358,4 +373,75 @@ public class User implements Serializable {
 			return customers.remove(customer);
 		return true;
 	}
+	
+	/**
+	 * addApplicationSetting: <br>
+	 * Description
+	 * 
+	 * @param setting
+	 */
+	public void addApplicationSetting(ApplicationSetting setting) {
+		this.applicationSettings.add(setting);
+	}
+	
+	/**
+	 * removeApplicationSetting: <br>
+	 * Description
+	 * 
+	 * @param setting
+	 */
+	public void removeApplicationSetting(ApplicationSetting setting) {
+		this.applicationSettings.remove(setting);
+	}
+	
+	/**
+	 * applicationSettingExists: <br>
+	 * Description
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean applicationSettingExists(String key){
+		for(ApplicationSetting setting : this.applicationSettings) {
+			if(setting.getKey().equals(key))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * addAnalysisSetting: <br>
+	 * Description
+	 * 
+	 * @param setting
+	 */
+	public void addAnalysisSetting(AnalysisSetting setting) {
+		this.analysisSettings.add(setting);
+	}
+	
+	/**
+	 * removeAnalysisSetting: <br>
+	 * Description
+	 * 
+	 * @param setting
+	 */
+	public void removeAnalysisSetting(AnalysisSetting setting) {
+		this.analysisSettings.remove(setting);
+	}
+	
+	/**
+	 * analysisSettingExists: <br>
+	 * Description
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean analysisSettingExists(String key){
+		for(AnalysisSetting setting : this.analysisSettings) {
+			if(setting.getKey().equals(key))
+				return true;
+		}
+		return false;
+	}
+	
 }

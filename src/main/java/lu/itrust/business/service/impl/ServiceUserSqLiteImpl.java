@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.usermanagement.UserSQLite;
+import lu.itrust.business.TS.export.UserSQLite;
 import lu.itrust.business.dao.DAOUserSqLite;
 import lu.itrust.business.service.ServiceUserSqLite;
 
@@ -112,7 +112,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.service.ServiceUserSqLite#save(lu.itrust.business.TS.usermanagement.UserSQLite)
+	 * @see lu.itrust.business.service.ServiceUserSqLite#save(lu.itrust.business.TS.export.UserSQLite)
 	 */
 	@Transactional
 	@Override
@@ -127,7 +127,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @param userSqLite
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.service.ServiceUserSqLite#saveOrUpdate(lu.itrust.business.TS.usermanagement.UserSQLite)
+	 * @see lu.itrust.business.service.ServiceUserSqLite#saveOrUpdate(lu.itrust.business.TS.export.UserSQLite)
 	 */
 	@Transactional
 	@Override
@@ -143,7 +143,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.service.ServiceUserSqLite#merge(lu.itrust.business.TS.usermanagement.UserSQLite)
+	 * @see lu.itrust.business.service.ServiceUserSqLite#merge(lu.itrust.business.TS.export.UserSQLite)
 	 */
 	@Transactional
 	@Override
@@ -188,7 +188,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @param userSqLite
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.service.ServiceUserSqLite#delete(lu.itrust.business.TS.usermanagement.UserSQLite)
+	 * @see lu.itrust.business.service.ServiceUserSqLite#delete(lu.itrust.business.TS.export.UserSQLite)
 	 */
 	@Transactional
 	@Override
