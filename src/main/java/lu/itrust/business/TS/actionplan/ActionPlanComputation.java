@@ -19,6 +19,7 @@ import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureNorm;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
@@ -904,23 +905,15 @@ public class ActionPlanComputation {
 				for(TMA tma : TMAList){
 					
 					if(tma.getNorm().getLabel().equals("27002")) {
-					
-					if(deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference())== null) {
-						deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), tma.getDeltaALEMat());
-					} else {
-						Double val = deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference());
-						val += tma.getDeltaALEMat();
-						deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), val);
-					}
-						
-						
-					
+						if(deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference())== null) {
+							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), tma.getDeltaALEMat());
+						} else {
+							Double val = deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference());
+							val += tma.getDeltaALEMat();
+							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), val);
+						}					
 					}
 				}
-				
-				for(String key :deltamaturities.keySet())
-					System.out.println(key + ":::" + deltamaturities.get(key));
-				
 				
 			} else {
 
@@ -937,23 +930,15 @@ public class ActionPlanComputation {
 					
 					if(tma.getNorm().getLabel().equals("27002")) {
 					
-					if(deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference())== null) {
-						deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), tma.getDeltaALEMat());
-					} else {
-						Double val = deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference());
-						val += tma.getDeltaALEMat();
-						deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), val);
-					}
-						
-						
-					
+						if(deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference())== null) {
+							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), tma.getDeltaALEMat());
+						} else {
+							Double val = deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference());
+							val += tma.getDeltaALEMat();
+							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), val);
+						}	
 					}
 				}
-				
-				for(String key :deltamaturities.keySet())
-					System.out.println(key + "::" + deltamaturities.get(key));
-				
-				
 			}
 
 			// ****************************************************************
@@ -2490,12 +2475,9 @@ public class ActionPlanComputation {
 		List<SummaryStage> sumStage = new ArrayList<SummaryStage>();
 		SummaryValues tmpval = new SummaryValues(this.analysis.getAnalysisNorms());
 		boolean anticipated = true;
-		double ir = -1;
-		double er = -1;
 		ActionPlanEntry ape = null;
 		int phase = 0;
 		boolean byPhase = false;
-		double phasetime = 0;
 		List<ActionPlanEntry> actionPlan = this.analysis.getActionPlan(mode);
 
 		// check if actionplan is empty -> YES: quit method
@@ -2509,14 +2491,6 @@ public class ActionPlanComputation {
 		// * retrieve internal rate and external rate
 		// ****************************************************************
 
-		er = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
-
-		ir = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
-
-		// ****************************************************************
-		// * store 27001 and 27002 norm in objects
-		// ****************************************************************
-
 		// ****************************************************************
 		// * generate first stage
 		// ****************************************************************
@@ -2527,9 +2501,9 @@ public class ActionPlanComputation {
 
 		// add start value of ALE (for first stage (P0))
 		tmpval.totalALE = actionPlan.get(0).getTotalALE() + actionPlan.get(0).getDeltaALE();
-
+				
 		// generate first stage
-		generateStage(apt, tmpval, sumStage, "Start(P0)", true);
+		generateStage(apt, tmpval, sumStage, "Start(P0)", true, 0);
 
 		// ****************************************************************
 		// * check if calculation by phase
@@ -2558,16 +2532,13 @@ public class ActionPlanComputation {
 			// check if calculation by phase -> YES
 			if (byPhase) {
 
-				// calculate phasetime
-				phasetime = Analysis.getYearsDifferenceBetweenTwoDates(ape.getMeasure().getPhase().getBeginDate(), ape.getMeasure().getPhase().getEndDate());
-
 				// check if entry is in current phase -> YES
 				if (ape.getMeasure().getPhase().getNumber() == phase) {
 
 					// ****************************************************************
 					// * calculate values for next run
 					// ****************************************************************
-					setValuesForNextEntry(tmpval, ape, ir, er, phasetime);
+					setValuesForNextEntry(tmpval, ape);
 
 				} else {
 
@@ -2576,7 +2547,7 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * generate stage for previous phase
 					// ****************************************************************
-					generateStage(apt, tmpval, sumStage, "Phase " + phase, false);
+					generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase);
 
 					// ****************************************************************
 					// * reinitialise variables
@@ -2584,15 +2555,10 @@ public class ActionPlanComputation {
 					for (String key : tmpval.conformanceHelper.keySet())
 						tmpval.conformanceHelper.get(key).conformance = 0;
 					tmpval.deltaALE = 0;
-					// tmpval.externalMaintenance = 0;
-					// tmpval.internalMaintenance = 0;
 					tmpval.externalWorkload = 0;
 					tmpval.internalWorkload = 0;
-					// tmpval.investment = 0;
 					tmpval.measureCost = 0;
 					tmpval.measureCount = 0;
-					// tmpval.recurrentInvestment = 0;
-					// tmpval.recurrentCost = 0;
 					tmpval.relativeROSI = 0;
 					tmpval.ROSI = 0;
 					tmpval.totalALE = 0;
@@ -2606,7 +2572,7 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * calculate values for next run
 					// ****************************************************************
-					setValuesForNextEntry(tmpval, ape, ir, er, phasetime);
+					setValuesForNextEntry(tmpval, ape);
 				}
 			} else {
 
@@ -2615,7 +2581,7 @@ public class ActionPlanComputation {
 				// check if ROSI >= 0 -> YES
 				if (ape.getROI() >= 0) {
 
-					setValuesForNextEntry(tmpval, ape, ir, er, 0);
+					setValuesForNextEntry(tmpval, ape);
 				} else {
 
 					// check if ROSI >= 0 -> NO
@@ -2626,7 +2592,7 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						// * generate stage for anticipated level
 						// ****************************************************************
-						generateStage(apt, tmpval, sumStage, "Anticipated", false);
+						generateStage(apt, tmpval, sumStage, "Anticipated", false, phase);
 
 						// deactivate flag
 						anticipated = false;
@@ -2635,7 +2601,7 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * calculate values for next run
 					// ****************************************************************
-					setValuesForNextEntry(tmpval, ape, ir, er, 0);
+					setValuesForNextEntry(tmpval, ape);
 				}
 			}
 		}
@@ -2654,7 +2620,7 @@ public class ActionPlanComputation {
 			// ****************************************************************
 			// * generate stage for phase
 			// ****************************************************************
-			generateStage(apt, tmpval, sumStage, "Phase " + phase, false);
+			generateStage(apt, tmpval, sumStage, "Phase " + phase, false, phase);
 		} else {
 
 			// check if by phase -> NO
@@ -2662,7 +2628,7 @@ public class ActionPlanComputation {
 			// ****************************************************************
 			// * generate stage for all measures
 			// ****************************************************************
-			generateStage(apt, tmpval, sumStage, "All Measures", false);
+			generateStage(apt, tmpval, sumStage, "All Measures", false, phase);
 		}
 
 		// ****************************************************************
@@ -2687,7 +2653,7 @@ public class ActionPlanComputation {
 	 * @param phasetime
 	 *            The Time of the current Phase in Years
 	 */
-	private void setValuesForNextEntry(SummaryValues tmpval, ActionPlanEntry ape, double ir, double er, double phasetime) {
+	private void setValuesForNextEntry(SummaryValues tmpval, ActionPlanEntry ape) {
 
 		// ****************************************************************
 		// * update phase characterisitc values
@@ -2747,11 +2713,8 @@ public class ActionPlanComputation {
 
 		// in case of a phase calculation multiply internal maintenance with
 		// phasetime
-		if (phasetime > 0)
-			tmpval.internalMaintenance += ape.getMeasure().getInternalMaintenance() * phasetime;
-		else
-			tmpval.internalMaintenance += ape.getMeasure().getInternalMaintenance();
-
+		tmpval.internalMaintenance += ape.getMeasure().getInternalMaintenance();
+		
 		// update external maintenance
 
 		// Depricated
@@ -2760,35 +2723,15 @@ public class ActionPlanComputation {
 
 		// in case of a phase calculation multiply external maintenance with
 		// phasetime
-		if (phasetime > 0)
-			tmpval.externalMaintenance += ape.getMeasure().getExternalMaintenance() * phasetime;
-		else
-			tmpval.externalMaintenance += ape.getMeasure().getExternalMaintenance();
-
+		tmpval.externalMaintenance += ape.getMeasure().getExternalMaintenance();
+		
 		// update recurrent investment
 		tmpval.recurrentInvestment += ape.getMeasure().getRecurrentInvestment();
 
 		// update recurrent cost
 		tmpval.recurrentCost += ape.getMeasure().getInvestment() * ape.getMeasure().getMaintenance() / 100.;
 
-		// update total cost
-		tmpval.totalCost += (ape.getMeasure().getInternalWL() * ir);
-		tmpval.totalCost += (ape.getMeasure().getExternalWL() * er);
-		tmpval.totalCost += (ape.getMeasure().getInvestment());
-
-		// in case of a phase calculation multiply external maintenance,
-		// internal maintenance with
-		// phasetime and with internal and external setup as well as investment
-		// with phasetime
-		if (phasetime > 0) {
-			tmpval.totalCost += (ape.getMeasure().getInternalWL() * ape.getMeasure().getMaintenance() / 100. * phasetime * ir);
-			tmpval.totalCost += (ape.getMeasure().getExternalWL() * ape.getMeasure().getMaintenance() / 100. * phasetime * er);
-			tmpval.totalCost += (ape.getMeasure().getInvestment() * ape.getMeasure().getMaintenance() / 100. * phasetime);
-		} else {
-			tmpval.totalCost += (ape.getMeasure().getInternalWL() * ape.getMeasure().getMaintenance() / 100. * ir);
-			tmpval.totalCost += (ape.getMeasure().getExternalWL() * ape.getMeasure().getMaintenance() / 100. * er);
-			tmpval.totalCost += (ape.getMeasure().getInvestment() * ape.getMeasure().getMaintenance() / 100.);
-		}
+		
 	}
 
 	/**
@@ -2823,7 +2766,7 @@ public class ActionPlanComputation {
 	 *            Flag to tell if the Stage is the First Stage
 	 * @throws TrickException
 	 */
-	private void generateStage(ActionPlanType type, SummaryValues tmpval, List<SummaryStage> sumStage, String name, boolean firstStage) throws TrickException {
+	private void generateStage(ActionPlanType type, SummaryValues tmpval, List<SummaryStage> sumStage, String name, boolean firstStage, int phasenumber) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -2831,6 +2774,15 @@ public class ActionPlanComputation {
 		SummaryStage aStage = null;
 		Measure measure = null;
 
+		double phasetime = 0;
+		
+		if(phasenumber > 0) {
+		
+			for(Phase phase : this.analysis.getUsedPhases()){
+				if(phase.getNumber()==phasenumber)
+					phasetime = Analysis.getYearsDifferenceBetweenTwoDates(phase.getBeginDate(), phase.getEndDate());
+			}
+		}
 		// check if first stage -> YES
 		if (firstStage) {
 
@@ -2964,10 +2916,34 @@ public class ActionPlanComputation {
 		aStage.setInternalWorkload(tmpval.internalWorkload);
 		aStage.setExternalWorkload(tmpval.externalWorkload);
 		aStage.setInvestment(tmpval.investment);
-		aStage.setInternalMaintenance(tmpval.internalMaintenance);
-		aStage.setExternalMaintenance(tmpval.externalMaintenance);
-		aStage.setRecurrentInvestment(tmpval.recurrentInvestment);
+		aStage.setInternalMaintenance(tmpval.internalMaintenance*phasetime);
+		aStage.setExternalMaintenance(tmpval.externalMaintenance*phasetime);
+		aStage.setRecurrentInvestment(tmpval.recurrentInvestment*phasetime);
 		aStage.setRecurrentCost(tmpval.recurrentCost);
+		
+		double er = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+
+		double ir = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
+
+		// update total cost
+		tmpval.totalCost += (tmpval.internalWorkload * ir);
+		tmpval.totalCost += (tmpval.externalWorkload * er);
+		tmpval.totalCost += (tmpval.investment);
+
+		// in case of a phase calculation multiply external maintenance,
+		// internal maintenance with
+		// phasetime and with internal and external setup as well as investment
+		// with phasetime
+		if (phasetime > 0) {
+			tmpval.totalCost += (tmpval.internalMaintenance * phasetime * ir);
+			tmpval.totalCost += (tmpval.externalMaintenance * phasetime * er);
+			tmpval.totalCost += (tmpval.recurrentInvestment * phasetime);
+		} else {
+			tmpval.totalCost += (tmpval.internalMaintenance * ir);
+			tmpval.totalCost += (tmpval.externalMaintenance * er);
+			tmpval.totalCost += (tmpval.recurrentInvestment);
+		}
+		
 		aStage.setTotalCostofStage(tmpval.totalCost);
 
 		/*

@@ -133,7 +133,7 @@
 							<tr>
 								<td colspan="5"><spring:message text="Relative ROSI" code="label.profitability.rosi.relatif" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
-									<fmt:formatNumber value="${relativerosis.get(i)}" maxFractionDigits="2" var="value" />
+									<fmt:formatNumber value="${relativerosis.get(i)}" maxFractionDigits="0" var="value" />
    									<td class="text-right" title="${relativerosis.get(i)}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>
@@ -145,7 +145,7 @@
 							<tr>
 								<td colspan="5"><spring:message text="Internal workload (md)" code="label.resource.planning.internal.workload" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
-									<fmt:formatNumber value="${internalworkloads.get(i)}" maxFractionDigits="0" var="value" />
+									<fmt:formatNumber value="${internalworkloads.get(i)}" maxFractionDigits="1" var="value" />
    									<td class="text-right" title="${value}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>
@@ -153,7 +153,7 @@
 							<tr>
 								<td colspan="5"><spring:message text="External workload (md)" code="label.resource.planning.external.workload" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
-									<fmt:formatNumber value="${externalworkloads.get(i)}" maxFractionDigits="0" var="value" />
+									<fmt:formatNumber value="${externalworkloads.get(i)}" maxFractionDigits="1" var="value" />
    									<td class="text-right" title="${value}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>
@@ -161,7 +161,7 @@
 							<tr>
 								<td colspan="5"><spring:message text="Investment (k€)" code="label.resource.planning.investment" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
-									<fmt:formatNumber value="${investments.get(i)*0.001}" maxFractionDigits="0" var="value" />
+									<fmt:formatNumber value="${investments.get(i)*0.001}" maxFractionDigits="1" var="value" />
    									<td class="text-right" title="${investments.get(i)}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>
@@ -169,7 +169,7 @@
 							<tr>
 								<td colspan="5"><spring:message text="Internal maintenance (md)" code="label.resource.planning.internal.maintenance" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
-									<fmt:formatNumber value="${internalmaintenances.get(i)}" maxFractionDigits="0" var="value" />
+									<fmt:formatNumber value="${internalmaintenances.get(i)}" maxFractionDigits="1" var="value" />
    									<td class="text-right" title="${internalmaintenances.get(i)}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>
@@ -177,7 +177,7 @@
 							<tr>
 								<td colspan="5"><spring:message text="External maintenance (md)" code="label.resource.planning.external.maintenance" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
-									<fmt:formatNumber value="${externalmaintenances.get(i)}" maxFractionDigits="0" var="value" />
+									<fmt:formatNumber value="${externalmaintenances.get(i)}" maxFractionDigits="1" var="value" />
    									<td class="text-right" title="${externalmaintenances.get(i)}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>
@@ -185,7 +185,7 @@
 							<tr>
 								<td colspan="5"><spring:message text="Recurrent investment (k€)" code="label.resource.planning.recurrent.investment" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
-									<fmt:formatNumber value="${recurrentinvestments.get(i)*0.001}" maxFractionDigits="0" var="value" />
+									<fmt:formatNumber value="${recurrentinvestments.get(i)*0.001}" maxFractionDigits="1" var="value" />
    									<td class="text-right" title="${recurrentinvestments.get(i)}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>	
@@ -193,7 +193,7 @@
 							<tr>
 								<td colspan="5"><spring:message text="Recurrent costs (k€)" code="label.resource.planning.recurrent.cost" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
-									<fmt:formatNumber value="${recurrentcosts.get(i)*0.001}" maxFractionDigits="0" var="value" />
+									<fmt:formatNumber value="${recurrentcosts.get(i)*0.001}" maxFractionDigits="1" var="value" />
    									<td class="text-right" title="${recurrentcosts.get(i)}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>	
@@ -201,7 +201,7 @@
 							<tr>
 								<td colspan="5"><spring:message text="Total cost of phase (k€)" code="label.resource.planning.total.phase.cost" /></td>
 								<c:forEach var="i" begin="0" end="${columncount-1}">
-									<fmt:formatNumber value="${totalcosts.get(i)*0.001}" maxFractionDigits="0" var="value" />
+									<fmt:formatNumber value="${totalcosts.get(i)*0.001}" maxFractionDigits="1" var="value" />
    									<td class="text-right" title="${totalcosts.get(i)}"><spring:message text="${value}" /></td>
 								</c:forEach>
 							</tr>		
