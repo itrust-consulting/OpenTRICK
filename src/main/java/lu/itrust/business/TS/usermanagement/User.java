@@ -2,7 +2,9 @@ package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,14 +13,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.Customer;
-import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.settings.ApplicationSetting;
 
 import org.hibernate.annotations.Cascade;
@@ -65,7 +65,7 @@ public class User implements Serializable {
 
 	@Column(name="dtEnabled", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean enable = true;
-
+	
 	@ManyToMany
 	@JoinTable(name = "UserRole", 
 			   joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, 
@@ -85,11 +85,6 @@ public class User implements Serializable {
 	@JoinColumn(name="fiUser", nullable=false)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<ApplicationSetting> applicationSettings = new ArrayList<ApplicationSetting>();
-	
-	@OneToMany 
-	@JoinColumn(name="fiUser", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
-	private List<AnalysisSetting> analysisSettings = new ArrayList<AnalysisSetting>();
 	
 	/**
 	 * Constructor: <br>
@@ -407,41 +402,30 @@ public class User implements Serializable {
 				return true;
 		}
 		return false;
-	}
+	}	
 	
 	/**
-	 * addAnalysisSetting: <br>
+	 * getApplicationSettings: <br>
 	 * Description
 	 * 
-	 * @param setting
-	 */
-	public void addAnalysisSetting(AnalysisSetting setting) {
-		this.analysisSettings.add(setting);
-	}
-	
-	/**
-	 * removeAnalysisSetting: <br>
-	 * Description
-	 * 
-	 * @param setting
-	 */
-	public void removeAnalysisSetting(AnalysisSetting setting) {
-		this.analysisSettings.remove(setting);
-	}
-	
-	/**
-	 * analysisSettingExists: <br>
-	 * Description
-	 * 
-	 * @param key
 	 * @return
 	 */
-	public boolean analysisSettingExists(String key){
-		for(AnalysisSetting setting : this.analysisSettings) {
-			if(setting.getKey().equals(key))
-				return true;
-		}
-		return false;
+	public List<ApplicationSetting> getApplicationSettings(){
+		return this.applicationSettings;
 	}
 	
+	/**
+	 * getApplicationSettingsAsMap: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public Map<String, ApplicationSetting> getApplicationSettingsAsMap(){
+		Map<String, ApplicationSetting> asettings = new LinkedHashMap<String, ApplicationSetting>();
+		
+		for(ApplicationSetting setting : this.applicationSettings)
+			asettings.put(setting.getKey(), setting);
+		
+		return asettings;
+	}
 }

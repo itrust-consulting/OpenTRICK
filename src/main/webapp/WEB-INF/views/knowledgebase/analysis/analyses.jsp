@@ -41,7 +41,7 @@
 						<tr trick-id="${analysis.id}" trick-rights-id="0" data="${analysis.hasData()}" ondblclick="return editSingleAnalysis(${analysis.id});">
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_profile_analysis','#menu_analysis');"></td>
 							<td><spring:message text="${analysis.label}"/></td>
-							<td><spring:message text="${analysis.creationDate}"/></td>
+							<td><fmt:formatDate value="${analysis.creationDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 							<td><spring:message text="${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}"/></td>
 							<td><spring:message text="${analysis.language.name}"/></td>
 							<td><spring:message code="label.yes_no.${fn:toLowerCase(analysis.defaultProfile)}" text="${analysis.defaultProfile?'Yes':'No'}" /></td>

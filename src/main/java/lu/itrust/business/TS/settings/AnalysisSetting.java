@@ -6,8 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-
-import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.usermanagement.User;
 
 /** AnalysisSetting.java: <br>
@@ -21,12 +19,12 @@ import lu.itrust.business.TS.usermanagement.User;
 public class AnalysisSetting {
 
 	@Id @GeneratedValue
-	@Column(name="idApplicationSetting")
+	@Column(name="idAnalysisSetting")
 	private Integer id = -1;
 	
 	@ManyToOne
-	@JoinColumn(name="fiAnalysis", unique=true, nullable=false)
-	private Analysis analysis = null;
+	@JoinColumn(name="fiUser", nullable=false)
+	private User user = null;
 		
 	@Column(name="dtKey", nullable=false)
 	private String key = "";
@@ -36,13 +34,11 @@ public class AnalysisSetting {
 	
 	public AnalysisSetting (){};
 	
-	public AnalysisSetting(String key, String value, Analysis analysis) {
+	public AnalysisSetting(String key, String value, User user) {
 		this.key = key;
 		this.value = value;
-		this.analysis = analysis;
+		this.user = user;
 	}
-	
-	
 	
 	/** getValue: <br>
 	 * Returns the value field value.
@@ -52,6 +48,7 @@ public class AnalysisSetting {
 	public String getValue() {
 		return value;
 	}
+	
 	/** setValue: <br>
 	 * Sets the Field "value" with a value.
 	 * 
@@ -61,6 +58,7 @@ public class AnalysisSetting {
 	public void setValue(String value) {
 		this.value = value;
 	}
+	
 	/** getKey: <br>
 	 * Returns the key field value.
 	 * 
@@ -69,6 +67,7 @@ public class AnalysisSetting {
 	public String getKey() {
 		return key;
 	}
+	
 	/** setKey: <br>
 	 * Sets the Field "key" with a value.
 	 * 
@@ -78,6 +77,7 @@ public class AnalysisSetting {
 	public void setKey(String key) {
 		this.key = key;
 	}
+	
 	/** getId: <br>
 	 * Returns the id field value.
 	 * 
@@ -86,6 +86,7 @@ public class AnalysisSetting {
 	public Integer getId() {
 		return id;
 	}
+	
 	/** setId: <br>
 	 * Sets the Field "id" with a value.
 	 * 
@@ -95,21 +96,23 @@ public class AnalysisSetting {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	/** getAnalysis: <br>
-	 * Returns the analysis field value.
+
+	/** getUser: <br>
+	 * Returns the user field value.
 	 * 
-	 * @return The value of the analysis field
+	 * @return The value of the user field
 	 */
-	public Analysis getAnalysis() {
-		return analysis;
+	public User getUser() {
+		return user;
 	}
-	/** setAnalysis: <br>
-	 * Sets the Field "analysis" with a value.
+
+	/** setUser: <br>
+	 * Sets the Field "user" with a value.
 	 * 
-	 * @param analysis 
-	 * 			The Value to set the analysis field
+	 * @param user 
+	 * 			The Value to set the user field
 	 */
-	public void setAnalysis(Analysis analysis) {
-		this.analysis = analysis;
+	public void setUser(User user) {
+		this.user = user;
 	}
 }

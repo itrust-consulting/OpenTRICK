@@ -329,7 +329,7 @@ public class ControllerPatch {
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
 	public @ResponseBody String createDefaultSettingsForUsers(Locale locale){
 		
-		System.out.println("Patching compliance (version 0.6.3b)");
+		System.out.println("Patching compliance (version 0.6.3)");
 
 		String patchversion = "0.6.3d";
 
@@ -344,22 +344,20 @@ public class ControllerPatch {
 		
 		for(User user: users) {
 
-			if(!user.applicationSettingExists("DEFAULT_UI_LANGUAGE")){
-				ApplicationSetting setting = new ApplicationSetting("UI_LANGUAGE","en");
+			if(!user.applicationSettingExists(Constant.SETTING_DEFAULT_UI_LANGUAGE)){
+				ApplicationSetting setting = new ApplicationSetting(Constant.SETTING_DEFAULT_UI_LANGUAGE,"en");
 				user.addApplicationSetting(setting);
 			}
 			
-			if(!user.applicationSettingExists("DEFAULT_SHOW_UNCERTAINTY")){
-				ApplicationSetting setting = new ApplicationSetting("DEFAULT_SHOW_UNCERTAINTY","true");
+			if(!user.applicationSettingExists(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY)){
+				ApplicationSetting setting = new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY,"true");
 				user.addApplicationSetting(setting);
 			}
 				
-			if(!user.applicationSettingExists("DEFAULT_SHOW_CSSF")){
-				ApplicationSetting setting = new ApplicationSetting("DEFAULT_SHOW_CSSF","false");
+			if(!user.applicationSettingExists(Constant.SETTING_DEFAULT_SHOW_CSSF)){
+				ApplicationSetting setting = new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_CSSF,"false");
 				user.addApplicationSetting(setting);
 			}
-			
-			
 			
 			List<Analysis> analyses = serviceAnalysis.getAllFromUser(user);
 			
@@ -376,18 +374,24 @@ public class ControllerPatch {
 				String defaultcssf = "false";
 				
 				if(uncertainty==null){
-					if(!user.analysisSettingExists("SHOW_UNCERTAINTY")){
-						AnalysisSetting analysisSetting = new AnalysisSetting("SHOW_UNCERTAINTY",defaultuncertainty, analysis);
-						user.addAnalysisSetting(analysisSetting);
+					if(!analysis.analysisSettingExists(Constant.SETTING_SHOW_UNCERTAINTY)){
+						AnalysisSetting analysisSetting = new AnalysisSetting(Constant.SETTING_SHOW_UNCERTAINTY,defaultuncertainty, user);
+						analysis.addAnalysisSetting(analysisSetting);
 					}
 				}
 				
 				if(cssf==null){
-					if(!user.analysisSettingExists("SHOW_CSSF")){
-						AnalysisSetting analysisSetting = new AnalysisSetting("SHOW_UNCERTAINTY",defaultcssf, analysis);
-						user.addAnalysisSetting(analysisSetting);
+					if(!analysis.analysisSettingExists(Constant.SETTING_SHOW_CSSF)){
+						AnalysisSetting analysisSetting = new AnalysisSetting(Constant.SETTING_SHOW_CSSF,defaultcssf, user);
+						analysis.addAnalysisSetting(analysisSetting);
 					}
 				}
+				
+				AnalysisSetting analysisSetting = new AnalysisSetting(Constant.SETTING_LANGUAGE,analysis.getLanguage().getAlpha3(), user);
+				analysis.addAnalysisSetting(analysisSetting);
+				
+				serviceAnalysis.saveOrUpdate(analysis);
+				
 			}
 			
 			serviceUser.saveOrUpdate(user);

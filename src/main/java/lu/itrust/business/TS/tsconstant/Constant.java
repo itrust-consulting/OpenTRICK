@@ -42,6 +42,17 @@ public class Constant {
 	/** Role supervisor */
 	public static final String ROLE_MIN_ADMIN = "hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')";
 	
+	public static final String SETTING_DEFAULT_SHOW_UNCERTAINTY = "DEFAULT_SHOW_UNCERTAINTY";
+	
+	public static final String SETTING_DEFAULT_SHOW_CSSF = "DEFAULT_SHOW_CSSF";
+	
+	public static final String SETTING_DEFAULT_UI_LANGUAGE = "DEFAULT_UI_LANGUAGE";
+	
+	public static final String SETTING_SHOW_UNCERTAINTY = "SHOW_UNCERTAINTY";
+	
+	public static final String SETTING_SHOW_CSSF = "SHOW_CSSF";
+	
+	public static final String SETTING_LANGUAGE = "LANGUAGE";
 	
 	/***********************************************************************************************
 	 * List of Role and permissions (for controllers)s - BEGIN
