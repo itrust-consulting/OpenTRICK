@@ -209,42 +209,6 @@ function permissionError() {
 	return false;
 }
 
-function updateSettings(element, group, name, entryKey) {
-	$.ajax({
-		url : context + "/Settings/Update",
-		type : 'post',
-		data : {
-			'group' : group,
-			'name' : name,
-			'key' : entryKey,
-			'value' : !$(element).hasClass('glyphicon-ok')
-		},
-		async : false,
-		success : function(response) {
-			if (response == undefined || response !== true)
-				unknowError();
-			else {
-				if ($(element).hasClass('glyphicon-ok'))
-					$(element).removeClass('glyphicon-ok');
-				else
-					$(element).addClass('glyphicon-ok');
-				var sections = $(element).attr("trick-section-dependency");
-				if (sections != undefined)
-					return reloadSection(sections.split(','));
-				var callBack = $(element).attr("trick-callback");
-				if (callBack != undefined)
-					return eval(callBack);
-				var reload = $(element).attr("trick-reload");
-				if (reload == undefined || reload == 'true')
-					location.reload();
-			}
-			return true;
-		},
-		error : unknowError
-	});
-	return false;
-}
-
 function findRight(idAnalysis) {
 	var right = $("*[trick-id='" + idAnalysis + "'][trick-rights-id]");
 	if (!right.length)

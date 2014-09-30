@@ -17,7 +17,6 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
-import lu.itrust.business.TS.settings.AppSettingEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
@@ -216,11 +215,9 @@ public class ControllerAsset {
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 		if (integer == null)
 			return null;
-		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", integer.toString());
-		if (settings != null) {
-			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
-			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
-		}
+
+		model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(integer, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
+		
 		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		// load all assets of analysis to model

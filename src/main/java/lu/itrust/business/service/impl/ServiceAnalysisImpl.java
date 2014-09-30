@@ -7,6 +7,7 @@ import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.helper.AnalysisBaseInfo;
 import lu.itrust.business.dao.DAOAnalysis;
@@ -434,7 +435,6 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 
 	@Override
 	public List<Analysis> getAllFromCustomer(Integer id) {
-		// TODO Auto-generated method stub
 		return daoAnalysis.getAllFromCustomer(id);
 	}
 
@@ -468,5 +468,23 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 		return daoAnalysis.getCustomerNameFromId(idAnalysis);
 	}
 
+	@Override
+	public List<AnalysisSetting> getAllAnalysisSettings() throws Exception {
+		return daoAnalysis.getAllAnalysisSettings();
+	}
 
+	@Override
+	public List<AnalysisSetting> getAllAnalysisSettingsFromAnalysis(Integer analysisID) throws Exception {
+		return daoAnalysis.getAllAnalysisSettingsFromAnalysis(analysisID);
+	}
+
+	@Override
+	public List<AnalysisSetting> getAllAnalysisSettingsFromAnalysisAndUser(Integer analysisID, User user) throws Exception {
+		return daoAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(analysisID, user);
+	}
+
+	@Override
+	public AnalysisSetting getAnalysisSettingsFromAnalysisAndUserByKey(Integer analysisID, String username, String key) throws Exception {
+		return daoAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(analysisID, username, key);
+	}
 }

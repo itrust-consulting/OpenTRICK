@@ -14,7 +14,6 @@ import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.Scenario;
-import lu.itrust.business.TS.settings.AppSettingEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentComparator;
 import lu.itrust.business.component.AssessmentManager;
@@ -90,6 +89,8 @@ public class ControllerAssessment {
 		if (integer == null)
 			return null;
 
+		model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(integer, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
+		
 		// add assessments to model
 		model.addAttribute("assessments", serviceAssessment.getAllFromAnalysis(integer));
 		return "analysis/components/assessment";
@@ -240,12 +241,7 @@ public class ControllerAssessment {
 		if (analysis == null)
 			return null;
 
-		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
-
-		if (settings != null) {
-			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
-			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
-		}
+		model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(idAnalysis, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
 
 		// retrieve asset
 		Asset asset = serviceAsset.get(elementID);
@@ -280,12 +276,7 @@ public class ControllerAssessment {
 			if (asset == null)
 				return null;
 
-			AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
-
-			if (settings != null) {
-				model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
-				model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
-			}
+			model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(idAnalysis, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
 
 			// retrieve extended paramters of analysis
 			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);
@@ -349,12 +340,7 @@ public class ControllerAssessment {
 		if (analysis == null)
 			return null;
 
-		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
-
-		if (settings != null) {
-			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
-			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
-		}
+		model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(idAnalysis, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
 
 		// retrieve scenario from given id
 		Scenario scenario = serviceScenario.get(elementID);
@@ -389,12 +375,7 @@ public class ControllerAssessment {
 			if (scenario == null)
 				return null;
 
-			AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", idAnalysis.toString());
-
-			if (settings != null) {
-				model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
-				model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
-			}
+			model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(idAnalysis, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
 
 			// load extended parameters
 			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);

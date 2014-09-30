@@ -1,11 +1,17 @@
 package lu.itrust.business.TS.settings;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
 import lu.itrust.business.TS.usermanagement.User;
 
 /** AnalysisSetting.java: <br>
@@ -16,7 +22,12 @@ import lu.itrust.business.TS.usermanagement.User;
  * @since Sep 23, 2014
  */
 @Entity
-public class AnalysisSetting {
+@Table(uniqueConstraints=@UniqueConstraint(columnNames = {"fiAnalysis", "fiUser","dtKey"}))
+public class AnalysisSetting implements Serializable,Cloneable {
+
+	/** serialVersionUID */
+	@Transient
+	private static final long serialVersionUID = 1L;
 
 	@Id @GeneratedValue
 	@Column(name="idAnalysisSetting")
@@ -115,4 +126,26 @@ public class AnalysisSetting {
 	public void setUser(User user) {
 		this.user = user;
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public AnalysisSetting clone() throws CloneNotSupportedException {
+		return (AnalysisSetting) super.clone();
+	}
+
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
+	public AnalysisSetting duplicate() throws CloneNotSupportedException{
+		AnalysisSetting copy = (AnalysisSetting) super.clone();
+		copy.setId(-1);
+		return copy;
+	}
+	
 }

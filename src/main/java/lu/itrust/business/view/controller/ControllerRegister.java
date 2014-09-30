@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import lu.itrust.business.TS.settings.ApplicationSetting;
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
@@ -124,15 +125,15 @@ public class ControllerRegister {
 			// set role of new user
 			user.addRole(role);
 
-			ApplicationSetting setting = new ApplicationSetting("DEFAULT_UI_LANGUAGE","en");
+			ApplicationSetting setting = new ApplicationSetting(Constant.SETTING_DEFAULT_UI_LANGUAGE,"en");
 			user.addApplicationSetting(setting);
 		
 		
-			setting = new ApplicationSetting("DEFAULT_SHOW_UNCERTAINTY","true");
+			setting = new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY,"true");
 			user.addApplicationSetting(setting);
 			
 		
-			setting = new ApplicationSetting("DEFAULT_SHOW_CSSF","false");
+			setting = new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_CSSF,"false");
 			user.addApplicationSetting(setting);
 			
 			// save user

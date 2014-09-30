@@ -7,6 +7,7 @@ import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.helper.AnalysisBaseInfo;
 
@@ -58,7 +59,15 @@ public interface ServiceAnalysis {
 	public List<Analysis> getAllFromCustomer(Customer customer) throws Exception;
 
 	public List<Analysis> getAllFromCustomerIdentifierVersion(Customer customer, String identifier, String version) throws Exception;
+	
+	public List<AnalysisSetting> getAllAnalysisSettings() throws Exception;
+	
+	public List<AnalysisSetting> getAllAnalysisSettingsFromAnalysis(Integer analysisID) throws Exception;
+	
+	public List<AnalysisSetting> getAllAnalysisSettingsFromAnalysisAndUser(Integer analysisID, User user) throws Exception;
 
+	public AnalysisSetting getAnalysisSettingsFromAnalysisAndUserByKey(Integer analysisID, String username, String key) throws Exception;
+	
 	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception;
 
 	public Language getLanguageOfAnalysis(Integer idAnalysis) throws Exception;

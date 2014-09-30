@@ -2493,6 +2493,16 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	/**
+	 * setAnalysisSettings: <br>
+	 * Description
+	 * 
+	 * @param settings
+	 */
+	public void setAnalysisSettings(List<AnalysisSetting> settings) {
+		this.analysisSettings = settings;
+	}
+	
+	/**
 	 * addAnalysisSetting: <br>
 	 * Description
 	 * 

@@ -310,15 +310,13 @@ public class ControllerPatch {
 			}
 
 			TrickService ts = serviceTrickService.getStatus();
-			if (GeneralComperator.VersionComparator(ts.getVersion(), patchversion) == -1) {
 
-				ts.setVersion(patchversion);
-				serviceTrickService.saveOrUpdate(ts);
+			ts.setVersion(patchversion);
+			serviceTrickService.saveOrUpdate(ts);
 
-			}
 			System.out.println("Done...");
 
-			return JsonMessage.Success(messageSource.getMessage("success.maintenance.update.all", null, "Measures were successfully updated", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.compliance.update", null, "Compliances were successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return JsonMessage.Error(e.getMessage());
@@ -329,7 +327,7 @@ public class ControllerPatch {
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
 	public @ResponseBody String createDefaultSettingsForUsers(Locale locale){
 		
-		System.out.println("Patching compliance (version 0.6.3)");
+		System.out.println("Patching Application Settings (version 0.6.3d)");
 
 		String patchversion = "0.6.3d";
 
@@ -387,8 +385,12 @@ public class ControllerPatch {
 					}
 				}
 				
-				AnalysisSetting analysisSetting = new AnalysisSetting(Constant.SETTING_LANGUAGE,analysis.getLanguage().getAlpha3(), user);
-				analysis.addAnalysisSetting(analysisSetting);
+				if(!analysis.analysisSettingExists(Constant.SETTING_LANGUAGE)){
+					AnalysisSetting analysisSetting = new AnalysisSetting(Constant.SETTING_LANGUAGE,analysis.getLanguage().getAlpha3(), user);
+					analysis.addAnalysisSetting(analysisSetting);	
+				}
+				
+				
 				
 				serviceAnalysis.saveOrUpdate(analysis);
 				
@@ -399,14 +401,12 @@ public class ControllerPatch {
 		}
 		
 		TrickService ts = serviceTrickService.getStatus();
-		if (GeneralComperator.VersionComparator(ts.getVersion(), patchversion) == -1) {
-
-			ts.setVersion(patchversion);
-			serviceTrickService.saveOrUpdate(ts);
-
-		}
+		ts.setVersion(patchversion);
+		serviceTrickService.saveOrUpdate(ts);
+		
 		System.out.println("Done...");
-		return JsonMessage.Success(messageSource.getMessage("success.maintenance.update.all", null, "Measures were successfully updated", locale));
+	
+		return JsonMessage.Success(messageSource.getMessage("success.applicationsettings.update", null, "Application settings were successfully updated", locale));
 	} catch (Exception e) {
 		e.printStackTrace();
 		return JsonMessage.Error(e.getMessage());

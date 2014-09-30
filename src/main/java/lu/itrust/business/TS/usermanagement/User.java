@@ -413,6 +413,16 @@ public class User implements Serializable {
 	public List<ApplicationSetting> getApplicationSettings(){
 		return this.applicationSettings;
 	}
+
+	/**
+	 * getApplicationSettings: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public void setApplicationSettings(List<ApplicationSetting> applicationsettings){
+		this.applicationSettings = applicationsettings;
+	}
 	
 	/**
 	 * getApplicationSettingsAsMap: <br>

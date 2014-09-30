@@ -16,6 +16,40 @@ $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
 });
 
+function updateSettings(element, entryKey) {
+	$.ajax({
+		url : context + "/Settings/Update",
+		type : 'post',
+		data : {
+			'key' : entryKey,
+			'value' : !$(element).hasClass('glyphicon-ok')
+		},
+		async : false,
+		success : function(response) {
+			if (response == undefined || response !== true)
+				unknowError();
+			else {
+				if ($(element).hasClass('glyphicon-ok'))
+					$(element).removeClass('glyphicon-ok');
+				else
+					$(element).addClass('glyphicon-ok');
+				var sections = $(element).attr("trick-section-dependency");
+				if (sections != undefined)
+					return reloadSection(sections.split(','));
+				var callBack = $(element).attr("trick-callback");
+				if (callBack != undefined)
+					return eval(callBack);
+				var reload = $(element).attr("trick-reload");
+				if (reload == undefined || reload == 'true')
+					location.reload();
+			}
+			return true;
+		},
+		error : unknowError
+	});
+	return false;
+}
+
 // reload measures
 function reloadMeasureRow(idMeasure, norm) {
 	$.ajax({

@@ -254,7 +254,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String displayAll(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
+	public String displayAll(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale, HttpServletRequest request) throws Exception {
 
 		// retrieve analysisId if an analysis was already selected
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
@@ -309,7 +309,6 @@ public class ControllerAnalysis {
 					}
 				}	
 						
-				
 				if(analysissettings.get(Constant.SETTING_SHOW_CSSF)==null){
 					if(applicationSettings.get(Constant.SETTING_DEFAULT_SHOW_CSSF)==null){
 						ApplicationSetting aset = new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_CSSF, "true");
@@ -332,7 +331,34 @@ public class ControllerAnalysis {
 				
 				model.addAttribute("show_uncertainty", analysis.getAnalysisSettingsFromUser(user).get(Constant.SETTING_SHOW_UNCERTAINTY).getValue());
 				model.addAttribute("show_cssf", analysis.getAnalysisSettingsFromUser(user).get(Constant.SETTING_SHOW_CSSF).getValue());		
-				model.addAttribute("language", analysis.getAnalysisSettingsFromUser(user).get(Constant.SETTING_LANGUAGE).getValue());
+				
+				
+				String requestedLanguage = request.getParameter("language");
+				
+				String currentLanguage =  analysis.getAnalysisSettingsFromUser(user).get(Constant.SETTING_LANGUAGE).getValue();
+				
+				if(requestedLanguage != null) {
+					if(requestedLanguage==currentLanguage)
+						model.addAttribute("language",currentLanguage);
+					else {
+						if(!serviceLanguage.existsByAlpha3(requestedLanguage)){
+							attributes.addFlashAttribute("errors", messageSource.getMessage("error.language_inexistant", null, "Requested language does not exist!", locale));
+							model.addAttribute("language",currentLanguage);
+						}
+						else {
+							model.addAttribute("language",requestedLanguage);
+							AnalysisSetting setting = analysis.getAnalysisSettingsFromUser(user).get(Constant.SETTING_LANGUAGE);
+							setting.setValue(requestedLanguage.toUpperCase());
+							analysis.getAnalysisSettingsFromUser(user).put(Constant.SETTING_LANGUAGE, setting);
+							serviceAnalysis.saveOrUpdate(analysis);
+						}
+							
+							
+					}
+				} else
+					model.addAttribute("language",currentLanguage);
+				
+				model.addAttribute("languages", serviceLanguage.getAll());
 				
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));

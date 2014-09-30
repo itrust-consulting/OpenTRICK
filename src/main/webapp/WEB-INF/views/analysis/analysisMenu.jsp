@@ -11,7 +11,7 @@
 <c:set var="menu">
 	${fn:substringAfter(fn:substringAfter(url,pageContext.request.contextPath),"/")}
 </c:set>
-<div class="navbar navbar-default navbar-fixed-top navbar-custom affix" style="z-index: 1029">
+<div class="navbar navbar-default navbar-fixed-top navbar-custom affix" style="z-index: 1029; min-width: 1400px;">
 	<div id="analysismenu" class="container">
 		<ul class="nav navbar-nav">
 			<c:if test="${!KowledgeBaseView}">
@@ -36,7 +36,6 @@
 						<li><a href="#anchorRiskInformation_Vul"><spring:message code="label.menu.analysis.vulnerability" text="Vulnerabilities" /></a></li>
 						<li><a href="#anchorRiskInformation_Risk"><spring:message code="label.menu.analysis.risk" text="Risks" /></a></li>
 					</ul></li>
-
 				<li><a href="#anchorAsset"><spring:message code="label.menu.analysis.asset" text="Assets" /></a></li>
 			</c:if>
 			<li><a href="#anchorScenario"><spring:message code="label.menu.analysis.scenario" text="Scenarios" /></a></li>
@@ -78,7 +77,7 @@
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.actions" text="Actions" /><span class="caret"></span></a>
-				<ul class="dropdown-menu">
+				<ul class="dropdown-menu" id="actionmenu">
 					<li class="dropdown-header"><spring:message code="label.analysis" text="Analysis" /></li>
 					<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <spring:message code="label.action.close.analysis" text="Close analysis" /></a></li>
 					<li class="divider"></li>
@@ -102,15 +101,56 @@
 						<li class="divider"></li>
 					</c:if>
 					<li class="dropdown-header"><spring:message code="label.settings" text="Settings" /></li>
+					<li class="dropdown-submenu" id="languagechooser"><a href="#" >Language<span class="caret" style="border-bottom-color: #000000;border-top-color: #000000;"></span></a>
+						<ul class="dropdown-menu" style="margin-top:-86px;right:158px;">
+						
+						<c:forEach items="${languages}" var="currentlanguage">
+							<li>
+								<c:set value="href='${pageContext.request.contextPath}/Analysis?language=${currentlanguage.getAlpha3()}'" var="link" />
+								<a ${currentlanguage.getAlpha3().equals(language)?'':link} onclick="" style="padding: 6px;">
+									<span class="glyphicon ${currentlanguage.getAlpha3().equals(language)?'glyphicon-ok':''}" style="min-width: 12px;"></span>
+									<span style="padding-left:5px;"><spring:message text="${currentlanguage.getName()}" /></span>
+								</a>
+							</li>
+						
+						
+						</c:forEach>
+						
+						
+						
+						
+						
+						
+							 
+							
+							
+						</ul></li>
 					<c:if test="${!KowledgeBaseView }">
-						<li><a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_cssf');" style="padding: 6px;"><span
+						<li><a href="#" onclick="return updateSettings(this.firstElementChild,'SHOW_CSSF');" style="padding: 6px;"><span
 								class="glyphicon ${empty(show_cssf) or show_cssf? 'glyphicon-ok' : ''}" style="min-width: 12px;"></span><span>&nbsp;<spring:message code="label.settings.show_cssf"
 										text="Display CSSF" /></span></a></li>
 					</c:if>
-					<li><a href="#" onclick="return updateSettings(this.firstElementChild,'analysis','${analysis.id}','show_uncertainty');" style="padding: 6px;"><span
-							class="glyphicon ${empty(show_uncertainty) or show_uncertainty? 'glyphicon-ok':''}" style="min-width: 12px;" trick-section-dependency="section_asset,section_scenario">
-						</span><span>&nbsp;<spring:message code="label.settings.show_uncertainty" text="Display Uncertainty" /></span></a></li>
-
+					<li><a href="#" onclick="return updateSettings(this.firstElementChild,'SHOW_UNCERTAINTY');" style="padding: 6px;"><span
+							class="glyphicon ${empty(show_uncertainty) or show_uncertainty? 'glyphicon-ok':''}" style="min-width: 12px;"> </span><span>&nbsp;<spring:message
+									code="label.settings.show_uncertainty" text="Display Uncertainty" /></span></a></li>
+					
+						<script>
+						
+							$( "#actionmenu li" ).hover(function() {
+								var id = $(this).attr("id");
+								
+								console.log(id);
+								if(id === "languagechooser")
+									$( this ).addClass("open");
+								else
+									$("#languagechooser").removeClass("open");
+							});
+						
+							$( ".dropdown-toggle" ).click(function() {
+								$("#languagechooser").removeClass("open");
+							});
+							
+						</script>
 				</ul></li>
 		</ul>
 	</div>
