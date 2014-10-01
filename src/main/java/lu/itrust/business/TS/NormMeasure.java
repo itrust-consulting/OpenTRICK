@@ -5,6 +5,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -19,6 +34,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity 
+@PrimaryKeyJoinColumn(name="idNormMeasure")
 public class NormMeasure extends Measure {
 
 	/***********************************************************************************************
@@ -26,16 +43,17 @@ public class NormMeasure extends Measure {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The "To Check" comment */
-	private String toCheck;
+	private String toCheck = "";
 
 	/** The List of AssetTypeValues */
 	private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
 
 	/** The List of Measure Properties */
-	private MeasureProperties measurePropertyList;
+	private MeasureProperties measurePropertyList = null;
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -47,6 +65,9 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @return The Measure Properties List object
 	 */
+	@ManyToOne 
+	@JoinColumn(name="fiMeasureProperties", nullable=false)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	public MeasureProperties getMeasurePropertyList() {
 		return measurePropertyList;
 	}
@@ -87,6 +108,13 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @return The List of all Asset Type Values
 	 */
+	@ManyToMany
+	@JoinTable(name = "MeasureAssetTypeValue", 
+			   joinColumns = { @JoinColumn(name = "idNormMeasure", nullable = false) }, 
+			   inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetTypeValue", nullable = false) },
+			   uniqueConstraints = @UniqueConstraint(columnNames = {"idNormMeasure", "idMeasureAssetTypeValue"})
+	)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}
@@ -125,6 +153,7 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @return The To Check Value
 	 */
+	@Column(name="dtToCheck", nullable=false)
 	public String getToCheck() {
 		return this.toCheck;
 	}
@@ -148,6 +177,8 @@ public class NormMeasure extends Measure {
 	 * @see lu.itrust.business.TS.Measure#getImplementationRate()
 	 */
 	@Override
+	@Column(name="dtImplementationRate", nullable=false)
+	@Access(AccessType.FIELD)
 	public Double getImplementationRate() {
 		return (Double) super.getImplementationRate();
 	}
@@ -162,6 +193,7 @@ public class NormMeasure extends Measure {
 	 * @see lu.itrust.business.TS.NormMeasure#getImplementationRate()
 	 */
 	@Override
+	@Transient
 	public double getImplementationRateValue() {
 		return getImplementationRate();
 	}

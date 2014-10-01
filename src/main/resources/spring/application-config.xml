@@ -56,13 +56,14 @@
 	
 	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
 		<property name="cookieName" value="trick-service-ui-lang" />
+		<property name="defaultLocale" value="en" />
 	</bean>
 
 	<!-- <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"> <property name="exposeContextBeansAsAttributes" value="true" /> </bean> -->
 
 	<!-- <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" p:location="/WEB-INF/jdbc.properties" /> -->
 
-	<util:properties id="propertyConfigurer" location="/WEB-INF/jdbc.properties" />
+	<util:properties id="propertyConfigurer" location="classpath:jdbc.properties" />
 
 	<context:property-placeholder properties-ref="propertyConfigurer" />
 
@@ -71,9 +72,7 @@
 
 	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
-		<property name="configLocation">
-			<value>classpath:hibernate.cfg.xml</value>
-		</property>
+		<property name="packagesToScan" value="lu.itrust.business.TS" />
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">${jdbc.dialect}</prop>

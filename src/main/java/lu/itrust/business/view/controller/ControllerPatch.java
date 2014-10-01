@@ -6,21 +6,24 @@ import java.util.Locale;
 import java.util.Map;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.MaturityParameter;
-import lu.itrust.business.TS.Measure;
+import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.TrickService;
 import lu.itrust.business.TS.actionplan.SummaryStage;
+import lu.itrust.business.TS.actionplan.SummaryStandardConformance;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
+import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.component.MeasureManager;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.exception.TrickException;
+import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAnalysisNorm;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceParameter;
 import lu.itrust.business.service.ServiceScenario;
@@ -75,9 +78,16 @@ public class ControllerPatch {
 	@Autowired
 	private MeasureManager measureManager;
 
+	@Autowired
+	private ServiceActionPlan serviceActionPlan;
+
+	@Autowired
+	private ServiceAnalysisNorm serviceAnalysisNorm;
+	
 	@RequestMapping(value = "/Update/ScenarioCategoryValue", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody String updateAllScenario(Locale locale) {
+	public @ResponseBody
+	String updateAllScenario(Locale locale) {
 		try {
 
 			List<Scenario> scenarios = serviceScenario.getAll();
@@ -99,7 +109,8 @@ public class ControllerPatch {
 
 	@RequestMapping(value = "/Update/Measure/AssettypeValue", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody String removeMeasureAssetTypeValueDuplicate(Locale locale) throws Exception {
+	public @ResponseBody
+	String removeMeasureAssetTypeValueDuplicate(Locale locale) throws Exception {
 		try {
 			measureManager.patchMeasureAssetypeValueDuplicated();
 		} catch (TrickException e) {
@@ -112,7 +123,8 @@ public class ControllerPatch {
 
 	@RequestMapping(value = "/Update/Assessments", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody Map<String, String> updateAssessments(Locale locale) {
+	public @ResponseBody
+	Map<String, String> updateAssessments(Locale locale) {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
@@ -142,7 +154,8 @@ public class ControllerPatch {
 
 	@RequestMapping(value = "/Update/ParameterImplementationScale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody Map<String, String> updateImplementationScaleNames(Locale locale) {
+	public @ResponseBody
+	Map<String, String> updateImplementationScaleNames(Locale locale) {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
@@ -155,24 +168,24 @@ public class ControllerPatch {
 					Integer line = Integer.valueOf(parameter.getDescription().substring(8));
 					String desc = "";
 					switch (line) {
-					case 1:
-						desc = Constant.IS_NOT_ACHIEVED;
-						break;
-					case 2:
-						desc = Constant.IS_RUDIMENTARY_ACHIEVED;
-						break;
-					case 3:
-						desc = Constant.IS_PARTIALLY_ACHIEVED;
-						break;
-					case 4:
-						desc = Constant.IS_LARGELY_ACHIEVED;
-						break;
-					case 5:
-						desc = Constant.IS_FULLY_ACHIEVED;
-						break;
-					default:
-						desc = "ImpScale" + String.valueOf(line);
-						break;
+						case 1:
+							desc = Constant.IS_NOT_ACHIEVED;
+							break;
+						case 2:
+							desc = Constant.IS_RUDIMENTARY_ACHIEVED;
+							break;
+						case 3:
+							desc = Constant.IS_PARTIALLY_ACHIEVED;
+							break;
+						case 4:
+							desc = Constant.IS_LARGELY_ACHIEVED;
+							break;
+						case 5:
+							desc = Constant.IS_FULLY_ACHIEVED;
+							break;
+						default:
+							desc = "ImpScale" + String.valueOf(line);
+							break;
 					}
 
 					parameter.setDescription(desc);
@@ -192,77 +205,95 @@ public class ControllerPatch {
 		}
 	}
 
-	// @RequestMapping(value = "/Update/MeasureMaintenance", method =
-	// RequestMethod.GET, headers =
-	// "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Update/UpdateCompliances", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody String updateMaintenance(Locale locale) {
+	public @ResponseBody
+	String updateCompliances(Locale locale) {
 
-		String patchversion = "0.0.2";
+		String patchversion = "0.6.3b";
 
 		try {
 
+			System.out.println("Patching compliance (version 0.6.3b)");
+
+			if(serviceTrickService.getStatus().getVersion().equals(patchversion)) {
+				System.out.println("Patch already installed!");
+				return JsonMessage.Error(messageSource.getMessage("error.patch.installed", null, "The Patch is already installed!", locale));
+			}
+			
 			List<Integer> analyses = serviceAnalysis.getAllAnalysisIDs();
 
 			for (Integer idAnalysis : analyses) {
 
 				System.out.println("analysis " + (analyses.indexOf(idAnalysis) + 1) + " of " + analyses.size());
 
-				Parameter internalSetupRate = serviceAnalysis.getParameterFromAnalysis(idAnalysis, Constant.PARAMETER_INTERNAL_SETUP_RATE);
+				List<AnalysisNorm> norms = serviceAnalysisNorm.getAllFromAnalysis(idAnalysis);
 
-				Parameter externalSetupRate = serviceAnalysis.getParameterFromAnalysis(idAnalysis, Constant.PARAMETER_EXTERNAL_SETUP_RATE);
+				for (AnalysisNorm norm : norms) {
 
-				Parameter defaultLifetime = serviceAnalysis.getParameterFromAnalysis(idAnalysis, Constant.PARAMETER_LIFETIME_DEFAULT);
-
-				Parameter defaultMaintenance = serviceAnalysis.getParameterFromAnalysis(idAnalysis, Constant.PARAMETER_MAINTENANCE_DEFAULT);
-
-				List<Measure> measures = serviceMeasure.getAllComputableFromAnalysis(idAnalysis);
-
-				if (measures == null || measures.isEmpty())
-					continue;
-
-				for (Measure measure : measures) {
-
-					double maintenance = measure.getMaintenance();
-
-					double internalmaintenance = 0;
-
-					double externalmaintenance = 0;
-
-					double recurrentInvestment = 0;
-
-					double investment = 0;
-
-					investment = measure.getInvestment();
-
-					internalmaintenance = (measure.getInternalWL() * (maintenance / 100.));
-
-					externalmaintenance = (measure.getExternalWL() * (maintenance / 100.));
-
-					recurrentInvestment = (investment * (maintenance / 100.));
-
-					measure.setInternalMaintenance(internalmaintenance);
-
-					measure.setExternalMaintenance(externalmaintenance);
-
-					measure.setRecurrentInvestment(recurrentInvestment);
-
-					measure.setCost(Analysis.computeCost(internalSetupRate.getValue(), externalSetupRate.getValue(), defaultLifetime.getValue(), measure.getInternalMaintenance(),
-							measure.getExternalMaintenance(), measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(),
-							measure.getLifetime()));
-
-					serviceMeasure.saveOrUpdate(measure);
-
+					List<SummaryStage> summaries = serviceActionPlanSummary.getAllFromAnalysis(idAnalysis);
+					
+					for (SummaryStage summary : summaries) {
+						
+						if(norm.getNorm().getLabel().equals(Constant.NORM_27001)) {
+							
+							boolean found = false;
+							
+							for(SummaryStandardConformance conformance : summary.getConformances())
+								if(conformance.getAnalysisNorm().getNorm().getLabel().equals(norm.getNorm().getLabel())) {
+									found = true;
+									break;
+								}
+							
+							if(!found)						
+								summary.addConformance(norm, summary.getConformance27001());
+						} else if(norm.getNorm().getLabel().equals(Constant.NORM_27002)) {
+							
+							boolean found = false;
+							
+							for(SummaryStandardConformance conformance : summary.getConformances())
+								if(conformance.getAnalysisNorm().getNorm().getLabel().equals(norm.getNorm().getLabel())) {
+									found = true;
+									break;
+								}
+							
+							if(!found)						
+								summary.addConformance(norm, summary.getConformance27002());
+						} else {
+							
+							boolean found = false;
+							
+							for(SummaryStandardConformance conformance : summary.getConformances())
+								if(conformance.getAnalysisNorm().getNorm().getLabel().equals(norm.getNorm().getLabel())) {
+									found = true;
+									break;
+								}
+							
+							if(!found) {
+							
+								Map<String, Object[]> previouscompliances = ChartGenerator.ComputeComplianceBefore(norm.getMeasures());
+								
+								int compliancevalue = 0;
+								
+								for (String key : previouscompliances.keySet()) {
+									Object[] compliance = previouscompliances.get(key);
+									compliancevalue += (int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]);
+								}
+								
+								compliancevalue = compliancevalue / previouscompliances.size();
+								
+								summary.addConformance(norm, compliancevalue*0.01);
+								
+							}
+								
+						}
+							
+						
+					}
+				
+					for (SummaryStage summary : summaries)
+						serviceActionPlanSummary.saveOrUpdate(summary);
 				}
-
-				for (SummaryStage summaryStage : serviceActionPlanSummary.getAllFromAnalysis(idAnalysis)) {
-					summaryStage.setRecurrentInvestment(0);
-					serviceActionPlanSummary.saveOrUpdate(summaryStage);
-				}
-
-				if (defaultMaintenance != null)
-					serviceParameter.delete(defaultMaintenance);
-
 			}
 
 			TrickService ts = serviceTrickService.getStatus();
@@ -281,96 +312,4 @@ public class ControllerPatch {
 		}
 	}
 
-	@RequestMapping(value = "/Update/ParameterMaturityILPS", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody Map<String, String> updateILPS(Locale locale) {
-
-		String patchversion = "0.0.3";
-
-		Map<String, String> errors = new LinkedHashMap<String, String>();
-
-		try {
-
-			List<Integer> analyses = serviceAnalysis.getAllAnalysisIDs();
-
-			for (int idAnalysis : analyses) {
-
-				List<Parameter> parameters = serviceParameter.getAllFromAnalysisByType(idAnalysis, Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME);
-
-				Map<String, MaturityParameter> maturitylvls = new LinkedHashMap<String, MaturityParameter>();
-
-				for (Parameter parameter : parameters) {
-
-					boolean candelete = true;
-
-					if (parameter.getValue() != -1) {
-
-						MaturityParameter param = maturitylvls.get(((MaturityParameter) parameter).getCategory() + "_" + ((MaturityParameter) parameter).getDescription());
-
-						MaturityParameter matparam = (MaturityParameter) parameter;
-
-						if (param == null) {
-							param = (MaturityParameter) parameter;
-							maturitylvls.put(param.getCategory() + "_" + param.getDescription(), param);
-							candelete = false;
-						}
-
-						switch (matparam.getSMLLevel()) {
-						case 0: {
-							param.setSMLLevel0(matparam.getValue());
-							param.setValue(-1);
-							break;
-						}
-						case 1: {
-							param.setSMLLevel1(matparam.getValue());
-							param.setValue(-1);
-							break;
-						}
-						case 2: {
-							param.setSMLLevel2(matparam.getValue());
-							param.setValue(-1);
-							break;
-						}
-						case 3: {
-							param.setSMLLevel3(matparam.getValue());
-							param.setValue(-1);
-							break;
-						}
-						case 4: {
-							param.setSMLLevel4(matparam.getValue());
-							param.setValue(-1);
-							break;
-						}
-						case 5: {
-							param.setSMLLevel5(matparam.getValue());
-							param.setValue(-1);
-							break;
-						}
-						}
-
-						if (candelete)
-							serviceParameter.delete(parameter);
-					}
-				}
-
-			}
-
-			TrickService ts = serviceTrickService.getStatus();
-			if (GeneralComperator.VersionComparator(ts.getVersion(), patchversion) == -1) {
-
-				ts.setVersion(patchversion);
-				serviceTrickService.saveOrUpdate(ts);
-
-			}
-			System.out.println("Done...");
-
-			errors.put("success", messageSource.getMessage("success.impscale.update.all", null, "Implmentation Scale Parameter descriptions were successfully updated", locale));
-
-			return errors;
-		} catch (Exception e) {
-			errors.put("error", e.getMessage());
-			e.printStackTrace();
-			return errors;
-		}
-	}
 }

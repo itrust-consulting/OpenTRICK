@@ -29,7 +29,7 @@
 						<form:label path="name">
 							<spring:message code="label.analysis.profile.name" text="Name" />
 						</form:label>
-						<form:input path="name" cssClass="form-control" />
+						<form:textarea path="name" cssClass="form-control resize_vertical_only" />
 						<form:errors element="label" path="name" cssClass="label label-danger" />
 					</div>
 					<div class="form-group">
@@ -40,16 +40,7 @@
 					</div>
 					<div class="form-group">
 						<label for="scenario"><spring:message code="label.analysis.profile.scenario" text="Include risk scenarios of analysis in profile" /></label>
-						
 							<input name="scenario" style="max-width: 20px; float: none; display: inline; margin-top: -3px;" type="checkbox" class="form-control"/>
-						
-					</div>
-					<div class="form-group">
-						<form:label path="comment">
-							<spring:message code="label.analysis.profile.description" text="Description" />
-						</form:label>
-						<form:textarea path="comment" cssClass="form-control resize_vertical_only" />
-						<form:errors element="label" path="comment" cssClass="label label-danger" />
 					</div>
 				</form:form>
 			</div>

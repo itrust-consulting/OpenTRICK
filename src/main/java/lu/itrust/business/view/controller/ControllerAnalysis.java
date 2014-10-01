@@ -5,7 +5,6 @@ import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,7 +46,6 @@ import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.usermanagement.UserSQLite;
 import lu.itrust.business.component.AssessmentManager;
-import lu.itrust.business.component.ComparatorItemInformation;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.component.MeasureManager;
@@ -290,8 +288,12 @@ public class ControllerAnalysis {
 
 			if (permissiondenied) {
 
-				Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
-				// initialise and send data to the data model
+				// initialise analysis
+				
+				analysis.setAssets(serviceAsset.getAllFromAnalysis(selected));
+				analysis.setScenarios(serviceScenario.getAllFromAnalysis(selected));
+				analysis.setItemInformations(serviceItemInformation.getAllFromAnalysis(selected));
+
 				Hibernate.initialize(analysis.getLanguage());
 				model.addAttribute("login", principal.getName());
 				model.addAttribute("language", analysis.getLanguage().getAlpha3());
@@ -929,9 +931,7 @@ public class ControllerAnalysis {
 				phase.setBeginDate(new java.sql.Date(calendar.getTimeInMillis()));
 				calendar.add(Calendar.YEAR, 1);
 				phase.setEndDate(new java.sql.Date(calendar.getTimeInMillis()));
-				mappingPhases.put(Constant.PHASE_NOT_USABLE, new Phase(Constant.PHASE_NOT_USABLE));
 				mappingPhases.put(Constant.PHASE_DEFAULT, phase);
-				analysis.addUsedPhase(mappingPhases.get(Constant.PHASE_NOT_USABLE));
 				analysis.addUsedPhase(phase);
 			}
 
@@ -1101,6 +1101,13 @@ public class ControllerAnalysis {
 				return JsonMessage.Error(messageSource.getMessage("error.profile.delete.failed", null, "Default profile cannot be deleted!", locale));
 
 			// delete the analysis
+			
+			serviceActionPlan.deleteAllFromAnalysis(analysisId);
+			
+			serviceActionPlanSummary.deleteAllFromAnalysis(analysisId);
+			
+			serviceRiskRegister.deleteAllFromAnalysis(analysisId);
+			
 			serviceAnalysis.delete(analysisId);
 
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");

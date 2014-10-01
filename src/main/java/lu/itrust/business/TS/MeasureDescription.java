@@ -3,7 +3,22 @@ package lu.itrust.business.TS;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
 import lu.itrust.business.TS.tsconstant.Constant;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 /**
  * MeasureDescription: <br>
@@ -21,6 +36,8 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @version 0.1
  * @since Jan 28, 2013
  */
+@Entity 
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiNorm","dtReference"}))
 public class MeasureDescription implements Cloneable {
 
 	/***********************************************************************************************
@@ -28,21 +45,33 @@ public class MeasureDescription implements Cloneable {
 	 **********************************************************************************************/
 
 	/** Measure Description id */
+	@Id @GeneratedValue 
+	@Column(name="idMeasureDescription")
 	private int id = -1;
 
 	/** Measure Norm Object */
+	@ManyToOne
+	@JoinColumn(name="fiNorm", nullable=false)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private Norm norm = null;
 
 	/** Measure Description Text List (one entry represents one language) */
+	@OneToMany(mappedBy="measureDescription")
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */
+	@Column(name="dtLevel", nullable=false)
+	@Access(AccessType.FIELD)
 	private int level = -1;
 
 	/** Measure Reference */
+	@Column(name="dtReference", nullable=false)
+	@Access(AccessType.FIELD)
 	private String reference = "";
 
 	/** Flag to determine if measure can be used in the action plan (before: measure had to be level 3) */
+	@Column(name="dtComputable", nullable=false)
 	private boolean computable = true;
 	
 	/***********************************************************************************************

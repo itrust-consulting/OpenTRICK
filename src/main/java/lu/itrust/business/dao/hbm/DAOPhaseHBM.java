@@ -147,6 +147,21 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	}
 
 	/**
+	 * getAllFromAnalysisActionPlan: <br>
+	 * Description
+	 * 
+	 * @param idAnalysis
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Phase> getAllFromAnalysisActionPlan(Integer idAnalysis) throws Exception {
+		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.number in (Select DISTINCT actionplan.measure.phase.number From Analysis a inner join a.actionPlans actionplan where a.id = :idAnalysis)  order by phase.number";
+		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+	}
+	
+	/**
 	 * save: <br>
 	 * Description
 	 * 

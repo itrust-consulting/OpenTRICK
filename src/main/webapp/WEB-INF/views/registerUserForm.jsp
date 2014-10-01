@@ -25,7 +25,7 @@
 						<spring:message code="label.user.login" text="Username"/>
 					</form:label>
 					<div class="col-sm-9">
-						<form:input path="login" cssClass="form-control" htmlEscape="true" required='true' />
+						<form:input path="login" cssClass="form-control" required='true' />
 						<form:errors path="login" cssClass="label label-danger" element="span" />
 					</div>
 				</div>
@@ -34,7 +34,7 @@
 						<spring:message code="label.user.password" text="Password"/>
 					</form:label>
 					<div class="col-sm-9">
-						<form:password path="password" cssClass="form-control" required='true' htmlEscape="true" />
+						<form:password path="password" cssClass="form-control" required='true' />
 						<form:errors path="password" cssClass="label label-danger" element="span" />
 					</div>
 				</div>
@@ -43,7 +43,7 @@
 						<spring:message code="label.user.repeat_password" text="Repeat password" />
 					</form:label>
 					<div class="col-sm-9">
-						<form:password path="repeatPassword" cssClass="form-control" htmlEscape="true" required='true' />
+						<form:password path="repeatPassword" cssClass="form-control" required='true' />
 						<form:errors path="repeatPassword" cssClass="label label-danger" element="span" />
 					</div>
 				</div>
@@ -52,7 +52,7 @@
 						<spring:message code="label.user.first_name" text="Firstname"/>
 					</form:label>
 					<div class="col-sm-9">
-						<form:input path="firstName" cssClass="form-control" htmlEscape="true" required='true' />
+						<form:input path="firstName" cssClass="form-control" required='true' />
 						<form:errors path="firstName" cssClass="label label-danger" element="span" />
 					</div>
 				</div>
@@ -61,7 +61,7 @@
 						<spring:message code="label.user.last_name" text="Lastname"/>
 					</form:label>
 					<div class="col-sm-9">
-						<form:input path="lastName" cssClass="form-control" required='true' htmlEscape="true" />
+						<form:input path="lastName" cssClass="form-control" required='true' />
 						<form:errors path="lastName" cssClass="label label-danger" element="span" />
 					</div>
 				</div>
@@ -70,7 +70,7 @@
 						<spring:message code="label.user.email" text="Email address"/>
 					</form:label>
 					<div class="col-sm-9">
-						<form:input path="email" cssClass="form-control" htmlEscape="true" required='true'
+						<form:input path="email" cssClass="form-control" required='true'
 							pattern='^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$' />
 						<form:errors path="email" cssClass="label label-danger" element="span" />
 					</div>

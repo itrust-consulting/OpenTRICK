@@ -6,6 +6,7 @@ import java.util.Map;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.actionplan.ActionPlanMode;
 
 /**
  * DAOMeasure.java: <br>
@@ -51,10 +52,12 @@ public interface DAOMeasure {
 	public void delete(Integer id) throws Exception;
 
 	public void delete(Measure measure) throws Exception;
-
+	
 	public Map<String,Measure> mappingAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm);
 
 	public int countNormMeasure();
 
 	public List<NormMeasure> getAllNormMeasure(int pageIndex, int pageSize);
+
+	public List<Integer> getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndNorm(int idAnalysis, String norm, ActionPlanMode appn);
 }

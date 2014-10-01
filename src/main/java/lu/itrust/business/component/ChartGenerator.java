@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.Measure;
@@ -16,6 +17,7 @@ import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
+import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -25,6 +27,7 @@ import lu.itrust.business.component.helper.RRFAssetType;
 import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.component.helper.RRFMeasure;
 import lu.itrust.business.dao.DAOActionPlan;
+import lu.itrust.business.dao.DAOAnalysisNorm;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
 import lu.itrust.business.dao.DAOAssetType;
@@ -77,6 +80,9 @@ public class ChartGenerator {
 	@Autowired
 	private DAOParameter daoParameter;
 
+	@Autowired
+	private DAOAnalysisNorm daoAnalysisNorm;
+
 	private String exporting =
 		"\"exporting\":{\"sourceWidth\":1500,\"sourceHeight\": 600,\"chartOptions\": {\"legend\": {\"enabled\": true,\"title\": { \"text\": \"\"  }, \"itemHiddenStyle\": { \"display\": \"none\" } }, \"rangeSelector\": {\"enabled\": false },\"navigator\": {\"enabled\": false},\"scrollbar\": {\"enabled\": false}}}";
 
@@ -104,7 +110,7 @@ public class ChartGenerator {
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_asset", null, "ALE by Asset", locale) + "\"}";
 
@@ -185,7 +191,7 @@ public class ChartGenerator {
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_asset_type", null, "ALE by Asset Type", locale) + "\"}";
 
@@ -265,7 +271,7 @@ public class ChartGenerator {
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_scenario_type", null, "ALE by Scenario Type", locale) + "\"}";
 
@@ -345,7 +351,7 @@ public class ChartGenerator {
 		}
 		Collections.sort(ales2, new AssetComparatorByALE());
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\"},  \"scrollbar\": {\"enabled\": true}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"y\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": true}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.ale_by_scenario", null, "ALE by Scenario", locale) + "\"}";
 
@@ -410,16 +416,19 @@ public class ChartGenerator {
 	 * @param norm
 	 * @return
 	 */
-	public static Map<String, Object[]> ComputeComplianceBefore(List<Measure> measures, String norm) {
+	public static Map<String, Object[]> ComputeComplianceBefore(List<? extends Measure> measures) {
 		Map<String, Object[]> compliances = new LinkedHashMap<String, Object[]>();
 		for (Measure measure : measures) {
-			if (measure.getAnalysisNorm().getNorm().getLabel().equals(norm) && measure.getMeasureDescription().isComputable() && !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
+			if (measure.getMeasureDescription().isComputable()) {
 				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
 				Object[] compliance = compliances.get(chapter);
 				if (compliance == null)
 					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
 				compliance[0] = (Integer) compliance[0] + 1;
-				compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue();
+				if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+					compliance[1] = (Double) compliance[1] + measure.getImplementationRateValue();
+				else
+					compliance[1] = (Double) compliance[1] + Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE;
 			}
 		}
 		return compliances;
@@ -437,37 +446,20 @@ public class ChartGenerator {
 	 * @param previouscompliences
 	 * @return
 	 */
-	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, String norm, List<Measure> actionplanmeasures, List<Measure> actionplanmeasuresnottoimpl, Phase phase,
-			Map<String, Object[]> previouscompliences) {
+	public static Map<String, Object[]> ComputeCompliance(List<Measure> measures, Phase phase, Map<Integer, Boolean> actionPlanMeasures, Map<String, Object[]> previouscompliences) {
 		Map<String, Object[]> compliances = previouscompliences;
 
 		for (Measure measure : measures) {
-
-			// System.out.println(measure.getPhase().getNumber() + "::" +
-			// phase.getNumber());
-
-			String normname = measure.getAnalysisNorm().getNorm().getLabel();
-
-			Integer measureLevel = measure.getMeasureDescription().getLevel();
 
 			String status = measure.getStatus();
 
 			Boolean goodPhase = measure.getPhase().getNumber() == phase.getNumber();
 
-			if (normname.equals(norm) && measureLevel >= Constant.MEASURE_LEVEL_3 && !status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && goodPhase) {
+			if (measure.getMeasureDescription().isComputable() && !status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && goodPhase) {
 				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
 				Object[] compliance = compliances.get(chapter);
-				if (compliance == null)
-					compliances.put(chapter, compliance = new Object[] { 0, 0.0 });
-				// compliance[0] = (Integer) compliance[0] + 1;
-
-				Boolean onActionPlan = actionplanmeasures.contains(measure) && !actionplanmeasuresnottoimpl.contains(measure);
-
-				if (onActionPlan) {
-					compliance[1] = (Double) compliance[1] + Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE;
-					compliance[1] = (Double) compliance[1] - measure.getImplementationRateValue();
-				}
-
+				if (actionPlanMeasures.containsKey(measure.getId()))
+					compliance[1] = ((Double) compliance[1] + Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) - measure.getImplementationRateValue();
 			}
 		}
 		return compliances;
@@ -484,11 +476,11 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	public String compliance(int idAnalysis, String norm, Locale locale) throws Exception {
-		List<Measure> measures = daoMeasure.getAllFromAnalysis(idAnalysis);
+		List<Measure> measures = daoMeasure.getAllFromAnalysisAndNorm(idAnalysis, norm);
 
-		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures, norm);
+		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures);
 
-		String chart = "\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30},  \"scrollbar\": {\"enabled\": false}";
+		String chart = "\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30, \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { norm }, norm + " measure compliance", locale) + "\"}";
 
@@ -534,15 +526,20 @@ public class ChartGenerator {
 
 		series += serie;
 
-		List<Measure> actionplanmeasures = daoActionPlan.getMeasuresFromActionPlanAndAnalysis(idAnalysis, ActionPlanMode.APPN);
+		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndNorm(idAnalysis, norm, ActionPlanMode.APPN);
 
-		List<Measure> actionplanmeasuresnottoimplement = daoActionPlan.getMeasuresFromActionPlanAndAnalysisAndNotToImplement(idAnalysis, ActionPlanMode.APPN);
+		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>(idMeasureInActionPlans.size());
 
-		List<Phase> phases = daoPhase.getAllFromAnalysis(idAnalysis);
+		for (Integer integer : idMeasureInActionPlans)
+			actionPlanMeasures.put(integer, true);
+
+		idMeasureInActionPlans.clear();
+
+		List<Phase> phases = daoPhase.getAllFromAnalysisActionPlan(idAnalysis);
 
 		Hibernate.initialize(phases);
 
-		if (actionplanmeasures != null && actionplanmeasures.size() > 0) {
+		if (!actionPlanMeasures.isEmpty()) {
 
 			for (Phase phase : phases) {
 
@@ -553,7 +550,7 @@ public class ChartGenerator {
 
 				Map<String, Object[]> compliances = null;
 
-				compliances = ComputeCompliance(measures, norm, actionplanmeasures, actionplanmeasuresnottoimplement, phase, previouscompliances);
+				compliances = ComputeCompliance(measures, phase, actionPlanMeasures, previouscompliances);
 
 				previouscompliances = compliances;
 
@@ -595,17 +592,18 @@ public class ChartGenerator {
 	 * @param actionPlanType
 	 * @param locale
 	 * @return
+	 * @throws Exception
 	 */
-	public String evolutionProfitabilityCompliance(List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale) {
+	public String evolutionProfitabilityCompliance(Integer idAnalysis, List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale) throws Exception {
 
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
-
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": false}";
+		
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
 		String title =
 			"\"title\": {\"text\":\""
-				+ messageSource.getMessage("label.title.chart.evolution_profitability_compliance." + actionPlanType.toLowerCase(), null, "Evolution of profitability and ISO compliance for " + actionPlanType,
-						locale) + "\"}";
+				+ messageSource.getMessage("label.title.chart.evolution_profitability_compliance." + actionPlanType.toLowerCase(), null, "Evolution of profitability and ISO compliance for "
+					+ actionPlanType, locale) + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";
 
@@ -622,10 +620,6 @@ public class ChartGenerator {
 
 		String categories = "[";
 
-		String compliance27001 = "[";
-
-		String compliance27002 = "[";
-
 		String ale = "[";
 
 		String riskReduction = "[";
@@ -634,16 +628,24 @@ public class ChartGenerator {
 
 		String relatifRosi = "[";
 
-		String phaseAnnualCost = "[";
-
 		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(phases, ActionPlanSummaryManager.extractPhaseRow(summaryStages));
 
 		for (Phase phase : usesPhases.values())
 			categories += "\"P" + phase.getNumber() + "\",";
 
-		List<String> dataCompliance27001s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001);
+		Map<String, List<String>> normcompliances = new LinkedHashMap<String, List<String>>();
 
-		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27002);
+		Map<String, String> compliancedata = new LinkedHashMap<String, String>();
+
+		List<AnalysisNorm> anorms = daoAnalysisNorm.getAllFromAnalysis(idAnalysis);
+		
+		for (AnalysisNorm anorm : anorms) {
+			if (summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + anorm.getNorm().getLabel()) != null)
+				if (normcompliances.get(anorm.getNorm().getLabel()) == null)
+					normcompliances.put(anorm.getNorm().getLabel(), summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + anorm.getNorm().getLabel()));
+				else
+					normcompliances.put(anorm.getNorm().getLabel(), summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + anorm.getNorm().getLabel()));
+		}
 
 		List<String> dataALEs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
 
@@ -653,28 +655,28 @@ public class ChartGenerator {
 
 		List<String> dataRelatifROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF);
 
-		List<String> dataPhaseAnnualCosts = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_PHASE_ANNUAL_COST);
-
 		int size = dataALEs.size() - 1;
 
-		for (int i = 0; i < dataCompliance27001s.size(); i++) {
-			compliance27001 += dataCompliance27001s.get(i) + (size != i ? "," : "]");
-			compliance27002 += dataCompliance27002s.get(i) + (size != i ? "," : "]");
+		for (int i = 0; i < usesPhases.size(); i++) {
 			ale += dataALEs.get(i) + (size != i ? "," : "]");
 			riskReduction += dataRiskReductions.get(i) + (size != i ? "," : "]");
 			rosi += dataROSIs.get(i) + (size != i ? "," : "]");
 			relatifRosi += dataRelatifROSIs.get(i) + (size != i ? "," : "]");
-			phaseAnnualCost += dataPhaseAnnualCosts.get(i) + (size != i ? "," : "]");
-		}
 
-		if (!compliance27001.endsWith("]")) {
-			compliance27001 += "]";
-			compliance27002 += "]";
-			ale += "]";
-			riskReduction += "]";
-			rosi += "]";
-			relatifRosi += "]";
-			phaseAnnualCost += "]";
+			for (String key : normcompliances.keySet()) {
+
+				if (compliancedata.get(key) == null) {
+					String data = "[";
+					data += normcompliances.get(key).get(i) + (size != i ? "," : "]");
+					compliancedata.put(key, data);
+				} else {
+					String data = compliancedata.get(key);
+					data += normcompliances.get(key).get(i) + (size != i ? "," : "]");
+					compliancedata.put(key, data);
+				}
+
+			}
+
 		}
 
 		if (categories.endsWith(","))
@@ -684,27 +686,43 @@ public class ChartGenerator {
 		String keuroByYear = messageSource.getMessage("label.metric.keuro_by_year", null, "k€/y", locale);
 
 		String yAxis =
-			"\"yAxis\": [{\"labels\":{\"format\": \"{value} " + keuroByYear + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + messageSource.getMessage("label.summary.cost", null, "Cost", locale)
+			"\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + keuroByYear + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + messageSource.getMessage("label.summary.cost", null, "Cost", locale)
 				+ "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}%\"}, \"title\":{\"text\":\"" + messageSource.getMessage("label.summary.compliance", null, "Compliance", locale)
 				+ "\"}, \"opposite\": true} ]";
 
 		xAxis = "\"xAxis\":{\"categories\":" + categories + "}";
+
+		series += "\"series\":[";
+
+		for (String key : compliancedata.keySet()) {
+			
+			if(isNormInActionPlan(key, daoActionPlan.getAllFromAnalysis(idAnalysis)))
+				series +=
+				"{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " " + key + "\"," + " \"data\":" + compliancedata.get(key) + ", \"valueDecimals\": 0, \"type\": \"column\", \"yAxis\": 1, \"tooltip\": {\"valueSuffix\": \"%\"}},";
+		}
+
 		series +=
-			"\"series\":[{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27001, null, "Compliance 27001", locale) + "\", \"data\":" + compliance27001
-				+ ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1, \"tooltip\": {\"valueSuffix\": \"%\"}}, {\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE_27002, null, "Compliance 27002", locale) + "\", \"data\":" + compliance27002
-				+ ",\"valueDecimals\": 0,  \"type\": \"column\",\"yAxis\": 1},{\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale) + "\", \"data\":" + ale
+			"{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale) + "\", \"data\":" + ale
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"},  {\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale)
-				+ "\", \"data\":" + riskReduction + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_PHASE_ANNUAL_COST, null, "Phase annual cost", locale) + "\", \"data\":" + phaseAnnualCost
-				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale) + "\", \"data\":" + rosi
+				+ "\", \"data\":" + riskReduction + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale) + "\", \"data\":" + rosi
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale)
 				+ "\", \"data\":" + relatifRosi + ",\"valueDecimals\": 0,\"type\": \"line\"}]";
 
 		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "," + exporting + "}").replaceAll("\r|\n", " ");
 	}
 
+	private boolean isNormInActionPlan(String norm, List<ActionPlanEntry> actionplans) {
+		boolean result = false;
+		
+		for(ActionPlanEntry entry : actionplans)
+			if(entry.getMeasure().getAnalysisNorm().getNorm().getLabel().equals(norm)) {
+				result = true;
+				break;
+			}
+				
+		return result;
+	}
+	
 	/**
 	 * budget: <br>
 	 * Description
@@ -719,7 +737,7 @@ public class ChartGenerator {
 
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
 
-		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": false}";
+		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
 		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.budget." + actionPlanType.toLowerCase(), null, "Budget for " + actionPlanType, locale) + "\"}";
 
@@ -767,7 +785,7 @@ public class ChartGenerator {
 
 		List<String> dataInvestment = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT);
 
-		List<String> dataCurrentCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_CURRENT_COST);
+		List<String> dataCurrentCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST);
 
 		List<String> dataTotalPhaseCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
 
@@ -816,7 +834,7 @@ public class ChartGenerator {
 				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale) + "\", \"data\":" + totalPhaseCost
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, null, "Investment", locale)
 				+ "\", \"data\":" + investment + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
-				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_CURRENT_COST, null, "Current cost", locale) + "\", \"data\":" + currentCost
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST, null, "Current cost", locale) + "\", \"data\":" + currentCost
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
 
 		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + ", " + exporting + "}").replaceAll("\r|\n", " ");
@@ -903,7 +921,9 @@ public class ChartGenerator {
 				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": " + (!filter.getSeries().contains(key)) + "},";
 			}
 
-			String chart = "\"chart\":{ \"type\":\"" + (measures.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": " + (measures.size() > 9) + "}";
+			String chart =
+				"\"chart\":{ \"type\":\"" + (measures.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": " + (measures.size() > 9)
+					+ "}";
 
 			if (series.endsWith(","))
 				series = series.substring(0, series.length() - 1);
@@ -932,11 +952,9 @@ public class ChartGenerator {
 						+ messageSource.getMessage("label.measures", null, "Measures", locale) + "\"}}";
 
 			return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
-		}
-		catch(TrickException e){
+		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -984,7 +1002,9 @@ public class ChartGenerator {
 				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": " + (!filter.getSeries().contains(key)) + "},";
 			}
 
-			String chart = "\"chart\":{ \"type\":\"" + (scenarios.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\"},  \"scrollbar\": {\"enabled\": " + (scenarios.size() > 9) + "}";
+			String chart =
+				"\"chart\":{ \"type\":\"" + (scenarios.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": " + (scenarios.size() > 9)
+					+ "}";
 
 			if (series.endsWith(","))
 				series = series.substring(0, series.length() - 1);
@@ -1013,12 +1033,11 @@ public class ChartGenerator {
 						+ messageSource.getMessage("label.scenarios", null, "Scenario", locale) + "\"}}";
 
 			return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
-		} 
-		
-		catch(TrickException e){
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
-		catch (Exception e) {
+
+		catch (TrickException e) {
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;

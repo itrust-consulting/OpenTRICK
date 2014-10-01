@@ -43,4 +43,5 @@ public interface DAOHistory {
 	public void saveOrUpdate(History history) throws Exception;
 
 	public void delete(History history) throws Exception;
+	
 }

@@ -25,28 +25,26 @@
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">
-			<table class="table table-hover table-fixed-header">
+			<table class="table table-hover">
 				<thead>
 					<tr>
 						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'analysis')" disabled="disabled"></th>
-						<th colspan="4"><spring:message code="label.analysis.identifier" text="Name"/></th>
-						<th colspan="10"><spring:message code="label.analysis.comment" text="Comment"/></th>
-						<th colspan="3"><spring:message code="label.analysis.creation_date" text="Create date"/></th>
-						<th colspan="3"><spring:message code="label.analysis.owner" text="Owner" /></th>
-						<th colspan="3"><spring:message code="label.analysis.language" text="Language"/></th>
-						<th colspan="2"><spring:message code="label.analysis.profile.default" text="Default" /></th>
+						<th><spring:message code="label.analysis.label" text="Name"/></th>
+						<th><spring:message code="label.analysis.creation_date" text="Create date"/></th>
+						<th><spring:message code="label.analysis.owner" text="Owner" /></th>
+						<th><spring:message code="label.analysis.language" text="Language"/></th>
+						<th><spring:message code="label.analysis.profile.default" text="Default" /></th>
 					</tr>
 				</thead>
 				<tbody>
 					<c:forEach items="${analyses}" var="analysis">
 						<tr trick-id="${analysis.id}" trick-rights-id="0" data="${analysis.hasData()}" ondblclick="return editSingleAnalysis(${analysis.id});">
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_profile_analysis','#menu_analysis');"></td>
-							<td colspan="4"><spring:message text="${analysis.identifier}"/></td>
-							<td colspan="10"><spring:message text="${analysis.label}"/></td>
-							<td colspan="3"><spring:message text="${analysis.creationDate}"/></td>
-							<td colspan="3"><spring:message text="${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}"/></td>
-							<td colspan="3"><spring:message text="${analysis.language.name}"/></td>
-							<td colspan="2"><spring:message code="label.yes_no.${fn:toLowerCase(analysis.defaultProfile)}" text="${analysis.defaultProfile?'Yes':'No'}" /></td>
+							<td><spring:message text="${analysis.label}"/></td>
+							<td><spring:message text="${analysis.creationDate}"/></td>
+							<td><spring:message text="${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}"/></td>
+							<td><spring:message text="${analysis.language.name}"/></td>
+							<td><spring:message code="label.yes_no.${fn:toLowerCase(analysis.defaultProfile)}" text="${analysis.defaultProfile?'Yes':'No'}" /></td>
 						</tr>
 					</c:forEach>
 				</tbody>

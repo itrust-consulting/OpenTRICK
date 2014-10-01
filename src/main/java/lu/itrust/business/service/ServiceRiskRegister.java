@@ -24,4 +24,6 @@ public interface ServiceRiskRegister {
 	public void saveOrUpdate(RiskRegisterItem riskRegisterItem) throws Exception;
 
 	public void delete(RiskRegisterItem riskRegisterItem) throws Exception;
+	
+	public void deleteAllFromAnalysis(Integer analysisID) throws Exception;
 }

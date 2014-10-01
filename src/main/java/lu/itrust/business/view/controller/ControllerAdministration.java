@@ -19,7 +19,6 @@ import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.CustomDelete;
-import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
@@ -35,6 +34,7 @@ import lu.itrust.business.validator.field.ValidatorField;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
@@ -86,6 +86,9 @@ public class ControllerAdministration {
 	@Autowired
 	private ServiceTrickService serviceTrickService;
 
+	@Value("${app.settings.version}")
+	private String version;
+	
 	/**
 	 * loadAll: <br>
 	 * Description
@@ -155,8 +158,8 @@ public class ControllerAdministration {
 			if (status.isInstalled() == false && serviceAnalysis.getDefaultProfile() != null)
 				status.setInstalled(true);
 
-			if (GeneralComperator.VersionComparator(Constant.TRICKSERVICE_VERSION, status.getVersion()) == 1)
-				status.setVersion(Constant.TRICKSERVICE_VERSION);
+			if (version.equals(status.getVersion()))
+				status.setVersion(version);
 
 			serviceTrickService.saveOrUpdate(status);
 
@@ -164,7 +167,7 @@ public class ControllerAdministration {
 
 		}
 
-		status = new TrickService(Constant.TRICKSERVICE_VERSION, installed);
+		status = new TrickService(version, installed);
 
 		if (serviceAnalysis.getDefaultProfile() != null)
 			status.setInstalled(true);

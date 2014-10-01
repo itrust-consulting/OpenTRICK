@@ -2,6 +2,14 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -15,6 +23,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity 
 public class Customer implements Serializable {
 
 	/***********************************************************************************************
@@ -22,35 +31,57 @@ public class Customer implements Serializable {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** The customer ID */
+	@Id @GeneratedValue 
+	@Access(AccessType.FIELD)
+	@Column(name="idCustomer")
 	private int id = -1;
 
 	/** The Name of the organisation */
+	@Column(name="dtOrganisation", unique=true, nullable=false)
+	@Access(AccessType.FIELD)
 	private String organisation = "";
 
 	/** The Address of the Organisation */
+	@Column(name="dtAddress", nullable=false)
+	@Access(AccessType.FIELD)
 	private String address = "";
 
 	/** The City where the Organisation is located */
+	@Column(name="dtCity", nullable=false)
+	@Access(AccessType.FIELD)
 	private String city = "";
 
 	/** The ZIP Code of the Organisation location */
+	@Column(name="dtZIP", nullable=false, length=20)
+	@Access(AccessType.FIELD)
 	private String ZIPCode = "";
 
 	/** The Country where the Organisation is located */
+	@Column(name="dtCountry", nullable=false)
+	@Access(AccessType.FIELD)
 	private String country = "";
 
 	/** The Name of the Contact Person in the Organisation */
+	@Column(name="dtContactPerson", nullable=false)
+	@Access(AccessType.FIELD)
 	private String contactPerson = "";
 
 	/** The Telephone Number of the Contact Person or Organisation */
+	@Column(name="dtTelephone", nullable=false)
+	@Access(AccessType.FIELD)
 	private String phoneNumber = "";
 
 	/** The Email of the Contact Person or Organisation */
+	@Column(name="dtEmail", nullable=false)
+	@Access(AccessType.FIELD)
 	private String email = "";
 	
+	@Column(name="dtCanBeUsed", nullable=false, columnDefinition="TINYINT(1)")
+	@Access(AccessType.FIELD)
 	private boolean canBeUsed = true; 
 
 	/***********************************************************************************************

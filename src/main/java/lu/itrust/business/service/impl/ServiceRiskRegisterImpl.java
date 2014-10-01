@@ -116,4 +116,11 @@ public class ServiceRiskRegisterImpl implements ServiceRiskRegister {
 	public void delete(RiskRegisterItem riskRegisterItem) throws Exception {
 		daoRiskRegister.delete(riskRegisterItem);
 	}
+
+	@Transactional
+	@Override
+	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
+		daoRiskRegister.deleteAllFromAnalysis(analysisID);
+
+	}
 }

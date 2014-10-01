@@ -2,6 +2,10 @@ package lu.itrust.business.TS;
 
 import java.util.List;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.Transient;
+
 import lu.itrust.business.exception.TrickException;
 
 import org.hibernate.proxy.HibernateProxy;
@@ -14,6 +18,8 @@ import org.hibernate.proxy.HibernateProxy;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity
+@DiscriminatorValue("MeasureNorm")
 public class MeasureNorm extends AnalysisNorm {
 
 	/***********************************************************************************************
@@ -21,6 +27,7 @@ public class MeasureNorm extends AnalysisNorm {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/***********************************************************************************************

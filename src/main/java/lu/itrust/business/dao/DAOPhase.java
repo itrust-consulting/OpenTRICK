@@ -31,10 +31,13 @@ public interface DAOPhase {
 	public List<Phase> getAllFromAnalysisByBeginDate(Integer idAnalysis, Date beginDate) throws Exception;
 
 	public List<Phase> getAllFromAnalysisByEndDate(Integer idAnalysis, Date beginDate) throws Exception;
-
+	
+	public List<Phase> getAllFromAnalysisActionPlan(Integer idAnalysis) throws Exception;
+	
 	public void save(Phase phase) throws Exception;
 
 	public void saveOrUpdate(Phase phase) throws Exception;
 
 	public void delete(Phase phase) throws Exception;
+	
 }

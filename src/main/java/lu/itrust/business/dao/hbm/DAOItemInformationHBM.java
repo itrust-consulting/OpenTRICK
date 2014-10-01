@@ -113,7 +113,37 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ItemInformation> getAllFromAnalysis(Integer analysisID) throws Exception {
-		String query = "Select itemInformation From Analysis as analysis inner join analysis.itemInformations as itemInformation  where analysis.id = :id";
+		String casepart  = "";
+		casepart += "when 'type_organism' then -25 ";
+		casepart += "when 'type_profit_organism' then -24 ";
+		casepart += "when 'name_organism' then -23 ";
+		casepart += "when 'presentation_organism' then -22 ";
+		casepart += "when 'sector_organism' then -21 ";
+		casepart += "when 'responsible_organism' then -20 ";
+		casepart += "when 'staff_organism' then -19 ";
+		casepart += "when 'activities_organism' then -18 ";
+		casepart += "when 'occupation' then -17 ";
+		casepart += "when 'juridic' then -16 ";
+		casepart += "when 'pol_organisation' then -15 ";
+		casepart += "when 'management_organisation' then -14 ";
+		casepart += "when 'premises' then -13 ";
+		casepart += "when 'requirements' then -12 ";
+		casepart += "when 'stakeholder_identification' then -11 ";
+		casepart += "when 'stakeholder_relation' then -10 ";
+		casepart += "when 'expectations' then -9 ";
+		casepart += "when 'environment' then -8 ";
+		casepart += "when 'interface' then -7 ";
+		casepart += "when 'role_responsability' then -6 ";
+		casepart += "when 'escalation_way' then -5 ";
+		casepart += "when 'processus_development' then -4 ";
+		casepart += "when 'document_conserve' then -3 ";
+		casepart += "when 'excluded_assets' then -2 ";
+		casepart += "when 'functional' then -1 ";
+		casepart += "when 'strategic' then 0 ";
+		casepart += "else 1 ";
+		casepart += "end";
+		
+		String query = "Select itemInformation From Analysis as analysis inner join analysis.itemInformations as itemInformation  where analysis.id = :id order by case itemInformation.description " + casepart;
 		return getSession().createQuery(query).setInteger("id", analysisID).list();
 	}
 

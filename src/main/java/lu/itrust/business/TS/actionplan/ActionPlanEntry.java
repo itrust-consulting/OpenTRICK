@@ -4,6 +4,20 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.exception.TrickException;
@@ -13,52 +27,71 @@ import lu.itrust.business.exception.TrickException;
  * Contains an entry in the action plan: This entry's structure is: AnalysisNorm object, Measure
  * object, the total ALE, delta ALE and the ROSI/ROSMI.
  * 
- * @author itrust consulting s.��� r.l. - BJA,SME
+ * @author itrust consulting s.a r.l. - BJA,SME
  * @version 0.1
  * @since 2012-09-13
  */
+@Entity 
+@Table(name="ActionPlan")
 public class ActionPlanEntry implements Serializable {
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
+	/** Regular expression to match valid entry position (positive or negative number or =) */
+	@Transient
+	public static final String POSITION_REGEX = "[-+]\\d+|=|\\d+";
+	
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** The ID of the entry */
+	@Id @GeneratedValue 
+	@Column(name="idActionPlanCalculation")
 	private int id = -1;
 
-	/** */
+	/** action plan type */
+	@ManyToOne 
+	@JoinColumn(name="fiActionPlanType", nullable=false)
 	private ActionPlanType actionPlanType = null;
 
 	/** The Measure object reference */
+	@ManyToOne 
+	@JoinColumn(name="fiMeasure", nullable=false)
 	private Measure measure = null;
-
+	
 	/** The position refered from the normal action plan */
-	private String position = "";
+	@Column(name="dtOrder", nullable=false, length=5)
+	private String order = "";
+	
+	/** the order inside the action plan type */
+	@Column(name="dtPosition", nullable=false)
+	private int position = 0;
 
 	/** The total ALE of each mode (normal, pessimistic, optimistic) */
+	@Column(name="dtTotalALE", nullable=false)
 	private double totalALE = 0;
 
 	/** The Delta ALE of each mode (normal, pessimistic, optimistic) */
+	@Column(name="dtDeltaALE", nullable=false)
 	private double deltaALE = 0;
 
 	/** The cost of the measure */
+	@Column(name="dtCost", nullable=false)
 	private double cost = 0;
 
-	/** Regular expression to match valid entry position (positive or negative number or =) */
-	public static final String POSITION_REGEX = "[-+]\\d+|=|\\d+";
-
-	/**
-	 * Return of investment for Security and Maturity investment of each mode (normal, pessimistic,
-	 * optimistic)
-	 **/
+	/** Return of investment for Security and Maturity investment of each mode (normal, pessimistic, optimistic) */
+	@Column(name="dtROI", nullable=false)
 	private double ROI = 0;
 
 	/** Vector of assets at this state in the final action plan */
 	//private List<ActionPlanAssessment> actionPlanAssessments = new ArrayList<ActionPlanAssessment>();
 
+	@OneToMany(mappedBy="actionPlanEntry")
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OrderBy("currentALE DESC")
 	private List<ActionPlanAsset> actionPlanAssets = new ArrayList<ActionPlanAsset>();
 	
 	/***********************************************************************************************
@@ -251,8 +284,8 @@ public class ActionPlanEntry implements Serializable {
 	 * 
 	 * @return The Position of the Entry
 	 */
-	public String getPosition() {
-		return position;
+	public String getOrder() {
+		return order;
 	}
 
 	/**
@@ -263,9 +296,29 @@ public class ActionPlanEntry implements Serializable {
 	 *            The value to set the Entry Position
 	 * @throws TrickException 
 	 */
-	public void setPosition(String position) throws TrickException {
-		if (position == null || !position.matches(POSITION_REGEX))
+	public void setOrder(String order) throws TrickException {
+		if (order == null || !order.matches(POSITION_REGEX))
 			throw new TrickException("error.action_plan_entry.position","Position is not valid");
+		this.order = order;
+	}
+
+	/**
+	 * getPosition: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public int getPosition() {
+		return position;
+	}
+
+	/**
+	 * setPosition: <br>
+	 * Description
+	 * 
+	 * @param position
+	 */
+	public void setPosition(int position) {
 		this.position = position;
 	}
 

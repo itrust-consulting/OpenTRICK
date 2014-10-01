@@ -16,7 +16,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * DatabaseHandler: 
  * This class handles the creation, closing and queriyng from the databases mysql and sqlite
  * 
- * @author itrust consulting s.à r.l. - SME,BJA
+ * @author itrust consulting s.ï¿½ r.l. - SME,BJA
  * @version 0.1
  * @since 2012-08-21
  */
@@ -39,6 +39,9 @@ public class DatabaseHandler {
      * Constructor
      **********************************************************************************************/
 	
+	protected DatabaseHandler() {
+	}
+
 	/**
 	 * DatabaseHandler: <br>
 	 * This constructor creates a Sqlite Database Connection

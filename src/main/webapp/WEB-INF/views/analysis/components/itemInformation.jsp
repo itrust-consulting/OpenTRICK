@@ -32,7 +32,7 @@
 							<c:forEach items="${itemInformations}" var="itemInformation">
 								<tr trick-class="ItemInformation" trick-id="${itemInformation.id}">
 									<td colspan="1">
-									<spring:message code="label.item_information.${itemInformation.description.trim()}" text="${itemInformation.description}" javaScriptEscape="true"/></td>
+									<spring:message code="label.item_information.${itemInformation.description.trim()}" text="${itemInformation.description}"/></td>
 									<td colspan="2" ondblclick="return editField(this.firstElementChild);" class="success"><pre trick-field="value" trick-content="text" trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
 								</tr>
 							</c:forEach>

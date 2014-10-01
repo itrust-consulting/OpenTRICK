@@ -57,7 +57,7 @@
 								<select name="profile" id="analysis_profile" class="form-control">
 									<option value="-1"><spring:message code="label.action.choose.analysis_profile" text="Choose..." /></option>
 									<c:forEach items="${profiles}" var="profile">
-										<option value="${profile.id }"><spring:message text="${profile.identifier}" /></option>
+										<option value="${profile.id }"><spring:message text="${profile.label}" /></option>
 									</c:forEach>
 								</select>
 							</div>

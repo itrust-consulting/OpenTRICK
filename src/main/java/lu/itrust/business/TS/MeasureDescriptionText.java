@@ -1,5 +1,17 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -11,6 +23,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since Jan 28, 2013
  */
+@Entity 
 public class MeasureDescriptionText implements Cloneable {
 
 	/***********************************************************************************************
@@ -18,18 +31,29 @@ public class MeasureDescriptionText implements Cloneable {
 	 **********************************************************************************************/
 
 	/** The MeasureDescriptionText id */
+	@Id @GeneratedValue 
+	@Column(name="idMeasureDescriptionText")
 	private int id = -1;
 
 	/** The Measure Description Reference (Reference to the measure) */
+	@ManyToOne 
+	@JoinColumn(name="fiMeasureDescription", nullable=false)
 	private MeasureDescription measureDescription = null;
 
 	/** The Language Object */
+	@ManyToOne 
+	@JoinColumn(name="fiLanguage", nullable=false)
+	@Cascade({CascadeType.SAVE_UPDATE})
 	private Language language = null;
 
 	/** The Domain Text */
+	@Column(name="dtDomain", nullable=false, columnDefinition="TEXT")
+	@Access(AccessType.FIELD)
 	private String domain = "";
 
 	/** The Description Text */
+	@Column(name="dtDescription", nullable=false, columnDefinition="LONGTEXT")
+	@Access(AccessType.FIELD)
 	private String description = "";
 
 	/***********************************************************************************************

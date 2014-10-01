@@ -26,4 +26,5 @@ public interface DAOAssetTypeValue {
 	public void delete(AssetTypeValue assetTypeValue) throws Exception;
 
 	public void delete(List<AssetTypeValue> assetTypeValues) throws Exception;
+	
 }

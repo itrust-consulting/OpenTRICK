@@ -2,6 +2,18 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -17,6 +29,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity
+@Table(uniqueConstraints=@UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }))
 public class Assessment implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -24,57 +38,80 @@ public class Assessment implements Serializable, Cloneable {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** identifier from the database */
+	@Id @GeneratedValue 
+	@Column(name="idAssessment")
 	private int id = -1;
 
 	/** Assessment selected flag */
+	@Column(name="dtSelected", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean selected = false;
 
 	/** A comment on this assessment */
+	@Column(name="dtComment", columnDefinition="LONGTEXT", nullable=false)
 	private String comment = "";
 
 	/** hidden assessment comment */
+	@Column(name="dtHiddenComment", columnDefinition="LONGTEXT", nullable=false)
 	private String hiddenComment = "";
 
 	/** The impactFin value of this assessment */
+	@Column(name="dtImpactRep", nullable=false)
 	private String impactRep = "0";
 
 	/** The impactOp value of this assessment */
+	@Column(name="dtImpactOp", nullable=false)
 	private String impactOp = "0";
 
 	/** The impactLeg value of this assessment */
+	@Column(name="dtImpactLeg", nullable=false)
 	private String impactLeg = "0";
 
 	/** The impactFin value of this assessment */
+	@Column(name="dtImpactFin", nullable=false)
 	private String impactFin = "0";
 
 	/** The impactFin value of this assessment */
+	@Column(name="dtImpactReal", nullable=false)
 	private double impactReal = 0;
 
 	/** The likelihood value of this assessment */
+	@Column(name="dtLikelihood", nullable=false)
 	private String likelihood = "0";
 
 	/** The likelihood value of this assessment */
+	@Column(name="dtLikelihoodReal", nullable=false)
 	private double likelihoodReal = 0;
 
 	/** The uncertainty value of this assessment */
+	@Column(name="dtUncertainty", nullable=false)
 	private double uncertainty = 2; // 1 + 1e-7;
 
 	/** The Annual Loss Expectancy - Pessimistic */
+	@Column(name="dtALEP", nullable=false)
 	private double ALEP = 0;
 
 	/** The Annual Loss Expectancy - Normal */
+	@Column(name="dtALE", nullable=false)
 	private double ALE = 0;
 
 	/** The Annual Loss Expectancy - Optimistic */
+	@Column(name="dtALEO", nullable=false)
 	private double ALEO = 0;
 
 	/** The asset object reference */
+	@ManyToOne
+	@JoinColumn(name="fiAsset", nullable=false)
+	@Access(AccessType.FIELD)
 	private Asset asset = null;
 
 	/** The scenario object reference */
+	@ManyToOne
+	@JoinColumn(name="fiScenario", nullable=false)
+	@Access(AccessType.FIELD)
 	private Scenario scenario = null;
 
 	/***********************************************************************************************

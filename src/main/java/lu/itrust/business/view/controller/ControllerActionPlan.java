@@ -2,7 +2,6 @@ package lu.itrust.business.view.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -152,7 +151,7 @@ public class ControllerActionPlan {
 			// load all affected assets of the actionplans (unique assets used)
 			List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
 
-			Collections.reverse(actionplans);
+			//Collections.reverse(actionplans);
 
 			for (ActionPlanEntry ape : actionplans) {
 				Hibernate.initialize(ape);
@@ -189,7 +188,7 @@ public class ControllerActionPlan {
 		}
 		model.put("id", analysisID);
 
-		model.put("norms", serviceAnalysisNorm.getAllFromAnalysis(analysisID));
+		model.put("norms", serviceAnalysisNorm.getAllComputableFromAnalysis(analysisID));
 
 		return "analysis/components/forms/actionplanoptions";
 	}

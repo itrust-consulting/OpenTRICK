@@ -35,9 +35,9 @@
 				<thead>
 					<tr>
 						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
-						<th><spring:message code="label.row.index" text="#" htmlEscape="true" /></th>
-						<th colspan="15"><spring:message code="label.scenario.name" text="Name" htmlEscape="true" /></th>
-						<th colspan="3"><spring:message code="label.scenario.type" text="Type" htmlEscape="true" /></th>
+						<th><spring:message code="label.row.index" text="#" /></th>
+						<th colspan="15"><spring:message code="label.scenario.name" text="Name" /></th>
+						<th colspan="3"><spring:message code="label.scenario.type" text="Type" /></th>
 						<c:choose>
 							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
 								<th colspan="2"><spring:message code="label.scenario.aleo" text="ALEO" /> (k&euro;)</th>
@@ -48,7 +48,7 @@
 								<th colspan="2"><spring:message code="label.scenario.ale" text="ALE" /> (k&euro;)</th>
 							</c:otherwise>
 						</c:choose>
-						<th colspan="20"><spring:message code="label.scenario.description" text="Description" htmlEscape="true" /></th>
+						<th colspan="20"><spring:message code="label.scenario.description" text="Description" /></th>
 					</tr>
 				</thead>
 				<tfoot></tfoot>
@@ -82,6 +82,27 @@
 						</tr>
 					</c:forEach>
 				</tbody>
+				<tfoot>
+					<tr>
+						<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeTotalALE(scenarioALE)" var="ale" />
+						<td colspan="20"><spring:message code="label.total.ale" text="Total" /></td>
+						<c:choose>
+							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+								<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+								<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+								<td colspan="2" title="<fmt:formatNumber value="${ale[2].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[2].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+							</c:when>
+							<c:otherwise>
+								<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+							</c:otherwise>
+						</c:choose>
+						<td colspan="20"></td>
+					</tr>
+				</tfoot>
 			</table>
 		</div>
 	</div>

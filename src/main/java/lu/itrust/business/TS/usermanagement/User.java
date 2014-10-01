@@ -1,43 +1,84 @@
-/**
- * 
- */
 package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
 import lu.itrust.business.TS.Customer;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.GenericGenerator;
+
 /**
- * @author oensuifudine
- * 
+ * User: <br>
+ * Detailed description...
+ *
+ * @author oensuifudine itrust consulting s.a.rl.:
+ * @version 
+ * @since Aug 19, 2012
  */
+@Entity
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"dtLogin","dtEmail"}))
 public class User implements Serializable {
 
-	/**
-	 * 
-	 */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
+	/** Fields */
+	
+	@Id 
+	@GenericGenerator(name="gen",strategy="increment")
+	@GeneratedValue(generator="gen")
+	@Column(name="idUser")
 	private Integer id = -1;
 
+	@Column(name="dtLogin", nullable=false)
 	private String login = null;
 
+	@Column(name="dtPassword", nullable=false)
 	private String password = null;
 
+	@Transient
 	private String repeatPassword = null;
 
+	@Column(name="dtFirstName", nullable=false)
 	private String firstName = null;
 
+	@Column(name="dtLastName", nullable=false)
 	private String lastName = null;
 
+	@Column(name="dtEmail", nullable=false)
 	private String email = null;
 
+	@Column(name="dtEnabled", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean enable = true;
 
+	@ManyToMany
+	@JoinTable(name = "UserRole", 
+			   joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, 
+			   inverseJoinColumns = { @JoinColumn(name = "fiRole", nullable = false, updatable = false) }
+	)
 	private List<Role> roles = new ArrayList<Role>();
 
+	@ManyToMany
+	@JoinTable(name = "UserCustomer", 
+			   joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, 
+			   inverseJoinColumns = { @JoinColumn(name = "fiCustomer", nullable = false, updatable = false) },
+			   uniqueConstraints = @UniqueConstraint(columnNames={"fiUser","fiCustomer"})
+	)
+	@Cascade(CascadeType.ALL)
 	private List<Customer> customers = new ArrayList<Customer>();
 
 	/**

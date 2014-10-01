@@ -3,6 +3,14 @@ package lu.itrust.business.TS;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -17,6 +25,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity 
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis", "dtVersion"}))
 public class History implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -24,24 +34,28 @@ public class History implements Serializable, Cloneable {
 	 **********************************************************************************************/
 
 	/** serialVersionUID */
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** id History unsaved */
+	@Id @GeneratedValue 
+	@Column(name="idHistory")
 	private int id = -1;
 
 	/** The Analysis Version (Version of the History entry) */
+	@Column(name="dtVersion", nullable=false, length=12)
 	private String version = "";
 
 	/** The Date when the History entry was created */
+	@Column(name="dtDateComment", nullable=false)
 	private Date date = null;
 
-	/**
-	 * The Name of the Author that created the History Entry (The Analysis at
-	 * this Version)
-	 */
+	/** The Name of the Author that created the History Entry (The Analysis at this Version) */
+	@Column(name="dtAuthor", nullable=false)
 	private String author = "";
 
 	/** The Comment an Author gave to the History Entry */
+	@Column(name="dtComment", nullable=false, columnDefinition="TEXT")
 	private String comment = "";
 
 	/***********************************************************************************************

@@ -1,5 +1,12 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -11,6 +18,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
+@Entity 
 public class AssetTypeValue implements Cloneable {
 
 	/***********************************************************************************************
@@ -18,12 +26,17 @@ public class AssetTypeValue implements Cloneable {
 	 **********************************************************************************************/
 
 	/** assetTypeValue identifier, unsaved value = -1 */
+	@Id @GeneratedValue 
+	@Column(name="idAssetTypeValue")
 	private int id = -1;
 
 	/** Name of the Asset Type */
+	@ManyToOne 
+	@JoinColumn(name="fiAssetType", nullable=false)
 	private AssetType assetType = null;
 
 	/** The Asset Type Value */
+	@Column(name="dtValue", nullable=false)
 	private int value = -1;
 
 	/***********************************************************************************************

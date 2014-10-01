@@ -12,12 +12,14 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.actionplan.SummaryStage;
+import lu.itrust.business.TS.actionplan.SummaryStandardConformance;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServicePhase;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -185,8 +187,17 @@ public class ControllerSummary {
 		// load all summaries of analysis
 		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType);
 
+		for(SummaryStage stage : summaryStages) {
+			Hibernate.initialize(stage);
+			for(SummaryStandardConformance conformance : stage.getConformances()) {
+				Hibernate.initialize(conformance);
+				Hibernate.initialize(conformance.getAnalysisNorm().getNorm());
+			}
+		}
+			
+		
 		// generate chart
-		return chartGenerator.evolutionProfitabilityCompliance(summaryStages, phases, actionPlanType, locale);
+		return chartGenerator.evolutionProfitabilityCompliance((Integer)session.getAttribute("selectedAnalysis"),summaryStages, phases, actionPlanType, locale);
 	}
 
 	/**

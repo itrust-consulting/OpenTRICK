@@ -223,7 +223,7 @@ public class AssessmentManager {
 		}
 		UpdateAssetALE(analysis);
 	}
-	
+
 	@Transactional
 	public void WipeAssessment(Analysis analysis) throws Exception {
 		Iterator<Assessment> iterator = analysis.getAssessments().iterator();
@@ -379,7 +379,6 @@ public class AssessmentManager {
 			alep.setValue(alep.getValue() + assessment.getALEP());
 			aleo.setValue(aleo.getValue() + assessment.getALEO());
 		}
-
 	}
 
 	public static Map<Integer, ALE[]> ComputeAssetALE(List<Asset> assets, List<Assessment> assessments2) {
@@ -407,11 +406,22 @@ public class AssessmentManager {
 			ales.put(scenario.getId(), ales2);
 		}
 		return ales;
+	}
 
+	public static ALE[] ComputeTotalALE(Map<Integer, ALE[]> alesByAsset) {
+		ALE[] ales = new ALE[3];
+		for (int i = 0; i < ales.length; i++)
+			ales[i] = new ALE(null, 0);
+		for (ALE[] ales2 : alesByAsset.values()) {
+			for (int i = 0; i < 3; i++)
+				ales[i].setValue(ales[i].getValue() + ales2[i].getValue());
+		}
+		return ales;
 	}
 
 	/**
 	 * Generate ALE: ALEO, ALE,ALEP for each scenario and asset
+	 * 
 	 * @param analysis
 	 * @return Length : 2, [0] for Assets, [1] for Scenarios
 	 */

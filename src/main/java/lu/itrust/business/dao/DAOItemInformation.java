@@ -30,4 +30,5 @@ public interface DAOItemInformation {
 	public void saveOrUpdate(ItemInformation itemInformation) throws Exception;
 
 	public void delete(ItemInformation itemInformation) throws Exception;
+	
 }

@@ -17,8 +17,7 @@ function AssessmentViewer() {
 		this.setTitle("Assessment");
 
 		$(this.modal).on("hidden.bs.modal", function() {
-			reloadSection("section_asset", undefined, true);
-			reloadSection("section_scenario", undefined, true);
+			reloadSection("section_asset");// it will call reloadSection for scenario
 		});
 
 		$(this.modal_header).find("*[role='impact_scale']").on("click", function() {
