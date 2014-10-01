@@ -19,6 +19,7 @@ import lu.itrust.business.TS.Customer;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.GenericGenerator;
 
 /**
  * User: <br>
@@ -37,7 +38,9 @@ public class User implements Serializable {
 
 	/** Fields */
 	
-	@Id @GeneratedValue 
+	@Id 
+	@GenericGenerator(name="gen",strategy="increment")
+	@GeneratedValue(generator="gen")
 	@Column(name="idUser")
 	private Integer id = -1;
 
@@ -72,7 +75,8 @@ public class User implements Serializable {
 	@ManyToMany
 	@JoinTable(name = "UserCustomer", 
 			   joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, 
-			   inverseJoinColumns = { @JoinColumn(name = "fiCustomer", nullable = false, updatable = false) }
+			   inverseJoinColumns = { @JoinColumn(name = "fiCustomer", nullable = false, updatable = false) },
+			   uniqueConstraints = @UniqueConstraint(columnNames={"fiUser","fiCustomer"})
 	)
 	@Cascade(CascadeType.ALL)
 	private List<Customer> customers = new ArrayList<Customer>();

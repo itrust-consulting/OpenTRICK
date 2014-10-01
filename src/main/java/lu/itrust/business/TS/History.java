@@ -7,7 +7,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.exception.TrickException;
 
@@ -24,6 +26,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity 
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis", "dtVersion"}))
 public class History implements Serializable, Cloneable {
 
 	/***********************************************************************************************

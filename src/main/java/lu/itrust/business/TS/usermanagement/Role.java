@@ -28,7 +28,7 @@ import javax.persistence.Transient;
 	private int id = - 1;
  
 	@Enumerated(EnumType.STRING)
-	@Column(name="dtType")
+	@Column(name="dtType", nullable=false, unique=true)
 	private RoleType type = null;
 
 	/**

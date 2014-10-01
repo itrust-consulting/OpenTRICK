@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 
@@ -35,6 +37,7 @@ import org.hibernate.annotations.CascadeType;
  * @since Jan 28, 2013
  */
 @Entity 
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiNorm","dtReference"}))
 public class MeasureDescription implements Cloneable {
 
 	/***********************************************************************************************

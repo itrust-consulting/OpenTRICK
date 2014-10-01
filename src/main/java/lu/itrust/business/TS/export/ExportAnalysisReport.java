@@ -790,14 +790,14 @@ public class ExportAnalysisReport {
 					int cellnumber = 0;
 					row.getCell(cellnumber).setText(getMessage("report.summary_stage.compliance.level", new Object[] { "27001" }, "Compliance level 27001 (%)...", locale));
 					for (SummaryStage stage : summary)
-						addCellNumber(row.getCell(++cellnumber), String.valueOf((int) ((stage.getSingleConformance("27001") == null ? 0 : stage.getSingleConformance("27001")) * 100)));
+						addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getSingleConformance("27001") == null ? 0 : stage.getSingleConformance("27001") * 100));
 					break;
 				}
 				case 4: {
 					int cellnumber = 0;
 					row.getCell(cellnumber).setText(getMessage("report.summary_stage.compliance.level", new Object[] { "27002" }, "Compliance level 27002 (%)...", locale));
 					for (SummaryStage stage : summary)
-						addCellNumber(row.getCell(++cellnumber), String.valueOf((int) ((stage.getSingleConformance("27002") == null ? 0 : stage.getSingleConformance("27002")) * 100)));
+						addCellNumber(row.getCell(++cellnumber), numberFormat.format(stage.getSingleConformance("27002") == null ? 0 : stage.getSingleConformance("27002") * 100));
 					break;
 				}
 				case 5: {

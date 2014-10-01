@@ -2729,7 +2729,7 @@ public class ActionPlanComputation {
 		tmpval.recurrentInvestment += ape.getMeasure().getRecurrentInvestment();
 
 		// update recurrent cost
-		tmpval.recurrentCost += ape.getMeasure().getInvestment() * ape.getMeasure().getMaintenance() / 100.;
+		//tmpval.recurrentCost += ape.getMeasure().getInvestment() * ape.getMeasure().getMaintenance() / 100.;
 
 		
 	}
@@ -2919,12 +2919,15 @@ public class ActionPlanComputation {
 		aStage.setInternalMaintenance(tmpval.internalMaintenance*phasetime);
 		aStage.setExternalMaintenance(tmpval.externalMaintenance*phasetime);
 		aStage.setRecurrentInvestment(tmpval.recurrentInvestment*phasetime);
-		aStage.setRecurrentCost(tmpval.recurrentCost);
 		
 		double er = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
 
 		double ir = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
+		tmpval.recurrentCost = (aStage.getInternalMaintenance() * ir) + (aStage.getExternalMaintenance() * er) + aStage.getRecurrentInvestment();
+		
+		aStage.setRecurrentCost(tmpval.recurrentCost);
+		
 		// update total cost
 		tmpval.totalCost += (tmpval.internalWorkload * ir);
 		tmpval.totalCost += (tmpval.externalWorkload * er);
