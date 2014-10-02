@@ -20,6 +20,7 @@ import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.settings.ApplicationSetting;
+import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -109,6 +110,18 @@ public class User implements Serializable {
 		roles = new ArrayList<Role>();
 	}
 
+	public static void createDefaultSettings(User user) {
+		
+		if(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE)==null)
+			user.addApplicationSetting(new ApplicationSetting(Constant.SETTING_DEFAULT_UI_LANGUAGE, "ENG"));
+		
+		if(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY)==null)
+			user.addApplicationSetting(new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY, "true"));
+		
+		if(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_CSSF)==null)
+			user.addApplicationSetting(new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_CSSF, "true"));
+	}
+	
 	/**
 	 * @return the id
 	 */

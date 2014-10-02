@@ -18,7 +18,6 @@ import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
-import lu.itrust.business.TS.settings.AppSettingEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;

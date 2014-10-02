@@ -12,14 +12,14 @@
 			<div class="pull-left" style="width:25%;">
 					
 			<c:set value="${pageContext.response.locale}" var="language"/>
-     			
+     		
    			<c:choose>
    			
-   			<c:when test="${language=='en'}">
+   			<c:when test="${language.getISO3Language()=='eng'}">
    				<a role="changeUILanguage" style="color:#c3c3c3;display:inline-block; padding:5px;margin-top:5px;"><img src="<spring:url value="/images/flags/en_disabled.png" />" /> English</a>&nbsp;
    				<a href="?lang=fr" role="changeUILanguage" style="color:#ffffff;display:inline-block; padding:5px;"><img src="<spring:url value="/images/flags/fr.png" />" /> Français</a>
    			</c:when>
-   			<c:when test="${language=='fr'}">
+   			<c:when test="${language.getISO3Language()=='fra'}">
    				<a href="?lang=en" role="changeUILanguage" style="color:#ffffff;display:inline-block; padding:5px;"><img src="<spring:url value="/images/flags/en.png" />" /> English</a>&nbsp;
    				<a role="changeUILanguage" style="color:#c3c3c3;display:inline-block; padding:5px; margin-top:5px;"><img src="<spring:url value="/images/flags/fr_disabled.png" />" /> Français</a>
    			</c:when>

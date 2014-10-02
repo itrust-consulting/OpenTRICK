@@ -43,7 +43,14 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
         try {
         	        	
 			User myUser = serviceUser.get(user.getUsername());		
+
+			int nbr = myUser.getApplicationSettings().size();
 			
+			User.createDefaultSettings(myUser);
+			
+			if(nbr < myUser.getApplicationSettings().size())
+				serviceUser.saveOrUpdate(myUser);
+						
 			Locale locale = new Locale(myUser.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue());
 						
 			localeResolver.setLocale(request, response ,locale);

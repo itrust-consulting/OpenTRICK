@@ -20,7 +20,6 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
-import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.component.MeasureManager;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.exception.TrickException;

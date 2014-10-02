@@ -79,7 +79,7 @@ public class ControllerUser {
 	
 			// add profile to model
 			model.addAttribute("user", user);
-			
+						
 			model.addAttribute("defaultlang", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue());
 			
 			model.addAttribute("defaultShowUncertainty", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY).getValue());
