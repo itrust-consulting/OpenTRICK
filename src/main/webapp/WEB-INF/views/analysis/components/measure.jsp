@@ -4,11 +4,10 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<fmt:setLocale value="fr_FR" scope="session" />
 <div class="section" id="section_measure" style="z-index: 3">
 	<div class="page-header">
 		<h3 id="Measure">
-			<spring:message code="label.title.measure" text="Measures" />
+			<fmt:message key="label.title.norms" />
 		</h3>
 	</div>
 	<c:if test="${empty(measureSplited)}">
@@ -25,24 +24,24 @@
 					<table class="table table-hover table-fixed-header" id="table_Measure_${norm}">
 						<thead>
 							<tr>
-								<th colspan="2"><spring:message code="label.measure.ref" text="Ref." /></th>
-								<th colspan="5"><spring:message code="label.measure.domain" text="Domain" /></th>
-								<th><label class="text-rotate-270"><spring:message code="label.measure.status" text="Status" /></label></th>
-								<th><spring:message code="label.measure.ir" text="IR (%)" /></th>
-								<th><spring:message code="label.measure.iw" text="IW (md)" /></th>
-								<th><spring:message code="label.measure.ew" text="EW (md)" /></th>
-								<th><spring:message code="label.measure.inv" text="INV" /> (k&euro;)</th>
-								<th><spring:message code="label.measure.lt" text="LT (y)" /></th>
-								<th><spring:message code="label.measure.im" text="IM (md)" /></th>
-								<th><spring:message code="label.measure.em" text="EM (md)" /></th>
-								<th><spring:message code="label.measure.ri" text="RI" /> (k&euro;)</th>
-								<th><spring:message code="label.measure.cost" text="CS" /> (k&euro;)</th>
-								<th><label class="text-rotate-270"><spring:message code="label.measure.phase" text="Phase" /></label></th>
+								<th colspan="2"><fmt:message key="label.measure.ref"  /></th>
+								<th colspan="5"><fmt:message key="label.measure.domain"  /></th>
+								<th><label class="text-rotate-270"><fmt:message key="label.measure.status"  /></label></th>
+								<th><fmt:message key="label.measure.ir" /></th>
+								<th><fmt:message key="label.measure.iw"  /></th>
+								<th><fmt:message key="label.measure.ew"  /></th>
+								<th><fmt:message key="label.measure.inv"  /></th>
+								<th><fmt:message key="label.measure.lt"  /></th>
+								<th><fmt:message key="label.measure.im"  /></th>
+								<th><fmt:message key="label.measure.em"  /></th>
+								<th><fmt:message key="label.measure.ri"  /></th>
+								<th><fmt:message key="label.measure.cost"  /></th>
+								<th><label class="text-rotate-270"><fmt:message key="label.measure.phase"  /></label></th>
 								<c:if test="${measureSplited.get(norm).get(0).getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
-									<th colspan="8"><spring:message code="label.measure.tocheck" text="To check" /></th>
+									<th colspan="8"><fmt:message key="label.measure.tocheck"  /></th>
 								</c:if>
-								<th colspan="8"><spring:message code="label.measure.comment" text="Comment" /></th>
-								<th colspan="8"><spring:message code="label.measure.todo" text="To do" /></th>
+								<th colspan="8"><fmt:message key="label.measure.comment"  /></th>
+								<th colspan="8"><fmt:message key="label.measure.todo"  /></th>
 								
 							</tr>
 						</thead>

@@ -17,18 +17,20 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
+import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
-import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceDataValidation;
+import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.validator.AssetValidator;
 import lu.itrust.business.validator.field.ValidatorField;
 
@@ -82,7 +84,7 @@ public class ControllerAsset {
 	private ServiceDataValidation serviceDataValidation;
 
 	@Autowired
-	private ServiceAppSettingEntry serviceAppSettingEntry;
+	private ServiceUser serviceUser;
 
 	/**
 	 * select: <br>
@@ -148,15 +150,12 @@ public class ControllerAsset {
 
 				select(id, principal, locale, session);
 				/*
-				 * // retrieve asset Asset asset = serviceAsset.get(id); if
-				 * (asset == null)
-				 * errors.add(JsonMessage.Error(messageSource.getMessage
-				 * ("error.asset.not_found", null, "Asset cannot be found",
-				 * locale)));
+				 * // retrieve asset Asset asset = serviceAsset.get(id); if (asset == null)
+				 * errors.add(JsonMessage.Error(messageSource.getMessage ("error.asset.not_found",
+				 * null, "Asset cannot be found", locale)));
 				 * 
-				 * // check if asset if (asset.isSelected())
-				 * assessmentManager.unSelectAsset(asset); else
-				 * assessmentManager.selectAsset(asset);
+				 * // check if asset if (asset.isSelected()) assessmentManager.unSelectAsset(asset);
+				 * else assessmentManager.selectAsset(asset);
 				 */
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -217,7 +216,7 @@ public class ControllerAsset {
 			return null;
 
 		model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(integer, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
-		
+
 		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		// load all assets of analysis to model
@@ -291,8 +290,7 @@ public class ControllerAsset {
 					return errors;
 				}
 			} else if (serviceAsset.exist(idAnalysis, asset.getName())) {
-				errors.put("name",
-						messageSource.getMessage("error.asset.duplicate", new String[] { asset.getName() }, String.format("Asset (%s) is duplicated", asset.getName()), locale));
+				errors.put("name", messageSource.getMessage("error.asset.duplicate", new String[] { asset.getName() }, String.format("Asset (%s) is duplicated", asset.getName()), locale));
 				return errors;
 			}
 			// create assessments for the new asset and save asset and
@@ -335,12 +333,28 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody String aleByAsset(HttpSession session, Model model, Locale locale, Principal principal) throws Exception {
+	public @ResponseBody String aleByAsset(HttpSession session, Model model, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
+
+		User user = serviceUser.get(principal.getName());
+
+		List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
+
+		Locale locale = null;
+
+		for (AnalysisSetting setting : settings) {
+			if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
+				locale = new Locale(setting.getValue().substring(0, 2));
+				break;
+			}
+		}
+
+		if (locale == null)
+			locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
 
 		// generate chart of assets for this analysis
 		return chartGenerator.aleByAsset(idAnalysis, locale);
@@ -358,12 +372,28 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody String assetByALE(HttpSession session, Model model, Locale locale, Principal principal) throws Exception {
+	public @ResponseBody String assetByALE(HttpSession session, Model model, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
+
+		User user = serviceUser.get(principal.getName());
+
+		List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
+
+		Locale locale = null;
+
+		for (AnalysisSetting setting : settings) {
+			if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
+				locale = new Locale(setting.getValue().substring(0, 2));
+				break;
+			}
+		}
+
+		if (locale == null)
+			locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
 
 		// generate chart of assets for this analysis
 		return chartGenerator.aleByAssetType(idAnalysis, locale);

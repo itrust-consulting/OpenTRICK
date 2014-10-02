@@ -28,6 +28,7 @@ function AssessmentViewer() {
 			view.setBody($("#Scale_Impact .panel-body").html());
 			$(view.modal_body).find("td").removeAttributes();
 			view.Show();
+			return false;
 		});
 
 		$(this.modal_header).find("*[role='probability_scale']").on("click", function() {
@@ -38,6 +39,7 @@ function AssessmentViewer() {
 			view.setBody($("#Scale_Probability .panel-body").html());
 			$(view.modal_body).find("td").removeAttributes();
 			view.Show();
+			return false;
 		});
 		return false;
 

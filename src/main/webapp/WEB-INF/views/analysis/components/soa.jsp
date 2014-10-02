@@ -8,7 +8,7 @@
 <div class="section" id="section_soa" style="z-index: 3">
 	<div class="page-header">
 		<h3 id="SOA">
-			<spring:message code="label.title.soa" text="SOA" />
+			<fmt:message key="label.title.soa" />
 		</h3>
 	</div>
 	<c:if test="${empty(measureSplited)}">
@@ -26,12 +26,12 @@
 						<table class="table table-hover table-fixed-header" id="table_SOA_${norm}">
 							<thead>
 								<tr>
-									<th><spring:message code="label.measure.ref" text="Ref" /></th>
-									<th colspan="4"><spring:message code="label.measure.domain" text="Domain" /></th>
-									<th><spring:message code="label.measure.phase" text="Phase" /></th>
-									<th colspan="6"><spring:message code="label.measure.soa.risk" text="Risk" /></th>
-									<th colspan="8"><spring:message code="label.measure.soa.comment" text="Comment" /></th>
-									<th colspan="8"><spring:message code="label.measure.SOA.reference" text="Reference" /></th>
+									<th><fmt:message key="label.measure.ref" /></th>
+									<th colspan="4"><fmt:message key="label.measure.domain" /></th>
+									<th><fmt:message key="label.measure.phase" /></th>
+									<th colspan="6"><fmt:message key="label.measure.soa.risk" /></th>
+									<th colspan="8"><fmt:message key="label.measure.soa.comment" /></th>
+									<th colspan="8"><fmt:message key="label.measure.SOA.reference" /></th>
 								</tr>
 							</thead>
 							<tfoot>

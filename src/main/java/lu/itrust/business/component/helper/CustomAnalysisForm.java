@@ -163,18 +163,18 @@ public class CustomAnalysisForm {
 	}
 
 	public void setDefaultProfile(int defaultProfileId) {
+		if (profile < 1)
+			profile = defaultProfileId;
 		if (scope < 1)
 			scope = defaultProfileId;
 		if (riskInformation < 1)
 			riskInformation = defaultProfileId;
 		if (parameter < 1)
 			parameter = defaultProfileId;
-		if (profile > 0 && defaultProfileId == profile) {
-			if (standard < 1)
-				standard = defaultProfileId;
-			if (scenario < 1)
-				scenario = defaultProfileId;
-		}
+		if (standard < 1)
+			standard = defaultProfileId;
+		if (scenario < 1)
+			scenario = defaultProfileId;
 	}
 
 	public int getProfile() {

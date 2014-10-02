@@ -8,7 +8,7 @@
 <div class="section" id="section_phase">
 	<div class="page-header">
 		<h3 id="Phase">
-			<spring:message code="label.title.phases" text="Phases" />
+			<fmt:message key="label.title.phases" />
 		</h3>
 	</div>
 	<div class="panel panel-default">
@@ -23,9 +23,9 @@
 				<thead>
 					<tr>
 						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'phase')" disabled="disabled"></th>
-						<th><spring:message code="label.table.index" text="#" /></th>
-						<th colspan="15"><spring:message code="label.phase.begin_date" text="Begin" /></th>
-						<th colspan="15"><spring:message code="label.phase.end_date" text="End" /></th>
+						<th><fmt:message key="label.table.index" /></th>
+						<th colspan="15"><fmt:message key="label.phase.begin_date" /></th>
+						<th colspan="15"><fmt:message key="label.phase.end_date" /></th>
 					</tr>
 				</thead>
 				<tbody>

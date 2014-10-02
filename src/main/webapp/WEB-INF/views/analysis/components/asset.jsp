@@ -8,24 +8,24 @@
 <div class="section" id="section_asset">
 	<div class="page-header">
 		<h3 id="Asset">
-			<spring:message code="label.title.asset" text="Asset" />
+			<fmt:message key="label.title.assets" />
 		</h3>
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_asset">
 				<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message
-							code="label.action.add.asset" text="Add" /></a></li>
+							code="label.action.add.asset"  /></a></li>
 				<li class="disabled" trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
-							code="label.action.edit.asset" text="Edit" /> </a></li>
+							code="label.action.edit.asset"  /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span class="glyphicon glyphicon-plus-sign"></span>
-						<spring:message code="label.action.select.asset" text="Select" /> </a></li>
+						<spring:message code="label.action.select.asset"  /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span>
-						<spring:message code="label.action.unselect.asset" text="Unselect" /> </a></li>
+						<spring:message code="label.action.unselect.asset"  /> </a></li>
 				<li class="disabled" trick-selectable="true" trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return displayAssessmentByAsset()"><span
-						class="glyphicon glyphicon-new-window"></span> <spring:message code="label.action.show.asset.assessment" text="Assessment" /> </a></li>
+						class="glyphicon glyphicon-new-window"></span> <spring:message code="label.action.show.asset.assessment"  /> </a></li>
 				<li class="disabled pull-right" trick-selectable="true"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
-						class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete.asset" text="Delete" /> </a></li>
+						class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete.asset"  /> </a></li>
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">
@@ -33,22 +33,22 @@
 				<thead>
 					<tr>
 						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'asset')"></th>
-						<th><spring:message code="label.row.index" text="#" /></th>
-						<th colspan="8"><spring:message code="label.asset.name" text="Name" /></th>
-						<th colspan="2"><spring:message code="label.asset.type" text="Type" /></th>
-						<th colspan="2"><spring:message code="label.asset.value" text="Value" /> (k&euro;)</th>
+						<th><fmt:message key="label.row.index"  /></th>
+						<th colspan="8"><fmt:message key="label.asset.name"  /></th>
+						<th colspan="2"><fmt:message key="label.asset.type"  /></th>
+						<th colspan="2"><fmt:message key="label.asset.value"  /> (k&euro;)</th>
 						<c:choose>
 							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
-								<th colspan="2"><spring:message code="label.asset.aleo" text="ALEO" /> (k&euro;)</th>
-								<th colspan="2"><spring:message code="label.asset.ale" text="ALE" /> (k&euro;)</th>
-								<th colspan="2"><spring:message code="label.asset.alep" text="ALEP" /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.asset.aleo"  /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.asset.ale"  /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.asset.alep"  /> (k&euro;)</th>
 							</c:when>
 							<c:otherwise>
-								<th colspan="2"><spring:message code="label.asset.ale" text="ALE" /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.asset.ale"  /> (k&euro;)</th>
 							</c:otherwise>
 						</c:choose>
-						<th colspan="14"><spring:message code="label.asset.comment" text="Comment" /></th>
-						<th colspan="14"><spring:message code="label.asset.hidden_comment" text="Hidden comment" /></th>
+						<th colspan="14"><fmt:message key="label.asset.comment"  /></th>
+						<th colspan="14"><fmt:message key="label.asset.hidden_comment"  /></th>
 					</tr>
 				</thead>
 				<tfoot></tfoot>
@@ -84,7 +84,7 @@
 				<tfoot>
 					<tr class="panel-footer" style="font-weight: bold;">
 						<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeTotalALE(assetALE)" var="ale" />
-						<td colspan="14"><spring:message code="label.total.ale" text="Total" /></td>
+						<td colspan="14"><fmt:message key="label.total.ale"  /></td>
 						<c:choose>
 							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
 								<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
