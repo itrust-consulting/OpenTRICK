@@ -19,7 +19,6 @@ import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.AppSettingEntry;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
@@ -226,11 +225,7 @@ public class ControllerScenario {
 		if (integer == null)
 			return null;
 		
-		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", integer.toString());
-		if (settings != null) {
-			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
-			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
-		}
+		model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(integer, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
 		
 		// load all scenarios from analysis
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);

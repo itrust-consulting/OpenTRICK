@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.usermanagement;
+package lu.itrust.business.TS.settings;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

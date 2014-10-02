@@ -72,6 +72,11 @@
 										<spring:message code="label.patch.fix.compliance" text="Upgrade summary compliance (V 0.6.3a)" />
 									</a>
 								</li>
+								<li>
+									<a href="#" onclick="return upgradeAnalysisAndUserSettings()">
+										<spring:message code="label.patch.fix.ApplicationSettings" text="Upgrade Application Settings (V 0.6.3d)" />
+									</a>
+								</li>
 							</ul></li>
 					</sec:authorize>
 					<li><a href="${pageContext.request.contextPath}/j_spring_security_logout"> <spring:message code="label.menu.logout" text="Logout" /></a></li>

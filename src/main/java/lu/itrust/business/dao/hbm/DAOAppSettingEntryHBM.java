@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 
-import lu.itrust.business.TS.usermanagement.AppSettingEntry;
+import lu.itrust.business.TS.settings.AppSettingEntry;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAppSettingEntry;
 

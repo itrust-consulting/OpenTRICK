@@ -189,12 +189,10 @@ function analysisTableSortable() {
 			0 : {
 				sorter : false,
 				filter : false,
-				width : "0.5%"
 			},
 			1 : {
 				sorter : "text",
 				filter : false,
-				width : "20%",
 			},
 			2 : {
 				sorter : "text",
@@ -236,16 +234,8 @@ function analysisTableSortable() {
 		'width' : '2px'
 	});
 	$("th[class~='tablesorter-header'][data-column='1']").css({
-		'width' : '150px'
+		'width' : '25%'
 	});
-	$("th[class~='tablesorter-header'][data-column='3']").css({
-		'width' : '250px'
-	});
-	$("th[class~='tablesorter-header'][data-column='4']").css({
-		'width' : '250px'
-	});
-	$("th[class~='tablesorter-header'][data-column='5']").css({
-		'width' : '150px'
-	});
+
 	return false;
 }

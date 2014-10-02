@@ -2,7 +2,9 @@ package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,11 +13,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.settings.ApplicationSetting;
+import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -64,7 +69,7 @@ public class User implements Serializable {
 
 	@Column(name="dtEnabled", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean enable = true;
-
+	
 	@ManyToMany
 	@JoinTable(name = "UserRole", 
 			   joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, 
@@ -81,7 +86,13 @@ public class User implements Serializable {
 	@Cascade(CascadeType.ALL)
 	private List<Customer> customers = new ArrayList<Customer>();
 
+	@OneToMany 
+	@JoinColumn(name="fiUser", nullable=false)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	private List<ApplicationSetting> applicationSettings = new ArrayList<ApplicationSetting>();
+	
 	/**
+	 * Constructor: <br>
 	 * @param login
 	 * @param password
 	 * @param firstName
@@ -103,6 +114,18 @@ public class User implements Serializable {
 		roles = new ArrayList<Role>();
 	}
 
+	public static void createDefaultSettings(User user) {
+		
+		if(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE)==null)
+			user.addApplicationSetting(new ApplicationSetting(Constant.SETTING_DEFAULT_UI_LANGUAGE, "ENG"));
+		
+		if(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY)==null)
+			user.addApplicationSetting(new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY, "true"));
+		
+		if(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_CSSF)==null)
+			user.addApplicationSetting(new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_CSSF, "true"));
+	}
+	
 	/**
 	 * @return the id
 	 */
@@ -361,5 +384,75 @@ public class User implements Serializable {
 		if (customers.contains(customer))
 			return customers.remove(customer);
 		return true;
+	}
+	
+	/**
+	 * addApplicationSetting: <br>
+	 * Description
+	 * 
+	 * @param setting
+	 */
+	public void addApplicationSetting(ApplicationSetting setting) {
+		this.applicationSettings.add(setting);
+	}
+	
+	/**
+	 * removeApplicationSetting: <br>
+	 * Description
+	 * 
+	 * @param setting
+	 */
+	public void removeApplicationSetting(ApplicationSetting setting) {
+		this.applicationSettings.remove(setting);
+	}
+	
+	/**
+	 * applicationSettingExists: <br>
+	 * Description
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean applicationSettingExists(String key){
+		for(ApplicationSetting setting : this.applicationSettings) {
+			if(setting.getKey().equals(key))
+				return true;
+		}
+		return false;
+	}	
+	
+	/**
+	 * getApplicationSettings: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public List<ApplicationSetting> getApplicationSettings(){
+		return this.applicationSettings;
+	}
+
+	/**
+	 * getApplicationSettings: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public void setApplicationSettings(List<ApplicationSetting> applicationsettings){
+		this.applicationSettings = applicationsettings;
+	}
+	
+	/**
+	 * getApplicationSettingsAsMap: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public Map<String, ApplicationSetting> getApplicationSettingsAsMap(){
+		Map<String, ApplicationSetting> asettings = new LinkedHashMap<String, ApplicationSetting>();
+		
+		for(ApplicationSetting setting : this.applicationSettings)
+			asettings.put(setting.getKey(), setting);
+		
+		return asettings;
 	}
 }

@@ -1,8 +1,13 @@
 /* Sticky footer styles
 -------------------------------------------------- */
 html, body {
-	height: 96%;
-	/* The html and body elements cannot have any padding or margin. */
+
+	height:96%;
+}
+
+body{
+	min-width:1400px;
+	width: auto !important;  /* Firefox will set width as auto */
 }
 
 /* Wrapper for page content to push down footer */
@@ -386,6 +391,10 @@ td>pre {
 	color: #31708f;
 	background-image: inherit;
 	background-repeat: inherit;
+}
+
+ a[role="changeUILanguage"]:hover {
+	text-decoration: none;
 }
 
 /*.ui-draggable:HOVER{

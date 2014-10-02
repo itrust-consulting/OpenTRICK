@@ -2,7 +2,7 @@ package lu.itrust.business.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.usermanagement.UserSQLite;
+import lu.itrust.business.TS.export.UserSQLite;
 
 /**
  * DAOUserSqLite.java: <br>

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.usermanagement;
+package lu.itrust.business.TS.settings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+
+import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;

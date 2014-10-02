@@ -29,6 +29,7 @@ import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
+import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.exception.TrickException;
@@ -117,6 +118,7 @@ public class Analysis implements Serializable, Cloneable {
 	/** Language object of the Analysis */
 	@ManyToOne
 	@JoinColumn(name="fiLanguage", nullable=false)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private Language language;
 
 	/** flag to determine if analysis has data */
@@ -129,6 +131,11 @@ public class Analysis implements Serializable, Cloneable {
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
 
+	@OneToMany 
+	@JoinColumn(name="fiAnalysis", nullable=false)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	private List<AnalysisSetting> analysisSettings = new ArrayList<AnalysisSetting>();
+	
 	/** List of History data of the Analysis */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
@@ -152,7 +159,7 @@ public class Analysis implements Serializable, Cloneable {
 	/** List of assets */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@Cascade({CascadeType.ALL, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	@OrderBy("value DESC, ALE DESC, name ASC")
 	private List<Asset> assets = new ArrayList<Asset>();
@@ -2486,6 +2493,77 @@ public class Analysis implements Serializable, Cloneable {
 		this.profile = profile;
 	}
 
+	/**
+	 * setAnalysisSettings: <br>
+	 * Description
+	 * 
+	 * @param settings
+	 */
+	public void setAnalysisSettings(List<AnalysisSetting> settings) {
+		this.analysisSettings = settings;
+	}
+	
+	/**
+	 * addAnalysisSetting: <br>
+	 * Description
+	 * 
+	 * @param setting
+	 */
+	public void addAnalysisSetting(AnalysisSetting setting) {
+		this.analysisSettings.add(setting);
+	}
+	
+	/**
+	 * removeAnalysisSetting: <br>
+	 * Description
+	 * 
+	 * @param setting
+	 */
+	public void removeAnalysisSetting(AnalysisSetting setting) {
+		this.analysisSettings.remove(setting);
+	}
+	
+	/**
+	 * analysisSettingExists: <br>
+	 * Description
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean analysisSettingExists(String key){
+		for(AnalysisSetting setting : this.analysisSettings) {
+			if(setting.getKey().equals(key))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * getAnalysisSettings: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public List<AnalysisSetting> getAnalysisSettings(){
+		return this.analysisSettings;
+	}
+	
+	/**
+	 * getAnalysisSettingsFromUser: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public Map<String, AnalysisSetting> getAnalysisSettingsFromUser(User user){
+		Map<String, AnalysisSetting> asettings = new LinkedHashMap<String, AnalysisSetting>();
+		for(AnalysisSetting setting : this.analysisSettings){
+			if(setting.getUser().equals(user))
+				asettings.put(setting.getKey(),setting);
+		}
+		return asettings;
+	}
+	
 	public Analysis duplicateTo(Analysis copy) throws CloneNotSupportedException {
 		if (copy == null)
 			copy = (Analysis) super.clone();

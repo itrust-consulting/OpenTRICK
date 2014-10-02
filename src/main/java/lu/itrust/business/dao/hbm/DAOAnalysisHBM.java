@@ -9,6 +9,7 @@ import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.Norm;
 import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.helper.AnalysisBaseInfo;
 import lu.itrust.business.dao.DAOAnalysis;
@@ -421,5 +422,32 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public String getCustomerNameFromId(int idAnalysis) {
 		return (String) getSession().createQuery("SELECT customer.organisation From Analysis where id = :id").setParameter("id", idAnalysis).uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AnalysisSetting> getAllAnalysisSettings() throws Exception {
+		String query = "Select analysisSettings from Analysis as analysis inner join analysis.analysisSettings as analysisSettings order by analysis.creationDate desc, analysis.identifier asc, analysis.version desc, analysis.data desc";
+		return getSession().createQuery(query).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AnalysisSetting> getAllAnalysisSettingsFromAnalysis(Integer analysisID) throws Exception {
+		String query = "Select analysisSettings from Analysis as analysis inner join analysis.analysisSettings as analysisSettings where analysis.id= :id";
+		return getSession().createQuery(query).setParameter("id", analysisID).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AnalysisSetting> getAllAnalysisSettingsFromAnalysisAndUser(Integer analysisID, User user) throws Exception {
+		String query = "Select analysisSettings from Analysis as analysis inner join analysis.analysisSettings as analysisSettings where analysis.id= :id and analysisSettings.user= :user";
+		return getSession().createQuery(query).setParameter("id", analysisID).setParameter("user", user).list();
+	}
+
+	@Override
+	public AnalysisSetting getAnalysisSettingsFromAnalysisAndUserByKey(Integer analysisID, String username, String key) throws Exception {
+		String query = "Select analysisSettings from Analysis as analysis inner join analysis.analysisSettings as analysisSettings where analysis.id= :id and analysisSettings.user.login= :username and analysisSettings.key= :key";
+		return (AnalysisSetting) getSession().createQuery(query).setParameter("id", analysisID).setParameter("username", username).setParameter("key", key).uniqueResult();
 	}
 }

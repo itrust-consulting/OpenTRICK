@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.usermanagement.AppSettingEntry;
+import lu.itrust.business.TS.settings.AppSettingEntry;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOAppSettingEntry;
 import lu.itrust.business.service.ServiceAppSettingEntry;

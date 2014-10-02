@@ -54,14 +54,7 @@
 		</bean>
 	</mvc:interceptors>
 	
-	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
-		<property name="cookieName" value="trick-service-ui-lang" />
-		<property name="defaultLocale" value="en" />
-	</bean>
-
-	<!-- <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"> <property name="exposeContextBeansAsAttributes" value="true" /> </bean> -->
-
-	<!-- <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" p:location="/WEB-INF/jdbc.properties" /> -->
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
 
 	<util:properties id="propertyConfigurer" location="classpath:jdbc.properties" />
 
