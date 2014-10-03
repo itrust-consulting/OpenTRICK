@@ -62,7 +62,7 @@ function newPhase(){
 		weekStart : 1,
 		todayHighlight : true,
 		startDate : $("#addPhaseﬁModel #phase_begin_date").prop("value"),
-	}).on('changeDate', beginDateChanged).datepicker("update",new Date());
+	}).on('changeDate', beginDateChanged); 
 
 	$("#addPhaseModel #phase_end_date").datepicker({
 		format : "yyyy-mm-dd",
