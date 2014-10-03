@@ -14,7 +14,8 @@
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_phase">
-				<li><a href="#" data-toggle="modal" data-target="#addPhaseModel" onclick="return false"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.phase.add" text="Add" /> </a></li>
+				<li><a href="#" onclick="return newPhase();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.phase.add" text="Add" /> </a></li>
+				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editPhase(null);"><span class="glyphicon glyphicon-edit danger"></span> <spring:message code="label.menu.phase.Edit" text="Edit" /> </a></li>
 				<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deletePhase();"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.menu.phase.delete"	text="Delete" /> </a></li>
 			</ul>
 		</div>
@@ -34,8 +35,8 @@
 							<tr trick-id='${phase.id}' trick-class="Phase">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_phase','#menu_phase');"></td>
 								<td><spring:message text="${phase.number}" /></td>
-								<td colspan="15" class="success" trick-field="beginDate" trick-field-type="date" ondblclick="editField(this);"><spring:message text="${phase.beginDate}" /></td>
-								<td colspan="15" class="success" trick-field="endDate" trick-field-type="date" ondblclick="editField(this);"><spring:message text="${phase.endDate}" /></td>
+								<td colspan="15" class="success" trick-field="beginDate" trick-field-type="date" ondblclick="editPhase(${phase.id});"><spring:message text="${phase.beginDate}" /></td>
+								<td colspan="15" class="success" trick-field="endDate" trick-field-type="date" ondblclick="editPhase(${phase.id});"><spring:message text="${phase.endDate}" /></td>
 							</tr>
 						</c:if>
 					</c:forEach>

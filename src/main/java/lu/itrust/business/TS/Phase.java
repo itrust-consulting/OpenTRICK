@@ -121,9 +121,7 @@ public class Phase implements Serializable, Cloneable {
 	 *            The value to set the Begin Date of the Phase
 	 * @throws TrickException
 	 */
-	public void setBeginDate(Date beginDate) throws TrickException {
-		if ((beginDate != null) && (this.endDate != null) && (!beginDate.before(endDate)))
-			throw new TrickException("error.phase.begin_date.invalid", "Begin date cannot be empty or later than end date");
+	public void setBeginDate(Date beginDate){
 		this.beginDate = beginDate;
 	}
 
@@ -145,12 +143,21 @@ public class Phase implements Serializable, Cloneable {
 	 *            The value to set the End Date of the Phase
 	 * @throws TrickException
 	 */
-	public void setEndDate(Date endDate) throws TrickException {
-		if ((endDate != null) && (this.beginDate != null) && (!endDate.after(this.beginDate)))
-			throw new TrickException("error.phase.end_date.invalid", "End date cannot be empty or earlier than begin date");
+	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
 
+	public void setDates(Date beginDate, Date endDate) throws TrickException{
+		if(!beginDate.before(endDate))
+				throw new TrickException("error.phase.begin_date.invalid", "Phase begin time cannot be greater than phase end time");	
+				
+		if(!endDate.after(beginDate))
+			throw new TrickException("error.phase.begin_date.invalid", "Phase end time cannot be less than phase begin time");
+
+		this.beginDate = beginDate;
+		this.endDate = endDate;
+	}
+	
 	/**
 	 * getAnalysis: <br>
 	 * Returns the analysis field value.

@@ -78,6 +78,23 @@
 			<script type="text/javascript" src="<spring:url value="js/bootstrap/typeahead.bundle.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/riskregister.js" />"></script>
 		</c:if>
+		<script>
+						
+							$( "#actionmenu li" ).hover(function() {
+								var id = $(this).attr("id");
+								
+								console.log(id);
+								if(id === "languagechooser")
+									$( this ).addClass("open");
+								else
+									$("#languagechooser").removeClass("open");
+							});
+						
+							$( ".dropdown-toggle" ).click(function() {
+								$("#languagechooser").removeClass("open");
+							});
+							
+						</script>
 	</div>
 </body>
 </html>

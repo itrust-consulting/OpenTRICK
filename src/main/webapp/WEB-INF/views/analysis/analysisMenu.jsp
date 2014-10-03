@@ -101,29 +101,15 @@
 						<li class="divider"></li>
 					</c:if>
 					<li class="dropdown-header"><spring:message code="label.settings" text="Settings" /></li>
-					<li class="dropdown-submenu" id="languagechooser"><a href="#" >Language<span class="caret" style="border-bottom-color: #000000;border-top-color: #000000;"></span></a>
-						<ul class="dropdown-menu" style="margin-top:-86px;right:158px;">
-						
-						<c:forEach items="${languages}" var="currentlanguage">
-							<li>
-								<c:set value="href='${pageContext.request.contextPath}/Analysis?language=${currentlanguage.getAlpha3()}'" var="link" />
-								<a ${currentlanguage.getAlpha3().equals(language)?'':link} onclick="" style="padding: 6px;">
-									<span class="glyphicon ${currentlanguage.getAlpha3().equals(language)?'glyphicon-ok':''}" style="min-width: 12px;"></span>
-									<span style="padding-left:5px;"><spring:message text="${currentlanguage.getName()}" /></span>
-								</a>
-							</li>
-						
-						
-						</c:forEach>
-						
-						
-						
-						
-						
-						
-							 
-							
-							
+					<li class="dropdown-submenu" id="languagechooser"><a href="#">Language<span class="caret" style="border-bottom-color: #000000; border-top-color: #000000;"></span></a>
+						<ul class="dropdown-menu" style="margin-top: -86px; right: 158px;">
+							<c:forEach items="${languages}" var="currentlanguage">
+								<li><c:set value="href='${pageContext.request.contextPath}/Analysis?language=${currentlanguage.getAlpha3()}'" var="link" /> <a
+									${currentlanguage.getAlpha3().equals(language)?'':link} onclick="" style="padding: 6px;"> <span
+										class="glyphicon ${currentlanguage.getAlpha3().equals(language)?'glyphicon-ok':''}" style="min-width: 12px;"></span> <span style="padding-left: 5px;"><spring:message
+												text="${currentlanguage.getName()}" /></span>
+								</a></li>
+							</c:forEach>
 						</ul></li>
 					<c:if test="${!KowledgeBaseView }">
 						<li><a href="#" onclick="return updateSettings(this.firstElementChild,'SHOW_CSSF');" style="padding: 6px;"><span
@@ -133,24 +119,6 @@
 					<li><a href="#" onclick="return updateSettings(this.firstElementChild,'SHOW_UNCERTAINTY');" style="padding: 6px;"><span
 							class="glyphicon ${empty(show_uncertainty) or show_uncertainty? 'glyphicon-ok':''}" style="min-width: 12px;"> </span><span>&nbsp;<spring:message
 									code="label.settings.show_uncertainty" text="Display Uncertainty" /></span></a></li>
-					
-						<script>
-						
-							$( "#actionmenu li" ).hover(function() {
-								var id = $(this).attr("id");
-								
-								console.log(id);
-								if(id === "languagechooser")
-									$( this ).addClass("open");
-								else
-									$("#languagechooser").removeClass("open");
-							});
-						
-							$( ".dropdown-toggle" ).click(function() {
-								$("#languagechooser").removeClass("open");
-							});
-							
-						</script>
 				</ul></li>
 		</ul>
 	</div>

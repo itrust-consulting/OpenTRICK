@@ -1,36 +1,37 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="section" id="section_asset_assessment" trick-name="<spring:message code="label.assessment.for.asset" text="Assessment for ${asset.name}" arguments="${asset.name}" />">
+<div class="section" id="section_asset_assessment" trick-name="<fmt:message key="label.assessment.for.asset"><fmt:param value="${asset.name}" /></fmt:message>">
 	<div class="panel panel-default">
 		<div class="panel-body" style="max-height: 700px; overflow: auto;">
 			<table class="table table-hover table-fixed-header">
 				<thead>
 					<tr>
-						<th colspan="4"><spring:message code="label.assessment.scenario" text="Scenario" /></th>
+						<th colspan="4"><fmt:message key="label.assessment.scenario"  /></th>
 						<c:if test="${empty(show_cssf) or show_cssf}">
-							<th><spring:message code="label.assessment.impact_rep" text="Rep." /> (k&euro;)</th>
-							<th><spring:message code="label.assessment.impact_op" text="Op." /> (k&euro;)</th>
-							<th><spring:message code="label.assessment.impact_leg" text="Leg." /> (k&euro;)</th>
+							<th><fmt:message key="label.assessment.impact_rep"  /></th>
+							<th><fmt:message key="label.assessment.impact_op"  /></th>
+							<th><fmt:message key="label.assessment.impact_leg"  /></th>
 						</c:if>
-						<th><spring:message code="label.assessment.impact_fin" text="Fin." /> (k&euro;)</th>
-						<th><spring:message code="label.assessment.likelihood" text="Pro." /> (<spring:message code="label.assessment.likelihood.unit" text="/y" />)</th>
+						<th><fmt:message key="label.assessment.impact_fin"  /></th>
+						<th><fmt:message key="label.assessment.likelihood"  /></th>
 						<c:choose>
 							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
-								<th><spring:message code="label.assessment.uncertainty" text="Unc." /></th>
-								<th><spring:message code="label.assessment.alep" text="ALEP" /> (k&euro;)</th>
-								<th><spring:message code="label.assessment.ale" text="ALE" /> (k&euro;)</th>
-								<th><spring:message code="label.assessment.aleo" text="ALEO" /> (k&euro;)</th>
+								<th><fmt:message key="label.assessment.uncertainty"  /></th>
+								<th><fmt:message key="label.assessment.alep"  /></th>
+								<th><fmt:message key="label.assessment.ale"  /></th>
+								<th><fmt:message key="label.assessment.aleo"  /></th>
 							</c:when>
 							<c:otherwise>
-								<th><spring:message code="label.assessment.ale" text="ALE" /> (k&euro;)</th>
+								<th><fmt:message key="label.assessment.ale"  /></th>
 							</c:otherwise>
 						</c:choose>
-						<th colspan="6"><spring:message code="label.assessment.comment" text="Comment" /></th>
-						<th colspan="6"><spring:message code="label.assessment.hidden_comment" text="Hidden comment" /></th>
+						<th colspan="6"><fmt:message key="label.assessment.comment"  /></th>
+						<th colspan="6"><fmt:message key="label.assessment.hidden_comment"  /></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -119,7 +120,7 @@
 							<c:choose>
 								<c:when test="${parameters.containsKey(assessment.likelihood)}">
 									<td trick-field="likelihood" trick-field-type="string" class="success"
-										title='<fmt:formatNumber value="${parameters.get(assessment.likelihood)}" /><spring:message code="label.assessment.likelihood.unit" text="/y"/>'
+										title='<fmt:formatNumber value="${parameters.get(assessment.likelihood)}" /> <fmt:message key="label.assessment.likelihood.unit" />'
 										ondblclick="return editField(this);"><spring:message text="${assessment.likelihood}" /></td>
 								</c:when>
 								<c:otherwise>
@@ -158,10 +159,10 @@
 							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
 								<c:choose>
 									<c:when test="${empty(show_cssf) or show_cssf}">
-										<td colspan="10"><spring:message code="label.total.ale" text="Total" /></td>
+										<td colspan="10"><fmt:message key="label.total.ale"  /></td>
 									</c:when>
 									<c:otherwise>
-										<td colspan="7"><spring:message code="label.total.ale" text="Total" /></td>
+										<td colspan="7"><fmt:message key="label.total.ale"  /></td>
 									</c:otherwise>
 								</c:choose>
 								<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${aleo.value*0.001}"
@@ -174,10 +175,10 @@
 							<c:otherwise>
 								<c:choose>
 									<c:when test="${empty(show_cssf) or show_cssf}">
-										<td colspan="9"><spring:message code="label.total.ale" text="Total" /></td>
+										<td colspan="9"><fmt:message key="label.total.ale"  /></td>
 									</c:when>
 									<c:otherwise>
-										<td colspan="6"><spring:message code="label.total.ale" text="Total" /></td>
+										<td colspan="6"><fmt:message key="label.total.ale"  /></td>
 									</c:otherwise>
 								</c:choose>
 								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale.value*0.001}"
