@@ -216,7 +216,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Internal Workload
 	 */
-	@Column(name="dtInternalWorkload", nullable=false)
+	@Column(name="dtInternalWorkLoad", nullable=false)
 	@Access(AccessType.FIELD)
 	public double getInternalWL() {
 		return internalWL;
@@ -242,7 +242,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The External Workload
 	 */
-	@Column(name="dtExternalWorkload", nullable=false)
+	@Column(name="dtExternalWorkLoad", nullable=false)
 	@Access(AccessType.FIELD)
 	public double getExternalWL() {
 		return externalWL;
@@ -445,7 +445,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	@ManyToOne 
 	@JoinColumn(name="fiMeasureDescription", nullable=false)
 	@Access(AccessType.FIELD)
-	@Cascade(CascadeType.ALL)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	public MeasureDescription getMeasureDescription() {
 		return measureDescription;
 	}
@@ -576,6 +576,14 @@ public abstract class Measure implements Serializable, Cloneable {
 			measure.setCost(cost);
 	}
 
+	/**
+	 * ComputeCost: <br>
+	 * Description
+	 * 
+	 * @param measure
+	 * @param analysis
+	 * @throws TrickException
+	 */
 	public static void ComputeCost(Measure measure, Analysis analysis) throws TrickException {
 		// ****************************************************************
 		// * variable initialisation
@@ -603,9 +611,12 @@ public abstract class Measure implements Serializable, Cloneable {
 			measure.setCost(cost);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -613,6 +624,13 @@ public abstract class Measure implements Serializable, Cloneable {
 		return (Measure) super.clone();
 	}
 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
 	public Measure duplicate() throws CloneNotSupportedException {
 		Measure measure = (Measure) super.clone();
 		measure.id = -1;

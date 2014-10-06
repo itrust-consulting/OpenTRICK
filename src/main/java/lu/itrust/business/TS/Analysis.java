@@ -20,26 +20,22 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
 
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
+import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.exception.TrickException;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.Index;
-import org.hibernate.annotations.OrderBy;
-import org.springframework.context.annotation.Lazy;
 
 /**
  * Analysis: <br>
@@ -61,7 +57,6 @@ import org.springframework.context.annotation.Lazy;
  * @version 0.1
  * @since 2012-08-21
  */
-
 @Entity
 @Table(uniqueConstraints=@UniqueConstraint(columnNames = {"dtIdentifier", "dtVersion", "dtCreationDate"}))
 public class Analysis implements Serializable, Cloneable {
@@ -91,10 +86,10 @@ public class Analysis implements Serializable, Cloneable {
 	@Column(name="dtCreationDate", nullable=false, columnDefinition="datetime")
 	private Timestamp creationDate;
 
-	@Column(name="dtProfile", nullable=false)
+	@Column(name="dtProfile", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean profile = false;
 
-	@Column(name="dtDefaultProfile", nullable=false)
+	@Column(name="dtDefaultProfile", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean defaultProfile = false;
 
 	/** The Customer object */
@@ -111,109 +106,114 @@ public class Analysis implements Serializable, Cloneable {
 	/** Based on analysis */
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch=FetchType.EAGER)
-	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name="fiBasedOnAnalysis", nullable=true)
 	private Analysis basedOnAnalysis;
 
 	/** The Label of this Analysis */
 	@Column(name="dtLabel", nullable=false)
+	@Access(AccessType.FIELD)
 	private String label;
 
 	/** Language object of the Analysis */
 	@ManyToOne
 	@JoinColumn(name="fiLanguage", nullable=false)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private Language language;
 
 	/** flag to determine if analysis has data */
-	@Column(name="dtData", nullable=false)
+	@Column(name="dtData", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean data;
 
 	/** List of users and their access rights */
 	@OneToMany(mappedBy="analysis")
 	@Access(AccessType.FIELD)
-	@Cascade(CascadeType.ALL)
-	@NotNull
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
 
+	@OneToMany 
+	@JoinColumn(name="fiAnalysis", nullable=false)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	private List<AnalysisSetting> analysisSettings = new ArrayList<AnalysisSetting>();
+	
 	/** List of History data of the Analysis */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<History> histories = new ArrayList<History>();
 
 	/** List of Item Information */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
 
 	/** List of parameters */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<Parameter> parameters = new ArrayList<Parameter>();
 
 	/** List of assets */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.ALL, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
-	@OrderBy(clause = "value DESC, ALE DESC, name ASC")
+	@OrderBy("value DESC, ALE DESC, name ASC")
 	private List<Asset> assets = new ArrayList<Asset>();
 
 	/** List of Risk Information */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<RiskInformation> riskInformations = new ArrayList<RiskInformation>();
 
 	/** List of Scenarios */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
-	@OrderBy(clause = "fiScenarioType, dtName")
+	@OrderBy("scenarioType.id, name")
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
 
 	/** List of Assessment */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<Assessment> assessments = new ArrayList<Assessment>();
 
 	/** List of Norms */
 	@OneToMany(mappedBy="analysis") 
-	@OrderBy(clause = "fiNorm")
-	@Cascade(CascadeType.ALL)
+	@OrderBy("norm")
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<AnalysisNorm> analysisNorms = new ArrayList<AnalysisNorm>();
 
 	/** List of Phases that is used for Action Plan Computation */
 	@OneToMany(mappedBy="analysis")
-	@OrderBy(clause = "dtNumber")
-	@Cascade(CascadeType.ALL)
+	@OrderBy("number")
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<Phase> usedPhases = new ArrayList<Phase>();
 
 	/** The Final Action Plan without Phase Computation - Normal */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
 
 	/** The Action Plan Summary without Phase Computation - Normal */
 	@OneToMany(mappedBy="analysis")
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
 
 	/** The Risk Register (CSSF) */
 	@OneToMany 
 	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@Access(AccessType.FIELD)
 	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
 
@@ -2662,6 +2662,77 @@ public class Analysis implements Serializable, Cloneable {
 		this.profile = profile;
 	}
 
+	/**
+	 * setAnalysisSettings: <br>
+	 * Description
+	 * 
+	 * @param settings
+	 */
+	public void setAnalysisSettings(List<AnalysisSetting> settings) {
+		this.analysisSettings = settings;
+	}
+	
+	/**
+	 * addAnalysisSetting: <br>
+	 * Description
+	 * 
+	 * @param setting
+	 */
+	public void addAnalysisSetting(AnalysisSetting setting) {
+		this.analysisSettings.add(setting);
+	}
+	
+	/**
+	 * removeAnalysisSetting: <br>
+	 * Description
+	 * 
+	 * @param setting
+	 */
+	public void removeAnalysisSetting(AnalysisSetting setting) {
+		this.analysisSettings.remove(setting);
+	}
+	
+	/**
+	 * analysisSettingExists: <br>
+	 * Description
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean analysisSettingExists(String key){
+		for(AnalysisSetting setting : this.analysisSettings) {
+			if(setting.getKey().equals(key))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * getAnalysisSettings: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public List<AnalysisSetting> getAnalysisSettings(){
+		return this.analysisSettings;
+	}
+	
+	/**
+	 * getAnalysisSettingsFromUser: <br>
+	 * Description
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public Map<String, AnalysisSetting> getAnalysisSettingsFromUser(User user){
+		Map<String, AnalysisSetting> asettings = new LinkedHashMap<String, AnalysisSetting>();
+		for(AnalysisSetting setting : this.analysisSettings){
+			if(setting.getUser().equals(user))
+				asettings.put(setting.getKey(),setting);
+		}
+		return asettings;
+	}
+	
 	public Analysis duplicateTo(Analysis copy) throws CloneNotSupportedException {
 		if (copy == null)
 			copy = (Analysis) super.clone();
@@ -2861,7 +2932,7 @@ public class Analysis implements Serializable, Cloneable {
 	public Map<Integer, Boolean> findIdMeasuresImplementedByActionPlanType(ActionPlanMode appn) {
 		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>();
 		for (ActionPlanEntry planEntry : actionPlans)
-			if (planEntry.getActionPlanType().getActionPlanMode() == appn && planEntry.getROI() > 0)
+			if (planEntry.getActionPlanType().getActionPlanMode() == appn)
 				actionPlanMeasures.put(planEntry.getMeasure().getId(), true);
 		return actionPlanMeasures;
 	}

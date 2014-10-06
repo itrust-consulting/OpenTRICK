@@ -54,7 +54,6 @@ public class ControllerKnowledgeBase {
 		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.put("languages", serviceLanguage.getAll());
 		model.put("norms", serviceNorm.getAll());
-		model.put("norms", serviceNorm.getAll());
 		model.put("analyses", serviceAnalysis.getAllProfiles());
 		return "knowledgebase/knowledgebase";
 	}

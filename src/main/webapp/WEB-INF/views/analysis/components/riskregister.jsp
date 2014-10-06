@@ -8,7 +8,7 @@
 <div class="section" id="section_riskregister">
 	<div class="page-header">
 		<h3 id="RiskRegister">
-			<spring:message code="label.title.risk_register" text="Risk Register" />
+			<fmt:message key="label.title.risk_register" />
 		</h3>
 	</div>
 	<div class="panel panel-default">
@@ -18,31 +18,25 @@
 				<table class="table table-hover table-fixed-header">
 					<thead>
 						<tr>
-							<th rowspan="2" colspan="2"><spring:message code="label.risk_register.category" text="Category" /></th>
-							<th rowspan="2"><spring:message code="label.risk_register.id" text="ID" /></th>
-							<th rowspan="2" colspan="8"><spring:message code="label.risk_register.risk_title" text="Risk Title" /></th>
-							<th rowspan="2" colspan="6"><spring:message code="label.risk_register.asset" text="Asset" /></th>
-							<th colspan="3"><spring:message code="label.risk_register.raw_eval" text="Raw Eval." /></th>
-							<th colspan="3"><spring:message code="label.risk_register.net_eval" text="Net Eval." /></th>
-							<th colspan="3"><spring:message code="label.risk_register.exp_eval" text="Exp Eval." /></th>
-							<th rowspan="2" colspan="2"><spring:message code="label.risk_register.strategy" text="Response strategy" /></th>
+							<th rowspan="2" colspan="2"><fmt:message key="label.risk_register.category" /></th>
+							<th rowspan="2"><fmt:message key="label.risk_register.id" /></th>
+							<th rowspan="2" colspan="8"><fmt:message key="label.risk_register.risk_title" /></th>
+							<th rowspan="2" colspan="6"><fmt:message key="label.risk_register.asset" /></th>
+							<th colspan="3"><fmt:message key="label.risk_register.raw_eval" /></th>
+							<th colspan="3"><fmt:message key="label.risk_register.net_eval" /></th>
+							<th colspan="3"><fmt:message key="label.risk_register.exp_eval" /></th>
+							<th rowspan="2" colspan="2"><fmt:message key="label.risk_register.strategy" /></th>
 						</tr>
 						<tr>
-							<th class="text-center" title='<spring:message code="label.risk_register.probability" text="Probability" />'><spring:message code="label.risk_register.acro.probability"
-									text="P." /></th>
-							<th class="text-center" title='<spring:message code="label.risk_register.impact" text="Impact" />'><spring:message code="label.risk_register.acro.impact" text="I." /></th>
-							<th class="text-center" title='<spring:message code="label.risk_register.importance" text="Importance" />'><spring:message code="label.risk_register.acro.importance"
-									text="Imp." /></th>
-							<th class="text-center" title='<spring:message code="label.risk_register.probability" text="Probability" />'><spring:message code="label.risk_register.acro.probability"
-									text="P." /></th>
-							<th class="text-center" title='<spring:message code="label.risk_register.impact" text="Impact" />'><spring:message code="label.risk_register.acro.impact" text="I." /></th>
-							<th class="text-center" title='<spring:message code="label.risk_register.importance" text="Importance" />'><spring:message code="label.risk_register.acro.importance"
-									text="Imp." /></th>
-							<th class="text-center" title='<spring:message code="label.risk_register.probability" text="Probability" />'><spring:message code="label.risk_register.acro.probability"
-									text="P." /></th>
-							<th class="text-center" title='<spring:message code="label.risk_register.impact" text="Impact" />'><spring:message code="label.risk_register.acro.impact" text="I." /></th>
-							<th class="text-center" title='<spring:message code="label.risk_register.importance" text="Importance" />'><spring:message code="label.risk_register.acro.importance"
-									text="Imp." /></th>
+							<th class="text-center" title='<fmt:message key="label.risk_register.probability" />'><fmt:message key="label.risk_register.acro.probability" /></th>
+							<th class="text-center" title='<fmt:message key="label.risk_register.impact"  />'><fmt:message key="label.risk_register.acro.impact" /></th>
+							<th class="text-center" title='<fmt:message key="label.risk_register.importance" />'><fmt:message key="label.risk_register.acro.importance" /></th>
+							<th class="text-center" title='<fmt:message key="label.risk_register.probability"  />'><fmt:message key="label.risk_register.acro.probability" /></th>
+							<th class="text-center" title='<fmt:message key="label.risk_register.impact" />'><fmt:message key="label.risk_register.acro.impact" /></th>
+							<th class="text-center" title='<fmt:message key="label.risk_register.importance" />'><fmt:message key="label.risk_register.acro.importance" /></th>
+							<th class="text-center" title='<fmt:message key="label.risk_register.probability" />'><fmt:message key="label.risk_register.acro.probability" /></th>
+							<th class="text-center" title='<fmt:message key="label.risk_register.impact"/>'><fmt:message key="label.risk_register.acro.impact" /></th>
+							<th class="text-center" title='<fmt:message key="label.risk_register.importance" />'><fmt:message key="label.risk_register.acro.importance" /></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -70,7 +64,7 @@
 										maxFractionDigits="0" /></td>
 								<td class="text-right" title=<fmt:formatNumber value="${item.expectedImportance.importance}"/>><fmt:formatNumber value="${item.expectedImportance.importance*0.001}"
 										maxFractionDigits="0" /></td>
-								<td colspan="2"><spring:message code="label.risk_register.strategy.${fn:toLowerCase(item.strategy)}" text="${item.strategy}" /></td>
+								<td colspan="2"><fmt:message key="label.risk_register.strategy.${fn:toLowerCase(item.strategy)}" /></td>
 							</tr>
 						</c:forEach>
 					</tbody>

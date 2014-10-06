@@ -67,7 +67,7 @@ public class NormMeasure extends Measure {
 	 */
 	@ManyToOne 
 	@JoinColumn(name="fiMeasureProperties", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	public MeasureProperties getMeasurePropertyList() {
 		return measurePropertyList;
 	}
@@ -114,7 +114,7 @@ public class NormMeasure extends Measure {
 			   inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetTypeValue", nullable = false) },
 			   uniqueConstraints = @UniqueConstraint(columnNames = {"idNormMeasure", "idMeasureAssetTypeValue"})
 	)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}
@@ -177,7 +177,7 @@ public class NormMeasure extends Measure {
 	 * @see lu.itrust.business.TS.Measure#getImplementationRate()
 	 */
 	@Override
-	@Column(name="dtImplmentationRate", nullable=false)
+	@Column(name="dtImplementationRate", nullable=false)
 	@Access(AccessType.FIELD)
 	public Double getImplementationRate() {
 		return (Double) super.getImplementationRate();

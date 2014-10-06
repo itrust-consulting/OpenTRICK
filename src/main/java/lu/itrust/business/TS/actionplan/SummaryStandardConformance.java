@@ -1,20 +1,15 @@
 package lu.itrust.business.TS.actionplan;
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lu.itrust.business.TS.AnalysisNorm;
-import lu.itrust.business.TS.Norm;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 /** SummaryStandardConformance.java: <br>
  * Detailed description...
@@ -27,13 +22,14 @@ import org.hibernate.annotations.CascadeType;
 @Table(name="ActionPlanSummaryStandardConformance")
 public class SummaryStandardConformance {
 
-	@Id @GeneratedValue
+
+	@Id @GeneratedValue 
 	@Column(name="idActionPlanSummaryStandardConformance")
 	private int id = -1;
 	
 	@ManyToOne 
-	@JoinColumn(name="fiNorm", nullable = false)
-	private Norm norm = null;
+	@JoinColumn(name="fiAnalysisNorm", nullable=false)
+	private AnalysisNorm norm = null;
 	
 	@Column(name="dtConformance", nullable=false)
 	private double conformance = 0;
@@ -50,7 +46,7 @@ public class SummaryStandardConformance {
 	 * @param norm
 	 * @param conformance
 	 */
-	public SummaryStandardConformance(Norm norm, double conformance) {
+	public SummaryStandardConformance(AnalysisNorm norm, double conformance) {
 		this.norm = norm;
 		this.conformance = conformance;
 	}
@@ -79,7 +75,7 @@ public class SummaryStandardConformance {
 	 * 
 	 * @return The value of the analysisNorm field
 	 */
-	public Norm getNorm() {
+	public AnalysisNorm getAnalysisNorm() {
 		return norm;
 	}
 
@@ -89,7 +85,7 @@ public class SummaryStandardConformance {
 	 * @param analysisNorm 
 	 * 			The Value to set the analysisNorm field
 	 */
-	public void setNorm(Norm norm) {
+	public void setAnalysisNorm(AnalysisNorm norm) {
 		this.norm = norm;
 	}
 

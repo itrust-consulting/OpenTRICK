@@ -21,6 +21,13 @@
 				<a class="navbar-link pull-right" style="margin-top: -35px;" href="${pageContext.request.contextPath}/Register"> <spring:message code="label.signup" text="Sign up" />
 				</a>
 				<jsp:include page="successErrors.jsp" />
+				<c:if test="${sessionScope.LOGIN_ERROR!=null}">
+					<div class="alert alert-danger" id="error">
+						<a href="#" class="close" data-dismiss="alert">×</a>
+						<spring:message code="${sessionScope.LOGIN_ERROR}" text="${sessionScope.LOGIN_ERROR}" />
+					</div>
+				</c:if>
+				<% request.getSession().removeAttribute("LOGIN_ERROR"); %>
 				<form id="login_form" method="post" action="<c:url value='${pageContext.request.contextPath}/j_spring_security_check'/>">
 					<div class="form-group">
 						<input name="j_username" value="${(!empty (j_username))? j_username : ''}" placeholder="<spring:message code='label.signin.login' text='Username'/>" required="required"

@@ -1,6 +1,5 @@
 package lu.itrust.business.TS.cssf;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 import lu.itrust.business.exception.TrickException;

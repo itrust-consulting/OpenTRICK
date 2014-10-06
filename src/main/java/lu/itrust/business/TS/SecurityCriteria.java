@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.persistence.Access;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,8 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Transient;
-
-import org.hibernate.annotations.AccessType;
 
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -795,7 +792,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Preventive Value
 	 */
-	@Column(name="dtPreventive", nullable=false)
+	@Column(name="dtPreventiveType", nullable=false)
 	public double getPreventive() {
 		return preventive;
 	}
@@ -818,7 +815,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Detective Value
 	 */
-	@Column(name="dtDetective", nullable=false)
+	@Column(name="dtDetectiveType", nullable=false)
 	public double getDetective() {
 		return detective;
 	}
@@ -841,7 +838,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Limitative Value
 	 */
-	@Column(name="dtLimitative", nullable=false)
+	@Column(name="dtLimitativeType", nullable=false)
 	public double getLimitative() {
 		return limitative;
 	}
@@ -864,7 +861,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Corrective Value
 	 */
-	@Column(name="dtCorrective", nullable=false)
+	@Column(name="dtCorrectiveType", nullable=false)
 	public double getCorrective() {
 		return corrective;
 	}
@@ -887,7 +884,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Intentional Value
 	 */
-	@Column(name="dtIntentional", nullable=false)
+	@Column(name="dtIntentionalSource", nullable=false)
 	public int getIntentional() {
 		return intentional;
 	}
@@ -910,7 +907,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Accidental Value
 	 */
-	@Column(name="dtAccidental", nullable=false)
+	@Column(name="dtAccidentalSource", nullable=false)
 	public int getAccidental() {
 		return accidental;
 	}
@@ -933,7 +930,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Environmental Value
 	 */
-	@Column(name="dtEnvironmental", nullable=false)
+	@Column(name="dtEnvironmentalSource", nullable=false)
 	public int getEnvironmental() {
 		return environmental;
 	}
@@ -956,7 +953,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The Internal Threat
 	 */
-	@Column(name="dtInternalThreat", nullable=false)
+	@Column(name="dtInternalThreatSource", nullable=false)
 	public int getInternalThreat() {
 		return internalThreat;
 	}
@@ -979,7 +976,7 @@ public abstract class SecurityCriteria implements Serializable, Cloneable {
 	 * 
 	 * @return The External Threat
 	 */
-	@Column(name="dtExternalThreat", nullable=false)
+	@Column(name="dtExternalThreatSource", nullable=false)
 	public int getExternalThreat() {
 		return externalThreat;
 	}

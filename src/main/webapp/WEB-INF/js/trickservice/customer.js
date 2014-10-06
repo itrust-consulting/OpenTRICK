@@ -140,7 +140,7 @@ function newCustomer() {
 	$("#customer_id").prop("value", "-1");
 	$("#customer_organisation").prop("value", "");
 	$("#customer_contactPerson").prop("value", "");
-	$("#customer_telephoneNumber").prop("value", "");
+	$("#customer_phoneNumber").prop("value", "");
 	$("#customer_email").prop("value", "");
 	$("#customer_address").prop("value", "");
 	$("#customer_city").prop("value", "");

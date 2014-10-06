@@ -5,6 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Measure;
+import lu.itrust.business.TS.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.dao.DAOActionPlan;
@@ -97,7 +98,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ActionPlanEntry> getAllFromAnalysis(Integer id) throws Exception {
-		String query = "Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.order DESC";
+		String query = "Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.position ASC, actionplan.totalALE DESC";
 		return (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("analysisID", id).list();
 	}
 
@@ -111,7 +112,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ActionPlanEntry> getFromAnalysisAndActionPlanType(Integer analysisID, ActionPlanMode mode) throws Exception {
-		String query = "SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplans where analysis.id = :analysisID and actionplans.actionPlanType.name = :mode ORDER BY actionplan.order DESC";
+		String query = "SELECT actionplans From Analysis As analysis INNER JOIN analysis.actionPlans As actionplan where analysis.id = :analysisID and actionplan.actionPlanType.name = :mode ORDER BY actionplan.position ASC, actionplan.totalALE DESC";
 		return (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("mode", mode).setParameter("analysisID", analysisID).list();
 	}
 
@@ -214,5 +215,28 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	@Override
 	public void delete(ActionPlanEntry actionPlanEntry) throws Exception {
 		getSession().delete(actionPlanEntry);
+	}
+
+	/**
+	 * deleteAllFromAnalysis: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOActionPlan#deleteAllFromAnalysis(java.lang.Integer)
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
+		String query = "Select actionplans FROM Analysis analysis INNER JOIN analysis.actionPlans actionplans WHERE analysis.id= :analysisID";
+		 
+		List<ActionPlanEntry> actionplans = (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("analysisID", analysisID).list();
+		 for(ActionPlanEntry entry : actionplans) {
+			 List<ActionPlanAsset> assets = entry.getActionPlanAssets();
+			 for(ActionPlanAsset asset : assets)
+				 getSession().delete(asset);
+			 getSession().delete(entry);
+		 }
+		
 	}
 }

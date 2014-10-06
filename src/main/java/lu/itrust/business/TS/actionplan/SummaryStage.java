@@ -9,19 +9,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.exception.TrickException;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 /**
  * SummaryStage: <br>
@@ -62,8 +59,16 @@ public class SummaryStage {
 
 	@OneToMany
 	@JoinColumn(name="fiActionPlanSummary", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<SummaryStandardConformance> conformances = new ArrayList<SummaryStandardConformance>();
+	
+	/** Percentage of AnalysisNorm 27001 Conformance for this Stage */
+	@Column(name="dt27001Conformance", nullable=false)
+	private double conformance27001 = 0;
+
+	/** Percentage of AnalysisNorm 27002 Conformance for this Stage */
+	@Column(name="dt27002Conformance", nullable=false)
+	private double conformance27002 = 0;
 
 	/** Number of Measures in this Stage */
 	@Column(name="dtMeasureCount", nullable=false)
@@ -98,7 +103,7 @@ public class SummaryStage {
 	private double internalWorkload = 0;
 
 	/** Sum of External Workloads taken from Action Plan Entries */
-	@Column(name="dtTotalExternalWorkload", nullable=false)
+	@Column(name="dtTotalExternalWorkLoad", nullable=false)
 	private double externalWorkload = 0;
 
 	/** Sum of Investments taken from Action Plan Entries */
@@ -193,18 +198,13 @@ public class SummaryStage {
 		this.stage = stage;
 	}
 
-	/**
-	 * getConformance27001: <br>
-	 * Returns the "conformance27001" field value
-	 * 
-	 * @return The Percentage of AnalysisNorm 27001 Conformance
-	 */
 	public Double getSingleConformance(String label) {
 		for(SummaryStandardConformance conformance : this.conformances)
-			if(conformance.getNorm().getLabel().equals(label))
+			if(conformance.getAnalysisNorm().getNorm().getLabel().equals(label))
 				return conformance.getConformance();
 		return null;
 	}
+
 
 	/**
 	 * getConformances: <br>
@@ -234,9 +234,47 @@ public class SummaryStage {
 	 * @param conformance
 	 */
 	public void addConformance(AnalysisNorm analysisNorm, double conformance) {
-		this.conformances.add(new SummaryStandardConformance(analysisNorm.getNorm(),conformance));
+		this.conformances.add(new SummaryStandardConformance(analysisNorm,conformance));
 	}
-	
+
+	/** getConformance27001: <br>
+	 * Returns the conformance27001 field value.
+	 * 
+	 * @return The value of the conformance27001 field
+	 */
+	public double getConformance27001() {
+		return conformance27001;
+	}
+
+	/** setConformance27001: <br>
+	 * Sets the Field "conformance27001" with a value.
+	 * 
+	 * @param conformance27001 
+	 * 			The Value to set the conformance27001 field
+	 */
+	public void setConformance27001(double conformance27001) {
+		this.conformance27001 = conformance27001;
+	}
+
+	/** getConformance27002: <br>
+	 * Returns the conformance27002 field value.
+	 * 
+	 * @return The value of the conformance27002 field
+	 */
+	public double getConformance27002() {
+		return conformance27002;
+	}
+
+	/** setConformance27002: <br>
+	 * Sets the Field "conformance27002" with a value.
+	 * 
+	 * @param conformance27002 
+	 * 			The Value to set the conformance27002 field
+	 */
+	public void setConformance27002(double conformance27002) {
+		this.conformance27002 = conformance27002;
+	}
+
 	/**
 	 * getMeasureCount: <br>
 	 * Returns the "measureCount" field value

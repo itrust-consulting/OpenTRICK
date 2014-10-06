@@ -18,14 +18,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
+
+import lu.itrust.business.exception.TrickException;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
-import lu.itrust.business.exception.TrickException;
 
 /**
  * AnalysisNorm: <br>
@@ -37,7 +34,7 @@ import lu.itrust.business.exception.TrickException;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="dtDiscriminator", length=12)
+@DiscriminatorColumn(name="dtDiscriminator")
 @Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","fiNorm"}))
 public abstract class AnalysisNorm implements Serializable, Cloneable {
 
@@ -61,11 +58,10 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 
 	/** AnalysisNorm List of measures */
 	@OneToMany(mappedBy="analysisNorm")
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<Measure> measures = new ArrayList<Measure>();
 
 	@ManyToOne
-	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name="fiAnalysis", nullable=false)
 	private Analysis analysis = null;
 

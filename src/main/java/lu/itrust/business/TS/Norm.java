@@ -51,7 +51,7 @@ public class Norm implements Serializable, Cloneable {
 	private String description = "";
 
 	/** norm available for actionplan computation */
-	@Column(name="dtComputable", nullable=false)
+	@Column(name="dtComputable", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean computable = true;
 
 	/***********************************************************************************************

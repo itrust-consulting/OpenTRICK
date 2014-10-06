@@ -70,7 +70,19 @@ public class DAOAnalysisNormHBM extends DAOHibernate implements DAOAnalysisNorm 
 	public List<AnalysisNorm> getAllFromAnalysis(Integer analysisID) throws Exception {
 		return (List<AnalysisNorm>) getSession().createQuery("From AnalysisNorm where analysis.id = :analysis ORDER BY norm.label ASC").setParameter("analysis", analysisID).list();
 	}
-
+	
+	/**
+	 * getAllFromAnalysis: <br>
+	 * Description
+	 * 
+	 * @see lu.itrust.business.dao.DAOAnalysisNorm#getAllFromAnalysis(java.lang.Integer)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AnalysisNorm> getAllComputableFromAnalysis(Integer analysisID) throws Exception {
+		return (List<AnalysisNorm>) getSession().createQuery("From AnalysisNorm where analysis.id = :analysis and norm.computable = true ORDER BY norm.label ASC").setParameter("analysis", analysisID).list();
+	}
+	
 	/**
 	 * getAllFromAnalysis: <br>
 	 * Description

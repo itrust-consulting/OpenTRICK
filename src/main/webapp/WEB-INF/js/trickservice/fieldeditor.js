@@ -248,7 +248,10 @@ function PhaseFieldEditor(element) {
 
 			$(this.fieldEditor).datepicker({
 				format : "yyyy-mm-dd",
-				language : l_lang
+				language : l_lang,
+				autoclose : true,
+				weekStart : 1,
+				todayHighlight : true,
 			}).on("hide", function() {
 				if ($(that.fieldEditor).val() == "")
 					that.Rollback();

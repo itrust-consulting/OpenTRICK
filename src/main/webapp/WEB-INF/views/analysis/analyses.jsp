@@ -77,7 +77,7 @@
 										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 										<td trick-version="${analysis.version}">${analysis.version}</td>
 										<td><spring:message text="${analysis.label}" /></td>
-										<td><spring:message text="${analysis.creationDate}" /></td>
+										<td><fmt:formatDate value="${analysis.creationDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 										<td><spring:message text="${analysis.getLastHistory().author}" /></td>
 										<c:choose>
 											<c:when test="${analysis.basedOnAnalysis == null}">

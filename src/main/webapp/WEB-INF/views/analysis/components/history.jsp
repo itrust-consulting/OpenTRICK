@@ -8,7 +8,7 @@
 <div class="section" id="section_history">
 	<div class="page-header">
 		<h3 id="History">
-			<spring:message code="label.title.history" text="History" />
+			<fmt:message key="label.title.history" />
 		</h3>
 	</div>
 	<div class="panel panel-default">
@@ -17,10 +17,10 @@
 			<table class="table table-hover">
 				<thead>
 					<tr>
-						<th><spring:message code="label.history.version" text="Version"/></th>
-						<th><spring:message code="label.history.date" text="Date"/></th>
-						<th><spring:message code="label.history.author" text="Author"/></th>
-						<th colspan="10"><spring:message code="label.history.comment" text="Comment"/></th>
+						<th><fmt:message key="label.history.version" /></th>
+						<th><fmt:message key="label.history.date" /></th>
+						<th><fmt:message key="label.history.author" /></th>
+						<th colspan="10"><fmt:message key="label.history.comment"/></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -29,7 +29,7 @@
 							<td><spring:message text="${history.version}" /></td>
 							<td><fmt:formatDate value="${history.date}" pattern="dd/MM/yyyy" /></td>
 							<td trick-field="author" trick-field-type="string" class="success" ondblclick="editField(this);"><spring:message text="${history.author}" /></td>
-							<td colspan="10" ondblclick="editField(this.firstElementChild);" class="success"><pre trick-field="comment" trick-field-type="string" trick-content="text"><spring:message text="${history.comment}" /></pre></td>
+							<td colspan="10" ondblclick="editField(this.firstElementChild);" class="success"><pre trick-field="comment" trick-field-type="string" trick-content="text"><spring:message text="${fn:trim(history.comment)}" /></pre></td>
 						</tr>
 					</c:forEach>
 				</tbody>

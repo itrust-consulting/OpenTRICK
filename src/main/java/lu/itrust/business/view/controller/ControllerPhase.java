@@ -183,27 +183,60 @@ public class ControllerPhase {
 					return errors;
 				}
 
-				// set phase number
-				phase.setNumber(analysis.getUsedPhases().size() + 1);
+				Phase previousphase = null;
+				
+				Phase nextphase = null;
+				
+				if(phase.getId() == -1) {
+					phase.setNumber(analysis.getUsedPhases().size() + 1);
 
-				// parse phase og analysis
-				for (Phase phase2 : analysis.getUsedPhases()) {
-
+					previousphase = analysis.getPhaseByNumber(phase.getNumber()-1);
+					
 					// check if correct begin and end date and retrun errors
-					if (phase.getBeginDate().before(phase2.getBeginDate())) {
-						errors.add(new String[] { "beginDate",
-								messageSource.getMessage("error.phase.beginDate.less_previous", null, "Begin-date has to be greater than previous phase begin-date", locale) });
+					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
+						errors.add(new String[] { "beginDate", messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", locale) });
 						return errors;
-					} else if (phase.getEndDate().before(phase2.getEndDate())) {
-						errors.add(new String[] { "endDate",
-								messageSource.getMessage("error.phase.endDate.less_previous", null, "Begin-end has to be greater than previous phase begin-end", locale) });
+					} else if (phase.getEndDate().before(phase.getBeginDate())) {
+						errors.add(new String[] { "endDate", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", locale) });
 						return errors;
-					}
-				}
+					} 
+				
 
 				// add phase to analysis
 				analysis.addUsedPhase(phase);
-
+				} else {
+					
+					if (!servicePhase.belongsToAnalysis(idAnalysis, phase.getId())) {
+						errors.add(new String[] { "phase", messageSource.getMessage("error.phase.not_belongs_to_analysis", null, "Phase does not belong to selected analysis", locale) });
+						return errors;
+					}
+					
+					for(Phase tphase : analysis.getUsedPhases()){
+						if(tphase.getId()==phase.getId()){
+							tphase.setDates(phase.getBeginDate(), phase.getEndDate());
+							phase = tphase;
+							break;
+						}
+					}
+					
+					previousphase = analysis.getPhaseByNumber(phase.getNumber()-1);
+					
+					nextphase = analysis.getPhaseByNumber(phase.getNumber()+1);
+					
+					// check if correct begin and end date and retrun errors
+					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
+						errors.add(new String[] { "beginDate", messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", locale) });
+						return errors;
+					} else if (phase.getEndDate().before(phase.getBeginDate())) {
+						errors.add(new String[] { "endDate", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", locale) });
+						return errors;
+					}  else if(nextphase != null && phase.getEndDate().after(nextphase.getBeginDate())) {
+						errors.add(new String[] { "Date", messageSource.getMessage("error.phase.endDate.more_next", null, "Phase end time has to be less than next phase begin time", locale) });
+						return errors;
+					}
+				}
+				
+				
 				// update analysis with phases
 				serviceAnalysis.saveOrUpdate(analysis);
 			}
@@ -241,7 +274,7 @@ public class ControllerPhase {
 
 			// set date format
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-			// retrieve begin and end date
+			phase.setId(jsonNode.get("id").asInt());
 			phase.setBeginDate(new Date(format.parse(jsonNode.get("beginDate").asText()).getTime()));
 			phase.setEndDate(new Date(format.parse(jsonNode.get("endDate").asText()).getTime()));
 			// return success

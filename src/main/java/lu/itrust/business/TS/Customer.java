@@ -71,7 +71,7 @@ public class Customer implements Serializable {
 	private String contactPerson = "";
 
 	/** The Telephone Number of the Contact Person or Organisation */
-	@Column(name="dtPhoneNumber", nullable=false)
+	@Column(name="dtTelephone", nullable=false)
 	@Access(AccessType.FIELD)
 	private String phoneNumber = "";
 
@@ -80,7 +80,7 @@ public class Customer implements Serializable {
 	@Access(AccessType.FIELD)
 	private String email = "";
 	
-	@Column(name="dtCanBeUsed", nullable=false)
+	@Column(name="dtCanBeUsed", nullable=false, columnDefinition="TINYINT(1)")
 	@Access(AccessType.FIELD)
 	private boolean canBeUsed = true; 
 

@@ -1,11 +1,12 @@
 package lu.itrust.business.TS;
 
-import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -18,7 +19,10 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity public class RiskInformation implements Cloneable {
+
+@Entity
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","dtLabel", "dtChapter"}))
+public class RiskInformation implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration

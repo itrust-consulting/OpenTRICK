@@ -1,4 +1,5 @@
 function updateProfile(form) {
+	
 	$.ajax({
 		url : context + "/Profile/Update",
 		type : "post",
@@ -40,6 +41,15 @@ function updateProfile(form) {
 				case "email":
 					$(errorElement).appendTo($("#"+ form + " #email").parent());
 					break;
+				case "defaultlanguage":
+					$(errorElement).appendTo($("#"+ form + " #defaultlanguage").parent());
+					break;
+				case "default_show_uncertainty":
+					$(errorElement).appendTo($("#"+ form + " #default_show_uncertainty").parent());
+					break;
+				case "default_show_cssf":
+					$(errorElement).appendTo($("#"+ form + " #default_show_cssf").parent());
+					break;
 				case "user": {
 					
 						var errElement = document.createElement("div");
@@ -58,6 +68,11 @@ function updateProfile(form) {
 				$(successElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + MessageResolver("label.user.update.success", "Profile successfully updated"));
 				$(successElement).appendTo($("#success"));
 				$("#success").removeAttr("hidden");
+				var prevlang = $("#perviouslanguage").val();
+				var newlang = $("#" + form + " #defaultlanguage").val();
+				if(prevlang !== newlang)
+					setTimeout(function(){document.location.href = "?lang="+newlang;},2000);
+				
 			}
 			return false;
 

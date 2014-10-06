@@ -2,24 +2,30 @@ package lu.itrust.business.view.controller;
 
 import java.lang.reflect.Field;
 import java.security.Principal;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.helper.RRFFieldEditor;
 import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAnalysisNorm;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceParameter;
+import lu.itrust.business.service.ServiceUser;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +73,12 @@ public class ControllerMeasure {
 	@Autowired
 	private ServiceActionPlanSummary serviceActionPlanSummary;
 
+	@Autowired
+	private ServiceAnalysisNorm serviceAnalysisNorm;
+	
+	@Autowired
+	private ServiceUser serviceUser;
+
 	/**
 	 * section: <br>
 	 * Description
@@ -75,7 +87,7 @@ public class ControllerMeasure {
 	 * @param model
 	 * @param principal
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping("/Section")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
@@ -108,8 +120,7 @@ public class ControllerMeasure {
 	 */
 	@RequestMapping(value = "/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody
-	Measure get(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
+	public @ResponseBody Measure get(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		measure.setAnalysisNorm(null);
@@ -146,8 +157,7 @@ public class ControllerMeasure {
 
 	@RequestMapping(value = "/RRF/Update", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	String updateRRF(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String updateRRF(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		NormMeasure measure = (NormMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, fieldEditor.getId());
 		Field field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
@@ -179,8 +189,7 @@ public class ControllerMeasure {
 
 	@RequestMapping(value = "/RRF/{elementID}/Load", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody
-	String load(@RequestBody RRFFilter filter, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String load(@RequestBody RRFFilter filter, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		return chartGenerator.rrfByMeasure((NormMeasure) measure, idAnalysis, locale, filter);
@@ -195,9 +204,9 @@ public class ControllerMeasure {
 	 * @param model
 	 * @param attributes
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	//@RequestMapping("/Section/{norm}")
+	// @RequestMapping("/Section/{norm}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String sectionNorm(@PathVariable String norm, HttpSession session, Model model, Principal principal) throws Exception {
 
@@ -227,15 +236,97 @@ public class ControllerMeasure {
 	@RequestMapping(value = "/Compliance/{norm}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@ResponseBody
-	public String compliance(@PathVariable String norm, HttpSession session, Locale locale, Principal principal) {
+	public String compliance(@PathVariable String norm, HttpSession session, Principal principal) {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 		try {
 
+			User user = serviceUser.get(principal.getName());
+
+			List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
+
+			Locale locale = null;
+
+			for (AnalysisSetting setting : settings) {
+				if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
+					locale = new Locale(setting.getValue().substring(0, 2));
+					break;
+				}
+			}
+
+			if (locale == null)
+				locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
+
 			// return chart of either norm 27001 or 27002 or null
-			return (norm.equals(Constant.NORM_27001) || norm.equals(Constant.NORM_27002)) ? chartGenerator.compliance(idAnalysis, norm, locale) : null;
+			return chartGenerator.compliance(idAnalysis, norm, locale);
+
+		} catch (Exception e) {
+
+			// retrun error
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * compliance: <br>
+	 * Description
+	 * 
+	 * @param norm
+	 * @param session
+	 * @param locale
+	 * @return
+	 */
+	@RequestMapping(value = "/Compliances", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@ResponseBody
+	public String compliances(HttpSession session, Principal principal) {
+
+		// retrieve analysis id
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+		try {
+
+			User user = serviceUser.get(principal.getName());
+
+			List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
+
+			Locale locale = null;
+
+			for (AnalysisSetting setting : settings) {
+				if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
+					locale = new Locale(setting.getValue().substring(0, 2));
+					break;
+				}
+			}
+
+			if (locale == null)
+				locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
+			
+			List<AnalysisNorm> norms = serviceAnalysisNorm.getAllFromAnalysis(idAnalysis);
+
+			String value = "{\"norms\":{";
+
+			for (AnalysisNorm norm : norms) {
+
+				value += "\"" + norm.getNorm().getLabel() + "\":[";
+
+				value += chartGenerator.compliance(idAnalysis, norm.getNorm().getLabel(), locale);
+
+				value += "],";
+			}
+
+			value = value.substring(0, value.length() - 1);
+
+			value += "}}";
+
+			// System.out.println(value);
+
+			// return chart of either norm 27001 or 27002 or null
+
+			return value;
 
 		} catch (Exception e) {
 
@@ -256,7 +347,5 @@ public class ControllerMeasure {
 
 		return "analysis/components/soa";
 	}
-	
-	
-	
+
 }

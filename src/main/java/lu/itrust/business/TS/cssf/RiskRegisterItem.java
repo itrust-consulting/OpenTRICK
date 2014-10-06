@@ -14,9 +14,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.exception.TrickException;
@@ -58,18 +55,16 @@ public class RiskRegisterItem {
 	/** Scenario Object */
 	@ManyToOne 
 	@JoinColumn(name="fiScenario", nullable=false)
-	@Cascade(CascadeType.SAVE_UPDATE)
 	@Access(AccessType.FIELD)
 	private Scenario scenario = null;
 
-	@ManyToOne 
+	@ManyToOne
 	@JoinColumn(name="fiAsset", nullable=false)
-	@Cascade(CascadeType.SAVE_UPDATE)
 	@Access(AccessType.FIELD)
 	private Asset asset = null;
 
 	/** Position in the RiskRegister */
-	@Column(name="dtPosition", nullable=false)
+	@Column(name="dtOrder", nullable=false)
 	private int position = 0;
 
 	/** The Expected Evaluation Data (Probability, Impact and Importance) */
@@ -95,9 +90,9 @@ public class RiskRegisterItem {
 	/** The Net Evaluation Data (Probability, Impact and Importance) */
 	@Embedded
 	@AttributeOverrides({ 
-		@AttributeOverride(name = "impact", column = @Column(name = "dtExpImportanceImpact", nullable=false)),
-		@AttributeOverride(name = "probability", column = @Column(name = "dtExpImportanceProbability", nullable=false)),
-		@AttributeOverride(name = "importance", column = @Column(name = "dtExpImportanceImportance", nullable=false)) 
+		@AttributeOverride(name = "impact", column = @Column(name = "dtExpEvaluationImpact", nullable=false)),
+		@AttributeOverride(name = "probability", column = @Column(name = "dtExpEvaluationProbability", nullable=false)),
+		@AttributeOverride(name = "importance", column = @Column(name = "dtExpEvaluationImportance", nullable=false)) 
 	})
 	@Access(AccessType.FIELD)
 	private EvaluationResult expectedImportance = null;

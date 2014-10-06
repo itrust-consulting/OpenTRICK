@@ -7,6 +7,7 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.ActionPlanType;
 import lu.itrust.business.TS.actionplan.SummaryStage;
+import lu.itrust.business.TS.actionplan.SummaryStandardConformance;
 import lu.itrust.business.dao.DAOActionPlanSummary;
 
 import org.hibernate.Session;
@@ -173,5 +174,25 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	@Override
 	public void delete(SummaryStage summaryStage) throws Exception {
 		getSession().delete(summaryStage);
+	}
+
+	/**
+	 * deleteAllFromAnalysis: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOActionPlanSummary#deleteAllFromAnalysis(java.lang.Integer)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void deleteAllFromAnalysis(Integer analysisID) throws Exception {
+		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis";
+		List<SummaryStage> summaries = (List<SummaryStage>) getSession().createQuery(query).setParameter("idAnalysis", analysisID).list();
+		for(SummaryStage summary : summaries){
+			for(SummaryStandardConformance conformance : summary.getConformances())
+				getSession().delete(conformance);
+			getSession().delete(summary);
+		}
 	}
 }

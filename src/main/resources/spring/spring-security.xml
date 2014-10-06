@@ -12,7 +12,7 @@
 	<http auto-config="true">
 		<intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/addUser*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<form-login login-page="/login" default-target-url="/home" authentication-failure-url="/login/error" />
+		<form-login login-page="/login" default-target-url="/home" authentication-success-handler-ref="authenticationSuccessHandler" authentication-failure-url="/login/error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
 		<logout logout-success-url="/home" />
 	</http>
 
@@ -26,6 +26,11 @@
 		</authentication-provider>
 	</authentication-manager>
 
+	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.CustomAuthenticationSuccessHandler" />
+
+	<beans:bean id="customAuthenticationFailureHandler" class="lu.itrust.business.TS.usermanagement.CustomAuthenticationFailureHandler">
+		<beans:property name="defaultFailureUrl" value="/login/error" />
+	</beans:bean>
 
 	<beans:bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
 		<beans:constructor-arg value="256" />

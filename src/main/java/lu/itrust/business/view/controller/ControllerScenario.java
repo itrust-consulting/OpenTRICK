@@ -18,8 +18,9 @@ import lu.itrust.business.TS.NormMeasure;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
+import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.AppSettingEntry;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
@@ -30,7 +31,6 @@ import lu.itrust.business.component.helper.RRFFieldEditor;
 import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceAnalysis;
-import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAssetType;
 import lu.itrust.business.service.ServiceDataValidation;
@@ -38,6 +38,7 @@ import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceScenario;
 import lu.itrust.business.service.ServiceScenarioType;
+import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.validator.ScenarioValidator;
 import lu.itrust.business.validator.field.ValidatorField;
 
@@ -96,15 +97,15 @@ public class ControllerScenario {
 
 	@Autowired
 	private AssessmentManager assessmentManager;
-	
+
 	@Autowired
 	private ServiceAssessment serviceAssessment;
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
-	
+
 	@Autowired
-	private ServiceAppSettingEntry serviceAppSettingEntry;
+	private ServiceUser serviceUser;
 
 	/**
 	 * select: <br>
@@ -225,13 +226,9 @@ public class ControllerScenario {
 		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 		if (integer == null)
 			return null;
-		
-		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", integer.toString());
-		if (settings != null) {
-			model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
-			model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
-		}
-		
+
+		model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(integer, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
+
 		// load all scenarios from analysis
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
@@ -294,8 +291,7 @@ public class ControllerScenario {
 
 	@RequestMapping(value = "/RRF/{elementID}/Load", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID,'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String load(@RequestBody RRFFilter filter, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale)
-			throws Exception {
+	public @ResponseBody String load(@RequestBody RRFFilter filter, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, locale, filter);
@@ -400,7 +396,7 @@ public class ControllerScenario {
 			if (scenario.getId() > 1) {
 
 				if (!serviceScenario.belongsToAnalysis(idAnalysis, scenario.getId())) {
-					errors.put("scenario", messageSource.getMessage("error.scenario.not_belongs_to_analysis", null,"Scenario does not belong to analysis", locale));
+					errors.put("scenario", messageSource.getMessage("error.scenario.not_belongs_to_analysis", null, "Scenario does not belong to analysis", locale));
 					return errors;
 				}
 
@@ -433,10 +429,29 @@ public class ControllerScenario {
 	 */
 	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody String aleByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String aleByAsset(HttpSession session, Model model, Principal principal) throws Exception {
+
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
 		if (idAnalysis == null)
 			return null;
+
+		User user = serviceUser.get(principal.getName());
+
+		List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
+
+		Locale locale = null;
+
+		for (AnalysisSetting setting : settings) {
+			if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
+				locale = new Locale(setting.getValue().substring(0, 2));
+				break;
+			}
+		}
+
+		if (locale == null)
+			locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
+
 		return chartGenerator.aleByScenario(idAnalysis, locale);
 	}
 
@@ -452,10 +467,27 @@ public class ControllerScenario {
 	 */
 	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody String assetByALE(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String assetByALE(HttpSession session, Model model, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
+
+		User user = serviceUser.get(principal.getName());
+
+		List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
+		
+		Locale locale = null;
+
+		for (AnalysisSetting setting : settings) {
+			if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
+				locale = new Locale(setting.getValue().substring(0, 2));
+				break;
+			}
+		}
+
+		if (locale == null)
+			locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
+
 		return chartGenerator.aleByScenarioType(idAnalysis, locale);
 	}
 

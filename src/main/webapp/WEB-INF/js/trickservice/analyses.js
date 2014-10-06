@@ -695,7 +695,7 @@ function exportAnalysis(analysisId) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response["success"] != undefined) {
-					if (taskManager == undefined)
+					//if (taskManager == undefined)
 						taskManager = new TaskManager();
 					taskManager.Start();
 				} else if (message["error"]) {
@@ -815,15 +815,7 @@ function analysisTableSortable() {
 
 	// check if datatable has to be initialised
 	var tables = $("#section_analysis table");
-	if (!tables.length) {
-		tables = $("#section_admin_analysis table");
-		if (!tables.length) {
-			tables = $("#section_profile_analysis table");
-			if (!tables.length)
-				return false;
-		}
-	}
-
+	
 	// define sort order of text
 	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
 

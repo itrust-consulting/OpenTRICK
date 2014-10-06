@@ -54,6 +54,6 @@ public interface DAOAssessment {
 	public void saveOrUpdate(List<Assessment> assessments) throws Exception;
 
 	public void delete(Assessment assessment) throws Exception;
-
+	
 	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis);
 }

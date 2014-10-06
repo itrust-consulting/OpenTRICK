@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import lu.itrust.business.TS.tsconstant.Constant;
+import org.springframework.beans.factory.annotation.Value;
 
 /** 
  * TrickService.java: <br>
@@ -24,9 +24,10 @@ public class TrickService {
 	private int id = -1;
 	
 	@Column(name="dtVersion", nullable=false)
-	private String version = Constant.TRICKSERVICE_VERSION;
+	@Value("${app.settings.version}")
+	private String version;
 	
-	@Column(name="dtInstalled", nullable=false)
+	@Column(name="dtInstalled", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean installed = false;
 
 	/**

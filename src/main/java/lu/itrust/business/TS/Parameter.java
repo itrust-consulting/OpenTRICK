@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
-import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,7 +12,6 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 /**
@@ -42,7 +40,7 @@ public class Parameter implements Serializable, Cloneable {
 	private int id = -1;
 
 	/** The Parameter Description */
-	@Column(name="dtDescription", nullable=false)
+	@Column(name="dtLabel", nullable=false)
 	@Access(AccessType.FIELD)
 	private String description = "";
 

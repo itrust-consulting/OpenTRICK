@@ -29,7 +29,7 @@ public class AssetType implements Cloneable {
 	private int id = -1;
 
 	/** AssetType Type name */
-	@Column(name="dtLabel", nullable=false)
+	@Column(name="dtLabel", nullable=false, unique=true)
 	private String type = "";
 
 	/***********************************************************************************************

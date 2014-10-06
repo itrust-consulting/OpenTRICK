@@ -64,4 +64,5 @@ public interface DAOParameter {
 	public void delete(Integer id) throws Exception;
 
 	public void delete(Parameter parameter) throws Exception;
+	
 }

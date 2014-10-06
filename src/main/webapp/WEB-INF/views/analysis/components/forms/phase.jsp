@@ -9,43 +9,31 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="phaseNewModal-title">
-					<spring:message code="label.title.phase.${empty(phase)? 'add':'edit'}" text="${empty(phase)? 'Add new phase':'Edit phase'}" />
+					<spring:message code="label.title.phase.add" text="Add new phase" />
 				</h4>
 			</div>
 			<div class="modal-body">
 				<form name="phase" action="${pageContext.request.contextPath}/Phase/Save" class="form-horizontal" id="phase_form">
 					<c:choose>
 						<c:when test="${!empty(phase)}">
-							<input name="id" value="${phase.id}" type="hidden">
+							<input name="id" id="phaseid" value="${phase.id}" type="hidden">
 						</c:when>
 						<c:otherwise>
-							<input name="id" value="-1" type="hidden">
+							<input name="id" id="phaseid" value="-1" type="hidden">
 						</c:otherwise>
 					</c:choose>
 					<div class="form-group">
-						<label for="beginDate" class="col-sm-2 control-label"> <spring:message code="label.begin.date" text="Begin" />
+						<label for="date" class="col-sm-3 control-label"> <spring:message code="label.date" text="Period of time" />
 						</label>
-						<div class="col-sm-10">
-							<div class="input-group">
-								<input name="beginDate" id="phase_begin_date" class="form-control" type="date" value="${empty(phase)? '':phase.beginDate}" pattern="dddd-dd-dd"
-									placeholder='<spring:message code="label.phase.date.pattern" text="YYYY-MM-DD"/>' />
-							</div>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="endDate" class="col-sm-2 control-label"> <spring:message code="label.phase.end_date" text="End" />
-						</label>
-						<div class="col-sm-10">
-							<div class="input-group">
-								<input name="endDate" id="phase_endDate" class="form-control" type="date" pattern="dddd-dd-dd" placeholder='<spring:message code="label.phase.date.pattern" text="YYYY-MM-DD"/>'
-									${empty(phase)? '': phase.endDate} />
+						<div class="col-sm-9">
+							<div id="datepicker_container" class="input-daterange">
 							</div>
 						</div>
 					</div>
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" onclick="savePhase('phase_form')">
+				<button id="addphasemodelbutton" type="button" class="btn btn-primary" onclick="savePhase('phase_form')">
 					<spring:message code="label.action.save" text="Save" />
 				</button>
 			</div>
@@ -53,5 +41,12 @@
 		<!-- /.modal-content -->
 	</div>
 	<!-- /.modal-dialog -->
+</div>
+<div id="datepicker_prototype" style="display: none;">
+	<input name="beginDate" type="text" class="form-control" style="width: auto; display: inline; background-color: white; cursor: inherit;"
+		value="${empty(phase)? '':phase.beginDate}" placeholder='<spring:message code="label.phase.date.pattern" text="YYYY-MM-DD"/>' readonly /> <span class="add-on"
+		style="height: 31px;">to</span> <input name="endDate" type="text" class="form-control"
+		style="width: auto; display: inline; background-color: white; cursor: inherit;" value="${empty(phase)? '':phase.beginDate}"
+		placeholder='<spring:message code="label.phase.date.pattern" text="YYYY-MM-DD"/>' readonly />
 </div>
 <!-- /.modal -->

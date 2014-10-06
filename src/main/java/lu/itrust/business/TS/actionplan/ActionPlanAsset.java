@@ -30,7 +30,7 @@ public class ActionPlanAsset {
 
 	/** The ActionPlanAsset id */
 	@Id @GeneratedValue 
-	@Column(name="idActionPlanAsset")
+	@Column(name="idActionPlanAssetCalculation")
 	private int id = -1;
 
 	/** The ActionPlanEntry Object */

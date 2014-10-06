@@ -13,11 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisNorm;
 import lu.itrust.business.TS.AnalysisRight;
@@ -122,6 +117,8 @@ public class ImportAnalysis {
 	/** The SQLite Database Handler */
 	private DatabaseHandler sqlite = null;
 
+	private Map<Integer, AssetType> assetTypes = null;
+	
 	/** Map of Assets */
 	private Map<Integer, Asset> assets = null;
 
@@ -834,7 +831,7 @@ public class ImportAnalysis {
 		ResultSet rs = null;
 		String query = "";
 		String typename = "";
-		Map<Integer, AssetType> assetTypes = new HashMap<Integer, AssetType>();
+		assetTypes = new HashMap<Integer, AssetType>();
 		assets = new HashMap<Integer, Asset>();
 		AssetType assetType = null;
 		Asset tempAsset = null;
@@ -2922,7 +2919,7 @@ public class ImportAnalysis {
 			// * retrieve asset type label for the instance creation
 			// ****************************************************************
 
-			assetType = daoAssetType.get(rs.getInt(Constant.ASSET_ID_TYPE_ASSET));
+			assetType = assetTypes.get(rs.getInt(Constant.ASSET_ID_TYPE_ASSET));
 			assetTypeValue.setAssetType(assetType);
 			assetTypeValue.setValue(rs.getInt(Constant.VALUE_SPEC));
 

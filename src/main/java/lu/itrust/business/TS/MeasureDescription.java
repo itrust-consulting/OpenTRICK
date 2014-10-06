@@ -10,15 +10,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
+import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-
-import lu.itrust.business.TS.tsconstant.Constant;
 
 /**
  * MeasureDescription: <br>
@@ -37,6 +37,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
  * @since Jan 28, 2013
  */
 @Entity 
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiNorm","dtReference"}))
 public class MeasureDescription implements Cloneable {
 
 	/***********************************************************************************************
@@ -56,7 +57,7 @@ public class MeasureDescription implements Cloneable {
 
 	/** Measure Description Text List (one entry represents one language) */
 	@OneToMany(mappedBy="measureDescription")
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */

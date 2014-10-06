@@ -1,5 +1,6 @@
 package lu.itrust.business.view.controller;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -108,9 +109,8 @@ public class ControllerMeasureDescription {
 			// language text
 			for (MeasureDescription mesDesc : mesDescs) {
 
-				// remove all descriptiontexts
-				mesDesc.getMeasureDescriptionTexts().clear();
-
+				mesDesc.setMeasureDescriptionTexts(new ArrayList<MeasureDescriptionText>());
+				
 				// load only from language
 				MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(mesDesc.getId(), lang.getId());
 
@@ -122,8 +122,10 @@ public class ControllerMeasureDescription {
 					mesDescText.setLanguage(lang);
 				}
 
-				// add to measuredescription
 				mesDesc.addMeasureDescriptionText(mesDescText);
+				
+				//System.out.println(mesDescText.getDomain() + "::" + mesDescText.getDescription());
+				
 			}
 			Collections.sort(mesDescs, new ComparatorMeasureDescription());
 			// put data to model

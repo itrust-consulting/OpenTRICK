@@ -26,8 +26,6 @@ public class AnalysisProfile {
 	private List<Norm> norms = new ArrayList<Norm>();
 
 	private boolean scenario = true;
-	
-	private String comment;
 
 	/**
 	 * Constructor: <br>
@@ -121,25 +119,5 @@ public class AnalysisProfile {
 	 */
 	public void setScenario(boolean scenario) {
 		this.scenario = scenario;
-	}
-
-	/**
-	 * getComment: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public String getComment() {
-		return comment;
-	}
-
-	/**
-	 * setComment: <br>
-	 * Description
-	 * 
-	 * @param comment
-	 */
-	public void setComment(String comment) {
-		this.comment = comment;
 	}
 }

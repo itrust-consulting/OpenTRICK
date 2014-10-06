@@ -1,10 +1,15 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
+import lu.itrust.business.TS.settings.ApplicationSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceDataValidation;
@@ -74,7 +79,12 @@ public class ControllerUser {
 	
 			// add profile to model
 			model.addAttribute("user", user);
+						
+			model.addAttribute("defaultlang", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue());
 			
+			model.addAttribute("defaultShowUncertainty", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY).getValue());
+			
+			model.addAttribute("defaultShowCssf", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY).getValue());
 		
 			return "userProfile";
 		} catch (Exception e) {
@@ -99,15 +109,27 @@ public class ControllerUser {
 	 */
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 	@RequestMapping("/{userId}")
-	public String profileOfUser(@PathVariable("userId") int userId, Map<String, Object> model) throws Exception {
+	public String profileOfUser(@PathVariable("userId") int userId, Model model) throws Exception {
 
-		// retireve profile
-		User user = serviceUser.get(userId);
-
-		// add profile to model
-		model.put("userProfil", user);
-
-		return "userProfile";
+		try {
+			
+			User user = serviceUser.get(userId);
+	
+			user.setPassword(Constant.EMPTY_STRING);
+	
+			// add profile to model
+			model.addAttribute("user", user);
+			
+			model.addAttribute("defaultlang", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue());
+			
+			model.addAttribute("defaultlang", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY).getValue());
+		
+			return "userProfile";
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("user", null);
+			return "userProfile";
+		}
 	}
 
 	/**
@@ -122,7 +144,7 @@ public class ControllerUser {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Update", method = RequestMethod.POST,headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, Principal principal) throws Exception {
+	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, Principal principal, HttpServletResponse response) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<>();
 		
@@ -132,9 +154,9 @@ public class ControllerUser {
 			
 			if (!buildUser(errors, user, source, locale))
 				return errors;
-			
+						
 			serviceUser.saveOrUpdate(user);
-
+			
 			return errors;
 
 		} catch (Exception e) {
@@ -170,6 +192,9 @@ public class ControllerUser {
 			String firstname = jsonNode.get("firstName").asText();
 			String lastname = jsonNode.get("lastName").asText();
 			String email = jsonNode.get("email").asText();
+			String defaultlanguage = jsonNode.get("defaultlanguage").asText();
+			String defaultShowUncertainty = jsonNode.get("default_show_uncertainty").asText();
+			String defaultShowCssf = jsonNode.get("default_show_cssf").asText();
 			String error = null;
 			String oldPassword = user.getPassword();
 			
@@ -214,6 +239,50 @@ public class ControllerUser {
 			else
 				user.setEmail(email);
 
+			Map<String, ApplicationSetting> settings = user.getApplicationSettingsAsMap();
+			
+			boolean settingserrors = false;
+			
+			// default interface language
+			
+			ApplicationSetting setting = settings.get(Constant.SETTING_DEFAULT_UI_LANGUAGE);
+			
+			if(!defaultlanguage.equals("en") && !defaultlanguage.equals("fr")) {
+				errors.put("defaultlanguage", messageSource.getMessage("error.user.defaultlanguage.not_recognised", null, "Language not recognised!", locale));
+				settingserrors = true;
+			} else {
+				setting.setValue(defaultlanguage);
+				settings.put(Constant.SETTING_DEFAULT_UI_LANGUAGE, setting);
+			}
+			
+			// default show uncertainty
+			
+			setting = settings.get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY);
+			
+			if(!defaultShowUncertainty.equals("true") && !defaultShowUncertainty.equals("false")) {
+				errors.put("default_show_uncertainty", messageSource.getMessage("error.user.defaultshowuncertainty.not_allowed", null, "Only \"True\" and \"False\" are allowed!", locale));
+				settingserrors = true;
+			} else{
+				setting.setValue(defaultShowUncertainty);
+				settings.put(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY, setting);
+			}
+			
+			// default show cssf
+			
+			setting = settings.get(Constant.SETTING_DEFAULT_SHOW_CSSF);
+			
+			if(!defaultShowCssf.equals("true") && !defaultShowCssf.equals("false")) {
+				errors.put("default_show_cssf", messageSource.getMessage("error.user.defaultshowcssf.not_allowed", null, "Only \"True\" and \"False\" are allowed!", locale));
+				settingserrors = true;
+			} else{
+				setting.setValue(defaultShowCssf);
+				settings.put(Constant.SETTING_DEFAULT_SHOW_CSSF, setting);
+			}
+			
+			if(!settingserrors) {
+				List<ApplicationSetting> asettings = new ArrayList<ApplicationSetting>(settings.values());
+				user.setApplicationSettings(asettings);
+			}
 			
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));

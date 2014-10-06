@@ -8,7 +8,7 @@
 <div class="section" id="section_scenario">
 	<div class="page-header">
 		<h3 id="Scenario">
-			<spring:message code="label.title.scenario" text="Scenario" />
+			<fmt:message key="label.title.scenario" />
 		</h3>
 	</div>
 	<div class="panel panel-default">
@@ -31,24 +31,24 @@
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">
-			<table id="scneariotable" class="table table-hover table-fixed-header">
+			<table id="scenariotable" class="table table-hover table-fixed-header">
 				<thead>
 					<tr>
 						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
-						<th><spring:message code="label.row.index" text="#" /></th>
-						<th colspan="15"><spring:message code="label.scenario.name" text="Name" /></th>
-						<th colspan="3"><spring:message code="label.scenario.type" text="Type" /></th>
+						<th><fmt:message key="label.row.index" /></th>
+						<th colspan="15"><fmt:message key="label.scenario.name" /></th>
+						<th colspan="3"><fmt:message key="label.scenario.type" /></th>
 						<c:choose>
 							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
-								<th colspan="2"><spring:message code="label.scenario.aleo" text="ALEO" /> (k&euro;)</th>
-								<th colspan="2"><spring:message code="label.scenario.ale" text="ALE" /> (k&euro;)</th>
-								<th colspan="2"><spring:message code="label.scenario.alep" text="ALEP" /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.scenario.aleo" /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.scenario.ale" /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.scenario.alep" /> (k&euro;)</th>
 							</c:when>
 							<c:otherwise>
-								<th colspan="2"><spring:message code="label.scenario.ale" text="ALE" /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.scenario.ale" /> (k&euro;)</th>
 							</c:otherwise>
 						</c:choose>
-						<th colspan="20"><spring:message code="label.scenario.description" text="Description" /></th>
+						<th colspan="20"><fmt:message key="label.scenario.description" /></th>
 					</tr>
 				</thead>
 				<tfoot></tfoot>
@@ -62,8 +62,7 @@
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');"></td>
 							<td>${status.index+1}</td>
 							<td class="${cssClass}" colspan="15"><spring:message text="${scenario.name}" /></td>
-							<td class="${cssClass}" colspan="3"><spring:message code="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.scenarioType.name,'-','_'))}"
-									text="${scenario.scenarioType.name}" /></td>
+							<td class="${cssClass}" colspan="3"><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.scenarioType.name,'-','_'))}" /></td>
 							<c:choose>
 								<c:when test="${empty(show_uncertainty) or show_uncertainty}">
 									<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
@@ -82,6 +81,30 @@
 						</tr>
 					</c:forEach>
 				</tbody>
+				
+				<c:if test="${!KowledgeBaseView }">
+				<tfoot>
+					<tr class="panel-footer" style="font-weight:bold;">
+						<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeTotalALE(scenarioALE)" var="ale" />
+						<td colspan="20"><fmt:message key="label.total.ale" /></td>
+						<c:choose>
+							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+								<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+								<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+								<td colspan="2" title="<fmt:formatNumber value="${ale[2].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[2].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+							</c:when>
+							<c:otherwise>
+								<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
+										maxFractionDigits="2" minFractionDigits="0" /></td>
+							</c:otherwise>
+						</c:choose>
+						<td colspan="20"></td>
+					</tr>
+				</tfoot>
+				</c:if>
 			</table>
 		</div>
 	</div>

@@ -1,12 +1,8 @@
-/**
- * 
- */
 package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
 
 import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -29,10 +25,10 @@ import javax.persistence.Transient;
 
 	@Id @GeneratedValue 
 	@Column(name="idRole")
-	private long id = - 1;
+	private int id = - 1;
  
 	@Enumerated(EnumType.STRING)
-	@Column(name="dtType")
+	@Column(name="dtType", nullable=false, unique=true)
 	private RoleType type = null;
 
 	/**
@@ -51,7 +47,7 @@ import javax.persistence.Transient;
 	/**
 	 * @return the id
 	 */
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -59,7 +55,7 @@ import javax.persistence.Transient;
 	 * @param id
 	 *            the id to set
 	 */
-	public void setId(long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -102,5 +98,4 @@ import javax.persistence.Transient;
 			return false;
 		return true;
 	}
-
 }

@@ -7,6 +7,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.exception.TrickException;
 
@@ -21,6 +23,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity 
+@Table(uniqueConstraints=@UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }))
 public class Asset implements Cloneable {
 
 	/***********************************************************************************************
@@ -33,7 +36,7 @@ public class Asset implements Cloneable {
 	private int id = -1;
 
 	/** The Asset Name */
-	@Column(name="dtName", nullable=false)
+	@Column(name="dtLabel", nullable=false)
 	private String name = "";
 
 	/** The Asset Type Name */
@@ -54,7 +57,7 @@ public class Asset implements Cloneable {
 	private String hiddenComment = "";
 
 	/** The Flag to determine if the Asset is selected for calculations */
-	@Column(name="dtSelected", nullable=false)
+	@Column(name="dtSelected", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean selected = false;
 	
 	/** The Annual Loss Expectancy - Pessimistic */

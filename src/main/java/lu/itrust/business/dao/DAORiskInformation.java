@@ -35,4 +35,5 @@ public interface DAORiskInformation {
 	public void saveOrUpdate(RiskInformation riskInformation) throws Exception;
 
 	public void delete(RiskInformation riskInformation) throws Exception;
+	
 }

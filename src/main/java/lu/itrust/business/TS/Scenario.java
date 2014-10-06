@@ -15,16 +15,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import lu.itrust.business.exception.TrickException;
+
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-
-import lu.itrust.business.exception.TrickException;
 
 /**
  * Scenario: <br>
@@ -36,6 +35,7 @@ import lu.itrust.business.exception.TrickException;
  */
 @Entity 
 @PrimaryKeyJoinColumn(name="idScenario")
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","dtLabel"}))
 public class Scenario extends SecurityCriteria {
 
 	/***********************************************************************************************
@@ -89,7 +89,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Name
 	 */
-	@Column(name="dtName", nullable=false)
+	@Column(name="dtLabel", nullable=false)
 	public String getName() {
 		return name;
 	}
@@ -141,7 +141,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Selected Flag
 	 */
-	@Column(name="dtSelected", nullable=false)
+	@Column(name="dtSelected", nullable=false, columnDefinition="TINYINT(1)")
 	public boolean isSelected() {
 		return selected;
 	}
@@ -449,7 +449,7 @@ public class Scenario extends SecurityCriteria {
 			   inverseJoinColumns = { @JoinColumn(name = "idScenarioAssetTypeValue", nullable = false, updatable = false) },
 			   uniqueConstraints = @UniqueConstraint(columnNames = {"idScenario", "idScenarioAssetTypeValue"})
 	)
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.ALL, CascadeType.DELETE})
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}

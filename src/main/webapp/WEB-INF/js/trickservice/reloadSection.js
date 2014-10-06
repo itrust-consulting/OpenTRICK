@@ -77,10 +77,12 @@ function controllerBySection(section, subSection) {
 function callbackBySection(section) {
 	var callbacks = {
 		"section_asset" : function() {
+			reloadSection("section_scenario", undefined, true /*prevent propagation*/);
 			chartALE();
 			return false;
 		},
 		"section_scenario" : function() {
+			reloadSection("section_asset", undefined, true /*prevent propagation*/);
 			chartALE();
 			return false;
 		},
@@ -169,6 +171,15 @@ SectionSmartUpdate.prototype = {
 				if (!$tr.length)
 					$(tableSourceTrs[i]).appendTo($tbody);
 			}
+
+			var $tfooter = $(dest).find("tfoot");
+			if ($tfooter.length) {
+				//replaceWith does not work, fix with this following code
+				var $parent = $tfooter.parent();
+				$tfooter.remove();
+				$(src).find("tfoot").appendTo($parent);
+			}
+			
 			var checked = $($tbody).find("td:first-child>input:checked");
 			if (checked.length)
 				$(checked).change();

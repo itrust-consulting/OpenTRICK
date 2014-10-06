@@ -1,5 +1,6 @@
 $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
+	analysisTableSortable();
 });
 
 function editSingleAnalysis(analysisId) {
@@ -168,5 +169,73 @@ function deleteAnalysis(analysisId) {
 	$("#deleteanalysisbuttonYes").prop("disabled", false);
 	$("#deleteAnalysisModel .modal-header > .close").show();
 	$("#deleteAnalysisModel").modal('show');
+	return false;
+}
+
+function analysisTableSortable() {
+
+	// check if datatable has to be initialised
+	var tables = $("#section_profile_analysis table");
+	
+	// define sort order of text
+	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
+
+	// flag to check for case sensitive comparation
+	Array.AlphanumericSortIgnoreCase = true;
+
+	// call the tablesorter plugin and apply the uitheme widget
+	$(tables).tablesorter({
+		headers : {
+			0 : {
+				sorter : false,
+				filter : false,
+			},
+			1 : {
+				sorter : "text",
+				filter : false,
+			},
+			2 : {
+				sorter : "text",
+				filter : false,
+			},
+			3 : {
+				sorter : "text",
+				filter : false,
+			},
+			4 : {
+				sorter : "text",
+				filter : false,
+			},
+			5 : {
+				sorter : "text",
+				filter : false,
+			},
+		},
+		textSorter : {
+			1 : Array.AlphanumericSort,
+			2 : function(a, b, direction, column, table) {
+				if (table.config.sortLocaleCompare)
+					return a.localeCompare(b);
+				return versionComparator(a, b, direction);
+			},
+			3 : $.tablesorter.sortNatural,
+		},
+		theme : "bootstrap",
+		dateFormat : "yyyymmdd",
+		widthFixed : false,
+		headerTemplate : '{content} {icon}',
+		widgets : [ "uitheme", "filter", "zebra" ],
+		widgetOptions : {
+			zebra : [ "even", "odd" ],
+			filter_reset : ".reset"
+		}
+	});
+	$("th[class~='tablesorter-header'][data-column='0']").css({
+		'width' : '2px'
+	});
+	$("th[class~='tablesorter-header'][data-column='1']").css({
+		'width' : '25%'
+	});
+
 	return false;
 }

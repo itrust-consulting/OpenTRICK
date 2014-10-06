@@ -47,7 +47,7 @@ public class Assessment implements Serializable, Cloneable {
 	private int id = -1;
 
 	/** Assessment selected flag */
-	@Column(name="dtSelected", nullable=false)
+	@Column(name="dtSelected", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean selected = false;
 
 	/** A comment on this assessment */

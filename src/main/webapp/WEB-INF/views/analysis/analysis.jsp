@@ -5,6 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<fmt:setLocale value="${fn:substring(language,0, 2)}" scope="session"/>
 <c:set scope="request" var="title">label.title.analysis</c:set>
 <html>
 <jsp:include page="../header.jsp" />
@@ -77,6 +78,23 @@
 			<script type="text/javascript" src="<spring:url value="js/bootstrap/typeahead.bundle.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/riskregister.js" />"></script>
 		</c:if>
+		<script>
+						
+							$( "#actionmenu li" ).hover(function() {
+								var id = $(this).attr("id");
+								
+								console.log(id);
+								if(id === "languagechooser")
+									$( this ).addClass("open");
+								else
+									$("#languagechooser").removeClass("open");
+							});
+						
+							$( ".dropdown-toggle" ).click(function() {
+								$("#languagechooser").removeClass("open");
+							});
+							
+						</script>
 	</div>
 </body>
 </html>

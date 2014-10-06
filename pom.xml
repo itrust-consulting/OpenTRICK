@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>TrickService</artifactId>
-	<version>0.6.1</version>
+	<version>0.6.3d</version>
 	<packaging>war</packaging>
 	<properties>
 		<org.springframework.version>4.0.6.RELEASE</org.springframework.version>
@@ -222,19 +222,19 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>3.10-FINAL</version>
+			<version>3.11-beta2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml-schemas</artifactId>
-			<version>3.10-FINAL</version>
+			<version>3.11-beta2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.10-FINAL</version>
+			<version>3.11-beta2</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

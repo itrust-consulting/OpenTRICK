@@ -59,16 +59,16 @@ public class ActionPlanEntry implements Serializable {
 	/** The Measure object reference */
 	@ManyToOne 
 	@JoinColumn(name="fiMeasure", nullable=false)
-	@Cascade(CascadeType.SAVE_UPDATE)
 	private Measure measure = null;
-
-	/** The position refered from the normal action plan */
-	@Column(name="dtOrder", nullable=false)
-	private int order = 0;
 	
 	/** The position refered from the normal action plan */
-	@Column(name="dtPosition", nullable=false, length=5)
-	private String position = "";
+
+	@Column(name="dtOrder", nullable=false, length=5)
+	private String order = "";
+	
+	/** the order inside the action plan type */
+	@Column(name="dtPosition", nullable=false)
+	private int position = 0;
 
 	/** The total ALE of each mode (normal, pessimistic, optimistic) */
 	@Column(name="dtTotalALE", nullable=false)
@@ -90,7 +90,7 @@ public class ActionPlanEntry implements Serializable {
 	//private List<ActionPlanAssessment> actionPlanAssessments = new ArrayList<ActionPlanAssessment>();
 
 	@OneToMany(mappedBy="actionPlanEntry")
-	@Cascade(CascadeType.ALL)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	@OrderBy("currentALE DESC")
 	private List<ActionPlanAsset> actionPlanAssets = new ArrayList<ActionPlanAsset>();
 	
@@ -284,8 +284,8 @@ public class ActionPlanEntry implements Serializable {
 	 * 
 	 * @return The Position of the Entry
 	 */
-	public String getPosition() {
-		return position;
+	public String getOrder() {
+		return order;
 	}
 
 	/**
@@ -296,29 +296,30 @@ public class ActionPlanEntry implements Serializable {
 	 *            The value to set the Entry Position
 	 * @throws TrickException 
 	 */
-	public void setPosition(String position) throws TrickException {
-		if (position == null || !position.matches(POSITION_REGEX))
+	public void setOrder(String order) throws TrickException {
+		if (order == null || !order.matches(POSITION_REGEX))
 			throw new TrickException("error.action_plan_entry.position","Position is not valid");
-		this.position = position;
-	}
-
-	/** getIndex: <br>
-	 * Returns the index field value.
-	 * 
-	 * @return The value of the index field
-	 */
-	public int getOrder() {
-		return order;
-	}
-
-	/** setIndex: <br>
-	 * Sets the Field "index" with a value.
-	 * 
-	 * @param index 
-	 * 			The Value to set the index field
-	 */
-	public void setOrder(int order) {
 		this.order = order;
+	}
+
+	/**
+	 * getPosition: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public int getPosition() {
+		return position;
+	}
+
+	/**
+	 * setPosition: <br>
+	 * Description
+	 * 
+	 * @param position
+	 */
+	public void setPosition(int position) {
+		this.position = position;
 	}
 
 	/**

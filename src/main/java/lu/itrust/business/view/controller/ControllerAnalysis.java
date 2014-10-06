@@ -5,7 +5,6 @@ import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,13 +40,13 @@ import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.export.ExportAnalysisReport;
+import lu.itrust.business.TS.export.UserSQLite;
+import lu.itrust.business.TS.settings.AnalysisSetting;
+import lu.itrust.business.TS.settings.ApplicationSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.AppSettingEntry;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.TS.usermanagement.UserSQLite;
 import lu.itrust.business.component.AssessmentManager;
-import lu.itrust.business.component.ComparatorItemInformation;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.component.MeasureManager;
@@ -95,7 +94,6 @@ import lu.itrust.business.validator.HistoryValidator;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -256,7 +254,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String displayAll(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale) throws Exception {
+	public String displayAll(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale, HttpServletRequest request) throws Exception {
 
 		// retrieve analysisId if an analysis was already selected
 		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
@@ -264,7 +262,7 @@ public class ControllerAnalysis {
 		// check if an analysis is selected
 		if (selected != null) {
 
-			Boolean permissiondenied = false;
+			Boolean hasPermission = false;
 
 			// prepare permission evaluator
 			PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
@@ -276,31 +274,92 @@ public class ControllerAnalysis {
 				throw new ResourceNotFoundException((String) attributes.getFlashAttributes().get("errors"));
 			}
 
-			AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", selected.toString());
-
-			if (settings != null) {
-				model.addAttribute("show_uncertainty", settings.findByKey("show_uncertainty"));
-				model.addAttribute("show_cssf", settings.findByKey("show_cssf"));
-			}
-
 			User user = serviceUser.get(principal.getName());
 
-			permissiondenied = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : permissionEvaluator.userIsAuthorized(selected,
+			hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : permissionEvaluator.userIsAuthorized(selected,
 					principal, AnalysisRight.READ);
 
-			if (permissiondenied) {
+			if (hasPermission) {
 
-				analysis.setActionPlans(serviceActionPlan.getAllFromAnalysis(selected));
+				// initialise analysis
+				
 				analysis.setAssets(serviceAsset.getAllFromAnalysis(selected));
 				analysis.setScenarios(serviceScenario.getAllFromAnalysis(selected));
 				analysis.setItemInformations(serviceItemInformation.getAllFromAnalysis(selected));
-				//Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
-				// initialise and send data to the data model
-				Hibernate.initialize(analysis.getLanguage());
-				model.addAttribute("login", principal.getName());
-				model.addAttribute("language", analysis.getLanguage().getAlpha3());
+				analysis.setLanguage(serviceLanguage.getByAlpha3(analysis.getLanguage().getAlpha3()));
+				//Hibernate.initialize(analysis.getLanguage());
+				
+				model.addAttribute("login", user.getLogin());
 				model.addAttribute("analysis", analysis);
 				model.addAttribute("KowledgeBaseView", analysis.isProfile());
+				
+				Map<String, AnalysisSetting> analysissettings = analysis.getAnalysisSettingsFromUser(user);
+
+				Map<String, ApplicationSetting> applicationSettings = user.getApplicationSettingsAsMap();
+				
+				if(analysissettings.get(Constant.SETTING_SHOW_UNCERTAINTY)==null){
+					if(applicationSettings.get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY)==null){
+						ApplicationSetting aset = new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY, "true");
+						user.addApplicationSetting(aset);
+						AnalysisSetting anset = new AnalysisSetting(Constant.SETTING_SHOW_UNCERTAINTY, "true", user);
+						analysis.addAnalysisSetting(anset);
+					} else {
+						AnalysisSetting anset = new AnalysisSetting(Constant.SETTING_SHOW_UNCERTAINTY, applicationSettings.get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY).getValue(), user);
+						analysis.addAnalysisSetting(anset);
+					}
+				}	
+						
+				if(analysissettings.get(Constant.SETTING_SHOW_CSSF)==null){
+					if(applicationSettings.get(Constant.SETTING_DEFAULT_SHOW_CSSF)==null){
+						ApplicationSetting aset = new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_CSSF, "true");
+						user.addApplicationSetting(aset);
+						AnalysisSetting anset = new AnalysisSetting(Constant.SETTING_SHOW_CSSF, "true", user);
+						analysis.addAnalysisSetting(anset);
+					} else {
+						AnalysisSetting anset = new AnalysisSetting(Constant.SETTING_SHOW_CSSF, applicationSettings.get(Constant.SETTING_DEFAULT_SHOW_CSSF).getValue(), user);
+						analysis.addAnalysisSetting(anset);
+					}
+				}	
+				
+				if(analysissettings.get(Constant.SETTING_LANGUAGE)==null){
+					AnalysisSetting anset = new AnalysisSetting(Constant.SETTING_LANGUAGE, analysis.getLanguage().getAlpha3(), user);
+					analysis.addAnalysisSetting(anset);
+				}
+				
+				serviceUser.saveOrUpdate(user);
+				serviceAnalysis.saveOrUpdate(analysis);
+				
+				model.addAttribute("show_uncertainty", analysis.getAnalysisSettingsFromUser(user).get(Constant.SETTING_SHOW_UNCERTAINTY).getValue());
+				model.addAttribute("show_cssf", analysis.getAnalysisSettingsFromUser(user).get(Constant.SETTING_SHOW_CSSF).getValue());		
+				
+				
+				String requestedLanguage = request.getParameter("language");
+				
+				String currentLanguage =  analysis.getAnalysisSettingsFromUser(user).get(Constant.SETTING_LANGUAGE).getValue();
+				
+				if(requestedLanguage != null) {
+					if(requestedLanguage==currentLanguage)
+						model.addAttribute("language",currentLanguage);
+					else {
+						if(!serviceLanguage.existsByAlpha3(requestedLanguage)){
+							attributes.addFlashAttribute("errors", messageSource.getMessage("error.language_inexistant", null, "Requested language does not exist!", locale));
+							model.addAttribute("language",currentLanguage);
+						}
+						else {
+							model.addAttribute("language",requestedLanguage);
+							AnalysisSetting setting = analysis.getAnalysisSettingsFromUser(user).get(Constant.SETTING_LANGUAGE);
+							setting.setValue(requestedLanguage.toUpperCase());
+							analysis.getAnalysisSettingsFromUser(user).put(Constant.SETTING_LANGUAGE, setting);
+							serviceAnalysis.saveOrUpdate(analysis);
+						}
+							
+							
+					}
+				} else
+					model.addAttribute("language",currentLanguage);
+				
+				model.addAttribute("languages", serviceLanguage.getAll());
+				
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 				throw new AccessDeniedException((String) attributes.getFlashAttributes().get("errors"));
@@ -933,9 +992,7 @@ public class ControllerAnalysis {
 				phase.setBeginDate(new java.sql.Date(calendar.getTimeInMillis()));
 				calendar.add(Calendar.YEAR, 1);
 				phase.setEndDate(new java.sql.Date(calendar.getTimeInMillis()));
-				mappingPhases.put(Constant.PHASE_NOT_USABLE, new Phase(Constant.PHASE_NOT_USABLE));
 				mappingPhases.put(Constant.PHASE_DEFAULT, phase);
-				analysis.addUsedPhase(mappingPhases.get(Constant.PHASE_NOT_USABLE));
 				analysis.addUsedPhase(phase);
 			}
 
@@ -1105,6 +1162,13 @@ public class ControllerAnalysis {
 				return JsonMessage.Error(messageSource.getMessage("error.profile.delete.failed", null, "Default profile cannot be deleted!", locale));
 
 			// delete the analysis
+			
+			serviceActionPlan.deleteAllFromAnalysis(analysisId);
+			
+			serviceActionPlanSummary.deleteAllFromAnalysis(analysisId);
+			
+			serviceRiskRegister.deleteAllFromAnalysis(analysisId);
+			
 			serviceAnalysis.delete(analysisId);
 
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");

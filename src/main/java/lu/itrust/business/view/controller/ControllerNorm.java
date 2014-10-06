@@ -316,6 +316,7 @@ public class ControllerNorm {
 			return "404";
 
 		InputStream templateFile = new FileInputStream(request.getServletContext().getRealPath("/WEB-INF/data") + "/TL_TRICKService_NormImport_V1.1.xlsx");
+		@SuppressWarnings("resource")
 		XSSFWorkbook workbook = new XSSFWorkbook(templateFile);
 		templateFile.close();
 

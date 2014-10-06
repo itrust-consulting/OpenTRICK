@@ -2,6 +2,7 @@ package lu.itrust.business.component;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.helper.AnalysisProfile;
 import lu.itrust.business.exception.TrickException;
@@ -68,6 +70,12 @@ public class Duplicator {
 		try {
 			copy = analysis.duplicateTo(copy);
 
+			copy.setAnalysisSettings(new ArrayList<AnalysisSetting>(analysis.getAnalysisSettings().size()));
+			for (AnalysisSetting setting : analysis.getAnalysisSettings()) {
+				AnalysisSetting ascopy = setting.duplicate();
+				copy.addAnalysisSetting(ascopy);
+			}
+			
 			copy.setUserRights(new ArrayList<UserAnalysisRight>(analysis.getUserRights().size()));
 			for (UserAnalysisRight uar : analysis.getUserRights()) {
 				UserAnalysisRight uarcopy = uar.duplicate();
@@ -253,12 +261,21 @@ public class Duplicator {
 			// duplicate the analysis
 			Analysis copy = analysis.duplicate();
 
+			Timestamp ts = new Timestamp(System.currentTimeMillis());
+			
+			SimpleDateFormat outDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			
+			String tsstring = outDateFormat.format(ts);
+			
+			tsstring = copy.getLanguage().getAlpha3() + "_" + tsstring;
+			
 			// set basic values
 			copy.setVersion("0.0.1");
 			copy.setBasedOnAnalysis(null);
-			copy.setIdentifier(analysisProfile.getName());
-			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
-			copy.setLabel(analysisProfile.getComment());
+			// language 3char code + creation date and time
+			copy.setIdentifier(tsstring);
+			copy.setCreationDate(ts);
+			copy.setLabel(analysisProfile.getName());
 			copy.setProfile(true);
 			copy.setData(false);
 

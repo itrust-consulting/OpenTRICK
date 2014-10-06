@@ -3,14 +3,14 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="modal fade" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" data-aria-hidden="true">
-	<div class="modal-dialog" style="width: 80%">
+<div id="section_measure_description" class="modal fade" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" data-aria-hidden="true">
+	<div class="modal-dialog" style="width: 95%;min-width:1170px;">
 		<div class="modal-content">
-			<div id="measures_header" class="modal-header">
+			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="showMeasuresModel-title"></h4>
+				<h4 class="modal-title" id="measures_header"></h4>
 			</div>
-			<div id="showmeasuresbody" class="modal-body"></div>
+			<div id="measures_body" class="modal-body"></div>
 		</div>
 	</div>
 </div>
