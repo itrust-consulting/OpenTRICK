@@ -1,23 +1,26 @@
 package lu.itrust.business.TS;
 
 import java.util.List;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+
 import lu.itrust.business.exception.TrickException;
+
 import org.hibernate.proxy.HibernateProxy;
 
 /**
- * AssetMeasureNorm: <br>
- * Detailed description...
- *
- * @author smenghi itrust consulting s.a.rl.:
- * @version 
- * @since Aug 25, 2014
+ * MeasureNorm: <br>
+ * This class represents a MeasureNorm and its data
+ * 
+ * @author itrust consulting s.à r.l. - BJA,SME
+ * @version 0.1
+ * @since 2012-08-21
  */
 @Entity
-@DiscriminatorValue("AssetMeasureNorm")
-public class AssetMeasureNorm extends AnalysisNorm {
+@DiscriminatorValue("NormalStandard")
+public class NormalStandard extends AnalysisStandard {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -34,7 +37,7 @@ public class AssetMeasureNorm extends AnalysisNorm {
 	/**
 	 * Constructor:<br>
 	 */
-	public AssetMeasureNorm() {
+	public NormalStandard() {
 		super();
 	}
 
@@ -44,7 +47,7 @@ public class AssetMeasureNorm extends AnalysisNorm {
 	 * @param analysis
 	 *            The Analysis Object
 	 */
-	public AssetMeasureNorm(Analysis analysis) {
+	public NormalStandard(Analysis analysis) {
 		super(analysis);
 	}
 
@@ -54,7 +57,7 @@ public class AssetMeasureNorm extends AnalysisNorm {
 	 * @param norm
 	 *            The Norm Object
 	 */
-	public AssetMeasureNorm(Norm norm) {
+	public NormalStandard(Standard norm) {
 		super(norm);
 	}
 
@@ -66,7 +69,7 @@ public class AssetMeasureNorm extends AnalysisNorm {
 	 * @param norm
 	 *            The Norm Object
 	 */
-	public AssetMeasureNorm(Analysis analysis, Norm name) {
+	public NormalStandard(Analysis analysis, Standard name) {
 		super(analysis, name);
 	}
 
@@ -80,15 +83,15 @@ public class AssetMeasureNorm extends AnalysisNorm {
 	 * 
 	 * @return The NormMeasure at position "index"
 	 */
-	public AssetMeasure getMeasure(int index) {
+	public NormalMeasure getMeasure(int index) {
 		if ((index < 0) || (index >= getMeasures().size())) {
 			throw new IndexOutOfBoundsException("Index (" + index + ") needs to be between 0 and " + (getMeasures().size() - 1));
 		}
 
 		if (getMeasures().get(index) instanceof HibernateProxy)
-			return AssetMeasure.class.cast(((HibernateProxy) getMeasures().get(index)).getHibernateLazyInitializer().getImplementation());
+			return NormalMeasure.class.cast(((HibernateProxy) getMeasures().get(index)).getHibernateLazyInitializer().getImplementation());
 		else {
-			return AssetMeasure.class.cast(getMeasures().get(index));
+			return NormalMeasure.class.cast(getMeasures().get(index));
 		}
 
 	}
@@ -120,10 +123,10 @@ public class AssetMeasureNorm extends AnalysisNorm {
 	 *            The new object to add
 	 * @throws TrickException 
 	 */
-	public void addMeasure(AssetMeasure measure) throws TrickException {
+	public void addMeasure(NormalMeasure measure) throws TrickException {
 		if (this.getMeasures().contains(measure))
 			throw new TrickException("error.measure_norm.measure.duplicate", "Measure duplicates not accepted!");
-		measure.setAnalysisNorm(this);
+		measure.setAnalysisStandard(this);
 		this.getMeasures().add(measure);
 	}
 }

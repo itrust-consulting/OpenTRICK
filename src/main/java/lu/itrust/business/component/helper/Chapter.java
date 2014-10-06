@@ -3,16 +3,16 @@
  */
 package lu.itrust.business.component.helper;
 
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 
 /**
  * @author eomar
  *
  */
 public class Chapter {
-	
-	private Norm norm;
-	
+
+	private Standard standard;
+
 	private String reference;
 
 	/**
@@ -22,55 +22,79 @@ public class Chapter {
 	}
 
 	/**
-	 * @param norm
+	 * Constructor: <br>
+	 * 
+	 * @param standard
 	 * @param reference
 	 */
-	public Chapter(Norm norm, String reference) {
-		this.norm = norm;
+	public Chapter(Standard standard, String reference) {
+		this.standard = standard;
 		this.reference = reference;
 	}
 
 	/**
-	 * @return the norm
+	 * getStandard: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
-	public Norm getNorm() {
-		return norm;
+	public Standard getStandard() {
+		return standard;
 	}
 
 	/**
-	 * @param norm the norm to set
+	 * setStandard: <br>
+	 * Description
+	 * 
+	 * @param standard
 	 */
-	public void setNorm(Norm norm) {
-		this.norm = norm;
+	public void setStandard(Standard standard) {
+		this.standard = standard;
 	}
 
 	/**
-	 * @return the reference
+	 * getReference: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public String getReference() {
 		return reference;
 	}
 
 	/**
-	 * @param reference the reference to set
+	 * setReference: <br>
+	 * Description
+	 * 
+	 * @param reference
 	 */
 	public void setReference(String reference) {
 		this.reference = reference;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * hashCode: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((norm == null) ? 0 : norm.hashCode());
+		result = prime * result + ((standard == null) ? 0 : standard.hashCode());
 		result = prime * result + ((reference == null) ? 0 : reference.hashCode());
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * equals: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -82,10 +106,10 @@ public class Chapter {
 		if (getClass() != obj.getClass())
 			return false;
 		Chapter other = (Chapter) obj;
-		if (norm == null) {
-			if (other.norm != null)
+		if (standard == null) {
+			if (other.standard != null)
 				return false;
-		} else if (!norm.equals(other.norm))
+		} else if (!standard.equals(other.standard))
 			return false;
 		if (reference == null) {
 			if (other.reference != null)

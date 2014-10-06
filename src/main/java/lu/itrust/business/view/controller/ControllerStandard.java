@@ -20,7 +20,7 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.MeasureManager;
@@ -31,12 +31,12 @@ import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasureDescription;
 import lu.itrust.business.service.ServiceMeasureDescriptionText;
-import lu.itrust.business.service.ServiceNorm;
+import lu.itrust.business.service.ServiceStandard;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
-import lu.itrust.business.task.WorkerImportNorm;
-import lu.itrust.business.validator.NormValidator;
+import lu.itrust.business.task.WorkerImportStandard;
+import lu.itrust.business.validator.StandardValidator;
 import lu.itrust.business.validator.field.ValidatorField;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -70,7 +70,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * ControllerNorm.java: <br>
+ * ControllerStandard.java: <br>
  * Detailed description...
  * 
  * @author smenghi, itrust consulting s.à.rl. :
@@ -79,11 +79,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @PreAuthorize(Constant.ROLE_MIN_CONSULTANT)
 @Controller
-@RequestMapping("/KnowledgeBase/Norm")
-public class ControllerNorm {
+@RequestMapping("/KnowledgeBase/Standard")
+public class ControllerStandard {
 
 	@Autowired
-	private ServiceNorm serviceNorm;
+	private ServiceStandard serviceStandard;
 
 	@Autowired
 	private ServiceMeasureDescription serviceMeasureDescription;
@@ -132,9 +132,9 @@ public class ControllerNorm {
 	@RequestMapping
 	public String displayAll(Model model) throws Exception {
 
-		// load all norms to model
+		// load all standards to model
 
-		model.addAttribute("norms", serviceNorm.getAll());
+		model.addAttribute("standards", serviceStandard.getAll());
 		return "knowledgebase/standard/norm/norms";
 	}
 
@@ -154,32 +154,31 @@ public class ControllerNorm {
 	}
 
 	/**
-	 * loadSingleNorm: <br>
+	 * loadSingleStandard: <br>
 	 * Description
 	 * 
-	 * @param normId
-	 * @param session
+	 * @param idStandard
 	 * @param model
 	 * @param redirectAttributes
 	 * @param locale
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/{normId}")
-	public String loadSingleNorm(@PathVariable("normId") String normId, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale) throws Exception {
+	@RequestMapping("/{idStandard}")
+	public String loadSingleStandard(@PathVariable("idStandard") String idStandard, Map<String, Object> model, RedirectAttributes redirectAttributes, Locale locale) throws Exception {
 
-		// load norm object
-		Norm norm = serviceNorm.getNormByName(normId);
-		if (norm == null) {
+		// load standard object
+		Standard standard = serviceStandard.getStandardByName(idStandard);
+		if (standard == null) {
 
-			// retrun error if norm does not exist
+			// retrun error if standard does not exist
 			String msg = messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale);
 			redirectAttributes.addFlashAttribute("errors", msg);
-			return "redirect:/KnowLedgeBase/Norm";
+			return "redirect:/KnowLedgeBase/Standard";
 		}
 
-		// load norm to model
-		model.put("norm", norm);
+		// load standard to model
+		model.put("standard", standard);
 
 		return "knowledgebase/standard/norm/showNorm";
 	}
@@ -200,48 +199,48 @@ public class ControllerNorm {
 
 		try {
 			// create new empty object
-			Norm norm = new Norm();
+			Standard standard = new Standard();
 
-			// build norm object
-			if (!buildNorm(errors, norm, value, locale))
+			// build standard object
+			if (!buildStandard(errors, standard, value, locale))
 				return errors;
 
-			// check if norm has to be create (new) or updated
-			if (norm.getId() < 1) {
+			// check if standard has to be create (new) or updated
+			if (standard.getId() < 1) {
 
-				if (!serviceNorm.existsByNameAndVersion(norm.getLabel(), norm.getVersion()))
+				if (!serviceStandard.existsByNameAndVersion(standard.getLabel(), standard.getVersion()))
 					// save
-					serviceNorm.save(norm);
+					serviceStandard.save(standard);
 				else
 					errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null, "Version already exists", locale));
 			} else
 				// update
-				serviceNorm.saveOrUpdate(norm);
+				serviceStandard.saveOrUpdate(standard);
 			// errors
 		} catch (Exception e) {
 			// return errors
-			errors.put("norm", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("standard", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 		}
 		return errors;
 	}
 
 	/**
-	 * deleteNorm: <br>
+	 * deleteStandard: <br>
 	 * Description
 	 * 
-	 * @param normId
+	 * @param idStandard
 	 * @param locale
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{normId}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody String deleteNorm(@PathVariable("normId") Integer normId, Locale locale) throws Exception {
+	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String deleteStandard(@PathVariable("idStandard") Integer idStandard, Locale locale) throws Exception {
 
 		try {
 
-			// try to delete the norm
-			customDelete.deleteNorm(serviceNorm.get(normId));
+			// try to delete the standard
+			customDelete.deleteStandard(serviceStandard.get(idStandard));
 
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null, "Norm was deleted successfully", locale));
@@ -258,19 +257,19 @@ public class ControllerNorm {
 	}
 
 	/**
-	 * UploadNorm: <br>
+	 * uploadStandard: <br>
 	 * Description
 	 * 
 	 * @return
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public String UploadNorm() throws Exception {
+	public String uploadStandard() throws Exception {
 		return "knowledgebase/standard/norm/uploadForm";
 	}
 
 	/**
-	 * importNewNorm: <br>
+	 * importNewStandard: <br>
 	 * Description
 	 * 
 	 * @param file
@@ -282,37 +281,37 @@ public class ControllerNorm {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Import", headers = "Accept=application/json;charset=UTF-8")
-	public String importNewNorm(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
+	public String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
 			throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 		file.transferTo(importFile);
-		Worker worker = new WorkerImportNorm(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
+		Worker worker = new WorkerImportStandard(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
 		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
 			executor.execute(worker);
 			return "redirect:/Task/Status/" + worker.getId();
 		}
 		attributes.addFlashAttribute("errors", messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
-		return "redirect:/KnowledgeBase/Norm/Upload";
+		return "redirect:/KnowledgeBase/Standard/Upload";
 	}
 
 	/**
-	 * exportNorm: <br>
+	 * exportStandard: <br>
 	 * Description
 	 * 
-	 * @param normId
+	 * @param idStandard
 	 * @param principal
 	 * @param request
-	 * @param attributes
 	 * @param locale
+	 * @param response
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Export/{normId}", headers = "Accept=application/json;charset=UTF-8")
-	public String exportNorm(@PathVariable("normId") Integer normId, Principal principal, HttpServletRequest request, Locale locale, HttpServletResponse response) throws Exception {
+	@RequestMapping(value = "/Export/{idStandard}", headers = "Accept=application/json;charset=UTF-8")
+	public String exportStandard(@PathVariable("idStandard") Integer idStandard, Principal principal, HttpServletRequest request, Locale locale, HttpServletResponse response) throws Exception {
 
-		Norm norm = serviceNorm.get(normId);
+		Standard standard = serviceStandard.get(idStandard);
 
-		if (norm == null)
+		if (standard == null)
 			return "404";
 
 		InputStream templateFile = new FileInputStream(request.getServletContext().getRealPath("/WEB-INF/data") + "/TL_TRICKService_NormImport_V1.1.xlsx");
@@ -324,7 +323,7 @@ public class ControllerNorm {
 		XSSFTable table = null;
 
 		/**
-		 * Norm
+		 * Standard
 		 */
 
 		sheet = workbook.getSheet("NormInfo");
@@ -348,25 +347,25 @@ public class ControllerNorm {
 
 		XSSFCell cell = null;
 
-		// norm name
+		// standard name
 		cell = sheet.getRow(row).getCell(namecol);
 		cell.setCellType(Cell.CELL_TYPE_STRING);
-		cell.setCellValue(norm.getLabel());
+		cell.setCellValue(standard.getLabel());
 
-		// norm version
+		// standard version
 		cell = sheet.getRow(row).getCell(versioncol);
 		cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-		cell.setCellValue(norm.getVersion());
+		cell.setCellValue(standard.getVersion());
 
-		// norm description
+		// standard description
 		cell = sheet.getRow(row).getCell(desccol);
 		cell.setCellType(Cell.CELL_TYPE_STRING);
-		cell.setCellValue(norm.getDescription());
+		cell.setCellValue(standard.getDescription());
 
-		// norm computable
+		// standard computable
 		cell = sheet.getRow(row).getCell(computablecol);
 		cell.setCellType(Cell.CELL_TYPE_BOOLEAN);
-		cell.setCellValue(norm.isComputable());
+		cell.setCellValue(standard.isComputable());
 
 		/**
 		 * Measures
@@ -383,7 +382,7 @@ public class ControllerNorm {
 			}
 		}
 
-		List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByNorm(norm.getId());
+		List<MeasureDescription> measuredescriptions = serviceMeasureDescription.getAllByStandard(standard.getId());
 
 		int levelcol, referencecol;
 		levelcol = 0;
@@ -536,16 +535,16 @@ public class ControllerNorm {
 		 * Output
 		 */
 
-		ByteArrayOutputStream normFile = new ByteArrayOutputStream();
-		workbook.write(normFile);
+		ByteArrayOutputStream standardFile = new ByteArrayOutputStream();
+		workbook.write(standardFile);
 
-		int length = normFile.size();
+		int length = standardFile.size();
 
 		String identifierName = "";
 
-		identifierName = "TL_TRICKService_Norm_" + norm.getLabel() + "_Version_" + norm.getVersion() + "_V1.1";
+		identifierName = "TL_TRICKService_Norm_" + standard.getLabel() + "_Version_" + standard.getVersion() + "_V1.1";
 
-		// return normFile to user
+		// return standardFile to user
 
 		// set response contenttype to sqlite
 		response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -561,24 +560,34 @@ public class ControllerNorm {
 		// client side the sqlite file)
 		OutputStream out = response.getOutputStream();
 
-		out.write(normFile.toByteArray());
+		out.write(standardFile.toByteArray());
 
 		// return
 		return null;
 	}
 
+	/**
+	 * importRRF: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param principal
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	@RequestMapping(value = "/Import/RRF", headers = "Accept=application/json;charset=UTF-8")
 	public String importRRF(HttpSession session, Principal principal, Model model) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		List<Norm> norms = serviceNorm.getAllFromAnalysis(idAnalysis);
-		List<Integer> idNomrs = new ArrayList<Integer>(norms.size());
-		for (Norm norm : norms) {
-			if (!Constant.NORM_MATURITY.equalsIgnoreCase(norm.getLabel()))
-				idNomrs.add(norm.getId());
+		List<Standard> standards = serviceStandard.getAllFromAnalysis(idAnalysis);
+		List<Integer> idStandards = new ArrayList<Integer>(standards.size());
+		for (Standard standard : standards) {
+			if (!Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()))
+				idStandards.add(standard.getId());
 		}
-		List<Analysis> profiles = serviceAnalysis.getAllProfileContainsNorm(norms);
-		model.addAttribute("idNorms", idNomrs);
+		List<Analysis> profiles = serviceAnalysis.getAllProfileContainsStandard(standards);
+		model.addAttribute("idStandards", idStandards);
 		model.addAttribute("profiles", profiles);
 		return "analysis/components/forms/importMeasureCharacteristics";
 
@@ -590,9 +599,9 @@ public class ControllerNorm {
 		try {
 			if (rrfForm.getProfile() < 1)
 				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.no_profile", null, "No profile", locale));
-			else if (rrfForm.getNorms() == null || rrfForm.getNorms().isEmpty())
+			else if (rrfForm.getStandards() == null || rrfForm.getStandards().isEmpty())
 				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
-			measureManager.importNorm((Integer) session.getAttribute("selectedAnalysis"), rrfForm);
+			measureManager.importStandard((Integer) session.getAttribute("selectedAnalysis"), rrfForm);
 
 			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
 		} catch (Exception e) {
@@ -603,16 +612,16 @@ public class ControllerNorm {
 	}
 
 	/**
-	 * buildNorm: <br>
+	 * buildStandard: <br>
 	 * Description
 	 * 
 	 * @param errors
-	 * @param norm
+	 * @param standard
 	 * @param source
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildNorm(Map<String, String> errors, Norm norm, String source, Locale locale) {
+	private boolean buildStandard(Map<String, String> errors, Standard standard, String source, Locale locale) {
 
 		try {
 
@@ -620,12 +629,12 @@ public class ControllerNorm {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 
-			ValidatorField validator = serviceDataValidation.findByClass(Norm.class);
+			ValidatorField validator = serviceDataValidation.findByClass(Standard.class);
 
 			if (validator == null)
-				serviceDataValidation.register(validator = new NormValidator());
+				serviceDataValidation.register(validator = new StandardValidator());
 
-			// load norm id
+			// load standard id
 			int id = jsonNode.get("id").asInt();
 
 			String label = jsonNode.get("label").asText();
@@ -640,41 +649,41 @@ public class ControllerNorm {
 				e.printStackTrace();
 			}
 
-			// check if norm has to be updated
+			// check if standard has to be updated
 			if (id > 0)
 				// init id
-				norm.setId(id);
+				standard.setId(id);
 
 			// set data
-			String error = validator.validate(norm, "label", label);
+			String error = validator.validate(standard, "label", label);
 			if (error != null)
 				errors.put("label", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
-				norm.setLabel(label);
+				standard.setLabel(label);
 
-			error = validator.validate(norm, "version", version);
+			error = validator.validate(standard, "version", version);
 
 			if (error != null)
 				errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
-				norm.setVersion(version);
+				standard.setVersion(version);
 
-			error = validator.validate(norm, "description", description);
+			error = validator.validate(standard, "description", description);
 
 			if (error != null)
 				errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
-				norm.setDescription(description);
+				standard.setDescription(description);
 
 			// set computable flag
-			norm.setComputable(jsonNode.get("computable").asText().equals("on"));
+			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 
 			// return success
 			return errors.isEmpty();
 
 		} catch (Exception e) {
 			// return error
-			errors.put("norm", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			errors.put("standard", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return false;
 		}

@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lu.itrust.business.TS.AnalysisNorm;
-import lu.itrust.business.TS.MeasureNorm;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.AnalysisStandard;
+import lu.itrust.business.TS.NormalStandard;
+import lu.itrust.business.TS.NormalMeasure;
 
 /**
  * SummaryValues: <br>
@@ -27,22 +27,22 @@ public class SummaryValues {
 	public Map<String, SummaryStandardHelper> conformanceHelper = new HashMap<String, SummaryStandardHelper>();
 	
 	/** The 27001 AnalysisNorm Object with all 27001 Measures */
-	public MeasureNorm norm27001 = null;
+	public NormalStandard norm27001 = null;
 
 	/** The 27002 AnalysisNorm Object with all 27002 Measures */
-	public MeasureNorm norm27002 = null;
+	public NormalStandard norm27002 = null;
 
 	/** The 27002 AnalysisNorm Object with all 27002 Measures */
-	public MeasureNorm normCustom = null;
+	public NormalStandard normCustom = null;
 	
 	/** Measures that are to use as 100% Implemented 27001 AnalysisNorm Measures */
-	public List<NormMeasure> conformance27001measures = new ArrayList<NormMeasure>();
+	public List<NormalMeasure> conformance27001measures = new ArrayList<NormalMeasure>();
 
 	/** Measures that are to use as 100% Implemented 27002 AnalysisNorm Measures */
-	public List<NormMeasure> conformance27002measures = new ArrayList<NormMeasure>();
+	public List<NormalMeasure> conformance27002measures = new ArrayList<NormalMeasure>();
 	
 	/** Measures that are to use as 100% Implemented Custom AnalysisNorm Measures */
-	public List<NormMeasure> conformanceCustommeasures = new ArrayList<NormMeasure>();
+	public List<NormalMeasure> conformanceCustommeasures = new ArrayList<NormalMeasure>();
 	
 	public SummaryStage previousStage = null;
 	
@@ -91,9 +91,9 @@ public class SummaryValues {
 	/** Total Cost of Stage */
 	public double totalCost = 0;
 	
-	public SummaryValues(List<AnalysisNorm> norms) {
+	public SummaryValues(List<AnalysisStandard> norms) {
 		conformanceHelper.clear();
-		for(AnalysisNorm an : norms)
-			conformanceHelper.put(an.getNorm().getLabel(), new SummaryStandardHelper(an));
+		for(AnalysisStandard an : norms)
+			conformanceHelper.put(an.getStandard().getLabel(), new SummaryStandardHelper(an));
 	}
 }

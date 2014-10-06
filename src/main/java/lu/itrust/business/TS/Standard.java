@@ -2,14 +2,19 @@ package lu.itrust.business.TS;
 
 import java.io.Serializable;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
@@ -23,7 +28,7 @@ import lu.itrust.business.exception.TrickException;
  */
 @Entity 
 @Table(uniqueConstraints=@UniqueConstraint(columnNames={"dtLabel","dtVersion"}))
-public class Norm implements Serializable, Cloneable {
+public class Standard implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -35,7 +40,7 @@ public class Norm implements Serializable, Cloneable {
 
 	/** Norm ID */
 	@Id @GeneratedValue 
-	@Column(name="idNorm")
+	@Column(name="idStandard")
 	private int id = -1;
 
 	/** Norm Name */
@@ -50,6 +55,11 @@ public class Norm implements Serializable, Cloneable {
 	@Column(name="dtDescription", nullable=false)
 	private String description = "";
 
+	@Enumerated(EnumType.STRING) 
+	@Column(name="dtType", nullable=false, unique=true)
+	@Access(AccessType.FIELD)
+	private StandardType type = null;
+	
 	/** norm available for actionplan computation */
 	@Column(name="dtComputable", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean computable = true;
@@ -61,7 +71,7 @@ public class Norm implements Serializable, Cloneable {
 	/**
 	 * Constructor:<br>
 	 */
-	public Norm() {
+	public Standard() {
 	}
 
 	/**
@@ -71,7 +81,7 @@ public class Norm implements Serializable, Cloneable {
 	 *            The Norm Name
 	 * @throws TrickException 
 	 */
-	public Norm(String label) throws TrickException {
+	public Standard(String label) throws TrickException {
 		this.setLabel(label);
 	}
 
@@ -82,7 +92,7 @@ public class Norm implements Serializable, Cloneable {
 	 *            The Norm Name
 	 * @throws TrickException 
 	 */
-	public Norm(String label, int version) throws TrickException {
+	public Standard(String label, int version) throws TrickException {
 		this.setLabel(label);
 		this.setVersion(version);
 	}
@@ -94,7 +104,7 @@ public class Norm implements Serializable, Cloneable {
 	 *            The Norm Name
 	 * @throws TrickException 
 	 */
-	public Norm(String label, int version, String description) throws TrickException {
+	public Standard(String label, int version, String description) throws TrickException {
 		this.setLabel(label);
 		this.setVersion(version);
 		this.setDescription(description);
@@ -107,7 +117,7 @@ public class Norm implements Serializable, Cloneable {
 	 *            The Norm Name
 	 * @throws TrickException 
 	 */
-	public Norm(String label, int version, String description, boolean computable) throws TrickException {
+	public Standard(String label, int version, String description, boolean computable) throws TrickException {
 		this.setLabel(label);
 		this.setVersion(version);
 		this.setDescription(description);
@@ -163,6 +173,46 @@ public class Norm implements Serializable, Cloneable {
 		this.label = label;
 	}
 
+	/** getType: <br>
+	 * Returns the type field value.
+	 * 
+	 * @return The value of the type field
+	 */
+	public StandardType getType() {
+		return type;
+	}
+
+	/** setType: <br>
+	 * Sets the Field "type" with a value.
+	 * 
+	 * @param type 
+	 * 			The Value to set the type field
+	 */
+	public void setType(StandardType type) {
+		this.type = type;
+	}
+
+	/**
+	 * getName: <br>
+	 * Returns the name field value.
+	 * 
+	 * @return The value of the name field
+	 */
+	public String getNameOfType() {
+		return type.getName();
+	}
+		
+	/**
+	 * setName: <br>
+	 * Sets the Field "name" with a value.
+	 * 
+	 * @param name
+	 *            The Value to set the name field
+	 */
+	public void setType(String name) {
+		this.type = StandardType.getByName(name.trim());
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -193,7 +243,7 @@ public class Norm implements Serializable, Cloneable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Norm other = (Norm) obj;
+		Standard other = (Standard) obj;
 		if (id != other.id)
 			if (id == -1 && other.id != -1)
 				return false;
@@ -212,7 +262,7 @@ public class Norm implements Serializable, Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "Norm [id=" + id + ", label=" + label + ", version=" + version + ", description=" + description + ", computable=" + computable + "]";
+		return "Standard [id=" + id + ", label=" + label + ", version=" + version + ", description=" + description + ", computable=" + computable + "]";
 	}
 
 	/*
@@ -221,8 +271,8 @@ public class Norm implements Serializable, Cloneable {
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
-	public Norm clone() throws CloneNotSupportedException {
-		return (Norm) super.clone();
+	public Standard clone() throws CloneNotSupportedException {
+		return (Standard) super.clone();
 	}
 
 	/*
@@ -230,9 +280,9 @@ public class Norm implements Serializable, Cloneable {
 	 * 
 	 * @see java.lang.Object#clone()
 	 */
-	public Norm duplicate() throws CloneNotSupportedException {
-		Norm norm = (Norm) super.clone();
-		if (norm.label.equalsIgnoreCase(Constant.NORM_CUSTOM))
+	public Standard duplicate() throws CloneNotSupportedException {
+		Standard norm = (Standard) super.clone();
+		if (norm.label.equalsIgnoreCase(Constant.STANDARD_CUSTOM))
 			norm.id = -1;
 		return norm;
 	}

@@ -1,6 +1,9 @@
 package lu.itrust.business.TS.usermanagement;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import javax.servlet.ServletException;
@@ -54,6 +57,13 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			Locale locale = new Locale(myUser.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue());
 
 			localeResolver.setLocale(request, response, locale);
+			
+			DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy HH:mm:ss");
+			Date date = new Date();
+			String stringdate = dateFormat.format(date);
+			String remoteaddr = request.getRemoteAddr();
+			
+			System.out.println(stringdate +" CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '"+request.getParameter("j_username") +"'! Requesting IP: "+remoteaddr);
 
 		} catch (Exception e) {
 			e.printStackTrace();

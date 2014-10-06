@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.Measure;
-import lu.itrust.business.TS.Norm;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.Standard;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 
 /**
@@ -31,17 +31,17 @@ public interface DAOMeasure {
 
 	public List<Measure> getAllComputableFromAnalysis(Integer idAnalysis) throws Exception;
 
-	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm) throws Exception;
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard) throws Exception;
 
-	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, String norm) throws Exception;
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, String standard) throws Exception;
 
-	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, Norm norm) throws Exception;
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Standard standard) throws Exception;
 
-	public List<NormMeasure> getAllNormMeasuresFromAnalysis(Integer idAnalysis) throws Exception;
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysis(Integer idAnalysis) throws Exception;
 
-	public List<NormMeasure> getAllNormMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception;
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception;
 
-	public List<NormMeasure> getAllNormMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception;
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception;
 
 	public Measure save(Measure measure) throws Exception;
 
@@ -53,11 +53,11 @@ public interface DAOMeasure {
 
 	public void delete(Measure measure) throws Exception;
 	
-	public Map<String,Measure> mappingAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm);
+	public Map<String,Measure> mappingAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard);
 
-	public int countNormMeasure();
+	public int countNormalMeasure();
 
-	public List<NormMeasure> getAllNormMeasure(int pageIndex, int pageSize);
+	public List<NormalMeasure> getAllNormalMeasure(int pageIndex, int pageSize);
 
-	public List<Integer> getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndNorm(int idAnalysis, String norm, ActionPlanMode appn);
+	public List<Integer> getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(int idAnalysis, String standard, ActionPlanMode appn);
 }

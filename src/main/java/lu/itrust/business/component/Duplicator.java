@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetTypeValue;
@@ -19,7 +19,7 @@ import lu.itrust.business.TS.MaturityMeasure;
 import lu.itrust.business.TS.MaturityParameter;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.RiskInformation;
@@ -130,10 +130,10 @@ public class Duplicator {
 				copy.addUsedPhase(phases.get(phase.getNumber()));
 			}
 
-			copy.setAnalysisNorms(new ArrayList<AnalysisNorm>());
+			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>());
 
-			for (AnalysisNorm analysisNorm : analysis.getAnalysisNorms())
-				copy.addAnalysisNorm(duplicateAnalysisNorm(analysisNorm, phases, parameters, false));
+			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
+				copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, false));
 			return copy;
 		} finally {
 			scenarios.clear();
@@ -144,33 +144,32 @@ public class Duplicator {
 	}
 
 	/**
-	 * duplicateAnalysisNorm: <br>
+	 * duplicateAnalysisStandard: <br>
 	 * Description
 	 * 
-	 * @param analysisNorm
+	 * @param analysisStandard
 	 * @param phases
-	 * @param customNorm
 	 * @param parameters
 	 * @param anonymize
 	 * @return
 	 * @throws CloneNotSupportedException
 	 * @throws TrickException
 	 */
-	public AnalysisNorm duplicateAnalysisNorm(AnalysisNorm analysisNorm, Map<Integer, Phase> phases, Map<String, Parameter> parameters, boolean anonymize)
+	public AnalysisStandard duplicateAnalysisStandard(AnalysisStandard analysisStandard, Map<Integer, Phase> phases, Map<String, Parameter> parameters, boolean anonymize)
 			throws CloneNotSupportedException, TrickException {
-		AnalysisNorm norm = (AnalysisNorm) analysisNorm.duplicate();
+		AnalysisStandard standard = (AnalysisStandard) analysisStandard.duplicate();
 
-		List<Measure> measures = new ArrayList<>(analysisNorm.getMeasures().size());
-		for (Measure measure : analysisNorm.getMeasures())
+		List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
+		for (Measure measure : analysisStandard.getMeasures())
 			if (anonymize)
-				measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), norm, parameters, anonymize));
+				measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), standard, parameters, anonymize));
 			else
 				measures.add(duplicateMeasure(measure,
-						phases.containsKey(measure.getPhase().getNumber()) ? phases.get(measure.getPhase().getNumber()) : phases.get(Constant.PHASE_DEFAULT), norm, parameters,
+						phases.containsKey(measure.getPhase().getNumber()) ? phases.get(measure.getPhase().getNumber()) : phases.get(Constant.PHASE_DEFAULT), standard, parameters,
 						anonymize));
 
-		norm.setMeasures(measures);
-		return norm;
+		standard.setMeasures(measures);
+		return standard;
 	}
 
 	/**
@@ -179,17 +178,17 @@ public class Duplicator {
 	 * 
 	 * @param measure
 	 * @param phase
-	 * @param norm
+	 * @param standard
 	 * @param parameters
 	 * @param anonymize
 	 * @return
 	 * @throws CloneNotSupportedException
 	 * @throws TrickException
 	 */
-	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisNorm norm, Map<String, Parameter> parameters, boolean anonymize) throws CloneNotSupportedException,
+	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisStandard standard, Map<String, Parameter> parameters, boolean anonymize) throws CloneNotSupportedException,
 			TrickException {
 		Measure copy = measure.duplicate();
-		copy.setAnalysisNorm(norm);
+		copy.setAnalysisStandard(standard);
 		copy.setPhase(phase);
 
 		if (anonymize) {
@@ -224,15 +223,15 @@ public class Duplicator {
 				matmeasure.setSML5Cost(0);
 			}
 		} else {
-			NormMeasure normmeasure = (NormMeasure) copy;
+			NormalMeasure normalMeasure = (NormalMeasure) copy;
 			if (anonymize) {
-				normmeasure.setToCheck(Constant.EMPTY_STRING);
-				normmeasure.setImplementationRate(0);
-				normmeasure.setMeasurePropertyList((MeasureProperties) normmeasure.getMeasurePropertyList().duplicate());
-				normmeasure.getMeasurePropertyList().setSoaComment(Constant.EMPTY_STRING);
-				normmeasure.getMeasurePropertyList().setSoaReference(Constant.EMPTY_STRING);
-				normmeasure.getMeasurePropertyList().setSoaRisk(Constant.EMPTY_STRING);
-				for (AssetTypeValue assetTypeValue : normmeasure.getAssetTypeValues())
+				normalMeasure.setToCheck(Constant.EMPTY_STRING);
+				normalMeasure.setImplementationRate(0);
+				normalMeasure.setMeasurePropertyList((MeasureProperties) normalMeasure.getMeasurePropertyList().duplicate());
+				normalMeasure.getMeasurePropertyList().setSoaComment(Constant.EMPTY_STRING);
+				normalMeasure.getMeasurePropertyList().setSoaReference(Constant.EMPTY_STRING);
+				normalMeasure.getMeasurePropertyList().setSoaRisk(Constant.EMPTY_STRING);
+				for (AssetTypeValue assetTypeValue : normalMeasure.getAssetTypeValues())
 					assetTypeValue.setValue(0);
 			}
 		}
@@ -354,22 +353,22 @@ public class Duplicator {
 			} else
 				copy.setScenarios(null);
 
-			// norms
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy norms", 60));
+			// standards
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", 60));
 
-			int normSize = analysis.getAnalysisNorms().size();
+			int standardSize = analysis.getAnalysisStandards().size();
 
 			int copyCount = 0;
 
-			int diviser = normSize * 60;
+			int diviser = standardSize * 60;
 
-			copy.setAnalysisNorms(new ArrayList<AnalysisNorm>(normSize));
+			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>(standardSize));
 
-			if (analysisProfile.getNorms() != null && !analysisProfile.getNorms().isEmpty()) {
-				for (AnalysisNorm analysisNorm : analysis.getAnalysisNorms()) {
-					if (analysisProfile.getNorms().contains(analysisNorm.getNorm()))
-						copy.addAnalysisNorm(duplicateAnalysisNorm(analysisNorm, phases, parameters, true));
-					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy norms", (copyCount++ / diviser) * 60 + 35));
+			if (analysisProfile.getStandards() != null && !analysisProfile.getStandards().isEmpty()) {
+				for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
+					if (analysisProfile.getStandards().contains(analysisStandard.getStandard()))
+						copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, true));
+					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", (copyCount++ / diviser) * 60 + 35));
 				}
 			}
 			return copy;

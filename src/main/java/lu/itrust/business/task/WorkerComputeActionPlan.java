@@ -6,7 +6,7 @@ package lu.itrust.business.task;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.component.helper.AsyncCallback;
@@ -59,7 +59,7 @@ public class WorkerComputeActionPlan implements Worker {
 
 	private int idAnalysis;
 
-	private List<AnalysisNorm> norms = null;
+	private List<AnalysisStandard> standards = null;
 
 	private Boolean uncertainty = false;
 
@@ -71,12 +71,12 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @param serviceTaskFeedback
 	 * @param idAnalysis
 	 */
-	public WorkerComputeActionPlan(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisNorm> norms, Boolean uncertainty,
+	public WorkerComputeActionPlan(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisStandard> standards, Boolean uncertainty,
 			Boolean reloadSection) {
 		this.sessionFactory = sessionFactory;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idAnalysis = idAnalysis;
-		this.norms = norms;
+		this.standards = standards;
 		this.uncertainty = uncertainty;
 		this.reloadSection = reloadSection;
 	}
@@ -101,16 +101,16 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @param sessionFactory
 	 * @param serviceTaskFeedback
 	 * @param idAnalysis
-	 * @param norms
+	 * @param standards
 	 * @param uncertainty
 	 */
-	public WorkerComputeActionPlan(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisNorm> norms,
+	public WorkerComputeActionPlan(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisStandard> standards,
 			Boolean uncertainty, Boolean reloadSection) {
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idAnalysis = idAnalysis;
-		this.norms = norms;
+		this.standards = standards;
 		this.uncertainty = uncertainty;
 		this.reloadSection = reloadSection;
 	}
@@ -149,7 +149,7 @@ public class WorkerComputeActionPlan implements Worker {
 			System.out.println("Delete previous action plan and summary...");
 
 			deleteActionPlan(analysis);
-			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, this.norms, this.uncertainty);
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, this.standards, this.uncertainty);
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
 				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
@@ -220,10 +220,10 @@ public class WorkerComputeActionPlan implements Worker {
 		Hibernate.initialize(analysis.getUsedPhases());
 		// for (int i = 0; i < analysis.getUsedPhases().size(); i++)
 		// Hibernate.initialize(analysis.getAPhase(i));
-		Hibernate.initialize(analysis.getAnalysisNorms());
-		Hibernate.initialize(this.norms);
-		for (int i = 0; i < this.norms.size(); i++)
-			Hibernate.initialize(this.norms.get(i).getNorm());
+		Hibernate.initialize(analysis.getAnalysisStandards());
+		Hibernate.initialize(this.standards);
+		for (int i = 0; i < this.standards.size(); i++)
+			Hibernate.initialize(this.standards.get(i).getStandard());
 		// Hibernate.initialize(analysis.getActionPlans());
 		// Hibernate.initialize(analysis.getSummaries());
 

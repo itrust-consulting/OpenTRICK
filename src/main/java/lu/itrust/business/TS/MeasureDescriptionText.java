@@ -189,7 +189,7 @@ public class MeasureDescriptionText implements Cloneable {
 
 	public MeasureDescriptionText duplicate() throws CloneNotSupportedException {
 		MeasureDescriptionText measureDescriptionText = (MeasureDescriptionText) super.clone();
-		if (measureDescriptionText.measureDescription.getNorm().getLabel().equalsIgnoreCase(Constant.NORM_CUSTOM))
+		if (measureDescriptionText.measureDescription.getStandard().getLabel().equalsIgnoreCase(Constant.STANDARD_CUSTOM))
 			measureDescriptionText.id = -1;
 		return measureDescriptionText;
 	}

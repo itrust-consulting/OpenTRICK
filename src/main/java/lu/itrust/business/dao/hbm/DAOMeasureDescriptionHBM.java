@@ -3,7 +3,7 @@ package lu.itrust.business.dao.hbm;
 import java.util.List;
 
 import lu.itrust.business.TS.MeasureDescription;
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -46,41 +46,44 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	}
 
 	/**
-	 * getByReferenceAndNorm: <br>
+	 * getByReferenceAndStandard: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#getByReferenceAndNorm(java.lang.String,
-	 *      lu.itrust.business.TS.Norm)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#getByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.Standard)
 	 */
 	@Override
-	public MeasureDescription getByReferenceAndNorm(String reference, Norm norm) throws Exception {
-		String query = "From MeasureDescription where norm = :norm and reference = :reference";
-		return (MeasureDescription) getSession().createQuery(query).setParameter("norm", norm).setParameter("reference", reference).uniqueResult();
+	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard) throws Exception {
+		String query = "From MeasureDescription where standard = :standard and reference = :reference";
+		return (MeasureDescription) getSession().createQuery(query).setParameter("standard", standard).setParameter("reference", reference).uniqueResult();
 	}
 
 	/**
-	 * existsForMeasureByReferenceAndNorm: <br>
+	 * existsForMeasureByReferenceAndStandard: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#existsForMeasureByReferenceAndNorm(java.lang.String,
-	 *      int)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String, java.lang.Integer)
 	 */
 	@Override
-	public boolean existsForMeasureByReferenceAndNorm(String reference, Integer idNorm) throws Exception {
-		String query = "Select count(*) From MeasureDescription where norm.id = :idNorm and reference = :reference";
-		return (Long) getSession().createQuery(query).setParameter("idNorm", idNorm).setParameter("reference", reference).uniqueResult() >= 1;
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Integer idStandard) throws Exception {
+		String query = "Select count(*) From MeasureDescription where standard.id = :idStandard and reference = :reference";
+		return (Long) getSession().createQuery(query).setParameter("idStandard", idStandard).setParameter("reference", reference).uniqueResult() >= 1;
 	}
 
 	/**
-	 * existsForMeasureByReferenceAndNorm: <br>
+	 * existsForMeasureByReferenceAndStandard: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#existsForMeasureByReferenceAndNorm(java.lang.String,
-	 *      lu.itrust.business.TS.Norm)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.Standard)
 	 */
 	@Override
-	public boolean existsForMeasureByReferenceAndNorm(String reference, Norm norm) throws Exception {
-		return existsForMeasureByReferenceAndNorm(reference, norm.getId());
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Standard standard) throws Exception {
+		return existsForMeasureByReferenceAndStandard(reference, standard.getId());
 	}
 
 	/**
@@ -96,39 +99,45 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	}
 
 	/**
-	 * getAllMeasureDescriptionsByNorm: <br>
+	 * getAllByStandard: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllMeasureDescriptionsByNorm(java.lang.Integer)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllByStandard(java.lang.Integer)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<MeasureDescription> getAllByNorm(Integer normid) throws Exception {
-		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where norm.id = :normid").setParameter("normid", normid).list();
+	public List<MeasureDescription> getAllByStandard(Integer idStandard) throws Exception {
+		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where standard.id = :idStandard").setParameter("idStandard", idStandard).list();
 	}
 
 	/**
-	 * getAllMeasureDescriptionsByNorm: <br>
+	 * getAllByStandard: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllMeasureDescriptionsByNorm(java.lang.String)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllByStandard(java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<MeasureDescription> getAllByNorm(String label) throws Exception {
-		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where norm.label = :normLabel").setParameter("normLabel", label).list();
+	public List<MeasureDescription> getAllByStandard(String label) throws Exception {
+		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where standard.label = :label").setParameter("label", label).list();
 	}
 
 	/**
-	 * getAllMeasureDescriptionsByNorm: <br>
+	 * getAllByStandard: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllMeasureDescriptionsByNorm(lu.itrust.business.TS.Norm)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllByStandard(lu.itrust.business.TS.Standard)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<MeasureDescription> getAllByNorm(Norm norm) throws Exception {
-		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where norm = :norm").setParameter("norm", norm).list();
+	public List<MeasureDescription> getAllByStandard(Standard standard) throws Exception {
+		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where standard = :standard").setParameter("standard", standard).list();
 	}
 
 	/**

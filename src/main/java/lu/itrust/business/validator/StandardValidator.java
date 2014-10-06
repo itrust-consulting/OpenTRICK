@@ -5,14 +5,14 @@ package lu.itrust.business.validator;
 
 import java.util.List;
 
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.validator.field.ValidatorFieldImpl;
 
 /**
  * @author eomar
  * 
  */
-public class NormValidator extends ValidatorFieldImpl {
+public class StandardValidator extends ValidatorFieldImpl {
 
 	private static final String LABEL2 = "label";
 	private static final String VERSION = "version";
@@ -95,7 +95,7 @@ public class NormValidator extends ValidatorFieldImpl {
 	 */
 	@Override
 	public Class<?> supported() {
-		return Norm.class;
+		return Standard.class;
 	}
 
 }

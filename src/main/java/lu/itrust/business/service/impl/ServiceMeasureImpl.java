@@ -3,8 +3,8 @@ package lu.itrust.business.service.impl;
 import java.util.List;
 
 import lu.itrust.business.TS.Measure;
-import lu.itrust.business.TS.Norm;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.Standard;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.dao.DAOMeasure;
 import lu.itrust.business.service.ServiceMeasure;
 
@@ -134,101 +134,81 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	}
 
 	/**
-	 * getAllMeasuresFromAnalysisIdAndNormId: <br>
+	 * getAllFromAnalysisAndStandard: <br>
 	 * Description
-	 * 
-	 * @param idAnalysis
-	 * @param idNorm
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasure#getAllMeasuresFromAnalysisIdAndNormId(int,
-	 *      int)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasure#getAllFromAnalysisAndStandard(java.lang.Integer, java.lang.Integer)
 	 */
 	@Override
-	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm) throws Exception {
-		return daoMeasure.getAllFromAnalysisAndNorm(idAnalysis, idNorm);
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard) throws Exception {
+		return daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, idStandard);
 	}
 
 	/**
-	 * getAllMeasuresFromAnalysisIdAndNormLabel: <br>
+	 * getAllFromAnalysisAndStandard: <br>
 	 * Description
-	 * 
-	 * @param idAnalysis
-	 * @param norm
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasure#getAllMeasuresFromAnalysisIdAndNormLabel(int,
-	 *      java.lang.String)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasure#getAllFromAnalysisAndStandard(java.lang.Integer, java.lang.String)
 	 */
 	@Override
-	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, String norm) throws Exception {
-		return daoMeasure.getAllFromAnalysisAndNorm(idAnalysis, norm);
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, String standard) throws Exception {
+		return daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, standard);
 	}
 
 	/**
-	 * getAllMeasuresFromAnalysisIdAndNorm: <br>
+	 * getAllFromAnalysisAndStandard: <br>
 	 * Description
-	 * 
-	 * @param idAnalysis
-	 * @param norm
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasure#getAllMeasuresFromAnalysisIdAndNorm(int,
-	 *      lu.itrust.business.TS.Norm)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasure#getAllFromAnalysisAndStandard(java.lang.Integer, lu.itrust.business.TS.Standard)
 	 */
 	@Override
-	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, Norm norm) throws Exception {
-		return daoMeasure.getAllFromAnalysisAndNorm(idAnalysis, norm);
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Standard standard) throws Exception {
+		return daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, standard);
 	}
 
 	/**
-	 * getAllNormMeasuresFromAnalysisId: <br>
+	 * getAllNormalMeasuresFromAnalysis: <br>
 	 * Description
-	 * 
-	 * @param idAnalysis
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasure#getAllNormMeasuresFromAnalysisId(int)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasure#getAllNormalMeasuresFromAnalysis(java.lang.Integer)
 	 */
 	@Override
-	public List<NormMeasure> getAllNormMeasuresFromAnalysis(Integer idAnalysis) throws Exception {
-		return daoMeasure.getAllNormMeasuresFromAnalysis(idAnalysis);
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysis(Integer idAnalysis) throws Exception {
+		return daoMeasure.getAllNormalMeasuresFromAnalysis(idAnalysis);
 	}
 
 	/**
-	 * getAllNormMeasuresFromAnalysisIdAndComputable: <br>
+	 * getAllNormalMeasuresFromAnalysisAndComputable: <br>
 	 * Description
-	 * 
-	 * @param idAnalysis
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasure#getAllNormMeasuresFromAnalysisIdAndComputable(int)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasure#getAllNormalMeasuresFromAnalysisAndComputable(java.lang.Integer)
 	 */
 	@Override
-	public List<NormMeasure> getAllNormMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception {
-		return daoMeasure.getAllNormMeasuresFromAnalysisAndComputable(idAnalysis);
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception {
+		return daoMeasure.getAllNormalMeasuresFromAnalysisAndComputable(idAnalysis);
 	}
 
 	/**
-	 * getAllAnalysisNormsFromAnalysisByMeasureIdList: <br>
+	 * getAllNormalMeasuresFromAnalysisByMeasureIdList: <br>
 	 * Description
-	 * 
-	 * @param idAnalysis
-	 * @param measures
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasure#getAllAnalysisNormsFromAnalysisByMeasureIdList(int,
-	 *      java.util.List)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasure#getAllNormalMeasuresFromAnalysisByMeasureIdList(java.lang.Integer, java.util.List)
 	 */
 	@Override
-	public List<NormMeasure> getAllNormMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception {
-		return daoMeasure.getAllNormMeasuresFromAnalysisByMeasureIdList(idAnalysis, measures);
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception {
+		return daoMeasure.getAllNormalMeasuresFromAnalysisByMeasureIdList(idAnalysis, measures);
 	}
 
 	/**

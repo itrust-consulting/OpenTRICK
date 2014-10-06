@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
@@ -27,13 +27,13 @@ import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MaturityMeasure;
-import lu.itrust.business.TS.MaturityNorm;
+import lu.itrust.business.TS.MaturityStandard;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureDescription;
-import lu.itrust.business.TS.MeasureNorm;
+import lu.itrust.business.TS.NormalStandard;
 import lu.itrust.business.TS.MeasureProperties;
-import lu.itrust.business.TS.Norm;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.Standard;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.RiskInformation;
@@ -62,7 +62,7 @@ import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceActionPlanType;
 import lu.itrust.business.service.ServiceAnalysis;
-import lu.itrust.business.service.ServiceAnalysisNorm;
+import lu.itrust.business.service.ServiceAnalysisStandard;
 import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAsset;
@@ -74,7 +74,7 @@ import lu.itrust.business.service.ServiceItemInformation;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceMeasureDescription;
-import lu.itrust.business.service.ServiceNorm;
+import lu.itrust.business.service.ServiceStandard;
 import lu.itrust.business.service.ServiceParameter;
 import lu.itrust.business.service.ServicePhase;
 import lu.itrust.business.service.ServiceRiskInformation;
@@ -162,7 +162,7 @@ public class ControllerAnalysis {
 	private AssessmentManager assessmentManager;
 
 	@Autowired
-	private ServiceNorm serviceNorm;
+	private ServiceStandard serviceStandard;
 
 	@Autowired
 	private ServiceUserSqLite serviceUserSqLite;
@@ -219,7 +219,7 @@ public class ControllerAnalysis {
 	private ServiceRole serviceRole;
 
 	@Autowired
-	private ServiceAnalysisNorm serviceAnalysisNorm;
+	private ServiceAnalysisStandard serviceAnalysisStandard;
 
 	@Autowired
 	private MeasureManager measureManager;
@@ -392,18 +392,18 @@ public class ControllerAnalysis {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
 	public String addStandardForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		List<Norm> norms = serviceNorm.getAllNotInAnalysis(idAnalysis);
-		model.addAttribute("norms", norms);
-		model.addAttribute("currentNorms", serviceNorm.getAllFromAnalysis(idAnalysis));
+		List<Standard> standards = serviceStandard.getAllNotInAnalysis(idAnalysis);
+		model.addAttribute("standards", standards);
+		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
 		model.addAttribute("idAnalysis", idAnalysis);
 		return "analysis/components/forms/standard";
 	}
 
-	@RequestMapping(value = "/Delete/Standard/{idNorm}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Delete/Standard/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
-	public @ResponseBody String removeStandard(@PathVariable int idNorm, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		measureManager.removeNormFromAnalysis(idAnalysis, idNorm);
+		measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
 		return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", locale));
 	}
 
@@ -411,17 +411,17 @@ public class ControllerAnalysis {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, RedirectAttributes attributes, Locale locale) throws Exception {
 		try {
-			Norm norm = serviceNorm.get(idStandard);
-			if (norm == null)
+			Standard standard = serviceStandard.get(idStandard);
+			if (standard == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null, "Unfortunately, selected standard does not exist", locale));
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			Measure measure = null;
-			AnalysisNorm analysisNorm = null;
-			List<MeasureDescription> measureDescriptions = serviceMeasureDescription.getAllByNorm(norm);
+			AnalysisStandard analysisStandard = null;
+			List<MeasureDescription> measureDescriptions = serviceMeasureDescription.getAllByStandard(standard);
 			Object implementationRate = null;
-			if (norm.getLabel().equals(Constant.NORM_MATURITY)) {
-				analysisNorm = new MaturityNorm();
+			if (standard.getLabel().equals(Constant.STANDARD_MATURITY)) {
+				analysisStandard = new MaturityStandard();
 				measure = new MaturityMeasure();
 				for (Parameter parameter : analysis.getParameters()) {
 					if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue() == 0) {
@@ -430,13 +430,13 @@ public class ControllerAnalysis {
 					}
 				}
 			} else {
-				analysisNorm = new MeasureNorm();
-				measure = new NormMeasure();
+				analysisStandard = new NormalStandard();
+				measure = new NormalMeasure();
 				List<AssetType> assetTypes = serviceAssetType.getAll();
-				List<AssetTypeValue> assetTypeValues = ((NormMeasure) measure).getAssetTypeValues();
+				List<AssetTypeValue> assetTypeValues = ((NormalMeasure) measure).getAssetTypeValues();
 				for (AssetType assetType : assetTypes)
 					assetTypeValues.add(new AssetTypeValue(assetType, 0));
-				((NormMeasure) measure).setMeasurePropertyList(new MeasureProperties());
+				((NormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
 				implementationRate = new Double(0);
 			}
 			Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
@@ -444,17 +444,17 @@ public class ControllerAnalysis {
 				analysis.addUsedPhase(phase = new Phase(Constant.PHASE_DEFAULT));
 			measure.setPhase(phase);
 
-			analysisNorm.setAnalysis(analysis);
-			analysisNorm.setNorm(norm);
+			analysisStandard.setAnalysis(analysis);
+			analysisStandard.setStandard(standard);
 			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
 			measure.setImplementationRate(implementationRate);
 			for (MeasureDescription measureDescription : measureDescriptions) {
 				Measure measure2 = measure.duplicate();
 				measure2.setMeasureDescription(measureDescription);
-				measure2.setAnalysisNorm(analysisNorm);
-				analysisNorm.getMeasures().add(measure2);
+				measure2.setAnalysisStandard(analysisStandard);
+				analysisStandard.getMeasures().add(measure2);
 			}
-			analysis.addAnalysisNorm(analysisNorm);
+			analysis.addAnalysisStandard(analysisStandard);
 
 			serviceAnalysis.saveOrUpdate(analysis);
 
@@ -997,9 +997,9 @@ public class ControllerAnalysis {
 			}
 
 			Duplicator duplicator = new Duplicator();
-			List<AnalysisNorm> analysisNorms = serviceAnalysisNorm.getAllFromAnalysis(customAnalysisForm.getStandard());
-			for (AnalysisNorm analysisNorm : analysisNorms)
-				analysis.addAnalysisNorm(duplicator.duplicateAnalysisNorm(analysisNorm, mappingPhases, mappingParameters, false));
+			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(customAnalysisForm.getStandard());
+			for (AnalysisStandard analysisStandard : analysisStandards)
+				analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(analysisStandard, mappingPhases, mappingParameters, false));
 			serviceAnalysis.saveOrUpdate(analysis);
 
 			return JsonMessage.Success(messageSource.getMessage("success.analysis_custom.create", null, "Your analysis has been successfully created", locale));
@@ -1613,7 +1613,7 @@ public class ControllerAnalysis {
 				analysis = new Duplicator().duplicateAnalysis(profile, null);
 				analysis.setProfile(false);
 				analysis.setDefaultProfile(false);
-				if (analysis.getAnalysisNorms().size() > 0)
+				if (analysis.getAnalysisStandards().size() > 0)
 					analysis.setData(true);
 
 				analysis.getHistories().clear();

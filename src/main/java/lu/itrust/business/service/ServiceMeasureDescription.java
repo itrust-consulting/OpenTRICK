@@ -3,7 +3,7 @@ package lu.itrust.business.service;
 import java.util.List;
 
 import lu.itrust.business.TS.MeasureDescription;
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 
 /**
  * ServiceMeasureDescription.java: <br>
@@ -16,19 +16,19 @@ import lu.itrust.business.TS.Norm;
 public interface ServiceMeasureDescription {
 	public MeasureDescription get(Integer id) throws Exception;
 
-	public MeasureDescription getByReferenceAndNorm(String reference, Norm norm) throws Exception;
+	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard) throws Exception;
 
-	public boolean existsForMeasureByReferenceAndNorm(String reference, Integer idNorm) throws Exception;
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Integer idStandard) throws Exception;
 
-	public boolean existsForMeasureByReferenceAndNorm(String reference, Norm norm) throws Exception;
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Standard standard) throws Exception;
 
 	public List<MeasureDescription> getAll() throws Exception;
 
-	public List<MeasureDescription> getAllByNorm(Integer normid) throws Exception;
+	public List<MeasureDescription> getAllByStandard(Integer idStandard) throws Exception;
 
-	public List<MeasureDescription> getAllByNorm(String label) throws Exception;
+	public List<MeasureDescription> getAllByStandard(String standard) throws Exception;
 
-	public List<MeasureDescription> getAllByNorm(Norm norm) throws Exception;
+	public List<MeasureDescription> getAllByStandard(Standard standard) throws Exception;
 
 	public void save(MeasureDescription measureDescription) throws Exception;
 

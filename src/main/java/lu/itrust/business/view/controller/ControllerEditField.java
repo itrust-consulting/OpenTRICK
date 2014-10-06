@@ -23,7 +23,7 @@ import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.MaturityParameter;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.RiskInformation;
@@ -820,7 +820,7 @@ public class ControllerEditField {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			// retrieve measure
-			NormMeasure measure = (NormMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
+			NormalMeasure measure = (NormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 
 			if (measure == null)
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));

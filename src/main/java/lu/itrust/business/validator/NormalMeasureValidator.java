@@ -6,13 +6,13 @@ package lu.itrust.business.validator;
 import java.util.List;
 
 import lu.itrust.business.TS.MeasureProperties;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.NormalMeasure;
 
 /**
  * @author eomar
  * 
  */
-public class NormMeasureValidator extends MeasureValidator {
+public class NormalMeasureValidator extends MeasureValidator {
 	private static final String IMPLEMENTATION_RATE = "implementationRate";
 	private static final String ASSET_TYPE_VALUES = "assetTypeValues";
 	private static final String MEASURE_PROPERTY_LIST = "measurePropertyList";
@@ -70,7 +70,7 @@ public class NormMeasureValidator extends MeasureValidator {
 	 */
 	@Override
 	public Class<?> supported() {
-		return NormMeasure.class;
+		return NormalMeasure.class;
 	}
 	
 	

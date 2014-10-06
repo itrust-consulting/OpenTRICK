@@ -16,11 +16,11 @@ import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.MaturityMeasure;
-import lu.itrust.business.TS.MaturityNorm;
+import lu.itrust.business.TS.MaturityStandard;
 import lu.itrust.business.TS.MaturityParameter;
 import lu.itrust.business.TS.MeasureDescriptionText;
-import lu.itrust.business.TS.MeasureNorm;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.NormalStandard;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.TS.ScenarioType;
@@ -1358,9 +1358,9 @@ public class ExportAnalysis {
 		List<Object> defaultspecparams = new ArrayList<Object>();
 		String specquery = "";
 		String specdefaultquery = "";
-		MeasureNorm measNorm = null;
-		NormMeasure measure = null;
-		MaturityNorm matNorm = null;
+		NormalStandard measNorm = null;
+		NormalMeasure measure = null;
+		MaturityStandard matNorm = null;
 		MaturityMeasure maturity = null;
 		AssetTypeValue assetTypeValue = null;
 		String measurequery = "";
@@ -1373,7 +1373,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 
 		// parse norms
-		for (int indexNorm = 0; indexNorm < this.analysis.getAnalysisNorms().size(); indexNorm++) {
+		for (int indexNorm = 0; indexNorm < this.analysis.getAnalysisStandards().size(); indexNorm++) {
 
 			// ****************************************************************
 			// * retrieve norm that is not maturity
@@ -1382,10 +1382,10 @@ public class ExportAnalysis {
 			// ****************************************************************
 			// norm not maturity -> YES
 			// ****************************************************************
-			if (this.analysis.getAnalysisNorm(indexNorm) instanceof MeasureNorm) {
+			if (this.analysis.getAnalysisStandard(indexNorm) instanceof NormalStandard) {
 
 				// store norm as measurenorm
-				measNorm = (MeasureNorm) this.analysis.getAnalysisNorm(indexNorm);
+				measNorm = (NormalStandard) this.analysis.getAnalysisStandard(indexNorm);
 
 				// ****************************************************************
 				// * parse measures of this norm
@@ -1475,10 +1475,10 @@ public class ExportAnalysis {
 					// ****************************************************************
 
 					// for norm
-					measureparams.add(measNorm.getNorm().getLabel());
-					measureparams.add(measNorm.getNorm().getVersion());
-					measureparams.add(measNorm.getNorm().isComputable());
-					measureparams.add(measNorm.getNorm().getDescription());
+					measureparams.add(measNorm.getStandard().getLabel());
+					measureparams.add(measNorm.getStandard().getVersion());
+					measureparams.add(measNorm.getStandard().isComputable());
+					measureparams.add(measNorm.getStandard().getDescription());
 
 					// for measure
 					measureparams.add(measure.getMeasureDescription().getReference());
@@ -1579,19 +1579,19 @@ public class ExportAnalysis {
 						defaultspecparams.add(assetTypeValue.getAssetType().getId());
 
 						// check if norm is custom -> YES
-						if (measNorm.getNorm().getLabel().startsWith(Constant.NORM_CUSTOM)) {
+						if (measNorm.getStandard().getLabel().startsWith(Constant.STANDARD_CUSTOM)) {
 
 							// set custom norm name
-							defaultspecparams.add(Constant.NORM_CUSTOM);
+							defaultspecparams.add(Constant.STANDARD_CUSTOM);
 						} else {
 
 							// check if norm is custom -> NO
 
 							// set all other norm name
-							defaultspecparams.add(measNorm.getNorm().getLabel());
+							defaultspecparams.add(measNorm.getStandard().getLabel());
 						}
 
-						defaultspecparams.add(measNorm.getNorm().getVersion());
+						defaultspecparams.add(measNorm.getStandard().getVersion());
 
 						defaultspecparams.add(measure.getMeasureDescription().getReference());
 
@@ -1652,19 +1652,19 @@ public class ExportAnalysis {
 							specparams.add(assetTypeValue.getAssetType().getId());
 
 							// check if norm is custom -> YES
-							if (measNorm.getNorm().getLabel().startsWith(Constant.NORM_CUSTOM)) {
+							if (measNorm.getStandard().getLabel().startsWith(Constant.STANDARD_CUSTOM)) {
 
 								// set custom norm name
-								specparams.add(Constant.NORM_CUSTOM);
+								specparams.add(Constant.STANDARD_CUSTOM);
 							} else {
 
 								// check if norm is custom -> NO
 
 								// set all other norm name
-								specparams.add(measNorm.getNorm().getLabel());
+								specparams.add(measNorm.getStandard().getLabel());
 							}
 
-							specparams.add(measNorm.getNorm().getVersion());
+							specparams.add(measNorm.getStandard().getVersion());
 
 							specparams.add(measure.getMeasureDescription().getReference());
 							if (assetTypeValue.getValue() == 101)
@@ -1707,7 +1707,7 @@ public class ExportAnalysis {
 				// ****************************************************************
 
 				// store maturity norm
-				matNorm = (MaturityNorm) this.analysis.getAnalysisNorm(indexNorm);
+				matNorm = (MaturityStandard) this.analysis.getAnalysisStandard(indexNorm);
 
 				// ****************************************************************
 				// * parse all maturity measures
@@ -1777,9 +1777,9 @@ public class ExportAnalysis {
 					}
 
 					// add parameters
-					measureparams.add(maturity.getAnalysisNorm().getNorm().getVersion());
-					measureparams.add(maturity.getAnalysisNorm().getNorm().getDescription());
-					measureparams.add(maturity.getAnalysisNorm().getNorm().isComputable());
+					measureparams.add(maturity.getAnalysisStandard().getStandard().getVersion());
+					measureparams.add(maturity.getAnalysisStandard().getStandard().getDescription());
+					measureparams.add(maturity.getAnalysisStandard().getStandard().isComputable());
 					measureparams.add(maturity.getMeasureDescription().getReference());
 					measureparams.add(maturity.getMeasureDescription().isComputable());
 					MeasureDescriptionText descriptionText = maturity.getMeasureDescription().getAMeasureDescriptionText(this.analysis.getLanguage());
@@ -1920,8 +1920,8 @@ public class ExportAnalysis {
 			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets).getId());
 			assetparams.add(actionPlanEntry.getId());
 			assetparams.add(actionPlanEntry.getActionPlanType().getId());
-			assetparams.add(actionPlanEntry.getMeasure().getAnalysisNorm().getNorm().getLabel());
-			assetparams.add(actionPlanEntry.getMeasure().getAnalysisNorm().getNorm().getVersion());
+			assetparams.add(actionPlanEntry.getMeasure().getAnalysisStandard().getStandard().getLabel());
+			assetparams.add(actionPlanEntry.getMeasure().getAnalysisStandard().getStandard().getVersion());
 			assetparams.add(actionPlanEntry.getMeasure().getMeasureDescription().getReference());
 			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets).getAsset().getId());
 			assetparams.add(actionPlanEntry.getActionPlanAsset(indexAssets).getCurrentALE());
@@ -2071,7 +2071,7 @@ public class ExportAnalysis {
 			// add parameters
 			params.add(actionPlanEntry.getId());
 			params.add(actionPlanEntry.getActionPlanType().getId());
-			params.add(actionPlanEntry.getMeasure().getAnalysisNorm().getNorm().getLabel());
+			params.add(actionPlanEntry.getMeasure().getAnalysisStandard().getStandard().getLabel());
 			params.add(actionPlanEntry.getMeasure().getMeasureDescription().getReference());
 			params.add(actionPlanEntry.getPosition());
 			params.add(actionPlanEntry.getMeasure().getCost());

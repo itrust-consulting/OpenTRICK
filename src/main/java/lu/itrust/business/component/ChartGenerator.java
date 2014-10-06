@@ -8,11 +8,11 @@ import java.util.Locale;
 import java.util.Map;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.Measure;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.Scenario;
@@ -27,7 +27,7 @@ import lu.itrust.business.component.helper.RRFAssetType;
 import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.component.helper.RRFMeasure;
 import lu.itrust.business.dao.DAOActionPlan;
-import lu.itrust.business.dao.DAOAnalysisNorm;
+import lu.itrust.business.dao.DAOAnalysisStandard;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
 import lu.itrust.business.dao.DAOAssetType;
@@ -81,7 +81,7 @@ public class ChartGenerator {
 	private DAOParameter daoParameter;
 
 	@Autowired
-	private DAOAnalysisNorm daoAnalysisNorm;
+	private DAOAnalysisStandard daoAnalysisStandard;
 
 	private String exporting =
 		"\"exporting\":{\"sourceWidth\":1500,\"sourceHeight\": 600,\"chartOptions\": {\"legend\": {\"enabled\": true,\"title\": { \"text\": \"\"  }, \"itemHiddenStyle\": { \"display\": \"none\" } }, \"rangeSelector\": {\"enabled\": false },\"navigator\": {\"enabled\": false},\"scrollbar\": {\"enabled\": false}}}";
@@ -413,7 +413,6 @@ public class ChartGenerator {
 	 * Description
 	 * 
 	 * @param measures
-	 * @param norm
 	 * @return
 	 */
 	public static Map<String, Object[]> ComputeComplianceBefore(List<? extends Measure> measures) {
@@ -439,10 +438,8 @@ public class ChartGenerator {
 	 * Description
 	 * 
 	 * @param measures
-	 * @param norm
-	 * @param actionplanmeasures
-	 * @param actionplanmeasuresnottoimpl
 	 * @param phase
+	 * @param actionPlanMeasures
 	 * @param previouscompliences
 	 * @return
 	 */
@@ -470,19 +467,19 @@ public class ChartGenerator {
 	 * Description
 	 * 
 	 * @param idAnalysis
-	 * @param norm
+	 * @param standard
 	 * @param locale
 	 * @return
 	 * @throws Exception
 	 */
-	public String compliance(int idAnalysis, String norm, Locale locale) throws Exception {
-		List<Measure> measures = daoMeasure.getAllFromAnalysisAndNorm(idAnalysis, norm);
+	public String compliance(int idAnalysis, String standard, Locale locale) throws Exception {
+		List<Measure> measures = daoMeasure.getAllFromAnalysisAndStandard(idAnalysis, standard);
 
 		Map<String, Object[]> previouscompliances = ComputeComplianceBefore(measures);
 
 		String chart = "\"chart\":{ \"polar\":true, \"type\":\"line\",\"marginBottom\": 30, \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
-		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { norm }, norm + " measure compliance", locale) + "\"}";
+		String title = "\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.measure.compliance", new Object[] { standard }, standard + " measure compliance", locale) + "\"}";
 
 		String pane = "\"pane\": {\"size\": \"100%\"}";
 
@@ -526,7 +523,7 @@ public class ChartGenerator {
 
 		series += serie;
 
-		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndNorm(idAnalysis, norm, ActionPlanMode.APPN);
+		List<Integer> idMeasureInActionPlans = daoMeasure.getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(idAnalysis, standard, ActionPlanMode.APPN);
 
 		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>(idMeasureInActionPlans.size());
 
@@ -634,18 +631,18 @@ public class ChartGenerator {
 			categories += "\"P" + phase.getNumber() + "\",";
 
 
-		Map<String, List<String>> normcompliances = new LinkedHashMap<String, List<String>>();
+		Map<String, List<String>> standardcompliances = new LinkedHashMap<String, List<String>>();
 
 		Map<String, String> compliancedata = new LinkedHashMap<String, String>();
 
-		List<AnalysisNorm> anorms = daoAnalysisNorm.getAllFromAnalysis(idAnalysis);
+		List<AnalysisStandard> analysisStandards = daoAnalysisStandard.getAllFromAnalysis(idAnalysis);
 		
-		for (AnalysisNorm anorm : anorms) {
-			if (summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + anorm.getNorm().getLabel()) != null)
-				if (normcompliances.get(anorm.getNorm().getLabel()) == null)
-					normcompliances.put(anorm.getNorm().getLabel(), summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + anorm.getNorm().getLabel()));
+		for (AnalysisStandard analysisStandard : analysisStandards) {
+			if (summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()) != null)
+				if (standardcompliances.get(analysisStandard.getStandard().getLabel()) == null)
+					standardcompliances.put(analysisStandard.getStandard().getLabel(), summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()));
 				else
-					normcompliances.put(anorm.getNorm().getLabel(), summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + anorm.getNorm().getLabel()));
+					standardcompliances.put(analysisStandard.getStandard().getLabel(), summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()));
 		}
 
 		List<String> dataALEs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
@@ -664,15 +661,15 @@ public class ChartGenerator {
 			rosi += dataROSIs.get(i) + (size != i ? "," : "]");
 			relatifRosi += dataRelatifROSIs.get(i) + (size != i ? "," : "]");
 
-			for (String key : normcompliances.keySet()) {
+			for (String key : standardcompliances.keySet()) {
 
 				if (compliancedata.get(key) == null) {
 					String data = "[";
-					data += normcompliances.get(key).get(i) + (size != i ? "," : "]");
+					data += standardcompliances.get(key).get(i) + (size != i ? "," : "]");
 					compliancedata.put(key, data);
 				} else {
 					String data = compliancedata.get(key);
-					data += normcompliances.get(key).get(i) + (size != i ? "," : "]");
+					data += standardcompliances.get(key).get(i) + (size != i ? "," : "]");
 					compliancedata.put(key, data);
 				}
 
@@ -698,7 +695,7 @@ public class ChartGenerator {
 
 		for (String key : compliancedata.keySet()) {
 			
-			if(isNormInActionPlan(key, daoActionPlan.getAllFromAnalysis(idAnalysis)))
+			if(isStandardInActionPlan(key, daoActionPlan.getAllFromAnalysis(idAnalysis)))
 				series +=
 				"{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " " + key + "\"," + " \"data\":" + compliancedata.get(key) + ", \"valueDecimals\": 0, \"type\": \"column\", \"yAxis\": 1, \"tooltip\": {\"valueSuffix\": \"%\"}},";
 		}
@@ -713,11 +710,11 @@ public class ChartGenerator {
 		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "," + exporting + "}").replaceAll("\r|\n", " ");
 	}
 
-	private boolean isNormInActionPlan(String norm, List<ActionPlanEntry> actionplans) {
+	private boolean isStandardInActionPlan(String standard, List<ActionPlanEntry> actionplans) {
 		boolean result = false;
 		
 		for(ActionPlanEntry entry : actionplans)
-			if(entry.getMeasure().getAnalysisNorm().getNorm().getLabel().equals(norm)) {
+			if(entry.getMeasure().getAnalysisStandard().getStandard().getLabel().equals(standard)) {
 				result = true;
 				break;
 			}
@@ -842,16 +839,16 @@ public class ChartGenerator {
 		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + ", " + exporting + "}").replaceAll("\r|\n", " ");
 	}
 
-	private Map<String, RRFAssetType> computeRRFByScenario(Scenario scenario, List<AssetType> assetTypes, List<NormMeasure> measures, int idAnalysis) throws Exception {
+	private Map<String, RRFAssetType> computeRRFByScenario(Scenario scenario, List<AssetType> assetTypes, List<NormalMeasure> measures, int idAnalysis) throws Exception {
 		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		if (assetTypes == null)
 			assetTypes = daoAssetType.getAll();
 		if (measures == null)
-			measures = daoMeasure.getAllNormMeasuresFromAnalysisAndComputable(idAnalysis);
+			measures = daoMeasure.getAllNormalMeasuresFromAnalysisAndComputable(idAnalysis);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
 		for (AssetType assetType : assetTypes) {
 			RRFAssetType rrfAssetType = new RRFAssetType(assetType.getType());
-			for (NormMeasure measure : measures) {
+			for (NormalMeasure measure : measures) {
 				RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
 				rrfMeasure.setValue(Analysis.calculateRRF(scenario, assetType, parameter, measure));
 				rrfAssetType.getRrfMeasures().add(rrfMeasure);
@@ -861,7 +858,7 @@ public class ChartGenerator {
 		return rrfs;
 	}
 
-	private Map<String, RRFAssetType> computeRRFByMeasure(NormMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
+	private Map<String, RRFAssetType> computeRRFByMeasure(NormalMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
 		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		if (assetTypes == null)
 			assetTypes = daoAssetType.getAll();
@@ -903,12 +900,12 @@ public class ChartGenerator {
 
 			List<AssetType> assetTypes = daoAssetType.getAll();
 
-			List<NormMeasure> measures = null;
+			List<NormalMeasure> measures = null;
 
 			if (filter == null || filter.getMeasures().isEmpty())
-				measures = daoMeasure.getAllNormMeasuresFromAnalysisAndComputable(idAnalysis);
+				measures = daoMeasure.getAllNormalMeasuresFromAnalysisAndComputable(idAnalysis);
 			else
-				measures = daoMeasure.getAllNormMeasuresFromAnalysisByMeasureIdList(idAnalysis, filter.getMeasures());
+				measures = daoMeasure.getAllNormalMeasuresFromAnalysisByMeasureIdList(idAnalysis, filter.getMeasures());
 
 			Map<String, RRFAssetType> rrfs = computeRRFByScenario(scenario, assetTypes, measures, idAnalysis);
 
@@ -933,8 +930,8 @@ public class ChartGenerator {
 
 			String measuresData = "[";
 
-			for (NormMeasure normMeasure : measures)
-				measuresData += "\"" + normMeasure.getMeasureDescription().getReference() + "\",";
+			for (NormalMeasure normalMeasure : measures)
+				measuresData += "\"" + normalMeasure.getMeasureDescription().getReference() + "\",";
 
 			if (measuresData.endsWith(","))
 				measuresData = measuresData.substring(0, measuresData.length() - 1);
@@ -963,11 +960,11 @@ public class ChartGenerator {
 	}
 
 	public String rrfByMeasure(int idMeasure, Integer idAnalysis, Locale locale, RRFFilter filter) throws Exception {
-		NormMeasure normMeasure = (NormMeasure) daoMeasure.getFromAnalysisById(idMeasure, idAnalysis);
-		return rrfByMeasure(normMeasure, idAnalysis, locale, filter);
+		NormalMeasure normalMeasure = (NormalMeasure) daoMeasure.getFromAnalysisById(idMeasure, idAnalysis);
+		return rrfByMeasure(normalMeasure, idAnalysis, locale, filter);
 	}
 
-	public String rrfByMeasure(NormMeasure measure, Integer idAnalysis, Locale locale, RRFFilter filter) {
+	public String rrfByMeasure(NormalMeasure measure, Integer idAnalysis, Locale locale, RRFFilter filter) {
 		try {
 			String title =
 				"\"title\": {\"text\":\""

@@ -9,17 +9,17 @@ import java.util.regex.Pattern;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.component.helper.AsyncCallback;
 import lu.itrust.business.dao.DAOLanguage;
 import lu.itrust.business.dao.DAOMeasureDescription;
 import lu.itrust.business.dao.DAOMeasureDescriptionText;
-import lu.itrust.business.dao.DAONorm;
+import lu.itrust.business.dao.DAOStandard;
 import lu.itrust.business.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.dao.hbm.DAOMeasureDescriptionTextHBM;
-import lu.itrust.business.dao.hbm.DAONormHBM;
+import lu.itrust.business.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
 
@@ -32,7 +32,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
-public class WorkerImportNorm implements Worker {
+public class WorkerImportStandard implements Worker {
 
 	private long id = System.nanoTime();
 
@@ -48,7 +48,7 @@ public class WorkerImportNorm implements Worker {
 
 	private WorkersPoolManager poolManager;
 
-	private DAONorm daoNorm;
+	private DAOStandard daoStandard;
 
 	private DAOMeasureDescription daoMeasureDescription;
 
@@ -62,11 +62,11 @@ public class WorkerImportNorm implements Worker {
 
 	private XSSFWorkbook workbook;
 
-	private Norm newNorm;
+	private Standard newstandard;
 
 	private MessageHandler messageHandler;
 
-	public WorkerImportNorm(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, WorkersPoolManager poolManager, File importFile) {
+	public WorkerImportStandard(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, WorkersPoolManager poolManager, File importFile) {
 		super();
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.sessionFactory = sessionFactory;
@@ -76,7 +76,7 @@ public class WorkerImportNorm implements Worker {
 
 	public void initialiseDAO(Session session) {
 		daoLanguage = new DAOLanguageHBM(session);
-		daoNorm = new DAONormHBM(session);
+		daoStandard = new DAOStandardHBM(session);
 		daoMeasureDescription = new DAOMeasureDescriptionHBM(session);
 		daoMeasureDescriptionText = new DAOMeasureDescriptionTextHBM(session);
 	}
@@ -99,17 +99,17 @@ public class WorkerImportNorm implements Worker {
 
 			transaction = session.beginTransaction();
 
-			importNewNorm();
+			importNewStandard();
 
 			transaction.commit();
 
 			messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", 100);
-			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_norm\")", null));
+			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_standard\")", null));
 			serviceTaskFeedback.send(id, messageHandler);
 
 		} catch (Exception e) {
 			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of norm failed! Error message is: " + e.getMessage(), e));
+			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), e));
 			e.printStackTrace();
 			try {
 				if (transaction != null)
@@ -138,12 +138,14 @@ public class WorkerImportNorm implements Worker {
 	}
 
 	/**
-	 * importNewNorm: <br>
+	 * importNewStandard: <br>
 	 * Description
+	 * 
+	 * @throws Exception
 	 */
-	public void importNewNorm() throws Exception {
+	public void importNewStandard() throws Exception {
 
-		System.out.println("Import new Norm from Excel template...");
+		System.out.println("Import new Standard from Excel template...");
 
 		FileInputStream fileToOpen = new FileInputStream(importFile);
 
@@ -152,30 +154,30 @@ public class WorkerImportNorm implements Worker {
 
 		sheetNumber = workbook.getNumberOfSheets();
 
-		newNorm = null;
+		newstandard = null;
 
-		System.out.println("Retrieve Norm...");
+		System.out.println("Retrieve Standard...");
 
-		getNorm();
+		getStandard();
 
-		if (newNorm != null) {
+		if (newstandard != null) {
 
-			System.out.println("Retrieve Measures of Norm...");
+			System.out.println("Retrieve Measures of Standard...");
 			getMeasures();
-			System.out.println("Import Norm Done!");
+			System.out.println("Import Standard Done!");
 		} else {
-			messageHandler = new MessageHandler("error.import.norm.malformedExcelFile", null, "The Excel file containing Norm to import is malformed. Please check its content!");
+			messageHandler = new MessageHandler("error.import.norm.malformedExcelFile", null, "The Excel file containing Standard to import is malformed. Please check its content!");
 			serviceTaskFeedback.send(id, messageHandler);
 		}
 	}
 
 	/**
-	 * getNorm: <br>
+	 * getStandard: <br>
 	 * This function browse sheet (NormInfo) and table (TableNormInfo) of the Excel <br/>
-	 * workbook and get information of the norm to import
+	 * workbook and get information of the Standard to import
 	 * 
 	 */
-	public void getNorm() throws Exception {
+	public void getStandard() throws Exception {
 
 		XSSFSheet sheet = null;
 		XSSFTable table = null;
@@ -201,35 +203,29 @@ public class WorkerImportNorm implements Worker {
 
 						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
 							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
-								if (daoNorm.existsByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(startColSheet + 1)
+								if (daoStandard.existsByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(startColSheet + 1)
 										.getNumericCellValue())) {
-									newNorm =
-										daoNorm.getNormByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(startColSheet + 1)
-												.getNumericCellValue());
+									newstandard =
+										daoStandard.getStandardByNameAndVersion(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue(), (int) sheet.getRow(indexRow).getCell(
+												startColSheet + 1).getNumericCellValue());
 									messageHandler =
-										new MessageHandler("error.import.norm.exists", new Object[] { newNorm.getLabel(), newNorm.getVersion() }, "Norm label (" + newNorm.getLabel()
-											+ ") and version (" + newNorm.getVersion() + ") already exist, updating existing norm");
+										new MessageHandler("error.import.norm.exists", new Object[] { newstandard.getLabel(), newstandard.getVersion() }, "Standard label (" + newstandard.getLabel()
+											+ ") and version (" + newstandard.getVersion() + ") already exist, updating existing Standard");
 									serviceTaskFeedback.send(id, messageHandler);
-									System.out.println("Updating existing Norm (" + newNorm.getLabel() + " - " + newNorm.getVersion() + ")...");
+									System.out.println("Updating existing Standard (" + newstandard.getLabel() + " - " + newstandard.getVersion() + ")...");
 								} else {
 
-									newNorm = new Norm();
-									newNorm.setLabel(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue());
-									newNorm.setVersion((int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
-									newNorm.setDescription(sheet.getRow(indexRow).getCell(startColSheet + 2).getStringCellValue());
-									newNorm.setComputable(sheet.getRow(indexRow).getCell(startColSheet + 3).getBooleanCellValue());
+									newstandard = new Standard();
+									newstandard.setLabel(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue());
+									newstandard.setVersion((int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
+									newstandard.setDescription(sheet.getRow(indexRow).getCell(startColSheet + 2).getStringCellValue());
+									newstandard.setComputable(sheet.getRow(indexRow).getCell(startColSheet + 3).getBooleanCellValue());
 
-									daoNorm.save(newNorm);
+									daoStandard.save(newstandard);
 								}
 							}
 					}
-
 				}
-
-				// System.out.println(newNorm.getLabel() + " " +
-				// newNorm.getVersion() + " " + newNorm.getDescription() + " " +
-				// newNorm.isComputable());
-
 			}
 		}
 	}
@@ -278,12 +274,12 @@ public class WorkerImportNorm implements Worker {
 						if (startColSheet <= endColSheet && startRowSheet <= endRowSheet)
 							for (int indexRow = startRowSheet + 1; indexRow <= endRowSheet; indexRow++) {
 
-								measureDescription = daoMeasureDescription.getByReferenceAndNorm(sheet.getRow(indexRow).getCell(1).getStringCellValue(), newNorm);
+								measureDescription = daoMeasureDescription.getByReferenceAndStandard(sheet.getRow(indexRow).getCell(1).getStringCellValue(), newstandard);
 
 								if (measureDescription == null) {
 
 									measureDescription = new MeasureDescription();
-									measureDescription.setNorm(newNorm);
+									measureDescription.setStandard(newstandard);
 									daoMeasureDescription.save(measureDescription);
 								}
 
@@ -300,7 +296,7 @@ public class WorkerImportNorm implements Worker {
 									for (int indexCol = startColSheet + 3; indexCol <= endColSheet; indexCol++) {
 										pattern = Pattern.compile("(Domain|Description)_(\\w{3})");
 										XSSFCell cell = sheet.getRow(startRowSheet).getCell(indexCol);
-										if(cell == null)
+										if (cell == null)
 											continue;
 										matcher = pattern.matcher(cell.getStringCellValue());
 										if (matcher.matches()) {

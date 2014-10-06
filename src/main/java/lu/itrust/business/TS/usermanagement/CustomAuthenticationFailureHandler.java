@@ -27,23 +27,23 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
 		//exception.printStackTrace();
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy HH:mm:ss");
 		Date date = new Date();
 		String stringdate = dateFormat.format(date);
-		
+		String remoteaddr = request.getRemoteAddr();
 	
 		if (exception.getClass().isAssignableFrom(BadCredentialsException.class)) {
-			System.err.println("ERROR: ("+ stringdate +"): Bad credentials for user '"+request.getParameter("j_username") +"'!");
+			System.err.println(stringdate +" CustomAuthenticationFailureHandler - ERROR: Bad credentials for user '"+request.getParameter("j_username") +"'! Requesting IP: "+remoteaddr);
 			request.getSession().setAttribute("LOGIN_ERROR", "error.bad.credential");
 		} 
 		
 		if (exception.getClass().isAssignableFrom(DisabledException.class)) {
-			System.err.println("ERROR: ("+ stringdate +"): User '"+ request.getParameter("j_username") +"' is disabled!");
+			System.err.println(stringdate +" CustomAuthenticationFailureHandler -  ERROR: User '"+ request.getParameter("j_username") +"' is disabled! Requesting IP: "+remoteaddr);
 		}
 		
 		if(exception.getClass().isAssignableFrom(InternalAuthenticationServiceException.class)) {
 			
-			System.err.println("ERROR: ("+ stringdate +"): Database Connection Failed!");
+			System.err.println(stringdate +" CustomAuthenticationFailureHandler -  ERROR: Database Connection Failed!");
 			request.getSession().setAttribute("LOGIN_ERROR", "error.database.connection_failed");
 		}
 		

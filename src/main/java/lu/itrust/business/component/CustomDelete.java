@@ -14,7 +14,7 @@ import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.SummaryStage;
@@ -22,14 +22,14 @@ import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.dao.DAOActionPlan;
 import lu.itrust.business.dao.DAOActionPlanSummary;
 import lu.itrust.business.dao.DAOAnalysis;
-import lu.itrust.business.dao.DAOAnalysisNorm;
+import lu.itrust.business.dao.DAOAnalysisStandard;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
 import lu.itrust.business.dao.DAOAssetTypeValue;
 import lu.itrust.business.dao.DAOCustomer;
 import lu.itrust.business.dao.DAOMeasureDescription;
 import lu.itrust.business.dao.DAOMeasureDescriptionText;
-import lu.itrust.business.dao.DAONorm;
+import lu.itrust.business.dao.DAOStandard;
 import lu.itrust.business.dao.DAOScenario;
 import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.exception.TrickException;
@@ -52,7 +52,7 @@ public class CustomDelete {
 	private DAOAsset daoAsset;
 
 	@Autowired
-	private DAONorm daoNorm;
+	private DAOStandard daoStandard;
 
 	@Autowired
 	private DAOMeasureDescription daoMeasureDescription;
@@ -70,7 +70,7 @@ public class CustomDelete {
 	private DAOAnalysis daoAnalysis;
 
 	@Autowired
-	private DAOAnalysisNorm daoAnalysisNorm;
+	private DAOAnalysisStandard daoAnalysisStandard;
 
 	@Autowired
 	private DAOUser daoUser;
@@ -91,7 +91,7 @@ public class CustomDelete {
 
 		if (!actionplans.isEmpty()) {
 
-			Integer analysisid = actionplans.get(0).getMeasure().getAnalysisNorm().getAnalysis().getId();
+			Integer analysisid = actionplans.get(0).getMeasure().getAnalysisStandard().getAnalysis().getId();
 
 			String type = actionplans.get(0).getActionPlanType().getName();
 
@@ -125,11 +125,11 @@ public class CustomDelete {
 	}
 
 	@Transactional
-	public void deleteNorm(Norm norm) throws Exception {
-		if (daoAnalysisNorm.getAllFromNorm(norm).size() > 0)
+	public void deleteStandard(Standard standard) throws Exception {
+		if (daoAnalysisStandard.getAllFromStandard(standard).size() > 0)
 			throw new TrickException("error.delete.norm.analyses_with_norm", "Standard could not be deleted: it is used in analyses!");
 
-		List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByNorm(norm);
+		List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByStandard(standard);
 		for (MeasureDescription measureDescription : measureDescriptions) {
 			List<MeasureDescriptionText> measureDescriptionTexts = daoMeasureDescriptionText.getAllFromMeasureDescription(measureDescription.getId());
 			for (MeasureDescriptionText measureDescriptiontext : measureDescriptionTexts) {
@@ -137,7 +137,7 @@ public class CustomDelete {
 			}
 			daoMeasureDescription.delete(measureDescription);
 		}
-		daoNorm.delete(norm);
+		daoStandard.delete(standard);
 
 	}
 

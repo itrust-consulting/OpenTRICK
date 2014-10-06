@@ -65,13 +65,11 @@ public class WorkerComputeRiskRegister implements Worker {
 
 	/**
 	 * Constructor: <br>
-	 * 
 	 * @param poolManager
 	 * @param sessionFactory
 	 * @param serviceTaskFeedback
 	 * @param idAnalysis
-	 * @param norms
-	 * @param uncertainty
+	 * @param reloadSection
 	 */
 	public WorkerComputeRiskRegister(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, Boolean reloadSection) {
 		this.sessionFactory = sessionFactory;
@@ -195,7 +193,7 @@ public class WorkerComputeRiskRegister implements Worker {
 		Hibernate.initialize(analysis.getRiskInformations());
 		Hibernate.initialize(analysis.getParameters());
 		Hibernate.initialize(analysis.getUsedPhases());
-		Hibernate.initialize(analysis.getAnalysisNorms());
+		Hibernate.initialize(analysis.getAnalysisStandards());
 	}
 
 	/**

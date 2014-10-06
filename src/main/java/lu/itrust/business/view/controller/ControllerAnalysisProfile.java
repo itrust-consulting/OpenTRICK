@@ -10,12 +10,12 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.helper.AnalysisProfile;
 import lu.itrust.business.service.ServiceAnalysis;
-import lu.itrust.business.service.ServiceNorm;
+import lu.itrust.business.service.ServiceStandard;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.service.WorkersPoolManager;
@@ -50,7 +50,7 @@ public class ControllerAnalysisProfile {
 	private ServiceTaskFeedback serviceTaskFeedback;
 
 	@Autowired
-	private ServiceNorm serviceNorm;
+	private ServiceStandard serviceStandard;
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
@@ -75,9 +75,9 @@ public class ControllerAnalysisProfile {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/Add/{analysisId}")
 	public String createProfile(@PathVariable int analysisId, Model model, Principal principal) throws Exception {
-		List<Norm> norms = serviceNorm.getAllFromAnalysis(analysisId);
+		List<Standard> standards = serviceStandard.getAllFromAnalysis(analysisId);
 		AnalysisProfile analysisProfile = new AnalysisProfile(analysisId);
-		model.addAttribute("norms", norms);
+		model.addAttribute("standards", standards);
 		model.addAttribute("analysisProfile", analysisProfile);
 		return "analysis/forms/createProfile";
 	}
@@ -87,12 +87,12 @@ public class ControllerAnalysisProfile {
 	public String saveProfile(@ModelAttribute @Valid AnalysisProfile analysisProfile, BindingResult result, Model model, Principal principal, Locale locale) throws Exception {
 
 		if (result.hasErrors()) {
-			model.addAttribute("norms", serviceNorm.getAllFromAnalysis(analysisProfile.getIdAnalysis()));
+			model.addAttribute("standards", serviceStandard.getAllFromAnalysis(analysisProfile.getIdAnalysis()));
 			return "analysis/forms/createProfile";
 		}
 
 		if (serviceAnalysis.isProfile(analysisProfile.getIdAnalysis())) {
-			model.addAttribute("norms", serviceNorm.getAllFromAnalysis(analysisProfile.getIdAnalysis()));
+			model.addAttribute("standards", serviceStandard.getAllFromAnalysis(analysisProfile.getIdAnalysis()));
 			result.rejectValue("name", "error.analysis.profile.name.used", null, "Name is not available");
 			return "analysis/forms/createProfile";
 		}

@@ -37,7 +37,7 @@ import org.hibernate.annotations.CascadeType;
  * @since Jan 28, 2013
  */
 @Entity 
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiNorm","dtReference"}))
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiStandard","dtReference"}))
 public class MeasureDescription implements Cloneable {
 
 	/***********************************************************************************************
@@ -51,9 +51,9 @@ public class MeasureDescription implements Cloneable {
 
 	/** Measure Norm Object */
 	@ManyToOne
-	@JoinColumn(name="fiNorm", nullable=false)
+	@JoinColumn(name="fiStandard", nullable=false)
 	@Cascade(CascadeType.SAVE_UPDATE)
-	private Norm norm = null;
+	private Standard standard = null;
 
 	/** Measure Description Text List (one entry represents one language) */
 	@OneToMany(mappedBy="measureDescription")
@@ -86,8 +86,8 @@ public class MeasureDescription implements Cloneable {
 	 * @param norm
 	 *            Norm of the Measure
 	 */
-	public MeasureDescription(String reference, Norm norm, int level, boolean computable) {
-		this.norm = norm;
+	public MeasureDescription(String reference, Standard norm, int level, boolean computable) {
+		this.standard = norm;
 		this.reference = reference;
 		this.level = level;
 		this.computable = computable;
@@ -161,8 +161,8 @@ public class MeasureDescription implements Cloneable {
 	 * 
 	 * @return The value of the norm field
 	 */
-	public Norm getNorm() {
-		return norm;
+	public Standard getStandard() {
+		return standard;
 	}
 
 	/**
@@ -172,8 +172,8 @@ public class MeasureDescription implements Cloneable {
 	 * @param norm
 	 *            The Value to set the norm field
 	 */
-	public void setNorm(Norm norm) {
-		this.norm = norm;
+	public void setStandard(Standard norm) {
+		this.standard = norm;
 	}
 
 	/**
@@ -294,7 +294,7 @@ public class MeasureDescription implements Cloneable {
 	 */
 	public MeasureDescription duplicate() throws CloneNotSupportedException {
 		MeasureDescription measureDescription = (MeasureDescription) super.clone();
-		if (norm.getLabel().equalsIgnoreCase(Constant.NORM_CUSTOM))
+		if (standard.getLabel().equalsIgnoreCase(Constant.STANDARD_CUSTOM))
 			measureDescription.id = -1;
 		return measureDescription;
 	}

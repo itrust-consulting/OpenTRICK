@@ -35,8 +35,8 @@ import org.hibernate.annotations.CascadeType;
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="dtDiscriminator")
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","fiNorm"}))
-public abstract class AnalysisNorm implements Serializable, Cloneable {
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","fiStandard"}))
+public abstract class AnalysisStandard implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -48,16 +48,16 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	
 	/** AnalysisNorm id */
 	@Id @GeneratedValue 
-	@Column(name="idAnalysisNorm")
+	@Column(name="idAnalysisStandard")
 	private int id = -1;
 
 	/** AnalysisNorm Norm Object */
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="fiNorm", nullable=false)
-	private Norm norm = null;
+	@JoinColumn(name="fiStandard", nullable=false)
+	private Standard standard = null;
 
 	/** AnalysisNorm List of measures */
-	@OneToMany(mappedBy="analysisNorm")
+	@OneToMany(mappedBy="analysisStandard")
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<Measure> measures = new ArrayList<Measure>();
 
@@ -77,9 +77,9 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	 * @param norm
 	 *            The Norm Object
 	 */
-	public AnalysisNorm(Analysis analysis, Norm norm) {
+	public AnalysisStandard(Analysis analysis, Standard standard) {
 		this.analysis = analysis;
-		this.norm = norm;
+		this.standard = standard;
 	}
 
 	/**
@@ -88,8 +88,8 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	 * @param norm
 	 *            The Norm object
 	 */
-	public AnalysisNorm(Norm norm) {
-		this.norm = norm;
+	public AnalysisStandard(Standard standard) {
+		this.standard = standard;
 	}
 
 	/**
@@ -98,7 +98,7 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	 * @param analysis
 	 *            The Analysis Object
 	 */
-	public AnalysisNorm(Analysis analysis) {
+	public AnalysisStandard(Analysis analysis) {
 		this.analysis = analysis;
 	}
 
@@ -106,7 +106,7 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	 * Constructor: <br>
 	 * 
 	 */
-	public AnalysisNorm() {
+	public AnalysisStandard() {
 	}
 
 	/***********************************************************************************************
@@ -119,8 +119,8 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	 * 
 	 * @return The AnalysisNorm Name
 	 */
-	public Norm getNorm() {
-		return norm;
+	public Standard getStandard() {
+		return standard;
 	}
 
 	/**
@@ -131,12 +131,12 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	 *            The value to set the AnalysisNorm Name
 	 * @throws TrickException 
 	 */
-	public void setNorm(Norm name) throws TrickException {
+	public void setStandard(Standard name) throws TrickException {
 		if (name == null)
 			throw new TrickException("error.norm.null", "Standard cannot be empty");
 		else if (name.getLabel() == null)
 			throw new TrickException("error.norm.label_null","Standard name cannot be empty");
-		this.norm = name;
+		this.standard = name;
 	}
 
 	/**
@@ -209,20 +209,20 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 	 */
 	@Override
 	public Object clone() throws CloneNotSupportedException {
-		AnalysisNorm analysisNorm = (AnalysisNorm) super.clone();
+		AnalysisStandard analysisNorm = (AnalysisStandard) super.clone();
 		analysisNorm.measures = new ArrayList<>();
 		for (Measure measure : measures) {
 			Measure measure2 = (Measure) measure.clone();
-			measure2.setAnalysisNorm(analysisNorm);
+			measure2.setAnalysisStandard(analysisNorm);
 			analysisNorm.measures.add(measure2);
 		}
 		return analysisNorm;
 	}
 
-	public AnalysisNorm duplicate() throws CloneNotSupportedException {
-		AnalysisNorm analysisNorm = (AnalysisNorm) super.clone();
-		analysisNorm.id = -1;
-		return analysisNorm;
+	public AnalysisStandard duplicate() throws CloneNotSupportedException {
+		AnalysisStandard analysisStandard = (AnalysisStandard) super.clone();
+		analysisStandard.id = -1;
+		return analysisStandard;
 	}
 
 	/**
@@ -236,7 +236,7 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 		final int prime = 31;
 		int result = 1;
 		result =
-			prime * result + ((norm == null) ? 0 : norm.hashCode());
+			prime * result + ((standard == null) ? 0 : standard.hashCode());
 		result = prime * result + id;
 		return result;
 	}
@@ -262,12 +262,12 @@ public abstract class AnalysisNorm implements Serializable, Cloneable {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		AnalysisNorm other = (AnalysisNorm) obj;
-		if (norm == null) {
-			if (other.norm != null) {
+		AnalysisStandard other = (AnalysisStandard) obj;
+		if (standard == null) {
+			if (other.standard != null) {
 				return false;
 			}
-		} else if (!norm.equals(other.norm)) {
+		} else if (!standard.equals(other.standard)) {
 			return false;
 		}
 		if (id != other.id) {

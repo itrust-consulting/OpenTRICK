@@ -11,7 +11,7 @@ import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.ExtendedParameter;
 import lu.itrust.business.TS.Measure;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.Scenario;
@@ -86,7 +86,7 @@ public class RiskRegisterComputation {
 		for (int i = 0; i < usePhases.size(); i++) {
 			if (usePhases.get(i).getNumber() == 0)
 				continue;
-			tmas.addAll(ActionPlanComputation.generateTMAList(this.analysis, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true, analysis.getAnalysisNorms()));
+			tmas.addAll(ActionPlanComputation.generateTMAList(this.analysis, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true, analysis.getAnalysisStandards()));
 			if (mandatoryPhase == usePhases.get(i).getNumber())
 				break;
 		}
@@ -804,7 +804,7 @@ public class RiskRegisterComputation {
 			// determine category
 			String category = CategoryConverter.getTypeFromScenario(scenario);
 
-			NormMeasure measure = (NormMeasure) tma.getMeasure();
+			NormalMeasure measure = (NormalMeasure) tma.getMeasure();
 			
 			// check if measure influences this scenario category -> YES
 			if (measure.getMeasurePropertyList().hasInfluenceOnCategory(category)) {

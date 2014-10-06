@@ -6,7 +6,7 @@ package lu.itrust.business.component.helper;
 import java.util.ArrayList;
 import java.util.List;
 
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 
 /**
  * AnalysisProfile.java: <br>
@@ -23,7 +23,7 @@ public class AnalysisProfile {
 
 	private int idAnalysis;
 
-	private List<Norm> norms = new ArrayList<Norm>();
+	private List<Standard> standards = new ArrayList<Standard>();
 
 	private boolean scenario = true;
 
@@ -62,23 +62,23 @@ public class AnalysisProfile {
 	}
 
 	/**
-	 * getNorms: <br>
+	 * getStandards: <br>
 	 * Description
 	 * 
 	 * @return
 	 */
-	public List<Norm> getNorms() {
-		return norms;
+	public List<Standard> getStandards() {
+		return standards;
 	}
 
 	/**
-	 * setNorms: <br>
+	 * setStandards: <br>
 	 * Description
 	 * 
-	 * @param norms
+	 * @param standards
 	 */
-	public void setNorms(List<Norm> norms) {
-		this.norms = norms;
+	public void setStandards(List<Standard> standards) {
+		this.standards = standards;
 	}
 
 	/**

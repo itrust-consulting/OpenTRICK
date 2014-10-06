@@ -14,7 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.exception.TrickException;
 
 import org.hibernate.annotations.Cascade;
@@ -200,7 +200,7 @@ public class SummaryStage {
 
 	public Double getSingleConformance(String label) {
 		for(SummaryStandardConformance conformance : this.conformances)
-			if(conformance.getAnalysisNorm().getNorm().getLabel().equals(label))
+			if(conformance.getAnalysisStandard().getStandard().getLabel().equals(label))
 				return conformance.getConformance();
 		return null;
 	}
@@ -233,7 +233,7 @@ public class SummaryStage {
 	 * @param analysisNorm
 	 * @param conformance
 	 */
-	public void addConformance(AnalysisNorm analysisNorm, double conformance) {
+	public void addConformance(AnalysisStandard analysisNorm, double conformance) {
 		this.conformances.add(new SummaryStandardConformance(analysisNorm,conformance));
 	}
 

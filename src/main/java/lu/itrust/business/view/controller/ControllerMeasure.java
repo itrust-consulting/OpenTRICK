@@ -7,11 +7,11 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
@@ -21,7 +21,7 @@ import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceAnalysis;
-import lu.itrust.business.service.ServiceAnalysisNorm;
+import lu.itrust.business.service.ServiceAnalysisStandard;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceParameter;
@@ -74,7 +74,7 @@ public class ControllerMeasure {
 	private ServiceActionPlanSummary serviceActionPlanSummary;
 
 	@Autowired
-	private ServiceAnalysisNorm serviceAnalysisNorm;
+	private ServiceAnalysisStandard serviceAnalysisStandard;
 	
 	@Autowired
 	private ServiceUser serviceUser;
@@ -123,15 +123,15 @@ public class ControllerMeasure {
 	public @ResponseBody Measure get(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		measure.setAnalysisNorm(null);
+		measure.setAnalysisStandard(null);
 		measure.setMeasureDescription(null);
-		if (measure instanceof NormMeasure) {
-			((NormMeasure) measure).setPhase(null);
-			Hibernate.initialize(((NormMeasure) measure).getAssetTypeValues());
+		if (measure instanceof NormalMeasure) {
+			((NormalMeasure) measure).setPhase(null);
+			Hibernate.initialize(((NormalMeasure) measure).getAssetTypeValues());
 			Hibernate.initialize(measure);
-			for (AssetTypeValue assetTypeValue : ((NormMeasure) measure).getAssetTypeValues())
+			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues())
 				assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
-			((NormMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormMeasure) measure).getMeasurePropertyList()));
+			((NormalMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormalMeasure) measure).getMeasurePropertyList()));
 		}
 		return measure;
 	}
@@ -141,16 +141,16 @@ public class ControllerMeasure {
 	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		if (measure instanceof NormMeasure) {
-			Hibernate.initialize(((NormMeasure) measure).getAssetTypeValues());
+		if (measure instanceof NormalMeasure) {
+			Hibernate.initialize(((NormalMeasure) measure).getAssetTypeValues());
 			Hibernate.initialize(measure);
-			for (AssetTypeValue assetTypeValue : ((NormMeasure) measure).getAssetTypeValues())
+			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues())
 				assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
-			((NormMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormMeasure) measure).getMeasurePropertyList()));
+			((NormalMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormalMeasure) measure).getMeasurePropertyList()));
 		}
 		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3());
 		model.addAttribute("measure", measure);
-		model.addAttribute("norm", measure.getAnalysisNorm().getNorm().getLabel());
+		model.addAttribute("standards", measure.getAnalysisStandard().getStandard().getLabel());
 
 		return "analysis/components/singleMeasure";
 	}
@@ -159,7 +159,7 @@ public class ControllerMeasure {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody String updateRRF(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		NormMeasure measure = (NormMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, fieldEditor.getId());
+		NormalMeasure measure = (NormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, fieldEditor.getId());
 		Field field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
 		if (field == null) {
 			if (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
@@ -192,31 +192,30 @@ public class ControllerMeasure {
 	public @ResponseBody String load(@RequestBody RRFFilter filter, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		return chartGenerator.rrfByMeasure((NormMeasure) measure, idAnalysis, locale, filter);
+		return chartGenerator.rrfByMeasure((NormalMeasure) measure, idAnalysis, locale, filter);
 	}
 
 	/**
-	 * sectionNorm: <br>
+	 * sectionStandard: <br>
 	 * Description
 	 * 
-	 * @param norm
+	 * @param standard
 	 * @param session
 	 * @param model
-	 * @param attributes
+	 * @param principal
 	 * @return
 	 * @throws Exception
 	 */
-	// @RequestMapping("/Section/{norm}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String sectionNorm(@PathVariable String norm, HttpSession session, Model model, Principal principal) throws Exception {
+	public String sectionStandard(@PathVariable String standard, HttpSession session, Model model, Principal principal) throws Exception {
 
 		// get analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
 
-		// add measures of a norm
-		model.addAttribute("measures", serviceMeasure.getAllFromAnalysisAndNorm(idAnalysis, norm));
+		// add measures of a standard
+		model.addAttribute("measures", serviceMeasure.getAllFromAnalysisAndStandard(idAnalysis, standard));
 
 		// add language of analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis));
@@ -228,15 +227,15 @@ public class ControllerMeasure {
 	 * compliance: <br>
 	 * Description
 	 * 
-	 * @param norm
+	 * @param standard
 	 * @param session
-	 * @param locale
+	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/Compliance/{norm}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Compliance/{standard}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@ResponseBody
-	public String compliance(@PathVariable String norm, HttpSession session, Principal principal) {
+	public String compliance(@PathVariable String standard, HttpSession session, Principal principal) {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -259,8 +258,8 @@ public class ControllerMeasure {
 			if (locale == null)
 				locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
 
-			// return chart of either norm 27001 or 27002 or null
-			return chartGenerator.compliance(idAnalysis, norm, locale);
+			// return chart of either standard 27001 or 27002 or null
+			return chartGenerator.compliance(idAnalysis, standard, locale);
 
 		} catch (Exception e) {
 
@@ -271,12 +270,11 @@ public class ControllerMeasure {
 	}
 
 	/**
-	 * compliance: <br>
+	 * compliances: <br>
 	 * Description
 	 * 
-	 * @param norm
 	 * @param session
-	 * @param locale
+	 * @param principal
 	 * @return
 	 */
 	@RequestMapping(value = "/Compliances", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
@@ -305,15 +303,15 @@ public class ControllerMeasure {
 			if (locale == null)
 				locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
 			
-			List<AnalysisNorm> norms = serviceAnalysisNorm.getAllFromAnalysis(idAnalysis);
+			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
-			String value = "{\"norms\":{";
+			String value = "{\"standards\":{";
 
-			for (AnalysisNorm norm : norms) {
+			for (AnalysisStandard analysisStandard : analysisStandards) {
 
-				value += "\"" + norm.getNorm().getLabel() + "\":[";
+				value += "\"" + analysisStandard.getStandard().getLabel() + "\":[";
 
-				value += chartGenerator.compliance(idAnalysis, norm.getNorm().getLabel(), locale);
+				value += chartGenerator.compliance(idAnalysis, analysisStandard.getStandard().getLabel(), locale);
 
 				value += "],";
 			}
@@ -324,7 +322,7 @@ public class ControllerMeasure {
 
 			// System.out.println(value);
 
-			// return chart of either norm 27001 or 27002 or null
+			// return chart of either standard 27001 or 27002 or null
 
 			return value;
 

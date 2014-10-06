@@ -5,17 +5,17 @@ package lu.itrust.business.task;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.Duplicator;
 import lu.itrust.business.component.helper.AnalysisProfile;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOCustomer;
-import lu.itrust.business.dao.DAONorm;
+import lu.itrust.business.dao.DAOStandard;
 import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.dao.hbm.DAOCustomerHBM;
-import lu.itrust.business.dao.hbm.DAONormHBM;
+import lu.itrust.business.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.WorkersPoolManager;
@@ -77,7 +77,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 				working = true;
 			}
 			session = sessionFactory.openSession();
-			DAONorm daoNorm = new DAONormHBM(session);
+			DAOStandard daoStandard = new DAOStandardHBM(session);
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			DAOCustomer daoCustomer = new DAOCustomerHBM(session);
 
@@ -87,7 +87,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 				return;
 			}
 			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load.norm", "Load standards", 1));
-			reloadNorm(daoNorm);
+			reloadStandard(daoStandard);
 			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load", "Load analysis", 2));
 			Analysis analysis = daoAnalysis.get(analysisProfile.getIdAnalysis());
 			Analysis copy = new Duplicator().createProfile(analysis, analysisProfile, serviceTaskFeedback, id);
@@ -147,18 +147,18 @@ public class WorkerCreateAnalysisProfile implements Worker {
 		}
 	}
 
-	private void reloadNorm(DAONorm daoNorm) throws Exception {
+	private void reloadStandard(DAOStandard daoStandard) throws Exception {
 
-		if(analysisProfile.getNorms()==null)
+		if(analysisProfile.getStandards()==null)
 			return;
 		
-		for (int i = 0; i < analysisProfile.getNorms().size();) {
-			int id = parseId(analysisProfile.getNorms().get(i).getLabel());
-			Norm norm = daoNorm.get(id);
-			if (norm == null)
-				analysisProfile.getNorms().remove(i);
+		for (int i = 0; i < analysisProfile.getStandards().size();) {
+			int id = parseId(analysisProfile.getStandards().get(i).getLabel());
+			Standard standard = daoStandard.get(id);
+			if (standard == null)
+				analysisProfile.getStandards().remove(i);
 			else {
-				analysisProfile.getNorms().set(i, norm);
+				analysisProfile.getStandards().set(i, standard);
 				i++;
 			}
 		}

@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.TrickService;
@@ -26,7 +26,7 @@ import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceAnalysis;
-import lu.itrust.business.service.ServiceAnalysisNorm;
+import lu.itrust.business.service.ServiceAnalysisStandard;
 import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceMeasure;
 import lu.itrust.business.service.ServiceParameter;
@@ -87,7 +87,7 @@ public class ControllerPatch {
 	private ServiceActionPlan serviceActionPlan;
 
 	@Autowired
-	private ServiceAnalysisNorm serviceAnalysisNorm;
+	private ServiceAnalysisStandard serviceAnalysisStandard;
 	
 	@Autowired
 	private ServiceUser serviceUser;
@@ -239,51 +239,51 @@ public class ControllerPatch {
 
 				System.out.println("analysis " + (analyses.indexOf(idAnalysis) + 1) + " of " + analyses.size());
 
-				List<AnalysisNorm> norms = serviceAnalysisNorm.getAllFromAnalysis(idAnalysis);
+				List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
-				for (AnalysisNorm norm : norms) {
+				for (AnalysisStandard standard : standards) {
 
 					List<SummaryStage> summaries = serviceActionPlanSummary.getAllFromAnalysis(idAnalysis);
 					
 					for (SummaryStage summary : summaries) {
 						
-						if(norm.getNorm().getLabel().equals(Constant.NORM_27001)) {
+						if(standard.getStandard().getLabel().equals(Constant.STANDARD_27001)) {
 							
 							boolean found = false;
 							
 							for(SummaryStandardConformance conformance : summary.getConformances())
-								if(conformance.getAnalysisNorm().getNorm().getLabel().equals(norm.getNorm().getLabel())) {
+								if(conformance.getAnalysisStandard().getStandard().getLabel().equals(standard.getStandard().getLabel())) {
 									found = true;
 									break;
 								}
 							
 							if(!found)						
-								summary.addConformance(norm, summary.getConformance27001());
-						} else if(norm.getNorm().getLabel().equals(Constant.NORM_27002)) {
+								summary.addConformance(standard, summary.getConformance27001());
+						} else if(standard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
 							
 							boolean found = false;
 							
 							for(SummaryStandardConformance conformance : summary.getConformances())
-								if(conformance.getAnalysisNorm().getNorm().getLabel().equals(norm.getNorm().getLabel())) {
+								if(conformance.getAnalysisStandard().getStandard().getLabel().equals(standard.getStandard().getLabel())) {
 									found = true;
 									break;
 								}
 							
 							if(!found)						
-								summary.addConformance(norm, summary.getConformance27002());
+								summary.addConformance(standard, summary.getConformance27002());
 						} else {
 							
 							boolean found = false;
 							
 							for(SummaryStandardConformance conformance : summary.getConformances())
-								if(conformance.getAnalysisNorm().getNorm().getLabel().equals(norm.getNorm().getLabel())) {
+								if(conformance.getAnalysisStandard().getStandard().getLabel().equals(standard.getStandard().getLabel())) {
 									found = true;
 									break;
 								}
 							
 							if(!found) {
 							
-								Map<String, Object[]> previouscompliances = ChartGenerator.ComputeComplianceBefore(norm.getMeasures());
+								Map<String, Object[]> previouscompliances = ChartGenerator.ComputeComplianceBefore(standard.getMeasures());
 								
 								int compliancevalue = 0;
 								
@@ -294,7 +294,7 @@ public class ControllerPatch {
 								
 								compliancevalue = compliancevalue / previouscompliances.size();
 								
-								summary.addConformance(norm, compliancevalue*0.01);
+								summary.addConformance(standard, compliancevalue*0.01);
 								
 							}
 								

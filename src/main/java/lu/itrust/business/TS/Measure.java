@@ -47,7 +47,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	private int id = -1;
 
 	/** Analysis Norm Object */
-	private AnalysisNorm analysisNorm = null;
+	private AnalysisStandard analysisStandard = null;
 
 	/** The Measure Domain */
 	private MeasureDescription measureDescription = null;
@@ -419,10 +419,10 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * @return The value of the analysisNorm field
 	 */
 	@ManyToOne 
-	@JoinColumn(name="fiAnalysisNorm", nullable=false)
+	@JoinColumn(name="fiAnalysisStandard", nullable=false)
 	@Access(AccessType.FIELD)
-	public AnalysisNorm getAnalysisNorm() {
-		return analysisNorm;
+	public AnalysisStandard getAnalysisStandard() {
+		return analysisStandard;
 	}
 
 	/**
@@ -432,8 +432,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * @param analysisNorm
 	 *            The Value to set the analysisNorm field
 	 */
-	public void setAnalysisNorm(AnalysisNorm analysisNorm) {
-		this.analysisNorm = analysisNorm;
+	public void setAnalysisStandard(AnalysisStandard analysisNorm) {
+		this.analysisStandard = analysisNorm;
 	}
 
 	/**

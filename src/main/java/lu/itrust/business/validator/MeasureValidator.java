@@ -5,7 +5,7 @@ package lu.itrust.business.validator;
 
 import java.util.List;
 
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -17,7 +17,7 @@ import lu.itrust.business.validator.field.ValidatorFieldImpl;
  */
 public class MeasureValidator extends ValidatorFieldImpl {
 
-	protected static final String ANALYSIS_NORM = "analysisNorm";
+	protected static final String ANALYSIS_STANDARD = "analysisStandard";
 	protected static final String MEASURE_DESCRIPTION = "measureDescription";
 	protected static final String PHASE = "phase";
 	protected static final String STATUS = "status";
@@ -67,10 +67,10 @@ public class MeasureValidator extends ValidatorFieldImpl {
 		String stringCandidate = null;
 		Double doubleCanditate = null;
 		switch (fieldName) {
-		case ANALYSIS_NORM:
+		case ANALYSIS_STANDARD:
 			if (candidate == null)
 				return ERROR_MEASURE_ANALYSIS_NORM_NULL_A_MEASURE_SHOULD_ALWAYS_BE_ATTACHED_TO_AN_ANALYSIS;
-			else if (!(candidate instanceof AnalysisNorm))
+			else if (!(candidate instanceof AnalysisStandard))
 				return ERROR_UNSUPPORTED_DATA_ANALYSIS_NORM_ANALYSIS_NORM_VALUE_IS_NOT_SUPPORTED;
 			break;
 		case MEASURE_DESCRIPTION:

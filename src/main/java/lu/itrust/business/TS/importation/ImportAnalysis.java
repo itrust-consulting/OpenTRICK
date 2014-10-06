@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
@@ -26,15 +26,15 @@ import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.ItemInformation;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MaturityMeasure;
-import lu.itrust.business.TS.MaturityNorm;
+import lu.itrust.business.TS.MaturityStandard;
 import lu.itrust.business.TS.MaturityParameter;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
-import lu.itrust.business.TS.MeasureNorm;
+import lu.itrust.business.TS.NormalStandard;
 import lu.itrust.business.TS.MeasureProperties;
-import lu.itrust.business.TS.Norm;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.Standard;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.ParameterType;
 import lu.itrust.business.TS.Phase;
@@ -54,7 +54,7 @@ import lu.itrust.business.dao.DAOAssetType;
 import lu.itrust.business.dao.DAOLanguage;
 import lu.itrust.business.dao.DAOMeasureDescription;
 import lu.itrust.business.dao.DAOMeasureDescriptionText;
-import lu.itrust.business.dao.DAONorm;
+import lu.itrust.business.dao.DAOStandard;
 import lu.itrust.business.dao.DAOParameterType;
 import lu.itrust.business.dao.DAOScenarioType;
 import lu.itrust.business.dao.hbm.DAOAnalysisHBM;
@@ -62,7 +62,7 @@ import lu.itrust.business.dao.hbm.DAOAssetTypeHBM;
 import lu.itrust.business.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.dao.hbm.DAOMeasureDescriptionTextHBM;
-import lu.itrust.business.dao.hbm.DAONormHBM;
+import lu.itrust.business.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.dao.hbm.DAOParameterTypeHBM;
 import lu.itrust.business.dao.hbm.DAOScenarioTypeHBM;
 import lu.itrust.business.exception.TrickException;
@@ -103,7 +103,7 @@ public class ImportAnalysis {
 
 	private DAOMeasureDescriptionText daoMeasureDescriptionText;
 
-	private DAONorm daoNorm;
+	private DAOStandard daoNorm;
 
 	private ServiceTaskFeedback serviceTaskFeedback;
 
@@ -129,10 +129,10 @@ public class ImportAnalysis {
 	private Map<Integer, Phase> phases = null;
 
 	/** Map of AnalysisNorms */
-	private Map<Norm, AnalysisNorm> analysisNorms = null;
+	private Map<Standard, AnalysisStandard> analysisNorms = null;
 
 	/** Map of Norms */
-	private Map<String, Norm> norms = null;
+	private Map<String, Standard> norms = null;
 
 	/** Map of Measures */
 	private Map<String, Measure> measures = null;
@@ -1891,11 +1891,11 @@ public class ImportAnalysis {
 		double cost = 0;
 		Phase phase = null;
 		String query = "";
-		analysisNorms = new HashMap<Norm, AnalysisNorm>();
-		norms = new HashMap<String, Norm>();
+		analysisNorms = new HashMap<Standard, AnalysisStandard>();
+		norms = new HashMap<String, Standard>();
 		measures = new HashMap<String, Measure>();
-		AnalysisNorm analysisNorm = null;
-		Norm norm = null;
+		AnalysisStandard analysisNorm = null;
+		Standard norm = null;
 		String idMeasureNorm = "";
 		String description = "";
 		int normversion = 2005;
@@ -1933,9 +1933,9 @@ public class ImportAnalysis {
 
 			if (columnExists(rs, Constant.MEASURE_VERSION_NORM)) {
 				normversion = rs.getInt(Constant.MEASURE_VERSION_NORM);
-				normcomputable = rs.getBoolean(Constant.MEASURE_NORM_COMPUTABLE);
+				normcomputable = rs.getBoolean(Constant.MEASURE_STANDARD_COMPUTABLE);
 				measurecomputable = rs.getBoolean(Constant.MEASURE_MEASURE_COMPUTABLE);
-				description = rs.getString(Constant.MEASURE_NORM_DESCRIPTION);
+				description = rs.getString(Constant.MEASURE_STANDARD_DESCRIPTION);
 			} else {
 				normversion = 2005;
 				normcomputable = true;
@@ -1947,11 +1947,11 @@ public class ImportAnalysis {
 				}
 			}
 
-			norm = daoNorm.getNormByNameAndVersion(idMeasureNorm, normversion);
+			norm = daoNorm.getStandardByNameAndVersion(idMeasureNorm, normversion);
 			// norm is not in database create new norm and save in into
 			// database for future
 			if (norm == null) {
-				norm = new Norm(idMeasureNorm, normversion, description, normcomputable);
+				norm = new Standard(idMeasureNorm, normversion, description, normcomputable);
 				daoNorm.save(norm);
 				// add norm to map
 				norms.put(norm.getLabel() + "_" + norm.getVersion(), norm);
@@ -1964,7 +1964,7 @@ public class ImportAnalysis {
 			if (analysisNorm == null)
 
 				// add norm to analysisnorms map as new analysis norm
-				analysisNorms.put(norm, analysisNorm = new MeasureNorm(norm));
+				analysisNorms.put(norm, analysisNorm = new NormalStandard(norm));
 
 			// ****************************************************************
 			// * Import measure to database
@@ -1990,7 +1990,7 @@ public class ImportAnalysis {
 			measureRefMeasure = rs.getString(Constant.MEASURE_REF_MEASURE);
 
 			// get measure description from database
-			mesDesc = daoMeasureDescription.getByReferenceAndNorm(measureRefMeasure, norm);
+			mesDesc = daoMeasureDescription.getByReferenceAndStandard(measureRefMeasure, norm);
 
 			// measure description was found -> NO
 			if (mesDesc == null) {
@@ -2008,7 +2008,7 @@ public class ImportAnalysis {
 				mesDesc.addMeasureDescriptionText(mesText);
 
 				// fill measure description with data
-				mesDesc.setNorm(analysisNorm.getNorm());
+				mesDesc.setStandard(analysisNorm.getStandard());
 				mesDesc.setReference(measureRefMeasure);
 				mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
 
@@ -2062,7 +2062,7 @@ public class ImportAnalysis {
 
 			// retrieve id for the instance creation (NormMeasure ID)
 			// insertID = mysql.getLastInsertId();
-			NormMeasure normMeasure = new NormMeasure();
+			NormalMeasure normMeasure = new NormalMeasure();
 			normMeasure.setMeasureDescription(mesDesc);
 			if(rs.getString(Constant.MEASURE_REVISION)==null)
 				normMeasure.setComment("");
@@ -2133,7 +2133,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 
 			// add measure to norm
-			((MeasureNorm) analysisNorm).addMeasure(normMeasure);
+			((NormalStandard) analysisNorm).addMeasure(normMeasure);
 
 			// add measure to map
 			measures.put(idMeasureNorm + "_" + normversion + "_" + measureRefMeasure, normMeasure);
@@ -2158,7 +2158,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		NormMeasure normMeasure = null;
+		NormalMeasure normMeasure = null;
 
 		// ****************************************************************
 		// * create asset type default values in mysql database
@@ -2174,10 +2174,10 @@ public class ImportAnalysis {
 		for (Measure measure : measures.values()) {
 
 			// norm measure -> YES
-			if (measure instanceof NormMeasure) {
+			if (measure instanceof NormalMeasure) {
 
 				// store into object
-				normMeasure = (NormMeasure) measure;
+				normMeasure = (NormalMeasure) measure;
 
 				// ****************************************************************
 				// * for each norm: parse measures to find a 101 (-1) value
@@ -2353,10 +2353,10 @@ public class ImportAnalysis {
 		int numPhase = 0;
 		String chapter = "";
 		double cost = 0;
-		AnalysisNorm analysisNorm = null;
+		AnalysisStandard analysisNorm = null;
 		Phase tempPhase = null;
 		String status = "";
-		Norm norm = null;
+		Standard norm = null;
 		MeasureDescription mesDesc = null;
 		MeasureDescriptionText mesText = null;
 		Parameter implementationRateParameter = null;
@@ -2379,15 +2379,15 @@ public class ImportAnalysis {
 
 			currentSqliteTable = "maturities";
 			// retrieve norm from map
-			norm = norms.get(Constant.NORM_MATURITY);
+			norm = norms.get(Constant.STANDARD_MATURITY);
 
 			tempPhase = null;
 
 			if (columnExists(rs, Constant.MEASURE_VERSION_NORM)) {
 				normversion = rs.getInt(Constant.MEASURE_VERSION_NORM);
-				normcomputable = rs.getBoolean(Constant.MEASURE_NORM_COMPUTABLE);
+				normcomputable = rs.getBoolean(Constant.MEASURE_STANDARD_COMPUTABLE);
 				measurecomputable = rs.getBoolean(Constant.MEASURE_MEASURE_COMPUTABLE);
-				description = rs.getString(Constant.MEASURE_NORM_DESCRIPTION);
+				description = rs.getString(Constant.MEASURE_STANDARD_DESCRIPTION);
 			} else {
 				normversion = 2005;
 				normcomputable = true;
@@ -2399,11 +2399,11 @@ public class ImportAnalysis {
 				}
 			}
 
-			norm = daoNorm.getNormByNameAndVersion(Constant.NORM_MATURITY, normversion);
+			norm = daoNorm.getStandardByNameAndVersion(Constant.STANDARD_MATURITY, normversion);
 			// norm is not in database create new norm and save in into
 			// database for future
 			if (norm == null) {
-				norm = new Norm(Constant.NORM_MATURITY, normversion, description, normcomputable);
+				norm = new Standard(Constant.STANDARD_MATURITY, normversion, description, normcomputable);
 				daoNorm.save(norm);
 				// add norm to map
 				norms.put(norm.getLabel() + "_" + norm.getVersion(), norm);
@@ -2416,7 +2416,7 @@ public class ImportAnalysis {
 			if (analysisNorm == null)
 
 				// add norm to analysinorm map as analaysisnorm object
-				analysisNorms.put(norm, analysisNorm = new MaturityNorm(analysis, norm));
+				analysisNorms.put(norm, analysisNorm = new MaturityStandard(analysis, norm));
 
 			// ****************************************************************
 			// * retrieve measure description and implementation rate ID to
@@ -2431,7 +2431,7 @@ public class ImportAnalysis {
 			chapter = rs.getString(Constant.MATURITY_REF);
 
 			// retrieve measuredescription from database
-			mesDesc = daoMeasureDescription.getByReferenceAndNorm(chapter, analysisNorm.getNorm());
+			mesDesc = daoMeasureDescription.getByReferenceAndStandard(chapter, analysisNorm.getStandard());
 
 			// measure description does not exist
 			if (mesDesc == null) {
@@ -2449,7 +2449,7 @@ public class ImportAnalysis {
 				mesDesc.addMeasureDescriptionText(mesText);
 
 				// fill measure description data
-				mesDesc.setNorm(analysisNorm.getNorm());
+				mesDesc.setStandard(analysisNorm.getStandard());
 				mesDesc.setReference(chapter);
 				mesDesc.setLevel(rs.getInt(Constant.MEASURE_LEVEL));
 
@@ -2612,18 +2612,18 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add measure to norm
 			// ****************************************************************
-			((MaturityNorm) analysisNorm).addMeasure(maturityMeasure);
+			((MaturityStandard) analysisNorm).addMeasure(maturityMeasure);
 
 			// add measure to measures map
-			measures.put(analysisNorm.getNorm().getLabel() + "_" + analysisNorm.getNorm().getVersion() + "_" + chapter, maturityMeasure);
+			measures.put(analysisNorm.getStandard().getLabel() + "_" + analysisNorm.getStandard().getVersion() + "_" + chapter, maturityMeasure);
 		}
 
 		// close result
 		rs.close();
 
 		// add analysis norms from map to the analysis
-		for (AnalysisNorm analysisNorm2 : analysisNorms.values())
-			analysis.addAnalysisNorm(analysisNorm2);
+		for (AnalysisStandard analysisNorm2 : analysisNorms.values())
+			analysis.addAnalysisStandard(analysisNorm2);
 	}
 
 	/**
@@ -2877,7 +2877,7 @@ public class ImportAnalysis {
 		// * initialise variables
 		// ****************************************************************
 		ResultSet rs = null;
-		NormMeasure measure = null;
+		NormalMeasure measure = null;
 		String query = "";
 		AssetTypeValue assetTypeValue = null;
 		AssetType assetType = null;
@@ -2913,7 +2913,7 @@ public class ImportAnalysis {
 				normversion = rs.getInt(Constant.MEASURE_VERSION_NORM);
 			}
 
-			measure = (NormMeasure) measures.get(rs.getString(Constant.MEASURE_ID_NORM) + "_" + normversion + "_" + rs.getString(Constant.MEASURE_REF_MEASURE));
+			measure = (NormalMeasure) measures.get(rs.getString(Constant.MEASURE_ID_NORM) + "_" + normversion + "_" + rs.getString(Constant.MEASURE_REF_MEASURE));
 
 			// ****************************************************************
 			// * retrieve asset type label for the instance creation
@@ -2946,7 +2946,7 @@ public class ImportAnalysis {
 	 * 
 	 * @throws Exception
 	 */
-	private void updateAssetTypeValue(NormMeasure normMeasure, AssetTypeValue assetTypeValue) throws Exception {
+	private void updateAssetTypeValue(NormalMeasure normMeasure, AssetTypeValue assetTypeValue) throws Exception {
 
 		// ****************************************************************
 		// * initialise variables
@@ -2955,9 +2955,9 @@ public class ImportAnalysis {
 		boolean hasFound = false;
 		String previousLevel = "";
 		String level = normMeasure.getMeasureDescription().getReference();
-		String normName = normMeasure.getAnalysisNorm().getNorm().getLabel();
-		int normVersion = normMeasure.getAnalysisNorm().getNorm().getVersion();
-		NormMeasure prevNormMeasure = null;
+		String normName = normMeasure.getAnalysisStandard().getStandard().getLabel();
+		int normVersion = normMeasure.getAnalysisStandard().getStandard().getVersion();
+		NormalMeasure prevNormMeasure = null;
 		int value = -1;
 
 		// intitialise to original reference to split
@@ -3014,7 +3014,7 @@ public class ImportAnalysis {
 
 			// parse measures of the same norm
 
-			prevNormMeasure = (NormMeasure) measures.get(normName + "_" + normVersion + "_" + previousLevel);
+			prevNormMeasure = (NormalMeasure) measures.get(normName + "_" + normVersion + "_" + previousLevel);
 
 			// check if the reference met the reference that was built above ->
 			// YES
@@ -3099,7 +3099,7 @@ public class ImportAnalysis {
 		setDaoLanguage(new DAOLanguageHBM(session));
 		setDaoMeasureDescription(new DAOMeasureDescriptionHBM(session));
 		setDaoMeasureDescriptionText(new DAOMeasureDescriptionTextHBM(session));
-		setDaoNorm(new DAONormHBM(session));
+		setDaoNorm(new DAOStandardHBM(session));
 		setDaoParameterType(new DAOParameterTypeHBM(session));
 		setDaoScenarioType(new DAOScenarioTypeHBM(session));
 	}
@@ -3180,7 +3180,7 @@ public class ImportAnalysis {
 	 * @param daoNorm
 	 *            the daoNorm to set
 	 */
-	public void setDaoNorm(DAONorm daoNorm) {
+	public void setDaoNorm(DAOStandard daoNorm) {
 		this.daoNorm = daoNorm;
 	}
 

@@ -69,7 +69,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 */
 	public void setMeasurePropertyList(MeasureProperties measurePropertyList) throws TrickException {
 		if (measurePropertyList == null)
-			throw new TrickException("error.norm_measure.measure_property.empty", "Measure properties cannot be empty");
+			throw new TrickException("error.asset_measure.measure_property.empty", "Measure properties cannot be empty");
 		this.measurePropertyList = measurePropertyList;
 	}
 	
@@ -155,7 +155,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return Implementation Rate Value
 	 * @see lu.itrust.business.TS.Measure#getImplementationRateValue()
-	 * @see lu.itrust.business.TS.NormMeasure#getImplementationRate()
+	 * @see lu.itrust.business.TS.NormalMeasure#getImplementationRate()
 	 */
 	@Override
 	@Transient

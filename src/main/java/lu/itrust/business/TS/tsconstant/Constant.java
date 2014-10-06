@@ -161,7 +161,7 @@ public class Constant {
 	public static final String REGEXP_VALID_MATURITY_MEASURE_STATUS = "M|NA";
 
 	/** Norm Caption regular Expression */
-	public static final String REGEXP_VALID_NORM_NAME = "Maturity|2700[1-2]|[cC]ustom";
+	public static final String REGEXP_VALID_STANDARD_NAME = "Maturity|2700[1-2]|[cC]ustom";
 
 	/** Regular expression for Parameter types */
 	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPACT|IMPSCALE|MAXEFF|PROBA|SINGLE";
@@ -190,11 +190,11 @@ public class Constant {
 	 * List of Common Constants - BEGIN
 	 **********************************************************************************************/
 
-	/** AnalysisNorm names */
-	public static final String NORM_MATURITY = "Maturity";
-	public static final String NORM_27001 = "27001";
-	public static final String NORM_27002 = "27002";
-	public static final String NORM_CUSTOM = "Custom";
+	/** Standard names */
+	public static final String STANDARD_MATURITY = "Maturity";
+	public static final String STANDARD_27001 = "27001";
+	public static final String STANDARD_27002 = "27002";
+	public static final String STANDARD_CUSTOM = "Custom";
 
 	/** AnalysisNorm References */
 	public static final String MATURITY_REFERENCE = "M.";
@@ -491,15 +491,15 @@ public class Constant {
 	public static final String MEASUREDESCRIPTION_MYSQL_ID = "idMeasureDescription";
 	public final static String MEASUREDESCRIPTION_MYSQL_LEVEL = "dtLevel";
 	public final static String MEASUREDESCRIPTION_MYSQL_REFERENCE = "dtReference";
-	public final static String MEASUREDESCRIPTION_MYSQL_NORM_ID = "fiNorm";
+	public final static String MEASUREDESCRIPTION_MYSQL_STANDARD_ID = "fiStandard";
 
 	/** List of Constants for the MySQL Table "MeasureDescriptionText" */
 	public final static String MEASUREDESCRIPTIONTEXT_MYSQL_DOMAIN = "dtDomain";
 	public final static String MEASUREDESCRIPTIONTEXT_MYSQL_DESCRIPTION = "dtDescription";
 
 	/** List of Constants for the MySQL Table "AnalysisNorm" */
-	public final static String NORM_MYSQL_ID = "idNorm";
-	public final static String NORM_MYSQL_LABEL = "dtLabel";
+	public final static String STANDARD_MYSQL_ID = "idStandard";
+	public final static String STANDARD_MYSQL_LABEL = "dtLabel";
 
 	/** List of Constants for the MySQL Table "Phase" */
 	public final static String PHASE_MYSQL_ID = "idPhase";
@@ -625,9 +625,9 @@ public class Constant {
 	public static final String MEASURE_REF_MEASURE = "ref_measure";
 	public static final String MEASURE_ID_NORM = "id_norme";
 	public static final String MEASURE_VERSION_NORM = "version_norme";
-	public static final String MEASURE_NORM_COMPUTABLE = "norme_computable";
+	public static final String MEASURE_STANDARD_COMPUTABLE = "norme_computable";
 	public static final String MEASURE_MEASURE_COMPUTABLE = "measure_computable";
-	public static final String MEASURE_NORM_DESCRIPTION = "norme_description";
+	public static final String MEASURE_STANDARD_DESCRIPTION = "norme_description";
 	public static final String MEASURE_EXTERNAL_THREAT = "external_threat";
 	public static final String MEASURE_DESCRIPTION_LEVEL = "level";
 	public static final String MEASURE_DESCRIPTION_REF = "ref";

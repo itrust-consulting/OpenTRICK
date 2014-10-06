@@ -8,7 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 
 
 /** SummaryStandardConformance.java: <br>
@@ -28,8 +28,8 @@ public class SummaryStandardConformance {
 	private int id = -1;
 	
 	@ManyToOne 
-	@JoinColumn(name="fiAnalysisNorm", nullable=false)
-	private AnalysisNorm norm = null;
+	@JoinColumn(name="fiAnalysisStandard", nullable=false)
+	private AnalysisStandard analysisStandard = null;
 	
 	@Column(name="dtConformance", nullable=false)
 	private double conformance = 0;
@@ -46,8 +46,8 @@ public class SummaryStandardConformance {
 	 * @param norm
 	 * @param conformance
 	 */
-	public SummaryStandardConformance(AnalysisNorm norm, double conformance) {
-		this.norm = norm;
+	public SummaryStandardConformance(AnalysisStandard analysisStandard, double conformance) {
+		this.analysisStandard = analysisStandard;
 		this.conformance = conformance;
 	}
 	
@@ -75,8 +75,8 @@ public class SummaryStandardConformance {
 	 * 
 	 * @return The value of the analysisNorm field
 	 */
-	public AnalysisNorm getAnalysisNorm() {
-		return norm;
+	public AnalysisStandard getAnalysisStandard() {
+		return analysisStandard;
 	}
 
 	/** setAnalysisNorm: <br>
@@ -85,8 +85,8 @@ public class SummaryStandardConformance {
 	 * @param analysisNorm 
 	 * 			The Value to set the analysisNorm field
 	 */
-	public void setAnalysisNorm(AnalysisNorm norm) {
-		this.norm = norm;
+	public void setAnalysisStandard(AnalysisStandard analysisStandard) {
+		this.analysisStandard = analysisStandard;
 	}
 
 	/** getConformance: <br>

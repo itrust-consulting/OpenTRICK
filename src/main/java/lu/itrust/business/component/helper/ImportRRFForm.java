@@ -13,7 +13,7 @@ public class ImportRRFForm {
 
 	private int profile;
 	
-	private List<Integer> norms;
+	private List<Integer> standards;
 	
 	/**
 	 * 
@@ -29,11 +29,11 @@ public class ImportRRFForm {
 		this.profile = profile;
 	}
 
-	public List<Integer> getNorms() {
-		return norms;
+	public List<Integer> getStandards() {
+		return standards;
 	}
 
-	public void setNorms(List<Integer> norms) {
-		this.norms = norms;
+	public void setStandards(List<Integer> standards) {
+		this.standards = standards;
 	}
 }

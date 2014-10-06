@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ComparatorMeasureDescription;
 import lu.itrust.business.component.CustomDelete;
@@ -23,7 +23,7 @@ import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceMeasureDescription;
 import lu.itrust.business.service.ServiceMeasureDescriptionText;
-import lu.itrust.business.service.ServiceNorm;
+import lu.itrust.business.service.ServiceStandard;
 import lu.itrust.business.validator.MeasureDescriptionTextValidator;
 import lu.itrust.business.validator.MeasureDescriptionValidator;
 import lu.itrust.business.validator.field.ValidatorField;
@@ -60,7 +60,7 @@ public class ControllerMeasureDescription {
 	private ServiceMeasureDescriptionText serviceMeasureDescriptionText;
 
 	@Autowired
-	private ServiceNorm serviceNorm;
+	private ServiceStandard serviceStandard;
 
 	@Autowired
 	private ServiceLanguage serviceLanguage;
@@ -81,18 +81,18 @@ public class ControllerMeasureDescription {
 	 * displayAll: <br>
 	 * Description
 	 * 
-	 * @param normId
-	 * @param value
+	 * @param idStandard
+	 * @param idLanguage
 	 * @param request
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("KnowledgeBase/Norm/{normId}/language/{idLanguage}/Measures")
-	public String displayAll(@PathVariable int normId, @PathVariable int idLanguage, HttpServletRequest request, Model model) throws Exception {
+	@RequestMapping("KnowledgeBase/Standard/{idStandard}/Language/{idLanguage}/Measures")
+	public String displayAll(@PathVariable int idStandard, @PathVariable int idLanguage, HttpServletRequest request, Model model) throws Exception {
 
-		// load all measuredescriptions of a norm
-		List<MeasureDescription> mesDescs = serviceMeasureDescription.getAllByNorm(normId);
+		// load all measuredescriptions of a standard
+		List<MeasureDescription> mesDescs = serviceMeasureDescription.getAllByStandard(idStandard);
 
 		// chekc if measuredescriptions are not null
 		if (mesDescs != null) {
@@ -131,7 +131,7 @@ public class ControllerMeasureDescription {
 			// put data to model
 			model.addAttribute("selectedLanguage", lang);
 			model.addAttribute("languages", serviceLanguage.getAll());
-			model.addAttribute("norm", serviceNorm.get(normId));
+			model.addAttribute("standard", serviceStandard.get(idStandard));
 			model.addAttribute("measureDescriptions", mesDescs);
 		}
 		return "knowledgebase/standard/measure/measures";
@@ -141,18 +141,18 @@ public class ControllerMeasureDescription {
 	 * displayAll: <br>
 	 * Description
 	 * 
-	 * @param normId
+	 * @param idStandard
 	 * @param value
 	 * @param request
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("KnowledgeBase/Norm/{normId}/language/{idLanguage}/Measures/{idMeasure}")
-	public String displaySingle(@PathVariable int normId, @PathVariable int idLanguage, @PathVariable int idMeasure, HttpServletRequest request, HttpServletResponse response,
+	@RequestMapping("KnowledgeBase/Standard/{idStandard}/Language/{idLanguage}/Measures/{idMeasure}")
+	public String displaySingle(@PathVariable int idStandard, @PathVariable int idLanguage, @PathVariable int idMeasure, HttpServletRequest request, HttpServletResponse response,
 			Model model, Locale locale) throws Exception {
 
-		// load all measuredescriptions of a norm
+		// load all measuredescriptions of a standard
 		MeasureDescription mesDesc = serviceMeasureDescription.get(idMeasure);
 
 		// chekc if measuredescriptions are not null
@@ -170,7 +170,7 @@ public class ControllerMeasureDescription {
 			MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(mesDesc.getId(), lang.getId());
 
 			// put data to model
-			model.addAttribute("norm", serviceNorm.get(normId));
+			model.addAttribute("standard", serviceStandard.get(idStandard));
 			model.addAttribute("measureDescription", mesDesc);
 			model.addAttribute("measureDescriptionText", mesDescText);
 		}
@@ -185,15 +185,15 @@ public class ControllerMeasureDescription {
 	 * displayAddForm: <br>
 	 * Description
 	 * 
-	 * @param normId
+	 * @param idStandard
 	 * @param value
 	 * @param request
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures/Add")
-	public String displayAddForm(@PathVariable("normId") Integer normId, HttpServletRequest request, Model model) throws Exception {
+	@RequestMapping("KnowledgeBase/Standard/{idStandard}/Measures/Add")
+	public String displayAddForm(@PathVariable("idStandard") Integer idStandard, HttpServletRequest request, Model model) throws Exception {
 
 		// load all languages
 		List<Language> languages = serviceLanguage.getAll();
@@ -213,21 +213,21 @@ public class ControllerMeasureDescription {
 	 * displayEditForm: <br>
 	 * Description
 	 * 
-	 * @param normId
+	 * @param idStandard
 	 * @param value
 	 * @param request
 	 * @param model
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("KnowledgeBase/Norm/{normId}/Measures/{measureId}/Edit")
-	public String displayEditForm(@PathVariable("normId") Integer normId, @PathVariable int measureId, HttpServletRequest request, Model model) throws Exception {
+	@RequestMapping("KnowledgeBase/Standard/{idStandard}/Measures/{idMeasure}/Edit")
+	public String displayEditForm(@PathVariable("idStandard") Integer idStandard, @PathVariable int idMeasure, HttpServletRequest request, Model model) throws Exception {
 
 		// load all languages
 		List<Language> languages = serviceLanguage.getAll();
 
 		// load measuredescriptiontexts of measuredescription
-		List<MeasureDescriptionText> mesDesc = serviceMeasureDescription.get(measureId).getMeasureDescriptionTexts();
+		List<MeasureDescriptionText> mesDesc = serviceMeasureDescription.get(idMeasure).getMeasureDescriptionTexts();
 
 		MeasureDescription md = null;
 
@@ -270,15 +270,15 @@ public class ControllerMeasureDescription {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @param normId
+	 * @param idStandard
 	 * @param value
 	 * @param session
 	 * @param principal
 	 * @param locale
 	 * @return
 	 */
-	@RequestMapping(value = "KnowledgeBase/Norm/{normId}/Measures/Save", method = RequestMethod.POST, headers = "Accept=application/json")
-	public @ResponseBody Map<String, String> save(@PathVariable("normId") int normId, @RequestBody String value, Locale locale) {
+	@RequestMapping(value = "KnowledgeBase/Standard/{idStandard}/Measures/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody Map<String, String> save(@PathVariable("idStandard") int idStandard, @RequestBody String value, Locale locale) {
 		// create error list
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 		try {
@@ -293,13 +293,13 @@ public class ControllerMeasureDescription {
 			MeasureDescription measureDescription = serviceMeasureDescription.get(id);
 
 			if (measureDescription == null) {
-				// retrieve norm
+				// retrieve standard
 				measureDescription = new MeasureDescription();
-				Norm norm = serviceNorm.get(normId);
-				if (norm == null)
+				Standard standard = serviceStandard.get(idStandard);
+				if (standard == null)
 					errors.put("measureDescription.norm", messageSource.getMessage("error.norm.not_found", null, "Standard is not exist", locale));
-				measureDescription.setNorm(norm);
-			} else if (measureDescription.getNorm().getId() != normId)
+				measureDescription.setStandard(standard);
+			} else if (measureDescription.getStandard().getId() != idStandard)
 				errors.put("measureDescription.norm",
 						messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
 
@@ -329,18 +329,18 @@ public class ControllerMeasureDescription {
 	 * deleteMeasureDescription: <br>
 	 * Description
 	 * 
-	 * @param normId
+	 * @param idStandard
 	 * @param measureid
 	 * @param locale
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "KnowledgeBase/Norm/{normId}/Measures/Delete/{measureid}", method = RequestMethod.POST, headers = "Accept=application/json")
-	public @ResponseBody String deleteMeasureDescription(@PathVariable("normId") int normId, @PathVariable("measureid") int measureid, Locale locale) {
+	@RequestMapping(value = "KnowledgeBase/Standard/{idStandard}/Measures/Delete/{idMeasure}", method = RequestMethod.POST, headers = "Accept=application/json")
+	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale) {
 		try {
 			// try to delete measure
-			MeasureDescription measureDescription = serviceMeasureDescription.get(measureid);
-			if (measureDescription == null || measureDescription.getNorm().getId() != normId)
+			MeasureDescription measureDescription = serviceMeasureDescription.get(idMeasure);
+			if (measureDescription == null || measureDescription.getStandard().getId() != idStandard)
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 			customDelete.delete(measureDescription);
 			// return success message
@@ -386,7 +386,7 @@ public class ControllerMeasureDescription {
 			if (error != null)
 				errors.put("measuredescription.reference", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
-				if (measuredescription.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndNorm(reference, measuredescription.getNorm()))
+				if (measuredescription.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndStandard(reference, measuredescription.getStandard()))
 					errors.put("measuredescription.reference",
 							messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
 				else
@@ -458,7 +458,7 @@ public class ControllerMeasureDescription {
 				else
 					mesDescText.setDomain(domain);
 
-				if (level == 3 && !(measuredescription.getNorm().getLabel().equals("27001") && measuredescription.getNorm().getVersion() == 2013))
+				if (level == 3 && !(measuredescription.getStandard().getLabel().equals("27001") && measuredescription.getStandard().getVersion() == 2013))
 					error = validator.validate(mesDescText, "description", description);
 				else
 					error = null;

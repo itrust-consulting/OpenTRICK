@@ -19,7 +19,7 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 
 import lu.itrust.business.TS.Analysis;
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.ExtendedParameter;
@@ -602,7 +602,7 @@ public class ExportAnalysisReport {
 
 		// run = paragraph.getRuns().get(0);
 
-		List<AnalysisNorm> anorms = analysis.getAnalysisNorms();
+		List<AnalysisStandard> anorms = analysis.getAnalysisStandards();
 
 		if (paragraph != null && anorms.size() > 0) {
 
@@ -611,7 +611,7 @@ public class ExportAnalysisReport {
 
 			boolean isFirst = true;
 
-			for (AnalysisNorm anorm : anorms) {
+			for (AnalysisStandard anorm : anorms) {
 
 				// initialise table with 1 row and 1 column after the paragraph
 				// cursor
@@ -641,7 +641,7 @@ public class ExportAnalysisReport {
 
 				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(14));
 
-				row.getCell(0).setText(anorm.getNorm().getLabel());
+				row.getCell(0).setText(anorm.getStandard().getLabel());
 
 				row = table.createRow();
 
@@ -1003,7 +1003,7 @@ public class ExportAnalysisReport {
 				Hibernate.initialize(entry.getMeasure());
 				Hibernate.initialize(entry.getActionPlanAssets());
 				row.getCell(0).setText("" + nr);
-				row.getCell(1).setText(entry.getMeasure().getAnalysisNorm().getNorm().getLabel());
+				row.getCell(1).setText(entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
 				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
 				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
 				paragraph = addCellParagraph(row.getCell(3), descriptionText == null ? "" : descriptionText.getDomain() + ":");

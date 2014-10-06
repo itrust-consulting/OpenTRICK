@@ -14,7 +14,7 @@ import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Language;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
@@ -252,9 +252,9 @@ public class ControllerScenario {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String rrf(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		List<NormMeasure> normMeasures = serviceMeasure.getAllNormMeasuresFromAnalysisAndComputable(idAnalysis);
+		List<NormalMeasure> normalMeasures = serviceMeasure.getAllNormalMeasuresFromAnalysisAndComputable(idAnalysis);
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(idAnalysis);
-		model.addAttribute("measures", MeasureManager.SplitByChapter(normMeasures));
+		model.addAttribute("measures", MeasureManager.SplitByChapter(normalMeasures));
 		model.addAttribute("categories", CategoryConverter.JAVAKEYS);
 		model.addAttribute("scenarios", ScenarioManager.SplitByType(scenarios));
 		model.addAttribute("assetTypes", serviceAssetType.getAll());

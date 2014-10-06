@@ -57,7 +57,7 @@ public class ActionPlanSummaryManager {
 		rows.add(LABEL_PHASE_BEGIN_DATE);
 		rows.add(LABEL_PHASE_END_DATE);
 		for (SummaryStandardConformance conformance : conformances)
-			rows.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisNorm().getNorm().getLabel());
+			rows.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
 		rows.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
 		rows.add(LABEL_PROFITABILITY);
@@ -163,7 +163,7 @@ public class ActionPlanSummaryManager {
 
 			for (SummaryStandardConformance conformance : summaryStage.getConformances()) {
 
-				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisNorm().getNorm().getLabel());
+				summary = summaries.get(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
 				summary.add(index, (int) (conformance.getConformance() * 100) + "");
 
 			}
@@ -267,7 +267,7 @@ public class ActionPlanSummaryManager {
 		result.add(LABEL_PHASE_BEGIN_DATE);
 		result.add(LABEL_PHASE_END_DATE);
 		for (SummaryStandardConformance conformance : conformances)
-			result.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisNorm().getNorm().getLabel());
+			result.add(LABEL_CHARACTERISTIC_COMPLIANCE + conformance.getAnalysisStandard().getStandard().getLabel());
 		result.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE);
 		result.add(LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED);
 		result.add(LABEL_PROFITABILITY);
@@ -314,7 +314,7 @@ public class ActionPlanSummaryManager {
 		if(data.startsWith(LABEL_CHARACTERISTIC_COMPLIANCE)) {
 
 			for (SummaryStandardConformance conformance : stage.getConformances())
-				if(data.equals(LABEL_CHARACTERISTIC_COMPLIANCE+conformance.getAnalysisNorm().getNorm().getLabel()))
+				if(data.equals(LABEL_CHARACTERISTIC_COMPLIANCE+conformance.getAnalysisStandard().getStandard().getLabel()))
 					value.put(colnumber, conformance.getConformance());
 			return;
 		}

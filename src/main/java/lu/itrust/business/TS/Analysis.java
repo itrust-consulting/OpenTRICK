@@ -39,11 +39,10 @@ import org.hibernate.annotations.CascadeType;
 
 /**
  * Analysis: <br>
- * This class represents an analysis and all its data of TRICK Service. This
- * class is used to store analysis data such as assets, scenarios, security
- * measures, item information, risk information, the version, parameters and
- * phases. After the data is stored, the action plan can be computed within this
- * class as well as the Action Plan Summary.
+ * This class represents an analysis and all its data of TRICK Service. This class is used to store
+ * analysis data such as assets, scenarios, security measures, item information, risk information,
+ * the version, parameters and phases. After the data is stored, the action plan can be computed
+ * within this class as well as the Action Plan Summary.
  * <ul>
  * <li>import Analysis from SQLite file</li>
  * <li>store analysis in java object to use during the calculations</li>
@@ -58,7 +57,7 @@ import org.hibernate.annotations.CascadeType;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints=@UniqueConstraint(columnNames = {"dtIdentifier", "dtVersion", "dtCreationDate"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion", "dtCreationDate" }))
 public class Analysis implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -70,150 +69,151 @@ public class Analysis implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** Analysis id unsaved value = -1 */
-	@Id @GeneratedValue
-	@Column(name="idAnalysis")
+	@Id
+	@GeneratedValue
+	@Column(name = "idAnalysis")
 	private int id = -1;
 
 	/** ID of the Analysis */
-	@Column(name="dtIdentifier", nullable=false, length=23)
+	@Column(name = "dtIdentifier", nullable = false, length = 23)
 	private String identifier;
 
 	/** Version of the Analysis */
-	@Column(name="dtVersion", nullable=false, length=12)
+	@Column(name = "dtVersion", nullable = false, length = 12)
 	private String version;
 
 	/** Creation Date of the Analysis (and a specific version) */
-	@Column(name="dtCreationDate", nullable=false, columnDefinition="datetime")
+	@Column(name = "dtCreationDate", nullable = false, columnDefinition = "datetime")
 	private Timestamp creationDate;
 
-	@Column(name="dtProfile", nullable=false, columnDefinition="TINYINT(1)")
+	@Column(name = "dtProfile", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean profile = false;
 
-	@Column(name="dtDefaultProfile", nullable=false, columnDefinition="TINYINT(1)")
+	@Column(name = "dtDefaultProfile", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean defaultProfile = false;
 
 	/** The Customer object */
 	@Access(AccessType.FIELD)
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="fiCustomer", nullable=false)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "fiCustomer", nullable = false)
 	private Customer customer;
-	
+
 	/** Analysis owner (the one that created or imported it) */
 	@ManyToOne
-	@JoinColumn(name="fiOwner", nullable=false)
+	@JoinColumn(name = "fiOwner", nullable = false)
 	private User owner;
 
 	/** Based on analysis */
 	@Access(AccessType.FIELD)
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="fiBasedOnAnalysis", nullable=true)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "fiBasedOnAnalysis", nullable = true)
 	private Analysis basedOnAnalysis;
 
 	/** The Label of this Analysis */
-	@Column(name="dtLabel", nullable=false)
+	@Column(name = "dtLabel", nullable = false)
 	@Access(AccessType.FIELD)
 	private String label;
 
 	/** Language object of the Analysis */
 	@ManyToOne
-	@JoinColumn(name="fiLanguage", nullable=false)
+	@JoinColumn(name = "fiLanguage", nullable = false)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private Language language;
 
 	/** flag to determine if analysis has data */
-	@Column(name="dtData", nullable=false, columnDefinition="TINYINT(1)")
+	@Column(name = "dtData", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean data;
 
 	/** List of users and their access rights */
-	@OneToMany(mappedBy="analysis")
+	@OneToMany(mappedBy = "analysis")
 	@Access(AccessType.FIELD)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
 
-	@OneToMany 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<AnalysisSetting> analysisSettings = new ArrayList<AnalysisSetting>();
-	
+
 	/** List of History data of the Analysis */
-	@OneToMany 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<History> histories = new ArrayList<History>();
 
 	/** List of Item Information */
-	@OneToMany 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
 
 	/** List of parameters */
-	@OneToMany 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	private List<Parameter> parameters = new ArrayList<Parameter>();
 
 	/** List of assets */
-	@OneToMany 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade({CascadeType.ALL, CascadeType.DELETE})
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade({ CascadeType.ALL, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	@OrderBy("value DESC, ALE DESC, name ASC")
 	private List<Asset> assets = new ArrayList<Asset>();
 
 	/** List of Risk Information */
-	@OneToMany 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	private List<RiskInformation> riskInformations = new ArrayList<RiskInformation>();
 
 	/** List of Scenarios */
-	@OneToMany 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	@OrderBy("scenarioType.id, name")
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
 
 	/** List of Assessment */
-	@OneToMany 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	private List<Assessment> assessments = new ArrayList<Assessment>();
 
 	/** List of Norms */
-	@OneToMany(mappedBy="analysis") 
-	@OrderBy("norm")
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
-	private List<AnalysisNorm> analysisNorms = new ArrayList<AnalysisNorm>();
+	@OneToMany(mappedBy = "analysis")
+	@OrderBy("standard")
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	private List<AnalysisStandard> analysisStandards = new ArrayList<AnalysisStandard>();
 
 	/** List of Phases that is used for Action Plan Computation */
-	@OneToMany(mappedBy="analysis")
+	@OneToMany(mappedBy = "analysis")
 	@OrderBy("number")
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<Phase> usedPhases = new ArrayList<Phase>();
 
 	/** The Final Action Plan without Phase Computation - Normal */
-	@OneToMany 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
 
 	/** The Action Plan Summary without Phase Computation - Normal */
-	@OneToMany(mappedBy="analysis")
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany(mappedBy = "analysis")
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
 
 	/** The Risk Register (CSSF) */
-	@OneToMany 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
 
@@ -335,8 +335,7 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getLatestVersion: <br>
-	 * Parse all history entries to find latest version (version has to be of
-	 * format xx.xx.xx)
+	 * Parse all history entries to find latest version (version has to be of format xx.xx.xx)
 	 * 
 	 * @return
 	 */
@@ -387,9 +386,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * calculateRRF: <br>
-	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a
-	 * given measure, given Scenario and given Asset (asset and scenario
-	 * together: assessment) values.
+	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a given measure, given
+	 * Scenario and given Asset (asset and scenario together: assessment) values.
 	 * 
 	 * @param tmpAssessment
 	 *            The Assessment to take Values to calculate
@@ -401,7 +399,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @return The Calculated RRF
 	 * @throws TrickException
 	 */
-	public static double calculateRRF(Assessment tmpAssessment, List<Parameter> parameters, NormMeasure measure) throws TrickException {
+	public static double calculateRRF(Assessment tmpAssessment, List<Parameter> parameters, NormalMeasure measure) throws TrickException {
 
 		// ****************************************************************
 		// * retrieve tuning value
@@ -425,9 +423,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * calculateRRF: <br>
-	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a
-	 * given measure, given Scenario and given Asset (asset and scenario
-	 * together: assessment) values.
+	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a given measure, given
+	 * Scenario and given Asset (asset and scenario together: assessment) values.
 	 * 
 	 * @param tmpAssessment
 	 *            The Assessment to take Values to calculate
@@ -460,12 +457,11 @@ public class Analysis implements Serializable, Cloneable {
 		}
 		return calculateRRFAssetMeasure(tmpAssessment.getScenario(), tmpAssessment.getAsset(), parameter, measure);
 	}
-	
+
 	/**
 	 * calculateRRF: <br>
-	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a
-	 * given measure, given Scenario and given Asset (asset and scenario
-	 * together: assessment) values.
+	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a given measure, given
+	 * Scenario and given Asset (asset and scenario together: assessment) values.
 	 * 
 	 * @param scenario
 	 *            The scenario to take Values to calculate
@@ -530,8 +526,7 @@ public class Analysis implements Serializable, Cloneable {
 		strength = strength / 40.;
 
 		if (Double.isNaN(source))
-			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menance source for scenario (%s)", scenario.getName()),
-					scenario.getName());
+			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menance source for scenario (%s)", scenario.getName()), scenario.getName());
 
 		// ****************************************************************
 		// * Category calculation
@@ -539,34 +534,32 @@ public class Analysis implements Serializable, Cloneable {
 		category = calculateRRFCategory(measure.getMeasurePropertyList(), scenario);
 
 		if (Double.isNaN(category))
-			throw new TrickException("error.analysis.rrf.scenario.category.nan", String.format("RRF computation: please check categories for scenario (%s)", scenario.getName()),
-					scenario.getName());
+			throw new TrickException("error.analysis.rrf.scenario.category.nan", String.format("RRF computation: please check categories for scenario (%s)", scenario.getName()), scenario.getName());
 
 		// ****************************************************************
 		// * Type calculation
 		// ****************************************************************
-		type = ((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive())
+		type =
+			((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive())
 				+ (measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective())) / 4.;
 
 		if (Double.isNaN(type))
-			throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number",
-					scenario.getName(), measure.getMeasureDescription().getReference(), measure.getAnalysisNorm().getNorm().getLabel()), scenario.getName(), measure
-					.getMeasureDescription().getReference(), measure.getAnalysisNorm().getNorm().getLabel());
+			throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number", scenario.getName(), measure
+					.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel()), scenario.getName(), measure.getMeasureDescription().getReference(), measure
+					.getAnalysisStandard().getStandard().getLabel());
 
 		// ****************************************************************
 		// * Source calculation
 		// ****************************************************************
-		source = (measure.getMeasurePropertyList().getIntentional() * scenario.getIntentional()) + (measure.getMeasurePropertyList().getAccidental() * scenario.getAccidental())
-				+ (measure.getMeasurePropertyList().getEnvironmental() * scenario.getEnvironmental())
-				+ (measure.getMeasurePropertyList().getInternalThreat() * scenario.getInternalThreat())
+		source =
+			(measure.getMeasurePropertyList().getIntentional() * scenario.getIntentional()) + (measure.getMeasurePropertyList().getAccidental() * scenario.getAccidental())
+				+ (measure.getMeasurePropertyList().getEnvironmental() * scenario.getEnvironmental()) + (measure.getMeasurePropertyList().getInternalThreat() * scenario.getInternalThreat())
 				+ (measure.getMeasurePropertyList().getExternalThreat() * scenario.getExternalThreat());
 
-		source = source
-				/ (4. * (double) (scenario.getIntentional() + scenario.getAccidental() + scenario.getEnvironmental() + scenario.getInternalThreat() + scenario.getExternalThreat()));
+		source = source / (4. * (double) (scenario.getIntentional() + scenario.getAccidental() + scenario.getEnvironmental() + scenario.getInternalThreat() + scenario.getExternalThreat()));
 
 		if (Double.isNaN(source))
-			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menace source for scenario (%s)", scenario.getName()),
-					scenario.getName());
+			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menace source for scenario (%s)", scenario.getName()), scenario.getName());
 
 		// ****************************************************************
 		// * RRF completion :
@@ -593,12 +586,11 @@ public class Analysis implements Serializable, Cloneable {
 		// ****************************************************************
 		return RRF;
 	}
-	
+
 	/**
 	 * calculateRRF: <br>
-	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a
-	 * given measure, given Scenario and given Asset (asset and scenario
-	 * together: assessment) values.
+	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a given measure, given
+	 * Scenario and given Asset (asset and scenario together: assessment) values.
 	 * 
 	 * @param scenario
 	 *            The scenario to take Values to calculate
@@ -611,7 +603,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @return The Calculated RRF
 	 * @throws TrickException
 	 */
-	public static double calculateRRF(Scenario scenario, AssetType assetType, Parameter parameter, NormMeasure measure) throws TrickException {
+	public static double calculateRRF(Scenario scenario, AssetType assetType, Parameter parameter, NormalMeasure measure) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -663,8 +655,7 @@ public class Analysis implements Serializable, Cloneable {
 		strength = strength / 40.;
 
 		if (Double.isNaN(source))
-			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menance source for scenario (%s)", scenario.getName()),
-					scenario.getName());
+			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menance source for scenario (%s)", scenario.getName()), scenario.getName());
 
 		// ****************************************************************
 		// * Category calculation
@@ -672,34 +663,32 @@ public class Analysis implements Serializable, Cloneable {
 		category = calculateRRFCategory(measure.getMeasurePropertyList(), scenario);
 
 		if (Double.isNaN(category))
-			throw new TrickException("error.analysis.rrf.scenario.category.nan", String.format("RRF computation: please check categories for scenario (%s)", scenario.getName()),
-					scenario.getName());
+			throw new TrickException("error.analysis.rrf.scenario.category.nan", String.format("RRF computation: please check categories for scenario (%s)", scenario.getName()), scenario.getName());
 
 		// ****************************************************************
 		// * Type calculation
 		// ****************************************************************
-		type = ((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive())
+		type =
+			((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive())
 				+ (measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective())) / 4.;
 
 		if (Double.isNaN(type))
-			throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number",
-					scenario.getName(), measure.getMeasureDescription().getReference(), measure.getAnalysisNorm().getNorm().getLabel()), scenario.getName(), measure
-					.getMeasureDescription().getReference(), measure.getAnalysisNorm().getNorm().getLabel());
+			throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number", scenario.getName(), measure
+					.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel()), scenario.getName(), measure.getMeasureDescription().getReference(), measure
+					.getAnalysisStandard().getStandard().getLabel());
 
 		// ****************************************************************
 		// * Source calculation
 		// ****************************************************************
-		source = (measure.getMeasurePropertyList().getIntentional() * scenario.getIntentional()) + (measure.getMeasurePropertyList().getAccidental() * scenario.getAccidental())
-				+ (measure.getMeasurePropertyList().getEnvironmental() * scenario.getEnvironmental())
-				+ (measure.getMeasurePropertyList().getInternalThreat() * scenario.getInternalThreat())
+		source =
+			(measure.getMeasurePropertyList().getIntentional() * scenario.getIntentional()) + (measure.getMeasurePropertyList().getAccidental() * scenario.getAccidental())
+				+ (measure.getMeasurePropertyList().getEnvironmental() * scenario.getEnvironmental()) + (measure.getMeasurePropertyList().getInternalThreat() * scenario.getInternalThreat())
 				+ (measure.getMeasurePropertyList().getExternalThreat() * scenario.getExternalThreat());
 
-		source = source
-				/ (4. * (double) (scenario.getIntentional() + scenario.getAccidental() + scenario.getEnvironmental() + scenario.getInternalThreat() + scenario.getExternalThreat()));
+		source = source / (4. * (double) (scenario.getIntentional() + scenario.getAccidental() + scenario.getEnvironmental() + scenario.getInternalThreat() + scenario.getExternalThreat()));
 
 		if (Double.isNaN(source))
-			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menace source for scenario (%s)", scenario.getName()),
-					scenario.getName());
+			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menace source for scenario (%s)", scenario.getName()), scenario.getName());
 
 		// ****************************************************************
 		// * RRF completion :
@@ -730,8 +719,8 @@ public class Analysis implements Serializable, Cloneable {
 	/**
 	 * calculateRRFCategory: <br>
 	 * RRF Category calculation Returns SUM(Rm*RiS)/4*SUM(Rs): R =
-	 * RISK(CONFIDENTIALITY,AVAILABILITY,INTEGRITY,Direct[1-7], Indirect[1-10]),
-	 * M=MeasureProperties and S=scenario
+	 * RISK(CONFIDENTIALITY,AVAILABILITY,INTEGRITY,Direct[1-7], Indirect[1-10]), M=MeasureProperties
+	 * and S=scenario
 	 * 
 	 * @param properties
 	 *            MeasureProperties
@@ -774,8 +763,8 @@ public class Analysis implements Serializable, Cloneable {
 
 		// check if not Division by 0
 		if (categoryDenominator == 0) {
-			throw new TrickException("error.scenario.rrf.compute.arithmetic_denominator_zero", String.format("Please check scenario (%s) data: RRF is not a number",
-					scenario.getName()), scenario.getName());
+			throw new TrickException("error.scenario.rrf.compute.arithmetic_denominator_zero", String.format("Please check scenario (%s) data: RRF is not a number", scenario.getName()), scenario
+					.getName());
 		}
 
 		// **************************************************************
@@ -822,8 +811,9 @@ public class Analysis implements Serializable, Cloneable {
 		lifetimeDefault = this.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(),
-				measure.getLifetime(), measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
+		cost =
+			Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime(), measure
+					.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment());
 
 		// return calculated cost
 		return cost;
@@ -841,9 +831,8 @@ public class Analysis implements Serializable, Cloneable {
 	 * ew: The External Workload in Man Days<br>
 	 * in: The Investment in Euro<br>
 	 * lt: The Lifetime in Years :: if 0 -> use The Default LifeTime in Years<br>
-	 * ma: The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 =
-	 * 100%) :: if 0 -> use The Default Maintenance in Percentage (0,00 - 1,00
-	 * WHERE 0,00 = 0% and 0,1 = 100%)
+	 * ma: The Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%) :: if 0 -> use
+	 * The Default Maintenance in Percentage (0,00 - 1,00 WHERE 0,00 = 0% and 0,1 = 100%)
 	 * 
 	 * @param internalSetup
 	 * 
@@ -866,8 +855,8 @@ public class Analysis implements Serializable, Cloneable {
 	 * @return The Calculated Cost
 	 */
 	@Deprecated
-	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double maintenance,
-			double internalWorkLoad, double externalWorkLoad, double investment, double lifetime) {
+	public static final double computeCost(double internalSetup, double externalSetup, double lifetimeDefault, double maintenanceDefault, double maintenance, double internalWorkLoad,
+			double externalWorkLoad, double investment, double lifetime) {
 
 		// ****************************************************************
 		// * variable initialisation
@@ -916,13 +905,11 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * computeCost: <br>
-	 * Returns the Calculated Cost of a Measure. This method does no more need
-	 * the parameter default maintenance, but needs to get the internal and
-	 * external maintenance in md as well as the recurrent investment per year
-	 * in keuro. <br>
+	 * Returns the Calculated Cost of a Measure. This method does no more need the parameter default
+	 * maintenance, but needs to get the internal and external maintenance in md as well as the
+	 * recurrent investment per year in keuro. <br>
 	 * Formula used:<br>
-	 * Cost = ((ir * iw) + (er * ew) + in) * ((1 / lt) + ((im * ir) + (em * er)
-	 * + ri))<br>
+	 * Cost = ((ir * iw) + (er * ew) + in) * ((1 / lt) + ((im * ir) + (em * er) + ri))<br>
 	 * With:<br>
 	 * ir: The Internal Setup Rate in Euro per Man Day<br>
 	 * iw: The Internal Workload in Man Days<br>
@@ -985,6 +972,28 @@ public class Analysis implements Serializable, Cloneable {
 	 * Computation of Measure Cost - END
 	 **********************************************************************************************/
 
+	public List<NormalStandard> getAllNormalStandards() {
+		List<NormalStandard> normalStandards = new ArrayList<NormalStandard>();
+		for(AnalysisStandard standard : analysisStandards)
+			if(standard.getStandard().getClass().isAssignableFrom(NormalStandard.class))
+				normalStandards.add((NormalStandard) standard);
+		return normalStandards;
+	}
+	
+	public MaturityStandard getMaturityStandard(){
+		for(AnalysisStandard standard : analysisStandards)
+			if(standard.getStandard().getClass().isAssignableFrom(MaturityStandard.class))
+				return (MaturityStandard) standard;
+		return null;
+	}
+	
+	public AssetStandard getAssetStandard(){
+		for(AnalysisStandard standard : analysisStandards)
+			if(standard.getStandard().getClass().isAssignableFrom(AssetStandard.class))
+				return (AssetStandard) standard;
+		return null;
+	}
+	
 	/**
 	 * initialisePhases: <br>
 	 * Creates the Phase List "usedPhases" from Measures
@@ -1000,134 +1009,69 @@ public class Analysis implements Serializable, Cloneable {
 		// * initialise variables
 		// ****************************************************************
 		List<Phase> tmpPhases = new ArrayList<Phase>();
-		MaturityNorm maturityNorm = null;
-		MaturityMeasure maturityMeasure = null;
-		boolean phaseFound = false;
-		MeasureNorm measureNorm = null;
-		NormMeasure normMeasure = null;
+		
 		Phase smallest = null;
-
+		List<NormalStandard> normalStandards = this.getAllNormalStandards();
+		MaturityStandard maturityStandard = this.getMaturityStandard();
+		AssetStandard assetStandard = this.getAssetStandard();
+		
 		// ****************************************************************
 		// * retrieve all phases and add them to the list of phases
 		// * therefore parse all analysisNorm and all measures to check phases
 		// ****************************************************************
 
 		// parse all analysisNorm
-		for (int i = 0; i < analysisNorms.size(); i++) {
+		for (int i = 0; i < normalStandards.size(); i++) {
 
 			// ****************************************************************
 			// * make difference between maturity norm and measurenorm
 			// ****************************************************************
 
-			// check if maturity norm -> YES
-			if (analysisNorms.get(i) instanceof MaturityNorm) {
+			
+			// parse all measures of the norm
+			for (int j = 0; j < normalStandards.get(i).getMeasures().size(); j++) {
 
-				// temporary store maturity norm
-				maturityNorm = (MaturityNorm) analysisNorms.get(i);
-
-				// ****************************************************************
-				// * parse all maturity measures
-				// ****************************************************************
-
-				// parse all measures of the norm
-				for (int j = 0; j < maturityNorm.getMeasures().size(); j++) {
-
-					// ****************************************************************
-					// * check for each level 1 measure (chapter) if phase
-					// exists in
-					// * phase list
-					// ****************************************************************
-
-					// temporary store measure
-					maturityMeasure = maturityNorm.getMeasure(j);
-
-					// check if level is 1 (maturity chapter)
-					if (maturityMeasure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_1) {
-
-						// check if phase of that measure is already in list
-						phaseFound = false;
-
-						// parse exisiting phases
-						for (int k = 0; k < tmpPhases.size(); k++) {
-
-							// try to find current phase
-							if (tmpPhases.get(k).getNumber() == maturityMeasure.getPhase().getNumber()) {
-
-								// phase was found
-								phaseFound = true;
-
-								// exit loop
-								break;
-							}
-						}
-
-						// check if phase was found -> NO
-						if (phaseFound == false) {
-
-							// ****************************************************************
-							// * add phase to list pf phases
-							// ****************************************************************
-							tmpPhases.add(maturityMeasure.getPhase());
-						}
-					}
-				}
-			} else {
-
-				// check if maturity norm -> NO
-
-				// store the measure norm
-				measureNorm = (MeasureNorm) analysisNorms.get(i);
-
-				// ****************************************************************
-				// * parse all measure of this norm and check if phase exists in
-				// * phase list
-				// ****************************************************************
-
-				// parse all measures of this norm
-				for (int j = 0; j < measureNorm.getMeasures().size(); j++) {
-
-					// ****************************************************************
-					// * perfrom check if phase exist
-					// ****************************************************************
-
-					// store measure
-					normMeasure = measureNorm.getMeasure(j);
-
-					// check if phase already exists
-					phaseFound = false;
-
-					// parse phases
-					for (int k = 0; k < tmpPhases.size(); k++) {
-
-						// try to find current phase
-						if (tmpPhases.get(k).getNumber() == normMeasure.getPhase().getNumber()) {
-
-							// phase was found
-							phaseFound = true;
-
-							// exit loop
-							break;
-						}
-					}
-
-					// phase was not found -> NO
-					if (phaseFound == false) {
-
-						// ****************************************************************
-						// * add to phases
-						// ****************************************************************
-						tmpPhases.add(normMeasure.getPhase());
-					}
-				}
+				int phaseNumber = normalStandards.get(i).getMeasure(j).getPhase().getNumber();
+				
+				if(this.getPhaseByNumber(phaseNumber) == null)
+					this.addUsedPhase(normalStandards.get(i).getMeasure(j).getPhase());					
+				
+			}
+		}		
+		
+		if(maturityStandard!=null) {
+		
+			// parse all measures of the norm
+			for (int i = 0; i < maturityStandard.getLevel1Measures().size(); i++) {
+	
+				int phaseNumber = maturityStandard.getLevel1Measures().get(i).getPhase().getNumber();
+				
+				if(this.getPhaseByNumber(phaseNumber) == null)
+					this.addUsedPhase(maturityStandard.getLevel1Measures().get(i).getPhase());					
+				
 			}
 		}
+		
+		if(assetStandard!=null) {
+			
+			// parse all measures of the norm
+			for (int i = 0; i < assetStandard.getMeasures().size(); i++) {
+	
+				int phaseNumber = assetStandard.getMeasure(i).getPhase().getNumber();
+				
+				if(this.getPhaseByNumber(phaseNumber) == null)
+					this.addUsedPhase(assetStandard.getMeasure(i).getPhase());					
+				
+			}
+		}
+					
 
 		// ****************************************************************
 		// * order phases ascending
 		// ****************************************************************
 
 		// check until temporary list is empty (phases are ordered)
-		while (tmpPhases.size() > 0) {
+		while (this.usedPhases.size() > 0) {
 
 			// ****************************************************************
 			// * for each run use the first element as phase number to check to
@@ -1142,7 +1086,7 @@ public class Analysis implements Serializable, Cloneable {
 			smallest = null;
 
 			// start with the first list element to be the smallest
-			if (tmpPhases.get(0) != null) {
+			if (usedPhases.get(0) != null) {
 
 				// smallest number for the first one
 				smallest = tmpPhases.get(0);
@@ -1152,14 +1096,14 @@ public class Analysis implements Serializable, Cloneable {
 				// ****************************************************************
 
 				// parse all phases and check on the smallest
-				for (int i = 0; i < tmpPhases.size(); i++) {
+				for (int i = 0; i < usedPhases.size(); i++) {
 
 					// determine the smallest
-					if (tmpPhases.get(i).getNumber() < smallest.getNumber()) {
+					if (usedPhases.get(i).getNumber() < smallest.getNumber()) {
 
 						// current phase is smaller than the intended smallest
 						// -> replace the value
-						smallest = tmpPhases.get(i);
+						smallest = usedPhases.get(i);
 					}
 				}
 
@@ -1171,15 +1115,17 @@ public class Analysis implements Serializable, Cloneable {
 				// * add phase to the final phase list
 				// ****************************************************************
 
-				usedPhases.add(smallest);
+				tmpPhases.add(smallest);
 
 				// ****************************************************************
 				// * remove from smallest phase found from the temporary list
 				// ****************************************************************
-				tmpPhases.remove(smallest);
+				usedPhases.remove(smallest);
 			}
 		}
 
+		usedPhases = tmpPhases;
+		
 		// for (int i=0; i < usedPhases.size();i++) {
 		// System.out.println("ID: " + usedPhases.get(i).getId() +
 		// "::: Number: " + usedPhases.get(i).getNumber());
@@ -1189,9 +1135,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getYearsDifferenceBetweenTwoDates: <br>
-	 * This method Calculates an Double Value that Indicates the Difference
-	 * between two Dates. It is used to Calculate the Size of the Phase in
-	 * Years.
+	 * This method Calculates an Double Value that Indicates the Difference between two Dates. It is
+	 * used to Calculate the Size of the Phase in Years.
 	 * 
 	 * @param beginDate
 	 *            begin date (should be smallest date)
@@ -1246,8 +1191,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @param parameter
 	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or -1 if the parameter
-	 *         was not found
+	 * @return The Value of the Parameter if it exists, or -1 if the parameter was not found
 	 */
 	public double getParameter(String parameter) {
 
@@ -1278,8 +1222,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @param parameter
 	 *            The Label of the Parameter
-	 * @return The Value of the Parameter if it exists, or -1 if the parameter
-	 *         was not found
+	 * @return The Value of the Parameter if it exists, or -1 if the parameter was not found
 	 */
 	public Parameter getParameterObject(String parameter) {
 
@@ -1303,9 +1246,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * computeParameterScales: <br>
-	 * This method will calculate the bounds of the extended parameters from and
-	 * to values. Since CSSF implementation, impact and probability values need
-	 * to be calculated using bounds.
+	 * This method will calculate the bounds of the extended parameters from and to values. Since
+	 * CSSF implementation, impact and probability values need to be calculated using bounds.
 	 * 
 	 * @throws TrickException
 	 */
@@ -1577,8 +1519,7 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getAnItemInformtation: <br>
-	 * Returns a Single Item Information from the List of Item Information at
-	 * the postion "index"
+	 * Returns a Single Item Information from the List of Item Information at the postion "index"
 	 * 
 	 * @param index
 	 *            The Position in the List to retrieve the Item Information
@@ -1730,8 +1671,7 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * getARiskInformation: <br>
-	 * Returns a Risk Information from the List of Risk Information at position
-	 * "index"
+	 * Returns a Risk Information from the List of Risk Information at position "index"
 	 * 
 	 * @param index
 	 *            The Position to retrieve the Object
@@ -1906,13 +1846,13 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @return The AnalysisNorm Object at position "index"
 	 */
-	public AnalysisNorm getAnalysisNorm(int index) {
-		return analysisNorms.get(index);
+	public AnalysisStandard getAnalysisStandard(int index) {
+		return analysisStandards.get(index);
 	}
 
-	public AnalysisNorm getAnalysisNormByLabel(String label) {
-		for (AnalysisNorm anorm : this.analysisNorms) {
-			if (anorm.getNorm().getLabel().equals(label)) {
+	public AnalysisStandard getAnalysisStandardByLabel(String label) {
+		for (AnalysisStandard anorm : this.analysisStandards) {
+			if (anorm.getStandard().getLabel().equals(label)) {
 				return anorm;
 			}
 		}
@@ -1925,8 +1865,8 @@ public class Analysis implements Serializable, Cloneable {
 	 * 
 	 * @return The List of AnalysisNorm Objects
 	 */
-	public List<AnalysisNorm> getAnalysisNorms() {
-		return analysisNorms;
+	public List<AnalysisStandard> getAnalysisStandards() {
+		return analysisStandards;
 	}
 
 	/**
@@ -1936,9 +1876,9 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param analysisNorms
 	 *            The norm Object to Add
 	 */
-	public void addAnalysisNorm(AnalysisNorm norm) {
-		norm.setAnalysis(this);
-		this.analysisNorms.add(norm);
+	public void addAnalysisStandard(AnalysisStandard analysisStandard) {
+		analysisStandard.setAnalysis(this);
+		this.analysisStandards.add(analysisStandard);
 	}
 
 	/**
@@ -1948,10 +1888,10 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param analysisNorm
 	 *            The List of Norms to set
 	 */
-	public void setAnalysisNorms(List<AnalysisNorm> analysisNorm) {
-		for (AnalysisNorm analysisNorm2 : analysisNorm)
-			analysisNorm2.setAnalysis(this);
-		this.analysisNorms = analysisNorm;
+	public void setAnalysisStandards(List<AnalysisStandard> analysisStandards) {
+		for (AnalysisStandard analysisStandard : analysisStandards)
+			analysisStandard.setAnalysis(this);
+		this.analysisStandards = analysisStandards;
 	}
 
 	/**
@@ -2145,8 +2085,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan
-	 *         Type
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> getActionPlans() {
 		return this.actionPlans;
@@ -2159,8 +2098,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan
-	 *         Type
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(String mode) {
 
@@ -2180,8 +2118,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param type
 	 *            The Identifier of the Action Plan Type
 	 * 
-	 * @return The List of Action Plan Entries for the requested Action Plan
-	 *         Type
+	 * @return The List of Action Plan Entries for the requested Action Plan Type
 	 */
 	public List<ActionPlanEntry> getActionPlan(ActionPlanMode mode) {
 
@@ -2345,10 +2282,10 @@ public class Analysis implements Serializable, Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label
-				+ ", histories=" + histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets="
-				+ assets + ", riskInformations=" + riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisNorm=" + analysisNorms
-				+ ", usedphases=" + usedPhases + ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
+		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label + ", histories="
+			+ histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets + ", riskInformations="
+			+ riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisNorm=" + analysisStandards + ", usedphases=" + usedPhases + ", actionPlans=" + actionPlans
+			+ ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}
 
 	/**
@@ -2369,8 +2306,8 @@ public class Analysis implements Serializable, Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Method to identify if this object equals another. Equal means the fields
-	 * identifier, version and creationDate are the same.
+	 * Method to identify if this object equals another. Equal means the fields identifier, version
+	 * and creationDate are the same.
 	 * 
 	 * @param obj
 	 *            The other object to check
@@ -2671,7 +2608,7 @@ public class Analysis implements Serializable, Cloneable {
 	public void setAnalysisSettings(List<AnalysisSetting> settings) {
 		this.analysisSettings = settings;
 	}
-	
+
 	/**
 	 * addAnalysisSetting: <br>
 	 * Description
@@ -2681,7 +2618,7 @@ public class Analysis implements Serializable, Cloneable {
 	public void addAnalysisSetting(AnalysisSetting setting) {
 		this.analysisSettings.add(setting);
 	}
-	
+
 	/**
 	 * removeAnalysisSetting: <br>
 	 * Description
@@ -2691,7 +2628,7 @@ public class Analysis implements Serializable, Cloneable {
 	public void removeAnalysisSetting(AnalysisSetting setting) {
 		this.analysisSettings.remove(setting);
 	}
-	
+
 	/**
 	 * analysisSettingExists: <br>
 	 * Description
@@ -2699,24 +2636,24 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param key
 	 * @return
 	 */
-	public boolean analysisSettingExists(String key){
-		for(AnalysisSetting setting : this.analysisSettings) {
-			if(setting.getKey().equals(key))
+	public boolean analysisSettingExists(String key) {
+		for (AnalysisSetting setting : this.analysisSettings) {
+			if (setting.getKey().equals(key))
 				return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * getAnalysisSettings: <br>
 	 * Description
 	 * 
 	 * @return
 	 */
-	public List<AnalysisSetting> getAnalysisSettings(){
+	public List<AnalysisSetting> getAnalysisSettings() {
 		return this.analysisSettings;
 	}
-	
+
 	/**
 	 * getAnalysisSettingsFromUser: <br>
 	 * Description
@@ -2724,15 +2661,15 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param user
 	 * @return
 	 */
-	public Map<String, AnalysisSetting> getAnalysisSettingsFromUser(User user){
+	public Map<String, AnalysisSetting> getAnalysisSettingsFromUser(User user) {
 		Map<String, AnalysisSetting> asettings = new LinkedHashMap<String, AnalysisSetting>();
-		for(AnalysisSetting setting : this.analysisSettings){
-			if(setting.getUser().equals(user))
-				asettings.put(setting.getKey(),setting);
+		for (AnalysisSetting setting : this.analysisSettings) {
+			if (setting.getUser().equals(user))
+				asettings.put(setting.getKey(), setting);
 		}
 		return asettings;
 	}
-	
+
 	public Analysis duplicateTo(Analysis copy) throws CloneNotSupportedException {
 		if (copy == null)
 			copy = (Analysis) super.clone();
@@ -2882,8 +2819,8 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	public List<? extends Measure> findMeasureByNorm(String string) {
-		for (AnalysisNorm analysisNorm : analysisNorms)
-			if (analysisNorm.getNorm().getLabel().equalsIgnoreCase(string))
+		for (AnalysisStandard analysisNorm : analysisStandards)
+			if (analysisNorm.getStandard().getLabel().equalsIgnoreCase(string))
 				return analysisNorm.getMeasures();
 		return null;
 	}

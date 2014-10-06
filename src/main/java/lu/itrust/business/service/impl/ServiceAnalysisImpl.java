@@ -5,7 +5,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.Language;
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.usermanagement.User;
@@ -439,8 +439,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	}
 
 	@Override
-	public List<Analysis> getAllProfileContainsNorm(List<Norm> norms) {
-		return daoAnalysis.getAllProfileContainsNorm(norms);
+	public List<Analysis> getAllProfileContainsStandard(List<Standard> standards) {
+		return daoAnalysis.getAllProfileContainsStandard(standards);
 	}
 
 	@Override

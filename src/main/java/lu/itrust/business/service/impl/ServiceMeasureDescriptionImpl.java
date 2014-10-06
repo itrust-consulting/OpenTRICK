@@ -3,7 +3,7 @@ package lu.itrust.business.service.impl;
 import java.util.List;
 
 import lu.itrust.business.TS.MeasureDescription;
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.dao.DAOMeasureDescription;
 import lu.itrust.business.service.ServiceMeasureDescription;
 
@@ -41,54 +41,42 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	}
 
 	/**
-	 * getByReferenceAndNorm: <br>
+	 * getByReferenceAndStandard: <br>
 	 * Description
-	 * 
-	 * @param reference
-	 * @param norm
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasureDescription#getByReferenceAndNorm(java.lang.String,
-	 *      lu.itrust.business.TS.Norm)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasureDescription#getByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.Standard)
 	 */
 	@Override
-	public MeasureDescription getByReferenceAndNorm(String reference, Norm norm) throws Exception {
-		return daoMeasureDescription.getByReferenceAndNorm(reference, norm);
+	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard) throws Exception {
+		return daoMeasureDescription.getByReferenceAndStandard(reference, standard);
 	}
 
 	/**
-	 * existsForMeasureByReferenceAndNorm: <br>
+	 * existsForMeasureByReferenceAndStandard: <br>
 	 * Description
-	 * 
-	 * @param reference
-	 * @param idnorm
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasureDescription#existsForMeasureByReferenceAndNorm(java.lang.String,
-	 *      int)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String, java.lang.Integer)
 	 */
 	@Override
-	public boolean existsForMeasureByReferenceAndNorm(String reference, Integer idnorm) throws Exception {
-		return daoMeasureDescription.existsForMeasureByReferenceAndNorm(reference, idnorm);
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Integer idStandard) throws Exception {
+		return daoMeasureDescription.existsForMeasureByReferenceAndStandard(reference, idStandard);
 	}
 
 	/**
-	 * existsForMeasureByReferenceAndNorm: <br>
+	 * existsForMeasureByReferenceAndStandard: <br>
 	 * Description
-	 * 
-	 * @param reference
-	 * @param norm
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasureDescription#existsForMeasureByReferenceAndNorm(java.lang.String,
-	 *      lu.itrust.business.TS.Norm)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.Standard)
 	 */
 	@Override
-	public boolean existsForMeasureByReferenceAndNorm(String reference, Norm norm) throws Exception {
-		return daoMeasureDescription.existsForMeasureByReferenceAndNorm(reference, norm);
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Standard standard) throws Exception {
+		return daoMeasureDescription.existsForMeasureByReferenceAndStandard(reference, standard);
 	}
 
 	/**
@@ -106,48 +94,42 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	}
 
 	/**
-	 * getAllMeasureDescriptionsByNorm: <br>
+	 * getAllByStandard: <br>
 	 * Description
-	 * 
-	 * @param normid
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasureDescription#getAllMeasureDescriptionsByNorm(java.lang.Integer)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasureDescription#getAllByStandard(java.lang.Integer)
 	 */
 	@Override
-	public List<MeasureDescription> getAllByNorm(Integer normid) throws Exception {
-		return this.daoMeasureDescription.getAllByNorm(normid);
+	public List<MeasureDescription> getAllByStandard(Integer idStandard) throws Exception {
+		return this.daoMeasureDescription.getAllByStandard(idStandard);
 	}
 
 	/**
-	 * getAllMeasureDescriptionsByNorm: <br>
+	 * getAllByStandard: <br>
 	 * Description
-	 * 
-	 * @param label
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasureDescription#getAllMeasureDescriptionsByNorm(java.lang.String)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasureDescription#getAllByStandard(java.lang.String)
 	 */
 	@Override
-	public List<MeasureDescription> getAllByNorm(String label) throws Exception {
-		return this.daoMeasureDescription.getAllByNorm(label);
+	public List<MeasureDescription> getAllByStandard(String label) throws Exception {
+		return this.daoMeasureDescription.getAllByStandard(label);
 	}
 
 	/**
-	 * getAllMeasureDescriptionsByNorm: <br>
+	 * getAllByStandard: <br>
 	 * Description
-	 * 
-	 * @param norm
-	 * @return
-	 * @throws Exception
-	 * 
-	 * @see lu.itrust.business.service.ServiceMeasureDescription#getAllMeasureDescriptionsByNorm(lu.itrust.business.TS.Norm)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceMeasureDescription#getAllByStandard(lu.itrust.business.TS.Standard)
 	 */
 	@Override
-	public List<MeasureDescription> getAllByNorm(Norm norm) throws Exception {
-		return this.daoMeasureDescription.getAllByNorm(norm);
+	public List<MeasureDescription> getAllByStandard(Standard standard) throws Exception {
+		return this.daoMeasureDescription.getAllByStandard(standard);
 	}
 
 	/**

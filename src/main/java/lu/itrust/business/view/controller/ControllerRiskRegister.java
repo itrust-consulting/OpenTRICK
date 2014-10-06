@@ -14,7 +14,7 @@ import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceAnalysis;
-import lu.itrust.business.service.ServiceAnalysisNorm;
+import lu.itrust.business.service.ServiceAnalysisStandard;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceRiskRegister;
 import lu.itrust.business.service.ServiceTaskFeedback;
@@ -56,7 +56,7 @@ public class ControllerRiskRegister {
 	private ServiceRiskRegister serviceRiskRegister;
 
 	@Autowired
-	private ServiceAnalysisNorm serviceAnalysisNorm;
+	private ServiceAnalysisStandard serviceAnalysisStandard;
 
 	@Autowired
 	private ServiceUser serviceUser;

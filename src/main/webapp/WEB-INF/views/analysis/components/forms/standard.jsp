@@ -14,13 +14,15 @@
 				</h4>
 			</div>
 			<div class="modal-body">
+				<h3>Currently in Analysis:</h3>
 				<table class="table">
 					<thead>
 						<tr>
 							<th><spring:message code="label.norm.label" text="Name" /></th>
 							<th><spring:message code="label.norm.version" text="Version" /></th>
 							<th colspan="3"><spring:message code="label.norm.description" text="Description" /></th>
-							<th colspan="2"><spring:message code="label.norm.computable" text="Computable" /></th>
+							<th><spring:message code="label.norm.computable" text="Computable" /></th>
+							<th>Remove</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -36,6 +38,7 @@
 					</tbody>
 				</table>
 				<hr />
+				<h3>Available for Analysis:</h3>
 				<c:if test="${!empty(norms)}">
 					<form name="standard" action="${pageContext.request.contextPath}/Analysis/Save/Standard" class="form" id="addStandardForm">
 						<div class="form-group">
@@ -58,13 +61,9 @@
 
 						</div>
 					</form>
-					<fieldset style="margin-top: 40px;">
-						<legend style="font-size: 12; font-weight: bold">
-							<spring:message code="label.norm.description" text="Description" />
-						</legend>
-						<label id="selectedStandardDescription"> <spring:message text="${norms.get(0).description}" />
-						</label>
-					</fieldset>
+				</c:if>
+				<c:if test="${empty(norms)}">
+				No norms available
 				</c:if>
 				<div id="add_standard_progressbar" class="progress progress-striped active" hidden="true">
 					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>

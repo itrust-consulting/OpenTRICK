@@ -2,7 +2,7 @@ package lu.itrust.business.TS.actionplan;
 
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Measure;
-import lu.itrust.business.TS.Norm;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -25,7 +25,7 @@ public class TMA {
 	private Assessment assessment;
 
 	/** AnalysisNorm of Measure */
-	private Norm norm;
+	private Standard norm;
 
 	/** Measure object */
 	private Measure measure;
@@ -92,7 +92,7 @@ public class TMA {
 		}
 
 		// the analysisNorm
-		this.norm = measure.getAnalysisNorm().getNorm();
+		this.norm = measure.getAnalysisStandard().getStandard();
 
 		// the measure
 		this.measure = measure;
@@ -191,7 +191,7 @@ public class TMA {
 	 * 
 	 * @return The AnalysisNorm
 	 */
-	public Norm getNorm() {
+	public Standard getNorm() {
 		return norm;
 	}
 
@@ -202,7 +202,7 @@ public class TMA {
 	 * @param analysisNorm
 	 *            The value to set the AnalysisNorm
 	 */
-	public void setNorm(Norm analysisNorm) {
+	public void setNorm(Standard analysisNorm) {
 		this.norm = analysisNorm;
 	}
 

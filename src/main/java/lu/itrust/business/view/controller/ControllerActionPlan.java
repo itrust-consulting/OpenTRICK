@@ -8,7 +8,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
@@ -20,7 +20,7 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceAnalysis;
-import lu.itrust.business.service.ServiceAnalysisNorm;
+import lu.itrust.business.service.ServiceAnalysisStandard;
 import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceTaskFeedback;
@@ -65,7 +65,7 @@ public class ControllerActionPlan {
 	private ServiceActionPlan serviceActionPlan;
 
 	@Autowired
-	private ServiceAnalysisNorm serviceAnalysisNorm;
+	private ServiceAnalysisStandard serviceAnalysisStandard;
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -188,7 +188,7 @@ public class ControllerActionPlan {
 		}
 		model.put("id", analysisID);
 
-		model.put("norms", serviceAnalysisNorm.getAllComputableFromAnalysis(analysisID));
+		model.put("standards", serviceAnalysisStandard.getAllComputableFromAnalysis(analysisID));
 
 		return "analysis/components/forms/actionplanoptions";
 	}
@@ -224,21 +224,21 @@ public class ControllerActionPlan {
 			if (jsonNode.get("uncertainty") != null)
 				uncertainty = jsonNode.get("uncertainty").asBoolean();
 
-			List<AnalysisNorm> anorms = serviceAnalysisNorm.getAllFromAnalysis(analysisId);
+			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
 
-			List<AnalysisNorm> norms = new ArrayList<AnalysisNorm>();
+			List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
 
-			for (AnalysisNorm anorm : anorms) {
-				if (jsonNode.get("norm_" + anorm.getId()) != null)
-					if (jsonNode.get("norm_" + anorm.getId()).asBoolean())
-						norms.add(anorm);
+			for (AnalysisStandard analysisStandard : analysisStandards) {
+				if (jsonNode.get("standard_" + analysisStandard.getId()) != null)
+					if (jsonNode.get("standard_" + analysisStandard.getId()).asBoolean())
+						standards.add(analysisStandard);
 			}
 
 			// prepare asynchronous worker
 
 			boolean reloadSection = session.getAttribute("selectedAnalysis") != null;
 
-			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, norms, uncertainty, reloadSection);
+			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection);
 			worker.setPoolManager(workersPoolManager);
 
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))

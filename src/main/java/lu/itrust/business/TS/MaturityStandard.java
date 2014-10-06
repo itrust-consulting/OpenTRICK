@@ -1,11 +1,13 @@
 package lu.itrust.business.TS;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
+import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
 import org.hibernate.proxy.HibernateProxy;
@@ -19,8 +21,8 @@ import org.hibernate.proxy.HibernateProxy;
  * @since 2012-08-21
  */
 @Entity
-@DiscriminatorValue("MaturityNorm")
-public class MaturityNorm extends AnalysisNorm implements Cloneable {
+@DiscriminatorValue("MaturityStandard")
+public class MaturityStandard extends AnalysisStandard implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -37,7 +39,7 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 	/**
 	 * Constructor:<br>
 	 */
-	public MaturityNorm() {
+	public MaturityStandard() {
 		super();
 	}
 
@@ -49,7 +51,7 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 	 * @param norm
 	 *            The Norm Name
 	 */
-	public MaturityNorm(Analysis analysis, Norm norm) {
+	public MaturityStandard(Analysis analysis, Standard norm) {
 		super(analysis, norm);
 	}
 
@@ -59,7 +61,7 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 	 * @param analysis
 	 *            The Analysis Object
 	 */
-	public MaturityNorm(Analysis analysis) {
+	public MaturityStandard(Analysis analysis) {
 		super(analysis);
 	}
 
@@ -69,7 +71,7 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 	 * @param norm
 	 *            The Norm Name
 	 */
-	public MaturityNorm(Norm norm) {
+	public MaturityStandard(Standard norm) {
 		super(norm);
 	}
 
@@ -86,7 +88,7 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 	 */
 	public MaturityMeasure getMeasure(int index) {
 		if (index < 0 || getMeasures() == null || index >= getMeasures().size())
-			throw new IndexOutOfBoundsException("Maturtiy AnalysisNorm Index (" + index + ") needs be between 0 and " + (getMeasures().size() - 1) + "!");
+			throw new IndexOutOfBoundsException("Maturtiy AnalysisStandard Index (" + index + ") needs be between 0 and " + (getMeasures().size() - 1) + "!");
 		if (getMeasures().get(index) instanceof HibernateProxy)
 			return MaturityMeasure.class.cast(((HibernateProxy) getMeasures().get(index)).getHibernateLazyInitializer().getImplementation());
 		else {
@@ -94,6 +96,14 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 		}
 	}
 
+	public List<Measure> getLevel1Measures(){
+		List<Measure> measures = new ArrayList<Measure>();
+		for(Measure measure : super.getMeasures())
+			if(measure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_1)
+				measures.add(measure);
+		return measures;
+	}
+	
 	/**
 	 * setMeasures: <br>
 	 * Sets the Field "measures" with a value.
@@ -125,7 +135,7 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 	public void addMeasure(MaturityMeasure measure) throws TrickException {
 		if (getMeasures().contains(measure))
 			throw new TrickException("error.maturity_norm.measure.duplicate", "Measure duplicates not accepted!");
-		measure.setAnalysisNorm(this);
+		measure.setAnalysisStandard(this);
 		this.getMeasures().add(measure);
 	}
 
@@ -135,8 +145,8 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 	 * @see lu.itrust.business.TS.AnalysisNorm#clone()
 	 */
 	@Override
-	public MaturityNorm clone() throws CloneNotSupportedException {
-		return (MaturityNorm) super.clone();
+	public MaturityStandard clone() throws CloneNotSupportedException {
+		return (MaturityStandard) super.clone();
 	}
 
 	/*
@@ -145,8 +155,8 @@ public class MaturityNorm extends AnalysisNorm implements Cloneable {
 	 * @see lu.itrust.business.TS.AnalysisNorm#basicClone()
 	 */
 	@Override
-	public MaturityNorm duplicate() throws CloneNotSupportedException {
-		return (MaturityNorm) super.duplicate();
+	public MaturityStandard duplicate() throws CloneNotSupportedException {
+		return (MaturityStandard) super.duplicate();
 	}
 
 }

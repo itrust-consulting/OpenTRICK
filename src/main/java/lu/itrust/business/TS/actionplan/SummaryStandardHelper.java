@@ -3,7 +3,7 @@ package lu.itrust.business.TS.actionplan;
 import java.util.ArrayList;
 import java.util.List;
 
-import lu.itrust.business.TS.AnalysisNorm;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Measure;
 
 /** SummaryStandardHelper.java: <br>
@@ -15,13 +15,13 @@ import lu.itrust.business.TS.Measure;
  */
 public class SummaryStandardHelper {
 
-	public AnalysisNorm norm = null;
+	public AnalysisStandard norm = null;
 	
 	public List<Measure> measures = new ArrayList<Measure>();
 	
 	public double conformance = 0;
 	
-	public SummaryStandardHelper(AnalysisNorm norm) {
+	public SummaryStandardHelper(AnalysisStandard norm) {
 		this.norm = norm;
 	}
 	

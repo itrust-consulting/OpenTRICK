@@ -35,8 +35,8 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity 
-@PrimaryKeyJoinColumn(name="idNormMeasure")
-public class NormMeasure extends Measure {
+@PrimaryKeyJoinColumn(name="idNormalMeasure")
+public class NormalMeasure extends Measure {
 
 	/***********************************************************************************************
 	 * Fields declaration
@@ -110,9 +110,9 @@ public class NormMeasure extends Measure {
 	 */
 	@ManyToMany
 	@JoinTable(name = "MeasureAssetTypeValue", 
-			   joinColumns = { @JoinColumn(name = "idNormMeasure", nullable = false) }, 
+			   joinColumns = { @JoinColumn(name = "idNormalMeasure", nullable = false) }, 
 			   inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetTypeValue", nullable = false) },
-			   uniqueConstraints = @UniqueConstraint(columnNames = {"idNormMeasure", "idMeasureAssetTypeValue"})
+			   uniqueConstraints = @UniqueConstraint(columnNames = {"idNormalMeasure", "idMeasureAssetTypeValue"})
 	)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	public List<AssetTypeValue> getAssetTypeValues() {
@@ -190,7 +190,7 @@ public class NormMeasure extends Measure {
 	 * 
 	 * @return Implementation Rate Value
 	 * @see lu.itrust.business.TS.Measure#getImplementationRateValue()
-	 * @see lu.itrust.business.TS.NormMeasure#getImplementationRate()
+	 * @see lu.itrust.business.TS.NormalMeasure#getImplementationRate()
 	 */
 	@Override
 	@Transient
@@ -233,8 +233,8 @@ public class NormMeasure extends Measure {
 	 * @see lu.itrust.business.TS.Measure#clone()
 	 */
 	@Override
-	public NormMeasure clone() throws CloneNotSupportedException {
-		NormMeasure normMeasure = (NormMeasure) super.clone();
+	public NormalMeasure clone() throws CloneNotSupportedException {
+		NormalMeasure normMeasure = (NormalMeasure) super.clone();
 		normMeasure.assetTypeValues = new ArrayList<>();
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
 			normMeasure.assetTypeValues.add(assetTypeValue.clone());
@@ -248,8 +248,8 @@ public class NormMeasure extends Measure {
 	 * @see lu.itrust.business.TS.Measure#duplicate()
 	 */
 	@Override
-	public NormMeasure duplicate() throws CloneNotSupportedException {
-		NormMeasure normMeasure = (NormMeasure) super.duplicate();
+	public NormalMeasure duplicate() throws CloneNotSupportedException {
+		NormalMeasure normMeasure = (NormalMeasure) super.duplicate();
 		normMeasure.assetTypeValues = new ArrayList<>();
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
 			normMeasure.assetTypeValues.add(assetTypeValue.duplicate());
@@ -257,7 +257,7 @@ public class NormMeasure extends Measure {
 		return normMeasure;
 	}
 
-	public void copyMeasureCharacteristicsTo(NormMeasure measure) throws TrickException, CloneNotSupportedException {
+	public void copyMeasureCharacteristicsTo(NormalMeasure measure) throws TrickException, CloneNotSupportedException {
 		if (this.getMeasurePropertyList() == null || measure == null || measure.getMeasurePropertyList() == null)
 			return;
 		measurePropertyList.copyTo(measure.measurePropertyList);

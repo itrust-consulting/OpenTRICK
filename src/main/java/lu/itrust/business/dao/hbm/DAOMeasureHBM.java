@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.Measure;
-import lu.itrust.business.TS.Norm;
-import lu.itrust.business.TS.NormMeasure;
+import lu.itrust.business.TS.Standard;
+import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOMeasure;
@@ -61,7 +61,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 */
 	@Override
 	public Measure getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception {
-		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :analysis and measure.id = :id";
+		String query = "Select measure From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.analysis.id = :analysis and measure.id = :id";
 		return (Measure) getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("id", id).uniqueResult();
 	}
 
@@ -73,7 +73,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer measureId) throws Exception {
-		String query = "Select count(measure) From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :analysisId and ";
+		String query = "Select count(measure) From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.analysis.id = :analysisId and ";
 		query += "measure.id = :measureId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("measureId", measureId).uniqueResult()).intValue() > 0;
 	}
@@ -99,7 +99,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getAllFromAnalysis(Integer idAnalysis) throws Exception {
-		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :analysis order by measure.id";
+		String query = "Select measure From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.analysis.id = :analysis order by measure.id";
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).list();
 	}
 
@@ -112,9 +112,9 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getSOAMeasuresFromAnalysis(Integer idAnalysis) throws Exception {
-		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.norm.label = :norm and analysisNorm.analysis.id";
-		query += "= :analysis order by analysisNorm.norm.label ASC, measure.id ASC";
-		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("norm", Constant.NORM_27002).list();
+		String query = "Select measure From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.standard.label = :standard and analysisStandard.analysis.id";
+		query += "= :analysis order by analysisStandard.standard.label ASC, measure.id ASC";
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("standard", Constant.STANDARD_27002).list();
 	}
 
 	/**
@@ -126,95 +126,103 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getAllComputableFromAnalysis(Integer idAnalysis) throws Exception {
-		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :idAnalysis and ";
+		String query = "Select measure From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.analysis.id = :idAnalysis and ";
 		query += "measure.measureDescription.computable = true order by measure.id";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
 
 	/**
-	 * getAllMeasuresFromAnalysisIdAndNormId: <br>
+	 * getAllFromAnalysisAndStandard: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasure#getAllMeasuresFromAnalysisIdAndNormId(Integer,
-	 *      Integer)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllFromAnalysisAndStandard(java.lang.Integer, java.lang.Integer)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm) throws Exception {
-		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.norm.id = :norm and analysisNorm.analysis.id = ";
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard) throws Exception {
+		String query = "Select measure From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.standard.id = :idStandard and analysisStandard.analysis.id = ";
 		query += ":analysis order by measure.id";
-		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("norm", idNorm).list();
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("idStandard", idStandard).list();
 	}
 
 	/**
-	 * getAllMeasuresFromAnalysisIdAndNormLabel: <br>
+	 * getAllFromAnalysisAndStandard: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasure#getAllMeasuresFromAnalysisIdAndNormLabel(Integer,
-	 *      java.lang.String)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllFromAnalysisAndStandard(java.lang.Integer, java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, String norm) throws Exception {
-		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.norm.label = :norm and analysisNorm.analysis.id = ";
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, String standard) throws Exception {
+		String query = "Select measure From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.standard.label = :standard and analysisStandard.analysis.id = ";
 		query += ":analysis order by measure.id";
-		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("norm", norm).list();
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("standard", standard).list();
 	}
 
 	/**
-	 * getAllMeasuresFromAnalysisIdAndNorm: <br>
+	 * getAllFromAnalysisAndStandard: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasure#getAllMeasuresFromAnalysisIdAndNorm(Integer,
-	 *      lu.itrust.business.TS.Norm)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllFromAnalysisAndStandard(java.lang.Integer, lu.itrust.business.TS.Standard)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Measure> getAllFromAnalysisAndNorm(Integer idAnalysis, Norm norm) throws Exception {
-		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.norm = :norm and analysisNorm.analysis.id = ";
+	public List<Measure> getAllFromAnalysisAndStandard(Integer idAnalysis, Standard standard) throws Exception {
+		String query = "Select measure From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.standard = :standard and analysisStandard.analysis.id = ";
 		query += ":analysis order by measure.id";
-		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("norm", norm).list();
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("standard", standard).list();
 	}
 
 	/**
-	 * getAllNormMeasuresFromAnalysisId: <br>
+	 * getAllNormalMeasuresFromAnalysis: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasure#getAllNormMeasuresFromAnalysisId(Integer)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllNormalMeasuresFromAnalysis(java.lang.Integer)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<NormMeasure> getAllNormMeasuresFromAnalysis(Integer idAnalysis) throws Exception {
-		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :idAnalysis and ";
-		query += "exists(From NormMeasure measure2 where measure2 = measure) order by measure.id";
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysis(Integer idAnalysis) throws Exception {
+		String query = "Select measure From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.analysis.id = :idAnalysis and ";
+		query += "exists(From NormalMeasure measure2 where measure2 = measure) order by measure.id";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
 
 	/**
-	 * getAllNormMeasuresFromAnalysisIdAndComputable: <br>
+	 * getAllNormalMeasuresFromAnalysisAndComputable: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasure#getAllNormMeasuresFromAnalysisIdAndComputable(Integer)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllNormalMeasuresFromAnalysisAndComputable(java.lang.Integer)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<NormMeasure> getAllNormMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception {
-		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :idAnalysis and ";
-		query += "measure.measureDescription.computable = true and measure.status='AP' and exists(From NormMeasure measure2 where measure2 = measure) order by measure.id ";
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception {
+		String query = "Select measure From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.analysis.id = :idAnalysis and ";
+		query += "measure.measureDescription.computable = true and measure.status='AP' and exists(From NormalMeasure measure2 where measure2 = measure) order by measure.id ";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
 
 	/**
-	 * getAllAnalysisNormsFromAnalysisByMeasureIdList: <br>
+	 * getAllNormalMeasuresFromAnalysisByMeasureIdList: <br>
 	 * Description
-	 * 
-	 * @see lu.itrust.business.dao.DAOMeasure#getAllAnalysisNormsFromAnalysisByMeasureIdList(Integer,
-	 *      java.util.List)
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllNormalMeasuresFromAnalysisByMeasureIdList(java.lang.Integer, java.util.List)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<NormMeasure> getAllNormMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception {
-		String query = "Select measure From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :analysis and measure.id in ";
+	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception {
+		String query = "Select measure From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.analysis.id = :analysis and measure.id in ";
 		query += ":measures order by measure.id";
 		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameterList("measures", measures).list();
 	}
@@ -274,13 +282,21 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 		delete(get(id));
 	}
 
+	/**
+	 * mappingAllFromAnalysisAndStandard: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasure#mappingAllFromAnalysisAndStandard(java.lang.Integer, java.lang.Integer)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<String, Measure> mappingAllFromAnalysisAndNorm(Integer idAnalysis, Integer idNorm) {
+	public Map<String, Measure> mappingAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard) {
 		Iterator<Measure> iterator = getSession()
 				.createQuery(
-						"Select  measure From AnalysisNorm analysisNorm inner join analysisNorm.measures as measure where analysisNorm.norm.id = :idNorm and  analysisNorm.analysis.id= :idAnalysis")
-				.setParameter("idAnalysis", idAnalysis).setParameter("idNorm", idNorm).iterate();
+						"Select  measure From AnalysisStandard analysisStandard inner join analysisStandard.measures as measure where analysisStandard.standard.id = :idStandard and  analysisStandard.analysis.id= :idAnalysis")
+				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).iterate();
 		Map<String, Measure> result = new LinkedHashMap<String, Measure>();
 		while (iterator.hasNext()) {
 			Measure measure = iterator.next();
@@ -289,23 +305,47 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 		return result;
 	}
 
+	/**
+	 * countNormalMeasure: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasure#countNormalMeasure()
+	 */
 	@Override
-	public int countNormMeasure() {
-		return ((Long) getSession().createQuery("Select count(*) From NormMeasure").uniqueResult()).intValue();
+	public int countNormalMeasure() {
+		return ((Long) getSession().createQuery("Select count(*) From NormalMeasure").uniqueResult()).intValue();
 	}
 
+	/**
+	 * getAllNormalMeasure: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasure#getAllNormalMeasure(int, int)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<NormMeasure> getAllNormMeasure(int pageIndex, int pageSize) {
-		return getSession().createQuery("From NormMeasure").setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
+	public List<NormalMeasure> getAllNormalMeasure(int pageIndex, int pageSize) {
+		return getSession().createQuery("From NormalMeasure").setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
 	}
 
+	/**
+	 * getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOMeasure#getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(int, java.lang.String, lu.itrust.business.TS.actionplan.ActionPlanMode)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Integer> getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndNorm(int idAnalysis, String norm, ActionPlanMode actionPlanMode) {
+	public List<Integer> getIdMeasuresImplementedByActionPlanTypeFromIdAnalysisAndStandard(int idAnalysis, String standard, ActionPlanMode actionPlanMode) {
 		return getSession()
 				.createQuery(
-						"Select measure.id From AnalysisNorm as analysisNorm inner join analysisNorm.measures as measure where analysisNorm.analysis.id = :idAnalysis and analysisNorm.norm.label = :norm and measure.id in (Select actionplan.measure.id From Analysis a inner join a.actionPlans actionplan where a.id = :idAnalysis and actionplan.actionPlanType.name = :actionPlanType)")
-				.setParameter("idAnalysis", idAnalysis).setString("norm", norm).setParameter("actionPlanType", actionPlanMode).list();
+						"Select measure.id From AnalysisStandard as analysisStandard inner join analysisStandard.measures as measure where analysisStandard.analysis.id = :idAnalysis and analysisStandard.standard.label = :standard and measure.id in (Select actionplan.measure.id From Analysis a inner join a.actionPlans actionplan where a.id = :idAnalysis and actionplan.actionPlanType.name = :actionPlanType)")
+				.setParameter("idAnalysis", idAnalysis).setString("standard", standard).setParameter("actionPlanType", actionPlanMode).list();
 	}
 }

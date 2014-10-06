@@ -9,7 +9,7 @@ import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceCustomer;
 import lu.itrust.business.service.ServiceLanguage;
-import lu.itrust.business.service.ServiceNorm;
+import lu.itrust.business.service.ServiceStandard;
 import lu.itrust.business.service.ServiceUser;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ public class ControllerKnowledgeBase {
 	private ServiceLanguage serviceLanguage;
 
 	@Autowired
-	private ServiceNorm serviceNorm;
+	private ServiceStandard serviceStandard;
 
 	@Autowired
 	private ServiceCustomer serviceCustomer;
@@ -53,7 +53,7 @@ public class ControllerKnowledgeBase {
 	public String displayKnowledgeBase(Map<String, Object> model, Principal principal) throws Exception {
 		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.put("languages", serviceLanguage.getAll());
-		model.put("norms", serviceNorm.getAll());
+		model.put("standards", serviceStandard.getAll());
 		model.put("analyses", serviceAnalysis.getAllProfiles());
 		return "knowledgebase/knowledgebase";
 	}
@@ -74,7 +74,7 @@ public class ControllerKnowledgeBase {
 		this.serviceCustomer = serviceCustomer;
 	}
 
-	public void setServiceNorm(ServiceNorm serviceNorm) {
-		this.serviceNorm = serviceNorm;
+	public void setServiceStandard(ServiceStandard serviceStandard) {
+		this.serviceStandard = serviceStandard;
 	}
 }
