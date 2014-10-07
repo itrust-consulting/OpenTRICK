@@ -426,172 +426,6 @@ public class Analysis implements Serializable, Cloneable {
 	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a given measure, given
 	 * Scenario and given Asset (asset and scenario together: assessment) values.
 	 * 
-	 * @param tmpAssessment
-	 *            The Assessment to take Values to calculate
-	 * @param parameters
-	 *            The Parameters List
-	 * @param measure
-	 *            The Measure to take Values to calculate
-	 * 
-	 * @return The Calculated RRF
-	 * @throws TrickException
-	 */
-	public static double calculateRRFAssetMeasure(Assessment tmpAssessment, List<Parameter> parameters, AssetMeasure measure) throws TrickException {
-
-		// ****************************************************************
-		// * retrieve tuning value
-		// ****************************************************************
-		Parameter parameter = null;
-		// parse parameters
-		for (int i = 0; i < parameters.size(); i++) {
-
-			// check if parameter is tuning -> YES
-			if ((parameters.get(i).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)) && (parameters.get(i).getDescription().equals(Constant.PARAMETER_TUNING))) {
-				// ****************************************************************
-				// * store tuning value
-				// ****************************************************************
-				parameter = parameters.get(i);
-				// leave loop when found
-				break;
-			}
-		}
-		return calculateRRFAssetMeasure(tmpAssessment.getScenario(), tmpAssessment.getAsset(), parameter, measure);
-	}
-
-	/**
-	 * calculateRRF: <br>
-	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a given measure, given
-	 * Scenario and given Asset (asset and scenario together: assessment) values.
-	 * 
-	 * @param scenario
-	 *            The scenario to take Values to calculate
-	 * @param assetType
-	 *            The assetType to take Values to calculate
-	 * @param parameter
-	 *            The tuning parameter
-	 * @param measure
-	 *            The Measure to take Values to calculate
-	 * @return The Calculated RRF
-	 * @throws TrickException
-	 */
-	public static double calculateRRFAssetMeasure(Scenario scenario, Asset asset, Parameter parameter, AssetMeasure measure) throws TrickException {
-
-		// ****************************************************************
-		// * initialise variables
-		// ****************************************************************
-		int assetTypeValue = 0;
-		double tuning = 0;
-		double strength = 0;
-		double category = 0;
-		double type = 0;
-		double source = 0;
-		double RRF = 0;
-
-		// ****************************************************************
-		// * retrieve tuning value
-		// ****************************************************************
-
-		if (parameter != null)
-			tuning = parameter.getValue();
-
-		// ****************************************************************
-		// * retrieve asset type value for this asset type
-		// * (inside assessment)
-		// ****************************************************************
-
-		// parse assettype value list from given measure
-		for (int atvc = 0; atvc < measure.getAssetValues().size(); atvc++) {
-
-			// check if asset type of measure matches asset type of assessment
-			if (measure.getAssetValue(atvc).getAsset().equals(asset)) {
-
-				// ****************************************************************
-				// * store assetTypevalue
-				// ****************************************************************
-				assetTypeValue = measure.getAssetValue(atvc).getValue();
-				// System.out.println("Measure: " +
-				// measure.getMeasureDescription().getReference() +
-				// ":: Asset Type Value:" + assetTypeValue);
-
-				// leave loop
-				break;
-			}
-		}
-
-		// ****************************************************************
-		// * Strength calculation
-		// ****************************************************************
-		strength = measure.getMeasurePropertyList().getFMeasure();
-		strength = strength * measure.getMeasurePropertyList().getFSectoral();
-		strength = strength / 40.;
-
-		if (Double.isNaN(source))
-			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menance source for scenario (%s)", scenario.getName()), scenario.getName());
-
-		// ****************************************************************
-		// * Category calculation
-		// ****************************************************************
-		category = calculateRRFCategory(measure.getMeasurePropertyList(), scenario);
-
-		if (Double.isNaN(category))
-			throw new TrickException("error.analysis.rrf.scenario.category.nan", String.format("RRF computation: please check categories for scenario (%s)", scenario.getName()), scenario.getName());
-
-		// ****************************************************************
-		// * Type calculation
-		// ****************************************************************
-		type =
-			((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive())
-				+ (measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective())) / 4.;
-
-		if (Double.isNaN(type))
-			throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number", scenario.getName(), measure
-					.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel()), scenario.getName(), measure.getMeasureDescription().getReference(), measure
-					.getAnalysisStandard().getStandard().getLabel());
-
-		// ****************************************************************
-		// * Source calculation
-		// ****************************************************************
-		source =
-			(measure.getMeasurePropertyList().getIntentional() * scenario.getIntentional()) + (measure.getMeasurePropertyList().getAccidental() * scenario.getAccidental())
-				+ (measure.getMeasurePropertyList().getEnvironmental() * scenario.getEnvironmental()) + (measure.getMeasurePropertyList().getInternalThreat() * scenario.getInternalThreat())
-				+ (measure.getMeasurePropertyList().getExternalThreat() * scenario.getExternalThreat());
-
-		source = source / (4. * (double) (scenario.getIntentional() + scenario.getAccidental() + scenario.getEnvironmental() + scenario.getInternalThreat() + scenario.getExternalThreat()));
-
-		if (Double.isNaN(source))
-			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menace source for scenario (%s)", scenario.getName()), scenario.getName());
-
-		// ****************************************************************
-		// * RRF completion :
-		// * (((Asset_Measure/100)*Strength*CID*Type*Source) / 500) * tuning
-		// ****************************************************************
-
-		RRF = ((assetTypeValue / 100. * strength * category * type * source) / 500.) * tuning;
-
-		// if
-		// ((measure.getMeasureDescription().getReference().equals("A.9.2.2")))
-		// {
-		// System.out.println("Measure: " +
-		// measure.getMeasureDescription().getReference() +
-		// "Asset: " + tmpAssessment.getAsset().getName() + "Scenario: " +
-		// tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" +
-		// assetTypeValue +
-		// ", strength=" + strength + ", Category=" + category + ", type=" +
-		// type + ", source=" +
-		// source + ", tuning=" + tuning);
-		// }
-
-		// ****************************************************************
-		// * return the value
-		// ****************************************************************
-		return RRF;
-	}
-
-	/**
-	 * calculateRRF: <br>
-	 * Calculates the RRF (Risk Reduction Factor) using the Formulas from a given measure, given
-	 * Scenario and given Asset (asset and scenario together: assessment) values.
-	 * 
 	 * @param scenario
 	 *            The scenario to take Values to calculate
 	 * @param assetType
@@ -986,14 +820,7 @@ public class Analysis implements Serializable, Cloneable {
 				return (MaturityStandard) standard;
 		return null;
 	}
-	
-	public AssetStandard getAssetStandard(){
-		for(AnalysisStandard standard : analysisStandards)
-			if(standard.getStandard().getClass().isAssignableFrom(AssetStandard.class))
-				return (AssetStandard) standard;
-		return null;
-	}
-	
+		
 	/**
 	 * initialisePhases: <br>
 	 * Creates the Phase List "usedPhases" from Measures
@@ -1013,7 +840,6 @@ public class Analysis implements Serializable, Cloneable {
 		Phase smallest = null;
 		List<NormalStandard> normalStandards = this.getAllNormalStandards();
 		MaturityStandard maturityStandard = this.getMaturityStandard();
-		AssetStandard assetStandard = this.getAssetStandard();
 		
 		// ****************************************************************
 		// * retrieve all phases and add them to the list of phases
@@ -1046,20 +872,6 @@ public class Analysis implements Serializable, Cloneable {
 				
 			}
 		}
-		
-		if(assetStandard!=null) {
-			
-			// parse all measures of the standard
-			for (int i = 0; i < assetStandard.getMeasures().size(); i++) {
-	
-				int phaseNumber = assetStandard.getMeasure(i).getPhase().getNumber();
-				
-				if(this.getPhaseByNumber(phaseNumber) == null)
-					this.addUsedPhase(assetStandard.getMeasure(i).getPhase());					
-				
-			}
-		}
-					
 
 		// ****************************************************************
 		// * order phases ascending

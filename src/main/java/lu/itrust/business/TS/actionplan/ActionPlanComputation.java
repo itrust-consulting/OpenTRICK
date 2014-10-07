@@ -12,8 +12,6 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
-import lu.itrust.business.TS.AssetMeasure;
-import lu.itrust.business.TS.AssetStandard;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.MaturityMeasure;
 import lu.itrust.business.TS.MaturityStandard;
@@ -651,7 +649,6 @@ public class ActionPlanComputation {
 		ActionPlanEntry actionPlanEntry = null;
 		MaturityMeasure maturityMeasure = null;
 		NormalMeasure normalMeasure = null;
-		AssetMeasure assetMeasure = null;
 		List<TMA> TMAList = null;
 		List<Measure> usedMeasures = new ArrayList<Measure>();
 		List<ActionPlanEntry> actionPlan = this.analysis.getActionPlans();
@@ -729,7 +726,6 @@ public class ActionPlanComputation {
 				// initialise variables
 				maturityMeasure = null;
 				normalMeasure = null;
-				assetMeasure = null;
 
 				// check if it is a maturity measure -> YES
 				if (actionPlanEntry.getMeasure().getAnalysisStandard().getStandard().getLabel().equals(Constant.STANDARD_MATURITY)) {
@@ -745,10 +741,7 @@ public class ActionPlanComputation {
 
 					// check if it is a maturity measure -> NO
 
-					if (actionPlanEntry.getMeasure() instanceof AssetMeasure) {
-						assetMeasure = (AssetMeasure) actionPlanEntry.getMeasure();
-						adaptValuesForNormalMeasure(TMAList, actionPlanEntry, assetMeasure);
-					} else {
+					
 						// retrieve measure
 						normalMeasure = (NormalMeasure) actionPlanEntry.getMeasure();
 
@@ -756,7 +749,7 @@ public class ActionPlanComputation {
 						// * update values for next run
 						// ****************************************************************
 						adaptValuesForNormalMeasure(TMAList, actionPlanEntry, normalMeasure);
-					}
+					
 				}
 
 				// ****************************************************************
@@ -776,10 +769,7 @@ public class ActionPlanComputation {
 
 						// remove maturity measure
 						usedMeasures.remove(maturityMeasure);
-					} else if (assetMeasure != null) {
-						// remove maturity measure
-						usedMeasures.remove(assetMeasure);
-					}
+					} 
 				}
 			}
 		}
@@ -817,7 +807,6 @@ public class ActionPlanComputation {
 		ActionPlanEntry actionPlanEntry = null;
 		MaturityMeasure maturityMeasure = null;
 		NormalMeasure normalMeasure = null;
-		AssetMeasure assetMeasure = null;
 		List<TMA> TMAList = new ArrayList<TMA>();
 		List<Measure> usedMeasures = new ArrayList<Measure>();
 
@@ -1018,7 +1007,6 @@ public class ActionPlanComputation {
 					// initialise variables
 					maturityMeasure = null;
 					normalMeasure = null;
-					assetMeasure = null;
 
 					// check if the biggest rosi/rosmi entry is a maturity
 					// measure -> YES
@@ -1034,21 +1022,6 @@ public class ActionPlanComputation {
 						adaptValuesForMaturityMeasure(TMAList, actionPlanEntry, maturityMeasure);
 					} else {
 
-						// check if the biggest rosi/rosmi entry is a maturity
-						// measure -> NO
-
-						if (actionPlanEntry.getMeasure() instanceof AssetMeasure) {
-
-							// create temporary standard measure object
-							assetMeasure = (AssetMeasure) actionPlanEntry.getMeasure();
-
-							// ****************************************************************
-							// * change values for the next run
-							// ****************************************************************
-							adaptValuesForNormalMeasure(TMAList, actionPlanEntry, assetMeasure);
-
-						} else {
-
 							// create temporary standard measure object
 							normalMeasure = (NormalMeasure) actionPlanEntry.getMeasure();
 
@@ -1056,8 +1029,6 @@ public class ActionPlanComputation {
 							// * change values for the next run
 							// ****************************************************************
 							adaptValuesForNormalMeasure(TMAList, actionPlanEntry, normalMeasure);
-
-						}
 
 					}
 
@@ -1079,11 +1050,7 @@ public class ActionPlanComputation {
 
 							// remove maturity measure
 							usedMeasures.remove(maturityMeasure);
-						} else if (assetMeasure != null) {
-							
-							// remove assetMeasure
-							usedMeasures.remove(assetMeasure);
-						}
+						} 
 					}
 				}
 			}
@@ -1869,8 +1836,6 @@ public class ActionPlanComputation {
 		// ****************************************************************
 		NormalStandard normalStandard = null;
 		NormalMeasure normalMeasure = null;
-		AssetStandard assetStandard = null;
-		AssetMeasure assetMeasure = null;
 		List<TMA> TMAList = new ArrayList<TMA>();
 
 		// ****************************************************************
@@ -1984,46 +1949,7 @@ public class ActionPlanComputation {
 						}
 					}
 				}
-			} else if(anlysisStandard instanceof AssetStandard) {
-				
-				// store standard as it's real type
-				assetStandard = (AssetStandard) anlysisStandard;
-
-				// ****************************************************************
-				// * parse all measures of the current standard
-				// ****************************************************************
-				for (int mC = 0; mC < assetStandard.getMeasures().size(); mC++) {
-
-					// temporary store the measure
-					assetMeasure = assetStandard.getMeasure(mC);
-
-					// ****************************************************************
-					// * check conditions to add TMAListEntries to TMAList
-					// ****************************************************************
-
-					// ****************************************************************
-					// * check if measure is applicable, mandatory and
-					// implementation rate is not
-					// 100% -> YES
-					// ****************************************************************
-					if (!(assetMeasure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) && (assetMeasure.getImplementationRate() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)
-						&& (assetMeasure.getMeasureDescription().isComputable()) && (assetMeasure.getCost() >= 0)) {
-
-						// ****************************************************************
-						// * when phase computation, phase is bigger than 0,
-						// take these values that
-						// equals the phase number -> YES
-						// ****************************************************************
-						if (((phase > 0) && (assetMeasure.getPhase().getNumber() == phase)) || (phase == 0)) {
-
-							// ****************************************************************
-							// * generate TMA entry -> useful measure
-							// ****************************************************************
-							generateAssetMeasureTMAEntry(analysis, TMAList, usedMeasures, mode, assetStandard, assetMeasure, true, standards);
-						} 
-					}
-				}
-			}
+			} 
 		}
 
 		// ****************************************************************
@@ -2038,131 +1964,6 @@ public class ActionPlanComputation {
 		// return TMAList
 		return TMAList;
 
-	}
-
-	/**
-	 * generateAssetMeasureTMAEntry: <br>
-	 * This method generates for a given Measure TMA (Threat Measure Assessment) entries in the List
-	 * "TMAList". This method adds this measure to the list of usedMEasures given as parameter.
-	 * 
-	 * @param TMAList
-	 *            The List to insert the current TMA Entry
-	 * @param usedMeasures
-	 *            The List of Measures to add the current Measure (from TMA Entry) to be used
-	 * @param mode
-	 *            Defines which Type of Action Plan is Calculated (to take the correct ALE value)
-	 * @param assetStandard
-	 *            The AnalysisStandard of the Measure (only Asset Standard)
-	 * @param assetMeasure
-	 *            The Measure of the AnalysisStandard (AssetMeasure)
-	 * @param usefulMeasure
-	 *            Flag to determine is this measure needs to be added to the usedMeasures (a valid
-	 *            Measure)
-	 * @throws TrickException
-	 */
-	private static void generateAssetMeasureTMAEntry(Analysis analysis, List<TMA> TMAList, List<Measure> usedMeasures, ActionPlanMode mode, AssetStandard assetStandard, AssetMeasure assetMeasure,
-			boolean usefulMeasure, List<AnalysisStandard> standards) throws TrickException {
-
-		// ****************************************************************
-		// * initialise variables
-		// ****************************************************************
-		TMA tmpTMA = null;
-		Assessment tmpAssessment = null;
-		boolean measureFound = false;
-		double RRF = 0;
-
-
-		// ****************************************************************
-		// * parse assesments to generate TMA entries
-		// ****************************************************************
-
-		if (usefulMeasure) {
-
-			// parse each assessment
-			for (int aC = 0; aC < analysis.getAssessments().size(); aC++) {
-
-				// temporary store the assessment
-				tmpAssessment = analysis.getAnAssessment(aC);
-
-				// check if threat (scenario) and asset are selected for the
-				// computation AND ALE > 0
-				// -> YES
-				if (tmpAssessment.isUsable()) {
-
-					// ****************************************************************
-					// * calculate RRF
-					// ****************************************************************
-					RRF = Analysis.calculateRRFAssetMeasure(tmpAssessment, analysis.getParameters(), assetMeasure);
-
-					// ****************************************************************
-					// * create TMA object and initialise with assessment and
-					// measure and RRF
-					// ****************************************************************
-					tmpTMA = new TMA(mode, tmpAssessment, assetMeasure, RRF);
-
-					// ****************************************************************
-					// * calculate deltaALE for this TMA
-					// ****************************************************************
-					tmpTMA.calculateDeltaALE();
-
-					// ****************************************************************
-					// * check if measure needs to taken into account for action
-					// plan calculation.
-					// TMA entries need to be generated for 27002 because of
-					// maturity. Special case
-					// ****************************************************************
-
-					// measure needs to be taken into account? -> YES
-					if (usefulMeasure && usedMeasures != null && standards != null) {
-
-						// ****************************************************************
-						// * check if measure is already on the list, if not:
-						// add it
-						// ****************************************************************
-
-						// add this to useful measures list if exists variable
-						// to check
-						measureFound = false;
-
-						// parse usedMeasures
-						for (int unml = 0; unml < usedMeasures.size(); unml++) {
-
-							// check if current measure exists in list -> YES
-							if (usedMeasures.get(unml).equals(assetMeasure)) {
-
-								// ****************************************************************
-								// * the measure exist
-								// ****************************************************************
-								measureFound = true;
-
-								// break out of loop
-								break;
-							}
-						}
-
-						// ****************************************************************
-						// * check if the measure was found, if not: add it
-						// ****************************************************************
-						if (measureFound == false) {
-
-							// ****************************************************************
-							// * add to the list of measures
-							// ****************************************************************
-							usedMeasures.add(assetMeasure);
-						}
-
-					}
-
-				
-
-					// ****************************************************************
-					// * add TMA object in the list of TMA's to calculate the
-					// Action Plan
-					// ****************************************************************
-					TMAList.add(tmpTMA);
-				}
-			}
-		}
 	}
 	
 	/**
@@ -3011,8 +2812,6 @@ public class ActionPlanComputation {
 				
 				else if (measure instanceof MaturityMeasure)
 					imprate = ((MaturityMeasure) measure).getImplementationRateValue();
-				else if(measure instanceof AssetMeasure)
-					imprate = ((AssetMeasure)measure).getImplementationRateValue();
 				
 				if (measure.getMeasureDescription().isComputable()) {
 

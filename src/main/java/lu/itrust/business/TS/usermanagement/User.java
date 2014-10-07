@@ -24,7 +24,6 @@ import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.GenericGenerator;
 
 /**
  * User: <br>
@@ -43,9 +42,7 @@ public class User implements Serializable {
 
 	/** Fields */
 	
-	@Id 
-	@GenericGenerator(name="gen",strategy="increment")
-	@GeneratedValue(generator="gen")
+	@Id @GeneratedValue
 	@Column(name="idUser")
 	private Integer id = -1;
 

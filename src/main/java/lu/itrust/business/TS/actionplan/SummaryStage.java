@@ -40,7 +40,7 @@ public class SummaryStage {
 	 **********************************************************************************************/
 
 	/** ID of Stage */
-	@Id @GeneratedValue(strategy=GenerationType.TABLE)
+	@Id @GeneratedValue
 	@Column(name="idActionPlanSummary")
 	private int id = -1;
 

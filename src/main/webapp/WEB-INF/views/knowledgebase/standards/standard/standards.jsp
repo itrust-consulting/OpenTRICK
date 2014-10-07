@@ -3,6 +3,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="section" id="section_standard">
 	<div class="page-header">
 		<h3 id="Standards">
@@ -50,7 +51,7 @@
 									<td><spring:message text="${standard.label}"/></td>
 									<td><spring:message text="${standard.version}"/></td>
 									<td><spring:message text="${standard.description}"/></td>
-									<td trick-type="${standard.type}"><spring:message code="label.norm.type_${standard.type}" text="${standard.type}"/></td>
+									<td trick-type="${standard.type}"><spring:message code="label.norm.type_${fn:toLowerCase(standard.type)}" text="${standard.type}"/></td>
 									<td computable="${standard.computable?'Yes':'No'}"><spring:message code="label.yes_no.${standard.computable}" text="${standard.computable?'Yes':'No'}" /></td>
 								</tr>
 							</c:forEach>

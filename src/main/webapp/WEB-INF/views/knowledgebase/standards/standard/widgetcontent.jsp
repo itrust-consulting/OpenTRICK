@@ -38,10 +38,9 @@
 					</div>
 					<div class="panel panel-primary">
 						<div class="panel-body">
-							<label class="col-sm-12 text-center">Standard Type</label> 
-							<label class="radio-inline col-sm-4" style="margin-left:0;"> <input type="radio" name="type" value="NORMAL">Normal</label>
-							<label class="radio-inline col-sm-4" style="margin-left:0;"> <input type="radio" name="type" value="MATURITY">Maturity</label>
-							<label class="radio-inline col-sm-4" style="margin-left:0;"> <input type="radio" name="type" value="ASSET">Asset</label>
+							<label class="col-sm-12 text-center"><spring:message code="label.norm.standard_type" text="Standard Type" /></label> 
+							<label class="radio-inline col-sm-4" style="margin-left:0;"> <input type="radio" name="type" value="NORMAL"><spring:message code="label.norm.standard_type.normal" text="Normal" /></label>
+							<label class="radio-inline col-sm-4" style="margin-left:0;"> <input type="radio" name="type" value="MATURITY"><spring:message code="label.norm.standard_type.maturity" text="Maturity" /></label>
 						</div>
 					</div>
 					<div class="form-group">

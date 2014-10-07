@@ -20,8 +20,6 @@ import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
-import lu.itrust.business.TS.AssetMeasure;
-import lu.itrust.business.TS.AssetStandard;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Customer;
@@ -441,11 +439,6 @@ public class ControllerAnalysis {
 				for (AssetType assetType : assetTypes)
 					assetTypeValues.add(new AssetTypeValue(assetType, 0));
 				((NormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
-				implementationRate = new Double(0);
-			} else if(standard.getType() == StandardType.ASSET) {
-				analysisStandard = new AssetStandard();
-				measure = new AssetMeasure();
-				((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
 				implementationRate = new Double(0);
 			}
 			Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
