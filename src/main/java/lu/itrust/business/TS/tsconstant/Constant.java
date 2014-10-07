@@ -155,12 +155,12 @@ public class Constant {
 	public static final String REGEXP_VALID_MEASURE_STATUS = "AP|NA|M";
 	
 	/** Status regular expression */
-	public static final String REGEXP_VALID_NORM_MEASURE_STATUS = "AP|NA";
+	public static final String REGEXP_VALID_STANDARD_MEASURE_STATUS = "AP|NA";
 	
 	/** Status regular expression */
 	public static final String REGEXP_VALID_MATURITY_MEASURE_STATUS = "M|NA";
 
-	/** Norm Caption regular Expression */
+	/** Standard Caption regular Expression */
 	public static final String REGEXP_VALID_STANDARD_NAME = "Maturity|2700[1-2]|[cC]ustom";
 
 	/** Regular expression for Parameter types */
@@ -196,10 +196,10 @@ public class Constant {
 	public static final String STANDARD_27002 = "27002";
 	public static final String STANDARD_CUSTOM = "Custom";
 
-	/** AnalysisNorm References */
+	/** AnalysisStandard References */
 	public static final String MATURITY_REFERENCE = "M.";
 	public static final String MATURITY_FIRSTCHAR_REFERENCE = "M";
-	public static final String NORM27001_FIRSTCHAR_REFERENCE = "A";
+	public static final String STANDARD27001_FIRSTCHAR_REFERENCE = "A";
 
 	/** Implementation rate completed -> 100% */
 	public static final double MEASURE_IMPLEMENTATIONRATE_COMPLETE = 100;
@@ -454,8 +454,8 @@ public class Constant {
 	public final static String MATMEASURE_MYSQL_SML4COST = "dtSML4Cost";
 	public final static String MATMEASURE_MYSQL_SML5COST = "dtSML5Cost";
 
-	/** List of Constants for the MySQL Table "NormMeasure" */
-	public final static String MEASURE_MYSQL_ID = "idNormMeasure";
+	/** List of Constants for the MySQL Table "NormalMeasure" */
+	public final static String MEASURE_MYSQL_ID = "idNormalMeasure";
 	public final static String MEASURE_MYSQL_STATUS = "dtStatus";
 	public final static String MEASURE_MYSQL_DESCRIPTION_ID = "fiMeasureDescription";
 	public final static String MEASURE_MYSQL_IMP_RATE = "dtImplementationRate";
@@ -497,7 +497,7 @@ public class Constant {
 	public final static String MEASUREDESCRIPTIONTEXT_MYSQL_DOMAIN = "dtDomain";
 	public final static String MEASUREDESCRIPTIONTEXT_MYSQL_DESCRIPTION = "dtDescription";
 
-	/** List of Constants for the MySQL Table "AnalysisNorm" */
+	/** List of Constants for the MySQL Table "AnalysisStandard" */
 	public final static String STANDARD_MYSQL_ID = "idStandard";
 	public final static String STANDARD_MYSQL_LABEL = "dtLabel";
 

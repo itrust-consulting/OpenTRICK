@@ -13,8 +13,8 @@ import lu.itrust.business.exception.TrickException;
 import org.hibernate.proxy.HibernateProxy;
 
 /**
- * MaturityNorm: <br>
- * This class represents the MaturityNorm and its data
+ * MaturityStandard: <br>
+ * This class represents the MaturityStandard and its data
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
@@ -48,11 +48,11 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 	 * 
 	 * @param analysis
 	 *            The Analysis Object
-	 * @param norm
-	 *            The Norm Name
+	 * @param standard
+	 *            The standard
 	 */
-	public MaturityStandard(Analysis analysis, Standard norm) {
-		super(analysis, norm);
+	public MaturityStandard(Analysis analysis, Standard standard) {
+		super(analysis, standard);
 	}
 
 	/**
@@ -68,11 +68,11 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 	/**
 	 * Constructor:<br>
 	 * 
-	 * @param norm
-	 *            The Norm Name
+	 * @param standard
+	 *            The standard
 	 */
-	public MaturityStandard(Standard norm) {
-		super(norm);
+	public MaturityStandard(Standard standard) {
+		super(standard);
 	}
 
 	/***********************************************************************************************
@@ -139,20 +139,26 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 		this.getMeasures().add(measure);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.AnalysisNorm#clone()
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.TS.AnalysisStandard#clone()
 	 */
 	@Override
 	public MaturityStandard clone() throws CloneNotSupportedException {
 		return (MaturityStandard) super.clone();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.AnalysisNorm#basicClone()
+	/**
+	 * duplicate: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.TS.AnalysisStandard#duplicate()
 	 */
 	@Override
 	public MaturityStandard duplicate() throws CloneNotSupportedException {

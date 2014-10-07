@@ -1,9 +1,9 @@
-function showMeasures(normId, languageId) {
-	if (normId == null || normId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_norm"));
+function showMeasures(idStandard, languageId) {
+	if (idStandard == null || idStandard == undefined) {
+		var selectedScenario = findSelectItemIdBySection(("section_standard"));
 		if (selectedScenario.length != 1)
 			return false;
-		normId = selectedScenario[0];
+		idStandard = selectedScenario[0];
 	}
 	
 	if(languageId == undefined || languageId == null) {
@@ -12,7 +12,7 @@ function showMeasures(normId, languageId) {
 	}
 	
 	$.ajax({
-		url : context + "/KnowledgeBase/Norm/" + normId + "/language/" + languageId + "/Measures",
+		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Language/" + languageId + "/Measures",
 		type : "POST",
 		contentType : "application/json",
 		success : function(response) {
@@ -26,7 +26,7 @@ function showMeasures(normId, languageId) {
 			updateMenu(undefined, "#section_measure_description", "#menu_measure_description", undefined);
 			
 			$("#languageselect").change(function(e) {
-				showMeasures($("#section_measure_description #measures_header #normId").val(), $(e.target).val());
+				showMeasures($("#section_measure_description #measures_header #idStandard").val(), $(e.target).val());
 			});
 			
 			$("#section_measure_description").modal("show");
@@ -37,11 +37,11 @@ function showMeasures(normId, languageId) {
 	return false;
 }
 
-function newMeasure(normId) {
+function newMeasure(idStandard) {
 	if (findSelectItemIdBySection("section_measure_description").length)
 		return false;
-	if (normId == null || normId == undefined)
-		normId = $("#section_measure_description #measures_header #normId").val();
+	if (idStandard == null || idStandard == undefined)
+		idStandard = $("#section_measure_description #measures_header #idStandard").val();
 	var alert = $("#addMeasureModel .label-danger");
 	if (alert.length)
 		alert.remove();
@@ -52,12 +52,12 @@ function newMeasure(normId) {
 	$("#addMeasureModel #measure_level").prop("value", "");
 	$("#addMeasureModel #measure_computable").prop("checked", "false");
 
-	$("#addMeasureModel #measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
+	$("#addMeasureModel #measure_form").prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
 	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));
 	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.add", "Add"));
 
 	$.ajax({
-		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/Add",
+		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Add",
 		type : "get",
 		async : true,
 		contentType : "application/json",
@@ -86,10 +86,10 @@ function newMeasure(normId) {
 	return false;
 }
 
-function editSingleMeasure(measureId, normId) {
+function editSingleMeasure(measureId, idStandard) {
 	
-	if (normId == null || normId == undefined)
-		normId = $("#section_measure_description #measures_header #normId").val();
+	if (idStandard == null || idStandard == undefined)
+		idStandard = $("#section_measure_description #measures_header #idStandard").val();
 	
 	var alert = $("#addMeasureModel .label-danger");
 	if (alert.length)
@@ -108,12 +108,12 @@ function editSingleMeasure(measureId, normId) {
 	$("#addMeasureModel #measure_level").prop("value", $(measure[0]).text());
 	$("#addMeasureModel #measure_computable").prop("checked", $(measure[4]).attr("trick-computable") == "true");
 	
-	$("#addMeasureModel #measure_form").prop("action", context + "/KnowledgeBase/Norm/" + normId + "/Measures/Save");
+	$("#addMeasureModel #measure_form").prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
 	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.measure.update", "Update Measure"));
 	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.edit", "Update"));
 	
 	$.ajax({
-		url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/" + measureId + "/Edit",
+		url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/" + measureId + "/Edit",
 		type : "post",
 		contentType : "application/json",
 		success : function(response) {
@@ -181,8 +181,8 @@ function saveMeasure() {
 			}
 			if (!$("#addMeasureModel").find(".label-danger").length) {
 				var language = $("#measures_body #languageselect").val();
-				var normId = $("#section_measure_description #measures_header #normId").val();
-				return showMeasures(normId, language);
+				var idStandard = $("#section_measure_description #measures_header #idStandard").val();
+				return showMeasures(idStandard, language);
 			}
 			return false;
 
@@ -195,7 +195,7 @@ function saveMeasure() {
 	return false;
 }
 
-function deleteMeasure(measureId, reference, norm) {
+function deleteMeasure(measureId, reference, standard) {
 	
 	
 	
@@ -210,10 +210,10 @@ function deleteMeasure(measureId, reference, norm) {
 		measureId = selectedScenario[0];
 	}
 
-	normId = $("#section_measure_description #measures_header #normId").val();
+	idStandard = $("#section_measure_description #measures_header #idStandard").val();
 	
-	if (norm == null || norm == undefined)
-		norm = $("#section_measure_description #measures_header #normLabel").val();
+	if (standard == null || standard == undefined)
+		standard = $("#section_measure_description #measures_header #standardLabel").val();
 	
 	var measure = $("#section_measure_description #measures_body tr[trick-id='" + measureId + "'] td:not(:first-child)");
 	reference = $(measure[1]).text();
@@ -221,20 +221,20 @@ function deleteMeasure(measureId, reference, norm) {
 	var deleteModal = new Modal();
 	deleteModal.FromContent($("#deleteMeasureModel").clone());
 	deleteModal.setBody(MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: <strong>" + reference
-			+ "</strong> from the norm <strong>" + norm + " </strong>?", [ reference, norm ]));
+			+ "</strong> from the standard <strong>" + standard + " </strong>?", [ reference, standard ]));
 	$(deleteModal.modal_header).find("button").click(function() {
 		delete deleteModal;
 	});
 	$(deleteModal.modal_footer).find("#deletemeasurebuttonYes").click(function() {
 		$.ajax({
-			url : context + "/KnowledgeBase/Norm/" + normId + "/Measures/Delete/" + measureId,
+			url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Delete/" + measureId,
 			type : "POST",
 			contentType : "application/json",
 			async : false,
 			success : function(response) {
 				if (response.success) {
 					var language = $("#measures_body #languageselect").val();
-					return showMeasures(normId, language);
+					return showMeasures(idStandard, language);
 				} else if (response.error) {
 					var error = new Modal();
 					error.FromContent($("#alert-dialog").clone());

@@ -19,8 +19,8 @@ public class MeasureDescriptionValidator extends ValidatorFieldImpl {
 	private static final String LEVEL = "level";
 	private static final String REFERENCE = "reference";
 	private static final String COMPUTABLE = "computable";
-	private static final String ERROR_MEASURE_DESCRIPTION_NORM_NULL_A_MEASURE_DESCRIPTION_SHOULD_ALWAYS_BE_ATTACHED_TO_A_NORM = "error.measure_description.norm.null::A measure description should always be attached to a norm";
-	private static final String ERROR_UNSUPPORTED_DATA_NORM_NORM_VALUE_IS_NOT_SUPPORTED = "error.measure_description.unsupported.norm::Norm value is not supported";
+	private static final String ERROR_MEASURE_DESCRIPTION_STANDARD_NULL_A_MEASURE_DESCRIPTION_SHOULD_ALWAYS_BE_ATTACHED_TO_A_STANDARD = "error.measure_description.norm.null::A measure description should always be attached to a norm";
+	private static final String ERROR_UNSUPPORTED_DATA_STANDARD_STANDARD_VALUE_IS_NOT_SUPPORTED = "error.measure_description.unsupported.norm::Norm value is not supported";
 	private static final String ERROR_MEASURE_DESCRIPTION_MEASURE_DESCRIPTION_TEXTS_NULL_A_MEASURE_DESCRIPTION_SHOULD_ALWAYS_HAVE_DESCRIPTION_TEXT = "error.measure_description.measure_description_texts.null::A measure description should always have description text";
 	private static final String ERROR_UNSUPPORTED_DATA_LEVEL_LEVEL_VALUE_IS_NOT_SUPPORTED = "error.measure_description.unsupported.level::Level value is not supported";
 	private static final String ERROR_MEASURE_DESCRIPTION_LEVEL_LEVEL_SHOULD_BE_A_INTEGER_GREATER_THAN_OR_EQUAL_TO_1 = "error.measure_description.level::Level should be a integer greater than or equal to 1";
@@ -40,15 +40,15 @@ public class MeasureDescriptionValidator extends ValidatorFieldImpl {
 		switch (fieldName) {
 		case STANDARD:
 			if(candidate == null)
-				return ERROR_MEASURE_DESCRIPTION_NORM_NULL_A_MEASURE_DESCRIPTION_SHOULD_ALWAYS_BE_ATTACHED_TO_A_NORM;
+				return ERROR_MEASURE_DESCRIPTION_STANDARD_NULL_A_MEASURE_DESCRIPTION_SHOULD_ALWAYS_BE_ATTACHED_TO_A_STANDARD;
 			else if(!(candidate instanceof Standard))
-				return ERROR_UNSUPPORTED_DATA_NORM_NORM_VALUE_IS_NOT_SUPPORTED;
+				return ERROR_UNSUPPORTED_DATA_STANDARD_STANDARD_VALUE_IS_NOT_SUPPORTED;
 			break;
 		case "measureDescriptionTexts":
 			if(candidate == null)
 				return ERROR_MEASURE_DESCRIPTION_MEASURE_DESCRIPTION_TEXTS_NULL_A_MEASURE_DESCRIPTION_SHOULD_ALWAYS_HAVE_DESCRIPTION_TEXT;
 			else if(!(candidate instanceof List))
-				return ERROR_UNSUPPORTED_DATA_NORM_NORM_VALUE_IS_NOT_SUPPORTED;
+				return ERROR_UNSUPPORTED_DATA_STANDARD_STANDARD_VALUE_IS_NOT_SUPPORTED;
 			if(((List<?>) candidate).isEmpty())
 				return ERROR_MEASURE_DESCRIPTION_MEASURE_DESCRIPTION_TEXTS_NULL_A_MEASURE_DESCRIPTION_SHOULD_ALWAYS_HAVE_DESCRIPTION_TEXT;
 			break;

@@ -21,6 +21,7 @@ import lu.itrust.business.TS.Language;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Standard;
+import lu.itrust.business.TS.StandardType;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.MeasureManager;
@@ -135,7 +136,7 @@ public class ControllerStandard {
 		// load all standards to model
 
 		model.addAttribute("standards", serviceStandard.getAll());
-		return "knowledgebase/standard/norm/norms";
+		return "knowledgebase/standards/standard/standards";
 	}
 
 	/**
@@ -180,7 +181,7 @@ public class ControllerStandard {
 		// load standard to model
 		model.put("standard", standard);
 
-		return "knowledgebase/standard/norm/showNorm";
+		return "knowledgebase/standards/standard/showStandard";
 	}
 
 	/**
@@ -243,7 +244,7 @@ public class ControllerStandard {
 			customDelete.deleteStandard(serviceStandard.get(idStandard));
 
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null, "Norm was deleted successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null, "Standard was deleted successfully", locale));
 		} catch (Exception e) {
 
 			// return error message
@@ -265,7 +266,7 @@ public class ControllerStandard {
 	 */
 	@RequestMapping(value = "/Upload", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String uploadStandard() throws Exception {
-		return "knowledgebase/standard/norm/uploadForm";
+		return "knowledgebase/standards/standard/uploadForm";
 	}
 
 	/**
@@ -640,6 +641,8 @@ public class ControllerStandard {
 			String label = jsonNode.get("label").asText();
 
 			String description = jsonNode.get("description").asText();
+			
+			StandardType type = StandardType.getByName(jsonNode.get("type").asText());
 
 			Integer version = null;
 
@@ -675,6 +678,13 @@ public class ControllerStandard {
 			else
 				standard.setDescription(description);
 
+			error = validator.validate(standard, "type", type);
+			
+			if (error != null)
+				errors.put("type", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				standard.setType(type);
+			
 			// set computable flag
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 

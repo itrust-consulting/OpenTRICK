@@ -25,8 +25,8 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 /**
- * AnalysisNorm: <br>
- * This class represents a AnalysisNorm and its data
+ * AnalysisStandard: <br>
+ * This class represents a AnalysisStandard and its data
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
@@ -46,17 +46,17 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 	@Transient
 	private static final long serialVersionUID = 1L;
 	
-	/** AnalysisNorm id */
+	/** AnalysisStandard id */
 	@Id @GeneratedValue 
 	@Column(name="idAnalysisStandard")
 	private int id = -1;
 
-	/** AnalysisNorm Norm Object */
+	/** AnalysisStandard Standard Object */
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="fiStandard", nullable=false)
 	private Standard standard = null;
 
-	/** AnalysisNorm List of measures */
+	/** AnalysisStandard List of measures */
 	@OneToMany(mappedBy="analysisStandard")
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<Measure> measures = new ArrayList<Measure>();
@@ -71,11 +71,8 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 
 	/**
 	 * Constructor: <br>
-	 * 
 	 * @param analysis
-	 *            The Analysis Object
-	 * @param norm
-	 *            The Norm Object
+	 * @param standard
 	 */
 	public AnalysisStandard(Analysis analysis, Standard standard) {
 		this.analysis = analysis;
@@ -84,9 +81,7 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 
 	/**
 	 * Constructor: <br>
-	 * 
-	 * @param norm
-	 *            The Norm object
+	 * @param standard
 	 */
 	public AnalysisStandard(Standard standard) {
 		this.standard = standard;
@@ -117,19 +112,18 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 	 * getName: <br>
 	 * Returns the "name" field value
 	 * 
-	 * @return The AnalysisNorm Name
+	 * @return The AnalysisStandard Name
 	 */
 	public Standard getStandard() {
 		return standard;
 	}
 
 	/**
-	 * setNorm: <br>
-	 * Sets the "name" field with a value
+	 * setStandard: <br>
+	 * Description
 	 * 
 	 * @param name
-	 *            The value to set the AnalysisNorm Name
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setStandard(Standard name) throws TrickException {
 		if (name == null)
@@ -209,14 +203,14 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 	 */
 	@Override
 	public Object clone() throws CloneNotSupportedException {
-		AnalysisStandard analysisNorm = (AnalysisStandard) super.clone();
-		analysisNorm.measures = new ArrayList<>();
+		AnalysisStandard analysisStandard = (AnalysisStandard) super.clone();
+		analysisStandard.measures = new ArrayList<>();
 		for (Measure measure : measures) {
 			Measure measure2 = (Measure) measure.clone();
-			measure2.setAnalysisStandard(analysisNorm);
-			analysisNorm.measures.add(measure2);
+			measure2.setAnalysisStandard(analysisStandard);
+			analysisStandard.measures.add(measure2);
 		}
-		return analysisNorm;
+		return analysisStandard;
 	}
 
 	public AnalysisStandard duplicate() throws CloneNotSupportedException {

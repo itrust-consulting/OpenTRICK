@@ -24,7 +24,7 @@ import lu.itrust.business.exception.TrickException;
 /**
  * Measure: <br>
  * This class represents a Measure and its data. This class has fields that are
- * used in Maturity and AnalysisNorm Meaure classes. (Both are extended by this
+ * used in Maturity and AnalysisStandard Meaure classes. (Both are extended by this
  * class)
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
@@ -46,7 +46,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	/** The Measure Identifier */
 	private int id = -1;
 
-	/** Analysis Norm Object */
+	/** Analysis standard Object */
 	private AnalysisStandard analysisStandard = null;
 
 	/** The Measure Domain */
@@ -413,10 +413,10 @@ public abstract class Measure implements Serializable, Cloneable {
 	}
 
 	/**
-	 * getNorm: <br>
-	 * Returns the analysisNorm field value.
+	 * getAnalysisStandard: <br>
+	 * Description
 	 * 
-	 * @return The value of the analysisNorm field
+	 * @return
 	 */
 	@ManyToOne 
 	@JoinColumn(name="fiAnalysisStandard", nullable=false)
@@ -426,14 +426,13 @@ public abstract class Measure implements Serializable, Cloneable {
 	}
 
 	/**
-	 * setNorm: <br>
-	 * Sets the Field "analysisNorm" with a value.
+	 * setAnalysisStandard: <br>
+	 * Description
 	 * 
-	 * @param analysisNorm
-	 *            The Value to set the analysisNorm field
+	 * @param analysisStandard
 	 */
-	public void setAnalysisStandard(AnalysisStandard analysisNorm) {
-		this.analysisStandard = analysisNorm;
+	public void setAnalysisStandard(AnalysisStandard analysisStandard) {
+		this.analysisStandard = analysisStandard;
 	}
 
 	/**

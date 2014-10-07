@@ -33,10 +33,10 @@
 						<form:errors element="label" path="name" cssClass="label label-danger" />
 					</div>
 					<div class="form-group">
-						<form:label path="norms">
+						<form:label path="standards">
 							<spring:message code="label.analysis.profile.norms" text="Standards to include in profile" />
 						</form:label>
-						<form:select path="norms" multiple="true" cssClass="form-control" itemValue="id" itemLabel="label" items="${norms}" />
+						<form:select path="standards" multiple="true" cssClass="form-control" itemValue="id" itemLabel="label" items="${standards}" />
 					</div>
 					<div class="form-group">
 						<label for="scenario"><spring:message code="label.analysis.profile.scenario" text="Include risk scenarios of analysis in profile" /></label>

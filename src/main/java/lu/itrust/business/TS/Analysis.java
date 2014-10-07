@@ -185,7 +185,7 @@ public class Analysis implements Serializable, Cloneable {
 	@Access(AccessType.FIELD)
 	private List<Assessment> assessments = new ArrayList<Assessment>();
 
-	/** List of Norms */
+	/** List of Standards */
 	@OneToMany(mappedBy = "analysis")
 	@OrderBy("standard")
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
@@ -1017,18 +1017,13 @@ public class Analysis implements Serializable, Cloneable {
 		
 		// ****************************************************************
 		// * retrieve all phases and add them to the list of phases
-		// * therefore parse all analysisNorm and all measures to check phases
+		// * therefore parse all analysisStandard and all measures to check phases
 		// ****************************************************************
 
-		// parse all analysisNorm
+		// parse all analysisStandard
 		for (int i = 0; i < normalStandards.size(); i++) {
-
-			// ****************************************************************
-			// * make difference between maturity norm and measurenorm
-			// ****************************************************************
-
-			
-			// parse all measures of the norm
+		
+			// parse all measures of the standard
 			for (int j = 0; j < normalStandards.get(i).getMeasures().size(); j++) {
 
 				int phaseNumber = normalStandards.get(i).getMeasure(j).getPhase().getNumber();
@@ -1041,7 +1036,7 @@ public class Analysis implements Serializable, Cloneable {
 		
 		if(maturityStandard!=null) {
 		
-			// parse all measures of the norm
+			// parse all measures of the standard
 			for (int i = 0; i < maturityStandard.getLevel1Measures().size(); i++) {
 	
 				int phaseNumber = maturityStandard.getLevel1Measures().get(i).getPhase().getNumber();
@@ -1054,7 +1049,7 @@ public class Analysis implements Serializable, Cloneable {
 		
 		if(assetStandard!=null) {
 			
-			// parse all measures of the norm
+			// parse all measures of the standard
 			for (int i = 0; i < assetStandard.getMeasures().size(); i++) {
 	
 				int phaseNumber = assetStandard.getMeasure(i).getPhase().getNumber();
@@ -1838,43 +1833,47 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	/**
-	 * getANorm: <br>
-	 * Returns a AnalysisNorm Object from the List of Norms at position "index"
+	 * getAnalysisStandard: <br>
+	 * Description
 	 * 
 	 * @param index
-	 *            The Position to retrieve the Object
-	 * 
-	 * @return The AnalysisNorm Object at position "index"
+	 * @return
 	 */
 	public AnalysisStandard getAnalysisStandard(int index) {
 		return analysisStandards.get(index);
 	}
 
+	/**
+	 * getAnalysisStandardByLabel: <br>
+	 * Description
+	 * 
+	 * @param label
+	 * @return
+	 */
 	public AnalysisStandard getAnalysisStandardByLabel(String label) {
-		for (AnalysisStandard anorm : this.analysisStandards) {
-			if (anorm.getStandard().getLabel().equals(label)) {
-				return anorm;
+		for (AnalysisStandard analysisStandard : this.analysisStandards) {
+			if (analysisStandard.getStandard().getLabel().equals(label)) {
+				return analysisStandard;
 			}
 		}
 		return null;
 	}
 
 	/**
-	 * getNorms: <br>
-	 * Returns a List of AnalysisNorm Objects.
+	 * getAnalysisStandards: <br>
+	 * Description
 	 * 
-	 * @return The List of AnalysisNorm Objects
+	 * @return
 	 */
 	public List<AnalysisStandard> getAnalysisStandards() {
 		return analysisStandards;
 	}
 
 	/**
-	 * addANorm: <br>
-	 * Adds a AnalysisNorm Object to the List of Norms
+	 * addAnalysisStandard: <br>
+	 * Description
 	 * 
-	 * @param analysisNorms
-	 *            The norm Object to Add
+	 * @param analysisStandard
 	 */
 	public void addAnalysisStandard(AnalysisStandard analysisStandard) {
 		analysisStandard.setAnalysis(this);
@@ -1882,11 +1881,10 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	/**
-	 * setNorms: <br>
-	 * Sets all AnalysisNorm in form of a vecotr.
+	 * setAnalysisStandards: <br>
+	 * Description
 	 * 
-	 * @param analysisNorm
-	 *            The List of Norms to set
+	 * @param analysisStandards
 	 */
 	public void setAnalysisStandards(List<AnalysisStandard> analysisStandards) {
 		for (AnalysisStandard analysisStandard : analysisStandards)
@@ -2284,7 +2282,7 @@ public class Analysis implements Serializable, Cloneable {
 	public String toString() {
 		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label + ", histories="
 			+ histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets + ", riskInformations="
-			+ riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisNorm=" + analysisStandards + ", usedphases=" + usedPhases + ", actionPlans=" + actionPlans
+			+ riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisStandards=" + analysisStandards + ", usedphases=" + usedPhases + ", actionPlans=" + actionPlans
 			+ ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}
 
@@ -2818,10 +2816,10 @@ public class Analysis implements Serializable, Cloneable {
 		return mappings;
 	}
 
-	public List<? extends Measure> findMeasureByNorm(String string) {
-		for (AnalysisStandard analysisNorm : analysisStandards)
-			if (analysisNorm.getStandard().getLabel().equalsIgnoreCase(string))
-				return analysisNorm.getMeasures();
+	public List<? extends Measure> findMeasureByStandard(String string) {
+		for (AnalysisStandard analysisStandard : analysisStandards)
+			if (analysisStandard.getStandard().getLabel().equalsIgnoreCase(string))
+				return analysisStandard.getMeasures();
 		return null;
 	}
 

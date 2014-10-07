@@ -51,7 +51,7 @@ function updateSettings(element, entryKey) {
 }
 
 // reload measures
-function reloadMeasureRow(idMeasure, norm) {
+function reloadMeasureRow(idMeasure, standard) {
 	$.ajax({
 		url : context + "/Measure/SingleMeasure/" + idMeasure,
 		type : "get",
@@ -62,8 +62,8 @@ function reloadMeasureRow(idMeasure, norm) {
 			$(element).html(response);
 			var tag = $(element).find("tr[trick-id='" + idMeasure + "']");
 			if (tag.length) {
-				$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']").replaceWith(tag);
-				$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
+				$("#section_measure_" + standard + " tr[trick-id='" + idMeasure + "']").replaceWith(tag);
+				$("#section_measure_" + standard + " tr[trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
 			}
 		},
 		error : unknowError
@@ -71,9 +71,9 @@ function reloadMeasureRow(idMeasure, norm) {
 	return false;
 }
 
-function reloadMeausreAndCompliance(norm, idMeasure) {
-	reloadMeasureRow(idMeasure, norm);
-	compliance(norm);
+function reloadMeausreAndCompliance(standard, idMeasure) {
+	reloadMeasureRow(idMeasure, standard);
+	compliance(standard);
 	return false;
 }
 
@@ -88,14 +88,14 @@ function compliances() {
 		async : true,
 		success : function(response) {
 
-			if (response.norms == undefined || response.norms == null)
+			if (response.standards == undefined || response.standards == null)
 				return;
 			
 			var panelbody = $("#chart_compliance .panel-body");
 			
 			$(panelbody).html("");
 			
-			$.each(response.norms, function (key, data) {
+			$.each(response.standards, function (key, data) {
 			    //console.log(key); 
 			    
 			    $(panelbody).append("<div id='chart_compliance_"+ key +"'></div>");
@@ -110,11 +110,11 @@ function compliances() {
 	return false;
 }
 
-function compliance(norm) {
-	if (!$('#chart_compliance_' + norm).length)
+function compliance(standard) {
+	if (!$('#chart_compliance_' + standard).length)
 		return false;
 	$.ajax({
-		url : context + "/Measure/Compliance/" + norm,
+		url : context + "/Measure/Compliance/" + standard,
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
@@ -122,7 +122,7 @@ function compliance(norm) {
 		success : function(response) {
 			if (response.chart == undefined || response.chart == null)
 				return;
-			$('#chart_compliance_' + norm).highcharts(response);
+			$('#chart_compliance_' + standard).highcharts(response);
 		},
 		error : unknowError
 	});
@@ -273,13 +273,13 @@ function manageStandard() {
 							if ($(this).is(":disabled"))
 								return false;
 							var modal = new Modal($("#confirm-dialog").clone(), MessageResolver("confirm.delete.analysis.norm", "Are you sure, you want to remove this standard from this analysis?"));
-							var selectedNorm = this;
+							var selectedStandard = this;
 							$(modal.modal_footer).find("button[name='yes']").click(function() {
-								if ($(selectedNorm).is(":disabled"))
+								if ($(selectedStandard).is(":disabled"))
 									return false;
 								enableButtonSaveStandardState(false);
 								$.ajax({
-									url : context + "/Analysis/Delete/Standard/" + $(selectedNorm).attr("trick-id"),
+									url : context + "/Analysis/Delete/Standard/" + $(selectedStandard).attr("trick-id"),
 									type : "get",
 									async : false,
 									contentType : "application/json;charset=UTF-8",
@@ -340,9 +340,9 @@ function saveStandard(form) {
 		if ($("#btn_save_standard").is(":disabled"))
 			return false;
 		enableButtonSaveStandardState(false);
-		var normId = $("#" + form + " select").val();
+		var idStandard = $("#" + form + " select").val();
 		$.ajax({
-			url : context + "/Analysis/Save/Standard/" + normId,
+			url : context + "/Analysis/Save/Standard/" + idStandard,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {

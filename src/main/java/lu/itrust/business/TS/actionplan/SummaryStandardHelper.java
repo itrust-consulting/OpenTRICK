@@ -15,14 +15,14 @@ import lu.itrust.business.TS.Measure;
  */
 public class SummaryStandardHelper {
 
-	public AnalysisStandard norm = null;
+	public AnalysisStandard standard = null;
 	
 	public List<Measure> measures = new ArrayList<Measure>();
 	
 	public double conformance = 0;
 	
-	public SummaryStandardHelper(AnalysisStandard norm) {
-		this.norm = norm;
+	public SummaryStandardHelper(AnalysisStandard standard) {
+		this.standard = standard;
 	}
 	
 }

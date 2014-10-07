@@ -23,19 +23,19 @@ import org.hibernate.annotations.CascadeType;
 import lu.itrust.business.exception.TrickException;
 
 /**
- * NormMeasure: <br>
- * This class represents a AnalysisNorm Measure and its data. This class extends
- * Measure, it is used to represent measures that are NOT Maturity Measures. <br>
+ * NormalMeasure: <br>
+ * This class represents a AnalysisStandard Measure and its data. This class extends Measure, it is
+ * used to represent measures that are NOT Maturity Measures. <br>
  * <br>
  * - Asset Type Values <br>
- * - Data for measures of AnalysisNorm 27001, 27002 and custom norms
+ * - Data for measures of Analysisstandard 27001, 27002 and custom standards
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
-@PrimaryKeyJoinColumn(name="idNormalMeasure")
+@Entity
+@PrimaryKeyJoinColumn(name = "idNormalMeasure")
 public class NormalMeasure extends Measure {
 
 	/***********************************************************************************************
@@ -65,9 +65,9 @@ public class NormalMeasure extends Measure {
 	 * 
 	 * @return The Measure Properties List object
 	 */
-	@ManyToOne 
-	@JoinColumn(name="fiMeasureProperties", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@ManyToOne
+	@JoinColumn(name = "fiMeasureProperties", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	public MeasureProperties getMeasurePropertyList() {
 		return measurePropertyList;
 	}
@@ -88,8 +88,8 @@ public class NormalMeasure extends Measure {
 
 	/**
 	 * getAssetTypeValue: <br>
-	 * Returns the Asset Type value at position "index" of the Asset Type Value
-	 * List ("assetTypeValues" field)
+	 * Returns the Asset Type value at position "index" of the Asset Type Value List
+	 * ("assetTypeValues" field)
 	 * 
 	 * @param index
 	 *            The index of the element position to retrieve from the list
@@ -103,18 +103,14 @@ public class NormalMeasure extends Measure {
 
 	/**
 	 * getAssetTypeValueList: <br>
-	 * Returns the List of Asset Type Values for this Measure ("assetTypeValue"
-	 * field)
+	 * Returns the List of Asset Type Values for this Measure ("assetTypeValue" field)
 	 * 
 	 * @return The List of all Asset Type Values
 	 */
 	@ManyToMany
-	@JoinTable(name = "MeasureAssetTypeValue", 
-			   joinColumns = { @JoinColumn(name = "idNormalMeasure", nullable = false) }, 
-			   inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetTypeValue", nullable = false) },
-			   uniqueConstraints = @UniqueConstraint(columnNames = {"idNormalMeasure", "idMeasureAssetTypeValue"})
-	)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@JoinTable(name = "MeasureAssetTypeValue", joinColumns = { @JoinColumn(name = "idNormalMeasure", nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetTypeValue",
+			nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "idNormalMeasure", "idMeasureAssetTypeValue" }))
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}
@@ -132,8 +128,7 @@ public class NormalMeasure extends Measure {
 
 	/**
 	 * addAnAssetTypeValue: <br>
-	 * Adds a new Asset Type Value object to the list of Asset Type Values
-	 * ("assetTypeValue" field)
+	 * Adds a new Asset Type Value object to the list of Asset Type Values ("assetTypeValue" field)
 	 * 
 	 * @param assettypevalue
 	 *            The Asset Type Value object to add to list
@@ -153,7 +148,7 @@ public class NormalMeasure extends Measure {
 	 * 
 	 * @return The To Check Value
 	 */
-	@Column(name="dtToCheck", nullable=false)
+	@Column(name = "dtToCheck", nullable = false)
 	public String getToCheck() {
 		return this.toCheck;
 	}
@@ -177,7 +172,7 @@ public class NormalMeasure extends Measure {
 	 * @see lu.itrust.business.TS.Measure#getImplementationRate()
 	 */
 	@Override
-	@Column(name="dtImplementationRate", nullable=false)
+	@Column(name = "dtImplementationRate", nullable = false)
 	@Access(AccessType.FIELD)
 	public Double getImplementationRate() {
 		return (Double) super.getImplementationRate();
@@ -185,8 +180,7 @@ public class NormalMeasure extends Measure {
 
 	/**
 	 * getImplementationRateValue: <br>
-	 * Returns the Implementation Rate value using the getImplementationRate
-	 * method.
+	 * Returns the Implementation Rate value using the getImplementationRate method.
 	 * 
 	 * @return Implementation Rate Value
 	 * @see lu.itrust.business.TS.Measure#getImplementationRateValue()
@@ -234,29 +228,40 @@ public class NormalMeasure extends Measure {
 	 */
 	@Override
 	public NormalMeasure clone() throws CloneNotSupportedException {
-		NormalMeasure normMeasure = (NormalMeasure) super.clone();
-		normMeasure.assetTypeValues = new ArrayList<>();
+		NormalMeasure normalMeasure = (NormalMeasure) super.clone();
+		normalMeasure.assetTypeValues = new ArrayList<>();
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
-			normMeasure.assetTypeValues.add(assetTypeValue.clone());
-		normMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.clone();
-		return normMeasure;
+			normalMeasure.assetTypeValues.add(assetTypeValue.clone());
+		normalMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.clone();
+		return normalMeasure;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see lu.itrust.business.TS.Measure#duplicate()
 	 */
 	@Override
 	public NormalMeasure duplicate() throws CloneNotSupportedException {
-		NormalMeasure normMeasure = (NormalMeasure) super.duplicate();
-		normMeasure.assetTypeValues = new ArrayList<>();
+		NormalMeasure normalMeasure = (NormalMeasure) super.duplicate();
+		normalMeasure.assetTypeValues = new ArrayList<>();
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
-			normMeasure.assetTypeValues.add(assetTypeValue.duplicate());
-		normMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.duplicate();
-		return normMeasure;
+			normalMeasure.assetTypeValues.add(assetTypeValue.duplicate());
+		normalMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.duplicate();
+		return normalMeasure;
 	}
 
+	/**
+	 * copyMeasureCharacteristicsTo: <br>
+	 * Description
+	 * 
+	 * @param measure
+	 * @throws TrickException
+	 * @throws CloneNotSupportedException
+	 */
 	public void copyMeasureCharacteristicsTo(NormalMeasure measure) throws TrickException, CloneNotSupportedException {
 		if (this.getMeasurePropertyList() == null || measure == null || measure.getMeasurePropertyList() == null)
 			return;

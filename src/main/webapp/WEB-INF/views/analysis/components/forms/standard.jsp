@@ -26,31 +26,31 @@
 						</tr>
 					</thead>
 					<tbody>
-						<c:forEach items="${currentNorms}" var="norm">
+						<c:forEach items="${currentStandards}" var="standard">
 							<tr>
-								<td><spring:message code="label.standard.${norm.label}" text="${norm.label}" /></td>
-								<td><spring:message text="${norm.version}" /></td>
-								<td colspan="3"><spring:message text="${norm.description}" /></td>
-								<td><spring:message code="label.yes_no.${fn:toLowerCase(norm.computable)}" text="${norm.computable? 'Yes' : 'No'}" /></td>
-								<td><a href="#" role="remove-standard" trick-class="norm" trick-id="${norm.id}" style="font-size:20px" class="text-danger" title='<spring:message code="label.action.delete" text="Delete" />'> <span class="glyphicon glyphicon-remove-circle"></span></a></td>
+								<td><spring:message code="label.standard.${standard.label}" text="${standard.label}" /></td>
+								<td><spring:message text="${standard.version}" /></td>
+								<td colspan="3"><spring:message text="${standard.description}" /></td>
+								<td><spring:message code="label.yes_no.${fn:toLowerCase(standard.computable)}" text="${standard.computable? 'Yes' : 'No'}" /></td>
+								<td><a href="#" role="remove-standard" trick-class="standard" trick-id="${standard.id}" style="font-size:20px" class="text-danger" title='<spring:message code="label.action.delete" text="Delete" />'> <span class="glyphicon glyphicon-remove-circle"></span></a></td>
 							</tr>
 						</c:forEach>
 					</tbody>
 				</table>
 				<hr />
 				<h3>Available for Analysis:</h3>
-				<c:if test="${!empty(norms)}">
+				<c:if test="${!empty(standards)}">
 					<form name="standard" action="${pageContext.request.contextPath}/Analysis/Save/Standard" class="form" id="addStandardForm">
 						<div class="form-group">
 							<label> <spring:message code="label.analysis.add.standard.select.choose" text="Select your standard" />
 							</label>
 							<div>
 								<div class="col-lg-11">
-									<select name="idNorm" class="form-control" onchange="$('#selectedStandardDescription').html($('#addStandardForm select option:selected').attr('title'));">
-										<c:forEach items="${norms}" var="norm">
-											<option title='<spring:message text="${norm.description}"/>' value="${norm.id}">
-												<spring:message text="${norm.label}" /> -
-												<spring:message text="${norm.version}" />
+									<select name="idStandard" class="form-control" onchange="$('#selectedStandardDescription').html($('#addStandardForm select option:selected').attr('title'));">
+										<c:forEach items="${standards}" var="standard">
+											<option title='<spring:message text="${standard.description}"/>' value="${standard.id}">
+												<spring:message text="${standard.label}" /> -
+												<spring:message text="${standard.version}" />
 											</option>
 										</c:forEach>
 									</select>
@@ -62,8 +62,8 @@
 						</div>
 					</form>
 				</c:if>
-				<c:if test="${empty(norms)}">
-				No norms available
+				<c:if test="${empty(standards)}">
+				No standards available
 				</c:if>
 				<div id="add_standard_progressbar" class="progress progress-striped active" hidden="true">
 					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>

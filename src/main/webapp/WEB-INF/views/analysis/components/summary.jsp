@@ -68,10 +68,10 @@
 							</tr>
 							<c:forEach var="key" items="${summaryStages.keySet()}">
 								<c:if test="${fn:startsWith(key, 'label.characteristic.compliance')}">
-									<c:set var="normlabel" value="${fn:substring(key, 31, key.length())}" />
+									<c:set var="standardLabel" value="${fn:substring(key, 31, key.length())}" />
 									<tr>
-										<td colspan="5"><fmt:message key="label.characteristic.compliance" /> <spring:message text="${normlabel}" /> (%)</td>
-										<c:set var="data" value="label.characteristic.compliance${normlabel}" />
+										<td colspan="5"><fmt:message key="label.characteristic.compliance" /> <spring:message text="${standardLabel}" /> (%)</td>
+										<c:set var="data" value="label.characteristic.compliance${standardLabel}" />
 										<c:set value="${summaryStages.get(data)}" var="compliances" />
 										<c:forEach var="i" begin="0" end="${columncount-1}">
 											<fmt:formatNumber value="${compliances.get(i)*100}" maxFractionDigits="0" var="val" />

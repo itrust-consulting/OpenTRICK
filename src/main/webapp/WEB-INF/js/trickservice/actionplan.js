@@ -53,7 +53,7 @@ function calculateActionPlanWithOptions(analysisId, modalBox) {
 
 	data["uncertainty"] = uncertainty;
 
-	form.find("input[name^='norm_']").each(function() {
+	form.find("input[name^='standard_']").each(function() {
 
 		var name = $(this).attr("name");
 
@@ -115,7 +115,7 @@ function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
 	return false;
 }
 
-function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
+function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) {
 	$.ajax({
 		url : context + "/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
 		type : "get",
@@ -130,6 +130,6 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
 		},
 		error : unknowError
 	});
-	reloadMeasureRow(idMeasure, norm);
+	reloadMeasureRow(idMeasure, standard);
 	return false;
 }

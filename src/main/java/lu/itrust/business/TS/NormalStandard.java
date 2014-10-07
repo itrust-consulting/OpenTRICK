@@ -11,8 +11,8 @@ import lu.itrust.business.exception.TrickException;
 import org.hibernate.proxy.HibernateProxy;
 
 /**
- * MeasureNorm: <br>
- * This class represents a MeasureNorm and its data
+ * NormalStandard: <br>
+ * This class represents a NormalStandard and its data
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
@@ -52,13 +52,12 @@ public class NormalStandard extends AnalysisStandard {
 	}
 
 	/**
-	 * Constructor:<br>
+	 * Constructor: <br>
 	 * 
-	 * @param norm
-	 *            The Norm Object
+	 * @param standard
 	 */
-	public NormalStandard(Standard norm) {
-		super(norm);
+	public NormalStandard(Standard standard) {
+		super(standard);
 	}
 
 	/**
@@ -66,11 +65,11 @@ public class NormalStandard extends AnalysisStandard {
 	 * 
 	 * @param analysis
 	 *            The Analysis Object
-	 * @param norm
-	 *            The Norm Object
+	 * @param standard
+	 *            The standard Object
 	 */
-	public NormalStandard(Analysis analysis, Standard name) {
-		super(analysis, name);
+	public NormalStandard(Analysis analysis, Standard standard) {
+		super(analysis, standard);
 	}
 
 	/***********************************************************************************************
@@ -78,10 +77,10 @@ public class NormalStandard extends AnalysisStandard {
 	 *********************************************************************************************** 
 	 * 
 	 * /** getMeasure: <br>
-	 * Returns a NormMeasure Object at position "index" from the list of
-	 * AnalysisNorm Measures ("measures" field)
+	 * Returns a NormalMeasure Object at position "index" from the list of AnalysisStandard Measures
+	 * ("measures" field)
 	 * 
-	 * @return The NormMeasure at position "index"
+	 * @return The NormalMeasure at position "index"
 	 */
 	public NormalMeasure getMeasure(int index) {
 		if ((index < 0) || (index >= getMeasures().size())) {
@@ -117,11 +116,11 @@ public class NormalStandard extends AnalysisStandard {
 
 	/**
 	 * addMeasure: <br>
-	 * Adds a new NormMeasure to the List of Measures ("measures" field)
+	 * Adds a new NormalMeasure to the List of Measures ("measures" field)
 	 * 
 	 * @param measure
 	 *            The new object to add
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void addMeasure(NormalMeasure measure) throws TrickException {
 		if (this.getMeasures().contains(measure))

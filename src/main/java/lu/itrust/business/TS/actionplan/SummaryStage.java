@@ -62,11 +62,11 @@ public class SummaryStage {
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<SummaryStandardConformance> conformances = new ArrayList<SummaryStandardConformance>();
 	
-	/** Percentage of AnalysisNorm 27001 Conformance for this Stage */
+	/** Percentage of AnalysisStandard 27001 Conformance for this Stage */
 	@Column(name="dt27001Conformance", nullable=false)
 	private double conformance27001 = 0;
 
-	/** Percentage of AnalysisNorm 27002 Conformance for this Stage */
+	/** Percentage of AnalysisStandard 27002 Conformance for this Stage */
 	@Column(name="dt27002Conformance", nullable=false)
 	private double conformance27002 = 0;
 
@@ -230,11 +230,11 @@ public class SummaryStage {
 	 * addConformance: <br>
 	 * Description
 	 * 
-	 * @param analysisNorm
+	 * @param analysisStandard
 	 * @param conformance
 	 */
-	public void addConformance(AnalysisStandard analysisNorm, double conformance) {
-		this.conformances.add(new SummaryStandardConformance(analysisNorm,conformance));
+	public void addConformance(AnalysisStandard analysisStandard, double conformance) {
+		this.conformances.add(new SummaryStandardConformance(analysisStandard,conformance));
 	}
 
 	/** getConformance27001: <br>

@@ -61,7 +61,7 @@ function controllerBySection(section, subSection) {
 		"section_measure" : "/Measure/Section",
 		"section_customer" : "/KnowledgeBase/Customer/Section",
 		"section_language" : "/KnowledgeBase/Language/Section",
-		"section_norm" : "/KnowledgeBase/Norm/Section",
+		"section_standard" : "/KnowledgeBase/Standard/Section",
 		"section_user" : "/Admin/User/Section",
 		"section_actionplans" : "/ActionPlan/Section",
 		"section_summary" : "/ActionPlanSummary/Section",
@@ -128,7 +128,7 @@ SectionSmartUpdate.prototype = {
 		case "section_phase":
 			return this.__generic_update(this.data, "#" + this.sectionName, 1);
 		case "section_user":
-		case "section_norm":
+		case "section_standard":
 		case "section_language":
 		case "section_customer":
 		case "section_profile_analysis":

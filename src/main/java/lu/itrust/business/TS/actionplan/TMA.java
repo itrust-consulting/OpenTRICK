@@ -24,8 +24,8 @@ public class TMA {
 	/** Assessment object */
 	private Assessment assessment;
 
-	/** AnalysisNorm of Measure */
-	private Standard norm;
+	/** AnalysisStandard of Measure */
+	private Standard standard;
 
 	/** Measure object */
 	private Measure measure;
@@ -55,20 +55,12 @@ public class TMA {
 	/**
 	 * Constructor: <br>
 	 * Creates a new instance of TMA and selects the ALE using the mode and sets the Assessment,
-	 * AnalysisNorm, Measure objects and the calculated RRF from the parameters.
-	 * 
+	 * AnalysisStandard, Measure objects and the calculated RRF from the parameters.
 	 * @param mode
-	 *            The Action Plan Calculation mode (normal, pessimistic, optimistic, phase, phase
-	 *            optimistic, phase pessimistic)
 	 * @param asessment
-	 *            The Assessment Object
-	 * @param analysisNorm
-	 *            The AnalysisNorm Object
 	 * @param measure
-	 *            The Measure Object
 	 * @param RRF
-	 *            The RRF value
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public TMA(ActionPlanMode mode, Assessment asessment, Measure measure, double RRF) throws TrickException {
 
@@ -91,8 +83,8 @@ public class TMA {
 				break;
 		}
 
-		// the analysisNorm
-		this.norm = measure.getAnalysisStandard().getStandard();
+		// the analysisStandard
+		this.standard = measure.getAnalysisStandard().getStandard();
 
 		// the measure
 		this.measure = measure;
@@ -186,24 +178,23 @@ public class TMA {
 	}
 
 	/**
-	 * getNorm: <br>
-	 * Returns the "analysisNorm" field value
+	 * getStandard: <br>
+	 * Description
 	 * 
-	 * @return The AnalysisNorm
+	 * @return
 	 */
-	public Standard getNorm() {
-		return norm;
+	public Standard getStandard() {
+		return standard;
 	}
 
 	/**
-	 * setNorm: <br>
-	 * Sets the "analysisNorm" field with a value
+	 * setStandard: <br>
+	 * Description
 	 * 
-	 * @param analysisNorm
-	 *            The value to set the AnalysisNorm
+	 * @param standard
 	 */
-	public void setNorm(Standard analysisNorm) {
-		this.norm = analysisNorm;
+	public void setStandard(Standard standard) {
+		this.standard = standard;
 	}
 
 	/**
@@ -402,7 +393,7 @@ public class TMA {
 		return "TMA [" + "Assessment [id=" + assessment.getId() + ", ALE=" + assessment.getALE() + ", ALEO=" + assessment.getALEO() + ", ALEP=" + assessment.getALEP() + ", Impact="
 			+ assessment.getImpactReal() + ", Likelihood=" + assessment.getLikelihoodReal() + ", Uncertainty=" + assessment.getUncertainty() + ", " + "Asset [id=" + assessment.getAsset().getId()
 			+ ", name=" + assessment.getAsset().getName() + "], " + "Scenario [id=" + assessment.getScenario().getName() + ", name=" + assessment.getScenario().getName() + "]], " + "Measure[id="
-			+ measure.getId() + ", Norm [ id=" + norm.getId() + ", name=" + norm.getLabel() + ", version=" + norm.getVersion() + "], reference=" + measure.getMeasureDescription().getReference() + "], "
+			+ measure.getId() + ", Standard [ id=" + standard.getId() + ", name=" + standard.getLabel() + ", version=" + standard.getVersion() + "], reference=" + measure.getMeasureDescription().getReference() + "], "
 			+ "RRF="+RRF+", ALE="+ALE+", deltaALE="+deltaALE+", current SML Max Eff= "+cMaxEff+", next SML Max Eff="+nMaxEff+", deltaALE Maturtity="+deltaALEMat+"]";
 	}
 

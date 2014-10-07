@@ -11,17 +11,17 @@
 		</h3>
 	</div>
 	<c:if test="${empty(measureSplited)}">
-		<spring:eval expression="T(lu.itrust.business.component.MeasureManager).SplitByNorm(measures)" var="measureSplited" />
+		<spring:eval expression="T(lu.itrust.business.component.MeasureManager).SplitByStandard(measures)" var="measureSplited" />
 	</c:if>
-	<c:forEach items="${measureSplited.keySet()}" var="norm">
-		<span class="anchor" id="anchorMeasure_${norm}"></span>
-		<div id="section_measure_${norm}">
+	<c:forEach items="${measureSplited.keySet()}" var="standard">
+		<span class="anchor" id="anchorMeasure_${standard}"></span>
+		<div id="section_measure_${standard}">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<spring:message text="${norm}" />
+					<spring:message text="${standard}" />
 				</div>
 				<div class="panel-body autofitpanelbodydefinition">
-					<table class="table table-hover table-fixed-header" id="table_Measure_${norm}">
+					<table class="table table-hover table-fixed-header" id="table_Measure_${standard}">
 						<thead>
 							<tr>
 								<th colspan="2"><fmt:message key="label.measure.ref"  /></th>
@@ -37,7 +37,7 @@
 								<th><fmt:message key="label.measure.ri"  /></th>
 								<th><fmt:message key="label.measure.cost"  /></th>
 								<th><label class="text-rotate-270"><fmt:message key="label.measure.phase"  /></label></th>
-								<c:if test="${measureSplited.get(norm).get(0).getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
+								<c:if test="${measureSplited.get(standard).get(0).getClass().name.equals('lu.itrust.business.TS.NormalMeasure')}">
 									<th colspan="8"><fmt:message key="label.measure.tocheck"  /></th>
 								</c:if>
 								<th colspan="8"><fmt:message key="label.measure.comment"  /></th>
@@ -48,7 +48,7 @@
 						<tfoot>
 						</tfoot>
 						<tbody>
-							<c:forEach items="${measureSplited.get(norm)}" var="measure">
+							<c:forEach items="${measureSplited.get(standard)}" var="measure">
 								<c:set var="css"><c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if></c:set>
 								<c:choose>
 									<c:when test="${measure.measureDescription.computable==false }">
@@ -56,7 +56,7 @@
 											<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 											<td colspan="2"><spring:message text="${measure.measureDescription.reference}" /></td>
 											<c:choose>
-												<c:when test="${measure.getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
+												<c:when test="${measure.getClass().name.equals('lu.itrust.business.TS.NormalMeasure')}">
 													<td colspan="40"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 												</c:when>
 												<c:otherwise>
@@ -66,7 +66,7 @@
 										</tr>
 									</c:when>
 									<c:otherwise>
-										<tr trick-class="Measure" trick-id="${measure.id}" trick-callback="reloadMeasureRow('${measure.id}','${norm}');">
+										<tr trick-class="Measure" trick-id="${measure.id}" trick-callback="reloadMeasureRow('${measure.id}','${standard}');">
 											<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 											<c:choose>
 												<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
@@ -86,12 +86,12 @@
 											<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 													text="${measure.status}" /></td>
 											<c:choose>
-												<c:when test="${norm.equalsIgnoreCase('Custom')==true}">
+												<c:when test="${standard.equalsIgnoreCase('Custom')==true}">
 													<td ${css} textaligncenter" trick-field="implementationRate" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
 															value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 												</c:when>
-												<c:when test="${!norm.equalsIgnoreCase('Maturity')}">
-													<td ${css} trick-field="implementationRate" trick-field-type="double" trick-callback="reloadMeausreAndCompliance('${norm}','${measure.id}')"
+												<c:when test="${!standard.equalsIgnoreCase('Maturity')}">
+													<td ${css} trick-field="implementationRate" trick-field-type="double" trick-callback="reloadMeausreAndCompliance('${standard}','${measure.id}')"
 														ondblclick="return editField(this);"><fmt:formatNumber value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 												</c:when>
 												<c:otherwise>
@@ -134,7 +134,7 @@
 													<c:when test="${measure.phase.number == 0}">NA</c:when>
 													<c:otherwise>${measure.phase.number}</c:otherwise>
 												</c:choose></td>
-											<c:if test="${measure.getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
+											<c:if test="${measure.getClass().name.equals('lu.itrust.business.TS.NormalMeasure')}">
 												<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toCheck" trick-content="text" trick-field-type="string"><spring:message
 														text="${measure.toCheck}" /></pre></td>
 											</c:if>

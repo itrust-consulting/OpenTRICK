@@ -502,8 +502,8 @@ public class ExportAnalysisReport {
 	private void generateComplianceGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null)
 			return;
-		String norm = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
-		List<Measure> measures = (List<Measure>) analysis.findMeasureByNorm(norm);
+		String standard = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
+		List<Measure> measures = (List<Measure>) analysis.findMeasureByStandard(standard);
 		if (measures == null)
 			return;
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
@@ -602,16 +602,16 @@ public class ExportAnalysisReport {
 
 		// run = paragraph.getRuns().get(0);
 
-		List<AnalysisStandard> anorms = analysis.getAnalysisStandards();
+		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
 
-		if (paragraph != null && anorms.size() > 0) {
+		if (paragraph != null && analysisStandards.size() > 0) {
 
 			while (!paragraph.getRuns().isEmpty())
 				paragraph.removeRun(0);
 
 			boolean isFirst = true;
 
-			for (AnalysisStandard anorm : anorms) {
+			for (AnalysisStandard analysisStandard : analysisStandards) {
 
 				// initialise table with 1 row and 1 column after the paragraph
 				// cursor
@@ -641,7 +641,7 @@ public class ExportAnalysisReport {
 
 				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(14));
 
-				row.getCell(0).setText(anorm.getStandard().getLabel());
+				row.getCell(0).setText(analysisStandard.getStandard().getLabel());
 
 				row = table.createRow();
 
@@ -666,7 +666,7 @@ public class ExportAnalysisReport {
 				row.getCell(12).setText(getMessage("report.measure.comment", null, "Comment", locale));
 				row.getCell(13).setText(getMessage("report.measure.to_do", null, "To Do", locale));
 				// set data
-				for (Measure measure : anorm.getMeasures()) {
+				for (Measure measure : analysisStandard.getMeasures()) {
 
 					row = table.createRow();
 					while (row.getTableCells().size() < 14)
@@ -983,7 +983,7 @@ public class ExportAnalysisReport {
 				row.addNewTableCell();
 
 			row.getCell(0).setText(getMessage("report.action_plan.row_number", null, "Nr", locale));
-			row.getCell(1).setText(getMessage("report.action_plan.norm", null, "Norm", locale));
+			row.getCell(1).setText(getMessage("report.action_plan.norm", null, "Standard", locale));
 			row.getCell(2).setText(getMessage("report.action_plan.reference", null, "Ref.", locale));
 			row.getCell(3).setText(getMessage("report.action_plan.description", null, "Description", locale));
 			row.getCell(4).setText(getMessage("report.action_plan.ale", null, "ALE (k€/y)", locale));

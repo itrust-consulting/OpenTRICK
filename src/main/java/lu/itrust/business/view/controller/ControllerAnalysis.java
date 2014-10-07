@@ -20,6 +20,8 @@ import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
+import lu.itrust.business.TS.AssetMeasure;
+import lu.itrust.business.TS.AssetStandard;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Customer;
@@ -38,6 +40,7 @@ import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.TS.Scenario;
+import lu.itrust.business.TS.StandardType;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.export.ExportAnalysisReport;
 import lu.itrust.business.TS.export.UserSQLite;
@@ -420,7 +423,8 @@ public class ControllerAnalysis {
 			AnalysisStandard analysisStandard = null;
 			List<MeasureDescription> measureDescriptions = serviceMeasureDescription.getAllByStandard(standard);
 			Object implementationRate = null;
-			if (standard.getLabel().equals(Constant.STANDARD_MATURITY)) {
+			
+			if(standard.getType() == StandardType.MATURITY) {
 				analysisStandard = new MaturityStandard();
 				measure = new MaturityMeasure();
 				for (Parameter parameter : analysis.getParameters()) {
@@ -429,21 +433,25 @@ public class ControllerAnalysis {
 						break;
 					}
 				}
-			} else {
+			} else if(standard.getType() == StandardType.NORMAL) {
 				analysisStandard = new NormalStandard();
 				measure = new NormalMeasure();
-				List<AssetType> assetTypes = serviceAssetType.getAll();
+				List<AssetType> assetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 				List<AssetTypeValue> assetTypeValues = ((NormalMeasure) measure).getAssetTypeValues();
 				for (AssetType assetType : assetTypes)
 					assetTypeValues.add(new AssetTypeValue(assetType, 0));
 				((NormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
+				implementationRate = new Double(0);
+			} else if(standard.getType() == StandardType.ASSET) {
+				analysisStandard = new AssetStandard();
+				measure = new AssetMeasure();
+				((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
 				implementationRate = new Double(0);
 			}
 			Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
 			if (phase == null)
 				analysis.addUsedPhase(phase = new Phase(Constant.PHASE_DEFAULT));
 			measure.setPhase(phase);
-
 			analysisStandard.setAnalysis(analysis);
 			analysisStandard.setStandard(standard);
 			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);

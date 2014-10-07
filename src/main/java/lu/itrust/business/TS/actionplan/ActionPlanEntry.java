@@ -23,7 +23,7 @@ import org.hibernate.annotations.CascadeType;
 
 /**
  * ActionPlanEntry: <br>
- * Contains an entry in the action plan: This entry's structure is: AnalysisNorm object, Measure
+ * Contains an entry in the action plan: This entry's structure is: AnalysisStandard object, Measure
  * object, the total ALE, delta ALE and the ROSI/ROSMI.
  * 
  * @author itrust consulting s.a r.l. - BJA,SME
@@ -105,17 +105,12 @@ public class ActionPlanEntry implements Serializable {
 	}
 
 	/**
-	 * Constructor:<br>
-	 * Creates a new instance of the ActionPlanEntry class
-	 * 
-	 * @param analysisNorm
-	 *            The AnalysisNorm Object reference
+	 * Constructor: <br>
 	 * @param measure
-	 *            The Measure Object reference
+	 * @param actionplantype
 	 * @param deltaALE
-	 *            The Delta ALE
 	 * @throws IllegalArgumentException
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public ActionPlanEntry(Measure measure, ActionPlanType actionplantype, double deltaALE) throws IllegalArgumentException, TrickException {
 
@@ -136,19 +131,12 @@ public class ActionPlanEntry implements Serializable {
 	 * This constructor is only used inside the generateNormalActionPlanEntries method to use a
 	 * existing ALE to calculate a new ROSI and set the new list of assets (with current asset
 	 * values)
-	 * 
-	 * @param analysisNorm
-	 *            The AnalysisNorm Object
 	 * @param measure
-	 *            The Measure object
-	 * @param actionPlanType2
-	 * @param tmpAssets
-	 *            The Asset List object
+	 * @param actionPlanType
+	 * @param actionPlanAssets
 	 * @param totalALE
-	 *            The Total ALE value
 	 * @param deltaALE
-	 *            The Delta ALE value
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public ActionPlanEntry(Measure measure, ActionPlanType actionPlanType,
 			List<ActionPlanAsset> actionPlanAssets, double totalALE, double deltaALE) throws TrickException {
@@ -171,45 +159,6 @@ public class ActionPlanEntry implements Serializable {
 		setCost(measure.getCost());
 	}
 	
-//	/**
-//	 * Constructor: <br>
-//	 * This constructor is only used inside the generateNormalActionPlanEntries method to use a
-//	 * existing ALE to calculate a new ROSI and set the new list of assets (with current asset
-//	 * values)
-//	 * 
-//	 * @param analysisNorm
-//	 *            The AnalysisNorm Object
-//	 * @param measure
-//	 *            The Measure object
-//	 * @param actionPlanType2
-//	 * @param tmpAssets
-//	 *            The Asset List object
-//	 * @param totalALE
-//	 *            The Total ALE value
-//	 * @param deltaALE
-//	 *            The Delta ALE value
-//	 */
-//	public ActionPlanEntry(NormMeasure measure, ActionPlanType actionPlanType,
-//			List<ActionPlanAssessment> actionPlanAssessments, double totalALE, double deltaALE) {
-//
-//		// the measure
-//		setMeasure(measure);
-//
-//		// add asset values to entry
-//		setActionPlanAssessments(actionPlanAssessments);
-//
-//		setActionPlanType(actionPlanType);
-//
-//		// add totalALE
-//		setTotalALE(totalALE);
-//
-//		// the delta ALE for the measure (normal,optimistic and pessimistic)
-//		setDeltaALE(deltaALE);
-//
-//		// the measure's cost (by default if it is a maturity measure)
-//		setCost(measure.getCost());
-//	}
-
 	/***********************************************************************************************
 	 * Methods
 	 **********************************************************************************************/
@@ -537,7 +486,7 @@ public class ActionPlanEntry implements Serializable {
 	@Override
 	public String toString(){
 		return "ActionPlanEntry {id="+id+",actionplantype="+actionPlanType.getName()+",position="+position+",cost="+cost+",ROI="+ROI+",totalALE="+totalALE+","
-			+ "Measure {id="+measure.getId()+",norm="+measure.getAnalysisStandard().getStandard().getLabel()+",reference="+measure.getMeasureDescription().getReference()+",cost="+measure.getCost()+",IS="
+			+ "Measure {id="+measure.getId()+",standard="+measure.getAnalysisStandard().getStandard().getLabel()+",reference="+measure.getMeasureDescription().getReference()+",cost="+measure.getCost()+",IS="
 				+measure.getInternalWL()+",ES="+measure.getExternalWL()+",INV="+measure.getInvestment()+",phase="+measure.getPhase().getNumber()+"}} ";
 
 		

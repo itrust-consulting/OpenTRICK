@@ -6,8 +6,8 @@
 <div id="measures_header">
 	<spring:message code="label.title.measures" text="Measures" />
 	:
-	<spring:message text="${norm.label} - ${norm.version} - ${norm.description}" />
-	<input type="hidden" id="normId" value="${norm.id}" /> <input type="hidden" id="normLabel" value="${norm.label}" /> <input type="hidden" id="normVersion" value="${norm.version}" />
+	<spring:message text="${standard.label} - ${standard.version} - ${standard.description}" />
+	<input type="hidden" id="idStandard" value="${standard.id}" /> <input type="hidden" id="standardLabel" value="${standard.label}" /> <input type="hidden" id="standardVersion" value="${standard.version}" />
 </div>
 <div id="measures_body">
 	<div class="panel panel-default">
@@ -49,7 +49,7 @@
 						</thead>
 						<tbody>
 							<c:forEach items="${measureDescriptions}" var="measureDescription">
-								<tr trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${norm.id}');">
+								<tr trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${standard.id}');">
 									<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_measure_description','#menu_measure_description',undefined);"></td>
 									<td colspan="2">${measureDescription.level}</td>
 									<td colspan="3"><spring:message text='${measureDescription.reference}' /></td>

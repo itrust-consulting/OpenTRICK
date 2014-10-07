@@ -29,8 +29,8 @@ public class MeasureValidator extends ValidatorFieldImpl {
 	protected static final String COST = "cost";
 	protected static final String COMMENT = "comment";
 	protected static final String TO_DO = "toDo";
-	protected static final String ERROR_MEASURE_ANALYSIS_NORM_NULL_A_MEASURE_SHOULD_ALWAYS_BE_ATTACHED_TO_AN_ANALYSIS = "error.measure.analysis_norm.null::A measure should always be  attached to an analysis";
-	protected static final String ERROR_UNSUPPORTED_DATA_ANALYSIS_NORM_ANALYSIS_NORM_VALUE_IS_NOT_SUPPORTED = "error.measure.unsupported.analysis_norm::Analysis norm value is not supported";
+	protected static final String ERROR_MEASURE_ANALYSIS_STANDARD_NULL_A_MEASURE_SHOULD_ALWAYS_BE_ATTACHED_TO_AN_ANALYSIS = "error.measure.analysis_norm.null::A measure should always be  attached to an analysis";
+	protected static final String ERROR_UNSUPPORTED_DATA_ANALYSIS_STANDARD_ANALYSIS_STANDARD_VALUE_IS_NOT_SUPPORTED = "error.measure.unsupported.analysis_norm::Analysis norm value is not supported";
 	protected static final String ERROR_MEASURE_MEASURE_DESCRIPTION_NULL_A_MEASURE_SHOULD_ALWAYS_HAVE_A_DESCRIPTION = "error.measure.measure_description.null::A measure should always have a description";
 	protected static final String ERROR_UNSUPPORTED_DATA_MEASURE_DESCRIPTION_MEASURE_DESCRIPTION_VALUE_IS_NOT_SUPPORTED = "error.measure.unsupported.measure_description::Measure description value is not supported";
 	protected static final String ERROR_MEASURE_PHASE_NULL_A_MEASURE_SHOULD_ALWAYS_BE_IN_A_PHASE = "error.measure.phase.null::A measure should always be in a phase";
@@ -69,9 +69,9 @@ public class MeasureValidator extends ValidatorFieldImpl {
 		switch (fieldName) {
 		case ANALYSIS_STANDARD:
 			if (candidate == null)
-				return ERROR_MEASURE_ANALYSIS_NORM_NULL_A_MEASURE_SHOULD_ALWAYS_BE_ATTACHED_TO_AN_ANALYSIS;
+				return ERROR_MEASURE_ANALYSIS_STANDARD_NULL_A_MEASURE_SHOULD_ALWAYS_BE_ATTACHED_TO_AN_ANALYSIS;
 			else if (!(candidate instanceof AnalysisStandard))
-				return ERROR_UNSUPPORTED_DATA_ANALYSIS_NORM_ANALYSIS_NORM_VALUE_IS_NOT_SUPPORTED;
+				return ERROR_UNSUPPORTED_DATA_ANALYSIS_STANDARD_ANALYSIS_STANDARD_VALUE_IS_NOT_SUPPORTED;
 			break;
 		case MEASURE_DESCRIPTION:
 			if (candidate == null)

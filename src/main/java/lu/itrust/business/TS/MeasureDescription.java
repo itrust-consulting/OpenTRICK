@@ -24,9 +24,9 @@ import org.hibernate.annotations.CascadeType;
  * MeasureDescription: <br>
  * Represents the description of a Measure:
  * <ul>
- * <li>The Norm Object</li>
+ * <li>The Standard Object</li>
  * <li>The Level of Measure (1-3)</li>
- * <li>The Measure Reference inside the Norm</li>
+ * <li>The Measure Reference inside the Standard</li>
  * <li>
  * Measure Description Texts which represents the Domain and Description f a
  * Measure in one to more languages</li>
@@ -49,7 +49,7 @@ public class MeasureDescription implements Cloneable {
 	@Column(name="idMeasureDescription")
 	private int id = -1;
 
-	/** Measure Norm Object */
+	/** Measure Standard Object */
 	@ManyToOne
 	@JoinColumn(name="fiStandard", nullable=false)
 	@Cascade(CascadeType.SAVE_UPDATE)
@@ -83,11 +83,11 @@ public class MeasureDescription implements Cloneable {
 	 * 
 	 * @param reference
 	 *            Reference of the Measure
-	 * @param norm
-	 *            Norm of the Measure
+	 * @param standard
+	 *            standard of the Measure
 	 */
-	public MeasureDescription(String reference, Standard norm, int level, boolean computable) {
-		this.standard = norm;
+	public MeasureDescription(String reference, Standard standard, int level, boolean computable) {
+		this.standard = standard;
 		this.reference = reference;
 		this.level = level;
 		this.computable = computable;
@@ -156,24 +156,23 @@ public class MeasureDescription implements Cloneable {
 	}
 
 	/**
-	 * getNorm: <br>
-	 * Returns the norm field value.
+	 * getStandard: <br>
+	 * Description
 	 * 
-	 * @return The value of the norm field
+	 * @return
 	 */
 	public Standard getStandard() {
 		return standard;
 	}
 
 	/**
-	 * setNorm: <br>
-	 * Sets the Field "norm" with a value.
+	 * setStandard: <br>
+	 * Description
 	 * 
-	 * @param norm
-	 *            The Value to set the norm field
+	 * @param standard
 	 */
-	public void setStandard(Standard norm) {
-		this.standard = norm;
+	public void setStandard(Standard standard) {
+		this.standard = standard;
 	}
 
 	/**

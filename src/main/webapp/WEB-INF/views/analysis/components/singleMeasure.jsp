@@ -5,7 +5,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <c:set var="css"><c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if></c:set>
-<tr trick-class="Measure" trick-id="${measure.id}" trick-callback="reloadMeasureRow('${measure.id}','${norm}');">
+<tr trick-class="Measure" trick-id="${measure.id}" trick-callback="reloadMeasureRow('${measure.id}','${standard}');">
 	<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 	<c:choose>
 	<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
@@ -25,12 +25,12 @@
 	<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 			text="${measure.status}" /></td>
 	<c:choose>
-		<c:when test="${norm.equalsIgnoreCase('Custom')==true}">
+		<c:when test="${standard.equalsIgnoreCase('Custom')==true}">
 			<td ${css} textaligncenter" trick-field="implementationRate" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber
 					value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 		</c:when>
-		<c:when test="${!norm.equalsIgnoreCase('Maturity')}">
-			<td ${css} trick-field="implementationRate" trick-field-type="double" trick-callback="reloadMeausreAndCompliance('${norm}','${measure.id}')"
+		<c:when test="${!standard.equalsIgnoreCase('Maturity')}">
+			<td ${css} trick-field="implementationRate" trick-field-type="double" trick-callback="reloadMeausreAndCompliance('${standard}','${measure.id}')"
 				ondblclick="return editField(this);"><fmt:formatNumber value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
 		</c:when>
 		<c:otherwise>
@@ -69,7 +69,7 @@
 			<c:when test="${measure.phase.number == 0}">NA</c:when>
 			<c:otherwise>${measure.phase.number}</c:otherwise>
 		</c:choose></td>
-	<c:if test="${measure.getClass().name.equals('lu.itrust.business.TS.NormMeasure')}">
+	<c:if test="${measure.getClass().name.equals('lu.itrust.business.TS.NormalMeasure')}">
 		<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toCheck" trick-content="text" trick-field-type="string"><spring:message text="${measure.toCheck}" /></pre></td>
 	</c:if>
 	<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string"><spring:message text="${measure.comment}" /></pre></td>

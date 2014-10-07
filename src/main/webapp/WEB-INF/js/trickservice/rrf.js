@@ -345,8 +345,7 @@ function ScenarioRRFController(rrfView, container, name) {
 					var idScenarioType = $(element).parent().attr('trick-id');
 					var scenarioType = $(element).parent().attr('trick-value');
 					$(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active").removeClass("active");
-					$(this.rrfView.modal_body).find(
-							"#selectable_rrf_scenario_controls a[trick-class='ScenarioType'][trick-id='" + idScenarioType + "'][trick-value='" + scenarioType + "']").addClass(
+					$(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls a[trick-class='ScenarioType'][trick-id='" + idScenarioType + "'][trick-value='" + scenarioType + "']").addClass(
 							'active');
 				} else if (!$(element).hasClass("active"))
 					$(element).addClass("active");
@@ -378,7 +377,7 @@ function ScenarioRRFController(rrfView, container, name) {
 		var element = $(event.target).attr("trick-class") == undefined ? $(event.target).parent() : $(event.target);
 		var trickClass = $(element).attr("trick-class");
 		var trickId = $(element).attr("trick-id");
-		if (trickClass == "Norm") {
+		if (trickClass == "Standard") {
 			this.rrfView.filter["measures"] = $.makeArray($(element).parent().parent().find("a[trick-class='Measure']")).map(function(item) {
 				return parseInt($(item).attr('trick-id'));
 			});
@@ -575,11 +574,11 @@ function MeasureRRFController(rrfView, container, name) {
 			var idMeasure = $(element).attr("trick-id");
 			if (idMeasure != this.idMeasure || this.rrfView.controller != this) {
 				if (idMeasure != this.idMeasure) {
-					var idNorm = $(element).parent().attr('trick-id');
+					var idStandard = $(element).parent().attr('trick-id');
 					var chapter = $(element).parent().attr('trick-value');
 					$(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active").removeClass("active");
-					$(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls a[trick-class='Norm'][trick-id='" + idNorm + "'][trick-value='" + chapter + "']")
-							.addClass('active');
+					$(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls a[trick-class='Standard'][trick-id='" + idStandard + "'][trick-value='" + chapter + "']").addClass(
+							'active');
 				} else if (!$(element).hasClass("active"))
 					$(element).addClass("active");
 				this.idMeasure = idMeasure;
@@ -666,21 +665,21 @@ function importRRF(idAnalysis) {
 		idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
-			url : context + "/KnowledgeBase/Norm/Import/RRF",
+			url : context + "/KnowledgeBase/Standard/Import/RRF",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var parser = new DOMParser();
 				var doc = parser.parseFromString(response, "text/html");
 				if ($(doc).find("#importMeasureCharacteristics").length) {
 					var modal = new Modal($(doc).find("#importMeasureCharacteristics").clone());
-					var $norms = $(modal.modal_body).find("select[name='norms']");
+					var $standards = $(modal.modal_body).find("select[name='standards']");
 					var $profileSelector = $(modal.modal_body).find("select[name='profile']");
 					$profileSelector.on("change", function(e) {
 						var value = $(e.target).val();
 						if (value == undefined)
 							value = -1;
-						$norms.find("option[name!='" + value + "']").hide().prop("selected", false);
-						$norms.find("option[name='" + value + "']").show();
+						$standards.find("option[name!='" + value + "']").hide().prop("selected", false);
+						$standards.find("option[name='" + value + "']").show();
 					});
 					var $closeButton = $(modal.modal_header).find("button");
 					var $switchRRFButton = $(modal.modal_footer).find("button[name='show_rrf']");
@@ -697,7 +696,7 @@ function importRRF(idAnalysis) {
 						$(modal.modal).find("button").prop("disabled", true);
 						$(modal.modal_body).find(".alert").remove();
 						$.ajax({
-							url : context + "/KnowledgeBase/Norm/Import/RRF/Save",
+							url : context + "/KnowledgeBase/Standard/Import/RRF/Save",
 							type : "post",
 							data : $(modal.modal_body).find("form").serialize(),
 							success : function(response) {

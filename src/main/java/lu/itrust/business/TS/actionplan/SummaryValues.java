@@ -26,22 +26,22 @@ public class SummaryValues {
 
 	public Map<String, SummaryStandardHelper> conformanceHelper = new HashMap<String, SummaryStandardHelper>();
 	
-	/** The 27001 AnalysisNorm Object with all 27001 Measures */
-	public NormalStandard norm27001 = null;
+	/** The 27001 AnalysisStandard Object with all 27001 Measures */
+	public NormalStandard standard27001 = null;
 
-	/** The 27002 AnalysisNorm Object with all 27002 Measures */
-	public NormalStandard norm27002 = null;
+	/** The 27002 AnalysisStandard Object with all 27002 Measures */
+	public NormalStandard standard27002 = null;
 
-	/** The 27002 AnalysisNorm Object with all 27002 Measures */
-	public NormalStandard normCustom = null;
+	/** The 27002 AnalysisStandard Object with all 27002 Measures */
+	public NormalStandard standardCustom = null;
 	
-	/** Measures that are to use as 100% Implemented 27001 AnalysisNorm Measures */
+	/** Measures that are to use as 100% Implemented 27001 AnalysisStandard Measures */
 	public List<NormalMeasure> conformance27001measures = new ArrayList<NormalMeasure>();
 
-	/** Measures that are to use as 100% Implemented 27002 AnalysisNorm Measures */
+	/** Measures that are to use as 100% Implemented 27002 AnalysisStandard Measures */
 	public List<NormalMeasure> conformance27002measures = new ArrayList<NormalMeasure>();
 	
-	/** Measures that are to use as 100% Implemented Custom AnalysisNorm Measures */
+	/** Measures that are to use as 100% Implemented Custom AnalysisStandard Measures */
 	public List<NormalMeasure> conformanceCustommeasures = new ArrayList<NormalMeasure>();
 	
 	public SummaryStage previousStage = null;
@@ -91,9 +91,9 @@ public class SummaryValues {
 	/** Total Cost of Stage */
 	public double totalCost = 0;
 	
-	public SummaryValues(List<AnalysisStandard> norms) {
+	public SummaryValues(List<AnalysisStandard> standards) {
 		conformanceHelper.clear();
-		for(AnalysisStandard an : norms)
+		for(AnalysisStandard an : standards)
 			conformanceHelper.put(an.getStandard().getLabel(), new SummaryStandardHelper(an));
 	}
 }

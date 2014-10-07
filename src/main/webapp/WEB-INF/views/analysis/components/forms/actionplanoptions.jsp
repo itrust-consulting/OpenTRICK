@@ -9,10 +9,10 @@
 	</h3>
 </div>
 <p>
-	<spring:message code="label.title.options.select_norm" text="Select a norm to compute the action plan" />
+	<spring:message code="label.title.options.select_norm" text="Select a standard to compute the action plan" />
 </p>
 <p>
-	<spring:message code="label.title.options.select_norm.info" text="(No options given means: all norms will be used to compute)" />
+	<spring:message code="label.title.options.select_norm.info" text="(No options given means: all standards will be used to compute)" />
 </p>
 <form action="${pageContext.request.contextPath}/ActionPlan/Compute" method="post" class="form-horizontal" id="actionplancomputationoptionsform">
 	<c:if test="${!empty(id)}">
@@ -20,18 +20,18 @@
 	</c:if>
 	<table class="table text-center">
 		<c:choose>
-			<c:when test="${!empty(norms)}">
+			<c:when test="${!empty(standards)}">
 				<thead>
 					<tr>
-						<c:forEach items="${norms}" var="analysisnorm">
-							<td><b><spring:message text="${analysisnorm.norm.label}" /></b></td>
+						<c:forEach items="${standards}" var="analysisStandard">
+							<td><b><spring:message text="${analysisStandard.standard.label}" /></b></td>
 						</c:forEach>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
-						<c:forEach items="${norms}" var="analysisnorm">
-							<td><input type="checkbox" name="norm_${analysisnorm.id}" value="1" /></td>
+						<c:forEach items="${standards}" var="analysisStandard">
+							<td><input type="checkbox" name="standard_${analysisStandard.id}" value="1" /></td>
 						</c:forEach>
 					</tr>
 				</tbody>

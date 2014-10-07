@@ -34,14 +34,14 @@
 				<div class="panel-body">
 					<div class="list-group" style="max-height: 360px; overflow: auto;" id="selectable_rrf_measures_chapter_controls">
 						<c:forEach items="${measures.keySet()}" var="chapter" varStatus="status">
-							<div class="list-group" trick-id="${chapter.norm.id}">
+							<div class="list-group" trick-id="${chapter.standard.id}">
 								<h4 class="list-group-item-heading">
-									<a href="#" onclick="return false;" class="list-group-item${status.index==0?' active':''}" trick-class="Norm" title='<spring:message text="${chapter.reference}"/>'
-										trick-id="${chapter.norm.id}" trick-value=<spring:message text="${chapter.reference}"/>> <spring:message text="${chapter.norm.label}" /> - <spring:message
+									<a href="#" onclick="return false;" class="list-group-item${status.index==0?' active':''}" trick-class="Standard" title='<spring:message text="${chapter.reference}"/>'
+										trick-id="${chapter.standard.id}" trick-value=<spring:message text="${chapter.reference}"/>> <spring:message text="${chapter.standard.label}" /> - <spring:message
 											code="label.measure.chapter" arguments="${chapter.reference}" text="Chapter ${chapter.reference}" />
 									</a>
 								</h4>
-								<div class="list-group" trick-id="${chapter.norm.id}" trick-value=<spring:message text="${chapter.reference}"/>>
+								<div class="list-group" trick-id="${chapter.standard.id}" trick-value=<spring:message text="${chapter.reference}"/>>
 									<c:forEach items="${measures.get(chapter)}" var="measure">
 										<a href="#" onclick="return false;" trick-class="Measure" trick-id="${measure.id}" class="list-group-item"
 											style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"> <spring:message

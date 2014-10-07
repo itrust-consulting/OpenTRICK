@@ -8,7 +8,7 @@ import lu.itrust.business.exception.TrickException;
 import org.hibernate.proxy.HibernateProxy;
 
 /**
- * AssetMeasureNorm: <br>
+ * AssetStandard: <br>
  * Detailed description...
  *
  * @author smenghi itrust consulting s.a.rl.:
@@ -49,25 +49,20 @@ public class AssetStandard extends AnalysisStandard {
 	}
 
 	/**
-	 * Constructor:<br>
-	 * 
-	 * @param norm
-	 *            The Norm Object
+	 * Constructor: <br>
+	 * @param standard
 	 */
-	public AssetStandard(Standard norm) {
-		super(norm);
+	public AssetStandard(Standard standard) {
+		super(standard);
 	}
 
 	/**
-	 * Constructor:<br>
-	 * 
+	 * Constructor: <br>
 	 * @param analysis
-	 *            The Analysis Object
-	 * @param norm
-	 *            The Norm Object
+	 * @param standard
 	 */
-	public AssetStandard(Analysis analysis, Standard name) {
-		super(analysis, name);
+	public AssetStandard(Analysis analysis, Standard standard) {
+		super(analysis, standard);
 	}
 
 	/***********************************************************************************************
@@ -75,10 +70,10 @@ public class AssetStandard extends AnalysisStandard {
 	 *********************************************************************************************** 
 	 * 
 	 * /** getMeasure: <br>
-	 * Returns a NormMeasure Object at position "index" from the list of
-	 * AnalysisNorm Measures ("measures" field)
+	 * Returns a AssetMeasure Object at position "index" from the list of
+	 * AnalysisStandard Measures ("measures" field)
 	 * 
-	 * @return The NormMeasure at position "index"
+	 * @return The AssetMeasure at position "index"
 	 */
 	public AssetMeasure getMeasure(int index) {
 		if ((index < 0) || (index >= getMeasures().size())) {
@@ -114,7 +109,7 @@ public class AssetStandard extends AnalysisStandard {
 
 	/**
 	 * addMeasure: <br>
-	 * Adds a new NormMeasure to the List of Measures ("measures" field)
+	 * Adds a new AssetMeasure to the List of Measures ("measures" field)
 	 * 
 	 * @param measure
 	 *            The new object to add

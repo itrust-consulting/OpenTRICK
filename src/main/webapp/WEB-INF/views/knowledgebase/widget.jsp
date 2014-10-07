@@ -7,6 +7,6 @@
 	<jsp:include page="analysis/widgetcontent.jsp" />
 	<jsp:include page="customer/widgetcontent.jsp" />
 	<jsp:include page="language/widgetcontent.jsp" />
-	<jsp:include page="standard/norm/widgetcontent.jsp" />
-	<jsp:include page="standard/measure/widgetcontent.jsp" />
+	<jsp:include page="standards/standard/widgetcontent.jsp" />
+	<jsp:include page="standards/measure/widgetcontent.jsp" />
 </div>

@@ -15,7 +15,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form action="${pageContext.request.contextPath}/KnowledgeBase/Norm/Import/RRF/Save" class="form">
+				<form action="${pageContext.request.contextPath}/KnowledgeBase/Standard/Import/RRF/Save" class="form">
 					<label><spring:message code="label.profiles" text="Profiles" /></label> <select class="form-control" name="profile">
 						<c:forEach items="${profiles}" var="profile">
 							<option value="${profile.id}" title='<spring:message text="${profile.label}"/>'><spring:message text="${profile.identifier} v. ${profile.version}" />
@@ -23,12 +23,12 @@
 						</c:forEach>
 					</select>
 					<hr>
-					<label><spring:message code="label.standards" text="Standards" /></label> <select class="form-control" name="norms" multiple="multiple">
+					<label><spring:message code="label.standards" text="Standards" /></label> <select class="form-control" name="standards" multiple="multiple">
 						<c:forEach items="${profiles}" var="profile">
-							<c:forEach items="${profile.analysisNorms}" var="analysisNorm">
-								<c:if test="${idNorms.contains(analysisNorm.norm.id)}">
-									<option title="${analysisNorm.norm.label} - v. ${analysisNorm.norm.version}" value="${analysisNorm.norm.id}" name="${profile.id}"><spring:message
-											text="${analysisNorm.norm.label}" /></option>
+							<c:forEach items="${profile.analysisStandards}" var="analysisStandard">
+								<c:if test="${idStandards.contains(analysisStandard.standard.id)}">
+									<option title="${analysisStandard.standard.label} - v. ${analysisStandard.standard.version}" value="${analysisStandard.standard.id}" name="${profile.id}"><spring:message
+											text="${analysisStandard.standard.label}" /></option>
 								</c:if>
 							</c:forEach>
 						</c:forEach>

@@ -14,13 +14,12 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
 
 /**
- * Norm: <br>
- * Represents a Norm Name
+ * Standard: <br>
+ * Represents a Standard
  * 
  * @author itrust consulting s.à. r.l. : EOM, BJA, SME
  * @version 0.1
@@ -38,29 +37,29 @@ public class Standard implements Serializable, Cloneable {
 	@Transient
 	private static final long serialVersionUID = 1L;
 
-	/** Norm ID */
+	/** Standard ID */
 	@Id @GeneratedValue 
 	@Column(name="idStandard")
 	private int id = -1;
 
-	/** Norm Name */
+	/** Standard Name */
 	@Column(name="dtLabel", nullable=false)
 	private String label = "";
 
-	/** the norm verison */
+	/** the Standard verison */
 	@Column(name="dtVersion", nullable=false)
 	private int version = 2013;
 
-	/** description of the norm */
+	/** description of the Standard */
 	@Column(name="dtDescription", nullable=false)
 	private String description = "";
 
 	@Enumerated(EnumType.STRING) 
-	@Column(name="dtType", nullable=false, unique=true)
+	@Column(name="dtType", nullable=false)
 	@Access(AccessType.FIELD)
 	private StandardType type = null;
 	
-	/** norm available for actionplan computation */
+	/** Standard available for actionplan computation */
 	@Column(name="dtComputable", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean computable = true;
 
@@ -75,55 +74,22 @@ public class Standard implements Serializable, Cloneable {
 	}
 
 	/**
-	 * Constructor:<br>
-	 * 
+	 * Constructor: <br>
 	 * @param label
-	 *            The Norm Name
-	 * @throws TrickException 
+	 * @param type
+	 * @param version
+	 * @param description
+	 * @param computable
+	 * @throws TrickException
 	 */
-	public Standard(String label) throws TrickException {
+	public Standard(String label, StandardType type, int version, String description, boolean computable) throws TrickException {
 		this.setLabel(label);
-	}
-
-	/**
-	 * Constructor:<br>
-	 * 
-	 * @param label
-	 *            The Norm Name
-	 * @throws TrickException 
-	 */
-	public Standard(String label, int version) throws TrickException {
-		this.setLabel(label);
-		this.setVersion(version);
-	}
-
-	/**
-	 * Constructor:<br>
-	 * 
-	 * @param label
-	 *            The Norm Name
-	 * @throws TrickException 
-	 */
-	public Standard(String label, int version, String description) throws TrickException {
-		this.setLabel(label);
-		this.setVersion(version);
-		this.setDescription(description);
-	}
-
-	/**
-	 * Constructor:<br>
-	 * 
-	 * @param label
-	 *            The Norm Name
-	 * @throws TrickException 
-	 */
-	public Standard(String label, int version, String description, boolean computable) throws TrickException {
-		this.setLabel(label);
+		this.setType(type);
 		this.setVersion(version);
 		this.setDescription(description);
 		this.setComputable(computable);
 	}
-
+	
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
@@ -281,10 +247,10 @@ public class Standard implements Serializable, Cloneable {
 	 * @see java.lang.Object#clone()
 	 */
 	public Standard duplicate() throws CloneNotSupportedException {
-		Standard norm = (Standard) super.clone();
-		if (norm.label.equalsIgnoreCase(Constant.STANDARD_CUSTOM))
-			norm.id = -1;
-		return norm;
+		Standard standard = (Standard) super.clone();
+		if (standard.label.equalsIgnoreCase(Constant.STANDARD_CUSTOM))
+			standard.id = -1;
+		return standard;
 	}
 
 	/**

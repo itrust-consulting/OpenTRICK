@@ -12,18 +12,18 @@
 		</h3>
 	</div>
 	<c:if test="${empty(measureSplited)}">
-		<spring:eval expression="T(lu.itrust.business.component.MeasureManager).SplitByNorm(measures)" var="measureSplited" />
+		<spring:eval expression="T(lu.itrust.business.component.MeasureManager).SplitByStandard(measures)" var="measureSplited" />
 	</c:if>
-	<c:forEach items="${measureSplited.keySet()}" var="norm">
-		<c:if test="${norm.equals('27002')}">
-			<span class="anchor" id="anchorSOA_${norm}"></span>
-			<div id="section_SOA_${norm}">
+	<c:forEach items="${measureSplited.keySet()}" var="standard">
+		<c:if test="${standard.equals('27002')}">
+			<span class="anchor" id="anchorSOA_${standard}"></span>
+			<div id="section_SOA_${standard}">
 				<div class="panel panel-default">
 					<div class="panel-heading">
-						<spring:message text="${norm}" />
+						<spring:message text="${standard}" />
 					</div>
 					<div class="panel-body autofitpanelbodydefinition">
-						<table class="table table-hover table-fixed-header" id="table_SOA_${norm}">
+						<table class="table table-hover table-fixed-header" id="table_SOA_${standard}">
 							<thead>
 								<tr>
 									<th><fmt:message key="label.measure.ref" /></th>
@@ -37,7 +37,7 @@
 							<tfoot>
 							</tfoot>
 							<tbody>
-								<c:forEach items="${measureSplited.get(norm)}" var="measure">
+								<c:forEach items="${measureSplited.get(standard)}" var="measure">
 									<c:choose>
 										<c:when test="${measure.measureDescription.computable==false }">
 											<tr style="background-color: #F8F8F8;">
@@ -48,7 +48,7 @@
 										</c:when>
 										<c:otherwise>
 											<tr trick-class="SOA" trick-id="${measure.id}"
-												trick-callback="initialiseTableFixedHeaderRows('#section_measure_${norm}');">
+												trick-callback="initialiseTableFixedHeaderRows('#section_measure_${standard}');">
 												<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 												<c:choose>
 												<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">

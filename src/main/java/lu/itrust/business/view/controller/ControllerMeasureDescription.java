@@ -134,7 +134,7 @@ public class ControllerMeasureDescription {
 			model.addAttribute("standard", serviceStandard.get(idStandard));
 			model.addAttribute("measureDescriptions", mesDescs);
 		}
-		return "knowledgebase/standard/measure/measures";
+		return "knowledgebase/standards/measure/measures";
 	}
 
 	/**
@@ -178,7 +178,7 @@ public class ControllerMeasureDescription {
 		response.setContentType("text/html");
 		response.setCharacterEncoding("UTF-8");
 
-		return "knowledgebase/standard/measure/measure";
+		return "knowledgebase/standards/measure/measure";
 	}
 
 	/**
@@ -206,7 +206,7 @@ public class ControllerMeasureDescription {
 			model.addAttribute("selectedLanguage", languages.get(0));
 		}
 
-		return "knowledgebase/standard/measure/measuredescriptionform";
+		return "knowledgebase/standards/measure/measuredescriptionform";
 	}
 
 	/**
@@ -232,7 +232,7 @@ public class ControllerMeasureDescription {
 		MeasureDescription md = null;
 
 		if (mesDesc.isEmpty())
-			return "knowledgebase/standard/measure/measuredescriptioneditform";
+			return "knowledgebase/standards/measure/measuredescriptioneditform";
 
 		md = mesDesc.get(0).getMeasureDescription();
 
@@ -263,7 +263,7 @@ public class ControllerMeasureDescription {
 			model.addAttribute("selectedLanguage", languages.get(0));
 		}
 
-		return "knowledgebase/standard/measure/measuredescriptioneditform";
+		return "knowledgebase/standards/measure/measuredescriptioneditform";
 	}
 
 	/**

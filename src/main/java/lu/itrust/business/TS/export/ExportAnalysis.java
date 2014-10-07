@@ -1358,9 +1358,9 @@ public class ExportAnalysis {
 		List<Object> defaultspecparams = new ArrayList<Object>();
 		String specquery = "";
 		String specdefaultquery = "";
-		NormalStandard measNorm = null;
+		NormalStandard normalStandard = null;
 		NormalMeasure measure = null;
-		MaturityStandard matNorm = null;
+		MaturityStandard maturityStandard = null;
 		MaturityMeasure maturity = null;
 		AssetTypeValue assetTypeValue = null;
 		String measurequery = "";
@@ -1369,26 +1369,26 @@ public class ExportAnalysis {
 		int specdefaultcounter = 0;
 
 		// ****************************************************************
-		// * export norm measures (27001, 27002, custom)
+		// * export standard measures (27001, 27002, custom)
 		// ****************************************************************
 
-		// parse norms
-		for (int indexNorm = 0; indexNorm < this.analysis.getAnalysisStandards().size(); indexNorm++) {
+		// parse standards
+		for (int indexStandard = 0; indexStandard < this.analysis.getAnalysisStandards().size(); indexStandard++) {
 
 			// ****************************************************************
-			// * retrieve norm that is not maturity
+			// * retrieve standard that is not maturity
 			// ****************************************************************
 
 			// ****************************************************************
-			// norm not maturity -> YES
+			// standard not maturity -> YES
 			// ****************************************************************
-			if (this.analysis.getAnalysisStandard(indexNorm) instanceof NormalStandard) {
+			if (this.analysis.getAnalysisStandard(indexStandard) instanceof NormalStandard) {
 
-				// store norm as measurenorm
-				measNorm = (NormalStandard) this.analysis.getAnalysisStandard(indexNorm);
+				// store standard as measurestandard
+				normalStandard = (NormalStandard) this.analysis.getAnalysisStandard(indexStandard);
 
 				// ****************************************************************
-				// * parse measures of this norm
+				// * parse measures of this standard
 				// ****************************************************************
 
 				// reinitialise variables
@@ -1400,10 +1400,10 @@ public class ExportAnalysis {
 				specdefaultquery = "";
 
 				// parse measures
-				for (int index = 0; index < measNorm.getMeasures().size(); index++) {
+				for (int index = 0; index < normalStandard.getMeasures().size(); index++) {
 
 					// store measure
-					measure = measNorm.getMeasure(index);
+					measure = normalStandard.getMeasure(index);
 
 					// ****************************************************************
 					// * export measure
@@ -1474,11 +1474,11 @@ public class ExportAnalysis {
 					// * add params to query
 					// ****************************************************************
 
-					// for norm
-					measureparams.add(measNorm.getStandard().getLabel());
-					measureparams.add(measNorm.getStandard().getVersion());
-					measureparams.add(measNorm.getStandard().isComputable());
-					measureparams.add(measNorm.getStandard().getDescription());
+					// for standard
+					measureparams.add(normalStandard.getStandard().getLabel());
+					measureparams.add(normalStandard.getStandard().getVersion());
+					measureparams.add(normalStandard.getStandard().isComputable());
+					measureparams.add(normalStandard.getStandard().getDescription());
 
 					// for measure
 					measureparams.add(measure.getMeasureDescription().getReference());
@@ -1578,20 +1578,20 @@ public class ExportAnalysis {
 						// add parameters
 						defaultspecparams.add(assetTypeValue.getAssetType().getId());
 
-						// check if norm is custom -> YES
-						if (measNorm.getStandard().getLabel().startsWith(Constant.STANDARD_CUSTOM)) {
+						// check if standard is custom -> YES
+						if (normalStandard.getStandard().getLabel().startsWith(Constant.STANDARD_CUSTOM)) {
 
-							// set custom norm name
+							// set custom standard name
 							defaultspecparams.add(Constant.STANDARD_CUSTOM);
 						} else {
 
-							// check if norm is custom -> NO
+							// check if standard is custom -> NO
 
-							// set all other norm name
-							defaultspecparams.add(measNorm.getStandard().getLabel());
+							// set all other standard name
+							defaultspecparams.add(normalStandard.getStandard().getLabel());
 						}
 
-						defaultspecparams.add(measNorm.getStandard().getVersion());
+						defaultspecparams.add(normalStandard.getStandard().getVersion());
 
 						defaultspecparams.add(measure.getMeasureDescription().getReference());
 
@@ -1651,20 +1651,20 @@ public class ExportAnalysis {
 							// add parameters
 							specparams.add(assetTypeValue.getAssetType().getId());
 
-							// check if norm is custom -> YES
-							if (measNorm.getStandard().getLabel().startsWith(Constant.STANDARD_CUSTOM)) {
+							// check if standard is custom -> YES
+							if (normalStandard.getStandard().getLabel().startsWith(Constant.STANDARD_CUSTOM)) {
 
-								// set custom norm name
+								// set custom standard name
 								specparams.add(Constant.STANDARD_CUSTOM);
 							} else {
 
-								// check if norm is custom -> NO
+								// check if standard is custom -> NO
 
-								// set all other norm name
-								specparams.add(measNorm.getStandard().getLabel());
+								// set all other standard name
+								specparams.add(normalStandard.getStandard().getLabel());
 							}
 
-							specparams.add(measNorm.getStandard().getVersion());
+							specparams.add(normalStandard.getStandard().getVersion());
 
 							specparams.add(measure.getMeasureDescription().getReference());
 							if (assetTypeValue.getValue() == 101)
@@ -1703,11 +1703,11 @@ public class ExportAnalysis {
 			} else {
 
 				// ****************************************************************
-				// norm not maturity -> NO
+				// standard not maturity -> NO
 				// ****************************************************************
 
-				// store maturity norm
-				matNorm = (MaturityStandard) this.analysis.getAnalysisStandard(indexNorm);
+				// store maturity standard
+				maturityStandard = (MaturityStandard) this.analysis.getAnalysisStandard(indexStandard);
 
 				// ****************************************************************
 				// * parse all maturity measures
@@ -1721,10 +1721,10 @@ public class ExportAnalysis {
 				measurecounter = 0;
 
 				// parse measures
-				for (int index = 0; index < matNorm.getMeasures().size(); index++) {
+				for (int index = 0; index < maturityStandard.getMeasures().size(); index++) {
 
 					// store maturity measure
-					maturity = (MaturityMeasure) matNorm.getMeasure(index);
+					maturity = (MaturityMeasure) maturityStandard.getMeasure(index);
 
 					// ****************************************************************
 					// * export measure
@@ -2229,7 +2229,7 @@ public class ExportAnalysis {
 		if (split.length > 0) {
 
 			// Case of 27001 and Maturity -> YES
-			if (split[0].equals(Constant.NORM27001_FIRSTCHAR_REFERENCE) || split[0].equals(Constant.MATURITY_FIRSTCHAR_REFERENCE)) {
+			if (split[0].equals(Constant.STANDARD27001_FIRSTCHAR_REFERENCE) || split[0].equals(Constant.MATURITY_FIRSTCHAR_REFERENCE)) {
 
 				index = 0;
 

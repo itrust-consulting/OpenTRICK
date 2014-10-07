@@ -13,7 +13,7 @@
 	<div id="wrap">
 		<jsp:include page="../menu.jsp" />
 		<div class="container">
-			<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisNorms)" var="measures" scope="request" />
+			<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisStandards)" var="measures" scope="request" />
 			<jsp:include page="analysisMenu.jsp" />
 			<jsp:include page="../successErrors.jsp" />
 			<div id="nav-container" trick-id="${analysis.id}" trick-class="Analysis" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}">

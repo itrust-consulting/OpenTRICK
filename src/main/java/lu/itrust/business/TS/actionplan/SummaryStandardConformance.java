@@ -43,7 +43,7 @@ public class SummaryStandardConformance {
 	
 	/**
 	 * Constructor: <br>
-	 * @param norm
+	 * @param analysisStandard
 	 * @param conformance
 	 */
 	public SummaryStandardConformance(AnalysisStandard analysisStandard, double conformance) {
@@ -70,20 +70,21 @@ public class SummaryStandardConformance {
 		this.id = id;
 	}
 
-	/** getAnalysisNorm: <br>
-	 * Returns the analysisNorm field value.
+	/**
+	 * getAnalysisStandard: <br>
+	 * Description
 	 * 
-	 * @return The value of the analysisNorm field
+	 * @return
 	 */
 	public AnalysisStandard getAnalysisStandard() {
 		return analysisStandard;
 	}
 
-	/** setAnalysisNorm: <br>
-	 * Sets the Field "analysisNorm" with a value.
+	/** 
+	 * setAnalysisStandard: <br>
+	 * Description
 	 * 
-	 * @param analysisNorm 
-	 * 			The Value to set the analysisNorm field
+	 * @param analysisStandard
 	 */
 	public void setAnalysisStandard(AnalysisStandard analysisStandard) {
 		this.analysisStandard = analysisStandard;

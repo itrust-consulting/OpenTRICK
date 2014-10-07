@@ -42,12 +42,12 @@
 			<li><a href="#anchorPhase"> <spring:message code="label.menu.analysis.phase" text="Phases" /></a></li>
 			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.analysis.standards" text="Standard" /><span
 					class="caret"></span></a> <c:if test="${empty(measureSplited)}">
-					<spring:eval expression="T(lu.itrust.business.component.MeasureManager).SplitByNorm(measures)" var="measureSplited" scope="request" />
+					<spring:eval expression="T(lu.itrust.business.component.MeasureManager).SplitByStandard(measures)" var="measureSplited" scope="request" />
 				</c:if>
 				<ul class="dropdown-menu">
 					<c:if test="${!empty(measureSplited)}">
-						<c:forEach items="${measureSplited.keySet()}" var="norm">
-							<li><a href="#anchorMeasure_${norm}"> <spring:message text="${norm}" /></a>
+						<c:forEach items="${measureSplited.keySet()}" var="standard">
+							<li><a href="#anchorMeasure_${standard}"> <spring:message text="${standard}" /></a>
 						</c:forEach>
 					</c:if>
 					<c:if test="${analysis.getRightsforUserString(login).right.ordinal() <= 4}">

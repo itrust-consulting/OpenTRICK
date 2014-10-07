@@ -5,7 +5,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ page trimDirectiveWhitespaces="true"%>
 <c:if test="${!empty(measureDescription)}">
-	<tr trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${norm.id}');">
+	<tr trick-id="${measureDescription.id}" ondblclick="return editSingleMeasure('${measureDescription.id}','${standard.id}');">
 		<td><input type="checkbox" class="checkbox" onchange="return updateMenu('this,#section_measure_description','#menu_measure_description');"></td>
 		<td colspan="2">${measureDescription.level}</td>
 		<td colspan="2">${measureDescription.reference}</td>
