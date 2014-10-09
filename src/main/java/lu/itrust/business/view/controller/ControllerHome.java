@@ -75,7 +75,13 @@ public class ControllerHome {
 	}
 
 	@RequestMapping("/login")
-	public String login() {
+	public String login( HttpServletRequest request, HttpServletResponse response, Locale locale, Model model) {
+		
+		if(request.getParameter("registerSuccess")!=null) {
+			model.addAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
+			model.addAttribute("j_username", request.getParameter("login")==null?"":request.getParameter("login"));
+		}
+		
 		return "loginForm";
 	}
 

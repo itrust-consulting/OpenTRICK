@@ -18,7 +18,6 @@ import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
-import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
@@ -227,13 +226,12 @@ public class ControllerScenario {
 		if (integer == null)
 			return null;
 
-		model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(integer, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
-
 		// load all scenarios from analysis
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		model.addAttribute("scenarios", scenarios);
 		model.addAttribute("scenarioALE", AssessmentManager.ComputeScenarioALE(scenarios, assessments));
+		model.addAttribute("show_uncertainty",serviceAnalysis.isAnalysisUncertainty(integer));
 		return "analysis/components/scenario";
 	}
 
@@ -438,19 +436,7 @@ public class ControllerScenario {
 
 		User user = serviceUser.get(principal.getName());
 
-		List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
-
-		Locale locale = null;
-
-		for (AnalysisSetting setting : settings) {
-			if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
-				locale = new Locale(setting.getValue().substring(0, 2));
-				break;
-			}
-		}
-
-		if (locale == null)
-			locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
+		Locale locale = new Locale(user.getLocale());
 
 		return chartGenerator.aleByScenario(idAnalysis, locale);
 	}
@@ -474,19 +460,7 @@ public class ControllerScenario {
 
 		User user = serviceUser.get(principal.getName());
 
-		List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
-		
-		Locale locale = null;
-
-		for (AnalysisSetting setting : settings) {
-			if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
-				locale = new Locale(setting.getValue().substring(0, 2));
-				break;
-			}
-		}
-
-		if (locale == null)
-			locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
+		Locale locale = new Locale(user.getLocale());
 
 		return chartGenerator.aleByScenarioType(idAnalysis, locale);
 	}

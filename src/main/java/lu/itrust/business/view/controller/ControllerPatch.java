@@ -13,11 +13,8 @@ import lu.itrust.business.TS.TrickService;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.actionplan.SummaryStandardConformance;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
-import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.settings.AppSettingEntry;
-import lu.itrust.business.TS.settings.ApplicationSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.MeasureManager;
@@ -88,18 +85,16 @@ public class ControllerPatch {
 
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
-	
+
 	@Autowired
 	private ServiceUser serviceUser;
-	
+
 	@Autowired
 	private ServiceAppSettingEntry serviceAppSettingEntry;
-	
-		
+
 	@RequestMapping(value = "/Update/ScenarioCategoryValue", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	String updateAllScenario(Locale locale) {
+	public @ResponseBody String updateAllScenario(Locale locale) {
 		try {
 
 			List<Scenario> scenarios = serviceScenario.getAll();
@@ -121,8 +116,7 @@ public class ControllerPatch {
 
 	@RequestMapping(value = "/Update/Measure/AssettypeValue", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	String removeMeasureAssetTypeValueDuplicate(Locale locale) throws Exception {
+	public @ResponseBody String removeMeasureAssetTypeValueDuplicate(Locale locale) throws Exception {
 		try {
 			measureManager.patchMeasureAssetypeValueDuplicated();
 		} catch (TrickException e) {
@@ -135,8 +129,7 @@ public class ControllerPatch {
 
 	@RequestMapping(value = "/Update/Assessments", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	Map<String, String> updateAssessments(Locale locale) {
+	public @ResponseBody Map<String, String> updateAssessments(Locale locale) {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
@@ -166,8 +159,7 @@ public class ControllerPatch {
 
 	@RequestMapping(value = "/Update/ParameterImplementationScale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	Map<String, String> updateImplementationScaleNames(Locale locale) {
+	public @ResponseBody Map<String, String> updateImplementationScaleNames(Locale locale) {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
@@ -219,8 +211,7 @@ public class ControllerPatch {
 
 	@RequestMapping(value = "/Update/UpdateCompliances", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody
-	String updateCompliances(Locale locale) {
+	public @ResponseBody String updateCompliances(Locale locale) {
 
 		String patchversion = "0.6.3b";
 
@@ -228,11 +219,11 @@ public class ControllerPatch {
 
 			System.out.println("Patching compliance (version 0.6.3b)");
 
-			if(serviceTrickService.getStatus().getVersion().equals(patchversion)) {
+			if (serviceTrickService.getStatus().getVersion().equals(patchversion)) {
 				System.out.println("Patch already installed!");
 				return JsonMessage.Error(messageSource.getMessage("error.patch.installed", null, "The Patch is already installed!", locale));
 			}
-			
+
 			List<Integer> analyses = serviceAnalysis.getAllAnalysisIDs();
 
 			for (Integer idAnalysis : analyses) {
@@ -244,65 +235,64 @@ public class ControllerPatch {
 				for (AnalysisStandard standard : standards) {
 
 					List<SummaryStage> summaries = serviceActionPlanSummary.getAllFromAnalysis(idAnalysis);
-					
+
 					for (SummaryStage summary : summaries) {
-						
-						if(standard.getStandard().getLabel().equals(Constant.STANDARD_27001)) {
-							
+
+						if (standard.getStandard().getLabel().equals(Constant.STANDARD_27001)) {
+
 							boolean found = false;
-							
-							for(SummaryStandardConformance conformance : summary.getConformances())
-								if(conformance.getAnalysisStandard().getStandard().getLabel().equals(standard.getStandard().getLabel())) {
+
+							for (SummaryStandardConformance conformance : summary.getConformances())
+								if (conformance.getAnalysisStandard().getStandard().getLabel().equals(standard.getStandard().getLabel())) {
 									found = true;
 									break;
 								}
-							
-							if(!found)						
+
+							if (!found)
 								summary.addConformance(standard, summary.getConformance27001());
-						} else if(standard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
-							
+						} else if (standard.getStandard().getLabel().equals(Constant.STANDARD_27002)) {
+
 							boolean found = false;
-							
-							for(SummaryStandardConformance conformance : summary.getConformances())
-								if(conformance.getAnalysisStandard().getStandard().getLabel().equals(standard.getStandard().getLabel())) {
+
+							for (SummaryStandardConformance conformance : summary.getConformances())
+								if (conformance.getAnalysisStandard().getStandard().getLabel().equals(standard.getStandard().getLabel())) {
 									found = true;
 									break;
 								}
-							
-							if(!found)						
+
+							if (!found)
 								summary.addConformance(standard, summary.getConformance27002());
 						} else {
-							
+
 							boolean found = false;
-							
-							for(SummaryStandardConformance conformance : summary.getConformances())
-								if(conformance.getAnalysisStandard().getStandard().getLabel().equals(standard.getStandard().getLabel())) {
+
+							for (SummaryStandardConformance conformance : summary.getConformances())
+								if (conformance.getAnalysisStandard().getStandard().getLabel().equals(standard.getStandard().getLabel())) {
 									found = true;
 									break;
 								}
-							
-							if(!found) {
-							
+
+							if (!found) {
+
 								Map<String, Object[]> previouscompliances = ChartGenerator.ComputeComplianceBefore(standard.getMeasures());
-								
+
 								int compliancevalue = 0;
-								
+
 								for (String key : previouscompliances.keySet()) {
 									Object[] compliance = previouscompliances.get(key);
 									compliancevalue += (int) Math.floor(((Double) compliance[1]) / (Integer) compliance[0]);
 								}
-								
+
 								compliancevalue = compliancevalue / previouscompliances.size();
-								
-								summary.addConformance(standard, compliancevalue*0.01);
-								
+
+								summary.addConformance(standard, compliancevalue * 0.01);
+
 							}
-								
+
 						}
-							
-						
+
 					}
-				
+
 					for (SummaryStage summary : summaries)
 						serviceActionPlanSummary.saveOrUpdate(summary);
 				}
@@ -321,97 +311,62 @@ public class ControllerPatch {
 			return JsonMessage.Error(e.getMessage());
 		}
 	}
-	
+
 	@RequestMapping(value = "/Update/ApplicationSettings", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
-	public @ResponseBody String createDefaultSettingsForUsers(Locale locale){
-		
-		System.out.println("Patching Application Settings (version 0.6.3d)");
+	public @ResponseBody String updateAnalysisSettings(Locale locale) {
 
 		String patchversion = "0.6.3d";
 
-		try{
-		
-		if(serviceTrickService.getStatus().getVersion().equals(patchversion)) {
-			System.out.println("Patch already installed!");
-			return JsonMessage.Error(messageSource.getMessage("error.patch.installed", null, "The Patch is already installed!", locale));
-		}
-		
-		List<User> users = serviceUser.getAll();
-		
-		for(User user: users) {
+		try {
 
-			if(!user.applicationSettingExists(Constant.SETTING_DEFAULT_UI_LANGUAGE)){
-				ApplicationSetting setting = new ApplicationSetting(Constant.SETTING_DEFAULT_UI_LANGUAGE,"en");
-				user.addApplicationSetting(setting);
+			System.out.println("Patching settings (version 0.6.3d)");
+
+			if (serviceTrickService.getStatus().getVersion().equals(patchversion)) {
+				System.out.println("Patch already installed!");
+				return JsonMessage.Error(messageSource.getMessage("error.patch.installed", null, "The Patch is already installed!", locale));
 			}
-			
-			if(!user.applicationSettingExists(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY)){
-				ApplicationSetting setting = new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY,"true");
-				user.addApplicationSetting(setting);
-			}
-				
-			if(!user.applicationSettingExists(Constant.SETTING_DEFAULT_SHOW_CSSF)){
-				ApplicationSetting setting = new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_CSSF,"false");
-				user.addApplicationSetting(setting);
-			}
-			
-			List<Analysis> analyses = serviceAnalysis.getAllFromUser(user);
-			
-			for(Analysis analysis : analyses){
-				
-				AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(user.getLogin(), "analysis", String.valueOf(analysis.getId()));
-				
-				String uncertainty = settings.findByKey("show_uncertainty");
-				
-				String cssf = settings.findByKey("show_cssf");
-				
-				String defaultuncertainty = "true";
-				
-				String defaultcssf = "false";
-				
-				if(uncertainty==null){
-					if(!analysis.analysisSettingExists(Constant.SETTING_SHOW_UNCERTAINTY)){
-						AnalysisSetting analysisSetting = new AnalysisSetting(Constant.SETTING_SHOW_UNCERTAINTY,defaultuncertainty, user);
-						analysis.addAnalysisSetting(analysisSetting);
-					}
+
+			List<Integer> analyses = serviceAnalysis.getAllAnalysisIDs();
+
+			for (Integer idAnalysis : analyses) {
+
+				System.out.println("analysis " + (analyses.indexOf(idAnalysis) + 1) + " of " + analyses.size());
+
+				Analysis analysis = serviceAnalysis.get(idAnalysis);
+
+				AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName("bfetler", "analysis", String.valueOf(idAnalysis));
+
+				if (settings != null) {
+					if (settings.findByKey("show_uncertainty") == "true")
+						analysis.setUncertainty(true);
+					else
+						analysis.setUncertainty(false);
+					if (settings.findByKey("show_cssf") == "true")
+						analysis.setCssf(true);
+					else
+						analysis.setCssf(false);
+				} else {
+					analysis.setUncertainty(true);
+					analysis.setCssf(true);
 				}
-				
-				if(cssf==null){
-					if(!analysis.analysisSettingExists(Constant.SETTING_SHOW_CSSF)){
-						AnalysisSetting analysisSetting = new AnalysisSetting(Constant.SETTING_SHOW_CSSF,defaultcssf, user);
-						analysis.addAnalysisSetting(analysisSetting);
-					}
-				}
-				
-				if(!analysis.analysisSettingExists(Constant.SETTING_LANGUAGE)){
-					AnalysisSetting analysisSetting = new AnalysisSetting(Constant.SETTING_LANGUAGE,analysis.getLanguage().getAlpha3(), user);
-					analysis.addAnalysisSetting(analysisSetting);	
-				}
-				
-				
-				
+
 				serviceAnalysis.saveOrUpdate(analysis);
 				
 			}
-			
-			serviceUser.saveOrUpdate(user);
-			
+
+			TrickService ts = serviceTrickService.getStatus();
+
+			ts.setVersion(patchversion);
+			serviceTrickService.saveOrUpdate(ts);
+
+			System.out.println("Done...");
+
+			return JsonMessage.Success(messageSource.getMessage("success.settings.update", null, "Settings were successfully updated", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(e.getMessage());
 		}
-		
-		TrickService ts = serviceTrickService.getStatus();
-		ts.setVersion(patchversion);
-		serviceTrickService.saveOrUpdate(ts);
-		
-		System.out.println("Done...");
-	
-		return JsonMessage.Success(messageSource.getMessage("success.applicationsettings.update", null, "Application settings were successfully updated", locale));
-	} catch (Exception e) {
-		e.printStackTrace();
-		return JsonMessage.Error(e.getMessage());
 	}
-		
-	}
-	
 
 }

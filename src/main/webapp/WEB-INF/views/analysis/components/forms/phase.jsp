@@ -23,7 +23,7 @@
 						</c:otherwise>
 					</c:choose>
 					<div class="form-group">
-						<label for="date" class="col-sm-3 control-label"> <spring:message code="label.date" text="Period of time" />
+						<label for="date" class="col-sm-3 control-label"> <spring:message code="label.phase_period" text="Period of time" />
 						</label>
 						<div class="col-sm-9">
 							<div id="datepicker_container" class="input-daterange">

@@ -38,7 +38,7 @@
 						<th colspan="2"><fmt:message key="label.asset.type"  /></th>
 						<th colspan="2"><fmt:message key="label.asset.value"  /> (k&euro;)</th>
 						<c:choose>
-							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+							<c:when test="${show_uncertainty}">
 								<th colspan="2"><fmt:message key="label.asset.aleo"  /> (k&euro;)</th>
 								<th colspan="2"><fmt:message key="label.asset.ale"  /> (k&euro;)</th>
 								<th colspan="2"><fmt:message key="label.asset.alep"  /> (k&euro;)</th>
@@ -63,7 +63,7 @@
 							<td class="${cssClass}" colspan="2"><spring:message text="${ asset.assetType.type}" /></td>
 							<td class="${cssClass}" colspan="2" title='<fmt:formatNumber value="${asset.value}"/>&euro;'><fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="1" /></td>
 							<c:choose>
-								<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+								<c:when test="${show_uncertainty}">
 									<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
 											maxFractionDigits="2" minFractionDigits="0" /></td>
 									<td colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
@@ -86,7 +86,7 @@
 						<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeTotalALE(assetALE)" var="ale" />
 						<td colspan="14"><fmt:message key="label.total.ale"  /></td>
 						<c:choose>
-							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+							<c:when test="${show_uncertainty}">
 								<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
 										maxFractionDigits="2" minFractionDigits="0" /></td>
 								<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"

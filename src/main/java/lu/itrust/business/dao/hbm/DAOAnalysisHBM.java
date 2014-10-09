@@ -449,4 +449,16 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 			"Select analysisSettings from Analysis as analysis inner join analysis.analysisSettings as analysisSettings where analysis.id= :id and analysisSettings.user.login= :username and analysisSettings.key= :key";
 		return (AnalysisSetting) getSession().createQuery(query).setParameter("id", analysisID).setParameter("username", username).setParameter("key", key).uniqueResult();
 	}
+
+	@Override
+	public boolean isAnalysisUncertainty(Integer analysisID) throws Exception {
+		String query = "Select analysis.uncertainty from Analysis as analysis where analysis.id= :id";
+			 return (boolean) getSession().createQuery(query).setParameter("id", analysisID).uniqueResult();
+	}
+
+	@Override
+	public boolean isAnalysisCssf(Integer analysisID) throws Exception {
+		String query = "Select analysis.cssf from Analysis as analysis where analysis.id= :id";
+		 return (boolean) getSession().createQuery(query).setParameter("id", analysisID).uniqueResult();
+	}
 }

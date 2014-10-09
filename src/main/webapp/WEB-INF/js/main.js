@@ -54,9 +54,9 @@ $(function() {
 	});
 
 	//prevent unknown error modal display
-	$("a[role='changeUILanguage'], div[role='main-menu'] a").click(function() {
-		application["isReloading"] = true;
-	});
+	$(window).bind("beforeunload", function() {
+        application["isReloading"] = true;
+    });
 
 	if ($(".popover-element").length)
 		$(".popover-element").popover('hide');

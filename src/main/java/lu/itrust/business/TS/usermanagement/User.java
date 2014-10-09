@@ -2,9 +2,8 @@ package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,7 +19,6 @@ import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.settings.ApplicationSetting;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -72,7 +70,7 @@ public class User implements Serializable {
 			   joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, 
 			   inverseJoinColumns = { @JoinColumn(name = "fiRole", nullable = false, updatable = false) }
 	)
-	private List<Role> roles = new ArrayList<Role>();
+	private List<Role> roles = null;
 
 	@ManyToMany
 	@JoinTable(name = "UserCustomer", 
@@ -81,12 +79,15 @@ public class User implements Serializable {
 			   uniqueConstraints = @UniqueConstraint(columnNames={"fiUser","fiCustomer"})
 	)
 	@Cascade(CascadeType.ALL)
-	private List<Customer> customers = new ArrayList<Customer>();
+	private List<Customer> customers = null;
 
 	@OneToMany 
 	@JoinColumn(name="fiUser", nullable=false)
 	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
 	private List<ApplicationSetting> applicationSettings = new ArrayList<ApplicationSetting>();
+	
+	@Column(name="dtLocale", nullable=false)
+	private String locale = "en";
 	
 	/**
 	 * Constructor: <br>
@@ -105,124 +106,149 @@ public class User implements Serializable {
 	}
 
 	/**
-	 * 
+	 * Constructor: <br>
+	 *
 	 */
 	public User() {
 		roles = new ArrayList<Role>();
-	}
-
-	public static void createDefaultSettings(User user) {
-		
-		if(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE)==null)
-			user.addApplicationSetting(new ApplicationSetting(Constant.SETTING_DEFAULT_UI_LANGUAGE, "ENG"));
-		
-		if(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY)==null)
-			user.addApplicationSetting(new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY, "true"));
-		
-		if(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_CSSF)==null)
-			user.addApplicationSetting(new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_CSSF, "true"));
+		customers = new ArrayList<Customer>();
 	}
 	
 	/**
-	 * @return the id
+	 * getId: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public Integer getId() {
 		return id;
 	}
 
 	/**
+	 * setId: <br>
+	 * Description
+	 * 
 	 * @param id
-	 *            the id to set
 	 */
 	public void setId(Integer id) {
 		this.id = id;
 	}
 
 	/**
-	 * @return the login
+	 * getLogin: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public String getLogin() {
 		return login;
 	}
 
 	/**
+	 * setLogin: <br>
+	 * Description
+	 * 
 	 * @param login
-	 *            the login to set
 	 */
 	public void setLogin(String login) {
 		this.login = login;
 	}
 
 	/**
-	 * @return the password
+	 * getPassword: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public String getPassword() {
 		return password;
 	}
 
 	/**
+	 * setPassword: <br>
+	 * Description
+	 * 
 	 * @param password
-	 *            the password to set
 	 */
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
 	/**
-	 * @return the firstName
+	 * getFirstName: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public String getFirstName() {
 		return firstName;
 	}
 
 	/**
+	 * setFirstName: <br>
+	 * Description
+	 * 
 	 * @param firstName
-	 *            the firstName to set
 	 */
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
 
 	/**
-	 * @return the lastName
+	 * getLastName: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public String getLastName() {
 		return lastName;
 	}
 
 	/**
+	 * setLastName: <br>
+	 * Description
+	 * 
 	 * @param lastName
-	 *            the lastName to set
 	 */
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
 
 	/**
-	 * @return the email
+	 * getEmail: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public String getEmail() {
 		return email;
 	}
 
 	/**
+	 * setEmail: <br>
+	 * Description
+	 * 
 	 * @param email
-	 *            the email to set
 	 */
 	public void setEmail(String email) {
 		this.email = email;
 	}
 
 	/**
-	 * @return the enable
+	 * isEnable: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public boolean isEnable() {
 		return enable;
 	}
 
 	/**
+	 * setEnable: <br>
+	 * Description
+	 * 
 	 * @param enable
-	 *            the enable to set
 	 */
 	public void setEnable(boolean enable) {
 		this.enable = enable;
@@ -238,14 +264,33 @@ public class User implements Serializable {
 		enable = !roles.isEmpty();
 	}
 
+	/**
+	 * getRoles: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
 	public List<Role> getRoles() {
 		return roles;
 	}
 
+	/**
+	 * setRoles: <br>
+	 * Description
+	 * 
+	 * @param roles
+	 */
 	public void setRoles(List<Role> roles) {
 		this.roles = roles;
 	}
 
+	/**
+	 * addRole: <br>
+	 * Description
+	 * 
+	 * @param role
+	 * @return
+	 */
 	public boolean addRole(Role role) {
 		boolean add = false;
 
@@ -259,16 +304,71 @@ public class User implements Serializable {
 		return add;
 	}
 
+	/**
+	 * containsRole: <br>
+	 * Description
+	 * 
+	 * @param role
+	 * @return
+	 */
 	public boolean containsRole(Object role) {
 		return roles.contains(role);
 	}
 
+	/**
+	 * getRole: <br>
+	 * Description
+	 * 
+	 * @param role
+	 * @return
+	 */
 	public Role getRole(Role role) {
 		if (roles == null)
 			return null;
 		return roles.get(roles.indexOf(role));
 	}
+	
+	/**
+	 * getLocale: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public String getLocale() {
+		return locale;
+	}
 
+	public Locale getLocaleObject(){
+		return new Locale(locale);
+	}
+	
+	/**
+	 * setLocale: <br>
+	 * Description
+	 * 
+	 * @param locale
+	 */
+	public void setLocale(String locale) {
+		this.locale = locale;
+	}
+
+	/**
+	 * setLocaleObject: <br>
+	 * Description
+	 * 
+	 * @param locale
+	 */
+	public void setLocaleObject(Locale locale) {
+		this.locale = locale.getISO3Language().substring(0, 2);
+	}
+	
+	/**
+	 * isAutorised: <br>
+	 * Description
+	 * 
+	 * @param role
+	 * @return
+	 */
 	public boolean isAutorised(RoleType role) {
 
 		if (role != null && roles != null) {
@@ -282,11 +382,25 @@ public class User implements Serializable {
 
 	}
 
+	/**
+	 * isAutorised: <br>
+	 * Description
+	 * 
+	 * @param role
+	 * @return
+	 */
 	public boolean isAutorised(String role) {
 
 		return isAutorised(RoleType.valueOf(role));
 	}
 
+	/**
+	 * removeRole: <br>
+	 * Description
+	 * 
+	 * @param role
+	 * @return
+	 */
 	public Role removeRole(Role role) {
 
 		if (roles != null) {
@@ -382,74 +496,5 @@ public class User implements Serializable {
 			return customers.remove(customer);
 		return true;
 	}
-	
-	/**
-	 * addApplicationSetting: <br>
-	 * Description
-	 * 
-	 * @param setting
-	 */
-	public void addApplicationSetting(ApplicationSetting setting) {
-		this.applicationSettings.add(setting);
-	}
-	
-	/**
-	 * removeApplicationSetting: <br>
-	 * Description
-	 * 
-	 * @param setting
-	 */
-	public void removeApplicationSetting(ApplicationSetting setting) {
-		this.applicationSettings.remove(setting);
-	}
-	
-	/**
-	 * applicationSettingExists: <br>
-	 * Description
-	 * 
-	 * @param key
-	 * @return
-	 */
-	public boolean applicationSettingExists(String key){
-		for(ApplicationSetting setting : this.applicationSettings) {
-			if(setting.getKey().equals(key))
-				return true;
-		}
-		return false;
-	}	
-	
-	/**
-	 * getApplicationSettings: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public List<ApplicationSetting> getApplicationSettings(){
-		return this.applicationSettings;
-	}
 
-	/**
-	 * getApplicationSettings: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public void setApplicationSettings(List<ApplicationSetting> applicationsettings){
-		this.applicationSettings = applicationsettings;
-	}
-	
-	/**
-	 * getApplicationSettingsAsMap: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public Map<String, ApplicationSetting> getApplicationSettingsAsMap(){
-		Map<String, ApplicationSetting> asettings = new LinkedHashMap<String, ApplicationSetting>();
-		
-		for(ApplicationSetting setting : this.applicationSettings)
-			asettings.put(setting.getKey(), setting);
-		
-		return asettings;
-	}
 }

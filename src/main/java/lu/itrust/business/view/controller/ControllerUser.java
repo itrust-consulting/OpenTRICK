@@ -1,15 +1,12 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import lu.itrust.business.TS.settings.ApplicationSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.service.ServiceDataValidation;
@@ -57,7 +54,7 @@ public class ControllerUser {
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
-	
+
 	/**
 	 * profile: <br>
 	 * Description
@@ -72,29 +69,21 @@ public class ControllerUser {
 	public String profile(Model model, Principal principal) {
 
 		try {
-		
+
 			User user = serviceUser.get(principal.getName());
-	
+
 			user.setPassword(Constant.EMPTY_STRING);
-	
+
 			// add profile to model
 			model.addAttribute("user", user);
-						
-			model.addAttribute("defaultlang", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue());
-			
-			model.addAttribute("defaultShowUncertainty", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY).getValue());
-			
-			model.addAttribute("defaultShowCssf", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY).getValue());
-		
+
 			return "userProfile";
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("user", null);
 			return "userProfile";
 		}
-		
-		
-		
+
 	}
 
 	/**
@@ -112,18 +101,14 @@ public class ControllerUser {
 	public String profileOfUser(@PathVariable("userId") int userId, Model model) throws Exception {
 
 		try {
-			
+
 			User user = serviceUser.get(userId);
-	
+
 			user.setPassword(Constant.EMPTY_STRING);
-	
+
 			// add profile to model
 			model.addAttribute("user", user);
-			
-			model.addAttribute("defaultlang", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue());
-			
-			model.addAttribute("defaultlang", user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY).getValue());
-		
+
 			return "userProfile";
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -143,24 +128,24 @@ public class ControllerUser {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Update", method = RequestMethod.POST,headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, Principal principal, HttpServletResponse response) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<>();
-		
+
 		try {
 
 			User user = serviceUser.get(principal.getName());
-			
+
 			if (!buildUser(errors, user, source, locale))
 				return errors;
-						
+
 			serviceUser.saveOrUpdate(user);
-			
+
 			return errors;
 
 		} catch (Exception e) {
-			
+
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 			return errors;
@@ -192,106 +177,66 @@ public class ControllerUser {
 			String firstname = jsonNode.get("firstName").asText();
 			String lastname = jsonNode.get("lastName").asText();
 			String email = jsonNode.get("email").asText();
-			String defaultlanguage = jsonNode.get("defaultlanguage").asText();
-			String defaultShowUncertainty = jsonNode.get("default_show_uncertainty").asText();
-			String defaultShowCssf = jsonNode.get("default_show_cssf").asText();
+			String userlocale = jsonNode.get("locale").asText();
 			String error = null;
 			String oldPassword = user.getPassword();
-			
-			if(currentPassword!=Constant.EMPTY_STRING) {
-			
+
+			if (currentPassword != Constant.EMPTY_STRING) {
+
 				if (!oldPassword.equals(passwordEncoder.encodePassword(currentPassword, user.getLogin())))
 					errors.put("currentPassword", messageSource.getMessage("error.user.current_password.not_matching", null, "Current Password is not correct", locale));
-				
-				error = validator.validate(user, "password", password);
+
+				if (password != Constant.EMPTY_STRING) {
+
+					error = validator.validate(user, "password", password);
+					if (error != null)
+						errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
+					else
+						user.setPassword(password);
+
+					error = validator.validate(user, "repeatPassword", repeatedPassword);
+					if (error != null) {
+						user.setPassword(oldPassword);
+						errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
+					} else {
+
+						user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+					}
+				}
+				error = validator.validate(user, "firstName", firstname);
 				if (error != null)
-					errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
-				else 
-					user.setPassword(password);
-				
-				error = validator.validate(user, "repeatPassword", repeatedPassword);
-				if (error != null) {
-					user.setPassword(oldPassword);
-					errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
-				}
-				else {
-					
-					user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
-				}
-			
-			}
-			
-			error = validator.validate(user, "firstName", firstname);
-			if (error != null)
-				errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				user.setFirstName(firstname);
+					errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
+				else
+					user.setFirstName(firstname);
 
-			error = validator.validate(user, "lastName", lastname);
-			if (error != null)
-				errors.put("lastName", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				user.setLastName(lastname);
-			
-			error = validator.validate(user, "email", email);
-			if (error != null)
-				errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				user.setEmail(email);
+				error = validator.validate(user, "lastName", lastname);
+				if (error != null)
+					errors.put("lastName", serviceDataValidation.ParseError(error, messageSource, locale));
+				else
+					user.setLastName(lastname);
 
-			Map<String, ApplicationSetting> settings = user.getApplicationSettingsAsMap();
-			
-			boolean settingserrors = false;
-			
-			// default interface language
-			
-			ApplicationSetting setting = settings.get(Constant.SETTING_DEFAULT_UI_LANGUAGE);
-			
-			if(!defaultlanguage.equals("en") && !defaultlanguage.equals("fr")) {
-				errors.put("defaultlanguage", messageSource.getMessage("error.user.defaultlanguage.not_recognised", null, "Language not recognised!", locale));
-				settingserrors = true;
-			} else {
-				setting.setValue(defaultlanguage);
-				settings.put(Constant.SETTING_DEFAULT_UI_LANGUAGE, setting);
-			}
-			
-			// default show uncertainty
-			
-			setting = settings.get(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY);
-			
-			if(!defaultShowUncertainty.equals("true") && !defaultShowUncertainty.equals("false")) {
-				errors.put("default_show_uncertainty", messageSource.getMessage("error.user.defaultshowuncertainty.not_allowed", null, "Only \"True\" and \"False\" are allowed!", locale));
-				settingserrors = true;
-			} else{
-				setting.setValue(defaultShowUncertainty);
-				settings.put(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY, setting);
-			}
-			
-			// default show cssf
-			
-			setting = settings.get(Constant.SETTING_DEFAULT_SHOW_CSSF);
-			
-			if(!defaultShowCssf.equals("true") && !defaultShowCssf.equals("false")) {
-				errors.put("default_show_cssf", messageSource.getMessage("error.user.defaultshowcssf.not_allowed", null, "Only \"True\" and \"False\" are allowed!", locale));
-				settingserrors = true;
-			} else{
-				setting.setValue(defaultShowCssf);
-				settings.put(Constant.SETTING_DEFAULT_SHOW_CSSF, setting);
-			}
-			
-			if(!settingserrors) {
-				List<ApplicationSetting> asettings = new ArrayList<ApplicationSetting>(settings.values());
-				user.setApplicationSettings(asettings);
-			}
-			
+				error = validator.validate(user, "email", email);
+				if (error != null)
+					errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
+				else
+					user.setEmail(email);
+
+				error = validator.validate(user, "locale", userlocale);
+				if (error != null)
+					errors.put("locale", serviceDataValidation.ParseError(error, messageSource, locale));
+				else
+					user.setLocale(userlocale);
+
+			} else
+				errors.put("currentPassword", messageSource.getMessage("error.user.currentpassword_empty", null, "Enter current password for changes to take effect!", locale));
+
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 		}
 
-
 		return errors.isEmpty();
 
 	}
-	
+
 }

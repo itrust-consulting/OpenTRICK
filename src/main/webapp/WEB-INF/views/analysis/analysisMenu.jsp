@@ -14,33 +14,32 @@
 <div class="navbar navbar-default navbar-fixed-top navbar-custom affix" style="z-index: 1029; min-width: 1400px;">
 	<div id="analysismenu" class="container">
 		<ul class="nav navbar-nav">
-			<c:if test="${!KowledgeBaseView}">
-				<li><a href="#anchorHistory"><spring:message code="label.menu.analysis.history" text="History" /></a></li>
-				<li><a href="#anchorScope"><spring:message code="label.menu.analysis.item_information" text="Scope" /></a></li>
+			<c:if test="${!analysis.isProfile()}">
+				<li><a href="#anchorHistory"><fmt:message key="label.menu.analysis.history" /></a></li>
+				<li><a href="#anchorScope"><fmt:message key="label.menu.analysis.item_information"  /></a></li>
 			</c:if>
-			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.parmeter" text="Parameters" /><span
+			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="label.menu.analysis.parmeter"  /><span
 					class="caret"></span></a>
 				<ul class="dropdown-menu">
-					<li><a href="#anchorParameter_Impact"><spring:message code="label.menu.analysis.parameter.impact" text="Impact" /></a></li>
-					<li><a href="#anchorParameter_Probability"><spring:message code="label.menu.analysis.parameter.probability" text="Probability" /></a></li>
-					<li><a href="#anchorParameter_ILPS"><spring:message code="label.menu.analysis.parameter.ilps" text="Required level of implmentation per SML" /></a></li>
-					<li><a href="#anchorParameter_Various"><spring:message code="label.menu.analysis.parameter.various" text="Various" /></a></li>
-					<li><a href="#anchorParameter_MaxEfficiency"><spring:message code="label.menu.analysis.parameter.maxeff" text="Maximal efficiency rate per security maturity level" /></a></li>
-					<li><a href="#anchorParameter_ImplementationRate"><spring:message code="label.menu.analysis.parameter.implmentation_rate" text="Implementation scale of SMT" /></a></li>
+					<li><a href="#anchorParameter_Impact"><fmt:message key="label.menu.analysis.parameter.impact"  /></a></li>
+					<li><a href="#anchorParameter_Probability"><fmt:message key="label.menu.analysis.parameter.probability"  /></a></li>
+					<li><a href="#anchorParameter_ILPS"><fmt:message key="label.menu.analysis.parameter.ilps"  /></a></li>
+					<li><a href="#anchorParameter_Various"><fmt:message key="label.menu.analysis.parameter.various"  /></a></li>
+					<li><a href="#anchorParameter_MaxEfficiency"><fmt:message key="label.menu.analysis.parameter.maxeff"  /></a></li>
+					<li><a href="#anchorParameter_ImplementationRate"><fmt:message key="label.menu.analysis.parameter.implmentation_rate"  /></a></li>
 				</ul></li>
-			<c:if test="${!KowledgeBaseView }">
-				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.menu.analysis.risk_information"
-							text="Risk Information" /><span class="caret"></span></a>
+			<c:if test="${!analysis.isProfile() }">
+				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="label.menu.analysis.risk_information" /><span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a href="#anchorRiskInformation_Threat"><spring:message code="label.menu.analysis.threat" text="Threats" /></a></li>
-						<li><a href="#anchorRiskInformation_Vul"><spring:message code="label.menu.analysis.vulnerability" text="Vulnerabilities" /></a></li>
-						<li><a href="#anchorRiskInformation_Risk"><spring:message code="label.menu.analysis.risk" text="Risks" /></a></li>
+						<li><a href="#anchorRiskInformation_Threat"><fmt:message key="label.menu.analysis.threat"  /></a></li>
+						<li><a href="#anchorRiskInformation_Vul"><fmt:message key="label.menu.analysis.vulnerability"  /></a></li>
+						<li><a href="#anchorRiskInformation_Risk"><fmt:message key="label.menu.analysis.risk"  /></a></li>
 					</ul></li>
-				<li><a href="#anchorAsset"><spring:message code="label.menu.analysis.asset" text="Assets" /></a></li>
+				<li><a href="#anchorAsset"><fmt:message key="label.menu.analysis.asset"  /></a></li>
 			</c:if>
-			<li><a href="#anchorScenario"><spring:message code="label.menu.analysis.scenario" text="Scenarios" /></a></li>
-			<li><a href="#anchorPhase"> <spring:message code="label.menu.analysis.phase" text="Phases" /></a></li>
-			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.analysis.standards" text="Standard" /><span
+			<li><a href="#anchorScenario"><fmt:message key="label.menu.analysis.scenario"  /></a></li>
+			<li><a href="#anchorPhase"> <fmt:message key="label.menu.analysis.phase"  /></a></li>
+			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.menu.analysis.standards"  /><span
 					class="caret"></span></a> <c:if test="${empty(measureSplited)}">
 					<spring:eval expression="T(lu.itrust.business.component.MeasureManager).SplitByStandard(measures)" var="measureSplited" scope="request" />
 				</c:if>
@@ -54,71 +53,51 @@
 						<c:if test="${!measureSplited.isEmpty()}">
 							<li class="divider"></li>
 						</c:if>
-						<li><a href="#" onclick="return manageStandard();"> <spring:message code="label.menu.manage.standard" text="Manage standard" /></a></li>
+						<li><a href="#" onclick="return manageStandard();"> <fmt:message key="label.menu.manage.standard"  /></a></li>
 					</c:if>
 				</ul></li>
-			<c:if test="${!KowledgeBaseView }">
-				<li><a href="#anchorSOA"> <spring:message code="label.menu.analysis.soa" text="SOA" /></a></li>
-				<li><a href="#anchorActionPlan"> <spring:message code="label.menu.analysis.action_plan" text="Action Plan" /></a></li>
-				<li><a href="#anchorSummary"> <spring:message code="label.menu.analysis.summary" text="Action plan summary" /></a></li>
-				<c:if test="${empty(show_cssf) or show_cssf}">
-					<li><a href="#anchorRiskRegister"> <spring:message code="label.menu.analysis.risk_register" text="Risk register" /></a></li>
+			<c:if test="${!analysis.isProfile() }">
+				<li><a href="#anchorSOA"> <fmt:message key="label.menu.analysis.soa"  /></a></li>
+				<li><a href="#anchorActionPlan"> <fmt:message key="label.menu.analysis.action_plan"  /></a></li>
+				<li><a href="#anchorSummary"> <fmt:message key="label.menu.analysis.summary"  /></a></li>
+				<c:if test="${show_cssf}">
+					<li><a href="#anchorRiskRegister"> <fmt:message key="label.menu.analysis.risk_register"  /></a></li>
 				</c:if>
-				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.menu.analysis.chart" text="Charts" /><span
+				<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.menu.analysis.chart"  /><span
 						class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a href="#anchorChartAsset"> <spring:message code="label.chart.asset" text="ALE by asset/asset type" /></a></li>
-						<li><a href="#anchorChartScenario"> <spring:message code="label.chart.scenario" text="ALE by scenario/scenario Type" /></a></li>
-						<li><a href="#anchorChartCompliance"> <spring:message code="label.chart.compliance" text="Compliance by standard" /></a></li>
-						<li><a href="#anchorChartEvolution"> <spring:message code="label.chart.evolution" text="Evolution of profitability by action plan" /></a></li>
-						<li><a href="#anchorChartBudget"> <spring:message code="label.chart.budget" text="Budget by action plan" /></a></li>
+						<li><a href="#anchorChartAsset"> <fmt:message key="label.chart.asset"  /></a></li>
+						<li><a href="#anchorChartScenario"> <fmt:message key="label.chart.scenario"  /></a></li>
+						<li><a href="#anchorChartCompliance"> <fmt:message key="label.chart.compliance"  /></a></li>
+						<li><a href="#anchorChartEvolution"> <fmt:message key="label.chart.evolution"  /></a></li>
+						<li><a href="#anchorChartBudget"> <fmt:message key="label.chart.budget"  /></a></li>
 					</ul></li>
 			</c:if>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
-			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <spring:message code="label.actions" text="Actions" /><span class="caret"></span></a>
+			<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.actions" /><span class="caret"></span></a>
 				<ul class="dropdown-menu" id="actionmenu">
-					<li class="dropdown-header"><spring:message code="label.analysis" text="Analysis" /></li>
-					<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <spring:message code="label.action.close.analysis" text="Close analysis" /></a></li>
+					<li class="dropdown-header"><fmt:message key="label.analysis"  /></li>
+					<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <fmt:message key="label.action.close.analysis"  /></a></li>
 					<li class="divider"></li>
-					<li class="dropdown-header"><spring:message code="label.title.rrf" text="RRF" /></li>
-					<li><a href="#" onclick="return editRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.action.open" text="Open" /></a></li>
-					<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <spring:message code="label.action.import.rrf" text="Import" /></a></li>
-					<c:if test="${!KowledgeBaseView }">
+					<li class="dropdown-header"><fmt:message key="label.title.rrf"  /></li>
+					<li><a href="#" onclick="return editRRF(${sessionScope.selectedAnalysis});"> <fmt:message key="label.action.open"  /></a></li>
+					<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <fmt:message key="label.action.import.rrf"  /></a></li>
+					<c:if test="${!analysis.isProfile() }">
 						<li class="divider"></li>
-						<li class="dropdown-header"><spring:message code="label.title.computation" text="Computation" /></li>
-						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <spring:message code="label.action.compute.action_plan" text="Action plan" />
+						<li class="dropdown-header"><fmt:message key="label.title.computation"  /></li>
+						<li><a href="#" onclick="return displayActionPlanOptions('${analysis.id}')"> <fmt:message key="label.action.compute.action_plan"  />
 						</a></li>
-						<c:if test="${empty(show_cssf) or show_cssf}">
-							<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <spring:message code="label.action.compute.risk_register" text="Registers" /></a></li>
+						<c:if test="${show_cssf}">
+							<li><a href="#" onclick="return calculateRiskRegister('${analysis.id}');"> <fmt:message key="label.action.compute.risk_register"  /></a></li>
 						</c:if>
 						<li class="divider"></li>
-						<li><a href="#" onclick="return reloadCharts();"> <spring:message code="label.action.reload.charts" text="Reload charts" /></a></li>
+						<li><a href="#" onclick="return reloadCharts();"> <fmt:message key="label.action.reload.charts"  /></a></li>
 						<li class="divider"></li>
-						<li class="dropdown-header"><spring:message code="label.title.assessment" text="Assessment" /></li>
-						<li><a href="#" onclick="return computeAssessment();"> <spring:message code="label.action.generate.missing" text="Update" /></a></li>
-						<li><a href="#" onclick="return refreshAssessment();"><spring:message code="label.action.refresh.assessment" text="Refresh" /></a></li>
-						<li class="divider"></li>
+						<li class="dropdown-header"><fmt:message key="label.title.assessment"  /></li>
+						<li><a href="#" onclick="return computeAssessment();"> <fmt:message key="label.action.generate.missing"  /></a></li>
+						<li><a href="#" onclick="return refreshAssessment();"><fmt:message key="label.action.refresh.assessment"  /></a></li>
 					</c:if>
-					<li class="dropdown-header"><spring:message code="label.settings" text="Settings" /></li>
-					<li class="dropdown-submenu" id="languagechooser"><a href="#">Language<span class="caret" style="border-bottom-color: #000000; border-top-color: #000000;"></span></a>
-						<ul class="dropdown-menu" style="margin-top: -86px; right: 158px;">
-							<c:forEach items="${languages}" var="currentlanguage">
-								<li><c:set value="href='${pageContext.request.contextPath}/Analysis?language=${currentlanguage.getAlpha3()}'" var="link" /> <a
-									${currentlanguage.getAlpha3().equals(language)?'':link} onclick="" style="padding: 6px;"> <span
-										class="glyphicon ${currentlanguage.getAlpha3().equals(language)?'glyphicon-ok':''}" style="min-width: 12px;"></span> <span style="padding-left: 5px;"><spring:message
-												text="${currentlanguage.getName()}" /></span>
-								</a></li>
-							</c:forEach>
-						</ul></li>
-					<c:if test="${!KowledgeBaseView }">
-						<li><a href="#" onclick="return updateSettings(this.firstElementChild,'SHOW_CSSF');" style="padding: 6px;"><span
-								class="glyphicon ${empty(show_cssf) or show_cssf? 'glyphicon-ok' : ''}" style="min-width: 12px;"></span><span>&nbsp;<spring:message code="label.settings.show_cssf"
-										text="Display CSSF" /></span></a></li>
-					</c:if>
-					<li><a href="#" onclick="return updateSettings(this.firstElementChild,'SHOW_UNCERTAINTY');" style="padding: 6px;"><span
-							class="glyphicon ${empty(show_uncertainty) or show_uncertainty? 'glyphicon-ok':''}" style="min-width: 12px;"> </span><span>&nbsp;<spring:message
-									code="label.settings.show_uncertainty" text="Display Uncertainty" /></span></a></li>
 				</ul></li>
 		</ul>
 	</div>

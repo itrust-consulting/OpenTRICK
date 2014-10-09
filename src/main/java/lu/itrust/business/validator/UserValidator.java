@@ -45,6 +45,7 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "firstName", "error.user.firstname.empty", "First name cannot be empty");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lastName", "error.user.lastname.empty", "Last name cannot be empty");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "error.user.email.empty", "Email address cannot be empty");
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "locale", "error.user.locale.empty", "Language cannot be empty");
 
 		User user = (User) target;
 
@@ -65,6 +66,10 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 
 		if (!errors.hasFieldErrors("email") && !user.getEmail().matches(Constant.REGEXP_VALID_EMAIL))
 			errors.rejectValue("email", "errors.user.email.invalid", "Email address is not valid");
+		
+		if (!errors.hasFieldErrors("locale") && !user.getLocale().matches(Constant.REGEXP_VALID_ALPHA_2))
+			errors.rejectValue("email", "errors.user.locale.invalid", "Language is not valid");
+		
 	}
 
 	@Override
@@ -111,6 +116,12 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 				return "error.user.email.unsupported::Email value is not supported";
 			if (!((String) candidate).matches(Constant.REGEXP_VALID_EMAIL))
 				return "error.user.data.not_valid:email:Email format is not valid";
+			break;
+		case "locale":
+			if (candidate == null || !(candidate instanceof String))
+				return "error.user.locale.unsupported::Language value is not supported";
+			if (!((String) candidate).matches(Constant.REGEXP_VALID_ALPHA_2))
+				return "error.user.data.not_valid:locale:Language format is not valid";
 			break;
 		}
 		return null;

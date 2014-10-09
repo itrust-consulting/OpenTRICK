@@ -26,7 +26,6 @@ import lu.itrust.business.TS.RiskInformation;
 import lu.itrust.business.TS.Scenario;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.helper.AnalysisProfile;
 import lu.itrust.business.exception.TrickException;
@@ -69,12 +68,6 @@ public class Duplicator {
 
 		try {
 			copy = analysis.duplicateTo(copy);
-
-			copy.setAnalysisSettings(new ArrayList<AnalysisSetting>(analysis.getAnalysisSettings().size()));
-			for (AnalysisSetting setting : analysis.getAnalysisSettings()) {
-				AnalysisSetting ascopy = setting.duplicate();
-				copy.addAnalysisSetting(ascopy);
-			}
 			
 			copy.setUserRights(new ArrayList<UserAnalysisRight>(analysis.getUserRights().size()));
 			for (UserAnalysisRight uar : analysis.getUserRights()) {

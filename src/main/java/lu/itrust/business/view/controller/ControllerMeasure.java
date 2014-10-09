@@ -12,7 +12,6 @@ import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormalMeasure;
-import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.ChartGenerator;
@@ -244,19 +243,7 @@ public class ControllerMeasure {
 
 			User user = serviceUser.get(principal.getName());
 
-			List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
-
-			Locale locale = null;
-
-			for (AnalysisSetting setting : settings) {
-				if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
-					locale = new Locale(setting.getValue().substring(0, 2));
-					break;
-				}
-			}
-
-			if (locale == null)
-				locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
+			Locale locale = new Locale(user.getLocale());
 
 			// return chart of either standard 27001 or 27002 or null
 			return chartGenerator.compliance(idAnalysis, standard, locale);
@@ -289,19 +276,7 @@ public class ControllerMeasure {
 
 			User user = serviceUser.get(principal.getName());
 
-			List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
-
-			Locale locale = null;
-
-			for (AnalysisSetting setting : settings) {
-				if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
-					locale = new Locale(setting.getValue().substring(0, 2));
-					break;
-				}
-			}
-
-			if (locale == null)
-				locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
+			Locale locale = new Locale(user.getLocale());
 			
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 

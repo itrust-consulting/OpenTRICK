@@ -57,7 +57,7 @@
 			</div>
 			<div class="panel-body">
 				<div id="chart_evolution_profitability_compliance_APPN"></div>
-				<c:if test="${empty(show_uncertainty) or show_uncertainty}">
+				<c:if test="${show_uncertainty}">
 					<hr style="margin: 30px 0;" />
 					<div id="chart_evolution_profitability_compliance_APPO"></div>
 					<hr style="margin: 30px 0;" />
@@ -74,7 +74,7 @@
 			</div>
 			<div class="panel-body">
 				<div id="chart_budget_APPN"></div>
-				<c:if test="${empty(show_uncertainty) or show_uncertainty}">
+				<c:if test="${show_uncertainty}">
 					<hr style="margin: 30px 0;" />
 					<div id="chart_budget_APPO"></div>
 					<hr style="margin: 30px 0;" />

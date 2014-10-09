@@ -1,30 +1,32 @@
 package lu.itrust.business.view.controller;
 
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.validation.Valid;
+import javax.servlet.http.HttpServletResponse;
 
-import lu.itrust.business.TS.settings.ApplicationSetting;
-import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceUser;
 import lu.itrust.business.validator.UserValidator;
+import lu.itrust.business.validator.field.ValidatorField;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -47,16 +49,8 @@ public class ControllerRegister {
 	@Autowired
 	private ServiceRole serviceRole;
 
-	/**
-	 * initBinder: <br>
-	 * Description
-	 * 
-	 * @param binder
-	 */
-	@InitBinder
-	protected void initBinder(WebDataBinder binder) {
-		binder.replaceValidators(new UserValidator());
-	}
+	@Autowired
+	private ServiceDataValidation serviceDataValidation;
 
 	/**
 	 * add: <br>
@@ -71,7 +65,7 @@ public class ControllerRegister {
 		// create new user object and add it to model
 		model.put("user", new User());
 
-		return "registerUserForm";
+		return "register";
 	}
 
 	/**
@@ -85,21 +79,18 @@ public class ControllerRegister {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/DoRegister")
-	public String save(@ModelAttribute("user") @Valid User user, BindingResult result, RedirectAttributes attributes, Locale locale) throws Exception {
-
+	@RequestMapping(value = "/DoRegister", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, HttpServletResponse response) throws Exception {
+		
+		Map<String, String> errors = new LinkedHashMap<>();
+		
 		try {
 
-			// check if validator has errors
-			if (result.hasErrors())
-
-				// return to form
-				return "registerUserForm";
-
-			// encode password
-			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-			user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
-
+			User user = new User();
+			
+			if (!buildUser(errors, user, source, locale))
+				return errors;
+			
 			// check if users exist and give first user admin role
 			Role role = null;
 			if (serviceUser.noUsers()) {
@@ -125,32 +116,98 @@ public class ControllerRegister {
 			// set role of new user
 			user.addRole(role);
 
-			ApplicationSetting setting = new ApplicationSetting(Constant.SETTING_DEFAULT_UI_LANGUAGE,"en");
-			user.addApplicationSetting(setting);
-		
-		
-			setting = new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_UNCERTAINTY,"true");
-			user.addApplicationSetting(setting);
-			
-		
-			setting = new ApplicationSetting(Constant.SETTING_DEFAULT_SHOW_CSSF,"false");
-			user.addApplicationSetting(setting);
-			
 			// save user
 			this.serviceUser.save(user);
 
-			// return success message and redirect to login page
-			attributes.addFlashAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
-			attributes.addFlashAttribute("login", user.getLogin());
-			return "redirect:/login";
+			return errors;
 		}
 		catch (ConstraintViolationException | DataIntegrityViolationException e) {
-			if(e.getMessage().contains("dtEmail"))
-				result.rejectValue("email", "error.user.email.in_use", "Eemail is already in use");
-			else if(e.getMessage().contains("dtLogin"))
-				result.rejectValue("login", "error.user.username.in_use", "Username is not available");
-			// return to form
-			return "registerUserForm";
+			
+			errors.put("constraint", messageSource.getMessage("error.user.constraint", null, "A username already exists with this email! Choose another username or email!", locale));
+			errors.put("login",messageSource.getMessage("error.user.username.used_change", null, "Change the username", locale) );
+			errors.put("email",messageSource.getMessage("error.user.email.used_change", null, "Change the email", locale) );
+			return errors;
 		}
 	}
+	
+	/**
+	 * buildCustomer: <br>
+	 * Description
+	 * 
+	 * @param errors
+	 * @param customer
+	 * @param source
+	 * @param locale
+	 * @return
+	 */
+	private boolean buildUser(Map<String, String> errors, User user, String source, Locale locale) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+			ValidatorField validator = serviceDataValidation.findByClass(User.class);
+			if (validator == null)
+				serviceDataValidation.register(validator = new UserValidator());
+
+			String login = jsonNode.get("login").asText();
+			String password = jsonNode.get("password").asText();
+			String repeatedPassword = jsonNode.get("repeatPassword").asText();
+			String firstname = jsonNode.get("firstName").asText();
+			String lastname = jsonNode.get("lastName").asText();
+			String email = jsonNode.get("email").asText();
+			String userlocale = jsonNode.get("locale").asText();
+			String error = null;
+			
+			error = validator.validate(user, "login", login);
+			if (error != null)
+				errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
+			else 
+				user.setLogin(login);
+			
+			error = validator.validate(user, "password", password);
+			if (error != null)
+				errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
+			else 
+				user.setPassword(password);
+			
+			error = validator.validate(user, "repeatPassword", repeatedPassword);
+			if (error != null)
+				errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
+			else 
+				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
+			
+			error = validator.validate(user, "firstName", firstname);
+			if (error != null)
+				errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setFirstName(firstname);
+
+			error = validator.validate(user, "lastName", lastname);
+			if (error != null)
+				errors.put("lastName", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setLastName(lastname);
+			
+			error = validator.validate(user, "email", email);
+			if (error != null)
+				errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setEmail(email);
+			
+			error = validator.validate(user, "locale", userlocale);
+			if (error != null)
+				errors.put("locale", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				user.setLocale(userlocale);
+			
+		} catch (Exception e) {
+			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			e.printStackTrace();
+		}
+
+
+		return errors.isEmpty();
+
+	}
+	
 }

@@ -445,9 +445,9 @@ public class Scenario extends SecurityCriteria {
 	 */
 	@ManyToMany
 	@JoinTable(name = "ScenarioAssetTypeValue", 
-			   joinColumns = { @JoinColumn(name = "idScenario", nullable = false, updatable = false) }, 
-			   inverseJoinColumns = { @JoinColumn(name = "idScenarioAssetTypeValue", nullable = false, updatable = false) },
-			   uniqueConstraints = @UniqueConstraint(columnNames = {"idScenario", "idScenarioAssetTypeValue"})
+			   joinColumns = { @JoinColumn(name = "fiScenario", nullable = false, updatable = false) }, 
+			   inverseJoinColumns = { @JoinColumn(name = "fiAssetTypeValue", nullable = false, updatable = false) },
+			   uniqueConstraints = @UniqueConstraint(columnNames = {"fiAssetTypeValue"})
 	)
 	@Cascade({CascadeType.ALL, CascadeType.DELETE})
 	public List<AssetTypeValue> getAssetTypeValues() {

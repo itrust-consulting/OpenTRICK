@@ -5,7 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<fmt:setLocale value="${fn:substring(language,0, 2)}" scope="session"/>
+<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session"/>
 <c:set scope="request" var="title">label.title.analysis</c:set>
 <html>
 <jsp:include page="../header.jsp" />
@@ -17,21 +17,21 @@
 			<jsp:include page="analysisMenu.jsp" />
 			<jsp:include page="../successErrors.jsp" />
 			<div id="nav-container" trick-id="${analysis.id}" trick-class="Analysis" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}">
-				<c:if test="${!KowledgeBaseView}">
+				<c:if test="${!analysis.isProfile()}">
 					<h2>${analysis.label}|${ analysis.version }</h2>
 					<c:set var="histories" value="${analysis.histories}" scope="request" />
 					<jsp:include page="./components/history.jsp" />
 				</c:if>
-				<c:if test="${KowledgeBaseView}">
+				<c:if test="${analysis.isProfile()}">
 					<h2>${analysis.identifier}|${ analysis.version }</h2>
 				</c:if>
-				<c:if test="${!KowledgeBaseView }">
+				<c:if test="${!analysis.isProfile() }">
 					<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />
 					<jsp:include page="./components/itemInformation.jsp" />
 				</c:if>
 				<c:set var="parameters" value="${analysis.parameters}" scope="request" />
 				<jsp:include page="./components/parameter.jsp" />
-				<c:if test="${!KowledgeBaseView }">
+				<c:if test="${!analysis.isProfile() }">
 					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 					<jsp:include page="./components/riskinformation.jsp" />
 					<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeALE(analysis)" var="ales" />
@@ -45,13 +45,13 @@
 				<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
 				<jsp:include page="./components/phase.jsp" />
 				<jsp:include page="./components/measure.jsp" />
-				<c:if test="${!KowledgeBaseView }">
+				<c:if test="${!analysis.isProfile() }">
 					<jsp:include page="./components/soa.jsp" />
 					<c:set var="actionplans" scope="request" value="${analysis.actionPlans}" />
 					<jsp:include page="./components/actionplan.jsp" />
 					<c:set var="summaries" scope="request" value="${analysis.summaries}" />
 					<jsp:include page="./components/summary.jsp" />
-					<c:if test="${empty(show_cssf) or show_cssf}">
+					<c:if test="${show_cssf}">
 						<c:set var="riskregister" scope="request" value="${analysis.riskRegisters}" />
 						<jsp:include page="./components/riskregister.jsp" />
 					</c:if>
@@ -71,7 +71,7 @@
 		<script type="text/javascript" src="<spring:url value="js/trickservice/fieldeditor.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/scenario.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/phase.js" />"></script>
-		<c:if test="${!KowledgeBaseView}">
+		<c:if test="${!analysis.isProfile()}">
 			<script type="text/javascript" src="<spring:url value="js/trickservice/actionplan.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/assessment.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/asset.js" />"></script>

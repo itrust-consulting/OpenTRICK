@@ -64,6 +64,10 @@ public interface DAOAnalysis {
 	
 	public List<AnalysisSetting> getAllAnalysisSettingsFromAnalysisAndUser(Integer analysisID, User user) throws Exception;
 	
+	public boolean isAnalysisUncertainty(Integer analysisID) throws Exception;
+	
+	public boolean isAnalysisCssf(Integer analysisID) throws Exception;
+	
 	public AnalysisSetting getAnalysisSettingsFromAnalysisAndUserByKey(Integer analysisID, String username, String key) throws Exception;
 
 	public Parameter getParameterFromAnalysis(Integer idAnalysis, String Parameter) throws Exception;

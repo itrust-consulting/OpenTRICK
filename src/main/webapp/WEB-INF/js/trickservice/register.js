@@ -1,7 +1,15 @@
-function updateProfile(form) {
+function register(form) {
+	var counter = 0;
+	var f = document.getElementsByTagName('form')[0];
+	if (!f.checkValidity()) {
+		counter++;
+	}
 
+	if(counter > 0)
+		return;	
+	
 	$.ajax({
-		url : context + "/Profile/Update",
+		url : context + "/DoRegister",
 		type : "post",
 		contentType : "application/json",
 		data : serializeForm(form),
@@ -14,17 +22,18 @@ function updateProfile(form) {
 			if (alert.length)
 				alert.remove();
 
+			$("#success").attr("hidden", "hidden");
+			$("#success div").remove();
+			
 			for ( var error in response) {
 
-				$("#success").attr("hidden", "hidden");
-				$("#success div").remove();
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
 
 				$(errorElement).text(response[error]);
 				switch (error) {
-				case "currentPassword":
-					$(errorElement).appendTo($("#" + form + " #currentPassword").parent());
+				case "login":
+					$(errorElement).appendTo($("#" + form + " #login").parent());
 					break;
 				case "password":
 					$(errorElement).appendTo($("#" + form + " #password").parent());
@@ -45,45 +54,53 @@ function updateProfile(form) {
 					$(errorElement).appendTo($("#" + form + " #locale").parent());
 					break;
 				case "user": {
-
 					var errElement = document.createElement("div");
-					errElement.setAttribute("class", "alert alert-success");
+					errElement.setAttribute("class", "alert alert-danger");
 					$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
 					$(errElement).appendTo($("#success"));
 					$("#success").removeAttr("hidden");
 				}
-
+				case "constraint": {
+					var errElement = document.createElement("div");
+					errElement.setAttribute("class", "alert alert-danger");
+					$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
+					$(errElement).appendTo($("#success"));
+					$("#success").removeAttr("hidden");
+				}
+				
 				}
 			}
 
 			if (!$("#" + form + " .label-danger").length) {
-				var successElement = document.createElement("div");
-				successElement.setAttribute("class", "alert alert-success");
-				$(successElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + MessageResolver("label.user.update.success", "Profile successfully updated"));
-				$(successElement).appendTo($("#success"));
-				$("#success").removeAttr("hidden");
-				var prevlang = $("#perviouslanguage").val();
-				var newlang = $("#" + form + " #locale").val();
-				if (prevlang !== newlang)
-					setTimeout(function() {
-						document.location.href = "?lang=" + newlang;
-					}, 2000);
+
+				var login = $("#" + form + " #login").val();
+				
+				$('body').load(context + "/login", {
+					"registerSuccess" : true,
+					"login" : login
+				});
 
 			}
-			return false;
-
 		},
 		error : function(jqXHR, textStatus, errorThrown) {
 			var alert = $("#" + form + " .label-danger");
 			if (alert.length)
 				alert.remove();
 			var errElement = document.createElement("div");
-			errElement.setAttribute("class", "alert alert-success");
-			$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
+			errElement.setAttribute("class", "alert alert-warning");
+			$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + errorThrown);
 			$(errElement).appendTo($("#success"));
 			$("#success").removeAttr("hidden");
 		},
 	});
 
 	return false;
+}
+
+function serializeForm(form) {
+	var $form = $(form);
+	if (!$form.length)
+		$form = $("#" + form);
+	var data = $form.serializeJSON();
+	return JSON.stringify(data);
 }

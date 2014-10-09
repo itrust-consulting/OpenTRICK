@@ -22,7 +22,7 @@
 							code="label.menu.select.scenario" text="Select" /> </a></li>
 				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <spring:message
 							code="label.menu.unselect.scenario" text="Unselect" /> </a></li>
-				<c:if test="${!KowledgeBaseView }">
+				<c:if test="${!analysis.isProfile() }">
 					<li class="disabled" trick-selectable="true" trick-check="isSelected('scenario')"><a href="#" onclick="return displayAssessmentByScenario()"><span
 							class="glyphicon glyphicon-new-window"></span> <spring:message code="label.menu.show.assessment" text="Assessment" /> </a></li>
 				</c:if>
@@ -39,7 +39,7 @@
 						<th colspan="15"><fmt:message key="label.scenario.name" /></th>
 						<th colspan="3"><fmt:message key="label.scenario.type" /></th>
 						<c:choose>
-							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+							<c:when test="${show_uncertainty}">
 								<th colspan="2"><fmt:message key="label.scenario.aleo" /> (k&euro;)</th>
 								<th colspan="2"><fmt:message key="label.scenario.ale" /> (k&euro;)</th>
 								<th colspan="2"><fmt:message key="label.scenario.alep" /> (k&euro;)</th>
@@ -64,7 +64,7 @@
 							<td class="${cssClass}" colspan="15"><spring:message text="${scenario.name}" /></td>
 							<td class="${cssClass}" colspan="3"><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.scenarioType.name,'-','_'))}" /></td>
 							<c:choose>
-								<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+								<c:when test="${show_uncertainty}">
 									<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
 											maxFractionDigits="2" minFractionDigits="0" /></td>
 									<td colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
@@ -82,13 +82,13 @@
 					</c:forEach>
 				</tbody>
 				
-				<c:if test="${!KowledgeBaseView }">
+				<c:if test="${!analysis.isProfile() }">
 				<tfoot>
 					<tr class="panel-footer" style="font-weight:bold;">
 						<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeTotalALE(scenarioALE)" var="ale" />
 						<td colspan="20"><fmt:message key="label.total.ale" /></td>
 						<c:choose>
-							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+							<c:when test="${show_uncertainty}">
 								<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
 										maxFractionDigits="2" minFractionDigits="0" /></td>
 								<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"

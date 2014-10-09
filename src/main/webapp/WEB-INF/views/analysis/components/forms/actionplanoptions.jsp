@@ -38,7 +38,7 @@
 			</c:when>
 		</c:choose>
 	</table>
-	<c:if test="${empty(show_uncertainty) or show_uncertainty}">
+	<c:if test="${show_uncertainty}">
 		<h3>
 			<spring:message code="label.title.uncertainty" text="Uncertainty computation" />
 		</h3>

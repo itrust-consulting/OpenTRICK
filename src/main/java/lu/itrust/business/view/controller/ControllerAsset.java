@@ -17,7 +17,6 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
-import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
@@ -215,13 +214,12 @@ public class ControllerAsset {
 		if (integer == null)
 			return null;
 
-		model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(integer, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
-
 		List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		// load all assets of analysis to model
 		model.addAttribute("assetALE", AssessmentManager.ComputeAssetALE(assets, assessments));
 		model.addAttribute("assets", assets);
+		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		return "analysis/components/asset";
 	}
 
@@ -342,19 +340,7 @@ public class ControllerAsset {
 
 		User user = serviceUser.get(principal.getName());
 
-		List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
-
-		Locale locale = null;
-
-		for (AnalysisSetting setting : settings) {
-			if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
-				locale = new Locale(setting.getValue().substring(0, 2));
-				break;
-			}
-		}
-
-		if (locale == null)
-			locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
+		Locale locale = new Locale(user.getLocale());
 
 		// generate chart of assets for this analysis
 		return chartGenerator.aleByAsset(idAnalysis, locale);
@@ -381,19 +367,7 @@ public class ControllerAsset {
 
 		User user = serviceUser.get(principal.getName());
 
-		List<AnalysisSetting> settings = serviceAnalysis.getAllAnalysisSettingsFromAnalysisAndUser(idAnalysis, user);
-
-		Locale locale = null;
-
-		for (AnalysisSetting setting : settings) {
-			if (setting.getKey().equals(Constant.SETTING_LANGUAGE)) {
-				locale = new Locale(setting.getValue().substring(0, 2));
-				break;
-			}
-		}
-
-		if (locale == null)
-			locale = new Locale(user.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue().substring(0, 2));
+		Locale locale = new Locale(user.getLocale());
 
 		// generate chart of assets for this analysis
 		return chartGenerator.aleByAssetType(idAnalysis, locale);

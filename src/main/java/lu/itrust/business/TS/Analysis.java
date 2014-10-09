@@ -92,6 +92,12 @@ public class Analysis implements Serializable, Cloneable {
 	@Column(name = "dtDefaultProfile", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean defaultProfile = false;
 
+	@Column(name = "dtUncertainty", nullable = false, columnDefinition = "TINYINT(1)")
+	private boolean uncertainty = false;
+	
+	@Column(name = "dtCssf", nullable = false, columnDefinition = "TINYINT(1)")
+	private boolean cssf = false;
+	
 	/** The Customer object */
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -2409,75 +2415,42 @@ public class Analysis implements Serializable, Cloneable {
 		this.profile = profile;
 	}
 
-	/**
-	 * setAnalysisSettings: <br>
-	 * Description
+	/** isUncertainty: <br>
+	 * Returns the uncertainty field value.
 	 * 
-	 * @param settings
+	 * @return The value of the uncertainty field
 	 */
-	public void setAnalysisSettings(List<AnalysisSetting> settings) {
-		this.analysisSettings = settings;
+	public boolean isUncertainty() {
+		return uncertainty;
 	}
 
-	/**
-	 * addAnalysisSetting: <br>
-	 * Description
+	/** setUncertainty: <br>
+	 * Sets the Field "uncertainty" with a value.
 	 * 
-	 * @param setting
+	 * @param uncertainty 
+	 * 			The Value to set the uncertainty field
 	 */
-	public void addAnalysisSetting(AnalysisSetting setting) {
-		this.analysisSettings.add(setting);
+	public void setUncertainty(boolean uncertainty) {
+		this.uncertainty = uncertainty;
 	}
 
-	/**
-	 * removeAnalysisSetting: <br>
-	 * Description
+	/** isCssf: <br>
+	 * Returns the cssf field value.
 	 * 
-	 * @param setting
+	 * @return The value of the cssf field
 	 */
-	public void removeAnalysisSetting(AnalysisSetting setting) {
-		this.analysisSettings.remove(setting);
+	public boolean isCssf() {
+		return cssf;
 	}
 
-	/**
-	 * analysisSettingExists: <br>
-	 * Description
+	/** setCssf: <br>
+	 * Sets the Field "cssf" with a value.
 	 * 
-	 * @param key
-	 * @return
+	 * @param cssf 
+	 * 			The Value to set the cssf field
 	 */
-	public boolean analysisSettingExists(String key) {
-		for (AnalysisSetting setting : this.analysisSettings) {
-			if (setting.getKey().equals(key))
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * getAnalysisSettings: <br>
-	 * Description
-	 * 
-	 * @return
-	 */
-	public List<AnalysisSetting> getAnalysisSettings() {
-		return this.analysisSettings;
-	}
-
-	/**
-	 * getAnalysisSettingsFromUser: <br>
-	 * Description
-	 * 
-	 * @param user
-	 * @return
-	 */
-	public Map<String, AnalysisSetting> getAnalysisSettingsFromUser(User user) {
-		Map<String, AnalysisSetting> asettings = new LinkedHashMap<String, AnalysisSetting>();
-		for (AnalysisSetting setting : this.analysisSettings) {
-			if (setting.getUser().equals(user))
-				asettings.put(setting.getKey(), setting);
-		}
-		return asettings;
+	public void setCssf(boolean cssf) {
+		this.cssf = cssf;
 	}
 
 	public Analysis duplicateTo(Analysis copy) throws CloneNotSupportedException {
@@ -2493,6 +2466,8 @@ public class Analysis implements Serializable, Cloneable {
 			copy.owner = owner;
 			copy.profile = profile;
 			copy.version = version;
+			copy.uncertainty = uncertainty;
+			copy.cssf = cssf;
 		}
 		copy.actionPlans = new ArrayList<>();
 		copy.riskRegisters = new ArrayList<>();

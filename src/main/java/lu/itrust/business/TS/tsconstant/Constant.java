@@ -146,6 +146,9 @@ public class Constant {
 	public static final String REGEXP_VALID_ITEMINFORMATION_TYPE = "Scope|Organisation";
 
 	/** Regular Expression to check on valid Alpha 3 code */
+	public static final String REGEXP_VALID_ALPHA_2 = "[A-Z,a-z]{2}";
+	
+	/** Regular Expression to check on valid Alpha 3 code */
 	public static final String REGEXP_VALID_ALPHA_3 = "[A-Z,a-z]{3}";
 
 	/** Regular Expression to check on category */

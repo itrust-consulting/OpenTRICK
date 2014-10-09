@@ -10,7 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.service.ServiceLanguage;
 import lu.itrust.business.service.ServiceUser;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +38,9 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	@Autowired
 	private LocaleResolver localeResolver;
 
+	@Autowired
+	private ServiceLanguage serviceLanguage;
+	
 	@Override
 	@Transactional
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
@@ -47,15 +50,15 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
 			User myUser = serviceUser.get(user.getUsername());
 
-			int nbr = myUser.getApplicationSettings().size();
-
-			User.createDefaultSettings(myUser);
-
-			if (nbr < myUser.getApplicationSettings().size())
+			Locale locale = null;
+			
+			if(myUser.getLocale()==null){
+				myUser.setLocale("en");
 				serviceUser.saveOrUpdate(myUser);
-
-			Locale locale = new Locale(myUser.getApplicationSettingsAsMap().get(Constant.SETTING_DEFAULT_UI_LANGUAGE).getValue());
-
+			} 
+			
+			locale = new Locale(myUser.getLocale());
+				
 			localeResolver.setLocale(request, response, locale);
 			
 			DateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy HH:mm:ss");

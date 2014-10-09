@@ -487,4 +487,14 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public AnalysisSetting getAnalysisSettingsFromAnalysisAndUserByKey(Integer analysisID, String username, String key) throws Exception {
 		return daoAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(analysisID, username, key);
 	}
+
+	@Override
+	public boolean isAnalysisUncertainty(Integer analysisID) throws Exception {
+		return daoAnalysis.isAnalysisUncertainty(analysisID);
+	}
+
+	@Override
+	public boolean isAnalysisCssf(Integer analysisID) throws Exception {
+		return daoAnalysis.isAnalysisCssf(analysisID);
+	}
 }

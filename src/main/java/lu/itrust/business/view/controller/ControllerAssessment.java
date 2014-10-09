@@ -89,7 +89,8 @@ public class ControllerAssessment {
 		if (integer == null)
 			return null;
 
-		model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(integer, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
+		model.addAttribute("show_cssf", serviceAnalysis.isAnalysisCssf(integer));
+		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		
 		// add assessments to model
 		model.addAttribute("assessments", serviceAssessment.getAllFromAnalysis(integer));
@@ -455,6 +456,8 @@ public class ControllerAssessment {
 		}
 
 		model.addAttribute("assessments", assessments);
+		model.addAttribute("show_cssf", serviceAnalysis.isAnalysisCssf(idAnalysis));
+		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 		asset.setALE(ale.getValue());
 		asset.setALEO(aleo.getValue());
 		asset.setALEP(alep.getValue());
@@ -482,12 +485,8 @@ public class ControllerAssessment {
 		model.addAttribute("alep", alep);
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("parameters", generateAcronymValueMatching(idAnalysis));
-		for (Assessment assessment : assessments) {
-			if (assessment.isCSSF()) {
-				model.addAttribute("show_cssf", true);
-				break;
-			}
-		}
+		model.addAttribute("show_cssf", serviceAnalysis.isAnalysisCssf(idAnalysis));
+		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 		AssessmentManager.ComputeALE(assessments, ale, alep, aleo);
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());

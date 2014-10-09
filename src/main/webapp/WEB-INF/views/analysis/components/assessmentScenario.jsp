@@ -13,7 +13,7 @@
 					<tr>
 						<th colspan="4"><fmt:message key="label.assessment.asset"  /></th>
 						<th><fmt:message key="label.assessment.asset.value"  /></th>
-						<c:if test="${empty(show_cssf) or show_cssf}">
+						<c:if test="${show_cssf}">
 							<th><fmt:message key="label.assessment.impact_rep"  /></th>
 							<th><fmt:message key="label.assessment.impact_op"  /></th>
 							<th><fmt:message key="label.assessment.impact_leg"  /></th>
@@ -21,7 +21,7 @@
 						<th><fmt:message key="label.assessment.impact_fin"  /></th>
 						<th><fmt:message key="label.assessment.likelihood"  /></th>
 						<c:choose>
-							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+							<c:when test="${show_uncertainty}">
 								<th><fmt:message key="label.assessment.uncertainty"  /></th>
 								<th><fmt:message key="label.assessment.alep"  /></th>
 								<th><fmt:message key="label.assessment.ale"  /></th>
@@ -42,7 +42,7 @@
 						<tr trick-class="Assessment" trick-id="${assessment.id}">
 							<td colspan="4"><spring:message text="${assessment.asset.name}" /></td>
 							<td title="${assessment.asset.value}&euro;"><fmt:formatNumber value="${assessment.asset.value*0.001}" maxFractionDigits="1" minFractionDigits="1" /></td>
-							<c:if test="${empty(show_cssf) or show_cssf}">
+							<c:if test="${show_cssf}">
 								<c:choose>
 									<c:when test="${parameters.containsKey(assessment.impactRep)}">
 										<td trick-field="impactRep" trick-field-type="string" class="success" title='<fmt:formatNumber value="${parameters.get(assessment.impactRep)}" />&euro;'
@@ -139,7 +139,7 @@
 										</c:choose></td>
 								</c:otherwise>
 							</c:choose>
-							<c:if test="${empty(show_uncertainty) or show_uncertainty}">
+							<c:if test="${show_uncertainty}">
 								<td trick-field="uncertainty" trick-field-type="double" class="success" trick-real-value="${assessment.uncertainty}" ondblclick="return editField(this);"><fmt:formatNumber
 										value="${assessment.uncertainty}" maxFractionDigits="2" minFractionDigits="1" /></td>
 								<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${assessment.ALEO*0.001}"
@@ -147,7 +147,7 @@
 							</c:if>
 							<td title="<fmt:formatNumber value="${assessment.ALE}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${assessment.ALE*0.001}"
 									maxFractionDigits="2" minFractionDigits="0" /></td>
-							<c:if test="${empty(show_uncertainty) or show_uncertainty}">
+							<c:if test="${show_uncertainty}">
 								<td title="<fmt:formatNumber value="${assessment.ALEP}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${assessment.ALEP*0.001}"
 										maxFractionDigits="2" minFractionDigits="0" /></td>
 							</c:if>
@@ -159,9 +159,9 @@
 					</c:forEach>
 					<tr class="panel-footer" style="font-weight: bold;">
 						<c:choose>
-							<c:when test="${empty(show_uncertainty) or show_uncertainty}">
+							<c:when test="${show_uncertainty}">
 								<c:choose>
-									<c:when test="${empty(show_cssf) or show_cssf}">
+									<c:when test="${show_cssf}">
 										<td colspan="11"><fmt:message key="label.total.ale"  /></td>
 									</c:when>
 									<c:otherwise>
@@ -177,7 +177,7 @@
 							</c:when>
 							<c:otherwise>
 								<c:choose>
-									<c:when test="${empty(show_cssf) or show_cssf}">
+									<c:when test="${show_cssf}">
 										<td colspan="10"><fmt:message key="label.total.ale"  /></td>
 									</c:when>
 									<c:otherwise>

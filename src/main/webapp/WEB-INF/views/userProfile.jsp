@@ -1,12 +1,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <c:set scope="request" var="title">label.title.profile</c:set>
 <html>
-<!-- Include Header -->
 <jsp:include page="header.jsp" />
 <body>
 	<div id="wrap">
@@ -104,53 +103,17 @@
 						</h3>
 					</div>
 					<div class="form-group">
-						<label for="default_ui_language" class="col-sm-6 control-label"> <spring:message code="label.user.default_ui_language" text="Default User Interface Language" />
+						<label for="locale" class="col-sm-6 control-label"> <spring:message code="label.user.default_ui_language" text="Default User Interface Language" />
 						</label>
 						<div class="col-sm-6">
-							<select class="form-control" name="defaultlanguage" id="defaultlanguage">
-								<option value="en" ${defaultlang.equals("en")?"selected='selected'":"" } class="list-group-item pull-left"
+							<select class="form-control" name="locale" id="locale">
+								<option value="en" ${user.locale.equals("en")?"selected='selected'":"" } class="list-group-item pull-left"
 									style="margin-right: 5px;background: white url(${pageContext.request.contextPath}/images/flags/en.png) no-repeat 1%;border:1px solid white;padding:0px;padding-top:3px;padding-bottom:3px;padding-left: 25px;">English</option>
-								<option value="fr" ${defaultlang.equals("fr")?"selected='selected'":"" } class="list-group-item pull-left"
+								<option value="fr" ${user.locale.equals("fr")?"selected='selected'":"" } class="list-group-item pull-left"
 									style="margin-right: 5px;background: white url(${pageContext.request.contextPath}/images/flags/fr.png) no-repeat 1%;border:1px solid white;padding:0px;padding-top:3px;padding-bottom:3px;padding-left: 25px;">Français</option>
 							</select>
 						</div>
-						<input type="hidden" value="${defaultlang}" id="perviouslanguage" />
-					</div>
-					<div class="form-group">
-						<label for="default_show_uncertainty" class="col-sm-6 control-label"> <spring:message code="label.user.default_show_uncertainty" text="Default Show Uncertainty" />
-						</label>
-						<div class="col-sm-6">
-							<div class="radio-inline">
-								<label> 
-									<input type="radio" name="default_show_uncertainty" value="true" ${defaultShowUncertainty.equals("true")?"checked='checked'":"" }> 
-									<spring:message code="label.yes_no.yes" text="Yes" />
-								</label>
-							</div>
-							<div class="radio-inline">
-								<label> 
-									<input type="radio" name="default_show_uncertainty" value="false" ${defaultShowUncertainty.equals("false")?"checked='checked'":"" }> 
-									<spring:message code="label.yes_no.no" text="No" />
-								</label>
-							</div>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="default_show_cssf" class="col-sm-6 control-label"> <spring:message code="label.user.default_show_cssf" text="Default Show CSSF" />
-						</label>
-						<div class="col-sm-6">
-							<div class="radio-inline">
-								<label> 
-									<input type="radio" name="default_show_cssf" value="true" ${defaultShowCssf.equals("true")?"checked='checked'":"" }> 
-									<spring:message code="label.yes_no.yes" text="Yes" />
-								</label>
-							</div>
-							<div class="radio-inline">
-								<label> 
-									<input type="radio" name="default_show_cssf" value="false" ${defaultShowCssf.equals("false")?"checked='checked'":"" }>
-									<spring:message code="label.yes_no.no" text="No" />
-								</label>
-							</div>
-						</div>
+						<input type="hidden" value="${user.locale}" id="perviouslanguage" />
 					</div>
 					<div class="form-group">
 						<div class="col-sm-12" style="text-align: center;">
