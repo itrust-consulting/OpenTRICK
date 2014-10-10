@@ -8,4 +8,5 @@
 	<jsp:include page="./forms/scenario.jsp" />
 	<jsp:include page="./forms/phase.jsp" />
 	<jsp:include page="./forms/standard.jsp" />
+	<jsp:include page="./forms/actionplan.jsp" />
 </div>

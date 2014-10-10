@@ -64,7 +64,8 @@ function RRFView() {
 
 	RRFView.prototype.LoadData = function() {
 		var that = this;
-		this.setTitle(MessageResolver("label.title.editor.rrf", "Risk reduction factor"));
+		var language = $("#nav-container").attr("trick-language");
+		this.setTitle(MessageResolver("label.title.editor.rrf", "Risk reduction factor", null, language));
 		$.ajax({
 			url : context + "/Scenario/RRF",
 			type : "get",

@@ -275,26 +275,27 @@ public class ControllerAnalysis {
 
 			User user = serviceUser.get(principal.getName());
 
-			hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : permissionEvaluator.userIsAuthorized(selected,
-					principal, AnalysisRight.READ);
+			hasPermission =
+				analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : permissionEvaluator.userIsAuthorized(selected, principal, AnalysisRight.READ);
 
 			if (hasPermission) {
 
 				// initialise analysis
-				
+
 				analysis.setAssets(serviceAsset.getAllFromAnalysis(selected));
 				analysis.setScenarios(serviceScenario.getAllFromAnalysis(selected));
 				analysis.setItemInformations(serviceItemInformation.getAllFromAnalysis(selected));
 				analysis.setLanguage(serviceLanguage.getByAlpha3(analysis.getLanguage().getAlpha3()));
-				
+
 				model.addAttribute("login", user.getLogin());
 				model.addAttribute("analysis", analysis);
-				model.addAttribute("show_uncertainty",analysis.isUncertainty());
-				model.addAttribute("show_cssf",analysis.isCssf());
-				
+				model.addAttribute("show_uncertainty", analysis.isUncertainty());
+				model.addAttribute("show_cssf", analysis.isCssf());
+				model.addAttribute("language", analysis.getLanguage().getAlpha3());
+
 				serviceUser.saveOrUpdate(user);
 				serviceAnalysis.saveOrUpdate(analysis);
-				
+
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 				throw new AccessDeniedException((String) attributes.getFlashAttributes().get("errors"));
@@ -324,7 +325,7 @@ public class ControllerAnalysis {
 	}
 
 	@RequestMapping(value = "/Add/Standard", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String addStandardForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		List<Standard> standards = serviceStandard.getAllNotInAnalysis(idAnalysis);
@@ -335,28 +336,36 @@ public class ControllerAnalysis {
 	}
 
 	@RequestMapping(value = "/Delete/Standard/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
-		return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", locale));
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		return JsonMessage
+				.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", customLocale != null ? customLocale : locale));
 	}
 
 	@RequestMapping(value = "/Save/Standard/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).ALL)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, RedirectAttributes attributes, Locale locale) throws Exception {
 		try {
+
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+
 			Standard standard = serviceStandard.get(idStandard);
 			if (standard == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null, "Unfortunately, selected standard does not exist", locale));
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null, "Unfortunately, selected standard does not exist", customLocale != null ? customLocale
+					: locale));
+
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			Measure measure = null;
 			AnalysisStandard analysisStandard = null;
 			List<MeasureDescription> measureDescriptions = serviceMeasureDescription.getAllByStandard(standard);
 			Object implementationRate = null;
-			
-			if(standard.getType() == StandardType.MATURITY) {
+
+			if (standard.getType() == StandardType.MATURITY) {
 				analysisStandard = new MaturityStandard();
 				measure = new MaturityMeasure();
 				for (Parameter parameter : analysis.getParameters()) {
@@ -365,7 +374,7 @@ public class ControllerAnalysis {
 						break;
 					}
 				}
-			} else if(standard.getType() == StandardType.NORMAL) {
+			} else if (standard.getType() == StandardType.NORMAL) {
 				analysisStandard = new NormalStandard();
 				measure = new NormalMeasure();
 				List<AssetType> assetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
@@ -393,12 +402,16 @@ public class ControllerAnalysis {
 
 			serviceAnalysis.saveOrUpdate(analysis);
 
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.add.standard", null, "A standard was successfully added", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.add.standard", null, "A standard was successfully added", customLocale != null ? customLocale : locale));
 		} catch (TrickException e) {
-			return JsonMessage.Success(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+			return JsonMessage.Success(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard", null, "An unknown error occurred during analysis saving", locale));
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard", null, "An unknown error occurred during analysis saving", customLocale != null ? customLocale : locale));
 		}
 	}
 
@@ -507,8 +520,7 @@ public class ControllerAnalysis {
 
 				}
 			}
-			model.addAttribute("success",
-					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);
 			model.addAttribute("userrights", userrights);
@@ -573,24 +585,30 @@ public class ControllerAnalysis {
 	 * @param session
 	 * @param locale
 	 * @return
+	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String update(HttpSession session, Locale locale) {
+	public @ResponseBody String update(HttpSession session, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
+			
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+			
 			if (analysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", customLocale!=null?customLocale:locale));
 			assessmentManager.UpdateAssetALE(analysis);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", customLocale!=null?customLocale:locale));
 		} catch (TrickException e) {
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale!=null?customLocale:locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", locale));
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", customLocale!=null?customLocale:locale));
 		}
 	}
 
@@ -743,24 +761,22 @@ public class ControllerAnalysis {
 				if (!errors.containsKey("profile"))
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("scope", messageSource.getMessage("error.analysis_custom.scope.empty", null, "No default profile, scope cannot be empty", locale));
-			} else if (!(customAnalysisForm.getScope() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getScope(), principal.getName(),
-					AnalysisRight.READ)))
+			} else if (!(customAnalysisForm.getScope() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getScope(), principal.getName(), AnalysisRight.READ)))
 				errors.put("scope", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			if (customAnalysisForm.getParameter() < 1) {
 				if (!errors.containsKey("profile"))
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("parameter", messageSource.getMessage("error.analysis_custom.parameter.empty", null, "No default profile, parameter cannot be empty", locale));
-			} else if (!(customAnalysisForm.getParameter() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getParameter(), principal.getName(),
-					AnalysisRight.READ)))
+			} else if (!(customAnalysisForm.getParameter() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getParameter(), principal.getName(), AnalysisRight.READ)))
 				errors.put("parameter", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			if (customAnalysisForm.getRiskInformation() < 1) {
 				if (!errors.containsKey("profile"))
 					errors.put("profile", messageSource.getMessage("error.analysis_custom.no_default_profile", null, "No default profile, please select a profile", locale));
 				errors.put("riskInformation", messageSource.getMessage("error.analysis_custom.risk_information.empty", null, "No default profile, risk information cannot be empty", locale));
-			} else if (!(customAnalysisForm.getRiskInformation() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getRiskInformation(),
-					principal.getName(), AnalysisRight.READ)))
+			} else if (!(customAnalysisForm.getRiskInformation() == defaultProfileId || serviceUserAnalysisRight.isUserAuthorized(customAnalysisForm.getRiskInformation(), principal.getName(),
+					AnalysisRight.READ)))
 				errors.put("riskInformation", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 
 			Customer customer = null;
@@ -804,63 +820,71 @@ public class ControllerAnalysis {
 				String company = serviceAnalysis.getCustomerNameFromId(customAnalysisForm.getAsset());
 				String label = serviceAnalysis.getLabelFromId(customAnalysisForm.getAsset());
 				String version = serviceAnalysis.getVersionOfAnalysis(customAnalysisForm.getAsset());
-				baseAnalysis += "\n"
-						+ messageSource.getMessage("label.analysis_custom.origin.assets", new String[] { label, company, version },
-								String.format("Assets based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+				baseAnalysis +=
+					"\n"
+						+ messageSource.getMessage("label.analysis_custom.origin.assets", new String[] { label, company, version }, String.format("Assets based on: %s, customer: %s, version: %s",
+								label, company, version), analysisLocale);
 			}
 
 			if (customAnalysisForm.getScenario() > 1 && customAnalysisForm.getScenario() != defaultProfileId) {
 				String company = serviceAnalysis.getCustomerNameFromId(customAnalysisForm.getScenario());
 				String label = serviceAnalysis.getLabelFromId(customAnalysisForm.getScenario());
 				String version = serviceAnalysis.getVersionOfAnalysis(customAnalysisForm.getScenario());
-				baseAnalysis += "\n"
-						+ messageSource.getMessage("label.analysis_custom.origin.scenarios", new String[] { label, company, version },
-								String.format("Scenarios based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+				baseAnalysis +=
+					"\n"
+						+ messageSource.getMessage("label.analysis_custom.origin.scenarios", new String[] { label, company, version }, String.format(
+								"Scenarios based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 				if (customAnalysisForm.isAssessment())
-					baseAnalysis += "\n"
-							+ messageSource.getMessage("label.analysis_custom.origin.estimation", new String[] { label, company, version },
-									String.format("Risk estimation based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+					baseAnalysis +=
+						"\n"
+							+ messageSource.getMessage("label.analysis_custom.origin.estimation", new String[] { label, company, version }, String.format(
+									"Risk estimation based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
 			if (customAnalysisForm.getParameter() > 1 && customAnalysisForm.getParameter() != defaultProfileId) {
 				String company = serviceAnalysis.getCustomerNameFromId(customAnalysisForm.getParameter());
 				String label = serviceAnalysis.getLabelFromId(customAnalysisForm.getParameter());
 				String version = serviceAnalysis.getVersionOfAnalysis(customAnalysisForm.getParameter());
-				baseAnalysis += "\n"
-						+ messageSource.getMessage("label.analysis_custom.origin.parameters", new String[] { label, company, version },
-								String.format("Parameters based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+				baseAnalysis +=
+					"\n"
+						+ messageSource.getMessage("label.analysis_custom.origin.parameters", new String[] { label, company, version }, String.format(
+								"Parameters based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
 			if (customAnalysisForm.getRiskInformation() > 1 && customAnalysisForm.getRiskInformation() != defaultProfileId) {
 				String company = serviceAnalysis.getCustomerNameFromId(customAnalysisForm.getRiskInformation());
 				String label = serviceAnalysis.getLabelFromId(customAnalysisForm.getRiskInformation());
 				String version = serviceAnalysis.getVersionOfAnalysis(customAnalysisForm.getRiskInformation());
-				baseAnalysis += "\n"
-						+ messageSource.getMessage("label.analysis_custom.origin.risk_information", new String[] { label, company, version },
-								String.format("Risk information based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+				baseAnalysis +=
+					"\n"
+						+ messageSource.getMessage("label.analysis_custom.origin.risk_information", new String[] { label, company, version }, String.format(
+								"Risk information based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
 			}
 
 			if (customAnalysisForm.getScope() > 1 && customAnalysisForm.getScope() != defaultProfileId) {
 				String company = serviceAnalysis.getCustomerNameFromId(customAnalysisForm.getScope());
 				String label = serviceAnalysis.getLabelFromId(customAnalysisForm.getScope());
 				String version = serviceAnalysis.getVersionOfAnalysis(customAnalysisForm.getScope());
-				baseAnalysis += "\n"
-						+ messageSource.getMessage("label.analysis_custom.origin.scope", new String[] { label, company, version },
-								String.format("Scope based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+				baseAnalysis +=
+					"\n"
+						+ messageSource.getMessage("label.analysis_custom.origin.scope", new String[] { label, company, version }, String.format("Scope based on: %s, customer: %s, version: %s",
+								label, company, version), analysisLocale);
 			}
 
 			if (customAnalysisForm.getStandard() > 1 && customAnalysisForm.getStandard() != defaultProfileId) {
 				String company = serviceAnalysis.getCustomerNameFromId(customAnalysisForm.getStandard());
 				String label = serviceAnalysis.getLabelFromId(customAnalysisForm.getStandard());
 				String version = serviceAnalysis.getVersionOfAnalysis(customAnalysisForm.getStandard());
-				baseAnalysis += "\n"
-						+ messageSource.getMessage("label.analysis_custom.origin.standard", new String[] { label, company, company, version },
-								String.format("Standard based on: %s, customer: %s, version: %s", label, company, company, version), analysisLocale);
+				baseAnalysis +=
+					"\n"
+						+ messageSource.getMessage("label.analysis_custom.origin.standard", new String[] { label, company, company, version }, String.format(
+								"Standard based on: %s, customer: %s, version: %s", label, company, company, version), analysisLocale);
 
 				if (customAnalysisForm.isPhase())
-					baseAnalysis += "\n"
-							+ messageSource.getMessage("label.analysis_custom.origin.phase", new String[] { label, company, version },
-									String.format("Phase based on: %s, customer: %s, version: %s", label, company, version), analysisLocale);
+					baseAnalysis +=
+						"\n"
+							+ messageSource.getMessage("label.analysis_custom.origin.phase", new String[] { label, company, version }, String.format("Phase based on: %s, customer: %s, version: %s",
+									label, company, version), analysisLocale);
 			}
 
 			history.setComment(history.getComment() + baseAnalysis);
@@ -1026,7 +1050,7 @@ public class ControllerAnalysis {
 			// check if it is a new analysis or the user is authorized to modify
 			// the analysis
 			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)
-					|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
+				|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
 
 				// create/update analysis object and set access rights
 				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
@@ -1087,8 +1111,7 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
-	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session)
-			throws Exception {
+	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session) throws Exception {
 		try {
 
 			Analysis analysis = serviceAnalysis.getDefaultProfile();
@@ -1097,13 +1120,13 @@ public class ControllerAnalysis {
 				return JsonMessage.Error(messageSource.getMessage("error.profile.delete.failed", null, "Default profile cannot be deleted!", locale));
 
 			// delete the analysis
-			
+
 			serviceActionPlan.deleteAllFromAnalysis(analysisId);
-			
+
 			serviceActionPlanSummary.deleteAllFromAnalysis(analysisId);
-			
+
 			serviceRiskRegister.deleteAllFromAnalysis(analysisId);
-			
+
 			serviceAnalysis.delete(analysisId);
 
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -1167,8 +1190,7 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/Duplicate/{analysisId}", headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale)
-			throws Exception {
+	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
@@ -1295,8 +1317,8 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Import/Execute")
-	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request,
-			@RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
+	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request, @RequestParam(value = "file") MultipartFile file,
+			final RedirectAttributes attributes, Locale locale) throws Exception {
 
 		// retrieve the customer
 		Customer customer = serviceCustomer.get(customerId);
@@ -1395,7 +1417,7 @@ public class ControllerAnalysis {
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""
-				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+			+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) userSqLite.getSize());
@@ -1420,8 +1442,8 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/Export/Report/{analysisId}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
-	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal,
-			Locale locale) throws Exception {
+	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal, Locale locale)
+			throws Exception {
 
 		File file = null;
 

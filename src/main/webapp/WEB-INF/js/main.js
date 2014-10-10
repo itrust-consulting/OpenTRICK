@@ -205,7 +205,8 @@ var ANALYSIS_RIGHT = {
 };
 
 function permissionError() {
-	new Modal($("#alert-dialog").clone(), MessageResolver("error.not_authorized", "Insufficient permissions!")).Show();
+	var language = $("#nav-container").attr("trick-language");
+	new Modal($("#alert-dialog").clone(), MessageResolver("error.not_authorized", "Insufficient permissions!", null, language)).Show();
 	return false;
 }
 
@@ -237,7 +238,7 @@ function userCan(idAnalysis, action) {
  * @param params
  * @returns
  */
-function MessageResolver(code, defaulttext, params) {
+function MessageResolver(code, defaulttext, params, language) {
 	var uniqueCode = "|^|" + code + "__uPu_*+*_*+*_+*+_PuP__" + params + "|$|";// mdr
 	if (application.localesMessages[uniqueCode] != undefined)
 		return application.localesMessages[uniqueCode];
@@ -246,6 +247,7 @@ function MessageResolver(code, defaulttext, params) {
 	var data = {
 		"code" : code,
 		"message" : defaulttext,
+		"language" : language,
 		parameters : []
 	}
 	if ($.isArray(params))

@@ -232,12 +232,14 @@ public class ActionPlanComputation {
 		// initialise task feedback progress in percentage to return to the user
 		int progress = 10;
 
+		String language = this.analysis.getLanguage().getAlpha3().substring(0, 2);
+		
 		// check if uncertainty to adopt the progress factor
 		if (!uncertainty)
 			progress = 20;
 
 		// send feedback
-		serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", "Computing Action Plans", progress));
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", "Computing Action Plans",language, progress));
 
 		System.out.println("Computing Action Plans...");
 
@@ -260,7 +262,7 @@ public class ActionPlanComputation {
 				progress = 40;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.normal_mode", "Compute Action Plan - normal mode - Phase", progress));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.normal_mode", "Compute Action Plan - normal mode - Phase",language, progress));
 
 			if (normalcomputation) {
 				computeActionPlan(ActionPlanMode.APN);
@@ -286,7 +288,7 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - optimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase",language, progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPO);
@@ -301,7 +303,7 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - pessimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase",language, progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPP);
@@ -320,7 +322,7 @@ public class ActionPlanComputation {
 				progress = 60;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.determinepositions", "Compute Action Plan -  computing positions", progress));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.determinepositions", "Compute Action Plan -  computing positions",language, progress));
 
 			// compute
 			determinePositions();
@@ -338,7 +340,7 @@ public class ActionPlanComputation {
 				progress = 80;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", progress));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary",language, progress));
 
 			if (normalcomputation) {
 				computeSummary(ActionPlanMode.APN);
@@ -364,7 +366,7 @@ public class ActionPlanComputation {
 				// ****************************************************************
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.optimistic_phase", "Create summary for optimistic phase action plan summary", progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.optimistic_phase", "Create summary for optimistic phase action plan summary",language, progress));
 
 				// compute
 				computeSummary(ActionPlanMode.APPO);
@@ -377,7 +379,7 @@ public class ActionPlanComputation {
 				// ****************************************************************
 				// * create summary for pessimistic phase action plan summary
 				// ****************************************************************
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", "Create summary for pessimistic phase action plan summary", progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", "Create summary for pessimistic phase action plan summary",language, progress));
 
 				// compute
 				computeSummary(ActionPlanMode.APPP);
@@ -397,7 +399,7 @@ public class ActionPlanComputation {
 				progress = 95;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", progress));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans",language, progress));
 
 			// save to database
 			sericeAnalysis.saveOrUpdate(analysis);
@@ -411,7 +413,7 @@ public class ActionPlanComputation {
 			return messageHandler;
 		} catch (Exception e) {
 			System.out.println("Action Plan saving failed! ");
-			MessageHandler messageHandler = new MessageHandler(e.getMessage(), "Action Plan saving failed", e);
+			MessageHandler messageHandler = new MessageHandler(e.getMessage(), "Action Plan saving failed",language, e);
 			serviceTaskFeedback.send(idTask, messageHandler);
 			e.printStackTrace();
 			// return messagehandler with errors

@@ -54,7 +54,6 @@ function controllerBySection(section, subSection) {
 		"section_asset" : "/Asset/Section",
 		"section_parameter" : "/Parameter/Section",
 		"section_scenario" : "/Scenario/Section",
-		"section_assessment" : "/Assessment/Section",
 		"section_phase" : "/Phase/Section",
 		"section_analysis" : "/Analysis/Section",
 		"section_profile_analysis" : "/AnalysisProfile/Section",
@@ -102,16 +101,6 @@ function callbackBySection(section) {
 
 	};
 	return callbacks[section];
-}
-
-function sectionPretreatment(section) {
-	var pretreatment = {
-		"section_assessment" : function(data) {
-			var trickCarousel = new TrickCarousel($(data).find("table[trick-table]"));
-			trickCarousel.initialise();
-		}
-	};
-	return pretreatment[section];
 }
 
 function SectionSmartUpdate(sectionName, data) {

@@ -65,7 +65,8 @@ public class ControllerHome {
 
 	@RequestMapping(value = "/MessageResolver",method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) throws JsonParseException, JsonMappingException, IOException {
-		return String.format("{\"message\":\"%s\"}",messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), locale));
+		Locale customLocale = message.getLanguage()!=null?new Locale(message.getLanguage().substring(0, 2)):null;
+		return String.format("{\"message\":\"%s\"}",messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale!=null?customLocale:locale));
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)

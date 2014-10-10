@@ -51,8 +51,7 @@ public class ControllerTask {
 	 * @return
 	 */
 	@RequestMapping("/Status/{id}")
-	public @ResponseBody
-	AsyncResult status(@PathVariable Long id, Principal principal, Locale locale) {
+	public @ResponseBody AsyncResult status(@PathVariable Long id, Principal principal, Locale locale) {
 
 		// create result
 		AsyncResult asyncResult = new AsyncResult(id);
@@ -65,41 +64,49 @@ public class ControllerTask {
 			// load worker of task
 			Worker worker = workersPoolManager.get(id);
 
-			// set worker status
-
-			if (worker == null) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.delete", null, "Deleted", locale));
-				asyncResult.setFlag(0);
-			} else if (worker.isCanceled()) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.abort", null, "Aborted", locale));
-				asyncResult.setFlag(1);
-			} else if (worker.getError() != null) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.failed", null, "Failed", locale));
-				asyncResult.setFlag(2);
-			} else if (worker.isWorking()) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.process", null, "Processing", locale));
-				asyncResult.setFlag(3);
-			} else if (serviceTaskFeedback.messageCount(id) > 1) {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
-				asyncResult.setFlag(4);
-			} else {
-				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
-				asyncResult.setFlag(5);
-			}
+			Locale customLocale = null;
 
 			// retrieve last feedback message
 			MessageHandler messageHandler = serviceTaskFeedback.recieveLast(id);
 
+			if (messageHandler != null) {
+
+				if (messageHandler.getLanguage() != null)
+					customLocale = new Locale(messageHandler.getLanguage());
+			}
+			// set worker status
+
+			if (worker == null) {
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.delete", null, "Deleted", customLocale != null ? customLocale : locale));
+				asyncResult.setFlag(0);
+			} else if (worker.isCanceled()) {
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.abort", null, "Aborted", customLocale != null ? customLocale : locale));
+				asyncResult.setFlag(1);
+			} else if (worker.getError() != null) {
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.failed", null, "Failed", customLocale != null ? customLocale : locale));
+				asyncResult.setFlag(2);
+			} else if (worker.isWorking()) {
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.process", null, "Processing", customLocale != null ? customLocale : locale));
+				asyncResult.setFlag(3);
+			} else if (serviceTaskFeedback.messageCount(id) > 1) {
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", customLocale != null ? customLocale : locale));
+				asyncResult.setFlag(4);
+			} else {
+				asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", customLocale != null ? customLocale : locale));
+				asyncResult.setFlag(5);
+			}
+
 			// check if message exists or set null
 			if (messageHandler != null) {
-				asyncResult.setMessage(messageSource.getMessage(messageHandler.getCode(), messageHandler.getParameters(), messageHandler.getMessage(), locale));
+
+				asyncResult.setMessage(messageSource.getMessage(messageHandler.getCode(), messageHandler.getParameters(), messageHandler.getMessage(), customLocale != null ? customLocale : locale));
 				asyncResult.setProgress(messageHandler.getProgress());
 				asyncResult.setTaskName(messageHandler.getTaskName());
 				asyncResult.setAsyncCallback(messageHandler.getAsyncCallback());
 
 				// check if task is already done ansd set data
 				if (messageHandler.getProgress() == 100 || asyncResult.getFlag() == 0 && messageHandler.getException() == null) {
-					asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", locale));
+					asyncResult.setStatus(messageSource.getMessage("label.task_status.success", null, "Success", customLocale != null ? customLocale : locale));
 					asyncResult.setFlag(5);
 				}
 			} else
@@ -116,8 +123,7 @@ public class ControllerTask {
 	}
 
 	@RequestMapping("/Stop/{id}")
-	public @ResponseBody
-	String stop(@PathVariable Long id, Principal principal, Locale locale) {
+	public @ResponseBody String stop(@PathVariable Long id, Principal principal, Locale locale) {
 
 		// check if user has the task with given id
 		if (serviceTaskFeedback.hasTask(principal.getName(), id)) {
@@ -151,17 +157,15 @@ public class ControllerTask {
 	 * @return
 	 */
 	@RequestMapping("/InProcessing")
-	public @ResponseBody
-	List<Long> processing(Principal principal) {
+	public @ResponseBody List<Long> processing(Principal principal) {
 
 		// get tasks of this user
 		return serviceTaskFeedback.tasks(principal.getName());
 	}
 
 	@RequestMapping("/Exist")
-	public @ResponseBody
-	boolean hasTask(Principal principal) {
-		
+	public @ResponseBody boolean hasTask(Principal principal) {
+
 		// check if user has a task
 		return serviceTaskFeedback.userHasTask(principal.getName());
 	}

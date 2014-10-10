@@ -103,13 +103,13 @@ public class WorkerImportStandard implements Worker {
 
 			transaction.commit();
 
-			messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", 100);
+			messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved",null, 100);
 			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_standard\")", null));
 			serviceTaskFeedback.send(id, messageHandler);
 
 		} catch (Exception e) {
 			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), e));
+			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(),null, e));
 			e.printStackTrace();
 			try {
 				if (transaction != null)

@@ -112,10 +112,12 @@ public class WorkerComputeRiskRegister implements Worker {
 
 			System.out.println("Loading Analysis...");
 
-			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", null));
+			String lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2);
+			
+			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading",lang, null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found",lang, null));
 				return;
 			}
 			session.beginTransaction();
@@ -127,7 +129,7 @@ public class WorkerComputeRiskRegister implements Worker {
 			RiskRegisterComputation computation = new RiskRegisterComputation(analysis);
 			if (computation.computeRiskRegister() == null) {
 				session.getTransaction().commit();
-				MessageHandler messageHandler = new MessageHandler("info.info.risk_register.done", "Computing Risk Register Complete!", 100);
+				MessageHandler messageHandler = new MessageHandler("info.info.risk_register.done", "Computing Risk Register Complete!",lang, 100);
 				if (reloadSection)
 					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_riskregister\")", null));
 				serviceTaskFeedback.send(id, messageHandler);
@@ -154,7 +156,15 @@ public class WorkerComputeRiskRegister implements Worker {
 		}
 		catch (Exception e) {
 			try {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: "+e.getMessage(), e));
+				
+				try {
+					String lang;
+					lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2);
+					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: "+e.getMessage(),lang, e));
+				} catch (Exception e1) {
+					serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.riskregister", "Risk register computation failed: "+e.getMessage(),null, e));
+				}
+				
 				e.printStackTrace();
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
@@ -204,8 +214,9 @@ public class WorkerComputeRiskRegister implements Worker {
 	 * @throws Exception
 	 */
 	private void deleteRiskRegister(Analysis analysis) throws Exception {
-
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.riskregister", "Risk Register is deleting", 50));
+		String lang;
+		lang = this.daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2);
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.riskregister", "Risk Register is deleting",lang, 50));
 
 		while (!analysis.getRiskRegisters().isEmpty())
 			daoRiskRegister.delete(analysis.getRiskRegisters().remove(analysis.getRiskRegisters().size() - 1));

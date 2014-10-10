@@ -7,27 +7,13 @@ function displayActionPlanOptions(analysisId) {
 		contentType : "application/json",
 		success : function(response) {
 
-			dialog = new Modal();
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			var actionplancomputeoptions = $(doc).find("* div#actionplancomputeoptions");
 
-			var button_footer_compute = document.createElement("button");
-			var button_footer_cancel = document.createElement("button");
-			button_footer_compute.setAttribute("onclick", "return calculateActionPlanWithOptions(" + analysisId + " ,'#modalBox')");
-			button_footer_compute.setAttribute("class", "btn btn-default");
-			button_footer_compute.setAttribute("data-dismiss", "modal");
-			button_footer_cancel.setAttribute("class", "btn btn-default");
-			button_footer_cancel.setAttribute("data-dismiss", "modal");
-			$(button_footer_compute).html(MessageResolver("label.actionplan.compute", "Compute"));
-			$(button_footer_cancel).html("Cancel");
-
-			dialog.modal_footer_buttons = [ button_footer_compute, button_footer_cancel ];
-
-			dialog.Intialise();
-
-			dialog.setTitle(MessageResolver("title.actionplan.compute.options", "Compute Action Plan: Options"));
-
-			dialog.setBody(response);
-
-			dialog.Show();
+			if ($("#actionplancomputeoptions").length)
+				$("#actionplancomputeoptions").html($(actionplancomputeoptions).html());
+			$("#actionplancomputeoptions").modal("toggle");
 
 		},
 		error : unknowError
@@ -35,23 +21,13 @@ function displayActionPlanOptions(analysisId) {
 	return false;
 }
 
-function removeModal(modalpopup) {
-	$("*[class='modal-backdrop fade in']*").remove();
+function calculateActionPlanWithOptions(form) {
 
-	$(modalpopup).remove();
-}
-
-function calculateActionPlanWithOptions(analysisId, modalBox) {
-
-	var form = $(modalBox + " #actionplancomputationoptionsform");
+	var form = $("#" + form);
 
 	var data = {};
 
-	data["id"] = analysisId;
-
-	var uncertainty = form.find(" input[name='uncertainty']").is(":checked");
-
-	data["uncertainty"] = uncertainty;
+	data["id"] = form.find("input[name='id']").val();
 
 	form.find("input[name^='standard_']").each(function() {
 
@@ -65,8 +41,6 @@ function calculateActionPlanWithOptions(analysisId, modalBox) {
 
 	var jsonarray = JSON.stringify(data);
 
-	// removeModal(modalBox);
-
 	$.ajax({
 		url : context + "/ActionPlan/Compute",
 		type : "post",
@@ -75,7 +49,8 @@ function calculateActionPlanWithOptions(analysisId, modalBox) {
 		contentType : "application/json",
 		success : function(response) {
 			if (response["success"] != undefined) {
-				new TaskManager(MessageResolver("title.actionplan.compute", "Compute Action Plan")).Start();
+				var language = $("#nav-container").attr("trick-language");
+				new TaskManager(MessageResolver("title.actionplan.compute", "Compute Action Plan", null, language)).Start();
 			} else if (message["error"]) {
 				$("#alert-dialog .modal-body").html(message["error"]);
 				$("#alert-dialog").modal("toggle");

@@ -70,7 +70,7 @@ function TaskManager(title) {
 		progressBar.progress.setAttribute("id", "task_" + taskId);
 		progressBar.Anchor(this.view.modal_body);
 		progressBar.OnComplete(function(sender) {
-			progressBar.setInfo("Complete");
+			//progressBar.setInfo("Complete");
 			setTimeout(function() {
 				progressBar.Destroy();
 				instance.Remove(taskId);

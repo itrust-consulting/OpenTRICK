@@ -56,9 +56,8 @@ function deleteAsset(assetId) {
 		assetId = findTrickID(selectedScenario[0]);
 	}
 	var assetname = $("#section_asset tr[trick-id='" + assetId + "'] td:nth-child(3)").text();
-	$("#confirm-dialog .modal-body").html(
-			MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset <b>" + assetname
-					+ "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", [ assetname ]));
+	var lang = $("#nav-container").attr("trick-language");
+	$("#confirm-dialog .modal-body").html(MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset <b>" + assetname + "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", assetname, lang));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Asset/Delete/" + assetId,
@@ -71,7 +70,7 @@ function deleteAsset(assetId) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
 				} else {
-					$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset"));
+					$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset", null, lang));
 					$("#alert-dialog").modal("toggle");
 				}
 				return false;

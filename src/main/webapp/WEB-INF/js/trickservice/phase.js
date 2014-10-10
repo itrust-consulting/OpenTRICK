@@ -72,8 +72,8 @@ function newPhase(){
 		todayHighlight : true,
 		startDate : $("#addPhaseModel #phase_begin_date").prop("value"),
 	}).on('changeDate', endDateChanged);
-	
-	$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.add", "Add new phase"));
+	var lang = $("#nav-container").attr("trick-language");
+	$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.add", "Add new phase", null, lang));
 	$("#addPhaseModel #phaseid").prop("value",-1);
 	$('#addPhaseModel').modal('show');
 	
@@ -149,7 +149,8 @@ function editPhase(phaseid){
 	
 	$("#addPhaseModel #phaseid").prop("value",phaseid);
 	
-	$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.edit", "Edit phase")+" #"+$(currentrow).find("td:eq(1)").text());
+	var lang = $("#nav-container").attr("trick-language");
+	$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.edit", "Edit phase", null, lang)+" #"+$(currentrow).find("td:eq(1)").text());
 	
 	$('#addPhaseModel').modal('show');
 	
@@ -228,7 +229,8 @@ function deletePhase(idPhase) {
 			return false;
 		idPhase = selectedScenario[0];
 	}
-	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase"));
+	var lang = $("#nav-container").attr("trick-language");
+	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase", null, lang));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
 			url : context + "/Phase/Delete/" + idPhase,

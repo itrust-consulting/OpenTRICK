@@ -27,6 +27,7 @@ import lu.itrust.business.component.helper.RRFAssetType;
 import lu.itrust.business.component.helper.RRFFilter;
 import lu.itrust.business.component.helper.RRFMeasure;
 import lu.itrust.business.dao.DAOActionPlan;
+import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAnalysisStandard;
 import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
@@ -82,6 +83,9 @@ public class ChartGenerator {
 
 	@Autowired
 	private DAOAnalysisStandard daoAnalysisStandard;
+
+	@Autowired
+	private DAOAnalysis daoAnalysis;
 
 	private String exporting =
 		"\"exporting\":{\"sourceWidth\":1500,\"sourceHeight\": 600,\"chartOptions\": {\"legend\": {\"enabled\": true,\"title\": { \"text\": \"\"  }, \"itemHiddenStyle\": { \"display\": \"none\" } }, \"rangeSelector\": {\"enabled\": false },\"navigator\": {\"enabled\": false},\"scrollbar\": {\"enabled\": false}}}";
@@ -594,7 +598,7 @@ public class ChartGenerator {
 	public String evolutionProfitabilityCompliance(Integer idAnalysis, List<SummaryStage> summaryStages, List<Phase> phases, String actionPlanType, Locale locale) throws Exception {
 
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, phases);
-		
+
 		String chart = "\"chart\":{ \"type\":\"column\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": false}";
 
 		String title =
@@ -630,19 +634,20 @@ public class ChartGenerator {
 		for (Phase phase : usesPhases.values())
 			categories += "\"P" + phase.getNumber() + "\",";
 
-
 		Map<String, List<String>> standardcompliances = new LinkedHashMap<String, List<String>>();
 
 		Map<String, String> compliancedata = new LinkedHashMap<String, String>();
 
 		List<AnalysisStandard> analysisStandards = daoAnalysisStandard.getAllFromAnalysis(idAnalysis);
-		
+
 		for (AnalysisStandard analysisStandard : analysisStandards) {
 			if (summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()) != null)
 				if (standardcompliances.get(analysisStandard.getStandard().getLabel()) == null)
-					standardcompliances.put(analysisStandard.getStandard().getLabel(), summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()));
+					standardcompliances.put(analysisStandard.getStandard().getLabel(), summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE
+						+ analysisStandard.getStandard().getLabel()));
 				else
-					standardcompliances.put(analysisStandard.getStandard().getLabel(), summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + analysisStandard.getStandard().getLabel()));
+					standardcompliances.put(analysisStandard.getStandard().getLabel(), summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE
+						+ analysisStandard.getStandard().getLabel()));
 		}
 
 		List<String> dataALEs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
@@ -684,44 +689,45 @@ public class ChartGenerator {
 		String keuroByYear = messageSource.getMessage("label.metric.keuro_by_year", null, "k€/y", locale);
 
 		String yAxis =
-			"\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + keuroByYear + "\",\"useHTML\": true}, \"title\": {\"text\":\"" + messageSource.getMessage("label.summary.cost", null, "Cost", locale)
-				+ "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}%\"}, \"title\":{\"text\":\"" + messageSource.getMessage("label.summary.compliance", null, "Compliance", locale)
-				+ "\"}, \"opposite\": true} ]";
-
+			"\"yAxis\": [{\"min\": 0, \"labels\":{\"format\": \"{value} " + keuroByYear + "\",\"useHTML\": true}, \"title\": {\"text\":\""
+				+ messageSource.getMessage("label.summary.cost", null, "Cost", locale) + "\"}},{\"min\": 0,\"max\": 100, \"labels\":{ \"format\": \"{value}%\"}, \"title\":{\"text\":\""
+				+ messageSource.getMessage("label.summary.compliance", null, "Compliance", locale) + "\"}, \"opposite\": true} ]";
 
 		xAxis = "\"xAxis\":{\"categories\":" + categories + "}";
 
 		series += "\"series\":[";
 
 		for (String key : compliancedata.keySet()) {
-			
-			if(isStandardInActionPlan(key, daoActionPlan.getAllFromAnalysis(idAnalysis)))
+
+			if (isStandardInActionPlan(key, daoActionPlan.getAllFromAnalysis(idAnalysis)))
 				series +=
-				"{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " " + key + "\"," + " \"data\":" + compliancedata.get(key) + ", \"valueDecimals\": 0, \"type\": \"column\", \"yAxis\": 1, \"tooltip\": {\"valueSuffix\": \"%\"}},";
+					"{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " " + key + "\"," + " \"data\":"
+						+ compliancedata.get(key) + ", \"valueDecimals\": 0, \"type\": \"column\", \"yAxis\": 1, \"tooltip\": {\"valueSuffix\": \"%\"}},";
 		}
 
 		series +=
 			"{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale) + "\", \"data\":" + ale
 				+ ",\"valueDecimals\": 0,\"type\": \"line\"},  {\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale)
-				+ "\", \"data\":" + riskReduction + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale) + "\", \"data\":" + rosi
-				+ ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\"" + messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale)
-				+ "\", \"data\":" + relatifRosi + ",\"valueDecimals\": 0,\"type\": \"line\"}]";
+				+ "\", \"data\":" + riskReduction + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale) + "\", \"data\":" + rosi + ",\"valueDecimals\": 0,\"type\": \"line\"},{\"name\":\""
+				+ messageSource.getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale) + "\", \"data\":" + relatifRosi
+				+ ",\"valueDecimals\": 0,\"type\": \"line\"}]";
 
 		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "," + exporting + "}").replaceAll("\r|\n", " ");
 	}
 
 	private boolean isStandardInActionPlan(String standard, List<ActionPlanEntry> actionplans) {
 		boolean result = false;
-		
-		for(ActionPlanEntry entry : actionplans)
-			if(entry.getMeasure().getAnalysisStandard().getStandard().getLabel().equals(standard)) {
+
+		for (ActionPlanEntry entry : actionplans)
+			if (entry.getMeasure().getAnalysisStandard().getStandard().getLabel().equals(standard)) {
 				result = true;
 				break;
 			}
-				
+
 		return result;
 	}
-	
+
 	/**
 	 * budget: <br>
 	 * Description
@@ -881,11 +887,13 @@ public class ChartGenerator {
 		Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
 		if (scenario == null)
 			return null;
-		return rrfByScenario(scenario, idAnalysis, locale, filter);
+		Locale customLocale = new Locale(daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		return rrfByScenario(scenario, idAnalysis, customLocale != null ? customLocale : locale, filter);
 	}
 
-	public String rrfByScenario(Scenario scenario, int idAnalysis, Locale locale, RRFFilter filter) {
+	public String rrfByScenario(Scenario scenario, int idAnalysis, Locale locale, RRFFilter filter) throws Exception {
 		try {
+
 			String title =
 				"\"title\": {\"text\":\"" + messageSource.getMessage("label.title.chart.rff.scenario", new String[] { scenario.getName() }, "RRF by scenario (" + scenario.getName() + ")", locale)
 					+ "\"}";
@@ -960,12 +968,17 @@ public class ChartGenerator {
 	}
 
 	public String rrfByMeasure(int idMeasure, Integer idAnalysis, Locale locale, RRFFilter filter) throws Exception {
+		Locale customLocale = new Locale(daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 		NormalMeasure normalMeasure = (NormalMeasure) daoMeasure.getFromAnalysisById(idMeasure, idAnalysis);
-		return rrfByMeasure(normalMeasure, idAnalysis, locale, filter);
+		if (normalMeasure == null)
+			return null;
+		return rrfByMeasure(normalMeasure, idAnalysis, customLocale != null ? customLocale : locale, filter);
 	}
 
-	public String rrfByMeasure(NormalMeasure measure, Integer idAnalysis, Locale locale, RRFFilter filter) {
+	public String rrfByMeasure(NormalMeasure measure, Integer idAnalysis, Locale locale, RRFFilter filter) throws Exception {
+
 		try {
+
 			String title =
 				"\"title\": {\"text\":\""
 					+ messageSource.getMessage("label.title.chart.rff.measure", new String[] { measure.getMeasureDescription().getReference() }, "RRF by measure ("

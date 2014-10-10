@@ -8,11 +8,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.AnalysisRight;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
-import lu.itrust.business.TS.settings.AppSettingEntry;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ActionPlanManager;
 import lu.itrust.business.component.helper.JsonMessage;
@@ -120,6 +119,7 @@ public class ControllerActionPlan {
 		// prepare model
 		model.put("actionplans", actionplans);
 		model.put("assets", assets);
+		model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha3());
 
 		// return view
 		return "analysis/components/actionplan";
@@ -151,7 +151,7 @@ public class ControllerActionPlan {
 			// load all affected assets of the actionplans (unique assets used)
 			List<Asset> assets = ActionPlanManager.getAssetsByActionPlanType(actionplans);
 
-			//Collections.reverse(actionplans);
+			// Collections.reverse(actionplans);
 
 			for (ActionPlanEntry ape : actionplans) {
 				Hibernate.initialize(ape);
@@ -161,6 +161,7 @@ public class ControllerActionPlan {
 			// prepare model
 			model.put("actionplans", actionplans);
 			model.put("assets", assets);
+			model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha3());
 		} else
 			model.put("actionplans", actionplans);
 
@@ -179,17 +180,15 @@ public class ControllerActionPlan {
 	 */
 	@RequestMapping(value = "/{analysisID}/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
-	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model, @PathVariable("analysisID") Integer analysisID)
-			throws Exception {
-		AppSettingEntry settings = serviceAppSettingEntry.getByUsernameAndGroupAndName(principal.getName(), "analysis", analysisID.toString());
-		if (settings != null) {
-			model.put("show_uncertainty", settings.findByKey("show_uncertainty"));
-			model.put("show_cssf", settings.findByKey("show_cssf"));
-		}
+	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model, @PathVariable("analysisID") Integer analysisID) throws Exception {
+
+		model.put("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(analysisID));
+		model.put("show_cssf", serviceAnalysis.isAnalysisCssf(analysisID));
+
 		model.put("id", analysisID);
 
 		model.put("standards", serviceAnalysisStandard.getAllComputableFromAnalysis(analysisID));
-
+		
 		return "analysis/components/forms/actionplanoptions";
 	}
 
@@ -214,16 +213,15 @@ public class ControllerActionPlan {
 		// retrieve analysis id to compute
 		int analysisId = jsonNode.get("id").asInt();
 
+		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().substring(0, 2));
+		
 		// verify if user is authorized to compute the actionplan
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_ACTIONPLAN)) {
 
 			// retrieve options selected by the user
 
-			boolean uncertainty = false;
-
-			if (jsonNode.get("uncertainty") != null)
-				uncertainty = jsonNode.get("uncertainty").asBoolean();
-
+			boolean uncertainty = serviceAnalysis.isAnalysisUncertainty(analysisId);
+			
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
 
 			List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
@@ -234,21 +232,19 @@ public class ControllerActionPlan {
 						standards.add(analysisStandard);
 			}
 
-			// prepare asynchronous worker
-
 			boolean reloadSection = session.getAttribute("selectedAnalysis") != null;
 
 			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection);
 			worker.setPoolManager(workersPoolManager);
 
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
-				return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", locale));
+				return JsonMessage.Error(messageSource.getMessage("failed.start.compute.actionplan", null, "Action plan computation was failed", analysisLocale));
 
 			// execute task
 			executor.execute(worker);
-			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null, "Action plan computation was started successfully", analysisLocale));
 		} else {
-			return JsonMessage.Success(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+			return JsonMessage.Success(messageSource.getMessage("error.permission_denied", null, "Permission denied!", analysisLocale));
 		}
 	}
 }

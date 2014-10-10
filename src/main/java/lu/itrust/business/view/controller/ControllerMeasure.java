@@ -13,7 +13,6 @@ import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.helper.RRFFieldEditor;
 import lu.itrust.business.component.helper.RRFFilter;
@@ -74,7 +73,7 @@ public class ControllerMeasure {
 
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
-	
+
 	@Autowired
 	private ServiceUser serviceUser;
 
@@ -183,7 +182,8 @@ public class ControllerMeasure {
 			measure.setMeasurePropertyList(properties);
 		}
 		serviceMeasure.saveOrUpdate(measure);
-		return chartGenerator.rrfByMeasure(measure, idAnalysis, locale, fieldEditor.getFilter());
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		return chartGenerator.rrfByMeasure(measure, idAnalysis, customLocale != null ? customLocale : locale, fieldEditor.getFilter());
 	}
 
 	@RequestMapping(value = "/RRF/{elementID}/Load", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
@@ -191,7 +191,8 @@ public class ControllerMeasure {
 	public @ResponseBody String load(@RequestBody RRFFilter filter, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		return chartGenerator.rrfByMeasure((NormalMeasure) measure, idAnalysis, locale, filter);
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		return chartGenerator.rrfByMeasure((NormalMeasure) measure, idAnalysis, customLocale != null ? customLocale : locale, filter);
 	}
 
 	/**
@@ -234,19 +235,16 @@ public class ControllerMeasure {
 	@RequestMapping(value = "/Compliance/{standard}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@ResponseBody
-	public String compliance(@PathVariable String standard, HttpSession session, Principal principal) {
+	public String compliance(@PathVariable String standard, HttpSession session, Principal principal, Locale locale) {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 		try {
 
-			User user = serviceUser.get(principal.getName());
-
-			Locale locale = new Locale(user.getLocale());
-
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 			// return chart of either standard 27001 or 27002 or null
-			return chartGenerator.compliance(idAnalysis, standard, locale);
+			return chartGenerator.compliance(idAnalysis, standard, customLocale != null ? customLocale : locale);
 
 		} catch (Exception e) {
 
@@ -267,17 +265,15 @@ public class ControllerMeasure {
 	@RequestMapping(value = "/Compliances", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@ResponseBody
-	public String compliances(HttpSession session, Principal principal) {
+	public String compliances(HttpSession session, Principal principal, Locale locale) {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 		try {
 
-			User user = serviceUser.get(principal.getName());
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 
-			Locale locale = new Locale(user.getLocale());
-			
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
 			String value = "{\"standards\":{";
@@ -286,7 +282,7 @@ public class ControllerMeasure {
 
 				value += "\"" + analysisStandard.getStandard().getLabel() + "\":[";
 
-				value += chartGenerator.compliance(idAnalysis, analysisStandard.getStandard().getLabel(), locale);
+				value += chartGenerator.compliance(idAnalysis, analysisStandard.getStandard().getLabel(), customLocale != null ? customLocale : locale);
 
 				value += "],";
 			}

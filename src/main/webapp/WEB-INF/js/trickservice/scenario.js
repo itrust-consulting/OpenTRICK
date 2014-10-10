@@ -92,8 +92,9 @@ function deleteScenario(scenarioId) {
 		var selectedScenario = findSelectItemIdBySection(("section_scenario"));
 		if (!selectedScenario.length)
 			return false;
-		var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") : MessageResolver(
-				"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios");
+		var lang = $("#nav-container").attr("trick-language");
+		var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang) : MessageResolver("confirm.delete.selected.scenario",
+				"Are you sure, you want to delete selected scenarios", null, lang);
 		$("#confirm-dialog .modal-body").text(text);
 		$("#confirm-dialog .btn-danger").click(function() {
 			while (selectedScenario.length) {
@@ -120,7 +121,7 @@ function deleteScenario(scenarioId) {
 			reloadSection('section_scenario');
 		});
 	} else {
-		$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario"));
+		$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang));
 		$("#confirm-dialog .btn-danger").click(function() {
 			$.ajax({
 				url : context + "/Scenario/Delete/" + scenarioId,
@@ -150,7 +151,8 @@ function serializeScenarioForm(formId) {
 }
 
 function clearScenarioFormData() {
-	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario"));
+	var lang = $("#nav-container").attr("trick-language");
+	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario", null, lang));
 	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
 

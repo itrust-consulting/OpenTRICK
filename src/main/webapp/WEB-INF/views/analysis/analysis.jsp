@@ -16,7 +16,7 @@
 			<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisStandards)" var="measures" scope="request" />
 			<jsp:include page="analysisMenu.jsp" />
 			<jsp:include page="../successErrors.jsp" />
-			<div id="nav-container" trick-id="${analysis.id}" trick-class="Analysis" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}">
+			<div id="nav-container" trick-id="${analysis.id}" trick-class="Analysis" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}" trick-language="${fn:substring(analysis.language.alpha3,0,2)}">
 				<c:if test="${!analysis.isProfile()}">
 					<h2>${analysis.label}|${ analysis.version }</h2>
 					<c:set var="histories" value="${analysis.histories}" scope="request" />
@@ -78,23 +78,6 @@
 			<script type="text/javascript" src="<spring:url value="js/bootstrap/typeahead.bundle.js" />"></script>
 			<script type="text/javascript" src="<spring:url value="js/trickservice/riskregister.js" />"></script>
 		</c:if>
-		<script>
-						
-							$( "#actionmenu li" ).hover(function() {
-								var id = $(this).attr("id");
-								
-								console.log(id);
-								if(id === "languagechooser")
-									$( this ).addClass("open");
-								else
-									$("#languagechooser").removeClass("open");
-							});
-						
-							$( ".dropdown-toggle" ).click(function() {
-								$("#languagechooser").removeClass("open");
-							});
-							
-						</script>
 	</div>
 </body>
 </html>

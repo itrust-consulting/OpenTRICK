@@ -10,39 +10,40 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="phaseNewModal-title">
-					<spring:message code="label.title.analysis.manage.standard" text="Manage standards" />
+					<fmt:message key="label.title.analysis.manage_standard"  />
 				</h4>
 			</div>
 			<div class="modal-body">
-				<h3>Currently in Analysis:</h3>
+				<h3><fmt:message key="label.title.analysis.manage_standard.current" /></h3>
 				<table class="table">
 					<thead>
 						<tr>
-							<th><spring:message code="label.norm.label" text="Name" /></th>
-							<th><spring:message code="label.norm.version" text="Version" /></th>
-							<th colspan="3"><spring:message code="label.norm.description" text="Description" /></th>
-							<th><spring:message code="label.norm.computable" text="Computable" /></th>
-							<th>Remove</th>
+							<th><fmt:message key="label.norm.label"  /></th>
+							<th><fmt:message key="label.norm.version"  /></th>
+							<th colspan="3"><fmt:message key="label.norm.description"  /></th>
+							<th><fmt:message key="label.norm.computable"  /></th>
+							<th><fmt:message key="label.action.remove" /></th>
 						</tr>
 					</thead>
 					<tbody>
 						<c:forEach items="${currentStandards}" var="standard">
 							<tr>
-								<td><spring:message code="label.standard.${standard.label}" text="${standard.label}" /></td>
+								<td><spring:message text="${standard.label}"  /></td>
 								<td><spring:message text="${standard.version}" /></td>
 								<td colspan="3"><spring:message text="${standard.description}" /></td>
-								<td><spring:message code="label.yes_no.${fn:toLowerCase(standard.computable)}" text="${standard.computable? 'Yes' : 'No'}" /></td>
-								<td><a href="#" role="remove-standard" trick-class="standard" trick-id="${standard.id}" style="font-size:20px" class="text-danger" title='<spring:message code="label.action.delete" text="Delete" />'> <span class="glyphicon glyphicon-remove-circle"></span></a></td>
+								<td><fmt:message key="label.${standard.computable?'yes':'no'}"  /></td>
+								<td><a href="#" role="remove-standard" trick-class="standard" trick-id="${standard.id}" style="font-size: 20px" class="text-danger"
+									title='<fmt:message key="label.action.delete" />'> <span class="glyphicon glyphicon-remove-circle"></span></a></td>
 							</tr>
 						</c:forEach>
 					</tbody>
 				</table>
 				<hr />
-				<h3>Available for Analysis:</h3>
+				<h3><fmt:message key="label.title.analysis.manage_standard.available" /></h3>
 				<c:if test="${!empty(standards)}">
 					<form name="standard" action="${pageContext.request.contextPath}/Analysis/Save/Standard" class="form" id="addStandardForm">
 						<div class="form-group">
-							<label> <spring:message code="label.analysis.add.standard.select.choose" text="Select your standard" />
+							<label> <fmt:message key="label.analysis.add.standard.select.choose"  />
 							</label>
 							<div>
 								<div class="col-lg-11">
@@ -55,15 +56,14 @@
 										</c:forEach>
 									</select>
 								</div>
-								<a href="#" onclick="saveStandard('addStandardForm')" style="font-size:20px" class="col-lg-1" id="btn_save_standard" title='<spring:message code="label.action.add" text="Add" />'><span
-									class="glyphicon glyphicon-plus"></span></a>
+								<a href="#" onclick="saveStandard('addStandardForm')" style="font-size: 20px" class="col-lg-1" id="btn_save_standard"
+									title='<fmt:message key="label.action.add" />'><span class="glyphicon glyphicon-plus"></span></a>
 							</div>
-
 						</div>
 					</form>
 				</c:if>
 				<c:if test="${empty(standards)}">
-				No standards available
+					<fmt:message key="label.no_standards" />
 				</c:if>
 				<div id="add_standard_progressbar" class="progress progress-striped active" hidden="true">
 					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>

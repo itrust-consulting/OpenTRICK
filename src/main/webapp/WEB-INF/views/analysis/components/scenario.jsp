@@ -14,20 +14,19 @@
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_scenario">
-				<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.scenario"
-							text="Add" /> </a></li>
-				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editScenario();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
-							code="label.menu.edit.scenario" text="Edit" /> </a></li>
-				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span class="glyphicon glyphicon-plus-sign"></span> <spring:message
-							code="label.menu.select.scenario" text="Select" /> </a></li>
-				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <spring:message
-							code="label.menu.unselect.scenario" text="Unselect" /> </a></li>
+				<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /> </a></li>
+				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editScenario();"><span class="glyphicon glyphicon-edit danger"></span> <fmt:message
+							key="label.action.edit" /> </a></li>
+				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span class="glyphicon glyphicon-plus-sign"></span> <fmt:message
+							key="label.action.select" /> </a></li>
+				<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <fmt:message
+							key="label.action.unselect" /> </a></li>
 				<c:if test="${!analysis.isProfile() }">
 					<li class="disabled" trick-selectable="true" trick-check="isSelected('scenario')"><a href="#" onclick="return displayAssessmentByScenario()"><span
-							class="glyphicon glyphicon-new-window"></span> <spring:message code="label.menu.show.assessment" text="Assessment" /> </a></li>
+							class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.assessment" /> </a></li>
 				</c:if>
 				<li class="disabled pull-right" trick-selectable="multi"><a href="#" class="text-danger" onclick="return deleteScenario();"><span class="glyphicon glyphicon-remove"></span>
-						<spring:message code="label.menu.delete.scenario" text="Delete" /> </a></li>
+						<fmt:message key="label.action.delete" /> </a></li>
 			</ul>
 		</div>
 		<div class="panel-body autofitpanelbodydefinition">
@@ -77,33 +76,34 @@
 											maxFractionDigits="2" minFractionDigits="0" /></td>
 								</c:otherwise>
 							</c:choose>
-							<td class="${cssClass}" colspan="20"><pre><spring:message text="${scenario.description}" /></pre></td>
+							<td class="${cssClass}" colspan="20"><pre>
+									<spring:message text="${scenario.description}" />
+								</pre></td>
 						</tr>
 					</c:forEach>
 				</tbody>
-				
 				<c:if test="${!analysis.isProfile() }">
-				<tfoot>
-					<tr class="panel-footer" style="font-weight:bold;">
-						<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeTotalALE(scenarioALE)" var="ale" />
-						<td colspan="20"><fmt:message key="label.total.ale" /></td>
-						<c:choose>
-							<c:when test="${show_uncertainty}">
-								<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
-										maxFractionDigits="2" minFractionDigits="0" /></td>
-								<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
-										maxFractionDigits="2" minFractionDigits="0" /></td>
-								<td colspan="2" title="<fmt:formatNumber value="${ale[2].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[2].value*0.001}"
-										maxFractionDigits="2" minFractionDigits="0" /></td>
-							</c:when>
-							<c:otherwise>
-								<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[1].value*0.001}"
-										maxFractionDigits="2" minFractionDigits="0" /></td>
-							</c:otherwise>
-						</c:choose>
-						<td colspan="20"></td>
-					</tr>
-				</tfoot>
+					<tfoot>
+						<tr class="panel-footer" style="font-weight: bold;">
+							<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeTotalALE(scenarioALE)" var="ale" />
+							<td colspan="20"><fmt:message key="label.total.ale" /></td>
+							<c:choose>
+								<c:when test="${show_uncertainty}">
+									<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"
+											maxFractionDigits="2" minFractionDigits="0" /></td>
+									<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber
+											value="${ale[1].value*0.001}" maxFractionDigits="2" minFractionDigits="0" /></td>
+									<td colspan="2" title="<fmt:formatNumber value="${ale[2].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[2].value*0.001}"
+											maxFractionDigits="2" minFractionDigits="0" /></td>
+								</c:when>
+								<c:otherwise>
+									<td name="ale" colspan="2" title="<fmt:formatNumber value="${ale[1].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber
+											value="${ale[1].value*0.001}" maxFractionDigits="2" minFractionDigits="0" /></td>
+								</c:otherwise>
+							</c:choose>
+							<td colspan="20"></td>
+						</tr>
+					</tfoot>
 				</c:if>
 			</table>
 		</div>

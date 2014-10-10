@@ -18,7 +18,6 @@ import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.AssessmentManager;
 import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
@@ -93,16 +92,24 @@ public class ControllerAsset {
 	 * @param principal
 	 * @param locale
 	 * @return
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Select/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
+	public @ResponseBody String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) throws Exception {
 		try {
+
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+
+			Locale customLocale = null;
+
+			if (integer != null)
+				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
 
 			// retrieve asset
 			Asset asset = serviceAsset.get(elementID);
 			if (asset == null)
-				return JsonMessage.Error(messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", locale));
+				return JsonMessage.Error(messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", customLocale != null ? customLocale : locale));
 
 			// set asset selected or unselected (toggle)
 			if (asset.isSelected())
@@ -111,18 +118,28 @@ public class ControllerAsset {
 				assessmentManager.selectAsset(asset);
 
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.asset.update.successfully", null, "Asset was updated successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.asset.update.successfully", null, "Asset was updated successfully", customLocale != null ? customLocale : locale));
 		} catch (InvalidAttributesException e) {
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
+			Locale customLocale = null;
+
+			if (integer != null)
+				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
 			// return error message
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
 
 		} catch (Exception e) {
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
+			Locale customLocale = null;
+
+			if (integer != null)
+				customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
 			// return error message
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale));
 		}
 	}
 
@@ -135,30 +152,44 @@ public class ControllerAsset {
 	 * @param locale
 	 * @param session
 	 * @return
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) {
+	public @ResponseBody List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) throws Exception {
 
 		// init list of errors
 		List<String> errors = new LinkedList<String>();
+
+		for (Integer id : ids) {
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+
+			if (!serviceAsset.belongsToAnalysis(integer, id)) {
+				errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_asset", null, "One of the assets does not belong to this analysis!", customLocale != null ? customLocale
+					: locale)));
+				return errors;
+			}
+		}
 
 		// parse each sent id's
 		for (Integer id : ids) {
 			try {
 
-				select(id, principal, locale, session);
-				/*
-				 * // retrieve asset Asset asset = serviceAsset.get(id); if (asset == null)
-				 * errors.add(JsonMessage.Error(messageSource.getMessage ("error.asset.not_found",
-				 * null, "Asset cannot be found", locale)));
-				 * 
-				 * // check if asset if (asset.isSelected()) assessmentManager.unSelectAsset(asset);
-				 * else assessmentManager.selectAsset(asset);
-				 */
+				Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+
+				select(id, principal, customLocale != null ? customLocale : locale, session);
+
 			} catch (Exception e) {
 				e.printStackTrace();
-				errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale)));
+				Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+
+				errors.add(JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale)));
 			}
 		}
 		return errors;
@@ -179,20 +210,28 @@ public class ControllerAsset {
 	 * @param principal
 	 * @param locale
 	 * @return
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
-	public @ResponseBody String delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) {
+	public @ResponseBody String delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) throws Exception {
 		try {
 			// delete asset ( delete asset from from assessments) then from
 			// assets
+
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
+
 			customDelete.deleteAsset(serviceAsset.get(elementID));
-			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", locale));
+			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null, "Asset was deleted successfully", customLocale != null ? customLocale : locale));
 
 		} catch (Exception e) {
+			Integer integer = (Integer) session.getAttribute("selectedAnalysis");
 
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(integer).getAlpha3().substring(0, 2));
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", customLocale != null ? customLocale : locale));
 		}
 	}
 
@@ -254,10 +293,11 @@ public class ControllerAsset {
 	 * @param principal
 	 * @param locale
 	 * @return
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) {
+	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		// create error list
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -270,11 +310,13 @@ public class ControllerAsset {
 				return errors;
 			}
 
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+
 			// create new asset object
 			Asset asset = new Asset();
 
 			// build asset
-			buildAsset(errors, asset, value, locale);
+			buildAsset(errors, asset, value, customLocale != null ? customLocale : locale);
 
 			if (!errors.isEmpty())
 				// return error on failure
@@ -284,11 +326,13 @@ public class ControllerAsset {
 
 			if (asset.getId() > 0) {
 				if (!serviceAsset.belongsToAnalysis(idAnalysis, asset.getId())) {
-					errors.put("asset", messageSource.getMessage("error.asset.not_belongs_to_analysis", null, "Asset does not belong to selected analysis", locale));
+					errors.put("asset", messageSource.getMessage("error.asset.not_belongs_to_analysis", null, "Asset does not belong to selected analysis", customLocale != null ? customLocale
+						: locale));
 					return errors;
 				}
 			} else if (serviceAsset.exist(idAnalysis, asset.getName())) {
-				errors.put("name", messageSource.getMessage("error.asset.duplicate", new String[] { asset.getName() }, String.format("Asset (%s) is duplicated", asset.getName()), locale));
+				errors.put("name", messageSource.getMessage("error.asset.duplicate", new String[] { asset.getName() }, String.format("Asset (%s) is duplicated", asset.getName()), customLocale != null
+					? customLocale : locale));
 				return errors;
 			}
 			// create assessments for the new asset and save asset and
@@ -306,15 +350,23 @@ public class ControllerAsset {
 			else
 				assessmentManager.unSelectAsset(asset);
 		} catch (TrickException e) {
-			// add general error
-			errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis != null) {
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+				errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
+			} else
+				errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			e.printStackTrace();
-			// return errors
+			return errors;
 		} catch (Exception e) {
-			// add general error
-			errors.put("asset", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis != null) {
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+				errors.put("asset", messageSource.getMessage(e.getMessage(), null, customLocale != null ? customLocale : locale));
+			} else
+				errors.put("asset", messageSource.getMessage(e.getMessage(), null, locale));
 			e.printStackTrace();
-			// return errors
+			return errors;
 		}
 		return errors;
 	}
@@ -331,19 +383,17 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody String aleByAsset(HttpSession session, Model model, Principal principal) throws Exception {
+	public @ResponseBody String aleByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
-
-		User user = serviceUser.get(principal.getName());
-
-		Locale locale = new Locale(user.getLocale());
-
+		
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		
 		// generate chart of assets for this analysis
-		return chartGenerator.aleByAsset(idAnalysis, locale);
+		return chartGenerator.aleByAsset(idAnalysis, customLocale!=null?customLocale:locale);
 	}
 
 	/**
@@ -358,19 +408,17 @@ public class ControllerAsset {
 	 */
 	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody String assetByALE(HttpSession session, Model model, Principal principal) throws Exception {
+	public @ResponseBody String assetByALE(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
 
-		User user = serviceUser.get(principal.getName());
-
-		Locale locale = new Locale(user.getLocale());
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 
 		// generate chart of assets for this analysis
-		return chartGenerator.aleByAssetType(idAnalysis, locale);
+		return chartGenerator.aleByAssetType(idAnalysis, customLocale!=null?customLocale:locale);
 	}
 
 	/**

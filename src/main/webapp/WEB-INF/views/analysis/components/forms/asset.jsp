@@ -10,7 +10,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addAssetModel-title">
-					<spring:message code="label.title.asset.${empty(asset)? 'add':'edit'}" text="${empty(asset)? 'Add new asset':'Edit asset'}" />
+					<fmt:message key="label.title.asset.${empty(asset)? 'add':'edit'}" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -24,33 +24,33 @@
 						</c:otherwise>
 					</c:choose>
 					<div class="form-group">
-						<label for="name" class="col-sm-2 control-label"> <spring:message code="label.asset.name" text="Name" />
+						<label for="name" class="col-sm-2 control-label"> <fmt:message key="label.asset.name" />
 						</label>
 						<div class="col-sm-10">
 							<input name="name" id="asset_name" class="form-control" value='<spring:message text="${empty(asset)? '':asset.name}" />' />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="assetType.id" class="col-sm-2 control-label"> <spring:message code="label.asset.type" text="Type" />
+						<label for="assetType.id" class="col-sm-2 control-label"> <fmt:message key="label.asset.type" />
 						</label>
 						<div class="col-sm-10">
 							<select name="assetType" class="form-control" id="asset_assettype_id">
 								<c:choose>
 									<c:when test="${!empty(assettypes)}">
-										<option value='-1'><spring:message code="label.asset.type.select" text="Select the type of asset" /></option>
+										<option value='-1'><fmt:message key="label.asset.type.select" /></option>
 										<c:forEach items="${assettypes}" var="assettype">
-											<option value="${assettype.id}" ${asset.assetType == assettype?'selected':''}><spring:message code="label.asset_type.${fn:toLowerCase(assettype.type)}" text="${assettype.type}" /></option>
+											<option value="${assettype.id}" ${asset.assetType == assettype?'selected':''}><fmt:message key="label.asset_type.${fn:toLowerCase(assettype.type)}" /></option>
 										</c:forEach>
 									</c:when>
 									<c:otherwise>
-										<option value='-1'><spring:message code="label.asset.type.loading" text="Loading..." /></option>
+										<option value='-1'><fmt:message key="label.asset.type.loading" /></option>
 									</c:otherwise>
 								</c:choose>
 							</select>
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="value" class="col-sm-2 control-label"> <spring:message code="label.asset.value" text="Value" />
+						<label for="value" class="col-sm-2 control-label"> <fmt:message key="label.asset.value" />
 						</label>
 						<div class="col-sm-10">
 							<div class="input-group">
@@ -67,21 +67,21 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="selected" class="col-sm-2 control-label"> <spring:message code="label.asset.selected" text="Selected" />
+						<label for="selected" class="col-sm-2 control-label"> <fmt:message key="label.asset.selected" />
 						</label>
 						<div class="col-sm-10">
 							<input name="selected" id="asset_selected" class="form-control" type="checkbox" ${empty(asset)? '': asset.selected? 'checked' : ''} />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.asset.comment" text="Comment" />
+						<label for="comment" class="col-sm-2 control-label"> <fmt:message key="label.asset.comment" />
 						</label>
 						<div class="col-sm-10">
 							<textarea name="comment" class="form-control resize_vectical_only" id="asset_comment"><spring:message text="${empty(asset)? '': asset.comment}" /></textarea>
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="hiddenComment" class="col-sm-2 control-label"> <spring:message code="label.asset.comment_hidden" text="Hidden comment" />
+						<label for="hiddenComment" class="col-sm-2 control-label"> <fmt:message key="label.asset.comment_hidden" />
 						</label>
 						<div class="col-sm-10">
 							<textarea name="hiddenComment" id="asset_hiddenComment" class="form-control resize_vectical_only"><spring:message text="${empty(asset)? '': asset.hiddenComment}" /></textarea>
@@ -91,7 +91,7 @@
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" onclick="saveAsset('asset_form')">
-					<spring:message code="label.action.save" text="Save" />
+					<fmt:message key="label.action.save" />
 				</button>
 			</div>
 		</div>

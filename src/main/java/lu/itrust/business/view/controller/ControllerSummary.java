@@ -4,7 +4,6 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -14,9 +13,7 @@ import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.actionplan.SummaryStandardConformance;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.ChartGenerator;
-import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServicePhase;
@@ -53,10 +50,10 @@ public class ControllerSummary {
 
 	@Autowired
 	private ChartGenerator chartGenerator;
-	
+
 	@Autowired
 	private ServiceUser serviceUser;
-	
+
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
 
@@ -88,90 +85,6 @@ public class ControllerSummary {
 	}
 
 	/**
-	 * delete: <br>
-	 * Description
-	 * 
-	 * @param id
-	 * @param principal
-	 * @param session
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'ActionPlanSummary', #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
-	public @ResponseBody
-	String delete(@PathVariable int elementID, Principal principal, HttpSession session, Locale locale) throws Exception {
-
-		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-
-		// retrieve a single actionplansummary entry of analysis
-		SummaryStage summaryStage = serviceActionPlanSummary.getFromAnalysisById(idAnalysis, elementID);
-		if (summaryStage == null)
-			return JsonMessage.Error(messageSource.getMessage("error.summary.not_found", null, "Summary cannot be found", locale));
-		else
-			try {
-
-				// delete entry
-				serviceActionPlanSummary.delete(summaryStage);
-
-				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.summary.delete", null, "Summary was successfully deleted", locale));
-			} catch (Exception e) {
-
-				// returen error message
-				e.printStackTrace();
-				return JsonMessage.Error(messageSource.getMessage("error.internal.summary.delete", null, "An error occurred during the summary deleting", locale));
-			}
-	}
-
-	/**
-	 * delete: <br>
-	 * Description
-	 * 
-	 * @param principal
-	 * @param session
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
-	@RequestMapping(value = "/Delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody
-	List<String> delete(Principal principal, HttpSession session, Locale locale) throws Exception {
-
-		// create errors list
-		List<String> errors = new LinkedList<String>();
-
-		// retrieve analysis id
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-
-		// get summaries
-		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysis(idAnalysis);
-
-		try {
-
-			// parse stages
-			for (SummaryStage summaryStage : summaryStages) {
-				// remove current
-				serviceActionPlanSummary.delete(summaryStage);
-			}
-
-			// add success message
-			errors.add(JsonMessage.Success(messageSource.getMessage("success.summary.delete", null, "Summary was successfully deleted", locale)));
-
-			// return empty errors -> success
-			return errors;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			errors.add(JsonMessage.Error(messageSource.getMessage("error.internal.summary.delete", null, "An error occurred during the summary deleting", locale)));
-			return errors;
-		}
-	}
-
-	/**
 	 * chartEvolutionProfitabityCompliance: <br>
 	 * Description
 	 * 
@@ -184,8 +97,7 @@ public class ControllerSummary {
 	 */
 	@RequestMapping(value = "/Evolution/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody
-	String chartEvolutionProfitabityCompliance(@PathVariable String actionPlanType, Principal principal, HttpSession session) throws Exception {
+	public @ResponseBody String chartEvolutionProfitabityCompliance(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
 
 		// retireve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -196,20 +108,18 @@ public class ControllerSummary {
 		// load all summaries of analysis
 		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType);
 
-		for(SummaryStage stage : summaryStages) {
+		for (SummaryStage stage : summaryStages) {
 			Hibernate.initialize(stage);
-			for(SummaryStandardConformance conformance : stage.getConformances()) {
+			for (SummaryStandardConformance conformance : stage.getConformances()) {
 				Hibernate.initialize(conformance);
 				Hibernate.initialize(conformance.getAnalysisStandard().getStandard());
 			}
 		}
-			
-		User user = serviceUser.get(principal.getName());
 
-		Locale locale = new Locale(user.getLocale());
-		
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+
 		// generate chart
-		return chartGenerator.evolutionProfitabilityCompliance((Integer)session.getAttribute("selectedAnalysis"),summaryStages, phases, actionPlanType, locale);
+		return chartGenerator.evolutionProfitabilityCompliance((Integer) session.getAttribute("selectedAnalysis"), summaryStages, phases, actionPlanType, customLocale != null ? customLocale : locale);
 	}
 
 	/**
@@ -225,8 +135,7 @@ public class ControllerSummary {
 	 */
 	@RequestMapping(value = "/Budget/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody
-	String chartBudget(@PathVariable String actionPlanType, Principal principal, HttpSession session) throws Exception {
+	public @ResponseBody String chartBudget(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -237,11 +146,9 @@ public class ControllerSummary {
 		// retrieve summaries
 		List<SummaryStage> summaryStages = serviceActionPlanSummary.getAllFromAnalysisAndActionPlanType(idAnalysis, actionPlanType);
 
-		User user = serviceUser.get(principal.getName());
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 
-		Locale locale = new Locale(user.getLocale());
-		
 		// return chart
-		return chartGenerator.budget(summaryStages, phases, actionPlanType, locale);
+		return chartGenerator.budget(summaryStages, phases, actionPlanType, customLocale != null ? customLocale : locale);
 	}
 }

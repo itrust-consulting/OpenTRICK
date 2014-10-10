@@ -3,54 +3,56 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="page-header" style="margin-top: 0; padding-top: 0">
-	<h3 style="margin-top: 0; padding-top: 0">
-		<spring:message code="label.title.norms" text="Standards" />
-	</h3>
+<div class="modal fade" id="actionplancomputeoptions" tabindex="-1" role="dialog" data-aria-labelledby="actionplancomputeoptions" data-aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+				<h4 class="modal-title">
+					<fmt:message key="label.title.norms" />
+				</h4>
+			</div>
+			<div class="modal-body">
+				<p>
+					<fmt:message key="label.title.options.select_norm" />
+				</p>
+				<p>
+					<fmt:message key="label.title.options.select_norm.info" />
+				</p>
+				<form action="${pageContext.request.contextPath}/ActionPlan/Compute" method="post" class="form-horizontal" id="actionplancomputationoptionsform">
+					<c:if test="${!empty(id)}">
+						<input name="id" value="${id}" type="hidden">
+					</c:if>
+					<table class="table text-center">
+						<c:choose>
+							<c:when test="${!empty(standards)}">
+								<thead>
+									<tr>
+										<c:forEach items="${standards}" var="analysisStandard">
+											<td><b><spring:message text="${analysisStandard.standard.label}" /></b></td>
+										</c:forEach>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<c:forEach items="${standards}" var="analysisStandard">
+											<td><input type="checkbox" name="standard_${analysisStandard.id}" value="1" /></td>
+										</c:forEach>
+									</tr>
+								</tbody>
+							</c:when>
+						</c:choose>
+					</table>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button id="computeActionPlanButton" type="button" class="btn btn-default" data-dismiss="modal" onclick="return calculateActionPlanWithOptions('actionplancomputationoptionsform')">
+					<fmt:message key="label.action.compute" />
+				</button>
+				<button id="cancelcomputeActionPlanButton" type="button" class="btn btn-default" data-dismiss="modal">
+					<fmt:message key="label.action.cancel" />
+				</button>
+			</div>
+		</div>
+	</div>
 </div>
-<p>
-	<spring:message code="label.title.options.select_norm" text="Select a standard to compute the action plan" />
-</p>
-<p>
-	<spring:message code="label.title.options.select_norm.info" text="(No options given means: all standards will be used to compute)" />
-</p>
-<form action="${pageContext.request.contextPath}/ActionPlan/Compute" method="post" class="form-horizontal" id="actionplancomputationoptionsform">
-	<c:if test="${!empty(id)}">
-		<input name="id" value="${id}" type="hidden">
-	</c:if>
-	<table class="table text-center">
-		<c:choose>
-			<c:when test="${!empty(standards)}">
-				<thead>
-					<tr>
-						<c:forEach items="${standards}" var="analysisStandard">
-							<td><b><spring:message text="${analysisStandard.standard.label}" /></b></td>
-						</c:forEach>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<c:forEach items="${standards}" var="analysisStandard">
-							<td><input type="checkbox" name="standard_${analysisStandard.id}" value="1" /></td>
-						</c:forEach>
-					</tr>
-				</tbody>
-			</c:when>
-		</c:choose>
-	</table>
-	<c:if test="${show_uncertainty}">
-		<h3>
-			<spring:message code="label.title.uncertainty" text="Uncertainty computation" />
-		</h3>
-		<table class="table">
-			<tbody>
-				<tr>
-					<td><p>
-							<spring:message code="label.title.options.uncertainty" text="Optimistic and pessimistic computation" />
-						</p></td>
-					<td><input type="checkbox" name="uncertainty" value="1" /></td>
-				</tr>
-			</tbody>
-		</table>
-	</c:if>
-</form>

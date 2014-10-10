@@ -83,21 +83,21 @@ public class WorkerCreateAnalysisProfile implements Worker {
 
 			Customer customer = daoCustomer.getProfile();
 			if (customer == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a customer profile before to create a analysis profile", null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a customer profile before to create a analysis profile",null, null));
 				return;
 			}
-			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load.norm", "Load standards", 1));
+			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load.norm", "Load standards",null, 1));
 			reloadStandard(daoStandard);
-			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load", "Load analysis", 2));
+			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load", "Load analysis",null, 2));
 			Analysis analysis = daoAnalysis.get(analysisProfile.getIdAnalysis());
 			Analysis copy = new Duplicator().createProfile(analysis, analysisProfile, serviceTaskFeedback, id);
 			copy.setCustomer(customer);
 			copy.setOwner(owner);
-			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.save", "Save analysis profile", 96));
+			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.save", "Save analysis profile",null, 96));
 			transaction = session.beginTransaction();
 			daoAnalysis.saveOrUpdate(copy);
 			transaction.commit();
-			serviceTaskFeedback.send(id, new MessageHandler("success.analysis.profile", "New analysis profile was successfully created", 100));
+			serviceTaskFeedback.send(id, new MessageHandler("success.analysis.profile", "New analysis profile was successfully created",null, 100));
 		}
 		catch (TrickException e) {
 			try {
@@ -113,7 +113,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 		catch (Exception e) {
 			try {
 				this.error = e;
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.profile", "Creating a profile analysis failed", e));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.profile", "Creating a profile analysis failed",null, e));
 				e.printStackTrace();
 				if (transaction != null)
 					transaction.rollback();

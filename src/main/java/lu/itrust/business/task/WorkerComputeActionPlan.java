@@ -123,6 +123,7 @@ public class WorkerComputeActionPlan implements Worker {
 	@Override
 	public void run() {
 		Session session = null;
+		
 		try {
 			synchronized (this) {
 				if (poolManager != null && !poolManager.exist(getId()))
@@ -137,10 +138,13 @@ public class WorkerComputeActionPlan implements Worker {
 
 			System.out.println("Loading Analysis...");
 
-			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", null));
+			String language = null;
+			language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha3().substring(0, 2);
+			
+			serviceTaskFeedback.send(id, new MessageHandler("info.load.analysis", "Analysis is loading", language, null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_found", "Analysis cannot be found",language, null));
 				return;
 			}
 			session.beginTransaction();
@@ -152,7 +156,7 @@ public class WorkerComputeActionPlan implements Worker {
 			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, this.standards, this.uncertainty);
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
-				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
+				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!",language, 100);
 				if (reloadSection)
 					messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_actionplans\")", null));
 				serviceTaskFeedback.send(id, messageHandler);
@@ -179,7 +183,11 @@ public class WorkerComputeActionPlan implements Worker {
 			}
 		} catch (Exception e) {
 			try {
-				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", e));
+				
+				String language = null;
+				language = this.daoAnalysis.getLanguageOfAnalysis(this.idAnalysis).getAlpha3().substring(0, 2);
+								
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed",language, e));
 				e.printStackTrace();
 				if (session != null && session.getTransaction().isInitiator())
 					session.getTransaction().rollback();
@@ -239,12 +247,14 @@ public class WorkerComputeActionPlan implements Worker {
 	 */
 	private void deleteActionPlan(Analysis analysis) throws Exception {
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan summary is deleting", null));
+		String lang = analysis.getLanguage().getAlpha3().substring(0, 2);
+		
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan summary is deleting",lang, null));
 
 		while (!analysis.getSummaries().isEmpty())
 			daoActionPlanSummary.delete(analysis.getSummaries().remove(analysis.getSummaries().size() - 1));
 
-		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan is deleting", null));
+		serviceTaskFeedback.send(id, new MessageHandler("info.analysis.delete.actionPlan", "Action Plan is deleting",lang, null));
 
 		while (!analysis.getActionPlans().isEmpty())
 			daoActionPlan.delete(analysis.getActionPlans().remove(analysis.getActionPlans().size() - 1));

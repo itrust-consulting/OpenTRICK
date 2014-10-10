@@ -9,7 +9,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="phaseNewModal-title">
-					<spring:message code="label.title.phase.add" text="Add new phase" />
+					<fmt:message key="label.title.phase.add" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -23,18 +23,17 @@
 						</c:otherwise>
 					</c:choose>
 					<div class="form-group">
-						<label for="date" class="col-sm-3 control-label"> <spring:message code="label.phase_period" text="Period of time" />
+						<label for="date" class="col-sm-3 control-label"> <fmt:message key="label.phase_period" />
 						</label>
 						<div class="col-sm-9">
-							<div id="datepicker_container" class="input-daterange">
-							</div>
+							<div id="datepicker_container" class="input-daterange"></div>
 						</div>
 					</div>
 				</form>
 			</div>
 			<div class="modal-footer">
 				<button id="addphasemodelbutton" type="button" class="btn btn-primary" onclick="savePhase('phase_form')">
-					<spring:message code="label.action.save" text="Save" />
+					<fmt:message key="label.action.save" />
 				</button>
 			</div>
 		</div>
@@ -44,9 +43,8 @@
 </div>
 <div id="datepicker_prototype" style="display: none;">
 	<input name="beginDate" type="text" class="form-control" style="width: auto; display: inline; background-color: white; cursor: inherit;"
-		value="${empty(phase)? '':phase.beginDate}" placeholder='<spring:message code="label.phase.date.pattern" text="YYYY-MM-DD"/>' readonly /> <span class="add-on"
-		style="height: 31px;">to</span> <input name="endDate" type="text" class="form-control"
-		style="width: auto; display: inline; background-color: white; cursor: inherit;" value="${empty(phase)? '':phase.beginDate}"
-		placeholder='<spring:message code="label.phase.date.pattern" text="YYYY-MM-DD"/>' readonly />
+		value="${empty(phase)? '':phase.beginDate}" placeholder='<fmt:message key="label.phase.date.pattern"/>' readonly /> <span class="add-on" style="height: 31px;">to</span> <input
+		name="endDate" type="text" class="form-control" style="width: auto; display: inline; background-color: white; cursor: inherit;" value="${empty(phase)? '':phase.beginDate}"
+		placeholder='<fmt:message key="label.phase.date.pattern"/>' readonly />
 </div>
 <!-- /.modal -->
