@@ -186,4 +186,11 @@ public class ServiceStandardImpl implements ServiceStandard {
 	public void delete(Standard standard) throws Exception {
 		daoStandard.delete(standard);
 	}
+	
+	@Transactional
+	@Override
+	public List<Standard> getAllNotBoundToAnalysis() throws Exception {
+		return daoStandard.getAllNotBoundToAnalysis();
+	}
+	
 }

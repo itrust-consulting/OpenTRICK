@@ -62,7 +62,10 @@ public class Standard implements Serializable, Cloneable {
 	/** Standard available for actionplan computation */
 	@Column(name="dtComputable", nullable=false, columnDefinition="TINYINT(1)")
 	private boolean computable = true;
-
+	
+	@Column(name="dtAnalysisOnly", nullable=false, columnDefinition="TINYINT(1)")
+	private boolean analysisOnly = false;
+	
 	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/
@@ -314,6 +317,25 @@ public class Standard implements Serializable, Cloneable {
 	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	/** isAnalysisOnly: <br>
+	 * Returns the analysisOnly field value.
+	 * 
+	 * @return The value of the analysisOnly field
+	 */
+	public boolean isAnalysisOnly() {
+		return analysisOnly;
+	}
+
+	/** setAnalysisOnly: <br>
+	 * Sets the Field "analysisOnly" with a value.
+	 * 
+	 * @param analysisOnly 
+	 * 			The Value to set the analysisOnly field
+	 */
+	public void setAnalysisOnly(boolean analysisOnly) {
+		this.analysisOnly = analysisOnly;
 	}
 
 }

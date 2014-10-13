@@ -15,7 +15,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.ALL)) {
 		$.ajax({
-			url : context + "/Analysis/" + analysisId + "/ManageAccess",
+			url : context + "/Analysis/ManageAccess/" + analysisId,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
@@ -45,7 +45,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 
 function updatemanageAnalysisAccess(analysisId, userrightsform) {
 	$.ajax({
-		url : context + "/Analysis/" + analysisId + "/ManageAccess/Update",
+		url : context + "/Analysis/ManageAccess/Update/" + analysisId,
 		type : "post",
 		data : serializeForm(userrightsform),
 		contentType : "application/json;charset=UTF-8",

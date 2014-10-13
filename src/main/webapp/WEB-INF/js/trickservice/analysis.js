@@ -254,7 +254,7 @@ function manageStandard() {
 	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.ALL)) {
 		$.ajax({
-			url : context + "/Analysis/Add/Standard",
+			url : context + "/Analysis/Standard/Manage",
 			type : "get",
 			async : false,
 			success : function(response) {
@@ -279,7 +279,7 @@ function manageStandard() {
 									return false;
 								enableButtonSaveStandardState(false);
 								$.ajax({
-									url : context + "/Analysis/Delete/Standard/" + $(selectedStandard).attr("trick-id"),
+									url : context + "/Analysis/Standard/Delete/" + $(selectedStandard).attr("trick-id"),
 									type : "get",
 									async : false,
 									contentType : "application/json;charset=UTF-8",
@@ -342,7 +342,7 @@ function saveStandard(form) {
 		enableButtonSaveStandardState(false);
 		var idStandard = $("#" + form + " select").val();
 		$.ajax({
-			url : context + "/Analysis/Save/Standard/" + idStandard,
+			url : context + "/Analysis/Standard/Save" + idStandard,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {

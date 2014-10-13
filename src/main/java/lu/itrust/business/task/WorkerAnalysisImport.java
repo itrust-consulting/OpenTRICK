@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.task;
 
 import java.io.File;

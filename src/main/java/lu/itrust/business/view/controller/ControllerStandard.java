@@ -135,7 +135,7 @@ public class ControllerStandard {
 
 		// load all standards to model
 
-		model.addAttribute("standards", serviceStandard.getAll());
+		model.addAttribute("standards", serviceStandard.getAllNotBoundToAnalysis());
 		return "knowledgebase/standards/standard/standards";
 	}
 
@@ -214,9 +214,14 @@ public class ControllerStandard {
 					serviceStandard.save(standard);
 				else
 					errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null, "Version already exists", locale));
-			} else
-				// update
-				serviceStandard.saveOrUpdate(standard);
+			} else {
+
+				Standard tmpStandard = serviceStandard.get(standard.getId());
+
+				if (!tmpStandard.isAnalysisOnly())
+					serviceStandard.saveOrUpdate(standard);
+			}
+
 			// errors
 		} catch (Exception e) {
 			// return errors
@@ -282,8 +287,7 @@ public class ControllerStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Import", headers = "Accept=application/json;charset=UTF-8")
-	public String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale)
-			throws Exception {
+	public String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal, HttpServletRequest request, RedirectAttributes attributes, Locale locale) throws Exception {
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
 		file.transferTo(importFile);
 		Worker worker = new WorkerImportStandard(serviceTaskFeedback, sessionFactory, workersPoolManager, importFile);
@@ -641,7 +645,7 @@ public class ControllerStandard {
 			String label = jsonNode.get("label").asText();
 
 			String description = jsonNode.get("description").asText();
-			
+
 			StandardType type = StandardType.getByName(jsonNode.get("type").asText());
 
 			Integer version = null;
@@ -679,14 +683,16 @@ public class ControllerStandard {
 				standard.setDescription(description);
 
 			error = validator.validate(standard, "type", type);
-			
+
 			if (error != null)
 				errors.put("type", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
 				standard.setType(type);
-			
+
 			// set computable flag
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
+
+			standard.setAnalysisOnly(false);
 
 			// return success
 			return errors.isEmpty();

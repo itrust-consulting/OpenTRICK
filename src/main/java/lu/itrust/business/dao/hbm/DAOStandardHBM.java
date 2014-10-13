@@ -53,7 +53,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * getStandardByName: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.dao.DAOStandard#getStandardByName(java.lang.String)
 	 */
@@ -66,7 +66,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * getStandardNotCustomByName: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.dao.DAOStandard#getStandardNotCustomByName(java.lang.String)
 	 */
@@ -80,9 +80,10 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * getStandardByNameAndVersion: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
-	 * @see lu.itrust.business.dao.DAOStandard#getStandardByNameAndVersion(java.lang.String, java.lang.Integer)
+	 * @see lu.itrust.business.dao.DAOStandard#getStandardByNameAndVersion(java.lang.String,
+	 *      java.lang.Integer)
 	 */
 	@Override
 	public Standard getStandardByNameAndVersion(String label, Integer version) throws Exception {
@@ -105,7 +106,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * getAll: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.dao.DAOStandard#getAll()
 	 */
@@ -124,8 +125,8 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllFromAnalysis(Integer analysisId) throws Exception {
-		return getSession().createQuery("Select analysisStandard.standard From AnalysisStandard as analysisStandard where analysisStandard.analysis.id = :analysisId").setParameter("analysisId", analysisId)
-				.list();
+		return getSession().createQuery("Select analysisStandard.standard From AnalysisStandard as analysisStandard where analysisStandard.analysis.id = :analysisId").setParameter("analysisId",
+				analysisId).list();
 	}
 
 	/**
@@ -146,14 +147,15 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * getAllNotInAnalysis: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.dao.DAOStandard#getAllNotInAnalysis(java.lang.Integer)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllNotInAnalysis(Integer idAnalysis) throws Exception {
-		String query = "Select standard From Standard as standard where standard.label NOT IN (Select analysisStandard.standard.label From AnalysisStandard as analysisStandard where analysisStandard.analysis.id = :analysisId)";
+		String query =
+			"Select standard From Standard as standard where standard.label NOT IN (Select analysisStandard.standard.label From AnalysisStandard as analysisStandard where analysisStandard.analysis.id = :analysisId)";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
 	}
 
@@ -161,7 +163,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * save: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.dao.DAOStandard#save(lu.itrust.business.TS.Standard)
 	 */
@@ -174,7 +176,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * saveOrUpdate: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.dao.DAOStandard#saveOrUpdate(lu.itrust.business.TS.Standard)
 	 */
@@ -187,7 +189,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * delete: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.dao.DAOStandard#delete(lu.itrust.business.TS.Standard)
 	 */
@@ -195,4 +197,19 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	public void delete(Standard standard) throws Exception {
 		getSession().delete(standard);
 	}
+
+	/**
+	 * getAllNotBoundToAnalysis: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.dao.DAOStandard#getAllNotBoundToAnalysis()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Standard> getAllNotBoundToAnalysis() throws Exception {
+		return (List<Standard>) getSession().createQuery("From Standard where analysisOnly!=true").list();
+	}
+
 }
