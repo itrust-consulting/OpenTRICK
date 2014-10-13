@@ -80,10 +80,23 @@
 			</div>
 		</div>
 		<div class="form-group">
-			<label for="label" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
+			<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
 			</label>
 			<div class="col-sm-10">
-				<textarea name="label" id="analysis_label" class="form-control resize_vectical_only">${analysis.label}</textarea>
+				<textarea name="comment" class="form-control resize_vectical_only" rows="5" required="required"><spring:message text="${analysis.label}"/></textarea>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="uncertainty" class="col-sm-2 control-label"> <spring:message code="label.analysis.uncertainty" text="Uncertainty" />
+			</label>
+			<div class="col-sm-10">
+				<input type="checkbox" name="uncertainty" class="form-control" ${analysis.uncertainty?"checked='checked'":''}>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="cssf" class="col-sm-2 control-label"> <spring:message code="label.analysis.cssf" text="CSSF" /></label>
+			<div class="col-sm-10">
+				<input type="checkbox" name="cssf" class="form-control" ${analysis.cssf?"checked='checked'":''}>
 			</div>
 		</div>
 	</div>

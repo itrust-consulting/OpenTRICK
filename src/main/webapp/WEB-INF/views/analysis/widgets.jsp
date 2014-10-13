@@ -5,8 +5,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="widget">
-	<jsp:include page="forms/addOrEditAnalysis.jsp" />
-	<jsp:include page="forms/deleteAnalysis.jsp" />
+	<jsp:include page="forms/analysis.jsp" />
 	<jsp:include page="forms/newVersion.jsp" />
 	<jsp:include page="forms/manageUserAnalysisRights.jsp" />
 </div>

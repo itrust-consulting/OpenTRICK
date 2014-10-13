@@ -33,20 +33,20 @@
   </filter>
   
   <filter>
-        <filter-name>encoding-filter</filter-name>
-        <filter-class>
-            org.springframework.web.filter.CharacterEncodingFilter
-        </filter-class>
-        <async-supported>true</async-supported>
-        <init-param>
-            <param-name>encoding</param-name>
-            <param-value>UTF-8</param-value>
-        </init-param>
-    </filter>
+  	<filter-name>encoding-filter</filter-name>
+    <filter-class>
+        org.springframework.web.filter.CharacterEncodingFilter
+    </filter-class>
+    <async-supported>true</async-supported>
+    <init-param>
+        <param-name>encoding</param-name>
+        <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
     
-    <session-config>
-	  <session-timeout>15</session-timeout>
-	</session-config>
+  <session-config>
+	<session-timeout>15</session-timeout>
+  </session-config>
 
  <filter-mapping>
      <filter-name>encoding-filter</filter-name>
@@ -56,6 +56,8 @@
   <filter-mapping>
     <filter-name>springSecurityFilterChain</filter-name>
     <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>ERROR</dispatcher>
   </filter-mapping>
    <error-page>
     <error-code>400</error-code>

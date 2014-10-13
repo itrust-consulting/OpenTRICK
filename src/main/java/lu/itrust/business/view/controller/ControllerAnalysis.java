@@ -62,7 +62,6 @@ import lu.itrust.business.service.ServiceActionPlanSummary;
 import lu.itrust.business.service.ServiceActionPlanType;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAnalysisStandard;
-import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceAssetType;
@@ -191,9 +190,6 @@ public class ControllerAnalysis {
 	private ServiceMeasureDescription serviceMeasureDescription;
 
 	@Autowired
-	private ServiceAppSettingEntry serviceAppSettingEntry;
-
-	@Autowired
 	private ServiceRiskInformation serviceRiskInformation;
 
 	@Autowired
@@ -226,11 +222,11 @@ public class ControllerAnalysis {
 	@Autowired
 	private ServiceAssessment serviceAssessment;
 
-	@Value("${app.settings.report.template.name}")
-	private String reportName;
+	@Value("${app.settings.report.french.template.name}")
+	private String frenchReportName;
 
-	@Value("${app.settings.report.template.version}")
-	private String reportVersion;
+	@Value("${app.settings.report.english.template.name}")
+	private String englishReportName;
 
 	// ******************************************************************************************************************
 	// * Request mappers
@@ -585,7 +581,7 @@ public class ControllerAnalysis {
 	 * @param session
 	 * @param locale
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
@@ -595,20 +591,20 @@ public class ControllerAnalysis {
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
-			
+
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-			
+
 			if (analysis == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", customLocale!=null?customLocale:locale));
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", customLocale != null ? customLocale : locale));
 			assessmentManager.UpdateAssetALE(analysis);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", customLocale!=null?customLocale:locale));
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null, "ALE was successfully updated", customLocale != null ? customLocale : locale));
 		} catch (TrickException e) {
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale!=null?customLocale:locale));
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", customLocale!=null?customLocale:locale));
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", customLocale != null ? customLocale : locale));
 		}
 	}
 
@@ -685,34 +681,6 @@ public class ControllerAnalysis {
 	// *****************************************************************
 	// * request create new analysis
 	// *****************************************************************
-
-	/**
-	 * requestnewAnalysis: <br>
-	 * Description
-	 * 
-	 * @param principal
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/New")
-	public String requestnewAnalysis(Principal principal, Map<String, Object> model) throws Exception {
-
-		// add languages
-		model.put("languages", serviceLanguage.getAll());
-
-		// add only customers of the current user
-		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
-
-		model.put("profiles", serviceAnalysis.getAllProfiles());
-		// set author as the username
-
-		User user = serviceUser.get(principal.getName());
-
-		model.put("author", user.getFirstName() + " " + user.getLastName());
-
-		return "analysis/forms/newAnalysis";
-	}
 
 	@RequestMapping(value = "/Build", method = RequestMethod.GET)
 	public String buildCustom(HttpSession session, Principal principal, Model model, Locale locale) throws Exception {
@@ -810,6 +778,8 @@ public class ControllerAnalysis {
 			analysis.setLabel(history.getComment());
 			analysis.setCreationDate((Timestamp) history.getDate());
 			analysis.setVersion(customAnalysisForm.getVersion());
+			analysis.setUncertainty(customAnalysisForm.isUncertainty());
+			analysis.setCssf(customAnalysisForm.isCssf());
 			analysis.setOwner(serviceUser.get(principal.getName()));
 			analysis.addUserRight(analysis.getOwner(), AnalysisRight.ALL);
 			String baseAnalysis = "";
@@ -1300,7 +1270,7 @@ public class ControllerAnalysis {
 
 		// add the customers of the user to the data model
 		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
-		return "analysis/forms/importAnalysis";
+		return "analysis/importAnalysis";
 	}
 
 	/**
@@ -1326,7 +1296,7 @@ public class ControllerAnalysis {
 		// if the customer or the file are not correct
 		if (customer == null || file.isEmpty()) {
 			attributes.addFlashAttribute("errors", messageSource.getMessage("error.customer_or_file.import.analysis", null, "Customer or file are not set or empty!", locale));
-			return "analysis/forms/importAnalysis";
+			return "analysis/importAnalysis";
 		}
 
 		// set selected customer, the selected customer of the analysis
@@ -1451,9 +1421,20 @@ public class ControllerAnalysis {
 
 			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
 
-			exportAnalysisReport.setReportName(reportName);
-
-			exportAnalysisReport.setReportVersion(reportVersion);
+			switch (serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().toLowerCase()) {
+				case "fra":
+					locale = Locale.FRENCH;
+					exportAnalysisReport.setReportName(frenchReportName);
+					break;
+				case "eng":
+					locale = Locale.ENGLISH;
+					exportAnalysisReport.setReportName(englishReportName);
+					break;
+				default: {
+					locale = Locale.ENGLISH;
+					exportAnalysisReport.setReportName(englishReportName);
+				}
+			}
 
 			exportAnalysisReport.setMessageSource(messageSource);
 
@@ -1499,99 +1480,50 @@ public class ControllerAnalysis {
 			Analysis analysis = null;
 			int id = jsonNode.get("id").asInt();
 
-			analysis = serviceAnalysis.get(id);
+			if (id > 0)
+				analysis = serviceAnalysis.get(id);
+
+			if (analysis == null) {
+				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+				return false;
+			}
 
 			int idLanguage = jsonNode.has("analysislanguage") ? jsonNode.get("analysislanguage").asInt() : -1;
-			String comment = jsonNode.has("label") ? jsonNode.get("label").asText() : "";
+			Language language = serviceLanguage.get(idLanguage);
+
+			String comment = jsonNode.has("comment") ? jsonNode.get("comment").asText() : "";
+
 			int idCustomer = jsonNode.has("analysiscustomer") ? jsonNode.get("analysiscustomer").asInt() : -1;
+			Customer customer = serviceCustomer.get(idCustomer);
 
-			if (analysis != null) {
-				Language lang = serviceLanguage.get(idLanguage);
-				if (analysis.isProfile()) {
+			boolean uncertainty = jsonNode.has("uncertainty") ? !jsonNode.get("uncertainty").asText().isEmpty() : false;
 
-					analysis.setLanguage(lang);
-					analysis.setLabel(comment);
-				} else {
+			boolean cssf = jsonNode.has("cssf") ? !jsonNode.get("cssf").asText().isEmpty() : false;
 
-					analysis = serviceAnalysis.get(id);
+			if (idCustomer < 1)
+				errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
+			else if (customer == null || !customer.isCanBeUsed())
+				errors.put("analysiscustomer", messageSource.getMessage("error.customer.not_valid", null, "Customer is not valid", locale));
+			if (idLanguage < 1)
+				errors.put("analysislanguage", messageSource.getMessage("error.language.null", null, "Language cannot be empty", locale));
+			else if (language == null)
+				errors.put("analysislanguage", messageSource.getMessage("error.language.not_valid", null, "Language is not valid", locale));
+			if (comment.trim().isEmpty())
+				errors.put("comment", messageSource.getMessage("error.comment.null", null, "Comment cannot be empty", locale));
 
-					if (analysis == null) {
-						errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-						return false;
-					}
+			if (!errors.isEmpty())
+				return false;
 
-					analysis.setLabel(comment);
-
-					Customer customer = serviceCustomer.get(idCustomer);
-					analysis.setCustomer(customer);
-
-					analysis.setLanguage(lang);
-
-				}
-				serviceAnalysis.saveOrUpdate(analysis);
-			} else {
-				int idProfile = jsonNode.has("profile") ? jsonNode.get("profile").asInt() : -1;
-				String author = jsonNode.has("author") ? jsonNode.get("author").asText() : "";
-				String version = jsonNode.has("version") ? jsonNode.get("version").asText() : "";
-				if (idCustomer < 1)
-					errors.put("analysiscustomer", messageSource.getMessage("error.customer.null", null, "Customer cannot be empty", locale));
-				if (idLanguage < 1)
-					errors.put("analysislanguage", messageSource.getMessage("error.language.null", null, "Language cannot be empty", locale));
-				if (comment.trim().isEmpty())
-					errors.put("comment", messageSource.getMessage("error.comment.null", null, "Comment cannot be empty", locale));
-				if (author.trim().isEmpty() && id < 1)
-					errors.put("author", messageSource.getMessage("error.author.null", null, "Author cannot be empty", locale));
-
-				if (version.trim().isEmpty())
-					errors.put("version", messageSource.getMessage("error.version.null", null, "Version cannot be empty", locale));
-				else if (!version.matches(Constant.REGEXP_VALID_ANALYSIS_VERSION))
-					errors.put("version", messageSource.getMessage("error.version.invalid", null, "Invalid version format, Please respect this format (0.0.1)", locale));
-
-				if (!errors.isEmpty())
-					return false;
-
-				Customer customer = serviceCustomer.get(idCustomer);
-				Language language = serviceLanguage.get(idLanguage);
-				String label = jsonNode.get("label").asText();
-				Date date = new Date();
-				Timestamp creationDate = new Timestamp(date.getTime());
-				String ts = new SimpleDateFormat("YYYY-MM-dd hh:mm:ss").format(creationDate);
-				String identifier = language.getAlpha3() + "_" + ts;
-
-				analysis = null;
-
-				Analysis profile = null;
-
-				// create from profile
-				profile = serviceAnalysis.get(idProfile);
-				if (profile == null)
-					profile = serviceAnalysis.getDefaultProfile();
-
-				analysis = new Duplicator().duplicateAnalysis(profile, null);
-				analysis.setProfile(false);
-				analysis.setDefaultProfile(false);
-				if (analysis.getAnalysisStandards().size() > 0)
-					analysis.setData(true);
-
-				analysis.getHistories().clear();
-				analysis.setBasedOnAnalysis(null);
-				analysis.setCreationDate(creationDate);
+			if (!analysis.isProfile())
 				analysis.setCustomer(customer);
 
-				analysis.setIdentifier(identifier.toUpperCase());
-				analysis.setLabel(label);
-				analysis.setLanguage(language);
-				analysis.setOwner(owner);
-				analysis.setVersion(version);
-				History history = new History(version, date, author, comment);
-				analysis.addAHistory(history);
-				UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
-				analysis.addUserRight(uar);
-				serviceAnalysis.save(analysis);
+			analysis.setLabel(comment);
+			analysis.setLanguage(language);
+			analysis.setUncertainty(uncertainty);
+			analysis.setCssf(cssf);
 
-				if (session != null)
-					session.setAttribute("currentCustomer", customer.getOrganisation());
-			}
+			serviceAnalysis.saveOrUpdate(analysis);
+
 			return true;
 		} catch (Exception e) {
 			errors.put("analysis", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));

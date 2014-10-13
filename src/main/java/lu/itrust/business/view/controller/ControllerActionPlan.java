@@ -20,7 +20,6 @@ import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceActionPlan;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAnalysisStandard;
-import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
@@ -89,9 +88,6 @@ public class ControllerActionPlan {
 
 	@Autowired
 	private ServiceTaskFeedback serviceTaskFeedback;
-
-	@Autowired
-	private ServiceAppSettingEntry serviceAppSettingEntry;
 
 	/**
 	 * showActionPlan: <br>

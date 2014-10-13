@@ -22,7 +22,6 @@
 						</div>
 					</li>
 				</ul>
-				
 				<form action="#" class="form-horizontal tab-content" id="tabs" style="height: 420">
 					<div id="group_1" class="tab-pane active" style="padding-top: 10px;">
 						<div class="form-group">
@@ -49,7 +48,6 @@
 								</select>
 							</div>
 						</div>
-
 						<div class="form-group">
 							<label for="profile" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile_analysis" text="Profile" />
 							</label>
@@ -62,7 +60,6 @@
 								</select>
 							</div>
 						</div>
-
 						<div class="form-group">
 							<label for="author" class="col-sm-2 control-label"> <spring:message code="label.analysis.author" text="Author" />
 							</label>
@@ -77,41 +74,48 @@
 								<input name="version" class="form-control" type="text" value="0.0.1" required="required" />
 							</div>
 						</div>
-
 						<div class="form-group">
-							<label for="label" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
+							<label for="comment" class="col-sm-2 control-label"> <spring:message code="label.analysis.description" text="Description" />
 							</label>
 							<div class="col-sm-10">
-								<textarea name="comment" class="form-control resize_vectical_only" rows="11" required="required"></textarea>
+								<textarea name="comment" class="form-control resize_vectical_only" rows="5" required="required"></textarea>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="uncertainty" class="col-sm-2 control-label"> <spring:message code="label.analysis.uncertainty" text="Uncertainty" />
+							</label>
+							<div class="col-sm-10">
+								<input type="checkbox" name="uncertainty" class="form-control">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="cssf" class="col-sm-2 control-label"> <spring:message code="label.analysis.cssf" text="CSSF" />
+							</label>
+							<div class="col-sm-10">
+								<input type="checkbox" name="cssf" class="form-control">
 							</div>
 						</div>
 					</div>
-
 					<div id="group_2" class="tab-pane" style="padding-top: 10px;">
 						<div class="col-sm-4">
-
 							<h4>
 								<spring:message code="label.analysis.customers" text="Customers" />
 							</h4>
-
 							<select class="form-control" id="selector-customer">
 								<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
 									<c:forEach items="${customers}" var="customer">
 										<option value="${customer.id}"><spring:message text="${customer.organisation}" /></option>
 									</c:forEach>
 							</select>
-
 							<h4>
 								<spring:message code="label.analyses" text="Analyses" />
 							</h4>
-
 							<select class="form-control" id="selector-analysis">
 								<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." />
 							</select>
 							<h4>
 								<spring:message code="label.analysis.versions" text="Versions" />
 							</h4>
-
 							<ul class="list-group" style="max-height: 239px; overflow: auto;" id="analysis-versions">
 							</ul>
 						</div>
@@ -126,7 +130,6 @@
 									<input name="scope" value="-1" hidden="true">
 								</div>
 							</div>
-
 							<div class="form-group">
 								<label for="riskInformation" class="col-sm-3 control-label"> <spring:message code="label.analysis.risk_information" text="Risk information" />
 								</label>
@@ -137,7 +140,6 @@
 									<input name="riskInformation" value="-1" hidden="true">
 								</div>
 							</div>
-
 							<div class="form-group">
 								<label for="parameters" class="col-sm-3 control-label"> <spring:message code="label.analysis.parameters" text="Parameters" />
 								</label>
@@ -158,7 +160,6 @@
 									<input name="asset" value="-1" hidden="true">
 								</div>
 							</div>
-
 							<div class="form-group">
 								<label for="scenarios" class="col-sm-3 control-label"> <spring:message code="label.analysis.scenarios" text="Scenarios" />
 								</label>
@@ -176,7 +177,6 @@
 									<input type="checkbox" class="form-control" name="assessment" disabled="disabled" />
 								</div>
 							</div>
-
 							<div class="form-group">
 								<label for="assessment" class="col-sm-3 control-label"> <spring:message code="label.analysis.standards" text="Standards" /></label>
 								<div class="col-sm-9" id="analysis-build-standards" name="standard" dropzone="true">
@@ -186,7 +186,6 @@
 									<input name="standard" value="-1" hidden="true">
 								</div>
 							</div>
-
 							<div class="form-group">
 								<label for="assessment" class="col-sm-3 control-label"> <spring:message code="label.analysis.phases" text="Phase" />
 								</label>

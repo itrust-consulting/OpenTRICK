@@ -1,7 +1,7 @@
 function TimeoutInterceptor() {
 	this.lastUpdate = null;
 	this.LIMIT_SESSION = 15.01 * 60 * 1000;
-	this.ALERT_TIME = 3 * 60 * 1000;
+	this.ALERT_TIME = 1 * 60 * 1000;
 	this.stopState = true;
 	this.timer = {};
 	this.loginShow = false;
@@ -40,17 +40,22 @@ TimeoutInterceptor.prototype = {
 		return (new Date().getTime() - this.lastUpdate.getTime());
 	},
 	ShowLogin : function() {
-		this.Stop();
+		//this.Stop();
 		var url = undefined;
 		if ($("#nav-container").length) {
 			var idAnalysis = $("#nav-container").attr("trick-id");
 			if (idAnalysis != undefined)
-				url = context + "/Analysis/" + idAnalysis + "/SelectOnly";
+				url = context + "/Analysis/" + idAnalysis + "/Select";
 		}
 		if (url == undefined)
 			url = document.URL;
-		this.loginShow = true;
-		new Login(url, this).Display();
+		// this.loginShow = true;
+		// new Login(url, this).Display();*/
+
+		setTimeout(function() {
+			location.href = url;
+		}, 3000);
+
 		return false;
 	},
 	AlertTimout : function() {
@@ -88,17 +93,16 @@ TimeoutInterceptor.prototype = {
 			return false;
 		if (this.alertDialog.isHidden) {
 			this.alertDialog.Show();
-			if ((this.LIMIT_SESSION - this.CurrentTime()) > 10000) {
-				setTimeout(function() {
-					that.alertDialog.Hide();
-				}, 5000);
-			}
+			/*
+			 * if ((this.LIMIT_SESSION - this.CurrentTime()) > 10000) {
+			 * setTimeout(function() { that.alertDialog.Hide(); }, 5000); }
+			 */
 		}
 		return false;
 	},
 	Initialise : function() {
 		this.messages.Alert = MessageResolver("info.session.expired", "Your session will be expired in %d secondes");
-		this.messages.Logout = MessageResolver("info.session.expired.alert", "Your session has been expired");
+		this.messages.Logout = MessageResolver("info.session.expired.alert", "Your session has been expired, redirecting to Login ...");
 		this.TIME_TO_DISPLAY_ALERT = this.LIMIT_SESSION - this.ALERT_TIME;
 
 	},
@@ -124,12 +128,12 @@ TimeoutInterceptor.prototype = {
 		var that = this;
 		var daily = this.LIMIT_SESSION - this.CurrentTime();
 		var interval = 50000;
-		if (daily < 10000)
+		/*if (daily < 10000)
 			interval = 5000;
-		else if (daily < 30000)
+		else if (daily < 30000)*/
 			interval = 10000;
-		else if (daily < 60000)
-			interval = 30000;
+	/*	else if (daily < 60000)
+			interval = 30000;*/
 		this.timer = setTimeout(function() {
 			that.Check();
 		}, interval);

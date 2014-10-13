@@ -40,6 +40,10 @@ public class CustomAnalysisForm {
 	private int standard;
 
 	private String version;
+	
+	private boolean uncertainty;
+	
+	private boolean cssf;
 
 	/**
 	 * 
@@ -183,6 +187,44 @@ public class CustomAnalysisForm {
 
 	public void setProfile(int profile) {
 		this.profile = profile;
+	}
+
+	/** isUncertainty: <br>
+	 * Returns the uncertainty field value.
+	 * 
+	 * @return The value of the uncertainty field
+	 */
+	public boolean isUncertainty() {
+		return uncertainty;
+	}
+
+	/** setUncertainty: <br>
+	 * Sets the Field "uncertainty" with a value.
+	 * 
+	 * @param uncertainty 
+	 * 			The Value to set the uncertainty field
+	 */
+	public void setUncertainty(boolean uncertainty) {
+		this.uncertainty = uncertainty;
+	}
+
+	/** isCssf: <br>
+	 * Returns the cssf field value.
+	 * 
+	 * @return The value of the cssf field
+	 */
+	public boolean isCssf() {
+		return cssf;
+	}
+
+	/** setCssf: <br>
+	 * Sets the Field "cssf" with a value.
+	 * 
+	 * @param cssf 
+	 * 			The Value to set the cssf field
+	 */
+	public void setCssf(boolean cssf) {
+		this.cssf = cssf;
 	}
 
 }

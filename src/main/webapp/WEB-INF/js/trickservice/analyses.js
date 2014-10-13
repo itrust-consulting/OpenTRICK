@@ -94,17 +94,17 @@ function disableifprofile(section, menu) {
 }
 
 function saveAnalysis(form, reloadaction) {
-	$("#addAnalysisModel .progress").show();
-	$("#addAnalysisModel #addAnalysisButton").prop("disabled", true);
+	$("#editAnalysisModel .progress").show();
+	$("#editAnalysisModel #editAnalysisButton").prop("disabled", true);
 	$.ajax({
 		url : context + "/Analysis/Save",
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			$("#addAnalysisModel .progress").hide();
-			$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
-			var alert = $("#addAnalysisModel .label-danger");
+			$("#editAnalysisModel .progress").hide();
+			$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
+			var alert = $("#editAnalysisModel .label-danger");
 			if (alert.length)
 				alert.remove();
 			for ( var error in response) {
@@ -138,12 +138,12 @@ function saveAnalysis(form, reloadaction) {
 					break;
 
 				case "analysis":
-					$(errorElement).appendTo($("#addAnalysisModel .modal-body"));
+					$(errorElement).appendTo($("#editAnalysisModel .modal-body"));
 					break;
 				}
 			}
-			if (!$("#addAnalysisModel .label-danger").length) {
-				$("#addAnalysisModel").modal("hide");
+			if (!$("#editAnalysisModel .label-danger").length) {
+				$("#editAnalysisModel").modal("hide");
 				reloadSection("section_analysis");
 			}
 			return false;
@@ -479,33 +479,6 @@ function customAnalysis(element) {
 	return false;
 }
 
-function newAnalysis(element) {
-	if ($(element).parent().hasClass("disabled"))
-		return false;
-	$("#addAnalysisModel .progress").hide();
-	$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
-	$.ajax({
-		url : context + "/Analysis/New",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
-			var doc = new DOMParser().parseFromString(response, "text/html");
-			if ((form = doc.getElementById("form_add_analysis")) == null) {
-				$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.data.loading", "An unknown error occurred during data loading"));
-				$("#alert-dialog").modal("toggle");
-			} else {
-				$("#analysis_form").html($(form).html());
-				$("#addAnalysisModel-title").text(MessageResolver("title.Administration.Analysis.Add", "Create a new Analysis"));
-				$("#addAnalysisButton").text(MessageResolver("label.action.create", "Create"));
-				$("#analysis_form").prop("action", "/Save");
-				$("#addAnalysisModel").modal('toggle');
-			}
-		},
-		error : unknowError
-	});
-	return false;
-}
-
 /* History */
 function addHistory(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
@@ -538,8 +511,8 @@ function editSingleAnalysis(analysisId) {
 	}
 
 	if (userCan(analysisId, ANALYSIS_RIGHT.MODIFY)) {
-		$("#addAnalysisModel .progress").hide();
-		$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
+		$("#editAnalysisModel .progress").hide();
+		$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
 		$.ajax({
 			url : context + "/Analysis/Edit/" + analysisId,
 			type : "get",
@@ -551,10 +524,10 @@ function editSingleAnalysis(analysisId) {
 					$("#alert-dialog").modal("toggle");
 				} else {
 					$("#analysis_form").html($(form).html());
-					$("#addAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
-					$("#addAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
+					$("#editAnalysisModel-title").text(MessageResolver("title.analysis.Update", "Update an Analysis"));
+					$("#editAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
 					$("#analysis_form").prop("action", "/Save");
-					$("#addAnalysisModel").modal('toggle');
+					$("#editAnalysisModel").modal('toggle');
 				}
 			},
 			error : unknowError

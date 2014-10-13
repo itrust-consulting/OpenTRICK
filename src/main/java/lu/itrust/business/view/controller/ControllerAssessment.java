@@ -21,7 +21,6 @@ import lu.itrust.business.component.helper.ALE;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
-import lu.itrust.business.service.ServiceAppSettingEntry;
 import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceParameter;
@@ -66,9 +65,6 @@ public class ControllerAssessment {
 
 	@Autowired
 	private MessageSource messageSource;
-
-	@Autowired
-	private ServiceAppSettingEntry serviceAppSettingEntry;
 
 	/**
 	 * updateAssessment: <br>
@@ -273,7 +269,7 @@ public class ControllerAssessment {
 			if (asset == null)
 				return null;
 
-			model.addAttribute("show_uncertainty", serviceAnalysis.getAnalysisSettingsFromAnalysisAndUserByKey(idAnalysis, principal.getName(), Constant.SETTING_SHOW_UNCERTAINTY).getValue());
+			model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(idAnalysis));
 
 			// retrieve extended paramters of analysis
 			List<ExtendedParameter> parameters = serviceParameter.getAllExtendedFromAnalysis(idAnalysis);

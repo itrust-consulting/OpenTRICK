@@ -97,8 +97,6 @@ public class ExportAnalysisReport {
 
 	private String reportName;
 
-	private String reportVersion;
-
 	private DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 
 	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
@@ -131,10 +129,14 @@ public class ExportAnalysisReport {
 
 			Analysis analysis = serviceAnalysis.get(analysisId);
 
-			if (analysis.getLanguage() == null || !analysis.getLanguage().getAlpha3().equalsIgnoreCase("fra"))
-				locale = Locale.ENGLISH;
-			else
-				locale = Locale.FRENCH;
+			switch (analysis.getLanguage().getAlpha3().toLowerCase()) {
+				case "fra":
+					locale = Locale.FRENCH;
+					break;
+				case "eng":
+				default:
+					locale = Locale.ENGLISH;
+			}
 
 			this.analysis = analysis;
 
@@ -150,15 +152,13 @@ public class ExportAnalysisReport {
 				doctemp.createNewFile();
 
 			if (template) {
-				File doctemplate = new File(this.getContext().getRealPath(String.format("/WEB-INF/data/%s-%s_V%s.dotm", reportName, locale == Locale.FRENCH ? "FR" : "EN", reportVersion)));
+				File doctemplate = new File(this.getContext().getRealPath(String.format("/WEB-INF/data/%s.dotm", reportName)));
 				OPCPackage pkg = OPCPackage.open(doctemplate.getAbsoluteFile());
 				pkg.replaceContentType("application/vnd.ms-word.template.macroEnabledTemplate.main+xml", "application/vnd.ms-word.document.macroEnabled.main+xml");
 				pkg.save(doctemp);
 				document = new XWPFDocument(inputStream = new FileInputStream(doctemp));
 			} else {
-				XWPFDocument templateDocx =
-					new XWPFDocument(inputStream =
-						new FileInputStream(new File(this.getContext().getRealPath(String.format("/WEB-INF/data/%s-%s_V%s.dotm", reportName, locale == Locale.FRENCH ? "FR" : "EN", reportVersion)))));
+				XWPFDocument templateDocx = new XWPFDocument(inputStream = new FileInputStream(new File(this.getContext().getRealPath(String.format("/WEB-INF/data/%s.dotm", reportName)))));
 				document = new XWPFDocument();
 				XWPFStyles xwpfStyles = document.createStyles();
 				xwpfStyles.setStyles(templateDocx.getStyle());
@@ -266,14 +266,14 @@ public class ExportAnalysisReport {
 		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale));
 		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale));
 		rowIndex = 1;
-		
+
 		int size = 0;
-		
-		if(dataCompliance27001s != null)
+
+		if (dataCompliance27001s != null)
 			size = dataCompliance27001s.size();
-		else if(dataCompliance27002s != null)
+		else if (dataCompliance27002s != null)
 			size = dataCompliance27002s.size();
-		
+
 		for (int i = 0; i < size; i++) {
 			for (int j = 1; j < 7; j++) {
 				if (xssfSheet.getRow(rowIndex) == null)
@@ -281,8 +281,8 @@ public class ExportAnalysisReport {
 				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
 					xssfSheet.getRow(rowIndex).createCell(j);
 			}
-			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble((dataCompliance27001s == null ? "0" : dataCompliance27001s.get(i)))*0.01);
-			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble((dataCompliance27002s == null ? "0" : dataCompliance27002s.get(i)))*0.01);
+			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble((dataCompliance27001s == null ? "0" : dataCompliance27001s.get(i))) * 0.01);
+			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble((dataCompliance27002s == null ? "0" : dataCompliance27002s.get(i))) * 0.01);
 			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataALEs.get(i)));
 			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataRiskReductions.get(i)));
 			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataROSIs.get(i)));
@@ -292,10 +292,10 @@ public class ExportAnalysisReport {
 	}
 
 	private void generateBudgetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		
-		if(analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
+
+		if (analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
 			return;
-		
+
 		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(analysis.getSummaries(), analysis.getUsedPhases());
 		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getUsedPhases(), ActionPlanSummaryManager.extractPhaseRow(analysis.getSummaries()));
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
@@ -529,8 +529,8 @@ public class ExportAnalysisReport {
 		}
 
 		Map<Integer, Boolean> actionPlanMeasures = analysis.findIdMeasuresImplementedByActionPlanType(ActionPlanMode.APPN);
-		
-		if(!actionPlanMeasures.isEmpty()) {
+
+		if (!actionPlanMeasures.isEmpty()) {
 			List<Phase> phases = analysis.findUsablePhase();
 			int columnIndex = 2;
 			for (Phase phase : phases) {
@@ -959,7 +959,7 @@ public class ExportAnalysisReport {
 		// run = paragraph.getRuns().get(0);
 
 		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
-		
+
 		if (paragraph != null && actionplan != null && actionplan.size() > 0) {
 
 			while (!paragraph.getRuns().isEmpty())
@@ -1617,13 +1617,5 @@ public class ExportAnalysisReport {
 
 	public void setReportName(String reportName) {
 		this.reportName = reportName;
-	}
-
-	public String getReportVersion() {
-		return reportVersion;
-	}
-
-	public void setReportVersion(String reportVersion) {
-		this.reportVersion = reportVersion;
 	}
 }
