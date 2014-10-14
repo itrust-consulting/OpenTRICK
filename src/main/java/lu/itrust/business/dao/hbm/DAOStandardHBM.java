@@ -155,7 +155,8 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@Override
 	public List<Standard> getAllNotInAnalysis(Integer idAnalysis) throws Exception {
 		String query =
-			"Select standard From Standard as standard where standard.label NOT IN (Select analysisStandard.standard.label From AnalysisStandard as analysisStandard where analysisStandard.analysis.id = :analysisId)";
+			"Select standard From Standard as standard where standard.analysisOnly = false and standard.label NOT IN (Select analysisStandard.standard.label From AnalysisStandard as analysisStandard where analysisStandard.analysis.id = :analysisId)";
+
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
 	}
 
@@ -202,14 +203,22 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * getAllNotBoundToAnalysis: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.dao.DAOStandard#getAllNotBoundToAnalysis()
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllNotBoundToAnalysis() throws Exception {
-		return (List<Standard>) getSession().createQuery("From Standard where analysisOnly!=true").list();
+		return getSession().createQuery("From Standard standard where standard.analysisOnly = false").list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception {
+		return (List<Standard>) getSession().createQuery(
+				"Select analysisStandard.standard From AnalysisStandard as analysisStandard where analysisStandard.analysis.id = :analysisId and analysisStandard.standard.analysisOnly = true")
+				.setParameter("analysisId", analsisID).list();
 	}
 
 }

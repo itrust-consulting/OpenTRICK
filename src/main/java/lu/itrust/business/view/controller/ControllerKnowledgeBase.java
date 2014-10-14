@@ -53,7 +53,7 @@ public class ControllerKnowledgeBase {
 	public String displayKnowledgeBase(Map<String, Object> model, Principal principal) throws Exception {
 		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.put("languages", serviceLanguage.getAll());
-		model.put("standards", serviceStandard.getAll());
+		model.put("standards", serviceStandard.getAllNotBoundToAnalysis());
 		model.put("analyses", serviceAnalysis.getAllProfiles());
 		return "knowledgebase/knowledgebase";
 	}

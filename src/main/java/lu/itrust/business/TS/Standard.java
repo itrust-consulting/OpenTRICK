@@ -61,9 +61,11 @@ public class Standard implements Serializable, Cloneable {
 	
 	/** Standard available for actionplan computation */
 	@Column(name="dtComputable", nullable=false, columnDefinition="TINYINT(1)")
+	@Access(AccessType.FIELD)
 	private boolean computable = true;
 	
 	@Column(name="dtAnalysisOnly", nullable=false, columnDefinition="TINYINT(1)")
+	@Access(AccessType.FIELD)
 	private boolean analysisOnly = false;
 	
 	/***********************************************************************************************

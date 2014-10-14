@@ -192,5 +192,11 @@ public class ServiceStandardImpl implements ServiceStandard {
 	public List<Standard> getAllNotBoundToAnalysis() throws Exception {
 		return daoStandard.getAllNotBoundToAnalysis();
 	}
+
+	@Transactional
+	@Override
+	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception {
+		return daoStandard.getAllAnalysisOnlyStandardsFromAnalysis(analsisID);
+	}
 	
 }

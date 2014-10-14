@@ -34,6 +34,8 @@ public interface ServiceStandard {
 
 	public List<Standard> getAllNotBoundToAnalysis() throws Exception;
 	
+	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception;
+	
 	public void save(Standard standard) throws Exception;
 
 	public void saveOrUpdate(Standard standard) throws Exception;

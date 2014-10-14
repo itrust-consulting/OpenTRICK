@@ -90,20 +90,20 @@ function compliances() {
 
 			if (response.standards == undefined || response.standards == null)
 				return;
-			
+
 			var panelbody = $("#chart_compliance .panel-body");
-			
+
 			$(panelbody).html("");
-			
-			$.each(response.standards, function (key, data) {
-			    //console.log(key); 
-			    
-			    $(panelbody).append("<div id='chart_compliance_"+ key +"'></div>");
-			    
+
+			$.each(response.standards, function(key, data) {
+				// console.log(key);
+
+				$(panelbody).append("<div id='chart_compliance_" + key + "'></div>");
+
 				$('#chart_compliance_' + key).highcharts(data[0]);
-			    
+
 			});
-			
+
 		},
 		error : unknowError
 	});
@@ -289,10 +289,13 @@ function manageStandard() {
 											showError($("#addStandardModal .modal-footer")[0], response["error"]);
 										} else if (response["success"] != undefined) {
 											showSuccess($("#addStandardModal .modal-footer")[0], response["success"]);
-											location.reload();
+											$("#addStandardModal .modal-footer div[class='alert alert-success']").css("margin-bottom", "0");
 											setTimeout(function() {
 												$("#addStandardModal").modal("hide");
-											}, 10000);
+												$("div[class='modal-backdrop fade in']").remove();
+												manageStandard();
+												reloadSection("section_measure");
+											}, 3000);
 										} else
 											unknowError();
 									},
@@ -317,9 +320,9 @@ function enableButtonSaveStandardState(state) {
 		return false;
 	$("#addStandardModal .alert").remove();
 	if (!state)
-		$("#add_standard_progressbar").show();
+		$("#add_standard_progressbar").css("display", "inline-block");
 	else
-		$("#add_standard_progressbar").hide();
+		$("#add_standard_progressbar").css("display", "none");
 
 	$("#btn_save_standard").prop("disabled", !state);
 	$("#addStandardModal").find("a[role='remove-standard']").prop("disabled", !state);
@@ -334,6 +337,74 @@ function enableButtonSaveStandardState(state) {
 	return false;
 }
 
+function saveAnalysisStandard(form) {
+	$("#addStandardModel #group_2 #addstandardbutton").prop("disabled", false);
+	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	if (userCan(idAnalysis, ANALYSIS_RIGHT.ALL)) {
+		$.ajax({
+			url : context + "/Analysis/Standard/Create",
+			type : "post",
+			data : serializeForm(form),
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+
+				$("#addStandardModel #group_2 #addstandardbutton").prop("disabled", false);
+				var alert = $("#addStandardModel #group_2 .label-danger");
+				if (alert.length)
+					alert.remove();
+				for ( var error in response) {
+					var errorElement = document.createElement("label");
+					errorElement.setAttribute("class", "label label-danger");
+
+					$(errorElement).text(response[error]);
+					switch (error) {
+					case "label":
+						$(errorElement).appendTo($("#group_2 #standard_form #standard_label").parent());
+						break;
+					case "version":
+						$(errorElement).appendTo($("#group_2 #standard_form #standard_version").parent());
+						break;
+
+					case "description":
+						$(errorElement).appendTo($("#group_2 #standard_form #standard_description").parent());
+						break;
+
+					case "standard":
+						$(errorElement).appendTo($("#group_2 #standard_form .modal-body"));
+						showError($("#addStandardModal .modal-footer")[0], response["error"]);
+						break;
+					}
+				}
+				if (!$("#addStandardModel #group_2 .label-danger").length) {
+					showSuccess($("#addStandardModal .modal-footer")[0], response["success"]);
+					$("#addStandardModal .modal-footer div[class='alert alert-success']").css("margin-bottom", "0");
+					setTimeout(function() {
+						$("#addStandardModal").modal("hide");
+						$("div[class='modal-backdrop fade in']").remove();
+						manageStandard();
+						$("#managestandardtabs a#group_2").tab("show");
+						reloadSection("section_measure");
+					}, 3000);
+				}
+				return false;
+
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				var alert = $("#addStandardModel .label-danger");
+				if (alert.length)
+					alert.remove();
+				$("#addStandardModel #group_2 #addstandardbutton").prop("disabled", false);
+				var errorElement = document.createElement("label");
+				errorElement.setAttribute("class", "label label-danger");
+				$(errorElement).text(MessageResolver("error.unknown.save.norm", "An unknown error occurred during saving standard"));
+				$(errorElement).appendTo($("#addStandardModel .modal-body"));
+			},
+		});
+	} else
+		permissionError();
+	return false;
+}
+
 function saveStandard(form) {
 	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.ALL)) {
@@ -342,7 +413,7 @@ function saveStandard(form) {
 		enableButtonSaveStandardState(false);
 		var idStandard = $("#" + form + " select").val();
 		$.ajax({
-			url : context + "/Analysis/Standard/Save" + idStandard,
+			url : context + "/Analysis/Standard/Save/" + idStandard,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
@@ -351,10 +422,13 @@ function saveStandard(form) {
 					showError($("#addStandardModal .modal-footer")[0], response["error"]);
 				} else if (response["success"] != undefined) {
 					showSuccess($("#addStandardModal .modal-footer")[0], response["success"]);
-					location.reload();
+					$("#addStandardModal .modal-footer div[class='alert alert-success']").css("margin-bottom", "0");
 					setTimeout(function() {
 						$("#addStandardModal").modal("hide");
-					}, 10000);
+						$("div[class='modal-backdrop fade in']").remove();
+						manageStandard();
+						reloadSection("section_measure");
+					}, 3000);
 				}
 			},
 			error : unknowError

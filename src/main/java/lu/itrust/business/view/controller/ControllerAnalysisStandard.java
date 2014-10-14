@@ -1,22 +1,19 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-
+import java.util.Map;
 import javax.servlet.http.HttpSession;
-
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisStandard;
-import lu.itrust.business.TS.Asset;
-import lu.itrust.business.TS.AssetMeasure;
 import lu.itrust.business.TS.AssetStandard;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.MaturityMeasure;
 import lu.itrust.business.TS.MaturityStandard;
 import lu.itrust.business.TS.Measure;
-import lu.itrust.business.TS.MeasureAssetValue;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormalMeasure;
@@ -33,15 +30,20 @@ import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAnalysisStandard;
 import lu.itrust.business.service.ServiceAsset;
 import lu.itrust.business.service.ServiceAssetType;
+import lu.itrust.business.service.ServiceDataValidation;
 import lu.itrust.business.service.ServiceMeasureDescription;
 import lu.itrust.business.service.ServiceStandard;
-
+import lu.itrust.business.validator.StandardValidator;
+import lu.itrust.business.validator.field.ValidatorField;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -79,6 +81,9 @@ public class ControllerAnalysisStandard {
 	private ServiceMeasureDescription serviceMeasureDescription;
 
 	@Autowired
+	private ServiceDataValidation serviceDataValidation;
+	
+	@Autowired
 	private ServiceAsset serviceAsset;
 
 	@Autowired
@@ -91,6 +96,7 @@ public class ControllerAnalysisStandard {
 		List<Standard> standards = serviceStandard.getAllNotInAnalysis(idAnalysis);
 		model.addAttribute("standards", standards);
 		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
+		model.addAttribute("currentAnalysisStandards", serviceStandard.getAllAnalysisOnlyStandardsFromAnalysis(idAnalysis));
 		model.addAttribute("idAnalysis", idAnalysis);
 		return "analysis/components/forms/standard";
 	}
@@ -107,16 +113,162 @@ public class ControllerAnalysisStandard {
 
 	@RequestMapping(value = "/Create", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String createStandardForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		List<Standard> standards = serviceStandard.getAllNotInAnalysis(idAnalysis);
-		model.addAttribute("standards", standards);
-		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
-		model.addAttribute("idAnalysis", idAnalysis);
-		return "analysis/components/forms/standard";
+	public @ResponseBody Map<String, String> createStandardForm(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale)
+			throws Exception {
+
+		Map<String, String> errors = new LinkedHashMap<String, String>();
+
+		try {
+
+			// retrieve analysis id
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis == null) {
+				errors.put("standard", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
+				return errors;
+			}
+
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+
+			// create new standard object
+			Standard standard = new Standard();
+
+			// build standard
+			buildStandard(errors, standard, value, customLocale != null ? customLocale : locale);
+
+			if (!errors.isEmpty())
+				// return error on failure
+				return errors;
+
+			serviceStandard.save(standard);
+
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+
+			AnalysisStandard astandard = null;
+
+			switch (standard.getType()) {
+				case ASSET:
+					astandard = new AssetStandard(standard);
+					break;
+				case MATURITY:
+					astandard = new MaturityStandard(standard);
+					break;
+				case NORMAL:
+				default:
+					astandard = new NormalStandard(standard);
+					break;
+			}
+
+			if (astandard != null) {
+				analysis.addAnalysisStandard(astandard);
+				serviceAnalysis.saveOrUpdate(analysis);
+			}
+
+			errors.put("success", messageSource.getMessage("success.analysis.create.standard", null, "The standard was successfully created", customLocale != null ? customLocale : locale));
+			
+		} catch (TrickException e) {
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis != null) {
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
+			} else
+				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			e.printStackTrace();
+			return errors;
+		} catch (Exception e) {
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis != null) {
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+				errors.put("standard", messageSource.getMessage(e.getMessage(), null, customLocale != null ? customLocale : locale));
+			} else
+				errors.put("standard", messageSource.getMessage(e.getMessage(), null, locale));
+			e.printStackTrace();
+			return errors;
+		}
+		return errors;
 	}
 
-	@RequestMapping(value = "/Add/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	/**
+	 * buildStandard: <br>
+	 * Description
+	 * 
+	 * @param errors
+	 * @param standard
+	 * @param source
+	 * @param locale
+	 * @return
+	 */
+	private boolean buildStandard(Map<String, String> errors, Standard standard, String source, Locale locale) {
+
+		try {
+
+			// create json parser
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+
+			ValidatorField validator = serviceDataValidation.findByClass(Standard.class);
+
+			if (validator == null)
+				serviceDataValidation.register(validator = new StandardValidator());
+
+			String label = jsonNode.get("label").asText();
+
+			String description = jsonNode.get("description").asText();
+
+			StandardType type = StandardType.getByName(jsonNode.get("type").asText());
+
+			Integer version = null;
+
+			try {
+				version = jsonNode.get("version").asInt();
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
+
+			// set data
+			String error = validator.validate(standard, "label", label);
+			if (error != null)
+				errors.put("label", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				standard.setLabel(label);
+
+			error = validator.validate(standard, "version", version);
+
+			if (error != null)
+				errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				standard.setVersion(version);
+
+			error = validator.validate(standard, "description", description);
+
+			if (error != null)
+				errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				standard.setDescription(description);
+
+			error = validator.validate(standard, "type", type);
+
+			if (error != null)
+				errors.put("type", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				standard.setType(type);
+
+			// set computable flag
+			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
+
+			standard.setAnalysisOnly(true);
+
+			// return success
+			return errors.isEmpty();
+
+		} catch (Exception e) {
+			// return error
+			errors.put("standard", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	@RequestMapping(value = "/Save/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, RedirectAttributes attributes, Locale locale) throws Exception {
 		try {
@@ -154,15 +306,6 @@ public class ControllerAnalysisStandard {
 					assetTypeValues.add(new AssetTypeValue(assetType, 0));
 				((NormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
 				implementationRate = new Double(0);
-			} else if (standard.getType() == StandardType.ASSET) {
-				analysisStandard = new AssetStandard();
-				measure = new AssetMeasure();
-				List<Asset> assets = serviceAsset.getAllFromAnalysis(idAnalysis);
-				List<MeasureAssetValue> assetValues = ((AssetMeasure) measure).getAssetValues();
-				for (Asset asset : assets)
-					assetValues.add(new MeasureAssetValue(asset, 0));
-				((NormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
-				implementationRate = new Double(0);
 			}
 			Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
 			if (phase == null)
@@ -182,7 +325,7 @@ public class ControllerAnalysisStandard {
 
 			serviceAnalysis.saveOrUpdate(analysis);
 
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.add.standard", null, "A standard was successfully added", customLocale != null ? customLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.add.standard", null, "The standard was successfully added", customLocale != null ? customLocale : locale));
 		} catch (TrickException e) {
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));

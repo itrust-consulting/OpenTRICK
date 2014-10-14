@@ -14,11 +14,10 @@
 <title><spring:message code="${title}" text="TRICK Service" /></title>
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/jquery-ui.min.css" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-theme.min.css" />' />
+<link rel="stylesheet" type="text/css" href='<spring:url value="/css/font-awesome.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/slider.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/datepicker.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/select2-bootstrap.css" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/theme.bootstrap.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/main.css" />' />
 <script type="text/javascript">
 <!--
