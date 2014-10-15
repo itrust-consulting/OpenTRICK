@@ -29,6 +29,8 @@ public interface DAOStandard {
 	public List<Standard> getAllNotBoundToAnalysis() throws Exception;
 	
 	public List<Standard> getAllFromAnalysis(Integer analysisId) throws Exception;
+	
+	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId) throws Exception;
 
 	public List<Standard> getAllFromAnalysis(Analysis analysis) throws Exception;
 

@@ -155,7 +155,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@Override
 	public List<Standard> getAllNotInAnalysis(Integer idAnalysis) throws Exception {
 		String query =
-			"Select standard From Standard as standard where standard.analysisOnly = false and standard.label NOT IN (Select analysisStandard.standard.label From AnalysisStandard as analysisStandard where analysisStandard.analysis.id = :analysisId)";
+			"Select standard From Standard standard where standard.analysis is null and standard.label NOT IN (Select analysisStandard.standard.label From AnalysisStandard as analysisStandard where analysisStandard.analysis.id = :analysisId)";
 
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
 	}
@@ -210,15 +210,25 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllNotBoundToAnalysis() throws Exception {
-		return getSession().createQuery("From Standard standard where standard.analysisOnly = false").list();
+		
+		List<Standard> standards = getSession().createQuery("SELECT standard From Standard standard where standard.analysis is null").list();
+		
+		return standards;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception {
 		return (List<Standard>) getSession().createQuery(
-				"Select analysisStandard.standard From AnalysisStandard as analysisStandard where analysisStandard.analysis.id = :analysisId and analysisStandard.standard.analysisOnly = true")
+				"Select analysisStandard.standard From AnalysisStandard as analysisStandard where analysisStandard.analysis.id = :analysisId and analysisStandard.standard.analysis.id = :analysisId")
 				.setParameter("analysisId", analsisID).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId) throws Exception {
+		return getSession().createQuery("Select analysisStandard.standard From AnalysisStandard as analysisStandard where analysisStandard.standard.analysis is null and analysisStandard.analysis.id = :analysisId").setParameter("analysisId",
+				analysisId).list();
 	}
 
 }

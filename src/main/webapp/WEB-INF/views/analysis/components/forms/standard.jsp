@@ -5,7 +5,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <div class="modal fade" id="addStandardModal" tabindex="-1" role="dialog" data-aria-labelledby="addStandardForm" data-aria-hidden="true" data-backdrop="static">
-	<div class="modal-dialog">
+	<div class="modal-dialog" style="width:800px;">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
@@ -24,48 +24,51 @@
 						<h3>
 							<fmt:message key="label.title.analysis.manage_standard.current" />
 						</h3>
-						<c:if test="${!empty(currentStandards)}">
-							<table class="table">
-								<thead>
-									<tr>
-										<th><fmt:message key="label.norm.label" /></th>
-										<th><fmt:message key="label.norm.version" /></th>
-										<th colspan="3"><fmt:message key="label.norm.description" /></th>
-										<th><fmt:message key="label.norm.computable" /></th>
-										<th><fmt:message key="label.norm.type" /></th>
-										<th><fmt:message key="label.actions" /></th>
-									</tr>
-								</thead>
-								<tbody>
-									<c:forEach items="${currentStandards}" var="standard">
-									<c:if test="${!standard.analysisOnly}">
-										<tr>
-											<td><spring:message text="${standard.label}" /></td>
-											<td><spring:message text="${standard.version}" /></td>
-											<td colspan="3"><spring:message text="${standard.description}" /></td>
-											<td style="text-align: center"><fmt:message key="label.${standard.computable?'yes':'no'}" /></td>
-											<td style="text-align: center"><fmt:message key="label.norm.type_${fn:toLowerCase(standard.type)}" /></td>
-											<td style="text-align: center">
-												<a href="#" role="remove-standard" trick-class="standard" trick-id="${standard.id}" style="font-size: 20px;display:inline;text-decoration:none;" class="text-danger"
-												title='<fmt:message key="label.action.delete" />'>
-													<span class="fa fa-minus-circle fa-fw"></span>
-												</a>
-											</td>
-										</tr>
-									</c:if>
-									</c:forEach>
-									<c:if test="${currentStandards!=null?currentStandards.size()==0:true}">
-										<tr>
-											<td colspan="6"><fmt:message key="label.no_standards" /></td>
-										</tr>
-									</c:if>
-								</tbody>
-							</table>
-						</c:if>
-						<c:if test="${empty(currentStandards)}">
-							<fmt:message key="label.no_standards" />
-						</c:if>
-						<hr />
+						<div class="panel panel-default" id="section_kbStandards">
+							<div class="panel-heading" style="min-height: 60px">
+							<ul id="menu_kbStandards" class="nav nav-pills">
+						<li><a onclick="return addStandard();" href="#"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<fmt:message key="label.action.add" /></a></li>
+						<li trick-selectable="true" class="disabled"><a onclick="return showMeasures();" href="#"><span class="glyphicon glyphicon-edit danger"></span>&nbsp;<fmt:message key="label.action.show_measures" /></a></li>
+						<li trick-selectable="true" class="disabled pull-right"><a onclick="return removeMeasure();" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<fmt:message key="label.action.remove" /></a></li>
+					</ul>
+							</div>
+							<div class="panel-body" style="max-height: 700px; overflow: auto;">
+								<c:if test="${!empty(currentStandards)}">
+									<table class="table">
+										<thead>
+											<tr>
+												<th>&nbsp;</th>
+												<th><fmt:message key="label.norm.label" /></th>
+												<th><fmt:message key="label.norm.version" /></th>
+												<th colspan="3"><fmt:message key="label.norm.description" /></th>
+												<th><fmt:message key="label.norm.computable" /></th>
+												<th><fmt:message key="label.norm.type" /></th>
+											</tr>
+										</thead>
+										<tbody>
+											<c:forEach items="${currentStandards}" var="standard">
+												<tr>
+												<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_kbStandards','#menu_kbStandards');"></td>
+													<td><spring:message text="${standard.label}" /></td>
+													<td><spring:message text="${standard.version}" /></td>
+													<td colspan="3"><spring:message text="${standard.description}" /></td>
+													<td style="text-align: center"><fmt:message key="label.${standard.computable?'yes':'no'}" /></td>
+													<td style="text-align: center"><fmt:message key="label.norm.type_${fn:toLowerCase(standard.type)}" /></td>
+												</tr>
+											</c:forEach>
+											<c:if test="${currentStandards!=null?currentStandards.size()==0:true}">
+												<tr>
+													<td colspan="6"><fmt:message key="label.no_standards" /></td>
+												</tr>
+											</c:if>
+										</tbody>
+									</table>
+								</c:if>
+								<c:if test="${empty(currentStandards)}">
+									<fmt:message key="label.no_standards" />
+								</c:if>
+							</div>
+						</div>
 						<h3>
 							<fmt:message key="label.title.analysis.manage_standard.available" />
 						</h3>
@@ -104,6 +107,19 @@
 						<h3>
 							<fmt:message key="label.title.analysis.manage_standard.current" />
 						</h3>
+						<div class="panel panel-default" id="section_analysisStandards">
+							<div class="panel-heading" style="min-height: 60px">
+							
+							<ul id="menu_analysisStandards" class="nav nav-pills">
+						<li><a onclick="return addStandard();" href="#"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<fmt:message key="label.action.add" /></a></li>
+						<li trick-selectable="true" class="disabled"><a onclick="return editStandard();" href="#"><span class="glyphicon glyphicon-edit"></span>&nbsp;<fmt:message key="label.action.edit" /></a></li>
+						<li trick-selectable="true" class="disabled"><a onclick="return showMeasures();" href="#"><span class="glyphicon glyphicon-new-window"></span>&nbsp;<fmt:message key="label.action.show_measures" /></a></li>
+						<li trick-selectable="true" class="disabled pull-right"><a onclick="return removeMeasure();" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<fmt:message key="label.action.remove" /></a></li>
+					</ul>
+							
+							
+							</div>
+							<div class="panel-body" style="max-height: 700px; overflow: auto;">
 						<c:if test="${empty(currentAnalysisStandards)}">
 							<fmt:message key="label.no_standards" />
 						</c:if>
@@ -111,8 +127,8 @@
 							<table class="table">
 								<thead>
 									<tr>
+									<th>&nbsp;</th>
 										<th><fmt:message key="label.norm.label" /></th>
-										<th><fmt:message key="label.norm.version" /></th>
 										<th colspan="3"><fmt:message key="label.norm.description" /></th>
 										<th><fmt:message key="label.norm.computable" /></th>
 										<th><fmt:message key="label.norm.type" /></th>
@@ -122,21 +138,24 @@
 								<tbody>
 									<c:forEach items="${currentAnalysisStandards}" var="standard">
 										<tr>
+										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysisStandards','#menu_analysisStandards');"></td>
 											<td><spring:message text="${standard.label}" /></td>
 											<td><spring:message text="${standard.version}" /></td>
 											<td colspan="3"><spring:message text="${standard.description}" /></td>
 											<td style="text-align: center"><fmt:message key="label.${standard.computable?'yes':'no'}" /></td>
 											<td style="text-align: center"><fmt:message key="label.norm.type_${fn:toLowerCase(standard.type)}" /></td>
-											<td style="text-align: center"><a href="#" role="manage-standard" trick-class="standard" trick-id="${standard.id}" style="font-size: 20px;display:inline;text-decoration:none;" class="text-warning"
-												title='<fmt:message key="label.action.edit" />'> <span class="fa fa-pencil-square-o"></span></a> <a href="#" role="remove-standard" trick-class="standard"
-												trick-id="${standard.id}" style="font-size: 20px;display:inline;text-decoration:none;" class="text-danger" title='<fmt:message key="label.action.delete" />'> <span class="fa fa-minus-circle"></span></a>
-											</td>
+											<td style="text-align: center"><a href="#" role="manage-standard" trick-class="standard" trick-id="${standard.id}"
+												style="font-size: 20px; display: inline; text-decoration: none;" class="text-warning" title='<fmt:message key="label.action.edit" />'> <span
+													class="fa fa-pencil-square-o"></span></a> <a href="#" role="remove-standard" trick-class="standard" trick-id="${standard.id}"
+												style="font-size: 20px; display: inline; text-decoration: none;" class="text-danger" title='<fmt:message key="label.action.delete" />'> <span
+													class="fa fa-minus-circle"></span></a></td>
 										</tr>
 									</c:forEach>
 								</tbody>
 							</table>
 						</c:if>
-						<hr>
+						</div>
+						</div>
 						<h3>
 							<fmt:message key="label.title.analysis.manage_standard.create" />
 						</h3>

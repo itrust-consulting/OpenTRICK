@@ -22,7 +22,7 @@
 						</select>
 					</div>
 				</c:if>
-				<div class="col-md-11">
+				<div class="col-md-1${!empty languages?'1':'2'}">
 					<ul class="nav nav-pills" id="menu_measure_description">
 						<li><a href="#" onclick="return newMeasure();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.norm" text="Add" /> </a></li>
 						<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleMeasure();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
@@ -53,11 +53,8 @@
 									<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_measure_description','#menu_measure_description',undefined);"></td>
 									<td colspan="2">${measureDescription.level}</td>
 									<td colspan="3"><spring:message text='${measureDescription.reference}' /></td>
-									<td colspan="8"><spring:message
-											text='${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:""}' /></td>
-									<td colspan="30"><pre>
-											<spring:message text='${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:""}' />
-										</pre></td>
+									<td colspan="8"><spring:message text='${measureDescription.measureDescriptionTexts[0].domain.equals("")==false?measureDescription.measureDescriptionTexts[0].domain:""}' /></td>
+									<td colspan="30"><pre><spring:message text='${measureDescription.measureDescriptionTexts[0].description.equals("")==false?measureDescription.measureDescriptionTexts[0].description:""}' /></pre></td>
 									<td colspan="3" trick-computable="${measureDescription.computable}"><spring:message code="label.yes_no.${measureDescription.computable}"
 											text="${measureDescription.computable?'Yes':'No'}" /></td>
 								</tr>

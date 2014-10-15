@@ -209,16 +209,18 @@ public class ControllerStandard {
 			// check if standard has to be create (new) or updated
 			if (standard.getId() < 1) {
 
-				if (!serviceStandard.existsByNameAndVersion(standard.getLabel(), standard.getVersion()))
-					// save
+				try {
 					serviceStandard.save(standard);
-				else
+				} catch (Exception e) {
+					e.printStackTrace();
 					errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null, "Version already exists", locale));
+				}
+					
 			} else {
 
 				Standard tmpStandard = serviceStandard.get(standard.getId());
 
-				if (!tmpStandard.isAnalysisOnly())
+				if (tmpStandard.getAnalysis()==null)
 					serviceStandard.saveOrUpdate(standard);
 			}
 
@@ -692,7 +694,7 @@ public class ControllerStandard {
 			// set computable flag
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 
-			standard.setAnalysisOnly(false);
+			standard.setAnalysis(null);
 
 			// return success
 			return errors.isEmpty();

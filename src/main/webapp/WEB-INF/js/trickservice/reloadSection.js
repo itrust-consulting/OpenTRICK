@@ -67,6 +67,9 @@ function controllerBySection(section, subSection) {
 		"section_riskregister" : "/RiskRegister/Section"
 	};
 
+	if(section.match("^section_measure_"))
+		return "/Measure/Section/"+ section.substr(16,section.length);
+	
 	if (subSection == null || subSection == undefined)
 		return controllers[section];
 	else
@@ -97,9 +100,31 @@ function callbackBySection(section) {
 		"section_summary" : function() {
 			summaryCharts();
 			return false;
+		},
+		"section_measure" : function () {
+			
+			$("#standardmenu a[href^='#anchorMeasure_']").closest("li").remove();
+			
+			var text = "";
+			
+			$("#"+section+" div[id^='section_measure_']").each(function(){
+				var standard = $(this).attr("id").substr(16,$(this).attr("id").length);
+				var link = "#anchorMeasure_"+standard;
+				text += "<li><a href='"+link+"'>"+standard+"</a></li>";
+			});
+			
+			$("#standardmenu").prepend(text);
+			
+			$("#"+section+" td.popover-element").popover("hide");
 		}
+		
 
 	};
+	
+	if(section.match("^section_measure_")) {
+		$("#"+section+" td.popover-element").popover('hide');
+	}
+	
 	return callbacks[section];
 }
 

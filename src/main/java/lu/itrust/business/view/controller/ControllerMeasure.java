@@ -106,6 +106,34 @@ public class ControllerMeasure {
 	}
 
 	/**
+	 * section: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param model
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Section/{standardLabel}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	public String sectionByStandard(@PathVariable String standardLabel, HttpSession session, Model model, Principal principal) throws Exception {
+
+		// retrieve analysis id
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		if (idAnalysis == null)
+			return null;
+
+		// add measures of the analysis
+		model.addAttribute("measures", serviceMeasure.getAllFromAnalysisAndStandard(idAnalysis, standardLabel));
+
+		// add language of the analysis
+		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3());
+
+		return "analysis/components/measure";
+	}
+	
+	/**
 	 * get: <br>
 	 * Description
 	 * 

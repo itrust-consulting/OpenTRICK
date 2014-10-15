@@ -7,10 +7,12 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.MaturityMeasure;
+import lu.itrust.business.TS.MaturityStandard;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.NormalStandard;
@@ -31,6 +33,7 @@ import lu.itrust.business.dao.DAOAnalysisStandard;
 import lu.itrust.business.dao.DAOAssetType;
 import lu.itrust.business.dao.DAOAssetTypeValue;
 import lu.itrust.business.dao.DAOMeasure;
+import lu.itrust.business.dao.DAOStandard;
 import lu.itrust.business.dao.hbm.DAOHibernate;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +55,9 @@ public class MeasureManager {
 	private DAOAnalysis daoAnalysis;
 
 	@Autowired
+	private DAOStandard daoStandard;
+
+	@Autowired
 	private DAOAnalysisStandard daoAnalysisStandard;
 
 	@Autowired
@@ -68,6 +74,9 @@ public class MeasureManager {
 
 	@Autowired
 	private DAOActionPlan daoActionPlan;
+
+	@Autowired
+	private CustomDelete customDelete;
 
 	/**
 	 * SplitByStandard: <br>
@@ -159,7 +168,7 @@ public class MeasureManager {
 				}
 			}
 			if (found == false) {
-				Measure measure;
+				Measure measure = null;
 				Object implementationRate = null;
 				if (astandard instanceof NormalStandard) {
 					measure = new NormalMeasure();
@@ -169,7 +178,7 @@ public class MeasureManager {
 						assetTypeValues.add(new AssetTypeValue(assetType, 0));
 					((NormalMeasure) measure).setMeasurePropertyList(new MeasureProperties());
 					implementationRate = new Double(0);
-				} else {
+				} else if (astandard instanceof MaturityStandard) {
 					measure = new MaturityMeasure();
 					for (Parameter parameter : astandard.getAnalysis().getParameters()) {
 						if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue() == 0) {
@@ -257,7 +266,13 @@ public class MeasureManager {
 		List<ActionPlanEntry> actionPlanEntries = daoActionPlan.getAllFromAnalysis(idAnalysis);
 		for (ActionPlanEntry actionPlanEntry : actionPlanEntries)
 			daoActionPlan.delete(actionPlanEntry);
-		daoAnalysisStandard.delete(analysisStandard);
-	}
 
+		Standard standard = daoStandard.get(idStandard);
+
+		daoAnalysisStandard.delete(analysisStandard);
+		List<AnalysisStandard> astandards = daoAnalysisStandard.getAllFromStandard(standard);
+
+		if (standard.getAnalysis() != null && (astandards == null || astandards.isEmpty()))
+			customDelete.deleteStandard(standard);
+	}
 }

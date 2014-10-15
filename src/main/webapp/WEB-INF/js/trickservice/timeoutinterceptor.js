@@ -67,6 +67,8 @@ TimeoutInterceptor.prototype = {
 				setTimeout(function() {
 					if (!that.Reinitialise())
 						return that.ShowLogin();
+					else
+						that.alertDialog.Hide();
 				}, 2000);
 				return false;
 			});

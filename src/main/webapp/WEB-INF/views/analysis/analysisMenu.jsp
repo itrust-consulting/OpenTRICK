@@ -43,7 +43,7 @@
 					class="caret"></span></a> <c:if test="${empty(measureSplited)}">
 					<spring:eval expression="T(lu.itrust.business.component.MeasureManager).SplitByStandard(measures)" var="measureSplited" scope="request" />
 				</c:if>
-				<ul class="dropdown-menu">
+				<ul class="dropdown-menu" id="standardmenu">
 					<c:if test="${!empty(measureSplited)}">
 						<c:forEach items="${measureSplited.keySet()}" var="standard">
 							<li><a href="#anchorMeasure_${standard}"> <spring:message text="${standard}" /></a>

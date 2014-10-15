@@ -8,8 +8,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -25,8 +28,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 24 janv. 2013
  */
-@Entity 
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"dtLabel","dtVersion"}))
+@Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtLabel", "dtVersion", "dtType", "fiAnalysis" }))
 public class Standard implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -38,36 +41,38 @@ public class Standard implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** Standard ID */
-	@Id @GeneratedValue 
-	@Column(name="idStandard")
+	@Id
+	@GeneratedValue
+	@Column(name = "idStandard")
 	private int id = -1;
 
 	/** Standard Name */
-	@Column(name="dtLabel", nullable=false)
+	@Column(name = "dtLabel", nullable = false)
 	private String label = "";
 
 	/** the Standard verison */
-	@Column(name="dtVersion", nullable=false)
+	@Column(name = "dtVersion", nullable = false)
 	private int version = 2013;
 
 	/** description of the Standard */
-	@Column(name="dtDescription", nullable=false)
+	@Column(name = "dtDescription", nullable = false)
 	private String description = "";
 
-	@Enumerated(EnumType.STRING) 
-	@Column(name="dtType", nullable=false)
+	@Enumerated(EnumType.STRING)
+	@Column(name = "dtType", nullable = false)
 	@Access(AccessType.FIELD)
 	private StandardType type = null;
-	
+
 	/** Standard available for actionplan computation */
-	@Column(name="dtComputable", nullable=false, columnDefinition="TINYINT(1)")
+	@Column(name = "dtComputable", nullable = false, columnDefinition = "TINYINT(1)")
 	@Access(AccessType.FIELD)
 	private boolean computable = true;
-	
-	@Column(name="dtAnalysisOnly", nullable=false, columnDefinition="TINYINT(1)")
+
 	@Access(AccessType.FIELD)
-	private boolean analysisOnly = false;
-	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "fiAnalysis", nullable = true)
+	private Analysis analysis = null;
+
 	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/
@@ -80,6 +85,7 @@ public class Standard implements Serializable, Cloneable {
 
 	/**
 	 * Constructor: <br>
+	 * 
 	 * @param label
 	 * @param type
 	 * @param version
@@ -94,7 +100,7 @@ public class Standard implements Serializable, Cloneable {
 		this.setDescription(description);
 		this.setComputable(computable);
 	}
-	
+
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
@@ -136,15 +142,16 @@ public class Standard implements Serializable, Cloneable {
 	 * 
 	 * @param label
 	 *            The Value to set the label field
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setLabel(String label) throws TrickException {
 		if (label == null || label.trim().isEmpty())
-			throw new TrickException("error.norm.label","Name cannot be empty!");
+			throw new TrickException("error.norm.label", "Name cannot be empty!");
 		this.label = label;
 	}
 
-	/** getType: <br>
+	/**
+	 * getType: <br>
 	 * Returns the type field value.
 	 * 
 	 * @return The value of the type field
@@ -153,11 +160,12 @@ public class Standard implements Serializable, Cloneable {
 		return type;
 	}
 
-	/** setType: <br>
+	/**
+	 * setType: <br>
 	 * Sets the Field "type" with a value.
 	 * 
-	 * @param type 
-	 * 			The Value to set the type field
+	 * @param type
+	 *            The Value to set the type field
 	 */
 	public void setType(StandardType type) {
 		this.type = type;
@@ -172,7 +180,7 @@ public class Standard implements Serializable, Cloneable {
 	public String getNameOfType() {
 		return type.getName();
 	}
-		
+
 	/**
 	 * setName: <br>
 	 * Sets the Field "name" with a value.
@@ -183,7 +191,7 @@ public class Standard implements Serializable, Cloneable {
 	public void setType(String name) {
 		this.type = StandardType.getByName(name.trim());
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -228,7 +236,9 @@ public class Standard implements Serializable, Cloneable {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -321,23 +331,23 @@ public class Standard implements Serializable, Cloneable {
 		this.description = description;
 	}
 
-	/** isAnalysisOnly: <br>
-	 * Returns the analysisOnly field value.
+	/**
+	 * getAnalysis: <br>
+	 * Description
 	 * 
-	 * @return The value of the analysisOnly field
+	 * @return
 	 */
-	public boolean isAnalysisOnly() {
-		return analysisOnly;
+	public Analysis getAnalysis() {
+		return analysis;
 	}
 
-	/** setAnalysisOnly: <br>
-	 * Sets the Field "analysisOnly" with a value.
+	/** setAnalysis: <br>
+	 * Description
 	 * 
-	 * @param analysisOnly 
-	 * 			The Value to set the analysisOnly field
+	 * @param analysis
 	 */
-	public void setAnalysisOnly(boolean analysisOnly) {
-		this.analysisOnly = analysisOnly;
+	public void setAnalysis(Analysis analysis) {
+		this.analysis = analysis;
 	}
 
 }
