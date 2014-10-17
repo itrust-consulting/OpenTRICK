@@ -23,7 +23,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since Jan 28, 2013
  */
-@Entity 
+@Entity
 public class MeasureDescriptionText implements Cloneable {
 
 	/***********************************************************************************************
@@ -31,28 +31,29 @@ public class MeasureDescriptionText implements Cloneable {
 	 **********************************************************************************************/
 
 	/** The MeasureDescriptionText id */
-	@Id @GeneratedValue 
-	@Column(name="idMeasureDescriptionText")
+	@Id
+	@GeneratedValue
+	@Column(name = "idMeasureDescriptionText")
 	private int id = -1;
 
 	/** The Measure Description Reference (Reference to the measure) */
-	@ManyToOne 
-	@JoinColumn(name="fiMeasureDescription", nullable=false)
+	@ManyToOne
+	@JoinColumn(name = "fiMeasureDescription", nullable = false)
 	private MeasureDescription measureDescription = null;
 
 	/** The Language Object */
-	@ManyToOne 
-	@JoinColumn(name="fiLanguage", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE})
+	@ManyToOne
+	@JoinColumn(name = "fiLanguage", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE })
 	private Language language = null;
 
 	/** The Domain Text */
-	@Column(name="dtDomain", nullable=false, columnDefinition="TEXT")
+	@Column(name = "dtDomain", nullable = false, columnDefinition = "TEXT")
 	@Access(AccessType.FIELD)
 	private String domain = "";
 
 	/** The Description Text */
-	@Column(name="dtDescription", nullable=false, columnDefinition="LONGTEXT")
+	@Column(name = "dtDescription", nullable = false, columnDefinition = "LONGTEXT")
 	@Access(AccessType.FIELD)
 	private String description = "";
 
@@ -189,8 +190,7 @@ public class MeasureDescriptionText implements Cloneable {
 
 	public MeasureDescriptionText duplicate() throws CloneNotSupportedException {
 		MeasureDescriptionText measureDescriptionText = (MeasureDescriptionText) super.clone();
-		if (measureDescriptionText.measureDescription.getStandard().getLabel().equalsIgnoreCase(Constant.STANDARD_CUSTOM))
-			measureDescriptionText.id = -1;
+		measureDescriptionText.id = -1;
 		return measureDescriptionText;
 	}
 

@@ -15,8 +15,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import lu.itrust.business.TS.tsconstant.Constant;
-
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -28,16 +26,16 @@ import org.hibernate.annotations.CascadeType;
  * <li>The Level of Measure (1-3)</li>
  * <li>The Measure Reference inside the Standard</li>
  * <li>
- * Measure Description Texts which represents the Domain and Description f a
- * Measure in one to more languages</li>
+ * Measure Description Texts which represents the Domain and Description f a Measure in one to more
+ * languages</li>
  * </ul>
  * 
  * @author itrust consulting s.à r.l. : SME, BJA, EOM
  * @version 0.1
  * @since Jan 28, 2013
  */
-@Entity 
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiStandard","dtReference"}))
+@Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiStandard", "dtReference" }))
 public class MeasureDescription implements Cloneable {
 
 	/***********************************************************************************************
@@ -45,35 +43,38 @@ public class MeasureDescription implements Cloneable {
 	 **********************************************************************************************/
 
 	/** Measure Description id */
-	@Id @GeneratedValue 
-	@Column(name="idMeasureDescription")
+	@Id
+	@GeneratedValue
+	@Column(name = "idMeasureDescription")
 	private int id = -1;
 
 	/** Measure Standard Object */
 	@ManyToOne
-	@JoinColumn(name="fiStandard", nullable=false)
-	@Cascade(CascadeType.SAVE_UPDATE)
+	@JoinColumn(name = "fiStandard", nullable = false)
 	private Standard standard = null;
 
 	/** Measure Description Text List (one entry represents one language) */
-	@OneToMany(mappedBy="measureDescription")
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany(mappedBy = "measureDescription")
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */
-	@Column(name="dtLevel", nullable=false)
+	@Column(name = "dtLevel", nullable = false)
 	@Access(AccessType.FIELD)
 	private int level = -1;
 
 	/** Measure Reference */
-	@Column(name="dtReference", nullable=false)
+	@Column(name = "dtReference", nullable = false)
 	@Access(AccessType.FIELD)
 	private String reference = "";
 
-	/** Flag to determine if measure can be used in the action plan (before: measure had to be level 3) */
-	@Column(name="dtComputable", nullable=false)
+	/**
+	 * Flag to determine if measure can be used in the action plan (before: measure had to be level
+	 * 3)
+	 */
+	@Column(name = "dtComputable", nullable = false)
 	private boolean computable = true;
-	
+
 	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/
@@ -120,8 +121,8 @@ public class MeasureDescription implements Cloneable {
 				descriptionTextEnglish = measureDescriptionText;
 		}
 
-		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish
-				: descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0) : descriptionText;
+		return descriptionText == null && descriptionTextEnglish != null ? descriptionTextEnglish : descriptionText == null && measureDescriptionTexts.size() > 0 ? measureDescriptionTexts.get(0)
+			: descriptionText;
 	}
 
 	/**
@@ -293,12 +294,12 @@ public class MeasureDescription implements Cloneable {
 	 */
 	public MeasureDescription duplicate() throws CloneNotSupportedException {
 		MeasureDescription measureDescription = (MeasureDescription) super.clone();
-		if (standard.getLabel().equalsIgnoreCase(Constant.STANDARD_CUSTOM))
-			measureDescription.id = -1;
+		measureDescription.id = -1;
 		return measureDescription;
 	}
 
-	/** isComputable: <br>
+	/**
+	 * isComputable: <br>
 	 * Returns the computable field value.
 	 * 
 	 * @return The value of the computable field
@@ -307,11 +308,12 @@ public class MeasureDescription implements Cloneable {
 		return computable;
 	}
 
-	/** setComputable: <br>
+	/**
+	 * setComputable: <br>
 	 * Sets the Field "computable" with a value.
 	 * 
-	 * @param computable 
-	 * 			The Value to set the computable field
+	 * @param computable
+	 *            The Value to set the computable field
 	 */
 	public void setComputable(boolean computable) {
 		this.computable = computable;

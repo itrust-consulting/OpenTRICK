@@ -54,6 +54,7 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 	/** AnalysisStandard Standard Object */
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="fiStandard", nullable=false)
+	@Cascade({CascadeType.SAVE_UPDATE})
 	private Standard standard = null;
 
 	/** AnalysisStandard List of measures */

@@ -15,9 +15,12 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisRight;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.Parameter;
+import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.export.ExportAnalysisReport;
 import lu.itrust.business.TS.export.UserSQLite;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -201,13 +204,8 @@ public class ControllerAnalysis {
 	@Value("${app.settings.report.english.template.name}")
 	private String englishReportName;
 
-	// ******************************************************************************************************************
-	// * Request mappers
-	// ******************************************************************************************************************
-
-	// *****************************************************************
-	// * default request (/Analysis) display selected or all analyses
-	// *****************************************************************
+	@Autowired
+	private Duplicator duplicator;
 
 	/**
 	 * displayAll: <br>
@@ -255,7 +253,8 @@ public class ControllerAnalysis {
 				analysis.setScenarios(serviceScenario.getAllFromAnalysis(selected));
 				analysis.setItemInformations(serviceItemInformation.getAllFromAnalysis(selected));
 				analysis.setLanguage(serviceLanguage.getByAlpha3(analysis.getLanguage().getAlpha3()));
-
+				analysis.setActionPlans(serviceActionPlan.getAllFromAnalysis(selected));
+				analysis.setSummaries(serviceActionPlanSummary.getAllFromAnalysis(selected));
 				model.addAttribute("login", user.getLogin());
 				model.addAttribute("analysis", analysis);
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
@@ -290,7 +289,7 @@ public class ControllerAnalysis {
 			model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 			model.addAttribute("login", principal.getName());
 		}
-		return "analysis/analyse";
+		return "analysis/analysis";
 	}
 
 	// *****************************************************************
@@ -721,10 +720,8 @@ public class ControllerAnalysis {
 				// return error on failure
 				return errors;
 
-			// duplicate analysis
-			Duplicator duplicator = new Duplicator();
 			Analysis copy = duplicator.duplicateAnalysis(analysis, null);
-			// attribute new values to new analysis
+			
 			copy.setBasedOnAnalysis(analysis);
 			copy.addAHistory(history);
 			copy.setVersion(history.getVersion());
@@ -732,6 +729,31 @@ public class ControllerAnalysis {
 			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
 			copy.setProfile(false);
 			copy.setDefaultProfile(false);
+			
+			// save the new version
+			serviceAnalysis.save(copy);
+
+			List<AnalysisStandard> standards = copy.getAnalysisOnlyStandards();
+
+			Map<Integer, Phase> phases = new LinkedHashMap<Integer, Phase>();
+
+			for (Phase phase : copy.getUsedPhases())
+				phases.put(phase.getNumber(), phase);
+
+			Map<String, Parameter> parameters = new LinkedHashMap<String, Parameter>();
+
+			for (Parameter parameter : copy.getParameters())
+				parameters.put(String.format(Duplicator.KEY_PARAMETER_FORMAT, parameter.getType().getLabel(), parameter.getDescription()), parameter);
+
+			for (AnalysisStandard standard : standards) {
+
+				AnalysisStandard tmpStandard = duplicator.duplicateAnalysisOnlyStandards(standard, phases, parameters, false, copy);
+
+				copy.removeAnalysisStandard(standard);
+
+				copy.addAnalysisStandard(tmpStandard);
+
+			}
 
 			// save the new version
 			serviceAnalysis.saveOrUpdate(copy);

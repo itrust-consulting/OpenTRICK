@@ -57,10 +57,10 @@ public class ControllerHome {
 	private LocaleResolver localeResolver;
 	
 	@PreAuthorize(Constant.ROLE_MIN_USER)
-	@RequestMapping("/home")
+	@RequestMapping("/Home")
 	public String home(Model model, Principal principal, SessionLocaleResolver session, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		model.addAttribute("userSqLites", serviceUserSqLite.getByFileName(principal.getName()));
-		return "index";
+		return "home";
 	}
 
 	@RequestMapping(value = "/MessageResolver",method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
@@ -70,12 +70,12 @@ public class ControllerHome {
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
-	@RequestMapping("/feedback")
+	@RequestMapping("/Feedback")
 	public @ResponseBody List<MessageHandler> revice(Principal principal) {
 		return serviceTaskFeedback.recieve(principal.getName());
 	}
 
-	@RequestMapping("/login")
+	@RequestMapping("/Login")
 	public String login( HttpServletRequest request, HttpServletResponse response, Locale locale, Model model) {
 		
 		if(request.getParameter("registerSuccess")!=null) {
@@ -91,12 +91,12 @@ public class ControllerHome {
 		return principal != null;
 	}
 
-	@RequestMapping("/login/error")
+	@RequestMapping("/Login/Error")
 	public String login(RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
 		return "redirect:/login";
 	}
 
-	@RequestMapping("/logout")
+	@RequestMapping("/Logout")
 	public String logout() {
 		return "redirect:/j_spring_security_logout";
 	}

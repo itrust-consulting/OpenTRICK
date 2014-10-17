@@ -74,7 +74,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @Controller
-@RequestMapping("/EditField")
+@RequestMapping("/Analysis/EditField")
 public class ControllerEditField {
 
 	@Autowired

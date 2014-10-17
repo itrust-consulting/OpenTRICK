@@ -200,6 +200,18 @@ public class CustomDelete {
 	}
 
 	@Transactional
+	public void deleteAnalysisMeasure(MeasureDescription measureDescription) throws Exception {
+		Iterator<MeasureDescriptionText> iterator = measureDescription.getMeasureDescriptionTexts().iterator();
+		while (iterator.hasNext()) {
+			MeasureDescriptionText descriptionText = iterator.next();
+			iterator.remove();
+			descriptionText.setMeasureDescription(null);
+			daoMeasureDescriptionText.delete(descriptionText);
+		}
+		daoMeasureDescription.delete(measureDescription);
+	}
+	
+	@Transactional
 	public boolean deleteAnalysis(List<Integer> ids) {
 		try {
 			Collections.sort(ids, Collections.reverseOrder());

@@ -195,7 +195,7 @@ function endDateChanged(){
  */
 function savePhase(form) {
 	$.ajax({
-		url : context + "/Phase/Save",
+		url : context + "/Analysis/Phase/Save",
 		type : "post",
 		async : true,
 		data : serializeForm(form),
@@ -233,7 +233,7 @@ function deletePhase(idPhase) {
 	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase", null, lang));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
-			url : context + "/Phase/Delete/" + idPhase,
+			url : context + "/Analysis/Phase/Delete/" + idPhase,
 			contentType : "application/json;charset=UTF-8",
 			async : true,
 			success : function(response) {

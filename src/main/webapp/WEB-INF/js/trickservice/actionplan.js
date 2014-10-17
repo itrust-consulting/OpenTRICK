@@ -1,7 +1,7 @@
 function displayActionPlanOptions(analysisId) {
 
 	$.ajax({
-		url : context + "/ActionPlan/" + analysisId + "/ComputeOptions",
+		url : context + "/Analysis/ActionPlan/ComputeOptions",
 		type : "GET",
 		async : true,
 		contentType : "application/json",
@@ -42,7 +42,7 @@ function calculateActionPlanWithOptions(form) {
 	var jsonarray = JSON.stringify(data);
 
 	$.ajax({
-		url : context + "/ActionPlan/Compute",
+		url : context + "/Analysis/ActionPlan/Compute",
 		type : "post",
 		data : jsonarray,
 		async : true,
@@ -92,7 +92,7 @@ function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
 
 function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) {
 	$.ajax({
-		url : context + "/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
+		url : context + "/Analyis/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",

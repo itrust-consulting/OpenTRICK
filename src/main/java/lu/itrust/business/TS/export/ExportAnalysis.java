@@ -1700,7 +1700,7 @@ public class ExportAnalysis {
 					// execute the query
 					sqlite.query(specdefaultquery, defaultspecparams);
 
-			} else {
+			} else if(this.analysis.getAnalysisStandard(indexStandard) instanceof MaturityStandard){
 
 				// ****************************************************************
 				// standard not maturity -> NO

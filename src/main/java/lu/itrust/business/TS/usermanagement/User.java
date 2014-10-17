@@ -12,13 +12,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.Customer;
-import lu.itrust.business.TS.settings.ApplicationSetting;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -80,11 +78,6 @@ public class User implements Serializable {
 	)
 	@Cascade(CascadeType.ALL)
 	private List<Customer> customers = null;
-
-	@OneToMany 
-	@JoinColumn(name="fiUser", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
-	private List<ApplicationSetting> applicationSettings = new ArrayList<ApplicationSetting>();
 	
 	@Column(name="dtLocale", nullable=false)
 	private String locale = "en";

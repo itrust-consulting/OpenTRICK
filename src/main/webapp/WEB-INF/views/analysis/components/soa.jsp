@@ -47,24 +47,21 @@
 											</tr>
 										</c:when>
 										<c:otherwise>
-											<tr trick-class="SOA" trick-id="${measure.id}"
-												trick-callback="initialiseTableFixedHeaderRows('#section_measure_${standard}');">
+											<tr trick-class="SOA" trick-id="${measure.id}">
 												<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
 												<c:choose>
-												<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
-													<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
-														data-content=''
-														title='<spring:message
+													<c:when test="${empty measureDescriptionText or empty(measureDescriptionText.description)}">
+														<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true" data-content=''
+															title='<spring:message
 														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
-												</c:when>
-												<c:otherwise>
-													<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
-														data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>'
-														title='<spring:message
+													</c:when>
+													<c:otherwise>
+														<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
+															data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>'
+															title='<spring:message
 														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
-												</c:otherwise>
+													</c:otherwise>
 												</c:choose>
-												
 												<td colspan="4"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 												<td><c:choose>
 														<c:when test="${measure.phase.number == 0}">NA
@@ -72,17 +69,15 @@
 														<c:otherwise>${measure.phase.number}
 																</c:otherwise>
 													</c:choose></td>
-												<td colspan="6">
-													<spring:message text="${measure.measurePropertyList.getSoaRisk()}" />
-												</td>
-												<td colspan="8" class="success" ondblclick="return editField(this.firstElementChild);"  >
-													<pre trick-field="soaComment" trick-content="text" trick-field-type="string"><spring:message text="${measure.measurePropertyList.getSoaComment()}" />
-													</pre>
-												</td>
-												<td colspan="8" class="success" ondblclick="return editField(this.firstElementChild);">
-													<pre trick-field="soaReference" trick-content="text" trick-field-type="string"><spring:message text="${measure.measurePropertyList.getSoaReference()}" />
-													</pre>
-												</td>
+												<td colspan="6"><spring:message text="${measure.measurePropertyList.getSoaRisk()}" /></td>
+												<td colspan="8" class="success" ondblclick="return editField(this.firstElementChild);"><pre trick-field="soaComment" trick-content="text"
+														trick-field-type="string">
+														<spring:message text="${measure.measurePropertyList.getSoaComment()}" />
+													</pre></td>
+												<td colspan="8" class="success" ondblclick="return editField(this.firstElementChild);"><pre trick-field="soaReference" trick-content="text"
+														trick-field-type="string">
+														<spring:message text="${measure.measurePropertyList.getSoaReference()}" />
+													</pre></td>
 											</tr>
 										</c:otherwise>
 									</c:choose>

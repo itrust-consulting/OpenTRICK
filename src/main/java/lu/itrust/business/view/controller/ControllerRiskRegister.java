@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @since Feb 17, 2014
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
-@RequestMapping("/RiskRegister")
+@RequestMapping("/Analysis/RiskRegister")
 @Controller
 public class ControllerRiskRegister {
 
@@ -143,7 +143,7 @@ public class ControllerRiskRegister {
 	 * @return
 	 * @throws Exception
 	 */
-	//@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody
 	String computeRiskRegister(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 

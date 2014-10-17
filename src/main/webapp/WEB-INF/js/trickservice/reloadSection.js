@@ -1,7 +1,48 @@
-/**
- * reload sections
- */
+// load sections
+function loadPanelBodiesOfSection(section, refreshOnly) {
 
+		var controller = controllerBySection(section, subSection);
+		if (controller == null || controller == undefined)
+			return false;
+		
+		
+		
+		
+		$.ajax({
+			url : context + controller,
+			type : "get",
+			async : true,
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				var tag = response.substring(response.indexOf('<'));
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(tag, "text/html");
+				if (subSection != null && subSection != undefined)
+					section += "_" + subSection;
+				newSection = $(doc).find("*[id = '" + section + "']");
+				var smartUpdate = new SectionSmartUpdate(section, newSection);
+				if (smartUpdate.Update()) {
+					$("#" + section).replaceWith(newSection);
+					var tableFixedHeader = $("#" + section).find("table.table-fixed-header");
+					if (tableFixedHeader.length) {
+						setTimeout(function() {
+							fixedTableHeader(tableFixedHeader);
+						}, 500);
+					}
+				}
+				if (!refreshOnly) {
+					var callback = callbackBySection(section);
+					if ($.isFunction(callback))
+						callback();
+				}
+				return false;
+			},
+			error : unknowError
+		});
+	return false;
+}
+
+// reload sections
 function reloadSection(section, subSection, refreshOnly) {
 	if (Array.isArray(section)) {
 		for (var int = 0; int < section.length; int++) {
@@ -14,6 +55,10 @@ function reloadSection(section, subSection, refreshOnly) {
 		var controller = controllerBySection(section, subSection);
 		if (controller == null || controller == undefined)
 			return false;
+		
+		
+		
+		
 		$.ajax({
 			url : context + controller,
 			type : "get",
@@ -51,24 +96,24 @@ function reloadSection(section, subSection, refreshOnly) {
 
 function controllerBySection(section, subSection) {
 	var controllers = {
-		"section_asset" : "/Asset/Section",
-		"section_parameter" : "/Parameter/Section",
-		"section_scenario" : "/Scenario/Section",
-		"section_phase" : "/Phase/Section",
+		"section_asset" : "/Analysis/Asset/Section",
+		"section_parameter" : "/Analysis/Parameter/Section",
+		"section_scenario" : "/Analysis/Scenario/Section",
+		"section_phase" : "/Analysis/Phase/Section",
 		"section_analysis" : "/Analysis/Section",
 		"section_profile_analysis" : "/AnalysisProfile/Section",
-		"section_measure" : "/Measure/Section",
+		"section_measure" : "/Analysis/Standard/Section",
 		"section_customer" : "/KnowledgeBase/Customer/Section",
 		"section_language" : "/KnowledgeBase/Language/Section",
 		"section_standard" : "/KnowledgeBase/Standard/Section",
 		"section_user" : "/Admin/User/Section",
-		"section_actionplans" : "/ActionPlan/Section",
-		"section_summary" : "/ActionPlanSummary/Section",
-		"section_riskregister" : "/RiskRegister/Section"
+		"section_actionplans" : "/Analysis/ActionPlan/Section",
+		"section_summary" : "/Analysis/ActionPlanSummary/Section",
+		"section_riskregister" : "/Analysis/RiskRegister/Section"
 	};
 
 	if(section.match("^section_measure_"))
-		return "/Measure/Section/"+ section.substr(16,section.length);
+		return "/Analysis/Standard/Section/"+ section.substr(16,section.length);
 	
 	if (subSection == null || subSection == undefined)
 		return controllers[section];

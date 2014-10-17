@@ -1,1 +1,0 @@
-<div class="modal fade" id="actionplancomputeoptions" tabindex="-1" role="dialog" data-aria-labelledby="actionplancomputeoptions" data-aria-hidden="true" data-backdrop="static"></div>

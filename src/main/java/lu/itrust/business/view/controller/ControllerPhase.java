@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
-@RequestMapping("/Phase")
+@RequestMapping("/Analysis/Phase")
 @Controller
 public class ControllerPhase {
 
@@ -77,7 +77,7 @@ public class ControllerPhase {
 		// add phases of this analysis
 		model.addAttribute("phases", servicePhase.getAllFromAnalysis(integer));
 
-		return "analysis/components/phase";
+		return "analysis/components/phase/phase";
 	}
 
 	/**

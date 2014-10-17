@@ -420,7 +420,6 @@ public class KnowLedgeBase {
 				// error text
 				System.out.println("Could not close Database connections!");
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

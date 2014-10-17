@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
-@RequestMapping("/Assessment")
+@RequestMapping("/Analysis/Assessment")
 @Controller
 public class ControllerAssessment {
 
@@ -455,7 +455,7 @@ public class ControllerAssessment {
 		asset.setALEO(aleo.getValue());
 		asset.setALEP(alep.getValue());
 		serviceAsset.saveOrUpdate(asset);
-		return "analysis/components/assessmentAsset";
+		return "analysis/components/assessment/assessmentAsset";
 	}
 
 	/**
@@ -484,6 +484,6 @@ public class ControllerAssessment {
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
 		model.addAttribute("assessments", assessments);
-		return "analysis/components/assessmentScenario";
+		return "analysis/components/assessment/assessmentScenario";
 	}
 }

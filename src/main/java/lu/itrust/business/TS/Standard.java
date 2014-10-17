@@ -17,7 +17,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import lu.itrust.business.TS.tsconstant.Constant;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.exception.TrickException;
 
 /**
@@ -71,6 +73,7 @@ public class Standard implements Serializable, Cloneable {
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "fiAnalysis", nullable = true)
+	@Cascade({ CascadeType.ALL })
 	private Analysis analysis = null;
 
 	/***********************************************************************************************
@@ -263,8 +266,7 @@ public class Standard implements Serializable, Cloneable {
 	 */
 	public Standard duplicate() throws CloneNotSupportedException {
 		Standard standard = (Standard) super.clone();
-		if (standard.label.equalsIgnoreCase(Constant.STANDARD_CUSTOM))
-			standard.id = -1;
+		standard.id = -1;
 		return standard;
 	}
 
@@ -341,7 +343,8 @@ public class Standard implements Serializable, Cloneable {
 		return analysis;
 	}
 
-	/** setAnalysis: <br>
+	/**
+	 * setAnalysis: <br>
 	 * Description
 	 * 
 	 * @param analysis

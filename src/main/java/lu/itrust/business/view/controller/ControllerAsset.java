@@ -51,7 +51,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @Controller
-@RequestMapping("/Asset")
+@RequestMapping("/Analysis/Asset")
 public class ControllerAsset {
 
 	@Autowired
@@ -199,7 +199,7 @@ public class ControllerAsset {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String edit(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("assettypes", serviceAssetType.getAll());
-		return "analysis/components/forms/asset";
+		return "analysis/components/asset/manageAsset";
 	}
 
 	/**
@@ -259,7 +259,7 @@ public class ControllerAsset {
 		model.addAttribute("assetALE", AssessmentManager.ComputeAssetALE(assets, assessments));
 		model.addAttribute("assets", assets);
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
-		return "analysis/components/asset";
+		return "analysis/components/asset/asset";
 	}
 
 	/**
@@ -281,7 +281,7 @@ public class ControllerAsset {
 		// add asset object to model
 		model.addAttribute("asset", serviceAsset.get(elementID));
 
-		return "analysis/components/forms/asset";
+		return "analysis/components/asset/manageAsset";
 	}
 
 	/**

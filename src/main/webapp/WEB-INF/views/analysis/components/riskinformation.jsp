@@ -66,7 +66,7 @@
 										<c:if test="${previewRisk.category != risk_information.category}">
 											<c:set var="previewRisk" value="${risk_information}" />
 											<tr>
-												<td colspan="13"></td>
+												<td colspan="12"></td>
 											</tr>
 										</c:if>
 									</c:otherwise>
@@ -92,7 +92,7 @@
 										<c:choose>
 											<c:when test="${categoryRiskInformation == 'Threat' || categoryRiskInformation == 'Risk' }">
 												<td><strong><spring:message text="${risk_information.chapter}" /></strong></td>
-												<td colspan="13"><strong><fmt:message key="${codeLabel}"  /></strong></td>
+												<td colspan="12"><strong><fmt:message key="${codeLabel}"  /></strong></td>
 											</c:when>
 											<c:otherwise>
 												<td><strong><spring:message text="${risk_information.chapter}" /></strong></td>

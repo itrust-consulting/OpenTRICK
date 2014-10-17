@@ -9,7 +9,7 @@ function editScenario(rowTrickId, isAdd) {
 	}
 
 	$.ajax({
-		url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Scenario/Add" : "/Scenario/Edit/" + rowTrickId),
+		url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Analysis/Scenario/Add" : "/Analysis/Scenario/Edit/" + rowTrickId),
 		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
@@ -29,7 +29,7 @@ function editScenario(rowTrickId, isAdd) {
 
 function saveScenario(form) {
 	return $.ajax({
-		url : context + "/Scenario/Save",
+		url : context + "/Analysis/Scenario/Save",
 		type : "post",
 		data : serializeScenarioForm(form),
 		contentType : "application/json;charset=UTF-8",
@@ -100,7 +100,7 @@ function deleteScenario(scenarioId) {
 			while (selectedScenario.length) {
 				rowTrickId = selectedScenario.pop();
 				$.ajax({
-					url : context + "/Scenario/Delete/" + rowTrickId,
+					url : context + "/Analysis/Scenario/Delete/" + rowTrickId,
 					contentType : "application/json;charset=UTF-8",
 					async : false,
 					success : function(response) {
@@ -124,7 +124,7 @@ function deleteScenario(scenarioId) {
 		$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang));
 		$("#confirm-dialog .btn-danger").click(function() {
 			$.ajax({
-				url : context + "/Scenario/Delete/" + scenarioId,
+				url : context + "/Analysis/Scenario/Delete/" + scenarioId,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(reponse) {
@@ -168,7 +168,7 @@ function selectScenario(scenarioId, value) {
 				requiredUpdate.push(selectedItem[i]);
 		}
 		$.ajax({
-			url : context + "/Scenario/Select",
+			url : context + "/Analysis/Scenario/Select",
 			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(requiredUpdate, null, 2),
 			type : 'post',
@@ -180,7 +180,7 @@ function selectScenario(scenarioId, value) {
 		});
 	} else {
 		$.ajax({
-			url : context + "/Scenario/Select/" + scenarioId,
+			url : context + "/Analysis/Scenario/Select/" + scenarioId,
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {

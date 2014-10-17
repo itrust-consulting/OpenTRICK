@@ -120,6 +120,9 @@ public class ControllerAnalysisCreate {
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
 	
+	@Autowired
+	private Duplicator duplicator;
+	
 	@RequestMapping(method = RequestMethod.GET)
 	public String buildCustom(HttpSession session, Principal principal, Model model, Locale locale) throws Exception {
 
@@ -362,9 +365,11 @@ public class ControllerAnalysisCreate {
 				mappingPhases.put(Constant.PHASE_DEFAULT, phase);
 				analysis.addUsedPhase(phase);
 			}
-
-			Duplicator duplicator = new Duplicator();
+			
+			serviceAnalysis.save(analysis);
+			
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(customAnalysisForm.getStandard());
+			
 			for (AnalysisStandard analysisStandard : analysisStandards)
 				analysis.addAnalysisStandard(duplicator.duplicateAnalysisStandard(analysisStandard, mappingPhases, mappingParameters, false));
 			serviceAnalysis.saveOrUpdate(analysis);

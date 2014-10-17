@@ -80,7 +80,7 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			DAOStandard daoStandard = new DAOStandardHBM(session);
 			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 			DAOCustomer daoCustomer = new DAOCustomerHBM(session);
-
+			
 			Customer customer = daoCustomer.getProfile();
 			if (customer == null) {
 				serviceTaskFeedback.send(id, new MessageHandler("error.not.customer.profile", "Please add a customer profile before to create a analysis profile",null, null));
@@ -90,12 +90,13 @@ public class WorkerCreateAnalysisProfile implements Worker {
 			reloadStandard(daoStandard);
 			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.load", "Load analysis",null, 2));
 			Analysis analysis = daoAnalysis.get(analysisProfile.getIdAnalysis());
-			Analysis copy = new Duplicator().createProfile(analysis, analysisProfile, serviceTaskFeedback, id);
+			Analysis copy = new Duplicator(session).createProfile(analysis, analysisProfile, serviceTaskFeedback, id);
 			copy.setCustomer(customer);
 			copy.setOwner(owner);
 			serviceTaskFeedback.send(id, new MessageHandler("info.analysis.profile.save", "Save analysis profile",null, 96));
 			transaction = session.beginTransaction();
 			daoAnalysis.saveOrUpdate(copy);
+			// TODO correctly duplicate analysis bound standards
 			transaction.commit();
 			serviceTaskFeedback.send(id, new MessageHandler("success.analysis.profile", "New analysis profile was successfully created",null, 100));
 		}

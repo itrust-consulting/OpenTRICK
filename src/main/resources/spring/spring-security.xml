@@ -10,10 +10,11 @@
 	</global-method-security>
 
 	<http auto-config="true">
-		<intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/addUser*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<form-login login-page="/login" default-target-url="/home" authentication-success-handler-ref="authenticationSuccessHandler" authentication-failure-url="/login/error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
-		<logout logout-success-url="/home" />
+		<intercept-url pattern="/Login" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/Register" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/DoRegister" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<form-login login-page="/Login" default-target-url="/Home" authentication-success-handler-ref="authenticationSuccessHandler" authentication-failure-url="/Login/Error" authentication-failure-handler-ref="customAuthenticationFailureHandler" />
+		<logout logout-success-url="/Home" />
 	</http>
 
 	<authentication-manager>

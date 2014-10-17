@@ -321,8 +321,8 @@ function customAnalysis(element) {
 										if (typeof response == 'object') {
 											var $analysisVersions = $(modal.modal_body).find("#analysis-versions");
 											for (var i = 0; i < response.length; i++) {
-												var $li = $("<li class='list-group-item' trick-id='" + response[i].id + "' title='" + response[i].label + " v."
-														+ response[i].version + "'>" + response[i].version + "</li>");
+												var $li = $("<li class='list-group-item' trick-id='" + response[i].id + "' title='" + response[i].label + " v." + response[i].version + "'>"
+														+ response[i].version + "</li>");
 												$li.appendTo($analysisVersions);
 											}
 											$(modal.modal_body).find("#analysis-versions li").hover(function() {
@@ -377,20 +377,19 @@ function customAnalysis(element) {
 								$(this).addClass("success");
 								$(this).parent().find('input').attr("value", ui.draggable.attr("trick-id"));
 								var callback = $(this).parent().attr("trick-callback");
-								$(
-										"<a href='#' class='pull-right text-danger' title='" + $removeText
-												+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($(this)).click(function() {
-									var $parent = $(this).parent();
-									$(this).remove();
-									$parent.removeAttr("trick-id");
-									$parent.removeAttr("title");
-									$parent.removeClass("success");
-									$parent.text($emptyText);
-									$parent.parent().find('input').attr("value", '-1');
-									if (callback != undefined)
-										eval(callback);
-									return false;
-								});
+								$("<a href='#' class='pull-right text-danger' title='" + $removeText + "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>")
+										.appendTo($(this)).click(function() {
+											var $parent = $(this).parent();
+											$(this).remove();
+											$parent.removeAttr("trick-id");
+											$parent.removeAttr("title");
+											$parent.removeClass("success");
+											$parent.text($emptyText);
+											$parent.parent().find('input').attr("value", '-1');
+											if (callback != undefined)
+												eval(callback);
+											return false;
+										});
 
 								if (callback != undefined)
 									eval(callback);
@@ -581,7 +580,7 @@ function calculateActionPlan(analysisId) {
 		data["id"] = analysisID;
 
 		$.ajax({
-			url : context + "/ActionPlan/Compute",
+			url : context + "/Analyis/ActionPlan/Compute",
 			type : "post",
 			data : JSON.stringify(data),
 			async : true,
@@ -631,7 +630,7 @@ function calculateRiskRegister(analysisId) {
 		data["id"] = analysisID;
 
 		$.ajax({
-			url : context + "/RiskRegister/Compute",
+			url : context + "/Analyis/RiskRegister/Compute",
 			type : "post",
 			data : JSON.stringify(data),
 			async : true,
@@ -668,8 +667,8 @@ function exportAnalysis(analysisId) {
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				if (response["success"] != undefined) {
-					//if (taskManager == undefined)
-						taskManager = new TaskManager();
+					// if (taskManager == undefined)
+					taskManager = new TaskManager();
 					taskManager.Start();
 				} else if (message["error"]) {
 					$("#alert-dialog .modal-body").html(message["error"]);
@@ -735,6 +734,8 @@ function duplicateAnalysis(form, analyisId) {
 
 			$("#history_oldVersion").attr("value", oldVersion);
 
+			var errorcounter = 0;
+
 			for ( var error in response) {
 				$(".progress-striped").removeClass("active");
 				var errorElement = document.createElement("label");
@@ -744,15 +745,19 @@ function duplicateAnalysis(form, analyisId) {
 
 				switch (error) {
 				case "author":
+					errorcounter++;
 					$(errorElement).appendTo($("#addHistoryModal #history_author").parent());
 					break;
 				case "version":
 					$(errorElement).appendTo($("#addHistoryModal #history_version").parent());
+					errorcounter++;
 					break;
 				case "comment":
+					errorcounter++;
 					$(errorElement).appendTo($("#addHistoryModal #history_comment").parent());
 					break;
 				case "analysis": {
+					errorcounter++;
 					var alertElement = document.createElement("div");
 					alertElement.setAttribute("class", "alert alert-warning");
 
@@ -764,7 +769,7 @@ function duplicateAnalysis(form, analyisId) {
 				}
 
 			}
-			if (!$("#addHistoryModal .label-danger").length && !$("#addHistoryModal [class='alert alert-warning alert-dismissable']").length) {
+			if (errorcounter == 0) {
 
 				var alertElement = document.createElement("div");
 				alertElement.setAttribute("class", "alert alert-success");
@@ -788,7 +793,7 @@ function analysisTableSortable() {
 
 	// check if datatable has to be initialised
 	var tables = $("#section_analysis table");
-	
+
 	// define sort order of text
 	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
 

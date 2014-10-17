@@ -29,7 +29,6 @@ import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.cssf.RiskRegisterItem;
-import lu.itrust.business.TS.settings.AnalysisSetting;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.exception.TrickException;
@@ -94,10 +93,10 @@ public class Analysis implements Serializable, Cloneable {
 
 	@Column(name = "dtUncertainty", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean uncertainty = false;
-	
+
 	@Column(name = "dtCssf", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean cssf = false;
-	
+
 	/** The Customer object */
 	@Access(AccessType.FIELD)
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -135,11 +134,6 @@ public class Analysis implements Serializable, Cloneable {
 	@Access(AccessType.FIELD)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
-
-	@OneToMany
-	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
-	private List<AnalysisSetting> analysisSettings = new ArrayList<AnalysisSetting>();
 
 	/** List of History data of the Analysis */
 	@OneToMany
@@ -814,19 +808,19 @@ public class Analysis implements Serializable, Cloneable {
 
 	public List<NormalStandard> getAllNormalStandards() {
 		List<NormalStandard> normalStandards = new ArrayList<NormalStandard>();
-		for(AnalysisStandard standard : analysisStandards)
-			if(standard.getStandard().getClass().isAssignableFrom(NormalStandard.class))
+		for (AnalysisStandard standard : analysisStandards)
+			if (standard.getStandard().getClass().isAssignableFrom(NormalStandard.class))
 				normalStandards.add((NormalStandard) standard);
 		return normalStandards;
 	}
-	
-	public MaturityStandard getMaturityStandard(){
-		for(AnalysisStandard standard : analysisStandards)
-			if(standard.getStandard().getClass().isAssignableFrom(MaturityStandard.class))
+
+	public MaturityStandard getMaturityStandard() {
+		for (AnalysisStandard standard : analysisStandards)
+			if (standard.getStandard().getClass().isAssignableFrom(MaturityStandard.class))
 				return (MaturityStandard) standard;
 		return null;
 	}
-		
+
 	/**
 	 * initialisePhases: <br>
 	 * Creates the Phase List "usedPhases" from Measures
@@ -842,11 +836,11 @@ public class Analysis implements Serializable, Cloneable {
 		// * initialise variables
 		// ****************************************************************
 		List<Phase> tmpPhases = new ArrayList<Phase>();
-		
+
 		Phase smallest = null;
 		List<NormalStandard> normalStandards = this.getAllNormalStandards();
 		MaturityStandard maturityStandard = this.getMaturityStandard();
-		
+
 		// ****************************************************************
 		// * retrieve all phases and add them to the list of phases
 		// * therefore parse all analysisStandard and all measures to check phases
@@ -854,28 +848,28 @@ public class Analysis implements Serializable, Cloneable {
 
 		// parse all analysisStandard
 		for (int i = 0; i < normalStandards.size(); i++) {
-		
+
 			// parse all measures of the standard
 			for (int j = 0; j < normalStandards.get(i).getMeasures().size(); j++) {
 
 				int phaseNumber = normalStandards.get(i).getMeasure(j).getPhase().getNumber();
-				
-				if(this.getPhaseByNumber(phaseNumber) == null)
-					this.addUsedPhase(normalStandards.get(i).getMeasure(j).getPhase());					
-				
+
+				if (this.getPhaseByNumber(phaseNumber) == null)
+					this.addUsedPhase(normalStandards.get(i).getMeasure(j).getPhase());
+
 			}
-		}		
-		
-		if(maturityStandard!=null) {
-		
+		}
+
+		if (maturityStandard != null) {
+
 			// parse all measures of the standard
 			for (int i = 0; i < maturityStandard.getLevel1Measures().size(); i++) {
-	
+
 				int phaseNumber = maturityStandard.getLevel1Measures().get(i).getPhase().getNumber();
-				
-				if(this.getPhaseByNumber(phaseNumber) == null)
-					this.addUsedPhase(maturityStandard.getLevel1Measures().get(i).getPhase());					
-				
+
+				if (this.getPhaseByNumber(phaseNumber) == null)
+					this.addUsedPhase(maturityStandard.getLevel1Measures().get(i).getPhase());
+
 			}
 		}
 
@@ -938,7 +932,7 @@ public class Analysis implements Serializable, Cloneable {
 		}
 
 		usedPhases = tmpPhases;
-		
+
 		// for (int i=0; i < usedPhases.size();i++) {
 		// System.out.println("ID: " + usedPhases.get(i).getId() +
 		// "::: Number: " + usedPhases.get(i).getNumber());
@@ -1688,6 +1682,22 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	/**
+	 * getAnalysisStandards: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public List<AnalysisStandard> getAnalysisOnlyStandards() {
+		List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
+		for (AnalysisStandard standard : analysisStandards) {
+			if (standard.getStandard().getAnalysis() != null)
+				standards.add(standard);
+		}
+		return standards;
+
+	}
+
+	/**
 	 * addAnalysisStandard: <br>
 	 * Description
 	 * 
@@ -1698,6 +1708,16 @@ public class Analysis implements Serializable, Cloneable {
 		this.analysisStandards.add(analysisStandard);
 	}
 
+	/**
+	 * addAnalysisStandard: <br>
+	 * Description
+	 * 
+	 * @param analysisStandard
+	 */
+	public void removeAnalysisStandard(AnalysisStandard analysisStandard) {
+		this.analysisStandards.remove(analysisStandard);
+	}
+	
 	/**
 	 * setAnalysisStandards: <br>
 	 * Description
@@ -2100,8 +2120,8 @@ public class Analysis implements Serializable, Cloneable {
 	public String toString() {
 		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label + ", histories="
 			+ histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets + ", riskInformations="
-			+ riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisStandards=" + analysisStandards + ", usedphases=" + usedPhases + ", actionPlans=" + actionPlans
-			+ ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
+			+ riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisStandards=" + analysisStandards + ", usedphases=" + usedPhases + ", actionPlans="
+			+ actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}
 
 	/**
@@ -2415,7 +2435,8 @@ public class Analysis implements Serializable, Cloneable {
 		this.profile = profile;
 	}
 
-	/** isUncertainty: <br>
+	/**
+	 * isUncertainty: <br>
 	 * Returns the uncertainty field value.
 	 * 
 	 * @return The value of the uncertainty field
@@ -2424,17 +2445,19 @@ public class Analysis implements Serializable, Cloneable {
 		return uncertainty;
 	}
 
-	/** setUncertainty: <br>
+	/**
+	 * setUncertainty: <br>
 	 * Sets the Field "uncertainty" with a value.
 	 * 
-	 * @param uncertainty 
-	 * 			The Value to set the uncertainty field
+	 * @param uncertainty
+	 *            The Value to set the uncertainty field
 	 */
 	public void setUncertainty(boolean uncertainty) {
 		this.uncertainty = uncertainty;
 	}
 
-	/** isCssf: <br>
+	/**
+	 * isCssf: <br>
 	 * Returns the cssf field value.
 	 * 
 	 * @return The value of the cssf field
@@ -2443,11 +2466,12 @@ public class Analysis implements Serializable, Cloneable {
 		return cssf;
 	}
 
-	/** setCssf: <br>
+	/**
+	 * setCssf: <br>
 	 * Sets the Field "cssf" with a value.
 	 * 
-	 * @param cssf 
-	 * 			The Value to set the cssf field
+	 * @param cssf
+	 *            The Value to set the cssf field
 	 */
 	public void setCssf(boolean cssf) {
 		this.cssf = cssf;

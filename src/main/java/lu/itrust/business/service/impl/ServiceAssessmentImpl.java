@@ -333,7 +333,6 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 
 	@Override
 	public List<Assessment> getAllFromAnalysisAndSelected(Integer idAnalysis) {
-		// TODO Auto-generated method stub
 		return daoAssessment.getAllFromAnalysisAndSelected(idAnalysis);
 	}
 }

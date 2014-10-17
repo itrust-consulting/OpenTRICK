@@ -40,7 +40,7 @@ TimeoutInterceptor.prototype = {
 		return (new Date().getTime() - this.lastUpdate.getTime());
 	},
 	ShowLogin : function() {
-		//this.Stop();
+		// this.Stop();
 		var url = undefined;
 		if ($("#nav-container").length) {
 			var idAnalysis = $("#nav-container").attr("trick-id");
@@ -68,7 +68,7 @@ TimeoutInterceptor.prototype = {
 					if (!that.Reinitialise())
 						return that.ShowLogin();
 					else
-						that.alertDialog.Hide();
+						that.alertDialog.hideModal();
 				}, 2000);
 				return false;
 			});
@@ -129,13 +129,11 @@ TimeoutInterceptor.prototype = {
 			return;
 		var that = this;
 		var daily = this.LIMIT_SESSION - this.CurrentTime();
-		var interval = 50000;
-		/*if (daily < 10000)
-			interval = 5000;
-		else if (daily < 30000)*/
+		var interval = 180000;
+		if (daily < 180000)
+			interval = 30000;
+		if (daily < 60000)
 			interval = 10000;
-	/*	else if (daily < 60000)
-			interval = 30000;*/
 		this.timer = setTimeout(function() {
 			that.Check();
 		}, interval);

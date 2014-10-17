@@ -457,29 +457,6 @@ function updateStatus(progressBar, idTask, callback, status) {
 	return false;
 }
 
-function deleteAssetTypeValueDuplication() {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
-		$.ajax({
-			url : context + "/Scenario/Delete/AssetTypeValueDuplication",
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("toggle");
-				} else if (response["success"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["success"]);
-					$("#alert-dialog").modal("toggle");
-				}
-			},
-			error : unknowError
-		});
-	} else
-		permissionError();
-	return false;
-}
-
 function serializeForm(form) {
 	var $form = $(form);
 	if (!$form.length)

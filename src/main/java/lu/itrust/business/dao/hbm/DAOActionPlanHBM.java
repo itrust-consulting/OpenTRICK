@@ -98,7 +98,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<ActionPlanEntry> getAllFromAnalysis(Integer id) throws Exception {
-		String query = "Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.position ASC, actionplan.totalALE DESC";
+		String query = "Select actionplan From Analysis a inner join a.actionPlans actionplan where a.id = :analysisID ORDER BY actionplan.actionPlanType.name ASC, actionplan.position ASC, actionplan.totalALE DESC";
 		return (List<ActionPlanEntry>) getSession().createQuery(query).setParameter("analysisID", id).list();
 	}
 

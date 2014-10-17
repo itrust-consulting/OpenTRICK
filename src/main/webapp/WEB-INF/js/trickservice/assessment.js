@@ -143,7 +143,7 @@ function AssessmentAssetViewer(assetId) {
 			this.Intialise();
 		var instance = this;
 		return $.ajax({
-			url : context + "/Assessment/Asset/" + instance.assetId,
+			url : context + "/Analysis/Assessment/Asset/" + instance.assetId,
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
@@ -171,7 +171,7 @@ function AssessmentAssetViewer(assetId) {
 	AssessmentAssetViewer.prototype.Update = function() {
 		var instance = this;
 		return $.ajax({
-			url : context + "/Assessment/Asset/" + instance.assetId + "/Update",
+			url : context + "/Analysis/Assessment/Asset/" + instance.assetId + "/Update",
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
@@ -209,7 +209,7 @@ function AssessmentScenarioViewer(scenarioId) {
 			this.Intialise();
 		var instance = this;
 		return $.ajax({
-			url : context + "/Assessment/Scenario/" + instance.scenarioId,
+			url : context + "/Analysis/Assessment/Scenario/" + instance.scenarioId,
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
@@ -238,7 +238,7 @@ function AssessmentScenarioViewer(scenarioId) {
 	AssessmentScenarioViewer.prototype.Update = function() {
 		var instance = this;
 		return $.ajax({
-			url : context + "/Assessment/Scenario/" + instance.scenarioId + "/Update",
+			url : context + "/Analysis/Assessment/Scenario/" + instance.scenarioId + "/Update",
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
@@ -286,7 +286,7 @@ function computeAssessment(silent) {
 	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
-			url : context + "/Assessment/Update",
+			url : context + "/Analysis/Assessment/Update",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			async : true,
@@ -317,7 +317,7 @@ function refreshAssessment() {
 		$("#confirm-dialog .modal-body").html(MessageResolver("confirm.refresh.assessment", "Are you sure, you want to rebuild all assessments"));
 		$("#confirm-dialog .btn-danger").click(function() {
 			$.ajax({
-				url : context + "/Assessment/Refresh",
+				url : context + "/Analysis/Assessment/Refresh",
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				async : true,
@@ -345,7 +345,7 @@ function updateAssessmentAle(silent) {
 	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
-			url : context + "/Assessment/Update/ALE",
+			url : context + "/Analysis/Assessment/Update/ALE",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			async : true,

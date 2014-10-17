@@ -67,7 +67,7 @@ function RRFView() {
 		var language = $("#nav-container").attr("trick-language");
 		this.setTitle(MessageResolver("label.title.editor.rrf", "Risk reduction factor", null, language));
 		$.ajax({
-			url : context + "/Scenario/RRF",
+			url : context + "/Analysis/RRF",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
@@ -272,7 +272,7 @@ function ScenarioRRFController(rrfView, container, name) {
 			this.CheckTypeValue();
 		}
 		$.ajax({
-			url : context + "/Scenario/RRF/Update",
+			url : context + "/Analysis/RRF/Scenario/Update",
 			type : "post",
 			data : '{"id":' + that.idScenario + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.rrfView.filter) + '}',
 			contentType : "application/json;charset=UTF-8",
@@ -289,7 +289,7 @@ function ScenarioRRFController(rrfView, container, name) {
 		if (this.idScenario < 1 || this.idScenario == undefined)
 			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
 		$.ajax({
-			url : context + "/Scenario/" + that.idScenario,
+			url : context + "/Analysis/Scenario/" + that.idScenario,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
@@ -397,7 +397,7 @@ function ScenarioRRFController(rrfView, container, name) {
 		if (this.rrfView.filter == undefined || this.rrfView.filter.measures == undefined || !this.rrfView.filter.measures.length)
 			this.GenerateFilter();
 		$.ajax({
-			url : context + "/Scenario/RRF/" + that.idScenario + "/Load",
+			url : context + "/Analysis/RRF/Scenario/" + that.idScenario + "/Load",
 			type : "post",
 			data : JSON.stringify(that.rrfView.filter),
 			contentType : "application/json;charset=UTF-8",
@@ -511,7 +511,7 @@ function MeasureRRFController(rrfView, container, name) {
 		if (this.idMeasure < 1 || this.idMeasure == undefined)
 			this.idMeasure = $(this.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
 		$.ajax({
-			url : context + "/Measure/RRF/Update",
+			url : context + "/Analysis/RRF/Measure/Update",
 			type : "post",
 			data : '{"id":' + that.idMeasure + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.rrfView.filter) + '}',
 			contentType : "application/json;charset=UTF-8",
@@ -526,8 +526,9 @@ function MeasureRRFController(rrfView, container, name) {
 		var that = this;
 		if (this.idMeasure < 1 || this.idMeasure == undefined)
 			this.idMeasure = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+			var idStandard = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Standard']").attr("trick-id");
 		$.ajax({
-			url : context + "/Measure/" + that.idMeasure,
+			url : context + "/Analysis/Standard/"+idStandard+"/Measure/" + that.idMeasure,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
@@ -637,7 +638,7 @@ function MeasureRRFController(rrfView, container, name) {
 		if (this.rrfView.filter == undefined || this.rrfView.filter.scenarios == undefined || !this.rrfView.filter.scenarios.length)
 			this.GenerateFilter();
 		$.ajax({
-			url : context + "/Measure/RRF/" + that.idMeasure + "/Load",
+			url : context + "/Analysis/RRF/Measure/" + that.idMeasure + "/Load",
 			type : "post",
 			data : JSON.stringify(that.rrfView.filter),
 			contentType : "application/json;charset=UTF-8",
@@ -666,7 +667,7 @@ function importRRF(idAnalysis) {
 		idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
-			url : context + "/KnowledgeBase/Standard/Import/RRF",
+			url : context + "/Analysis/Standard/Import/RRF",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var parser = new DOMParser();
@@ -697,7 +698,7 @@ function importRRF(idAnalysis) {
 						$(modal.modal).find("button").prop("disabled", true);
 						$(modal.modal_body).find(".alert").remove();
 						$.ajax({
-							url : context + "/KnowledgeBase/Standard/Import/RRF/Save",
+							url : context + "/Analysis/Standard/Import/RRF/Save",
 							type : "post",
 							data : $(modal.modal_body).find("form").serialize(),
 							success : function(response) {

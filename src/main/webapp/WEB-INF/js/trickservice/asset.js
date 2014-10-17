@@ -23,7 +23,7 @@ function selectAsset(assetId, value) {
 				requiredUpdate.push(selectedItem[i]);
 		}
 		$.ajax({
-			url : context + "/Asset/Select",
+			url : context + "/Analysis/Asset/Select",
 			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(requiredUpdate, null, 2),
 			type : 'post',
@@ -35,7 +35,7 @@ function selectAsset(assetId, value) {
 		});
 	} else {
 		$.ajax({
-			url : context + "/Asset/Select/" + assetId,
+			url : context + "/Analysis/Asset/Select/" + assetId,
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
@@ -60,7 +60,7 @@ function deleteAsset(assetId) {
 	$("#confirm-dialog .modal-body").html(MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset <b>" + assetname + "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", assetname, lang));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
-			url : context + "/Asset/Delete/" + assetId,
+			url : context + "/Analysis/Asset/Delete/" + assetId,
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
@@ -93,7 +93,7 @@ function editAsset(rowTrickId, isAdd) {
 		rowTrickId = findTrickID(selectedScenario[0]);
 	}
 	$.ajax({
-		url : context + ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Asset/Add" : "/Asset/Edit/" + rowTrickId),
+		url : context + ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Analysis/Asset/Add" : "/Analysis/Asset/Edit/" + rowTrickId),
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
@@ -112,7 +112,7 @@ function editAsset(rowTrickId, isAdd) {
 
 function saveAsset(form) {
 	return $.ajax({
-		url : context + "/Asset/Save",
+		url : context + "/Analysis/Asset/Save",
 		type : "post",
 		async : true,
 		data : serializeAssetForm(form),

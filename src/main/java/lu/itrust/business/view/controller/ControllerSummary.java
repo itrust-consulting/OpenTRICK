@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
-@RequestMapping("/ActionPlanSummary")
+@RequestMapping("/Analysis/ActionPlanSummary")
 @Controller
 public class ControllerSummary {
 

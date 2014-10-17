@@ -247,13 +247,11 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 
 	@Override
 	public Customer getOneNoProfile() {
-		// TODO Auto-generated method stub
 		return daoCustomer.getOneNoProfile();
 	}
 
 	@Override
 	public Customer getFromUsernameAndId(String username, int idCustomer) {
-		// TODO Auto-generated method stub
 		return daoCustomer.getFromUsernameAndId(username, idCustomer);
 	}
 }

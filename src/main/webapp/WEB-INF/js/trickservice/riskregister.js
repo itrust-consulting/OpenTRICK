@@ -26,7 +26,7 @@ function calculateRiskRegister(analysisId) {
 		data["id"] = analysisID;
 
 		$.ajax({
-			url : context + "/RiskRegister/Compute",
+			url : context + "/Analysis/RiskRegister/Compute",
 			type : "post",
 			data : JSON.stringify(data),
 			async : true,

@@ -3,7 +3,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div id="section_measure_description" class="modal fade" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" data-aria-hidden="true">
+<div id="section_measure_description" class="modal fade" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" style="z-index:1041" data-aria-hidden="true">
 	<div class="modal-dialog" style="width: 95%;min-width:1170px;">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -14,7 +14,7 @@
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="addMeasureModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewMeasure" data-aria-hidden="true">
+<div class="modal fade" id="addMeasureModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewMeasure" style="z-index:1042" data-aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -55,7 +55,7 @@
 		</div>
 	</div>
 </div>
-<div class="modal fade" id="deleteMeasureModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteMeasure" role="dialog">
+<div class="modal fade" id="deleteMeasureModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteMeasure" style="z-index:1042" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">

@@ -37,7 +37,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -52,7 +51,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @since Dec 13, 2013
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
-@RequestMapping("/ActionPlan")
+@RequestMapping("Analysis/ActionPlan")
 @Controller
 public class ControllerActionPlan {
 
@@ -174,9 +173,11 @@ public class ControllerActionPlan {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{analysisID}/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisID, #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
-	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model, @PathVariable("analysisID") Integer analysisID) throws Exception {
+	@RequestMapping(value = "/ComputeOptions", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).CALCULATE_ACTIONPLAN)")
+	public String computeActionPlanOptions(HttpSession session, Principal principal, Locale locale, Map<String, Object> model) throws Exception {
+
+		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
 
 		model.put("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(analysisID));
 		model.put("show_cssf", serviceAnalysis.isAnalysisCssf(analysisID));
@@ -184,7 +185,7 @@ public class ControllerActionPlan {
 		model.put("id", analysisID);
 
 		model.put("standards", serviceAnalysisStandard.getAllComputableFromAnalysis(analysisID));
-		
+
 		return "analysis/components/forms/actionplanoptions";
 	}
 
@@ -210,14 +211,14 @@ public class ControllerActionPlan {
 		int analysisId = jsonNode.get("id").asInt();
 
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().substring(0, 2));
-		
+
 		// verify if user is authorized to compute the actionplan
 		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.CALCULATE_ACTIONPLAN)) {
 
 			// retrieve options selected by the user
 
 			boolean uncertainty = serviceAnalysis.isAnalysisUncertainty(analysisId);
-			
+
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
 
 			List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
