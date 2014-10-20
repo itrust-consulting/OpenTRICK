@@ -24,32 +24,28 @@ import lu.itrust.business.TS.usermanagement.User;
  * @version 0.1
  * @since Jan 9, 2014
  */
-@Entity 
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","fiUser"}))
-public class UserAnalysisRight implements Serializable,Cloneable {
+@Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiUser" }))
+public class UserAnalysisRight implements Serializable, Cloneable {
 
 	/** serialVersionUID */
 	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** id */
-	@Id @GeneratedValue 
-	@Column(name="idUserAnalysisRight")
+	@Id
+	@GeneratedValue
+	@Column(name = "idUserAnalysisRight")
 	private long id = -1;
 
 	/** User */
 	@ManyToOne
-	@JoinColumn(name="fiUser", nullable=false)
+	@JoinColumn(name = "fiUser", nullable = false)
 	private User user;
-
-	/** Analysis */
-	@ManyToOne 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	private Analysis analysis;
 
 	/** rights */
 	@Enumerated(EnumType.STRING)
-	@Column(name="dtRight", nullable=false)
+	@Column(name = "dtRight", nullable = false)
 	private AnalysisRight right;
 
 	/**
@@ -60,13 +56,13 @@ public class UserAnalysisRight implements Serializable,Cloneable {
 
 	/**
 	 * Constructor: <br>
+	 * 
 	 * @param user
 	 * @param analysis
 	 * @param right
 	 */
-	public UserAnalysisRight(User user, Analysis analysis, AnalysisRight right) {
+	public UserAnalysisRight(User user, AnalysisRight right) {
 		this.user = user;
-		this.analysis = analysis;
 		this.right = right;
 	}
 
@@ -89,27 +85,6 @@ public class UserAnalysisRight implements Serializable,Cloneable {
 	 */
 	public void setUser(User user) {
 		this.user = user;
-	}
-
-	/**
-	 * getAnalysis: <br>
-	 * Returns the analysis field value.
-	 * 
-	 * @return The value of the analysis field
-	 */
-	public Analysis getAnalysis() {
-		return analysis;
-	}
-
-	/**
-	 * setAnalysis: <br>
-	 * Sets the Field "analysis" with a value.
-	 * 
-	 * @param analysis
-	 *            The Value to set the analysis field
-	 */
-	public void setAnalysis(Analysis analysis) {
-		this.analysis = analysis;
 	}
 
 	/**
@@ -162,12 +137,14 @@ public class UserAnalysisRight implements Serializable,Cloneable {
 	 * @return true if th euser has the right or false if not.
 	 */
 	public static final boolean userIsAuthorized(UserAnalysisRight uar, AnalysisRight right) {
-		
+
 		return (uar.getRight().ordinal() <= right.ordinal() ? true : false);
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -182,10 +159,10 @@ public class UserAnalysisRight implements Serializable,Cloneable {
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
-	public UserAnalysisRight duplicate()throws CloneNotSupportedException{
+	public UserAnalysisRight duplicate() throws CloneNotSupportedException {
 		UserAnalysisRight copy = (UserAnalysisRight) super.clone();
 		copy.setId(-1);
 		return copy;
 	}
-	
+
 }

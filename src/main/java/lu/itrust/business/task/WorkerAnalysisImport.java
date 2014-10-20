@@ -217,7 +217,7 @@ public class WorkerAnalysisImport implements Worker {
 			Analysis analysis = new Analysis();
 			analysis.setCustomer(customer);
 			analysis.setOwner(owner);
-			UserAnalysisRight uar = new UserAnalysisRight(owner, analysis, AnalysisRight.ALL);
+			UserAnalysisRight uar = new UserAnalysisRight(owner, AnalysisRight.ALL);
 
 			analysis.addUserRight(uar);
 
@@ -225,7 +225,7 @@ public class WorkerAnalysisImport implements Worker {
 			importAnalysis.setIdTask(getId());
 			importAnalysis.setDatabaseHandler(DatabaseHandler);
 			if (importAnalysis.ImportAnAnalysis()) {
-				MessageHandler messageHandler = new MessageHandler("success.analysis.import", "Import Done!",null, 100);
+				MessageHandler messageHandler = new MessageHandler("success.analysis.import", "Import Done!", null, 100);
 				messageHandler.setAsyncCallback(new AsyncCallback("window.location.assign(\"../Analysis\")", null));
 				importAnalysis.getServiceTaskFeedback().send(getId(), messageHandler);
 			}

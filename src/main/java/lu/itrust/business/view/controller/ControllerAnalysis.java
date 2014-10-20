@@ -594,6 +594,8 @@ public class ControllerAnalysis {
 
 			serviceRiskRegister.deleteAllFromAnalysis(analysisId);
 
+			serviceAnalysisStandard.deleteAllFromAnalysis(analysisId);
+
 			serviceAnalysis.delete(analysisId);
 
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -721,7 +723,7 @@ public class ControllerAnalysis {
 				return errors;
 
 			Analysis copy = duplicator.duplicateAnalysis(analysis, null);
-			
+
 			copy.setBasedOnAnalysis(analysis);
 			copy.addAHistory(history);
 			copy.setVersion(history.getVersion());
@@ -729,15 +731,15 @@ public class ControllerAnalysis {
 			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
 			copy.setProfile(false);
 			copy.setDefaultProfile(false);
-			
+
 			// save the new version
 			serviceAnalysis.save(copy);
 
-			List<AnalysisStandard> standards = copy.getAnalysisOnlyStandards();
+			List<AnalysisStandard> standards = analysis.getAnalysisOnlyStandards();
 
 			Map<Integer, Phase> phases = new LinkedHashMap<Integer, Phase>();
 
-			for (Phase phase : copy.getUsedPhases())
+			for (Phase phase : copy.getPhases())
 				phases.put(phase.getNumber(), phase);
 
 			Map<String, Parameter> parameters = new LinkedHashMap<String, Parameter>();
@@ -745,15 +747,8 @@ public class ControllerAnalysis {
 			for (Parameter parameter : copy.getParameters())
 				parameters.put(String.format(Duplicator.KEY_PARAMETER_FORMAT, parameter.getType().getLabel(), parameter.getDescription()), parameter);
 
-			for (AnalysisStandard standard : standards) {
-
-				AnalysisStandard tmpStandard = duplicator.duplicateAnalysisOnlyStandards(standard, phases, parameters, false, copy);
-
-				copy.removeAnalysisStandard(standard);
-
-				copy.addAnalysisStandard(tmpStandard);
-
-			}
+			for (AnalysisStandard standard : standards)
+				duplicator.duplicateAnalysisOnlyStandards(standard, phases, parameters, false, copy);
 
 			// save the new version
 			serviceAnalysis.saveOrUpdate(copy);

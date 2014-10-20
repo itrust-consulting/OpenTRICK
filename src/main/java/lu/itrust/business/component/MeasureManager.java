@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
@@ -15,12 +16,12 @@ import lu.itrust.business.TS.MaturityMeasure;
 import lu.itrust.business.TS.MaturityStandard;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureDescription;
-import lu.itrust.business.TS.NormalStandard;
 import lu.itrust.business.TS.MeasureProperties;
-import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.NormalMeasure;
+import lu.itrust.business.TS.NormalStandard;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -168,6 +169,9 @@ public class MeasureManager {
 				}
 			}
 			if (found == false) {
+
+				Analysis analysis = daoAnalysis.get(daoAnalysisStandard.getAnalysisIDFromAnalysisStandard(astandard.getId()));
+
 				Measure measure = null;
 				Object implementationRate = null;
 				if (astandard instanceof NormalStandard) {
@@ -180,16 +184,16 @@ public class MeasureManager {
 					implementationRate = new Double(0);
 				} else if (astandard instanceof MaturityStandard) {
 					measure = new MaturityMeasure();
-					for (Parameter parameter : astandard.getAnalysis().getParameters()) {
+					for (Parameter parameter : analysis.getParameters()) {
 						if (parameter.getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME) && parameter.getValue() == 0) {
 							implementationRate = parameter;
 							break;
 						}
 					}
 				}
-				Phase phase = astandard.getAnalysis().getPhaseByNumber(Constant.PHASE_DEFAULT);
+				Phase phase = analysis.getPhaseByNumber(Constant.PHASE_DEFAULT);
 				if (phase == null)
-					astandard.getAnalysis().addUsedPhase(phase = new Phase(Constant.PHASE_DEFAULT));
+					phase = new Phase(Constant.PHASE_DEFAULT);
 				measure.setPhase(phase);
 				measure.setImplementationRate(implementationRate);
 				measure.setAnalysisStandard(astandard);
@@ -197,7 +201,6 @@ public class MeasureManager {
 				measure.setStatus("AP");
 				astandard.getMeasures().add(measure);
 				daoAnalysisStandard.saveOrUpdate(astandard);
-				daoAnalysis.saveOrUpdate(astandard.getAnalysis());
 			}
 		}
 	}

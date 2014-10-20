@@ -352,7 +352,7 @@ public class ControllerAnalysisCreate {
 				mappingPhases = new LinkedHashMap<Integer, Phase>(phases.size());
 				for (Phase phase : phases) {
 					Phase phase1 = phase.duplicate();
-					analysis.addUsedPhase(phase1);
+					analysis.addPhase(phase1);
 					mappingPhases.put(phase.getNumber(), phase1);
 				}
 			} else {
@@ -363,7 +363,7 @@ public class ControllerAnalysisCreate {
 				calendar.add(Calendar.YEAR, 1);
 				phase.setEndDate(new java.sql.Date(calendar.getTimeInMillis()));
 				mappingPhases.put(Constant.PHASE_DEFAULT, phase);
-				analysis.addUsedPhase(phase);
+				analysis.addPhase(phase);
 			}
 			
 			serviceAnalysis.save(analysis);

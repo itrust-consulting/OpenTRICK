@@ -29,6 +29,8 @@ public interface DAOAsset {
 
 	public List<Asset> getSelectedFromAnalysisAndOrderByALE(Integer idAnalysis) throws Exception;
 
+	public Integer getAnalysisIdFromAsset(Integer assetId) throws Exception;
+	
 	public Asset save(Asset asset) throws Exception;
 
 	public void saveOrUpdate(Asset asset) throws Exception;

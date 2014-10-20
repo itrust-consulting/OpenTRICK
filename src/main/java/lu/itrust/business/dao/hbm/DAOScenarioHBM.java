@@ -92,7 +92,8 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Scenario> getAllFromAnalysis(Integer idAnalysis) throws Exception {
-		String query = "Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisId order by scenario.selected DESC, scenario.scenarioType.name asc, ";
+		String query =
+			"Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisId order by scenario.selected DESC, scenario.scenarioType.name asc, ";
 		query += "scenario.name asc";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
 	}
@@ -121,7 +122,8 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Scenario> getAllFromAnalysisByType(Analysis analysis, Integer scenarioTypeID) throws Exception {
-		String query = "Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis = :analysis and scenario.type.id = :scenariotypeId order by scenario.scenarioType.name ASC, scenario.name";
+		String query =
+			"Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis = :analysis and scenario.type.id = :scenariotypeId order by scenario.scenarioType.name ASC, scenario.name";
 		return getSession().createQuery(query).setParameter("analysis", analysis).setParameter("scenariotypeId", scenarioTypeID).list();
 	}
 
@@ -182,5 +184,11 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	@Override
 	public void delete(Scenario scenario) throws Exception {
 		getSession().delete(scenario);
+	}
+
+	@Override
+	public Integer getAnalysisIdFromScenario(Integer scenarioId) throws Exception {
+		return (Integer) getSession().createQuery("SELECT analysis.id From Analysis analysis join analysis.scenarios scenario where scenario.id = :scenarioId").setParameter("scenarioId", scenarioId)
+				.uniqueResult();
 	}
 }

@@ -104,7 +104,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * getAllFromStandard: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.service.ServiceAnalysisStandard#getAllFromStandard(lu.itrust.business.TS.Standard)
 	 */
@@ -159,5 +159,10 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	public void delete(AnalysisStandard analysisStandard) throws Exception {
 		daoAnalysisStandard.delete(analysisStandard);
 
+	}
+
+	@Override
+	public void deleteAllFromAnalysis(Integer analysisId) throws Exception {
+		daoAnalysisStandard.deleteAllFromAnalysis(analysisId);
 	}
 }

@@ -61,7 +61,7 @@
 				</c:if>
 				<c:set var="scenarios" value="${analysis.scenarios}" scope="request" />
 				<jsp:include page="./components/scenario/scenario.jsp" />
-				<c:set var="phases" scope="request" value="${analysis.usedPhases}" />
+				<c:set var="phases" scope="request" value="${analysis.phases}" />
 				<jsp:include page="./components/phase/phase.jsp" />
 				<jsp:include page="./components/standards/standard/standards.jsp" />
 				<c:if test="${!analysis.isProfile() }">

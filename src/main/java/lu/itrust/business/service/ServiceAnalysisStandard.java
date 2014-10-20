@@ -27,6 +27,8 @@ public interface ServiceAnalysisStandard {
 
 	public List<AnalysisStandard> getAllFromStandard(Standard standard) throws Exception;
 
+	public void deleteAllFromAnalysis(Integer analysisId) throws Exception;
+	
 	public void save(AnalysisStandard analysisStandard) throws Exception;
 
 	public void saveOrUpdate(AnalysisStandard analysisStandard) throws Exception;

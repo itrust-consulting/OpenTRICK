@@ -54,7 +54,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@Override
 	public Phase getFromAnalysisByPhaseNumber(Integer IdAnalysis, Integer number) throws Exception {
-		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.number = :phaseNumber";
+		String query = "Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis and phase.number = :phaseNumber";
 		return (Phase) getSession().createQuery(query).setParameter("idAnalysis", IdAnalysis).setParameter("phaseNumber", number).uniqueResult();
 	}
 
@@ -66,7 +66,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@Override
 	public Phase getFromAnalysisById(Integer idAnalysis, Integer idPhase) throws Exception {
-		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.id = :idPhase";
+		String query = "Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis and phase.id = :idPhase";
 		return (Phase) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idPhase", idPhase).uniqueResult();
 	}
 
@@ -90,7 +90,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 */
 	@Override
 	public boolean belongsToAnalysis(Integer analysisId, Integer phaseId) throws Exception {
-		String query = "Select count(phase) From Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :analysisid and phase.id = :phaseId";
+		String query = "Select count(phase) From Analysis as analysis inner join analysis.phases as phase where analysis.id = :analysisid and phase.id = :phaseId";
 		return ((Long) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("phaseId", phaseId).uniqueResult()).intValue() > 0;
 	}
 
@@ -115,7 +115,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Phase> getAllFromAnalysis(Integer idAnalysis) throws Exception {
-		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis order by phase.number asc";
+		String query = "Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis order by phase.number asc";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
 
@@ -128,8 +128,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Phase> getAllFromAnalysisByBeginDate(Integer idAnalysis, Date beginDate) throws Exception {
-		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.beginDate = :beginDate order by ";
-		query += "phase.number";
+		String query = "Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis and phase.beginDate = :beginDate order by phase.number";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("beginDate", beginDate).list();
 	}
 
@@ -142,7 +141,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Phase> getAllFromAnalysisByEndDate(Integer idAnalysis, Date endDate) throws Exception {
-		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.endDate = :endDate order by phase.number";
+		String query = "Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis and phase.endDate = :endDate order by phase.number";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("endDate", endDate).list();
 	}
 
@@ -157,10 +156,11 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Phase> getAllFromAnalysisActionPlan(Integer idAnalysis) throws Exception {
-		String query = "Select phase from Analysis as analysis inner join analysis.usedPhases as phase where analysis.id = :idAnalysis and phase.number in (Select DISTINCT actionplan.measure.phase.number From Analysis a inner join a.actionPlans actionplan where a.id = :idAnalysis)  order by phase.number";
+		String query =
+			"Select phase from Analysis as analysis inner join analysis.phases as phase where analysis.id = :idAnalysis and phase.number in (Select DISTINCT actionplan.measure.phase.number From Analysis a inner join a.actionPlans actionplan where a.id = :idAnalysis)  order by phase.number";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
-	
+
 	/**
 	 * save: <br>
 	 * Description

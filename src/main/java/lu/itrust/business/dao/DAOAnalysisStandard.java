@@ -26,7 +26,11 @@ public interface DAOAnalysisStandard {
 	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) throws Exception;
 
 	public List<AnalysisStandard> getAllFromStandard(Standard standard) throws Exception;
+	
+	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard) throws Exception;
 
+	public void deleteAllFromAnalysis(Integer analysisId) throws Exception;
+	
 	public void save(AnalysisStandard analysisStandard) throws Exception;
 
 	public void saveOrUpdate(AnalysisStandard analysisStandard) throws Exception;

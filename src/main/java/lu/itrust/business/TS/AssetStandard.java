@@ -12,7 +12,7 @@ import org.hibernate.proxy.HibernateProxy;
  * Detailed description...
  *
  * @author smenghi itrust consulting s.a.rl.:
- * @version 
+ * @version
  * @since Aug 25, 2014
  */
 @Entity
@@ -41,16 +41,6 @@ public class AssetStandard extends AnalysisStandard {
 	/**
 	 * Constructor:<br>
 	 * 
-	 * @param analysis
-	 *            The Analysis Object
-	 */
-	public AssetStandard(Analysis analysis) {
-		super(analysis);
-	}
-
-	/**
-	 * Constructor:<br>
-	 * 
 	 * @param norm
 	 *            The Norm Object
 	 */
@@ -58,25 +48,13 @@ public class AssetStandard extends AnalysisStandard {
 		super(norm);
 	}
 
-	/**
-	 * Constructor:<br>
-	 * 
-	 * @param analysis
-	 *            The Analysis Object
-	 * @param norm
-	 *            The Norm Object
-	 */
-	public AssetStandard(Analysis analysis, Standard name) {
-		super(analysis, name);
-	}
-
 	/***********************************************************************************************
 	 * Getters and Setters
 	 *********************************************************************************************** 
 	 * 
 	 * /** getMeasure: <br>
-	 * Returns a NormMeasure Object at position "index" from the list of
-	 * AnalysisNorm Measures ("measures" field)
+	 * Returns a NormMeasure Object at position "index" from the list of AnalysisNorm Measures
+	 * ("measures" field)
 	 * 
 	 * @return The NormMeasure at position "index"
 	 */
@@ -118,7 +96,7 @@ public class AssetStandard extends AnalysisStandard {
 	 * 
 	 * @param measure
 	 *            The new object to add
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void addMeasure(AssetMeasure measure) throws TrickException {
 		if (this.getMeasures().contains(measure))

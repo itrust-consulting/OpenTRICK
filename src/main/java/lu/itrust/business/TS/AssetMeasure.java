@@ -28,8 +28,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
-@PrimaryKeyJoinColumn(name="idAssetMeasure")
+@Entity
+@PrimaryKeyJoinColumn(name = "idAssetMeasure")
 public class AssetMeasure extends Measure implements Cloneable {
 
 	/***********************************************************************************************
@@ -42,19 +42,19 @@ public class AssetMeasure extends Measure implements Cloneable {
 
 	/** The List of AssetTypeValues */
 	private List<MeasureAssetValue> measureAssetValues = new ArrayList<MeasureAssetValue>();
-	
+
 	/** The List of Measure Properties */
 	private MeasureProperties measurePropertyList = null;
-	
+
 	/**
 	 * getMeasurePropertyList: <br>
 	 * Returns the MeasureProperties object which has all property values
 	 * 
 	 * @return The Measure Properties List object
 	 */
-	@ManyToOne 
-	@JoinColumn(name="fiMeasureProperties", nullable=false)
-	@Cascade(CascadeType.ALL)
+	@ManyToOne
+	@JoinColumn(name = "fiMeasureProperties", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	public MeasureProperties getMeasurePropertyList() {
 		return measurePropertyList;
 	}
@@ -72,11 +72,11 @@ public class AssetMeasure extends Measure implements Cloneable {
 			throw new TrickException("error.asset_measure.measure_property.empty", "Measure properties cannot be empty");
 		this.measurePropertyList = measurePropertyList;
 	}
-	
+
 	/**
 	 * getAssetTypeValue: <br>
-	 * Returns the Asset Type value at position "index" of the Asset Type Value
-	 * List ("assetTypeValues" field)
+	 * Returns the Asset Type value at position "index" of the Asset Type Value List
+	 * ("assetTypeValues" field)
 	 * 
 	 * @param index
 	 *            The index of the element position to retrieve from the list
@@ -90,18 +90,16 @@ public class AssetMeasure extends Measure implements Cloneable {
 
 	/**
 	 * getAssetTypeValueList: <br>
-	 * Returns the List of Asset Type Values for this Measure ("assetTypeValue"
-	 * field)
+	 * Returns the List of Asset Type Values for this Measure ("assetTypeValue" field)
 	 * 
 	 * @return The List of all Asset Type Values
 	 */
 	@ManyToMany
-	@JoinTable(name = "MeasureAssetValue", 
-			   joinColumns = { @JoinColumn(name = "fiAssetMeasure", nullable = false) }, 
-			   inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetValue", nullable = false) },
-			   uniqueConstraints = @UniqueConstraint(columnNames = {"fiAssetMeasure", "idMeasureAssetValue"})
-	)
-	@Cascade(CascadeType.ALL)
+	@JoinTable(name = "MeasureAssetValue",
+			joinColumns = { @JoinColumn(name = "fiAssetMeasure", nullable = false) },
+			inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetValue", nullable = false) },
+			uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetMeasure", "idMeasureAssetValue" }))
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	public List<MeasureAssetValue> getAssetValues() {
 		return measureAssetValues;
 	}
@@ -119,8 +117,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 
 	/**
 	 * addAnAssetTypeValue: <br>
-	 * Adds a new Asset Type Value object to the list of Asset Type Values
-	 * ("assetTypeValue" field)
+	 * Adds a new Asset Type Value object to the list of Asset Type Values ("assetTypeValue" field)
 	 * 
 	 * @param assettypevalue
 	 *            The Asset Type Value object to add to list
@@ -133,7 +130,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 		}
 		this.measureAssetValues.add(assetvalue);
 	}
-	
+
 	/**
 	 * getImplementationRate: <br>
 	 * Returns the Implementation Rate value
@@ -142,7 +139,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 * @see lu.itrust.business.TS.Measure#getImplementationRate()
 	 */
 	@Override
-	@Column(name="dtImplmentationRate", nullable=false)
+	@Column(name = "dtImplmentationRate", nullable = false)
 	@Access(AccessType.FIELD)
 	public Double getImplementationRate() {
 		return (Double) super.getImplementationRate();
@@ -150,8 +147,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 
 	/**
 	 * getImplementationRateValue: <br>
-	 * Returns the Implementation Rate value using the getImplementationRate
-	 * method.
+	 * Returns the Implementation Rate value using the getImplementationRate method.
 	 * 
 	 * @return Implementation Rate Value
 	 * @see lu.itrust.business.TS.Measure#getImplementationRateValue()

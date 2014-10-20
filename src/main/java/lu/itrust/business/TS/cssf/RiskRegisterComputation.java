@@ -72,7 +72,7 @@ public class RiskRegisterComputation {
 	public List<TMA> generateTMAs(Analysis analysis) throws TrickException {
 		List<TMA> tmas = new ArrayList<TMA>();
 
-		List<Phase> usePhases = analysis.getUsedPhases();
+		List<Phase> usePhases = analysis.getPhases();
 
 		List<Measure> useMeasures = new ArrayList<Measure>();
 

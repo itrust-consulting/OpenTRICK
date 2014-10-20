@@ -130,7 +130,8 @@ public class Analysis implements Serializable, Cloneable {
 	private boolean data;
 
 	/** List of users and their access rights */
-	@OneToMany(mappedBy = "analysis")
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Access(AccessType.FIELD)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
@@ -186,16 +187,18 @@ public class Analysis implements Serializable, Cloneable {
 	private List<Assessment> assessments = new ArrayList<Assessment>();
 
 	/** List of Standards */
-	@OneToMany(mappedBy = "analysis")
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@OrderBy("standard")
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<AnalysisStandard> analysisStandards = new ArrayList<AnalysisStandard>();
 
 	/** List of Phases that is used for Action Plan Computation */
-	@OneToMany(mappedBy = "analysis")
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@OrderBy("number")
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
-	private List<Phase> usedPhases = new ArrayList<Phase>();
+	private List<Phase> phases = new ArrayList<Phase>();
 
 	/** The Final Action Plan without Phase Computation - Normal */
 	@OneToMany
@@ -205,7 +208,8 @@ public class Analysis implements Serializable, Cloneable {
 	private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
 
 	/** The Action Plan Summary without Phase Computation - Normal */
-	@OneToMany(mappedBy = "analysis")
+	@OneToMany
+	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
@@ -830,7 +834,7 @@ public class Analysis implements Serializable, Cloneable {
 		// ****************************************************************
 		// * clear phase vector
 		// ****************************************************************
-		usedPhases.clear();
+		phases.clear();
 
 		// ****************************************************************
 		// * initialise variables
@@ -855,7 +859,7 @@ public class Analysis implements Serializable, Cloneable {
 				int phaseNumber = normalStandards.get(i).getMeasure(j).getPhase().getNumber();
 
 				if (this.getPhaseByNumber(phaseNumber) == null)
-					this.addUsedPhase(normalStandards.get(i).getMeasure(j).getPhase());
+					this.addPhase(normalStandards.get(i).getMeasure(j).getPhase());
 
 			}
 		}
@@ -868,7 +872,7 @@ public class Analysis implements Serializable, Cloneable {
 				int phaseNumber = maturityStandard.getLevel1Measures().get(i).getPhase().getNumber();
 
 				if (this.getPhaseByNumber(phaseNumber) == null)
-					this.addUsedPhase(maturityStandard.getLevel1Measures().get(i).getPhase());
+					this.addPhase(maturityStandard.getLevel1Measures().get(i).getPhase());
 
 			}
 		}
@@ -878,7 +882,7 @@ public class Analysis implements Serializable, Cloneable {
 		// ****************************************************************
 
 		// check until temporary list is empty (phases are ordered)
-		while (this.usedPhases.size() > 0) {
+		while (this.phases.size() > 0) {
 
 			// ****************************************************************
 			// * for each run use the first element as phase number to check to
@@ -893,7 +897,7 @@ public class Analysis implements Serializable, Cloneable {
 			smallest = null;
 
 			// start with the first list element to be the smallest
-			if (usedPhases.get(0) != null) {
+			if (phases.get(0) != null) {
 
 				// smallest number for the first one
 				smallest = tmpPhases.get(0);
@@ -903,14 +907,14 @@ public class Analysis implements Serializable, Cloneable {
 				// ****************************************************************
 
 				// parse all phases and check on the smallest
-				for (int i = 0; i < usedPhases.size(); i++) {
+				for (int i = 0; i < phases.size(); i++) {
 
 					// determine the smallest
-					if (usedPhases.get(i).getNumber() < smallest.getNumber()) {
+					if (phases.get(i).getNumber() < smallest.getNumber()) {
 
 						// current phase is smaller than the intended smallest
 						// -> replace the value
-						smallest = usedPhases.get(i);
+						smallest = phases.get(i);
 					}
 				}
 
@@ -927,11 +931,11 @@ public class Analysis implements Serializable, Cloneable {
 				// ****************************************************************
 				// * remove from smallest phase found from the temporary list
 				// ****************************************************************
-				usedPhases.remove(smallest);
+				phases.remove(smallest);
 			}
 		}
 
-		usedPhases = tmpPhases;
+		phases = tmpPhases;
 
 		// for (int i=0; i < usedPhases.size();i++) {
 		// System.out.println("ID: " + usedPhases.get(i).getId() +
@@ -1704,7 +1708,6 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param analysisStandard
 	 */
 	public void addAnalysisStandard(AnalysisStandard analysisStandard) {
-		analysisStandard.setAnalysis(this);
 		this.analysisStandards.add(analysisStandard);
 	}
 
@@ -1717,7 +1720,7 @@ public class Analysis implements Serializable, Cloneable {
 	public void removeAnalysisStandard(AnalysisStandard analysisStandard) {
 		this.analysisStandards.remove(analysisStandard);
 	}
-	
+
 	/**
 	 * setAnalysisStandards: <br>
 	 * Description
@@ -1725,8 +1728,6 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param analysisStandards
 	 */
 	public void setAnalysisStandards(List<AnalysisStandard> analysisStandards) {
-		for (AnalysisStandard analysisStandard : analysisStandards)
-			analysisStandard.setAnalysis(this);
 		this.analysisStandards = analysisStandards;
 	}
 
@@ -1739,17 +1740,18 @@ public class Analysis implements Serializable, Cloneable {
 	 * @return The Phase object at requested position
 	 */
 	public Phase getAPhase(int index) {
-		return usedPhases.get(index);
+		return phases.get(index);
 	}
 
 	/**
-	 * getUsedphases: <br>
-	 * Returns the usedphases field value.
+	 * getPhaseByNumber: <br>
+	 * Description
 	 * 
-	 * @return The value of the usedphases field
+	 * @param number
+	 * @return
 	 */
 	public Phase getPhaseByNumber(int number) {
-		for (Phase phase : usedPhases) {
+		for (Phase phase : phases) {
 			if (phase.getNumber() == number)
 				return phase;
 		}
@@ -1757,36 +1759,32 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	/**
-	 * getUsedphases: <br>
-	 * Returns the usedphases field value.
+	 * getPhases: <br>
+	 * Description
 	 * 
-	 * @return The value of the usedphases field
+	 * @return
 	 */
-	public List<Phase> getUsedPhases() {
-		return usedPhases;
+	public List<Phase> getPhases() {
+		return phases;
 	}
 
 	/**
-	 * setUsedphases: <br>
-	 * Sets the Field "usedphases" with a value.
+	 * setPhases: <br>
+	 * Description
 	 * 
-	 * @param usedphases
-	 *            The Value to set the usedphases field
+	 * @param phases
 	 */
-	public void setUsedPhases(List<Phase> usedphases) {
-		for (Phase phase : usedphases)
-			phase.setAnalysis(this);
-		this.usedPhases = usedphases;
+	public void setPhases(List<Phase> phases) {
+		this.phases = phases;
 	}
 
-	public void addUsedPhase(Phase phase) {
-		if (this.usedPhases == null)
-			usedPhases = new ArrayList<Phase>();
-		phase.setAnalysis(this);
-		if (!usedPhases.contains(phase))
-			usedPhases.add(phase);
+	public void addPhase(Phase phase) {
+		if (this.phases == null)
+			phases = new ArrayList<Phase>();
+		if (!phases.contains(phase))
+			phases.add(phase);
 		else
-			System.err.println("pahse not add : " + phase.getNumber());
+			System.err.println("phase not add : " + phase.getNumber());
 	}
 
 	/**
@@ -2120,7 +2118,7 @@ public class Analysis implements Serializable, Cloneable {
 	public String toString() {
 		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label + ", histories="
 			+ histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets + ", riskInformations="
-			+ riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisStandards=" + analysisStandards + ", usedphases=" + usedPhases + ", actionPlans="
+			+ riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisStandards=" + analysisStandards + ", phases=" + phases + ", actionPlans="
 			+ actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}
 
@@ -2334,7 +2332,7 @@ public class Analysis implements Serializable, Cloneable {
 	 * @param userRight
 	 */
 	public void addUserRight(User user, AnalysisRight right) {
-		this.userRights.add(new UserAnalysisRight(user, this, right));
+		this.userRights.add(new UserAnalysisRight(user, right));
 	}
 
 	/**
@@ -2501,7 +2499,7 @@ public class Analysis implements Serializable, Cloneable {
 	}
 
 	public Phase findPhaseByNumber(int number) {
-		for (Phase phase : usedPhases)
+		for (Phase phase : phases)
 			if (phase.getNumber() == number)
 				return phase;
 		return null;
@@ -2652,7 +2650,7 @@ public class Analysis implements Serializable, Cloneable {
 
 	public List<Phase> findUsablePhase() {
 		List<Phase> phases = new ArrayList<Phase>();
-		for (Phase phase : usedPhases)
+		for (Phase phase : phases)
 			if (phase.getNumber() > 0)
 				phases.add(phase);
 		return phases;

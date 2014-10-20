@@ -30,6 +30,8 @@ public interface DAOScenario {
 
 	public List<Scenario> getAllFromAnalysisByIdList(Integer idAnalysis, List<Integer> scenarios) throws Exception;
 
+	public Integer getAnalysisIdFromScenario(Integer scenarioId) throws Exception;
+	
 	public void save(Scenario scenario) throws Exception;
 
 	public void saveOrUpdate(Scenario scenario) throws Exception;

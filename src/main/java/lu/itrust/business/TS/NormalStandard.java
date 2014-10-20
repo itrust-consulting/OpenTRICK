@@ -42,34 +42,12 @@ public class NormalStandard extends AnalysisStandard {
 	}
 
 	/**
-	 * Constructor:<br>
-	 * 
-	 * @param analysis
-	 *            The Analysis Object
-	 */
-	public NormalStandard(Analysis analysis) {
-		super(analysis);
-	}
-
-	/**
 	 * Constructor: <br>
 	 * 
 	 * @param standard
 	 */
 	public NormalStandard(Standard standard) {
 		super(standard);
-	}
-
-	/**
-	 * Constructor:<br>
-	 * 
-	 * @param analysis
-	 *            The Analysis Object
-	 * @param standard
-	 *            The standard Object
-	 */
-	public NormalStandard(Analysis analysis, Standard standard) {
-		super(analysis, standard);
 	}
 
 	/***********************************************************************************************

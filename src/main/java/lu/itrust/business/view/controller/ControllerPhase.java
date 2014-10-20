@@ -101,19 +101,19 @@ public class ControllerPhase {
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-			
+
 			// check if phase can be deleted
 			if (!servicePhase.canBeDeleted(elementID))
-				return JsonMessage.Error(messageSource.getMessage("error.phase.in_used", null, "Phase is in used", customLocale!=null?customLocale:locale));
+				return JsonMessage.Error(messageSource.getMessage("error.phase.in_used", null, "Phase is in used", customLocale != null ? customLocale : locale));
 
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 
 			// retrieve phases of analysis
-			List<Phase> phases = analysis.getUsedPhases();
+			List<Phase> phases = analysis.getPhases();
 
 			// first phases cannot be deleted (0 and 1)
 			if (phases.size() < 2)
-				return JsonMessage.Error(messageSource.getMessage("error.phase.on_required", null, "This phase cannot be deleted", customLocale!=null?customLocale:locale));
+				return JsonMessage.Error(messageSource.getMessage("error.phase.on_required", null, "This phase cannot be deleted", customLocale != null ? customLocale : locale));
 
 			// iterate through phases
 			Phase phase = null;
@@ -138,8 +138,8 @@ public class ControllerPhase {
 			}
 
 			// return result
-			return phase == null ? JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", customLocale!=null?customLocale:locale)) : JsonMessage.Success(messageSource
-					.getMessage("success.delete.phase", null, "Phase was successfully deleted", customLocale!=null?customLocale:locale));
+			return phase == null ? JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", customLocale != null ? customLocale : locale)) : JsonMessage
+					.Success(messageSource.getMessage("success.delete.phase", null, "Phase was successfully deleted", customLocale != null ? customLocale : locale));
 		} catch (Exception e) {
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis == null)
@@ -147,7 +147,7 @@ public class ControllerPhase {
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.phase.unknown", null, "An unknown error occurred while phase deleting", customLocale!=null?customLocale:locale));
+			return JsonMessage.Error(messageSource.getMessage("error.phase.unknown", null, "An unknown error occurred while phase deleting", customLocale != null ? customLocale : locale));
 		}
 	}
 
@@ -160,7 +160,7 @@ public class ControllerPhase {
 	 * @param principal
 	 * @param locale
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
@@ -175,7 +175,7 @@ public class ControllerPhase {
 			errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale) });
 			return errors;
 		}
-		
+
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 		// create empty phase object
 		Phase phase = new Phase();
@@ -183,82 +183,90 @@ public class ControllerPhase {
 		try {
 
 			// try to build phase with sent data
-			if (buildPhase(errors, phase, source, customLocale!=null?customLocale:locale)) {
+			if (buildPhase(errors, phase, source, customLocale != null ? customLocale : locale)) {
 
 				// load analysis
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
 				if (analysis == null) {
-					errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.no_found", null, "Analysis cannot be found", customLocale!=null?customLocale:locale) });
+					errors.add(new String[] { "analysis", messageSource.getMessage("error.analysis.no_found", null, "Analysis cannot be found", customLocale != null ? customLocale : locale) });
 					return errors;
 				}
 
 				Phase previousphase = null;
-				
-				Phase nextphase = null;
-				
-				if(phase.getId() == -1) {
-					phase.setNumber(analysis.getUsedPhases().size() + 1);
 
-					previousphase = analysis.getPhaseByNumber(phase.getNumber()-1);
-					
+				Phase nextphase = null;
+
+				if (phase.getId() == -1) {
+					phase.setNumber(analysis.getPhases().size() + 1);
+
+					previousphase = analysis.getPhaseByNumber(phase.getNumber() - 1);
+
 					// check if correct begin and end date and retrun errors
 					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
-						errors.add(new String[] { "beginDate", messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", customLocale!=null?customLocale:locale) });
+						errors.add(new String[] {
+							"beginDate",
+							messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", customLocale != null
+								? customLocale : locale) });
 						return errors;
 					} else if (phase.getEndDate().before(phase.getBeginDate())) {
-						errors.add(new String[] { "endDate", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", customLocale!=null?customLocale:locale) });
-						return errors;
-					} 
-				
-
-				// add phase to analysis
-				analysis.addUsedPhase(phase);
-				} else {
-					
-					if (!servicePhase.belongsToAnalysis(idAnalysis, phase.getId())) {
-						errors.add(new String[] { "phase", messageSource.getMessage("error.phase.not_belongs_to_analysis", null, "Phase does not belong to selected analysis", customLocale!=null?customLocale:locale) });
+						errors.add(new String[] { "endDate",
+							messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", customLocale != null ? customLocale : locale) });
 						return errors;
 					}
-					
-					for(Phase tphase : analysis.getUsedPhases()){
-						if(tphase.getId()==phase.getId()){
+
+					// add phase to analysis
+					analysis.addPhase(phase);
+				} else {
+
+					if (!servicePhase.belongsToAnalysis(idAnalysis, phase.getId())) {
+						errors.add(new String[] { "phase",
+							messageSource.getMessage("error.phase.not_belongs_to_analysis", null, "Phase does not belong to selected analysis", customLocale != null ? customLocale : locale) });
+						return errors;
+					}
+
+					for (Phase tphase : analysis.getPhases()) {
+						if (tphase.getId() == phase.getId()) {
 							tphase.setDates(phase.getBeginDate(), phase.getEndDate());
 							phase = tphase;
 							break;
 						}
 					}
-					
-					previousphase = analysis.getPhaseByNumber(phase.getNumber()-1);
-					
-					nextphase = analysis.getPhaseByNumber(phase.getNumber()+1);
-					
+
+					previousphase = analysis.getPhaseByNumber(phase.getNumber() - 1);
+
+					nextphase = analysis.getPhaseByNumber(phase.getNumber() + 1);
+
 					// check if correct begin and end date and retrun errors
 					if (previousphase != null && phase.getBeginDate().before(previousphase.getEndDate())) {
-						errors.add(new String[] { "beginDate", messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", customLocale!=null?customLocale:locale) });
+						errors.add(new String[] {
+							"beginDate",
+							messageSource.getMessage("error.phase.beginDate.less_previous", null, "Phase begin time has to be greater than previous phase end time", customLocale != null
+								? customLocale : locale) });
 						return errors;
 					} else if (phase.getEndDate().before(phase.getBeginDate())) {
-						errors.add(new String[] { "endDate", messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", customLocale!=null?customLocale:locale) });
+						errors.add(new String[] { "endDate",
+							messageSource.getMessage("error.phase.endDate.less", null, "Phase end time has to be greater than phase begin time", customLocale != null ? customLocale : locale) });
 						return errors;
-					}  else if(nextphase != null && phase.getEndDate().after(nextphase.getBeginDate())) {
-						errors.add(new String[] { "Date", messageSource.getMessage("error.phase.endDate.more_next", null, "Phase end time has to be less than next phase begin time", customLocale!=null?customLocale:locale) });
+					} else if (nextphase != null && phase.getEndDate().after(nextphase.getBeginDate())) {
+						errors.add(new String[] { "Date",
+							messageSource.getMessage("error.phase.endDate.more_next", null, "Phase end time has to be less than next phase begin time", customLocale != null ? customLocale : locale) });
 						return errors;
 					}
 				}
-				
-				
+
 				// update analysis with phases
 				serviceAnalysis.saveOrUpdate(analysis);
 			}
 
 		} catch (TrickException e) {
-			
+
 			e.printStackTrace();
-			errors.add(new String[] { "endDate", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale!=null?customLocale:locale) });
+			errors.add(new String[] { "endDate", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale) });
 		} catch (Exception e) {
-			
+
 			// return errors
 			e.printStackTrace();
-			errors.add(new String[] { "endDate", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale!=null?customLocale:locale) });
+			errors.add(new String[] { "endDate", messageSource.getMessage(e.getMessage(), null, e.getMessage(), customLocale != null ? customLocale : locale) });
 		}
 		// return empty errors (no errors -> success)
 		return errors;

@@ -125,8 +125,8 @@ public class ActionPlanComputation {
 	 * ( to get all nessesary data for computation) , standards to compute, uncertainty flag, the
 	 * analysis and the task parameters for asynchronous actionplan computation.
 	 * 
-	 * Inside this constructor, the standards will be determined to compute as well as the uncertainty
-	 * and maturity computation flag.
+	 * Inside this constructor, the standards will be determined to compute as well as the
+	 * uncertainty and maturity computation flag.
 	 * 
 	 * @param serviceActionPlanType
 	 * @param sericeAnalysis
@@ -163,7 +163,7 @@ public class ActionPlanComputation {
 			List<AnalysisStandard> tmpStandards = new ArrayList<AnalysisStandard>();
 
 			for (AnalysisStandard analysisStandard : this.analysis.getAnalysisStandards()) {
-				if(analysisStandard.getStandard().isComputable())
+				if (analysisStandard.getStandard().isComputable())
 					tmpStandards.add(analysisStandard);
 			}
 
@@ -233,13 +233,13 @@ public class ActionPlanComputation {
 		int progress = 10;
 
 		String language = this.analysis.getLanguage().getAlpha3().substring(0, 2);
-		
+
 		// check if uncertainty to adopt the progress factor
 		if (!uncertainty)
 			progress = 20;
 
 		// send feedback
-		serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", "Computing Action Plans",language, progress));
+		serviceTaskFeedback.send(idTask, new MessageHandler("info.action_plan.computing", "Computing Action Plans", language, progress));
 
 		System.out.println("Computing Action Plans...");
 
@@ -262,7 +262,7 @@ public class ActionPlanComputation {
 				progress = 40;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.normal_mode", "Compute Action Plan - normal mode - Phase",language, progress));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.normal_mode", "Compute Action Plan - normal mode - Phase", language, progress));
 
 			if (normalcomputation) {
 				computeActionPlan(ActionPlanMode.APN);
@@ -288,7 +288,7 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - optimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase",language, progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.optimistic_mode", "Compute Action Plan - optimistic mode - Phase", language, progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPO);
@@ -303,7 +303,7 @@ public class ActionPlanComputation {
 				System.out.println("compute Action Plan - pessimistic mode - Phase");
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase",language, progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.phase.pessimistic_mode", "Compute Action Plan -  pessimistic mode - Phase", language, progress));
 
 				// compute
 				computePhaseActionPlan(ActionPlanMode.APPP);
@@ -322,7 +322,7 @@ public class ActionPlanComputation {
 				progress = 60;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.determinepositions", "Compute Action Plan -  computing positions",language, progress));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.determinepositions", "Compute Action Plan -  computing positions", language, progress));
 
 			// compute
 			determinePositions();
@@ -340,7 +340,7 @@ public class ActionPlanComputation {
 				progress = 80;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary",language, progress));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.normal_phase", "Create summary for normal phase action plan summary", language, progress));
 
 			if (normalcomputation) {
 				computeSummary(ActionPlanMode.APN);
@@ -366,7 +366,8 @@ public class ActionPlanComputation {
 				// ****************************************************************
 
 				// send feedback
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.optimistic_phase", "Create summary for optimistic phase action plan summary",language, progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.optimistic_phase", "Create summary for optimistic phase action plan summary", language,
+						progress));
 
 				// compute
 				computeSummary(ActionPlanMode.APPO);
@@ -379,7 +380,8 @@ public class ActionPlanComputation {
 				// ****************************************************************
 				// * create summary for pessimistic phase action plan summary
 				// ****************************************************************
-				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", "Create summary for pessimistic phase action plan summary",language, progress));
+				serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.create_summary.pessimistic_phase", "Create summary for pessimistic phase action plan summary", language,
+						progress));
 
 				// compute
 				computeSummary(ActionPlanMode.APPP);
@@ -399,7 +401,7 @@ public class ActionPlanComputation {
 				progress = 95;
 
 			// send feedback
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans",language, progress));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", language, progress));
 
 			// save to database
 			sericeAnalysis.saveOrUpdate(analysis);
@@ -413,7 +415,7 @@ public class ActionPlanComputation {
 			return messageHandler;
 		} catch (Exception e) {
 			System.out.println("Action Plan saving failed! ");
-			MessageHandler messageHandler = new MessageHandler(e.getMessage(), "Action Plan saving failed",language, e);
+			MessageHandler messageHandler = new MessageHandler(e.getMessage(), "Action Plan saving failed", language, e);
 			serviceTaskFeedback.send(idTask, messageHandler);
 			e.printStackTrace();
 			// return messagehandler with errors
@@ -743,15 +745,14 @@ public class ActionPlanComputation {
 
 					// check if it is a maturity measure -> NO
 
-					
-						// retrieve measure
-						normalMeasure = (NormalMeasure) actionPlanEntry.getMeasure();
+					// retrieve measure
+					normalMeasure = (NormalMeasure) actionPlanEntry.getMeasure();
 
-						// ****************************************************************
-						// * update values for next run
-						// ****************************************************************
-						adaptValuesForNormalMeasure(TMAList, actionPlanEntry, normalMeasure);
-					
+					// ****************************************************************
+					// * update values for next run
+					// ****************************************************************
+					adaptValuesForNormalMeasure(TMAList, actionPlanEntry, normalMeasure);
+
 				}
 
 				// ****************************************************************
@@ -771,7 +772,7 @@ public class ActionPlanComputation {
 
 						// remove maturity measure
 						usedMeasures.remove(maturityMeasure);
-					} 
+					}
 				}
 			}
 		}
@@ -831,7 +832,7 @@ public class ActionPlanComputation {
 		// ****************************************************************
 
 		// parse all phases
-		for (int phase = 0; phase < this.analysis.getUsedPhases().size(); phase++) {
+		for (int phase = 0; phase < this.analysis.getPhases().size(); phase++) {
 
 			// ****************************************************************
 			// * check if TMAList is empty -> NO: after first time TMAList is
@@ -905,22 +906,22 @@ public class ActionPlanComputation {
 						}
 					}
 				}
-				
+
 				Map<String, Double> deltamaturities = new LinkedHashMap<String, Double>();
-				
-				for(TMA tma : TMAList){
-					
-					if(tma.getStandard().getLabel().equals("27002")) {
-						if(deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference())== null) {
+
+				for (TMA tma : TMAList) {
+
+					if (tma.getStandard().getLabel().equals("27002")) {
+						if (deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference()) == null) {
 							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), tma.getDeltaALEMat());
 						} else {
 							Double val = deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference());
 							val += tma.getDeltaALEMat();
 							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), val);
-						}					
+						}
 					}
 				}
-				
+
 			} else {
 
 				// ****************************************************************
@@ -929,20 +930,20 @@ public class ActionPlanComputation {
 				// do nothing
 				// ****************************************************************
 				TMAList = generateTMAList(this.analysis, usedMeasures, mode, this.analysis.getAPhase(phase).getNumber(), false, maturitycomputation, standards);
-				
+
 				Map<String, Double> deltamaturities = new LinkedHashMap<String, Double>();
-				
-				for(TMA tma : TMAList){
-					
-					if(tma.getStandard().getLabel().equals("27002")) {
-					
-						if(deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference())== null) {
+
+				for (TMA tma : TMAList) {
+
+					if (tma.getStandard().getLabel().equals("27002")) {
+
+						if (deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference()) == null) {
 							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), tma.getDeltaALEMat());
 						} else {
 							Double val = deltamaturities.get(tma.getMeasure().getMeasureDescription().getReference());
 							val += tma.getDeltaALEMat();
 							deltamaturities.put(tma.getMeasure().getMeasureDescription().getReference(), val);
-						}	
+						}
 					}
 				}
 			}
@@ -1024,13 +1025,13 @@ public class ActionPlanComputation {
 						adaptValuesForMaturityMeasure(TMAList, actionPlanEntry, maturityMeasure);
 					} else {
 
-							// create temporary standard measure object
-							normalMeasure = (NormalMeasure) actionPlanEntry.getMeasure();
+						// create temporary standard measure object
+						normalMeasure = (NormalMeasure) actionPlanEntry.getMeasure();
 
-							// ****************************************************************
-							// * change values for the next run
-							// ****************************************************************
-							adaptValuesForNormalMeasure(TMAList, actionPlanEntry, normalMeasure);
+						// ****************************************************************
+						// * change values for the next run
+						// ****************************************************************
+						adaptValuesForNormalMeasure(TMAList, actionPlanEntry, normalMeasure);
 
 					}
 
@@ -1052,7 +1053,7 @@ public class ActionPlanComputation {
 
 							// remove maturity measure
 							usedMeasures.remove(maturityMeasure);
-						} 
+						}
 					}
 				}
 			}
@@ -1826,8 +1827,8 @@ public class ActionPlanComputation {
 	 * @param maturitycomputation
 	 *            flag determinating if maturity is computed or not
 	 * @param standards
-	 *            List of AnalysisStandards to be used in the actionplan (to generate only TMA entries
-	 *            for the given standards)
+	 *            List of AnalysisStandards to be used in the actionplan (to generate only TMA
+	 *            entries for the given standards)
 	 * @throws TrickException
 	 */
 	public static List<TMA> generateTMAList(Analysis analysis, List<Measure> usedMeasures, ActionPlanMode mode, int phase, boolean isCssf, boolean maturitycomputation, List<AnalysisStandard> standards)
@@ -1951,7 +1952,7 @@ public class ActionPlanComputation {
 						}
 					}
 				}
-			} 
+			}
 		}
 
 		// ****************************************************************
@@ -1967,7 +1968,7 @@ public class ActionPlanComputation {
 		return TMAList;
 
 	}
-	
+
 	/**
 	 * generateTMAEntry: <br>
 	 * This method generates for a given Measure TMA (Threat Measure Assessment) entries in the List
@@ -2360,7 +2361,8 @@ public class ActionPlanComputation {
 			// check if reference starts with
 			// "M.<currentChapter>.<currentSML+1>." and if applicable
 			// and implementation rate is less than 100%
-			if ((maturityStandard.getMeasure(i).getMeasureDescription().getReference().startsWith(Constant.MATURITY_REFERENCE + chapterValue + "." + String.valueOf(chapter.getReachedLevel() + 1) + "."))
+			if ((maturityStandard.getMeasure(i).getMeasureDescription().getReference().startsWith(Constant.MATURITY_REFERENCE + chapterValue + "." + String.valueOf(chapter.getReachedLevel() + 1)
+				+ "."))
 				&& (!maturityStandard.getMeasure(i).getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
 				&& (maturityStandard.getMeasure(i).getImplementationRateValue() < Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)) {
 
@@ -2414,7 +2416,7 @@ public class ActionPlanComputation {
 				// temporary store measure standard
 				normalStandard = (NormalStandard) analysis.getAnalysisStandard(i);
 
-				if(normalStandard.getStandard().getLabel().equals(Constant.STANDARD_27002))				
+				if (normalStandard.getStandard().getLabel().equals(Constant.STANDARD_27002))
 					// leave loop
 					break;
 
@@ -2494,7 +2496,7 @@ public class ActionPlanComputation {
 
 		// add start value of ALE (for first stage (P0))
 		tmpval.totalALE = actionPlan.get(0).getTotalALE() + actionPlan.get(0).getDeltaALE();
-				
+
 		// generate first stage
 		generateStage(apt, tmpval, sumStage, "Start(P0)", true, 0);
 
@@ -2607,7 +2609,7 @@ public class ActionPlanComputation {
 
 		// reinitialise variables
 
-		for(String key : tmpval.conformanceHelper.keySet())
+		for (String key : tmpval.conformanceHelper.keySet())
 
 			tmpval.conformanceHelper.get(key).conformance = 0;
 
@@ -2711,7 +2713,7 @@ public class ActionPlanComputation {
 		// in case of a phase calculation multiply internal maintenance with
 		// phasetime
 		tmpval.internalMaintenance += ape.getMeasure().getInternalMaintenance();
-		
+
 		// update external maintenance
 
 		// Depricated
@@ -2721,14 +2723,14 @@ public class ActionPlanComputation {
 		// in case of a phase calculation multiply external maintenance with
 		// phasetime
 		tmpval.externalMaintenance += ape.getMeasure().getExternalMaintenance();
-		
+
 		// update recurrent investment
 		tmpval.recurrentInvestment += ape.getMeasure().getRecurrentInvestment();
 
 		// update recurrent cost
-		//tmpval.recurrentCost += ape.getMeasure().getInvestment() * ape.getMeasure().getMaintenance() / 100.;
+		// tmpval.recurrentCost += ape.getMeasure().getInvestment() *
+		// ape.getMeasure().getMaintenance() / 100.;
 
-		
 	}
 
 	/**
@@ -2772,11 +2774,11 @@ public class ActionPlanComputation {
 		Measure measure = null;
 
 		double phasetime = 0;
-		
-		if(phasenumber > 0) {
-		
-			for(Phase phase : this.analysis.getUsedPhases()){
-				if(phase.getNumber()==phasenumber)
+
+		if (phasenumber > 0) {
+
+			for (Phase phase : this.analysis.getPhases()) {
+				if (phase.getNumber() == phasenumber)
 					phasetime = Analysis.getYearsDifferenceBetweenTwoDates(phase.getBeginDate(), phase.getEndDate());
 			}
 		}
@@ -2798,23 +2800,23 @@ public class ActionPlanComputation {
 			helper.conformance = 0;
 
 			Map<String, Object[]> chapters = new HashMap<String, Object[]>();
-			
+
 			for (int i = 0; i < helper.standard.getMeasures().size(); i++) {
 
 				measure = helper.standard.getMeasures().get(i);
 
 				Hibernate.initialize(measure);
-				
+
 				measure = DAOHibernate.Initialise(measure);
-				
+
 				double imprate = 0;
 
 				if (measure instanceof NormalMeasure)
 					imprate = ((NormalMeasure) measure).getImplementationRateValue();
-				
+
 				else if (measure instanceof MaturityMeasure)
 					imprate = ((MaturityMeasure) measure).getImplementationRateValue();
-				
+
 				if (measure.getMeasureDescription().isComputable()) {
 
 					String chapterName = extractMainChapter(measure.getMeasureDescription().getReference());
@@ -2834,13 +2836,13 @@ public class ActionPlanComputation {
 						if (imprate == Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)
 							implementation++;
 
-						if(!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+						if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
 							numerator += (imprate / 100.);
 						else
 							numerator += (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE / 100.);
 					} else {
 
-						if(!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
+						if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE))
 							numerator += (imprate / 100.);
 						else
 							numerator += (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE / 100.);
@@ -2860,13 +2862,13 @@ public class ActionPlanComputation {
 			}
 
 			for (String chapterkey : chapters.keySet()) {
-				
+
 				Object[] chapter = chapters.get(chapterkey);
 
 				Double numerator = (Double) chapter[0];
 
 				Integer denominator = (Integer) chapter[1];
-				
+
 				if (denominator == 0)
 					throw new TrickException("error.summary.no.implemented.measure", "No implemented measure");
 
@@ -2878,21 +2880,19 @@ public class ActionPlanComputation {
 			}
 
 			if (chapters.size() > 0) {
-				
+
 				helper.conformance /= (double) chapters.size();
-			}else
+			} else
 				helper.conformance = 0;
 
 			chapters.clear();
-			
+
 		}
 
 		// ****************************************************************
 		// * create summary stage object
 		// ****************************************************************
 		aStage = new SummaryStage();
-
-		aStage.setAnalysis(this.analysis);
 
 		// add values to summary stage object
 		aStage.setStage(name);
@@ -2914,18 +2914,18 @@ public class ActionPlanComputation {
 		aStage.setInternalWorkload(tmpval.internalWorkload);
 		aStage.setExternalWorkload(tmpval.externalWorkload);
 		aStage.setInvestment(tmpval.investment);
-		aStage.setInternalMaintenance(tmpval.internalMaintenance*phasetime);
-		aStage.setExternalMaintenance(tmpval.externalMaintenance*phasetime);
-		aStage.setRecurrentInvestment(tmpval.recurrentInvestment*phasetime);
-		
+		aStage.setInternalMaintenance(tmpval.internalMaintenance * phasetime);
+		aStage.setExternalMaintenance(tmpval.externalMaintenance * phasetime);
+		aStage.setRecurrentInvestment(tmpval.recurrentInvestment * phasetime);
+
 		double er = this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
 
 		double ir = this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 
 		tmpval.recurrentCost = (aStage.getInternalMaintenance() * ir) + (aStage.getExternalMaintenance() * er) + aStage.getRecurrentInvestment();
-		
+
 		aStage.setRecurrentCost(tmpval.recurrentCost);
-		
+
 		// update total cost
 		tmpval.totalCost += (tmpval.internalWorkload * ir);
 		tmpval.totalCost += (tmpval.externalWorkload * er);
@@ -2944,7 +2944,7 @@ public class ActionPlanComputation {
 			tmpval.totalCost += (tmpval.externalMaintenance * er);
 			tmpval.totalCost += (tmpval.recurrentInvestment);
 		}
-		
+
 		aStage.setTotalCostofStage(tmpval.totalCost);
 
 		/*

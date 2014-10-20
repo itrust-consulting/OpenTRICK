@@ -202,7 +202,7 @@ public class WorkerComputeRiskRegister implements Worker {
 		Hibernate.initialize(analysis.getItemInformations());
 		Hibernate.initialize(analysis.getRiskInformations());
 		Hibernate.initialize(analysis.getParameters());
-		Hibernate.initialize(analysis.getUsedPhases());
+		Hibernate.initialize(analysis.getPhases());
 		Hibernate.initialize(analysis.getAnalysisStandards());
 	}
 

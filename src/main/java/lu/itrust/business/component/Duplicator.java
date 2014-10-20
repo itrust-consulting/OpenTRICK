@@ -117,7 +117,6 @@ public class Duplicator {
 			copy.setUserRights(new ArrayList<UserAnalysisRight>(analysis.getUserRights().size()));
 			for (UserAnalysisRight uar : analysis.getUserRights()) {
 				UserAnalysisRight uarcopy = uar.duplicate();
-				uarcopy.setAnalysis(copy);
 				copy.addUserRight(uarcopy);
 			}
 
@@ -161,17 +160,18 @@ public class Duplicator {
 				copy.getAssessments().add(clone);
 			}
 
-			copy.setUsedPhases(new ArrayList<Phase>(analysis.getUsedPhases().size()));
+			copy.setPhases(new ArrayList<Phase>(analysis.getPhases().size()));
 
-			for (Phase phase : analysis.getUsedPhases()) {
+			for (Phase phase : analysis.getPhases()) {
 				phases.put(phase.getNumber(), phase.duplicate());
-				copy.addUsedPhase(phases.get(phase.getNumber()));
+				copy.addPhase(phases.get(phase.getNumber()));
 			}
 
 			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>());
 
 			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
-				copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, false));
+				if (analysisStandard.getStandard().getAnalysis() == null)
+					copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, false));
 			}
 
 			return copy;
@@ -223,8 +223,7 @@ public class Duplicator {
 	 * @throws Exception
 	 */
 	@Transactional
-	public AnalysisStandard duplicateAnalysisOnlyStandards(AnalysisStandard analysisStandard, Map<Integer, Phase> phases, Map<String, Parameter> parameters, boolean anonymize, Analysis analysis)
-			throws Exception {
+	public void duplicateAnalysisOnlyStandards(AnalysisStandard analysisStandard, Map<Integer, Phase> phases, Map<String, Parameter> parameters, boolean anonymize, Analysis analysis) throws Exception {
 
 		Standard standard = analysisStandard.getStandard().duplicate();
 
@@ -265,26 +264,24 @@ public class Duplicator {
 		AnalysisStandard tmpAnalysisStandard = null;
 
 		if (analysisStandard instanceof NormalStandard)
-			tmpAnalysisStandard = new NormalStandard(analysis, standard);
+			tmpAnalysisStandard = new NormalStandard(standard);
 
 		if (analysisStandard instanceof MaturityStandard)
-			tmpAnalysisStandard = new MaturityStandard(analysis, standard);
+			tmpAnalysisStandard = new MaturityStandard(standard);
 
 		if (analysisStandard instanceof AssetStandard)
-			tmpAnalysisStandard = new AssetStandard(analysis, standard);
+			tmpAnalysisStandard = new AssetStandard(standard);
 
 		List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
 		for (Measure measure : analysisStandard.getMeasures())
 			if (anonymize)
 				measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), tmpAnalysisStandard, parameters, anonymize));
-			else {
+			else
 				measures.add(duplicateMeasure(measure, phases.get(measure.getPhase().getNumber()), tmpAnalysisStandard, parameters, anonymize));
-				System.out.println(measure.getPhase().getNumber());
-			}
 
 		tmpAnalysisStandard.setMeasures(measures);
 
-		return tmpAnalysisStandard;
+		analysis.addAnalysisStandard(tmpAnalysisStandard);
 
 	}
 
@@ -443,7 +440,7 @@ public class Duplicator {
 			// phases
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.phase", "empty phases", null, 50));
 
-			copy.setUsedPhases(new ArrayList<Phase>());
+			copy.setPhases(new ArrayList<Phase>());
 
 			Map<Integer, Phase> phases = new LinkedHashMap<Integer, Phase>();
 
@@ -456,8 +453,8 @@ public class Duplicator {
 				tmpPhase = tmpPhase.duplicate();
 			phases.put(Constant.PHASE_NOT_USABLE, new Phase(Constant.PHASE_NOT_USABLE));
 			phases.put(Constant.PHASE_DEFAULT, tmpPhase);
-			copy.addUsedPhase(phases.get(Constant.PHASE_NOT_USABLE));
-			copy.addUsedPhase(tmpPhase);
+			copy.addPhase(phases.get(Constant.PHASE_NOT_USABLE));
+			copy.addPhase(tmpPhase);
 
 			// copy other data if requested
 			// scenarios

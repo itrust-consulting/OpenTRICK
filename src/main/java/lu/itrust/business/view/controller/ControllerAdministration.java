@@ -88,7 +88,7 @@ public class ControllerAdministration {
 
 	@Value("${app.settings.version}")
 	private String version;
-	
+
 	/**
 	 * loadAll: <br>
 	 * Description
@@ -316,7 +316,7 @@ public class ControllerAdministration {
 						user.addCustomer(analysis.getCustomer());
 
 					if (useraccess != -1) {
-						uar = new UserAnalysisRight(user, analysis, AnalysisRight.valueOf(useraccess));
+						uar = new UserAnalysisRight(user, AnalysisRight.valueOf(useraccess));
 						userrights.put(user, uar.getRight());
 						serviceUserAnalysisRight.save(uar);
 						serviceAnalysis.saveOrUpdate(analysis);
@@ -325,8 +325,7 @@ public class ControllerAdministration {
 				}
 			}
 
-			model.addAttribute("success",
-					messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
+			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);

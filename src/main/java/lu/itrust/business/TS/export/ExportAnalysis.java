@@ -617,14 +617,14 @@ public class ExportAnalysis {
 		// ****************************************************************
 
 		// if phase is valid -> YES
-		for (int i = 0; i < this.analysis.getUsedPhases().size(); i++) {
+		for (int i = 0; i < this.analysis.getPhases().size(); i++) {
 
 			// ****************************************************************
 			// * export current phase
 			// ****************************************************************
 
 			// should not save
-			if (this.analysis.getUsedPhases().get(i).getNumber() == 0)
+			if (this.analysis.getPhases().get(i).getNumber() == 0)
 				continue;
 
 			// build query

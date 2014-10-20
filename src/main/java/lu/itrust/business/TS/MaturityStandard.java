@@ -46,28 +46,6 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 	/**
 	 * Constructor:<br>
 	 * 
-	 * @param analysis
-	 *            The Analysis Object
-	 * @param standard
-	 *            The standard
-	 */
-	public MaturityStandard(Analysis analysis, Standard standard) {
-		super(analysis, standard);
-	}
-
-	/**
-	 * Constructor:<br>
-	 * 
-	 * @param analysis
-	 *            The Analysis Object
-	 */
-	public MaturityStandard(Analysis analysis) {
-		super(analysis);
-	}
-
-	/**
-	 * Constructor:<br>
-	 * 
 	 * @param standard
 	 *            The standard
 	 */
@@ -81,8 +59,7 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 
 	/**
 	 * getAMeasure: <br>
-	 * Returns the Measure object at position "index" from the measure list
-	 * ("measures" field)
+	 * Returns the Measure object at position "index" from the measure list ("measures" field)
 	 * 
 	 * @return The Maturity Measure Object at position "index"
 	 */
@@ -96,14 +73,14 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 		}
 	}
 
-	public List<Measure> getLevel1Measures(){
+	public List<Measure> getLevel1Measures() {
 		List<Measure> measures = new ArrayList<Measure>();
-		for(Measure measure : super.getMeasures())
-			if(measure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_1)
+		for (Measure measure : super.getMeasures())
+			if (measure.getMeasureDescription().getLevel() == Constant.MEASURE_LEVEL_1)
 				measures.add(measure);
 		return measures;
 	}
-	
+
 	/**
 	 * setMeasures: <br>
 	 * Sets the Field "measures" with a value.
@@ -125,8 +102,7 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 
 	/**
 	 * addMeasure: <br>
-	 * Adds a new Maturity Measure Object to the list of measures ("measures"
-	 * field)
+	 * Adds a new Maturity Measure Object to the list of measures ("measures" field)
 	 * 
 	 * @param measure
 	 *            The Maturity Measure Object to add
@@ -143,7 +119,7 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 	 * clone: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.AnalysisStandard#clone()
 	 */
@@ -156,7 +132,7 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 	 * duplicate: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.AnalysisStandard#duplicate()
 	 */

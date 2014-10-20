@@ -134,7 +134,7 @@ public class ControllerAnalysisStandard {
 
 	@Autowired
 	private CustomDelete customDelete;
-	
+
 	/**
 	 * section: <br>
 	 * Description
@@ -344,21 +344,20 @@ public class ControllerAnalysisStandard {
 	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
-		
+
 		try {
-		
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-		
-		measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
-		return JsonMessage
-				.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", customLocale != null ? customLocale : locale));
+
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+
+			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", customLocale != null ? customLocale
+				: locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-			return JsonMessage
-					.Error(messageSource.getMessage("error.analysis.norm.delete", null, "Standard could not be deleted!", customLocale != null ? customLocale : locale));
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.norm.delete", null, "Standard could not be deleted!", customLocale != null ? customLocale : locale));
 		}
 	}
 
@@ -451,21 +450,21 @@ public class ControllerAnalysisStandard {
 	 */
 	@RequestMapping(value = "/Available", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<Integer,String> getAvailableStandards(HttpSession session, Principal principal, Locale locale) throws Exception {
-		
+	public @ResponseBody Map<Integer, String> getAvailableStandards(HttpSession session, Principal principal, Locale locale) throws Exception {
+
 		Map<Integer, String> availableStandards = new LinkedHashMap<Integer, String>();
-		
+
 		try {
-			
+
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 			List<Standard> standards = serviceStandard.getAllNotInAnalysis(idAnalysis);
 
-			for(Standard standard : standards)
-				availableStandards.put(standard.getId(), standard.getLabel()+" - "+standard.getVersion());
-			
+			for (Standard standard : standards)
+				availableStandards.put(standard.getId(), standard.getLabel() + " - " + standard.getVersion());
+
 			return availableStandards;
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -475,7 +474,7 @@ public class ControllerAnalysisStandard {
 			return availableStandards;
 		}
 	}
-	
+
 	@RequestMapping(value = "/Add/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
@@ -517,9 +516,8 @@ public class ControllerAnalysisStandard {
 			}
 			Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
 			if (phase == null)
-				analysis.addUsedPhase(phase = new Phase(Constant.PHASE_DEFAULT));
+				analysis.addPhase(phase = new Phase(Constant.PHASE_DEFAULT));
 			measure.setPhase(phase);
-			analysisStandard.setAnalysis(analysis);
 			analysisStandard.setStandard(standard);
 			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
 			measure.setImplementationRate(implementationRate);
@@ -667,7 +665,7 @@ public class ControllerAnalysisStandard {
 			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
 		}
 	}
-	
+
 	/**
 	 * importRRF: <br>
 	 * Description

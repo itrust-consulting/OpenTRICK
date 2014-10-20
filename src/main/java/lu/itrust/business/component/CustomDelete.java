@@ -87,40 +87,48 @@ public class CustomDelete {
 	@Transactional
 	public void deleteAsset(Asset asset) throws Exception {
 
-		List<ActionPlanEntry> actionplans = daoActionPlan.getAllFromAsset(asset);
+		if (asset.isSelected()) {
 
-		if (!actionplans.isEmpty()) {
+			Analysis analysis = daoAnalysis.get(daoAsset.getAnalysisIdFromAsset(asset.getId()));
 
-			Integer analysisid = actionplans.get(0).getMeasure().getAnalysisStandard().getAnalysis().getId();
+			if (analysis == null)
+				throw new Exception("Could not retrieve analysis!");
 
-			String type = actionplans.get(0).getActionPlanType().getName();
-
-			for (ActionPlanEntry actionplanentry : actionplans) {
-
+			for (ActionPlanEntry actionplanentry : analysis.getActionPlans())
 				daoActionPlan.delete(actionplanentry);
-			}
 
-			if (analysisid != null) {
+			for (SummaryStage stage : analysis.getSummaries())
+				daoActionPlanSummary.delete(stage);
 
-				List<SummaryStage> summary = daoActionPlanSummary.getAllFromAnalysisAndActionPlanType(analysisid, type);
-
-				for (SummaryStage stage : summary) {
-					daoActionPlanSummary.delete(stage);
-				}
-			} else
-				throw new Exception("Could not get analysis id!");
 		}
-		List<Assessment> assessments = daoAssessment.getAllFromAsset(asset);
-		for (Assessment assessment : assessments)
+
+		for (Assessment assessment : daoAssessment.getAllFromAsset(asset))
 			daoAssessment.delete(assessment);
+
 		daoAsset.delete(asset);
 	}
 
 	@Transactional
 	public void deleteScenario(Scenario scenario) throws Exception {
-		List<Assessment> assessments = daoAssessment.getAllFromScenario(scenario);
-		for (Assessment assessment : assessments)
+
+		if (scenario.isSelected()) {
+
+			Analysis analysis = daoAnalysis.get(daoScenario.getAnalysisIdFromScenario(scenario.getId()));
+
+			if (analysis == null)
+				throw new Exception("Could not retrieve analysis!");
+
+			for (ActionPlanEntry actionplanentry : analysis.getActionPlans())
+				daoActionPlan.delete(actionplanentry);
+
+			for (SummaryStage stage : analysis.getSummaries())
+				daoActionPlanSummary.delete(stage);
+
+		}
+
+		for (Assessment assessment : daoAssessment.getAllFromScenario(scenario))
 			daoAssessment.delete(assessment);
+
 		daoScenario.delete(scenario);
 	}
 
@@ -210,7 +218,7 @@ public class CustomDelete {
 		}
 		daoMeasureDescription.delete(measureDescription);
 	}
-	
+
 	@Transactional
 	public boolean deleteAnalysis(List<Integer> ids) {
 		try {

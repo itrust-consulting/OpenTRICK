@@ -4,6 +4,8 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisStandard;
+import lu.itrust.business.TS.MeasureDescription;
+import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.Standard;
 import lu.itrust.business.dao.DAOAnalysisStandard;
 
@@ -93,7 +95,8 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) throws Exception {
-		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard where analysis = :analysis").setParameter("analysis", analysis).list();
+		return (List<AnalysisStandard>) getSession().createQuery("SELECT analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis = :analysis")
+				.setParameter("analysis", analysis).list();
 	}
 
 	/**
@@ -160,7 +163,44 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 */
 	@Override
 	public AnalysisStandard getFromAnalysisIdAndStandardId(Integer idAnalysis, int idStandard) {
-		return (AnalysisStandard) getSession().createQuery("From AnalysisStandard where analysis.id = :idAnalysis and standard.id = :idStandard").setParameter("idAnalysis", idAnalysis).setParameter(
-				"idStandard", idStandard).uniqueResult();
+		return (AnalysisStandard) getSession().createQuery(
+				"select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.id = :idStandard")
+				.setParameter("idAnalysis", idAnalysis).setParameter("idStandard", idStandard).uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void deleteAllFromAnalysis(Integer analysisId) throws Exception {
+		List<AnalysisStandard> standards =
+			getSession().createQuery("select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis").setParameter("analysis",
+					analysisId).list();
+
+		for (AnalysisStandard standard : standards) {
+			if (standard.getStandard().getAnalysis() == null) {
+				getSession().delete(standard);
+			} else {
+				Standard tmpstandard = standard.getStandard();
+
+				getSession().delete(standard);
+
+				List<MeasureDescription> mesDescs =
+					(List<MeasureDescription>) getSession().createQuery("SELECT mesDesc from MeasureDescription mesDesc where mesDesc.standard= :standard").setParameter("standard", tmpstandard).list();
+
+				for (MeasureDescription mesDesc : mesDescs) {
+					for (MeasureDescriptionText mesDescText : mesDesc.getMeasureDescriptionTexts())
+						getSession().delete(mesDescText);
+					getSession().delete(mesDesc);
+				}
+
+				getSession().delete(tmpstandard);
+			}
+		}
+
+	}
+
+	@Override
+	public Integer getAnalysisIDFromAnalysisStandard(Integer analysisStandard) throws Exception {
+		return (Integer) getSession().createQuery("SELECT analysis.id From Analysis analysis join analysis.analysisStandards analysisStandard where analysisStandard.id = :analysisstandard")
+				.setParameter("analysisstandard", analysisStandard).uniqueResult();
 	}
 }

@@ -33,9 +33,9 @@ import org.hibernate.annotations.CascadeType;
  * @since 2012-08-21
  */
 @Entity
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="dtDiscriminator")
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","fiStandard"}))
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "dtDiscriminator")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiStandard" }))
 public abstract class AnalysisStandard implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -45,26 +45,23 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 	/** serialVersionUID */
 	@Transient
 	private static final long serialVersionUID = 1L;
-	
+
 	/** AnalysisStandard id */
-	@Id @GeneratedValue 
-	@Column(name="idAnalysisStandard")
+	@Id
+	@GeneratedValue
+	@Column(name = "idAnalysisStandard")
 	private int id = -1;
 
 	/** AnalysisStandard Standard Object */
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="fiStandard", nullable=false)
-	@Cascade({CascadeType.SAVE_UPDATE})
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "fiStandard", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE })
 	private Standard standard = null;
 
 	/** AnalysisStandard List of measures */
-	@OneToMany(mappedBy="analysisStandard")
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@OneToMany(mappedBy = "analysisStandard")
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<Measure> measures = new ArrayList<Measure>();
-
-	@ManyToOne
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	private Analysis analysis = null;
 
 	/***********************************************************************************************
 	 * Constructor
@@ -72,30 +69,12 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 
 	/**
 	 * Constructor: <br>
+	 * 
 	 * @param analysis
-	 * @param standard
-	 */
-	public AnalysisStandard(Analysis analysis, Standard standard) {
-		this.analysis = analysis;
-		this.standard = standard;
-	}
-
-	/**
-	 * Constructor: <br>
 	 * @param standard
 	 */
 	public AnalysisStandard(Standard standard) {
 		this.standard = standard;
-	}
-
-	/**
-	 * Constructor: <br>
-	 * 
-	 * @param analysis
-	 *            The Analysis Object
-	 */
-	public AnalysisStandard(Analysis analysis) {
-		this.analysis = analysis;
 	}
 
 	/**
@@ -130,29 +109,8 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 		if (name == null)
 			throw new TrickException("error.norm.null", "Standard cannot be empty");
 		else if (name.getLabel() == null)
-			throw new TrickException("error.norm.label_null","Standard name cannot be empty");
+			throw new TrickException("error.norm.label_null", "Standard name cannot be empty");
 		this.standard = name;
-	}
-
-	/**
-	 * getAnalysis: <br>
-	 * Returns the analysis field value.
-	 * 
-	 * @return The value of the analysis field
-	 */
-	public Analysis getAnalysis() {
-		return analysis;
-	}
-
-	/**
-	 * setAnalysis: <br>
-	 * Sets the Field "analysis" with a value.
-	 * 
-	 * @param analysis
-	 *            The Value to set the analysis field
-	 */
-	public void setAnalysis(Analysis analysis) {
-		this.analysis = analysis;
 	}
 
 	/**
@@ -230,8 +188,7 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result =
-			prime * result + ((standard == null) ? 0 : standard.hashCode());
+		result = prime * result + ((standard == null) ? 0 : standard.hashCode());
 		result = prime * result + id;
 		return result;
 	}
@@ -270,5 +227,5 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 		}
 		return true;
 	}
-	
+
 }

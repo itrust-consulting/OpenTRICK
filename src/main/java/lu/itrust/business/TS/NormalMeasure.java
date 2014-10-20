@@ -108,8 +108,11 @@ public class NormalMeasure extends Measure {
 	 * @return The List of all Asset Type Values
 	 */
 	@ManyToMany
-	@JoinTable(name = "MeasureAssetTypeValue", joinColumns = { @JoinColumn(name = "fiNormalMeasure", nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "fiAssetTypeValue",
-			nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }))
+	@JoinTable(name = "MeasureAssetTypeValue",
+				joinColumns = { @JoinColumn(name = "fiNormalMeasure", nullable = false) }, 
+				inverseJoinColumns = { @JoinColumn(name = "fiAssetTypeValue", nullable = false) }, 
+				uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" })
+	)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;

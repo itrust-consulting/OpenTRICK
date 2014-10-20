@@ -85,8 +85,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 * getFromAnalysisByPageAndSize: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.dao.DAOAsset#getFromAnalysisByPageAndSize(int,
-	 *      int, int)
+	 * @see lu.itrust.business.dao.DAOAsset#getFromAnalysisByPageAndSize(int, int, int)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -104,7 +103,8 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Asset> getAllFromAnalysis(Integer analysisId) throws Exception {
-		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId order by asset.selected desc, asset.value desc, asset.ALE asc, asset.name asc";
+		String query =
+			"Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisId order by asset.selected desc, asset.value desc, asset.ALE asc, asset.name asc";
 		return getSession().createQuery(query).setParameter("analysisId", analysisId).list();
 	}
 
@@ -193,8 +193,12 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 
 	@Override
 	public boolean exist(Integer idAnalysis, String name) {
-		return 0 < (Long) getSession()
-				.createQuery("Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.name = :name")
+		return 0 < (Long) getSession().createQuery("Select count(asset) From Analysis as analysis inner join analysis.assets as asset where analysis.id = :idAnalysis and asset.name = :name")
 				.setInteger("idAnalysis", idAnalysis).setString("name", name).uniqueResult();
+	}
+
+	@Override
+	public Integer getAnalysisIdFromAsset(Integer assetId) throws Exception {
+		return (Integer) getSession().createQuery("SELECT analysis.id From Analysis analysis join analysis.assets asset where asset.id = :assetID").setParameter("assetID", assetId).uniqueResult();
 	}
 }

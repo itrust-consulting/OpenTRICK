@@ -8,7 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -16,9 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.exception.TrickException;
 
@@ -70,10 +66,8 @@ public class Standard implements Serializable, Cloneable {
 	@Access(AccessType.FIELD)
 	private boolean computable = true;
 
-	@Access(AccessType.FIELD)
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne
 	@JoinColumn(name = "fiAnalysis", nullable = true)
-	@Cascade({ CascadeType.ALL })
 	private Analysis analysis = null;
 
 	/***********************************************************************************************

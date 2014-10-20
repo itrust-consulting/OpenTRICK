@@ -7,8 +7,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -23,8 +21,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
-@Table(uniqueConstraints=@UniqueConstraint(columnNames = { "fiAnalysis","dtNumber" }))
+@Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtNumber" }))
 public class Phase implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -36,25 +34,21 @@ public class Phase implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** phase identifier, unsaved value = -1 */
-	@Id @GeneratedValue 
-	@Column(name="idPhase")
+	@Id
+	@GeneratedValue
+	@Column(name = "idPhase")
 	private int id = -1;
 
-	/** Analysis Object */
-	@ManyToOne 
-	@JoinColumn(name="fiAnalysis", nullable=false)
-	private Analysis analysis = null;
-
 	/** The Phase Number */
-	@Column(name="dtNumber", nullable=false)
+	@Column(name = "dtNumber", nullable = false)
 	private int number;
 
 	/** The Begin Date of the Phase */
-	@Column(name="dtBeginDate")
+	@Column(name = "dtBeginDate")
 	private Date beginDate;
 
 	/** The End Date of the Phase */
-	@Column(name="dtEndDate")
+	@Column(name = "dtEndDate")
 	private Date endDate;
 
 	/***********************************************************************************************
@@ -121,7 +115,7 @@ public class Phase implements Serializable, Cloneable {
 	 *            The value to set the Begin Date of the Phase
 	 * @throws TrickException
 	 */
-	public void setBeginDate(Date beginDate){
+	public void setBeginDate(Date beginDate) {
 		this.beginDate = beginDate;
 	}
 
@@ -147,36 +141,15 @@ public class Phase implements Serializable, Cloneable {
 		this.endDate = endDate;
 	}
 
-	public void setDates(Date beginDate, Date endDate) throws TrickException{
-		if(!beginDate.before(endDate))
-				throw new TrickException("error.phase.begin_date.invalid", "Phase begin time cannot be greater than phase end time");	
-				
-		if(!endDate.after(beginDate))
+	public void setDates(Date beginDate, Date endDate) throws TrickException {
+		if (!beginDate.before(endDate))
+			throw new TrickException("error.phase.begin_date.invalid", "Phase begin time cannot be greater than phase end time");
+
+		if (!endDate.after(beginDate))
 			throw new TrickException("error.phase.begin_date.invalid", "Phase end time cannot be less than phase begin time");
 
 		this.beginDate = beginDate;
 		this.endDate = endDate;
-	}
-	
-	/**
-	 * getAnalysis: <br>
-	 * Returns the analysis field value.
-	 * 
-	 * @return The value of the analysis field
-	 */
-	public Analysis getAnalysis() {
-		return analysis;
-	}
-
-	/**
-	 * setAnalysis: <br>
-	 * Sets the Field "analysis" with a value.
-	 * 
-	 * @param analysis
-	 *            The Value to set the analysis field
-	 */
-	public void setAnalysis(Analysis analysis) {
-		this.analysis = analysis;
 	}
 
 	/*
@@ -188,7 +161,6 @@ public class Phase implements Serializable, Cloneable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((analysis == null) ? 0 : analysis.hashCode());
 		result = prime * result + number;
 		return result;
 	}
@@ -207,10 +179,7 @@ public class Phase implements Serializable, Cloneable {
 		if (!(obj instanceof Phase))
 			return false;
 		Phase other = (Phase) obj;
-		if (analysis == null) {
-			if (other.analysis != null)
-				return false;
-		} else if (!getAnalysis().equals(other.getAnalysis()))
+		if (id != other.id)
 			return false;
 		if (number != other.number)
 			return false;

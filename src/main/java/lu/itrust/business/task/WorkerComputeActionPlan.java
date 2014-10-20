@@ -225,7 +225,7 @@ public class WorkerComputeActionPlan implements Worker {
 		Hibernate.initialize(analysis.getItemInformations());
 		Hibernate.initialize(analysis.getRiskInformations());
 		Hibernate.initialize(analysis.getParameters());
-		Hibernate.initialize(analysis.getUsedPhases());
+		Hibernate.initialize(analysis.getPhases());
 		// for (int i = 0; i < analysis.getUsedPhases().size(); i++)
 		// Hibernate.initialize(analysis.getAPhase(i));
 		Hibernate.initialize(analysis.getAnalysisStandards());
