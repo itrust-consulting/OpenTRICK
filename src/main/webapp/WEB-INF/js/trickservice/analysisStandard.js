@@ -1,5 +1,11 @@
 // add new standard to analysis
 
+$(document).ready(function() {
+	$('#standardModal').on('hidden.bs.modal', function() {
+		reloadSection("section_standard");
+	})
+});
+
 function manageStandard() {
 	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	var alert = $("#standardModal .alert");
@@ -17,11 +23,11 @@ function manageStandard() {
 				else {
 					var parser = new DOMParser();
 					var doc = parser.parseFromString(response, "text/html");
-					var forms = $(doc).find("#section_standards");
+					var forms = $(doc).find("#section_manage_standards");
 					if (!forms.length) {
 						showError($("#standardModal .modal-footer")[0], MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
 					} else {
-						$("#section_standards").replaceWith(forms);
+						$("#section_manage_standards").replaceWith(forms);
 
 					}
 				}
@@ -33,10 +39,6 @@ function manageStandard() {
 		permissionError();
 	return false;
 }
-
-$('#standardModal').on('hidden.bs.modal', function() {
-	reloadSection("section_measure");
-})
 
 // manage analysis standards
 
@@ -105,7 +107,7 @@ function doCreateStandard(form) {
 					// response["success"]);
 					// $("#createStandardModal .modal-footer div[class='alert
 					// alert-success']").css("margin-bottom", "0");
-					// reloadSection("section_measure");
+					// reloadSection("section_standard");
 					$.ajax({
 						url : context + "/Analysis/Standard/Manage",
 						type : "get",
@@ -114,8 +116,8 @@ function doCreateStandard(form) {
 						success : function(response) {
 							var parser = new DOMParser();
 							var doc = parser.parseFromString(response, "text/html");
-							$("#section_standards table.table").replaceWith($(doc).find("#section_standards table.table"));
-							updateMenu(undefined, '#section_standards', '#menu_standards');
+							$("#section_manage_standards table.table").replaceWith($(doc).find("#section_manage_standards table.table"));
+							updateMenu(undefined, '#section_manage_standards', '#menu_manage_standards');
 						},
 						error : unknowError
 					});
@@ -202,7 +204,7 @@ function doAddStandard(form) {
 					showError($("#addStandardModal .modal-footer")[0], response["error"]);
 					$("#addStandardModal .modal-footer div[class='alert alert-danger']").css("margin-bottom", "0");
 				} else if (response["success"] != undefined) {
-					// reloadSection("section_measure");
+					// reloadSection("section_standard");
 					$("#add_standard_progressbar").css("display", "none");
 					// showSuccess($("#addStandardModal .modal-footer")[0],
 					// response["success"]);
@@ -217,8 +219,8 @@ function doAddStandard(form) {
 						success : function(response) {
 							var parser = new DOMParser();
 							var doc = parser.parseFromString(response, "text/html");
-							$("#section_standards table.table").replaceWith($(doc).find("#section_standards table.table"));
-							updateMenu(undefined, '#section_standards', '#menu_standards');
+							$("#section_manage_standards table.table").replaceWith($(doc).find("#section_manage_standards table.table"));
+							updateMenu(undefined, '#section_manage_standards', '#menu_manage_standards');
 						},
 						error : unknowError
 					});
@@ -239,7 +241,7 @@ function doAddStandard(form) {
 function removeStandard() {
 
 	var lang = $("#nav-container").attr("trick-language");
-	var selectedStandard = $("#section_standards :checked");
+	var selectedStandard = $("#section_manage_standards :checked");
 	if (selectedStandard.length != 1)
 		return false;
 	selectedStandard = findTrickID(selectedStandard[0]);
@@ -270,7 +272,7 @@ function removeStandard() {
 					// response["success"]);
 					// $("#standardModal .modal-footer").find("div[class='alert
 					// alert-success']").css("margin-bottom", "0");
-					// reloadSection("section_measure");
+					// reloadSection("section_standard");
 
 					$.ajax({
 						url : context + "/Analysis/Standard/Manage",
@@ -280,8 +282,8 @@ function removeStandard() {
 						success : function(response) {
 							var parser = new DOMParser();
 							var doc = parser.parseFromString(response, "text/html");
-							$("#section_standards table.table").replaceWith($(doc).find("#section_standards table.table"));
-							updateMenu(undefined, '#section_standards', '#menu_standards');
+							$("#section_manage_standards table.table").replaceWith($(doc).find("#section_manage_standards table.table"));
+							updateMenu(undefined, '#section_manage_standards', '#menu_manage_standards');
 						},
 						error : unknowError
 					});
@@ -300,7 +302,7 @@ function removeStandard() {
 
 function manageMeasures() {
 
-	var selectedStandard = $("#section_standards :checked");
+	var selectedStandard = $("#section_manage_standards :checked");
 	if (selectedStandard.length != 1)
 		return false;
 	selectedStandard = findTrickID(selectedStandard[0]);
@@ -450,7 +452,7 @@ function saveMeasure() {
 						var parser = new DOMParser();
 						var doc = parser.parseFromString(response, "text/html");
 
-						reloadSection("section_measure_" + standardLabel);
+						reloadSection("section_standard_" + standardLabel);
 
 						$("#section_measure_description #measures_header").html($(doc).find("#measures_header").html());
 
@@ -503,7 +505,7 @@ function deleteMeasure(measureId, reference, standard) {
 	});
 	$(deleteModal.modal_footer).find("#deletemeasurebuttonYes").click(function() {
 		$.ajax({
-			url : context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Delete/" + measureId,
+			url : context + "/Analysis/Standard/" + idStandard + "/Measure/Delete/" + measureId,
 			type : "POST",
 			contentType : "application/json",
 			async : false,
@@ -520,7 +522,7 @@ function deleteMeasure(measureId, reference, standard) {
 							var parser = new DOMParser();
 							var doc = parser.parseFromString(response, "text/html");
 
-							reloadSection("section_measure_" + standardLabel);
+							reloadSection("section_standard_" + standardLabel);
 
 							$("#section_measure_description #measures_header").html($(doc).find("#measures_header").html());
 
@@ -535,7 +537,7 @@ function deleteMeasure(measureId, reference, standard) {
 					});
 				} else if (response["error"] != undefined) {
 					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").css("z-index","1042");
+					$("#alert-dialog").css("z-index", "1042");
 					$("#alert-dialog").modal("show");
 				} else
 					unknowError();

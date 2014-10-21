@@ -215,13 +215,16 @@ public class ControllerKnowledgeBaseStandard {
 					e.printStackTrace();
 					errors.put("version", messageSource.getMessage("error.norm.version.duplicate", null, "Version already exists", locale));
 				}
-					
+
 			} else {
 
 				Standard tmpStandard = serviceStandard.get(standard.getId());
 
-				if (tmpStandard.getAnalysis()==null)
+				if (!tmpStandard.isAnalysisOnly())
 					serviceStandard.saveOrUpdate(standard);
+				else
+					errors.put("standard", messageSource.getMessage("error.norm.manage_analysis_standard", null,
+							"This standard can only be managed within the selected analysis where this standard belongs!", locale));
 			}
 
 			// errors
@@ -247,8 +250,14 @@ public class ControllerKnowledgeBaseStandard {
 
 		try {
 
+			Standard standard = serviceStandard.get(idStandard);
+
+			if (standard.isAnalysisOnly())
+				return JsonMessage.Error(messageSource.getMessage("error.norm.manage_analysis_standard", null,
+						"This standard can only be managed within the selected analysis where this standard belongs!", locale));
+
 			// try to delete the standard
-			customDelete.deleteStandard(serviceStandard.get(idStandard));
+			customDelete.deleteStandard(standard);
 
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null, "Standard was deleted successfully", locale));
@@ -606,7 +615,7 @@ public class ControllerKnowledgeBaseStandard {
 			for (MeasureDescription mesDesc : mesDescs) {
 
 				mesDesc.setMeasureDescriptionTexts(new ArrayList<MeasureDescriptionText>());
-				
+
 				// load only from language
 				MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(mesDesc.getId(), lang.getId());
 
@@ -619,9 +628,10 @@ public class ControllerKnowledgeBaseStandard {
 				}
 
 				mesDesc.addMeasureDescriptionText(mesDescText);
-				
-				//System.out.println(mesDescText.getDomain() + "::" + mesDescText.getDescription());
-				
+
+				// System.out.println(mesDescText.getDomain() + "::" +
+				// mesDescText.getDescription());
+
 			}
 			Collections.sort(mesDescs, new ComparatorMeasureDescription());
 			// put data to model
@@ -645,8 +655,8 @@ public class ControllerKnowledgeBaseStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{idStandard}/Language/{idLanguage}/Measures/{idMeasure}")
-	public String displaySingle(@PathVariable int idStandard, @PathVariable int idLanguage, @PathVariable int idMeasure, HttpServletRequest request, HttpServletResponse response,
-			Model model, Locale locale) throws Exception {
+	public String displaySingle(@PathVariable int idStandard, @PathVariable int idLanguage, @PathVariable int idMeasure, HttpServletRequest request, HttpServletResponse response, Model model,
+			Locale locale) throws Exception {
 
 		// load all measuredescriptions of a standard
 		MeasureDescription mesDesc = serviceMeasureDescription.get(idMeasure);
@@ -796,8 +806,7 @@ public class ControllerKnowledgeBaseStandard {
 					errors.put("measureDescription.norm", messageSource.getMessage("error.norm.not_found", null, "Standard is not exist", locale));
 				measureDescription.setStandard(standard);
 			} else if (measureDescription.getStandard().getId() != idStandard)
-				errors.put("measureDescription.norm",
-						messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
+				errors.put("measureDescription.norm", messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description or standard is not exist", locale));
 
 			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale)) {
 				serviceMeasureDescription.saveOrUpdate(measureDescription);
@@ -883,8 +892,7 @@ public class ControllerKnowledgeBaseStandard {
 				errors.put("measuredescription.reference", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
 				if (measuredescription.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndStandard(reference, measuredescription.getStandard()))
-					errors.put("measuredescription.reference",
-							messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
+					errors.put("measuredescription.reference", messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
 				else
 					measuredescription.setReference(reference);
 			}
@@ -974,7 +982,7 @@ public class ControllerKnowledgeBaseStandard {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * buildStandard: <br>
 	 * Description
@@ -1051,7 +1059,7 @@ public class ControllerKnowledgeBaseStandard {
 			// set computable flag
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 
-			standard.setAnalysis(null);
+			standard.setAnalysisOnly(false);
 
 			// return success
 			return errors.isEmpty();

@@ -261,9 +261,6 @@ public class ControllerAnalysis {
 				model.addAttribute("show_cssf", analysis.isCssf());
 				model.addAttribute("language", analysis.getLanguage().getAlpha3());
 
-				serviceUser.saveOrUpdate(user);
-				serviceAnalysis.saveOrUpdate(analysis);
-
 			} else {
 				attributes.addFlashAttribute("errors", messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 				throw new AccessDeniedException((String) attributes.getFlashAttributes().get("errors"));
@@ -735,7 +732,7 @@ public class ControllerAnalysis {
 			// save the new version
 			serviceAnalysis.save(copy);
 
-			List<AnalysisStandard> standards = analysis.getAnalysisOnlyStandards();
+			/*List<AnalysisStandard> standards = analysis.getAnalysisOnlyStandards();
 
 			Map<Integer, Phase> phases = new LinkedHashMap<Integer, Phase>();
 
@@ -751,7 +748,7 @@ public class ControllerAnalysis {
 				duplicator.duplicateAnalysisOnlyStandards(standard, phases, parameters, false, copy);
 
 			// save the new version
-			serviceAnalysis.saveOrUpdate(copy);
+			serviceAnalysis.saveOrUpdate(copy);*/
 
 		} catch (CloneNotSupportedException e) {
 			// return dubplicate error message

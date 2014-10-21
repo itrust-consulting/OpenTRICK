@@ -14,7 +14,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<div class="panel panel-default" id="section_standards"></div>
+				<div class="panel panel-default" id="section_manage_standards"></div>
 			</div>
 			<div class="modal-footer" style="margin-top: 0;">
 				<div class="progress progress-striped active" style="display: none; width: 100%; margin-top: 15px; margin-bottom: 0;" id="standard_progressbar">

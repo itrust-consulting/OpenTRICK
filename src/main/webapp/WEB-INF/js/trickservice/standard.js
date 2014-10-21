@@ -36,7 +36,7 @@ function saveStandard(form) {
 			}
 			if (!$("#addStandardModel .label-danger").length) {
 				$("#addStandardModel").modal("hide");
-				reloadSection("section_standard");
+				reloadSection("section_kb_standard");
 			}
 			return false;
 
@@ -57,11 +57,11 @@ function saveStandard(form) {
 
 function deleteStandard(idStandard, name) {
 	if (idStandard == null || idStandard == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_standard"));
+		var selectedScenario = findSelectItemIdBySection(("section_kb_standard"));
 		if (selectedScenario.length != 1)
 			return false;
 		idStandard = selectedScenario[0];
-		name = $("#section_standard tbody tr[trick-id='" + idStandard + "']>td:nth-child(2)").text();
+		name = $("#section_kb_standard tbody tr[trick-id='" + idStandard + "']>td:nth-child(2)").text();
 	}
 	$("#deleteStandardBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the standard <strong>" + name + "</strong>?", name));
 	$("#deletestandardbuttonYes").click(function() {
@@ -74,7 +74,7 @@ function deleteStandard(idStandard, name) {
 					$("#alert-dialog .modal-body").html(response["error"]);
 					$("#alert-dialog").modal("toggle");
 				}
-				reloadSection("section_standard");
+				reloadSection("section_kb_standard");
 				return false;
 			},
 			error : unknowError
@@ -88,7 +88,7 @@ function deleteStandard(idStandard, name) {
 }
 
 function uploadImportStandardFile() {
-	if (findSelectItemIdBySection("section_standard").length)
+	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;
 	$.ajax({
 		url : context + "/KnowledgeBase/Standard/Upload",
@@ -120,7 +120,7 @@ function onSelectFile(file) {
 }
 
 function importNewStandard() {
-	if (findSelectItemIdBySection("section_standard").length)
+	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;
 	$("#uploadStandardModal .modal-footer .btn").prop("disabled", true);
 	$("#uploadStandardModal .modal-header .close").prop("disabled", true);
@@ -157,7 +157,7 @@ function importNewStandard() {
 					},
 					success : function() {
 						progressBar.Destroy();
-						reloadSection('section_standard');
+						reloadSection('section_kb_standard');
 						$("#uploadStandardModal").modal("toggle");
 					}
 				};
@@ -191,7 +191,7 @@ function importNewStandard() {
 }
 
 function newStandard() {
-	if (findSelectItemIdBySection("section_standard").length)
+	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;
 	var alert = $("#addStandardModel .label-danger");
 	if (alert.length)
@@ -201,7 +201,7 @@ function newStandard() {
 	$("#standard_label").prop("value", "");
 	$("#standard_version").prop("value", "");
 	$("#standard_description").prop("value", "");
-	//$("#addStandardModel input[name='type']").removeAttr("checked");
+	// $("#addStandardModel input[name='type']").removeAttr("checked");
 	$("#addStandardModel input[name='type'][value='NORMAL']").prop("checked", true);
 	$("#standard_computable").prop("checked", false);
 	$("#addStandardModel-title").text(MessageResolver("title.knowledgebase.norm.add", "Add a new Standard"));
@@ -213,7 +213,7 @@ function newStandard() {
 
 function editSingleStandard(idStandard) {
 	if (idStandard == null || idStandard == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_standard");
+		var selectedScenario = findSelectItemIdBySection("section_kb_standard");
 		if (selectedScenario.length != 1)
 			return false;
 		idStandard = selectedScenario[0];
@@ -222,7 +222,7 @@ function editSingleStandard(idStandard) {
 	if (alert.length)
 		alert.remove();
 	$("#addStandardModel #addstandardbutton").prop("disabled", false);
-	var rows = $("#section_standard").find("tr[trick-id='" + idStandard + "'] td:not(:first-child)");
+	var rows = $("#section_kb_standard").find("tr[trick-id='" + idStandard + "'] td:not(:first-child)");
 	$("#standard_id").prop("value", idStandard);
 	$("#standard_label").prop("value", $(rows[0]).text());
 	$("#standard_version").prop("value", $(rows[1]).text());
@@ -238,7 +238,7 @@ function editSingleStandard(idStandard) {
 }
 
 function getImportStandardTemplate() {
-	if (findSelectItemIdBySection("section_standard").length)
+	if (findSelectItemIdBySection("section_kb_standard").length)
 		return false;
 	$.fileDownload(context + '/data/TL_TRICKService_NormImport_V1.1.xlsx').done(function() {
 		alert('File download a success!');
@@ -250,7 +250,7 @@ function getImportStandardTemplate() {
 
 function exportSingleStandard(idStandard) {
 	if (idStandard == null || idStandard == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_standard");
+		var selectedScenario = findSelectItemIdBySection("section_kb_standard");
 		if (selectedScenario.length != 1)
 			return false;
 		idStandard = selectedScenario[0];

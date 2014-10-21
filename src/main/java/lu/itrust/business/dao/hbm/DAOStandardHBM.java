@@ -155,7 +155,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@Override
 	public List<Standard> getAllNotInAnalysis(Integer idAnalysis) throws Exception {
 		String query =
-			"Select standard From Standard standard where standard.analysis is null and standard.label NOT IN (Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId)";
+			"Select standard From Standard standard where standard.analysisOnly=false and standard.label NOT IN (Select analysisStandard.standard.label From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId)";
 
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
 	}
@@ -211,7 +211,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	@Override
 	public List<Standard> getAllNotBoundToAnalysis() throws Exception {
 
-		List<Standard> standards = getSession().createQuery("SELECT standard From Standard standard where standard.analysis is null").list();
+		List<Standard> standards = getSession().createQuery("SELECT standard From Standard standard where standard.analysisOnly=false").list();
 
 		return standards;
 	}
@@ -221,7 +221,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception {
 		return (List<Standard>) getSession()
 				.createQuery(
-						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId and analysisStandard.standard.analysis.id = :analysisId")
+						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysisId and analysisStandard.standard.analysisOnly=true")
 				.setParameter("analysisId", analsisID).list();
 	}
 
@@ -230,7 +230,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId) throws Exception {
 		return getSession()
 				.createQuery(
-						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysisStandard.standard.analysis is null and analysis.id = :analysisId")
+						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysisStandard.standard.analysisOnly=false and analysis.id = :analysisId")
 				.setParameter("analysisId", analysisId).list();
 	}
 

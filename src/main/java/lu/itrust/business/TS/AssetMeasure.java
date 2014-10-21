@@ -46,6 +46,9 @@ public class AssetMeasure extends Measure implements Cloneable {
 	/** The List of Measure Properties */
 	private MeasureProperties measurePropertyList = null;
 
+	/** The "To Check" comment */
+	private String toCheck = "";
+
 	/**
 	 * getMeasurePropertyList: <br>
 	 * Returns the MeasureProperties object which has all property values
@@ -100,7 +103,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 			inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetValue", nullable = false) },
 			uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetMeasure", "idMeasureAssetValue" }))
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
-	public List<MeasureAssetValue> getAssetValues() {
+	public List<MeasureAssetValue> getMeasureAssetValues() {
 		return measureAssetValues;
 	}
 
@@ -111,7 +114,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 * @param assetTypeValues
 	 *            The Value to set the assetTypeValues field
 	 */
-	public void setAssetValues(List<MeasureAssetValue> assetValues) {
+	public void setMeasureAssetValues(List<MeasureAssetValue> assetValues) {
 		this.measureAssetValues = assetValues;
 	}
 
@@ -123,7 +126,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 *            The Asset Type Value object to add to list
 	 * @throws TrickException
 	 */
-	public void addAnAssetValue(MeasureAssetValue assetvalue) throws TrickException {
+	public void addAnMeasureAssetValue(MeasureAssetValue assetvalue) {
 		if (measureAssetValues.contains(assetvalue)) {
 			System.err.println("Asset value cannot be duplicated");
 			return;
@@ -188,6 +191,28 @@ public class AssetMeasure extends Measure implements Cloneable {
 		super.setImplementationRate(implementationRate);
 	}
 
+	/**
+	 * getToCheck: <br>
+	 * Returns the "toCheck" field value
+	 * 
+	 * @return The To Check Value
+	 */
+	@Column(name = "dtToCheck", nullable = false)
+	public String getToCheck() {
+		return this.toCheck;
+	}
+
+	/**
+	 * setToCheck: <br>
+	 * Sets the "toCheck" field with a value
+	 * 
+	 * @param toCheck
+	 *            The value to set the "To Check" Comment
+	 */
+	public void setToCheck(String toCheck) {
+		this.toCheck = toCheck;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -195,12 +220,31 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 */
 	@Override
 	public AssetMeasure clone() throws CloneNotSupportedException {
-		return (AssetMeasure) super.clone();
+		AssetMeasure assetMeasure = (AssetMeasure) super.clone();
+		assetMeasure.measureAssetValues = new ArrayList<>();
+		for (MeasureAssetValue assetValue : measureAssetValues)
+			assetMeasure.addAnMeasureAssetValue(assetValue.clone());
+		assetMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.duplicate();
+		return assetMeasure;
 	}
 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * @throws TrickException 
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.Measure#duplicate()
+	 */
 	@Override
 	public AssetMeasure duplicate() throws CloneNotSupportedException {
-		return (AssetMeasure) super.duplicate();
+		AssetMeasure assetMeasure = (AssetMeasure) super.duplicate();
+		assetMeasure.measureAssetValues = new ArrayList<>();
+		for (MeasureAssetValue assetValue : measureAssetValues)
+			assetMeasure.addAnMeasureAssetValue(assetValue.duplicate());
+		assetMeasure.measurePropertyList = (MeasureProperties) measurePropertyList.duplicate();
+		return assetMeasure;
 	}
 
 }

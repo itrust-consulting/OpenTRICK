@@ -102,18 +102,18 @@ function controllerBySection(section, subSection) {
 		"section_phase" : "/Analysis/Phase/Section",
 		"section_analysis" : "/Analysis/Section",
 		"section_profile_analysis" : "/AnalysisProfile/Section",
-		"section_measure" : "/Analysis/Standard/Section",
+		"section_standard" : "/Analysis/Standard/Section",
 		"section_customer" : "/KnowledgeBase/Customer/Section",
 		"section_language" : "/KnowledgeBase/Language/Section",
-		"section_standard" : "/KnowledgeBase/Standard/Section",
+		"section_kb_standard" : "/KnowledgeBase/Standard/Section",
 		"section_user" : "/Admin/User/Section",
 		"section_actionplans" : "/Analysis/ActionPlan/Section",
 		"section_summary" : "/Analysis/ActionPlanSummary/Section",
 		"section_riskregister" : "/Analysis/RiskRegister/Section"
 	};
 
-	if(section.match("^section_measure_"))
-		return "/Analysis/Standard/Section/"+ section.substr(16,section.length);
+	if(section.match("^section_standard_"))
+		return "/Analysis/Standard/Section/"+ section.substr(17,section.length);
 	
 	if (subSection == null || subSection == undefined)
 		return controllers[section];
@@ -146,14 +146,14 @@ function callbackBySection(section) {
 			summaryCharts();
 			return false;
 		},
-		"section_measure" : function () {
+		"section_standard" : function () {
 			
 			$("#standardmenu a[href^='#anchorMeasure_']").closest("li").remove();
 			
 			var text = "";
 			
-			$("#"+section+" div[id^='section_measure_']").each(function(){
-				var standard = $(this).attr("id").substr(16,$(this).attr("id").length);
+			$("#"+section+" div[id^='section_standard_']").each(function(){
+				var standard = $(this).attr("id").substr(17,$(this).attr("id").length);
 				var link = "#anchorMeasure_"+standard;
 				text += "<li><a href='"+link+"'>"+standard+"</a></li>";
 			});
@@ -166,7 +166,7 @@ function callbackBySection(section) {
 
 	};
 	
-	if(section.match("^section_measure_")) {
+	if(section.match("^section_standard_")) {
 		$("#"+section+" td.popover-element").popover('hide');
 	}
 	

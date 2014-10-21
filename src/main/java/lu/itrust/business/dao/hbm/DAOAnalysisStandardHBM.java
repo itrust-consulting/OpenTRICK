@@ -70,7 +70,9 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisID) throws Exception {
-		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard where analysis.id = :analysis ORDER BY standard.label ASC").setParameter("analysis", analysisID).list();
+		return (List<AnalysisStandard>) getSession().createQuery(
+				"SELECT analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis ORDER BY analysisStandard.standard.label ASC")
+				.setParameter("analysis", analysisID).list();
 	}
 
 	/**
@@ -82,8 +84,10 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisID) throws Exception {
-		return (List<AnalysisStandard>) getSession().createQuery("From AnalysisStandard where analysis.id = :analysis and standard.computable = true ORDER BY standard.label ASC").setParameter(
-				"analysis", analysisID).list();
+		return (List<AnalysisStandard>) getSession()
+				.createQuery(
+						"SELECT analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis and analysisStandard.standard.computable = true ORDER BY analysisStandard.standard.label ASC")
+				.setParameter("analysis", analysisID).list();
 	}
 
 	/**
@@ -176,7 +180,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 					analysisId).list();
 
 		for (AnalysisStandard standard : standards) {
-			if (standard.getStandard().getAnalysis() == null) {
+			if (!standard.getStandard().isAnalysisOnly()) {
 				getSession().delete(standard);
 			} else {
 				Standard tmpstandard = standard.getStandard();
@@ -184,7 +188,8 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 				getSession().delete(standard);
 
 				List<MeasureDescription> mesDescs =
-					(List<MeasureDescription>) getSession().createQuery("SELECT mesDesc from MeasureDescription mesDesc where mesDesc.standard= :standard").setParameter("standard", tmpstandard).list();
+					(List<MeasureDescription>) getSession().createQuery("SELECT mesDesc from MeasureDescription mesDesc where mesDesc.standard= :standard").setParameter("standard", tmpstandard)
+							.list();
 
 				for (MeasureDescription mesDesc : mesDescs) {
 					for (MeasureDescriptionText mesDescText : mesDesc.getMeasureDescriptionTexts())

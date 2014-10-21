@@ -12,6 +12,7 @@ import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
+import lu.itrust.business.TS.AssetMeasure;
 import lu.itrust.business.TS.AssetStandard;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.History;
@@ -20,6 +21,7 @@ import lu.itrust.business.TS.MaturityMeasure;
 import lu.itrust.business.TS.MaturityParameter;
 import lu.itrust.business.TS.MaturityStandard;
 import lu.itrust.business.TS.Measure;
+import lu.itrust.business.TS.MeasureAssetValue;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.MeasureProperties;
@@ -169,10 +171,8 @@ public class Duplicator {
 
 			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>());
 
-			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
-				if (analysisStandard.getStandard().getAnalysis() == null)
-					copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, false));
-			}
+			for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards())
+				copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, false));
 
 			return copy;
 		} finally {
@@ -196,93 +196,81 @@ public class Duplicator {
 	 */
 	public AnalysisStandard duplicateAnalysisStandard(AnalysisStandard analysisStandard, Map<Integer, Phase> phases, Map<String, Parameter> parameters, boolean anonymize) throws Exception {
 
-		AnalysisStandard astandard = analysisStandard.duplicate();
+		if (analysisStandard.getStandard().isAnalysisOnly() == false) {
 
-		List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
-		for (Measure measure : analysisStandard.getMeasures())
-			if (anonymize)
-				measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), astandard, parameters, anonymize));
-			else
-				measures.add(duplicateMeasure(measure, phases.containsKey(measure.getPhase().getNumber()) ? phases.get(measure.getPhase().getNumber()) : phases.get(Constant.PHASE_DEFAULT), astandard,
-						parameters, anonymize));
+			AnalysisStandard astandard = analysisStandard.duplicate();
 
-		astandard.setMeasures(measures);
-		return astandard;
-	}
+			List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
+			for (Measure measure : analysisStandard.getMeasures())
+				if (anonymize)
+					measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), astandard, parameters, anonymize));
+				else
+					measures.add(duplicateMeasure(measure, phases.containsKey(measure.getPhase().getNumber()) ? phases.get(measure.getPhase().getNumber()) : phases.get(Constant.PHASE_DEFAULT),
+							astandard, parameters, anonymize));
 
-	/**
-	 * duplicateAnalysisOnlyStandards: <br>
-	 * Description
-	 * 
-	 * @param analysisStandard
-	 * @param phases
-	 * @param parameters
-	 * @param anonymize
-	 * @param analysis
-	 * @return
-	 * @throws Exception
-	 */
-	@Transactional
-	public void duplicateAnalysisOnlyStandards(AnalysisStandard analysisStandard, Map<Integer, Phase> phases, Map<String, Parameter> parameters, boolean anonymize, Analysis analysis) throws Exception {
+			astandard.setMeasures(measures);
+			return astandard;
+		} else {
+			Standard standard = analysisStandard.getStandard().duplicate();
 
-		Standard standard = analysisStandard.getStandard().duplicate();
+			standard.setVersion(standard.getVersion() + 1);
 
-		standard.setVersion(standard.getVersion() + 1);
+			daoStandard.save(standard);
 
-		standard.setAnalysis(analysis);
+			List<MeasureDescription> mesDescs = daoMeasureDescription.getAllByStandard(analysisStandard.getStandard());
 
-		daoStandard.save(standard);
+			for (MeasureDescription mesDesc : mesDescs) {
 
-		List<MeasureDescription> mesDescs = daoMeasureDescription.getAllByStandard(analysisStandard.getStandard());
+				MeasureDescription desc = mesDesc.duplicate();
 
-		for (MeasureDescription mesDesc : mesDescs) {
+				desc.getMeasureDescriptionTexts().clear();
 
-			MeasureDescription desc = mesDesc.duplicate();
+				desc.setStandard(standard);
 
-			desc.getMeasureDescriptionTexts().clear();
+				daoMeasureDescription.save(desc);
 
-			desc.setStandard(standard);
+				List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
-			List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
+				for (MeasureDescriptionText mesDescText : mesDesc.getMeasureDescriptionTexts()) {
 
-			for (MeasureDescriptionText mesDescText : mesDesc.getMeasureDescriptionTexts()) {
+					MeasureDescriptionText descText = mesDescText.duplicate();
 
-				MeasureDescriptionText descText = mesDescText.duplicate();
+					descText.setMeasureDescription(desc);
 
-				descText.setMeasureDescription(desc);
+					daoMeasureDescriptionText.save(descText);
 
-				measureDescriptionTexts.add(descText);
+					measureDescriptionTexts.add(descText);
+
+				}
+
+				desc.setMeasureDescriptionTexts(measureDescriptionTexts);
+
+				daoMeasureDescription.saveOrUpdate(desc);
 
 			}
 
-			desc.setMeasureDescriptionTexts(measureDescriptionTexts);
+			AnalysisStandard tmpAnalysisStandard = null;
 
-			daoMeasureDescription.save(desc);
+			if (analysisStandard instanceof NormalStandard)
+				tmpAnalysisStandard = new NormalStandard(standard);
 
+			if (analysisStandard instanceof MaturityStandard)
+				tmpAnalysisStandard = new MaturityStandard(standard);
+
+			if (analysisStandard instanceof AssetStandard)
+				tmpAnalysisStandard = new AssetStandard(standard);
+
+			List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
+			for (Measure measure : analysisStandard.getMeasures())
+				if (anonymize)
+					measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), tmpAnalysisStandard, parameters, anonymize));
+				else
+					measures.add(duplicateMeasure(measure, phases.get(measure.getPhase().getNumber()), tmpAnalysisStandard, parameters, anonymize));
+
+			tmpAnalysisStandard.setMeasures(measures);
+
+			return tmpAnalysisStandard;
 		}
-
-		AnalysisStandard tmpAnalysisStandard = null;
-
-		if (analysisStandard instanceof NormalStandard)
-			tmpAnalysisStandard = new NormalStandard(standard);
-
-		if (analysisStandard instanceof MaturityStandard)
-			tmpAnalysisStandard = new MaturityStandard(standard);
-
-		if (analysisStandard instanceof AssetStandard)
-			tmpAnalysisStandard = new AssetStandard(standard);
-
-		List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
-		for (Measure measure : analysisStandard.getMeasures())
-			if (anonymize)
-				measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), tmpAnalysisStandard, parameters, anonymize));
-			else
-				measures.add(duplicateMeasure(measure, phases.get(measure.getPhase().getNumber()), tmpAnalysisStandard, parameters, anonymize));
-
-		tmpAnalysisStandard.setMeasures(measures);
-
-		analysis.addAnalysisStandard(tmpAnalysisStandard);
-
 	}
 
 	/**
@@ -346,6 +334,18 @@ public class Duplicator {
 				normalMeasure.getMeasurePropertyList().setSoaRisk(Constant.EMPTY_STRING);
 				for (AssetTypeValue assetTypeValue : normalMeasure.getAssetTypeValues())
 					assetTypeValue.setValue(0);
+			}
+		} else if (copy instanceof AssetMeasure) {
+			AssetMeasure assetMeasure = (AssetMeasure) copy;
+			if (anonymize) {
+				assetMeasure.setToCheck(Constant.EMPTY_STRING);
+				assetMeasure.setImplementationRate(0);
+				assetMeasure.setMeasurePropertyList((MeasureProperties) assetMeasure.getMeasurePropertyList().duplicate());
+				assetMeasure.getMeasurePropertyList().setSoaComment(Constant.EMPTY_STRING);
+				assetMeasure.getMeasurePropertyList().setSoaReference(Constant.EMPTY_STRING);
+				assetMeasure.getMeasurePropertyList().setSoaRisk(Constant.EMPTY_STRING);
+				for (MeasureAssetValue assetValue : assetMeasure.getMeasureAssetValues())
+					assetValue.setValue(0);
 			}
 		}
 		return copy;

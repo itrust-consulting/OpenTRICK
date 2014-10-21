@@ -11,7 +11,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -27,7 +27,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 24 janv. 2013
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtLabel", "dtVersion", "dtType", "fiAnalysis" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtLabel", "dtVersion", "dtType" }))
 public class Standard implements Serializable, Cloneable {
 
 	/***********************************************************************************************
@@ -66,9 +66,8 @@ public class Standard implements Serializable, Cloneable {
 	@Access(AccessType.FIELD)
 	private boolean computable = true;
 
-	@ManyToOne
-	@JoinColumn(name = "fiAnalysis", nullable = true)
-	private Analysis analysis = null;
+	@Column(name = "dtAnalysisOnly", nullable = false, columnDefinition = "TINYINT(1)")
+	private boolean analysisOnly = false;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -333,8 +332,8 @@ public class Standard implements Serializable, Cloneable {
 	 * 
 	 * @return
 	 */
-	public Analysis getAnalysis() {
-		return analysis;
+	public boolean isAnalysisOnly() {
+		return analysisOnly;
 	}
 
 	/**
@@ -343,8 +342,8 @@ public class Standard implements Serializable, Cloneable {
 	 * 
 	 * @param analysis
 	 */
-	public void setAnalysis(Analysis analysis) {
-		this.analysis = analysis;
+	public void setAnalysisOnly(boolean analysisOnly) {
+		this.analysisOnly = analysisOnly;
 	}
 
 }

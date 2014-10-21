@@ -242,6 +242,7 @@ public class NormalMeasure extends Measure {
 	/**
 	 * duplicate: <br>
 	 * Description
+	 * @throws TrickException 
 	 *
 	 * @{tags
 	 *

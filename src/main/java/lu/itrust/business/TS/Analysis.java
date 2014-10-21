@@ -1694,7 +1694,7 @@ public class Analysis implements Serializable, Cloneable {
 	public List<AnalysisStandard> getAnalysisOnlyStandards() {
 		List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
 		for (AnalysisStandard standard : analysisStandards) {
-			if (standard.getStandard().getAnalysis() != null)
+			if (standard.getStandard().isAnalysisOnly())
 				standards.add(standard);
 		}
 		return standards;

@@ -53,7 +53,7 @@ public abstract class AnalysisStandard implements Serializable, Cloneable {
 	private int id = -1;
 
 	/** AnalysisStandard Standard Object */
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne
 	@JoinColumn(name = "fiStandard", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE })
 	private Standard standard = null;

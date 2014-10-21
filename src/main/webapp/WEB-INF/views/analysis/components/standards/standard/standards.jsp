@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="section" id="section_measure" style="z-index: 3">
+<div class="section" id="section_standard" style="z-index: 3">
 	<div class="page-header">
 		<h3 id="Measure">
 			<fmt:message key="label.title.norms" />
@@ -15,7 +15,7 @@
 	</c:if>
 	<c:forEach items="${measureSplited.keySet()}" var="standard">
 		<span class="anchor" id="anchorMeasure_${standard}"></span>
-		<div id="section_measure_${standard}">
+		<div id="section_standard_${standard}">
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<spring:message text="${standard}" />

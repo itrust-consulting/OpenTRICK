@@ -71,8 +71,8 @@ function reloadMeasureRow(idMeasure, standard) {
 			$(element).html(response);
 			var tag = $(element).find("tr[trick-id='" + idMeasure + "']");
 			if (tag.length) {
-				$("#section_measure_" + standard + " tr[trick-id='" + idMeasure + "']").replaceWith(tag);
-				$("#section_measure_" + standard + " tr[trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
+				$("#section_standard_" + standard + " tr[trick-id='" + idMeasure + "']").replaceWith(tag);
+				$("#section_standard_" + standard + " tr[trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
 			}
 		},
 		error : unknowError

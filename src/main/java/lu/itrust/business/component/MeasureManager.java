@@ -10,11 +10,14 @@ import java.util.Map;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisStandard;
+import lu.itrust.business.TS.AssetMeasure;
+import lu.itrust.business.TS.AssetStandard;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.MaturityMeasure;
 import lu.itrust.business.TS.MaturityStandard;
 import lu.itrust.business.TS.Measure;
+import lu.itrust.business.TS.MeasureAssetValue;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormalMeasure;
@@ -106,6 +109,7 @@ public class MeasureManager {
 		List<Measure> measures = new LinkedList<>();
 		for (AnalysisStandard analysisStandard : analysisStandards)
 			measures.addAll(analysisStandard.getMeasures());
+
 		return measures;
 	}
 
@@ -190,6 +194,11 @@ public class MeasureManager {
 							break;
 						}
 					}
+				} else if (astandard instanceof AssetStandard) {
+					measure = new AssetMeasure();
+					((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
+					implementationRate = new Double(0);
+					((AssetMeasure) measure).setMeasureAssetValues(new ArrayList<MeasureAssetValue>());
 				}
 				Phase phase = analysis.getPhaseByNumber(Constant.PHASE_DEFAULT);
 				if (phase == null)
@@ -275,7 +284,7 @@ public class MeasureManager {
 		daoAnalysisStandard.delete(analysisStandard);
 		List<AnalysisStandard> astandards = daoAnalysisStandard.getAllFromStandard(standard);
 
-		if (standard.getAnalysis() != null && (astandards == null || astandards.isEmpty()))
+		if (standard.isAnalysisOnly() && (astandards == null || astandards.isEmpty()))
 			customDelete.deleteStandard(standard);
 	}
 }

@@ -613,6 +613,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	/**
 	 * clone: <br>
 	 * Description
+	 * @throws TrickException 
 	 *
 	 * @{tags}
 	 *
@@ -629,6 +630,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return
 	 * @throws CloneNotSupportedException
+	 * @throws TrickException 
 	 */
 	public Measure duplicate() throws CloneNotSupportedException {
 		Measure measure = (Measure) super.clone();

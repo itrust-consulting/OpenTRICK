@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<div class="section" id="section_standard">
+<div class="section" id="section_kb_standard">
 	<div class="page-header">
 		<h3 id="Standards">
 			<spring:message code="label.menu.knowledgebase.standards" text="Standards" />
@@ -47,7 +47,7 @@
 						<tbody>
 							<c:forEach items="${standards}" var="standard">
 								<tr trick-id="${standard.id}" ondblclick="return editSingleStandard('${standard.id}');">
-									<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard','#menu_standard');"></td>
+									<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_kb_standard','#menu_standard');"></td>
 									<td><spring:message text="${standard.label}" /></td>
 									<td><spring:message text="${standard.version}" /></td>
 									<td><spring:message text="${standard.description}" /></td>

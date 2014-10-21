@@ -609,13 +609,22 @@ public class ControllerAnalysisStandard {
 
 			// create new empty measuredescription object
 			MeasureDescription measureDescription = serviceMeasureDescription.get(id);
+			Standard standard = serviceStandard.get(idStandard);
+
+			if (standard == null) {
+				errors.put("norm", messageSource.getMessage("error.norm.not_found", null, "Standard does not exist", locale));
+				return errors;
+			}
+
+			if (!standard.isAnalysisOnly()) {
+				errors.put("norm", messageSource.getMessage("error.measure.manage_knowledgebase_measure", null, "This Measure can only be managed from the knowledge base", locale));
+				return errors;
+			}
 
 			if (measureDescription == null) {
 				// retrieve standard
 				measureDescription = new MeasureDescription();
-				Standard standard = serviceStandard.get(idStandard);
-				if (standard == null)
-					errors.put("norm", messageSource.getMessage("error.norm.not_found", null, "Standard does not exist", locale));
+
 				measureDescription.setStandard(standard);
 			} else if (measureDescription.getStandard().getId() != idStandard)
 				errors.put("norm", messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description does not belong to given standard", locale));
@@ -654,6 +663,10 @@ public class ControllerAnalysisStandard {
 		try {
 			// try to delete measure
 			MeasureDescription measureDescription = serviceMeasureDescription.get(idMeasure);
+
+			if (!measureDescription.getStandard().isAnalysisOnly())
+				return JsonMessage.Error(messageSource.getMessage("error.measure.manage_knowledgebase_measure", null, "This measure can only be managed from the knowledge base", locale));
+
 			if (measureDescription == null || measureDescription.getStandard().getId() != idStandard)
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 			customDelete.deleteAnalysisMeasure(measureDescription);
@@ -662,7 +675,7 @@ public class ControllerAnalysisStandard {
 		} catch (Exception e) {
 			// return error
 			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in used", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in use", locale));
 		}
 	}
 
@@ -884,7 +897,7 @@ public class ControllerAnalysisStandard {
 			// set computable flag
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 
-			standard.setAnalysis(analysis);
+			standard.setAnalysisOnly(true);
 
 			// return success
 			return errors.isEmpty();

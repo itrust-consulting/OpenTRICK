@@ -8,14 +8,16 @@ import java.util.Iterator;
 import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetTypeValue;
 import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureDescription;
 import lu.itrust.business.TS.MeasureDescriptionText;
-import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.Scenario;
+import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.usermanagement.User;
@@ -27,10 +29,11 @@ import lu.itrust.business.dao.DAOAssessment;
 import lu.itrust.business.dao.DAOAsset;
 import lu.itrust.business.dao.DAOAssetTypeValue;
 import lu.itrust.business.dao.DAOCustomer;
+import lu.itrust.business.dao.DAOMeasure;
 import lu.itrust.business.dao.DAOMeasureDescription;
 import lu.itrust.business.dao.DAOMeasureDescriptionText;
-import lu.itrust.business.dao.DAOStandard;
 import lu.itrust.business.dao.DAOScenario;
+import lu.itrust.business.dao.DAOStandard;
 import lu.itrust.business.dao.DAOUser;
 import lu.itrust.business.exception.TrickException;
 
@@ -53,6 +56,9 @@ public class CustomDelete {
 
 	@Autowired
 	private DAOStandard daoStandard;
+
+	@Autowired
+	private DAOMeasure daoMeasure;
 
 	@Autowired
 	private DAOMeasureDescription daoMeasureDescription;
@@ -209,6 +215,27 @@ public class CustomDelete {
 
 	@Transactional
 	public void deleteAnalysisMeasure(MeasureDescription measureDescription) throws Exception {
+
+		List<AnalysisStandard> astandards = daoAnalysisStandard.getAllFromStandard(measureDescription.getStandard());
+
+		for (AnalysisStandard astandard : astandards) {
+			
+			Measure mes = null;
+			
+			for (Measure measure : astandard.getMeasures()) {
+				if (measure.getMeasureDescription().equals(measureDescription)) {
+					mes = measure;
+					break;
+				}
+			}
+			
+			astandard.getMeasures().remove(mes);
+			
+			daoMeasure.delete(mes);
+			
+			daoAnalysisStandard.saveOrUpdate(astandard);
+		}
+
 		Iterator<MeasureDescriptionText> iterator = measureDescription.getMeasureDescriptionTexts().iterator();
 		while (iterator.hasNext()) {
 			MeasureDescriptionText descriptionText = iterator.next();
