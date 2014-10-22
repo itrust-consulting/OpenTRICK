@@ -32,11 +32,7 @@ import org.hibernate.annotations.CascadeType;
  */
 @Entity 
 @Table(name="ActionPlan")
-public class ActionPlanEntry implements Serializable {
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
+public class ActionPlanEntry {
 
 	/** Regular expression to match valid entry position (positive or negative number or =) */
 	@Transient

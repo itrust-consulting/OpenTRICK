@@ -7,7 +7,6 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
@@ -36,15 +35,11 @@ import org.hibernate.annotations.CascadeType;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtDiscriminator")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiStandard" }))
-public abstract class AnalysisStandard implements Serializable, Cloneable {
+public abstract class AnalysisStandard implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
 
 	/** AnalysisStandard id */
 	@Id

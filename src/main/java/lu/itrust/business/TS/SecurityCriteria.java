@@ -28,14 +28,11 @@ import lu.itrust.business.exception.TrickException;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
-public abstract class SecurityCriteria implements Serializable, Cloneable {
+public abstract class SecurityCriteria implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-
-	/** serialVersionUID */
-	private static final long serialVersionUID = 1L;
 
 	/** The Scenario Identifier */
 	private int id = -1;

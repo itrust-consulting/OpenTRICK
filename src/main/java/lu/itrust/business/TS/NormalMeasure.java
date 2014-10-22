@@ -42,10 +42,6 @@ public class NormalMeasure extends Measure {
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
-
 	/** The "To Check" comment */
 	private String toCheck = "";
 
@@ -249,8 +245,8 @@ public class NormalMeasure extends Measure {
 	 * @see lu.itrust.business.TS.Measure#duplicate()
 	 */
 	@Override
-	public NormalMeasure duplicate() throws CloneNotSupportedException {
-		NormalMeasure normalMeasure = (NormalMeasure) super.duplicate();
+	public NormalMeasure duplicate(AnalysisStandard analysisStandard) throws CloneNotSupportedException {
+		NormalMeasure normalMeasure = (NormalMeasure) super.duplicate(analysisStandard);
 		normalMeasure.assetTypeValues = new ArrayList<>();
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
 			normalMeasure.assetTypeValues.add(assetTypeValue.duplicate());

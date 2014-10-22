@@ -4,6 +4,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Standard;
+import lu.itrust.business.TS.StandardType;
 import lu.itrust.business.dao.DAOStandard;
 import lu.itrust.business.service.ServiceStandard;
 
@@ -203,6 +204,11 @@ public class ServiceStandardImpl implements ServiceStandard {
 	@Override
 	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId) throws Exception {
 		return daoStandard.getAllFromAnalysisNotBound(analysisId);
+	}
+
+	@Override
+	public Integer getBiggestVersionFromStandardByNameAndType(String label, StandardType standardType) throws Exception{
+		return daoStandard.getBiggestVersionFromStandardByNameAndType(label, standardType);
 	}
 	
 }

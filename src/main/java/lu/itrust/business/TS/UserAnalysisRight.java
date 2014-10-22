@@ -26,11 +26,7 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "fiUser" }))
-public class UserAnalysisRight implements Serializable, Cloneable {
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
+public class UserAnalysisRight implements Cloneable {
 
 	/** id */
 	@Id

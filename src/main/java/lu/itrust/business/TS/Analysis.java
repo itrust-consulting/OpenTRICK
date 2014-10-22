@@ -57,15 +57,11 @@ import org.hibernate.annotations.CascadeType;
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtIdentifier", "dtVersion", "dtCreationDate" }))
-public class Analysis implements Serializable, Cloneable {
+public class Analysis implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
 
 	/** Analysis id unsaved value = -1 */
 	@Id
@@ -194,10 +190,10 @@ public class Analysis implements Serializable, Cloneable {
 	private List<AnalysisStandard> analysisStandards = new ArrayList<AnalysisStandard>();
 
 	/** List of Phases that is used for Action Plan Computation */
-	@OneToMany
-	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@OrderBy("number")
+	@OneToMany(mappedBy="analysis")
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Access(AccessType.FIELD)
+	@OrderBy("number")
 	private List<Phase> phases = new ArrayList<Phase>();
 
 	/** The Final Action Plan without Phase Computation - Normal */
@@ -2118,8 +2114,8 @@ public class Analysis implements Serializable, Cloneable {
 	public String toString() {
 		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version + ", creationDate=" + creationDate + ", label=" + label + ", histories="
 			+ histories + ", language=" + language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters + ", assets=" + assets + ", riskInformations="
-			+ riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisStandards=" + analysisStandards + ", phases=" + phases + ", actionPlans="
-			+ actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
+			+ riskInformations + ", scenarios=" + scenarios + ", assessments=" + assessments + ", analysisStandards=" + analysisStandards + ", phases=" + phases + ", actionPlans=" + actionPlans
+			+ ", summaries=" + summaries + ", riskRegisters=" + riskRegisters + "]";
 	}
 
 	/**

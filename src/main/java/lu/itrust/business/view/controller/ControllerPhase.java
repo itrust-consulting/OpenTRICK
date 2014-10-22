@@ -197,6 +197,9 @@ public class ControllerPhase {
 				Phase nextphase = null;
 
 				if (phase.getId() == -1) {
+					
+					phase.setAnalysis(analysis);
+					
 					phase.setNumber(analysis.getPhases().size() + 1);
 
 					previousphase = analysis.getPhaseByNumber(phase.getNumber() - 1);

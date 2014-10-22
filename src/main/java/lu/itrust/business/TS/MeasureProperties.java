@@ -22,9 +22,6 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	/** serialVersionUID */
-	private static final long serialVersionUID = 1L;
-
 	/** Strength Measure */
 	private int fmeasure = 0;
 

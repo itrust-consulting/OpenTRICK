@@ -23,7 +23,6 @@ import lu.itrust.business.TS.MaturityStandard;
 import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureAssetValue;
 import lu.itrust.business.TS.MeasureDescription;
-import lu.itrust.business.TS.MeasureDescriptionText;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.NormalStandard;
@@ -215,37 +214,21 @@ public class Duplicator {
 
 			standard.setVersion(standard.getVersion() + 1);
 
-			daoStandard.save(standard);
+			//daoStandard.save(standard);
 
 			List<MeasureDescription> mesDescs = daoMeasureDescription.getAllByStandard(analysisStandard.getStandard());
+
+			Map<String, MeasureDescription> newMesDescs = new LinkedHashMap<String, MeasureDescription>();
 
 			for (MeasureDescription mesDesc : mesDescs) {
 
 				MeasureDescription desc = mesDesc.duplicate();
 
-				desc.getMeasureDescriptionTexts().clear();
-
 				desc.setStandard(standard);
-
-				daoMeasureDescription.save(desc);
-
-				List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
-
-				for (MeasureDescriptionText mesDescText : mesDesc.getMeasureDescriptionTexts()) {
-
-					MeasureDescriptionText descText = mesDescText.duplicate();
-
-					descText.setMeasureDescription(desc);
-
-					daoMeasureDescriptionText.save(descText);
-
-					measureDescriptionTexts.add(descText);
-
-				}
-
-				desc.setMeasureDescriptionTexts(measureDescriptionTexts);
-
-				daoMeasureDescription.saveOrUpdate(desc);
+				
+				//daoMeasureDescription.save(desc);
+				
+				newMesDescs.put(desc.getReference(), desc);
 
 			}
 
@@ -261,11 +244,19 @@ public class Duplicator {
 				tmpAnalysisStandard = new AssetStandard(standard);
 
 			List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
-			for (Measure measure : analysisStandard.getMeasures())
-				if (anonymize)
-					measures.add(duplicateMeasure(measure, phases.get(Constant.PHASE_DEFAULT), tmpAnalysisStandard, parameters, anonymize));
-				else
-					measures.add(duplicateMeasure(measure, phases.get(measure.getPhase().getNumber()), tmpAnalysisStandard, parameters, anonymize));
+			for (Measure measure : analysisStandard.getMeasures()) {
+
+				Measure tmpmeasure = null;
+
+				tmpmeasure = duplicateMeasure(measure, anonymize ? phases.get(Constant.PHASE_DEFAULT) : phases.get(measure.getPhase().getNumber()), tmpAnalysisStandard, parameters, anonymize);
+
+				MeasureDescription mesDesc = newMesDescs.get(tmpmeasure.getMeasureDescription().getReference());
+
+				measure.setMeasureDescription(mesDesc);
+
+				measures.add(measure);
+
+			}
 
 			tmpAnalysisStandard.setMeasures(measures);
 
@@ -287,8 +278,7 @@ public class Duplicator {
 	 * @throws TrickException
 	 */
 	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisStandard standard, Map<String, Parameter> parameters, boolean anonymize) throws CloneNotSupportedException, TrickException {
-		Measure copy = measure.duplicate();
-		copy.setAnalysisStandard(standard);
+		Measure copy = measure.duplicate(standard);
 		copy.setPhase(phase);
 
 		if (anonymize) {
@@ -449,6 +439,7 @@ public class Duplicator {
 				tmpPhase = new Phase(Constant.PHASE_DEFAULT);
 				tmpPhase.setBeginDate(new Date(System.currentTimeMillis()));
 				tmpPhase.setEndDate(new Date(System.currentTimeMillis()));
+				tmpPhase.setAnalysis(analysis);
 			} else
 				tmpPhase = tmpPhase.duplicate();
 			phases.put(Constant.PHASE_NOT_USABLE, new Phase(Constant.PHASE_NOT_USABLE));

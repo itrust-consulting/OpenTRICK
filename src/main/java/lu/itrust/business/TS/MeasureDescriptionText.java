@@ -187,9 +187,10 @@ public class MeasureDescriptionText implements Cloneable {
 		return (MeasureDescriptionText) super.clone();
 	}
 
-	public MeasureDescriptionText duplicate() throws CloneNotSupportedException {
+	public MeasureDescriptionText duplicate(MeasureDescription description) throws CloneNotSupportedException {
 		MeasureDescriptionText measureDescriptionText = (MeasureDescriptionText) super.clone();
 		measureDescriptionText.id = -1;
+		measureDescriptionText.measureDescription = description;
 		return measureDescriptionText;
 	}
 

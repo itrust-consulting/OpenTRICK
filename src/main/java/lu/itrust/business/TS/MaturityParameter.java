@@ -26,10 +26,6 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
-
 	/** The Maturity Category of Parameter */
 	@Column(name="dtCategory", nullable=false)
 	@Access(AccessType.FIELD)

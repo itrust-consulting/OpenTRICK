@@ -42,9 +42,6 @@ public class Scenario extends SecurityCriteria {
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	/** serialVersionUID */
-	private static final long serialVersionUID = 1L;
-
 	/** The Scenario Name */
 	private String name = "";
 

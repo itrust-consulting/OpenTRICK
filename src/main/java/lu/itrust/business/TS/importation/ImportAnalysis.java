@@ -1813,7 +1813,7 @@ public class ImportAnalysis {
 			phase.setNumber(rs.getInt(Constant.PHASE_NUMBER));
 			phaseBeginDate = rs.getString(Constant.PHASE_BEGIN_DATE);
 			phaseEndDate = rs.getString(Constant.PHASE_END_DATE);
-
+			phase.setAnalysis(analysis);
 			// set begin date if not empty
 			if (phaseBeginDate.equals(Constant.EMPTY_STRING)) {
 				phase.setBeginDate(null);
@@ -2498,7 +2498,7 @@ public class ImportAnalysis {
 					tempPhase.setNumber(numPhase);
 					tempPhase.setBeginDate(null);
 					tempPhase.setBeginDate(null);
-
+					tempPhase.setAnalysis(analysis);
 					phases.put(numPhase, tempPhase);
 
 					analysis.addPhase(tempPhase);

@@ -26,10 +26,6 @@ public class NormalStandard extends AnalysisStandard {
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
-
 	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/

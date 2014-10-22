@@ -31,15 +31,11 @@ import lu.itrust.business.exception.TrickException;
  */
 @Entity
 @Table(uniqueConstraints=@UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }))
-public class Assessment implements Serializable, Cloneable {
+public class Assessment implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
 
 	/** identifier from the database */
 	@Id @GeneratedValue 

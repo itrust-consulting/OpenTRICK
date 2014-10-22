@@ -27,10 +27,6 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
-
 	/** The Reached Security Maturity Level */
 	private int reachedLevel = 0;
 
@@ -257,8 +253,8 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	}
 
 	@Override
-	public MaturityMeasure duplicate() throws CloneNotSupportedException {
-		return (MaturityMeasure) super.duplicate();
+	public MaturityMeasure duplicate(AnalysisStandard analysisStandard) throws CloneNotSupportedException {
+		return (MaturityMeasure) super.duplicate(analysisStandard);
 	}
 
 }

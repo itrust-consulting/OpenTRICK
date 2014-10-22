@@ -201,8 +201,10 @@ public class MeasureManager {
 					((AssetMeasure) measure).setMeasureAssetValues(new ArrayList<MeasureAssetValue>());
 				}
 				Phase phase = analysis.getPhaseByNumber(Constant.PHASE_DEFAULT);
-				if (phase == null)
+				if (phase == null) {
 					phase = new Phase(Constant.PHASE_DEFAULT);
+					phase.setAnalysis(analysis);
+				}
 				measure.setPhase(phase);
 				measure.setImplementationRate(implementationRate);
 				measure.setAnalysisStandard(astandard);

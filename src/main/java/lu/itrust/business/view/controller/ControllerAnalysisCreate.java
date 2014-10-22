@@ -359,6 +359,7 @@ public class ControllerAnalysisCreate {
 				mappingPhases = new LinkedHashMap<Integer, Phase>(2);
 				Calendar calendar = Calendar.getInstance();
 				Phase phase = new Phase(Constant.PHASE_DEFAULT);
+				phase.setAnalysis(analysis);
 				phase.setBeginDate(new java.sql.Date(calendar.getTimeInMillis()));
 				calendar.add(Calendar.YEAR, 1);
 				phase.setEndDate(new java.sql.Date(calendar.getTimeInMillis()));

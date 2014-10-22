@@ -1,9 +1,12 @@
 package lu.itrust.business.TS;
 
+import java.io.Serializable;
+
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 import lu.itrust.business.exception.TrickException;
 

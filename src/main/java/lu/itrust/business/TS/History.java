@@ -27,15 +27,11 @@ import lu.itrust.business.exception.TrickException;
  */
 @Entity 
 @Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis", "dtVersion"}))
-public class History implements Serializable, Cloneable {
+public class History implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
 
 	/** id History unsaved */
 	@Id @GeneratedValue 

@@ -7,6 +7,7 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -54,7 +55,7 @@ public class MeasureDescription implements Cloneable {
 	private Standard standard = null;
 
 	/** Measure Description Text List (one entry represents one language) */
-	@OneToMany(mappedBy = "measureDescription")
+	@OneToMany(mappedBy = "measureDescription", fetch = FetchType.EAGER)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
@@ -295,6 +296,10 @@ public class MeasureDescription implements Cloneable {
 	public MeasureDescription duplicate() throws CloneNotSupportedException {
 		MeasureDescription measureDescription = (MeasureDescription) super.clone();
 		measureDescription.id = -1;
+		List<MeasureDescriptionText> texts = new ArrayList<MeasureDescriptionText>();
+		for(MeasureDescriptionText text : this.measureDescriptionTexts)
+			texts.add(text.duplicate(measureDescription));
+		measureDescription.setMeasureDescriptionTexts(texts);
 		return measureDescription;
 	}
 

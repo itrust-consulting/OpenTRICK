@@ -75,7 +75,7 @@ function register(form) {
 
 				var login = $("#" + form + " #login").val();
 				
-				$('body').load(context + "/login", {
+				$('body').load(context + "/Login", {
 					"registerSuccess" : true,
 					"login" : login
 				});

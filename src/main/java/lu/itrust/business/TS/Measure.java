@@ -23,25 +23,20 @@ import lu.itrust.business.exception.TrickException;
 
 /**
  * Measure: <br>
- * This class represents a Measure and its data. This class has fields that are
- * used in Maturity and AnalysisStandard Meaure classes. (Both are extended by this
- * class)
+ * This class represents a Measure and its data. This class has fields that are used in Maturity and
+ * AnalysisStandard Meaure classes. (Both are extended by this class)
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
-@Inheritance(strategy=InheritanceType.JOINED)
-public abstract class Measure implements Serializable, Cloneable {
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class Measure implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
 
 	/** The Measure Identifier */
 	private int id = -1;
@@ -105,9 +100,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * @return The Phase object
 	 */
 	@ManyToOne
-	@JoinColumn(name="fiPhase", nullable=false)
+	@JoinColumn(name = "fiPhase", nullable = false)
 	@Cascade(CascadeType.SAVE_UPDATE)
-	@Access(AccessType.FIELD)
 	public Phase getPhase() {
 		return phase;
 	}
@@ -129,8 +123,9 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Measure Identifier
 	 */
-	@Id @GeneratedValue 
-	@Column(name="idMeasure")
+	@Id
+	@GeneratedValue
+	@Column(name = "idMeasure")
 	public int getId() {
 		return id;
 	}
@@ -155,7 +150,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Status of the Measure
 	 */
-	@Column(name="dtStatus", nullable=false)
+	@Column(name = "dtStatus", nullable = false)
 	public String getStatus() {
 		return status;
 	}
@@ -216,7 +211,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Internal Workload
 	 */
-	@Column(name="dtInternalWorkLoad", nullable=false)
+	@Column(name = "dtInternalWorkLoad", nullable = false)
 	@Access(AccessType.FIELD)
 	public double getInternalWL() {
 		return internalWL;
@@ -242,7 +237,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The External Workload
 	 */
-	@Column(name="dtExternalWorkLoad", nullable=false)
+	@Column(name = "dtExternalWorkLoad", nullable = false)
 	@Access(AccessType.FIELD)
 	public double getExternalWL() {
 		return externalWL;
@@ -268,7 +263,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Investment fo the measure
 	 */
-	@Column(name="dtInvestment", nullable=false)
+	@Column(name = "dtInvestment", nullable = false)
 	@Access(AccessType.FIELD)
 	public double getInvestment() {
 		return investment;
@@ -294,7 +289,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Lifetime value
 	 */
-	@Column(name="dtLifetime", nullable=false)
+	@Column(name = "dtLifetime", nullable = false)
 	@Access(AccessType.FIELD)
 	public double getLifetime() {
 		return lifetime;
@@ -320,7 +315,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Maintenance
 	 */
-	@Column(name="dtMaintenance", nullable=false)
+	@Column(name = "dtMaintenance", nullable = false)
 	@Access(AccessType.FIELD)
 	public double getMaintenance() {
 		return maintenance;
@@ -346,7 +341,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Cost of the Measure
 	 */
-	@Column(name="dtCost", nullable=false)
+	@Column(name = "dtCost", nullable = false)
 	@Access(AccessType.FIELD)
 	public double getCost() {
 		return cost;
@@ -372,7 +367,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The Measure Comment
 	 */
-	@Column(name="dtComment", nullable=false, columnDefinition="LONGTEXT")
+	@Column(name = "dtComment", nullable = false, columnDefinition = "LONGTEXT")
 	@Access(AccessType.FIELD)
 	public String getComment() {
 		return comment;
@@ -395,7 +390,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The "ToDo" Comment
 	 */
-	@Column(name="dtToDo", nullable=false, columnDefinition="LONGTEXT")
+	@Column(name = "dtToDo", nullable = false, columnDefinition = "LONGTEXT")
 	@Access(AccessType.FIELD)
 	public String getToDo() {
 		return toDo;
@@ -418,8 +413,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return
 	 */
-	@ManyToOne 
-	@JoinColumn(name="fiAnalysisStandard", nullable=false)
+	@ManyToOne
+	@JoinColumn(name = "fiAnalysisStandard", nullable = false)
 	@Access(AccessType.FIELD)
 	public AnalysisStandard getAnalysisStandard() {
 		return analysisStandard;
@@ -441,8 +436,8 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The value of the measureDescription field
 	 */
-	@ManyToOne 
-	@JoinColumn(name="fiMeasureDescription", nullable=false)
+	@ManyToOne
+	@JoinColumn(name = "fiMeasureDescription", nullable = false)
 	@Access(AccessType.FIELD)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	public MeasureDescription getMeasureDescription() {
@@ -477,8 +472,8 @@ public abstract class Measure implements Serializable, Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Check if this object equals another object of the same type. Equal means:
-	 * the field id, description, domain and reference.
+	 * Check if this object equals another object of the same type. Equal means: the field id,
+	 * description, domain and reference.
 	 * 
 	 * @param obj
 	 *            The other object to check on
@@ -568,8 +563,9 @@ public abstract class Measure implements Serializable, Cloneable {
 		}
 
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getMaintenance(), measure.getInternalWL(),
-				measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
+		cost =
+			Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getMaintenance(), measure.getInternalWL(), measure.getExternalWL(), measure
+					.getInvestment(), measure.getLifetime());
 		// return calculated cost
 		if (cost >= 0)
 			measure.setCost(cost);
@@ -603,8 +599,9 @@ public abstract class Measure implements Serializable, Cloneable {
 		lifetimeDefault = analysis.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
 		// calculate the cost
-		cost = Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(),
-				measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
+		cost =
+			Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment(), measure
+					.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
 		// return calculated cost
 		if (cost >= 0)
 			measure.setCost(cost);
@@ -613,9 +610,10 @@ public abstract class Measure implements Serializable, Cloneable {
 	/**
 	 * clone: <br>
 	 * Description
-	 * @throws TrickException 
+	 * 
+	 * @throws TrickException
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see java.lang.Object#clone()
 	 */
@@ -630,11 +628,17 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return
 	 * @throws CloneNotSupportedException
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
-	public Measure duplicate() throws CloneNotSupportedException {
+	public Measure duplicate(AnalysisStandard astandard) throws CloneNotSupportedException {
 		Measure measure = (Measure) super.clone();
 		measure.id = -1;
+		if (measure.getMeasureDescription().getStandard().isAnalysisOnly()) {
+			MeasureDescription desc = measureDescription.duplicate();
+			measure.setMeasureDescription(desc);
+		}
+		measure.setAnalysisStandard(astandard);
+
 		return measure;
 	}
 
@@ -644,7 +648,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The value of the internalMaintenance field
 	 */
-	@Column(name="dtInternalMaintenance", nullable=false)
+	@Column(name = "dtInternalMaintenance", nullable = false)
 	@Access(AccessType.FIELD)
 	public double getInternalMaintenance() {
 		return internalMaintenance;
@@ -667,7 +671,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The value of the externalMaintenance field
 	 */
-	@Column(name="dtExternalMaintenance", nullable=false)
+	@Column(name = "dtExternalMaintenance", nullable = false)
 	@Access(AccessType.FIELD)
 	public double getExternalMaintenance() {
 		return externalMaintenance;
@@ -690,7 +694,7 @@ public abstract class Measure implements Serializable, Cloneable {
 	 * 
 	 * @return The value of the recurrentInvestment field
 	 */
-	@Column(name="dtRecurrentInvestment", nullable=false)
+	@Column(name = "dtRecurrentInvestment", nullable = false)
 	@Access(AccessType.FIELD)
 	public double getRecurrentInvestment() {
 		return recurrentInvestment;

@@ -13,7 +13,7 @@
 			<h2 class="form-signin-heading col-sm-offset-5">
 				<spring:message code="label.title.user.register" text="Sign up" />
 			</h2>
-			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/login" style="margin-top: -35px;"><spring:message code="label.menu.navigate.back" text="Back" /></a>
+			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/Login" style="margin-top: -35px;"><spring:message code="label.menu.navigate.back" text="Back" /></a>
 			<span id="success" hidden="hidden"></span>
 			<form id="registerform" name="registerform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/DoRegister">
 				<div class="form-group">

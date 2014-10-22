@@ -10,9 +10,11 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
@@ -55,7 +57,7 @@ public class ControllerHome {
 
 	@Autowired
 	private LocaleResolver localeResolver;
-	
+
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/Home")
 	public String home(Model model, Principal principal, SessionLocaleResolver session, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -63,10 +65,10 @@ public class ControllerHome {
 		return "home";
 	}
 
-	@RequestMapping(value = "/MessageResolver",method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) throws JsonParseException, JsonMappingException, IOException {
-		Locale customLocale = message.getLanguage()!=null?new Locale(message.getLanguage().substring(0, 2)):null;
-		return String.format("{\"message\":\"%s\"}",messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale!=null?customLocale:locale));
+		Locale customLocale = message.getLanguage() != null ? new Locale(message.getLanguage().substring(0, 2)) : null;
+		return String.format("{\"message\":\"%s\"}", messageSource.getMessage(message.getCode(), message.getParameters(), message.getMessage(), customLocale != null ? customLocale : locale));
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
@@ -76,24 +78,32 @@ public class ControllerHome {
 	}
 
 	@RequestMapping("/Login")
-	public String login( HttpServletRequest request, HttpServletResponse response, Locale locale, Model model) {
-		
-		if(request.getParameter("registerSuccess")!=null) {
+	public String login(HttpServletRequest request, HttpServletResponse response, Locale locale, Model model) {
+
+		if (request.getParameter("registerSuccess") != null) {
 			model.addAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
-			model.addAttribute("j_username", request.getParameter("login")==null?"":request.getParameter("login"));
+			model.addAttribute("j_username", request.getParameter("login") == null ? "" : request.getParameter("login"));
 		}
-		
+
 		return "loginForm";
 	}
 
 	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody boolean isAuthenticate(Principal principal) {
-		return principal != null;
+	public @ResponseBody boolean isAuthenticate(Principal principal, HttpSession session, HttpServletResponse response) throws Exception {
+
+		User user = serviceUser.get(principal.getName());
+
+		if (user == null) {
+			session.invalidate();
+			response.reset();
+			return false;
+		} else
+			return true;
 	}
 
 	@RequestMapping("/Login/Error")
 	public String login(RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
-		return "redirect:/login";
+		return "redirect:/Login";
 	}
 
 	@RequestMapping("/Logout")

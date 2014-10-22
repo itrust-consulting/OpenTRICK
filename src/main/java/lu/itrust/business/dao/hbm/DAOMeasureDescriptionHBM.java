@@ -49,9 +49,10 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * getByReferenceAndStandard: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#getByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.Standard)
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#getByReferenceAndStandard(java.lang.String,
+	 *      lu.itrust.business.TS.Standard)
 	 */
 	@Override
 	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard) throws Exception {
@@ -63,9 +64,10 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * existsForMeasureByReferenceAndStandard: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String, java.lang.Integer)
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String,
+	 *      java.lang.Integer)
 	 */
 	@Override
 	public boolean existsForMeasureByReferenceAndStandard(String reference, Integer idStandard) throws Exception {
@@ -77,9 +79,10 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * existsForMeasureByReferenceAndStandard: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
-	 * @see lu.itrust.business.dao.DAOMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.Standard)
+	 * @see lu.itrust.business.dao.DAOMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String,
+	 *      lu.itrust.business.TS.Standard)
 	 */
 	@Override
 	public boolean existsForMeasureByReferenceAndStandard(String reference, Standard standard) throws Exception {
@@ -102,7 +105,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * getAllByStandard: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllByStandard(java.lang.Integer)
 	 */
@@ -116,7 +119,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * getAllByStandard: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllByStandard(java.lang.String)
 	 */
@@ -130,14 +133,15 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * getAllByStandard: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.dao.DAOMeasureDescription#getAllByStandard(lu.itrust.business.TS.Standard)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<MeasureDescription> getAllByStandard(Standard standard) throws Exception {
-		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where standard = :standard").setParameter("standard", standard).list();
+		return (List<MeasureDescription>) getSession().createQuery("FROM MeasureDescription mesDesc where standard.label = :label and standard.version = :version and standard.type = :type")
+				.setParameter("label", standard.getLabel()).setParameter("version", standard.getVersion()).setParameter("type", standard.getType()).list();
 	}
 
 	/**
@@ -176,6 +180,6 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	@Override
 	public void delete(int id) throws Exception {
 		delete(get(id));
-		
+
 	}
 }

@@ -238,8 +238,8 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 * @see lu.itrust.business.TS.Measure#duplicate()
 	 */
 	@Override
-	public AssetMeasure duplicate() throws CloneNotSupportedException {
-		AssetMeasure assetMeasure = (AssetMeasure) super.duplicate();
+	public AssetMeasure duplicate(AnalysisStandard analysisStandard) throws CloneNotSupportedException {
+		AssetMeasure assetMeasure = (AssetMeasure) super.duplicate(analysisStandard);
 		assetMeasure.measureAssetValues = new ArrayList<>();
 		for (MeasureAssetValue assetValue : measureAssetValues)
 			assetMeasure.addAnMeasureAssetValue(assetValue.duplicate());

@@ -391,6 +391,25 @@ public class ControllerAnalysisStandard {
 				// return error on failure
 				return errors;
 
+			List<AnalysisStandard> astandards = analysis.getAnalysisOnlyStandards();
+			
+			for(AnalysisStandard astandard : astandards)
+				if((astandard.getStandard().getLabel().equals(standard.getLabel())) && (astandard.getStandard().getType().equals(standard.getType()))) {
+					errors.put("standard", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
+					break;
+			}
+					
+			if (!errors.isEmpty())
+				// return error on failure
+				return errors;
+			
+			Integer version = serviceStandard.getBiggestVersionFromStandardByNameAndType(standard.getLabel(), standard.getType());
+			
+			if(version == null)
+				version = 1;
+			
+			standard.setVersion(version+1);
+			
 			serviceStandard.save(standard);
 
 			AnalysisStandard astandard = null;
@@ -425,6 +444,7 @@ public class ControllerAnalysisStandard {
 			e.printStackTrace();
 			return errors;
 		} catch (Exception e) {
+			e.printStackTrace();
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis != null) {
 				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
@@ -515,14 +535,17 @@ public class ControllerAnalysisStandard {
 				implementationRate = new Double(0);
 			}
 			Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
-			if (phase == null)
-				analysis.addPhase(phase = new Phase(Constant.PHASE_DEFAULT));
+			if (phase == null) {
+				phase = new Phase(Constant.PHASE_DEFAULT);
+				phase.setAnalysis(analysis);
+				analysis.addPhase(phase);
+			}
 			measure.setPhase(phase);
 			analysisStandard.setStandard(standard);
 			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
 			measure.setImplementationRate(implementationRate);
 			for (MeasureDescription measureDescription : measureDescriptions) {
-				Measure measure2 = measure.duplicate();
+				Measure measure2 = measure.duplicate(analysisStandard);
 				measure2.setMeasureDescription(measureDescription);
 				measure2.setAnalysisStandard(analysisStandard);
 				analysisStandard.getMeasures().add(measure2);
@@ -858,27 +881,12 @@ public class ControllerAnalysisStandard {
 
 			StandardType type = StandardType.getByName(jsonNode.get("type").asText());
 
-			Integer version = null;
-
-			try {
-				version = jsonNode.get("version").asInt();
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-			}
-
 			// set data
 			String error = validator.validate(standard, "label", label);
 			if (error != null)
 				errors.put("label", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
 				standard.setLabel(label);
-
-			error = validator.validate(standard, "version", version);
-
-			if (error != null)
-				errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				standard.setVersion(version);
 
 			error = validator.validate(standard, "description", description);
 

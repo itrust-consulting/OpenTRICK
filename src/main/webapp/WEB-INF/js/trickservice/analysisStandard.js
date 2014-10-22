@@ -88,14 +88,9 @@ function doCreateStandard(form) {
 					case "label":
 						$(errorElement).appendTo($("#createStandardModal #standard_form #standard_label").parent());
 						break;
-					case "version":
-						$(errorElement).appendTo($("#createStandardModal #standard_form #standard_version").parent());
-						break;
-
 					case "description":
 						$(errorElement).appendTo($("#createStandardModal #standard_form #standard_description").parent());
 						break;
-
 					case "standard":
 						showError($("#createStandardModal .modal-footer")[0], response["error"]);
 						$("#createStandardModal .modal-footer div[class='alert alert-danger']").css("margin-bottom", "0");
@@ -126,7 +121,10 @@ function doCreateStandard(form) {
 				return false;
 
 			},
-			error : unknowError
+			error : function() {
+				unknowError();
+				$("#createStandardModal #createstandardbutton").prop("disabled", false);
+			}
 		});
 	} else
 		permissionError();

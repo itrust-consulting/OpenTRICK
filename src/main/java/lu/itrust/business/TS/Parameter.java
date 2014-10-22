@@ -24,11 +24,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
-public class Parameter implements Serializable, Cloneable {
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
+public class Parameter implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration

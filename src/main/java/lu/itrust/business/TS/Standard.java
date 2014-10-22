@@ -10,8 +10,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -28,15 +26,11 @@ import lu.itrust.business.exception.TrickException;
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtLabel", "dtVersion", "dtType" }))
-public class Standard implements Serializable, Cloneable {
+public class Standard implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
 
 	/** Standard ID */
 	@Id

@@ -1,14 +1,14 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
 import java.sql.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.exception.TrickException;
@@ -22,16 +22,12 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtNumber" }))
-public class Phase implements Serializable, Cloneable {
+@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","dtNumber"}))
+public class Phase implements Cloneable {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
 
 	/** phase identifier, unsaved value = -1 */
 	@Id
@@ -50,6 +46,10 @@ public class Phase implements Serializable, Cloneable {
 	/** The End Date of the Phase */
 	@Column(name = "dtEndDate")
 	private Date endDate;
+	
+	@ManyToOne
+	@JoinColumn(name = "fiAnalysis", nullable = false)
+	private Analysis analysis = null;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -150,6 +150,25 @@ public class Phase implements Serializable, Cloneable {
 
 		this.beginDate = beginDate;
 		this.endDate = endDate;
+	}
+
+	/** getAnalysis: <br>
+	 * Returns the analysis field value.
+	 * 
+	 * @return The value of the analysis field
+	 */
+	public Analysis getAnalysis() {
+		return analysis;
+	}
+
+	/** setAnalysis: <br>
+	 * Sets the Field "analysis" with a value.
+	 * 
+	 * @param analysis 
+	 * 			The Value to set the analysis field
+	 */
+	public void setAnalysis(Analysis analysis) {
+		this.analysis = analysis;
 	}
 
 	/*

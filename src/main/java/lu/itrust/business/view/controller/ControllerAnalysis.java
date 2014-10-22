@@ -15,12 +15,9 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisRight;
-import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.Language;
-import lu.itrust.business.TS.Parameter;
-import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.export.ExportAnalysisReport;
 import lu.itrust.business.TS.export.UserSQLite;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -198,14 +195,14 @@ public class ControllerAnalysis {
 	@Autowired
 	private ServiceAssessment serviceAssessment;
 
+	@Autowired
+	private Duplicator duplicator;
+	
 	@Value("${app.settings.report.french.template.name}")
 	private String frenchReportName;
 
 	@Value("${app.settings.report.english.template.name}")
 	private String englishReportName;
-
-	@Autowired
-	private Duplicator duplicator;
 
 	/**
 	 * displayAll: <br>
@@ -729,26 +726,7 @@ public class ControllerAnalysis {
 			copy.setProfile(false);
 			copy.setDefaultProfile(false);
 
-			// save the new version
-			serviceAnalysis.save(copy);
-
-			/*List<AnalysisStandard> standards = analysis.getAnalysisOnlyStandards();
-
-			Map<Integer, Phase> phases = new LinkedHashMap<Integer, Phase>();
-
-			for (Phase phase : copy.getPhases())
-				phases.put(phase.getNumber(), phase);
-
-			Map<String, Parameter> parameters = new LinkedHashMap<String, Parameter>();
-
-			for (Parameter parameter : copy.getParameters())
-				parameters.put(String.format(Duplicator.KEY_PARAMETER_FORMAT, parameter.getType().getLabel(), parameter.getDescription()), parameter);
-
-			for (AnalysisStandard standard : standards)
-				duplicator.duplicateAnalysisOnlyStandards(standard, phases, parameters, false, copy);
-
-			// save the new version
-			serviceAnalysis.saveOrUpdate(copy);*/
+			serviceAnalysis.saveOrUpdate(copy);
 
 		} catch (CloneNotSupportedException e) {
 			// return dubplicate error message

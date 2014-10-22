@@ -35,10 +35,6 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
-
 	/** The Extended Parameter Level (default: 0-5 or 0-6 -> NOT restricted) */
 	@Column(name="dtLevel", nullable=false)
 	@Access(AccessType.FIELD)

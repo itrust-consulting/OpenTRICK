@@ -4,6 +4,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Standard;
+import lu.itrust.business.TS.StandardType;
 
 /**
  * ServiceStandard.java: <br>
@@ -37,6 +38,8 @@ public interface ServiceStandard {
 	public List<Standard> getAllNotBoundToAnalysis() throws Exception;
 	
 	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception;
+	
+	public Integer getBiggestVersionFromStandardByNameAndType(String label, StandardType standardType) throws Exception;
 	
 	public void save(Standard standard) throws Exception;
 

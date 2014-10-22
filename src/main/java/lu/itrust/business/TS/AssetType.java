@@ -1,9 +1,12 @@
 package lu.itrust.business.TS;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -17,11 +20,15 @@ import lu.itrust.business.exception.TrickException;
  * @since 25 janv. 2013
  */
 @Entity 
-public class AssetType implements Cloneable {
+public class AssetType implements Serializable, Cloneable {
 
 	/***********************************************************************************************
 	 * Fields
 	 **********************************************************************************************/
+
+	/** serialVersionUID */
+	@Transient
+	private static final long serialVersionUID = 1L;
 
 	/** AssetType id, unsaved value = -1 */
 	@Id @GeneratedValue

@@ -20,15 +20,11 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-09-24
  */
 @Entity 
-public class Language implements Serializable {
+public class Language {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
 
 	/** The Language Identifier */
 	@Id @GeneratedValue 

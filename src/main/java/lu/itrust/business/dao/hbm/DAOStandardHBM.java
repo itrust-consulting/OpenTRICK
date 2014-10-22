@@ -6,6 +6,7 @@ import java.util.List;
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Standard;
+import lu.itrust.business.TS.StandardType;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.dao.DAOStandard;
 
@@ -232,6 +233,12 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 				.createQuery(
 						"Select analysisStandard.standard From Analysis analysis join analysis.analysisStandards analysisStandard where analysisStandard.standard.analysisOnly=false and analysis.id = :analysisId")
 				.setParameter("analysisId", analysisId).list();
+	}
+
+	@Override
+	public Integer getBiggestVersionFromStandardByNameAndType(String label, StandardType standardType) throws Exception {
+		return (Integer) getSession().createQuery("select max(standard.version) from Standard standard where standard.label = :label and standard.type = :type").setParameter("label", label)
+				.setParameter("type", standardType).uniqueResult();
 	}
 
 }

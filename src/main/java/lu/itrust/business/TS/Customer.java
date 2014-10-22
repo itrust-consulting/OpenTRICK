@@ -24,15 +24,11 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity 
-public class Customer implements Serializable {
+public class Customer {
 
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
-
-	/** serialVersionUID */
-	@Transient
-	private static final long serialVersionUID = 1L;
 
 	/** The customer ID */
 	@Id @GeneratedValue 
