@@ -52,21 +52,22 @@ public class MeasureDescription implements Cloneable {
 	/** Measure Standard Object */
 	@ManyToOne
 	@JoinColumn(name = "fiStandard", nullable = false)
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
 	private Standard standard = null;
 
 	/** Measure Description Text List (one entry represents one language) */
 	@OneToMany(mappedBy = "measureDescription", fetch = FetchType.EAGER)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Access(AccessType.FIELD)
 	private List<MeasureDescriptionText> measureDescriptionTexts = new ArrayList<MeasureDescriptionText>();
 
 	/** Measure Level */
 	@Column(name = "dtLevel", nullable = false)
-	@Access(AccessType.FIELD)
 	private int level = -1;
 
 	/** Measure Reference */
 	@Column(name = "dtReference", nullable = false)
-	@Access(AccessType.FIELD)
 	private String reference = "";
 
 	/**
@@ -95,14 +96,35 @@ public class MeasureDescription implements Cloneable {
 		this.computable = computable;
 	}
 
+	/**
+	 * getMeasureDescriptionText: <br>
+	 * Description
+	 * 
+	 * @param language
+	 * @return
+	 */
 	public MeasureDescriptionText getMeasureDescriptionText(Language language) {
 		return getMeasureDescriptionTextByAlpha3(language.getAlpha3());
 	}
 
+	/**
+	 * findByLanguage: <br>
+	 * Description
+	 * 
+	 * @param language
+	 * @return
+	 */
 	public MeasureDescriptionText findByLanguage(Language language) {
 		return findByAlph3(language.getAlpha3());
 	}
 
+	/**
+	 * findByAlph3: <br>
+	 * Description
+	 * 
+	 * @param alpha3
+	 * @return
+	 */
 	public MeasureDescriptionText findByAlph3(String alpha3) {
 		for (MeasureDescriptionText measureDescriptionText : measureDescriptionTexts)
 			if (measureDescriptionText.getLanguage().getAlpha3().equalsIgnoreCase(alpha3))
@@ -110,6 +132,13 @@ public class MeasureDescription implements Cloneable {
 		return null;
 	}
 
+	/**
+	 * getMeasureDescriptionTextByAlpha3: <br>
+	 * Description
+	 * 
+	 * @param alpha3
+	 * @return
+	 */
 	public MeasureDescriptionText getMeasureDescriptionTextByAlpha3(String alpha3) {
 
 		MeasureDescriptionText descriptionText = null;
@@ -127,7 +156,8 @@ public class MeasureDescription implements Cloneable {
 	}
 
 	/**
-	 * Constructor:<br>
+	 * Constructor: <br>
+	 *
 	 */
 	public MeasureDescription() {
 	}
@@ -279,9 +309,12 @@ public class MeasureDescription implements Cloneable {
 		this.measureDescriptionTexts = measureDescriptionTexts;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -290,14 +323,18 @@ public class MeasureDescription implements Cloneable {
 	}
 
 	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
-	public MeasureDescription duplicate() throws CloneNotSupportedException {
+	public MeasureDescription duplicate(Standard standard) throws CloneNotSupportedException {
 		MeasureDescription measureDescription = (MeasureDescription) super.clone();
 		measureDescription.id = -1;
+		measureDescription.standard = standard;
 		List<MeasureDescriptionText> texts = new ArrayList<MeasureDescriptionText>();
-		for(MeasureDescriptionText text : this.measureDescriptionTexts)
+		for (MeasureDescriptionText text : this.measureDescriptionTexts)
 			texts.add(text.duplicate(measureDescription));
 		measureDescription.setMeasureDescriptionTexts(texts);
 		return measureDescription;

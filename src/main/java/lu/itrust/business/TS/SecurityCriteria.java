@@ -1,6 +1,5 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -19,15 +18,14 @@ import lu.itrust.business.exception.TrickException;
 
 /**
  * SecurityCriteria: <br>
- * This class represents SecurityCriteria which are properties of either a
- * Measure or a Scenario.
+ * This class represents SecurityCriteria which are properties of either a Measure or a Scenario.
  * 
  * @author itrust consulting s.à r.l. - BJA,SME
  * @version 0.1
  * @since 2012-11-26
  */
 @Entity
-@Inheritance(strategy=InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class SecurityCriteria implements Cloneable {
 
 	/***********************************************************************************************
@@ -87,8 +85,9 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * 
 	 * @return The Scenario ID
 	 */
-	@Id @GeneratedValue 
-	@Column(name="idSecurityCriteria")
+	@Id
+	@GeneratedValue
+	@Column(name = "idSecurityCriteria")
 	public int getId() {
 		return id;
 	}
@@ -114,21 +113,20 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The "Direct1" value
 	 * @throws TrickException
 	 */
-	@Column(name="dtDirect1Cat", nullable=false)
+	@Column(name = "dtDirect1Cat", nullable = false)
 	public int getDirect1() throws TrickException {
 		return getCategoryValue("Direct1");
 	}
 
 	/**
 	 * setDirect1: <br>
-	 * Sets the "Direct1" with a value. Uses
-	 * {@link #setCategoryValue(String, int)}.
+	 * Sets the "Direct1" with a value. Uses {@link #setCategoryValue(String, int)}.
 	 * 
 	 * @param value
 	 *            the value to set
 	 * @throws TrickException
 	 */
-	
+
 	public void setDirect1(int value) throws TrickException {
 		setCategoryValue("Direct1", value);
 	}
@@ -140,7 +138,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The "Direct2" value
 	 * @throws TrickException
 	 */
-	@Column(name="dtDirect2Cat", nullable=false)
+	@Column(name = "dtDirect2Cat", nullable = false)
 	public int getDirect2() throws TrickException {
 		return getCategoryValue("Direct2");
 	}
@@ -164,7 +162,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Direct3 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtDirect3Cat", nullable=false)
+	@Column(name = "dtDirect3Cat", nullable = false)
 	public int getDirect3() throws TrickException {
 		return getCategoryValue("Direct3");
 	}
@@ -188,7 +186,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Direct4 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtDirect4Cat", nullable=false)
+	@Column(name = "dtDirect4Cat", nullable = false)
 	public int getDirect4() throws TrickException {
 		return getCategoryValue("Direct4");
 	}
@@ -212,7 +210,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Direct5 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtDirect5Cat", nullable=false)
+	@Column(name = "dtDirect5Cat", nullable = false)
 	public int getDirect5() throws TrickException {
 		return getCategoryValue("Direct5");
 	}
@@ -236,7 +234,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Direct6 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtDirect6Cat", nullable=false)
+	@Column(name = "dtDirect6Cat", nullable = false)
 	public int getDirect6() throws TrickException {
 		return getCategoryValue("Direct6");
 	}
@@ -260,7 +258,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Direct6.1 value
 	 * @throws TrickException
 	 */
-	@Column(name="`dtDirect6.1Cat`", nullable=false)
+	@Column(name = "`dtDirect6.1Cat`", nullable = false)
 	public int getDirect61() throws TrickException {
 		return getCategoryValue("Direct6.1");
 	}
@@ -284,7 +282,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Direct6.2 value
 	 * @throws TrickException
 	 */
-	@Column(name="`dtDirect6.2Cat`", nullable=false)
+	@Column(name = "`dtDirect6.2Cat`", nullable = false)
 	public int getDirect62() throws TrickException {
 		return getCategoryValue("Direct6.2");
 	}
@@ -308,7 +306,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Direct6.3 value
 	 * @throws TrickException
 	 */
-	@Column(name="`dtDirect6.3Cat`", nullable=false)
+	@Column(name = "`dtDirect6.3Cat`", nullable = false)
 	public int getDirect63() throws TrickException {
 		return getCategoryValue("Direct6.3");
 	}
@@ -332,7 +330,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Direct6.4 value
 	 * @throws TrickException
 	 */
-	@Column(name="`dtDirect6.4Cat`", nullable=false)
+	@Column(name = "`dtDirect6.4Cat`", nullable = false)
 	public int getDirect64() throws TrickException {
 		return getCategoryValue("Direct6.4");
 	}
@@ -356,7 +354,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Direct7 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtDirect7Cat", nullable=false)
+	@Column(name = "dtDirect7Cat", nullable = false)
 	public int getDirect7() throws TrickException {
 		return getCategoryValue("Direct7");
 	}
@@ -380,7 +378,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect1 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect1Cat", nullable=false)
+	@Column(name = "dtIndirect1Cat", nullable = false)
 	public int getIndirect1() throws TrickException {
 		return getCategoryValue("Indirect1");
 	}
@@ -404,7 +402,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect2 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect2Cat", nullable=false)
+	@Column(name = "dtIndirect2Cat", nullable = false)
 	public int getIndirect2() throws TrickException {
 		return getCategoryValue("Indirect2");
 	}
@@ -428,7 +426,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect3 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect3Cat", nullable=false)
+	@Column(name = "dtIndirect3Cat", nullable = false)
 	public int getIndirect3() throws TrickException {
 		return getCategoryValue("Indirect3");
 	}
@@ -452,7 +450,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect4 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect4Cat", nullable=false)
+	@Column(name = "dtIndirect4Cat", nullable = false)
 	public int getIndirect4() throws TrickException {
 		return getCategoryValue("Indirect4");
 	}
@@ -476,7 +474,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect5 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect5Cat", nullable=false)
+	@Column(name = "dtIndirect5Cat", nullable = false)
 	public int getIndirect5() throws TrickException {
 		return getCategoryValue("Indirect5");
 	}
@@ -500,7 +498,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect6 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect6Cat", nullable=false)
+	@Column(name = "dtIndirect6Cat", nullable = false)
 	public int getIndirect6() throws TrickException {
 		return getCategoryValue("Indirect6");
 	}
@@ -524,7 +522,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect7 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect7Cat", nullable=false)
+	@Column(name = "dtIndirect7Cat", nullable = false)
 	public int getIndirect7() throws TrickException {
 		return getCategoryValue("Indirect7");
 	}
@@ -548,7 +546,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect8 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect8Cat", nullable=false)
+	@Column(name = "dtIndirect8Cat", nullable = false)
 	public int getIndirect8() throws TrickException {
 		return getCategoryValue("Indirect8");
 	}
@@ -572,7 +570,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect8.1 value
 	 * @throws TrickException
 	 */
-	@Column(name="`dtIndirect8.1Cat`", nullable=false)
+	@Column(name = "`dtIndirect8.1Cat`", nullable = false)
 	public int getIndirect81() throws TrickException {
 		return getCategoryValue("Indirect8.1");
 	}
@@ -596,7 +594,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect8.2 value
 	 * @throws TrickException
 	 */
-	@Column(name="`dtIndirect8.2Cat`", nullable=false)
+	@Column(name = "`dtIndirect8.2Cat`", nullable = false)
 	public int getIndirect82() throws TrickException {
 		return getCategoryValue("Indirect8.2");
 	}
@@ -620,7 +618,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect8.3 value
 	 * @throws TrickException
 	 */
-	@Column(name="`dtIndirect8.3Cat`", nullable=false)
+	@Column(name = "`dtIndirect8.3Cat`", nullable = false)
 	public int getIndirect83() throws TrickException {
 		return getCategoryValue("Indirect8.3");
 	}
@@ -644,7 +642,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect8.4 value
 	 * @throws TrickException
 	 */
-	@Column(name="`dtIndirect8.4Cat`", nullable=false)
+	@Column(name = "`dtIndirect8.4Cat`", nullable = false)
 	public int getIndirect84() throws TrickException {
 		return getCategoryValue("Indirect8.4");
 	}
@@ -668,7 +666,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect9 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect9Cat", nullable=false)
+	@Column(name = "dtIndirect9Cat", nullable = false)
 	public int getIndirect9() throws TrickException {
 		return getCategoryValue("Indirect9");
 	}
@@ -692,7 +690,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Indirect10 value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIndirect10Cat", nullable=false)
+	@Column(name = "dtIndirect10Cat", nullable = false)
 	public int getIndirect10() throws TrickException {
 		return getCategoryValue("Indirect10");
 	}
@@ -716,15 +714,14 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Confidentifality Value
 	 * @throws TrickException
 	 */
-	@Column(name="dtConfidentialityCat", nullable=false)
+	@Column(name = "dtConfidentialityCat", nullable = false)
 	public int getConfidentiality() throws TrickException {
 		return getCategoryValue("Confidentiality");
 	}
 
 	/**
 	 * setConfidentiality: <br>
-	 * Sets the "Confidentiality" value. Uses
-	 * {@link #setCategoryValue(String, int)}
+	 * Sets the "Confidentiality" value. Uses {@link #setCategoryValue(String, int)}
 	 * 
 	 * @param value
 	 *            Value to set
@@ -741,7 +738,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Integrity Value
 	 * @throws TrickException
 	 */
-	@Column(name="dtIntegrityCat", nullable=false)
+	@Column(name = "dtIntegrityCat", nullable = false)
 	public int getIntegrity() throws TrickException {
 		return getCategoryValue("Integrity");
 	}
@@ -765,15 +762,14 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return The Availability value
 	 * @throws TrickException
 	 */
-	@Column(name="dtAvailabilityCat", nullable=false)
+	@Column(name = "dtAvailabilityCat", nullable = false)
 	public int getAvailability() throws TrickException {
 		return getCategoryValue("Availability");
 	}
 
 	/**
 	 * setAvailability: <br>
-	 * Sets the "Availability" value. Uses
-	 * {@link #setCategoryValue(String, int)}
+	 * Sets the "Availability" value. Uses {@link #setCategoryValue(String, int)}
 	 * 
 	 * @param value
 	 *            Value to set the Availability
@@ -789,7 +785,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * 
 	 * @return The Preventive Value
 	 */
-	@Column(name="dtPreventiveType", nullable=false)
+	@Column(name = "dtPreventiveType", nullable = false)
 	public double getPreventive() {
 		return preventive;
 	}
@@ -812,7 +808,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * 
 	 * @return The Detective Value
 	 */
-	@Column(name="dtDetectiveType", nullable=false)
+	@Column(name = "dtDetectiveType", nullable = false)
 	public double getDetective() {
 		return detective;
 	}
@@ -835,7 +831,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * 
 	 * @return The Limitative Value
 	 */
-	@Column(name="dtLimitativeType", nullable=false)
+	@Column(name = "dtLimitativeType", nullable = false)
 	public double getLimitative() {
 		return limitative;
 	}
@@ -858,7 +854,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * 
 	 * @return The Corrective Value
 	 */
-	@Column(name="dtCorrectiveType", nullable=false)
+	@Column(name = "dtCorrectiveType", nullable = false)
 	public double getCorrective() {
 		return corrective;
 	}
@@ -881,7 +877,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * 
 	 * @return The Intentional Value
 	 */
-	@Column(name="dtIntentionalSource", nullable=false)
+	@Column(name = "dtIntentionalSource", nullable = false)
 	public int getIntentional() {
 		return intentional;
 	}
@@ -904,7 +900,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * 
 	 * @return The Accidental Value
 	 */
-	@Column(name="dtAccidentalSource", nullable=false)
+	@Column(name = "dtAccidentalSource", nullable = false)
 	public int getAccidental() {
 		return accidental;
 	}
@@ -927,7 +923,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * 
 	 * @return The Environmental Value
 	 */
-	@Column(name="dtEnvironmentalSource", nullable=false)
+	@Column(name = "dtEnvironmentalSource", nullable = false)
 	public int getEnvironmental() {
 		return environmental;
 	}
@@ -950,7 +946,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * 
 	 * @return The Internal Threat
 	 */
-	@Column(name="dtInternalThreatSource", nullable=false)
+	@Column(name = "dtInternalThreatSource", nullable = false)
 	public int getInternalThreat() {
 		return internalThreat;
 	}
@@ -973,7 +969,7 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * 
 	 * @return The External Threat
 	 */
-	@Column(name="dtExternalThreatSource", nullable=false)
+	@Column(name = "dtExternalThreatSource", nullable = false)
 	public int getExternalThreat() {
 		return externalThreat;
 	}
@@ -1005,8 +1001,8 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * isValidValue: <br>
-	 * Checks if a given Value is valid. Will be overriden inside inherited
-	 * classes (Scenario and MeasureProperties).
+	 * Checks if a given Value is valid. Will be overriden inside inherited classes (Scenario and
+	 * MeasureProperties).
 	 * 
 	 * @param value
 	 *            The Value to check
@@ -1014,15 +1010,22 @@ public abstract class SecurityCriteria implements Cloneable {
 	 */
 	protected abstract boolean isValidValue(int value);
 
+	/**
+	 * valueFixer: <br>
+	 * Description
+	 * 
+	 * @param category
+	 * @param value
+	 * @return
+	 * @throws TrickException
+	 */
 	protected abstract int valueFixer(String category, int value) throws TrickException;
 
 	/**
 	 * hasCSSFInfluence: <br>
-	 * Check if this object has CSSF Categories that are influenced. (CSSF
-	 * Category Value is > 0).
+	 * Check if this object has CSSF Categories that are influenced. (CSSF Category Value is > 0).
 	 * 
-	 * @return True if there is at least 1 CSSF category influenced; False if
-	 *         none are influenced
+	 * @return True if there is at least 1 CSSF category influenced; False if none are influenced
 	 * @throws TrickException
 	 */
 	@Transient
@@ -1056,11 +1059,10 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * hasCIAInfluence: <br>
-	 * Check if Categories Confidentiality, Integrity or Availability are
-	 * influenced (Category Value > 0).
+	 * Check if Categories Confidentiality, Integrity or Availability are influenced (Category Value
+	 * > 0).
 	 * 
-	 * @return True if at least 1 Category is influenced; False if none is
-	 *         influenced
+	 * @return True if at least 1 Category is influenced; False if none is influenced
 	 * @throws TrickException
 	 */
 	@Transient
@@ -1096,8 +1098,8 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * hasInfluenceOnAllCategories: <br>
 	 * Checks if Categories of CIA or CSSF are influenced.
 	 * 
-	 * @return True if CIA or CSSF Categories are influenced. Returns False if
-	 *         none of both Categories are influenced.
+	 * @return True if CIA or CSSF Categories are influenced. Returns False if none of both
+	 *         Categories are influenced.
 	 * @throws TrickException
 	 */
 	@Transient
@@ -1111,11 +1113,10 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * hasInfluenceOnCategory: <br>
-	 * Checks if given Category exists and is valid, then checks if it is
-	 * influenced. (Category Value > 0)
+	 * Checks if given Category exists and is valid, then checks if it is influenced. (Category
+	 * Value > 0)
 	 * 
-	 * @return True if the given category is influenced. Returns False if it is
-	 *         not influenced.
+	 * @return True if the given category is influenced. Returns False if it is not influenced.
 	 * @throws TrickException
 	 */
 	@Transient
@@ -1125,10 +1126,9 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * getCategoryValue: <br>
-	 * Checks if the given Category Key is valid, then checks if the Key exists
-	 * inside the Map. If the Key exists: the value is returned, if the Key does
-	 * not exist, it will be added with the default value 0, which will be
-	 * returned.
+	 * Checks if the given Category Key is valid, then checks if the Key exists inside the Map. If
+	 * the Key exists: the value is returned, if the Key does not exist, it will be added with the
+	 * default value 0, which will be returned.
 	 * 
 	 * @param category
 	 *            The Key that represents the category
@@ -1158,8 +1158,8 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * setCategoryValue: <br>
-	 * Set the value of a key given by parameters. A check will be performed to
-	 * have only valid keys and valid values.
+	 * Set the value of a key given by parameters. A check will be performed to have only valid keys
+	 * and valid values.
 	 * 
 	 * @param category
 	 *            The Key that represents the Category
@@ -1193,11 +1193,9 @@ public abstract class SecurityCriteria implements Cloneable {
 
 	/**
 	 * getGenericCategoryKeys:<br>
-	 * Returns a String[] (array) with confidentiality, integrity and
-	 * availability categories.
+	 * Returns a String[] (array) with confidentiality, integrity and availability categories.
 	 * 
-	 * @return Array of Scenario Confidentiality, Integrity and Availability
-	 *         Categories
+	 * @return Array of Scenario Confidentiality, Integrity and Availability Categories
 	 */
 	public static final String[] getCIACategoryKeys() {
 		return CategoryConverter.TYPE_CIA_KEYS;
@@ -1223,9 +1221,12 @@ public abstract class SecurityCriteria implements Cloneable {
 		return CategoryConverter.JAVAKEYS;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -1237,6 +1238,13 @@ public abstract class SecurityCriteria implements Cloneable {
 		return securityCriteria;
 	}
 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
 	public SecurityCriteria duplicate() throws CloneNotSupportedException {
 		SecurityCriteria securityCriteria = (SecurityCriteria) super.clone();
 		securityCriteria.categories = new LinkedHashMap<String, Integer>();
@@ -1246,6 +1254,12 @@ public abstract class SecurityCriteria implements Cloneable {
 		return securityCriteria;
 	}
 
+	/**
+	 * copyTo: <br>
+	 * Description
+	 * 
+	 * @param securityCriteria
+	 */
 	public void copyTo(SecurityCriteria securityCriteria) {
 		if (securityCriteria == null)
 			return;

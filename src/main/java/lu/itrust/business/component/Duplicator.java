@@ -164,7 +164,7 @@ public class Duplicator {
 			copy.setPhases(new ArrayList<Phase>(analysis.getPhases().size()));
 
 			for (Phase phase : analysis.getPhases()) {
-				phases.put(phase.getNumber(), phase.duplicate());
+				phases.put(phase.getNumber(), phase.duplicate(copy));
 				copy.addPhase(phases.get(phase.getNumber()));
 			}
 
@@ -214,7 +214,7 @@ public class Duplicator {
 
 			standard.setVersion(standard.getVersion() + 1);
 
-			//daoStandard.save(standard);
+			// daoStandard.save(standard);
 
 			List<MeasureDescription> mesDescs = daoMeasureDescription.getAllByStandard(analysisStandard.getStandard());
 
@@ -222,12 +222,10 @@ public class Duplicator {
 
 			for (MeasureDescription mesDesc : mesDescs) {
 
-				MeasureDescription desc = mesDesc.duplicate();
+				MeasureDescription desc = mesDesc.duplicate(standard);
 
-				desc.setStandard(standard);
-				
-				//daoMeasureDescription.save(desc);
-				
+				// daoMeasureDescription.save(desc);
+
 				newMesDescs.put(desc.getReference(), desc);
 
 			}
@@ -252,9 +250,11 @@ public class Duplicator {
 
 				MeasureDescription mesDesc = newMesDescs.get(tmpmeasure.getMeasureDescription().getReference());
 
-				measure.setMeasureDescription(mesDesc);
+				tmpmeasure.setMeasureDescription(mesDesc);
 
-				measures.add(measure);
+				// tmpmeasure.getAnalysisStandard().getMeasures().add(tmpmeasure);
+
+				measures.add(tmpmeasure);
 
 			}
 
@@ -278,8 +278,7 @@ public class Duplicator {
 	 * @throws TrickException
 	 */
 	public Measure duplicateMeasure(Measure measure, Phase phase, AnalysisStandard standard, Map<String, Parameter> parameters, boolean anonymize) throws CloneNotSupportedException, TrickException {
-		Measure copy = measure.duplicate(standard);
-		copy.setPhase(phase);
+		Measure copy = measure.duplicate(standard, phase);
 
 		if (anonymize) {
 			copy.setComment(Constant.EMPTY_STRING);
@@ -352,7 +351,7 @@ public class Duplicator {
 	 * @return
 	 * @throws CloneNotSupportedException
 	 */
-	public Analysis createProfile(Analysis analysis, AnalysisProfile analysisProfile, ServiceTaskFeedback serviceTaskFeedback, long idTask) {
+	public Analysis createProfile(Analysis analysis, String name, List<Integer> standards, ServiceTaskFeedback serviceTaskFeedback, long idTask) {
 
 		try {
 
@@ -377,7 +376,7 @@ public class Duplicator {
 			// language 3char code + creation date and time
 			copy.setIdentifier(tsstring);
 			copy.setCreationDate(ts);
-			copy.setLabel(analysisProfile.getName());
+			copy.setLabel(name);
 			copy.setProfile(true);
 			copy.setData(false);
 
@@ -439,42 +438,34 @@ public class Duplicator {
 				tmpPhase = new Phase(Constant.PHASE_DEFAULT);
 				tmpPhase.setBeginDate(new Date(System.currentTimeMillis()));
 				tmpPhase.setEndDate(new Date(System.currentTimeMillis()));
-				tmpPhase.setAnalysis(analysis);
+				tmpPhase.setAnalysis(copy);
 			} else
-				tmpPhase = tmpPhase.duplicate();
-			phases.put(Constant.PHASE_NOT_USABLE, new Phase(Constant.PHASE_NOT_USABLE));
+				tmpPhase = tmpPhase.duplicate(copy);
 			phases.put(Constant.PHASE_DEFAULT, tmpPhase);
-			copy.addPhase(phases.get(Constant.PHASE_NOT_USABLE));
 			copy.addPhase(tmpPhase);
 
-			// copy other data if requested
 			// scenarios
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.scenario", "Copy scenarios", null, 55));
-			if (analysisProfile.isScenario()) {
-				copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
-				for (Scenario scenario : analysis.getScenarios())
-					copy.getScenarios().add(scenario.duplicate());
-			} else
-				copy.setScenarios(null);
+			copy.setScenarios(new ArrayList<Scenario>(analysis.getScenarios().size()));
+			for (Scenario scenario : analysis.getScenarios())
+				copy.getScenarios().add(scenario.duplicate());
 
 			// standards
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", null, 60));
 
-			int standardSize = analysis.getAnalysisStandards().size();
+			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>());
+			Integer percentageperstandard = (int) 40 / standards.size();
 
-			int copyCount = 0;
-
-			int diviser = standardSize * 60;
-
-			copy.setAnalysisStandards(new ArrayList<AnalysisStandard>(standardSize));
-
-			if (analysisProfile.getStandards() != null && !analysisProfile.getStandards().isEmpty()) {
-				for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards()) {
-					if (analysisProfile.getStandards().contains(analysisStandard.getStandard()))
-						copy.addAnalysisStandard(duplicateAnalysisStandard(analysisStandard, phases, parameters, true));
-					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", null, (copyCount++ / diviser) * 60 + 35));
+			int copycounter = 0;
+			for (Integer standardID : standards) {
+				copycounter++;
+				AnalysisStandard standard = analysis.getAnalysisStandardByStandardId(standardID);
+				if (standard != null) {
+					copy.addAnalysisStandard(duplicateAnalysisStandard(standard, phases, parameters, true));
+					serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.duplication.measure", "Copy standards", null, 60 + (percentageperstandard * copycounter)));
 				}
 			}
+
 			return copy;
 		} catch (CloneNotSupportedException cex) {
 			cex.printStackTrace();

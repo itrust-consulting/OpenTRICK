@@ -1,12 +1,9 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -19,7 +16,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 23 janv. 2013
  */
-@Entity 
+@Entity
 public class ScenarioType {
 
 	/***********************************************************************************************
@@ -27,12 +24,13 @@ public class ScenarioType {
 	 **********************************************************************************************/
 
 	/** id unsaved value = -1 */
-	@Id @GeneratedValue 
-	@Column(name="idScenarioType")
+	@Id
+	@GeneratedValue
+	@Column(name = "idScenarioType")
 	private int id = -1;
 
 	/** scenario type name */
-	@Column(name="dtLabel", unique=true, nullable=false)
+	@Column(name = "dtLabel", unique = true, nullable = false)
 	private String name = "";
 
 	/***********************************************************************************************
@@ -50,7 +48,7 @@ public class ScenarioType {
 	 * 
 	 * @param type
 	 *            The Scenario Type Name
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public ScenarioType(String type) throws TrickException {
 		setName(type);
@@ -97,11 +95,11 @@ public class ScenarioType {
 	 * 
 	 * @param type
 	 *            The Value to set the type field
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setName(String type) throws TrickException {
-		if (type == null || !type.trim().matches(Constant.REGEXP_VALID_SCENARIO_TYPE)) 
-			throw new TrickException("error.scenario_type.invalid","Type is invalid!");
+		if (type == null || !type.trim().matches(Constant.REGEXP_VALID_SCENARIO_TYPE))
+			throw new TrickException("error.scenario_type.invalid", "Type is invalid!");
 		this.name = type.trim();
 	}
 

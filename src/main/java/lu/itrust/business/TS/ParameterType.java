@@ -1,11 +1,8 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -18,7 +15,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 25 janv. 2013
  */
-@Entity 
+@Entity
 public class ParameterType {
 
 	/***********************************************************************************************
@@ -27,11 +24,11 @@ public class ParameterType {
 
 	/** Parameter Type Identifier */
 	@Id
-	@Column(name="idParameterType")
+	@Column(name = "idParameterType")
 	private int id = -1;
 
 	/** Parameter Type Label */
-	@Column(name="dtLabel", unique=true, nullable=false)
+	@Column(name = "dtLabel", unique = true, nullable = false)
 	private String label = "";
 
 	/***********************************************************************************************
@@ -49,7 +46,7 @@ public class ParameterType {
 	 * 
 	 * @param label
 	 *            The Parameter Type Label
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public ParameterType(String label) throws TrickException {
 		setLabel(label);
@@ -96,11 +93,11 @@ public class ParameterType {
 	 * 
 	 * @param label
 	 *            The Value to set the label field
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setLabel(String label) throws TrickException {
 		if (label == null || !label.trim().matches(Constant.REGEXP_VALID_PARAMETERTYPE))
-			throw new TrickException("error.parameter_type.name.not_exist","Parameter name does not exist!");
+			throw new TrickException("error.parameter_type.name.not_exist", "Parameter name does not exist!");
 		this.label = label.trim();
 	}
 }

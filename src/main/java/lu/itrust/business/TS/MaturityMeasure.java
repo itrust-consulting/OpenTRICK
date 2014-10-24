@@ -19,8 +19,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
-@PrimaryKeyJoinColumn(name="idMaturityMeasure")
+@Entity
+@PrimaryKeyJoinColumn(name = "idMaturityMeasure")
 public class MaturityMeasure extends Measure implements Cloneable {
 
 	/***********************************************************************************************
@@ -55,7 +55,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The reached SML
 	 */
-	@Column(name="dtReachedLevel", nullable=false)
+	@Column(name = "dtReachedLevel", nullable = false)
 	public int getReachedLevel() {
 		return reachedLevel;
 	}
@@ -80,7 +80,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The Cost to reach the SML 1
 	 */
-	@Column(name="dtSML1Cost", nullable=false)
+	@Column(name = "dtSML1Cost", nullable = false)
 	public double getSML1Cost() {
 		return SML1Cost;
 	}
@@ -91,11 +91,11 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @param SML1Cost
 	 *            The value to set the cost to reach SML 1
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setSML1Cost(double SML1Cost) throws TrickException {
-		if (SML1Cost < 0) 
-			throw new TrickException("error.measure.sml_cost","SML1 cost cannot be negative","1");
+		if (SML1Cost < 0)
+			throw new TrickException("error.measure.sml_cost", "SML1 cost cannot be negative", "1");
 		this.SML1Cost = SML1Cost;
 	}
 
@@ -105,7 +105,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The Cost to reach the SML 2
 	 */
-	@Column(name="dtSML2Cost", nullable=false)
+	@Column(name = "dtSML2Cost", nullable = false)
 	public double getSML2Cost() {
 		return SML2Cost;
 	}
@@ -116,11 +116,11 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @param SML2Cost
 	 *            The value to set the cost to reach SML 2
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setSML2Cost(double SML2Cost) throws TrickException {
 		if (SML2Cost < 0)
-			throw new TrickException("error.measure.sml_cost","SML2 cost cannot be negative","2");
+			throw new TrickException("error.measure.sml_cost", "SML2 cost cannot be negative", "2");
 		this.SML2Cost = SML2Cost;
 	}
 
@@ -130,7 +130,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The Cost to reach the SML 3
 	 */
-	@Column(name="dtSML3Cost", nullable=false)
+	@Column(name = "dtSML3Cost", nullable = false)
 	public double getSML3Cost() {
 		return SML3Cost;
 	}
@@ -141,11 +141,11 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @param SML3Cost
 	 *            The value to set the cost to reach SML 3
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setSML3Cost(double SML3Cost) throws TrickException {
 		if (SML3Cost < 0)
-			throw new TrickException("error.measure.sml_cost","SML3 cost cannot be negative","3");
+			throw new TrickException("error.measure.sml_cost", "SML3 cost cannot be negative", "3");
 		this.SML3Cost = SML3Cost;
 	}
 
@@ -155,7 +155,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The Cost to reach the SML 4
 	 */
-	@Column(name="dtSML4Cost", nullable=false)
+	@Column(name = "dtSML4Cost", nullable = false)
 	public double getSML4Cost() {
 		return SML4Cost;
 	}
@@ -166,11 +166,11 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @param SML4Cost
 	 *            The value to set the cost to reach SML 4
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setSML4Cost(double SML4Cost) throws TrickException {
 		if (SML4Cost < 0)
-			throw new TrickException("error.measure.sml_cost","SML4 cost cannot be negative","4");
+			throw new TrickException("error.measure.sml_cost", "SML4 cost cannot be negative", "4");
 		this.SML4Cost = SML4Cost;
 	}
 
@@ -180,7 +180,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The Cost to reach the SML 5
 	 */
-	@Column(name="dtSML5Cost", nullable=false)
+	@Column(name = "dtSML5Cost", nullable = false)
 	public double getSML5Cost() {
 		return SML5Cost;
 	}
@@ -191,11 +191,11 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @param SML5Cost
 	 *            The value to set the cost to reach SML 5
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setSML5Cost(double SML5Cost) throws TrickException {
 		if (SML5Cost < 0)
-			throw new TrickException("error.measure.sml_cost","SML5 cost cannot be negative","5");
+			throw new TrickException("error.measure.sml_cost", "SML5 cost cannot be negative", "5");
 		this.SML5Cost = SML5Cost;
 	}
 
@@ -208,7 +208,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 */
 	@Override
 	@ManyToOne
-	@JoinColumn(name="fiImplementationRateParameter", nullable=false)
+	@JoinColumn(name = "fiImplementationRateParameter", nullable = false)
 	@Access(AccessType.FIELD)
 	public Parameter getImplementationRate() {
 		return (Parameter) super.getImplementationRate();
@@ -220,13 +220,13 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	 * 
 	 * @param implementationRate
 	 *            The Value to set the implementationRate field PArameter Object
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * @see lu.itrust.business.TS.Measure#setImplementationRate(Object)
 	 */
 	@Override
 	public void setImplementationRate(Object implementationRate) throws TrickException {
 		if (!(implementationRate instanceof Parameter))
-			throw new TrickException("error.measure.maturity.implementation_rate","Invalid implementation rate value");
+			throw new TrickException("error.measure.maturity.implementation_rate", "Invalid implementation rate value");
 		super.setImplementationRate((Parameter) implementationRate);
 	}
 
@@ -242,9 +242,12 @@ public class MaturityMeasure extends Measure implements Cloneable {
 		return getImplementationRate() != null ? getImplementationRate().getValue() : 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see lu.itrust.business.TS.Measure#clone()
 	 */
 	@Override
@@ -252,9 +255,17 @@ public class MaturityMeasure extends Measure implements Cloneable {
 		return (MaturityMeasure) super.clone();
 	}
 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.Measure#duplicate(lu.itrust.business.TS.AnalysisStandard)
+	 */
 	@Override
-	public MaturityMeasure duplicate(AnalysisStandard analysisStandard) throws CloneNotSupportedException {
-		return (MaturityMeasure) super.duplicate(analysisStandard);
+	public MaturityMeasure duplicate(AnalysisStandard analysisStandard, Phase phase) throws CloneNotSupportedException {
+		return (MaturityMeasure) super.duplicate(analysisStandard, phase);
 	}
 
 }

@@ -38,22 +38,23 @@ public class MeasureDescriptionText implements Cloneable {
 	/** The Measure Description Reference (Reference to the measure) */
 	@ManyToOne
 	@JoinColumn(name = "fiMeasureDescription", nullable = false)
+	@Cascade({ CascadeType.SAVE_UPDATE })
+	@Access(AccessType.FIELD)
 	private MeasureDescription measureDescription = null;
 
 	/** The Language Object */
 	@ManyToOne
 	@JoinColumn(name = "fiLanguage", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE })
+	@Access(AccessType.FIELD)
 	private Language language = null;
 
 	/** The Domain Text */
 	@Column(name = "dtDomain", nullable = false, columnDefinition = "TEXT")
-	@Access(AccessType.FIELD)
 	private String domain = "";
 
 	/** The Description Text */
 	@Column(name = "dtDescription", nullable = false, columnDefinition = "LONGTEXT")
-	@Access(AccessType.FIELD)
 	private String description = "";
 
 	/***********************************************************************************************
@@ -177,9 +178,12 @@ public class MeasureDescriptionText implements Cloneable {
 		this.measureDescription = measureDescription;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -187,6 +191,14 @@ public class MeasureDescriptionText implements Cloneable {
 		return (MeasureDescriptionText) super.clone();
 	}
 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
+	 * @param description
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
 	public MeasureDescriptionText duplicate(MeasureDescription description) throws CloneNotSupportedException {
 		MeasureDescriptionText measureDescriptionText = (MeasureDescriptionText) super.clone();
 		measureDescriptionText.id = -1;

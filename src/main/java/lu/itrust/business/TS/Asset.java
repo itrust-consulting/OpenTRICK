@@ -1,6 +1,8 @@
 package lu.itrust.business.TS;
 
 import javax.naming.directory.InvalidAttributesException;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,8 +24,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
-@Table(uniqueConstraints=@UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }))
+@Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }))
 public class Asset implements Cloneable {
 
 	/***********************************************************************************************
@@ -31,47 +33,48 @@ public class Asset implements Cloneable {
 	 **********************************************************************************************/
 
 	/** Asset Identifier */
-	@Id @GeneratedValue
-	@Column(name="idAsset")
+	@Id
+	@GeneratedValue
+	@Column(name = "idAsset")
 	private int id = -1;
 
 	/** The Asset Name */
-	@Column(name="dtLabel", nullable=false)
+	@Column(name = "dtLabel", nullable = false)
 	private String name = "";
 
 	/** The Asset Type Name */
 	@ManyToOne
-	@JoinColumn(name="fiAssetType", nullable=false)
+	@JoinColumn(name = "fiAssetType", nullable = false)
+	@Access(AccessType.FIELD)
 	private AssetType assetType = null;
 
 	/** The Asset Value */
-	@Column(name="dtValue", nullable=false)
+	@Column(name = "dtValue", nullable = false)
 	private double value = 0;
 
 	/** The Asset Comment */
-	@Column(name="dtComment", nullable=false, columnDefinition="LONGTEXT")
+	@Column(name = "dtComment", nullable = false, columnDefinition = "LONGTEXT")
 	private String comment = "";
 
 	/** The Asset Hidden Comment */
-	@Column(name="dtHiddenComment", nullable=false, columnDefinition="LONGTEXT")
+	@Column(name = "dtHiddenComment", nullable = false, columnDefinition = "LONGTEXT")
 	private String hiddenComment = "";
 
 	/** The Flag to determine if the Asset is selected for calculations */
-	@Column(name="dtSelected", nullable=false, columnDefinition="TINYINT(1)")
+	@Column(name = "dtSelected", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean selected = false;
-	
+
 	/** The Annual Loss Expectancy - Pessimistic */
-	@Column(name="dtALEP", nullable=false)
+	@Column(name = "dtALEP", nullable = false)
 	private double ALEP = 0;
 
 	/** The Annual Loss Expectancy - Normal */
-	@Column(name="dtALE", nullable=false)
+	@Column(name = "dtALE", nullable = false)
 	private double ALE = 0;
 
 	/** The Annual Loss Expectancy - Optimistic */
-	@Column(name="dtALEO", nullable=false)
+	@Column(name = "dtALEO", nullable = false)
 	private double ALEO = 0;
-
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -93,11 +96,11 @@ public class Asset implements Cloneable {
 	 * 
 	 * @param id
 	 *            The value to set the "id" field
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setId(int id) throws TrickException {
-		if (id < 1) 
-			throw new TrickException("error.asset.invalid.id","Asset id should be greater than 0");
+		if (id < 1)
+			throw new TrickException("error.asset.invalid.id", "Asset id should be greater than 0");
 		this.id = id;
 	}
 
@@ -117,11 +120,11 @@ public class Asset implements Cloneable {
 	 * 
 	 * @param name
 	 *            The value to set the Asset "name" field
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setName(String name) throws TrickException {
 		if (name == null || name.trim().isEmpty())
-			throw new TrickException("error.asset.label_null","Asset name cannot be empty");
+			throw new TrickException("error.asset.label_null", "Asset name cannot be empty");
 		this.name = name;
 	}
 
@@ -141,11 +144,11 @@ public class Asset implements Cloneable {
 	 * 
 	 * @param assetType
 	 *            The value to set the Asset "assetType" field
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setAssetType(AssetType assetType) throws TrickException {
 		if (assetType == null || assetType.getType() == null || assetType.getType().trim().isEmpty())
-			throw new TrickException("error.asset.assettype_null","Asset type cannot be empty");
+			throw new TrickException("error.asset.assettype_null", "Asset type cannot be empty");
 		this.assetType = assetType;
 	}
 
@@ -165,7 +168,7 @@ public class Asset implements Cloneable {
 	 * 
 	 * @param value
 	 *            The value to set the Asset "value" field
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setValue(double value) throws TrickException {
 		if (value < 0)
@@ -252,14 +255,13 @@ public class Asset implements Cloneable {
 		int result = 1;
 		result = prime * result + id;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result
-				+ ((assetType == null) ? 0 : assetType.hashCode());
+		result = prime * result + ((assetType == null) ? 0 : assetType.hashCode());
 		return result;
 	}
 
 	/**
-	 * equals: This method checks if an object Asset equals another object
-	 * Asset. Fields taken in concideration: ID, name, assetType.<br>
+	 * equals: This method checks if an object Asset equals another object Asset. Fields taken in
+	 * concideration: ID, name, assetType.<br>
 	 * <br>
 	 * <b>NOTE:</b> This Method is auto generated
 	 * 
@@ -293,76 +295,100 @@ public class Asset implements Cloneable {
 	/**
 	 * clone: <br>
 	 * Description
-	 * 
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public Asset clone() throws CloneNotSupportedException {
 		return (Asset) super.clone();
 	}
-	
+
 	/**
-	 * clone: <br>
+	 * duplicate: <br>
 	 * Description
 	 * 
-	 * @see java.lang.Object#clone()
+	 * @return
+	 * @throws CloneNotSupportedException
 	 */
 	public Asset duplicate() throws CloneNotSupportedException {
-		Asset asset =(Asset) super.clone();
+		Asset asset = (Asset) super.clone();
 		asset.id = -1;
 		return asset;
 	}
 
 	/**
-	 * @return the aLEP
+	 * getALEP: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public double getALEP() {
 		return ALEP;
 	}
 
 	/**
-	 * @param aLEP the aLEP to set
+	 * setALEP: <br>
+	 * Description
+	 * 
+	 * @param aLEP
 	 */
 	public void setALEP(double aLEP) {
 		ALEP = aLEP;
 	}
 
 	/**
-	 * @return the aLE
+	 * getALE: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public double getALE() {
 		return ALE;
 	}
 
 	/**
-	 * @param aLE the aLE to set
+	 * setALE: <br>
+	 * Description
+	 * 
+	 * @param aLE
 	 */
 	public void setALE(double aLE) {
 		ALE = aLE;
 	}
 
 	/**
-	 * @return the aLEO
+	 * getALEO: <br>
+	 * Description
+	 * 
+	 * @return
 	 */
 	public double getALEO() {
 		return ALEO;
 	}
 
 	/**
-	 * @param aLEO the aLEO to set
+	 * setALEO: <br>
+	 * Description
+	 * 
+	 * @param aLEO
 	 */
 	public void setALEO(double aLEO) {
 		ALEO = aLEO;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * toString: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "Asset [id=" + id + ", name=" + name + ", assetType="
-				+ assetType + ", value=" + value + ", comment=" + comment
-				+ ", hiddenComment=" + hiddenComment + ", selected=" + selected
-				+ ", ALEP=" + ALEP + ", ALE=" + ALE + ", ALEO=" + ALEO + "]";
+		return "Asset [id=" + id + ", name=" + name + ", assetType=" + assetType + ", value=" + value + ", comment=" + comment + ", hiddenComment=" + hiddenComment + ", selected=" + selected
+			+ ", ALEP=" + ALEP + ", ALE=" + ALE + ", ALEO=" + ALEO + "]";
 	}
 }

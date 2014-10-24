@@ -351,7 +351,7 @@ public class ControllerAnalysisCreate {
 			if (phases != null) {
 				mappingPhases = new LinkedHashMap<Integer, Phase>(phases.size());
 				for (Phase phase : phases) {
-					Phase phase1 = phase.duplicate();
+					Phase phase1 = phase.duplicate(analysis);
 					analysis.addPhase(phase1);
 					mappingPhases.put(phase.getNumber(), phase1);
 				}

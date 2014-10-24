@@ -325,6 +325,8 @@ function manageMeasures() {
 		error : unknowError
 	});
 
+	return false;
+	
 }
 
 function newMeasure(idStandard) {
@@ -340,7 +342,7 @@ function newMeasure(idStandard) {
 	$("#addMeasureModel #measure_id").prop("value", "-1");
 	$("#addMeasureModel #measure_reference").prop("value", "");
 	$("#addMeasureModel #measure_level").prop("value", "");
-	$("#addMeasureModel #measure_computable").prop("checked", "false");
+	$("#addMeasureModel input[type='checkbox']").removeAttr("checked");
 
 	$("#addMeasureModel #measure_form").prop("action", context + "/Analysis/Standard/" + idStandard + "/Measure/Save");
 	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure"));

@@ -2,8 +2,11 @@ package lu.itrust.business.TS;
 
 import java.sql.Date;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -22,7 +25,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","dtNumber"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtNumber" }))
 public class Phase implements Cloneable {
 
 	/***********************************************************************************************
@@ -46,9 +49,10 @@ public class Phase implements Cloneable {
 	/** The End Date of the Phase */
 	@Column(name = "dtEndDate")
 	private Date endDate;
-	
-	@ManyToOne
+
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@Access(AccessType.FIELD)
 	private Analysis analysis = null;
 
 	/***********************************************************************************************
@@ -141,6 +145,14 @@ public class Phase implements Cloneable {
 		this.endDate = endDate;
 	}
 
+	/**
+	 * setDates: <br>
+	 * Description
+	 * 
+	 * @param beginDate
+	 * @param endDate
+	 * @throws TrickException
+	 */
 	public void setDates(Date beginDate, Date endDate) throws TrickException {
 		if (!beginDate.before(endDate))
 			throw new TrickException("error.phase.begin_date.invalid", "Phase begin time cannot be greater than phase end time");
@@ -152,7 +164,8 @@ public class Phase implements Cloneable {
 		this.endDate = endDate;
 	}
 
-	/** getAnalysis: <br>
+	/**
+	 * getAnalysis: <br>
 	 * Returns the analysis field value.
 	 * 
 	 * @return The value of the analysis field
@@ -161,19 +174,23 @@ public class Phase implements Cloneable {
 		return analysis;
 	}
 
-	/** setAnalysis: <br>
+	/**
+	 * setAnalysis: <br>
 	 * Sets the Field "analysis" with a value.
 	 * 
-	 * @param analysis 
-	 * 			The Value to set the analysis field
+	 * @param analysis
+	 *            The Value to set the analysis field
 	 */
 	public void setAnalysis(Analysis analysis) {
 		this.analysis = analysis;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * hashCode: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -184,9 +201,12 @@ public class Phase implements Cloneable {
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * equals: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -226,9 +246,12 @@ public class Phase implements Cloneable {
 		this.id = id;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -236,9 +259,17 @@ public class Phase implements Cloneable {
 		return (Phase) super.clone();
 	}
 
-	public Phase duplicate() throws CloneNotSupportedException {
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
+	public Phase duplicate(Analysis analysis) throws CloneNotSupportedException {
 		Phase phase = (Phase) super.clone();
 		phase.id = -1;
+		phase.analysis = analysis;
 		return phase;
 	}
 

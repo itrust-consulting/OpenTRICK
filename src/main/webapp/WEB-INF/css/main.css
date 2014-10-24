@@ -1,13 +1,12 @@
 /* Sticky footer styles
 -------------------------------------------------- */
 html, body {
-
-	height:96%;
+	height: 96%;
 }
 
-body{
-	min-width:1400px;
-	width: auto !important;  /* Firefox will set width as auto */
+body {
+	min-width: 1400px;
+	width: auto !important; /* Firefox will set width as auto */
 }
 
 /* Wrapper for page content to push down footer */
@@ -53,7 +52,8 @@ body{
 	z-index: 10;
 }
 
-.carousel-control.no-background .icon-next, .carousel-control.no-background .icon-prev {
+.carousel-control.no-background .icon-next, .carousel-control.no-background .icon-prev
+	{
 	font-size: 60px;
 }
 
@@ -101,7 +101,8 @@ body{
 	width: 100%;
 }
 
-table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
+table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1
+	{
 	background-color: #FFFFFF;
 }
 
@@ -254,12 +255,14 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	color: #fff;
 	background-color: #0081c2;
 	background-image: -moz-linear-gradient(top, #0088cc, #0077b3);
-	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0077b3));
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc),
+		to(#0077b3));
 	background-image: -webkit-linear-gradient(top, #0088cc, #0077b3);
 	background-image: -o-linear-gradient(top, #0088cc, #0077b3);
 	background-image: linear-gradient(to bottom, #0088cc, #0077b3);
 	background-repeat: repeat-x;
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc', endColorstr='#ff0077b3', GradientType=0);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc',
+		endColorstr='#ff0077b3', GradientType=0);
 	color: #fff;
 }
 
@@ -392,10 +395,6 @@ td>pre {
 	background-repeat: inherit;
 }
 
- a[role="changeUILanguage"]:hover {
+a[role="changeUILanguage"]:hover {
 	text-decoration: none;
 }
-
-/*.ui-draggable:HOVER{
-	cursor:move;
-}*/

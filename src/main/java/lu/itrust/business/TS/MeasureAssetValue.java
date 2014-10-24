@@ -1,5 +1,7 @@
 package lu.itrust.business.TS;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,6 +11,9 @@ import javax.persistence.ManyToOne;
 
 import lu.itrust.business.exception.TrickException;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 /**
  * AssetTypeValue: <br>
  * This class represents an AssetValue for AssetMeasure (1 measure -> 0..* Assets with asset values)
@@ -17,7 +22,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2014/08/22
  */
-@Entity 
+@Entity
 public class MeasureAssetValue implements Cloneable {
 
 	/***********************************************************************************************
@@ -25,17 +30,20 @@ public class MeasureAssetValue implements Cloneable {
 	 **********************************************************************************************/
 
 	/** assetTypeValue identifier, unsaved value = -1 */
-	@Id @GeneratedValue 
-	@Column(name="idMeasureAssetValue")
+	@Id
+	@GeneratedValue
+	@Column(name = "idMeasureAssetValue")
 	private int id = -1;
 
 	/** The Asset */
-	@ManyToOne 
-	@JoinColumn(name="fiAsset", nullable=false)
+	@ManyToOne
+	@JoinColumn(name = "fiAsset", nullable = false)
+	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
 	private Asset asset = null;
 
 	/** The Asset Value */
-	@Column(name="dtValue", nullable=false)
+	@Column(name = "dtValue", nullable = false)
 	private int value = -1;
 
 	/***********************************************************************************************
@@ -50,6 +58,7 @@ public class MeasureAssetValue implements Cloneable {
 
 	/**
 	 * Constructor: <br>
+	 * 
 	 * @param asset
 	 * @param value
 	 */
@@ -123,6 +132,8 @@ public class MeasureAssetValue implements Cloneable {
 	/**
 	 * clone: <br>
 	 * Description
+	 * 
+	 * @throws TrickException
 	 * 
 	 * @see java.lang.Object#clone()
 	 */

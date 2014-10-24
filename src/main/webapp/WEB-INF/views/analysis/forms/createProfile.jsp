@@ -14,38 +14,37 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<spring:hasBindErrors name="*">
-					<spring:bind path="*">
-						<c:forEach items="${status.errorMessages}" var="error">
-							<spring:message text="${error}" />
-							<br />
-						</c:forEach>
-					</spring:bind>
-				</spring:hasBindErrors>
-				<form:form commandName="analysisProfile" cssClass="form">
-					<form:hidden path="idAnalysis" />
-					<form:errors element="label" path="idAnalysis" cssClass="label label-danger" />
-					<div class="form-group">
-						<form:label path="name">
-							<spring:message code="label.analysis.profile.name" text="Name" />
-						</form:label>
-						<form:textarea path="name" cssClass="form-control resize_vertical_only" />
-						<form:errors element="label" path="name" cssClass="label label-danger" />
-					</div>
-					<div class="form-group">
-						<form:label path="standards">
-							<spring:message code="label.analysis.profile.norms" text="Standards to include in profile" />
-						</form:label>
-						<form:select path="standards" multiple="true" cssClass="form-control" itemValue="id" itemLabel="label" items="${standards}" />
-					</div>
-					<div class="form-group">
-						<label for="scenario"><spring:message code="label.analysis.profile.scenario" text="Include risk scenarios of analysis in profile" /></label>
-							<input name="scenario" style="max-width: 20px; float: none; display: inline; margin-top: -3px;" type="checkbox" class="form-control"/>
-					</div>
-				</form:form>
+				<div class="col-sm-12 row">
+					<form id="analysisProfileform" action="/AnalysisProfile/Save" method="post" class="form">
+						<input type="hidden" id="id" name="id" value="${id}" />
+						<div class="form-group">
+							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile.description" text="Description" /></label>
+							<div class="col-sm-10">
+								<textarea class="form-control resize_vectical_only" id="name" name="name" style="height: 65px;"></textarea>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile.standards" text="Standards" /></label>
+							<div class="panel-body col-sm-10">
+								<c:if test="${!empty analysisStandards}">
+									<select class="form-control" name="standards" id="standards" multiple="multiple" style="display: none;">
+										<c:forEach items="${analysisStandards}" var="analysisStandard">
+											<option value="standard_${analysisStandard.standard.id}">${analysisStandard.standard.label}</option>
+										</c:forEach>
+									</select>
+									<ul class="list-group">
+										<c:forEach items="${analysisStandards}" var="analysisStandard">
+											<a opt="standard_${analysisStandard.standard.id}" class="list-group-item active" style="border: 1px solid #dddddd;">${analysisStandard.standard.label}</a>
+										</c:forEach>
+									</ul>
+								</c:if>
+							</div>
+						</div>
+					</form>
+				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" onclick="saveAnalysisProfile('analysisProfile')">
+				<button type="button" class="btn btn-primary" onclick="saveAnalysisProfile('analysisProfileform')">
 					<spring:message code="label.action.save" text="Save" />
 				</button>
 			</div>

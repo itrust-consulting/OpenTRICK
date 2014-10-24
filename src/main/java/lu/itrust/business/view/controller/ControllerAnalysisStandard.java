@@ -392,24 +392,24 @@ public class ControllerAnalysisStandard {
 				return errors;
 
 			List<AnalysisStandard> astandards = analysis.getAnalysisOnlyStandards();
-			
-			for(AnalysisStandard astandard : astandards)
-				if((astandard.getStandard().getLabel().equals(standard.getLabel())) && (astandard.getStandard().getType().equals(standard.getType()))) {
+
+			for (AnalysisStandard astandard : astandards)
+				if ((astandard.getStandard().getLabel().equals(standard.getLabel())) && (astandard.getStandard().getType().equals(standard.getType()))) {
 					errors.put("standard", messageSource.getMessage("error.analysis.standard_exist_in_analysis", null, "The standard already exists in this analysis!", locale));
 					break;
-			}
-					
+				}
+
 			if (!errors.isEmpty())
 				// return error on failure
 				return errors;
-			
+
 			Integer version = serviceStandard.getBiggestVersionFromStandardByNameAndType(standard.getLabel(), standard.getType());
-			
-			if(version == null)
-				version = 1;
-			
-			standard.setVersion(version+1);
-			
+
+			if (version == null)
+				version = 0;
+
+			standard.setVersion(version + 1);
+
 			serviceStandard.save(standard);
 
 			AnalysisStandard astandard = null;
@@ -540,12 +540,11 @@ public class ControllerAnalysisStandard {
 				phase.setAnalysis(analysis);
 				analysis.addPhase(phase);
 			}
-			measure.setPhase(phase);
 			analysisStandard.setStandard(standard);
 			measure.setStatus(Constant.MEASURE_STATUS_APPLICABLE);
 			measure.setImplementationRate(implementationRate);
 			for (MeasureDescription measureDescription : measureDescriptions) {
-				Measure measure2 = measure.duplicate(analysisStandard);
+				Measure measure2 = measure.duplicate(analysisStandard, phase);
 				measure2.setMeasureDescription(measureDescription);
 				measure2.setAnalysisStandard(analysisStandard);
 				analysisStandard.getMeasures().add(measure2);

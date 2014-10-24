@@ -21,6 +21,7 @@ import lu.itrust.business.component.ChartGenerator;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.helper.JsonMessage;
 import lu.itrust.business.dao.hbm.DAOHibernate;
+import lu.itrust.business.exception.TrickException;
 import lu.itrust.business.service.ServiceAnalysis;
 import lu.itrust.business.service.ServiceAssessment;
 import lu.itrust.business.service.ServiceAssetType;
@@ -274,8 +275,6 @@ public class ControllerScenario {
 		return scenario;
 	}
 
-	
-
 	/**
 	 * add: <br>
 	 * Description
@@ -363,21 +362,23 @@ public class ControllerScenario {
 			// get analysis id
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
+			if (idAnalysis == null) {
+				errors.put("scenario", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
+				return errors;
+			}
+
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 
-			Scenario scenario = new Scenario();
+			Scenario scenario = null;
 
 			List<AssetType> assetTypes = serviceAssetType.getAll();
 
-			buildScenario(errors, scenario, assetTypes, value, customLocale != null ? customLocale : locale);
+			scenario = buildScenario(errors, assetTypes, value, customLocale != null ? customLocale : locale);
 
 			if (!errors.isEmpty())
-				// return error on failure
 				return errors;
 
-			assessmentManager.build(scenario, idAnalysis);
-
-			if (scenario.getId() > 1) {
+			if (scenario.getId() > 0) {
 
 				if (!serviceScenario.belongsToAnalysis(idAnalysis, scenario.getId())) {
 					errors.put("scenario", messageSource.getMessage("error.scenario.not_belongs_to_analysis", null, "Scenario does not belong to analysis", customLocale != null ? customLocale
@@ -385,15 +386,36 @@ public class ControllerScenario {
 					return errors;
 				}
 
-				serviceScenario.merge(scenario);
-				if (scenario.isSelected())
-					assessmentManager.selectScenario(scenario);
-				else
-					assessmentManager.unSelectScenario(scenario);
+				serviceScenario.saveOrUpdate(scenario);
+
+			} else {
+				if (serviceScenario.exist(idAnalysis, scenario.getName())) {
+
+					errors.put("name", messageSource.getMessage("error.scenario.duplicate", new String[] { scenario.getName() }, String.format("Scenario (%s) already exists", scenario.getName()),
+							customLocale != null ? customLocale : locale));
+					return errors;
+				} else
+					serviceScenario.save(scenario);
 			}
+
+			if (scenario.isSelected())
+				assessmentManager.selectScenario(scenario);
+			else
+				assessmentManager.unSelectScenario(scenario);
+
+			assessmentManager.build(scenario, idAnalysis);
 
 			return errors;
 
+		} catch (TrickException e) {
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis != null) {
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+				errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
+			} else
+				errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			e.printStackTrace();
+			return errors;
 		} catch (Exception e) {
 			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
 
@@ -462,15 +484,20 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildScenario(Map<String, String> errors, Scenario scenario, List<AssetType> assetTypes, String source, Locale locale) {
+	private Scenario buildScenario(Map<String, String> errors, List<AssetType> assetTypes, String source, Locale locale) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 
 			int idScenario = jsonNode.get("id").asInt();
 
-			if (idScenario > 0)
-				scenario.setId(idScenario);
+			Scenario returnvalue = null;
+
+			if (idScenario > 0) {
+				returnvalue = serviceScenario.get(idScenario);
+			} else {
+				returnvalue = new Scenario();
+			}
 
 			ValidatorField validator = serviceDataValidation.findByClass(Scenario.class);
 			if (validator == null)
@@ -483,51 +510,65 @@ public class ControllerScenario {
 			JsonNode node = jsonNode.get("scenarioType");
 			ScenarioType scenarioType = serviceScenarioType.get(node.get("id").asInt());
 
-			scenario.setDescription(jsonNode.get("description").asText());
+			String description = jsonNode.get("description").asText();
 
-			error = validator.validate(scenario, "name", name);
+			error = validator.validate(returnvalue, "name", name);
 			if (error != null)
 				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
-				scenario.setName(name);
-				scenario.setSelected(jsonNode.get("selected").asBoolean());
+				returnvalue.setName(name);
+				returnvalue.setSelected(jsonNode.get("selected").asBoolean());
 			}
 
-			error = validator.validate(scenario, "scenarioType", scenarioType);
+			error = validator.validate(returnvalue, "description", description);
+			if (error != null)
+				errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
+			else {
+				returnvalue.setDescription(description);
+			}
+
+			error = validator.validate(returnvalue, "scenarioType", scenarioType);
 			if (error != null)
 				errors.put("scenarioType", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
-				scenario.setScenarioType(scenarioType);
+				returnvalue.setScenarioType(scenarioType);
 
 				// set all categories to 0
 				for (String key : CategoryConverter.JAVAKEYS)
-					scenario.setCategoryValue(key, 0);
+					returnvalue.setCategoryValue(key, 0);
 
 				// set category according to value of scenario type
-				scenario.setCategoryValue(CategoryConverter.getTypeFromScenario(scenario), 4);
+				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenario(returnvalue), 4);
 			}
 
 			for (AssetType assetType : assetTypes) {
 
-				AssetTypeValue atv = scenario.retrieveAssetTypeValue(assetType);
+				AssetTypeValue atv = null;
 
 				int value = 0;
 				if (jsonNode.get(assetType.getType()) != null)
 					value = jsonNode.get(assetType.getType()).asInt();
+				atv = returnvalue.retrieveAssetTypeValue(assetType);
 
 				if (atv != null)
 					atv.setValue(value);
 				else
-					scenario.addAssetTypeValue(new AssetTypeValue(assetType, value));
-			}
-			return true;
+					returnvalue.addAssetTypeValue(new AssetTypeValue(assetType, value));
 
+			}
+			return returnvalue;
+
+		} catch (TrickException e) {
+			// return error message
+			errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			e.printStackTrace();
 		} catch (Exception e) {
 
 			errors.put("scenario", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
-			return false;
 		}
+
+		return null;
 
 	}
 }

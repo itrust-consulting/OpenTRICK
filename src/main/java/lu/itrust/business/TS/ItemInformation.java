@@ -1,13 +1,10 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -23,8 +20,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","dtLabel"}))
+@Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }))
 public class ItemInformation implements Cloneable {
 
 	/***********************************************************************************************
@@ -32,20 +29,21 @@ public class ItemInformation implements Cloneable {
 	 **********************************************************************************************/
 
 	/** id unsaved value = -1 */
-	@Id @GeneratedValue 
-	@Column(name="idItemInformation")
+	@Id
+	@GeneratedValue
+	@Column(name = "idItemInformation")
 	private int id = -1;
 
 	/** The Item Information Value */
-	@Column(name="dtValue", nullable=false, columnDefinition="LONGTEXT")
+	@Column(name = "dtValue", nullable = false, columnDefinition = "LONGTEXT")
 	private String value = "";
 
 	/** The Item Information description */
-	@Column(name="dtLabel", nullable=false)
+	@Column(name = "dtLabel", nullable = false)
 	private String description = "";
 
 	/** The Item Information Type */
-	@Column(name="dtType", nullable=false)
+	@Column(name = "dtType", nullable = false)
 	private String type = "";
 
 	/**
@@ -132,13 +130,12 @@ public class ItemInformation implements Cloneable {
 	 * Sets the "type" field with a value
 	 * 
 	 * @param type
-	 *            The value to set the Item Information Type (Scope or
-	 *            Organisation)
-	 * @throws TrickException 
+	 *            The value to set the Item Information Type (Scope or Organisation)
+	 * @throws TrickException
 	 */
 	public void setType(String type) throws TrickException {
 		if (type == null || !type.matches(Constant.REGEXP_VALID_ITEMINFORMATION_TYPE))
-			throw new TrickException("error.item_information.type.empty","Type needs to be Scope or Organisation only!");
+			throw new TrickException("error.item_information.type.empty", "Type needs to be Scope or Organisation only!");
 		this.type = type;
 	}
 
@@ -163,9 +160,12 @@ public class ItemInformation implements Cloneable {
 		this.id = id;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -173,6 +173,13 @@ public class ItemInformation implements Cloneable {
 		return (ItemInformation) super.clone();
 	}
 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
 	public ItemInformation duplicate() throws CloneNotSupportedException {
 		ItemInformation itemInformation = (ItemInformation) super.clone();
 		itemInformation.id = -1;

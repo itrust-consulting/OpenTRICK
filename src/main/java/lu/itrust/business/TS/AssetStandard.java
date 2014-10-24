@@ -1,10 +1,12 @@
 package lu.itrust.business.TS;
 
 import java.util.List;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
+
 import lu.itrust.business.exception.TrickException;
+
 import org.hibernate.proxy.HibernateProxy;
 
 /**
@@ -100,4 +102,31 @@ public class AssetStandard extends AnalysisStandard {
 		measure.setAnalysisStandard(this);
 		this.getMeasures().add(measure);
 	}
+
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.AnalysisStandard#clone()
+	 */
+	@Override
+	public AssetStandard clone() throws CloneNotSupportedException {
+		return (AssetStandard) super.clone();
+	}
+
+	/**
+	 * duplicate: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.AnalysisStandard#duplicate()
+	 */
+	@Override
+	public AssetStandard duplicate() throws CloneNotSupportedException {
+		return (AssetStandard) super.duplicate();
+	}
+
 }

@@ -1,7 +1,5 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -11,17 +9,19 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.exception.TrickException;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 /**
  * Assessment: <br>
  * This class represents an assessments and all its data.
  * 
- * This class is used to store assessments data for assets, scenarios, and their
- * ALE (normal, optimistic, pessimistic)
+ * This class is used to store assessments data for assets, scenarios, and their ALE (normal,
+ * optimistic, pessimistic)
  * 
  * This class is used for the action plan calculation.
  * 
@@ -30,7 +30,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity
-@Table(uniqueConstraints=@UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAsset", "fiScenario" }))
 public class Assessment implements Cloneable {
 
 	/***********************************************************************************************
@@ -38,76 +38,79 @@ public class Assessment implements Cloneable {
 	 **********************************************************************************************/
 
 	/** identifier from the database */
-	@Id @GeneratedValue 
-	@Column(name="idAssessment")
+	@Id
+	@GeneratedValue
+	@Column(name = "idAssessment")
 	private int id = -1;
 
 	/** Assessment selected flag */
-	@Column(name="dtSelected", nullable=false, columnDefinition="TINYINT(1)")
+	@Column(name = "dtSelected", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean selected = false;
 
 	/** A comment on this assessment */
-	@Column(name="dtComment", columnDefinition="LONGTEXT", nullable=false)
+	@Column(name = "dtComment", columnDefinition = "LONGTEXT", nullable = false)
 	private String comment = "";
 
 	/** hidden assessment comment */
-	@Column(name="dtHiddenComment", columnDefinition="LONGTEXT", nullable=false)
+	@Column(name = "dtHiddenComment", columnDefinition = "LONGTEXT", nullable = false)
 	private String hiddenComment = "";
 
 	/** The impactFin value of this assessment */
-	@Column(name="dtImpactRep", nullable=false)
+	@Column(name = "dtImpactRep", nullable = false)
 	private String impactRep = "0";
 
 	/** The impactOp value of this assessment */
-	@Column(name="dtImpactOp", nullable=false)
+	@Column(name = "dtImpactOp", nullable = false)
 	private String impactOp = "0";
 
 	/** The impactLeg value of this assessment */
-	@Column(name="dtImpactLeg", nullable=false)
+	@Column(name = "dtImpactLeg", nullable = false)
 	private String impactLeg = "0";
 
 	/** The impactFin value of this assessment */
-	@Column(name="dtImpactFin", nullable=false)
+	@Column(name = "dtImpactFin", nullable = false)
 	private String impactFin = "0";
 
 	/** The impactFin value of this assessment */
-	@Column(name="dtImpactReal", nullable=false)
+	@Column(name = "dtImpactReal", nullable = false)
 	private double impactReal = 0;
 
 	/** The likelihood value of this assessment */
-	@Column(name="dtLikelihood", nullable=false)
+	@Column(name = "dtLikelihood", nullable = false)
 	private String likelihood = "0";
 
 	/** The likelihood value of this assessment */
-	@Column(name="dtLikelihoodReal", nullable=false)
+	@Column(name = "dtLikelihoodReal", nullable = false)
 	private double likelihoodReal = 0;
 
 	/** The uncertainty value of this assessment */
-	@Column(name="dtUncertainty", nullable=false)
+	@Column(name = "dtUncertainty", nullable = false)
 	private double uncertainty = 2; // 1 + 1e-7;
 
 	/** The Annual Loss Expectancy - Pessimistic */
-	@Column(name="dtALEP", nullable=false)
+	@Column(name = "dtALEP", nullable = false)
 	private double ALEP = 0;
 
 	/** The Annual Loss Expectancy - Normal */
-	@Column(name="dtALE", nullable=false)
+	@Column(name = "dtALE", nullable = false)
 	private double ALE = 0;
 
 	/** The Annual Loss Expectancy - Optimistic */
-	@Column(name="dtALEO", nullable=false)
+	@Column(name = "dtALEO", nullable = false)
 	private double ALEO = 0;
 
 	/** The asset object reference */
 	@ManyToOne
-	@JoinColumn(name="fiAsset", nullable=false)
+	@JoinColumn(name = "fiAsset", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private Asset asset = null;
 
 	/** The scenario object reference */
 	@ManyToOne
-	@JoinColumn(name="fiScenario", nullable=false)
+	@JoinColumn(name = "fiScenario", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private Scenario scenario = null;
 
 	/***********************************************************************************************
@@ -126,9 +129,8 @@ public class Assessment implements Cloneable {
 	}
 
 	public boolean isCSSF() {
-		return !((impactLeg == null || impactLeg.trim().equals("0") || impactLeg.trim().equals("0.0"))
-				&& (impactOp == null || impactOp.trim().equals("0") || impactOp.trim().equals("0.0")) && (impactRep == null || impactRep.trim().equals("0") || impactRep.trim()
-				.equals("0.0")));
+		return !((impactLeg == null || impactLeg.trim().equals("0") || impactLeg.trim().equals("0.0")) && (impactOp == null || impactOp.trim().equals("0") || impactOp.trim().equals("0.0")) && (impactRep == null
+			|| impactRep.trim().equals("0") || impactRep.trim().equals("0.0")));
 	}
 
 	/**
@@ -272,13 +274,10 @@ public class Assessment implements Cloneable {
 
 	protected String checkImpact(String impact) {
 		/*
-		 * if (impact == null) throw new
-		 * IllegalArgumentException("Impact value is null"); else if
+		 * if (impact == null) throw new IllegalArgumentException("Impact value is null"); else if
 		 * (impact.trim().isEmpty()) impact = "0"; else if
-		 * (!impact.matches(Constant.REGEXP_VALID_IMPACT)) throw new
-		 * IllegalArgumentException(
-		 * "Impact does not meet the regular expression: " +
-		 * Constant.REGEXP_VALID_IMPACT);
+		 * (!impact.matches(Constant.REGEXP_VALID_IMPACT)) throw new IllegalArgumentException(
+		 * "Impact does not meet the regular expression: " + Constant.REGEXP_VALID_IMPACT);
 		 */
 		return impact.toLowerCase();
 	}
@@ -324,11 +323,10 @@ public class Assessment implements Cloneable {
 	 */
 	public void setLikelihood(String likelihood) {
 		/*
-		 * if ((likelihood == null) ||
-		 * (!likelihood.matches(Constant.REGEXP_VALID_LIKELIHOOD))) { throw new
-		 * IllegalArgumentException(
-		 * "Likelihood value is null or it does not meet the regular expression: "
-		 * + Constant.REGEXP_VALID_LIKELIHOOD); }
+		 * if ((likelihood == null) || (!likelihood.matches(Constant.REGEXP_VALID_LIKELIHOOD))) {
+		 * throw new IllegalArgumentException(
+		 * "Likelihood value is null or it does not meet the regular expression: " +
+		 * Constant.REGEXP_VALID_LIKELIHOOD); }
 		 */
 		this.likelihood = likelihood;
 	}
@@ -503,15 +501,13 @@ public class Assessment implements Cloneable {
 
 	/**
 	 * isUsable: <br>
-	 * Checks if the Asset and the Scenario are Selected and ALE is not 0.
-	 * Checks if this Assessment can be used for Action Plan calculation.
+	 * Checks if the Asset and the Scenario are Selected and ALE is not 0. Checks if this Assessment
+	 * can be used for Action Plan calculation.
 	 * 
-	 * @return True: if the Assessment is usable; False: if Assessment is not
-	 *         usable
+	 * @return True: if the Assessment is usable; False: if Assessment is not usable
 	 */
 	public boolean isUsable() {
-		return (this.getAsset() == null) || (this.getScenario() == null) ? false : (this.isSelected() && this.getAsset().isSelected() && this.getScenario().isSelected() && this
-				.getALE() > 0);
+		return (this.getAsset() == null) || (this.getScenario() == null) ? false : (this.isSelected() && this.getAsset().isSelected() && this.getScenario().isSelected() && this.getALE() > 0);
 	}
 
 	/**
@@ -536,8 +532,8 @@ public class Assessment implements Cloneable {
 
 	/**
 	 * equals: <br>
-	 * Checks this Assessment to other to find out if they are equal or not.
-	 * Equal means: ID, Asset and Scenario are equal.<br>
+	 * Checks this Assessment to other to find out if they are equal or not. Equal means: ID, Asset
+	 * and Scenario are equal.<br>
 	 * <br>
 	 * 
 	 * <b>NOTE:</b>This Method is auto generated
@@ -592,9 +588,21 @@ public class Assessment implements Cloneable {
 		return assessment;
 	}
 
-	public Assessment duplicate() throws CloneNotSupportedException {
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws CloneNotSupportedException
+	 * @throws TrickException
+	 */
+	public Assessment duplicate() throws CloneNotSupportedException, TrickException {
 		Assessment assessment = (Assessment) super.clone();
 		assessment.id = -1;
+		assessment.asset = (Asset) asset.clone();
+		assessment.asset.setId(-1);
+		assessment.scenario = (Scenario) scenario.clone();
+		assessment.scenario.setId(-1);
 		return assessment;
 	}
 

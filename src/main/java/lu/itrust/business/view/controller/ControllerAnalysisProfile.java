@@ -4,37 +4,49 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
+import lu.itrust.business.TS.AnalysisRight;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.component.helper.AnalysisProfile;
+import lu.itrust.business.permissionevaluator.PermissionEvaluator;
+import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceAnalysis;
+import lu.itrust.business.service.ServiceAnalysisStandard;
+import lu.itrust.business.service.ServiceRole;
 import lu.itrust.business.service.ServiceStandard;
 import lu.itrust.business.service.ServiceTaskFeedback;
 import lu.itrust.business.service.ServiceUser;
+import lu.itrust.business.service.ServiceUserAnalysisRight;
 import lu.itrust.business.service.WorkersPoolManager;
 import lu.itrust.business.task.Worker;
 import lu.itrust.business.task.WorkerCreateAnalysisProfile;
-import lu.itrust.business.validator.AnalysisProfileValidator;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author eomar
@@ -67,45 +79,81 @@ public class ControllerAnalysisProfile {
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
-	@InitBinder
-	protected void initBinder(WebDataBinder binder) {
-		binder.replaceValidators(new AnalysisProfileValidator());
-	}
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
+
+	@Autowired
+	private ServiceAnalysisStandard serviceAnalysisStandard;
+
+	@Autowired
+	private ServiceRole serviceRole;
+
+	@Autowired
+	private MessageSource messageSource;
 
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@RequestMapping("/Add/{analysisId}")
 	public String createProfile(@PathVariable int analysisId, Model model, Principal principal) throws Exception {
-		List<Standard> standards = serviceStandard.getAllFromAnalysis(analysisId);
-		AnalysisProfile analysisProfile = new AnalysisProfile(analysisId);
-		model.addAttribute("standards", standards);
-		model.addAttribute("analysisProfile", analysisProfile);
+		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
+		model.addAttribute("analysisStandards", analysisStandards);
+		model.addAttribute("id", analysisId);
 		return "analysis/forms/createProfile";
 	}
 
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisProfile.idAnalysis, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	@RequestMapping("/Save")
-	public String saveProfile(@ModelAttribute @Valid AnalysisProfile analysisProfile, BindingResult result, Model model, Principal principal, Locale locale) throws Exception {
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Map<String, String> saveProfile(@RequestBody String value, Principal principal, Locale locale) throws Exception {
 
-		if (result.hasErrors()) {
-			model.addAttribute("standards", serviceStandard.getAllFromAnalysis(analysisProfile.getIdAnalysis()));
-			return "analysis/forms/createProfile";
+		Map<String, String> errors = new LinkedHashMap<String, String>();
+		try {
+
+			PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);
+
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(value);
+
+			// retrieve analysis id to compute
+			int analysisId = jsonNode.get("id").asInt();
+
+			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ)
+				|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
+
+				String name = jsonNode.get("description").asText();
+
+				List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
+
+				List<Integer> standards = new ArrayList<Integer>();
+
+				for (AnalysisStandard standard : analysisStandards) {
+
+					boolean addstandard = jsonNode.get("standard_" + standard.getStandard().getId()).asBoolean();
+					if (addstandard)
+						standards.add(standard.getStandard().getId());
+
+				}
+
+				if (name == null || name == Constant.EMPTY_STRING) {
+					errors.put("description", messageSource.getMessage("error.analysis_profile.empty_description", null, "Description cannot be empty", locale));
+					return errors;
+				}
+
+				User user = serviceUser.get(principal.getName());
+
+				Worker worker = new WorkerCreateAnalysisProfile(serviceTaskFeedback, sessionFactory, workersPoolManager, analysisId, name, standards, user);
+				if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
+					executor.execute(worker);
+					errors.put("taskid", String.valueOf(worker.getId()));
+				} else
+					errors.put("analysisprofile", messageSource.getMessage("failed.analysis.duplication.start", null, "Error starting profile creation task!", locale));
+				return errors;
+			} else
+				throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			errors.put("analysisprofile", e.getMessage());
 		}
 
-		if (serviceAnalysis.isProfile(analysisProfile.getIdAnalysis())) {
-			model.addAttribute("standards", serviceStandard.getAllFromAnalysis(analysisProfile.getIdAnalysis()));
-			result.rejectValue("name", "error.analysis.profile.name.used", null, "Name is not available");
-			return "analysis/forms/createProfile";
-		}
+		return errors;
 
-		User user = serviceUser.get(principal.getName());
-
-		Worker worker = new WorkerCreateAnalysisProfile(serviceTaskFeedback, sessionFactory, workersPoolManager, analysisProfile, user);
-		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
-			executor.execute(worker);
-			return "redirect:/Task/Status/" + worker.getId();
-		}
-		result.reject("failed.analysis.duplication.start", "Profile cannot be create");
-		return "analysis/forms/createProfile";
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_CONSULTANT)

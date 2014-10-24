@@ -1,25 +1,19 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.persistence.Transient;
 
 import lu.itrust.business.exception.TrickException;
 
 /**
  * Bounds: <br>
- * This class represents the bound of an extended parameter. Values from and to
- * are represented.
+ * This class represents the bound of an extended parameter. Values from and to are represented.
  * 
  * @author itrust consulting s.� r.l. - SME,BJA,EOM
  * @version 0.1
  * @since 2012-12-17
  */
-@Embeddable 
+@Embeddable
 public class Bounds implements Cloneable {
 
 	/***********************************************************************************************
@@ -27,13 +21,11 @@ public class Bounds implements Cloneable {
 	 **********************************************************************************************/
 
 	/** Value From */
-	@Column(name="dtFrom", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtFrom", nullable = false)
 	private double from = 0;
 
 	/** Value To */
-	@Column(name="dtTo", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtTo", nullable = false)
 	private double to = 0;
 
 	/***********************************************************************************************
@@ -66,10 +58,9 @@ public class Bounds implements Cloneable {
 
 	/**
 	 * updateBounds: <br>
-	 * Updates the Parameter From and To values using a Bounds object as
-	 * previous To value (which serves in the current Parameter as From value).
-	 * If the prevBounds parameter is null, the previous value will be used as 0
-	 * (there are no previous values).
+	 * Updates the Parameter From and To values using a Bounds object as previous To value (which
+	 * serves in the current Parameter as From value). If the prevBounds parameter is null, the
+	 * previous value will be used as 0 (there are no previous values).
 	 * 
 	 * @param prevBounds
 	 *            The previous Parameter Bounds
@@ -77,7 +68,7 @@ public class Bounds implements Cloneable {
 	 *            The current Parameter Value
 	 * @param nextValue
 	 *            The next Parameter Value
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void updateBounds(Bounds prevBounds, double value, double nextValue) throws TrickException {
 		if (prevBounds == null) {
@@ -89,8 +80,8 @@ public class Bounds implements Cloneable {
 
 	/**
 	 * updateBounds: <br>
-	 * Updates the Parameter From and To values using a Bounds object as
-	 * previous To value (which serves in the current Parameter as From value).
+	 * Updates the Parameter From and To values using a Bounds object as previous To value (which
+	 * serves in the current Parameter as From value).
 	 * 
 	 * @param prevTo
 	 *            The previous Parameter To value

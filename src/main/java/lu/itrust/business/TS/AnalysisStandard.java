@@ -1,9 +1,10 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
@@ -15,7 +16,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.exception.TrickException;
@@ -51,11 +51,13 @@ public abstract class AnalysisStandard implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiStandard", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE })
+	@Access(AccessType.FIELD)
 	private Standard standard = null;
 
 	/** AnalysisStandard List of measures */
 	@OneToMany(mappedBy = "analysisStandard")
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Access(AccessType.FIELD)
 	private List<Measure> measures = new ArrayList<Measure>();
 
 	/***********************************************************************************************
@@ -150,9 +152,12 @@ public abstract class AnalysisStandard implements Cloneable {
 		this.measures = measures;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -167,9 +172,21 @@ public abstract class AnalysisStandard implements Cloneable {
 		return analysisStandard;
 	}
 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
 	public AnalysisStandard duplicate() throws CloneNotSupportedException {
 		AnalysisStandard analysisStandard = (AnalysisStandard) super.clone();
 		analysisStandard.id = -1;
+		analysisStandard.measures = new ArrayList<>();
+		for (Measure measure : measures) {
+			Measure measure2 = (Measure) measure.duplicate(analysisStandard, measure.getPhase());
+			analysisStandard.measures.add(measure2);
+		}
 		return analysisStandard;
 	}
 

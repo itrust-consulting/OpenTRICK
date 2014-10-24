@@ -1,6 +1,5 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.Access;
@@ -15,11 +14,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 /**
  * Measure: <br>
@@ -102,6 +101,7 @@ public abstract class Measure implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiPhase", nullable = false)
 	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
 	public Phase getPhase() {
 		return phase;
 	}
@@ -212,7 +212,6 @@ public abstract class Measure implements Cloneable {
 	 * @return The Internal Workload
 	 */
 	@Column(name = "dtInternalWorkLoad", nullable = false)
-	@Access(AccessType.FIELD)
 	public double getInternalWL() {
 		return internalWL;
 	}
@@ -238,7 +237,6 @@ public abstract class Measure implements Cloneable {
 	 * @return The External Workload
 	 */
 	@Column(name = "dtExternalWorkLoad", nullable = false)
-	@Access(AccessType.FIELD)
 	public double getExternalWL() {
 		return externalWL;
 	}
@@ -264,7 +262,6 @@ public abstract class Measure implements Cloneable {
 	 * @return The Investment fo the measure
 	 */
 	@Column(name = "dtInvestment", nullable = false)
-	@Access(AccessType.FIELD)
 	public double getInvestment() {
 		return investment;
 	}
@@ -290,7 +287,6 @@ public abstract class Measure implements Cloneable {
 	 * @return The Lifetime value
 	 */
 	@Column(name = "dtLifetime", nullable = false)
-	@Access(AccessType.FIELD)
 	public double getLifetime() {
 		return lifetime;
 	}
@@ -316,7 +312,6 @@ public abstract class Measure implements Cloneable {
 	 * @return The Maintenance
 	 */
 	@Column(name = "dtMaintenance", nullable = false)
-	@Access(AccessType.FIELD)
 	public double getMaintenance() {
 		return maintenance;
 	}
@@ -342,7 +337,6 @@ public abstract class Measure implements Cloneable {
 	 * @return The Cost of the Measure
 	 */
 	@Column(name = "dtCost", nullable = false)
-	@Access(AccessType.FIELD)
 	public double getCost() {
 		return cost;
 	}
@@ -368,7 +362,6 @@ public abstract class Measure implements Cloneable {
 	 * @return The Measure Comment
 	 */
 	@Column(name = "dtComment", nullable = false, columnDefinition = "LONGTEXT")
-	@Access(AccessType.FIELD)
 	public String getComment() {
 		return comment;
 	}
@@ -391,7 +384,6 @@ public abstract class Measure implements Cloneable {
 	 * @return The "ToDo" Comment
 	 */
 	@Column(name = "dtToDo", nullable = false, columnDefinition = "LONGTEXT")
-	@Access(AccessType.FIELD)
 	public String getToDo() {
 		return toDo;
 	}
@@ -416,6 +408,7 @@ public abstract class Measure implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiAnalysisStandard", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	public AnalysisStandard getAnalysisStandard() {
 		return analysisStandard;
 	}
@@ -453,6 +446,72 @@ public abstract class Measure implements Cloneable {
 	 */
 	public void setMeasureDescription(MeasureDescription measureDescription) {
 		this.measureDescription = measureDescription;
+	}
+
+	/**
+	 * getInternalMaintenance: <br>
+	 * Returns the internalMaintenance field value.
+	 * 
+	 * @return The value of the internalMaintenance field
+	 */
+	@Column(name = "dtInternalMaintenance", nullable = false)
+	public double getInternalMaintenance() {
+		return internalMaintenance;
+	}
+
+	/**
+	 * setInternalMaintenance: <br>
+	 * Sets the Field "internalMaintenance" with a value.
+	 * 
+	 * @param internalMaintenance
+	 *            The Value to set the internalMaintenance field
+	 */
+	public void setInternalMaintenance(double internalMaintenance) {
+		this.internalMaintenance = internalMaintenance;
+	}
+
+	/**
+	 * getExternalMaintenance: <br>
+	 * Returns the externalMaintenance field value.
+	 * 
+	 * @return The value of the externalMaintenance field
+	 */
+	@Column(name = "dtExternalMaintenance", nullable = false)
+	public double getExternalMaintenance() {
+		return externalMaintenance;
+	}
+
+	/**
+	 * setExternalMaintenance: <br>
+	 * Sets the Field "externalMaintenance" with a value.
+	 * 
+	 * @param externalMaintenance
+	 *            The Value to set the externalMaintenance field
+	 */
+	public void setExternalMaintenance(double externalMaintenance) {
+		this.externalMaintenance = externalMaintenance;
+	}
+
+	/**
+	 * getRecurrentInvestment: <br>
+	 * Returns the recurrentInvestment field value.
+	 * 
+	 * @return The value of the recurrentInvestment field
+	 */
+	@Column(name = "dtRecurrentInvestment", nullable = false)
+	public double getRecurrentInvestment() {
+		return recurrentInvestment;
+	}
+
+	/**
+	 * setRecurrentInvestment: <br>
+	 * Sets the Field "recurrentInvestment" with a value.
+	 * 
+	 * @param recurrentInvestment
+	 *            The Value to set the recurrentInvestment field
+	 */
+	public void setRecurrentInvestment(double recurrentInvestment) {
+		this.recurrentInvestment = recurrentInvestment;
 	}
 
 	/**
@@ -630,85 +689,22 @@ public abstract class Measure implements Cloneable {
 	 * @throws CloneNotSupportedException
 	 * @throws TrickException
 	 */
-	public Measure duplicate(AnalysisStandard astandard) throws CloneNotSupportedException {
+	public Measure duplicate(AnalysisStandard astandard, Phase phase) throws CloneNotSupportedException {
+
 		Measure measure = (Measure) super.clone();
+
 		measure.id = -1;
-		if (measure.getMeasureDescription().getStandard().isAnalysisOnly()) {
-			MeasureDescription desc = measureDescription.duplicate();
-			measure.setMeasureDescription(desc);
-		}
+
 		measure.setAnalysisStandard(astandard);
 
+		measure.setPhase(phase);
+
+		if (astandard.getStandard().isAnalysisOnly()) {
+			MeasureDescription desc = measureDescription.duplicate(astandard.getStandard());
+			measure.setMeasureDescription(desc);
+		}
+
 		return measure;
-	}
-
-	/**
-	 * getInternalMaintenance: <br>
-	 * Returns the internalMaintenance field value.
-	 * 
-	 * @return The value of the internalMaintenance field
-	 */
-	@Column(name = "dtInternalMaintenance", nullable = false)
-	@Access(AccessType.FIELD)
-	public double getInternalMaintenance() {
-		return internalMaintenance;
-	}
-
-	/**
-	 * setInternalMaintenance: <br>
-	 * Sets the Field "internalMaintenance" with a value.
-	 * 
-	 * @param internalMaintenance
-	 *            The Value to set the internalMaintenance field
-	 */
-	public void setInternalMaintenance(double internalMaintenance) {
-		this.internalMaintenance = internalMaintenance;
-	}
-
-	/**
-	 * getExternalMaintenance: <br>
-	 * Returns the externalMaintenance field value.
-	 * 
-	 * @return The value of the externalMaintenance field
-	 */
-	@Column(name = "dtExternalMaintenance", nullable = false)
-	@Access(AccessType.FIELD)
-	public double getExternalMaintenance() {
-		return externalMaintenance;
-	}
-
-	/**
-	 * setExternalMaintenance: <br>
-	 * Sets the Field "externalMaintenance" with a value.
-	 * 
-	 * @param externalMaintenance
-	 *            The Value to set the externalMaintenance field
-	 */
-	public void setExternalMaintenance(double externalMaintenance) {
-		this.externalMaintenance = externalMaintenance;
-	}
-
-	/**
-	 * getRecurrentInvestment: <br>
-	 * Returns the recurrentInvestment field value.
-	 * 
-	 * @return The value of the recurrentInvestment field
-	 */
-	@Column(name = "dtRecurrentInvestment", nullable = false)
-	@Access(AccessType.FIELD)
-	public double getRecurrentInvestment() {
-		return recurrentInvestment;
-	}
-
-	/**
-	 * setRecurrentInvestment: <br>
-	 * Sets the Field "recurrentInvestment" with a value.
-	 * 
-	 * @param recurrentInvestment
-	 *            The Value to set the recurrentInvestment field
-	 */
-	public void setRecurrentInvestment(double recurrentInvestment) {
-		this.recurrentInvestment = recurrentInvestment;
 	}
 
 }

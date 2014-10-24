@@ -74,6 +74,19 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	}
 
 	/**
+	 * exist: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.service.ServiceScenario#exist(java.lang.Integer, java.lang.String)
+	 */
+	@Override
+	public boolean exist(Integer idAnalysis, String name) throws Exception {
+		return daoScenario.exist(idAnalysis, name);
+	}
+
+	/**
 	 * getAllScenarios: <br>
 	 * Description
 	 * 

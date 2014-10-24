@@ -20,6 +20,8 @@ public interface ServiceScenario {
 
 	public boolean belongsToAnalysis(Integer analysisId, Integer scenarioId) throws Exception;
 
+	public boolean exist(Integer idAnalysis, String name) throws Exception;
+	
 	public List<Scenario> getAll() throws Exception;
 
 	public List<Scenario> getAllFromAnalysis(Integer idAnalysis) throws Exception;

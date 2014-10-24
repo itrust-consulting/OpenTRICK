@@ -1,6 +1,5 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,7 +21,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
@@ -102,23 +100,24 @@ public class Analysis implements Cloneable {
 	/** Analysis owner (the one that created or imported it) */
 	@ManyToOne
 	@JoinColumn(name = "fiOwner", nullable = false)
+	@Access(AccessType.FIELD)
 	private User owner;
 
 	/** Based on analysis */
 	@Access(AccessType.FIELD)
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "fiBasedOnAnalysis", nullable = true)
 	private Analysis basedOnAnalysis;
 
 	/** The Label of this Analysis */
 	@Column(name = "dtLabel", nullable = false)
-	@Access(AccessType.FIELD)
 	private String label;
 
 	/** Language object of the Analysis */
 	@ManyToOne
 	@JoinColumn(name = "fiLanguage", nullable = false)
 	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.FIELD)
 	private Language language;
 
 	/** flag to determine if analysis has data */
@@ -136,6 +135,7 @@ public class Analysis implements Cloneable {
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Access(AccessType.FIELD)
 	private List<History> histories = new ArrayList<History>();
 
 	/** List of Item Information */
@@ -155,7 +155,7 @@ public class Analysis implements Cloneable {
 	/** List of assets */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.ALL, CascadeType.DELETE })
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	@OrderBy("value DESC, ALE DESC, name ASC")
 	private List<Asset> assets = new ArrayList<Asset>();
@@ -187,10 +187,11 @@ public class Analysis implements Cloneable {
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@OrderBy("standard")
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Access(AccessType.FIELD)
 	private List<AnalysisStandard> analysisStandards = new ArrayList<AnalysisStandard>();
 
 	/** List of Phases that is used for Action Plan Computation */
-	@OneToMany(mappedBy="analysis")
+	@OneToMany(mappedBy = "analysis")
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	@OrderBy("number")
@@ -1653,6 +1654,13 @@ public class Analysis implements Cloneable {
 	 */
 	public AnalysisStandard getAnalysisStandard(int index) {
 		return analysisStandards.get(index);
+	}
+
+	public AnalysisStandard getAnalysisStandardByStandardId(Integer standardID) {
+		for (AnalysisStandard standard : analysisStandards)
+			if (standard.getStandard().getId() == standardID)
+				return standard;
+		return null;
 	}
 
 	/**

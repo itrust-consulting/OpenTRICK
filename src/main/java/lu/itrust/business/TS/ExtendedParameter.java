@@ -1,12 +1,9 @@
 package lu.itrust.business.TS;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -27,8 +24,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
-@PrimaryKeyJoinColumn(name="idExtendedParameter")
+@Entity
+@PrimaryKeyJoinColumn(name = "idExtendedParameter")
 public class ExtendedParameter extends Parameter implements Cloneable {
 
 	/***********************************************************************************************
@@ -36,13 +33,11 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 	 **********************************************************************************************/
 
 	/** The Extended Parameter Level (default: 0-5 or 0-6 -> NOT restricted) */
-	@Column(name="dtLevel", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtLevel", nullable = false)
 	private int level = 0;
 
 	/** The Extended Parameter Acronym */
-	@Column(name="dtAcronym", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtAcronym", nullable = false)
 	private String acronym = "";
 
 	/** Extended Parameter From And To values */
@@ -119,9 +114,12 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 		this.bounds = bounds;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see lu.itrust.business.TS.Parameter#clone()
 	 */
 	@Override
@@ -131,10 +129,13 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 		return parameter;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.TS.Parameter#clone()
+	/**
+	 * duplicate: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.Parameter#duplicate()
 	 */
 	@Override
 	public ExtendedParameter duplicate() throws CloneNotSupportedException {
@@ -143,6 +144,14 @@ public class ExtendedParameter extends Parameter implements Cloneable {
 		return parameter;
 	}
 
+	/**
+	 * ComputeScales: <br>
+	 * Description
+	 * 
+	 * @param extendedParameter
+	 * @param extendedParameterPrev
+	 * @param extendedParameterNext
+	 */
 	public static void ComputeScales(ExtendedParameter extendedParameter, ExtendedParameter extendedParameterPrev, ExtendedParameter extendedParameterNext) {
 		extendedParameter.setValue(Math.sqrt(extendedParameterPrev.getValue() * extendedParameterNext.getValue()));
 

@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
 
 import lu.itrust.business.exception.TrickException;
 
@@ -23,15 +22,12 @@ import org.hibernate.proxy.HibernateProxy;
 public class NormalStandard extends AnalysisStandard {
 
 	/***********************************************************************************************
-	 * Fields declaration
-	 **********************************************************************************************/
-
-	/***********************************************************************************************
 	 * Constructors
 	 **********************************************************************************************/
 
 	/**
-	 * Constructor:<br>
+	 * Constructor: <br>
+	 *
 	 */
 	public NormalStandard() {
 		super();
@@ -48,9 +44,10 @@ public class NormalStandard extends AnalysisStandard {
 
 	/***********************************************************************************************
 	 * Getters and Setters
-	 *********************************************************************************************** 
-	 * 
-	 * /** getMeasure: <br>
+	 ***********************************************************************************************/
+
+	/**
+	 * getMeasure: <br>
 	 * Returns a NormalMeasure Object at position "index" from the list of AnalysisStandard Measures
 	 * ("measures" field)
 	 * 
@@ -102,4 +99,31 @@ public class NormalStandard extends AnalysisStandard {
 		measure.setAnalysisStandard(this);
 		this.getMeasures().add(measure);
 	}
+
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.AnalysisStandard#clone()
+	 */
+	@Override
+	public NormalStandard clone() throws CloneNotSupportedException {
+		return (NormalStandard) super.clone();
+	}
+
+	/**
+	 * duplicate: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.AnalysisStandard#duplicate()
+	 */
+	@Override
+	public NormalStandard duplicate() throws CloneNotSupportedException {
+		return (NormalStandard) super.duplicate();
+	}
+
 }

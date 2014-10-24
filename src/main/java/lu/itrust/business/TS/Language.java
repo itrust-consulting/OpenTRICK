@@ -1,12 +1,9 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -19,7 +16,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-09-24
  */
-@Entity 
+@Entity
 public class Language {
 
 	/***********************************************************************************************
@@ -27,20 +24,21 @@ public class Language {
 	 **********************************************************************************************/
 
 	/** The Language Identifier */
-	@Id @GeneratedValue 
-	@Column(name="idLanguage")
+	@Id
+	@GeneratedValue
+	@Column(name = "idLanguage")
 	private int id = -1;
 
 	/** The Alpha3 Code */
-	@Column(name="dtAlpha3", length=3, nullable=false, unique=true)
+	@Column(name = "dtAlpha3", length = 3, nullable = false, unique = true)
 	private String alpha3 = "";
 
 	/** The Language Name */
-	@Column(name="dtName", nullable=false)
+	@Column(name = "dtName", nullable = false)
 	private String name = "";
 
 	/** The Language Alternative Name */
-	@Column(name="dtAlternativeName", nullable=false)
+	@Column(name = "dtAlternativeName", nullable = false)
 	private String altName = "";
 
 	/***********************************************************************************************
@@ -63,11 +61,11 @@ public class Language {
 	 * 
 	 * @param id
 	 *            The value to set the Language Identifier
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setId(int id) throws TrickException {
 		if (id < 1)
-			throw new TrickException("error.language.id","ID should be greater than 0");
+			throw new TrickException("error.language.id", "ID should be greater than 0");
 		this.id = id;
 	}
 
@@ -87,11 +85,11 @@ public class Language {
 	 * 
 	 * @param alpha3
 	 *            The value to set the Alpha3 Code
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setAlpha3(String alpha3) throws TrickException {
 		if (alpha3 == null || !alpha3.matches(Constant.REGEXP_VALID_ALPHA_3))
-			throw new TrickException("error.language.alpha3.rejected","Alpha3 has been rejected");
+			throw new TrickException("error.language.alpha3.rejected", "Alpha3 has been rejected");
 		this.alpha3 = alpha3;
 	}
 
@@ -145,8 +143,7 @@ public class Language {
 	 */
 	@Override
 	public String toString() {
-		return "Language [id=" + id + ", alpha3=" + alpha3 + ", name=" + name + ", altName="
-			+ altName + "]";
+		return "Language [id=" + id + ", alpha3=" + alpha3 + ", name=" + name + ", altName=" + altName + "]";
 	}
 
 	/**

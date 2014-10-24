@@ -1,9 +1,10 @@
 package lu.itrust.business.TS.actionplan;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,66 +31,72 @@ import org.hibernate.annotations.CascadeType;
  * @version 0.1
  * @since 2012-09-13
  */
-@Entity 
-@Table(name="ActionPlan")
+@Entity
+@Table(name = "ActionPlan")
 public class ActionPlanEntry {
 
 	/** Regular expression to match valid entry position (positive or negative number or =) */
 	@Transient
 	public static final String POSITION_REGEX = "[-+]\\d+|=|\\d+";
-	
+
 	/***********************************************************************************************
 	 * Fields declaration
 	 **********************************************************************************************/
 
 	/** The ID of the entry */
-	@Id @GeneratedValue 
-	@Column(name="idActionPlanCalculation")
+	@Id
+	@GeneratedValue
+	@Column(name = "idActionPlanCalculation")
 	private int id = -1;
 
 	/** action plan type */
-	@ManyToOne 
-	@JoinColumn(name="fiActionPlanType", nullable=false)
+	@ManyToOne
+	@JoinColumn(name = "fiActionPlanType", nullable = false)
+	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private ActionPlanType actionPlanType = null;
 
 	/** The Measure object reference */
-	@ManyToOne 
-	@JoinColumn(name="fiMeasure", nullable=false)
+	@ManyToOne
+	@JoinColumn(name = "fiMeasure", nullable = false)
+	@Access(AccessType.FIELD)
 	private Measure measure = null;
-	
+
 	/** The position refered from the normal action plan */
 
-	@Column(name="dtOrder", nullable=false, length=5)
+	@Column(name = "dtOrder", nullable = false, length = 5)
 	private String order = "";
-	
+
 	/** the order inside the action plan type */
-	@Column(name="dtPosition", nullable=false)
+	@Column(name = "dtPosition", nullable = false)
 	private int position = 0;
 
 	/** The total ALE of each mode (normal, pessimistic, optimistic) */
-	@Column(name="dtTotalALE", nullable=false)
+	@Column(name = "dtTotalALE", nullable = false)
 	private double totalALE = 0;
 
 	/** The Delta ALE of each mode (normal, pessimistic, optimistic) */
-	@Column(name="dtDeltaALE", nullable=false)
+	@Column(name = "dtDeltaALE", nullable = false)
 	private double deltaALE = 0;
 
 	/** The cost of the measure */
-	@Column(name="dtCost", nullable=false)
+	@Column(name = "dtCost", nullable = false)
 	private double cost = 0;
 
-	/** Return of investment for Security and Maturity investment of each mode (normal, pessimistic, optimistic) */
-	@Column(name="dtROI", nullable=false)
+	/**
+	 * Return of investment for Security and Maturity investment of each mode (normal, pessimistic,
+	 * optimistic)
+	 */
+	@Column(name = "dtROI", nullable = false)
 	private double ROI = 0;
 
-	/** Vector of assets at this state in the final action plan */
-	//private List<ActionPlanAssessment> actionPlanAssessments = new ArrayList<ActionPlanAssessment>();
-
-	@OneToMany(mappedBy="actionPlanEntry")
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	/** list of assets with the current ALE of this entry */
+	@OneToMany(mappedBy = "actionPlanEntry")
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@OrderBy("currentALE DESC")
+	@Access(AccessType.FIELD)
 	private List<ActionPlanAsset> actionPlanAssets = new ArrayList<ActionPlanAsset>();
-	
+
 	/***********************************************************************************************
 	 * Constructor
 	 **********************************************************************************************/
@@ -102,6 +109,7 @@ public class ActionPlanEntry {
 
 	/**
 	 * Constructor: <br>
+	 * 
 	 * @param measure
 	 * @param actionplantype
 	 * @param deltaALE
@@ -114,7 +122,7 @@ public class ActionPlanEntry {
 		setMeasure(measure);
 
 		setActionPlanType(actionplantype);
-		
+
 		// the delta ALE for the measure (normal,optimistic and pessimistic)
 		setDeltaALE(deltaALE);
 
@@ -127,6 +135,7 @@ public class ActionPlanEntry {
 	 * This constructor is only used inside the generateNormalActionPlanEntries method to use a
 	 * existing ALE to calculate a new ROSI and set the new list of assets (with current asset
 	 * values)
+	 * 
 	 * @param measure
 	 * @param actionPlanType
 	 * @param actionPlanAssets
@@ -134,8 +143,7 @@ public class ActionPlanEntry {
 	 * @param deltaALE
 	 * @throws TrickException
 	 */
-	public ActionPlanEntry(Measure measure, ActionPlanType actionPlanType,
-			List<ActionPlanAsset> actionPlanAssets, double totalALE, double deltaALE) throws TrickException {
+	public ActionPlanEntry(Measure measure, ActionPlanType actionPlanType, List<ActionPlanAsset> actionPlanAssets, double totalALE, double deltaALE) throws TrickException {
 
 		// the measure
 		setMeasure(measure);
@@ -154,7 +162,7 @@ public class ActionPlanEntry {
 		// the measure's cost (by default if it is a maturity measure)
 		setCost(measure.getCost());
 	}
-	
+
 	/***********************************************************************************************
 	 * Methods
 	 **********************************************************************************************/
@@ -191,11 +199,11 @@ public class ActionPlanEntry {
 	 * 
 	 * @param id
 	 *            The value to set the Action Plan Entry ID
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setId(int id) throws TrickException {
-		if (id < 1) 
-			throw new TrickException("error.action_plan_entry.id","Id should be greater than 0");
+		if (id < 1)
+			throw new TrickException("error.action_plan_entry.id", "Id should be greater than 0");
 		this.id = id;
 	}
 
@@ -215,11 +223,11 @@ public class ActionPlanEntry {
 	 * 
 	 * @param measure
 	 *            The value to set the Measure
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setMeasure(Measure measure) throws TrickException {
 		if (measure == null)
-			throw new TrickException("error.action_plan_entry.measure","Measure cannot be empty!");
+			throw new TrickException("error.action_plan_entry.measure", "Measure cannot be empty!");
 		this.measure = measure;
 	}
 
@@ -239,11 +247,11 @@ public class ActionPlanEntry {
 	 * 
 	 * @param position
 	 *            The value to set the Entry Position
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setOrder(String order) throws TrickException {
 		if (order == null || !order.matches(POSITION_REGEX))
-			throw new TrickException("error.action_plan_entry.position","Position is not valid");
+			throw new TrickException("error.action_plan_entry.position", "Position is not valid");
 		this.order = order;
 	}
 
@@ -283,11 +291,11 @@ public class ActionPlanEntry {
 	 * 
 	 * @param totalALE
 	 *            The value to set the Total ALE
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setTotalALE(double totalALE) throws TrickException {
-		if (totalALE < 0) 
-			throw new TrickException("error.action_plan_entry.total_ale","Total ALE cannot be negative!");
+		if (totalALE < 0)
+			throw new TrickException("error.action_plan_entry.total_ale", "Total ALE cannot be negative!");
 		this.totalALE = totalALE;
 	}
 
@@ -307,13 +315,13 @@ public class ActionPlanEntry {
 	 * 
 	 * @param deltaALE
 	 *            The value to set the Delta ALE
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDeltaALE(double deltaALE) throws TrickException {
-		if(Double.isNaN(deltaALE))
+		if (Double.isNaN(deltaALE))
 			throw new TrickException("error.action_plan_entry.delta_ale.nan", "Please check your data: Delta ALE is not a number");
-		if (deltaALE < 0) 
-			throw new TrickException("error.action_plan_entry.delta_ale","Delta ALE cannot be negative!");
+		if (deltaALE < 0)
+			throw new TrickException("error.action_plan_entry.delta_ale", "Delta ALE cannot be negative!");
 		this.deltaALE = deltaALE;
 	}
 
@@ -334,11 +342,11 @@ public class ActionPlanEntry {
 	 * 
 	 * @param cost
 	 *            The value to set the Cost of the Measure
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setCost(double cost) throws TrickException {
-		if (cost < 0) 
-			throw new TrickException("error.action_plan_entry","Cost cannot be negative");
+		if (cost < 0)
+			throw new TrickException("error.action_plan_entry", "Cost cannot be negative");
 		this.cost = cost;
 		calculcateROI();
 	}
@@ -374,29 +382,6 @@ public class ActionPlanEntry {
 		return actionPlanAssets;
 	}
 
-//	/**
-//	 * getActionPlanAssets: <br>
-//	 * Returns the actionPlanAssets field value.
-//	 * 
-//	 * @return The value of the actionPlanAssets field
-//	 */
-//	public List<ActionPlanAssessment> getActionPlanAssessments() {
-//		return actionPlanAssessments;
-//	}
-	
-//	/**
-//	 * setActionPlanAssets: <br>
-//	 * Sets the Field "actionPlanAssets" with a value.
-//	 * 
-//	 * @param actionPlanAssets
-//	 *            The Value to set the actionPlanAssets field
-//	 */
-//	public void setActionPlanAssessments(List<ActionPlanAssessment> actionPlanAssets) {
-//		this.actionPlanAssessments = actionPlanAssessments;
-//		for (int i = 0; i < actionPlanAssets.size(); i++)
-//			this.actionPlanAssessmets.get(i).setActionPlanEntry(this);
-//	}
-
 	/**
 	 * setActionPlanAssets: <br>
 	 * Sets the Field "actionPlanAssets" with a value.
@@ -409,7 +394,7 @@ public class ActionPlanEntry {
 		for (int i = 0; i < actionPlanAssets.size(); i++)
 			this.actionPlanAssets.get(i).setActionPlanEntry(this);
 	}
-	
+
 	/**
 	 * getActionPlanType: <br>
 	 * Returns the actionPlanType field value.
@@ -431,18 +416,6 @@ public class ActionPlanEntry {
 		this.actionPlanType = actionPlanType;
 	}
 
-//	/**
-//	 * getActionPlanAsset: <br>
-//	 * Returns a ActionPlanAsset at the index given as parameter.
-//	 * 
-//	 * @param index
-//	 *            The index inside the ActionPlanAsset List
-//	 * @return The ActionPlanAsset Object at the given index
-//	 */
-//	public ActionPlanAssessment getActionPlanAssessment(int index) {
-//		return actionPlanAssessments.get(index);
-//	}
-
 	/**
 	 * getActionPlanAsset: <br>
 	 * Returns a ActionPlanAsset at the index given as parameter.
@@ -454,7 +427,7 @@ public class ActionPlanEntry {
 	public ActionPlanAsset getActionPlanAsset(int index) {
 		return actionPlanAssets.get(index);
 	}
-	
+
 	/**
 	 * addActionPlanAsset: <br>
 	 * Adds a ActionPlan Asset to the list of ActionPlan Assets
@@ -466,26 +439,21 @@ public class ActionPlanEntry {
 		actionPlanAsset.setActionPlanEntry(this);
 		actionPlanAssets.add(actionPlanAsset);
 	}
-	
-//	/**
-//	 * addActionPlanAsset: <br>
-//	 * Adds a ActionPlan Asset to the list of ActionPlan Assets
-//	 * 
-//	 * @param actionPlanAsset
-//	 *            The ActionPlanAsset Object to add
-//	 */
-//	public void addActionPlanAssessment(ActionPlanAssessment actionPlanAsset) {
-//		actionPlanAsset.setActionPlanEntry(this);
-//		actionPlanAssessments.add(actionPlanAsset);
-//	}
-	
-	@Override
-	public String toString(){
-		return "ActionPlanEntry {id="+id+",actionplantype="+actionPlanType.getName()+",position="+position+",cost="+cost+",ROI="+ROI+",totalALE="+totalALE+","
-			+ "Measure {id="+measure.getId()+",standard="+measure.getAnalysisStandard().getStandard().getLabel()+",reference="+measure.getMeasureDescription().getReference()+",cost="+measure.getCost()+",IS="
-				+measure.getInternalWL()+",ES="+measure.getExternalWL()+",INV="+measure.getInvestment()+",phase="+measure.getPhase().getNumber()+"}} ";
 
-		
+	/**
+	 * toString: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "ActionPlanEntry {id=" + id + ",actionplantype=" + actionPlanType.getName() + ",position=" + position + ",cost=" + cost + ",ROI=" + ROI + ",totalALE=" + totalALE + "," + "Measure {id="
+			+ measure.getId() + ",standard=" + measure.getAnalysisStandard().getStandard().getLabel() + ",reference=" + measure.getMeasureDescription().getReference() + ",cost=" + measure.getCost()
+			+ ",IS=" + measure.getInternalWL() + ",ES=" + measure.getExternalWL() + ",INV=" + measure.getInvestment() + ",phase=" + measure.getPhase().getNumber() + "}} ";
+
 	}
-	
+
 }

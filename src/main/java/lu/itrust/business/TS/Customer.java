@@ -1,14 +1,9 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -23,7 +18,7 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
+@Entity
 public class Customer {
 
 	/***********************************************************************************************
@@ -31,54 +26,45 @@ public class Customer {
 	 **********************************************************************************************/
 
 	/** The customer ID */
-	@Id @GeneratedValue 
-	@Access(AccessType.FIELD)
-	@Column(name="idCustomer")
+	@Id
+	@GeneratedValue
+	@Column(name = "idCustomer")
 	private int id = -1;
 
 	/** The Name of the organisation */
-	@Column(name="dtOrganisation", unique=true, nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtOrganisation", unique = true, nullable = false)
 	private String organisation = "";
 
 	/** The Address of the Organisation */
-	@Column(name="dtAddress", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtAddress", nullable = false)
 	private String address = "";
 
 	/** The City where the Organisation is located */
-	@Column(name="dtCity", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtCity", nullable = false)
 	private String city = "";
 
 	/** The ZIP Code of the Organisation location */
-	@Column(name="dtZIP", nullable=false, length=20)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtZIP", nullable = false, length = 20)
 	private String ZIPCode = "";
 
 	/** The Country where the Organisation is located */
-	@Column(name="dtCountry", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtCountry", nullable = false)
 	private String country = "";
 
 	/** The Name of the Contact Person in the Organisation */
-	@Column(name="dtContactPerson", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtContactPerson", nullable = false)
 	private String contactPerson = "";
 
 	/** The Telephone Number of the Contact Person or Organisation */
-	@Column(name="dtTelephone", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtTelephone", nullable = false)
 	private String phoneNumber = "";
 
 	/** The Email of the Contact Person or Organisation */
-	@Column(name="dtEmail", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtEmail", nullable = false)
 	private String email = "";
-	
-	@Column(name="dtCanBeUsed", nullable=false, columnDefinition="TINYINT(1)")
-	@Access(AccessType.FIELD)
-	private boolean canBeUsed = true; 
+
+	@Column(name = "dtCanBeUsed", nullable = false, columnDefinition = "TINYINT(1)")
+	private boolean canBeUsed = true;
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -100,11 +86,11 @@ public class Customer {
 	 * 
 	 * @param id
 	 *            The value to set the Customer ID
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setId(int id) throws TrickException {
 		if (id < 1)
-			throw new TrickException("error.customer.id","Customer id should be greater than 0");
+			throw new TrickException("error.customer.id", "Customer id should be greater than 0");
 		this.id = id;
 	}
 
@@ -124,11 +110,11 @@ public class Customer {
 	 * 
 	 * @param organsiation
 	 *            The value to set the Name of the Organisation
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setOrganisation(String organisation) throws TrickException {
-		if (organisation == null || organisation.trim().isEmpty()) 
-			throw new TrickException("error.customer.organisation.empty","Organisation cannot be empty!");
+		if (organisation == null || organisation.trim().isEmpty())
+			throw new TrickException("error.customer.organisation.empty", "Organisation cannot be empty!");
 		this.organisation = organisation;
 	}
 
@@ -148,11 +134,11 @@ public class Customer {
 	 * 
 	 * @param address
 	 *            The value to set the Address (from the Organisation Location)
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setAddress(String address) throws TrickException {
 		if (address == null || address.trim().isEmpty())
-			throw new TrickException("error.customer.address.empty","Address cannot be empty!");
+			throw new TrickException("error.customer.address.empty", "Address cannot be empty!");
 		this.address = address;
 	}
 
@@ -172,11 +158,11 @@ public class Customer {
 	 * 
 	 * @param city
 	 *            The value to set the City Name (from the Organisation Location)
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setCity(String city) throws TrickException {
 		if (city == null || !city.matches(Constant.REGEXP_VALID_NAME))
-			throw new TrickException("error.customer.address.rejected","City has been rejected!");
+			throw new TrickException("error.customer.address.rejected", "City has been rejected!");
 		this.city = city;
 	}
 
@@ -195,11 +181,11 @@ public class Customer {
 	 * 
 	 * @param ZIPCode
 	 *            The value to set the ZIP Code (from the Organisation Location)
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setZIPCode(String ZIPCode) throws TrickException {
 		if (ZIPCode == null || ZIPCode.trim().isEmpty())
-			throw new TrickException("error.customer.zipcode.empty","ZIPCode cannot be empty!");
+			throw new TrickException("error.customer.zipcode.empty", "ZIPCode cannot be empty!");
 		this.ZIPCode = ZIPCode;
 	}
 
@@ -219,11 +205,11 @@ public class Customer {
 	 * 
 	 * @param country
 	 *            The value to set the Country Name (from the Organisation Location)
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setCountry(String country) throws TrickException {
 		if (country == null || !country.matches(Constant.REGEXP_VALID_NAME))
-			throw new TrickException("error.customer.country.empty","Country cannot be empty!");
+			throw new TrickException("error.customer.country.empty", "Country cannot be empty!");
 		this.country = country;
 	}
 
@@ -243,11 +229,11 @@ public class Customer {
 	 * 
 	 * @param contactPerson
 	 *            The value to set the Contact Person Name
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setContactPerson(String contactPerson) throws TrickException {
 		if (contactPerson == null || !contactPerson.matches(Constant.REGEXP_VALID_NAME))
-			throw new TrickException("error.customer.contact_person.empty","Contact person cannot be empty!");
+			throw new TrickException("error.customer.contact_person.empty", "Contact person cannot be empty!");
 		this.contactPerson = contactPerson;
 	}
 
@@ -267,11 +253,11 @@ public class Customer {
 	 * 
 	 * @param telephoneNumber
 	 *            The value to set the Telephone Number (from the Contact Person or Organisation)
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setPhoneNumber(String telephoneNumber) throws TrickException {
 		if (telephoneNumber == null || telephoneNumber.trim().isEmpty())
-			throw new TrickException("error.customer.telephone_number.empty","Telephone number cannot be empty");
+			throw new TrickException("error.customer.telephone_number.empty", "Telephone number cannot be empty");
 		this.phoneNumber = telephoneNumber;
 	}
 
@@ -291,14 +277,14 @@ public class Customer {
 	 * 
 	 * @param email
 	 *            The value to set the Email (from the Contact Person or Organisation)
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setEmail(String email) throws TrickException {
 		if (email == null || !email.matches(Constant.REGEXP_VALID_EMAIL))
-			throw new TrickException("error.customer.email.empty","Email address was rejected");
+			throw new TrickException("error.customer.email.empty", "Email address was rejected");
 		this.email = email;
 	}
-	
+
 	/**
 	 * @return the canBeUsed
 	 */
@@ -307,7 +293,8 @@ public class Customer {
 	}
 
 	/**
-	 * @param canBeUsed the canBeUsed to set
+	 * @param canBeUsed
+	 *            the canBeUsed to set
 	 */
 	public void setCanBeUsed(boolean canBeUsed) {
 		this.canBeUsed = canBeUsed;
@@ -364,7 +351,7 @@ public class Customer {
 	 */
 	@Override
 	public String toString() {
-		return "Customer [id=" + id + ", organisation=" + organisation + ", address=" + address + ", city=" + city + ", ZIPCode=" + ZIPCode + ", country=" + country
-			+ ", contactPerson=" + contactPerson + ", telephoneNumber=" + phoneNumber + ", email=" + email + "]";
+		return "Customer [id=" + id + ", organisation=" + organisation + ", address=" + address + ", city=" + city + ", ZIPCode=" + ZIPCode + ", country=" + country + ", contactPerson="
+			+ contactPerson + ", telephoneNumber=" + phoneNumber + ", email=" + email + "]";
 	}
 }

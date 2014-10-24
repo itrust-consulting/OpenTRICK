@@ -1,6 +1,5 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -8,7 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.exception.TrickException;
@@ -17,16 +15,15 @@ import lu.itrust.business.exception.TrickException;
  * History: <br>
  * This class represents an History and all its data.
  * 
- * This class is used to store History. Each analysis has only one single
- * history. Each analysis in the knowledgebase can be the same, but has
- * different histories (versions).
+ * This class is used to store History. Each analysis has only one single history. Each analysis in
+ * the knowledgebase can be the same, but has different histories (versions).
  * 
  * @author itrust consulting s.à r.l. - SME,BJA
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis", "dtVersion"}))
+@Entity
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtVersion" }))
 public class History implements Cloneable {
 
 	/***********************************************************************************************
@@ -34,24 +31,25 @@ public class History implements Cloneable {
 	 **********************************************************************************************/
 
 	/** id History unsaved */
-	@Id @GeneratedValue 
-	@Column(name="idHistory")
+	@Id
+	@GeneratedValue
+	@Column(name = "idHistory")
 	private int id = -1;
 
 	/** The Analysis Version (Version of the History entry) */
-	@Column(name="dtVersion", nullable=false, length=12)
+	@Column(name = "dtVersion", nullable = false, length = 12)
 	private String version = "";
 
 	/** The Date when the History entry was created */
-	@Column(name="dtDateComment", nullable=false)
+	@Column(name = "dtDateComment", nullable = false)
 	private Date date = null;
 
 	/** The Name of the Author that created the History Entry (The Analysis at this Version) */
-	@Column(name="dtAuthor", nullable=false)
+	@Column(name = "dtAuthor", nullable = false)
 	private String author = "";
 
 	/** The Comment an Author gave to the History Entry */
-	@Column(name="dtComment", nullable=false, columnDefinition="TEXT")
+	@Column(name = "dtComment", nullable = false, columnDefinition = "TEXT")
 	private String comment = "";
 
 	/***********************************************************************************************
@@ -102,11 +100,11 @@ public class History implements Cloneable {
 	 * 
 	 * @param date
 	 *            The value to set the Date
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setDate(Date date) throws TrickException {
 		if (date == null)
-			throw new TrickException("error.history.date.empty","Date cannot be empty!");
+			throw new TrickException("error.history.date.empty", "Date cannot be empty!");
 		this.date = date;
 	}
 
@@ -202,8 +200,7 @@ public class History implements Cloneable {
 	 */
 	@Override
 	public String toString() {
-		return "History [id=" + id + ", version=" + version + ", date=" + date
-				+ ", author=" + author + ", comment=" + comment + "]";
+		return "History [id=" + id + ", version=" + version + ", date=" + date + ", author=" + author + ", comment=" + comment + "]";
 	}
 
 	/**

@@ -14,8 +14,8 @@ import lu.itrust.business.exception.TrickException;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
-@PrimaryKeyJoinColumn(name="idMeasureProperties")
+@Entity
+@PrimaryKeyJoinColumn(name = "idMeasureProperties")
 public class MeasureProperties extends SecurityCriteria {
 
 	/***********************************************************************************************
@@ -47,7 +47,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The SOA Reference
 	 */
-	@Column(name="dtSOAReference", nullable=false)
+	@Column(name = "dtSOAReference", nullable = false)
 	public String getSoaReference() {
 		return soaReference;
 	}
@@ -69,7 +69,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The SOA Comment
 	 */
-	@Column(name="dtSOAComment", nullable=false)
+	@Column(name = "dtSOAComment", nullable = false)
 	public String getSoaComment() {
 		return soaComment;
 	}
@@ -91,7 +91,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The SOA Risk
 	 */
-	@Column(name="dtSOARisk", nullable=false)
+	@Column(name = "dtSOARisk", nullable = false)
 	public String getSoaRisk() {
 		return soaRisk;
 	}
@@ -113,7 +113,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The Measure Strength value
 	 */
-	@Column(name="dtStrengthMeasure", nullable=false)
+	@Column(name = "dtStrengthMeasure", nullable = false)
 	public int getFMeasure() {
 		return fmeasure;
 	}
@@ -139,7 +139,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * 
 	 * @return The Sectoral Strength value
 	 */
-	@Column(name="dtStrengthSectoral", nullable=false)
+	@Column(name = "dtStrengthSectoral", nullable = false)
 	public int getFSectoral() {
 		return fsectoral;
 	}
@@ -304,6 +304,13 @@ public class MeasureProperties extends SecurityCriteria {
 		return !(value < 0 || value > 4);
 	}
 
+	/**
+	 * copyTo: <br>
+	 * Description
+	 * 
+	 * @param measurePropertyList
+	 * @throws TrickException
+	 */
 	public void copyTo(MeasureProperties measurePropertyList) throws TrickException {
 		if (measurePropertyList == null)
 			return;
@@ -313,6 +320,14 @@ public class MeasureProperties extends SecurityCriteria {
 
 	}
 
+	/**
+	 * valueFixer: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.SecurityCriteria#valueFixer(java.lang.String, int)
+	 */
 	@Override
 	protected int valueFixer(String category, int value) throws TrickException {
 		if (value < 0 || value > 4)

@@ -1,7 +1,5 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -12,7 +10,9 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 /**
  * Parameter: <br>
@@ -23,7 +23,7 @@ import javax.persistence.Transient;
  * @since 2012-08-21
  */
 @Entity
-@Inheritance(strategy=InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Parameter implements Cloneable {
 
 	/***********************************************************************************************
@@ -31,30 +31,37 @@ public class Parameter implements Cloneable {
 	 **********************************************************************************************/
 
 	/** id unsaved value = -1 */
-	@Id @GeneratedValue 
-	@Column(name="idParameter")
+	@Id
+	@GeneratedValue
+	@Column(name = "idParameter")
 	private int id = -1;
 
 	/** The Parameter Description */
-	@Column(name="dtLabel", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtLabel", nullable = false)
 	private String description = "";
 
 	/** The Parameter Value */
-	@Column(name="dtValue", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtValue", nullable = false)
 	private double value = 0;
 
 	/** The Parameter Type */
 	@ManyToOne
+	@JoinColumn(name = "fiParameterType", nullable = false)
 	@Access(AccessType.FIELD)
-	@JoinColumn(name="fiParameterType", nullable=false)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private ParameterType type = null;
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
 
+	/**
+	 * Constructor: <br>
+	 * 
+	 * @param type
+	 * @param descriptif
+	 * @param value
+	 */
 	public Parameter(ParameterType type, String descriptif, Double value) {
 		setType(type);
 		setDescription(descriptif);
@@ -62,7 +69,8 @@ public class Parameter implements Cloneable {
 	}
 
 	/**
-	 * 
+	 * Constructor: <br>
+	 *
 	 */
 	public Parameter() {
 	}
@@ -151,9 +159,12 @@ public class Parameter implements Cloneable {
 		this.id = id;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -161,6 +172,13 @@ public class Parameter implements Cloneable {
 		return (Parameter) super.clone();
 	}
 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
 	public Parameter duplicate() throws CloneNotSupportedException {
 		Parameter parameter = (Parameter) super.clone();
 		parameter.id = -1;

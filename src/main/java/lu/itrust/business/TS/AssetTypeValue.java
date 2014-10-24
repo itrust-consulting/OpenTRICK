@@ -1,27 +1,26 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
 
 import lu.itrust.business.exception.TrickException;
 
 /**
  * AssetTypeValue: <br>
- * This class represents an AssetTypeValue and all its data. This class is used
- * to store AssetTypeValues of either Scenarios or Measures.
+ * This class represents an AssetTypeValue and all its data. This class is used to store
+ * AssetTypeValues of either Scenarios or Measures.
  * 
  * @author itrust consulting s.à r.l. - SME,BJA
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
+@Entity
 public class AssetTypeValue implements Cloneable {
 
 	/***********************************************************************************************
@@ -29,17 +28,19 @@ public class AssetTypeValue implements Cloneable {
 	 **********************************************************************************************/
 
 	/** assetTypeValue identifier, unsaved value = -1 */
-	@Id @GeneratedValue 
-	@Column(name="idAssetTypeValue")
+	@Id
+	@GeneratedValue
+	@Column(name = "idAssetTypeValue")
 	private int id = -1;
 
 	/** Name of the Asset Type */
-	@ManyToOne 
-	@JoinColumn(name="fiAssetType", nullable=false)
+	@ManyToOne
+	@JoinColumn(name = "fiAssetType", nullable = false)
+	@Access(AccessType.FIELD)
 	private AssetType assetType = null;
 
 	/** The Asset Type Value */
-	@Column(name="dtValue", nullable=false)
+	@Column(name = "dtValue", nullable = false)
 	private int value = -1;
 
 	/***********************************************************************************************
@@ -131,6 +132,8 @@ public class AssetTypeValue implements Cloneable {
 	/**
 	 * clone: <br>
 	 * Description
+	 * 
+	 * @throws TrickException
 	 * 
 	 * @see java.lang.Object#clone()
 	 */

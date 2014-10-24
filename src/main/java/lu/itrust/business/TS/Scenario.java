@@ -11,6 +11,7 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -33,9 +34,9 @@ import org.hibernate.annotations.CascadeType;
  * @version 0.1
  * @since 2012-08-21
  */
-@Entity 
-@PrimaryKeyJoinColumn(name="idScenario")
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","dtLabel"}))
+@Entity
+@PrimaryKeyJoinColumn(name = "idScenario")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel" }))
 public class Scenario extends SecurityCriteria {
 
 	/***********************************************************************************************
@@ -86,7 +87,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Name
 	 */
-	@Column(name="dtLabel", nullable=false)
+	@Column(name = "dtLabel", nullable = false)
 	public String getName() {
 		return name;
 	}
@@ -111,9 +112,10 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Type
 	 */
-	@ManyToOne 
-	@JoinColumn(name="fiScenarioType", nullable=false)
+	@ManyToOne
+	@JoinColumn(name = "fiScenarioType", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	public ScenarioType getScenarioType() {
 		return scenarioType;
 	}
@@ -138,7 +140,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Selected Flag
 	 */
-	@Column(name="dtSelected", nullable=false, columnDefinition="TINYINT(1)")
+	@Column(name = "dtSelected", nullable = false, columnDefinition = "TINYINT(1)")
 	public boolean isSelected() {
 		return selected;
 	}
@@ -163,7 +165,7 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Description
 	 */
-	@Column(name="dtDescription", nullable=false, columnDefinition="LONGTEXT")
+	@Column(name = "dtDescription", nullable = false, columnDefinition = "LONGTEXT")
 	public String getDescription() {
 		return description;
 	}
@@ -182,6 +184,14 @@ public class Scenario extends SecurityCriteria {
 			this.description = description;
 	}
 
+	/**
+	 * setAssetTypeValue: <br>
+	 * Description
+	 * 
+	 * @param assetType
+	 * @param value
+	 * @throws TrickException
+	 */
 	public void setAssetTypeValue(AssetType assetType, int value) throws TrickException {
 		for (AssetTypeValue typeValue : assetTypeValues) {
 			if (typeValue.getAssetType().equals(assetType)) {
@@ -192,6 +202,12 @@ public class Scenario extends SecurityCriteria {
 		assetTypeValues.add(new AssetTypeValue(assetType, value));
 	}
 
+	/**
+	 * deleteAssetTypeDuplication: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
 	@Transient
 	public List<AssetTypeValue> deleteAssetTypeDuplication() {
 		List<AssetTypeValue> deletedAssetTypeValues = new LinkedList<>();
@@ -209,6 +225,13 @@ public class Scenario extends SecurityCriteria {
 		return deletedAssetTypeValues;
 	}
 
+	/**
+	 * getAssetTypeValue: <br>
+	 * Description
+	 * 
+	 * @param assetType
+	 * @return
+	 */
 	public int getAssetTypeValue(AssetType assetType) {
 		for (AssetTypeValue typeValue : assetTypeValues) {
 			if (typeValue.getAssetType().equals(assetType)) {
@@ -219,6 +242,13 @@ public class Scenario extends SecurityCriteria {
 		return 0;
 	}
 
+	/**
+	 * hasInfluenceOnAsset: <br>
+	 * Description
+	 * 
+	 * @param assettype
+	 * @return
+	 */
 	public boolean hasInfluenceOnAsset(String assettype) {
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
 			if (assettype.equalsIgnoreCase(assetTypeValue.getAssetType().getType()))
@@ -226,6 +256,13 @@ public class Scenario extends SecurityCriteria {
 		return false;
 	}
 
+	/**
+	 * hasInfluenceOnAsset: <br>
+	 * Description
+	 * 
+	 * @param assettype
+	 * @return
+	 */
 	public boolean hasInfluenceOnAsset(AssetType assettype) {
 		return hasInfluenceOnAsset(assettype.getType());
 	}
@@ -241,8 +278,8 @@ public class Scenario extends SecurityCriteria {
 	 */
 	@Override
 	public void setPreventive(double preventive) throws TrickException {
-		if (preventive<0 || preventive >1)
-			throw new TrickException("error.scenario.preventive.invalid","Preventive needs to be 0 or 1!");
+		if (preventive < 0 || preventive > 1)
+			throw new TrickException("error.scenario.preventive.invalid", "Preventive needs to be 0 or 1!");
 		super.setPreventive(preventive);
 	}
 
@@ -252,13 +289,13 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @param detective
 	 *            The value to set the Detective
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * @see lu.itrust.business.TS.SecurityCriteria#setDetective(double)
 	 */
 	@Override
 	public void setDetective(double detective) throws TrickException {
-		if (detective<0 || detective>1)
-			throw new TrickException("error.scenario.detective.invalid","Detective needs to be 0 or 1!");
+		if (detective < 0 || detective > 1)
+			throw new TrickException("error.scenario.detective.invalid", "Detective needs to be 0 or 1!");
 		super.setDetective(detective);
 	}
 
@@ -268,13 +305,13 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @param limitative
 	 *            The value to set the Limitative
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * @see lu.itrust.business.TS.SecurityCriteria#setLimitative(double)
 	 */
 	@Override
 	public void setLimitative(double limitative) throws TrickException {
-		if (limitative<0 || limitative > 1) 
-			throw new TrickException("error.scenario.limitative.invalid","Limitative needs to be 0 or 1!");
+		if (limitative < 0 || limitative > 1)
+			throw new TrickException("error.scenario.limitative.invalid", "Limitative needs to be 0 or 1!");
 		super.setLimitative(limitative);
 	}
 
@@ -284,13 +321,13 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @param corrective
 	 *            The value to set the Corrective
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * @see lu.itrust.business.TS.SecurityCriteria#setCorrective(double)
 	 */
 	@Override
 	public void setCorrective(double corrective) throws TrickException {
-		if (corrective<0 || corrective>1)
-			throw new TrickException("error.scenario.corrective.invalid","Corrective needs to be 0 or 1!");
+		if (corrective < 0 || corrective > 1)
+			throw new TrickException("error.scenario.corrective.invalid", "Corrective needs to be 0 or 1!");
 		super.setCorrective(corrective);
 	}
 
@@ -300,13 +337,13 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @param intentional
 	 *            The value to set the Intentional
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * @see lu.itrust.business.TS.SecurityCriteria#setIntentional(int)
 	 */
 	@Override
 	public void setIntentional(int intentional) throws TrickException {
 		if (!isValidValue(intentional))
-			throw new TrickException("error.scenario.intentional.invalid","Intentional needs to be between 0 and 4");
+			throw new TrickException("error.scenario.intentional.invalid", "Intentional needs to be between 0 and 4");
 		super.setIntentional(intentional);
 	}
 
@@ -316,13 +353,13 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @param accidental
 	 *            The value to set the Accidental
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * @see lu.itrust.business.TS.SecurityCriteria#setAccidental(int)
 	 */
 	@Override
 	public void setAccidental(int accidental) throws TrickException {
 		if (!isValidValue(accidental))
-			throw new TrickException("error.scenario.accidental.invalid","Accidental needs to be between 0 and 4");
+			throw new TrickException("error.scenario.accidental.invalid", "Accidental needs to be between 0 and 4");
 		super.setAccidental(accidental);
 	}
 
@@ -332,13 +369,13 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @param environmental
 	 *            The value to set the Environmental
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * @see lu.itrust.business.TS.SecurityCriteria#setEnvironmental(int)
 	 */
 	@Override
 	public void setEnvironmental(int environmental) throws TrickException {
 		if (!isValidValue(environmental))
-			throw new TrickException("error.scenario.environmental.invalid","Environmental needs to be between 0 and 4");
+			throw new TrickException("error.scenario.environmental.invalid", "Environmental needs to be between 0 and 4");
 		super.setEnvironmental(environmental);
 	}
 
@@ -348,13 +385,13 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @param internalthreat
 	 *            The value to set the Internal Threat
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * @see lu.itrust.business.TS.SecurityCriteria#setInternalThreat(int)
 	 */
 	@Override
 	public void setInternalThreat(int internalthreat) throws TrickException {
 		if (!isValidValue(internalthreat))
-			throw new TrickException("error.scenario.internal_threat.invalid","Internal Threat needs to be between 0 and 4");
+			throw new TrickException("error.scenario.internal_threat.invalid", "Internal Threat needs to be between 0 and 4");
 		super.setInternalThreat(internalthreat);
 	}
 
@@ -364,20 +401,19 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @param externalthreat
 	 *            The value to set the External Threat
-	 * @throws TrickException 
+	 * @throws TrickException
 	 * @see lu.itrust.business.TS.SecurityCriteria#setExternalThreat(int)
 	 */
 	@Override
 	public void setExternalThreat(int externalthreat) throws TrickException {
 		if (!isValidValue(externalthreat))
-			throw new TrickException("error.scenario.external_threat.invalid","External Threat needs to be between 0 and 4");
+			throw new TrickException("error.scenario.external_threat.invalid", "External Threat needs to be between 0 and 4");
 		super.setExternalThreat(externalthreat);
 	}
 
 	/**
 	 * isValidValue: <br>
-	 * Check if Category value is valid or not. A valid value in scenario is 0
-	 * or 1 or 4.
+	 * Check if Category value is valid or not. A valid value in scenario is 0 or 1 or 4.
 	 * 
 	 * @param value
 	 *            The value to check if valid
@@ -440,13 +476,13 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The List of AssetTypeValues
 	 */
-	@ManyToMany
-	@JoinTable(name = "ScenarioAssetTypeValue", 
-			   joinColumns = { @JoinColumn(name = "fiScenario", nullable = false) }, 
-			   inverseJoinColumns = { @JoinColumn(name = "fiAssetTypeValue", nullable = false) },
-			   uniqueConstraints = @UniqueConstraint(columnNames = {"fiAssetTypeValue"})
-	)
-	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.DELETE})
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "ScenarioAssetTypeValue",
+			joinColumns = { @JoinColumn(name = "fiScenario", nullable = false) },
+			inverseJoinColumns = { @JoinColumn(name = "fiAssetTypeValue", nullable = false) },
+			uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }))
+	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Access(AccessType.FIELD)
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}
@@ -480,13 +516,12 @@ public class Scenario extends SecurityCriteria {
 
 	/**
 	 * equals: <br>
-	 * This method is used to determine if the current object equals another
-	 * object. Fields that identify a Scenario object are: id, name and type.
+	 * This method is used to determine if the current object equals another object. Fields that
+	 * identify a Scenario object are: id, name and type.
 	 * 
 	 * @param obj
 	 *            The object to check
-	 * @return True if the object equals the other object; False if the objects
-	 *         are not the same
+	 * @return True if the object equals the other object; False if the objects are not the same
 	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -537,6 +572,14 @@ public class Scenario extends SecurityCriteria {
 		return scenario;
 	}
 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.SecurityCriteria#duplicate()
+	 */
 	public Scenario duplicate() throws CloneNotSupportedException {
 		Scenario scenario = (Scenario) super.duplicate();
 		scenario.assetTypeValues = new ArrayList<>();
@@ -545,6 +588,14 @@ public class Scenario extends SecurityCriteria {
 		return scenario;
 	}
 
+	/**
+	 * valueFixer: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.SecurityCriteria#valueFixer(java.lang.String, int)
+	 */
 	@Override
 	protected int valueFixer(String category, int value) throws TrickException {
 		if (value < 0 || value > 4)

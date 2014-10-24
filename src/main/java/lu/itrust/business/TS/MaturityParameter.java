@@ -1,11 +1,8 @@
 package lu.itrust.business.TS;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -19,7 +16,7 @@ import lu.itrust.business.exception.TrickException;
  * @since 2012-08-21
  */
 @Entity
-@PrimaryKeyJoinColumn(name="idMaturityParameter")
+@PrimaryKeyJoinColumn(name = "idMaturityParameter")
 public class MaturityParameter extends Parameter implements Cloneable {
 
 	/***********************************************************************************************
@@ -27,36 +24,28 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 **********************************************************************************************/
 
 	/** The Maturity Category of Parameter */
-	@Column(name="dtCategory", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtCategory", nullable = false)
 	private String category = "";
 
-	@Column(name="dtSML", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtSML", nullable = false)
 	private int SMLLevel = 0;
-	
-	@Column(name="dtSML0", nullable=false)
-	@Access(AccessType.FIELD)
+
+	@Column(name = "dtSML0", nullable = false)
 	private double SMLLevel0 = 0;
 
-	@Column(name="dtSML1", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtSML1", nullable = false)
 	private double SMLLevel1 = 0;
 
-	@Column(name="dtSML2", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtSML2", nullable = false)
 	private double SMLLevel2 = 0;
 
-	@Column(name="dtSML3", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtSML3", nullable = false)
 	private double SMLLevel3 = 0;
 
-	@Column(name="dtSML4", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtSML4", nullable = false)
 	private double SMLLevel4 = 0;
 
-	@Column(name="dtSML5", nullable=false)
-	@Access(AccessType.FIELD)
+	@Column(name = "dtSML5", nullable = false)
 	private double SMLLevel5 = 0;
 
 	/***********************************************************************************************
@@ -79,11 +68,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param category
 	 *            The value to set the Maturity Category Name
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setCategory(String category) throws TrickException {
 		if (category == null || !category.matches(Constant.REGEXP_VALID_MATURITY_CATEGORY))
-			throw new TrickException("error.measure_parameter.category","Categories need to be one of the following: Policies|Procedure|Implementation|Test|Integration!");
+			throw new TrickException("error.measure_parameter.category", "Categories need to be one of the following: Policies|Procedure|Implementation|Test|Integration!");
 		this.category = category;
 	}
 
@@ -103,11 +92,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setSMLLevel0(double SMLLevel) throws TrickException {
 		if ((SMLLevel < 0) || (SMLLevel > 5))
-			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
+			throw new TrickException("error.measure_parameter.sml_level", "SML level needs to be between 0 and 5");
 		this.SMLLevel0 = SMLLevel;
 	}
 
@@ -127,11 +116,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setSMLLevel1(double SMLLevel) throws TrickException {
 		if ((SMLLevel < 0) || (SMLLevel > 5))
-			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
+			throw new TrickException("error.measure_parameter.sml_level", "SML level needs to be between 0 and 5");
 		this.SMLLevel1 = SMLLevel;
 	}
 
@@ -151,11 +140,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setSMLLevel2(double SMLLevel) throws TrickException {
 		if ((SMLLevel < 0) || (SMLLevel > 5))
-			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
+			throw new TrickException("error.measure_parameter.sml_level", "SML level needs to be between 0 and 5");
 		this.SMLLevel2 = SMLLevel;
 	}
 
@@ -175,11 +164,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setSMLLevel3(double SMLLevel) throws TrickException {
 		if ((SMLLevel < 0) || (SMLLevel > 5))
-			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
+			throw new TrickException("error.measure_parameter.sml_level", "SML level needs to be between 0 and 5");
 		this.SMLLevel3 = SMLLevel;
 	}
 
@@ -199,11 +188,11 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setSMLLevel4(double SMLLevel) throws TrickException {
 		if ((SMLLevel < 0) || (SMLLevel > 5))
-			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
+			throw new TrickException("error.measure_parameter.sml_level", "SML level needs to be between 0 and 5");
 		this.SMLLevel4 = SMLLevel;
 	}
 
@@ -223,17 +212,20 @@ public class MaturityParameter extends Parameter implements Cloneable {
 	 * 
 	 * @param SMLLevel
 	 *            The value to set the SML
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setSMLLevel5(double SMLLevel) throws TrickException {
 		if ((SMLLevel < 0) || (SMLLevel > 5))
-			throw new TrickException("error.measure_parameter.sml_level","SML level needs to be between 0 and 5");
+			throw new TrickException("error.measure_parameter.sml_level", "SML level needs to be between 0 and 5");
 		this.SMLLevel5 = SMLLevel;
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
+
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see lu.itrust.business.TS.Parameter#clone()
 	 */
 	@Override
@@ -241,9 +233,12 @@ public class MaturityParameter extends Parameter implements Cloneable {
 		return (MaturityParameter) super.clone();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see lu.itrust.business.TS.Parameter#duplicate()
 	 */
 	@Override
@@ -251,7 +246,8 @@ public class MaturityParameter extends Parameter implements Cloneable {
 		return (MaturityParameter) super.duplicate();
 	}
 
-	/** getSMLLevel: <br>
+	/**
+	 * getSMLLevel: <br>
 	 * Returns the sMLLevel field value.
 	 * 
 	 * @return The value of the sMLLevel field
@@ -260,11 +256,12 @@ public class MaturityParameter extends Parameter implements Cloneable {
 		return SMLLevel;
 	}
 
-	/** setSMLLevel: <br>
+	/**
+	 * setSMLLevel: <br>
 	 * Sets the Field "sMLLevel" with a value.
 	 * 
-	 * @param sMLLevel 
-	 * 			The Value to set the sMLLevel field
+	 * @param sMLLevel
+	 *            The Value to set the sMLLevel field
 	 */
 	public void setSMLLevel(int sMLLevel) {
 		SMLLevel = sMLLevel;

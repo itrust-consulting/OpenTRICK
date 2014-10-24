@@ -15,10 +15,10 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import lu.itrust.business.exception.TrickException;
+
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-
-import lu.itrust.business.exception.TrickException;
 
 /**
  * MaturityMeasure: <br>
@@ -58,6 +58,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiMeasureProperties", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Access(AccessType.FIELD)
 	public MeasureProperties getMeasurePropertyList() {
 		return measurePropertyList;
 	}
@@ -103,6 +104,7 @@ public class AssetMeasure extends Measure implements Cloneable {
 			inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetValue", nullable = false) },
 			uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetMeasure", "idMeasureAssetValue" }))
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Access(AccessType.FIELD)
 	public List<MeasureAssetValue> getMeasureAssetValues() {
 		return measureAssetValues;
 	}
@@ -213,9 +215,12 @@ public class AssetMeasure extends Measure implements Cloneable {
 		this.toCheck = toCheck;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see lu.itrust.business.TS.Measure#clone()
 	 */
 	@Override
@@ -231,15 +236,16 @@ public class AssetMeasure extends Measure implements Cloneable {
 	/**
 	 * duplicate: <br>
 	 * Description
-	 * @throws TrickException 
+	 * 
+	 * @throws TrickException
 	 *
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.Measure#duplicate()
 	 */
 	@Override
-	public AssetMeasure duplicate(AnalysisStandard analysisStandard) throws CloneNotSupportedException {
-		AssetMeasure assetMeasure = (AssetMeasure) super.duplicate(analysisStandard);
+	public AssetMeasure duplicate(AnalysisStandard analysisStandard, Phase phase) throws CloneNotSupportedException {
+		AssetMeasure assetMeasure = (AssetMeasure) super.duplicate(analysisStandard, phase);
 		assetMeasure.measureAssetValues = new ArrayList<>();
 		for (MeasureAssetValue assetValue : measureAssetValues)
 			assetMeasure.addAnMeasureAssetValue(assetValue.duplicate());

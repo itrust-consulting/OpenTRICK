@@ -17,10 +17,10 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import lu.itrust.business.exception.TrickException;
+
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
-
-import lu.itrust.business.exception.TrickException;
 
 /**
  * NormalMeasure: <br>
@@ -62,8 +62,9 @@ public class NormalMeasure extends Measure {
 	 * @return The Measure Properties List object
 	 */
 	@ManyToOne
-	@JoinColumn(name = "fiMeasureProperties", nullable = false, unique=true)
+	@JoinColumn(name = "fiMeasureProperties", nullable = false, unique = true)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Access(AccessType.FIELD)
 	public MeasureProperties getMeasurePropertyList() {
 		return measurePropertyList;
 	}
@@ -104,12 +105,10 @@ public class NormalMeasure extends Measure {
 	 * @return The List of all Asset Type Values
 	 */
 	@ManyToMany
-	@JoinTable(name = "MeasureAssetTypeValue",
-				joinColumns = { @JoinColumn(name = "fiNormalMeasure", nullable = false) }, 
-				inverseJoinColumns = { @JoinColumn(name = "fiAssetTypeValue", nullable = false) }, 
-				uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" })
-	)
+	@JoinTable(name = "MeasureAssetTypeValue", joinColumns = { @JoinColumn(name = "fiNormalMeasure", nullable = false) }, inverseJoinColumns = { @JoinColumn(name = "fiAssetTypeValue",
+			nullable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetTypeValue" }))
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Access(AccessType.FIELD)
 	public List<AssetTypeValue> getAssetTypeValues() {
 		return assetTypeValues;
 	}
@@ -220,9 +219,12 @@ public class NormalMeasure extends Measure {
 		super.setImplementationRate(implementationRate);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see lu.itrust.business.TS.Measure#clone()
 	 */
 	@Override
@@ -238,15 +240,16 @@ public class NormalMeasure extends Measure {
 	/**
 	 * duplicate: <br>
 	 * Description
-	 * @throws TrickException 
+	 * 
+	 * @throws TrickException
 	 *
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.Measure#duplicate()
 	 */
 	@Override
-	public NormalMeasure duplicate(AnalysisStandard analysisStandard) throws CloneNotSupportedException {
-		NormalMeasure normalMeasure = (NormalMeasure) super.duplicate(analysisStandard);
+	public NormalMeasure duplicate(AnalysisStandard analysisStandard, Phase phase) throws CloneNotSupportedException {
+		NormalMeasure normalMeasure = (NormalMeasure) super.duplicate(analysisStandard, phase);
 		normalMeasure.assetTypeValues = new ArrayList<>();
 		for (AssetTypeValue assetTypeValue : assetTypeValues)
 			normalMeasure.assetTypeValues.add(assetTypeValue.duplicate());

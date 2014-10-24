@@ -3,6 +3,8 @@ package lu.itrust.business.TS.actionplan;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -45,6 +47,8 @@ public class SummaryStage {
 
 	@ManyToOne
 	@JoinColumn(name = "fiActionPlanType", nullable = false)
+	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private ActionPlanType actionPlanType = null;
 
 	/** Name or Identifier of the Stage */
@@ -54,6 +58,7 @@ public class SummaryStage {
 	@OneToMany
 	@JoinColumn(name = "fiActionPlanSummary", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Access(AccessType.FIELD)
 	private List<SummaryStandardConformance> conformances = new ArrayList<SummaryStandardConformance>();
 
 	/** Percentage of AnalysisStandard 27001 Conformance for this Stage */

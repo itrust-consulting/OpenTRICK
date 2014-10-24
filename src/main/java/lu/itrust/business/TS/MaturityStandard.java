@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.exception.TrickException;
@@ -23,10 +22,6 @@ import org.hibernate.proxy.HibernateProxy;
 @Entity
 @DiscriminatorValue("MaturityStandard")
 public class MaturityStandard extends AnalysisStandard implements Cloneable {
-
-	/***********************************************************************************************
-	 * Fields declaration
-	 **********************************************************************************************/
 
 	/***********************************************************************************************
 	 * Constructors
@@ -69,6 +64,12 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 		}
 	}
 
+	/**
+	 * getLevel1Measures: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
 	public List<Measure> getLevel1Measures() {
 		List<Measure> measures = new ArrayList<Measure>();
 		for (Measure measure : super.getMeasures())

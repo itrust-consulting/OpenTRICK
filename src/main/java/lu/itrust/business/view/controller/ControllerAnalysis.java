@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisRight;
+import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.Language;
@@ -197,7 +198,7 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private Duplicator duplicator;
-	
+
 	@Value("${app.settings.report.french.template.name}")
 	private String frenchReportName;
 
@@ -657,6 +658,8 @@ public class ControllerAnalysis {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
+		Analysis copy = null;
+
 		try {
 
 			// retrieve analysis object
@@ -716,7 +719,7 @@ public class ControllerAnalysis {
 				// return error on failure
 				return errors;
 
-			Analysis copy = duplicator.duplicateAnalysis(analysis, null);
+			copy = duplicator.duplicateAnalysis(analysis, null);
 
 			copy.setBasedOnAnalysis(analysis);
 			copy.addAHistory(history);
@@ -732,14 +735,26 @@ public class ControllerAnalysis {
 			// return dubplicate error message
 			e.printStackTrace();
 			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicated!", locale));
+
+			if (copy != null)
+				removeStandardsOnError(copy.getAnalysisOnlyStandards());
+
 		} catch (TrickException e) {
+			e.printStackTrace();
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			if (copy != null)
+				removeStandardsOnError(copy.getAnalysisOnlyStandards());
 		} catch (Exception e) {
-			// return general error message
 			e.printStackTrace();
 			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate.unknown", null, "An unknown error occurred during duplication!", locale));
+			if (copy != null)
+				removeStandardsOnError(copy.getAnalysisOnlyStandards());
 		}
 		return errors;
+	}
+
+	private void removeStandardsOnError(List<AnalysisStandard> standards) {
+		// TODO remove standards in case of an error
 	}
 
 	// *****************************************************************

@@ -1,7 +1,5 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,7 +21,7 @@ import lu.itrust.business.exception.TrickException;
  */
 
 @Entity
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"fiAnalysis","dtLabel", "dtChapter"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "fiAnalysis", "dtLabel", "dtChapter" }))
 public class RiskInformation implements Cloneable {
 
 	/***********************************************************************************************
@@ -31,41 +29,41 @@ public class RiskInformation implements Cloneable {
 	 **********************************************************************************************/
 
 	/** Risk Information id */
-	@Id @GeneratedValue 
-	@Column(name="idRiskInformation")
+	@Id
+	@GeneratedValue
+	@Column(name = "idRiskInformation")
 	private int id = -1;
 
 	/** editable */
-	//@Column(name="dtEditable")
 	@Transient
 	private boolean editable;
-	
+
 	/** The Risk Information Label */
-	@Column(name="dtLabel", nullable=false)
+	@Column(name = "dtLabel", nullable = false)
 	private String label;
 
 	/** The Risk Information Exposed Value */
-	@Column(name="dtExposed", nullable=false)
+	@Column(name = "dtExposed", nullable = false)
 	private String exposed;
 
 	/** The Risk Information Comment */
-	@Column(name="dtComment", nullable=false, columnDefinition="LONGTEXT")
+	@Column(name = "dtComment", nullable = false, columnDefinition = "LONGTEXT")
 	private String comment;
 
 	/** The Risk Information Hidden Comment */
-	@Column(name="dtHiddenComment", nullable=false, columnDefinition="LONGTEXT")
+	@Column(name = "dtHiddenComment", nullable = false, columnDefinition = "LONGTEXT")
 	private String hiddenComment;
 
 	/** The Risk Information Category */
-	@Column(name="dtCategory", nullable=false)
+	@Column(name = "dtCategory", nullable = false)
 	private String category;
 
 	/** The Risk Information Chapter */
-	@Column(name="dtChapter", nullable=false)
+	@Column(name = "dtChapter", nullable = false)
 	private String chapter;
 
 	/** The Risk Information Acronym */
-	@Column(name="dtAcronym", nullable=false, length=15)
+	@Column(name = "dtAcronym", nullable = false, length = 15)
 	private String acronym;
 
 	/***********************************************************************************************
@@ -193,14 +191,11 @@ public class RiskInformation implements Cloneable {
 	 * 
 	 * @param category
 	 *            The value to set the Category
-	 * @throws TrickException 
+	 * @throws TrickException
 	 */
 	public void setCategory(String category) throws TrickException {
-		if (category == null
-				|| !category
-						.matches(Constant.REGEXP_VALID_RISKINFORMATION_TYPE))
-			throw new TrickException("error.risk_information.category.invalid",
-					"Category is empty or invalid");
+		if (category == null || !category.matches(Constant.REGEXP_VALID_RISKINFORMATION_TYPE))
+			throw new TrickException("error.risk_information.category.invalid", "Category is empty or invalid");
 		this.category = category;
 	}
 
@@ -246,9 +241,12 @@ public class RiskInformation implements Cloneable {
 		this.id = id;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -256,13 +254,21 @@ public class RiskInformation implements Cloneable {
 		return (RiskInformation) super.clone();
 	}
 
+	/**
+	 * duplicate: <br>
+	 * Description
+	 * 
+	 * @return
+	 * @throws CloneNotSupportedException
+	 */
 	public RiskInformation duplicate() throws CloneNotSupportedException {
 		RiskInformation riskInformation = (RiskInformation) super.clone();
 		riskInformation.id = -1;
 		return riskInformation;
 	}
 
-	/** isEditable: <br>
+	/**
+	 * isEditable: <br>
 	 * Returns the editable field value.
 	 * 
 	 * @return The value of the editable field
@@ -271,11 +277,12 @@ public class RiskInformation implements Cloneable {
 		return editable;
 	}
 
-	/** setEditable: <br>
+	/**
+	 * setEditable: <br>
 	 * Sets the Field "editable" with a value.
 	 * 
-	 * @param editable 
-	 * 			The Value to set the editable field
+	 * @param editable
+	 *            The Value to set the editable field
 	 */
 	public void setEditable(boolean editable) {
 		this.editable = editable;

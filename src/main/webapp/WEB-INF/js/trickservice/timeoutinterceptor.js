@@ -20,14 +20,19 @@ TimeoutInterceptor.prototype = {
 	},
 	IsAuthenticate : function() {
 		var authentificated = false;
-		$.ajax({
-			url : context + "/IsAuthenticate",
-			contentType : "application/json;charset=UTF-8",
-			async : false,
-			success : function(response) {
-				authentificated = response === true;
-			}
-		});
+		try {
+			$.ajax({
+				url : context + "/IsAuthenticate",
+				contentType : "application/json;charset=UTF-8",
+				async : false,
+				success : function(response) {
+					authentificated = response === true;
+				},
+			});
+		} catch (e) {
+			if(e["name"]==="NS_ERROR_FAILURE")
+				console.log("Server appears to be offline... Try again later!");
+		}
 		return authentificated;
 	},
 	CurrentTime : function() {
@@ -41,12 +46,11 @@ TimeoutInterceptor.prototype = {
 			if (idAnalysis != undefined)
 				url = context + "/Analysis/" + idAnalysis + "/Select";
 		}
-		if (url == undefined)
-			url = document.URL;
 
-		setTimeout(function() {
-			location.href = url;
-		}, 3000);
+		if (url == undefined)
+			url = window.location.href;
+
+		location.href = url;
 
 		return false;
 	},
@@ -118,6 +122,7 @@ TimeoutInterceptor.prototype = {
 			$.ajaxSetup({
 				beforeSend : function(jqXHR, options) {
 					that.Update();
+					//console.log(options.url);
 					if (!options.url.match("/IsAuthenticate$")) {
 						if (!that.IsAuthenticate())
 							that.ShowLogin();

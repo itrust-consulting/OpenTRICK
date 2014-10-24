@@ -335,9 +335,6 @@ public class ControllerAsset {
 					? customLocale : locale));
 				return errors;
 			}
-			// create assessments for the new asset and save asset and
-			// Assessments into analysis
-			assessmentManager.build(asset, idAnalysis);
 
 			// check if asset is to be created (new)
 
@@ -349,6 +346,11 @@ public class ControllerAsset {
 				assessmentManager.selectAsset(asset);
 			else
 				assessmentManager.unSelectAsset(asset);
+
+			// create assessments for the new asset and save asset and
+			// Assessments into analysis
+			assessmentManager.build(asset, idAnalysis);
+
 		} catch (TrickException e) {
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis != null) {
@@ -389,11 +391,11 @@ public class ControllerAsset {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
-		
+
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-		
+
 		// generate chart of assets for this analysis
-		return chartGenerator.aleByAsset(idAnalysis, customLocale!=null?customLocale:locale);
+		return chartGenerator.aleByAsset(idAnalysis, customLocale != null ? customLocale : locale);
 	}
 
 	/**
@@ -418,7 +420,7 @@ public class ControllerAsset {
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 
 		// generate chart of assets for this analysis
-		return chartGenerator.aleByAssetType(idAnalysis, customLocale!=null?customLocale:locale);
+		return chartGenerator.aleByAssetType(idAnalysis, customLocale != null ? customLocale : locale);
 	}
 
 	/**

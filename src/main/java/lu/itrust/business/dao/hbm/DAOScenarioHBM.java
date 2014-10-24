@@ -186,9 +186,31 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 		getSession().delete(scenario);
 	}
 
+	/**
+	 * getAnalysisIdFromScenario: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.dao.DAOScenario#getAnalysisIdFromScenario(java.lang.Integer)
+	 */
 	@Override
 	public Integer getAnalysisIdFromScenario(Integer scenarioId) throws Exception {
 		return (Integer) getSession().createQuery("SELECT analysis.id From Analysis analysis join analysis.scenarios scenario where scenario.id = :scenarioId").setParameter("scenarioId", scenarioId)
 				.uniqueResult();
+	}
+
+	/**
+	 * exist: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.dao.DAOScenario#exist(java.lang.Integer, java.lang.String)
+	 */
+	@Override
+	public boolean exist(Integer idAnalysis, String name) throws Exception {
+		String query = "Select count(scenario) From Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisId and scenario.name = :scenario";
+		return ((Long) getSession().createQuery(query).setParameter("analysisId", idAnalysis).setParameter("scenario", name).uniqueResult()).intValue() > 0;
 	}
 }

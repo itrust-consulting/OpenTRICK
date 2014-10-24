@@ -220,6 +220,28 @@ function createAnalysisProfile(analysisId, section_analysis) {
 				$(analysisProfile).on('hidden.bs.modal', function() {
 					$(analysisProfile).remove();
 				});
+
+				var allVal = new Array();
+
+				$('#analysisProfileform .list-group-item.active').each(function() {
+					allVal.push($(this).attr('opt'));
+				});
+
+				$('#standards').val(allVal);
+
+				$('#analysisProfileform .list-group-item').on('click', function() {
+					$(this).toggleClass('active');
+					if ($(this).hasClass("active"))
+						$(this).css("border", "1px solid #dddddd");
+					else
+						$(this).css("border", "");
+					allVal = new Array();
+					$('#analysisProfileform .list-group-item.active').each(function() {
+						allVal.push($(this).attr('opt'));
+					});
+					$('#standards').val(allVal);
+				});
+
 				$(analysisProfile).modal("toggle");
 
 			},
@@ -230,16 +252,64 @@ function createAnalysisProfile(analysisId, section_analysis) {
 }
 
 function saveAnalysisProfile(form) {
+
+	var data = {};
+
+	var id = $("#" + form).find("#id").val();
+
+	var description = $("#" + form).find("#name").val();
+
+	data["id"] = id;
+
+	data["description"] = description;
+
+	$("#" + form).find("select[name='standards'] option").each(function() {
+
+		var name = $(this).attr("value");
+
+		var value = $(this).is(":checked");
+
+		data[name] = value;
+
+	});
+
+	var jsonarray = JSON.stringify(data);
+
 	$.ajax({
 		url : context + "/AnalysisProfile/Save",
 		type : "post",
+		data : jsonarray,
+		contentType : "application/json;charset=UTF-8",
 		aync : true,
-		data : $("#" + form).serialize(),
 		success : function(response) {
-			if (response.flag != undefined) {
+
+			var alert = $("#analysisProfileform .label-danger");
+			if (alert.length)
+				alert.remove();
+			for ( var error in response) {
+				if (error === "taskid")
+					continue;
+				var errorElement = document.createElement("label");
+				errorElement.setAttribute("class", "label label-danger");
+
+				$(errorElement).text(response[error]);
+				switch (error) {
+				case "description":
+					$(errorElement).appendTo($("#analysisProfileform #name").parent());
+					break;
+				case "analysisprofile":
+				default:
+					$(errorElement).appendTo($("#analysisProfileform").parent());
+					break;
+				}
+			}
+
+			if (!$("#analysisProfileform .label-danger").length) {
 				var progressBar = new ProgressBar();
 				progressBar.Initialise();
 				$(progressBar.progress).appendTo($("#" + form).parent());
+				$(progressBar.progress).css("width", "100%");
+				$(progressBar.progress).css("display", "inline-block");
 				callback = {
 					failed : function() {
 						progressBar.Destroy();
@@ -248,20 +318,18 @@ function saveAnalysisProfile(form) {
 						$("#alert-dialog").modal("toggle");
 					},
 					success : function() {
-						progressBar.Destroy();
-						$("#analysisProfileModal").modal("toggle");
+						setTimeout(function() {
+							progressBar.Destroy();
+							$("#analysisProfileModal").modal("toggle");
+						}, 2000);
+
 					}
 				};
 				progressBar.OnComplete(callback.success);
-				updateStatus(progressBar, response.taskID, callback, response);
-			} else {
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(response, "text/html");
-				if ((error = $(doc).find("#analysisProfileModal")).length) {
-					$("#analysisProfileModal .modal-body").html($(error).find(".modal-body"));
-					return false;
-				}
+				updateStatus(progressBar, response["taskid"], callback, undefined);
 			}
+			return false;
+
 		},
 		error : unknowError
 	});

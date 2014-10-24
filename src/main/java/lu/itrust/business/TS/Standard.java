@@ -1,7 +1,5 @@
 package lu.itrust.business.TS;
 
-import java.io.Serializable;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -11,10 +9,12 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.exception.TrickException;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 /**
  * Standard: <br>
@@ -53,11 +53,11 @@ public class Standard implements Cloneable {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtType", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cascade(CascadeType.SAVE_UPDATE)
 	private StandardType type = null;
 
 	/** Standard available for actionplan computation */
 	@Column(name = "dtComputable", nullable = false, columnDefinition = "TINYINT(1)")
-	@Access(AccessType.FIELD)
 	private boolean computable = true;
 
 	@Column(name = "dtAnalysisOnly", nullable = false, columnDefinition = "TINYINT(1)")
@@ -182,9 +182,12 @@ public class Standard implements Cloneable {
 		this.type = StandardType.getByName(name.trim());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * hashCode: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -199,9 +202,12 @@ public class Standard implements Cloneable {
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * equals: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -226,9 +232,12 @@ public class Standard implements Cloneable {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * toString: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -236,9 +245,12 @@ public class Standard implements Cloneable {
 		return "Standard [id=" + id + ", label=" + label + ", version=" + version + ", description=" + description + ", computable=" + computable + "]";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * clone: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -246,10 +258,12 @@ public class Standard implements Cloneable {
 		return (Standard) super.clone();
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * duplicate: <br>
+	 * Description
 	 * 
-	 * @see java.lang.Object#clone()
+	 * @return
+	 * @throws CloneNotSupportedException
 	 */
 	public Standard duplicate() throws CloneNotSupportedException {
 		Standard standard = (Standard) super.clone();
