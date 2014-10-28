@@ -25,6 +25,7 @@ import lu.itrust.business.TS.NormalStandard;
 import lu.itrust.business.TS.Parameter;
 import lu.itrust.business.TS.Phase;
 import lu.itrust.business.TS.Standard;
+import lu.itrust.business.TS.StandardType;
 import lu.itrust.business.TS.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.actionplan.SummaryStage;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -81,6 +82,12 @@ public class MeasureManager {
 
 	@Autowired
 	private CustomDelete customDelete;
+
+	public static StandardType getStandardType(Analysis analysis, String standard) {
+
+		StandardType standardType = analysis.getAnalysisStandardByLabel(standard).getStandard().getType();
+		return standardType;
+	}
 
 	/**
 	 * SplitByStandard: <br>

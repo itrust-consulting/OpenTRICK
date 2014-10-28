@@ -158,6 +158,8 @@ public class ControllerAnalysisStandard {
 		if (idAnalysis == null)
 			return null;
 
+		model.addAttribute("analysis", serviceAnalysis.get(idAnalysis));
+
 		// add measures of the analysis
 		model.addAttribute("measures", serviceMeasure.getAllFromAnalysis(idAnalysis));
 
