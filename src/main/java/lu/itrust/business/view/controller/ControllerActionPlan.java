@@ -117,7 +117,7 @@ public class ControllerActionPlan {
 		model.put("language", serviceAnalysis.getLanguageOfAnalysis(selected).getAlpha3());
 
 		// return view
-		return "analysis/components/actionplan";
+		return "analyses/singleAnalysis/components/actionplan";
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class ControllerActionPlan {
 			model.put("actionplans", actionplans);
 
 		// return view
-		return "analysis/components/actionplan";
+		return "analyses/singleAnalysis/components/actionplan";
 	}
 
 	/**
@@ -186,7 +186,7 @@ public class ControllerActionPlan {
 
 		model.put("standards", serviceAnalysisStandard.getAllComputableFromAnalysis(analysisID));
 
-		return "analysis/components/forms/actionplanoptions";
+		return "analyses/singleAnalysis/components/forms/actionplanoptions";
 	}
 
 	/**

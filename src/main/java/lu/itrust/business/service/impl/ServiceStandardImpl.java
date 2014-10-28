@@ -46,7 +46,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * getStandardByName: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.service.ServiceStandard#getStandardByName(java.lang.String)
 	 */
@@ -59,7 +59,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * getStandardNotCustomByName: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.service.ServiceStandard#getStandardNotCustomByName(java.lang.String)
 	 */
@@ -72,9 +72,10 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * getStandardByNameAndVersion: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
-	 * @see lu.itrust.business.service.ServiceStandard#getStandardByNameAndVersion(java.lang.String, int)
+	 * @see lu.itrust.business.service.ServiceStandard#getStandardByNameAndVersion(java.lang.String,
+	 *      int)
 	 */
 	@Override
 	public Standard getStandardByNameAndVersion(String label, int version) throws Exception {
@@ -85,7 +86,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * existsByNameAndVersion: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.service.ServiceStandard#existsByNameAndVersion(java.lang.String, int)
 	 */
@@ -98,7 +99,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * getAll: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.service.ServiceStandard#getAll()
 	 */
@@ -111,7 +112,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * getAllFromAnalysis: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.service.ServiceStandard#getAllFromAnalysis(java.lang.Integer)
 	 */
@@ -124,7 +125,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * getAllFromAnalysis: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.service.ServiceStandard#getAllFromAnalysis(lu.itrust.business.TS.Analysis)
 	 */
@@ -137,7 +138,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * getAllNotInAnalysis: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.service.ServiceStandard#getAllNotInAnalysis(java.lang.Integer)
 	 */
@@ -150,7 +151,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * save: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.service.ServiceStandard#save(lu.itrust.business.TS.Standard)
 	 */
@@ -164,7 +165,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * saveOrUpdate: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.service.ServiceStandard#saveOrUpdate(lu.itrust.business.TS.Standard)
 	 */
@@ -178,7 +179,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 * delete: <br>
 	 * Description
 	 *
-	 * @{tags}
+	 * @{tags
 	 *
 	 * @see lu.itrust.business.service.ServiceStandard#delete(lu.itrust.business.TS.Standard)
 	 */
@@ -187,7 +188,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	public void delete(Standard standard) throws Exception {
 		daoStandard.delete(standard);
 	}
-	
+
 	@Transactional
 	@Override
 	public List<Standard> getAllNotBoundToAnalysis() throws Exception {
@@ -206,9 +207,16 @@ public class ServiceStandardImpl implements ServiceStandard {
 		return daoStandard.getAllFromAnalysisNotBound(analysisId);
 	}
 
+	@Transactional
 	@Override
-	public Integer getBiggestVersionFromStandardByNameAndType(String label, StandardType standardType) throws Exception{
+	public Integer getBiggestVersionFromStandardByNameAndType(String label, StandardType standardType) throws Exception {
 		return daoStandard.getBiggestVersionFromStandardByNameAndType(label, standardType);
 	}
-	
+
+	@Transactional
+	@Override
+	public boolean existsByNameVersionType(String label, Integer version, StandardType type) throws Exception {
+		return daoStandard.existsByNameVersionType(label, version, type);
+	}
+
 }

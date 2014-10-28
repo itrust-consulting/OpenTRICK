@@ -47,21 +47,22 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
-				<h4 class="modal-title">
+				<h4 class="modal-title" id="createstandardtitle">
 					<fmt:message key="label.title.analysis.manage_standard.create" />
 				</h4>
 			</div>
 			<div class="modal-body">
 				<form name="standard" action="/Create" class="form-horizontal" id="standard_form" method="post">
+					<input type="hidden" value="-1" name="id" id="id">
 					<div class="form-group">
-						<label for="label" class="col-sm-2 control-label"> <spring:message code="label.norm.label" text="Name" />
+						<label for="label" class="col-sm-2 control-label"> <fmt:message key="label.norm.label" />
 						</label>
 						<div class="col-sm-10">
 							<input name="label" id="standard_label" class="form-control" type="text" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="description" class="col-sm-2 control-label"> <spring:message code="label.norm.description" text="Description" />
+						<label for="description" class="col-sm-2 control-label"> <fmt:message key="label.norm.description" />
 						</label>
 						<div class="col-sm-10">
 							<input name="description" id="standard_description" class="form-control" type="text" />
@@ -69,26 +70,27 @@
 					</div>
 					<div class="panel panel-primary">
 						<div class="panel-body">
-							<label class="col-sm-12 text-center"><spring:message code="label.norm.standard_type" text="Standard Type" /></label> <label class="radio-inline col-sm-4"
-								style="margin-left: 0;"> <input type="radio" name="type" value="NORMAL"> <spring:message code="label.norm.standard_type.normal" text="Normal" /></label> <label
-								class="radio-inline col-sm-4" style="margin-left: 0;"> <input type="radio" name="type" value="MATURITY"> <spring:message
-									code="label.norm.standard_type.maturity" text="Maturity" /></label> <label class="radio-inline col-sm-4" style="margin-left: 0;"> <input type="radio" name="type"
-								value="ASSET"> <spring:message code="label.norm.standard_type.asset" text="Asset" /></label>
+							<label class="col-sm-12 text-center"><fmt:message key="label.norm.standard_type" /></label> <label class="radio-inline col-sm-4" style="margin-left: 0;"> <input
+								type="radio" name="type" value="NORMAL"> <fmt:message key="label.norm.standard_type.normal" /></label> <label class="radio-inline col-sm-4" style="margin-left: 0;">
+								<input type="radio" name="type" value="MATURITY"> <fmt:message key="label.norm.standard_type.maturity" />
+							</label> <label class="radio-inline col-sm-4" style="margin-left: 0;"> <input type="radio" name="type" value="ASSET"> <fmt:message
+									key="label.norm.standard_type.asset" /></label>
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="computable" class="col-sm-2 control-label"> <spring:message code="label.norm.computable" text="Computable" />
+						<label for="computable" class="col-sm-2 control-label"> <fmt:message key="label.norm.computable" />
 						</label>
 						<div class="col-sm-10">
 							<input name="computable" id="standard_computable" class="form-control" type="checkbox" />
 						</div>
 					</div>
-					<button id="createstandardbutton" type="button" class="btn btn-primary" onclick="doCreateStandard('standard_form')">
-						<spring:message code="label.action.create" text="Add" />
-					</button>
 				</form>
 			</div>
-			<div class="modal-footer" style="margin-top: 0;"></div>
+			<div class="modal-footer" style="margin-top: 0;">
+				<button id="createstandardbutton" type="button" class="btn btn-primary" onclick="doCreateStandard('standard_form')">
+					<fmt:message key="label.action.create" />
+				</button>
+			</div>
 		</div>
 	</div>
 </div>
@@ -98,7 +100,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<spring:message code="lable.title.delete.standard" text="Remove a standard" />
+					<fmt:message key="lable.title.delete.standard" />
 				</h4>
 			</div>
 			<div id="deleteStandardBody" class="modal-body">Your question here...</div>
@@ -110,10 +112,10 @@
 				</div>
 				<div class="col-sm-4">
 					<button id="deletestandardbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal">
-						<spring:message code="label.action.yes" text="Yes" />
+						<fmt:message key="label.action.yes" />
 					</button>
 					<button id="deletestandardbuttonCancel" type="button" class="btn" data-dismiss="modal">
-						<spring:message code="label.action.cancel" text="Cancel" />
+						<fmt:message key="label.action.cancel" />
 					</button>
 				</div>
 			</div>

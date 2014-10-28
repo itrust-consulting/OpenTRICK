@@ -34,7 +34,6 @@ import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.UserAnalysisRight;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.tsconstant.Constant;
-import lu.itrust.business.component.helper.AnalysisProfile;
 import lu.itrust.business.dao.DAOAnalysis;
 import lu.itrust.business.dao.DAOAnalysisStandard;
 import lu.itrust.business.dao.DAOMeasureDescription;
@@ -212,7 +211,7 @@ public class Duplicator {
 		} else {
 			Standard standard = analysisStandard.getStandard().duplicate();
 
-			standard.setVersion(standard.getVersion() + 1);
+			standard.setVersion(daoStandard.getBiggestVersionFromStandardByNameAndType(standard.getLabel(), standard.getType()) + 1);
 
 			// daoStandard.save(standard);
 

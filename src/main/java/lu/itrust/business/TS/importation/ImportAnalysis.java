@@ -528,9 +528,9 @@ public class ImportAnalysis {
 			// * create language object
 			// ****************************************************************
 			language = new Language();
-			language.setAlpha3(acroLanguage);
-			language.setName(acroLanguage);
-			language.setAltName(acroLanguage);
+			language.setAlpha3("ENG");
+			language.setName("English");
+			language.setAltName("Anglais");
 			// daoLanguage.save(language);
 		}
 

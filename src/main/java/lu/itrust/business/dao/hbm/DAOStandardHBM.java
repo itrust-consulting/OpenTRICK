@@ -241,4 +241,10 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 				.setParameter("type", standardType).uniqueResult();
 	}
 
+	@Override
+	public boolean existsByNameVersionType(String label, Integer version, StandardType type) throws Exception {
+		return ((Long) getSession().createQuery("select count(*) from Standard where label = :label and version = :version and type = :type").setParameter("label", label).setParameter("version",
+				version).setParameter("type", type).uniqueResult()).intValue() != 0;
+	}
+
 }

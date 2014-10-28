@@ -7,17 +7,17 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <c:set scope="request" var="title">label.title.analyses</c:set>
 <html>
-<jsp:include page="../header.jsp" />
+<jsp:include page="../../header.jsp" />
 <body data-spy="scroll" data-target="#analysismenu" data-offset="40">
 	<div id="wrap">
-		<jsp:include page="../menu.jsp" />
+		<jsp:include page="../../menu.jsp" />
 		<div class="container">
 			<div class="section" id="section_analysis">
 				<div class="page-header">
 					<h1>
 						<spring:message code="label.title.all_analyses" text="All Analyses" />
 					</h1>
-					<jsp:include page="../successErrors.jsp" />
+					<jsp:include page="../../successErrors.jsp" />
 				</div>
 				<div class="panel panel-default">
 					<div class="panel-heading" style="min-height: 60px">
@@ -99,8 +99,8 @@
 			</div>
 		</div>
 		<jsp:include page="widgets.jsp" />
-		<jsp:include page="../footer.jsp" />
-		<jsp:include page="../scripts.jsp" />
+		<jsp:include page="../../footer.jsp" />
+		<jsp:include page="../../scripts.jsp" />
 		<script type="text/javascript" src="<spring:url value="js/trickservice/analyses.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/jquery.fileDownload.js" />"></script>
 	</div>

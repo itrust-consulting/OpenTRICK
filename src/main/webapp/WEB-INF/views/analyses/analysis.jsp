@@ -6,8 +6,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <c:if test="${empty(sessionScope.selectedAnalysis)}">
-	<jsp:include page="analyses.jsp" />
+	<jsp:include page="allAnalyses/analyses.jsp" />
 </c:if>
 <c:if test="${!empty(sessionScope.selectedAnalysis)}">
-	<jsp:include page="selectedAnalysis.jsp" />
+	<jsp:include page="singleAnalysis/selectedAnalysis.jsp" />
 </c:if>

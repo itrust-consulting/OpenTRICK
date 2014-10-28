@@ -81,7 +81,7 @@ public class ControllerSummary {
 		// add actionplan summaries
 		model.addAttribute("summaries", serviceActionPlanSummary.getAllFromAnalysis(idAnalysis));
 
-		return "analysis/components/summary";
+		return "analyses/singleAnalysis/components/summary";
 	}
 
 	/**

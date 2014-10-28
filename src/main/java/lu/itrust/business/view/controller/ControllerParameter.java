@@ -63,7 +63,7 @@ public class ControllerParameter {
 		// add parameters to model
 		model.addAttribute("parameters", serviceParameter.getAllFromAnalysis(idAnalysis));
 
-		return "analysis/components/parameter";
+		return "analyses/singleAnalysis/components/parameter";
 	}
 
 	/**

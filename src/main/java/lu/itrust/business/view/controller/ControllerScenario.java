@@ -261,7 +261,7 @@ public class ControllerScenario {
 		model.addAttribute("scenarios", scenarios);
 		model.addAttribute("scenarioALE", AssessmentManager.ComputeScenarioALE(scenarios, assessments));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
-		return "analysis/components/scenario/scenario";
+		return "analyses/singleAnalysis/components/scenario/scenario";
 	}
 
 	@RequestMapping(value = "/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
@@ -288,7 +288,7 @@ public class ControllerScenario {
 	public String add(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("scenariotypes", serviceScenarioType.getAll());
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
-		return "analysis/components/scenario/manageScenario";
+		return "analyses/singleAnalysis/components/scenario/manageScenario";
 	}
 
 	/**
@@ -315,7 +315,7 @@ public class ControllerScenario {
 		// add scenario to model
 		model.addAttribute("scenario", serviceScenario.getFromAnalysisById(idAnalysis, elementID));
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
-		return "analysis/components/scenario/manageScenario";
+		return "analyses/singleAnalysis/components/scenario/manageScenario";
 	}
 
 	@RequestMapping(value = "/Delete/AssetTypeValueDuplication", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")

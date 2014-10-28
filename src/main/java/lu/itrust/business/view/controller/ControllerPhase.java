@@ -77,7 +77,7 @@ public class ControllerPhase {
 		// add phases of this analysis
 		model.addAttribute("phases", servicePhase.getAllFromAnalysis(integer));
 
-		return "analysis/components/phase/phase";
+		return "analyses/singleAnalysis/components/phase/phase";
 	}
 
 	/**

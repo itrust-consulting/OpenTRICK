@@ -1028,7 +1028,7 @@ public class ControllerEditField {
 	 * @param session
 	 * @param locale
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Measure/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
@@ -1130,7 +1130,7 @@ public class ControllerEditField {
 	 * @param session
 	 * @param locale
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/SOA/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
@@ -1205,7 +1205,7 @@ public class ControllerEditField {
 	 * @param session
 	 * @param locale
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/MaturityMeasure/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
@@ -1298,7 +1298,7 @@ public class ControllerEditField {
 	 * @param locale
 	 * @param principal
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/ActionPlanEntry/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'ActionPlanEntry', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
@@ -1372,7 +1372,7 @@ public class ControllerEditField {
 	 * @param session
 	 * @param locale
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Phase/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Phase', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
@@ -1429,7 +1429,7 @@ public class ControllerEditField {
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 			// check if analysis exist
-			if (idAnalysis== null)
+			if (idAnalysis == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
 
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
@@ -1540,6 +1540,14 @@ public class ControllerEditField {
 		return null;
 	}
 
+	/**
+	 * FindField: <br>
+	 * Description
+	 * 
+	 * @param object
+	 * @param fieldName
+	 * @return
+	 */
 	public static Field FindField(Class<?> object, String fieldName) {
 		for (Field field : object.getDeclaredFields())
 			if (field.getName().equals(fieldName))

@@ -106,7 +106,7 @@ public class ControllerRiskRegister {
 		model.put("riskregister", riskregister);
 
 		// return view
-		return "analysis/components/riskregister";
+		return "analyses/singleAnalysis/components/riskregister";
 	}
 
 	/**
@@ -144,8 +144,7 @@ public class ControllerRiskRegister {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Compute", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody
-	String computeRiskRegister(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
+	public @ResponseBody String computeRiskRegister(HttpSession session, Principal principal, Locale locale, @RequestBody String value) throws Exception {
 
 		// prepare permission verifier
 		PermissionEvaluator permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis, serviceUserAnalysisRight);

@@ -8,9 +8,9 @@
 <fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 <c:set scope="request" var="title">label.title.analysis</c:set>
 <html>
-<jsp:include page="../header.jsp" />
+<jsp:include page="../../header.jsp" />
 <body data-spy="scroll" data-target="#analysismenu" data-offset="40">
-	<jsp:include page="../scripts.jsp" />
+	<jsp:include page="../../scripts.jsp" />
 	<script src="<spring:url value="js/trickservice/analysis.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/highcharts.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>
@@ -29,11 +29,11 @@
 		<script type="text/javascript" src="<spring:url value="js/trickservice/analysisStandard.js" />"></script>
 	</c:if>
 	<div id="wrap">
-		<jsp:include page="../menu.jsp" />
+		<jsp:include page="../../menu.jsp" />
 		<div class="container">
 			<spring:eval expression="T(lu.itrust.business.component.MeasureManager).ConcatMeasure(analysis.analysisStandards)" var="measures" scope="request" />
 			<jsp:include page="analysisMenu.jsp" />
-			<jsp:include page="../successErrors.jsp" />
+			<jsp:include page="../../successErrors.jsp" />
 			<div id="nav-container" trick-id="${analysis.id}" trick-class="Analysis" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}"
 				trick-language="${fn:substring(analysis.language.alpha3,0,2)}">
 				<c:if test="${!analysis.isProfile()}">
@@ -79,7 +79,7 @@
 			</div>
 			<jsp:include page="./components/widgets.jsp" />
 		</div>
-		<jsp:include page="../footer.jsp" />
+		<jsp:include page="../../footer.jsp" />
 	</div>
 </body>
 </html>

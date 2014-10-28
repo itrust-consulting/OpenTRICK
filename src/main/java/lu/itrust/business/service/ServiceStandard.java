@@ -25,6 +25,8 @@ public interface ServiceStandard {
 
 	public boolean existsByNameAndVersion(String label, int version) throws Exception;
 
+	public boolean existsByNameVersionType(String label, Integer version, StandardType type) throws Exception;
+	
 	public List<Standard> getAll() throws Exception;
 
 	public List<Standard> getAllFromAnalysis(Integer analysisId) throws Exception;

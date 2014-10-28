@@ -41,7 +41,7 @@
 						<label><spring:message code="label.signin.rememberMe" text="Remember me" /> <input type='checkbox' name='_spring_security_remember_me' /></label>
 					</div> -->
 					<div class="form-group">
-						<button type="submit" id="login_signin_button" class="btn btn-default navbar-btn">
+						<button type="submit" id="login_signin_button" class="btn btn-danger navbar-btn" style="width:100%;">
 							<spring:message code="label.action.signin" text="Sign in" />
 						</button>
 					</div>

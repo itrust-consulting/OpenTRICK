@@ -80,7 +80,7 @@ public class ControllerRRF {
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
 		Language language = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
 		model.addAttribute("language", language.getAlpha3());
-		return "analysis/components/forms/rrfEditor";
+		return "analyses/singleAnalysis/components/forms/rrfEditor";
 	}
 
 	@RequestMapping(value = "/Scenario/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")

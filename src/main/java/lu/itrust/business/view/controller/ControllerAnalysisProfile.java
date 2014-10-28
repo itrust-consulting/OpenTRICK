@@ -14,11 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import lu.itrust.business.TS.AnalysisRight;
 import lu.itrust.business.TS.AnalysisStandard;
-import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
-import lu.itrust.business.component.helper.AnalysisProfile;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
 import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.service.ServiceAnalysis;
@@ -97,7 +95,7 @@ public class ControllerAnalysisProfile {
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
 		model.addAttribute("analysisStandards", analysisStandards);
 		model.addAttribute("id", analysisId);
-		return "analysis/forms/createProfile";
+		return "analyses/allAnalyses/forms/createProfile";
 	}
 
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")

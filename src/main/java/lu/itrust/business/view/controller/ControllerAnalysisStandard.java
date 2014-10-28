@@ -160,7 +160,7 @@ public class ControllerAnalysisStandard {
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3());
 
-		return "analysis/components/standards/standard/standards";
+		return "analyses/singleAnalysis/components/standards/standard/standards";
 	}
 
 	/**
@@ -188,7 +188,7 @@ public class ControllerAnalysisStandard {
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3());
 
-		return "analysis/components/standards/standard/standards";
+		return "analyses/singleAnalysis/components/standards/standard/standards";
 	}
 
 	/**
@@ -236,7 +236,7 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("measure", measure);
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
 
-		return "analysis/components/standards/measure/singleMeasure";
+		return "analyses/singleAnalysis/components/standards/measure/singleMeasure";
 	}
 
 	/**
@@ -330,7 +330,7 @@ public class ControllerAnalysisStandard {
 
 		model.addAttribute("measures", serviceMeasure.getSOAMeasuresFromAnalysis(idAnalysis));
 
-		return "analysis/components/soa";
+		return "analyses/singleAnalysis/components/soa";
 	}
 
 	@RequestMapping(value = "/Manage", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
@@ -338,7 +338,7 @@ public class ControllerAnalysisStandard {
 	public String manageForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
-		return "analysis/components/standards/standard/manageForm";
+		return "analyses/singleAnalysis/components/standards/standard/manageForm";
 	}
 
 	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
@@ -434,6 +434,60 @@ public class ControllerAnalysisStandard {
 
 			errors.put("success", messageSource.getMessage("success.analysis.create.standard", null, "The standard was successfully created", customLocale != null ? customLocale : locale));
 
+		} catch (TrickException e) {
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis != null) {
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), customLocale != null ? customLocale : locale));
+			} else
+				errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			e.printStackTrace();
+			return errors;
+		} catch (Exception e) {
+			e.printStackTrace();
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis != null) {
+				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+				errors.put("standard", messageSource.getMessage(e.getMessage(), null, customLocale != null ? customLocale : locale));
+			} else
+				errors.put("standard", messageSource.getMessage(e.getMessage(), null, locale));
+			e.printStackTrace();
+			return errors;
+		}
+		return errors;
+	}
+
+	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody Map<String, String> updateStandard(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale)
+			throws Exception {
+		Map<String, String> errors = new LinkedHashMap<String, String>();
+
+		try {
+
+			// retrieve analysis id
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis == null) {
+				errors.put("standard", messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
+				return errors;
+			}
+
+			Analysis analysis = serviceAnalysis.get(idAnalysis);
+
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+
+			// create new standard object
+			Standard standard = null;
+
+			// build standard
+			buildStandard(errors, standard, value, customLocale != null ? customLocale : locale, analysis);
+
+			if (!errors.isEmpty())
+				// return error on failure
+				return errors;
+
+			serviceStandard.saveOrUpdate(standard);
+			
 		} catch (TrickException e) {
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis != null) {
@@ -606,11 +660,10 @@ public class ControllerAnalysisStandard {
 			}
 			Collections.sort(mesDescs, new ComparatorMeasureDescription());
 			// put data to model
-			model.addAttribute("languages", new ArrayList<Language>());
 			model.addAttribute("standard", serviceStandard.get(idStandard));
 			model.addAttribute("measureDescriptions", mesDescs);
 		}
-		return "knowledgebase/standards/measure/measures";
+		return "analyses/singleAnalysis/components/standards/measure/measures";
 	}
 
 	@RequestMapping(value = "/{idStandard}/Measure/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
@@ -724,7 +777,7 @@ public class ControllerAnalysisStandard {
 		List<Analysis> profiles = serviceAnalysis.getAllProfileContainsStandard(standards);
 		model.addAttribute("idStandards", idStandards);
 		model.addAttribute("profiles", profiles);
-		return "analysis/components/forms/importMeasureCharacteristics";
+		return "analyses/singleAnalysis/components/forms/importMeasureCharacteristics";
 
 	}
 
@@ -874,6 +927,17 @@ public class ControllerAnalysisStandard {
 			if (validator == null)
 				serviceDataValidation.register(validator = new StandardValidator());
 
+			Integer id = jsonNode.get("id").asInt();
+
+			if (id > 0)
+				standard = serviceStandard.get(id);
+			else
+				standard = new Standard();
+
+			String prevlabel = standard.getLabel();
+
+			StandardType prevtype = standard.getType();
+
 			String label = jsonNode.get("label").asText();
 
 			String description = jsonNode.get("description").asText();
@@ -904,8 +968,19 @@ public class ControllerAnalysisStandard {
 			// set computable flag
 			standard.setComputable(jsonNode.get("computable").asText().equals("on"));
 
-			standard.setAnalysisOnly(true);
+			if (label != prevlabel || type != prevtype) {
 
+				if (serviceStandard.existsByNameVersionType(label, 1, type)) {
+
+					Integer version = serviceStandard.getBiggestVersionFromStandardByNameAndType(label, type);
+					if (version == null)
+						version = 0;
+
+					standard.setVersion(version + 1);
+				} else
+					standard.setVersion(1);
+
+			}
 			// return success
 			return errors.isEmpty();
 

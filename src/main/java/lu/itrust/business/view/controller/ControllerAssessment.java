@@ -455,7 +455,7 @@ public class ControllerAssessment {
 		asset.setALEO(aleo.getValue());
 		asset.setALEP(alep.getValue());
 		serviceAsset.saveOrUpdate(asset);
-		return "analysis/components/assessment/assessmentAsset";
+		return "analyses/singleAnalysis/components/assessment/assessmentAsset";
 	}
 
 	/**
@@ -484,6 +484,6 @@ public class ControllerAssessment {
 		if (sort)
 			Collections.sort(assessments, new AssessmentComparator());
 		model.addAttribute("assessments", assessments);
-		return "analysis/components/assessment/assessmentScenario";
+		return "analyses/singleAnalysis/components/assessment/assessmentScenario";
 	}
 }

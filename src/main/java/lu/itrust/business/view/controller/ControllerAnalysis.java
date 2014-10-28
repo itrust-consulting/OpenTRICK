@@ -284,7 +284,7 @@ public class ControllerAnalysis {
 			model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 			model.addAttribute("login", principal.getName());
 		}
-		return "analysis/analysis";
+		return "analyses/analysis";
 	}
 
 	// *****************************************************************
@@ -304,7 +304,7 @@ public class ControllerAnalysis {
 		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
 
-		return "analysis/analyses";
+		return "analyses/allAnalyses/analyses";
 	}
 
 	/**
@@ -325,7 +325,7 @@ public class ControllerAnalysis {
 		model.addAttribute("customer", customerSection);
 		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
-		return "analysis/analyses";
+		return "analyses/allAnalyses/analyses";
 	}
 
 	// *****************************************************************
@@ -432,7 +432,7 @@ public class ControllerAnalysis {
 			else
 				return "redirect:/Analysis";
 		}
-		return "redirect:/home";
+		return "redirect:/Home";
 
 	}
 
@@ -475,7 +475,7 @@ public class ControllerAnalysis {
 			// add the analysis object
 			model.put("analysis", analysis);
 
-			return "analysis/forms/editAnalysis";
+			return "analyses/allAnalyses/forms/editAnalysis";
 		}
 
 		throw new AccessDeniedException(messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
@@ -638,7 +638,7 @@ public class ControllerAnalysis {
 		model.put("analysisId", analysisId);
 		model.put("author", author);
 
-		return "analysis/forms/newVersion";
+		return "analyses/allAnalyses/forms/newVersion";
 	}
 
 	/**
@@ -742,14 +742,14 @@ public class ControllerAnalysis {
 		} catch (TrickException e) {
 			e.printStackTrace();
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			if (copy != null)
-				removeStandardsOnError(copy.getAnalysisOnlyStandards());
 		} catch (Exception e) {
 			e.printStackTrace();
 			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate.unknown", null, "An unknown error occurred during duplication!", locale));
-			if (copy != null)
+		}finally {
+			if(!errors.isEmpty() && copy !=null)
 				removeStandardsOnError(copy.getAnalysisOnlyStandards());
 		}
+				
 		return errors;
 	}
 
@@ -775,7 +775,7 @@ public class ControllerAnalysis {
 
 		// add the customers of the user to the data model
 		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
-		return "analysis/importAnalysis";
+		return "analyses/importAnalysis";
 	}
 
 	/**
@@ -801,7 +801,7 @@ public class ControllerAnalysis {
 		// if the customer or the file are not correct
 		if (customer == null || file.isEmpty()) {
 			attributes.addFlashAttribute("errors", messageSource.getMessage("error.customer_or_file.import.analysis", null, "Customer or file are not set or empty!", locale));
-			return "analysis/importAnalysis";
+			return "analyses/importAnalysis";
 		}
 
 		// set selected customer, the selected customer of the analysis

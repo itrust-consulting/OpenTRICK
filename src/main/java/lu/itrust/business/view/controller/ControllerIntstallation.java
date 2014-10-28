@@ -58,45 +58,38 @@ public class ControllerIntstallation {
 
 	@Autowired
 	private SessionFactory sessionFactory;
-	
+
 	@Autowired
 	private MessageSource messageSource;
 
+	@Value("${app.settings.version}")
+	private String version;
+
+	/**
+	 * install: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param principal
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/Install")
 	public String install(Model model, Principal principal, HttpServletRequest request) throws Exception {
 		return "redirect:/RemoveDefaultProfile";
 	}
 
-	@Value("${app.settings.version}")
-	private String version;
-	
-	@RequestMapping("/InstallTS")
-	public @ResponseBody
-	Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request,Locale locale) throws Exception {
-
-		Map<String, String> errors = new LinkedHashMap<String, String>();
-
-		TrickService status = serviceTrickService.getStatus();
-
-		if (status == null) {
-			errors.put("status", messageSource.getMessage( "error.application.no_install", null, "Please install TRICK Service!", locale));
-			return errors;
-		}
-
-		String fileName = request.getServletContext().getRealPath("/WEB-INF/data") + "/TL1.4_TRICKService_DefaultProfile_v1.1.sqlite";
-
-		installProfileCustomer(errors, locale);
-
-		installDefaultProfile(fileName, principal, errors, locale);
-
-		status.setVersion(version);
-		
-		serviceTrickService.saveOrUpdate(status);
-		
-		return errors;
-
-	}
-
+	/**
+	 * removeDefault: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param principal
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/RemoveDefaultProfile")
 	public String removeDefault(Model model, Principal principal, HttpServletRequest request) throws Exception {
 
@@ -108,6 +101,51 @@ public class ControllerIntstallation {
 		return "redirect:/InstallTS";
 	}
 
+	/**
+	 * installTS: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param principal
+	 * @param request
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/InstallTS")
+	public @ResponseBody Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
+
+		Map<String, String> errors = new LinkedHashMap<String, String>();
+
+		TrickService status = serviceTrickService.getStatus();
+
+		if (status == null) {
+			errors.put("status", messageSource.getMessage("error.application.no_install", null, "Please install TRICK Service!", locale));
+			return errors;
+		}
+
+		String fileName = request.getServletContext().getRealPath("/WEB-INF/data") + "/TL1.4_TRICKService_DefaultProfile_v1.1.sqlite";
+
+		installProfileCustomer(errors, locale);
+
+		installDefaultProfile(fileName, principal, errors, locale);
+
+		status.setVersion(version);
+
+		serviceTrickService.saveOrUpdate(status);
+
+		return errors;
+
+	}
+
+	/**
+	 * installProfileCustomer: <br>
+	 * Description
+	 * 
+	 * @param errors
+	 * @param locale
+	 * @return
+	 */
 	private Customer installProfileCustomer(Map<String, String> errors, Locale locale) {
 		try {
 			Customer customer = serviceCustomer.getProfile();
@@ -125,17 +163,26 @@ public class ControllerIntstallation {
 				serviceCustomer.save(customer);
 			}
 			return customer;
-		}catch(TrickException e) {
+		} catch (TrickException e) {
 			errors.put("installProfileCustomer", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			return null;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			errors.put("installProfileCustomer", e.getMessage());
 			return null;
 		}
 	}
 
+	/**
+	 * installDefaultProfile: <br>
+	 * Description
+	 * 
+	 * @param fileName
+	 * @param principal
+	 * @param errors
+	 * @param locale
+	 * @return
+	 */
 	private boolean installDefaultProfile(String fileName, Principal principal, Map<String, String> errors, Locale locale) {
 
 		Customer customer;
@@ -155,7 +202,7 @@ public class ControllerIntstallation {
 				customer = installProfileCustomer(errors, locale);
 				if (customer == null) {
 					System.out.println("Customer could not be installed!");
-					errors.put("installDefaultProfile - Customer", messageSource.getMessage( "error.customer_profile.no_found", null, "Could not find profile customer!", locale));
+					errors.put("installDefaultProfile - Customer", messageSource.getMessage("error.customer_profile.no_found", null, "Could not find profile customer!", locale));
 					return false;
 				}
 			}
@@ -165,7 +212,7 @@ public class ControllerIntstallation {
 
 			if (owner == null) {
 				System.out.println("Could not determine owner! Canceling default Profile creation...");
-				errors.put("installDefaultProfile - Owner", messageSource.getMessage( "error.analysis.owner.no_found", null, "Could not determine owner!", locale));
+				errors.put("installDefaultProfile - Owner", messageSource.getMessage("error.analysis.owner.no_found", null, "Could not determine owner!", locale));
 				return false;
 			}
 
@@ -185,26 +232,23 @@ public class ControllerIntstallation {
 			boolean returnvalue = importAnalysis.simpleAnalysisImport();
 
 			importAnalysis.getAnalysis().setLabel("SME: Small and Medium Entreprises (Default Profile from installer)");
-			
+
 			Timestamp ts = new Timestamp(System.currentTimeMillis());
-			
+
 			SimpleDateFormat outDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			
+
 			String tsstring = outDateFormat.format(ts);
-			
-			importAnalysis.getAnalysis().setIdentifier(importAnalysis.getAnalysis().getLanguage().getAlpha3()+"_"+tsstring);
+
+			importAnalysis.getAnalysis().setIdentifier(importAnalysis.getAnalysis().getLanguage().getAlpha3() + "_" + tsstring);
 
 			serviceAnalysis.saveOrUpdate(importAnalysis.getAnalysis());
 
 			return returnvalue;
 
-			
-			
-		} catch(TrickException e) {
+		} catch (TrickException e) {
 			errors.put("installDefaultProfile - Create Profile", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			return false;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			errors.put("installDefaultProfile - Create Profile", e.getMessage());
 			return false;
