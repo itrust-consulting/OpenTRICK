@@ -100,7 +100,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<fmt:message key="lable.title.delete.standard" />
+					<fmt:message key="label.title.analysis.manage_standard.delete" />
 				</h4>
 			</div>
 			<div id="deleteStandardBody" class="modal-body">Your question here...</div>
@@ -112,7 +112,7 @@
 				</div>
 				<div class="col-sm-4">
 					<button id="deletestandardbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal">
-						<fmt:message key="label.action.yes" />
+						<fmt:message key="label.yes" />
 					</button>
 					<button id="deletestandardbuttonCancel" type="button" class="btn" data-dismiss="modal">
 						<fmt:message key="label.action.cancel" />

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
@@ -394,8 +395,12 @@ public class ControllerScenario {
 					errors.put("name", messageSource.getMessage("error.scenario.duplicate", new String[] { scenario.getName() }, String.format("Scenario (%s) already exists", scenario.getName()),
 							customLocale != null ? customLocale : locale));
 					return errors;
-				} else
-					serviceScenario.save(scenario);
+				} else {
+					Analysis analysis = serviceAnalysis.get(idAnalysis);
+					analysis.addAScenario(scenario);
+					serviceAnalysis.saveOrUpdate(analysis);
+				}
+
 			}
 
 			if (scenario.isSelected())

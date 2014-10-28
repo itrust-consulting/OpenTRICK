@@ -20,7 +20,7 @@
 						<th><fmt:message key="label.history.version" /></th>
 						<th><fmt:message key="label.history.date" /></th>
 						<th><fmt:message key="label.history.author" /></th>
-						<th colspan="10"><fmt:message key="label.history.comment"/></th>
+						<th colspan="10"><fmt:message key="label.history.comment" /></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -29,7 +29,9 @@
 							<td><spring:message text="${history.version}" /></td>
 							<td><fmt:formatDate value="${history.date}" pattern="dd/MM/yyyy" /></td>
 							<td trick-field="author" trick-field-type="string" class="success" ondblclick="editField(this);"><spring:message text="${history.author}" /></td>
-							<td colspan="10" ondblclick="editField(this.firstElementChild);" class="success"><pre trick-field="comment" trick-field-type="string" trick-content="text"><spring:message text="${fn:trim(history.comment)}" /></pre></td>
+							<td colspan="10" ondblclick="editField(this.firstElementChild);" class="success"><pre trick-field="comment" trick-field-type="string" trick-content="text">
+									<spring:message text="${history.comment}" />
+								</pre></td>
 						</tr>
 					</c:forEach>
 				</tbody>

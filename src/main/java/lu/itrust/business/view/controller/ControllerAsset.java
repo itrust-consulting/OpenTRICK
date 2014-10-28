@@ -14,6 +14,7 @@ import java.util.Map;
 import javax.naming.directory.InvalidAttributesException;
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.Assessment;
 import lu.itrust.business.TS.Asset;
 import lu.itrust.business.TS.AssetType;
@@ -330,16 +331,18 @@ public class ControllerAsset {
 						: locale));
 					return errors;
 				}
+				
+				serviceAsset.saveOrUpdate(asset);
 			} else if (serviceAsset.exist(idAnalysis, asset.getName())) {
 				errors.put("name", messageSource.getMessage("error.asset.duplicate", new String[] { asset.getName() }, String.format("Asset (%s) is duplicated", asset.getName()), customLocale != null
 					? customLocale : locale));
 				return errors;
+			} else {
+				Analysis analysis = serviceAnalysis.get(idAnalysis);
+				analysis.addAnAsset(asset);
+				serviceAnalysis.saveOrUpdate(analysis);
 			}
-
-			// check if asset is to be created (new)
-
-			// update existing asset object
-			serviceAsset.merge(asset);
+					
 
 			// update selected status
 			if (asset.isSelected())
@@ -361,13 +364,14 @@ public class ControllerAsset {
 			e.printStackTrace();
 			return errors;
 		} catch (Exception e) {
+			e.printStackTrace();
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis != null) {
 				Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 				errors.put("asset", messageSource.getMessage(e.getMessage(), null, customLocale != null ? customLocale : locale));
 			} else
 				errors.put("asset", messageSource.getMessage(e.getMessage(), null, locale));
-			e.printStackTrace();
+			
 			return errors;
 		}
 		return errors;

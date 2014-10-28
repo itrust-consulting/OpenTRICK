@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -39,12 +40,12 @@
 						<th colspan="3"><fmt:message key="label.scenario.type" /></th>
 						<c:choose>
 							<c:when test="${show_uncertainty}">
-								<th colspan="2"><fmt:message key="label.scenario.aleo" /> (k&euro;)</th>
-								<th colspan="2"><fmt:message key="label.scenario.ale" /> (k&euro;)</th>
-								<th colspan="2"><fmt:message key="label.scenario.alep" /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.scenario.aleo" /></th>
+								<th colspan="2"><fmt:message key="label.scenario.ale" /></th>
+								<th colspan="2"><fmt:message key="label.scenario.alep" /></th>
 							</c:when>
 							<c:otherwise>
-								<th colspan="2"><fmt:message key="label.scenario.ale" /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.scenario.ale" /></th>
 							</c:otherwise>
 						</c:choose>
 						<th colspan="20"><fmt:message key="label.scenario.description" /></th>

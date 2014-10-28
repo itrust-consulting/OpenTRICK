@@ -1,7 +1,10 @@
 function editScenario(rowTrickId, isAdd) {
-	if (isAdd)
+	if (isAdd) {
+		var selectedScenario = $("#section_scenario :checked");
+		if (selectedScenario.length != 0)
+			return false;
 		rowTrickId = undefined;
-	else if (rowTrickId == null || rowTrickId == undefined) {
+	} else if (rowTrickId == null || rowTrickId == undefined) {
 		var selectedScenario = $("#section_scenario :checked");
 		if (selectedScenario.length != 1)
 			return false;
@@ -93,8 +96,8 @@ function deleteScenario(scenarioId) {
 		if (!selectedScenario.length)
 			return false;
 		var lang = $("#nav-container").attr("trick-language");
-		var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang) : MessageResolver("confirm.delete.selected.scenario",
-				"Are you sure, you want to delete selected scenarios", null, lang);
+		var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang) : MessageResolver(
+				"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios", null, lang);
 		$("#confirm-dialog .modal-body").text(text);
 		$("#confirm-dialog .btn-danger").click(function() {
 			while (selectedScenario.length) {

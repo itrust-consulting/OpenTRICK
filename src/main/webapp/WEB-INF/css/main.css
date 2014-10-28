@@ -318,6 +318,7 @@ td>pre {
 	padding-top: 0px;
 	padding-bottom: 2px;
 	word-break: normal;
+	white-space: pre-line;
 }
 
 .popover-content>pre {

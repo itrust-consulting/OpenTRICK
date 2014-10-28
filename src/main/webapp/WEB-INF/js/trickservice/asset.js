@@ -84,9 +84,12 @@ function deleteAsset(assetId) {
 }
 
 function editAsset(rowTrickId, isAdd) {
-	if (isAdd)
+	if (isAdd) {
+		var selectedScenario = $("#section_asset :checked");
+		if (selectedScenario.length != 0)
+			return false;
 		rowTrickId = undefined;
-	else if (rowTrickId == null || rowTrickId == undefined) {
+	} else if (rowTrickId == null || rowTrickId == undefined) {
 		var selectedScenario = $("#section_asset :checked");
 		if (selectedScenario.length != 1)
 			return false;

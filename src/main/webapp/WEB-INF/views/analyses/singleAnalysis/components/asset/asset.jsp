@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -36,15 +37,15 @@
 						<th><fmt:message key="label.row.index"  /></th>
 						<th colspan="8"><fmt:message key="label.asset.name"  /></th>
 						<th colspan="2"><fmt:message key="label.asset.type"  /></th>
-						<th colspan="2"><fmt:message key="label.asset.value"  /> (k&euro;)</th>
+						<th colspan="2"><fmt:message key="label.asset.value"  /></th>
 						<c:choose>
 							<c:when test="${show_uncertainty}">
-								<th colspan="2"><fmt:message key="label.asset.aleo"  /> (k&euro;)</th>
-								<th colspan="2"><fmt:message key="label.asset.ale"  /> (k&euro;)</th>
-								<th colspan="2"><fmt:message key="label.asset.alep"  /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.asset.aleo"  /></th>
+								<th colspan="2"><fmt:message key="label.asset.ale"  /></th>
+								<th colspan="2"><fmt:message key="label.asset.alep"  /></th>
 							</c:when>
 							<c:otherwise>
-								<th colspan="2"><fmt:message key="label.asset.ale"  /> (k&euro;)</th>
+								<th colspan="2"><fmt:message key="label.asset.ale"  /></th>
 							</c:otherwise>
 						</c:choose>
 						<th colspan="14"><fmt:message key="label.asset.comment"  /></th>

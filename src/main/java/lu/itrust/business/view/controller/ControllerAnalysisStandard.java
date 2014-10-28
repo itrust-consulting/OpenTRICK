@@ -136,6 +136,10 @@ public class ControllerAnalysisStandard {
 	private CustomDelete customDelete;
 
 	/**
+	 * selected analysis actions (reload section. single measure, load soa, get compliances)
+	 */
+
+	/**
 	 * section: <br>
 	 * Description
 	 * 
@@ -220,7 +224,18 @@ public class ControllerAnalysisStandard {
 		return measure;
 	}
 
-	@RequestMapping(value = "{idStandard}/SingleMeasure/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	/**
+	 * getSingleMeasure: <br>
+	 * Description
+	 * 
+	 * @param elementID
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/{idStandard}/SingleMeasure/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -321,6 +336,16 @@ public class ControllerAnalysisStandard {
 		}
 	}
 
+	/**
+	 * getSOA: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param principal
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/SOA", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String getSOA(HttpSession session, Principal principal, Model model) throws Exception {
@@ -333,6 +358,22 @@ public class ControllerAnalysisStandard {
 		return "analyses/singleAnalysis/components/soa";
 	}
 
+	/**
+	 * manage analysis standards (manage menu)
+	 */
+
+	/**
+	 * manageForm: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param principal
+	 * @param model
+	 * @param attributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/Manage", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String manageForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
@@ -341,26 +382,19 @@ public class ControllerAnalysisStandard {
 		return "analyses/singleAnalysis/components/standards/standard/manageForm";
 	}
 
-	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
-
-		try {
-
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-
-			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", customLocale != null ? customLocale
-				: locale));
-		} catch (Exception e) {
-			e.printStackTrace();
-			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.norm.delete", null, "Standard could not be deleted!", customLocale != null ? customLocale : locale));
-		}
-	}
-
+	/**
+	 * createStandardForm: <br>
+	 * Description
+	 * 
+	 * @param value
+	 * @param session
+	 * @param principal
+	 * @param model
+	 * @param attributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/Create", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<String, String> createStandardForm(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale)
@@ -382,10 +416,7 @@ public class ControllerAnalysisStandard {
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 
 			// create new standard object
-			Standard standard = new Standard();
-
-			// build standard
-			buildStandard(errors, standard, value, customLocale != null ? customLocale : locale, analysis);
+			Standard standard = buildStandard(errors, value, customLocale != null ? customLocale : locale, analysis);
 
 			if (!errors.isEmpty())
 				// return error on failure
@@ -457,6 +488,19 @@ public class ControllerAnalysisStandard {
 		return errors;
 	}
 
+	/**
+	 * updateStandard: <br>
+	 * Description
+	 * 
+	 * @param value
+	 * @param session
+	 * @param principal
+	 * @param model
+	 * @param attributes
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<String, String> updateStandard(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale)
@@ -477,17 +521,16 @@ public class ControllerAnalysisStandard {
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 
 			// create new standard object
-			Standard standard = null;
+			Standard standard = buildStandard(errors, value, customLocale != null ? customLocale : locale, analysis);
 
 			// build standard
-			buildStandard(errors, standard, value, customLocale != null ? customLocale : locale, analysis);
 
 			if (!errors.isEmpty())
 				// return error on failure
 				return errors;
 
 			serviceStandard.saveOrUpdate(standard);
-			
+
 		} catch (TrickException e) {
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 			if (idAnalysis != null) {
@@ -549,6 +592,17 @@ public class ControllerAnalysisStandard {
 		}
 	}
 
+	/**
+	 * addStandard: <br>
+	 * Description
+	 * 
+	 * @param idStandard
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/Add/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
@@ -620,6 +674,53 @@ public class ControllerAnalysisStandard {
 		}
 	}
 
+	/**
+	 * removeStandard: <br>
+	 * Description
+	 * 
+	 * @param idStandard
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
+
+		try {
+
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+
+			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null, "Standard was successfully removed from your analysis", customLocale != null ? customLocale
+				: locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+			return JsonMessage.Error(messageSource.getMessage("error.analysis.norm.delete", null, "Standard could not be deleted!", customLocale != null ? customLocale : locale));
+		}
+	}
+
+	/**
+	 * manage measures of standard
+	 */
+
+	/**
+	 * showMeasures: <br>
+	 * Description
+	 * 
+	 * @param idStandard
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/Show/{idStandard}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String showMeasures(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale, Model model) throws Exception {
@@ -914,9 +1015,11 @@ public class ControllerAnalysisStandard {
 	 * @param locale
 	 * @return
 	 */
-	private boolean buildStandard(Map<String, String> errors, Standard standard, String source, Locale locale, Analysis analysis) {
+	private Standard buildStandard(Map<String, String> errors, String source, Locale locale, Analysis analysis) {
 
 		try {
+
+			Standard standard = null;
 
 			// create json parser
 			ObjectMapper mapper = new ObjectMapper();
@@ -982,13 +1085,13 @@ public class ControllerAnalysisStandard {
 
 			}
 			// return success
-			return errors.isEmpty();
+			return standard;
 
 		} catch (Exception e) {
 			// return error
 			errors.put("standard", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
-			return false;
+			return null;
 		}
 	}
 

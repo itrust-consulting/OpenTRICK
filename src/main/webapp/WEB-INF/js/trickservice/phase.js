@@ -27,6 +27,10 @@ $(function() {
 
 function newPhase(){
 	
+	var selectedScenario = $("#section_phase :checked");
+	if (selectedScenario.length != 0)
+		return false;
+	
 	$('#addPhaseModel #datepicker_container').html($('#datepicker_prototype').html());
 	
 	$('#addPhaseModel #datepicker_container input[name="beginDate"]').attr("id","phase_begin_date");

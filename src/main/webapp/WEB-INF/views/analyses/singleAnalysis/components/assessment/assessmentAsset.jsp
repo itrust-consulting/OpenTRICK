@@ -16,8 +16,11 @@
 							<th><fmt:message key="label.assessment.impact_rep"  /></th>
 							<th><fmt:message key="label.assessment.impact_op"  /></th>
 							<th><fmt:message key="label.assessment.impact_leg"  /></th>
+							<th><fmt:message key="label.assessment.impact_fin"  /></th>
 						</c:if>
-						<th><fmt:message key="label.assessment.impact_fin"  /></th>
+						<c:if test="${!show_cssf}">
+							<th><fmt:message key="label.assessment.impact"  /></th>
+						</c:if>
 						<th><fmt:message key="label.assessment.likelihood"  /></th>
 						<c:choose>
 							<c:when test="${show_uncertainty}">
