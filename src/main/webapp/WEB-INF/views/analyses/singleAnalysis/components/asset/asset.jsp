@@ -25,7 +25,7 @@
 						<fmt:message key="label.action.unselect.asset"  /> </a></li>
 				<li class="disabled" trick-selectable="true" trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return displayAssessmentByAsset()"><span
 						class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.show.asset.assessment"  /> </a></li>
-				<li class="disabled pull-right" trick-selectable="true"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
+				<li class="disabled pull-right" trick-selectable="multi"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
 						class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete.asset"  /> </a></li>
 			</ul>
 		</div>

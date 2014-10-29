@@ -255,6 +255,7 @@ public class ControllerAnalysis {
 				analysis.setSummaries(serviceActionPlanSummary.getAllFromAnalysis(selected));
 				model.addAttribute("login", user.getLogin());
 				model.addAttribute("analysis", analysis);
+				model.addAttribute("standards", analysis.getStandards());
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
 				model.addAttribute("language", analysis.getLanguage().getAlpha3());
@@ -745,11 +746,11 @@ public class ControllerAnalysis {
 		} catch (Exception e) {
 			e.printStackTrace();
 			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate.unknown", null, "An unknown error occurred during duplication!", locale));
-		}finally {
-			if(!errors.isEmpty() && copy !=null)
+		} finally {
+			if (!errors.isEmpty() && copy != null)
 				removeStandardsOnError(copy.getAnalysisOnlyStandards());
 		}
-				
+
 		return errors;
 	}
 

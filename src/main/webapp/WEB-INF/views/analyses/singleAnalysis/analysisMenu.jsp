@@ -46,7 +46,8 @@
 				<ul class="dropdown-menu" id="standardmenu">
 					<c:if test="${!empty(measureSplited)}">
 						<c:forEach items="${measureSplited.keySet()}" var="standard">
-							<li><a href="#anchorMeasure_${standard}"> <spring:message text="${standard}" /></a>
+							<spring:eval expression="T(lu.itrust.business.component.MeasureManager).getStandardId(standards, standard)" var="standardid" scope="request" />
+							<li><a href="#anchorMeasure_${standardid}"> <spring:message text="${standard}" /></a>
 						</c:forEach>
 					</c:if>
 					<c:if test="${analysis.getRightsforUserString(login).right.ordinal() <= 4}">

@@ -83,10 +83,18 @@ public class MeasureManager {
 	@Autowired
 	private CustomDelete customDelete;
 
-	public static StandardType getStandardType(Analysis analysis, String standard) {
+	public static Integer getStandardId(List<Standard> standards, String standardname) {
+		for (Standard standard : standards)
+			if (standard.getLabel().equals(standardname))
+				return standard.getId();
+		return null;
+	}
 
-		StandardType standardType = analysis.getAnalysisStandardByLabel(standard).getStandard().getType();
-		return standardType;
+	public static StandardType getStandardType(List<Standard> standards, String standardname) {
+		for (Standard standard : standards)
+			if (standard.getLabel().equals(standardname))
+				return standard.getType();
+		return null;
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package lu.itrust.business.view.controller;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -17,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -156,11 +158,16 @@ public class ControllerTask {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping("/InProcessing")
+	@RequestMapping(value = "/InProcessing", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<Long> processing(Principal principal) {
 
+		List<Long> result = serviceTaskFeedback.tasks(principal.getName());
+
+		if(result == null)
+			result = new ArrayList<Long>();
+		
 		// get tasks of this user
-		return serviceTaskFeedback.tasks(principal.getName());
+		return result;
 	}
 
 	@RequestMapping("/Exist")

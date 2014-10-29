@@ -122,7 +122,7 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1
 	border-radius: 5px;
 	padding: 10px;
 	color: #fff;
-	font-size: 12px Arial;
+	font-size: 12px;
 }
 
 .tablesorter thead tr.tablesorter-filter-row {
@@ -184,7 +184,8 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	line-height: 1.5;
-	display: block; margin-0;
+	display: block;
+	margin: 0;
 	padding: 0;
 }
 
@@ -231,8 +232,8 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1
 	background-color: #fff;
 	border: 1px solid #ccc;
 	border: 1px solid rgba(0, 0, 0, .2);
-	*border-right-width: 2px;
-	*border-bottom-width: 2px;
+	border-right-width: 2px;
+	border-bottom-width: 2px;
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
 	border-radius: 6px;
@@ -251,18 +252,13 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1
 
 .tt-suggestion:HOVER, .tt-suggestion.tt-is-under-cursor {
 	cursor: pointer;
-	cursor: hand;
 	color: #fff;
 	background-color: #0081c2;
 	background-image: -moz-linear-gradient(top, #0088cc, #0077b3);
-	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc),
-		to(#0077b3));
 	background-image: -webkit-linear-gradient(top, #0088cc, #0077b3);
 	background-image: -o-linear-gradient(top, #0088cc, #0077b3);
 	background-image: linear-gradient(to bottom, #0088cc, #0077b3);
 	background-repeat: repeat-x;
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc',
-		endColorstr='#ff0077b3', GradientType=0);
 	color: #fff;
 }
 
@@ -285,8 +281,6 @@ table.floatThead-table {
 	table-layout: fixed;
 	padding: 0;
 	margin: 0;
-	cellspacing: 0;
-	cellpadding: 0;
 }
 
 .headertofixtablelargecolumn {

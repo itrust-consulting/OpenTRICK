@@ -5,6 +5,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <c:set scope="request" var="title">label.title.profile</c:set>
+<!DOCTYPE html>
 <html>
 <jsp:include page="header.jsp" />
 <body>

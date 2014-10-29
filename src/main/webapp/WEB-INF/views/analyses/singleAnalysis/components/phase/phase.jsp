@@ -25,7 +25,7 @@
 			<table class="table table-hover table-fixed-header">
 				<thead>
 					<tr>
-						<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'phase')" disabled="disabled"></th>
+						<th>&nbsp;</th>
 						<th><fmt:message key="label.table.index" /></th>
 						<th colspan="15"><fmt:message key="label.phase.begin_date" /></th>
 						<th colspan="15"><fmt:message key="label.phase.end_date" /></th>

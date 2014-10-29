@@ -80,7 +80,7 @@ function reloadMeasureRow(idMeasure, standard) {
 	return false;
 }
 
-function reloadMeausreAndCompliance(standard, idMeasure) {
+function reloadMeasureAndCompliance(standard, idMeasure) {
 	reloadMeasureRow(idMeasure, standard);
 	compliance(standard);
 	return false;

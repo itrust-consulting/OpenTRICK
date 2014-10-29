@@ -154,12 +154,12 @@ function doCreateStandard(form) {
 function editStandard(standardrowobject) {
 
 	var selectedItem = undefined;
-	
-	if(standardrowobject==undefined || standardrowobject==null) {
-	
-	selectedItem = $("#section_manage_standards tbody :checked").parent().parent();
-	if (selectedItem.length != 1)
-		return false;
+
+	if (standardrowobject == undefined || standardrowobject == null) {
+
+		selectedItem = $("#section_manage_standards tbody :checked").parent().parent();
+		if (selectedItem.length != 1)
+			return false;
 	} else {
 		selectedItem = standardrowobject;
 	}
@@ -451,42 +451,15 @@ function removeStandard() {
 
 // management of measures of analysis only standards
 
-function manageMeasures() {
-
-	var selectedStandard = $("#section_manage_standards :checked");
-	if (selectedStandard.length != 1)
-		return false;
-	selectedStandard = findTrickID(selectedStandard[0]);
-
-	$.ajax({
-		url : context + "/Analysis/Standard/Show/" + selectedStandard,
-		type : "get",
-		async : false,
-		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-
-			$("#section_measure_description #measures_header").html($(doc).find("#measures_header").html());
-
-			$("#section_measure_description #measures_body").html($(doc).find("#measures_body").html());
-
-			updateMenu(undefined, "#section_measure_description", "#menu_measure_description", undefined);
-
-			$("#section_measure_description").modal("show");
-		},
-		error : unknowError
-	});
-
-	return false;
-
-}
-
 function newMeasure(idStandard) {
-	if (findSelectItemIdBySection("section_measure_description").length)
-		return false;
+
 	if (idStandard == null || idStandard == undefined)
-		idStandard = $("#section_measure_description #measures_header #idStandard").val();
+		return false;
+
+	var selectedItem = $("#section_standard_" + idStandard + " tbody :checked");
+	if (selectedItem.length != 0)
+		return false;
+
 	var alert = $("#addMeasureModel .label-danger");
 	if (alert.length)
 		alert.remove();
@@ -504,6 +477,8 @@ function newMeasure(idStandard) {
 	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure", null, lang));
 	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.add", "Add", null, lang));
 
+	$("#addMeasureModel #addmeasurebutton").attr("onclick", "saveMeasure('" + idStandard + "')");
+
 	var text = '<div style="display: block;"><div class="form-group"><label class="col-sm-2 control-label" for="domain">' + MessageResolver("label.measure.domain", "Domain", null, lang)
 			+ '</label><div class="col-sm-10"><input type="text" class="form-control" id="measure_domain" name="domain"></div></div>';
 	text = text + '<div class="form-group"><label class="col-sm-2 control-label" for="description">' + MessageResolver("label.measure.description", "Description", null, lang)
@@ -519,24 +494,24 @@ function newMeasure(idStandard) {
 function editSingleMeasure(measureId, idStandard) {
 
 	if (idStandard == null || idStandard == undefined)
-		idStandard = $("#section_measure_description #measures_header #idStandard").val();
+		return false;
+
+	if (measureId == null || measureId == undefined)
+		measureId = $("#section_standard_" + idStandard + " tbody :checked").parent().parent();
+
+	if (measureId.length != 1)
+		return false;
 
 	var alert = $("#addMeasureModel .label-danger");
 	if (alert.length)
 		alert.remove();
 
-	if (measureId == null || measureId == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_measure_description");
-		if (selectedScenario.length != 1)
-			return false;
-		measureId = selectedScenario[0];
-	}
-	var measure = $("#section_measure_description #measures_body tr[trick-id='" + measureId + "'] td:not(:first-child)");
+	var measure = $(measureId).find("td:not(:first-child)");
 
-	$("#addMeasureModel #measure_id").prop("value", measureId);
-	$("#addMeasureModel #measure_reference").prop("value", $(measure[1]).text());
-	$("#addMeasureModel #measure_level").prop("value", $(measure[0]).text());
-	$("#addMeasureModel #measure_computable").prop("checked", $(measure[4]).attr("trick-computable") == "true");
+	$("#addMeasureModel #measure_id").prop("value", $(measureId).attr("trick-id"));
+	$("#addMeasureModel #measure_reference").prop("value", $(measure[0]).text());
+	$("#addMeasureModel #measure_level").prop("value", $(measureId).attr("trick-level"));
+	$("#addMeasureModel #measure_computable").prop("checked", $(measureId).attr("trick-computable") === "true");
 
 	$("#addMeasureModel #measure_form").prop("action", context + "/Analysis/Standard/" + idStandard + "/Measure/Save");
 
@@ -545,10 +520,12 @@ function editSingleMeasure(measureId, idStandard) {
 	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.measure.update", "Update Measure", null, lang));
 	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.edit", "Update", null, lang));
 
+	$("#addMeasureModel #addmeasurebutton").attr("onclick", "saveMeasure('" + idStandard + "')");
+
 	var text = '<div style="display: block;"><div class="form-group"><label class="col-sm-2 control-label" for="domain">' + MessageResolver("label.measure.domain", "Domain", null, lang)
-			+ '</label><div class="col-sm-10"><input type="text" class="form-control" id="measure_domain" value="' + $(measure[2]).text() + '" name="domain"></div></div>';
+			+ '</label><div class="col-sm-10"><input type="text" class="form-control" id="measure_domain" value="' + $(measure[1]).text() + '" name="domain"></div></div>';
 	text = text + '<div class="form-group"><label class="col-sm-2 control-label" for="description">' + MessageResolver("label.measure.description", "Description", null, lang)
-			+ '</label><div class="col-sm-10"><textarea class="form-control" id="measure_description" name="description">' + $(measure[3]).text() + '</textarea></div></div></div>';
+			+ '</label><div class="col-sm-10"><textarea class="form-control" id="measure_description" name="description">' + $(measureId).attr("trick-description") + '</textarea></div></div></div>';
 
 	$("#addMeasureModel #measurelanguages").html(text);
 
@@ -557,7 +534,7 @@ function editSingleMeasure(measureId, idStandard) {
 	return false;
 }
 
-function saveMeasure() {
+function saveMeasure(idStandard) {
 	var form = $("#addMeasureModel #measure_form");
 	$.ajax({
 		url : form.prop("action"),
@@ -596,30 +573,7 @@ function saveMeasure() {
 			}
 			if (!$("#addMeasureModel").find(".label-danger").length) {
 				$("#addMeasureModel").modal("hide");
-				var idStandard = $("#section_measure_description #measures_header #idStandard").val();
-				var standardLabel = $("#section_measure_description #measures_header #standardLabel").val();
-				standardLabel
-				$.ajax({
-					url : context + "/Analysis/Standard/Show/" + idStandard,
-					type : "GET",
-					contentType : "application/json",
-					success : function(response) {
-						var parser = new DOMParser();
-						var doc = parser.parseFromString(response, "text/html");
-
-						reloadSection("section_standard_" + standardLabel);
-
-						$("#section_measure_description #measures_header").html($(doc).find("#measures_header").html());
-
-						$("#section_measure_description #measures_body").html($(doc).find("#measures_body").html());
-
-						updateMenu(undefined, "#section_measure_description", "#menu_measure_description", undefined);
-
-						$("#section_measure_description").modal("show");
-
-					},
-					error : unknowError
-				});
+				reloadSection("section_standard_" + idStandard);
 			}
 			return false;
 

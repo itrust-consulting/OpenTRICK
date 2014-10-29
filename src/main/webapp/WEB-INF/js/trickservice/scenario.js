@@ -109,12 +109,12 @@ function deleteScenario(scenarioId) {
 					success : function(response) {
 						var trickSelect = parseJson(response);
 						if (trickSelect != undefined && trickSelect["success"] != undefined) {
-							var row = $("#section_scenario tr[trick-id='" + rowTrickId + "']");
+							/*var row = $("#section_scenario tr[trick-id='" + rowTrickId + "']");
 							var checked = $("#section_scenario tr[trick-id='" + rowTrickId + "'] :checked");
 							if (checked.length)
 								$(checked).removeAttr("checked");
 							if (row.length)
-								$(row).remove();
+								$(row).remove();*/
 						}
 						return false;
 					},

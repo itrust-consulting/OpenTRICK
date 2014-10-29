@@ -43,9 +43,6 @@
 				<fmt:message key="label.title.chart.compliance"  />
 			</div>
 			<div class="panel-body">
-				<div id="chart_compliance_27001"></div>
-				<hr style="margin: 30px 0;" />
-				<div id="chart_compliance_27002"></div>
 			</div>
 		</div>
 	</div>

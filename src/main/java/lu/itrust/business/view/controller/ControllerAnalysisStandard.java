@@ -158,7 +158,16 @@ public class ControllerAnalysisStandard {
 		if (idAnalysis == null)
 			return null;
 
-		model.addAttribute("analysis", serviceAnalysis.get(idAnalysis));
+		Analysis analysis = serviceAnalysis.get(idAnalysis);
+
+		List<Standard> standards = new ArrayList<Standard>();
+
+		for (AnalysisStandard astandard : analysis.getAnalysisStandards())
+			standards.add(astandard.getStandard());
+
+		model.addAttribute("analysis", analysis);
+
+		model.addAttribute("standards", standards);
 
 		// add measures of the analysis
 		model.addAttribute("measures", serviceMeasure.getAllFromAnalysis(idAnalysis));
@@ -179,17 +188,34 @@ public class ControllerAnalysisStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Section/{standardLabel}")
+	@RequestMapping("/Section/{standardid}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public String sectionByStandard(@PathVariable String standardLabel, HttpSession session, Model model, Principal principal) throws Exception {
+	public String sectionByStandard(@PathVariable Integer standardid, HttpSession session, Model model, Principal principal) throws Exception {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
 			return null;
 
+		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
+
+		Integer realstandardid = null;
+
+		List<Standard> standards = new ArrayList<Standard>();
+
+		for (AnalysisStandard standard : analysisStandards) {
+			standards.add(standard.getStandard());
+			if (standard.getStandard().getId() == standardid)
+				realstandardid = standardid;
+		}
+
+		if (realstandardid == null)
+			return null;
+
+		model.addAttribute("standards", standards);
+
 		// add measures of the analysis
-		model.addAttribute("measures", serviceMeasure.getAllFromAnalysisAndStandard(idAnalysis, standardLabel));
+		model.addAttribute("measures", serviceMeasure.getAllFromAnalysisAndStandard(idAnalysis, realstandardid));
 
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3());
@@ -242,16 +268,11 @@ public class ControllerAnalysisStandard {
 	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		if (measure instanceof NormalMeasure) {
-			Hibernate.initialize(((NormalMeasure) measure).getAssetTypeValues());
-			Hibernate.initialize(measure);
-			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues())
-				assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
-			((NormalMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormalMeasure) measure).getMeasurePropertyList()));
-		}
 		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3());
 		model.addAttribute("measure", measure);
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
+		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
+		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
 
 		return "analyses/singleAnalysis/components/standards/measure/singleMeasure";
 	}
@@ -265,10 +286,10 @@ public class ControllerAnalysisStandard {
 	 * @param principal
 	 * @return
 	 */
-	@RequestMapping(value = "/{standard}/Compliance", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/{standardid}/Compliance", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	@ResponseBody
-	public String compliance(@PathVariable String standard, HttpSession session, Principal principal, Locale locale) {
+	public String compliance(@PathVariable Integer standardid, HttpSession session, Principal principal, Locale locale) {
 
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -276,8 +297,14 @@ public class ControllerAnalysisStandard {
 		try {
 
 			Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+
+			List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
+			for (AnalysisStandard standard : standards)
+				if (standard.getStandard().getId() == standardid)
+					return chartGenerator.compliance(idAnalysis, standard.getStandard().getLabel(), customLocale != null ? customLocale : locale);
 			// return chart of either standard 27001 or 27002 or null
-			return chartGenerator.compliance(idAnalysis, standard, customLocale != null ? customLocale : locale);
+
+			return null;
 
 		} catch (Exception e) {
 
@@ -313,7 +340,7 @@ public class ControllerAnalysisStandard {
 
 			for (AnalysisStandard analysisStandard : analysisStandards) {
 
-				value += "\"" + analysisStandard.getStandard().getLabel() + "\":[";
+				value += "\"" + analysisStandard.getStandard().getId() + "\":[";
 
 				value += chartGenerator.compliance(idAnalysis, analysisStandard.getStandard().getLabel(), customLocale != null ? customLocale : locale);
 
@@ -1036,8 +1063,10 @@ public class ControllerAnalysisStandard {
 
 			if (id > 0)
 				standard = serviceStandard.get(id);
-			else
+			else {
 				standard = new Standard();
+				standard.setAnalysisOnly(true);
+			}
 
 			String prevlabel = standard.getLabel();
 

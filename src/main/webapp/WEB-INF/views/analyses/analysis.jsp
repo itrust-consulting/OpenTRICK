@@ -5,6 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<!DOCTYPE html>
 <c:if test="${empty(sessionScope.selectedAnalysis)}">
 	<jsp:include page="allAnalyses/analyses.jsp" />
 </c:if>

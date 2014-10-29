@@ -1706,6 +1706,20 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
+	 * getAnalysisStandards: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	public List<Standard> getStandards() {
+		List<Standard> standards = new ArrayList<Standard>();
+		for (AnalysisStandard standard : analysisStandards)
+			standards.add(standard.getStandard());
+		return standards;
+
+	}
+
+	/**
 	 * addAnalysisStandard: <br>
 	 * Description
 	 * 
