@@ -11,6 +11,8 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -46,8 +48,10 @@ public class Scenario extends SecurityCriteria {
 	/** The Scenario Name */
 	private String name = "";
 
+	private ScenarioType type = null;
+	
 	/** The Scenario Type */
-	private ScenarioType scenarioType = new ScenarioType();
+	private OldScenarioType scenarioType = null;
 
 	/** The Selected Flag (Selected for calculation) */
 	private boolean selected = false;
@@ -112,12 +116,24 @@ public class Scenario extends SecurityCriteria {
 	 * 
 	 * @return The Scenario Type
 	 */
-	@ManyToOne
-	@JoinColumn(name = "fiScenarioType", nullable = false)
+	@ManyToOne 
+	@JoinColumn(name="fiScenarioType", nullable=false)
 	@Access(AccessType.FIELD)
-	@Cascade(CascadeType.SAVE_UPDATE)
-	public ScenarioType getScenarioType() {
+	public OldScenarioType getScenarioType() {
 		return scenarioType;
+	}
+	
+	/**
+	 * getType: <br>
+	 * Returns the "type" field value
+	 * 
+	 * @return The Scenario Type
+	 */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "dtType", nullable = false)
+	@Cascade(CascadeType.SAVE_UPDATE)
+	public ScenarioType getType() {
+		return type;
 	}
 
 	/**
@@ -128,12 +144,26 @@ public class Scenario extends SecurityCriteria {
 	 *            The value to set the Scenario Type
 	 * @throws TrickException
 	 */
-	public void setScenarioType(ScenarioType type) throws TrickException {
+	public void setScenarioType(OldScenarioType type) throws TrickException {
 		if ((type == null) || (type.getName() == null) || (type.getName().trim().isEmpty()))
 			throw new TrickException("error.scenario.type.empty", "Type cannot be empty!");
 		this.scenarioType = type;
 	}
 
+	/**
+	 * setType: <br>
+	 * Sets the "type" field with a value
+	 * 
+	 * @param type
+	 *            The value to set the Scenario Type
+	 * @throws TrickException
+	 */
+	public void setType(ScenarioType type) throws TrickException {
+		if ((type == null) || (type.getName() == null) || (type.getName().trim().isEmpty()))
+			throw new TrickException("error.scenario.type.empty", "Type cannot be empty!");
+		this.type = type;
+	}
+	
 	/**
 	 * isSelected: <br>
 	 * Returns the "selected" field value

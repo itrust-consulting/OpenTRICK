@@ -19,6 +19,7 @@ import lu.itrust.business.TS.AnalysisStandard;
 import lu.itrust.business.TS.Customer;
 import lu.itrust.business.TS.History;
 import lu.itrust.business.TS.Language;
+import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.export.ExportAnalysisReport;
 import lu.itrust.business.TS.export.UserSQLite;
 import lu.itrust.business.TS.tsconstant.Constant;
@@ -253,9 +254,14 @@ public class ControllerAnalysis {
 				analysis.setLanguage(serviceLanguage.getByAlpha3(analysis.getLanguage().getAlpha3()));
 				analysis.setActionPlans(serviceActionPlan.getAllFromAnalysis(selected));
 				analysis.setSummaries(serviceActionPlanSummary.getAllFromAnalysis(selected));
+
+				Map<String, List<Measure>> measures = mapMeasures(analysis.getAnalysisStandards());
+
 				model.addAttribute("login", user.getLogin());
 				model.addAttribute("analysis", analysis);
 				model.addAttribute("standards", analysis.getStandards());
+				model.addAttribute("measures", measures);
+				model.addAttribute("soa", measures.get("27002"));
 				model.addAttribute("show_uncertainty", analysis.isUncertainty());
 				model.addAttribute("show_cssf", analysis.isCssf());
 				model.addAttribute("language", analysis.getLanguage().getAlpha3());
@@ -286,6 +292,25 @@ public class ControllerAnalysis {
 			model.addAttribute("login", principal.getName());
 		}
 		return "analyses/analysis";
+	}
+
+	/**
+	 * mapMeasures: <br>
+	 * Description
+	 * 
+	 * @param standards
+	 * @return
+	 */
+	private Map<String, List<Measure>> mapMeasures(List<AnalysisStandard> standards) {
+
+		Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
+
+		for (AnalysisStandard standard : standards) {
+			List<Measure> measures = standard.getMeasures();
+			measuresmap.put(standard.getStandard().getLabel(), measures);
+		}
+
+		return measuresmap;
 	}
 
 	// *****************************************************************

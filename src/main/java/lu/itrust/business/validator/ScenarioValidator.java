@@ -63,7 +63,7 @@ public class ScenarioValidator extends ValidatorFieldImpl implements Validator {
 		if (!arg1.hasFieldErrors("name") && !scenario.getName().matches(Constant.REGEXP_VALID_NAME))
 			arg1.rejectValue("name", "error.scenario.name.rejected", "Name is not valid");
 
-		if (!arg1.hasFieldErrors("scnearioType") && !(scenario.getScenarioType() instanceof ScenarioType))
+		if (!arg1.hasFieldErrors("scnearioType") && !(scenario.getType() instanceof ScenarioType))
 			arg1.rejectValue("scnearioType", "error.scenario.scneario_type.rejected", "Scenario Type is not valid");
 	}
 

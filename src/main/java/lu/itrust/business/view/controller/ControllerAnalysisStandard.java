@@ -2,7 +2,6 @@ package lu.itrust.business.view.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -12,6 +11,7 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.Analysis;
 import lu.itrust.business.TS.AnalysisStandard;
+import lu.itrust.business.TS.AssetMeasure;
 import lu.itrust.business.TS.AssetStandard;
 import lu.itrust.business.TS.AssetType;
 import lu.itrust.business.TS.AssetTypeValue;
@@ -30,7 +30,6 @@ import lu.itrust.business.TS.Standard;
 import lu.itrust.business.TS.StandardType;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ChartGenerator;
-import lu.itrust.business.component.ComparatorMeasureDescription;
 import lu.itrust.business.component.CustomDelete;
 import lu.itrust.business.component.MeasureManager;
 import lu.itrust.business.component.helper.ImportRRFForm;
@@ -158,19 +157,18 @@ public class ControllerAnalysisStandard {
 		if (idAnalysis == null)
 			return null;
 
-		Analysis analysis = serviceAnalysis.get(idAnalysis);
+		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 
 		List<Standard> standards = new ArrayList<Standard>();
 
-		for (AnalysisStandard astandard : analysis.getAnalysisStandards())
+		for (AnalysisStandard astandard : analysisStandards)
 			standards.add(astandard.getStandard());
-
-		model.addAttribute("analysis", analysis);
 
 		model.addAttribute("standards", standards);
 
-		// add measures of the analysis
-		model.addAttribute("measures", serviceMeasure.getAllFromAnalysis(idAnalysis));
+		Map<String, List<Measure>> measures = mapMeasures(null, analysisStandards);
+
+		model.addAttribute("measures", measures);
 
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3());
@@ -201,12 +199,16 @@ public class ControllerAnalysisStandard {
 
 		Integer realstandardid = null;
 
+		String standardlabel = null;
+
 		List<Standard> standards = new ArrayList<Standard>();
 
 		for (AnalysisStandard standard : analysisStandards) {
 			standards.add(standard.getStandard());
-			if (standard.getStandard().getId() == standardid)
+			if (standard.getStandard().getId() == standardid) {
 				realstandardid = standardid;
+				standardlabel = standard.getStandard().getLabel();
+			}
 		}
 
 		if (realstandardid == null)
@@ -215,12 +217,45 @@ public class ControllerAnalysisStandard {
 		model.addAttribute("standards", standards);
 
 		// add measures of the analysis
-		model.addAttribute("measures", serviceMeasure.getAllFromAnalysisAndStandard(idAnalysis, realstandardid));
+
+		Map<String, List<Measure>> measures = mapMeasures(standardlabel, analysisStandards);
+
+		model.addAttribute("measures", measures);
 
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3());
 
 		return "analyses/singleAnalysis/components/standards/standard/standards";
+	}
+
+	/**
+	 * mapMeasures: <br>
+	 * Description
+	 * 
+	 * @param standardlabel
+	 * @param standards
+	 * @return
+	 */
+	private Map<String, List<Measure>> mapMeasures(String standardlabel, List<AnalysisStandard> standards) {
+
+		Map<String, List<Measure>> measuresmap = new LinkedHashMap<String, List<Measure>>();
+
+		for (AnalysisStandard standard : standards) {
+
+			if (standardlabel == null) {
+				List<Measure> measures = standard.getMeasures();
+				measuresmap.put(standard.getStandard().getLabel(), measures);
+			} else {
+				if (standard.getStandard().getLabel().equals(standardlabel)) {
+					List<Measure> measures = standard.getMeasures();
+
+					measuresmap.put(standard.getStandard().getLabel(), measures);
+				}
+			}
+
+		}
+
+		return measuresmap;
 	}
 
 	/**
@@ -248,6 +283,11 @@ public class ControllerAnalysisStandard {
 			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues())
 				assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
 			((NormalMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormalMeasure) measure).getMeasurePropertyList()));
+		} else if (measure instanceof AssetMeasure) {
+			((AssetMeasure) measure).setPhase(null);
+			Hibernate.initialize(measure);
+			((AssetMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((AssetMeasure) measure).getMeasurePropertyList()));
+			Hibernate.initialize(((AssetMeasure) measure).getMeasureAssetValues());
 		}
 		return measure;
 	}
@@ -738,64 +778,6 @@ public class ControllerAnalysisStandard {
 	 * manage measures of standard
 	 */
 
-	/**
-	 * showMeasures: <br>
-	 * Description
-	 * 
-	 * @param idStandard
-	 * @param session
-	 * @param principal
-	 * @param locale
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/Show/{idStandard}")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public String showMeasures(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale, Model model) throws Exception {
-
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-
-		// load all measuredescriptions of a standard
-		List<MeasureDescription> mesDescs = serviceMeasureDescription.getAllByStandard(idStandard);
-
-		// chekc if measuredescriptions are not null
-		if (mesDescs != null) {
-
-			// set language
-			Language lang = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
-
-			// parse measuredescriptions and remove texts to add only selected
-			// language text
-			for (MeasureDescription mesDesc : mesDescs) {
-
-				mesDesc.setMeasureDescriptionTexts(new ArrayList<MeasureDescriptionText>());
-
-				// load only from language
-				MeasureDescriptionText mesDescText = serviceMeasureDescriptionText.getForMeasureDescriptionAndLanguage(mesDesc.getId(), lang.getId());
-
-				// check if not null
-				if (mesDescText == null) {
-
-					// create new empty descriptiontext with language
-					mesDescText = new MeasureDescriptionText();
-					mesDescText.setLanguage(lang);
-				}
-
-				mesDesc.addMeasureDescriptionText(mesDescText);
-
-				// System.out.println(mesDescText.getDomain() + "::" +
-				// mesDescText.getDescription());
-
-			}
-			Collections.sort(mesDescs, new ComparatorMeasureDescription());
-			// put data to model
-			model.addAttribute("standard", serviceStandard.get(idStandard));
-			model.addAttribute("measureDescriptions", mesDescs);
-		}
-		return "analyses/singleAnalysis/components/standards/measure/measures";
-	}
-
 	@RequestMapping(value = "/{idStandard}/Measure/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<String, String> saveMeasure(@PathVariable("idStandard") int idStandard, HttpSession session, Principal principal, @RequestBody String value, Locale locale) {
@@ -812,8 +794,10 @@ public class ControllerAnalysisStandard {
 			// retrieve measure id
 			int id = jsonNode.get("id").asInt();
 
+			Measure measure = serviceMeasure.get(id);
+
 			// create new empty measuredescription object
-			MeasureDescription measureDescription = serviceMeasureDescription.get(id);
+			MeasureDescription measureDescription = measure != null ? measure.getMeasureDescription() : null;
 			Standard standard = serviceStandard.get(idStandard);
 
 			if (standard == null) {
@@ -831,13 +815,25 @@ public class ControllerAnalysisStandard {
 				measureDescription = new MeasureDescription();
 
 				measureDescription.setStandard(standard);
-			} else if (measureDescription.getStandard().getId() != idStandard)
-				errors.put("norm", messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description does not belong to given standard", locale));
 
-			if (errors.isEmpty() && buildMeasureDescription(errors, measureDescription, value, locale, idAnalysis)) {
-				serviceMeasureDescription.saveOrUpdate(measureDescription);
+				if (buildMeasureDescription(errors, measureDescription, value, locale, idAnalysis)) {
+					serviceMeasureDescription.save(measureDescription);
 
-				measureManager.createNewMeasureForAllAnalyses(measureDescription);
+					measureManager.createNewMeasureForAllAnalyses(measureDescription);
+				}
+
+			} else {
+				if (measureDescription.getStandard().getId() != idStandard) {
+					errors.put("norm", messageSource.getMessage("error.measure_description.norm.not_matching", null, "Measure description does not belong to given standard", locale));
+
+				} else {
+
+					if (buildMeasureDescription(errors, measureDescription, value, locale, idAnalysis)) {
+						serviceMeasureDescription.saveOrUpdate(measureDescription);
+						measure.setMeasureDescription(measureDescription);
+						serviceMeasure.saveOrUpdate(measure);
+					}
+				}
 			}
 
 			return errors;
@@ -863,11 +859,11 @@ public class ControllerAnalysisStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{idStandard}/Measure/Delete/{idMeasure}", method = RequestMethod.POST, headers = "Accept=application/json")
+	@RequestMapping(value = "/{idStandard}/Measure/Delete/{idMeasure}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale) {
 		try {
 			// try to delete measure
-			MeasureDescription measureDescription = serviceMeasureDescription.get(idMeasure);
+			MeasureDescription measureDescription = serviceMeasure.get(idMeasure).getMeasureDescription();
 
 			if (!measureDescription.getStandard().isAnalysisOnly())
 				return JsonMessage.Error(messageSource.getMessage("error.measure.manage_knowledgebase_measure", null, "This measure can only be managed from the knowledge base", locale));

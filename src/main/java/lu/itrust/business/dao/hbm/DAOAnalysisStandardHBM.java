@@ -71,7 +71,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	@Override
 	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisID) throws Exception {
 		return (List<AnalysisStandard>) getSession().createQuery(
-				"SELECT analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis ORDER BY analysisStandard.standard.label ASC")
+				"SELECT analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :analysis ORDER BY analysisStandard.standard.label  ASC")
 				.setParameter("analysis", analysisID).list();
 	}
 

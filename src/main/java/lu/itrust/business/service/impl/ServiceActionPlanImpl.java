@@ -43,6 +43,14 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 		return daoActionPlan.get(id);
 	}
 
+	/**
+	 * getFromAnalysisById: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.service.ServiceActionPlan#getFromAnalysisById(java.lang.Integer, java.lang.Integer)
+	 */
 	public ActionPlanEntry getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception {
 		return daoActionPlan.getFromAnalysisById(idAnalysis, id);	
 	}

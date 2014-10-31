@@ -21,6 +21,8 @@ public interface DAOMeasure {
 
 	public Measure getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception;
 
+	public Measure getFromAnalysisAndStandardAndReference(Integer idAnalysis, Integer idStandard, String reference) throws Exception;
+
 	public boolean belongsToAnalysis(Integer analysisId, Integer measureId) throws Exception;
 
 	public List<Measure> getAll() throws Exception;
@@ -41,6 +43,10 @@ public interface DAOMeasure {
 
 	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception;
 
+	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception;
+	
+	public List<Measure> getAllNotMaturityMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception;
+	
 	public List<NormalMeasure> getAllNormalMeasuresFromAnalysisByMeasureIdList(Integer idAnalysis, List<Integer> measures) throws Exception;
 
 	public Measure save(Measure measure) throws Exception;
@@ -52,8 +58,8 @@ public interface DAOMeasure {
 	public void delete(Integer id) throws Exception;
 
 	public void delete(Measure measure) throws Exception;
-	
-	public Map<String,Measure> mappingAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard);
+
+	public Map<String, Measure> mappingAllFromAnalysisAndStandard(Integer idAnalysis, Integer idStandard);
 
 	public int countNormalMeasure();
 

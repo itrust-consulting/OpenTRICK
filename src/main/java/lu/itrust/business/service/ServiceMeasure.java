@@ -19,6 +19,8 @@ public interface ServiceMeasure {
 
 	public Measure getFromAnalysisById(Integer idAnalysis, Integer id) throws Exception;
 
+	public Measure getFromAnalysisAndStandardAndReference(Integer idAnalysis, Integer idStandard, String reference) throws Exception;
+	
 	public boolean belongsToAnalysis(Integer analysisId, Integer measureId) throws Exception;
 
 	public List<Measure> getAll() throws Exception;
@@ -50,4 +52,6 @@ public interface ServiceMeasure {
 	public void delete(Integer id) throws Exception;
 
 	public void delete(Measure measure) throws Exception;
+
+	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception;
 }

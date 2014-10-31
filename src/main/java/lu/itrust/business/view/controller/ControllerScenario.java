@@ -287,7 +287,11 @@ public class ControllerScenario {
 	@RequestMapping("/Add")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
 	public String add(Model model, HttpSession session, Principal principal) throws Exception {
-		model.addAttribute("scenariotypes", serviceScenarioType.getAll());
+		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
+		if (serviceAnalysis.isAnalysisCssf(analysisID))
+			model.addAttribute("scenariotypes", ScenarioType.getAllCSSF());
+		else
+			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
 		return "analyses/singleAnalysis/components/scenario/manageScenario";
 	}
@@ -310,8 +314,10 @@ public class ControllerScenario {
 		if (idAnalysis == null)
 			return null;
 
-		// add scenario types to model
-		model.addAttribute("scenariotypes", serviceScenarioType.getAll());
+		if (serviceAnalysis.isAnalysisCssf(idAnalysis))
+			model.addAttribute("scenariotypes", ScenarioType.getAllCSSF());
+		else
+			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
 
 		// add scenario to model
 		model.addAttribute("scenario", serviceScenario.getFromAnalysisById(idAnalysis, elementID));
@@ -374,7 +380,7 @@ public class ControllerScenario {
 
 			List<AssetType> assetTypes = serviceAssetType.getAll();
 
-			scenario = buildScenario(errors, assetTypes, value, customLocale != null ? customLocale : locale);
+			scenario = buildScenario(errors, assetTypes, value, customLocale != null ? customLocale : locale, serviceAnalysis.isAnalysisCssf(idAnalysis));
 
 			if (!errors.isEmpty())
 				return errors;
@@ -489,7 +495,7 @@ public class ControllerScenario {
 	 * @param locale
 	 * @return
 	 */
-	private Scenario buildScenario(Map<String, String> errors, List<AssetType> assetTypes, String source, Locale locale) {
+	private Scenario buildScenario(Map<String, String> errors, List<AssetType> assetTypes, String source, Locale locale, boolean cssf) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
@@ -513,8 +519,32 @@ public class ControllerScenario {
 			String name = jsonNode.get("name").asText();
 
 			JsonNode node = jsonNode.get("scenarioType");
-			ScenarioType scenarioType = serviceScenarioType.get(node.get("id").asInt());
+			ScenarioType scenarioType = null;
+			try {
 
+				Integer i = node.get("id").asInt();
+
+				if (i == -1)
+					throw new TrickException("error.scenario_type.not_selected", "You need to select a scenario type");
+
+				scenarioType = ScenarioType.valueOf(i);
+
+				returnvalue.setType(scenarioType);
+
+				returnvalue.setScenarioType(serviceScenarioType.getAll().get(0));
+				
+				if (cssf)
+					for (String key : ScenarioType.CSSF_KEYS)
+						returnvalue.setCategoryValue(key, 0);
+				else
+					for (String key : ScenarioType.CIA_KEYS)
+						returnvalue.setCategoryValue(key, 0);
+				// set category according to value of scenario type
+				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenario(returnvalue), 4);
+
+			} catch (TrickException e) {
+				errors.put("scenarioType", messageSource.getMessage(e.getCode(), null, e.getMessage(), locale));
+			}
 			String description = jsonNode.get("description").asText();
 
 			error = validator.validate(returnvalue, "name", name);
@@ -530,20 +560,6 @@ public class ControllerScenario {
 				errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
 				returnvalue.setDescription(description);
-			}
-
-			error = validator.validate(returnvalue, "scenarioType", scenarioType);
-			if (error != null)
-				errors.put("scenarioType", serviceDataValidation.ParseError(error, messageSource, locale));
-			else {
-				returnvalue.setScenarioType(scenarioType);
-
-				// set all categories to 0
-				for (String key : CategoryConverter.JAVAKEYS)
-					returnvalue.setCategoryValue(key, 0);
-
-				// set category according to value of scenario type
-				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenario(returnvalue), 4);
 			}
 
 			for (AssetType assetType : assetTypes) {

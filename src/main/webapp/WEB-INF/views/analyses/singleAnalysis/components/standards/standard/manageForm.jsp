@@ -11,8 +11,6 @@
 			<li><a onclick="return addStandard();" href="#"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<fmt:message key="label.action.add" /></a></li>
 			<li trick-selectable="true" trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled"><a onclick="return editStandard();" href="#"><span
 					class="glyphicon glyphicon-edit primary"></span>&nbsp;<fmt:message key="label.action.edit" /></a></li>
-			<li trick-selectable="true" class="disabled"><a onclick="return manageMeasures();" href="#"><span class="glyphicon glyphicon-new-window"></span>&nbsp;<fmt:message
-						key="label.action.show_measures" /></a></li>
 			<li trick-selectable="true" class="disabled pull-right"><a onclick="return removeStandard();" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<fmt:message
 						key="label.action.remove" /></a></li>
 		</ul>

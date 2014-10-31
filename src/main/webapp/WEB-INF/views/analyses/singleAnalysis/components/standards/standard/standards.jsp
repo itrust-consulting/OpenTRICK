@@ -11,25 +11,22 @@
 			<fmt:message key="label.title.norms" />
 		</h3>
 	</div>
-	<c:if test="${empty(measureSplited)}">
-		<spring:eval expression="T(lu.itrust.business.component.MeasureManager).SplitByStandard(measures)" var="measureSplited" />
-	</c:if>
-	<c:forEach items="${measureSplited.keySet()}" var="standard">
+	<c:forEach items="${measures.keySet()}" var="standard">
 		<spring:eval expression="T(lu.itrust.business.component.MeasureManager).getStandardType(standards, standard)" var="standardType" scope="page" />
 		<spring:eval expression="T(lu.itrust.business.component.MeasureManager).getStandardId(standards, standard)" var="standardid" scope="page" />
 		<span class="anchor" id="anchorMeasure_${standardid}"></span>
-		<div id="section_standard_${standardid}" trick-id="${standardid}">
+		<div id="section_standard_${standardid}" trick-id="${standardid}" trick-label="${standard}">
 			<div class="panel panel-default">
 				<c:if test="${standardType.name.equals('ASSET')}">
 					<div class="panel-heading" ${standardType.name.equals('ASSET')?'style="min-height:60px;"':''}>
-						<ul class="nav nav-pills" id="menu_asset_standard">
+						<ul class="nav nav-pills" id="menu_standard_${standardid}">
 							<li style="padding: 10px 15px;"><spring:message text="${standard}" /></li>
 							<li><a onclick="return newMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> Add </a></li>
 							<li trick-selectable="true" class="disabled"><a onclick="return editSingleMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
 									Edit </a></li>
 							<li class="disabled" trick-selectable="true"><a href="#anchorstandard" onclick="return manageMeasureAssets(null, ${standardid});"><span
 									class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.measure_manage_assets" /></a></li>
-							<li trick-selectable="true" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger" href="#"><span
+							<li trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger" href="#"><span
 									class="glyphicon glyphicon-remove"></span> Delete </a></li>
 						</ul>
 					</div>
@@ -44,7 +41,7 @@
 						<thead>
 							<tr>
 								<c:if test="${standardType.name.equals('ASSET')}">
-									<th>&nbsp;</th>
+									<th><input type="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')" class="checkbox"></th>
 								</c:if>
 								<th colspan="2"><fmt:message key="label.measure.ref" /></th>
 								<th colspan="5"><fmt:message key="label.measure.domain" /></th>
@@ -69,7 +66,7 @@
 						<tfoot>
 						</tfoot>
 						<tbody>
-							<c:forEach items="${measureSplited.get(standard)}" var="measure">
+							<c:forEach items="${measures.get(standard)}" var="measure">
 								<c:set var="css">
 									<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
 								</c:set>
@@ -77,9 +74,10 @@
 								<c:choose>
 									<c:when test="${measure.measureDescription.computable==false }">
 										<tr trick-computable="false" trick-level="${measure.measureDescription.level}" trick-class="Measure" style="background-color: #F8F8F8;" trick-id="${measure.id}"
-											trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
+											trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${standardType.name.equals('ASSET')?'ondblclick="return editSingleMeasure(this,':''}
+											${standardType.name.equals('ASSET')?standardid:''} ${standardType.name.equals('ASSET')?')"':''}>
 											<c:if test="${standardType.name.equals('ASSET')}">
-												<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_asset_standard');"></td>
+												<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 											</c:if>
 											<td colspan="2"><spring:message text="${measure.measureDescription.reference}" /></td>
 											<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'40':'32'}"><spring:message
@@ -90,13 +88,16 @@
 										<tr trick-computable="true" trick-description="${measureDescriptionText.description}" trick-level="${measure.measureDescription.level}" trick-class="Measure"
 											trick-id="${measure.id}" trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
 											<c:if test="${standardType.name.equals('ASSET')}">
-												<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_asset_standard');"></td>
+												<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 											</c:if>
 											<td colspan="2" class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
 												data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>'
 												title='<spring:message
-														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
-											<td colspan="5"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+														text="${measure.measureDescription.reference}" />'
+												${standardType.name.equals('ASSET')?'ondblclick="return editSingleMeasure($(this).parent(),':''} ${standardType.name.equals('ASSET')?standardid:''}
+												${standardType.name.equals('ASSET')?')"':''}><spring:message text="${measure.measureDescription.reference}" /></td>
+											<td colspan="5" ${standardType.name.equals('ASSET')?'ondblclick="return editSingleMeasure($(this).parent(),':''} ${standardType.name.equals('ASSET')?standardid:''}
+												${standardType.name.equals('ASSET')?')"':''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 											<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 													text="${measure.status}" /></td>
 											<td ${css} trick-field="implementationRate" ${standardType.name.equals('MATURITY')?'trick-class="MaturityMeasure"':''} trick-field-type="double"

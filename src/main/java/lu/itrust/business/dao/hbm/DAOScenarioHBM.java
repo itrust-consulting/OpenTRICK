@@ -93,7 +93,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	@Override
 	public List<Scenario> getAllFromAnalysis(Integer idAnalysis) throws Exception {
 		String query =
-			"Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisId order by scenario.selected DESC, scenario.scenarioType.name asc, ";
+			"Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysisId order by scenario.selected DESC, scenario.type.name asc, ";
 		query += "scenario.name asc";
 		return getSession().createQuery(query).setParameter("analysisId", idAnalysis).list();
 	}

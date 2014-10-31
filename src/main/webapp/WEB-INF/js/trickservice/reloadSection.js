@@ -1,44 +1,41 @@
 // load sections
 function loadPanelBodiesOfSection(section, refreshOnly) {
 
-		var controller = controllerBySection(section, subSection);
-		if (controller == null || controller == undefined)
+	var controller = controllerBySection(section, subSection);
+	if (controller == null || controller == undefined)
+		return false;
+
+	$.ajax({
+		url : context + controller,
+		type : "get",
+		async : true,
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			var tag = response.substring(response.indexOf('<'));
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(tag, "text/html");
+			if (subSection != null && subSection != undefined)
+				section += "_" + subSection;
+			newSection = $(doc).find("*[id = '" + section + "']");
+			var smartUpdate = new SectionSmartUpdate(section, newSection);
+			if (smartUpdate.Update()) {
+				$("#" + section).replaceWith(newSection);
+				var tableFixedHeader = $("#" + section).find("table.table-fixed-header");
+				if (tableFixedHeader.length) {
+					setTimeout(function() {
+						fixedTableHeader(tableFixedHeader);
+					}, 500);
+				}
+			}
+			if (!refreshOnly) {
+				var callback = callbackBySection(section);
+				if ($.isFunction(callback))
+					callback();
+			}
 			return false;
-		
-		
-		
-		
-		$.ajax({
-			url : context + controller,
-			type : "get",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				var tag = response.substring(response.indexOf('<'));
-				var parser = new DOMParser();
-				var doc = parser.parseFromString(tag, "text/html");
-				if (subSection != null && subSection != undefined)
-					section += "_" + subSection;
-				newSection = $(doc).find("*[id = '" + section + "']");
-				var smartUpdate = new SectionSmartUpdate(section, newSection);
-				if (smartUpdate.Update()) {
-					$("#" + section).replaceWith(newSection);
-					var tableFixedHeader = $("#" + section).find("table.table-fixed-header");
-					if (tableFixedHeader.length) {
-						setTimeout(function() {
-							fixedTableHeader(tableFixedHeader);
-						}, 500);
-					}
-				}
-				if (!refreshOnly) {
-					var callback = callbackBySection(section);
-					if ($.isFunction(callback))
-						callback();
-				}
-				return false;
-			},
-			error : unknowError
-		});
+		},
+		error : unknowError
+	});
 	return false;
 }
 
@@ -55,10 +52,10 @@ function reloadSection(section, subSection, refreshOnly) {
 		var controller = controllerBySection(section, subSection);
 		if (controller == null || controller == undefined)
 			return false;
-		
-		
-		
-		
+
+		if (section == "section_standard")
+			$("#" + section).html("");
+
 		$.ajax({
 			url : context + controller,
 			type : "get",
@@ -112,9 +109,9 @@ function controllerBySection(section, subSection) {
 		"section_riskregister" : "/Analysis/RiskRegister/Section"
 	};
 
-	if(section.match("^section_standard_"))
-		return "/Analysis/Standard/Section/"+ section.substr(17,section.length);
-	
+	if (section.match("^section_standard_"))
+		return "/Analysis/Standard/Section/" + section.substr(17, section.length);
+
 	if (subSection == null || subSection == undefined)
 		return controllers[section];
 	else
@@ -124,12 +121,18 @@ function controllerBySection(section, subSection) {
 function callbackBySection(section) {
 	var callbacks = {
 		"section_asset" : function() {
-			reloadSection("section_scenario", undefined, true /*prevent propagation*/);
+			reloadSection("section_scenario", undefined, true /*
+																 * prevent
+																 * propagation
+																 */);
 			chartALE();
 			return false;
 		},
 		"section_scenario" : function() {
-			reloadSection("section_asset", undefined, true /*prevent propagation*/);
+			reloadSection("section_asset", undefined, true /*
+															 * prevent
+															 * propagation
+															 */);
 			chartALE();
 			return false;
 		},
@@ -146,30 +149,30 @@ function callbackBySection(section) {
 			summaryCharts();
 			return false;
 		},
-		"section_standard" : function () {
-			
+		"section_standard" : function() {
+
 			$("#standardmenu a[href^='#anchorMeasure_']").closest("li").remove();
-			
+
 			var text = "";
-			
-			$("#"+section+" div[id^='section_standard_']").each(function(){
-				var standard = $(this).attr("id").substr(17,$(this).attr("id").length);
-				var link = "#anchorMeasure_"+standard;
-				text += "<li><a href='"+link+"'>"+standard+"</a></li>";
+
+			$("#" + section + " div[id^='section_standard_']").each(function() {
+				var standard = $(this).attr("trick-label");
+				var standardid = $(this).attr("trick-id");
+				var link = "#anchorMeasure_" + standardid;
+				text += "<li><a href='" + link + "'>" + standard + "</a></li>";
 			});
-			
+
 			$("#standardmenu").prepend(text);
-			
-			$("#"+section+" td.popover-element").popover("hide");
+
+			$("#" + section + " td.popover-element").popover("hide");
 		}
-		
 
 	};
-	
-	if(section.match("^section_standard_")) {
-		$("#"+section+" td.popover-element").popover('hide');
+
+	if (section.match("^section_standard_")) {
+		$("#" + section + " td.popover-element").popover('hide');
 	}
-	
+
 	return callbacks[section];
 }
 
@@ -233,12 +236,12 @@ SectionSmartUpdate.prototype = {
 
 			var $tfooter = $(dest).find("tfoot");
 			if ($tfooter.length) {
-				//replaceWith does not work, fix with this following code
+				// replaceWith does not work, fix with this following code
 				var $parent = $tfooter.parent();
 				$tfooter.remove();
 				$(src).find("tfoot").appendTo($parent);
 			}
-			
+
 			var checked = $($tbody).find("td:first-child>input:checked");
 			if (checked.length)
 				$(checked).change();

@@ -62,7 +62,7 @@
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');"></td>
 							<td>${status.index+1}</td>
 							<td class="${cssClass}" colspan="15"><spring:message text="${scenario.name}" /></td>
-							<td class="${cssClass}" colspan="3"><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.scenarioType.name,'-','_'))}" /></td>
+							<td class="${cssClass}" colspan="3"><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
 							<c:choose>
 								<c:when test="${show_uncertainty}">
 									<td colspan="2" title="<fmt:formatNumber value="${ale[0].value}" maxFractionDigits="2" minFractionDigits="0" />&euro;"><fmt:formatNumber value="${ale[0].value*0.001}"

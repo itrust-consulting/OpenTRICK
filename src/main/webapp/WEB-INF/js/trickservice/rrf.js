@@ -526,9 +526,9 @@ function MeasureRRFController(rrfView, container, name) {
 		var that = this;
 		if (this.idMeasure < 1 || this.idMeasure == undefined)
 			this.idMeasure = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
-			var idStandard = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Standard']").attr("trick-id");
+		var idStandard = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Standard']").attr("trick-id");
 		$.ajax({
-			url : context + "/Analysis/Standard/"+idStandard+"/Measure/" + that.idMeasure,
+			url : context + "/Analysis/Standard/" + idStandard + "/Measure/" + that.idMeasure,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
@@ -540,10 +540,23 @@ function MeasureRRFController(rrfView, container, name) {
 						var field = that.CategoryToField[$(clone).prop("name")] || $(clone).prop("name");
 						var fieldValue = response.measurePropertyList[field];
 						if (fieldValue == undefined) {
-							for (var j = 0; j < response.assetTypeValues.length; j++) {
-								if (response.assetTypeValues[j].assetType.type == field) {
-									fieldValue = response.assetTypeValues[j].value;
-									break;
+
+							if (response.assetTypeValues != undefined) {
+
+								for (var j = 0; j < response.assetTypeValues.length; j++) {
+									if (response.assetTypeValues[j].assetType.type == field) {
+										fieldValue = response.assetTypeValues[j].value;
+										break;
+									}
+								}
+							}
+							if (response.measureAssetValues != undefined) {
+
+								for (var j = 0; j < response.measureAssetValues.length; j++) {
+									if (response.measureAssetValues[j].asset.label == field) {
+										fieldValue = response.measureAssetValues[j].value;
+										break;
+									}
 								}
 							}
 							if (fieldValue == undefined)

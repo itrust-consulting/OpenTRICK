@@ -2,6 +2,7 @@ package lu.itrust.business.dao.hbm;
 
 import java.util.List;
 
+import lu.itrust.business.TS.OldScenarioType;
 import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.dao.DAOScenarioType;
 
@@ -41,8 +42,8 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 * @see lu.itrust.business.dao.DAOScenarioType#get(int)
 	 */
 	@Override
-	public ScenarioType get(Integer id) throws Exception {
-		return (ScenarioType) getSession().get(ScenarioType.class, id);
+	public OldScenarioType get(Integer id) throws Exception {
+		return (OldScenarioType) getSession().get(OldScenarioType.class, id);
 	}
 
 	/**
@@ -52,8 +53,8 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 * @see lu.itrust.business.dao.DAOScenarioType#getByTypeName(java.lang.String)
 	 */
 	@Override
-	public ScenarioType getByName(String scenarioTypeName) throws Exception {
-		return (ScenarioType) getSession().createQuery("From ScenarioType where name = :type").setString("type", scenarioTypeName).uniqueResult();
+	public OldScenarioType getByName(String scenarioTypeName) throws Exception {
+		return (OldScenarioType) getSession().createQuery("From ScenarioType where name = :type").setString("type", scenarioTypeName).uniqueResult();
 	}
 
 	/**
@@ -64,8 +65,8 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ScenarioType> getAll() throws Exception {
-		return (List<ScenarioType>) getSession().createQuery("From ScenarioType").list();
+	public List<OldScenarioType> getAll() throws Exception {
+		return (List<OldScenarioType>) getSession().createQuery("From OldScenarioType").list();
 	}
 
 	/**
@@ -75,7 +76,7 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 * @see lu.itrust.business.dao.DAOScenarioType#save(lu.itrust.business.TS.ScenarioType)
 	 */
 	@Override
-	public void save(ScenarioType scenarioType) throws Exception {
+	public void save(OldScenarioType scenarioType) throws Exception {
 		getSession().save(scenarioType);
 	}
 
@@ -86,7 +87,7 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 * @see lu.itrust.business.dao.DAOScenarioType#saveOrUpdate(lu.itrust.business.TS.ScenarioType)
 	 */
 	@Override
-	public void saveOrUpdate(ScenarioType scenarioType) throws Exception {
+	public void saveOrUpdate(OldScenarioType scenarioType) throws Exception {
 		getSession().saveOrUpdate(scenarioType);
 	}
 
@@ -97,7 +98,7 @@ public class DAOScenarioTypeHBM extends DAOHibernate implements DAOScenarioType 
 	 * @see lu.itrust.business.dao.DAOScenarioType#delete(lu.itrust.business.TS.ScenarioType)
 	 */
 	@Override
-	public void delete(ScenarioType scenarioType) throws Exception {
+	public void delete(OldScenarioType scenarioType) throws Exception {
 		getSession().delete(scenarioType);
 	}
 }

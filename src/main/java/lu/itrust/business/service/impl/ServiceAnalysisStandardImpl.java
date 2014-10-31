@@ -36,6 +36,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * 
 	 * @see lu.itrust.business.service.ServiceAnalysisStandard#get(int)
 	 */
+	
 	@Override
 	public AnalysisStandard get(Integer id) throws Exception {
 		return daoAnalysisStandard.get(id);
@@ -50,6 +51,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * 
 	 * @see lu.itrust.business.service.ServiceAnalysisStandard#getAll()
 	 */
+	
 	@Override
 	public List<AnalysisStandard> getAll() throws Exception {
 		return daoAnalysisStandard.getAll();
@@ -65,6 +67,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * 
 	 * @see lu.itrust.business.service.ServiceAnalysisStandard#getAllFromAnalysis(java.lang.Integer)
 	 */
+	
 	@Override
 	public List<AnalysisStandard> getAllFromAnalysis(Integer analysisID) throws Exception {
 		return this.daoAnalysisStandard.getAllFromAnalysis(analysisID);
@@ -80,6 +83,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * 
 	 * @see lu.itrust.business.service.ServiceAnalysisStandard#getAllFromAnalysis(java.lang.Integer)
 	 */
+	
 	@Override
 	public List<AnalysisStandard> getAllComputableFromAnalysis(Integer analysisID) throws Exception {
 		return this.daoAnalysisStandard.getAllComputableFromAnalysis(analysisID);
@@ -95,6 +99,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * 
 	 * @see lu.itrust.business.service.ServiceAnalysisStandard#getAllFromAnalysis(lu.itrust.business.TS.Analysis)
 	 */
+	
 	@Override
 	public List<AnalysisStandard> getAllFromAnalysis(Analysis analysis) throws Exception {
 		return daoAnalysisStandard.getAllFromAnalysis(analysis);
@@ -108,6 +113,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 *
 	 * @see lu.itrust.business.service.ServiceAnalysisStandard#getAllFromStandard(lu.itrust.business.TS.Standard)
 	 */
+	
 	@Override
 	public List<AnalysisStandard> getAllFromStandard(Standard standard) throws Exception {
 		return daoAnalysisStandard.getAllFromStandard(standard);
@@ -161,6 +167,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 
 	}
 
+	@Transactional
 	@Override
 	public void deleteAllFromAnalysis(Integer analysisId) throws Exception {
 		daoAnalysisStandard.deleteAllFromAnalysis(analysisId);

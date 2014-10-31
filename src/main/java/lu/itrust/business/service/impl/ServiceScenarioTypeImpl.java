@@ -2,7 +2,7 @@ package lu.itrust.business.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.ScenarioType;
+import lu.itrust.business.TS.OldScenarioType;
 import lu.itrust.business.dao.DAOScenarioType;
 import lu.itrust.business.service.ServiceScenarioType;
 
@@ -36,7 +36,7 @@ public class ServiceScenarioTypeImpl implements ServiceScenarioType {
 	 * @see lu.itrust.business.service.ServiceScenarioType#get(int)
 	 */
 	@Override
-	public ScenarioType get(Integer id) throws Exception {
+	public OldScenarioType get(Integer id) throws Exception {
 		return daoScenarioType.get(id);
 	}
 
@@ -51,7 +51,7 @@ public class ServiceScenarioTypeImpl implements ServiceScenarioType {
 	 * @see lu.itrust.business.service.ServiceScenarioType#getByTypeName(java.lang.String)
 	 */
 	@Override
-	public ScenarioType getByName(String scenarioTypeName) throws Exception {
+	public OldScenarioType getByName(String scenarioTypeName) throws Exception {
 		return daoScenarioType.getByName(scenarioTypeName);
 	}
 
@@ -65,7 +65,7 @@ public class ServiceScenarioTypeImpl implements ServiceScenarioType {
 	 * @see lu.itrust.business.service.ServiceScenarioType#getAllScenarioTypes()
 	 */
 	@Override
-	public List<ScenarioType> getAll() throws Exception {
+	public List<OldScenarioType> getAll() throws Exception {
 		return daoScenarioType.getAll();
 	}
 
@@ -80,7 +80,7 @@ public class ServiceScenarioTypeImpl implements ServiceScenarioType {
 	 */
 	@Transactional
 	@Override
-	public void save(ScenarioType scenarioType) throws Exception {
+	public void save(OldScenarioType scenarioType) throws Exception {
 		daoScenarioType.save(scenarioType);
 	}
 
@@ -95,7 +95,7 @@ public class ServiceScenarioTypeImpl implements ServiceScenarioType {
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(ScenarioType scenarioType) throws Exception {
+	public void saveOrUpdate(OldScenarioType scenarioType) throws Exception {
 		daoScenarioType.saveOrUpdate(scenarioType);
 	}
 
@@ -110,7 +110,7 @@ public class ServiceScenarioTypeImpl implements ServiceScenarioType {
 	 */
 	@Transactional
 	@Override
-	public void delete(ScenarioType scenarioType) throws Exception {
+	public void delete(OldScenarioType scenarioType) throws Exception {
 		daoScenarioType.delete(scenarioType);
 	}
 }

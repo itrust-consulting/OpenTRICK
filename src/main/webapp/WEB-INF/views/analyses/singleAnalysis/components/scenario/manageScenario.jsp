@@ -15,14 +15,7 @@
 			</div>
 			<div class="modal-body">
 				<form name="scenario" action="${pageContext.request.contextPath}/Scenario/Save" class="form-horizontal" id="scenario_form">
-					<c:choose>
-						<c:when test="${!empty(scenario)}">
-							<input type="hidden" name="id" value="${scenario.id}" id="scenario_id">
-						</c:when>
-						<c:otherwise>
-							<input type="hidden" name="id" value="-1" id="scenario_id">
-						</c:otherwise>
-					</c:choose>
+					<input type="hidden" name="id" value="${!empty(scenario)?scenario.id:'-1'}" id="scenario_id">
 					<div class="form-group">
 						<label for="name" class="col-sm-2 control-label"> <fmt:message key="label.scenario.name" />
 						</label>
@@ -39,7 +32,7 @@
 									<c:when test="${!empty(scenariotypes)}">
 										<option value='-1'><fmt:message key="label.scenario.type.select" /></option>
 										<c:forEach items="${scenariotypes}" var="scenariotype">
-											<option value="${scenariotype.id}" ${scenario.scenarioType == scenariotype?'selected':''}><fmt:message
+											<option value="${scenariotype.value}" ${scenario.type == scenariotype?'selected':''}><fmt:message
 													key="label.scenario.type.${fn:toLowerCase(fn:replace(scenariotype.name,'-','_'))}" /></option>
 										</c:forEach>
 									</c:when>

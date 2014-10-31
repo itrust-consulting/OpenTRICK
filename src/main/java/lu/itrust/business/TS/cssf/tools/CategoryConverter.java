@@ -389,7 +389,7 @@ public class CategoryConverter {
 		}
 
 		// returns the type of the scneario if it is CSSF null when not
-		return  scenarioTypeToType.get(scenario.getScenarioType().getName());
+		return  scenarioTypeToType.get(scenario.getType().getName());
 	}
 	
 	/**

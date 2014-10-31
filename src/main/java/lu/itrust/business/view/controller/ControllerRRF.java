@@ -13,6 +13,7 @@ import lu.itrust.business.TS.Measure;
 import lu.itrust.business.TS.MeasureProperties;
 import lu.itrust.business.TS.NormalMeasure;
 import lu.itrust.business.TS.Scenario;
+import lu.itrust.business.TS.ScenarioType;
 import lu.itrust.business.TS.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.component.ChartGenerator;
@@ -72,10 +73,13 @@ public class ControllerRRF {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
 	public String rrf(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		List<NormalMeasure> normalMeasures = serviceMeasure.getAllNormalMeasuresFromAnalysisAndComputable(idAnalysis);
+		List<Measure> measures = serviceMeasure.getAllNotMaturityMeasuresFromAnalysisAndComputable(idAnalysis);
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(idAnalysis);
-		model.addAttribute("measures", MeasureManager.SplitByChapter(normalMeasures));
-		model.addAttribute("categories", CategoryConverter.JAVAKEYS);
+		model.addAttribute("measures", MeasureManager.SplitByChapter(measures));
+		if (serviceAnalysis.isAnalysisCssf(idAnalysis))
+			model.addAttribute("categories", ScenarioType.getAllCSSF());
+		else
+			model.addAttribute("categories", ScenarioType.getAllCIA());
 		model.addAttribute("scenarios", ScenarioManager.SplitByType(scenarios));
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
 		Language language = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
@@ -160,7 +164,7 @@ public class ControllerRRF {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-		return chartGenerator.rrfByMeasure((NormalMeasure) measure, idAnalysis, customLocale != null ? customLocale : locale, filter);
+		return chartGenerator.rrfByMeasure(measure, idAnalysis, customLocale != null ? customLocale : locale, filter);
 	}
 
 }

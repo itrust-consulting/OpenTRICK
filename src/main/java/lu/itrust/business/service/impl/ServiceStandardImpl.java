@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @since Jan 16, 2013
  */
 @Service
-@Transactional
 public class ServiceStandardImpl implements ServiceStandard {
 
 	@Autowired
@@ -189,31 +188,26 @@ public class ServiceStandardImpl implements ServiceStandard {
 		daoStandard.delete(standard);
 	}
 
-	@Transactional
 	@Override
 	public List<Standard> getAllNotBoundToAnalysis() throws Exception {
 		return daoStandard.getAllNotBoundToAnalysis();
 	}
 
-	@Transactional
 	@Override
 	public List<Standard> getAllAnalysisOnlyStandardsFromAnalysis(Integer analsisID) throws Exception {
 		return daoStandard.getAllAnalysisOnlyStandardsFromAnalysis(analsisID);
 	}
 
-	@Transactional
 	@Override
 	public List<Standard> getAllFromAnalysisNotBound(Integer analysisId) throws Exception {
 		return daoStandard.getAllFromAnalysisNotBound(analysisId);
 	}
 
-	@Transactional
 	@Override
 	public Integer getBiggestVersionFromStandardByNameAndType(String label, StandardType standardType) throws Exception {
 		return daoStandard.getBiggestVersionFromStandardByNameAndType(label, standardType);
 	}
 
-	@Transactional
 	@Override
 	public boolean existsByNameVersionType(String label, Integer version, StandardType type) throws Exception {
 		return daoStandard.existsByNameVersionType(label, version, type);

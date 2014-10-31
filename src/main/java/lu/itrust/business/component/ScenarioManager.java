@@ -15,7 +15,7 @@ public class ScenarioManager {
 		for (Scenario scenario : scenarios) {
 			List<Scenario> scenarios2 = mappedScenarios.get(scenario.getScenarioType());
 			if (scenarios2 == null)
-				mappedScenarios.put(scenario.getScenarioType(), scenarios2 = new ArrayList<Scenario>());
+				mappedScenarios.put(scenario.getType(), scenarios2 = new ArrayList<Scenario>());
 			scenarios2.add(scenario);
 		}
 		return mappedScenarios;

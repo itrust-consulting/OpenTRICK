@@ -11,13 +11,13 @@
 				<div class="panel-body">
 					<div class="list-group" style="max-height: 360px; overflow: auto;" id="selectable_rrf_scenario_controls">
 						<c:forEach items="${scenarios.keySet()}" var="scenarioType" varStatus="status">
-							<div class="list-group" trick-id="${scenarioType.id}">
+							<div class="list-group" trick-id="${scenarioType.value}">
 								<h4 class="list-group-item-heading">
-									<a href="#" trick-id="${scenarioType.id}" trick-value='<spring:message text="${scenarioType.name}" />' onclick="return false;" trick-class="ScenarioType"
-										class="list-group-item${status.index==0?' active':''}"> <fmt:message key="label.rrf.category.${fn:toLowerCase(scenarioType.name)}" />
+									<a href="#" trick-id="${scenarioType.value}" trick-value='<spring:message text="${scenarioType.name}" />' onclick="return false;" trick-class="ScenarioType"
+										class="list-group-item${status.index==0?' active':''}"> <spring:message text="${scenarioType.name}" />
 									</a>
 								</h4>
-								<div class="list-group" trick-id="${scenarioType.id}" trick-value='<spring:message text="${scenarioType.name}" />'>
+								<div class="list-group" trick-id="${scenarioType.value}" trick-value='<spring:message text="${scenarioType.name}" />'>
 									<c:forEach items="${scenarios.get(scenarioType)}" var="scenario" varStatus="statusScanrio">
 										<a href="#" onclick="return false;" title='<spring:message text="${scenario.name}"/>' trick-class="Scenario" trick-id="${scenario.id}" class="list-group-item"
 											style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"> <spring:message text="${scenario.name}" />
@@ -37,10 +37,7 @@
 							<div class="list-group" trick-id="${chapter.standard.id}">
 								<h4 class="list-group-item-heading">
 									<a href="#" onclick="return false;" class="list-group-item${status.index==0?' active':''}" trick-class="Standard" title='<spring:message text="${chapter.reference}"/>'
-										trick-id="${chapter.standard.id}" trick-value=<spring:message text="${chapter.reference}"/>>
-										<spring:message text="${chapter.standard.label}" /> 
-										- 
-										<spring:message
+										trick-id="${chapter.standard.id}" trick-value=<spring:message text="${chapter.reference}"/>> <spring:message text="${chapter.standard.label}" /> - <spring:message
 											code="label.measure.chapter" arguments="${chapter.reference}" text="Chapter ${chapter.reference}" />
 									</a>
 								</h4>
@@ -82,13 +79,13 @@
 											</c:forEach>
 											<th class="${typeClass}" trick-type="type"><fmt:message key="label.rrf.scenario.preventive" /></th>
 											<th class="${typeClass}" trick-type="type"><fmt:message key="label.rrf.scenario.detective" /></th>
-											<th class="${typeClass}" trick-type="type"><fmt:message key="label.rrf.scenario.limitative"  /></th>
-											<th class="${typeClass}" trick-type="type"><fmt:message key="label.rrf.scenario.corrective"  /></th>
-											<th class="warning" trick-type="source"><fmt:message key="label.rrf.scenario.intentional"  /></th>
-											<th class="warning" trick-type="source"><fmt:message key="label.rrf.scenario.accidental"  /></th>
-											<th class="warning" trick-type="source"><fmt:message key="label.rrf.scenario.environmental"  /></th>
-											<th class="warning" trick-type="source"><fmt:message key="label.rrf.scenario.internalThreat"  /></th>
-											<th class="warning" trick-type="source"><fmt:message key="label.rrf.scenario.externalThreat"  /></th>
+											<th class="${typeClass}" trick-type="type"><fmt:message key="label.rrf.scenario.limitative" /></th>
+											<th class="${typeClass}" trick-type="type"><fmt:message key="label.rrf.scenario.corrective" /></th>
+											<th class="warning" trick-type="source"><fmt:message key="label.rrf.scenario.intentional" /></th>
+											<th class="warning" trick-type="source"><fmt:message key="label.rrf.scenario.accidental" /></th>
+											<th class="warning" trick-type="source"><fmt:message key="label.rrf.scenario.environmental" /></th>
+											<th class="warning" trick-type="source"><fmt:message key="label.rrf.scenario.internalThreat" /></th>
+											<th class="warning" trick-type="source"><fmt:message key="label.rrf.scenario.externalThreat" /></th>
 										</tr>
 									</thead>
 									<tbody>
@@ -165,23 +162,31 @@
 							<table class="table">
 								<thead>
 									<tr>
-										<th class="warning"><fmt:message key="label.rrf.scenario.strength_measure"  /></th>
-										<th class="warning"><fmt:message key="label.rrf.scenario.strength_sectoral"  /></th>
+										<th class="warning"><fmt:message key="label.rrf.scenario.strength_measure" /></th>
+										<th class="warning"><fmt:message key="label.rrf.scenario.strength_sectoral" /></th>
 										<c:forEach items="${categories}" var="category">
-											<th class="info" trick-class="Category" trick-value=<spring:message text="${category}" />><fmt:message key="label.rrf.category.${fn:toLowerCase(category)}"  /></th>
+											<th class="info" trick-class="Category" trick-value=<spring:message text="${category}" />><fmt:message
+													key="label.rrf.category.${fn:toLowerCase(fn:replace(category,'_','.'))}" /></th>
 										</c:forEach>
-										<th class="success"><fmt:message key="label.rrf.measure.preventive"  /></th>
-										<th class="success"><fmt:message key="label.rrf.measure.detective"  /></th>
-										<th class="success"><fmt:message key="label.rrf.measure.limitative"  /></th>
-										<th class="success"><fmt:message key="label.rrf.measure.corrective"  /></th>
-										<th class="warning"><fmt:message key="label.rrf.measure.intentional"  /></th>
-										<th class="warning"><fmt:message key="label.rrf.measure.accidental"  /></th>
-										<th class="warning"><fmt:message key="label.rrf.measure.environmental"  /></th>
-										<th class="warning"><fmt:message key="label.rrf.measure.internal_threat"  /></th>
-										<th class="warning"><fmt:message key="label.rrf.measure.external_threat"  /></th>
-										<c:forEach items="${assetTypes}" var="assetType">
-											<th><fmt:message key='label.asset_type.${fn:toLowerCase(assetType.type)}'  /></th>
-										</c:forEach>
+										<th class="success"><fmt:message key="label.rrf.measure.preventive" /></th>
+										<th class="success"><fmt:message key="label.rrf.measure.detective" /></th>
+										<th class="success"><fmt:message key="label.rrf.measure.limitative" /></th>
+										<th class="success"><fmt:message key="label.rrf.measure.corrective" /></th>
+										<th class="warning"><fmt:message key="label.rrf.measure.intentional" /></th>
+										<th class="warning"><fmt:message key="label.rrf.measure.accidental" /></th>
+										<th class="warning"><fmt:message key="label.rrf.measure.environmental" /></th>
+										<th class="warning"><fmt:message key="label.rrf.measure.internal_threat" /></th>
+										<th class="warning"><fmt:message key="label.rrf.measure.external_threat" /></th>
+										<c:if test="${!empty(assetTypes)}">
+											<c:forEach items="${assetTypes}" var="assetType">
+												<th><fmt:message key='label.asset_type.${fn:toLowerCase(assetType.type)}' /></th>
+											</c:forEach>
+										</c:if>
+										<c:if test="${!empty(assets)}">
+											<c:forEach items="${assets}" var="asset">
+												<th><spring:message text='${asset}' /></th>
+											</c:forEach>
+										</c:if>
 									</tr>
 								</thead>
 								<tbody>
@@ -236,17 +241,25 @@
 										<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_environmental_value" value="0" name="environmental"></td>
 										<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_internalThreat_value" value="0" name="internalThreat"></td>
 										<td class="warning"><input type="text" readonly="readonly" class="form-control" value="0" id="measure_externalThreat_value" name="externalThreat"></td>
+										<c:if test="${!empty(assetTypes)}">
 										<c:forEach items="${assetTypes}" var="assetType">
 											<td trick-class="AssetType"><input type="text" id='measure_assetType_<spring:message text="${assetType.type}"/>_value' style="min-width: 50px;" readonly="readonly"
 												class="form-control" value="50" name="<spring:message text="${assetType.type}" />"></td>
 										</c:forEach>
+										</c:if>
+										<c:if test="${!empty(assets)}">
+										<c:forEach items="${assets}" var="asset">
+											<td trick-class="AssetType"><input type="text" id='measure_asset_<spring:message text="${asset.name}"/>_value' style="min-width: 50px;" readonly="readonly"
+												class="form-control" value="50" name="<spring:message text="${asset.name}" />"></td>
+										</c:forEach>
+										</c:if>
 									</tr>
 								</tbody>
 							</table>
 						</div>
 					</div>
 					<div class="panel-footer">
-						<fmt:message key="label.rrf.control.measure"  />
+						<fmt:message key="label.rrf.control.measure" />
 					</div>
 				</div>
 			</div>

@@ -962,19 +962,8 @@ public class ImportAnalysis {
 			// ****************************************************************
 			type = rs.getString(Constant.THREAT_TYPE_LABEL);
 
-			// retrieve scenario type from database
-			scenarioType = daoScenarioType.getByName(type);
-
-			// check if type does not exist
-			if (scenarioType == null) {
-
-				// create new scenario type
-				scenarioType = new ScenarioType(type);
-
-				// save scenario type to database
-				daoScenarioType.save(scenarioType);
-			}
-
+			scenarioType = ScenarioType.getByName(type);
+			
 			// add scneario type to map
 			scenarioTypes.put(rs.getInt(Constant.THREAT_ID_TYPE_THREAT), scenarioType);
 		}
@@ -1024,7 +1013,7 @@ public class ImportAnalysis {
 			tempScenario.setEnvironmental(rs.getInt(Constant.THREAT_ENVIRONMENTAL));
 			tempScenario.setExternalThreat(rs.getInt(Constant.THREAT_EXTERNAL_THREAT));
 			tempScenario.setInternalThreat(rs.getInt(Constant.THREAT_INTERNAL_THREAT));
-			tempScenario.setScenarioType(scenarioTypes.get(rs.getInt(Constant.THREAT_ID_TYPE_THREAT)));
+			tempScenario.setType(scenarioTypes.get(rs.getInt(Constant.THREAT_ID_TYPE_THREAT)));
 
 			// set scenario asset types
 			setScenarioAssetValues(tempScenario, rs);

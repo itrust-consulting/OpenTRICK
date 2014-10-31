@@ -438,7 +438,7 @@ public class Analysis implements Cloneable {
 	 * @return The Calculated RRF
 	 * @throws TrickException
 	 */
-	public static double calculateRRF(Scenario scenario, AssetType assetType, Parameter parameter, NormalMeasure measure) throws TrickException {
+	public static double calculateRRF(Scenario scenario, AssetType assetType, Parameter parameter, Measure measure) throws TrickException {
 
 		// ****************************************************************
 		// * initialise variables
@@ -463,92 +463,178 @@ public class Analysis implements Cloneable {
 		// * (inside assessment)
 		// ****************************************************************
 
-		// parse assettype value list from given measure
-		for (int atvc = 0; atvc < measure.getAssetTypeValues().size(); atvc++) {
+		if (measure instanceof NormalMeasure) {
 
-			// check if asset type of measure matches asset type of assessment
-			if (measure.getAssetTypeValue(atvc).getAssetType().equals(assetType)) {
+			NormalMeasure normalMeasure = (NormalMeasure) measure;
 
-				// ****************************************************************
-				// * store assetTypevalue
-				// ****************************************************************
-				assetTypeValue = measure.getAssetTypeValue(atvc).getValue();
-				// System.out.println("Measure: " +
-				// measure.getMeasureDescription().getReference() +
-				// ":: Asset Type Value:" + assetTypeValue);
+			// parse assettype value list from given measure
+			for (int atvc = 0; atvc < normalMeasure.getAssetTypeValues().size(); atvc++) {
 
-				// leave loop
-				break;
+				// check if asset type of measure matches asset type of assessment
+				if (normalMeasure.getAssetTypeValue(atvc).getAssetType().equals(assetType)) {
+
+					// ****************************************************************
+					// * store assetTypevalue
+					// ****************************************************************
+					assetTypeValue = normalMeasure.getAssetTypeValue(atvc).getValue();
+					// System.out.println("Measure: " +
+					// measure.getMeasureDescription().getReference() +
+					// ":: Asset Type Value:" + assetTypeValue);
+
+					// leave loop
+					break;
+				}
 			}
+
+			// ****************************************************************
+			// * Strength calculation
+			// ****************************************************************
+			strength = normalMeasure.getMeasurePropertyList().getFMeasure();
+			strength = strength * normalMeasure.getMeasurePropertyList().getFSectoral();
+			strength = strength / 40.;
+
+			if (Double.isNaN(source))
+				throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menance source for scenario (%s)", scenario.getName()), scenario
+						.getName());
+
+			// ****************************************************************
+			// * Category calculation
+			// ****************************************************************
+			category = calculateRRFCategory(normalMeasure.getMeasurePropertyList(), scenario);
+
+			if (Double.isNaN(category))
+				throw new TrickException("error.analysis.rrf.scenario.category.nan", String.format("RRF computation: please check categories for scenario (%s)", scenario.getName()), scenario
+						.getName());
+
+			// ****************************************************************
+			// * Type calculation
+			// ****************************************************************
+			type =
+				((normalMeasure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (normalMeasure.getMeasurePropertyList().getPreventive() * scenario.getPreventive())
+					+ (normalMeasure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (normalMeasure.getMeasurePropertyList().getCorrective() * scenario.getCorrective())) / 4.;
+
+			if (Double.isNaN(type))
+				throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number", scenario.getName(),
+						measure.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel()), scenario.getName(), measure.getMeasureDescription().getReference(),
+						measure.getAnalysisStandard().getStandard().getLabel());
+
+			// ****************************************************************
+			// * Source calculation
+			// ****************************************************************
+			source =
+				(normalMeasure.getMeasurePropertyList().getIntentional() * scenario.getIntentional()) + (normalMeasure.getMeasurePropertyList().getAccidental() * scenario.getAccidental())
+					+ (normalMeasure.getMeasurePropertyList().getEnvironmental() * scenario.getEnvironmental())
+					+ (normalMeasure.getMeasurePropertyList().getInternalThreat() * scenario.getInternalThreat())
+					+ (normalMeasure.getMeasurePropertyList().getExternalThreat() * scenario.getExternalThreat());
+
+			source = source / (4. * (double) (scenario.getIntentional() + scenario.getAccidental() + scenario.getEnvironmental() + scenario.getInternalThreat() + scenario.getExternalThreat()));
+
+			if (Double.isNaN(source))
+				throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menace source for scenario (%s)", scenario.getName()), scenario
+						.getName());
+
+			// ****************************************************************
+			// * RRF completion :
+			// * (((Asset_Measure/100)*Strength*CID*Type*Source) / 500) * tuning
+			// ****************************************************************
+
+			RRF = ((assetTypeValue / 100. * strength * category * type * source) / 500.) * tuning;
+
+			// if
+			// ((measure.getMeasureDescription().getReference().equals("A.9.2.2")))
+			// {
+			// System.out.println("Measure: " +
+			// measure.getMeasureDescription().getReference() +
+			// "Asset: " + tmpAssessment.getAsset().getName() + "Scenario: " +
+			// tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" +
+			// assetTypeValue +
+			// ", strength=" + strength + ", Category=" + category + ", type=" +
+			// type + ", source=" +
+			// source + ", tuning=" + tuning);
+			// }
+
+			// ****************************************************************
+			// * return the value
+			// ****************************************************************
+			return RRF;
+
+		} else if (measure instanceof AssetMeasure) {
+
+			AssetMeasure assetMeasure = (AssetMeasure) measure;
+
+			// ****************************************************************
+			// * Strength calculation
+			// ****************************************************************
+			strength = assetMeasure.getMeasurePropertyList().getFMeasure();
+			strength = strength * assetMeasure.getMeasurePropertyList().getFSectoral();
+			strength = strength / 40.;
+
+			if (Double.isNaN(source))
+				throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menance source for scenario (%s)", scenario.getName()), scenario
+						.getName());
+
+			// ****************************************************************
+			// * Category calculation
+			// ****************************************************************
+			category = calculateRRFCategory(assetMeasure.getMeasurePropertyList(), scenario);
+
+			if (Double.isNaN(category))
+				throw new TrickException("error.analysis.rrf.scenario.category.nan", String.format("RRF computation: please check categories for scenario (%s)", scenario.getName()), scenario
+						.getName());
+
+			// ****************************************************************
+			// * Type calculation
+			// ****************************************************************
+			type =
+				((assetMeasure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (assetMeasure.getMeasurePropertyList().getPreventive() * scenario.getPreventive())
+					+ (assetMeasure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (assetMeasure.getMeasurePropertyList().getCorrective() * scenario.getCorrective())) / 4.;
+
+			if (Double.isNaN(type))
+				throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number", scenario.getName(),
+						measure.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel()), scenario.getName(), measure.getMeasureDescription().getReference(),
+						measure.getAnalysisStandard().getStandard().getLabel());
+
+			// ****************************************************************
+			// * Source calculation
+			// ****************************************************************
+			source =
+				(assetMeasure.getMeasurePropertyList().getIntentional() * scenario.getIntentional()) + (assetMeasure.getMeasurePropertyList().getAccidental() * scenario.getAccidental())
+					+ (assetMeasure.getMeasurePropertyList().getEnvironmental() * scenario.getEnvironmental())
+					+ (assetMeasure.getMeasurePropertyList().getInternalThreat() * scenario.getInternalThreat())
+					+ (assetMeasure.getMeasurePropertyList().getExternalThreat() * scenario.getExternalThreat());
+
+			source = source / (4. * (double) (scenario.getIntentional() + scenario.getAccidental() + scenario.getEnvironmental() + scenario.getInternalThreat() + scenario.getExternalThreat()));
+
+			if (Double.isNaN(source))
+				throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menace source for scenario (%s)", scenario.getName()), scenario
+						.getName());
+
+			// ****************************************************************
+			// * RRF completion :
+			// * (((Asset_Measure/100)*Strength*CID*Type*Source) / 500) * tuning
+			// ****************************************************************
+
+			RRF = ((assetTypeValue / 100. * strength * category * type * source) / 500.) * tuning;
+
+			// if
+			// ((measure.getMeasureDescription().getReference().equals("A.9.2.2")))
+			// {
+			// System.out.println("Measure: " +
+			// measure.getMeasureDescription().getReference() +
+			// "Asset: " + tmpAssessment.getAsset().getName() + "Scenario: " +
+			// tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" +
+			// assetTypeValue +
+			// ", strength=" + strength + ", Category=" + category + ", type=" +
+			// type + ", source=" +
+			// source + ", tuning=" + tuning);
+			// }
+
+			// ****************************************************************
+			// * return the value
+			// ****************************************************************
+			return RRF;
 		}
-
-		// ****************************************************************
-		// * Strength calculation
-		// ****************************************************************
-		strength = measure.getMeasurePropertyList().getFMeasure();
-		strength = strength * measure.getMeasurePropertyList().getFSectoral();
-		strength = strength / 40.;
-
-		if (Double.isNaN(source))
-			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menance source for scenario (%s)", scenario.getName()), scenario.getName());
-
-		// ****************************************************************
-		// * Category calculation
-		// ****************************************************************
-		category = calculateRRFCategory(measure.getMeasurePropertyList(), scenario);
-
-		if (Double.isNaN(category))
-			throw new TrickException("error.analysis.rrf.scenario.category.nan", String.format("RRF computation: please check categories for scenario (%s)", scenario.getName()), scenario.getName());
-
-		// ****************************************************************
-		// * Type calculation
-		// ****************************************************************
-		type =
-			((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive())
-				+ (measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective())) / 4.;
-
-		if (Double.isNaN(type))
-			throw new TrickException("error.analysis.rrf.type.nan", String.format("RRF computation: please check scenario(%s) and measure (%s for %s), type is not number", scenario.getName(), measure
-					.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel()), scenario.getName(), measure.getMeasureDescription().getReference(), measure
-					.getAnalysisStandard().getStandard().getLabel());
-
-		// ****************************************************************
-		// * Source calculation
-		// ****************************************************************
-		source =
-			(measure.getMeasurePropertyList().getIntentional() * scenario.getIntentional()) + (measure.getMeasurePropertyList().getAccidental() * scenario.getAccidental())
-				+ (measure.getMeasurePropertyList().getEnvironmental() * scenario.getEnvironmental()) + (measure.getMeasurePropertyList().getInternalThreat() * scenario.getInternalThreat())
-				+ (measure.getMeasurePropertyList().getExternalThreat() * scenario.getExternalThreat());
-
-		source = source / (4. * (double) (scenario.getIntentional() + scenario.getAccidental() + scenario.getEnvironmental() + scenario.getInternalThreat() + scenario.getExternalThreat()));
-
-		if (Double.isNaN(source))
-			throw new TrickException("error.analysis.rrf.scenario.source.nan", String.format("RRF computation: please check menace source for scenario (%s)", scenario.getName()), scenario.getName());
-
-		// ****************************************************************
-		// * RRF completion :
-		// * (((Asset_Measure/100)*Strength*CID*Type*Source) / 500) * tuning
-		// ****************************************************************
-
-		RRF = ((assetTypeValue / 100. * strength * category * type * source) / 500.) * tuning;
-
-		// if
-		// ((measure.getMeasureDescription().getReference().equals("A.9.2.2")))
-		// {
-		// System.out.println("Measure: " +
-		// measure.getMeasureDescription().getReference() +
-		// "Asset: " + tmpAssessment.getAsset().getName() + "Scenario: " +
-		// tmpAssessment.getScenario().getName() + " ;RRF=" + RRF + ", atv=" +
-		// assetTypeValue +
-		// ", strength=" + strength + ", Category=" + category + ", type=" +
-		// type + ", source=" +
-		// source + ", tuning=" + tuning);
-		// }
-
-		// ****************************************************************
-		// * return the value
-		// ****************************************************************
-		return RRF;
+		throw new TrickException("error.analysis.rrf.measure.not_accepted", "Measure not capable to calculate RRF");
 	}
 
 	/**

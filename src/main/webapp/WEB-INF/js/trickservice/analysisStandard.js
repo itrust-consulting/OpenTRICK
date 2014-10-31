@@ -446,7 +446,7 @@ function removeStandard() {
 		});
 	});
 	deleteModal.Show();
-
+	return false;
 }
 
 // management of measures of analysis only standards
@@ -498,7 +498,9 @@ function editSingleMeasure(measureId, idStandard) {
 
 	if (measureId == null || measureId == undefined)
 		measureId = $("#section_standard_" + idStandard + " tbody :checked").parent().parent();
-
+	else {
+		measureId = $(measureId);
+	}
 	if (measureId.length != 1)
 		return false;
 
@@ -522,10 +524,14 @@ function editSingleMeasure(measureId, idStandard) {
 
 	$("#addMeasureModel #addmeasurebutton").attr("onclick", "saveMeasure('" + idStandard + "')");
 
+	var domain = $(measure[1]).text();
+
+	var description = $(measureId).attr("trick-description") == undefined ? '' : $(measureId).attr("trick-description");
+
 	var text = '<div style="display: block;"><div class="form-group"><label class="col-sm-2 control-label" for="domain">' + MessageResolver("label.measure.domain", "Domain", null, lang)
-			+ '</label><div class="col-sm-10"><input type="text" class="form-control" id="measure_domain" value="' + $(measure[1]).text() + '" name="domain"></div></div>';
+			+ '</label><div class="col-sm-10"><input type="text" class="form-control" id="measure_domain" value="' + domain + '" name="domain"></div></div>';
 	text = text + '<div class="form-group"><label class="col-sm-2 control-label" for="description">' + MessageResolver("label.measure.description", "Description", null, lang)
-			+ '</label><div class="col-sm-10"><textarea class="form-control" id="measure_description" name="description">' + $(measureId).attr("trick-description") + '</textarea></div></div></div>';
+			+ '</label><div class="col-sm-10"><textarea class="form-control" id="measure_description" name="description">' + description + '</textarea></div></div></div>';
 
 	$("#addMeasureModel #measurelanguages").html(text);
 
@@ -584,81 +590,75 @@ function saveMeasure(idStandard) {
 	return false;
 }
 
-function deleteMeasure(measureId, reference, standard) {
+function deleteMeasure(measureId, standardid) {
 
 	var alert = $("#addMeasureModel .label-danger");
 	if (alert.length)
 		alert.remove();
 
+	if (standardid == null || standardid == undefined)
+		return false;
+
 	if (measureId == null || measureId == undefined) {
-		var selectedScenario = findSelectItemIdBySection("section_measure_description");
-		if (selectedScenario.length != 1)
+		var selectedScenario = findSelectItemIdBySection("section_standard_" + standardid);
+		if (!selectedScenario.length)
 			return false;
-		measureId = selectedScenario[0];
 	}
-
-	idStandard = $("#section_measure_description #measures_header #idStandard").val();
-
-	if (standard == null || standard == undefined)
-		standard = $("#section_measure_description #measures_header #standardLabel").val();
-
-	var measure = $("#section_measure_description #measures_body tr[trick-id='" + measureId + "'] td:not(:first-child)");
-	reference = $(measure[1]).text();
 
 	var lang = $("#nav-container").attr("trick-language");
 
-	var deleteModal = new Modal();
-	deleteModal.FromContent($("#deleteMeasureModel").clone());
-	deleteModal.setBody(MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: <strong>" + reference
-			+ "</strong> from the standard <strong>" + standard + " </strong>?", [ reference, standard ], lang));
-	$(deleteModal.modal_header).find("button").click(function() {
-		delete deleteModal;
+	var standard = $("#section_standard_" + standardid + " #menu_standard_" + standardid + " li:first-child").text();
+
+	if (selectedScenario.length == 1) {
+		measureId = selectedScenario[0];
+		var measure = $("#section_standard_" + standardid + " tr[trick-id='" + measureId + "'] td:not(:first-child)");
+		reference = $(measure[0]).text();
+
+		$("#confirm-dialog .modal-body").html(
+				MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: <strong>" + reference + "</strong> from the standard <strong>"
+						+ standard + " </strong>?<b>ATTENTION:</b> This will delete complete <b>Action Plans</b> that depend on these measures!", [ reference, standard ], lang));
+	} else {
+		$("#confirm-dialog .modal-body").html(
+				MessageResolver("label.measure.question.selected.delete", "Are you sure, you want to delete the selected measures from the standard <b>" + standard
+						+ "</b>?<br/><b>ATTENTION:</b> This will delete complete <b>Action Plans</b> that depend on these measures!", standard, lang));
+	}
+
+	$("#confirm-dialog .btn-danger").click(function() {
+
+		var errors = false;
+
+		while (selectedScenario.length) {
+
+			if (errors)
+				break;
+
+			rowTrickId = selectedScenario.pop();
+
+			$.ajax({
+				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + rowTrickId,
+				async : true,
+				contentType : "application/json",
+				success : function(response) {
+					var trickSelect = parseJson(response);
+					if (trickSelect != undefined && trickSelect["success"] == undefined) {
+						errors = true;
+						if (response["error"] != undefined) {
+							$("#alert-dialog .modal-body").html(response["error"]);
+						} else {
+							$("#alert-dialog .modal-body").html(MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure", null, lang));
+
+						}
+						$("#alert-dialog").modal("show");
+					}
+
+				},
+				error : unknowError
+			});
+		}
+		$("#confirm-dialog").modal("hide");
+		reloadSection("section_standard_" + standardid);
+		return false;
 	});
-	$(deleteModal.modal_footer).find("#deletemeasurebuttonYes").click(function() {
-		$.ajax({
-			url : context + "/Analysis/Standard/" + idStandard + "/Measure/Delete/" + measureId,
-			type : "POST",
-			contentType : "application/json",
-			async : false,
-			success : function(response) {
-				if (response["success"] != undefined) {
-					var idStandard = $("#section_measure_description #measures_header #idStandard").val();
-					var standardLabel = $("#section_measure_description #measures_header #standardLabel").val();
-					standardLabel
-					$.ajax({
-						url : context + "/Analysis/Standard/Show/" + idStandard,
-						type : "GET",
-						contentType : "application/json",
-						success : function(response) {
-							var parser = new DOMParser();
-							var doc = parser.parseFromString(response, "text/html");
-
-							reloadSection("section_standard_" + standardLabel);
-
-							$("#section_measure_description #measures_header").html($(doc).find("#measures_header").html());
-
-							$("#section_measure_description #measures_body").html($(doc).find("#measures_body").html());
-
-							updateMenu(undefined, "#section_measure_description", "#menu_measure_description", undefined);
-
-							$("#section_measure_description").modal("show");
-
-						},
-						error : unknowError
-					});
-				} else if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").css("z-index", "1042");
-					$("#alert-dialog").modal("show");
-				} else
-					unknowError();
-				return true;
-			},
-			error : unknowError
-		});
-		delete deleteModal;
-		return true;
-	});
-	deleteModal.Show();
+	$("#confirm-dialog").modal("show");
 	return false;
 }

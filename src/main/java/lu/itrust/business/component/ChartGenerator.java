@@ -266,9 +266,9 @@ public class ChartGenerator {
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getScenario().getScenarioType().getId());
+			ALE ale = ales.get(assessment.getScenario().getType().getValue());
 			if (ale == null) {
-				ales.put(assessment.getScenario().getScenarioType().getId(), ale = new ALE(assessment.getScenario().getScenarioType().getName(), 0));
+				ales.put(assessment.getScenario().getType().getValue(), ale = new ALE(assessment.getScenario().getScenarioType().getName(), 0));
 				ales2.add(ale);
 			}
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
@@ -845,16 +845,16 @@ public class ChartGenerator {
 		return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + ", " + exporting + "}").replaceAll("\r|\n", " ");
 	}
 
-	private Map<String, RRFAssetType> computeRRFByScenario(Scenario scenario, List<AssetType> assetTypes, List<NormalMeasure> measures, int idAnalysis) throws Exception {
+	private Map<String, RRFAssetType> computeRRFByScenario(Scenario scenario, List<AssetType> assetTypes, List<Measure> measures, int idAnalysis) throws Exception {
 		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		if (assetTypes == null)
 			assetTypes = daoAssetType.getAll();
 		if (measures == null)
-			measures = daoMeasure.getAllNormalMeasuresFromAnalysisAndComputable(idAnalysis);
+			measures = daoMeasure.getAllNotMaturityMeasuresFromAnalysisAndComputable(idAnalysis);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
 		for (AssetType assetType : assetTypes) {
 			RRFAssetType rrfAssetType = new RRFAssetType(assetType.getType());
-			for (NormalMeasure measure : measures) {
+			for (Measure measure : measures) {
 				RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
 				rrfMeasure.setValue(Analysis.calculateRRF(scenario, assetType, parameter, measure));
 				rrfAssetType.getRrfMeasures().add(rrfMeasure);
@@ -864,7 +864,7 @@ public class ChartGenerator {
 		return rrfs;
 	}
 
-	private Map<String, RRFAssetType> computeRRFByMeasure(NormalMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
+	private Map<String, RRFAssetType> computeRRFByMeasure(Measure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
 		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		if (assetTypes == null)
 			assetTypes = daoAssetType.getAll();
@@ -908,12 +908,12 @@ public class ChartGenerator {
 
 			List<AssetType> assetTypes = daoAssetType.getAll();
 
-			List<NormalMeasure> measures = null;
+			List<Measure> measures = null;
 
 			if (filter == null || filter.getMeasures().isEmpty())
-				measures = daoMeasure.getAllNormalMeasuresFromAnalysisAndComputable(idAnalysis);
+				measures = daoMeasure.getAllNotMaturityMeasuresFromAnalysisAndComputable(idAnalysis);
 			else
-				measures = daoMeasure.getAllNormalMeasuresFromAnalysisByMeasureIdList(idAnalysis, filter.getMeasures());
+				measures = daoMeasure.getAllNotMaturityMeasuresFromAnalysisByMeasureIdList(idAnalysis, filter.getMeasures());
 
 			Map<String, RRFAssetType> rrfs = computeRRFByScenario(scenario, assetTypes, measures, idAnalysis);
 
@@ -938,7 +938,7 @@ public class ChartGenerator {
 
 			String measuresData = "[";
 
-			for (NormalMeasure normalMeasure : measures)
+			for (Measure normalMeasure : measures)
 				measuresData += "\"" + normalMeasure.getMeasureDescription().getReference() + "\",";
 
 			if (measuresData.endsWith(","))
@@ -975,7 +975,7 @@ public class ChartGenerator {
 		return rrfByMeasure(normalMeasure, idAnalysis, customLocale != null ? customLocale : locale, filter);
 	}
 
-	public String rrfByMeasure(NormalMeasure measure, Integer idAnalysis, Locale locale, RRFFilter filter) throws Exception {
+	public String rrfByMeasure(Measure measure, Integer idAnalysis, Locale locale, RRFFilter filter) throws Exception {
 
 		try {
 

@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
 import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.component.GeneralComperator;
 import lu.itrust.business.exception.TrickException;
 
 import org.hibernate.annotations.Cascade;
@@ -705,6 +706,10 @@ public abstract class Measure implements Cloneable {
 		}
 
 		return measure;
+	}
+
+	public static int compare(String reference, String reference2) {
+		return GeneralComperator.VersionComparator(reference, reference2);
 	}
 
 }
