@@ -1,0 +1,40 @@
+package lu.itrust.business.TS.database.dao;
+
+import java.util.List;
+
+import lu.itrust.business.TS.data.basic.MeasureDescription;
+import lu.itrust.business.TS.data.basic.Standard;
+
+/**
+ * DAOMeasureDescription.java: <br>
+ * Detailed description...
+ * 
+ * @author itrust consulting s.�.rl. :
+ * @version
+ * @since Feb 1, 2013
+ */
+public interface DAOMeasureDescription {
+	public MeasureDescription get(Integer id) throws Exception;
+
+	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard) throws Exception;
+
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Integer idStandard) throws Exception;
+
+	public boolean existsForMeasureByReferenceAndStandard(String reference, Standard standard) throws Exception;
+
+	public List<MeasureDescription> getAll() throws Exception;
+
+	public List<MeasureDescription> getAllByStandard(Integer idStandard) throws Exception;
+
+	public List<MeasureDescription> getAllByStandard(String label) throws Exception;
+
+	public List<MeasureDescription> getAllByStandard(Standard standard) throws Exception;
+
+	public void save(MeasureDescription measureDescription) throws Exception;
+
+	public void saveOrUpdate(MeasureDescription measureDescription) throws Exception;
+
+	public void delete(MeasureDescription measureDescription) throws Exception;
+
+	public void delete(int id) throws Exception;
+}

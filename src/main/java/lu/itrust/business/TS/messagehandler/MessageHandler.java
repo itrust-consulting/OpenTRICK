@@ -1,7 +1,7 @@
 package lu.itrust.business.TS.messagehandler;
 
-import lu.itrust.business.component.helper.AsyncCallback;
-import lu.itrust.business.exception.TrickException;
+import lu.itrust.business.TS.component.helper.AsyncCallback;
+import lu.itrust.business.TS.exception.TrickException;
 
 /**
  * MessageHandler: <br>

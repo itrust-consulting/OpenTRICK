@@ -272,7 +272,7 @@ function ScenarioRRFController(rrfView, container, name) {
 			this.CheckTypeValue();
 		}
 		$.ajax({
-			url : context + "/Analysis/RRF/Scenario/Update",
+			url : context + "/Analysis/RRF/Scenario/Chart/Update",
 			type : "post",
 			data : '{"id":' + that.idScenario + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.rrfView.filter) + '}',
 			contentType : "application/json;charset=UTF-8",
@@ -289,10 +289,11 @@ function ScenarioRRFController(rrfView, container, name) {
 		if (this.idScenario < 1 || this.idScenario == undefined)
 			this.idScenario = $(this.rrfView.modal_body).find("#selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
 		$.ajax({
-			url : context + "/Analysis/Scenario/" + that.idScenario,
+			url : context + "/Analysis/RRF/Scenario/" + that.idScenario,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
+				
 				if (response.scenarioType != null && response.scenarioType != undefined) {
 					$(that.container).find(".slider").unbind("slideStop");
 					for (var i = 0; i < that.sliders.length; i++) {
@@ -397,7 +398,7 @@ function ScenarioRRFController(rrfView, container, name) {
 		if (this.rrfView.filter == undefined || this.rrfView.filter.measures == undefined || !this.rrfView.filter.measures.length)
 			this.GenerateFilter();
 		$.ajax({
-			url : context + "/Analysis/RRF/Scenario/" + that.idScenario + "/Load",
+			url : context + "/Analysis/RRF/Scenario/" + that.idScenario + "/Chart",
 			type : "post",
 			data : JSON.stringify(that.rrfView.filter),
 			contentType : "application/json;charset=UTF-8",
@@ -511,7 +512,7 @@ function MeasureRRFController(rrfView, container, name) {
 		if (this.idMeasure < 1 || this.idMeasure == undefined)
 			this.idMeasure = $(this.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
 		$.ajax({
-			url : context + "/Analysis/RRF/Measure/Update",
+			url : context + "/Analysis/RRF/Measure/Chart/Update",
 			type : "post",
 			data : '{"id":' + that.idMeasure + ', "fieldName":"' + fiedName + '", "value":' + value + ', "type": "numeric","filter":' + JSON.stringify(that.rrfView.filter) + '}',
 			contentType : "application/json;charset=UTF-8",
@@ -528,7 +529,7 @@ function MeasureRRFController(rrfView, container, name) {
 			this.idMeasure = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
 		var idStandard = $(this.rrfView.modal_body).find("#selectable_rrf_measures_chapter_controls .active[trick-class='Standard']").attr("trick-id");
 		$.ajax({
-			url : context + "/Analysis/Standard/" + idStandard + "/Measure/" + that.idMeasure,
+			url : context + "/Analysis/RRF/Standard/" + idStandard + "/Measure/" + that.idMeasure,
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
@@ -651,7 +652,7 @@ function MeasureRRFController(rrfView, container, name) {
 		if (this.rrfView.filter == undefined || this.rrfView.filter.scenarios == undefined || !this.rrfView.filter.scenarios.length)
 			this.GenerateFilter();
 		$.ajax({
-			url : context + "/Analysis/RRF/Measure/" + that.idMeasure + "/Load",
+			url : context + "/Analysis/RRF/Measure/" + that.idMeasure + "/Chart",
 			type : "post",
 			data : JSON.stringify(that.rrfView.filter),
 			contentType : "application/json;charset=UTF-8",
@@ -680,7 +681,7 @@ function importRRF(idAnalysis) {
 		idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
-			url : context + "/Analysis/Standard/Import/RRF",
+			url : context + "/Analysis/RRF/Import",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
 				var parser = new DOMParser();

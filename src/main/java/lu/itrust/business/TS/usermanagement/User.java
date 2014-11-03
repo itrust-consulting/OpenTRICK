@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import lu.itrust.business.TS.Customer;
+import lu.itrust.business.TS.data.basic.Customer;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;

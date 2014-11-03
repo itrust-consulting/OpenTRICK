@@ -10,8 +10,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lu.itrust.business.service.ServiceLanguage;
-import lu.itrust.business.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceLanguage;
+import lu.itrust.business.TS.database.service.ServiceUser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
