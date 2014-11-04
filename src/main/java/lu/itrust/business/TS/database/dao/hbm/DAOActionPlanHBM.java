@@ -5,9 +5,9 @@ import java.util.List;
 import lu.itrust.business.TS.data.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.Asset;
-import lu.itrust.business.TS.data.basic.Measure;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.asset.Asset;
+import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 
 import org.hibernate.Session;
@@ -120,7 +120,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 * getFromAnalysisAndActionPlanType: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.data.basic.Analysis,
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.data.analysis.Analysis,
 	 *      lu.itrust.business.TS.data.actionplan.ActionPlanMode)
 	 */
 	@Override
@@ -134,7 +134,7 @@ public class DAOActionPlanHBM extends DAOHibernate implements DAOActionPlan {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#getAllFromAsset(lu.itrust.business.TS.data.basic.Asset)
+	 * @see lu.itrust.business.TS.database.dao.DAOActionPlan#getAllFromAsset(lu.itrust.business.TS.data.asset.Asset)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override

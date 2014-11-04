@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.export.UserSQLite;
+import lu.itrust.business.TS.data.general.UserSQLite;
 
 /**
  * ServiceUserSqLite.java: <br>

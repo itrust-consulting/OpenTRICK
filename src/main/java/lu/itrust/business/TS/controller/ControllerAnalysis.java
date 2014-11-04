@@ -3,6 +3,8 @@ package lu.itrust.business.TS.controller;
 import java.io.File;
 import java.security.Principal;
 import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,18 +15,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.component.AssessmentManager;
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.GeneralComperator;
-import lu.itrust.business.TS.component.MeasureManager;
-import lu.itrust.business.TS.component.helper.JsonMessage;
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.AnalysisRight;
-import lu.itrust.business.TS.data.basic.AnalysisStandard;
-import lu.itrust.business.TS.data.basic.Customer;
-import lu.itrust.business.TS.data.basic.History;
-import lu.itrust.business.TS.data.basic.Language;
-import lu.itrust.business.TS.data.basic.Measure;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
+import lu.itrust.business.TS.data.general.Customer;
+import lu.itrust.business.TS.data.general.Language;
+import lu.itrust.business.TS.data.general.UserSQLite;
+import lu.itrust.business.TS.data.history.History;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceActionPlanType;
@@ -54,12 +61,7 @@ import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.export.ExportAnalysisReport;
-import lu.itrust.business.TS.export.UserSQLite;
-import lu.itrust.business.TS.task.Worker;
-import lu.itrust.business.TS.task.WorkerAnalysisImport;
-import lu.itrust.business.TS.task.WorkerExportAnalysis;
-import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.exportation.ExportAnalysisReport;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.HistoryValidator;
@@ -307,6 +309,12 @@ public class ControllerAnalysis {
 
 		for (AnalysisStandard standard : standards) {
 			List<Measure> measures = standard.getMeasures();
+			Comparator<Measure> cmp = new Comparator<Measure>() {
+				public int compare(Measure o1, Measure o2) {
+					return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
+				}
+			};
+			Collections.sort(measures, cmp);
 			measuresmap.put(standard.getStandard().getLabel(), measures);
 		}
 
@@ -368,7 +376,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String update(HttpSession session, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)
@@ -406,7 +414,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/{analysisId}/Select")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
 		// select the analysis
 		session.setAttribute("selectedAnalysis", analysisId);
@@ -427,7 +435,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
 		// select the analysis
 		session.setAttribute("selectedAnalysis", analysisId);
@@ -598,7 +606,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).DELETE)")
 	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session) throws Exception {
 		try {
 
@@ -648,7 +656,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public String addHistory(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Principal principal, HttpSession session) throws Exception {
 
 		// retrieve user
@@ -679,7 +687,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Duplicate/{analysisId}", headers = "Accept=application/json")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -869,7 +877,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).EXPORT)")
 	@RequestMapping(value = "/Export/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json")
 	public @ResponseBody String exportAnalysis(@PathVariable int analysisId, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 
@@ -942,7 +950,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Export/Report/{analysisId}")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).EXPORT)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).EXPORT)")
 	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal, Locale locale)
 			throws Exception {
 

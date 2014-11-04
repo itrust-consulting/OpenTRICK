@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.AnalysisStandard;
-import lu.itrust.business.TS.data.basic.Standard;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.Standard;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 
@@ -97,7 +97,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#getAllFromAnalysis(lu.itrust.business.TS.data.basic.Analysis)
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#getAllFromAnalysis(lu.itrust.business.TS.data.analysis.Analysis)
 	 */
 	
 	@Override
@@ -111,7 +111,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#getAllFromStandard(lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#getAllFromStandard(lu.itrust.business.TS.data.standard.Standard)
 	 */
 	
 	@Override
@@ -126,7 +126,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * @param analysisStandard
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#save(lu.itrust.business.TS.data.basic.AnalysisStandard)
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#save(lu.itrust.business.TS.data.standard.AnalysisStandard)
 	 */
 	@Transactional
 	@Override
@@ -142,7 +142,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * @param analysisStandard
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#saveOrUpdate(lu.itrust.business.TS.data.basic.AnalysisStandard)
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#saveOrUpdate(lu.itrust.business.TS.data.standard.AnalysisStandard)
 	 */
 	@Transactional
 	@Override
@@ -158,7 +158,7 @@ public class ServiceAnalysisStandardImpl implements ServiceAnalysisStandard {
 	 * @param analysisStandard
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#delete(lu.itrust.business.TS.data.basic.AnalysisStandard)
+	 * @see lu.itrust.business.TS.database.service.ServiceAnalysisStandard#delete(lu.itrust.business.TS.data.standard.AnalysisStandard)
 	 */
 	@Transactional
 	@Override

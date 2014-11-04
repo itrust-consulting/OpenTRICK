@@ -2,12 +2,12 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.component.helper.AnalysisBaseInfo;
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.Customer;
-import lu.itrust.business.TS.data.basic.Language;
-import lu.itrust.business.TS.data.basic.Parameter;
-import lu.itrust.business.TS.data.basic.Standard;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.helper.AnalysisBaseInfo;
+import lu.itrust.business.TS.data.general.Customer;
+import lu.itrust.business.TS.data.general.Language;
+import lu.itrust.business.TS.data.parameter.Parameter;
+import lu.itrust.business.TS.data.standard.Standard;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**

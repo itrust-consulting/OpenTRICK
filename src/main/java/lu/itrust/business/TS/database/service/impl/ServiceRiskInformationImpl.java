@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.RiskInformation;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.riskinformation.RiskInformation;
 import lu.itrust.business.TS.database.dao.DAORiskInformation;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
 
@@ -140,7 +140,7 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#getAllFromAnalysis(lu.itrust.business.TS.data.basic.Analysis)
+	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#getAllFromAnalysis(lu.itrust.business.TS.data.analysis.Analysis)
 	 */
 	@Override
 	public List<RiskInformation> getAllFromAnalysis(Analysis analysis) throws Exception {
@@ -154,7 +154,7 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * @param riskInformation
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#save(lu.itrust.business.TS.data.basic.RiskInformation)
+	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#save(lu.itrust.business.TS.data.riskinformation.RiskInformation)
 	 */
 	@Transactional
 	@Override
@@ -169,7 +169,7 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * @param riskInformation
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#saveOrUpdate(lu.itrust.business.TS.data.basic.RiskInformation)
+	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#saveOrUpdate(lu.itrust.business.TS.data.riskinformation.RiskInformation)
 	 */
 	@Transactional
 	@Override
@@ -184,7 +184,7 @@ public class ServiceRiskInformationImpl implements ServiceRiskInformation {
 	 * @param riskInformation
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#delete(lu.itrust.business.TS.data.basic.RiskInformation)
+	 * @see lu.itrust.business.TS.database.service.ServiceRiskInformation#delete(lu.itrust.business.TS.data.riskinformation.RiskInformation)
 	 */
 	@Transactional
 	@Override

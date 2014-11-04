@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import lu.itrust.business.TS.component.helper.AsyncResult;
+import lu.itrust.business.TS.asynchronousWorkers.AsyncResult;
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.TS.task.Worker;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;

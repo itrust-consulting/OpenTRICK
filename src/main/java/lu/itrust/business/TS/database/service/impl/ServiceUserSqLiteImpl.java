@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lu.itrust.business.TS.data.general.UserSQLite;
 import lu.itrust.business.TS.database.dao.DAOUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
-import lu.itrust.business.TS.export.UserSQLite;
 
 /**
  * ServiceUserSqLiteImpl.java: <br>
@@ -112,7 +112,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#save(lu.itrust.business.TS.export.UserSQLite)
+	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#save(lu.itrust.business.TS.data.general.UserSQLite)
 	 */
 	@Transactional
 	@Override
@@ -127,7 +127,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @param userSqLite
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#saveOrUpdate(lu.itrust.business.TS.export.UserSQLite)
+	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#saveOrUpdate(lu.itrust.business.TS.data.general.UserSQLite)
 	 */
 	@Transactional
 	@Override
@@ -143,7 +143,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#merge(lu.itrust.business.TS.export.UserSQLite)
+	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#merge(lu.itrust.business.TS.data.general.UserSQLite)
 	 */
 	@Transactional
 	@Override
@@ -188,7 +188,7 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * @param userSqLite
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#delete(lu.itrust.business.TS.export.UserSQLite)
+	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#delete(lu.itrust.business.TS.data.general.UserSQLite)
 	 */
 	@Transactional
 	@Override

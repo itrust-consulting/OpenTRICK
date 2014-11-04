@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.TS.data.basic.Assessment;
-import lu.itrust.business.TS.data.basic.Asset;
-import lu.itrust.business.TS.data.basic.Scenario;
+import lu.itrust.business.TS.data.assessment.Assessment;
+import lu.itrust.business.TS.data.asset.Asset;
+import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 
@@ -159,7 +159,7 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllFromScenario(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllFromScenario(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@Override
 	public List<Assessment> getAllFromScenario(Scenario scenario) throws Exception {
@@ -174,7 +174,7 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllSelectedAssessmentFromScenario(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllSelectedAssessmentFromScenario(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@Override
 	public List<Assessment> getAllSelectedFromScenario(Scenario scenario) throws Exception {
@@ -189,7 +189,7 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllUnselectedAssessmentFromScenario(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllUnselectedAssessmentFromScenario(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@Override
 	public List<Assessment> getAllUnselectedFromScenario(Scenario scenario) throws Exception {
@@ -234,7 +234,7 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllFromAsset(lu.itrust.business.TS.data.basic.Asset)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllFromAsset(lu.itrust.business.TS.data.asset.Asset)
 	 */
 	@Override
 	public List<Assessment> getAllFromAsset(Asset asset) throws Exception {
@@ -249,7 +249,7 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllSelectedAssessmentFromAsset(lu.itrust.business.TS.data.basic.Asset)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllSelectedAssessmentFromAsset(lu.itrust.business.TS.data.asset.Asset)
 	 */
 	@Override
 	public List<Assessment> getAllSelectedFromAsset(Asset asset) throws Exception {
@@ -264,7 +264,7 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllUnSelectedAssessmentFromAsset(lu.itrust.business.TS.data.basic.Asset)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#getAllUnSelectedAssessmentFromAsset(lu.itrust.business.TS.data.asset.Asset)
 	 */
 	@Override
 	public List<Assessment> getAllUnSelectedFromAsset(Asset asset) throws Exception {
@@ -278,7 +278,7 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @param assessment
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#save(lu.itrust.business.TS.data.basic.Assessment)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#save(lu.itrust.business.TS.data.assessment.Assessment)
 	 */
 	@Transactional
 	@Override
@@ -293,7 +293,7 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @param assessment
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#saveOrUpdate(lu.itrust.business.TS.data.basic.Assessment)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#saveOrUpdate(lu.itrust.business.TS.data.assessment.Assessment)
 	 */
 	@Transactional
 	@Override
@@ -323,7 +323,7 @@ public class ServiceAssessmentImpl implements ServiceAssessment {
 	 * @param assessment
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#delete(lu.itrust.business.TS.data.basic.Assessment)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssessment#delete(lu.itrust.business.TS.data.assessment.Assessment)
 	 */
 	@Transactional
 	@Override

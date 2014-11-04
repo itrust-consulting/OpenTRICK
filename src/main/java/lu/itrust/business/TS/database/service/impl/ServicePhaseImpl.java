@@ -3,7 +3,7 @@ package lu.itrust.business.TS.database.service.impl;
 import java.sql.Date;
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Phase;
+import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.database.dao.DAOPhase;
 import lu.itrust.business.TS.database.service.ServicePhase;
 
@@ -175,7 +175,7 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * @param phase
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServicePhase#save(lu.itrust.business.TS.data.basic.Phase)
+	 * @see lu.itrust.business.TS.database.service.ServicePhase#save(lu.itrust.business.TS.data.general.Phase)
 	 */
 	@Transactional
 	@Override
@@ -190,7 +190,7 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * @param phase
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServicePhase#saveOrUpdate(lu.itrust.business.TS.data.basic.Phase)
+	 * @see lu.itrust.business.TS.database.service.ServicePhase#saveOrUpdate(lu.itrust.business.TS.data.general.Phase)
 	 */
 	@Transactional
 	@Override
@@ -205,7 +205,7 @@ public class ServicePhaseImpl implements ServicePhase {
 	 * @param phase
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServicePhase#delete(lu.itrust.business.TS.data.basic.Phase)
+	 * @see lu.itrust.business.TS.database.service.ServicePhase#delete(lu.itrust.business.TS.data.general.Phase)
 	 */
 	@Transactional
 	@Override

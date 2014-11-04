@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Assessment;
-import lu.itrust.business.TS.data.basic.Asset;
-import lu.itrust.business.TS.data.basic.Scenario;
+import lu.itrust.business.TS.data.assessment.Assessment;
+import lu.itrust.business.TS.data.asset.Asset;
+import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.database.dao.DAOAssessment;
 
 import org.hibernate.Session;
@@ -145,7 +145,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * getAllFromScenario: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllFromScenario(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllFromScenario(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -157,7 +157,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * getAllSelectedAssessmentFromScenario: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllSelectedAssessmentFromScenario(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllSelectedAssessmentFromScenario(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -169,7 +169,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * getAllUnselectedAssessmentFromScenario: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllUnselectedAssessmentFromScenario(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllUnselectedAssessmentFromScenario(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -206,7 +206,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * getAllFromAsset: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllFromAsset(lu.itrust.business.TS.data.basic.Asset)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllFromAsset(lu.itrust.business.TS.data.asset.Asset)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -218,7 +218,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * getAllSelectedAssessmentFromAsset: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllSelectedAssessmentFromAsset(lu.itrust.business.TS.data.basic.Asset)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllSelectedAssessmentFromAsset(lu.itrust.business.TS.data.asset.Asset)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -230,7 +230,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * getAllUnSelectedAssessmentFromAsset: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllUnSelectedAssessmentFromAsset(lu.itrust.business.TS.data.basic.Asset)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#getAllUnSelectedAssessmentFromAsset(lu.itrust.business.TS.data.asset.Asset)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -242,7 +242,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#save(lu.itrust.business.TS.data.basic.Assessment)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#save(lu.itrust.business.TS.data.assessment.Assessment)
 	 */
 	@Override
 	public void save(Assessment assessment) throws Exception {
@@ -253,7 +253,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#saveOrUpdate(lu.itrust.business.TS.data.basic.Assessment)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#saveOrUpdate(lu.itrust.business.TS.data.assessment.Assessment)
 	 */
 	@Override
 	public void saveOrUpdate(Assessment assessment) throws Exception {
@@ -276,7 +276,7 @@ public class DAOAssessmentHBM extends DAOHibernate implements DAOAssessment {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#delete(lu.itrust.business.TS.data.basic.Assessment)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssessment#delete(lu.itrust.business.TS.data.assessment.Assessment)
 	 */
 	@Override
 	public void delete(Assessment assessment) throws Exception {

@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Customer;
+import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.dao.DAOCustomer;
 
 import org.hibernate.Session;
@@ -171,7 +171,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#save(lu.itrust.business.TS.data.basic.Customer)
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#save(lu.itrust.business.TS.data.general.Customer)
 	 */
 	@Override
 	public void save(Customer customer) throws Exception {
@@ -182,7 +182,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#saveOrUpdate(lu.itrust.business.TS.data.basic.Customer)
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#saveOrUpdate(lu.itrust.business.TS.data.general.Customer)
 	 */
 	@Override
 	public void saveOrUpdate(Customer customer) throws Exception {
@@ -193,7 +193,7 @@ public class DAOCustomerHBM extends DAOHibernate implements DAOCustomer {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#delete(lu.itrust.business.TS.data.basic.Customer)
+	 * @see lu.itrust.business.TS.database.dao.DAOCustomer#delete(lu.itrust.business.TS.data.general.Customer)
 	 */
 	@Override
 	public void delete(Customer customer) throws Exception {

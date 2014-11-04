@@ -5,8 +5,8 @@ package lu.itrust.business.TS.validator;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.MeasureProperties;
-import lu.itrust.business.TS.data.basic.NormalMeasure;
+import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
+import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 
 /**
  * @author eomar

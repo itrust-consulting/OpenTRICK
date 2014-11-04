@@ -3,7 +3,7 @@ package lu.itrust.business.TS.data.cssf.tools;
 import java.util.HashMap;
 import java.util.Map;
 
-import lu.itrust.business.TS.data.basic.Scenario;
+import lu.itrust.business.TS.data.scenario.Scenario;
 
 /**
  * CategoryConverter: <br>

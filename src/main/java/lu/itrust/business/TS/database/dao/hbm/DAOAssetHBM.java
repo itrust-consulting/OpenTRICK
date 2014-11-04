@@ -5,7 +5,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
-import lu.itrust.business.TS.data.basic.Asset;
+import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.database.dao.DAOAsset;
 
 /**
@@ -140,7 +140,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAsset#save(lu.itrust.business.TS.data.basic.Asset)
+	 * @see lu.itrust.business.TS.database.dao.DAOAsset#save(lu.itrust.business.TS.data.asset.Asset)
 	 */
 	@Override
 	public Asset save(Asset asset) throws Exception {
@@ -151,7 +151,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAsset#saveOrUpdate(lu.itrust.business.TS.data.basic.Asset)
+	 * @see lu.itrust.business.TS.database.dao.DAOAsset#saveOrUpdate(lu.itrust.business.TS.data.asset.Asset)
 	 */
 	@Override
 	public void saveOrUpdate(Asset asset) throws Exception {
@@ -162,7 +162,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 * merge: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAsset#merge(lu.itrust.business.TS.data.basic.Asset)
+	 * @see lu.itrust.business.TS.database.dao.DAOAsset#merge(lu.itrust.business.TS.data.asset.Asset)
 	 */
 	@Override
 	public Asset merge(Asset asset) throws Exception {
@@ -184,7 +184,7 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAsset#delete(lu.itrust.business.TS.data.basic.Asset)
+	 * @see lu.itrust.business.TS.database.dao.DAOAsset#delete(lu.itrust.business.TS.data.asset.Asset)
 	 */
 	@Override
 	public void delete(Asset asset) throws Exception {

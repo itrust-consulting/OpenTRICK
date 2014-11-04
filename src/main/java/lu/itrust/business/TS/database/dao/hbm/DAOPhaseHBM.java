@@ -3,7 +3,7 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.sql.Date;
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Phase;
+import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.database.dao.DAOPhase;
 
 import org.hibernate.Session;
@@ -165,7 +165,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOPhase#save(lu.itrust.business.TS.data.basic.Phase)
+	 * @see lu.itrust.business.TS.database.dao.DAOPhase#save(lu.itrust.business.TS.data.general.Phase)
 	 */
 	@Override
 	public void save(Phase phase) throws Exception {
@@ -176,7 +176,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOPhase#saveOrUpdate(lu.itrust.business.TS.data.basic.Phase)
+	 * @see lu.itrust.business.TS.database.dao.DAOPhase#saveOrUpdate(lu.itrust.business.TS.data.general.Phase)
 	 */
 	@Override
 	public void saveOrUpdate(Phase phase) throws Exception {
@@ -187,7 +187,7 @@ public class DAOPhaseHBM extends DAOHibernate implements DAOPhase {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOPhase#delete(lu.itrust.business.TS.data.basic.Phase)
+	 * @see lu.itrust.business.TS.database.dao.DAOPhase#delete(lu.itrust.business.TS.data.general.Phase)
 	 */
 	@Override
 	public void delete(Phase phase) throws Exception {

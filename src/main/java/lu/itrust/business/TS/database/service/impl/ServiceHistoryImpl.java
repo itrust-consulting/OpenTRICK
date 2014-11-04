@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.History;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.history.History;
 import lu.itrust.business.TS.database.dao.DAOHistory;
 import lu.itrust.business.TS.database.service.ServiceHistory;
 
@@ -96,7 +96,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceHistory#versionExistsForAnalysisByVersion(lu.itrust.business.TS.data.basic.Analysis,
+	 * @see lu.itrust.business.TS.database.service.ServiceHistory#versionExistsForAnalysisByVersion(lu.itrust.business.TS.data.analysis.Analysis,
 	 *      java.lang.String)
 	 */
 	@Override
@@ -148,7 +148,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 * getAllFromAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceHistory#getAllFromAnalysis(lu.itrust.business.TS.data.basic.Analysis)
+	 * @see lu.itrust.business.TS.database.service.ServiceHistory#getAllFromAnalysis(lu.itrust.business.TS.data.analysis.Analysis)
 	 */
 	@Override
 	public List<History> getAllFromAnalysis(Analysis analysis) throws Exception {
@@ -164,7 +164,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceHistory#getAllHistoriesFromAnalysisByAuthor(lu.itrust.business.TS.data.basic.Analysis,
+	 * @see lu.itrust.business.TS.database.service.ServiceHistory#getAllHistoriesFromAnalysisByAuthor(lu.itrust.business.TS.data.analysis.Analysis,
 	 *      java.lang.String)
 	 */
 	@Override
@@ -181,7 +181,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceHistory#getAllHistoriesFromAnalysisByVersion(lu.itrust.business.TS.data.basic.Analysis,
+	 * @see lu.itrust.business.TS.database.service.ServiceHistory#getAllHistoriesFromAnalysisByVersion(lu.itrust.business.TS.data.analysis.Analysis,
 	 *      java.lang.String)
 	 */
 	@Override
@@ -198,7 +198,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceHistory#save(java.lang.Integer,
-	 *      lu.itrust.business.TS.data.basic.History)
+	 *      lu.itrust.business.TS.data.history.History)
 	 */
 	@Transactional
 	@Override
@@ -213,7 +213,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 * @param history
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceHistory#save(lu.itrust.business.TS.data.basic.History)
+	 * @see lu.itrust.business.TS.database.service.ServiceHistory#save(lu.itrust.business.TS.data.history.History)
 	 */
 	@Transactional
 	@Override
@@ -228,7 +228,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 * @param history
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceHistory#saveOrUpdate(lu.itrust.business.TS.data.basic.History)
+	 * @see lu.itrust.business.TS.database.service.ServiceHistory#saveOrUpdate(lu.itrust.business.TS.data.history.History)
 	 */
 	@Transactional
 	@Override
@@ -243,7 +243,7 @@ public class ServiceHistoryImpl implements ServiceHistory {
 	 * @param history
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceHistory#delete(lu.itrust.business.TS.data.basic.History)
+	 * @see lu.itrust.business.TS.database.service.ServiceHistory#delete(lu.itrust.business.TS.data.history.History)
 	 */
 	@Transactional
 	@Override

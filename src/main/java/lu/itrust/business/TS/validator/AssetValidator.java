@@ -2,9 +2,9 @@ package lu.itrust.business.TS.validator;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Asset;
-import lu.itrust.business.TS.data.basic.AssetType;
-import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.asset.Asset;
+import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 import org.springframework.validation.Errors;

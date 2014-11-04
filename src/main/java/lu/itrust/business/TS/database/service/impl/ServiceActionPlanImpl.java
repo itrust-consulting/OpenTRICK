@@ -4,9 +4,9 @@ import java.util.List;
 
 import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.Asset;
-import lu.itrust.business.TS.data.basic.Measure;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.asset.Asset;
+import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 
@@ -127,7 +127,7 @@ public class ServiceActionPlanImpl implements ServiceActionPlan {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.data.basic.Analysis,
+	 * @see lu.itrust.business.TS.database.service.ServiceActionPlan#getFromAnalysisAndActionPlanType(lu.itrust.business.TS.data.analysis.Analysis,
 	 *      lu.itrust.business.TS.data.actionplan.ActionPlanMode)
 	 */
 	@Override

@@ -3,12 +3,12 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.util.ArrayList;
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.AnalysisStandard;
-import lu.itrust.business.TS.data.basic.Standard;
-import lu.itrust.business.TS.data.basic.StandardType;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.StandardType;
 import lu.itrust.business.TS.database.dao.DAOStandard;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -134,7 +134,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 * getAllFromAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOStandard#getAllFromAnalysis(lu.itrust.business.TS.data.basic.Analysis)
+	 * @see lu.itrust.business.TS.database.dao.DAOStandard#getAllFromAnalysis(lu.itrust.business.TS.data.analysis.Analysis)
 	 */
 	@Override
 	public List<Standard> getAllFromAnalysis(Analysis analysis) throws Exception {
@@ -167,7 +167,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOStandard#save(lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.dao.DAOStandard#save(lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@Override
 	public void save(Standard standard) throws Exception {
@@ -180,7 +180,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOStandard#saveOrUpdate(lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.dao.DAOStandard#saveOrUpdate(lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@Override
 	public void saveOrUpdate(Standard standard) throws Exception {
@@ -193,7 +193,7 @@ public class DAOStandardHBM extends DAOHibernate implements DAOStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOStandard#delete(lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.dao.DAOStandard#delete(lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@Override
 	public void delete(Standard standard) throws Exception {

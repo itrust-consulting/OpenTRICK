@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
-import lu.itrust.business.TS.data.basic.TrickService;
+import lu.itrust.business.TS.data.TrickService;
 import lu.itrust.business.TS.database.dao.DAOTrickService;
 
 import org.hibernate.Session;
@@ -58,7 +58,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#save(lu.itrust.business.TS.data.basic.TrickService)
+	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#save(lu.itrust.business.TS.data.TrickService)
 	 */
 	@Override
 	public void save(TrickService trickservice) throws Exception {
@@ -69,7 +69,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#saveOrUpdate(lu.itrust.business.TS.data.basic.TrickService)
+	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#saveOrUpdate(lu.itrust.business.TS.data.TrickService)
 	 */
 	@Override
 	public void saveOrUpdate(TrickService trickservice) throws Exception {
@@ -80,7 +80,7 @@ public class DAOTrickServiceHBM extends DAOHibernate implements DAOTrickService 
 	 * remove: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#remove(lu.itrust.business.TS.data.basic.TrickService)
+	 * @see lu.itrust.business.TS.database.dao.DAOTrickService#remove(lu.itrust.business.TS.data.TrickService)
 	 */
 	@Override
 	public void delete(TrickService trickservice) throws Exception {

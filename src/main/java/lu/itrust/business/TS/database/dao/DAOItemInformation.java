@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.ItemInformation;
+import lu.itrust.business.TS.data.iteminformation.ItemInformation;
 
 /**
  * DAOItemInformation.java: <br>

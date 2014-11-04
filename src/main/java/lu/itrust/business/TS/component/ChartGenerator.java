@@ -7,24 +7,26 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import lu.itrust.business.TS.component.helper.ALE;
-import lu.itrust.business.TS.component.helper.JsonMessage;
-import lu.itrust.business.TS.component.helper.RRFAssetType;
-import lu.itrust.business.TS.component.helper.RRFFilter;
-import lu.itrust.business.TS.component.helper.RRFMeasure;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.data.actionplan.SummaryStage;
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.AnalysisStandard;
-import lu.itrust.business.TS.data.basic.Assessment;
-import lu.itrust.business.TS.data.basic.AssetType;
-import lu.itrust.business.TS.data.basic.Measure;
-import lu.itrust.business.TS.data.basic.NormalMeasure;
-import lu.itrust.business.TS.data.basic.Parameter;
-import lu.itrust.business.TS.data.basic.Phase;
-import lu.itrust.business.TS.data.basic.Scenario;
+import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.data.actionplan.summary.helper.ActionPlanSummaryManager;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.assessment.Assessment;
+import lu.itrust.business.TS.data.assessment.helper.ALE;
+import lu.itrust.business.TS.data.assessment.helper.AssetComparatorByALE;
+import lu.itrust.business.TS.data.asset.AssetType;
+import lu.itrust.business.TS.data.general.Phase;
+import lu.itrust.business.TS.data.parameter.Parameter;
+import lu.itrust.business.TS.data.rrf.RRFAssetType;
+import lu.itrust.business.TS.data.rrf.RRFFilter;
+import lu.itrust.business.TS.data.rrf.RRFMeasure;
+import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
@@ -36,7 +38,6 @@ import lu.itrust.business.TS.database.dao.DAOParameter;
 import lu.itrust.business.TS.database.dao.DAOPhase;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -967,15 +968,15 @@ public class ChartGenerator {
 		return null;
 	}
 
-	public String rrfByMeasure(int idMeasure, Integer idAnalysis, Locale locale, RRFFilter filter) throws Exception {
+	public String rrfByMeasure(int idMeasure, Integer idAnalysis, Locale locale) throws Exception {
 		Locale customLocale = new Locale(daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 		NormalMeasure normalMeasure = (NormalMeasure) daoMeasure.getFromAnalysisById(idMeasure, idAnalysis);
 		if (normalMeasure == null)
 			return null;
-		return rrfByMeasure(normalMeasure, idAnalysis, customLocale != null ? customLocale : locale, filter);
+		return rrfByMeasure(normalMeasure, idAnalysis, customLocale != null ? customLocale : locale);
 	}
 
-	public String rrfByMeasure(Measure measure, Integer idAnalysis, Locale locale, RRFFilter filter) throws Exception {
+	public String rrfByMeasure(Measure measure, Integer idAnalysis, Locale locale) throws Exception {
 
 		try {
 
@@ -996,10 +997,7 @@ public class ChartGenerator {
 
 			List<Scenario> scenarios = null;
 
-			if (filter == null || filter.getScenarios().isEmpty())
-				scenarios = daoScenario.getAllFromAnalysis(idAnalysis);
-			else
-				scenarios = daoScenario.getAllFromAnalysisByIdList(idAnalysis, filter.getScenarios());
+			scenarios = daoScenario.getAllFromAnalysis(idAnalysis);
 
 			Map<String, RRFAssetType> rrfs = computeRRFByMeasure(measure, assetTypes, scenarios, idAnalysis);
 
@@ -1011,11 +1009,11 @@ public class ChartGenerator {
 				if (rrf.endsWith(","))
 					rrf = rrf.substring(0, rrf.length() - 1);
 				rrf += "]";
-				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": " + (!filter.getSeries().contains(key)) + "},";
+				series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": true},";
 			}
 
 			String chart =
-				"\"chart\":{ \"type\":\"" + (scenarios.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\", \"marginTop\": 50},  \"scrollbar\": {\"enabled\": " + (scenarios.size() > 9)
+				"\"chart\":{ \"type\":\"" + (scenarios.size() == 1 ? "column" : "spline") + "\",  \"zoomType\": \"xy\", \"marginTop\": 50, \"height\":360},  \"scrollbar\": {\"enabled\": " + (scenarios.size() > 9)
 					+ "}";
 
 			if (series.endsWith(","))

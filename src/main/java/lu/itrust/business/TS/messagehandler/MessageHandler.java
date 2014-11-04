@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.messagehandler;
 
-import lu.itrust.business.TS.component.helper.AsyncCallback;
+import lu.itrust.business.TS.asynchronousWorkers.AsyncCallback;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**

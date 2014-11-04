@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Language;
+import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.database.dao.DAOLanguage;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 
@@ -165,7 +165,7 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @param language
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#save(lu.itrust.business.TS.data.basic.Language)
+	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#save(lu.itrust.business.TS.data.general.Language)
 	 */
 	@Transactional
 	@Override
@@ -180,7 +180,7 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @param language
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#saveOrUpdate(lu.itrust.business.TS.data.basic.Language)
+	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#saveOrUpdate(lu.itrust.business.TS.data.general.Language)
 	 */
 	@Transactional
 	@Override
@@ -210,7 +210,7 @@ public class ServiceLanguageImpl implements ServiceLanguage {
 	 * @param language
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#delete(lu.itrust.business.TS.data.basic.Language)
+	 * @see lu.itrust.business.TS.database.service.ServiceLanguage#delete(lu.itrust.business.TS.data.general.Language)
 	 */
 	@Transactional
 	@Override

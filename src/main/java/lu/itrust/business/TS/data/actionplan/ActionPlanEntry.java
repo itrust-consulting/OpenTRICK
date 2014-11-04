@@ -16,7 +16,7 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import lu.itrust.business.TS.data.basic.Measure;
+import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.exception.TrickException;
 
 import org.hibernate.annotations.Cascade;

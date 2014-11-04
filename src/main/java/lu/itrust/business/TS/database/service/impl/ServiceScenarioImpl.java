@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.Scenario;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 
@@ -139,7 +139,7 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceScenario#getAllFromAnalysisByScenarioTypeId(lu.itrust.business.TS.data.basic.Analysis,
+	 * @see lu.itrust.business.TS.database.service.ServiceScenario#getAllFromAnalysisByScenarioTypeId(lu.itrust.business.TS.data.analysis.Analysis,
 	 *      int)
 	 */
 	@Override
@@ -171,7 +171,7 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	 * @param scenario
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceScenario#saveOrUpdate(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.service.ServiceScenario#saveOrUpdate(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@Transactional
 	@Override
@@ -186,7 +186,7 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	 * @param scenario
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceScenario#saveOrUpdate(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.service.ServiceScenario#saveOrUpdate(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@Transactional
 	@Override
@@ -202,7 +202,7 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceScenario#merge(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.service.ServiceScenario#merge(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@Transactional
 	@Override
@@ -217,7 +217,7 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	 * @param scenario
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceScenario#delete(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.service.ServiceScenario#delete(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@Transactional
 	@Override

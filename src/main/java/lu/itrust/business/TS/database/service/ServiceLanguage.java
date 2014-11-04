@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Language;
+import lu.itrust.business.TS.data.general.Language;
 
 /**
  * ServiceLanguage.java: <br>

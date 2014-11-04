@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.data.actionplan;
 
-import lu.itrust.business.TS.data.basic.Assessment;
+import lu.itrust.business.TS.data.assessment.Assessment;
 
 /**
  * ActionPlanAsset: <br>

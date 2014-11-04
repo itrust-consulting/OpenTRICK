@@ -4,29 +4,32 @@ import java.lang.reflect.Field;
 import java.security.Principal;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.ChartGenerator;
-import lu.itrust.business.TS.component.MeasureManager;
-import lu.itrust.business.TS.component.ScenarioManager;
-import lu.itrust.business.TS.component.helper.RRFFieldEditor;
-import lu.itrust.business.TS.component.helper.RRFFilter;
-import lu.itrust.business.TS.data.basic.AssetTypeValue;
-import lu.itrust.business.TS.data.basic.Language;
-import lu.itrust.business.TS.data.basic.Measure;
-import lu.itrust.business.TS.data.basic.MeasureProperties;
-import lu.itrust.business.TS.data.basic.NormalMeasure;
-import lu.itrust.business.TS.data.basic.Scenario;
-import lu.itrust.business.TS.data.basic.ScenarioType;
-import lu.itrust.business.TS.data.cssf.tools.CategoryConverter;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.general.AssetTypeValue;
+import lu.itrust.business.TS.data.general.Language;
+import lu.itrust.business.TS.data.rrf.RRFFieldEditor;
+import lu.itrust.business.TS.data.rrf.RRFFilter;
+import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.data.scenario.ScenarioType;
+import lu.itrust.business.TS.data.scenario.helper.ScenarioManager;
+import lu.itrust.business.TS.data.standard.measure.AssetMeasure;
+import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
+import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.data.standard.measure.helper.Chapter;
+import lu.itrust.business.TS.data.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceScenario;
-import lu.itrust.business.TS.tsconstant.Constant;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -69,27 +72,143 @@ public class ControllerRRF {
 	@Autowired
 	private MessageSource messageSource;
 
+	/**
+	 * rrf: <br>
+	 * Description
+	 * 
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping(method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public String rrf(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		List<Measure> measures = serviceMeasure.getAllNotMaturityMeasuresFromAnalysisAndComputable(idAnalysis);
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(idAnalysis);
-		model.addAttribute("measures", MeasureManager.SplitByChapter(measures));
-		if (serviceAnalysis.isAnalysisCssf(idAnalysis))
-			model.addAttribute("categories", ScenarioType.getAllCSSF());
-		else
-			model.addAttribute("categories", ScenarioType.getAllCIA());
+		Map<Chapter, List<Measure>> splittedmeasures = MeasureManager.SplitByChapter(measures);
+		model.addAttribute("measures", splittedmeasures);
 		model.addAttribute("scenarios", ScenarioManager.SplitByType(scenarios));
-		model.addAttribute("assetTypes", serviceAssetType.getAll());
+		Measure measure = null;
+		measure = splittedmeasures.entrySet().iterator().next().getValue().get(0);
+		if(measure != null) {
+			if(measure instanceof NormalMeasure) {
+				NormalMeasure normalMeasure = (NormalMeasure) measure;
+				model.addAttribute("standardid", normalMeasure.getAnalysisStandard().getStandard().getId());
+				model.addAttribute("measureid", normalMeasure.getId());
+				model.addAttribute("strength_measure", normalMeasure.getMeasurePropertyList().getFMeasure());
+				model.addAttribute("strength_sectorial", normalMeasure.getMeasurePropertyList().getFSectoral());
+				if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+					model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCSSFCategories());
+				} else {
+					model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCIACategories());
+				}
+				model.addAttribute("preventive", normalMeasure.getMeasurePropertyList().getPreventive());
+				model.addAttribute("detective", normalMeasure.getMeasurePropertyList().getDetective());
+				model.addAttribute("limitative", normalMeasure.getMeasurePropertyList().getLimitative());
+				model.addAttribute("corrective", normalMeasure.getMeasurePropertyList().getCorrective());
+				model.addAttribute("intentional", normalMeasure.getMeasurePropertyList().getIntentional());
+				model.addAttribute("accidental", normalMeasure.getMeasurePropertyList().getAccidental());
+				model.addAttribute("environmental", normalMeasure.getMeasurePropertyList().getEnvironmental());
+				model.addAttribute("internalThreat", normalMeasure.getMeasurePropertyList().getInternalThreat());
+				model.addAttribute("externalThreat", normalMeasure.getMeasurePropertyList().getExternalThreat());
+				model.addAttribute("assetTypes", normalMeasure.getAssetTypeValues());
+			}
+			if(measure instanceof AssetMeasure) {
+				AssetMeasure assetMeasure = (AssetMeasure) measure;
+			model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
+			model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
+			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCSSFCategories());
+			} else {
+				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());
+			}
+			model.addAttribute("preventive", assetMeasure.getMeasurePropertyList().getPreventive());
+			model.addAttribute("detective", assetMeasure.getMeasurePropertyList().getDetective());
+			model.addAttribute("limitative", assetMeasure.getMeasurePropertyList().getLimitative());
+			model.addAttribute("corrective", assetMeasure.getMeasurePropertyList().getCorrective());
+			model.addAttribute("intentional", assetMeasure.getMeasurePropertyList().getIntentional());
+			model.addAttribute("accidental", assetMeasure.getMeasurePropertyList().getAccidental());
+			model.addAttribute("environemental", assetMeasure.getMeasurePropertyList().getEnvironmental());
+			model.addAttribute("internalThreat", assetMeasure.getMeasurePropertyList().getInternalThreat());
+			model.addAttribute("externalThreat", assetMeasure.getMeasurePropertyList().getExternalThreat());
+				model.addAttribute("assets", assetMeasure.getMeasureAssetValues());
+			}
+		}
+		
 		Language language = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
 		model.addAttribute("language", language.getAlpha3());
-		return "analyses/singleAnalysis/components/forms/rrfEditor";
+		return "analyses/singleAnalysis/components/forms/rrf/rrfEditor";
 	}
 
-	@RequestMapping(value = "/Scenario/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String updateScenarioRRF(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	/***********************
+	 * Scenarios
+	 **********************/
+
+	/**
+	 * loadRRFScenario: <br>
+	 * Description
+	 * 
+	 * @param elementID
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Scenario/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	public String loadRRFScenario(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Scenario scenario = DAOHibernate.Initialise(serviceScenario.getFromAnalysisById(idAnalysis, elementID));
+		scenario.setScenarioType(DAOHibernate.Initialise(scenario.getScenarioType()));
+		for (AssetTypeValue assetTypeValue : scenario.getAssetTypeValues())
+			assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
+		model.addAttribute("selectedScenario", scenario);
+		model.addAttribute("assetTypes", serviceAssetType.getAll());
+		return "analyses/singleAnalysis/components/forms/rrf/scenarioRRF";
+	}
+
+	/**
+	 * loadRRFScenarioChart: <br>
+	 * Description
+	 * 
+	 * @param filter
+	 * @param elementID
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Scenario/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID,'Scenario', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String loadRRFScenarioChart(@RequestBody RRFFilter filter, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		return chartGenerator.rrfByScenario(scenario, idAnalysis, customLocale != null ? customLocale : locale, filter);
+	}
+
+	/**
+	 * updateRRFScenarioChart: <br>
+	 * Description
+	 * 
+	 * @param fieldEditor
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Scenario/Chart/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String updateRRFScenarioChart(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, fieldEditor.getId());
 		Field field = ControllerEditField.FindField(Scenario.class, fieldEditor.getFieldName());
@@ -116,18 +235,82 @@ public class ControllerRRF {
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, customLocale != null ? customLocale : locale, fieldEditor.getFilter());
 	}
 
-	@RequestMapping(value = "/Scenario/{elementID}/Load", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID,'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String loadScenarioRRF(@RequestBody RRFFilter filter, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	/***************
+	 * Measures
+	 ***************/
+
+	/**
+	 * loadRRFMeasure: <br>
+	 * Description
+	 * 
+	 * @param standardID
+	 * @param elementID
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/{standardID}/Measure/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody Measure loadRRFMeasure(@PathVariable int standardID, @PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-		return chartGenerator.rrfByScenario(scenario, idAnalysis, customLocale != null ? customLocale : locale, filter);
+		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
+		measure.setAnalysisStandard(null);
+		measure.setMeasureDescription(null);
+		if (measure instanceof NormalMeasure) {
+			((NormalMeasure) measure).setPhase(null);
+			Hibernate.initialize(((NormalMeasure) measure).getAssetTypeValues());
+			Hibernate.initialize(measure);
+			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues())
+				assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
+			((NormalMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormalMeasure) measure).getMeasurePropertyList()));
+		} else if (measure instanceof AssetMeasure) {
+			((AssetMeasure) measure).setPhase(null);
+			Hibernate.initialize(measure);
+			((AssetMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((AssetMeasure) measure).getMeasurePropertyList()));
+			Hibernate.initialize(((AssetMeasure) measure).getMeasureAssetValues());
+		}
+		return measure;
 	}
 
-	@RequestMapping(value = "/Measure/Update", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String updateStandardRRF(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	/**
+	 * loadRRFStandardChart: <br>
+	 * Description
+	 * 
+	 * @param filter
+	 * @param elementID
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Measure/{elementID}/Chart", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
+	public @ResponseBody String loadRRFStandardChart(@PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
+		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+		return chartGenerator.rrfByMeasure(measure, idAnalysis, customLocale != null ? customLocale : locale);
+	}
+
+	/**
+	 * updateRRFStandardChart: <br>
+	 * Description
+	 * 
+	 * @param fieldEditor
+	 * @param model
+	 * @param session
+	 * @param principal
+	 * @param locale
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Measure/Chart/Update", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String updateRRFStandardChart(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		NormalMeasure measure = (NormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, fieldEditor.getId());
 		Field field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
@@ -155,16 +338,7 @@ public class ControllerRRF {
 		}
 		serviceMeasure.saveOrUpdate(measure);
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-		return chartGenerator.rrfByMeasure(measure, idAnalysis, customLocale != null ? customLocale : locale, fieldEditor.getFilter());
-	}
-
-	@RequestMapping(value = "/Measure/{elementID}/Load", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody String loadMeasureRRF(@RequestBody RRFFilter filter, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-		return chartGenerator.rrfByMeasure(measure, idAnalysis, customLocale != null ? customLocale : locale, filter);
+		return chartGenerator.rrfByMeasure(measure, idAnalysis, customLocale != null ? customLocale : locale);
 	}
 
 }

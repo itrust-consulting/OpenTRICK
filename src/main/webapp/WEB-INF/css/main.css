@@ -350,10 +350,6 @@ td>pre {
 	transform: rotate(30deg);
 }
 
-.modal-open {
-	overflow: inherit;
-}
-
 #buildAnalysisModal .well.well-sm {
 	margin-bottom: inherit;
 }

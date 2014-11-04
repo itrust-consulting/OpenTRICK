@@ -1,4 +1,4 @@
-<%@page import="lu.itrust.business.TS.actionplan.ActionPlanType"%>
+<%@page import="lu.itrust.business.TS.data.actionplan.ActionPlanType"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
@@ -12,7 +12,7 @@
 			<fmt:message key="label.title.summary" />
 		</h3>
 	</div>
-	<spring:eval expression="T(lu.itrust.business.component.ActionPlanSummaryManager).getRows(summaries,phases)" var="summariesStages" />
+	<spring:eval expression="T(lu.itrust.business.TS.data.actionplan.summary.helper.ActionPlanSummaryManager).getRows(summaries,phases)" var="summariesStages" />
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills">

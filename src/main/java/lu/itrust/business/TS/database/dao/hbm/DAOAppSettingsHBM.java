@@ -5,20 +5,18 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import javax.persistence.Entity;
-
-import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
-
 import lu.itrust.business.TS.database.dao.DAOAppSettings;
 import lu.itrust.business.TS.settings.AppSettings;
 import lu.itrust.business.TS.usermanagement.User;
+
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
 /**
  * @author eomar
  *
  */
-@Entity @Repository
+@Repository
 public class DAOAppSettingsHBM extends DAOHibernate implements DAOAppSettings {
 
 	/**

@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Measure;
-import lu.itrust.business.TS.data.basic.NormalMeasure;
-import lu.itrust.business.TS.data.basic.Standard;
+import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 
@@ -177,7 +177,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#getAllFromAnalysisAndStandard(java.lang.Integer,
-	 *      lu.itrust.business.TS.data.basic.Standard)
+	 *      lu.itrust.business.TS.data.standard.Standard)
 	 */
 
 	@Override
@@ -249,7 +249,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#save(lu.itrust.business.TS.data.basic.Measure)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#save(lu.itrust.business.TS.data.standard.measure.Measure)
 	 */
 	@Transactional
 	@Override
@@ -264,7 +264,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * @param measure
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#saveOrUpdate(lu.itrust.business.TS.data.basic.Measure)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#saveOrUpdate(lu.itrust.business.TS.data.standard.measure.Measure)
 	 */
 	@Transactional
 	@Override
@@ -281,7 +281,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#merge(lu.itrust.business.TS.data.basic.Measure)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#merge(lu.itrust.business.TS.data.standard.measure.Measure)
 	 */
 	@Transactional
 	@Override
@@ -296,7 +296,7 @@ public class ServiceMeasureImpl implements ServiceMeasure {
 	 * @param measure
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#delete(lu.itrust.business.TS.data.basic.Measure)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasure#delete(lu.itrust.business.TS.data.standard.measure.Measure)
 	 */
 	@Transactional
 	@Override

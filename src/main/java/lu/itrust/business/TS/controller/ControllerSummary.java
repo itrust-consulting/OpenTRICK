@@ -10,14 +10,14 @@ import java.util.Locale;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.ChartGenerator;
-import lu.itrust.business.TS.data.actionplan.SummaryStage;
-import lu.itrust.business.TS.data.actionplan.SummaryStandardConformance;
-import lu.itrust.business.TS.data.basic.Phase;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.data.actionplan.summary.SummaryStandardConformance;
+import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +68,7 @@ public class ControllerSummary {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	@RequestMapping("/Section")
 	public String section(HttpSession session, Principal principal, Model model, Locale locale) throws Exception {
 
@@ -96,7 +96,7 @@ public class ControllerSummary {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Evolution/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String chartEvolutionProfitabityCompliance(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
 
 		// retireve analysis id
@@ -134,7 +134,7 @@ public class ControllerSummary {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Budget/{actionPlanType}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String chartBudget(@PathVariable String actionPlanType, Principal principal, HttpSession session, Locale locale) throws Exception {
 
 		// retrieve analysis id

@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.AnalysisRight;
-import lu.itrust.business.TS.data.basic.UserAnalysisRight;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.usermanagement.User;
 
 /**

@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<%@ taglib prefix="fct" uri="http://itrust.lu/function"%>
+<%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <!-- <span class="anchor" id="anchoranchorRiskInformation"></span> -->
 <div class="section" id="section_risk_information">
 	<div class="page-header">
@@ -13,7 +13,7 @@
 		</h3>
 	</div>
 	<c:if test="${empty(riskInformationSplited)}">
-		<spring:eval expression="T(lu.itrust.business.component.RiskInformationManager).Split(riskInformation)" var="riskInformationSplited" />
+		<spring:eval expression="T(lu.itrust.business.TS.data.riskinformation.helper.RiskInformationManager).Split(riskInformation)" var="riskInformationSplited" />
 	</c:if>
 	<c:set var="chapterRegex">^\d(\.0)*$</c:set>
 	<c:forEach items="${riskInformationSplited.keySet()}" var="categoryRiskInformation">

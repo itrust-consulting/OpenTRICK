@@ -84,7 +84,7 @@
 				</tbody>
 				<tfoot>
 					<tr class="panel-footer" style="font-weight: bold;">
-						<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeTotalALE(assetALE)" var="ale" />
+						<spring:eval expression="T(lu.itrust.business.TS.data.assessment.helper.AssessmentManager).ComputeTotalALE(assetALE)" var="ale" />
 						<td colspan="14"><fmt:message key="label.total.ale"  /></td>
 						<c:choose>
 							<c:when test="${show_uncertainty}">

@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.MeasureDescription;
-import lu.itrust.business.TS.data.basic.Standard;
+import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
 
@@ -46,7 +46,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 *
 	 * @{tags}
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#getByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#getByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@Override
 	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard) throws Exception {
@@ -72,7 +72,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 *
 	 * @{tags}
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String, lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@Override
 	public boolean existsForMeasureByReferenceAndStandard(String reference, Standard standard) throws Exception {
@@ -125,7 +125,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 *
 	 * @{tags}
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#getAllByStandard(lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#getAllByStandard(lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@Override
 	public List<MeasureDescription> getAllByStandard(Standard standard) throws Exception {
@@ -139,7 +139,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * @param measureDescription
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#save(lu.itrust.business.TS.data.basic.MeasureDescription)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#save(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription)
 	 */
 	@Transactional
 	@Override
@@ -154,7 +154,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * @param measureDescription
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#saveOrUpdate(lu.itrust.business.TS.data.basic.MeasureDescription)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#saveOrUpdate(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription)
 	 */
 	@Transactional
 	@Override
@@ -169,7 +169,7 @@ public class ServiceMeasureDescriptionImpl implements ServiceMeasureDescription 
 	 * @param measureDescription
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#delete(lu.itrust.business.TS.data.basic.MeasureDescription)
+	 * @see lu.itrust.business.TS.database.service.ServiceMeasureDescription#delete(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription)
 	 */
 	@Transactional
 	@Override

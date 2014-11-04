@@ -2,6 +2,8 @@ package lu.itrust.business.TS.controller;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -11,29 +13,28 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
-import lu.itrust.business.TS.component.MeasureManager;
-import lu.itrust.business.TS.component.helper.ImportRRFForm;
-import lu.itrust.business.TS.component.helper.JsonMessage;
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.AnalysisStandard;
-import lu.itrust.business.TS.data.basic.AssetMeasure;
-import lu.itrust.business.TS.data.basic.AssetStandard;
-import lu.itrust.business.TS.data.basic.AssetType;
-import lu.itrust.business.TS.data.basic.AssetTypeValue;
-import lu.itrust.business.TS.data.basic.Language;
-import lu.itrust.business.TS.data.basic.MaturityMeasure;
-import lu.itrust.business.TS.data.basic.MaturityStandard;
-import lu.itrust.business.TS.data.basic.Measure;
-import lu.itrust.business.TS.data.basic.MeasureDescription;
-import lu.itrust.business.TS.data.basic.MeasureDescriptionText;
-import lu.itrust.business.TS.data.basic.MeasureProperties;
-import lu.itrust.business.TS.data.basic.NormalMeasure;
-import lu.itrust.business.TS.data.basic.NormalStandard;
-import lu.itrust.business.TS.data.basic.Parameter;
-import lu.itrust.business.TS.data.basic.Phase;
-import lu.itrust.business.TS.data.basic.Standard;
-import lu.itrust.business.TS.data.basic.StandardType;
-import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.asset.AssetType;
+import lu.itrust.business.TS.data.general.AssetTypeValue;
+import lu.itrust.business.TS.data.general.Language;
+import lu.itrust.business.TS.data.general.Phase;
+import lu.itrust.business.TS.data.parameter.Parameter;
+import lu.itrust.business.TS.data.rrf.ImportRRFForm;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.AssetStandard;
+import lu.itrust.business.TS.data.standard.MaturityStandard;
+import lu.itrust.business.TS.data.standard.NormalStandard;
+import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.StandardType;
+import lu.itrust.business.TS.data.standard.measure.MaturityMeasure;
+import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
+import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.data.standard.measure.helper.MeasureManager;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
@@ -48,7 +49,6 @@ import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
 import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
 import lu.itrust.business.TS.validator.StandardValidator;
@@ -56,7 +56,6 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -149,7 +148,7 @@ public class ControllerAnalysisStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Section")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public String section(HttpSession session, Model model, Principal principal) throws Exception {
 
 		// retrieve analysis id
@@ -187,7 +186,7 @@ public class ControllerAnalysisStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Section/{standardid}")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public String sectionByStandard(@PathVariable Integer standardid, HttpSession session, Model model, Principal principal) throws Exception {
 
 		// retrieve analysis id
@@ -248,48 +247,20 @@ public class ControllerAnalysisStandard {
 			} else {
 				if (standard.getStandard().getLabel().equals(standardlabel)) {
 					List<Measure> measures = standard.getMeasures();
-
+					Comparator<Measure> cmp = new Comparator<Measure>() {
+						public int compare(Measure o1, Measure o2) {
+							return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
+						}
+					};
+					Collections.sort(measures, cmp);
 					measuresmap.put(standard.getStandard().getLabel(), measures);
+
 				}
 			}
 
 		}
 
 		return measuresmap;
-	}
-
-	/**
-	 * get: <br>
-	 * Description
-	 * 
-	 * @param idMeasure
-	 * @param model
-	 * @param session
-	 * @param principal
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/{standardID}/Measure/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
-	public @ResponseBody Measure get(@PathVariable int standardID, @PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		measure.setAnalysisStandard(null);
-		measure.setMeasureDescription(null);
-		if (measure instanceof NormalMeasure) {
-			((NormalMeasure) measure).setPhase(null);
-			Hibernate.initialize(((NormalMeasure) measure).getAssetTypeValues());
-			Hibernate.initialize(measure);
-			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues())
-				assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
-			((NormalMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormalMeasure) measure).getMeasurePropertyList()));
-		} else if (measure instanceof AssetMeasure) {
-			((AssetMeasure) measure).setPhase(null);
-			Hibernate.initialize(measure);
-			((AssetMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((AssetMeasure) measure).getMeasurePropertyList()));
-			Hibernate.initialize(((AssetMeasure) measure).getMeasureAssetValues());
-		}
-		return measure;
 	}
 
 	/**
@@ -304,7 +275,7 @@ public class ControllerAnalysisStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{idStandard}/SingleMeasure/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
@@ -327,7 +298,7 @@ public class ControllerAnalysisStandard {
 	 * @return
 	 */
 	@RequestMapping(value = "/{standardid}/Compliance", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	@ResponseBody
 	public String compliance(@PathVariable Integer standardid, HttpSession session, Principal principal, Locale locale) {
 
@@ -363,7 +334,7 @@ public class ControllerAnalysisStandard {
 	 * @return
 	 */
 	@RequestMapping(value = "/Compliances", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	@ResponseBody
 	public String compliances(HttpSession session, Principal principal, Locale locale) {
 
@@ -416,7 +387,7 @@ public class ControllerAnalysisStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/SOA", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public String getSOA(HttpSession session, Principal principal, Model model) throws Exception {
 
 		// retrieve analysis id
@@ -444,7 +415,7 @@ public class ControllerAnalysisStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Manage", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public String manageForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
@@ -465,7 +436,7 @@ public class ControllerAnalysisStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Create", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<String, String> createStandardForm(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale)
 			throws Exception {
 
@@ -571,7 +542,7 @@ public class ControllerAnalysisStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<String, String> updateStandard(@RequestBody String value, HttpSession session, Principal principal, Model model, RedirectAttributes attributes, Locale locale)
 			throws Exception {
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -635,7 +606,7 @@ public class ControllerAnalysisStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Available", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<Integer, String> getAvailableStandards(HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		Map<Integer, String> availableStandards = new LinkedHashMap<Integer, String>();
@@ -673,7 +644,7 @@ public class ControllerAnalysisStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Add/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 		try {
 
@@ -755,7 +726,7 @@ public class ControllerAnalysisStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		try {
@@ -779,7 +750,7 @@ public class ControllerAnalysisStandard {
 	 */
 
 	@RequestMapping(value = "/{idStandard}/Measure/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<String, String> saveMeasure(@PathVariable("idStandard") int idStandard, HttpSession session, Principal principal, @RequestBody String value, Locale locale) {
 		// create error list
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -890,7 +861,7 @@ public class ControllerAnalysisStandard {
 	 * @return
 	 * @throws Exception
 	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	@RequestMapping(value = "/Import/RRF", headers = "Accept=application/json;charset=UTF-8")
 	public String importRRF(HttpSession session, Principal principal, Model model) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -907,7 +878,7 @@ public class ControllerAnalysisStandard {
 
 	}
 
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	@RequestMapping(value = "/Import/RRF/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody Object importRRFSave(@ModelAttribute ImportRRFForm rrfForm, HttpSession session, Principal principal, Locale locale) {
 		try {

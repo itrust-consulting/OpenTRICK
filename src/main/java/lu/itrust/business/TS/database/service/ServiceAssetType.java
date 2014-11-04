@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.AssetType;
+import lu.itrust.business.TS.data.asset.AssetType;
 
 /**
  * ServiceAssetType.java: <br>

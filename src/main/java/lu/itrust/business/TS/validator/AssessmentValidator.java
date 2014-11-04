@@ -5,9 +5,9 @@ package lu.itrust.business.TS.validator;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Assessment;
-import lu.itrust.business.TS.data.basic.Asset;
-import lu.itrust.business.TS.data.basic.Scenario;
+import lu.itrust.business.TS.data.assessment.Assessment;
+import lu.itrust.business.TS.data.asset.Asset;
+import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**

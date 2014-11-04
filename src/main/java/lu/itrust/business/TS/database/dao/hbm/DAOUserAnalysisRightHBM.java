@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.AnalysisRight;
-import lu.itrust.business.TS.data.basic.UserAnalysisRight;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
@@ -53,7 +53,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * getUserAnalysisRight: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#getUserAnalysisRight(lu.itrust.business.TS.data.basic.Analysis,
+	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#getUserAnalysisRight(lu.itrust.business.TS.data.analysis.Analysis,
 	 *      lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
@@ -66,7 +66,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * Description
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#isUserAuthorized(java.lang.Integer,
-	 *      java.lang.Integer, lu.itrust.business.TS.data.basic.AnalysisRight)
+	 *      java.lang.Integer, lu.itrust.business.TS.data.analysis.rights.AnalysisRight)
 	 */
 	@Override
 	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) throws Exception {
@@ -80,7 +80,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * Description
 	 * 
 	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#isUserAuthorized(java.lang.Integer,
-	 *      java.lang.String, lu.itrust.business.TS.data.basic.AnalysisRight)
+	 *      java.lang.String, lu.itrust.business.TS.data.analysis.rights.AnalysisRight)
 	 */
 	@Override
 	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) throws Exception {
@@ -103,8 +103,8 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * isUserAuthorized: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#isUserAuthorized(lu.itrust.business.TS.data.basic.Analysis,
-	 *      lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.data.basic.AnalysisRight)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#isUserAuthorized(lu.itrust.business.TS.data.analysis.Analysis,
+	 *      lu.itrust.business.TS.usermanagement.User, lu.itrust.business.TS.data.analysis.rights.AnalysisRight)
 	 */
 	@Override
 	public boolean isUserAuthorized(Analysis analysis, User user, AnalysisRight right) throws Exception {
@@ -115,7 +115,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * getAnalysisRightOfUser: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#getAnalysisRightOfUser(lu.itrust.business.TS.data.basic.Analysis,
+	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#getAnalysisRightOfUser(lu.itrust.business.TS.data.analysis.Analysis,
 	 *      lu.itrust.business.TS.usermanagement.User)
 	 */
 	@Override
@@ -140,7 +140,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * getAllFromAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#getAllFromAnalysis(lu.itrust.business.TS.data.basic.Analysis)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#getAllFromAnalysis(lu.itrust.business.TS.data.analysis.Analysis)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -179,7 +179,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#save(lu.itrust.business.TS.data.basic.UserAnalysisRight)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#save(lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight)
 	 */
 	@Override
 	public void save(UserAnalysisRight userAnalysisRight) throws Exception {
@@ -190,7 +190,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#saveOrUpdate(lu.itrust.business.TS.data.basic.UserAnalysisRight)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#saveOrUpdate(lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight)
 	 */
 	@Override
 	public void saveOrUpdate(UserAnalysisRight userAnalysisRight) throws Exception {
@@ -212,7 +212,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#delete(lu.itrust.business.TS.data.basic.UserAnalysisRight)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserAnalysisRight#delete(lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight)
 	 */
 	@Override
 	public void delete(UserAnalysisRight userAnalysisRight) throws Exception {

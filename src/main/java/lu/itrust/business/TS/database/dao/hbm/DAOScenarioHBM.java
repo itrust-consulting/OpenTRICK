@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.Scenario;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 
 import org.hibernate.Session;
@@ -116,7 +116,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * getAllFromAnalysisByScenarioTypeId: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOScenario#getAllFromAnalysisByScenarioTypeId(lu.itrust.business.TS.data.basic.Analysis,
+	 * @see lu.itrust.business.TS.database.dao.DAOScenario#getAllFromAnalysisByScenarioTypeId(lu.itrust.business.TS.data.analysis.Analysis,
 	 *      int)
 	 */
 	@SuppressWarnings("unchecked")
@@ -146,7 +146,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOScenario#save(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.dao.DAOScenario#save(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@Override
 	public void save(Scenario scenario) throws Exception {
@@ -157,7 +157,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOScenario#saveOrUpdate(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.dao.DAOScenario#saveOrUpdate(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@Override
 	public void saveOrUpdate(Scenario scenario) throws Exception {
@@ -168,7 +168,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * merge: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOScenario#merge(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.dao.DAOScenario#merge(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@Override
 	public Scenario merge(Scenario scenario) throws Exception {
@@ -179,7 +179,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOScenario#delete(lu.itrust.business.TS.data.basic.Scenario)
+	 * @see lu.itrust.business.TS.database.dao.DAOScenario#delete(lu.itrust.business.TS.data.scenario.Scenario)
 	 */
 	@Override
 	public void delete(Scenario scenario) throws Exception {

@@ -9,18 +9,18 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.component.AssessmentManager;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.CustomDelete;
-import lu.itrust.business.TS.component.helper.JsonMessage;
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.Assessment;
-import lu.itrust.business.TS.data.basic.AssetType;
-import lu.itrust.business.TS.data.basic.AssetTypeValue;
-import lu.itrust.business.TS.data.basic.Scenario;
-import lu.itrust.business.TS.data.basic.ScenarioType;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.assessment.Assessment;
+import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
+import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.data.cssf.tools.CategoryConverter;
-import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
+import lu.itrust.business.TS.data.general.AssetTypeValue;
+import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.data.scenario.ScenarioType;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
@@ -31,7 +31,6 @@ import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceScenarioType;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.validator.ScenarioValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
@@ -111,7 +110,7 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Select/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String select(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) throws Exception {
 
 		try {
@@ -155,7 +154,7 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Select", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody List<String> selectMultiple(@RequestBody List<Integer> ids, Principal principal, Locale locale, HttpSession session) throws Exception {
 
 		// set error list
@@ -213,7 +212,7 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).DELETE)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).DELETE)")
 	public @ResponseBody String delete(@PathVariable int elementID, Principal principal, Locale locale, HttpSession session) throws Exception {
 		try {
 
@@ -248,7 +247,7 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
@@ -265,17 +264,6 @@ public class ControllerScenario {
 		return "analyses/singleAnalysis/components/scenario/scenario";
 	}
 
-	@RequestMapping(value = "/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
-	public @ResponseBody Scenario get(@PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Scenario scenario = DAOHibernate.Initialise(serviceScenario.getFromAnalysisById(idAnalysis, elementID));
-		scenario.setScenarioType(DAOHibernate.Initialise(scenario.getScenarioType()));
-		for (AssetTypeValue assetTypeValue : scenario.getAssetTypeValues())
-			assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
-		return scenario;
-	}
-
 	/**
 	 * add: <br>
 	 * Description
@@ -285,7 +273,7 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Add")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public String add(Model model, HttpSession session, Principal principal) throws Exception {
 		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
 		if (serviceAnalysis.isAnalysisCssf(analysisID))
@@ -306,7 +294,7 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Edit/{elementID}")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public String edit(@PathVariable Integer elementID, Model model, HttpSession session, Principal principal) throws Exception {
 
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -326,7 +314,7 @@ public class ControllerScenario {
 	}
 
 	@RequestMapping(value = "/Delete/AssetTypeValueDuplication", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String deleteDuplicationAssetTypeValue(HttpSession session, Principal principal, Locale locale) throws Exception {
 		try {
 			Integer analysisId = (Integer) session.getAttribute("selectedAnalysis");
@@ -358,7 +346,7 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<String, String> save(@RequestBody String value, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		// create errors list
@@ -449,7 +437,7 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String aleByAsset(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
@@ -473,7 +461,7 @@ public class ControllerScenario {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody String assetByALE(HttpSession session, Model model, Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		if (idAnalysis == null)

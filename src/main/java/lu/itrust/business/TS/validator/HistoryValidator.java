@@ -6,8 +6,8 @@ package lu.itrust.business.TS.validator;
 import java.util.Date;
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.History;
-import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.history.History;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 import org.springframework.validation.Errors;

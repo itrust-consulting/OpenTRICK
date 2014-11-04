@@ -1,6 +1,6 @@
 package lu.itrust.business.TS.database.service;
 
-import lu.itrust.business.TS.task.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
 
 /**
  * WorkersPoolManager.java: <br>

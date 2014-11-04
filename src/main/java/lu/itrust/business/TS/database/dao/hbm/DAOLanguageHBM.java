@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Language;
+import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.database.dao.DAOLanguage;
 
 import org.hibernate.Session;
@@ -138,7 +138,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#save(lu.itrust.business.TS.data.basic.Language)
+	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#save(lu.itrust.business.TS.data.general.Language)
 	 */
 	@Override
 	public void save(Language language) throws Exception {
@@ -150,7 +150,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#saveOrUpdate(lu.itrust.business.TS.data.basic.Language)
+	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#saveOrUpdate(lu.itrust.business.TS.data.general.Language)
 	 */
 	@Override
 	public void saveOrUpdate(Language language) throws Exception {
@@ -173,7 +173,7 @@ public class DAOLanguageHBM extends DAOHibernate implements DAOLanguage {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#delete(lu.itrust.business.TS.data.basic.Language)
+	 * @see lu.itrust.business.TS.database.dao.DAOLanguage#delete(lu.itrust.business.TS.data.general.Language)
 	 */
 	@Override
 	public void delete(Language language) throws Exception {

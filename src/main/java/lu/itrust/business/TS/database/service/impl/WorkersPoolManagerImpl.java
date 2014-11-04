@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.task.Worker;
 
 /**
  * WorkersPoolManagerImpl.java: <br>
@@ -34,7 +34,7 @@ public class WorkersPoolManagerImpl implements WorkersPoolManager {
 	 * @param worker
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.WorkersPoolManager#add(lu.itrust.business.TS.task.Worker)
+	 * @see lu.itrust.business.TS.database.service.WorkersPoolManager#add(lu.itrust.business.TS.asynchronousWorkers.Worker)
 	 */
 	@Override
 	public boolean add(Worker worker) {
@@ -65,7 +65,7 @@ public class WorkersPoolManagerImpl implements WorkersPoolManager {
 	 * @param worker
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.WorkersPoolManager#remove(lu.itrust.business.TS.task.Worker)
+	 * @see lu.itrust.business.TS.database.service.WorkersPoolManager#remove(lu.itrust.business.TS.asynchronousWorkers.Worker)
 	 */
 	@Override
 	public Worker remove(Worker worker) {

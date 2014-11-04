@@ -293,39 +293,51 @@ function ScenarioRRFController(rrfView, container, name) {
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
+
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(response, "text/html");
+				var scenriorrf = $(doc).find("*[id='control_rrf_scenario']");
+				if (!scenriorrf.length)
+					return true;
 				
-				if (response.scenarioType != null && response.scenarioType != undefined) {
-					$(that.container).find(".slider").unbind("slideStop");
-					for (var i = 0; i < that.sliders.length; i++) {
-						var clone = $(that.sliders[i]).clone();
-						var field = $(clone).prop("name");
-						var fieldValue = response[field];
-						if (fieldValue == undefined) {
-							for (var j = 0; j < response.assetTypeValues.length; j++) {
-								if (response.assetTypeValues[j].assetType.type == field) {
-									fieldValue = response.assetTypeValues[j].value;
-									break;
-								}
+				$(that.container).find(".slider").unbind("slideStop");
+				
+				$("#section_rrf #control_rrf_scenario").html($(scenriorrf).html());
+				
+				that.container = $("#section_rrf #control_rrf_scenario");
+				
+				var sliders = $("#section_rrf #control_rrf_scenario").find(".slider");
+				that.sliders = $(sliders).slider();
+				
+				for (var i = 0; i < that.sliders.length; i++) {
+					var clone = $(that.sliders[i]).clone();
+					var field = $(clone).prop("name");
+					var fieldValue = response[field];
+					if (fieldValue == undefined) {
+						/*for (var j = 0; j < response.assetTypeValues.length; j++) {
+							if (response.assetTypeValues[j].assetType.type == field) {
+								fieldValue = response.assetTypeValues[j].value;
+								break;
 							}
-							if (fieldValue == undefined)
-								continue;
-						}
-						// update preventive, limitative,detective and
-						// corrective
-						if (that.DependencyFields[field] != undefined)
-							that.DependencyFields[field] = fieldValue;
-						$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", fieldValue);
-						$(clone).attr("value", fieldValue);
-						$(clone).attr("data-slider-value", fieldValue);
-						$(that.sliders[i]).parent().replaceWith($(clone));
-						that.sliders[i] = $(clone).slider();
-						that.sliders[i].on("slideStop", function(event) {
-							return that.rrfView.OnSliderChange(event);
-						});
+						}*/
+						if (fieldValue == undefined)
+							continue;
 					}
-					that.CheckTypeValue();
-				} else
-					unknowError();
+					// update preventive, limitative,detective and
+					// corrective
+					if (that.DependencyFields[field] != undefined)
+						that.DependencyFields[field] = fieldValue;
+					$(that.container).find("#" + $(clone).prop("id") + "_value").prop("value", fieldValue);
+					$(clone).attr("value", fieldValue);
+					$(clone).attr("data-slider-value", fieldValue);
+					$(that.sliders[i]).parent().replaceWith($(clone));
+					that.sliders[i] = $(clone).slider();
+					that.sliders[i].on("slideStop", function(event) {
+						return that.rrfView.OnSliderChange(event);
+					});
+				}
+				
+				that.CheckTypeValue();
 
 				return false;
 			},

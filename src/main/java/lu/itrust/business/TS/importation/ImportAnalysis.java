@@ -13,47 +13,48 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lu.itrust.business.TS.component.AssessmentManager;
-import lu.itrust.business.TS.component.ComparatorHistoryVersion;
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.AnalysisRight;
-import lu.itrust.business.TS.data.basic.AnalysisStandard;
-import lu.itrust.business.TS.data.basic.Assessment;
-import lu.itrust.business.TS.data.basic.Asset;
-import lu.itrust.business.TS.data.basic.AssetType;
-import lu.itrust.business.TS.data.basic.AssetTypeValue;
-import lu.itrust.business.TS.data.basic.Bounds;
-import lu.itrust.business.TS.data.basic.ExtendedParameter;
-import lu.itrust.business.TS.data.basic.History;
-import lu.itrust.business.TS.data.basic.ItemInformation;
-import lu.itrust.business.TS.data.basic.Language;
-import lu.itrust.business.TS.data.basic.MaturityMeasure;
-import lu.itrust.business.TS.data.basic.MaturityParameter;
-import lu.itrust.business.TS.data.basic.MaturityStandard;
-import lu.itrust.business.TS.data.basic.Measure;
-import lu.itrust.business.TS.data.basic.MeasureDescription;
-import lu.itrust.business.TS.data.basic.MeasureDescriptionText;
-import lu.itrust.business.TS.data.basic.MeasureProperties;
-import lu.itrust.business.TS.data.basic.NormalMeasure;
-import lu.itrust.business.TS.data.basic.NormalStandard;
-import lu.itrust.business.TS.data.basic.Parameter;
-import lu.itrust.business.TS.data.basic.ParameterType;
-import lu.itrust.business.TS.data.basic.Phase;
-import lu.itrust.business.TS.data.basic.RiskInformation;
-import lu.itrust.business.TS.data.basic.Scenario;
-import lu.itrust.business.TS.data.basic.ScenarioType;
-import lu.itrust.business.TS.data.basic.SecurityCriteria;
-import lu.itrust.business.TS.data.basic.Standard;
-import lu.itrust.business.TS.data.basic.StandardType;
-import lu.itrust.business.TS.data.basic.UserAnalysisRight;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
+import lu.itrust.business.TS.data.assessment.Assessment;
+import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
+import lu.itrust.business.TS.data.asset.Asset;
+import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.data.cssf.tools.CategoryConverter;
+import lu.itrust.business.TS.data.general.AssetTypeValue;
+import lu.itrust.business.TS.data.general.Language;
+import lu.itrust.business.TS.data.general.Phase;
+import lu.itrust.business.TS.data.general.SecurityCriteria;
+import lu.itrust.business.TS.data.history.History;
+import lu.itrust.business.TS.data.history.helper.ComparatorHistoryVersion;
+import lu.itrust.business.TS.data.iteminformation.ItemInformation;
+import lu.itrust.business.TS.data.parameter.ExtendedParameter;
+import lu.itrust.business.TS.data.parameter.MaturityParameter;
+import lu.itrust.business.TS.data.parameter.Parameter;
+import lu.itrust.business.TS.data.parameter.ParameterType;
+import lu.itrust.business.TS.data.parameter.helper.Bounds;
+import lu.itrust.business.TS.data.riskinformation.RiskInformation;
+import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.data.scenario.ScenarioType;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.MaturityStandard;
+import lu.itrust.business.TS.data.standard.NormalStandard;
+import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.StandardType;
+import lu.itrust.business.TS.data.standard.measure.MaturityMeasure;
+import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
+import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
 import lu.itrust.business.TS.database.dao.DAOLanguage;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
-import lu.itrust.business.TS.database.dao.DAOScenarioType;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOAssetTypeHBM;
@@ -61,13 +62,10 @@ import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionTextHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOParameterTypeHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAOScenarioTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
-import lu.itrust.business.TS.database.dbhandler.DatabaseHandler;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -92,8 +90,6 @@ public class ImportAnalysis {
 	private DAOParameterType daoParameterType;
 
 	private DAOAssetType daoAssetType;
-
-	private DAOScenarioType daoScenarioType;
 
 	private DAOAnalysis daoAnalysis;
 
@@ -963,7 +959,7 @@ public class ImportAnalysis {
 			type = rs.getString(Constant.THREAT_TYPE_LABEL);
 
 			scenarioType = ScenarioType.getByName(type);
-			
+
 			// add scneario type to map
 			scenarioTypes.put(rs.getInt(Constant.THREAT_ID_TYPE_THREAT), scenarioType);
 		}
@@ -3062,7 +3058,6 @@ public class ImportAnalysis {
 		setDaoMeasureDescriptionText(new DAOMeasureDescriptionTextHBM(session));
 		setDaoStandard(new DAOStandardHBM(session));
 		setDaoParameterType(new DAOParameterTypeHBM(session));
-		setDaoScenarioType(new DAOScenarioTypeHBM(session));
 	}
 
 	/**
@@ -3095,14 +3090,6 @@ public class ImportAnalysis {
 	 */
 	public void setDaoAssetType(DAOAssetType daoAssetType) {
 		this.daoAssetType = daoAssetType;
-	}
-
-	/**
-	 * @param daoScenarioType
-	 *            the daoScenarioType to set
-	 */
-	public void setDaoScenarioType(DAOScenarioType daoScenarioType) {
-		this.daoScenarioType = daoScenarioType;
 	}
 
 	/**

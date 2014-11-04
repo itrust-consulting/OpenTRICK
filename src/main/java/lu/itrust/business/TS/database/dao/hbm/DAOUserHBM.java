@@ -5,7 +5,7 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Customer;
+import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.User;
@@ -135,7 +135,7 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	 * getAllUsersFromCustomer: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUser#getAllUsersFromCustomer(lu.itrust.business.TS.data.basic.Customer)
+	 * @see lu.itrust.business.TS.database.dao.DAOUser#getAllUsersFromCustomer(lu.itrust.business.TS.data.general.Customer)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override

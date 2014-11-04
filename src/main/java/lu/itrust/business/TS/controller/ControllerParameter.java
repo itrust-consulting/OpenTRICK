@@ -5,11 +5,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.data.basic.Parameter;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceParameterType;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -52,7 +52,7 @@ public class ControllerParameter {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
@@ -76,7 +76,7 @@ public class ControllerParameter {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Maturity/ImplementationRate", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody
 	List<Parameter> maturityImplementationRate(Model model, HttpSession session, Principal principal) throws Exception {
 

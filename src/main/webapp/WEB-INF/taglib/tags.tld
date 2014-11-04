@@ -4,10 +4,10 @@
 <display-name>itrust tags</display-name>
 <tlib-version>1.0</tlib-version>
 <short-name>fct</short-name>
-<uri>http://itrust.lu/function</uri>
+<uri>http://trickservice.itrust.lu/JSTLFunctions</uri>
 <function>
 <name>matches</name>
-<function-class>lu.itrust.taglib.Function</function-class>
+<function-class>lu.itrust.business.TS.component.JSTLFunctions</function-class>
 <function-signature>boolean matches(java.lang.String, java.lang.String)</function-signature>
 </function>
 </taglib>

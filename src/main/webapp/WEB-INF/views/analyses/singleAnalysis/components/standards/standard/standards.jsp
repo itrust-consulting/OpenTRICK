@@ -12,8 +12,8 @@
 		</h3>
 	</div>
 	<c:forEach items="${measures.keySet()}" var="standard">
-		<spring:eval expression="T(lu.itrust.business.component.MeasureManager).getStandardType(standards, standard)" var="standardType" scope="page" />
-		<spring:eval expression="T(lu.itrust.business.component.MeasureManager).getStandardId(standards, standard)" var="standardid" scope="page" />
+		<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandardType(standards, standard)" var="standardType" scope="page" />
+		<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandardId(standards, standard)" var="standardid" scope="page" />
 		<span class="anchor" id="anchorMeasure_${standardid}"></span>
 		<div id="section_standard_${standardid}" trick-id="${standardid}" trick-label="${standard}">
 			<div class="panel panel-default">

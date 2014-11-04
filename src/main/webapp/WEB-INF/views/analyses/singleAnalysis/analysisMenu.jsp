@@ -78,7 +78,7 @@
 					<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <fmt:message key="label.action.close.analysis" /></a></li>
 					<li class="divider"></li>
 					<li class="dropdown-header"><fmt:message key="label.title.rrf" /></li>
-					<li><a href="#" onclick="return editRRF(${sessionScope.selectedAnalysis});"> <fmt:message key="label.action.open" /></a></li>
+					<li><a href="#" onclick="return loadRRF();"> <fmt:message key="label.action.open" /></a></li>
 					<li><a href="#" onclick="return importRRF(${sessionScope.selectedAnalysis});"> <fmt:message key="label.action.import.rrf" /></a></li>
 					<c:if test="${!analysis.isProfile() }">
 						<li class="divider"></li>

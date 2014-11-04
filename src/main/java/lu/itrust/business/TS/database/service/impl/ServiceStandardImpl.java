@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.Standard;
-import lu.itrust.business.TS.data.basic.StandardType;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.StandardType;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 
@@ -126,7 +126,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getAllFromAnalysis(lu.itrust.business.TS.data.basic.Analysis)
+	 * @see lu.itrust.business.TS.database.service.ServiceStandard#getAllFromAnalysis(lu.itrust.business.TS.data.analysis.Analysis)
 	 */
 	@Override
 	public List<Standard> getAllFromAnalysis(Analysis analysis) throws Exception {
@@ -152,7 +152,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceStandard#save(lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.service.ServiceStandard#save(lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@Transactional
 	@Override
@@ -166,7 +166,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceStandard#saveOrUpdate(lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.service.ServiceStandard#saveOrUpdate(lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@Transactional
 	@Override
@@ -180,7 +180,7 @@ public class ServiceStandardImpl implements ServiceStandard {
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.service.ServiceStandard#delete(lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.service.ServiceStandard#delete(lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@Transactional
 	@Override

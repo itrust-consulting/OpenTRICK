@@ -5,8 +5,8 @@ package lu.itrust.business.TS.validator;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Language;
-import lu.itrust.business.TS.data.basic.MeasureDescriptionText;
+import lu.itrust.business.TS.data.general.Language;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**

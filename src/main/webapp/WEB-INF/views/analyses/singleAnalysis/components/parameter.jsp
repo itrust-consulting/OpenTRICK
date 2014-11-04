@@ -11,10 +11,10 @@
 			<fmt:message key="label.title.parameter" />
 		</h3>
 	</div>
-	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitParameters(parameters)" var="parametersSplited" />
-	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitSimpleParameters(parametersSplited[0])" var="simpleParameters" />
-	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitExtendedParameters(parametersSplited[1])" var="extendedParameters" />
-	<spring:eval expression="T(lu.itrust.business.TS.Analysis).SplitMaturityParameters(parameters)" var="maturityParameters" />
+	<spring:eval expression="T(lu.itrust.business.TS.data.analysis.Analysis).SplitParameters(parameters)" var="parametersSplited" />
+	<spring:eval expression="T(lu.itrust.business.TS.data.analysis.Analysis).SplitSimpleParameters(parametersSplited[0])" var="simpleParameters" />
+	<spring:eval expression="T(lu.itrust.business.TS.data.analysis.Analysis).SplitExtendedParameters(parametersSplited[1])" var="extendedParameters" />
+	<spring:eval expression="T(lu.itrust.business.TS.data.analysis.Analysis).SplitMaturityParameters(parameters)" var="maturityParameters" />
 
 	<div class="row">
 		<div class="col-md-6">

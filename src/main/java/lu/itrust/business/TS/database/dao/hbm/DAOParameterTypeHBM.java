@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.ParameterType;
+import lu.itrust.business.TS.data.parameter.ParameterType;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
 
 import org.hibernate.Session;
@@ -72,7 +72,7 @@ public class DAOParameterTypeHBM extends DAOHibernate implements DAOParameterTyp
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#save(lu.itrust.business.TS.data.basic.ParameterType)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#save(lu.itrust.business.TS.data.parameter.ParameterType)
 	 */
 	@Override
 	public void save(ParameterType parameterType) throws Exception {
@@ -83,7 +83,7 @@ public class DAOParameterTypeHBM extends DAOHibernate implements DAOParameterTyp
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#saveOrUpdate(lu.itrust.business.TS.data.basic.ParameterType)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#saveOrUpdate(lu.itrust.business.TS.data.parameter.ParameterType)
 	 */
 	@Override
 	public void saveOrUpdate(ParameterType parameterType) throws Exception {
@@ -94,7 +94,7 @@ public class DAOParameterTypeHBM extends DAOHibernate implements DAOParameterTyp
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#delete(lu.itrust.business.TS.data.basic.ParameterType)
+	 * @see lu.itrust.business.TS.database.dao.DAOParameterType#delete(lu.itrust.business.TS.data.parameter.ParameterType)
 	 */
 	@Override
 	public void delete(ParameterType parameterType) throws Exception {

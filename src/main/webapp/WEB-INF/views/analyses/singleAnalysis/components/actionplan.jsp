@@ -12,7 +12,7 @@
 			<fmt:message key="label.title.action_plan" />
 		</h3>
 	</div>
-	<spring:eval expression="T(lu.itrust.business.component.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
+	<spring:eval expression="T(lu.itrust.business.TS.data.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px;">
 			<ul class="nav nav-pills" id="menu_actionplan">
@@ -47,7 +47,7 @@
 								<th colspan="3"><fmt:message key="label.action_plan.external_setup" /></th>
 								<th colspan="3"><fmt:message key="label.action_plan.investment" /></th>
 								<th colspan="2"><fmt:message key="label.action_plan.phase" /></th>
-								<spring:eval expression="T(lu.itrust.business.component.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
+								<spring:eval expression="T(lu.itrust.business.TS.data.actionplan.helper.ActionPlanManager).getAssetsByActionPlanType(actionplans)" var="actionplanassets" scope="request" />
 								<c:forEach items="${actionplanassets}" var="asset">
 									<th colspan="6" class="actionplanasset actionplanassethidden"><spring:message text="${asset.name}" /></th>
 								</c:forEach>

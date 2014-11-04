@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.AnalysisStandard;
-import lu.itrust.business.TS.data.basic.Standard;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.Standard;
 
 /**
  * DAOAnalysisStandard.java: <br>

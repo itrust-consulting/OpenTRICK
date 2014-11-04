@@ -12,8 +12,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lu.itrust.business.TS.data.basic.AnalysisRight;
-import lu.itrust.business.TS.data.basic.AnalysisStandard;
+import lu.itrust.business.TS.asynchronousWorkers.Worker;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisProfile;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceRole;
@@ -22,9 +25,6 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
-import lu.itrust.business.TS.task.Worker;
-import lu.itrust.business.TS.task.WorkerCreateAnalysisProfile;
-import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.permissionevaluator.PermissionEvaluator;
@@ -89,7 +89,7 @@ public class ControllerAnalysisProfile {
 	@Autowired
 	private MessageSource messageSource;
 
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	@RequestMapping("/Add/{analysisId}")
 	public String createProfile(@PathVariable int analysisId, Model model, Principal principal) throws Exception {
 		List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);

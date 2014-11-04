@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Customer;
+import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.dao.DAOCustomer;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 
@@ -192,7 +192,7 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * @param customer
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#save(lu.itrust.business.TS.data.basic.Customer)
+	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#save(lu.itrust.business.TS.data.general.Customer)
 	 */
 	@Transactional
 	@Override
@@ -207,7 +207,7 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * @param customer
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#saveOrUpdate(lu.itrust.business.TS.data.basic.Customer)
+	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#saveOrUpdate(lu.itrust.business.TS.data.general.Customer)
 	 */
 	@Override
 	@Transactional
@@ -237,7 +237,7 @@ public class ServiceCustomerImpl implements ServiceCustomer {
 	 * @param customer
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#delete(lu.itrust.business.TS.data.basic.Customer)
+	 * @see lu.itrust.business.TS.database.service.ServiceCustomer#delete(lu.itrust.business.TS.data.general.Customer)
 	 */
 	@Transactional
 	@Override

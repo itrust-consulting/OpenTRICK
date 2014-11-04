@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.data.basic.Measure;
-import lu.itrust.business.TS.data.basic.NormalMeasure;
-import lu.itrust.business.TS.data.basic.Standard;
+import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 
 /**
  * DAOMeasure.java: <br>

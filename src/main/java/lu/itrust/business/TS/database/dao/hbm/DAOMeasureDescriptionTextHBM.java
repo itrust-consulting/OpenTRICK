@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.MeasureDescription;
-import lu.itrust.business.TS.data.basic.MeasureDescriptionText;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -88,7 +88,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText#save(lu.itrust.business.TS.data.basic.MeasureDescriptionText)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText#save(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Override
 	public void save(MeasureDescriptionText measureDescriptiontext) throws Exception {
@@ -99,7 +99,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText#saveOrUpdate(lu.itrust.business.TS.data.basic.MeasureDescriptionText)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText#saveOrUpdate(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Override
 	public void saveOrUpdate(MeasureDescriptionText measureDescriptiontext) throws Exception {
@@ -110,7 +110,7 @@ public class DAOMeasureDescriptionTextHBM extends DAOHibernate implements lu.itr
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText#delete(lu.itrust.business.TS.data.basic.MeasureDescriptionText)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText#delete(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText)
 	 */
 	@Override
 	public void delete(MeasureDescriptionText measureDescriptiontext) throws Exception {

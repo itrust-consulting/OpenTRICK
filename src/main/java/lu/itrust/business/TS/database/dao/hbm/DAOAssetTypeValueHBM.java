@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.AssetTypeValue;
+import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
 
 import org.hibernate.Session;
@@ -49,7 +49,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#save(lu.itrust.business.TS.data.basic.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#save(lu.itrust.business.TS.data.general.AssetTypeValue)
 	 */
 	@Override
 	public AssetTypeValue save(AssetTypeValue assetTypeValue) throws Exception {
@@ -60,7 +60,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.data.basic.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.data.general.AssetTypeValue)
 	 */
 	@Override
 	public AssetTypeValue saveOrUpdate(AssetTypeValue assetTypeValue) throws Exception {
@@ -72,7 +72,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * merge: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#merge(lu.itrust.business.TS.data.basic.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#merge(lu.itrust.business.TS.data.general.AssetTypeValue)
 	 */
 	@Override
 	public AssetTypeValue merge(AssetTypeValue assetTypeValue) throws Exception {
@@ -83,7 +83,7 @@ public class DAOAssetTypeValueHBM extends DAOHibernate implements DAOAssetTypeVa
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#delete(lu.itrust.business.TS.data.basic.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.dao.DAOAssetTypeValue#delete(lu.itrust.business.TS.data.general.AssetTypeValue)
 	 */
 	@Override
 	public void delete(AssetTypeValue assetTypeValue) throws Exception {

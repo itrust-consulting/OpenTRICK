@@ -2,11 +2,11 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.AnalysisStandard;
-import lu.itrust.business.TS.data.basic.MeasureDescription;
-import lu.itrust.business.TS.data.basic.MeasureDescriptionText;
-import lu.itrust.business.TS.data.basic.Standard;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;
 
 import org.hibernate.Session;
@@ -94,7 +94,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 * getAllFromAnalysis: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#getAllFromAnalysis(lu.itrust.business.TS.data.basic.Analysis)
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#getAllFromAnalysis(lu.itrust.business.TS.data.analysis.Analysis)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -109,7 +109,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#getAllFromStandard(lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#getAllFromStandard(lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -123,7 +123,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#save(lu.itrust.business.TS.data.basic.AnalysisStandard)
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#save(lu.itrust.business.TS.data.standard.AnalysisStandard)
 	 */
 	@Override
 	public void save(AnalysisStandard analysisStandard) throws Exception {
@@ -136,7 +136,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#saveOrUpdate(lu.itrust.business.TS.data.basic.AnalysisStandard)
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#saveOrUpdate(lu.itrust.business.TS.data.standard.AnalysisStandard)
 	 */
 	@Override
 	public void saveOrUpdate(AnalysisStandard analysisStandard) throws Exception {
@@ -149,7 +149,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#delete(lu.itrust.business.TS.data.basic.AnalysisStandard)
+	 * @see lu.itrust.business.TS.database.dao.DAOAnalysisStandard#delete(lu.itrust.business.TS.data.standard.AnalysisStandard)
 	 */
 	@Override
 	public void delete(AnalysisStandard analysisStandard) throws Exception {

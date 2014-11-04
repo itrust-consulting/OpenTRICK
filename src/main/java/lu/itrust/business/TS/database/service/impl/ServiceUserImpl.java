@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Customer;
+import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.dao.DAORole;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.database.service.ServiceUser;
@@ -158,7 +158,7 @@ public class ServiceUserImpl implements ServiceUser {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUser#getAllUsersFromCustomer(lu.itrust.business.TS.data.basic.Customer)
+	 * @see lu.itrust.business.TS.database.service.ServiceUser#getAllUsersFromCustomer(lu.itrust.business.TS.data.general.Customer)
 	 */
 	@Override
 	public List<User> getAllFromCustomer(Customer customer) throws Exception {

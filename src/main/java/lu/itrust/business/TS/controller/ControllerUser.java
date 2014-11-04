@@ -7,10 +7,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;

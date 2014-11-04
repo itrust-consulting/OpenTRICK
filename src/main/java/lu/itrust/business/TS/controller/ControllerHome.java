@@ -12,12 +12,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.component.helper.JsonMessage;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
-import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.codehaus.jackson.JsonParseException;

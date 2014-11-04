@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.History;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.history.History;
 
 /**
  * DAOHistory.java: <br>

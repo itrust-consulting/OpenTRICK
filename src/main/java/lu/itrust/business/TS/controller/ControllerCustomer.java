@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.CustomDelete;
-import lu.itrust.business.TS.component.helper.JsonMessage;
-import lu.itrust.business.TS.data.basic.Customer;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.CustomerValidator;

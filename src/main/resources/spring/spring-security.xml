@@ -27,9 +27,9 @@
 		</authentication-provider>
 	</authentication-manager>
 
-	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.CustomAuthenticationSuccessHandler" />
+	<beans:bean id="authenticationSuccessHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationSuccessHandler" />
 
-	<beans:bean id="customAuthenticationFailureHandler" class="lu.itrust.business.TS.usermanagement.CustomAuthenticationFailureHandler">
+	<beans:bean id="customAuthenticationFailureHandler" class="lu.itrust.business.TS.usermanagement.helper.CustomAuthenticationFailureHandler">
 		<beans:property name="defaultFailureUrl" value="/Login/Error" />
 	</beans:bean>
 

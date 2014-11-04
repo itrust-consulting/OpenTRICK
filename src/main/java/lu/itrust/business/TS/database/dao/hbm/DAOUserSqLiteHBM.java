@@ -5,8 +5,8 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
+import lu.itrust.business.TS.data.general.UserSQLite;
 import lu.itrust.business.TS.database.dao.DAOUserSqLite;
-import lu.itrust.business.TS.export.UserSQLite;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -102,7 +102,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#save(lu.itrust.business.TS.export.UserSQLite)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#save(lu.itrust.business.TS.data.general.UserSQLite)
 	 */
 	@Override
 	public UserSQLite save(UserSQLite userSqLite) throws Exception {
@@ -113,7 +113,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#saveOrUpdate(lu.itrust.business.TS.export.UserSQLite)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#saveOrUpdate(lu.itrust.business.TS.data.general.UserSQLite)
 	 */
 	@Override
 	public void saveOrUpdate(UserSQLite userSqLite) throws Exception {
@@ -124,7 +124,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * merge: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#merge(lu.itrust.business.TS.export.UserSQLite)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#merge(lu.itrust.business.TS.data.general.UserSQLite)
 	 */
 	@Override
 	public UserSQLite merge(UserSQLite userSqLite) throws Exception {
@@ -157,7 +157,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#delete(lu.itrust.business.TS.export.UserSQLite)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#delete(lu.itrust.business.TS.data.general.UserSQLite)
 	 */
 	@Override
 	public void delete(UserSQLite userSqLite) throws Exception {

@@ -15,13 +15,13 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.component.helper.JsonMessage;
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.Phase;
+import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
@@ -66,7 +66,7 @@ public class ControllerPhase {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).READ)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 
 		// retrieve analysis id
@@ -92,7 +92,7 @@ public class ControllerPhase {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Delete/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Phase', #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Phase', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String delete(@PathVariable Integer elementID, HttpSession session, Principal principal, Locale locale) throws Exception {
 		try {
 			// retrieve analysis id
@@ -163,7 +163,7 @@ public class ControllerPhase {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = "Accept=application/json")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody List<String[]> save(@RequestBody String source, HttpSession session, Principal principal, Locale locale) throws Exception {
 
 		// create result array

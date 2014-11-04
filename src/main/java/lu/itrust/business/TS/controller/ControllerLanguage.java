@@ -6,11 +6,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import lu.itrust.business.TS.data.basic.Language;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
-import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.validator.LanguageValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 

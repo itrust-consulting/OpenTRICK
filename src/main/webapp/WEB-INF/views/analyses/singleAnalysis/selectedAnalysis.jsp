@@ -16,10 +16,12 @@
 	<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/exporting.js" />"></script>
 	<script src="<spring:url value="/js/jquery.fileDownload.js" />"></script>
-	<script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script>
+	<!-- <script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script> -->
+	
 	<script type="text/javascript" src="<spring:url value="js/trickservice/fieldeditor.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/scenario.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/phase.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/rrfManager.js" />"></script>
 	<c:if test="${!analysis.isProfile()}">
 		<script type="text/javascript" src="<spring:url value="js/trickservice/actionplan.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/assessment.js" />"></script>
@@ -52,7 +54,7 @@
 				<c:if test="${!analysis.isProfile() }">
 					<c:set var="riskInformation" value="${analysis.riskInformations}" scope="request" />
 					<jsp:include page="./components/riskinformation.jsp" />
-					<spring:eval expression="T(lu.itrust.business.component.AssessmentManager).ComputeALE(analysis)" var="ales" />
+					<spring:eval expression="T(lu.itrust.business.TS.data.assessment.helper.AssessmentManager).ComputeALE(analysis)" var="ales" />
 					<c:set var="assetALE" value="${ales[0]}" scope="request" />
 					<c:set var="assets" value="${analysis.assets}" scope="request" />
 					<jsp:include page="./components/asset/asset.jsp" />

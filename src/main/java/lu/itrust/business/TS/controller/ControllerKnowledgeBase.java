@@ -5,12 +5,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;

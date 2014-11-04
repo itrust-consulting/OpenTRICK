@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.AssetTypeValue;
+import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
 import lu.itrust.business.TS.database.service.ServiceAssetTypeValue;
 
@@ -47,7 +47,7 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#save(lu.itrust.business.TS.data.basic.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#save(lu.itrust.business.TS.data.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
@@ -63,7 +63,7 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.data.basic.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#saveOrUpdate(lu.itrust.business.TS.data.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
@@ -79,7 +79,7 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#merge(lu.itrust.business.TS.data.basic.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#merge(lu.itrust.business.TS.data.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override
@@ -109,7 +109,7 @@ public class ServiceAssetTypeValueImpl implements ServiceAssetTypeValue {
 	 * @param assetTypeValue
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#delete(lu.itrust.business.TS.data.basic.AssetTypeValue)
+	 * @see lu.itrust.business.TS.database.service.ServiceAssetTypeValue#delete(lu.itrust.business.TS.data.general.AssetTypeValue)
 	 */
 	@Transactional
 	@Override

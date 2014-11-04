@@ -2,9 +2,9 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.ExtendedParameter;
-import lu.itrust.business.TS.data.basic.Parameter;
-import lu.itrust.business.TS.data.basic.ParameterType;
+import lu.itrust.business.TS.data.parameter.ExtendedParameter;
+import lu.itrust.business.TS.data.parameter.Parameter;
+import lu.itrust.business.TS.data.parameter.ParameterType;
 
 /**
  * ServiceParameter.java: <br>

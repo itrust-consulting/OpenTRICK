@@ -5,8 +5,8 @@ package lu.itrust.business.TS.validator;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.RiskInformation;
-import lu.itrust.business.TS.tsconstant.Constant;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.riskinformation.RiskInformation;
 import lu.itrust.business.TS.validator.field.ValidatorFieldImpl;
 
 /**

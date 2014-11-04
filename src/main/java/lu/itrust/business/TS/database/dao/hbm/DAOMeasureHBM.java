@@ -5,12 +5,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
-import lu.itrust.business.TS.data.basic.Measure;
-import lu.itrust.business.TS.data.basic.NormalMeasure;
-import lu.itrust.business.TS.data.basic.Standard;
+import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
-import lu.itrust.business.TS.tsconstant.Constant;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -178,7 +178,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#getAllFromAnalysisAndStandard(java.lang.Integer,
-	 *      lu.itrust.business.TS.data.basic.Standard)
+	 *      lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -276,7 +276,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#save(lu.itrust.business.TS.data.basic.Measure)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#save(lu.itrust.business.TS.data.standard.measure.Measure)
 	 */
 	@Override
 	public Measure save(Measure measure) throws Exception {
@@ -287,7 +287,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#saveOrUpdate(lu.itrust.business.TS.data.basic.Measure)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#saveOrUpdate(lu.itrust.business.TS.data.standard.measure.Measure)
 	 */
 	@Override
 	public void saveOrUpdate(Measure measure) throws Exception {
@@ -298,7 +298,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 * merge: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#merge(lu.itrust.business.TS.data.basic.Measure)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#merge(lu.itrust.business.TS.data.standard.measure.Measure)
 	 */
 	@Override
 	public Measure merge(Measure measure) throws Exception {
@@ -309,7 +309,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#delete(lu.itrust.business.TS.data.basic.Measure)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasure#delete(lu.itrust.business.TS.data.standard.measure.Measure)
 	 */
 	@Override
 	public void delete(Measure measure) throws Exception {

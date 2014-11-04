@@ -2,7 +2,7 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.Language;
+import lu.itrust.business.TS.data.general.Language;
 
 /**
  * DAOLanguage.java: <br>

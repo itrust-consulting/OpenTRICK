@@ -14,8 +14,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import lu.itrust.business.TS.data.basic.Asset;
-import lu.itrust.business.TS.data.basic.Scenario;
+import lu.itrust.business.TS.data.asset.Asset;
+import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**

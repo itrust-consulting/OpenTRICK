@@ -3,8 +3,8 @@
  */
 package lu.itrust.business.TS.validator;
 
-import lu.itrust.business.TS.data.basic.Bounds;
-import lu.itrust.business.TS.data.basic.ExtendedParameter;
+import lu.itrust.business.TS.data.parameter.ExtendedParameter;
+import lu.itrust.business.TS.data.parameter.helper.Bounds;
 
 /**
  * @author eomar

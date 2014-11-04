@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.basic.MeasureDescription;
-import lu.itrust.business.TS.data.basic.Standard;
+import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -52,7 +52,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescription#getByReferenceAndStandard(java.lang.String,
-	 *      lu.itrust.business.TS.data.basic.Standard)
+	 *      lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@Override
 	public MeasureDescription getByReferenceAndStandard(String reference, Standard standard) throws Exception {
@@ -82,7 +82,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * @{tags
 	 *
 	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescription#existsForMeasureByReferenceAndStandard(java.lang.String,
-	 *      lu.itrust.business.TS.data.basic.Standard)
+	 *      lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@Override
 	public boolean existsForMeasureByReferenceAndStandard(String reference, Standard standard) throws Exception {
@@ -135,7 +135,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 *
 	 * @{tags
 	 *
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescription#getAllByStandard(lu.itrust.business.TS.data.basic.Standard)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescription#getAllByStandard(lu.itrust.business.TS.data.standard.Standard)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -148,7 +148,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * save: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescription#save(lu.itrust.business.TS.data.basic.MeasureDescription)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescription#save(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription)
 	 */
 	@Override
 	public void save(MeasureDescription measureDescription) throws Exception {
@@ -159,7 +159,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * saveOrUpdate: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescription#saveOrUpdate(lu.itrust.business.TS.data.basic.MeasureDescription)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescription#saveOrUpdate(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription)
 	 */
 	@Override
 	public void saveOrUpdate(MeasureDescription measureDescription) throws Exception {
@@ -170,7 +170,7 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescription#delete(lu.itrust.business.TS.data.basic.MeasureDescription)
+	 * @see lu.itrust.business.TS.database.dao.DAOMeasureDescription#delete(lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription)
 	 */
 	@Override
 	public void delete(MeasureDescription measureDescription) throws Exception {

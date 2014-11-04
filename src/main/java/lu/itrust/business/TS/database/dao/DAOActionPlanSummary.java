@@ -3,8 +3,8 @@ package lu.itrust.business.TS.database.dao;
 import java.util.List;
 
 import lu.itrust.business.TS.data.actionplan.ActionPlanType;
-import lu.itrust.business.TS.data.actionplan.SummaryStage;
-import lu.itrust.business.TS.data.basic.Analysis;
+import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
+import lu.itrust.business.TS.data.analysis.Analysis;
 
 /**
  * DAOActionPlanSummary.java: <br>

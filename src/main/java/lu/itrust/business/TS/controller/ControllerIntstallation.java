@@ -9,17 +9,17 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import lu.itrust.business.TS.data.basic.Analysis;
-import lu.itrust.business.TS.data.basic.Customer;
-import lu.itrust.business.TS.data.basic.TrickService;
-import lu.itrust.business.TS.database.dbhandler.DatabaseHandler;
+import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.TrickService;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.general.Customer;
+import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceCustomer;
 import lu.itrust.business.TS.database.service.ServiceTrickService;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.importation.ImportAnalysis;
-import lu.itrust.business.TS.tsconstant.Constant;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.SessionFactory;

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.security.Principal;
 
-import lu.itrust.business.TS.data.basic.AnalysisRight;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
