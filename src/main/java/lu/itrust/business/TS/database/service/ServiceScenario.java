@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.service;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.data.scenario.ScenarioType;
 
 /**
  * ServiceScenario.java: <br>
@@ -28,7 +28,7 @@ public interface ServiceScenario {
 
 	public List<Scenario> getAllSelectedFromAnalysis(Integer idAnalysis) throws Exception;
 
-	public List<Scenario> getAllFromAnalysisByType(Analysis analysis, Integer scenarioTypeID) throws Exception;
+	public List<Scenario> getAllFromAnalysisByType(Integer idAnalysis, ScenarioType scenariotype) throws Exception;
 
 	public List<Scenario> getAllFromAnalysisByIdList(Integer idAnalysis, List<Integer> scenarios) throws Exception;
 

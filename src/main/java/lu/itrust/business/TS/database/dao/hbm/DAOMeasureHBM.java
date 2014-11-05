@@ -233,7 +233,7 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@Override
 	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception{
 		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :idAnalysis and ";
-		query += "measure.measureDescription.computable = true and measure.status='AP' and (exists(From NormalMeasure measure2 where measure2 = measure) or exists(From AssetMeasure measure2 where measure2 = measure)) order by measure.id ";
+		query += "measure.measureDescription.computable = true and measure.status='AP' or measure.status='M' and measure.implementationRate<100 and (exists(From NormalMeasure measure2 where measure2 = measure) or exists(From AssetMeasure measure2 where measure2 = measure)) order by analysisStandard.standard.id, measure.measureDescription.id";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
 	}
 	

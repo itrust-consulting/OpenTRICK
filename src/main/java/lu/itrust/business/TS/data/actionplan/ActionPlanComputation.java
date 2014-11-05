@@ -20,6 +20,7 @@ import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.data.parameter.Parameter;
+import lu.itrust.business.TS.data.rrf.RRF;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.MaturityStandard;
 import lu.itrust.business.TS.data.standard.NormalStandard;
@@ -2006,7 +2007,7 @@ public class ActionPlanComputation {
 		String tmpReference = "";
 		int matLevel = 0;
 		Parameter param = null;
-		double RRF = 0;
+		double rrf = 0;
 		double cMaxEff = -1;
 		double nMaxEff = -1;
 
@@ -2030,13 +2031,13 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * calculate RRF
 					// ****************************************************************
-					RRF = Analysis.calculateRRF(tmpAssessment, analysis.getParameters(), normalMeasure);
+					rrf = RRF.calculateRRF(tmpAssessment, analysis.getParameters(), normalMeasure);
 
 					// ****************************************************************
 					// * create TMA object and initialise with assessment and
 					// measure and RRF
 					// ****************************************************************
-					tmpTMA = new TMA(mode, tmpAssessment, normalMeasure, RRF);
+					tmpTMA = new TMA(mode, tmpAssessment, normalMeasure, rrf);
 
 					// ****************************************************************
 					// * calculate deltaALE for this TMA

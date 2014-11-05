@@ -1,34 +1,37 @@
 package lu.itrust.business.TS.controller;
 
-import java.lang.reflect.Field;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.data.general.Language;
-import lu.itrust.business.TS.data.rrf.RRFFieldEditor;
-import lu.itrust.business.TS.data.rrf.RRFFilter;
 import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.data.scenario.ScenarioType;
 import lu.itrust.business.TS.data.scenario.helper.ScenarioManager;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.StandardType;
 import lu.itrust.business.TS.data.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.data.standard.measure.Measure;
-import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.data.standard.measure.helper.Chapter;
 import lu.itrust.business.TS.data.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
+import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -72,6 +75,9 @@ public class ControllerRRF {
 	@Autowired
 	private MessageSource messageSource;
 
+	@Autowired
+	private ServiceAnalysisStandard serviceAnalysisStandard;
+
 	/**
 	 * rrf: <br>
 	 * Description
@@ -90,12 +96,17 @@ public class ControllerRRF {
 		List<Measure> measures = serviceMeasure.getAllNotMaturityMeasuresFromAnalysisAndComputable(idAnalysis);
 		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(idAnalysis);
 		Map<Chapter, List<Measure>> splittedmeasures = MeasureManager.SplitByChapter(measures);
-		model.addAttribute("measures", splittedmeasures);
-		model.addAttribute("scenarios", ScenarioManager.SplitByType(scenarios));
-		Measure measure = null;
-		measure = splittedmeasures.entrySet().iterator().next().getValue().get(0);
-		if(measure != null) {
-			if(measure instanceof NormalMeasure) {
+
+		if (!splittedmeasures.isEmpty() && splittedmeasures.entrySet().iterator().next().getValue().get(0) != null) {
+
+			model.addAttribute("measures", splittedmeasures);
+			model.addAttribute("scenarios", ScenarioManager.SplitByType(scenarios));
+
+			Measure measure = null;
+
+			measure = splittedmeasures.entrySet().iterator().next().getValue().get(0);
+
+			if (measure instanceof NormalMeasure) {
 				NormalMeasure normalMeasure = (NormalMeasure) measure;
 				model.addAttribute("standardid", normalMeasure.getAnalysisStandard().getStandard().getId());
 				model.addAttribute("measureid", normalMeasure.getId());
@@ -117,30 +128,36 @@ public class ControllerRRF {
 				model.addAttribute("externalThreat", normalMeasure.getMeasurePropertyList().getExternalThreat());
 				model.addAttribute("assetTypes", normalMeasure.getAssetTypeValues());
 			}
-			if(measure instanceof AssetMeasure) {
+			if (measure instanceof AssetMeasure) {
 				AssetMeasure assetMeasure = (AssetMeasure) measure;
-			model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
-			model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
-			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
-				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCSSFCategories());
-			} else {
-				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());
-			}
-			model.addAttribute("preventive", assetMeasure.getMeasurePropertyList().getPreventive());
-			model.addAttribute("detective", assetMeasure.getMeasurePropertyList().getDetective());
-			model.addAttribute("limitative", assetMeasure.getMeasurePropertyList().getLimitative());
-			model.addAttribute("corrective", assetMeasure.getMeasurePropertyList().getCorrective());
-			model.addAttribute("intentional", assetMeasure.getMeasurePropertyList().getIntentional());
-			model.addAttribute("accidental", assetMeasure.getMeasurePropertyList().getAccidental());
-			model.addAttribute("environemental", assetMeasure.getMeasurePropertyList().getEnvironmental());
-			model.addAttribute("internalThreat", assetMeasure.getMeasurePropertyList().getInternalThreat());
-			model.addAttribute("externalThreat", assetMeasure.getMeasurePropertyList().getExternalThreat());
+				model.addAttribute("standardid", assetMeasure.getAnalysisStandard().getStandard().getId());
+				model.addAttribute("measureid", assetMeasure.getId());
+				model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
+				model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
+				if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+					model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCSSFCategories());
+				} else {
+					model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());
+				}
+				model.addAttribute("preventive", assetMeasure.getMeasurePropertyList().getPreventive());
+				model.addAttribute("detective", assetMeasure.getMeasurePropertyList().getDetective());
+				model.addAttribute("limitative", assetMeasure.getMeasurePropertyList().getLimitative());
+				model.addAttribute("corrective", assetMeasure.getMeasurePropertyList().getCorrective());
+				model.addAttribute("intentional", assetMeasure.getMeasurePropertyList().getIntentional());
+				model.addAttribute("accidental", assetMeasure.getMeasurePropertyList().getAccidental());
+				model.addAttribute("environemental", assetMeasure.getMeasurePropertyList().getEnvironmental());
+				model.addAttribute("internalThreat", assetMeasure.getMeasurePropertyList().getInternalThreat());
+				model.addAttribute("externalThreat", assetMeasure.getMeasurePropertyList().getExternalThreat());
 				model.addAttribute("assets", assetMeasure.getMeasureAssetValues());
 			}
+
+			Language language = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
+			model.addAttribute("language", language.getAlpha3());
+			model.addAttribute("notenoughdata", false);
+		} else {
+			model.addAttribute("notenoughdata", true);
 		}
-		
-		Language language = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
-		model.addAttribute("language", language.getAlpha3());
+
 		return "analyses/singleAnalysis/components/forms/rrf/rrfEditor";
 	}
 
@@ -168,7 +185,6 @@ public class ControllerRRF {
 		for (AssetTypeValue assetTypeValue : scenario.getAssetTypeValues())
 			assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
 		model.addAttribute("selectedScenario", scenario);
-		model.addAttribute("assetTypes", serviceAssetType.getAll());
 		return "analyses/singleAnalysis/components/forms/rrf/scenarioRRF";
 	}
 
@@ -187,11 +203,33 @@ public class ControllerRRF {
 	 */
 	@RequestMapping(value = "/Scenario/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID,'Scenario', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String loadRRFScenarioChart(@RequestBody RRFFilter filter, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String loadRRFScenarioChart(@RequestBody String requestBody, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale)
+			throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode jsonNode = mapper.readTree(requestBody);
+
+		// retrieve analysis id to compute
+		Integer standardid = jsonNode.get("idStandard").asInt();
+		if (standardid == null)
+			return null;
+
+		String chapter = jsonNode.get("chapter").asText();
+		if (chapter == null)
+			return null;
+
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
+		List<AnalysisStandard> standards = serviceAnalysisStandard.getAllComputableFromAnalysis(idAnalysis);
+		List<Measure> measures = new ArrayList<Measure>();
+		for (AnalysisStandard standard : standards)
+			if (standard.getStandard().getId() == standardid && standard.getStandard().getType() != StandardType.MATURITY)
+				for (Measure measure : standard.getMeasures())
+					if (measure.getMeasureDescription().getReference().startsWith(chapter + "."))
+						measures.add(measure);
+
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-		return chartGenerator.rrfByScenario(scenario, idAnalysis, customLocale != null ? customLocale : locale, filter);
+		return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, customLocale != null ? customLocale : locale);
 	}
 
 	/**
@@ -206,35 +244,30 @@ public class ControllerRRF {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Scenario/Chart/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String updateRRFScenarioChart(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, fieldEditor.getId());
-		Field field = ControllerEditField.FindField(Scenario.class, fieldEditor.getFieldName());
-		if (field == null) {
-			AssetTypeValue assetData = null;
-			for (AssetTypeValue assetTypeValue : scenario.getAssetTypeValues()) {
-				if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) {
-					assetData = assetTypeValue;
-					break;
-				}
-			}
-			if (assetData != null)
-				assetData.setValue((Integer) fieldEditor.getValue());
-			else
-				return null;
-		} else {
-			field.setAccessible(true);
-			field.set(scenario, fieldEditor.getValue());
-		}
-		serviceScenario.saveOrUpdate(scenario);
-
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-
-		return chartGenerator.rrfByScenario(scenario, idAnalysis, customLocale != null ? customLocale : locale, fieldEditor.getFilter());
-	}
-
+	/*
+	 * @RequestMapping(value = "/Scenario/Chart/Update", method = RequestMethod.POST, headers =
+	 * "Accept=application/json;charset=UTF-8")
+	 * 
+	 * @PreAuthorize(
+	 * "@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)"
+	 * ) public @ResponseBody String updateRRFScenarioChart(@RequestBody RRFFieldEditor fieldEditor,
+	 * Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	 * Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis"); Scenario scenario =
+	 * serviceScenario.getFromAnalysisById(idAnalysis, fieldEditor.getId()); Field field =
+	 * ControllerEditField.FindField(Scenario.class, fieldEditor.getFieldName()); if (field == null)
+	 * { AssetTypeValue assetData = null; for (AssetTypeValue assetTypeValue :
+	 * scenario.getAssetTypeValues()) { if
+	 * (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) { assetData =
+	 * assetTypeValue; break; } } if (assetData != null) assetData.setValue((Integer)
+	 * fieldEditor.getValue()); else return null; } else { field.setAccessible(true);
+	 * field.set(scenario, fieldEditor.getValue()); } serviceScenario.saveOrUpdate(scenario);
+	 * 
+	 * Locale customLocale = new
+	 * Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+	 * 
+	 * return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, customLocale != null ?
+	 * customLocale : locale, fieldEditor.getFilter()); }
+	 */
 	/***************
 	 * Measures
 	 ***************/
@@ -251,27 +284,65 @@ public class ControllerRRF {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/{standardID}/Measure/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	@RequestMapping(value = "/Standard/{standardID}/Measure/{elementID}", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Measure loadRRFMeasure(@PathVariable int standardID, @PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
+	public String loadRRFMeasure(@PathVariable int standardID, @PathVariable int elementID, Model model, HttpSession session, Principal principal) throws Exception {
+
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
-		measure.setAnalysisStandard(null);
-		measure.setMeasureDescription(null);
+
+		if (measure.getAnalysisStandard().getStandard().getId() != standardID || measure.getAnalysisStandard().getStandard().getType() == StandardType.MATURITY)
+			return null;
+
 		if (measure instanceof NormalMeasure) {
-			((NormalMeasure) measure).setPhase(null);
-			Hibernate.initialize(((NormalMeasure) measure).getAssetTypeValues());
-			Hibernate.initialize(measure);
-			for (AssetTypeValue assetTypeValue : ((NormalMeasure) measure).getAssetTypeValues())
-				assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
-			((NormalMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((NormalMeasure) measure).getMeasurePropertyList()));
+
+			NormalMeasure normalMeasure = (NormalMeasure) measure;
+			model.addAttribute("strength_measure", normalMeasure.getMeasurePropertyList().getFMeasure());
+			model.addAttribute("strength_sectorial", normalMeasure.getMeasurePropertyList().getFSectoral());
+			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+				model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCSSFCategories());
+			} else {
+				model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCIACategories());
+			}
+			model.addAttribute("preventive", normalMeasure.getMeasurePropertyList().getPreventive());
+			model.addAttribute("detective", normalMeasure.getMeasurePropertyList().getDetective());
+			model.addAttribute("limitative", normalMeasure.getMeasurePropertyList().getLimitative());
+			model.addAttribute("corrective", normalMeasure.getMeasurePropertyList().getCorrective());
+			model.addAttribute("intentional", normalMeasure.getMeasurePropertyList().getIntentional());
+			model.addAttribute("accidental", normalMeasure.getMeasurePropertyList().getAccidental());
+			model.addAttribute("environmental", normalMeasure.getMeasurePropertyList().getEnvironmental());
+			model.addAttribute("internalThreat", normalMeasure.getMeasurePropertyList().getInternalThreat());
+			model.addAttribute("externalThreat", normalMeasure.getMeasurePropertyList().getExternalThreat());
+			model.addAttribute("assetTypes", normalMeasure.getAssetTypeValues());
+
 		} else if (measure instanceof AssetMeasure) {
-			((AssetMeasure) measure).setPhase(null);
-			Hibernate.initialize(measure);
-			((AssetMeasure) measure).setMeasurePropertyList(DAOHibernate.Initialise(((AssetMeasure) measure).getMeasurePropertyList()));
-			Hibernate.initialize(((AssetMeasure) measure).getMeasureAssetValues());
+			AssetMeasure assetMeasure = (AssetMeasure) measure;
+			model.addAttribute("standardid", assetMeasure.getAnalysisStandard().getStandard().getId());
+			model.addAttribute("measureid", assetMeasure.getId());
+			model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
+			model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
+			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCSSFCategories());
+			} else {
+				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());
+			}
+			model.addAttribute("preventive", assetMeasure.getMeasurePropertyList().getPreventive());
+			model.addAttribute("detective", assetMeasure.getMeasurePropertyList().getDetective());
+			model.addAttribute("limitative", assetMeasure.getMeasurePropertyList().getLimitative());
+			model.addAttribute("corrective", assetMeasure.getMeasurePropertyList().getCorrective());
+			model.addAttribute("intentional", assetMeasure.getMeasurePropertyList().getIntentional());
+			model.addAttribute("accidental", assetMeasure.getMeasurePropertyList().getAccidental());
+			model.addAttribute("environemental", assetMeasure.getMeasurePropertyList().getEnvironmental());
+			model.addAttribute("internalThreat", assetMeasure.getMeasurePropertyList().getInternalThreat());
+			model.addAttribute("externalThreat", assetMeasure.getMeasurePropertyList().getExternalThreat());
+			model.addAttribute("assets", assetMeasure.getMeasureAssetValues());
 		}
-		return measure;
+
+		Language language = serviceAnalysis.getLanguageOfAnalysis(idAnalysis);
+		model.addAttribute("language", language.getAlpha3());
+
+		return "analyses/singleAnalysis/components/forms/rrf/measureRRF";
 	}
 
 	/**
@@ -287,13 +358,25 @@ public class ControllerRRF {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Measure/{elementID}/Chart", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@RequestMapping(value = "/Measure/{elementID}/Chart", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody String loadRRFStandardChart(@PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody String loadRRFStandardChart(@RequestBody String requestbody, @PathVariable int elementID, Model model, HttpSession session, Principal principal, Locale locale)
+			throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode jsonNode = mapper.readTree(requestbody);
+
+		// retrieve analysis id to compute
+		Integer scenariotypeid = jsonNode.get("scenariotype").asInt();
+		if (scenariotypeid == null)
+			return null;
+		ScenarioType scenariotype = ScenarioType.valueOf(scenariotypeid);
+
+		List<Scenario> scenarios = serviceScenario.getAllFromAnalysisByType(idAnalysis, scenariotype);
+
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-		return chartGenerator.rrfByMeasure(measure, idAnalysis, customLocale != null ? customLocale : locale);
+		return chartGenerator.rrfByMeasure(measure, idAnalysis, scenarios, customLocale != null ? customLocale : locale);
 	}
 
 	/**
@@ -308,37 +391,31 @@ public class ControllerRRF {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Measure/Chart/Update", method = RequestMethod.POST, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String updateRRFStandardChart(@RequestBody RRFFieldEditor fieldEditor, Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		NormalMeasure measure = (NormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis, fieldEditor.getId());
-		Field field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
-		if (field == null) {
-			if (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
-				measure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
-			else {
-				AssetTypeValue assetData = null;
-				for (AssetTypeValue assetTypeValue : measure.getAssetTypeValues()) {
-					if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) {
-						assetData = assetTypeValue;
-						break;
-					}
-				}
-				if (assetData != null)
-					assetData.setValue((Integer) fieldEditor.getValue());
-				else
-					return null;
-			}
-		} else {
-			field.setAccessible(true);
-			MeasureProperties properties = DAOHibernate.Initialise(measure.getMeasurePropertyList());
-			field.set(properties, fieldEditor.getValue());
-			measure.setMeasurePropertyList(properties);
-		}
-		serviceMeasure.saveOrUpdate(measure);
-		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-		return chartGenerator.rrfByMeasure(measure, idAnalysis, customLocale != null ? customLocale : locale);
-	}
+	/*
+	 * @RequestMapping(value = "/Measure/Chart/Update", method = RequestMethod.POST, headers =
+	 * "Accept=application/json; charset=UTF-8")
+	 * 
+	 * @PreAuthorize(
+	 * "@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)"
+	 * ) public @ResponseBody String updateRRFStandardChart(@RequestBody RRFFieldEditor fieldEditor,
+	 * Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
+	 * Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis"); NormalMeasure
+	 * measure = (NormalMeasure) serviceMeasure.getFromAnalysisById(idAnalysis,
+	 * fieldEditor.getId()); Field field = ControllerEditField.FindField(MeasureProperties.class,
+	 * fieldEditor.getFieldName()); if (field == null) { if
+	 * (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
+	 * measure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(), (Integer)
+	 * fieldEditor.getValue()); else { AssetTypeValue assetData = null; for (AssetTypeValue
+	 * assetTypeValue : measure.getAssetTypeValues()) { if
+	 * (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) { assetData =
+	 * assetTypeValue; break; } } if (assetData != null) assetData.setValue((Integer)
+	 * fieldEditor.getValue()); else return null; } } else { field.setAccessible(true);
+	 * MeasureProperties properties = DAOHibernate.Initialise(measure.getMeasurePropertyList());
+	 * field.set(properties, fieldEditor.getValue()); measure.setMeasurePropertyList(properties); }
+	 * serviceMeasure.saveOrUpdate(measure); Locale customLocale = new
+	 * Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2)); return
+	 * chartGenerator.rrfByMeasure(measure, idAnalysis, customLocale != null ? customLocale :
+	 * locale); }
+	 */
 
 }

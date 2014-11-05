@@ -243,6 +243,12 @@ public class ControllerAnalysisStandard {
 
 			if (standardlabel == null) {
 				List<Measure> measures = standard.getMeasures();
+				Comparator<Measure> cmp = new Comparator<Measure>() {
+					public int compare(Measure o1, Measure o2) {
+						return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
+					}
+				};
+				Collections.sort(measures, cmp);
 				measuresmap.put(standard.getStandard().getLabel(), measures);
 			} else {
 				if (standard.getStandard().getLabel().equals(standardlabel)) {
@@ -675,7 +681,7 @@ public class ControllerAnalysisStandard {
 			} else if (standard.getType() == StandardType.NORMAL) {
 				analysisStandard = new NormalStandard();
 				measure = new NormalMeasure();
-				List<AssetType> assetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
+				List<AssetType> assetTypes = serviceAssetType.getAll();
 				List<AssetTypeValue> assetTypeValues = ((NormalMeasure) measure).getAssetTypeValues();
 				for (AssetType assetType : assetTypes)
 					assetTypeValues.add(new AssetTypeValue(assetType, 0));

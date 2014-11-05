@@ -389,3 +389,8 @@ td>pre {
 a[role="changeUILanguage"]:hover {
 	text-decoration: none;
 }
+
+.rrfCharts {
+	width:100% !important;
+	padding-bottom:1px;
+}

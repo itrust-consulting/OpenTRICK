@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.dao;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.data.scenario.ScenarioType;
 
 /**
  * DAOScenario.java: <br>
@@ -28,7 +28,7 @@ public interface DAOScenario {
 
 	public List<Scenario> getAllSelectedFromAnalysis(Integer idAnalysis) throws Exception;
 
-	public List<Scenario> getAllFromAnalysisByType(Analysis analysis, Integer scenarioTypeID) throws Exception;
+	public List<Scenario> getAllFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType) throws Exception;
 
 	public List<Scenario> getAllFromAnalysisByIdList(Integer idAnalysis, List<Integer> scenarios) throws Exception;
 

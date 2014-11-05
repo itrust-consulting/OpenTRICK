@@ -2,8 +2,8 @@ package lu.itrust.business.TS.database.dao.hbm;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.data.scenario.ScenarioType;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 
 import org.hibernate.Session;
@@ -121,10 +121,10 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Scenario> getAllFromAnalysisByType(Analysis analysis, Integer scenarioTypeID) throws Exception {
+	public List<Scenario> getAllFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType) throws Exception {
 		String query =
-			"Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis = :analysis and scenario.type.id = :scenariotypeId order by scenario.scenarioType.name ASC, scenario.name";
-		return getSession().createQuery(query).setParameter("analysis", analysis).setParameter("scenariotypeId", scenarioTypeID).list();
+			"Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysis and scenario.type = :scenariotype order by scenario.scenarioType.name ASC, scenario.name";
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("scenariotype", scenarioType).list();
 	}
 
 	/**

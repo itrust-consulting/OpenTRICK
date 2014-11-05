@@ -4,6 +4,7 @@ import java.util.List;
 
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.data.scenario.ScenarioType;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 
@@ -143,8 +144,8 @@ public class ServiceScenarioImpl implements ServiceScenario {
 	 *      int)
 	 */
 	@Override
-	public List<Scenario> getAllFromAnalysisByType(Analysis analysis, Integer scenarioTypeID) throws Exception {
-		return daoScenario.getAllFromAnalysisByType(analysis, scenarioTypeID);
+	public List<Scenario> getAllFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType) throws Exception {
+		return daoScenario.getAllFromAnalysisByType(idAnalysis, scenarioType);
 	}
 
 	/**
