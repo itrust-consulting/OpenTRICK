@@ -22,6 +22,7 @@ import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.assessment.Assessment;
 import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
+import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.data.history.History;
 import lu.itrust.business.TS.data.iteminformation.ItemInformation;
@@ -30,7 +31,10 @@ import lu.itrust.business.TS.data.parameter.MaturityParameter;
 import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.parameter.helper.ParameterManager;
 import lu.itrust.business.TS.data.riskinformation.RiskInformation;
+import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.data.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
@@ -44,6 +48,7 @@ import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
+import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.AssessmentValidator;
 import lu.itrust.business.TS.validator.ExtendedParameterValidator;
@@ -113,6 +118,9 @@ public class ControllerEditField {
 	@Autowired
 	private ServicePhase servicePhase;
 
+	@Autowired
+	private ServiceScenario serviceScenario;
+	
 	/**
 	 * itemInformation: <br>
 	 * Description
@@ -1021,6 +1029,100 @@ public class ControllerEditField {
 	}
 
 	/**
+	 * scenario: <br>
+	 * Description
+	 * 
+	 * @param elementID
+	 * @param fieldEditor
+	 * @param session
+	 * @param locale
+	 * @param principal
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/Scenario/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Scenario', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String scenario(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+		try {
+
+			// retrieve analysis
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
+			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+
+			// retrieve measure
+			Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
+			if (scenario == null)
+				return JsonMessage.Error(messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", cutomLocale != null ? cutomLocale : locale));
+
+			// set field
+
+			Field field = ControllerEditField.FindField(Scenario.class, fieldEditor.getFieldName());
+			// means that field belongs to the Measure class
+
+			if (field != null) {
+				// check if field is a phase
+				
+				field.setAccessible(true);
+				
+				field.set(scenario, fieldEditor.getValue());
+			
+				// update measure
+				serviceScenario.saveOrUpdate(scenario);
+
+			} else {
+				
+				if (Scenario.isCategoryKey(fieldEditor.getFieldName()))
+					scenario.setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
+				  else {
+					AssetTypeValue assetData = null;
+					for (AssetTypeValue assetTypeValue : scenario.getAssetTypeValues()) {
+						if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) {
+							assetData = assetTypeValue;
+							break;
+						}
+					}
+					if (assetData != null)
+						assetData.setValue((Integer) fieldEditor.getValue());
+					else
+						return null;
+				}
+				serviceScenario.saveOrUpdate(scenario);
+				
+				
+			}
+			// return success message
+			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", cutomLocale != null ? cutomLocale : locale));
+
+		} catch (TrickException e) {
+			// retrieve analysis id
+			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+	
+			// check if analysis exist
+			if (id == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+	
+			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha3().substring(0, 2));
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+		} catch (Exception e) {
+			// retrieve analysis id
+			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+	
+			// check if analysis exist
+			if (id == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+	
+			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha3().substring(0, 2));
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
+		}
+	}
+	
+	/**
 	 * measure: <br>
 	 * Description
 	 * 
@@ -1050,49 +1152,142 @@ public class ControllerEditField {
 
 			// set field
 
-			Field field = null;
+			Field field = ControllerEditField.FindField(Measure.class, fieldEditor.getFieldName());
 
-			if (fieldEditor.getFieldName().equals("toCheck"))
-				field = measure.getClass().getDeclaredField(fieldEditor.getFieldName());
-			else
-				field = measure.getClass().getSuperclass().getDeclaredField(fieldEditor.getFieldName());
+			// means that field belongs to the Measure class
 
-			field.setAccessible(true);
+			if (field != null) {
+				// check if field is a phase
+				if (fieldEditor.getFieldName().equals("phase")) {
 
-			// retrieve parameters
-			Analysis analysis = serviceAnalysis.get(idAnalysis);
+					// retireve phase
+					Integer number = null;
+					number = (Integer) FieldValue(fieldEditor, null);
+					if (number == null)
+						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+					Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
+					if (phase == null)
+						return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", cutomLocale != null ? cutomLocale : locale));
 
-			// check if field is a phase
-			if (fieldEditor.getFieldName().equals("phase")) {
+					// set new phase number
+					measure.setPhase(phase);
 
-				// retireve phase
-				Integer number = null;
-				number = (Integer) FieldValue(fieldEditor, null);
-				if (number == null)
+					// set field data
+				} else if (!SetFieldData(field, measure, fieldEditor, null))
 					return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
-				Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
-				if (phase == null)
-					return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", cutomLocale != null ? cutomLocale : locale));
 
-				// set new phase number
-				measure.setPhase(phase);
+				field.setAccessible(true);
 
-				// set field data
-			} else if (!SetFieldData(field, measure, fieldEditor, null))
-				return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+				// retrieve parameters
+				Analysis analysis = serviceAnalysis.get(idAnalysis);
 
-			if (fieldEditor.getFieldName().equals("investment"))
-				measure.setInvestment(measure.getInvestment() * 1000);
+				if (fieldEditor.getFieldName().equals("investment"))
+					measure.setInvestment(measure.getInvestment() * 1000);
 
-			if (fieldEditor.getFieldName().equals("recurrentInvestment"))
-				measure.setRecurrentInvestment(measure.getRecurrentInvestment() * 1000);
+				if (fieldEditor.getFieldName().equals("recurrentInvestment"))
+					measure.setRecurrentInvestment(measure.getRecurrentInvestment() * 1000);
 
-			// compute new cost
-			Measure.ComputeCost(measure, analysis);
+				// compute new cost
+				Measure.ComputeCost(measure, analysis);
 
-			// update measure
-			serviceMeasure.saveOrUpdate(measure);
+				// update measure
+				serviceMeasure.saveOrUpdate(measure);
 
+			} else {
+
+				if (measure instanceof NormalMeasure) {
+
+					NormalMeasure normalMeasure = (NormalMeasure) measure;
+
+					field = ControllerEditField.FindField(NormalMeasure.class, fieldEditor.getFieldName());
+
+					// means that field belongs to either measure or normalmeasure
+
+					if (field != null) {
+						// check if field is a phase
+						if (!SetFieldData(field, measure, fieldEditor, null))
+							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+
+						field.setAccessible(true);
+
+						// update measure
+						serviceMeasure.saveOrUpdate(measure);
+
+					} else {
+
+						field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
+
+						if (field != null) {
+							field.setAccessible(true);
+							MeasureProperties properties = DAOHibernate.Initialise(normalMeasure.getMeasurePropertyList());
+							
+							field.set(properties, fieldEditor.getValue());
+							normalMeasure.setMeasurePropertyList(properties);
+						} else if (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
+							normalMeasure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
+						  else {
+							AssetTypeValue assetData = null;
+							for (AssetTypeValue assetTypeValue : normalMeasure.getAssetTypeValues()) {
+								if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) {
+									assetData = assetTypeValue;
+									break;
+								}
+							}
+							if (assetData != null)
+								assetData.setValue((Integer) fieldEditor.getValue());
+							else
+								return null;
+						}
+						serviceMeasure.saveOrUpdate(normalMeasure);
+
+					}
+				} else if (measure instanceof AssetMeasure) {
+					AssetMeasure assetMeasure = (AssetMeasure) measure;
+
+					field = ControllerEditField.FindField(AssetMeasure.class, fieldEditor.getFieldName());
+
+					// means that field belongs to either measure or normalmeasure
+
+					if (field != null) {
+						// check if field is a phase
+						if (!SetFieldData(field, measure, fieldEditor, null))
+							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+
+						field.setAccessible(true);
+
+						// update measure
+						serviceMeasure.saveOrUpdate(measure);
+
+					} else {
+
+						field = ControllerEditField.FindField(MeasureProperties.class, fieldEditor.getFieldName());
+
+						if (field != null) {
+							field.setAccessible(true);
+							MeasureProperties properties = DAOHibernate.Initialise(assetMeasure.getMeasurePropertyList());
+							
+							field.set(properties, fieldEditor.getValue());
+							assetMeasure.setMeasurePropertyList(properties);
+						} else if (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
+							assetMeasure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
+						  else {
+							MeasureAssetValue assetData = null;
+							for (MeasureAssetValue assetValue : assetMeasure.getMeasureAssetValues()) {
+								if (fieldEditor.getFieldName().equals(assetValue.getAsset().getName())) {
+									assetData = assetValue;
+									break;
+								}
+							}
+							if (assetData != null)
+								assetData.setValue((Integer) fieldEditor.getValue());
+							else
+								return null;
+						}
+						serviceMeasure.saveOrUpdate(assetMeasure);
+
+					}
+				}
+			}
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", cutomLocale != null ? cutomLocale : locale));
 

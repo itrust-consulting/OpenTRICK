@@ -962,7 +962,7 @@ public class ChartGenerator {
 			String series = "";
 
 			if (measure instanceof NormalMeasure)
-				series = generateNormalMeasureSeries(idAnalysis, (NormalMeasure) measure);
+				series = generateNormalMeasureSeries(idAnalysis, (NormalMeasure) measure, scenarios);
 			else if (measure instanceof AssetMeasure)
 				series = generateAssetMeasureSeries(idAnalysis, (AssetMeasure) measure, scenarios);
 
@@ -1003,13 +1003,9 @@ public class ChartGenerator {
 		return null;
 	}
 
-	private String generateNormalMeasureSeries(Integer analysisID, NormalMeasure measure) throws Exception {
+	private String generateNormalMeasureSeries(Integer analysisID, NormalMeasure measure, List<Scenario> scenarios) throws Exception {
 		String series = "\"series\":[";
 		List<AssetType> assetTypes = daoAssetType.getAll();
-
-		List<Scenario> scenarios = null;
-
-		scenarios = daoScenario.getAllFromAnalysis(analysisID);
 
 		Map<String, RRFAssetType> rrfs = computeRRFByNormalMeasure(measure, assetTypes, scenarios, analysisID);
 
@@ -1093,6 +1089,9 @@ public class ChartGenerator {
 	private Map<String, RRFAsset> computeRRFByAssetMeasure(AssetMeasure measure, List<Scenario> scenarios, int idAnalysis) throws Exception {
 		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
 		Map<String, RRFAsset> rrfs = new LinkedHashMap<String, RRFAsset>(measure.getMeasureAssetValues().size());
+		if (measure.getMeasureAssetValues().size() == 0)
+			throw new TrickException("error.rrf.measure.no_assets", "The measure " + measure.getMeasureDescription().getReference() + " does not have any assets attributed!", measure
+					.getMeasureDescription().getReference());
 		for (MeasureAssetValue assetValue : measure.getMeasureAssetValues()) {
 			RRFAsset rrfAsset = new RRFAsset(assetValue.getAsset().getName());
 			for (Scenario scenario : scenarios) {
@@ -1115,7 +1114,9 @@ public class ChartGenerator {
 
 				RRFAssetType rrfAssetType = null;
 
-				for (AssetTypeValue atv : ((NormalMeasure) measure).getAssetTypeValues()) {
+				NormalMeasure normalMeadure = (NormalMeasure) measure;
+
+				for (AssetTypeValue atv : normalMeadure.getAssetTypeValues()) {
 
 					rrfAssetType = (RRFAssetType) rrfs.get(atv.getAssetType().getType());
 					if (rrfAssetType == null) {
@@ -1129,6 +1130,12 @@ public class ChartGenerator {
 
 			} else if (measure instanceof AssetMeasure) {
 				RRFAsset rrfAsset = null;
+
+				AssetMeasure assetMeasure = (AssetMeasure) measure;
+
+				if (assetMeasure.getMeasureAssetValues().size() == 0)
+					throw new TrickException("error.rrf.assetmeasure.no_assets", "Measure '" + assetMeasure.getMeasureDescription().getReference() + "' does not have any assets!", assetMeasure
+							.getMeasureDescription().getReference());
 
 				for (MeasureAssetValue atv : ((AssetMeasure) measure).getMeasureAssetValues()) {
 
