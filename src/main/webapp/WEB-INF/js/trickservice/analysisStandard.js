@@ -662,3 +662,103 @@ function deleteMeasure(measureId, standardid) {
 	$("#confirm-dialog").modal("show");
 	return false;
 }
+
+function manageMeasureAssets(idMeasure, idStandard) {
+
+	if (idStandard == null || idStandard == undefined)
+		return false;
+
+	if (idMeasure == null || idMeasure == undefined) {
+		var selectedMeasure = findSelectItemIdBySection("section_standard_" + idStandard);
+		if (!selectedMeasure.length)
+			return false;
+		else
+			idMeasure = selectedMeasure;
+	}
+
+	$.ajax({
+		url : context + "/Analysis/Standard/" + idStandard + "/Measure/" + idMeasure + "/ManageAssets",
+		async : true,
+		contentType : "application/json",
+		success : function(response) {
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			$("#manageAssetMeasureModel-body").html($(doc).find("#manageAssetMeasure_form"));
+			$("#manageAssetMeasureModel").modal("show");
+			$("#manageAssetMeasureModel #manageAssetMeasure_form li").click(function(event) {
+				manageAssetLiClick($(this));
+			});
+		},
+		error : unknowError
+	});
+}
+
+function manageAssetLiClick(event) {
+	var asset = $(event).attr("opt");
+	if ($(event).parent().attr("trick-type") == 'available') {
+		$("select#availableAssets option[value='" + asset + "']").clone().appendTo("select#measureAssets");
+		$("select#availableAssets option[value='" + asset + "']").remove();
+		$(event).clone().appendTo("ul[trick-type='measure']");
+		$("li[opt='" + asset + "']").click(function(ev) {
+			manageAssetLiClick($(this));
+		});
+		$(event).remove();
+
+	} else if ($(event).parent().attr("trick-type") == 'measure') {
+		$("select#measureAssets option[value='" + asset + "']").clone().appendTo("select#availableAssets");
+		$("select#measureAssets option[value='" + asset + "']").remove();
+		$(event).clone().appendTo("ul[trick-type='available']");
+		$("li[opt='" + asset + "']").click(function(ev) {
+			manageAssetLiClick($(this));
+		});
+		$(event).remove();
+	}
+}
+
+function saveAssetMeasure(form) {
+
+	var alert = $("#manageAssetMeasureModel").find(".alert");
+	if (alert.length)
+		alert.remove();
+
+	var idStandard = $(form + " #standard_id").val();
+
+	if (idStandard == null || idStandard == undefined)
+		return false;
+
+	var idMeasure = $(form + " #measure_id").val();
+
+	if (idMeasure == null || idMeasure == undefined)
+		return false;
+
+	var data = {};
+
+	$(form).find("select[name='measureAssets'] option").each(function() {
+
+		var name = $(this).attr("value");
+
+		var value = $(this).is(":checked");
+
+		data[name] = value;
+
+	});
+
+	var jsonarray = JSON.stringify(data);
+
+	$.ajax({
+		url : context + "/Analysis/Standard/" + idStandard + "/Measure/" + idMeasure + "/ManageAssets/Save",
+		async : true,
+		type : "post",
+		data : jsonarray,
+		contentType : "application/json",
+		success : function(response) {
+			if (response["error"] != undefined) {
+				$("#manageAssetMeasureModel-body").prepend('<div class="alert alert-danger">' + response["error"] + '</div>');
+			} else if (response["success"] != undefined) {
+				$("#manageAssetMeasureModel-body").prepend('<div class="alert alert-success">' + response["success"] + '</div>');
+			} else
+				unknowError();
+		},
+		error : unknowError
+	});
+}

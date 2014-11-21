@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -100,11 +101,8 @@ public class AssetMeasure extends Measure implements Cloneable {
 	 * 
 	 * @return The List of all Asset Type Values
 	 */
-	@ManyToMany
-	@JoinTable(name = "MeasureAssetValue",
-			joinColumns = { @JoinColumn(name = "fiAssetMeasure", nullable = false) },
-			inverseJoinColumns = { @JoinColumn(name = "idMeasureAssetValue", nullable = false) },
-			uniqueConstraints = @UniqueConstraint(columnNames = { "fiAssetMeasure", "idMeasureAssetValue" }))
+	@OneToMany
+	@JoinColumn(name = "fiAssetMeasure", nullable = false, insertable=true)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	public List<MeasureAssetValue> getMeasureAssetValues() {

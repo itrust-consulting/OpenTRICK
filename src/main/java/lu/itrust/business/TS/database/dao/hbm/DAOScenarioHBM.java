@@ -128,6 +128,22 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	}
 
 	/**
+	 * getAllSelectedFromAnalysisByType: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.TS.database.dao.DAOScenario#getAllSelectedFromAnalysisByType(java.lang.Integer, lu.itrust.business.TS.data.scenario.ScenarioType)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Scenario> getAllSelectedFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType) throws Exception {
+		String query =
+			"Select scenario from Analysis as analysis inner join analysis.scenarios as scenario where analysis.id = :analysis and scenario.type = :scenariotype and scenario.selected=true order by scenario.scenarioType.name ASC, scenario.name";
+		return getSession().createQuery(query).setParameter("analysis", idAnalysis).setParameter("scenariotype", scenarioType).list();
+	}
+	
+	/**
 	 * getAllScenariosFromAnalysisByScenarioIdList: <br>
 	 * Description
 	 * 

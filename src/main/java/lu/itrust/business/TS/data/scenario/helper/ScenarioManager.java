@@ -13,7 +13,7 @@ public class ScenarioManager {
 	public static Map<ScenarioType, List<Scenario>> SplitByType(List<Scenario> scenarios) {
 		Map<ScenarioType, List<Scenario>> mappedScenarios = new LinkedHashMap<ScenarioType, List<Scenario>>();
 		for (Scenario scenario : scenarios) {
-			List<Scenario> scenarios2 = mappedScenarios.get(scenario.getScenarioType());
+			List<Scenario> scenarios2 = mappedScenarios.get(scenario.getType());
 			if (scenarios2 == null)
 				mappedScenarios.put(scenario.getType(), scenarios2 = new ArrayList<Scenario>());
 			scenarios2.add(scenario);

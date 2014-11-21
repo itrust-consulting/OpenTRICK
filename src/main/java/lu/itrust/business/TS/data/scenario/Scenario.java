@@ -122,6 +122,7 @@ public class Scenario extends SecurityCriteria {
 	@ManyToOne 
 	@JoinColumn(name="fiScenarioType", nullable=false)
 	@Access(AccessType.FIELD)
+	@Transient
 	public OldScenarioType getScenarioType() {
 		return scenarioType;
 	}
@@ -134,11 +135,12 @@ public class Scenario extends SecurityCriteria {
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtType", nullable = false)
-	@Cascade(CascadeType.SAVE_UPDATE)
+	@Access(AccessType.PROPERTY)
 	public ScenarioType getType() {
 		return type;
 	}
 
+	
 	/**
 	 * setType: <br>
 	 * Sets the "type" field with a value

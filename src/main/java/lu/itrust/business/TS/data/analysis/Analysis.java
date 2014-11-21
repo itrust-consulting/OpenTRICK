@@ -192,7 +192,7 @@ public class Analysis implements Cloneable {
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
-	@OrderBy("scenarioType.id, name")
+	@OrderBy("name")
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
 
 	/** List of Assessment */

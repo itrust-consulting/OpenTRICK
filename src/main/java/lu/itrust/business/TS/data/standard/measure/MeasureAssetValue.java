@@ -39,7 +39,6 @@ public class MeasureAssetValue implements Cloneable {
 	/** The Asset */
 	@ManyToOne
 	@JoinColumn(name = "fiAsset", nullable = false)
-	@Cascade(CascadeType.SAVE_UPDATE)
 	@Access(AccessType.FIELD)
 	private Asset asset = null;
 

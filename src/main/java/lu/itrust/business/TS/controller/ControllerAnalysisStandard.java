@@ -16,6 +16,7 @@ import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.data.general.Language;
@@ -28,8 +29,10 @@ import lu.itrust.business.TS.data.standard.MaturityStandard;
 import lu.itrust.business.TS.data.standard.NormalStandard;
 import lu.itrust.business.TS.data.standard.Standard;
 import lu.itrust.business.TS.data.standard.StandardType;
+import lu.itrust.business.TS.data.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.data.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.data.standard.measure.helper.MeasureManager;
@@ -43,12 +46,14 @@ import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
+import lu.itrust.business.TS.database.service.ServiceMeasureAssetValue;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
 import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
 import lu.itrust.business.TS.validator.StandardValidator;
@@ -133,6 +138,9 @@ public class ControllerAnalysisStandard {
 	@Autowired
 	private CustomDelete customDelete;
 
+	@Autowired
+	private ServiceMeasureAssetValue serviceMeasureAssetValue;
+	
 	/**
 	 * selected analysis actions (reload section. single measure, load soa, get compliances)
 	 */
@@ -837,16 +845,18 @@ public class ControllerAnalysisStandard {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{idStandard}/Measure/Delete/{idMeasure}", method = RequestMethod.GET, headers = "Accept=application/json")
-	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale) {
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).DELETE)")
+	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale, Principal principal, HttpSession session) {
 		try {
 			// try to delete measure
 			MeasureDescription measureDescription = serviceMeasure.get(idMeasure).getMeasureDescription();
 
+			if (measureDescription == null || measureDescription.getStandard().getId() != idStandard)
+				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+
 			if (!measureDescription.getStandard().isAnalysisOnly())
 				return JsonMessage.Error(messageSource.getMessage("error.measure.manage_knowledgebase_measure", null, "This measure can only be managed from the knowledge base", locale));
 
-			if (measureDescription == null || measureDescription.getStandard().getId() != idStandard)
-				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 			customDelete.deleteAnalysisMeasure(measureDescription);
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
@@ -857,6 +867,132 @@ public class ControllerAnalysisStandard {
 		}
 	}
 
+	@RequestMapping(value = "/{idStandard}/Measure/{idMeasure}/ManageAssets", method = RequestMethod.GET, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
+	public String manageAssetMeasure(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal, HttpSession session) {
+		try {
+
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+			// try to delete measure
+			Measure measure = serviceMeasure.get(idMeasure);
+
+			if (measure == null || measure.getAnalysisStandard().getStandard().getId() != idStandard) {
+				model.addAttribute("error", messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
+			}
+
+			if (!measure.getAnalysisStandard().getStandard().isAnalysisOnly() && !(measure instanceof AssetMeasure)) {
+				model.addAttribute("error", messageSource.getMessage("error.measure.not_assetMeasure", null, "This measure is not capable to manage assets (is not an Asset Measure)!", locale));
+				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
+			}
+
+			AssetMeasure assetMeasure = (AssetMeasure) measure;
+
+			List<Asset> availableAssets = serviceAsset.getAllFromAnalysis(idAnalysis);
+
+			List<Asset> measureAssets = new ArrayList<Asset>();
+
+			for (MeasureAssetValue assetValue : assetMeasure.getMeasureAssetValues()) {
+				measureAssets.add(assetValue.getAsset());
+			}
+
+			for (Asset asset : measureAssets)
+				if (availableAssets.contains(asset))
+					availableAssets.remove(asset);
+
+			model.addAttribute("idMeasure",idMeasure);
+			
+			model.addAttribute("idStandard",idStandard);
+			
+			model.addAttribute("availableAssets", availableAssets);
+
+			model.addAttribute("measureAssets", measureAssets);
+
+			// return success message
+			return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
+		} catch (Exception e) {
+			// return error
+			e.printStackTrace();
+			model.addAttribute("error", messageSource.getMessage("error.measure.delete.failed", null, "Measure deleting was failed: Standard might be in use", locale));
+			return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
+		}
+	}
+
+	@RequestMapping(value = "/{idStandard}/Measure/{idMeasure}/ManageAssets/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Map<String,String> manageAssetMeasureSave(@RequestBody String value,@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal, HttpSession session) {
+		
+		Map<String, String> result = new LinkedHashMap<String, String>();
+		
+		try {
+
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+			// try to delete measure
+			Measure measure = serviceMeasure.get(idMeasure);
+
+			if (measure == null || measure.getAnalysisStandard().getStandard().getId() != idStandard) {
+				result.put("error", messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+				return result;
+			}
+
+			if (!measure.getAnalysisStandard().getStandard().isAnalysisOnly() && !(measure instanceof AssetMeasure)) {
+				result.put("error", messageSource.getMessage("error.measure.not_assetMeasure", null, "This measure is not capable to manage assets (is not an Asset Measure)!", locale));
+				return result;
+			}
+
+			AssetMeasure assetMeasure = (AssetMeasure) measure;
+
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(value);
+			List<Asset> assets = serviceAsset.getAllFromAnalysis(idAnalysis);
+			List<MeasureAssetValue> measureAssets = assetMeasure.getMeasureAssetValues();
+			for (Asset asset : assets) {
+				if(jsonNode.get("asset_" + asset.getId())!=null) {
+					boolean found = false;
+					for(MeasureAssetValue assetValue : measureAssets){
+						if(assetValue.getAsset().equals(asset)) {
+							found = true;
+							break;
+						}
+					}
+					if(found==false) {
+						MeasureAssetValue assetValue = new MeasureAssetValue(asset, 0);
+						assetMeasure.addAnMeasureAssetValue(assetValue);
+					}
+				} else {
+					MeasureAssetValue tmpAssetValue = null;
+					boolean found = false;
+					for(MeasureAssetValue assetValue : measureAssets){
+						if(assetValue.getAsset().equals(asset)) {
+							found = true;
+							tmpAssetValue = assetValue;
+							break;
+						}
+					}
+					if(found==true) {
+						assetMeasure.getMeasureAssetValues().remove(tmpAssetValue);
+						serviceMeasureAssetValue.delete(tmpAssetValue);
+					}
+				}
+			}
+			
+			serviceMeasure.saveOrUpdate(assetMeasure);
+			
+			result.put("success", messageSource.getMessage("success.measure.assetmeasure_update_assets", null, "Assets successfully updated", locale));
+			
+			// return success message
+			return result;
+		} catch (Exception e) {
+			// return error
+			e.printStackTrace();
+			result.put("error", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			return result;
+		}
+	}
+
+	
 	/**
 	 * importRRF: <br>
 	 * Description

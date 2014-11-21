@@ -2,7 +2,6 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.data.scenario.ScenarioType;
 import lu.itrust.business.TS.database.dao.DAOScenario;
@@ -148,6 +147,23 @@ public class ServiceScenarioImpl implements ServiceScenario {
 		return daoScenario.getAllFromAnalysisByType(idAnalysis, scenarioType);
 	}
 
+	/**
+	 * getAllFromAnalysisByScenarioTypeId: <br>
+	 * Description
+	 * 
+	 * @param analysis
+	 * @param scenarioTypeID
+	 * @return
+	 * @throws Exception
+	 * 
+	 * @see lu.itrust.business.TS.database.service.ServiceScenario#getAllFromAnalysisByScenarioTypeId(lu.itrust.business.TS.data.analysis.Analysis,
+	 *      int)
+	 */
+	@Override
+	public List<Scenario> getAllSelectedFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType) throws Exception {
+		return daoScenario.getAllSelectedFromAnalysisByType(idAnalysis, scenarioType);
+	}
+	
 	/**
 	 * getAllScenariosFromAnalysisByScenarioIdList: <br>
 	 * Description

@@ -56,8 +56,8 @@
 								data-slider-max="4" data-slider-step="1" data-slider-value="${selectedScenario.externalThreat}" name="externalThreat" data-slider-orientation="vertical"
 								data-slider-selection="after" data-slider-tooltip="show"></td>
 							<c:forEach items="${selectedScenario.assetTypeValues}" var="assetType">
-								<td class="" trick-class="AssetType"><input type="text" class="slider" id='scenario_<spring:message text="${assetType.assetType.type}"/>' value="50"
-									data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="${assetType.value}" name='<spring:message text="${assetType.assetType.type}"/>'
+								<td class="" trick-class="AssetType"><input type="text" class="slider" id='scenario_<spring:message text="${assetType.assetType.type}"/>' value="${assetType.value}"
+									data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${assetType.value}" name='<spring:message text="${assetType.assetType.type}"/>'
 									data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 							</c:forEach>
 						</tr>

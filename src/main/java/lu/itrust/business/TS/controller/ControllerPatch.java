@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.controller;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -16,6 +17,7 @@ import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.data.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.scenario.Scenario;
+import lu.itrust.business.TS.data.scenario.ScenarioType;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.measure.helper.MeasureManager;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
@@ -369,4 +371,63 @@ public class ControllerPatch {
 		}
 	}
 
+	@RequestMapping(value = "/Update/ScenarioTypes", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
+	@PreAuthorize(Constant.ROLE_SUPERVISOR_ONLY)
+	public @ResponseBody String updateScenarioTypes(Locale locale) {
+
+		String patchversion = "0.6.4";
+
+		try {
+
+			System.out.println("Patching settings (version 0.6.4)");
+
+			/*if (serviceTrickService.getStatus().getVersion().equals(patchversion)) {
+				System.out.println("Patch already installed!");
+				return JsonMessage.Error(messageSource.getMessage("error.patch.installed", null, "The Patch is already installed!", locale));
+			}*/
+
+			List<Integer> analyses = serviceAnalysis.getAllAnalysisIDs();
+
+			for (Integer idAnalysis : analyses) {
+
+				System.out.println("analysis " + (analyses.indexOf(idAnalysis) + 1) + " of " + analyses.size());
+
+				Analysis analysis = serviceAnalysis.get(idAnalysis);
+
+				List<Scenario> scenarios = new ArrayList<Scenario>();
+				
+				ScenarioType t = ScenarioType.valueOf("Integrity");
+				
+				List<Scenario> altScenarios = analysis.getScenarios();
+						
+				for(Scenario scneario : altScenarios) {
+					
+					ScenarioType type = ScenarioType.getByName(scneario.getScenarioType().getName());
+					
+					scneario.setType(type);
+					
+					scenarios.add(scneario);
+					
+				}
+				
+				analysis.setScenarios(scenarios);
+
+				serviceAnalysis.saveOrUpdate(analysis);
+				
+			}
+
+			TrickService ts = serviceTrickService.getStatus();
+
+			ts.setVersion(patchversion);
+			serviceTrickService.saveOrUpdate(ts);
+
+			System.out.println("Done...");
+
+			return JsonMessage.Success(messageSource.getMessage("success.settings.update", null, "Settings were successfully updated", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(e.getMessage());
+		}
+	}
+	
 }

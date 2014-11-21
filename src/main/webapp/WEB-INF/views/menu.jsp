@@ -77,6 +77,13 @@
 										<spring:message code="label.patch.fix.ApplicationSettings" text="Upgrade Application Settings (V 0.6.3d)" />
 									</a>
 								</li>
+								<li>
+									<a href="#" onclick="return upgradeScenarioTypes()">
+										<spring:message code="label.patch.fix.ScenarioTypes" text="Upgrade ScenarioTypes (V 0.6.4)" />
+									</a>
+								</li>
+								
+								
 							</ul></li>
 					</sec:authorize>
 					<li><a href="${pageContext.request.contextPath}/j_spring_security_logout"> <spring:message code="label.menu.logout" text="Logout" /></a></li>

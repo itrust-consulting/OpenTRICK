@@ -44,6 +44,28 @@
 		</div>
 	</div>
 </div>
+<div class="modal fade" id="manageAssetMeasureModel" tabindex="-1" role="dialog" data-aria-labelledby="manageAssetMeasureModel" style="z-index:1042" data-aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="manageAssetMeasureModel-title">
+					Standard <Standard> - Measure <Reference> - Manage Assets
+				</h4>
+			</div>
+			<div id="manageAssetMeasureModel-body" class="modal-body">
+				<form name="manageAssetMeasure" action="/Save" class="form-horizontal" id="manageAssetMeasure_form" method="post">
+					<input type="hidden" name="id" value="-1" id="measure_id">
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="return saveAssetMeasure('#manageAssetMeasure_form')">
+					<spring:message code="label.action.save" text="Save" />
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
 <div class="modal fade" id="deleteMeasureModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteMeasure" style="z-index:1042" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">

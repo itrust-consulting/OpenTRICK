@@ -342,6 +342,8 @@ function loadScenarioChart() {
 	if (chapter == null || chapter == undefined)
 		return false;
 
+	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+	
 	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
 	if (idScenario == null || idScenario == undefined)
 		return null;
@@ -353,6 +355,7 @@ function loadScenarioChart() {
 				data : JSON.stringify({
 					"idStandard" : idStandard,
 					"chapter" : chapter,
+					"idMeasure" : idMeasure,
 				}),
 				async : true,
 				contentType : "application/json;charset=UTF-8",

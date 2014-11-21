@@ -222,25 +222,35 @@ public class ControllerRRF {
 		JsonNode jsonNode = mapper.readTree(requestBody);
 
 		// retrieve analysis id to compute
-		Integer standardid = jsonNode.get("idStandard").asInt();
+		Integer standardid = jsonNode.get("idStandard")==null?null:jsonNode.get("idStandard").asInt();
 		if (standardid == null)
 			return null;
 
-		String chapter = jsonNode.get("chapter").asText();
+		String chapter = jsonNode.get("chapter")==null?null:jsonNode.get("chapter").asText();
 		if (chapter == null)
 			return null;
+
+		Integer measureid = jsonNode.get("idMeasure")==null?null:jsonNode.get("idMeasure").asInt();
 
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
 		List<AnalysisStandard> standards = serviceAnalysisStandard.getAllComputableFromAnalysis(idAnalysis);
 		List<Measure> measures = new ArrayList<Measure>();
 		for (AnalysisStandard standard : standards)
 			if (standard.getStandard().getId() == standardid && standard.getStandard().getType() != StandardType.MATURITY) {
-				if (standard.getStandard().getType() == StandardType.ASSET)
+				if (measureid == null && standard.getStandard().getType() == StandardType.ASSET)
 					return JsonMessage.Error(messageSource.getMessage("error.rrf.standard.standardtype_invalid", null,
 							"This standard type permits only to see RRF by single measure (Select a single measure of this standard)", locale));
+
 				for (Measure measure : standard.getMeasures())
-					if (measure.getMeasureDescription().getReference().startsWith(chapter + ".") && measure.getMeasureDescription().isComputable())
-						measures.add(measure);
+					if (measureid != null) {
+						if (measure.getId() == measureid) {
+							measures.add(measure);
+							break;
+						}
+					} else {
+						if (measure.getMeasureDescription().getReference().startsWith(chapter + ".") && measure.getMeasureDescription().isComputable())
+							measures.add(measure);
+					}
 			}
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, customLocale != null ? customLocale : locale);
@@ -348,7 +358,7 @@ public class ControllerRRF {
 			model.addAttribute("limitative", assetMeasure.getMeasurePropertyList().getLimitative());
 			model.addAttribute("corrective", assetMeasure.getMeasurePropertyList().getCorrective());
 			model.addAttribute("typeValue", assetMeasure.getMeasurePropertyList().getPreventive() + assetMeasure.getMeasurePropertyList().getDetective()
-					+ assetMeasure.getMeasurePropertyList().getLimitative() + assetMeasure.getMeasurePropertyList().getCorrective());
+				+ assetMeasure.getMeasurePropertyList().getLimitative() + assetMeasure.getMeasurePropertyList().getCorrective());
 			model.addAttribute("intentional", assetMeasure.getMeasurePropertyList().getIntentional());
 			model.addAttribute("accidental", assetMeasure.getMeasurePropertyList().getAccidental());
 			model.addAttribute("environemental", assetMeasure.getMeasurePropertyList().getEnvironmental());
@@ -402,7 +412,7 @@ public class ControllerRRF {
 			scenarios = new ArrayList<Scenario>();
 			scenarios.add(serviceScenario.getFromAnalysisById(idAnalysis, scenarioid));
 		} else
-			scenarios = serviceScenario.getAllFromAnalysisByType(idAnalysis, scenariotype);
+			scenarios = serviceScenario.getAllSelectedFromAnalysisByType(idAnalysis, scenariotype);
 
 		Locale customLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 		return chartGenerator.rrfByMeasure(measure, idAnalysis, scenarios, customLocale != null ? customLocale : locale);

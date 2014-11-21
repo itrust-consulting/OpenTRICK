@@ -15,7 +15,7 @@ public class GeneralComperator {
 				return 0;
 			return Integer.parseInt(version);
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 		return 0;
 	}

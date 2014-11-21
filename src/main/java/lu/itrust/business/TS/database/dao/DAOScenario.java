@@ -28,6 +28,8 @@ public interface DAOScenario {
 
 	public List<Scenario> getAllSelectedFromAnalysis(Integer idAnalysis) throws Exception;
 
+	public List<Scenario> getAllSelectedFromAnalysisByType(Integer idAnalysis, ScenarioType scenariotype) throws Exception;
+	
 	public List<Scenario> getAllFromAnalysisByType(Integer idAnalysis, ScenarioType scenarioType) throws Exception;
 
 	public List<Scenario> getAllFromAnalysisByIdList(Integer idAnalysis, List<Integer> scenarios) throws Exception;
