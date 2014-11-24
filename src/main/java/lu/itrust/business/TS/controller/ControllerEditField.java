@@ -120,7 +120,7 @@ public class ControllerEditField {
 
 	@Autowired
 	private ServiceScenario serviceScenario;
-	
+
 	/**
 	 * itemInformation: <br>
 	 * Description
@@ -1064,19 +1064,24 @@ public class ControllerEditField {
 
 			if (field != null) {
 				// check if field is a phase
-				
+
 				field.setAccessible(true);
-				
+
+				if (field.getName().equals("preventive") || field.getName().equals("detective") || field.getName().equals("limitative") || field.getName().equals("corrective")) {
+					if (!(fieldEditor.getValue() instanceof Integer))
+						fieldEditor.setValue(Double.valueOf(String.valueOf(fieldEditor.getValue())));
+				}
+
 				field.set(scenario, fieldEditor.getValue());
-			
+
 				// update measure
 				serviceScenario.saveOrUpdate(scenario);
 
 			} else {
-				
+
 				if (Scenario.isCategoryKey(fieldEditor.getFieldName()))
 					scenario.setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
-				  else {
+				else {
 					AssetTypeValue assetData = null;
 					for (AssetTypeValue assetTypeValue : scenario.getAssetTypeValues()) {
 						if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) {
@@ -1090,8 +1095,7 @@ public class ControllerEditField {
 						return null;
 				}
 				serviceScenario.saveOrUpdate(scenario);
-				
-				
+
 			}
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", cutomLocale != null ? cutomLocale : locale));
@@ -1099,29 +1103,29 @@ public class ControllerEditField {
 		} catch (TrickException e) {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute("selectedAnalysis");
-	
+
 			// check if analysis exist
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-	
+
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha3().substring(0, 2));
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
 		} catch (Exception e) {
 			// retrieve analysis id
 			Integer id = (Integer) session.getAttribute("selectedAnalysis");
-	
+
 			// check if analysis exist
 			if (id == null)
 				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
-	
+
 			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha3().substring(0, 2));
 			// return error
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
 		}
 	}
-	
+
 	/**
 	 * measure: <br>
 	 * Description
@@ -1220,12 +1224,15 @@ public class ControllerEditField {
 						if (field != null) {
 							field.setAccessible(true);
 							MeasureProperties properties = DAOHibernate.Initialise(normalMeasure.getMeasurePropertyList());
-							
+							if (field.getName().equals("preventive") || field.getName().equals("detective") || field.getName().equals("limitative") || field.getName().equals("corrective")) {
+								if (!(fieldEditor.getValue() instanceof Integer))
+									fieldEditor.setValue(Double.valueOf(String.valueOf(fieldEditor.getValue())));
+							}
 							field.set(properties, fieldEditor.getValue());
 							normalMeasure.setMeasurePropertyList(properties);
 						} else if (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
 							normalMeasure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
-						  else {
+						else {
 							AssetTypeValue assetData = null;
 							for (AssetTypeValue assetTypeValue : normalMeasure.getAssetTypeValues()) {
 								if (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) {
@@ -1265,12 +1272,15 @@ public class ControllerEditField {
 						if (field != null) {
 							field.setAccessible(true);
 							MeasureProperties properties = DAOHibernate.Initialise(assetMeasure.getMeasurePropertyList());
-							
+							if (field.getName().equals("preventive") || field.getName().equals("detective") || field.getName().equals("limitative") || field.getName().equals("corrective")) {
+								if (!(fieldEditor.getValue() instanceof Integer))
+									fieldEditor.setValue(Double.valueOf(String.valueOf(fieldEditor.getValue())));
+							}
 							field.set(properties, fieldEditor.getValue());
 							assetMeasure.setMeasurePropertyList(properties);
 						} else if (MeasureProperties.isCategoryKey(fieldEditor.getFieldName()))
 							assetMeasure.getMeasurePropertyList().setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
-						  else {
+						else {
 							MeasureAssetValue assetData = null;
 							for (MeasureAssetValue assetValue : assetMeasure.getMeasureAssetValues()) {
 								if (fieldEditor.getFieldName().equals(assetValue.getAsset().getName())) {

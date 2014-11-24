@@ -127,10 +127,10 @@ public class ControllerRRF {
 				model.addAttribute("environmental", normalMeasure.getMeasurePropertyList().getEnvironmental());
 				model.addAttribute("internalThreat", normalMeasure.getMeasurePropertyList().getInternalThreat());
 				model.addAttribute("externalThreat", normalMeasure.getMeasurePropertyList().getExternalThreat());
-				double typeValue =
+				Double typeValue =
 					normalMeasure.getMeasurePropertyList().getPreventive() + normalMeasure.getMeasurePropertyList().getDetective() + normalMeasure.getMeasurePropertyList().getLimitative()
 						+ normalMeasure.getMeasurePropertyList().getCorrective();
-				model.addAttribute("typeValue", typeValue);
+				model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
 				model.addAttribute("assetTypes", normalMeasure.getAssetTypeValues());
 			}
 			if (measure instanceof AssetMeasure) {
@@ -150,13 +150,13 @@ public class ControllerRRF {
 				model.addAttribute("corrective", assetMeasure.getMeasurePropertyList().getCorrective());
 				model.addAttribute("intentional", assetMeasure.getMeasurePropertyList().getIntentional());
 				model.addAttribute("accidental", assetMeasure.getMeasurePropertyList().getAccidental());
-				model.addAttribute("environemental", assetMeasure.getMeasurePropertyList().getEnvironmental());
+				model.addAttribute("environmental", assetMeasure.getMeasurePropertyList().getEnvironmental());
 				model.addAttribute("internalThreat", assetMeasure.getMeasurePropertyList().getInternalThreat());
 				model.addAttribute("externalThreat", assetMeasure.getMeasurePropertyList().getExternalThreat());
 				double typeValue =
 					assetMeasure.getMeasurePropertyList().getPreventive() + assetMeasure.getMeasurePropertyList().getDetective() + assetMeasure.getMeasurePropertyList().getLimitative()
 						+ assetMeasure.getMeasurePropertyList().getCorrective();
-				model.addAttribute("typeValue", typeValue);
+				model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
 				model.addAttribute("assets", assetMeasure.getMeasureAssetValues());
 			}
 
@@ -168,6 +168,16 @@ public class ControllerRRF {
 		}
 
 		return "analyses/singleAnalysis/components/forms/rrf/rrfEditor";
+	}
+
+	private static double round(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
 	}
 
 	/***********************
@@ -194,8 +204,8 @@ public class ControllerRRF {
 		for (AssetTypeValue assetTypeValue : scenario.getAssetTypeValues())
 			assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
 		model.addAttribute("selectedScenario", scenario);
-		double type = scenario.getCorrective() + scenario.getDetective() + scenario.getPreventive() + scenario.getLimitative();
-		model.addAttribute("typeValue", type);
+		double typeValue = scenario.getCorrective() + scenario.getDetective() + scenario.getPreventive() + scenario.getLimitative();
+		model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
 		return "analyses/singleAnalysis/components/forms/rrf/scenarioRRF";
 	}
 
@@ -222,18 +232,18 @@ public class ControllerRRF {
 		JsonNode jsonNode = mapper.readTree(requestBody);
 
 		// retrieve analysis id to compute
-		Integer standardid = jsonNode.get("idStandard")==null?null:jsonNode.get("idStandard").asInt();
+		Integer standardid = jsonNode.get("idStandard") == null ? null : jsonNode.get("idStandard").asInt();
 		if (standardid == null)
 			return null;
 
-		String chapter = jsonNode.get("chapter")==null?null:jsonNode.get("chapter").asText();
+		String chapter = jsonNode.get("chapter") == null ? null : jsonNode.get("chapter").asText();
 		if (chapter == null)
 			return null;
 
-		Integer measureid = jsonNode.get("idMeasure")==null?null:jsonNode.get("idMeasure").asInt();
+		Integer measureid = jsonNode.get("idMeasure") == null ? null : jsonNode.get("idMeasure").asInt();
 
 		Scenario scenario = serviceScenario.getFromAnalysisById(idAnalysis, elementID);
-		List<AnalysisStandard> standards = serviceAnalysisStandard.getAllComputableFromAnalysis(idAnalysis);
+		List<AnalysisStandard> standards = serviceAnalysisStandard.getAllFromAnalysis(idAnalysis);
 		List<Measure> measures = new ArrayList<Measure>();
 		for (AnalysisStandard standard : standards)
 			if (standard.getStandard().getId() == standardid && standard.getStandard().getType() != StandardType.MATURITY) {
@@ -333,8 +343,10 @@ public class ControllerRRF {
 			model.addAttribute("detective", normalMeasure.getMeasurePropertyList().getDetective());
 			model.addAttribute("limitative", normalMeasure.getMeasurePropertyList().getLimitative());
 			model.addAttribute("corrective", normalMeasure.getMeasurePropertyList().getCorrective());
-			model.addAttribute("typeValue", normalMeasure.getMeasurePropertyList().getPreventive() + normalMeasure.getMeasurePropertyList().getDetective()
-				+ normalMeasure.getMeasurePropertyList().getLimitative() + normalMeasure.getMeasurePropertyList().getCorrective());
+			double typeValue =
+				normalMeasure.getMeasurePropertyList().getPreventive() + normalMeasure.getMeasurePropertyList().getDetective() + normalMeasure.getMeasurePropertyList().getLimitative()
+					+ normalMeasure.getMeasurePropertyList().getCorrective();
+			model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
 			model.addAttribute("intentional", normalMeasure.getMeasurePropertyList().getIntentional());
 			model.addAttribute("accidental", normalMeasure.getMeasurePropertyList().getAccidental());
 			model.addAttribute("environmental", normalMeasure.getMeasurePropertyList().getEnvironmental());
@@ -357,11 +369,13 @@ public class ControllerRRF {
 			model.addAttribute("detective", assetMeasure.getMeasurePropertyList().getDetective());
 			model.addAttribute("limitative", assetMeasure.getMeasurePropertyList().getLimitative());
 			model.addAttribute("corrective", assetMeasure.getMeasurePropertyList().getCorrective());
-			model.addAttribute("typeValue", assetMeasure.getMeasurePropertyList().getPreventive() + assetMeasure.getMeasurePropertyList().getDetective()
-				+ assetMeasure.getMeasurePropertyList().getLimitative() + assetMeasure.getMeasurePropertyList().getCorrective());
+			double typeValue =
+				assetMeasure.getMeasurePropertyList().getPreventive() + assetMeasure.getMeasurePropertyList().getDetective() + assetMeasure.getMeasurePropertyList().getLimitative()
+					+ assetMeasure.getMeasurePropertyList().getCorrective();
+			model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
 			model.addAttribute("intentional", assetMeasure.getMeasurePropertyList().getIntentional());
 			model.addAttribute("accidental", assetMeasure.getMeasurePropertyList().getAccidental());
-			model.addAttribute("environemental", assetMeasure.getMeasurePropertyList().getEnvironmental());
+			model.addAttribute("environmental", assetMeasure.getMeasurePropertyList().getEnvironmental());
 			model.addAttribute("internalThreat", assetMeasure.getMeasurePropertyList().getInternalThreat());
 			model.addAttribute("externalThreat", assetMeasure.getMeasurePropertyList().getExternalThreat());
 			model.addAttribute("assets", assetMeasure.getMeasureAssetValues());

@@ -12,9 +12,9 @@ function loadRRF() {
 				return false;
 			} else {
 				$("#rrfEditor").replaceWith(newSection);
-				
+
 				initialiseMeasureSliders();
-				
+
 				initialiseMeasuresClick();
 
 				initialiseScenariosClick();
@@ -31,7 +31,7 @@ function loadRRF() {
 	return false;
 }
 
-function initialiseMeasureSliders(){
+function initialiseMeasureSliders() {
 	$("#rrfEditor #control_rrf_measure .slider").slider().each(function() {
 		$(this).on("slideStop", function(event) {
 			var field = event.target.name;
@@ -50,6 +50,8 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
 	if (idMeasure == null || idMeasure == undefined)
 		return false;
+	if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective")
+		value = value.toFixed(1);
 	$.ajax({
 		url : context + "/Analysis/EditField/Measure/" + idMeasure,
 		type : "post",
@@ -68,11 +70,12 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 			} else {
 
 				if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective") {
-					var result = eval($("#control_rrf_measure #measure_preventive_value").val()) + eval($("#control_rrf_measure #measure_detective_value").val())
-							+ eval($("#control_rrf_measure #measure_limitative_value").val()) + eval($("#control_rrf_measure #measure_corrective_value").val());
+					var result = +$("#control_rrf_measure #measure_preventive_value").val() + +$("#control_rrf_measure #measure_detective_value").val()
+							+ +$("#control_rrf_measure #measure_limitative_value").val() + +$("#control_rrf_measure #measure_corrective_value").val();
+					result = result.toFixed(1);
 					$("#control_rrf_measure .pdlc").removeClass("success");
 					$("#control_rrf_measure .pdlc").removeClass("danger");
-					if(result == 1)
+					if (result == 1)
 						$("#control_rrf_measure .pdlc").addClass("success");
 					else
 						$("#control_rrf_measure .pdlc").addClass("danger");
@@ -86,7 +89,7 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 	});
 }
 
-function initialiseScenarioSliders(){
+function initialiseScenarioSliders() {
 	$("#rrfEditor #control_rrf_scenario .slider").slider().each(function() {
 		$(this).on("slideStop", function(event) {
 			var field = event.target.name;
@@ -105,6 +108,8 @@ function updateScenarioProperty(property, value, previousValue, slider) {
 	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
 	if (idScenario == null || idScenario == undefined)
 		return false;
+	if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective")
+		value = value.toFixed(1);
 	$.ajax({
 		url : context + "/Analysis/EditField/Scenario/" + idScenario,
 		type : "post",
@@ -123,11 +128,12 @@ function updateScenarioProperty(property, value, previousValue, slider) {
 			} else {
 
 				if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective") {
-					var result = eval($("#control_rrf_scenario #scenario_preventive_value").val()) + eval($("#control_rrf_scenario #scenario_detective_value").val())
-							+ eval($("#control_rrf_scenario #scenario_limitative_value").val()) + eval($("#control_rrf_scenario #scenario_corrective_value").val());
+					var result = +$("#control_rrf_scenario #scenario_preventive_value").val() + +$("#control_rrf_scenario #scenario_detective_value").val()
+							+ +$("#control_rrf_scenario #scenario_limitative_value").val() + +$("#control_rrf_scenario #scenario_corrective_value").val();
+					result = result.toFixed(1);
 					$("#control_rrf_scenario .pdlc").removeClass("success");
 					$("#control_rrf_scenario .pdlc").removeClass("danger");
-					if(result == 1)
+					if (result == 1)
 						$("#control_rrf_scenario .pdlc").addClass("success");
 					else
 						$("#control_rrf_scenario .pdlc").addClass("danger");
@@ -238,10 +244,10 @@ function loadMeasure() {
 
 			$("#rrfEditor #control_rrf_measure").html($(measurerrf).html());
 
-			//$("#rrfEditor #control_rrf_measure .slider").slider();
+			// $("#rrfEditor #control_rrf_measure .slider").slider();
 
 			initialiseMeasureSliders();
-						
+
 			$("#rrfEditor #control_rrf_measure").removeAttr("hidden");
 
 			$("#rrfEditor #control_rrf_scenario").attr("hidden", true);
@@ -315,10 +321,10 @@ function loadScenario() {
 
 			$("#rrfEditor #control_rrf_scenario").html($(scenariorrf).html());
 
-			//$("#rrfEditor #control_rrf_scenario .slider").slider();
+			// $("#rrfEditor #control_rrf_scenario .slider").slider();
 
 			initialiseScenarioSliders();
-			
+
 			$("#rrfEditor #control_rrf_scenario").removeAttr("hidden");
 
 			$("#rrfEditor #control_rrf_measure").attr("hidden", true);
@@ -343,7 +349,7 @@ function loadScenarioChart() {
 		return false;
 
 	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
-	
+
 	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
 	if (idScenario == null || idScenario == undefined)
 		return null;

@@ -870,7 +870,7 @@ public class ChartGenerator {
 
 			String legend = "\"legend\": {\"align\": \"right\",\"verticalAlign\": \"top\", \"y\": 70,\"layout\": \"vertical\"}";
 
-			String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}, \"series\":{\"minPointLength\" : 1}}";
+			String plotOptions = "\"plotOptions\": {\"column\": {\"pointPadding\": 0.2, \"borderWidth\": 0}, \"series\":{\"minPointLength\" : 1.6}}";
 
 			String series = "\"series\":[";
 
@@ -925,7 +925,7 @@ public class ChartGenerator {
 			else
 				xAxis =
 					"\"xAxis\":{\"categories\":" + measuresData + ", \"min\":\"0\", \"max\":\"" + (measures.size() - 1) + "\", \"title\": {\"text\": \""
-						+ messageSource.getMessage("label.measures", null, "Measures", locale) + "\"}}";
+						+ messageSource.getMessage("label.measure", null, "Measure", locale) + "\"}}";
 
 			return ("{" + chart + "," + title + "," + legend + "," + pane + "," + plotOptions + "," + xAxis + "," + yAxis + "," + series + "}").replaceAll("\r|\n", " ");
 		} catch (TrickException e) {
@@ -1125,8 +1125,9 @@ public class ChartGenerator {
 					}
 
 					rrfMeasure.setValue(RRF.calculateNormalMeasureRRF(scenario, atv.getAssetType(), parameter, (NormalMeasure) measure));
+					rrfAssetType.getRrfMeasures().add(rrfMeasure);
 				}
-				rrfAssetType.getRrfMeasures().add(rrfMeasure);
+				
 
 			} else if (measure instanceof AssetMeasure) {
 				RRFAsset rrfAsset = null;

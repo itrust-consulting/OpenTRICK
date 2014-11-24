@@ -636,7 +636,7 @@ function deleteMeasure(measureId, standardid) {
 
 			$.ajax({
 				url : context + "/Analysis/Standard/" + standardid + "/Measure/Delete/" + rowTrickId,
-				async : true,
+				async : false,
 				contentType : "application/json",
 				success : function(response) {
 					var trickSelect = parseJson(response);

@@ -45,7 +45,12 @@
 								</li>
 								<li>
 									<a href="#" onclick="return fixMeasureAssetTypeValue()">
-										<spring:message code="label.measure.fix.asset_type_value" text="Update measure characteristics for the assets" />
+										<spring:message code="label.measure.fix.asset_type_value" text="Update duplicate measure asset type values" />
+									</a>
+								</li>
+								<li>
+									<a href="#" onclick="return updateMeasureAssetTypeValue()">
+										<spring:message code="label.measure.update.asset_type_value" text="Create missing asset type values for measures" />
 									</a>
 								</li>
 								<li>

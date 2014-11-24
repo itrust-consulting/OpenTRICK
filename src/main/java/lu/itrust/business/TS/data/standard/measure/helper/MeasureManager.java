@@ -98,6 +98,13 @@ public class MeasureManager {
 		return null;
 	}
 
+	public static boolean isAnalysisOnlyStandard(List<Standard> standards, String standardname) {
+		for (Standard standard : standards)
+			if (standard.getLabel().equals(standardname))
+				return standard.isAnalysisOnly();
+		return false;
+	}
+	
 	/**
 	 * SplitByStandard: <br>
 	 * Description

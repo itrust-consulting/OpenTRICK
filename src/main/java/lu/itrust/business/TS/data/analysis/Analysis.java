@@ -192,7 +192,7 @@ public class Analysis implements Cloneable {
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
-	@OrderBy("name")
+	@OrderBy("type,name")
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
 
 	/** List of Assessment */
@@ -401,7 +401,6 @@ public class Analysis implements Cloneable {
 		return res;
 	}
 
-	
 	/***********************************************************************************************
 	 * Computation of Measure Cost - BEGIN
 	 **********************************************************************************************/
@@ -600,7 +599,7 @@ public class Analysis implements Cloneable {
 	public List<NormalStandard> getAllNormalStandards() {
 		List<NormalStandard> normalStandards = new ArrayList<NormalStandard>();
 		for (AnalysisStandard standard : analysisStandards)
-			if (standard.getStandard().getClass().isAssignableFrom(NormalStandard.class))
+			if (standard instanceof NormalStandard)
 				normalStandards.add((NormalStandard) standard);
 		return normalStandards;
 	}

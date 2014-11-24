@@ -122,7 +122,6 @@ public class Scenario extends SecurityCriteria {
 	@ManyToOne 
 	@JoinColumn(name="fiScenarioType", nullable=false)
 	@Access(AccessType.FIELD)
-	@Transient
 	public OldScenarioType getScenarioType() {
 		return scenarioType;
 	}

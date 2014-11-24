@@ -43,6 +43,26 @@ function fixMeasureAssetTypeValue() {
 	return false;
 }
 
+function updateMeasureAssetTypeValue() {
+	$.ajax({
+		url : context + "/Patch/Update/Measure/MeasureAssetTypeValues",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			if (response["success"] != undefined) {
+				$("#info-dialog .modal-body").html(response["success"]);
+				$("#info-dialog .modal-footer button").attr("onclick", "location.reload();");
+				$("#info-dialog").modal("toggle");
+			} else if (response["error"] != undefined) {
+				$("#alert-dialog .modal-body").html(response["error"]);
+				$("#alert-dialog").modal("toggle");
+			} else
+				unknowError();
+		},
+		error : unknowError
+	});
+	return false;
+}
+
 function fixImplementationScaleParameterDescription() {
 	$.ajax({
 		url : context + "/Patch/Update/ParameterImplementationScale",

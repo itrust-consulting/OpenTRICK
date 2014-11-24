@@ -8,7 +8,7 @@
 	<div class="panel-body">
 		<div style="overflow: auto;">
 			<c:if test="${!empty(selectedScenario)}">
-				<spring:message text="${typeValue==1||typeValue==1.0?'success':'danger'}" var="cssclass" />
+				<spring:message text="${typeValue?'success':'danger'}" var="cssclass" />
 				<table class="table" style="margin-bottom: 0;">
 					<thead>
 						<tr>
@@ -57,7 +57,7 @@
 								data-slider-selection="after" data-slider-tooltip="show"></td>
 							<c:forEach items="${selectedScenario.assetTypeValues}" var="assetType">
 								<td class="" trick-class="AssetType"><input type="text" class="slider" id='scenario_<spring:message text="${assetType.assetType.type}"/>' value="${assetType.value}"
-									data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${assetType.value}" name='<spring:message text="${assetType.assetType.type}"/>'
+									data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="${assetType.value}" name='<spring:message text="${assetType.assetType.type}"/>'
 									data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 							</c:forEach>
 						</tr>

@@ -17,6 +17,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
@@ -101,6 +102,22 @@ public class NormalMeasure extends Measure {
 		return assetTypeValues.get(index);
 	}
 
+	/**
+	 * getAssetTypeValue: <br>
+	 * Returns the Asset Type value at position "index" of the Asset Type Value List
+	 * ("assetTypeValues" field)
+	 * 
+	 * @param index
+	 *            The index of the element position to retrieve from the list
+	 * @return AssetTypeValue The Asset Type Value object at position "index"
+	 */
+	public AssetTypeValue getAssetTypeValueByAssetType(AssetType assetType) {
+		for(AssetTypeValue atv : assetTypeValues)
+			if(atv.getAssetType().equals(assetType))
+				return atv;
+		return null;
+	}
+	
 	/**
 	 * getAssetTypeValueList: <br>
 	 * Returns the List of Asset Type Values for this Measure ("assetTypeValue" field)

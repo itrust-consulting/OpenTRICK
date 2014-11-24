@@ -1198,13 +1198,13 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return
 	 */
 	@Transient
-	public Map<String,Integer> getCIACategories() {
-		Map<String,Integer> result = new HashMap<String, Integer>();
-		for(String category : CategoryConverter.TYPE_CIA_KEYS)
+	public LinkedHashMap<String, Integer> getCIACategories() {
+		LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
+		for (String category : CategoryConverter.TYPE_CIA_KEYS)
 			result.put(category, categories.get(category));
 		return result;
 	}
-	
+
 	/**
 	 * getCSSFCategories: <br>
 	 * Description
@@ -1212,13 +1212,13 @@ public abstract class SecurityCriteria implements Cloneable {
 	 * @return
 	 */
 	@Transient
-	public Map<String,Integer> getCSSFCategories() {
-		Map<String,Integer> result = new HashMap<String, Integer>();
-		for(String category : CategoryConverter.TYPE_CSSF_KEYS)
+	public LinkedHashMap<String, Integer> getCSSFCategories() {
+		LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
+		for (String category : CategoryConverter.TYPE_CSSF_KEYS)
 			result.put(category, categories.get(category));
 		return result;
 	}
-	
+
 	/**
 	 * getGenericCategoryKeys:<br>
 	 * Returns a String[] (array) with confidentiality, integrity and availability categories.

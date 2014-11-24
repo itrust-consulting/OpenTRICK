@@ -7,7 +7,7 @@
 <div class="panel panel-primary" id="control_rrf_measure">
 	<div class="panel-body">
 		<div style="overflow: auto;">
-			<spring:message text="${typeValue==1 || typeValue==1.0?'success':'danger'}" var="cssclass" />
+			<spring:message text="${typeValue?'success':'danger'}" var="cssclass" />
 			<table class="table" style="margin-bottom: 0;">
 				<thead>
 					<tr>
@@ -83,7 +83,7 @@
 						<c:if test="${!empty(assets)}">
 							<c:forEach items="${assets}" var="asset">
 								<td trick-class="MeasureAssetValue"><input type="text" class="slider" id='measure_<spring:message text="${asset.asset.name}"/>' value="${asset.value}"
-								data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${assetType.value}" name=<spring:message text="${asset.asset.name}"/>
+								data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${asset.value}" name=<spring:message text="${asset.asset.name}"/>
 								data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 							</c:forEach>
 						</c:if>
@@ -92,7 +92,7 @@
 						<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_fmeasure_value" value="${strength_measure}" name="fmeasure"></td>
 						<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_fsectoral_value" value="${strength_sectorial}" name="fsectoral"></td>
 						<c:if test="${!empty(categories)}">
-							<c:forEach items="${categories.keySet()}" var="category">
+							<c:forEach items="${categories.keySet()}" var="category" varStatus="catStatus">
 								<td class="info" trick-class="Category" trick-value="<spring:message text="${category}" />"><input type="text"
 									id='measure_<spring:message text="${fn:replace(category,'.','_')}"/>_value' readonly="readonly" class="form-control" value="${categories.get(category)}"
 									name="<spring:message text="${category}" />"></td>
@@ -116,7 +116,7 @@
 						<c:if test="${!empty(assets)}">
 							<c:forEach items="${assets}" var="asset">
 								<td trick-class="AssetType"><input type="text" id='measure_<spring:message text="${asset.asset.name}"/>_value' style="min-width: 50px;" readonly="readonly"
-									class="form-control" value="50" name="<spring:message text="${asset.asset.name}" />"></td>
+									class="form-control" value="${asset.value}" name="<spring:message text="${asset.asset.name}" />"></td>
 							</c:forEach>
 						</c:if>
 					</tr>

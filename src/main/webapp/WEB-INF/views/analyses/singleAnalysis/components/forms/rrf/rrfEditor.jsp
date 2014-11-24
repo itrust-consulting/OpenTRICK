@@ -21,7 +21,7 @@
 							<div class="col-md-4">
 								<div class="panel panel-primary" style="height: 343px;">
 									<div class="panel-body">
-										<div class="list-group" style="min-height: 252px; max-height: 360px; overflow: auto;" id="selectable_rrf_scenario_controls">
+										<div class="list-group" style="min-height: 252px; max-height: 252px; overflow: auto;" id="selectable_rrf_scenario_controls">
 											<c:forEach items="${scenarios.keySet()}" var="scenarioType" varStatus="status">
 												<div class="list-group" trick-id="${scenarioType.value}">
 													<h4 class="list-group-item-heading">
@@ -89,7 +89,7 @@
 									<div class="panel panel-primary" id="control_rrf_measure">
 										<div class="panel-body">
 											<div style="overflow: auto;">
-												<spring:message text="${typeValue==1 || typeValue==1.0?'success':'danger'}" var="cssclass" />
+												<spring:message text="${typeValue?'success':'danger'}" var="cssclass" />
 												<table class="table" style="margin-bottom: 0;">
 													<thead>
 														<tr>
