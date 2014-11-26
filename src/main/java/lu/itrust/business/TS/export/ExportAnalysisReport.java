@@ -396,7 +396,7 @@ public class ExportAnalysisReport {
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
+			ALE ale = ales.get(assessment.getAsset().getId());
 			if (ale == null) {
 				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
 				ales2.add(ale);
