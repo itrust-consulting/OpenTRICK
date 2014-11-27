@@ -49,7 +49,7 @@
 						<c:if test="${!measureSplited.isEmpty()}">
 							<li class="divider"></li>
 						</c:if>
-						<li><a href="#" onclick="return manageStandard();"> <fmt:message key="label.menu.manage.standard" /></a></li>
+						<li><a href="#" onclick="return manageStandard();"> <fmt:message key="label.menu.manage_standard" /></a></li>
 					</c:if>
 				</ul></li>
 			<c:if test="${!analysis.isProfile() }">

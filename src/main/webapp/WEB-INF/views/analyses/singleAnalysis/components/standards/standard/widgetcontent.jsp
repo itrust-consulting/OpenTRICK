@@ -10,7 +10,7 @@
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
-					<fmt:message key="label.title.analysis.manage_standard" />
+					<fmt:message key="label.menu.manage_standard" />
 				</h4>
 			</div>
 			<div class="modal-body">
@@ -72,16 +72,15 @@
 						<div class="panel-body">
 							<label class="col-sm-12 text-center"><fmt:message key="label.norm.standard_type" /></label> <label class="radio-inline col-sm-4" style="margin-left: 0;"> <input
 								type="radio" name="type" value="NORMAL"> <fmt:message key="label.norm.standard_type.normal" /></label> <label class="radio-inline col-sm-4" style="margin-left: 0;">
-								<input type="radio" name="type" value="MATURITY"> <fmt:message key="label.norm.standard_type.maturity" />
-							</label> <label class="radio-inline col-sm-4" style="margin-left: 0;"> <input type="radio" name="type" value="ASSET"> <fmt:message
-									key="label.norm.standard_type.asset" /></label>
+								<input type="radio" name="type" value="ASSET"> <fmt:message key="label.norm.standard_type.asset" />
+							</label>
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="computable" class="col-sm-2 control-label"> <fmt:message key="label.norm.computable" />
 						</label>
 						<div class="col-sm-10">
-							<input name="computable" id="standard_computable" class="form-control" type="checkbox" />
+							<input name="computable" id="standard_computable" class="form-control" type="checkbox" checked />
 						</div>
 					</div>
 				</form>

@@ -83,7 +83,7 @@
 						<c:if test="${!empty(assets)}">
 							<c:forEach items="${assets}" var="asset">
 								<td trick-class="MeasureAssetValue"><input type="text" class="slider" id='measure_<spring:message text="${asset.asset.name}"/>' value="${asset.value}"
-								data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${asset.value}" name=<spring:message text="${asset.asset.name}"/>
+								data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${asset.value}" name="<spring:message text="${asset.asset.name}"/>"
 								data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 							</c:forEach>
 						</c:if>

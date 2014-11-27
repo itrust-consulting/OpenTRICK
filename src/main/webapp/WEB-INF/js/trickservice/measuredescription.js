@@ -1,6 +1,6 @@
 function showMeasures(idStandard, languageId) {
 	if (idStandard == null || idStandard == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_standard"));
+		var selectedScenario = findSelectItemIdBySection(("section_kb_standard"));
 		if (selectedScenario.length != 1)
 			return false;
 		idStandard = selectedScenario[0];

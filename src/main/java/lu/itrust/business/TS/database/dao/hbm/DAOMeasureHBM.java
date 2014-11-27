@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.Standard;
 import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
@@ -232,9 +234,14 @@ public class DAOMeasureHBM extends DAOHibernate implements DAOMeasure {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Measure> getAllNotMaturityMeasuresFromAnalysisAndComputable(Integer idAnalysis) throws Exception{
-		String query = "Select measure From Analysis analysis join analysis.analysisStandards analysisStandard inner join analysisStandard.measures measure where analysis.id = :idAnalysis and ";
-		query += "measure.measureDescription.computable = true and measure.status='AP' or measure.status='M' and measure.implementationRate<100 and (exists(From NormalMeasure measure2 where measure2 = measure) or exists(From AssetMeasure measure2 where measure2 = measure)) order by analysisStandard.standard.id, measure.measureDescription.id";
-		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+		String query = "Select analysisStandard From Analysis analysis join analysis.analysisStandards analysisStandard where analysis.id = :idAnalysis and analysisStandard.standard.type != 'MATURITY'";
+		List<AnalysisStandard> astandards = (List<AnalysisStandard>)getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).list();
+		List<Measure> measures = new ArrayList<Measure>();
+		for(AnalysisStandard astandard: astandards)
+			for(Measure measure : astandard.getMeasures())
+				if(!measure.getStatus().equals("NA") && measure.getImplementationRateValue()<100 && measure.getMeasureDescription().isComputable())
+					measures.add(measure);
+		return measures;
 	}
 	
 	/**

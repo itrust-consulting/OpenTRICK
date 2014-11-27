@@ -75,9 +75,9 @@
 								</div>
 							</div>
 							<div class="col-md-8">
-								<div class="col-md-12" id="chart_rrf" style="height: 343px;margin-bottom:17px;padding-right:14px;">
+								<div class="col-md-12" id="chart_rrf" style="height: 343px; margin-bottom: 17px; padding-right: 14px;">
 									<div id="chart-container" class="rrfCharts panel panel-primary">
-										<div style="width: 100%; height: 340px; padding-top: 172px;padding-left:15px;padding-right:15px;">
+										<div style="width: 100%; height: 340px; padding-top: 172px; padding-left: 15px; padding-right: 15px;">
 											<div class="progress progress-striped active">
 												<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
 											</div>
@@ -101,7 +101,6 @@
 																			key="label.rrf.category.${fn:toLowerCase(fn:replace(category,'_','.'))}" /></th>
 																</c:forEach>
 															</c:if>
-															
 															<th class="${cssclass} pdlc"><fmt:message key="label.rrf.measure.preventive" /></th>
 															<th class="${cssclass} pdlc"><fmt:message key="label.rrf.measure.detective" /></th>
 															<th class="${cssclass} pdlc"><fmt:message key="label.rrf.measure.limitative" /></th>
@@ -125,47 +124,59 @@
 													</thead>
 													<tbody>
 														<tr>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_fmeasure" value="${strength_measure}" data-slider-min="0" data-slider-max="10"
-																data-slider-step="1" data-slider-value="${strength_measure}" name="fmeasure" data-slider-orientation="vertical" data-slider-selection="after"
+															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_fmeasure" value="${strength_measure}" data-slider-min="0"
+																data-slider-max="10" data-slider-step="1" data-slider-value="${strength_measure}" name="fmeasure" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_fSectoral" value="${strength_sectorial}" data-slider-min="0" data-slider-max="4"
-																data-slider-step="1" data-slider-value="${strength_sectorial}" name="fsectoral" data-slider-orientation="vertical" data-slider-selection="after"
+															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_fSectoral" value="${strength_sectorial}" data-slider-min="0"
+																data-slider-max="4" data-slider-step="1" data-slider-value="${strength_sectorial}" name="fsectoral" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
 															<c:if test="${!empty(categories)}">
 																<c:forEach items="${categories.keySet()}" var="category">
-																	<td class="info"  trick-class="MeasureProperties" trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
+																	<td class="info" trick-class="MeasureProperties" trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
 																		id="measure_category_${fn:replace(category,'.','_')}" value="${categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="4"
 																		data-slider-value="${categories.get(category)}" name=<spring:message text="${category}" /> data-slider-orientation="vertical" data-slider-selection="after"
 																		data-slider-tooltip="show"></td>
 																</c:forEach>
 															</c:if>
-															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" id="measure_preventive" class="slider" value="${preventive}" data-slider-min="0" data-slider-max="1" data-slider-step="0.1"
-																data-slider-value="${preventive}" data-slider-orientation="vertical" data-slider-selection="after" name="preventive" data-slider-tooltip="show"></td>
-															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_detective" value="${detective}" data-slider-min="0" data-slider-max="1" data-slider-step="0.1"
-																data-slider-value="${detective}" name="detective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" id="measure_limitative" class="slider" value="${limitative}" data-slider-min="0" data-slider-max="1" data-slider-step="0.1"
-																data-slider-value="${limitative}" data-slider-orientation="vertical" data-slider-selection="after" name="limitative" data-slider-tooltip="show"></td>
-															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_corrective" value="${corrective}" data-slider-min="0" data-slider-max="1" data-slider-step="0.1"
-																data-slider-value="${corrective}" name="corrective" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_intentional" value="${intentional}" data-slider-min="0" data-slider-max="4"
-																data-slider-step="1" data-slider-value="${intentional}" name="intentional" data-slider-orientation="vertical" data-slider-selection="after"
+															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" id="measure_preventive" class="slider" value="${preventive}" data-slider-min="0"
+																data-slider-max="1" data-slider-step="0.1" data-slider-value="${preventive}" data-slider-orientation="vertical" data-slider-selection="after" name="preventive"
 																data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_accidental" value="${accidental}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
-																data-slider-value="${accidental}" name="accidental" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_environmental" value="${environmental}" data-slider-min="0" data-slider-max="4"
-																data-slider-step="1" data-slider-value="${environmental}" name="environmental" data-slider-orientation="vertical" data-slider-selection="after"
+															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_detective" value="${detective}" data-slider-min="0"
+																data-slider-max="1" data-slider-step="0.1" data-slider-value="${detective}" name="detective" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_internalThreat" value="${internalThreat}" data-slider-min="0" data-slider-max="4"
-																data-slider-step="1" data-slider-value="${internalThreat}" name="internalThreat" data-slider-orientation="vertical" data-slider-selection="after"
+															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" id="measure_limitative" class="slider" value="${limitative}" data-slider-min="0"
+																data-slider-max="1" data-slider-step="0.1" data-slider-value="${limitative}" data-slider-orientation="vertical" data-slider-selection="after" name="limitative"
 																data-slider-tooltip="show"></td>
-															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_externalThreat" value="${externalThreat}" data-slider-min="0" data-slider-max="4"
-																data-slider-step="1" data-slider-value="${externalThreat}" name="externalThreat" data-slider-orientation="vertical" data-slider-selection="after"
+															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_corrective" value="${corrective}" data-slider-min="0"
+																data-slider-max="1" data-slider-step="0.1" data-slider-value="${corrective}" name="corrective" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
+															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_intentional" value="${intentional}" data-slider-min="0"
+																data-slider-max="4" data-slider-step="1" data-slider-value="${intentional}" name="intentional" data-slider-orientation="vertical" data-slider-selection="after"
+																data-slider-tooltip="show"></td>
+															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_accidental" value="${accidental}" data-slider-min="0"
+																data-slider-max="4" data-slider-step="1" data-slider-value="${accidental}" name="accidental" data-slider-orientation="vertical" data-slider-selection="after"
+																data-slider-tooltip="show"></td>
+															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_environmental" value="${environmental}" data-slider-min="0"
+																data-slider-max="4" data-slider-step="1" data-slider-value="${environmental}" name="environmental" data-slider-orientation="vertical" data-slider-selection="after"
+																data-slider-tooltip="show"></td>
+															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_internalThreat" value="${internalThreat}" data-slider-min="0"
+																data-slider-max="4" data-slider-step="1" data-slider-value="${internalThreat}" name="internalThreat" data-slider-orientation="vertical"
+																data-slider-selection="after" data-slider-tooltip="show"></td>
+															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_externalThreat" value="${externalThreat}" data-slider-min="0"
+																data-slider-max="4" data-slider-step="1" data-slider-value="${externalThreat}" name="externalThreat" data-slider-orientation="vertical"
+																data-slider-selection="after" data-slider-tooltip="show"></td>
 															<c:forEach items="${assetTypes}" var="assetType">
 																<td trick-class="AssetType"><input type="text" class="slider" id='measure_assetType_<spring:message text="${assetType.assetType.type}"/>'
 																	value="${assetType.value}" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${assetType.value}"
 																	name=<spring:message text="${assetType.assetType.type}"/> data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 															</c:forEach>
+															<c:if test="${!empty(assets)}">
+																<c:forEach items="${assets}" var="asset">
+																	<td trick-class="MeasureAssetValue"><input type="text" class="slider" id='measure_<spring:message text="${asset.asset.name}"/>' value="${asset.value}"
+																		data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${asset.value}" name="<spring:message text="${asset.asset.name}"/>"
+																		data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
+																</c:forEach>
+															</c:if>
 														</tr>
 														<tr>
 															<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_fmeasure_value" value="${strength_measure}" name="fmeasure"></td>

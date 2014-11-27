@@ -277,7 +277,7 @@ public class ControllerScenario {
 	public String add(Model model, HttpSession session, Principal principal) throws Exception {
 		Integer analysisID = (Integer) session.getAttribute("selectedAnalysis");
 		if (serviceAnalysis.isAnalysisCssf(analysisID))
-			model.addAttribute("scenariotypes", ScenarioType.getAllCSSF());
+			model.addAttribute("scenariotypes", ScenarioType.getAll());
 		else
 			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
 		model.addAttribute("assetTypes", serviceAssetType.getAll());
@@ -305,7 +305,7 @@ public class ControllerScenario {
 		if (serviceAnalysis.isAnalysisCssf(idAnalysis))
 			model.addAttribute("scenariotypes", ScenarioType.getAllCSSF());
 		else
-			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
+			model.addAttribute("scenariotypes", ScenarioType.getAll());
 
 		// add scenario to model
 		model.addAttribute("scenario", serviceScenario.getFromAnalysisById(idAnalysis, elementID));
@@ -520,15 +520,9 @@ public class ControllerScenario {
 				returnvalue.setType(scenarioType);
 
 				returnvalue.setScenarioType(serviceScenarioType.getAll().get(0));
-				
-				if (cssf)
-					for (String key : ScenarioType.CSSF_KEYS)
-						returnvalue.setCategoryValue(key, 0);
-				else
-					for (String key : ScenarioType.CIA_KEYS)
-						returnvalue.setCategoryValue(key, 0);
+		
 				// set category according to value of scenario type
-				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenario(returnvalue), 4);
+				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenario(returnvalue), 1);
 
 			} catch (TrickException e) {
 				errors.put("scenarioType", messageSource.getMessage(e.getCode(), null, e.getMessage(), locale));

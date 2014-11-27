@@ -1192,6 +1192,20 @@ public abstract class SecurityCriteria implements Cloneable {
 	}
 
 	/**
+	 * getAllCategories: <br>
+	 * Description
+	 * 
+	 * @return
+	 */
+	@Transient
+	public LinkedHashMap<String, Integer> getAllCategories() {
+		LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
+		for (String category : CategoryConverter.JAVAKEYS)
+			result.put(category, categories.get(category));
+		return result;
+	}
+
+	/**
 	 * getCIACategories: <br>
 	 * Description
 	 * 
@@ -1204,7 +1218,7 @@ public abstract class SecurityCriteria implements Cloneable {
 			result.put(category, categories.get(category));
 		return result;
 	}
-
+	
 	/**
 	 * getCSSFCategories: <br>
 	 * Description

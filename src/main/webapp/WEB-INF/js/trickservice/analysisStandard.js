@@ -71,7 +71,7 @@ function createStandard() {
 		$("#createStandardModal #standard_version").prop("value", "");
 		$("#createStandardModal #standard_description").prop("value", "");
 		$("#createStandardModal #standard_form input[name='type'][value='NORMAL']").prop("checked", "checked");
-		$("#createStandardModal #standard_computable").removeProp("checked");
+		$("#createStandardModal #standard_computable").prop("checked","checked");
 		$("#createStandardModal #createstandardtitle").text(MessageResolver("label.title.analysis.manage_standard.create", "Create new standard", null, locale));
 		$("#createstandardbutton").text(MessageResolver("label.action.create", "Create", null, locale));
 		$("#createstandardbutton").attr("onclick", "doCreateStandard('standard_form')");

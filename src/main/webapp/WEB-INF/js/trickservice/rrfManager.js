@@ -40,7 +40,7 @@ function initialiseMeasureSliders() {
 			var displayvalue = fieldValue;
 			if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective")
 				displayvalue = fieldValue.toFixed(1);
-			$("#rrfEditor #control_rrf_measure #measure_" + field + "_value").attr("value", displayvalue);
+			$("#rrfEditor #control_rrf_measure input[id='measure_" + field + "_value']").attr("value", displayvalue);
 			return updateMeasureProperty(field, fieldValue, previousValue, $(this));
 		})
 	});

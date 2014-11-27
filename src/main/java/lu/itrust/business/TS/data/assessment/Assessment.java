@@ -601,10 +601,6 @@ public class Assessment implements Cloneable {
 	public Assessment duplicate() throws CloneNotSupportedException, TrickException {
 		Assessment assessment = (Assessment) super.clone();
 		assessment.id = -1;
-		assessment.asset = (Asset) asset.clone();
-		assessment.asset.setId(-1);
-		assessment.scenario = (Scenario) scenario.clone();
-		assessment.scenario.setId(-1);
 		return assessment;
 	}
 

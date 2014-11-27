@@ -114,7 +114,7 @@ public class ControllerRRF {
 				model.addAttribute("strength_measure", normalMeasure.getMeasurePropertyList().getFMeasure());
 				model.addAttribute("strength_sectorial", normalMeasure.getMeasurePropertyList().getFSectoral());
 				if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
-					model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCSSFCategories());
+					model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getAllCategories());
 				} else {
 					model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCIACategories());
 				}
@@ -140,7 +140,7 @@ public class ControllerRRF {
 				model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
 				model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
 				if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
-					model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCSSFCategories());
+					model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getAllCategories());
 				} else {
 					model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());
 				}
@@ -335,7 +335,7 @@ public class ControllerRRF {
 			model.addAttribute("strength_measure", normalMeasure.getMeasurePropertyList().getFMeasure());
 			model.addAttribute("strength_sectorial", normalMeasure.getMeasurePropertyList().getFSectoral());
 			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
-				model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCSSFCategories());
+				model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getAllCategories());
 			} else {
 				model.addAttribute("categories", normalMeasure.getMeasurePropertyList().getCIACategories());
 			}
@@ -361,7 +361,7 @@ public class ControllerRRF {
 			model.addAttribute("strength_measure", assetMeasure.getMeasurePropertyList().getFMeasure());
 			model.addAttribute("strength_sectorial", assetMeasure.getMeasurePropertyList().getFSectoral());
 			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
-				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCSSFCategories());
+				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getAllCategories());
 			} else {
 				model.addAttribute("categories", assetMeasure.getMeasurePropertyList().getCIACategories());
 			}
