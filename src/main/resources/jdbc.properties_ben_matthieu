@@ -1,0 +1,7 @@
+jdbc.driverClassName= com.mysql.jdbc.Driver
+jdbc.dialect=org.hibernate.dialect.MySQLDialect
+jdbc.databaseurl=jdbc:mysql://localhost:3306/trickservice
+jdbc.username=trickservice
+jdbc.password=trickservice
+jdbc.hbm2ddl.auto=update
+jdbc.show_sql=false
