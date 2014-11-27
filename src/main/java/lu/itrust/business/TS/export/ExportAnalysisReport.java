@@ -396,7 +396,7 @@ public class ExportAnalysisReport {
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
+			ALE ale = ales.get(assessment.getAsset().getId());
 			if (ale == null) {
 				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
 				ales2.add(ale);
@@ -578,18 +578,22 @@ public class ExportAnalysisReport {
 		run.setText(number);
 		return run;
 	}
-
-	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text) {
-		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
-		paragraph.setStyle("TableParagraphTS");
-		paragraph.setAlignment(ParagraphAlignment.LEFT);
+	
+	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text, boolean add) {
+		XWPFParagraph paragraph = !add && cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
 		String[] texts = text.split("(\r\n|\n\r|\r|\n)");
 		for (int i = 0; i < texts.length; i++) {
 			if (i > 0)
-				paragraph.createRun().addBreak();
+				paragraph = cell.addParagraph();
+			paragraph.setStyle("TableParagraphTS");
 			paragraph.createRun().setText(texts[i]);
 		}
 		return paragraph;
+	}
+
+
+	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text) {
+		return addCellParagraph(cell,text ,false );
 	}
 
 	private void generateMeasures() {
@@ -1006,11 +1010,12 @@ public class ExportAnalysisReport {
 				row.getCell(1).setText(entry.getMeasure().getAnalysisNorm().getNorm().getLabel());
 				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
 				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
-				paragraph = addCellParagraph(row.getCell(3), descriptionText == null ? "" : descriptionText.getDomain() + ":");
-				for (XWPFRun run : paragraph.getRuns())
-					run.setBold(true);
-				paragraph.createRun().addBreak();
-				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo());
+				addCellParagraph(row.getCell(3), descriptionText == null ? "" :  descriptionText.getDomain() +  (locale == Locale.FRENCH ? " : " : ": "));
+				for (XWPFParagraph paragraph2 : row.getCell(3).getParagraphs()) {
+					for (XWPFRun run : paragraph2.getRuns())
+						run.setBold(true);
+				}
+				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo(),true);
 				addCellNumber(row.getCell(4), numberFormat.format(entry.getTotalALE() * 0.001));
 				addCellNumber(row.getCell(5), numberFormat.format(entry.getDeltaALE() * 0.001));
 				addCellNumber(row.getCell(6), numberFormat.format(entry.getMeasure().getCost() * 0.001));
