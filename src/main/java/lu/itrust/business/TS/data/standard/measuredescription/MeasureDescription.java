@@ -67,7 +67,7 @@ public class MeasureDescription implements Cloneable {
 
 	/** Measure Level */
 	@Column(name = "dtLevel", nullable = false)
-	private int level = -1;
+	private int level = 3;
 
 	/** Measure Reference */
 	@Column(name = "dtReference", nullable = false)

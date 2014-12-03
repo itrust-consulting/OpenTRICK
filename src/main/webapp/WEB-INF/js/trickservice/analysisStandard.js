@@ -71,7 +71,7 @@ function createStandard() {
 		$("#createStandardModal #standard_version").prop("value", "");
 		$("#createStandardModal #standard_description").prop("value", "");
 		$("#createStandardModal #standard_form input[name='type'][value='NORMAL']").prop("checked", "checked");
-		$("#createStandardModal #standard_computable").prop("checked","checked");
+		$("#createStandardModal #standard_computable").prop("checked", "checked");
 		$("#createStandardModal #createstandardtitle").text(MessageResolver("label.title.analysis.manage_standard.create", "Create new standard", null, locale));
 		$("#createstandardbutton").text(MessageResolver("label.action.create", "Create", null, locale));
 		$("#createstandardbutton").attr("onclick", "doCreateStandard('standard_form')");
@@ -491,6 +491,149 @@ function newMeasure(idStandard) {
 	return false;
 }
 
+function newAssetMeasure(idStandard) {
+
+	if (idStandard == null || idStandard == undefined)
+		return false;
+
+	var selectedItem = $("#section_standard_" + idStandard + " tbody :checked");
+	if (selectedItem.length != 0)
+		return false;
+
+	$("#manageAssetMeasureModel #assetTabs li").removeClass("active");
+	$("#manageAssetMeasureModel #assetTabs li a#group_1").parent().addClass("active");
+
+	var lang = $("#nav-container").attr("trick-language");
+
+	$("#manageAssetMeasureModel #addMeasureModel-title").text(MessageResolver("title.measure.add", "Add a new Measure", null, lang));
+
+	$.ajax({
+		url : context + "/Analysis/Standard/" + idStandard + "/AssetMeasure/New",
+		type : "get",
+		async : false,
+		contentType : "application/json",
+		success : function(response) {
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			$("#manageAssetMeasureModel #manageAssetMeasure_form").html($(doc).find("form#manageAssetMeasure_form").html());
+			return;
+		},
+		error : unknowError
+	});
+
+	$("#manageAssetMeasureModel #assetTabs a").click(function() {
+
+		$("#manageAssetMeasureModel #assetTabs li").removeClass("active");
+		$(this).parent().addClass("active");
+		var location = $(this).attr("id");
+		$("#manageAssetMeasureModel #manageAssetMeasure_form div[id^='group_']").css("display", "none");
+		$("#manageAssetMeasureModel #manageAssetMeasure_form div[id='" + location + "']").css("display", "block");
+		return false;
+	});
+
+	if ($("#manageAssetMeasure_form #measure_computable:checked").length == 1)
+		$("#assetTabs li:nth-child(2)").css("display", "block");
+	else
+		$("#assetTabs li:nth-child(2)").css("display", "none");
+
+	$('#manageAssetMeasure_form #measure_computable').change(function() {
+		if (this.checked) {
+			$("#assetTabs li:nth-child(2)").css("display", "block");
+			$("#manageAssetMeasure_form div#group_3 [trick-class='MeasureAssetValue']").css("display", "");
+		} else {
+			$("#assetTabs li:nth-child(2)").css("display", "none");
+			$("#manageAssetMeasure_form div#group_3 [trick-class='MeasureAssetValue']").css("display", "none");
+		}
+	});
+
+	$("#manageAssetMeasure_form #group_2 li").each(function() {
+		$(this).click(function(event) {
+			manageAssetLiClick($(this));
+		});
+	});
+	$("#manageAssetMeasure_form div#group_3 .slider").slider().each(
+			function() {
+				$(this).on(
+						"slideStop",
+						function(event) {
+							var field = event.target.name;
+							var fieldValue = event.value;
+							var displayvalue = fieldValue;
+							if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective")
+								displayvalue = fieldValue.toFixed(1);
+							$("#manageAssetMeasure_form div#group_3 input[id='measure_" + field + "_value']").attr("value", displayvalue);
+
+							if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective") {
+								var result = +$("#manageAssetMeasure_form #group_3 #measure_preventive_value").val() + +$("#manageAssetMeasure_form #group_3 #measure_detective_value").val()
+										+ +$("#manageAssetMeasure_form #group_3 #measure_limitative_value").val() + +$("#manageAssetMeasure_form #group_3 #measure_corrective_value").val();
+								result = result.toFixed(1);
+								$("#manageAssetMeasure_form #group_3 .pdlc").removeClass("success");
+								$("#manageAssetMeasure_form #group_3 .pdlc").removeClass("danger");
+								if (result == 1)
+									$("#manageAssetMeasure_form #group_3 .pdlc").addClass("success");
+								else
+									$("#manageAssetMeasure_form #group_3 .pdlc").addClass("danger");
+							}
+						});
+			});
+
+	$("#manageAssetMeasureModel").modal("show");
+
+	return false;
+}
+
+function manageAssetLiClick(event) {
+	var asset = $(event).attr("opt");
+	var assetname = $(event).text();
+	if ($(event).parent().attr("trick-type") == 'available') {
+		$("select#availableAssets option[value='" + asset + "']").clone().appendTo("select#measureAssets");
+		$("select#availableAssets option[value='" + asset + "']").remove();
+		$(event).clone().appendTo("ul[trick-type='measure']");
+		$("li[opt='" + asset + "']").click(function(ev) {
+			manageAssetLiClick($(this));
+		});
+		$(event).remove();
+
+		var assetexists = $("#group_3 #tableheaderrow th[trick-class='MeasureAssetValue'][trick-name='" + assetname + "']");
+		if (assetexists.length == 0) {
+			// console.log("add asset");
+			$("#group_3 #tableheaderrow").append('<th trick-class="MeasureAssetValue" trick-name="' + assetname + '">' + assetname + "</th>");
+			$("#group_3 #tablesliderrow").append(
+					'<td trick-class="MeasureAssetValue"><input type="text" class="slider" id="measure_' + assetname
+							+ '" value="0" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" name="' + assetname
+							+ '" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>');
+			$("#manageAssetMeasure_form div#group_3 input[id='measure_" + assetname + "']").slider().on(
+					"slideStop",
+					function(event) {
+						var field = event.target.name;
+						var fieldValue = event.value;
+						$("#manageAssetMeasure_form div#group_3 input[id='measure_" + field + "_value']").attr("value", fieldValue);
+					});
+			$("#group_3 #tabledatarow").append(
+					'<td trick-class="MeasureAssetValue"><input type="text" name="' + assetname + '" value="0" class="form-control" readonly="readonly" style="min-width: 50px;" id="measure_'
+							+ assetname + '_value"></td>');
+		}
+
+	} else if ($(event).parent().attr("trick-type") == 'measure') {
+		$("select#measureAssets option[value='" + asset + "']").clone().appendTo("select#availableAssets");
+		$("select#measureAssets option[value='" + asset + "']").remove();
+		$(event).clone().appendTo("ul[trick-type='available']");
+		$("li[opt='" + asset + "']").click(function(ev) {
+			manageAssetLiClick($(this));
+		});
+		$(event).remove();
+
+		var assetexists = $("#group_3 #tableheaderrow th[trick-class='MeasureAssetValue'][trick-name='" + assetname + "']");
+		if (assetexists.length == 1) {
+			console.log("remove asset");
+			$("#group_3 #tableheaderrow th[trick-class='MeasureAssetValue'][trick-name='" + assetname + "']").remove();
+			$("#group_3 #tablesliderrow input[id='measure_" + assetname + "']").closest("td[trick-class='MeasureAssetValue']").remove();
+			$("#group_3 #tabledatarow td[trick-class='MeasureAssetValue'] input[id='measure_" + assetname + "_value']").closest("td").remove();
+		}
+
+	}
+}
+
 function editSingleMeasure(measureId, idStandard) {
 
 	if (idStandard == null || idStandard == undefined)
@@ -499,7 +642,7 @@ function editSingleMeasure(measureId, idStandard) {
 	if (measureId == null || measureId == undefined)
 		measureId = $("#section_standard_" + idStandard + " tbody :checked").parent().parent();
 	else {
-		measureId = $(measureId);
+		measureId = $("#section_standard_" + idStandard + " tr[trick-id='"+measureId+"']");
 	}
 	if (measureId.length != 1)
 		return false;
@@ -536,6 +679,103 @@ function editSingleMeasure(measureId, idStandard) {
 	$("#addMeasureModel #measurelanguages").html(text);
 
 	$("#addMeasureModel").modal("show");
+
+	return false;
+}
+
+function editAssetMeasure(idMeasure, idStandard) {
+
+	if (idStandard == null || idStandard == undefined)
+		return false;
+
+	if (idMeasure == null || idMeasure == undefined) {
+		selectedScenario = findSelectItemIdBySection("section_standard_" + idStandard);
+
+		if (selectedScenario.length == 1)
+			idMeasure = selectedScenario[0];
+		else
+			return false;
+	}
+
+	$("#manageAssetMeasureModel #assetTabs li").removeClass("active");
+	$("#manageAssetMeasureModel #assetTabs li a#group_1").parent().addClass("active");
+
+	var lang = $("#nav-container").attr("trick-language");
+
+	$("#manageAssetMeasureModel #addMeasureModel-title").text(MessageResolver("title.measure.edit", "Edit Measure", null, lang));
+
+	$.ajax({
+		url : context + "/Analysis/Standard/" + idStandard + "/AssetMeasure/" + idMeasure + "/Edit",
+		type : "get",
+		async : false,
+		contentType : "application/json",
+		success : function(response) {
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			$("#manageAssetMeasureModel #manageAssetMeasure_form").html("");
+			$("#manageAssetMeasureModel #manageAssetMeasure_form").html($(doc).find("form#manageAssetMeasure_form").html());
+		}
+	});
+
+	$("#manageAssetMeasureModel #assetTabs a").click(function() {
+
+		$("#manageAssetMeasureModel #assetTabs li").removeClass("active");
+		$(this).parent().addClass("active");
+		var location = $(this).attr("id");
+		$("#manageAssetMeasureModel #manageAssetMeasure_form div[id^='group_']").css("display", "none");
+		$("#manageAssetMeasureModel #manageAssetMeasure_form div[id='" + location + "']").css("display", "block");
+		return false;
+	});
+
+	if ($("#manageAssetMeasure_form #measure_computable:checked").length == 1)
+		$("#assetTabs li:nth-child(2)").css("display", "block");
+	else
+		$("#assetTabs li:nth-child(2)").css("display", "none");
+
+	$('#manageAssetMeasure_form #measure_computable').change(function() {
+		if (this.checked) {
+			$("#assetTabs li:nth-child(2)").css("display", "block");
+			$("#manageAssetMeasure_form div#group_3 [trick-class='MeasureAssetValue']").css("display", "");
+		} else {
+			$("#assetTabs li:nth-child(2)").css("display", "none");
+			$("#manageAssetMeasure_form div#group_3 [trick-class='MeasureAssetValue']").css("display", "none");
+		}
+	});
+
+	$("#manageAssetMeasure_form #group_2 li").each(function() {
+		$(this).click(function(event) {
+			manageAssetLiClick($(this));
+		});
+	});
+	$("#manageAssetMeasure_form div#group_3 .slider").slider().each(
+			function() {
+				$(this).on(
+						"slideStop",
+						function(event) {
+							var field = event.target.name;
+							var fieldValue = event.value;
+							var displayvalue = fieldValue;
+							if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective")
+								displayvalue = fieldValue.toFixed(1);
+
+							$("#manageAssetMeasure_form div#group_3 input[id='measure_" + field + "_value']").attr("value", displayvalue);
+
+							if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective") {
+								var result = +$("#manageAssetMeasure_form #group_3 #measure_preventive_value").val() + +$("#manageAssetMeasure_form #group_3 #measure_detective_value").val()
+										+ +$("#manageAssetMeasure_form #group_3 #measure_limitative_value").val() + +$("#manageAssetMeasure_form #group_3 #measure_corrective_value").val();
+								result = result.toFixed(1);
+								$("#manageAssetMeasure_form #group_3 .pdlc").removeClass("success");
+								$("#manageAssetMeasure_form #group_3 .pdlc").removeClass("danger");
+								if (result == 1)
+									$("#manageAssetMeasure_form #group_3 .pdlc").addClass("success");
+								else
+									$("#manageAssetMeasure_form #group_3 .pdlc").addClass("danger");
+							}
+
+						});
+			});
+
+	$("#manageAssetMeasureModel").modal("show");
 
 	return false;
 }
@@ -663,63 +903,7 @@ function deleteMeasure(measureId, standardid) {
 	return false;
 }
 
-function manageMeasureAssets(idMeasure, idStandard) {
-
-	if (idStandard == null || idStandard == undefined)
-		return false;
-
-	if (idMeasure == null || idMeasure == undefined) {
-		var selectedMeasure = findSelectItemIdBySection("section_standard_" + idStandard);
-		if (!selectedMeasure.length)
-			return false;
-		else
-			idMeasure = selectedMeasure;
-	}
-
-	$.ajax({
-		url : context + "/Analysis/Standard/" + idStandard + "/Measure/" + idMeasure + "/ManageAssets",
-		async : true,
-		contentType : "application/json",
-		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			$("#manageAssetMeasureModel-body").html($(doc).find("#manageAssetMeasure_form"));
-			$("#manageAssetMeasureModel").modal("show");
-			$("#manageAssetMeasureModel #manageAssetMeasure_form li").click(function(event) {
-				manageAssetLiClick($(this));
-			});
-		},
-		error : unknowError
-	});
-}
-
-function manageAssetLiClick(event) {
-	var asset = $(event).attr("opt");
-	if ($(event).parent().attr("trick-type") == 'available') {
-		$("select#availableAssets option[value='" + asset + "']").clone().appendTo("select#measureAssets");
-		$("select#availableAssets option[value='" + asset + "']").remove();
-		$(event).clone().appendTo("ul[trick-type='measure']");
-		$("li[opt='" + asset + "']").click(function(ev) {
-			manageAssetLiClick($(this));
-		});
-		$(event).remove();
-
-	} else if ($(event).parent().attr("trick-type") == 'measure') {
-		$("select#measureAssets option[value='" + asset + "']").clone().appendTo("select#availableAssets");
-		$("select#measureAssets option[value='" + asset + "']").remove();
-		$(event).clone().appendTo("ul[trick-type='available']");
-		$("li[opt='" + asset + "']").click(function(ev) {
-			manageAssetLiClick($(this));
-		});
-		$(event).remove();
-	}
-}
-
 function saveAssetMeasure(form) {
-
-	var alert = $("#manageAssetMeasureModel").find(".alert");
-	if (alert.length)
-		alert.remove();
 
 	var idStandard = $(form + " #standard_id").val();
 
@@ -728,36 +912,87 @@ function saveAssetMeasure(form) {
 
 	var idMeasure = $(form + " #measure_id").val();
 
-	if (idMeasure == null || idMeasure == undefined)
-		return false;
-
 	var data = {};
 
-	$(form).find("select[name='measureAssets'] option").each(function() {
+	var categories = {};
 
-		var name = $(this).attr("value");
+	var measureassetvalues = {};
 
-		var value = $(this).is(":checked");
+	var measureProperties = {};
 
-		data[name] = value;
+	$(form).find("input:not(.slider)").each(function() {
+		var name = $(this).attr("name");
+		var value = $(this).prop("value");
+		if (value == null || value == undefined)
+			if ($(this).attr("type") == "checkbox")
+				value = this.checked ? "on" : "";
+			else
+				value = "";
+		var trickclass = $(this).parent().attr("trick-class");
+		if (trickclass == undefined || trickclass == null)
+			data[name] = value;
+		else {
+			if (trickclass === "Category")
+				categories[name] = value;
+			else if (trickclass === "MeasureAssetValue")
+				measureassetvalues[name] = value;
+			else if (trickclass === "MeasureProperties")
+				measureProperties[name] = value;
+		}
 
 	});
+
+	data["properties"] = measureProperties;
+
+	measureProperties["categories"] = categories;
+
+	data["measureassetvalues"] = measureassetvalues;
 
 	var jsonarray = JSON.stringify(data);
 
 	$.ajax({
-		url : context + "/Analysis/Standard/" + idStandard + "/Measure/" + idMeasure + "/ManageAssets/Save",
+		url : context + "/Analysis/Standard/" + idStandard + "/AssetMeasure/Save",
 		async : true,
 		type : "post",
 		data : jsonarray,
 		contentType : "application/json",
 		success : function(response) {
-			if (response["error"] != undefined) {
-				$("#manageAssetMeasureModel-body").prepend('<div class="alert alert-danger">' + response["error"] + '</div>');
-			} else if (response["success"] != undefined) {
-				$("#manageAssetMeasureModel-body").prepend('<div class="alert alert-success">' + response["success"] + '</div>');
-			} else
-				unknowError();
+			var alert = $("#manageAssetMeasure_form").find(".label-danger");
+			if (alert.length)
+				alert.remove();
+			for ( var error in response) {
+				var errorElement = document.createElement("label");
+				errorElement.setAttribute("class", "label label-danger");
+				$(errorElement).text(response[error]);
+				switch (error) {
+				case "reference":
+					$(errorElement).appendTo($("#manageAssetMeasure_form input#measure_reference").parent());
+					break;
+				case "level":
+					$(errorElement).appendTo($("#manageAssetMeasure_form #measure_level").parent());
+					break;
+				case "computable":
+					$(errorElement).appendTo($("#manageAssetMeasure_form #measure_computable").parent());
+					break;
+				case "domain":
+					$(errorElement).appendTo($("#manageAssetMeasure_form #measure_domain").parent());
+					break;
+				case "description":
+					$(errorElement).appendTo($("#manageAssetMeasure_form #measure_description").parent());
+					break;
+				default:
+					if (error === "success") {
+						$("#info-dialog .modal-body").text(response[error]);
+						$("#info-dialog").modal("toggle");
+						reloadSection("section_standard_" + idStandard);
+
+					} else {
+						$("#alert-dialog .modal-body").text(response[error]);
+						$("#alert-dialog").modal("toggle");
+					}
+					break;
+				}
+			}
 		},
 		error : unknowError
 	});

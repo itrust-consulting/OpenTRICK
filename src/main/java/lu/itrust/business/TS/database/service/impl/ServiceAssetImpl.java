@@ -56,6 +56,20 @@ public class ServiceAssetImpl implements ServiceAsset {
 	}
 
 	/**
+	 * getFromAnalysisByName: <br>
+	 * Description
+	 *
+	 * @{tags
+	 *
+	 * @see lu.itrust.business.TS.database.service.ServiceAsset#getFromAnalysisByName(java.lang.Integer,
+	 *      java.lang.String)
+	 */
+	@Override
+	public Asset getFromAnalysisByName(Integer analysisId, String name) throws Exception {
+		return daoAsset.getFromAnalysisByName(analysisId, name);
+	}
+
+	/**
 	 * getAll: <br>
 	 * Description
 	 * 
@@ -95,7 +109,8 @@ public class ServiceAssetImpl implements ServiceAsset {
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceAsset#getFromAnalysisByPageAndSize(int, int, int)
+	 * @see lu.itrust.business.TS.database.service.ServiceAsset#getFromAnalysisByPageAndSize(int,
+	 *      int, int)
 	 */
 	@Override
 	public List<Asset> getFromAnalysisByPageAndSize(Integer analysisId, Integer pageIndex, Integer pageSize) throws Exception {

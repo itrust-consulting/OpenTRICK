@@ -7,11 +7,32 @@
 <c:set var="css">
 	<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
 </c:set>
+<c:set var="dblclickaction">
+	<c:if test="${analysisOnly}">
+		<c:if test="${standardType.name.equals('NORMAL')}">
+											ondblclick="return editSingleMeasure(${measure.id},${standardid});"
+										</c:if>
+		<c:if test="${standardType.name.equals('ASSET')}">
+											ondblclick="return editAssetMeasure(${measure.id},${standardid});"
+										</c:if>
+	</c:if>
+</c:set>
 <c:choose>
 	<c:when test="${measure.measureDescription.computable==false }">
-		<tr trick-class="Measure" style="background-color: #F8F8F8;" trick-id="${measure.id}" trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
-			<c:if test="${standardType.name.equals('ASSET')}">
-				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_asset_standard');"></td>
+		<c:set var="dblclickaction">
+			<c:if test="${analysisOnly}">
+				<c:if test="${standardType.name.equals('NORMAL')}">
+											ondblclick="return editSingleMeasure(this,${standardid});"
+										</c:if>
+				<c:if test="${standardType.name.equals('ASSET')}">
+											ondblclick="return editAssetMeasure(this,${standardid});"
+										</c:if>
+			</c:if>
+		</c:set>
+		<tr trick-computable="false" trick-level="${measure.measureDescription.level}" trick-class="Measure" style="background-color: #F8F8F8;" trick-id="${measure.id}"
+			trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
+			<c:if test="${analysisOnly}">
+				<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
 			<td colspan="2"><spring:message text="${measure.measureDescription.reference}" /></td>
 			<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'40':'32'}"><spring:message
@@ -26,9 +47,9 @@
 			</c:if>
 			<td colspan="2" class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
 				data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message
-	text="${measure.measureDescription.reference}" />'><spring:message
-					text="${measure.measureDescription.reference}" /></td>
-			<td colspan="5"><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+	text="${measure.measureDescription.reference}" />'
+				${dblclickaction}><spring:message text="${measure.measureDescription.reference}" /></td>
+			<td colspan="5" ${dblclickaction}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 			<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 					text="${measure.status}" /></td>
 			<td ${css} trick-field="implementationRate" ${standardType.name.equals('MATURITY')?'trick-class="MaturityMeasure"':''} trick-field-type="double"

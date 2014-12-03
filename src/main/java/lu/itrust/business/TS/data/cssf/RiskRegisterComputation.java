@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.data.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.data.actionplan.helper.TMA;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.assessment.Assessment;

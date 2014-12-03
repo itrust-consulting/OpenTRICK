@@ -22,15 +22,18 @@
 					<div class="panel-heading" style="min-height: 60px;">
 						<ul class="nav nav-pills" id="menu_standard_${standardid}">
 							<li style="padding: 10px 15px;"><spring:message text="${standard}" /></li>
-							<li><a onclick="return newMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> Add </a></li>
-							<li trick-selectable="true" class="disabled"><a onclick="return editSingleMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
-									Edit </a></li>
 							<c:if test="${standardType.name.equals('ASSET')}">
-								<li class="disabled" trick-selectable="true"><a href="#anchorstandard" onclick="return manageMeasureAssets(null, ${standardid});"><span
-										class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.measure_manage_assets" /></a></li>
+								<li><a onclick="return newAssetMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
+								<li trick-selectable="true" class="disabled"><a onclick="return editAssetMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
+										<fmt:message key="label.action.edit" /></a></li>
+							</c:if>
+							<c:if test="${!standardType.name.equals('ASSET')}">
+								<li><a onclick="return newMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
+								<li trick-selectable="true" class="disabled"><a onclick="return editSingleMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
+										<fmt:message key="label.action.edit" /></a></li>
 							</c:if>
 							<li trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger" href="#"><span
-									class="glyphicon glyphicon-remove"></span> Delete </a></li>
+									class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
 						</ul>
 					</div>
 				</c:if>
@@ -74,11 +77,20 @@
 									<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
 								</c:set>
 								<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha3(language)}" />
+								<c:set var="dblclickaction">
+									<c:if test="${analysisOnly}">
+										<c:if test="${standardType.name.equals('NORMAL')}">
+											ondblclick="return editSingleMeasure(${measure.id},${standardid});"
+										</c:if>
+										<c:if test="${standardType.name.equals('ASSET')}">
+											ondblclick="return editAssetMeasure(${measure.id},${standardid});"
+										</c:if>
+									</c:if>
+								</c:set>
 								<c:choose>
 									<c:when test="${measure.measureDescription.computable==false }">
 										<tr trick-computable="false" trick-level="${measure.measureDescription.level}" trick-class="Measure" style="background-color: #F8F8F8;" trick-id="${measure.id}"
-											trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${standardType.name.equals('ASSET')?'ondblclick="return editSingleMeasure(this,':''}
-											${standardType.name.equals('ASSET')?standardid:''} ${standardType.name.equals('ASSET')?')"':''}>
+											trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" ${dblclickaction}>
 											<c:if test="${analysisOnly}">
 												<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 											</c:if>
@@ -94,13 +106,9 @@
 												<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 											</c:if>
 											<td colspan="2" class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
-												data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>'
-												title='<spring:message
-														text="${measure.measureDescription.reference}" />'
-												${standardType.name.equals('ASSET')?'ondblclick="return editSingleMeasure($(this).parent(),':''} ${standardType.name.equals('ASSET')?standardid:''}
-												${standardType.name.equals('ASSET')?')"':''}><spring:message text="${measure.measureDescription.reference}" /></td>
-											<td colspan="5" ${standardType.name.equals('ASSET')?'ondblclick="return editSingleMeasure($(this).parent(),':''} ${standardType.name.equals('ASSET')?standardid:''}
-												${standardType.name.equals('ASSET')?')"':''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+												data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measure.measureDescription.reference}" />'
+												${analysisOnly?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
+											<td colspan="5" ${analysisOnly?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 											<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
 													text="${measure.status}" /></td>
 											<td ${css} trick-field="implementationRate" ${standardType.name.equals('MATURITY')?'trick-class="MaturityMeasure"':''} trick-field-type="double"

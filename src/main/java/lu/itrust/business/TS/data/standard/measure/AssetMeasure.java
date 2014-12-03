@@ -16,6 +16,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.exception.TrickException;
@@ -96,13 +97,29 @@ public class AssetMeasure extends Measure implements Cloneable {
 	}
 
 	/**
+	 * getAssetTypeValue: <br>
+	 * Returns the Asset Type value at position "index" of the Asset Type Value List
+	 * ("assetTypeValues" field)
+	 * 
+	 * @param index
+	 *            The index of the element position to retrieve from the list
+	 * @return AssetTypeValue The Asset Type Value object at position "index"
+	 */
+	public MeasureAssetValue getMeasureAssetValueByAsset(Asset asset) {
+		for (MeasureAssetValue value : measureAssetValues)
+			if (value.getAsset().equals(asset))
+				return value;
+		return null;
+	}
+
+	/**
 	 * getAssetTypeValueList: <br>
 	 * Returns the List of Asset Type Values for this Measure ("assetTypeValue" field)
 	 * 
 	 * @return The List of all Asset Type Values
 	 */
 	@OneToMany
-	@JoinColumn(name = "fiAssetMeasure", nullable = false, insertable=true)
+	@JoinColumn(name = "fiAssetMeasure", nullable = false, insertable = true)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
 	public List<MeasureAssetValue> getMeasureAssetValues() {

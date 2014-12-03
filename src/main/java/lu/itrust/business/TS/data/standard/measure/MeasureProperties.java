@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.data.standard.measure;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;

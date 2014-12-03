@@ -117,7 +117,7 @@
 															</c:if>
 															<c:if test="${!empty(assets)}">
 																<c:forEach items="${assets}" var="asset">
-																	<th><spring:message text='${asset}' /></th>
+																	<th><spring:message text='${asset.asset.name}' /></th>
 																</c:forEach>
 															</c:if>
 														</tr>
@@ -133,7 +133,7 @@
 															<c:if test="${!empty(categories)}">
 																<c:forEach items="${categories.keySet()}" var="category">
 																	<td class="info" trick-class="MeasureProperties" trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
-																		id="measure_category_${fn:replace(category,'.','_')}" value="${categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="4"
+																		id="measure_category_${category}" value="${categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="4"
 																		data-slider-value="${categories.get(category)}" name=<spring:message text="${category}" /> data-slider-orientation="vertical" data-slider-selection="after"
 																		data-slider-tooltip="show"></td>
 																</c:forEach>
@@ -172,8 +172,8 @@
 															</c:forEach>
 															<c:if test="${!empty(assets)}">
 																<c:forEach items="${assets}" var="asset">
-																	<td trick-class="MeasureAssetValue"><input type="text" class="slider" id='measure_<spring:message text="${asset.asset.name}"/>' value="${asset.value}"
-																		data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${asset.value}" name="<spring:message text="${asset.asset.name}"/>"
+																	<td trick-class="MeasureAssetValue"><input type="text" class="slider" id='measure_<spring:message text="${asset.asset.name}"/>' value="${asset.asset.value}"
+																		data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${asset.asset.value}" name="<spring:message text="${asset.asset.name}"/>"
 																		data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 																</c:forEach>
 															</c:if>
@@ -184,7 +184,7 @@
 															<c:if test="${!empty(categories)}">
 																<c:forEach items="${categories.keySet()}" var="category">
 																	<td class="info" trick-class="Category" trick-value="<spring:message text="${category}" />"><input type="text"
-																		id='measure_<spring:message text="${fn:replace(category,'.','_')}"/>_value' readonly="readonly" class="form-control" value="${categories.get(category)}"
+																		id='measure_<spring:message text="${category}"/>_value' readonly="readonly" class="form-control" value="${categories.get(category)}"
 																		name="<spring:message text="${category}" />"></td>
 																</c:forEach>
 															</c:if>
@@ -201,14 +201,14 @@
 																name="externalThreat"></td>
 															<c:if test="${!empty(assetTypes)}">
 																<c:forEach items="${assetTypes}" var="assetType">
-																	<td trick-class="AssetType"><input type="text" id='measure_<spring:message text="${assetType.assetType.type}"/>_value' style="min-width: 50px;"
+																	<td trick-class="AssetTypeValue"><input type="text" id='measure_<spring:message text="${assetType.assetType.type}"/>_value' style="min-width: 50px;"
 																		readonly="readonly" class="form-control" value="${assetType.value}" name="<spring:message text="${assetType.assetType.type}" />"></td>
 																</c:forEach>
 															</c:if>
 															<c:if test="${!empty(assets)}">
 																<c:forEach items="${assets}" var="asset">
-																	<td trick-class="AssetType"><input type="text" id='measure_asset_<spring:message text="${asset.name}"/>_value' style="min-width: 50px;" readonly="readonly"
-																		class="form-control" value="50" name="<spring:message text="${asset.name}" />"></td>
+																	<td trick-class="MeasureAssetValue"><input type="text" id='measure_asset_<spring:message text="${asset.asset.name}"/>_value' style="min-width: 50px;" readonly="readonly"
+																		class="form-control" value="${asset.asset.value}" name="<spring:message text="${asset.asset.name}" />"></td>
 																</c:forEach>
 															</c:if>
 														</tr>

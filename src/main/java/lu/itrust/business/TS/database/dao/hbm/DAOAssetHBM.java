@@ -58,6 +58,20 @@ public class DAOAssetHBM extends DAOHibernate implements DAOAsset {
 	}
 
 	/**
+	 * getFromAnalysisByName: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.TS.database.dao.DAOAsset#getFromAnalysisByName(java.lang.Integer, java.lang.String)
+	 */
+	@Override
+	public Asset getFromAnalysisByName(Integer analysisId, String name) throws Exception {
+		String query = "Select asset From Analysis as analysis inner join analysis.assets as asset where analysis.id = :analysisid and asset.name = :name";
+		return (Asset) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("name", name).uniqueResult();
+	}
+	
+	/**
 	 * getAll: <br>
 	 * Description
 	 * 

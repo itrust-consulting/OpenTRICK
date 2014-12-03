@@ -1,4 +1,4 @@
-package lu.itrust.business.TS.data.actionplan;
+package lu.itrust.business.TS.data.actionplan.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +9,10 @@ import java.util.Map;
 import javax.naming.directory.InvalidAttributesException;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.actionplan.helper.TMA;
+import lu.itrust.business.TS.data.actionplan.ActionPlanAsset;
+import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
+import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.data.actionplan.ActionPlanType;
 import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.data.actionplan.summary.helper.SummaryStandardHelper;
 import lu.itrust.business.TS.data.actionplan.summary.helper.SummaryValues;
@@ -1264,7 +1267,8 @@ public class ActionPlanComputation {
 						// ****************************************************************
 						// * take deltaALE to calculate the sum of deltaALE
 						// ****************************************************************
-						deltaALE = deltaALE + TMAList.get(j).getDeltaALE();
+						if(measure.getMeasureDescription().getStandard().isComputable())
+							deltaALE = deltaALE + TMAList.get(j).getDeltaALE();
 					}
 				}
 
@@ -1658,6 +1662,9 @@ public class ActionPlanComputation {
 		double deltaALE = 0;
 		TMA tmpTMA = null;
 
+		if(!measure.getMeasureDescription().getStandard().isComputable())
+			return;
+		
 		// ****************************************************************
 		// * parse TMAList to update ALE values
 		// ****************************************************************

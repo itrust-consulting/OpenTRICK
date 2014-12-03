@@ -8,9 +8,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.actionplan.ActionPlanComputation;
 import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
+import lu.itrust.business.TS.data.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.data.actionplan.summary.helper.ActionPlanSummaryManager;
 import lu.itrust.business.TS.data.analysis.Analysis;

@@ -5,7 +5,7 @@ package lu.itrust.business.TS.asynchronousWorkers;
 
 import java.util.List;
 
-import lu.itrust.business.TS.data.actionplan.ActionPlanComputation;
+import lu.itrust.business.TS.data.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.database.dao.DAOActionPlan;

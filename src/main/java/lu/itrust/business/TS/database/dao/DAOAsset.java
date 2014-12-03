@@ -17,6 +17,8 @@ public interface DAOAsset {
 
 	public boolean belongsToAnalysis(Integer analysisId, Integer assetId) throws Exception;
 
+	public Asset getFromAnalysisByName(Integer analysisId, String name) throws Exception;
+	
 	public List<Asset> getAll() throws Exception;
 
 	public List<Asset> getByPageAndSize(Integer pageIndex, Integer pageSize) throws Exception;

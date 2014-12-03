@@ -1,9 +1,11 @@
 package lu.itrust.business.TS.controller;
 
+import java.lang.reflect.Field;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -18,9 +20,11 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.data.asset.AssetType;
+import lu.itrust.business.TS.data.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.data.general.Phase;
+import lu.itrust.business.TS.data.general.SecurityCriteria;
 import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.rrf.ImportRRFForm;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
@@ -50,6 +54,7 @@ import lu.itrust.business.TS.database.service.ServiceMeasureAssetValue;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
 import lu.itrust.business.TS.database.service.ServiceMeasureDescriptionText;
 import lu.itrust.business.TS.database.service.ServiceParameter;
+import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.TrickException;
@@ -139,7 +144,10 @@ public class ControllerAnalysisStandard {
 
 	@Autowired
 	private ServiceMeasureAssetValue serviceMeasureAssetValue;
-	
+
+	@Autowired
+	private ServicePhase servicePhase;
+
 	/**
 	 * selected analysis actions (reload section. single measure, load soa, get compliances)
 	 */
@@ -294,6 +302,7 @@ public class ControllerAnalysisStandard {
 		Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 		model.addAttribute("language", serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3());
 		model.addAttribute("measure", measure);
+		model.addAttribute("analysisOnly",measure.getAnalysisStandard().getStandard().isAnalysisOnly());
 		model.addAttribute("standard", measure.getAnalysisStandard().getStandard().getLabel());
 		model.addAttribute("standardType", measure.getAnalysisStandard().getStandard().getType());
 		model.addAttribute("standardid", measure.getAnalysisStandard().getStandard().getId());
@@ -866,47 +875,76 @@ public class ControllerAnalysisStandard {
 		}
 	}
 
-	@RequestMapping(value = "/{idStandard}/Measure/{idMeasure}/ManageAssets", method = RequestMethod.GET, headers = "Accept=application/json")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
-	public String manageAssetMeasure(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal, HttpSession session) {
+	@RequestMapping(value = "/{idStandard}/AssetMeasure/New", method = RequestMethod.GET, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	public String newAssetMeasure(@PathVariable("idStandard") int idStandard, Locale locale, Model model, Principal principal, HttpSession session) {
 		try {
 
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
-			// try to delete measure
-			Measure measure = serviceMeasure.get(idMeasure);
+			Standard standard = serviceStandard.get(idStandard);
 
-			if (measure == null || measure.getAnalysisStandard().getStandard().getId() != idStandard) {
-				model.addAttribute("error", messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
+			if (standard == null) {
+				model.addAttribute("error", messageSource.getMessage("error.standard.not_found", null, "Standard could not be found!", locale));
+				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
+			}
+			if (!standard.isAnalysisOnly() || standard.getType() != StandardType.ASSET) {
+				model.addAttribute("error", messageSource.getMessage("error.standard.not_asset_type", null, "Standard is not a asset standard type!", locale));
 				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
 			}
 
-			if (!measure.getAnalysisStandard().getStandard().isAnalysisOnly() && !(measure instanceof AssetMeasure)) {
-				model.addAttribute("error", messageSource.getMessage("error.measure.not_assetMeasure", null, "This measure is not capable to manage assets (is not an Asset Measure)!", locale));
+			boolean found = false;
+
+			for (AnalysisStandard astandard : serviceAnalysisStandard.getAllFromAnalysis(idAnalysis))
+				if (astandard.getStandard().equals(standard)) {
+					found = true;
+					break;
+				}
+			if (!found) {
+				model.addAttribute("error", messageSource.getMessage("error.standard.not_in_analysis", null, "Standard does not beloong to analysis!", locale));
 				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
 			}
-
-			AssetMeasure assetMeasure = (AssetMeasure) measure;
 
 			List<Asset> availableAssets = serviceAsset.getAllFromAnalysis(idAnalysis);
 
 			List<Asset> measureAssets = new ArrayList<Asset>();
 
-			for (MeasureAssetValue assetValue : assetMeasure.getMeasureAssetValues()) {
-				measureAssets.add(assetValue.getAsset());
-			}
+			model.addAttribute("idStandard", idStandard);
 
-			for (Asset asset : measureAssets)
-				if (availableAssets.contains(asset))
-					availableAssets.remove(asset);
+			model.addAttribute("idMeasure", -1);
 
-			model.addAttribute("idMeasure",idMeasure);
-			
-			model.addAttribute("idStandard",idStandard);
-			
 			model.addAttribute("availableAssets", availableAssets);
 
 			model.addAttribute("measureAssets", measureAssets);
+
+			AssetMeasure measure = new AssetMeasure();
+
+			measure.setMeasureDescription(new MeasureDescription());
+
+			measure.setMeasurePropertyList(new MeasureProperties());
+
+			model.addAttribute("desc", measure.getMeasureDescription());
+
+			MeasureDescriptionText text = new MeasureDescriptionText();
+
+			model.addAttribute("desctext", text);
+
+			model.addAttribute("props", measure.getMeasurePropertyList());
+
+			LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
+
+			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+				for (String category : CategoryConverter.JAVAKEYS)
+					result.put(category, 0);
+				model.addAttribute("categories", result);
+			} else {
+				for (String category : CategoryConverter.TYPE_CIA_KEYS)
+					result.put(category, 0);
+				model.addAttribute("categories", result);
+			}
+
+			model.addAttribute("typeValue", false);
+			model.addAttribute("assets", new ArrayList<MeasureAssetValue>());
 
 			// return success message
 			return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
@@ -918,80 +956,206 @@ public class ControllerAnalysisStandard {
 		}
 	}
 
-	@RequestMapping(value = "/{idStandard}/Measure/{idMeasure}/ManageAssets/Save", method = RequestMethod.POST, headers = "Accept=application/json")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody Map<String,String> manageAssetMeasureSave(@RequestBody String value,@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal, HttpSession session) {
-		
-		Map<String, String> result = new LinkedHashMap<String, String>();
-		
+	@RequestMapping(value = "/{idStandard}/AssetMeasure/Save", method = RequestMethod.POST, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Map<String, String> measuresave(@RequestBody String value, @PathVariable("idStandard") int idStandard, Locale locale, Model model, Principal principal, HttpSession session) {
+
+		Map<String, String> errors = new LinkedHashMap<String, String>();
+
 		try {
 
 			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
-			// try to delete measure
-			Measure measure = serviceMeasure.get(idMeasure);
+			Standard standard = serviceStandard.get(idStandard);
 
-			if (measure == null || measure.getAnalysisStandard().getStandard().getId() != idStandard) {
-				result.put("error", messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
-				return result;
+			if (standard == null) {
+
+				errors.put("standard", messageSource.getMessage("error.standard.not_found", null, "Standard could not be found!", locale));
+				return errors;
+			}
+			if (!standard.isAnalysisOnly() || standard.getType() != StandardType.ASSET) {
+				errors.put("standard", messageSource.getMessage("error.standard.not_asset_type", null, "Standard is not a asset standard type!", locale));
+				return errors;
 			}
 
-			if (!measure.getAnalysisStandard().getStandard().isAnalysisOnly() && !(measure instanceof AssetMeasure)) {
-				result.put("error", messageSource.getMessage("error.measure.not_assetMeasure", null, "This measure is not capable to manage assets (is not an Asset Measure)!", locale));
-				return result;
-			}
+			AnalysisStandard astandard = null;
 
-			AssetMeasure assetMeasure = (AssetMeasure) measure;
+			for (AnalysisStandard tmpastandard : serviceAnalysisStandard.getAllFromAnalysis(idAnalysis))
+				if (tmpastandard.getStandard().equals(standard)) {
+					astandard = tmpastandard;
+					break;
+				}
+			if (astandard == null) {
+				errors.put("standard", messageSource.getMessage("error.standard.not_in_analysis", null, "Standard does not belong to analysis!", locale));
+				return errors;
+			}
 
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(value);
-			List<Asset> assets = serviceAsset.getAllFromAnalysis(idAnalysis);
-			List<MeasureAssetValue> measureAssets = assetMeasure.getMeasureAssetValues();
-			for (Asset asset : assets) {
-				if(jsonNode.get("asset_" + asset.getId())!=null) {
-					boolean found = false;
-					for(MeasureAssetValue assetValue : measureAssets){
-						if(assetValue.getAsset().equals(asset)) {
-							found = true;
-							break;
-						}
+
+			int id = jsonNode.get("idMeasure").asInt();
+
+			Measure measure = null;
+
+			if (id != -1) {
+				for (Measure tmpmeasure : astandard.getMeasures())
+					if (tmpmeasure.getId() == id) {
+						measure = tmpmeasure;
+						break;
 					}
-					if(found==false) {
-						MeasureAssetValue assetValue = new MeasureAssetValue(asset, 0);
-						assetMeasure.addAnMeasureAssetValue(assetValue);
-					}
-				} else {
-					MeasureAssetValue tmpAssetValue = null;
-					boolean found = false;
-					for(MeasureAssetValue assetValue : measureAssets){
-						if(assetValue.getAsset().equals(asset)) {
-							found = true;
-							tmpAssetValue = assetValue;
-							break;
-						}
-					}
-					if(found==true) {
-						assetMeasure.getMeasureAssetValues().remove(tmpAssetValue);
-						serviceMeasureAssetValue.delete(tmpAssetValue);
-					}
+				if (measure == null) {
+					errors.put("measure", messageSource.getMessage("error.measure.not_found", null, "Measure could not be found!", locale));
+					return errors;
 				}
+			} else {
+				measure = new AssetMeasure();
+				measure.setAnalysisStandard(astandard);
+				((AssetMeasure) measure).setMeasureAssetValues(new ArrayList<MeasureAssetValue>());
+				measure.setMeasureDescription(new MeasureDescription());
+				measure.getMeasureDescription().setStandard(standard);
+				((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
+				measure.setImplementationRate(new Double(0));
+				measure.setStatus("AP");
+				astandard.getMeasures().add(measure);
+				Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, Constant.PHASE_DEFAULT);
+				if (phase == null) {
+					phase = new Phase(Constant.PHASE_DEFAULT);
+					phase.setAnalysis(serviceAnalysis.get(idAnalysis));
+				}
+				measure.setPhase(phase);
 			}
-			
-			serviceMeasure.saveOrUpdate(assetMeasure);
-			
-			result.put("success", messageSource.getMessage("success.measure.assetmeasure_update_assets", null, "Assets successfully updated", locale));
-			
+
+			buildAssetMeasure(errors, ((AssetMeasure) measure), value, locale, idAnalysis);
+
+			if (!errors.isEmpty())
+				return errors;
+
+			if (measure.getId() > 0)
+				serviceAnalysisStandard.saveOrUpdate(astandard);
+			else
+				serviceAnalysisStandard.save(astandard);
+
+			errors.put("success", messageSource.getMessage("success.measure.assetmeasure_update_assets", null, "Assets successfully updated", locale));
+
 			// return success message
-			return result;
+			return errors;
 		} catch (Exception e) {
 			// return error
 			e.printStackTrace();
-			result.put("error", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
-			return result;
+			errors.put("error", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			return errors;
 		}
 	}
 
-	
+	@RequestMapping(value = "/{idStandard}/AssetMeasure/{idMeasure}/Edit", method = RequestMethod.GET, headers = "Accept=application/json")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #idMeasure, 'Measure', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	public String editAssetMeasure(@PathVariable("idStandard") int idStandard, @PathVariable("idMeasure") int idMeasure, Locale locale, Model model, Principal principal, HttpSession session) {
+		try {
+
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+
+			Standard standard = serviceStandard.get(idStandard);
+
+			if (standard == null) {
+				model.addAttribute("error", messageSource.getMessage("error.standard.not_found", null, "Standard could not be found!", locale));
+				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
+			}
+			if (!standard.isAnalysisOnly() || standard.getType() != StandardType.ASSET) {
+				model.addAttribute("error", messageSource.getMessage("error.standard.not_asset_type", null, "Standard is not a asset standard type!", locale));
+				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
+			}
+
+			boolean standardfound = false;
+
+			boolean measurefound = false;
+
+			AssetMeasure measure = null;
+
+			for (AnalysisStandard astandard : serviceAnalysisStandard.getAllFromAnalysis(idAnalysis))
+				if (astandard.getStandard().equals(standard)) {
+					standardfound = true;
+					for (Measure tmpmeasure : astandard.getMeasures())
+						if (tmpmeasure.getId() == idMeasure) {
+							measurefound = true;
+							measure = (AssetMeasure) tmpmeasure;
+							break;
+						}
+					break;
+				}
+			if (!standardfound) {
+				model.addAttribute("error", messageSource.getMessage("error.standard.not_in_analysis", null, "Standard not found in analysis!", locale));
+				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
+			}
+
+			if (!measurefound) {
+				model.addAttribute("error", messageSource.getMessage("error.measure.not_found", null, "Measure could not be found!", locale));
+				return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
+			}
+
+			List<Asset> availableAssets = serviceAsset.getAllFromAnalysis(idAnalysis);
+
+			List<Asset> measureAssets = new ArrayList<Asset>();
+
+			for (MeasureAssetValue mav : measure.getMeasureAssetValues()) {
+				availableAssets.remove(mav.getAsset());
+				measureAssets.add(mav.getAsset());
+			}
+
+			model.addAttribute("idStandard", idStandard);
+
+			model.addAttribute("idMeasure", idMeasure);
+
+			model.addAttribute("availableAssets", availableAssets);
+
+			model.addAttribute("measureAssets", measureAssets);
+
+			model.addAttribute("measure", measure);
+
+			model.addAttribute("desc", measure.getMeasureDescription());
+
+			MeasureDescriptionText text = measure.getMeasureDescription().getMeasureDescriptionText(serviceAnalysis.getLanguageOfAnalysis(idAnalysis));
+
+			if (text == null) {
+				text = new MeasureDescriptionText();
+
+			}
+
+			model.addAttribute("desctext", text);
+
+			model.addAttribute("props", measure.getMeasurePropertyList());
+
+			if (serviceAnalysis.isAnalysisCssf(idAnalysis)) {
+				model.addAttribute("categories", measure.getMeasurePropertyList().getAllCategories());
+			} else {
+				model.addAttribute("categories", measure.getMeasurePropertyList().getCIACategories());
+			}
+
+			double typeValue =
+				measure.getMeasurePropertyList().getPreventive() + measure.getMeasurePropertyList().getDetective() + measure.getMeasurePropertyList().getLimitative()
+					+ measure.getMeasurePropertyList().getCorrective();
+			model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
+			model.addAttribute("assets", measure.getMeasureAssetValues());
+
+			// return success message
+			return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
+		} catch (Exception e) {
+			// return error
+			e.printStackTrace();
+			model.addAttribute("error", messageSource.getMessage("error.measure.new", null, "Error retrieving measure info", locale));
+			return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
+		}
+	}
+
+	private static double round(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
+	}
+
 	/**
 	 * importRRF: <br>
 	 * Description
@@ -1035,6 +1199,251 @@ public class ControllerAnalysisStandard {
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 
+	}
+
+	/**
+	 * buildAssetMeasure: <br>
+	 * Description
+	 * 
+	 * @param errors
+	 * @param measure
+	 * @param source
+	 * @param locale
+	 * @param analysisId
+	 * @return
+	 */
+	private boolean buildAssetMeasure(Map<String, String> errors, AssetMeasure measure, String source, Locale locale, Integer analysisId) {
+		try {
+			// create json parser
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode jsonNode = mapper.readTree(source);
+
+			if (!serviceDataValidation.isRegistred(MeasureDescription.class))
+				serviceDataValidation.register(new MeasureDescriptionValidator());
+
+			if (!serviceDataValidation.isRegistred(MeasureDescriptionText.class))
+				serviceDataValidation.register(new MeasureDescriptionTextValidator());
+
+			String reference = jsonNode.get("reference").asText();
+
+			boolean computable = jsonNode.get("computable").asText().equals("on") ? true : false;
+
+			int level = jsonNode.get("level").asInt();
+
+			MeasureProperties mesProps = measure.getMeasurePropertyList();
+
+			MeasureDescription mesdesc = measure.getMeasureDescription();
+
+			String error = serviceDataValidation.validate(mesdesc, "reference", reference);
+
+			if (error != null)
+				errors.put("reference", serviceDataValidation.ParseError(error, messageSource, locale));
+			else {
+				if (mesdesc.getId() < 1 && serviceMeasureDescription.existsForMeasureByReferenceAndStandard(reference, mesdesc.getStandard()))
+					errors.put("reference", messageSource.getMessage("error.measuredescription.reference.duplicate", null, "Reference already exists in this standard", locale));
+				else
+					mesdesc.setReference(reference);
+			}
+
+			error = serviceDataValidation.validate(mesdesc, "level", level);
+
+			if (error != null)
+				errors.put("level", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				mesdesc.setLevel(level);
+
+			error = serviceDataValidation.validate(mesdesc, "computable", computable);
+
+			if (error != null)
+				errors.put("computable", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				mesdesc.setComputable(computable);
+
+			ValidatorField validator = serviceDataValidation.findByClass(MeasureDescriptionText.class);
+
+			// get language
+			Language language = serviceAnalysis.getLanguageOfAnalysis(analysisId);
+
+			// get domain in this language
+			String domain = jsonNode.get("domain").asText().trim();
+
+			// get description in this language
+			String description = jsonNode.get("description").asText().trim();
+
+			// init measdesctext object
+			MeasureDescriptionText mesDescText = mesdesc.findByLanguage(language);
+
+			// if new measure or text for this language does not exist:
+			// create new text and save
+			if (mesDescText == null) {
+				// create new and add data
+				mesDescText = new MeasureDescriptionText();
+				mesDescText.setLanguage(language);
+				mesdesc.addMeasureDescriptionText(mesDescText);
+			}
+
+			error = validator.validate(mesDescText, "domain", domain);
+
+			if (error != null)
+				errors.put("domain", serviceDataValidation.ParseError(error, messageSource, locale));
+			else
+				mesDescText.setDomain(domain);
+
+			if (level == 3)
+				error = validator.validate(mesDescText, "description", description);
+			else
+				error = null;
+			if (error != null)
+				errors.put("description", serviceDataValidation.ParseError(error, messageSource, locale));
+			else if (!errors.containsKey("level"))
+				mesDescText.setDescription(description);
+
+			if (mesdesc.isComputable()) {
+
+				Iterator<String> assetnodes = jsonNode.get("measureassetvalues").getFieldNames();
+
+				Map<Asset, Integer> assets = new LinkedHashMap<Asset, Integer>();
+
+				while (assetnodes.hasNext()) {
+
+					String asset = assetnodes.next();
+					Integer value = jsonNode.get("measureassetvalues").get(asset).asInt();
+
+					Asset tmpasset = serviceAsset.getFromAnalysisByName(analysisId, asset);
+
+					if (tmpasset == null)
+						errors.put("asset", "asset could not be found");
+					else {
+						assets.put(tmpasset, value);
+					}
+				}
+
+				if (errors.get("asset") == null) {
+
+					for (Asset asset : assets.keySet()) {
+
+						boolean found = false;
+
+						for (MeasureAssetValue mav : measure.getMeasureAssetValues()) {
+							if (mav.getAsset().equals(asset)) {
+								mav.setValue(assets.get(asset));
+								found = true;
+								break;
+							}
+						}
+						if (!found)
+							measure.addAnMeasureAssetValue(new MeasureAssetValue(asset, assets.get(asset)));
+					}
+
+					List<MeasureAssetValue> assetvalues = new ArrayList<MeasureAssetValue>();
+
+					for (MeasureAssetValue mav : measure.getMeasureAssetValues()) {
+						boolean found = false;
+						for (Asset asset : assets.keySet()) {
+							if (mav.getAsset().equals(asset)) {
+								found = true;
+								break;
+							}
+
+						}
+						if (!found)
+							assetvalues.add(mav);
+					}
+
+					for (MeasureAssetValue assetValue : assetvalues) {
+						measure.getMeasureAssetValues().remove(assetValue);
+						serviceMeasureAssetValue.delete(assetValue);
+					}
+
+				}
+			} else {
+				for (MeasureAssetValue mav : measure.getMeasureAssetValues()) {
+					serviceMeasureAssetValue.delete(mav);
+				}
+				measure.getMeasureAssetValues().clear();
+			}
+			Iterator<String> properties = jsonNode.get("properties").getFieldNames();
+
+			while (properties.hasNext()) {
+
+				String property = properties.next();
+
+				if (property.equals("categories")) {
+
+					Iterator<String> categories = jsonNode.get("properties").get("categories").getFieldNames();
+
+					while (categories.hasNext()) {
+						String category = categories.next();
+
+						int value = jsonNode.get("properties").get("categories").get(category).asInt();
+
+						if (MeasureProperties.isCategoryKey(category))
+							mesProps.setCategoryValue(category, value);
+						else
+							errors.put("category", "One or more categories are not valid");
+
+					}
+
+				} else {
+					if (!property.equals("fsectoral") && !property.equals("fmeasure")) {
+						if (property.equals("preventive") || property.equals("detective") || property.equals("limitative") || property.equals("corrective")) {
+							double val = jsonNode.get("properties").get(property).asDouble();
+
+							if (val < 0.0 || val > 1.0)
+								errors.put(property, "value is not valid");
+							else {
+								Field field = SecurityCriteria.class.getDeclaredField(property);
+
+								field.setAccessible(true);
+
+								field.set(mesProps, val);
+							}
+						} else {
+							int val = jsonNode.get("properties").get(property).asInt();
+							if (val < 0 || val > 4)
+								errors.put(property, "value is not valid");
+							else {
+								Field field = SecurityCriteria.class.getDeclaredField(property);
+
+								field.setAccessible(true);
+
+								field.set(mesProps, val);
+							}
+						}
+					} else {
+						int val = jsonNode.get("properties").get(property).asInt();
+						if (property.equals("fmeasure")) {
+							if (val < 0 || val > 10)
+								errors.put(property, "value is not valid");
+						} else {
+							if (val < 0 || val > 4)
+								errors.put(property, "value is not valid");
+						}
+
+						if (errors.get(property) == null) {
+							Field field = MeasureProperties.class.getDeclaredField(property);
+
+							field.setAccessible(true);
+
+							field.set(mesProps, val);
+						}
+
+					}
+
+				}
+
+			}
+
+			// return success message
+			return errors.isEmpty();
+
+		} catch (Exception e) {
+
+			// return error message
+			errors.put("measure", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/**

@@ -1162,6 +1162,8 @@ public class ControllerEditField {
 
 			if (field != null) {
 				// check if field is a phase
+				field.setAccessible(true);
+
 				if (fieldEditor.getFieldName().equals("phase")) {
 
 					// retireve phase
@@ -1179,8 +1181,6 @@ public class ControllerEditField {
 					// set field data
 				} else if (!SetFieldData(field, measure, fieldEditor, null))
 					return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
-
-				field.setAccessible(true);
 
 				// retrieve parameters
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -1208,11 +1208,12 @@ public class ControllerEditField {
 					// means that field belongs to either measure or normalmeasure
 
 					if (field != null) {
+
+						field.setAccessible(true);
+
 						// check if field is a phase
 						if (!SetFieldData(field, measure, fieldEditor, null))
 							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
-
-						field.setAccessible(true);
 
 						// update measure
 						serviceMeasure.saveOrUpdate(measure);
