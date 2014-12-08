@@ -152,7 +152,8 @@ public class ControllerAnalysisManageAccess {
 
 					if (useraccess != -1) {
 						uar = new UserAnalysisRight(user, AnalysisRight.valueOf(useraccess));
-						serviceUserAnalysisRight.save(uar);
+						analysis.addUserRight(uar);
+						//serviceUserAnalysisRight.save(uar);
 						serviceAnalysis.saveOrUpdate(analysis);
 						userrights.put(user, uar.getRight());
 					}

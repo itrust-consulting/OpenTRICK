@@ -1179,8 +1179,22 @@ public class ControllerEditField {
 					measure.setPhase(phase);
 
 					// set field data
-				} else if (!SetFieldData(field, measure, fieldEditor, null))
-					return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+				} else {
+
+					Object value = FieldValue(fieldEditor, null);
+					if (value == null)
+						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
+
+					if (fieldEditor.getFieldName().equals("implementationRate"))
+						if ((Double) value < 0. || (Double) value > 100.)
+							return JsonMessage.Error(messageSource.getMessage("error.edit.implementationrate.field", null, "Implementation rate needs to be >= 0 and <= 100 !", cutomLocale != null
+								? cutomLocale : locale));
+						else
+							field.set(measure, value);
+					else
+						field.set(measure, value);
+
+				}
 
 				// retrieve parameters
 				Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -1257,11 +1271,12 @@ public class ControllerEditField {
 					// means that field belongs to either measure or normalmeasure
 
 					if (field != null) {
+
+						field.setAccessible(true);
+
 						// check if field is a phase
 						if (!SetFieldData(field, measure, fieldEditor, null))
 							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", cutomLocale != null ? cutomLocale : locale));
-
-						field.setAccessible(true);
 
 						// update measure
 						serviceMeasure.saveOrUpdate(measure);

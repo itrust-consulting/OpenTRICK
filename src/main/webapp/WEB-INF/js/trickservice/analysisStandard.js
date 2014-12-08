@@ -578,7 +578,7 @@ function newAssetMeasure(idStandard) {
 			});
 
 	$("#manageAssetMeasureModel").modal("show");
-
+	initialiseAssetmanagement();
 	return false;
 }
 
@@ -602,13 +602,11 @@ function manageAssetLiClick(event) {
 					'<td trick-class="MeasureAssetValue"><input type="text" class="slider" id="measure_' + assetname
 							+ '" value="0" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" name="' + assetname
 							+ '" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>');
-			$("#manageAssetMeasure_form div#group_3 input[id='measure_" + assetname + "']").slider().on(
-					"slideStop",
-					function(event) {
-						var field = event.target.name;
-						var fieldValue = event.value;
-						$("#manageAssetMeasure_form div#group_3 input[id='measure_" + field + "_value']").attr("value", fieldValue);
-					});
+			$("#manageAssetMeasure_form div#group_3 input[id='measure_" + assetname + "']").slider().on("slideStop", function(event) {
+				var field = event.target.name;
+				var fieldValue = event.value;
+				$("#manageAssetMeasure_form div#group_3 input[id='measure_" + field + "_value']").attr("value", fieldValue);
+			});
 			$("#group_3 #tabledatarow").append(
 					'<td trick-class="MeasureAssetValue"><input type="text" name="' + assetname + '" value="0" class="form-control" readonly="readonly" style="min-width: 50px;" id="measure_'
 							+ assetname + '_value"></td>');
@@ -625,13 +623,15 @@ function manageAssetLiClick(event) {
 
 		var assetexists = $("#group_3 #tableheaderrow th[trick-class='MeasureAssetValue'][trick-name='" + assetname + "']");
 		if (assetexists.length == 1) {
-			console.log("remove asset");
+			// console.log("remove asset");
 			$("#group_3 #tableheaderrow th[trick-class='MeasureAssetValue'][trick-name='" + assetname + "']").remove();
 			$("#group_3 #tablesliderrow input[id='measure_" + assetname + "']").closest("td[trick-class='MeasureAssetValue']").remove();
 			$("#group_3 #tabledatarow td[trick-class='MeasureAssetValue'] input[id='measure_" + assetname + "_value']").closest("td").remove();
 		}
 
 	}
+	
+	verifyListItemDesign();
 }
 
 function editSingleMeasure(measureId, idStandard) {
@@ -642,7 +642,7 @@ function editSingleMeasure(measureId, idStandard) {
 	if (measureId == null || measureId == undefined)
 		measureId = $("#section_standard_" + idStandard + " tbody :checked").parent().parent();
 	else {
-		measureId = $("#section_standard_" + idStandard + " tr[trick-id='"+measureId+"']");
+		measureId = $("#section_standard_" + idStandard + " tr[trick-id='" + measureId + "']");
 	}
 	if (measureId.length != 1)
 		return false;
@@ -776,7 +776,7 @@ function editAssetMeasure(idMeasure, idStandard) {
 			});
 
 	$("#manageAssetMeasureModel").modal("show");
-
+	initialiseAssetmanagement();
 	return false;
 }
 
@@ -982,10 +982,12 @@ function saveAssetMeasure(form) {
 					break;
 				default:
 					if (error === "success") {
-						$("#info-dialog .modal-body").text(response[error]);
-						$("#info-dialog").modal("toggle");
+						/*
+						 * $("#info-dialog .modal-body").text(response[error]);
+						 * $("#info-dialog").modal("toggle");
+						 */
 						reloadSection("section_standard_" + idStandard);
-
+						$("#manageAssetMeasureModel").modal("hide");
 					} else {
 						$("#alert-dialog .modal-body").text(response[error]);
 						$("#alert-dialog").modal("toggle");
@@ -996,4 +998,69 @@ function saveAssetMeasure(form) {
 		},
 		error : unknowError
 	});
+}
+
+function initialiseAssetmanagement() {
+	verifyListItemDesign();
+	$("#group_2 #assettypes").change(function() {
+		var type = $("option:selected", this).attr("trick-type");
+		$("#group_2 ul[trick-type='available'] li").css("display", "none");
+		$("#group_2 ul[trick-type='available'] li[trick-type='" + type + "']").css("display", "block");
+		$("#group_2 ul[trick-type='measure'] li").css("display", "none");
+		$("#group_2 ul[trick-type='measure'] li[trick-type='" + type + "']").css("display", "block");
+		verifyListItemDesign();
+	});
+}
+function verifyListItemDesign() {
+
+	var first = null;
+
+	var last = null;
+
+	$("#group_2 ul[trick-type='available'] li").each(function() {
+		$(this).css("border", "1px solid #dddddd");
+		$(this).css('border-top-left-radius', '0px');
+		$(this).css('border-top-right-radius', '0px');
+		$(this).css('border-bottom-left-radius', '0px');
+		$(this).css('border-bottom-right-radius', '0px');
+		$(this).css('margin-bottom', '-1px');
+		
+		if ($(this).css("display") === "block" && first == null)
+			first = $(this);
+		if ($(this).css("display") === "block")
+			last = $(this);
+	});
+
+	$(first).css('border-top-left-radius', '4px');
+	$(first).css('border-top-right-radius', '4px');
+
+	$(last).css('border-bottom-left-radius', '4px');
+	$(last).css('border-bottom-right-radius', '4px');
+	$(last).css("margin-bottom", "0");
+
+	first = null;
+
+	last = null;
+
+	$("#group_2 ul[trick-type='measure'] li").each(function() {
+		$(this).css("border", "1px solid #dddddd");
+		$(this).css('border-top-left-radius', '0px');
+		$(this).css('border-top-right-radius', '0px');
+		$(this).css('border-bottom-left-radius', '0px');
+		$(this).css('border-bottom-right-radius', '0px');
+		$(this).css('margin-bottom', '-1px');
+		
+		if ($(this).css("display") === "block" && first == null)
+			first = $(this);
+		if ($(this).css("display") === "block")
+			last = $(this);
+	});
+
+	$(first).css('border-top-left-radius', '4px');
+	$(first).css('border-top-right-radius', '4px');
+
+	$(last).css('border-bottom-left-radius', '4px');
+	$(last).css('border-bottom-right-radius', '4px');
+	$(last).css("margin-bottom", "0");
+	
 }

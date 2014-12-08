@@ -276,7 +276,7 @@ function fixedTableHeader(table) {
 	$(table).floatThead({
 		scrollContainer : function($table) {
 			return $table.closest('.panel-body');
-		}
+		},
 	});
 	return true;
 }

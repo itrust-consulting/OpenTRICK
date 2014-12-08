@@ -37,10 +37,7 @@ function initialiseMeasureSliders() {
 			var field = event.target.name;
 			var fieldValue = event.value;
 			var previousValue = $("#rrfEditor #control_rrf_measure #measure_" + field + "_value").attr("value");
-			var displayvalue = fieldValue;
-			if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective")
-				displayvalue = fieldValue.toFixed(1);
-			$("#rrfEditor #control_rrf_measure input[id='measure_" + field + "_value']").attr("value", displayvalue);
+			$("#rrfEditor #control_rrf_measure input[id='measure_" + field + "_value']").attr("value", fieldValue);
 			return updateMeasureProperty(field, fieldValue, previousValue, $(this));
 		})
 	});
@@ -50,8 +47,6 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
 	if (idMeasure == null || idMeasure == undefined)
 		return false;
-	if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective")
-		value = value.toFixed(1);
 	$.ajax({
 		url : context + "/Analysis/EditField/Measure/" + idMeasure,
 		type : "post",
@@ -68,19 +63,6 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 				console.log("error: " + response.error);
 				$(slider).slider('setValue', previousValue);
 			} else {
-
-				if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective") {
-					var result = +$("#control_rrf_measure #measure_preventive_value").val() + +$("#control_rrf_measure #measure_detective_value").val()
-							+ +$("#control_rrf_measure #measure_limitative_value").val() + +$("#control_rrf_measure #measure_corrective_value").val();
-					result = result.toFixed(1);
-					$("#control_rrf_measure .pdlc").removeClass("success");
-					$("#control_rrf_measure .pdlc").removeClass("danger");
-					if (result == 1)
-						$("#control_rrf_measure .pdlc").addClass("success");
-					else
-						$("#control_rrf_measure .pdlc").addClass("danger");
-				}
-
 				loadMeasureChart();
 			}
 

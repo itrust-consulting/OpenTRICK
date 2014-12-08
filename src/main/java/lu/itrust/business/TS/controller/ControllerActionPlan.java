@@ -231,7 +231,7 @@ public class ControllerActionPlan {
 
 			boolean reloadSection = session.getAttribute("selectedAnalysis") != null;
 
-			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection);
+			Worker worker = new WorkerComputeActionPlan(sessionFactory, serviceTaskFeedback, analysisId, standards, uncertainty, reloadSection, messageSource);
 			worker.setPoolManager(workersPoolManager);
 
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))

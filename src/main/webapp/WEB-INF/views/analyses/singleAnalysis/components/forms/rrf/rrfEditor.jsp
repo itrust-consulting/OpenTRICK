@@ -89,7 +89,6 @@
 									<div class="panel panel-primary" id="control_rrf_measure">
 										<div class="panel-body">
 											<div style="overflow: auto;">
-												<spring:message text="${typeValue?'success':'danger'}" var="cssclass" />
 												<table class="table" style="margin-bottom: 0;">
 													<thead>
 														<tr>
@@ -101,10 +100,10 @@
 																			key="label.rrf.category.${fn:toLowerCase(fn:replace(category,'_','.'))}" /></th>
 																</c:forEach>
 															</c:if>
-															<th class="${cssclass} pdlc"><fmt:message key="label.rrf.measure.preventive" /></th>
-															<th class="${cssclass} pdlc"><fmt:message key="label.rrf.measure.detective" /></th>
-															<th class="${cssclass} pdlc"><fmt:message key="label.rrf.measure.limitative" /></th>
-															<th class="${cssclass} pdlc"><fmt:message key="label.rrf.measure.corrective" /></th>
+															<th class="success"><fmt:message key="label.rrf.measure.preventive" /></th>
+															<th class="success"><fmt:message key="label.rrf.measure.detective" /></th>
+															<th class="success"><fmt:message key="label.rrf.measure.limitative" /></th>
+															<th class="success"><fmt:message key="label.rrf.measure.corrective" /></th>
 															<th class="warning"><fmt:message key="label.rrf.measure.intentional" /></th>
 															<th class="warning"><fmt:message key="label.rrf.measure.accidental" /></th>
 															<th class="warning"><fmt:message key="label.rrf.measure.environmental" /></th>
@@ -133,22 +132,22 @@
 															<c:if test="${!empty(categories)}">
 																<c:forEach items="${categories.keySet()}" var="category">
 																	<td class="info" trick-class="MeasureProperties" trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
-																		id="measure_category_${category}" value="${categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="4"
+																		id="measure_category_${category}" value="${categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
 																		data-slider-value="${categories.get(category)}" name=<spring:message text="${category}" /> data-slider-orientation="vertical" data-slider-selection="after"
 																		data-slider-tooltip="show"></td>
 																</c:forEach>
 															</c:if>
-															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" id="measure_preventive" class="slider" value="${preventive}" data-slider-min="0"
-																data-slider-max="1" data-slider-step="0.1" data-slider-value="${preventive}" data-slider-orientation="vertical" data-slider-selection="after" name="preventive"
+															<td class="success" trick-class="MeasureProperties"><input type="text" id="measure_preventive" class="slider" value="${preventive}" data-slider-min="0"
+																data-slider-max="4" data-slider-step="1" data-slider-value="${preventive}" data-slider-orientation="vertical" data-slider-selection="after" name="preventive"
 																data-slider-tooltip="show"></td>
-															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_detective" value="${detective}" data-slider-min="0"
-																data-slider-max="1" data-slider-step="0.1" data-slider-value="${detective}" name="detective" data-slider-orientation="vertical" data-slider-selection="after"
+															<td class="success" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_detective" value="${detective}" data-slider-min="0"
+																data-slider-max="4" data-slider-step="1" data-slider-value="${detective}" name="detective" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
-															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" id="measure_limitative" class="slider" value="${limitative}" data-slider-min="0"
-																data-slider-max="1" data-slider-step="0.1" data-slider-value="${limitative}" data-slider-orientation="vertical" data-slider-selection="after" name="limitative"
+															<td class="success" trick-class="MeasureProperties"><input type="text" id="measure_limitative" class="slider" value="${limitative}" data-slider-min="0"
+																data-slider-max="4" data-slider-step="1" data-slider-value="${limitative}" data-slider-orientation="vertical" data-slider-selection="after" name="limitative"
 																data-slider-tooltip="show"></td>
-															<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_corrective" value="${corrective}" data-slider-min="0"
-																data-slider-max="1" data-slider-step="0.1" data-slider-value="${corrective}" name="corrective" data-slider-orientation="vertical" data-slider-selection="after"
+															<td class="success" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_corrective" value="${corrective}" data-slider-min="0"
+																data-slider-max="4" data-slider-step="1" data-slider-value="${corrective}" name="corrective" data-slider-orientation="vertical" data-slider-selection="after"
 																data-slider-tooltip="show"></td>
 															<td class="warning" trick-class="MeasureProperties"><input type="text" class="slider" id="measure_intentional" value="${intentional}" data-slider-min="0"
 																data-slider-max="4" data-slider-step="1" data-slider-value="${intentional}" name="intentional" data-slider-orientation="vertical" data-slider-selection="after"
@@ -188,10 +187,10 @@
 																		name="<spring:message text="${category}" />"></td>
 																</c:forEach>
 															</c:if>
-															<td class="${cssclass} pdlc"><input type="text" readonly="readonly" class="form-control" id="measure_preventive_value" value="${preventive}" name="preventive"></td>
-															<td class="${cssclass} pdlc"><input type="text" readonly="readonly" class="form-control" id="measure_detective_value" value="${detective}" name="detective"></td>
-															<td class="${cssclass} pdlc"><input type="text" readonly="readonly" class="form-control" id="measure_limitative_value" value="${limitative}" name="limitative"></td>
-															<td class="${cssclass} pdlc"><input type="text" readonly="readonly" class="form-control" id="measure_corrective_value" value="${corrective}" name="corrective"></td>
+															<td class="success"><input type="text" readonly="readonly" class="form-control" id="measure_preventive_value" value="${preventive}" name="preventive"></td>
+															<td class="success"><input type="text" readonly="readonly" class="form-control" id="measure_detective_value" value="${detective}" name="detective"></td>
+															<td class="success"><input type="text" readonly="readonly" class="form-control" id="measure_limitative_value" value="${limitative}" name="limitative"></td>
+															<td class="success"><input type="text" readonly="readonly" class="form-control" id="measure_corrective_value" value="${corrective}" name="corrective"></td>
 															<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_intentional_value" value="${intentional}" name="intentional"></td>
 															<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_accidental_value" value="${accidental}" name="accidental"></td>
 															<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_environmental_value" value="${environmental}" name="environmental"></td>

@@ -41,7 +41,6 @@
 							<label class="col-sm-12 text-center"><spring:message code="label.norm.standard_type" text="Standard Type" /></label> 
 							<label class="radio-inline col-sm-4" style="margin-left:0;"> <input type="radio" name="type" value="NORMAL"><spring:message code="label.norm.standard_type.normal" text="Normal" /></label>
 							<label class="radio-inline col-sm-4" style="margin-left:0;"> <input type="radio" name="type" value="MATURITY"><spring:message code="label.norm.standard_type.maturity" text="Maturity" /></label>
-							<label class="radio-inline col-sm-4" style="margin-left:0;"> <input type="radio" name="type" value="ASSET"><spring:message code="label.norm.standard_type.asset" text="Asset" /></label>
 						</div>
 					</div>
 					<div class="form-group">

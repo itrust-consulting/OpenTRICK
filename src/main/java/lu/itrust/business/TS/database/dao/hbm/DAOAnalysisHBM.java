@@ -385,7 +385,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		List<AnalysisBaseInfo> analysisBaseInfos = new ArrayList<AnalysisBaseInfo>();
 		String query = "Select analysis from Analysis analysis join analysis.userRights userRight where userRight.user.login = :username and analysis.data = true and ";
 		query += "analysis.customer.id = :customer group by analysis.identifier order by analysis.identifier";
-		List<Analysis> analyses = (List<Analysis>) getSession().createQuery(query).setParameter("username", name).setParameter("customer", id).iterate();
+		List<Analysis> analyses = (List<Analysis>) getSession().createQuery(query).setParameter("username", name).setParameter("customer", id).list();
 		for (Analysis analysis : analyses)
 			analysisBaseInfos.add(new AnalysisBaseInfo(analysis));
 		return analysisBaseInfos;

@@ -17,6 +17,7 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import lu.itrust.business.TS.data.asset.Asset;
+import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.exception.TrickException;
@@ -112,6 +113,23 @@ public class AssetMeasure extends Measure implements Cloneable {
 		return null;
 	}
 
+	/**
+	 * getAssetTypeValue: <br>
+	 * Returns the Asset Type value at position "index" of the Asset Type Value List
+	 * ("assetTypeValues" field)
+	 * 
+	 * @param index
+	 *            The index of the element position to retrieve from the list
+	 * @return AssetTypeValue The Asset Type Value object at position "index"
+	 */
+	public List<MeasureAssetValue> getMeasureAssetValueByAssetType(AssetType assetType) {
+		List<MeasureAssetValue> mavs = new ArrayList<MeasureAssetValue>();
+		for (MeasureAssetValue value : measureAssetValues)
+			if (value.getAsset().getAssetType().equals(assetType))
+				mavs.add(value);
+		return mavs;
+	}
+	
 	/**
 	 * getAssetTypeValueList: <br>
 	 * Returns the List of Asset Type Values for this Measure ("assetTypeValue" field)

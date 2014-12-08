@@ -15,7 +15,7 @@
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_analysis">
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<spring:message
-							code="label.menu.open.analysis" text="Open Analysis" /></a></li>
+							code="label.menu.open.profile" text="Open Profile" /></a></li>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return setAsDefaultProfile(undefined, 'true')"> <span class="glyphicon glyphicon-pushpin"></span> <spring:message
 							code="label.menu.analysis.set_default.profile" text="Set as default" /></a></li>
 				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-edit"></span> <spring:message

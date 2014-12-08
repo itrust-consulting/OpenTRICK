@@ -16,60 +16,87 @@
 		<div class="row">
 			<div id="group_1" class="tab-pane active" style="padding-top: 10px;">
 				<div class="form-group">
-					<label for="reference" class="col-sm-2 control-label"> <spring:message code="label.measure.reference" text="Reference" /></label>
+					<label for="reference" class="col-sm-2 control-label"> <fmt:message key="label.measure.reference" /></label>
 					<div class="col-sm-5">
 						<input name="reference" id="measure_reference" value="${desc.reference}" class="form-control" type="text" />
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="level" class="col-sm-2 control-label"> <spring:message code="label.measure.level" text="Level" /></label>
+					<label for="level" class="col-sm-2 control-label"> <fmt:message key="label.measure.level" /></label>
 					<div class="col-sm-5">
 						<input name="level" id="measure_level" value="${desc.level}" class="form-control" type="text" />
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="computable" class="col-sm-2 control-label"> <spring:message code="label.measure.computable" text="Computable" /></label>
+					<label for="computable" class="col-sm-2 control-label"> <fmt:message key="label.measure.computable" /></label>
 					<div class="col-sm-5">
 						<input name="computable" id="measure_computable" ${!empty(desc)?desc.computable?'checked':'':''} class="form-control" type="checkbox" />
 					</div>
 				</div>
 				<div class="form-group">
-					<label for="domain" class="col-sm-2 control-label"> <spring:message code="label.measure.domain" text="Domain" /></label>
+					<label for="domain" class="col-sm-2 control-label"> <fmt:message key="label.measure.domain" /></label>
 					<div class="col-sm-5">
 						<input name="domain" id="measure_domain" value="${desctext.domain}" class="form-control" type="text" />
 					</div>
 				</div>
 				<div class="form-group" style="margin-bottom: 0;">
-					<label for="description" class="col-sm-2 control-label"> <spring:message code="label.measure.description" text="Description" /></label>
+					<label for="description" class="col-sm-2 control-label"><fmt:message key="label.measure.description" /></label>
 					<div class="col-sm-5">
 						<input name="description" id="measure_description" value="${desctext.description}" class="form-control" type="text" />
 					</div>
 				</div>
 			</div>
 			<div id="group_2" style="padding-top: 10px; display: none;">
+				<div class="col-sm-12">
+					<h3>
+						<fmt:message key="label.assetmeasure.assets.title" />
+					</h3>
+					<p>
+						<fmt:message key="label.assetmeasure.assets.description" />
+					</p>
+					<div style="width: 50%; margin-left: auto; margin-right: auto;">
+						Filter(for both lists): <select class="form-control" name="assettypes" id="assettypes">
+							<c:forEach items="${assetTypes}" var="assetType">
+								<option trick-type="${assetType.type}" ${assetType.type.equals(selectedAssetType)?"selected='selected'":"" }><spring:message text="${assetType.type}" /></option>
+							</c:forEach>
+						</select>
+					</div>
+				</div>
 				<div class="col-sm-6">
-					<h3>Available assets</h3>
+					<h3>
+						<fmt:message key="label.assetmeasure.assetlist" />
+					</h3>
+					<p>
+						<fmt:message key="label.assetmeasure.assets.clickforselect" />
+					</p>
 					<select class="form-control" name="availableAssets" id="availableAssets" style="display: none;">
 						<c:forEach items="${availableAssets}" var="availableAsset">
 							<option value="asset_${availableAsset.id}"><spring:message text="${availableAsset.name}" /></option>
 						</c:forEach>
 					</select>
-					<ul style="padding: 0; margin: 0;" trick-type="available">
+					<ul style="padding: 0; margin: 0; max-height: 300px; overflow: scroll;" trick-type="available">
 						<c:forEach items="${availableAssets}" var="availableAsset">
-							<li style="cursor: pointer" opt="asset_${availableAsset.id}" class="list-group-item"><spring:message text="${availableAsset.name}" /></li>
+							<li style="cursor: pointer;${availableAsset.assetType.type.equals(selectedAssetType)?'display:block;':'display:none;' }" opt="asset_${availableAsset.id}"
+								class="list-group-item" trick-type="${availableAsset.assetType.type}"><spring:message text="${availableAsset.name}" /></li>
 						</c:forEach>
 					</ul>
 				</div>
 				<div class="col-sm-6">
-					<h3>Measure assets</h3>
+					<h3>
+						<fmt:message key="label.assetmeasure.selected" />
+					</h3>
+					<p>
+						<fmt:message key="label.assetmeasure.assets.clickfordeselect" />
+					</p>
 					<select class="form-control" name="measureAssets" id="measureAssets" style="display: none;">
-						<c:forEach items="${measureAssets}" var="measureAssets">
-							<option value="asset_${measureAssets.id}"><spring:message text="${measureAssets.name}" /></option>
+						<c:forEach items="${measureAssets}" var="measureAsset">
+							<option value="asset_${measureAsset.id}"><spring:message text="${measureAsset.name}" /></option>
 						</c:forEach>
 					</select>
 					<ul style="padding: 0; margin: 0;" trick-type="measure">
-						<c:forEach items="${measureAssets}" var="measureAssets">
-							<li style="cursor: pointer" opt="asset_${measureAssets.id}" class="list-group-item"><spring:message text="${measureAssets.name}" /></li>
+						<c:forEach items="${measureAssets}" var="measureAsset">
+							<li style="cursor: pointer;${measureAsset.assetType.type.equals(selectedAssetType)?'display:block;':'display:none;' }" opt="asset_${measureAsset.id}" class="list-group-item"
+								trick-type="${measureAsset.assetType.type}"><spring:message text="${measureAsset.name}" /></li>
 						</c:forEach>
 					</ul>
 				</div>
@@ -189,8 +216,8 @@
 											value="${props.externalThreat}" name="externalThreat"></td>
 										<c:if test="${!empty(assets)}">
 											<c:forEach items="${assets}" var="asset">
-												<td trick-class="MeasureAssetValue"><input type="text" id='measure_<spring:message text="${asset.asset.name}"/>_value' style="min-width: 50px;"
-													readonly="readonly" class="form-control" value="${asset.value}" name="<spring:message text="${asset.asset.name}" />"></td>
+												<td trick-class="MeasureAssetValue"><input type="text" id='measure_<spring:message text="${asset.asset.name}"/>_value' style="min-width: 50px;" readonly="readonly"
+													class="form-control" value="${asset.value}" name="<spring:message text="${asset.asset.name}" />"></td>
 											</c:forEach>
 										</c:if>
 									</tr>

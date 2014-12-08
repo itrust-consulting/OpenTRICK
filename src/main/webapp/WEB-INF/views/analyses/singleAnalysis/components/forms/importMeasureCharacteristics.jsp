@@ -15,10 +15,10 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<form action="${pageContext.request.contextPath}/KnowledgeBase/Standard/Import/RRF/Save" class="form">
+				<form action="${pageContext.request.contextPath}/Analysis/RRF/Import/Save" class="form">
 					<label><fmt:message key="label.profiles" /></label> <select class="form-control" name="profile">
 						<c:forEach items="${profiles}" var="profile">
-							<option value="${profile.id}" title='<spring:message text="${profile.label}"/>'><spring:message text="${profile.identifier} v. ${profile.version}" />
+							<option value="${profile.id}" title='<spring:message text="${profile.label}"/>'><spring:message text="${profile.label}" />
 							</option>
 						</c:forEach>
 					</select>

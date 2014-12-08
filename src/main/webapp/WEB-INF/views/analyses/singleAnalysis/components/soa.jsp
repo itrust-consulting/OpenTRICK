@@ -63,7 +63,8 @@
 												<c:otherwise>${measure.phase.number}
 																</c:otherwise>
 											</c:choose></td>
-										<td colspan="6"><spring:message text="${measure.measurePropertyList.getSoaRisk()}" /></td>
+										<c:set var="newLine" value="\n" />
+										<td colspan="6"><pre><spring:message text="${measure.measurePropertyList.getSoaRisk()}" /></pre></td>
 										<td colspan="8" class="success" ondblclick="return editField(this.firstElementChild);"><pre trick-field="soaComment" trick-content="text" trick-field-type="string">
 														<spring:message text="${measure.measurePropertyList.getSoaComment()}" />
 													</pre></td>

@@ -916,7 +916,25 @@ public class ControllerAnalysisStandard {
 			model.addAttribute("availableAssets", availableAssets);
 
 			model.addAttribute("measureAssets", measureAssets);
-
+			
+			if(availableAssets !=null && !availableAssets.isEmpty())
+				model.addAttribute("selectedAssetType", availableAssets.get(0).getAssetType().getType());
+			else
+				if(measureAssets !=null && !measureAssets.isEmpty())
+					model.addAttribute("selectedAssetType", measureAssets.get(0).getAssetType().getType());
+			
+			List<AssetType> assettypes = new ArrayList<AssetType>();
+			
+			for(Asset asset : availableAssets)
+				if(!assettypes.contains(asset.getAssetType()))
+					assettypes.add(asset.getAssetType());
+			
+			for(Asset asset : measureAssets)
+				if(!assettypes.contains(asset.getAssetType()))
+					assettypes.add(asset.getAssetType());
+			
+			model.addAttribute("assetTypes", assettypes);
+			
 			AssetMeasure measure = new AssetMeasure();
 
 			measure.setMeasureDescription(new MeasureDescription());
@@ -1154,51 +1172,6 @@ public class ControllerAnalysisStandard {
 		value = value * factor;
 		long tmp = Math.round(value);
 		return (double) tmp / factor;
-	}
-
-	/**
-	 * importRRF: <br>
-	 * Description
-	 * 
-	 * @param session
-	 * @param principal
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
-	@RequestMapping(value = "/Import/RRF", headers = "Accept=application/json;charset=UTF-8")
-	public String importRRF(HttpSession session, Principal principal, Model model) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
-		List<Standard> standards = serviceStandard.getAllFromAnalysis(idAnalysis);
-		List<Integer> idStandards = new ArrayList<Integer>(standards.size());
-		for (Standard standard : standards) {
-			if (!Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()))
-				idStandards.add(standard.getId());
-		}
-		List<Analysis> profiles = serviceAnalysis.getAllProfileContainsStandard(standards);
-		model.addAttribute("idStandards", idStandards);
-		model.addAttribute("profiles", profiles);
-		return "analyses/singleAnalysis/components/forms/importMeasureCharacteristics";
-
-	}
-
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
-	@RequestMapping(value = "/Import/RRF/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody Object importRRFSave(@ModelAttribute ImportRRFForm rrfForm, HttpSession session, Principal principal, Locale locale) {
-		try {
-			if (rrfForm.getProfile() < 1)
-				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.no_profile", null, "No profile", locale));
-			else if (rrfForm.getStandards() == null || rrfForm.getStandards().isEmpty())
-				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
-			measureManager.importStandard((Integer) session.getAttribute("selectedAnalysis"), rrfForm);
-
-			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-		}
-
 	}
 
 	/**

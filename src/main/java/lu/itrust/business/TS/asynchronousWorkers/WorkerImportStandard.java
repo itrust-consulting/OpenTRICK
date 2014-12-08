@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.data.standard.Standard;
+import lu.itrust.business.TS.data.standard.StandardType;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOLanguage;
@@ -102,13 +104,13 @@ public class WorkerImportStandard implements Worker {
 
 			transaction.commit();
 
-			messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved",null, 100);
+			messageHandler = new MessageHandler("success.export.save.file", "File was successfully saved", null, 100);
 			messageHandler.setAsyncCallback(new AsyncCallback("reloadSection(\"section_standard\")", null));
 			serviceTaskFeedback.send(id, messageHandler);
 
 		} catch (Exception e) {
 			this.error = e;
-			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(),null, e));
+			serviceTaskFeedback.send(id, new MessageHandler("error.import.norm", "Import of standard failed! Error message is: " + e.getMessage(), null, e));
 			e.printStackTrace();
 			try {
 				if (transaction != null)
@@ -216,10 +218,16 @@ public class WorkerImportStandard implements Worker {
 
 									newstandard = new Standard();
 									newstandard.setLabel(sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue());
-									newstandard.setVersion((int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
+									if (sheet.getRow(indexRow).getCell(startColSheet + 1).getCellType() == XSSFCell.CELL_TYPE_NUMERIC)
+										newstandard.setVersion((int) sheet.getRow(indexRow).getCell(startColSheet + 1).getNumericCellValue());
+									else
+										newstandard.setVersion(Integer.valueOf(sheet.getRow(indexRow).getCell(startColSheet + 1).getStringCellValue()));
 									newstandard.setDescription(sheet.getRow(indexRow).getCell(startColSheet + 2).getStringCellValue());
 									newstandard.setComputable(sheet.getRow(indexRow).getCell(startColSheet + 3).getBooleanCellValue());
-
+									if (sheet.getRow(indexRow).getCell(startColSheet).getStringCellValue().equals(Constant.STANDARD_MATURITY))
+										newstandard.setType(StandardType.MATURITY);
+									else
+										newstandard.setType(StandardType.NORMAL);
 									daoStandard.save(newstandard);
 								}
 							}
@@ -284,7 +292,11 @@ public class WorkerImportStandard implements Worker {
 
 								// System.out.println("Row: " + indexRow);
 
-								measureDescription.setLevel((int) sheet.getRow(indexRow).getCell(0).getNumericCellValue());
+								if (sheet.getRow(indexRow).getCell(0).getCellType() == XSSFCell.CELL_TYPE_NUMERIC)
+									measureDescription.setLevel((int) sheet.getRow(indexRow).getCell(0).getNumericCellValue());
+								else
+									measureDescription.setLevel(Integer.valueOf(sheet.getRow(indexRow).getCell(0).getStringCellValue()));
+
 								measureDescription.setReference(sheet.getRow(indexRow).getCell(1).getStringCellValue());
 								measureDescription.setComputable(sheet.getRow(indexRow).getCell(2).getBooleanCellValue());
 

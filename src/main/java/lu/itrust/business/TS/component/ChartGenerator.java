@@ -1106,49 +1106,47 @@ public class ChartGenerator {
 
 	private Map<String, Object> computeRRFByScenario(Scenario scenario, List<Measure> measures, int idAnalysis) throws Exception {
 		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
-
 		Map<String, Object> rrfs = new LinkedHashMap<String, Object>();
+		if (scenario.getAssetTypeValues().size() == 0)
+			throw new TrickException("error.rrf.scneario.no_assettypevalues", "The scenario " + scenario.getName() + " does not have any asset types attributed!", scenario.getName());
+
 		for (Measure measure : measures) {
-			RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
-			if (measure instanceof NormalMeasure) {
 
-				RRFAssetType rrfAssetType = null;
+			for (AssetTypeValue atv : scenario.getAssetTypeValues()) {
 
-				NormalMeasure normalMeadure = (NormalMeasure) measure;
-
-				for (AssetTypeValue atv : normalMeadure.getAssetTypeValues()) {
-
-					rrfAssetType = (RRFAssetType) rrfs.get(atv.getAssetType().getType());
-					if (rrfAssetType == null) {
-						rrfAssetType = new RRFAssetType(atv.getAssetType().getType());
-						rrfs.put(rrfAssetType.getLabel(), rrfAssetType);
-					}
-
-					rrfMeasure.setValue(RRF.calculateNormalMeasureRRF(scenario, atv.getAssetType(), parameter, (NormalMeasure) measure));
-					rrfAssetType.getRrfMeasures().add(rrfMeasure);
+				RRFAssetType rrfAssetType = (RRFAssetType) rrfs.get(atv.getAssetType().getType());
+				if (rrfAssetType == null) {
+					rrfAssetType = new RRFAssetType(atv.getAssetType().getType());
+					rrfs.put(rrfAssetType.getLabel(), rrfAssetType);
 				}
 				
+				RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
+				if (measure instanceof NormalMeasure) {
 
-			} else if (measure instanceof AssetMeasure) {
-				RRFAsset rrfAsset = null;
+					NormalMeasure normalMeasure = (NormalMeasure) measure;
 
-				AssetMeasure assetMeasure = (AssetMeasure) measure;
+					AssetTypeValue matv = normalMeasure.getAssetTypeValueByAssetType(atv.getAssetType());
+			
+					rrfMeasure.setValue(RRF.calculateNormalMeasureRRF(scenario, matv.getAssetType(), parameter, normalMeasure));
+					
+					rrfAssetType.getRrfMeasures().add(rrfMeasure);
 
-				if (assetMeasure.getMeasureAssetValues().size() == 0)
-					throw new TrickException("error.rrf.assetmeasure.no_assets", "Measure '" + assetMeasure.getMeasureDescription().getReference() + "' does not have any assets!", assetMeasure
-							.getMeasureDescription().getReference());
+				} else if (measure instanceof AssetMeasure) {
+					
+					AssetMeasure assetMeasure = (AssetMeasure) measure;
 
-				for (MeasureAssetValue atv : ((AssetMeasure) measure).getMeasureAssetValues()) {
+					List<MeasureAssetValue> mavs = assetMeasure.getMeasureAssetValueByAssetType(atv.getAssetType());
+					
+					if (mavs.size() == 0)
+						throw new TrickException("error.rrf.assetmeasure.no_assets", "Measure '" + assetMeasure.getMeasureDescription().getReference() + "' does not have any assets of this asset type!", assetMeasure
+								.getMeasureDescription().getReference());
 
-					rrfAsset = (RRFAsset) rrfs.get(atv.getAsset().getName());
-					if (rrfAsset == null) {
-						rrfAsset = new RRFAsset(atv.getAsset().getName());
-						rrfs.put(rrfAsset.getLabel(), rrfAsset);
+					for (MeasureAssetValue mav : mavs) {
+
+						rrfMeasure.setValue(rrfMeasure.getValue()+RRF.calculateAssetMeasureRRF(scenario, mav.getAsset(), parameter, (AssetMeasure) measure));
 					}
-
-					rrfMeasure.setValue(RRF.calculateAssetMeasureRRF(scenario, atv.getAsset(), parameter, (AssetMeasure) measure));
+					rrfAssetType.getRrfMeasures().add(rrfMeasure);
 				}
-				rrfAsset.getRrfMeasures().add(rrfMeasure);
 			}
 		}
 

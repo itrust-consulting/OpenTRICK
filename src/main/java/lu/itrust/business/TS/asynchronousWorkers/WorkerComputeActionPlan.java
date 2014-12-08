@@ -25,6 +25,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.context.MessageSource;
 
 /**
  * @author eomar
@@ -62,6 +63,8 @@ public class WorkerComputeActionPlan implements Worker {
 
 	private Boolean uncertainty = false;
 
+	private MessageSource messageSource;
+	
 	/**
 	 * @param daoActionPlanSummary
 	 * @param daoActionPlanType
@@ -71,13 +74,14 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @param idAnalysis
 	 */
 	public WorkerComputeActionPlan(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisStandard> standards, Boolean uncertainty,
-			Boolean reloadSection) {
+			Boolean reloadSection, MessageSource messageSource) {
 		this.sessionFactory = sessionFactory;
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.idAnalysis = idAnalysis;
 		this.standards = standards;
 		this.uncertainty = uncertainty;
 		this.reloadSection = reloadSection;
+		this.messageSource = messageSource;
 	}
 
 	/**
@@ -104,7 +108,7 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @param uncertainty
 	 */
 	public WorkerComputeActionPlan(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisStandard> standards,
-			Boolean uncertainty, Boolean reloadSection) {
+			Boolean uncertainty, Boolean reloadSection, MessageSource messageSource) {
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
 		this.serviceTaskFeedback = serviceTaskFeedback;
@@ -112,6 +116,7 @@ public class WorkerComputeActionPlan implements Worker {
 		this.standards = standards;
 		this.uncertainty = uncertainty;
 		this.reloadSection = reloadSection;
+		this.messageSource = messageSource;
 	}
 
 	/*
@@ -152,7 +157,7 @@ public class WorkerComputeActionPlan implements Worker {
 			System.out.println("Delete previous action plan and summary...");
 
 			deleteActionPlan(analysis);
-			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, this.standards, this.uncertainty);
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, this.standards, this.uncertainty, this.messageSource);
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
 				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!",language, 100);

@@ -201,7 +201,7 @@ public class SummaryStage {
 		for (SummaryStandardConformance conformance : this.conformances)
 			if (conformance.getAnalysisStandard().getStandard().getLabel().equals(label))
 				return conformance.getConformance();
-		return null;
+		return 0.0;
 	}
 
 	/**

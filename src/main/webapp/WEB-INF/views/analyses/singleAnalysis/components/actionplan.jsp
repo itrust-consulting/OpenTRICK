@@ -24,7 +24,7 @@
 					</a></li>
 				</c:forEach>
 				<c:if test="${!actionplansplitted.isEmpty()}">
-					<li class="pull-right"><a href="#" onclick="return toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');"> <span
+					<li class="pull-right"><a id="actionplanassetsmenulink" href="#" onclick="return toggleDisplayActionPlanAssets('#section_actionplans','#menu_actionplan');"> <span
 							class="glyphicon glyphicon-chevron-down"></span>&nbsp;<spring:message code="label.action_plan_assets.show" />
 					</a></li>
 				</c:if>

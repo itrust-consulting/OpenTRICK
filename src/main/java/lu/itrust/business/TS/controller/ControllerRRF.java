@@ -12,12 +12,15 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.data.general.Language;
+import lu.itrust.business.TS.data.rrf.ImportRRFForm;
 import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.data.scenario.ScenarioType;
 import lu.itrust.business.TS.data.scenario.helper.ScenarioManager;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.Standard;
 import lu.itrust.business.TS.data.standard.StandardType;
 import lu.itrust.business.TS.data.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.data.standard.measure.Measure;
@@ -30,6 +33,7 @@ import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceScenario;
+import lu.itrust.business.TS.database.service.ServiceStandard;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -39,6 +43,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,6 +84,12 @@ public class ControllerRRF {
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
 
+	@Autowired
+	private MeasureManager measureManager;
+
+	@Autowired
+	private ServiceStandard serviceStandard;
+	
 	/**
 	 * rrf: <br>
 	 * Description
@@ -266,42 +277,6 @@ public class ControllerRRF {
 		return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, customLocale != null ? customLocale : locale);
 	}
 
-	/**
-	 * updateRRFScenarioChart: <br>
-	 * Description
-	 * 
-	 * @param fieldEditor
-	 * @param model
-	 * @param session
-	 * @param principal
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	/*
-	 * @RequestMapping(value = "/Scenario/Chart/Update", method = RequestMethod.POST, headers =
-	 * "Accept=application/json;charset=UTF-8")
-	 * 
-	 * @PreAuthorize(
-	 * "@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)"
-	 * ) public @ResponseBody String updateRRFScenarioChart(@RequestBody RRFFieldEditor fieldEditor,
-	 * Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
-	 * Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis"); Scenario scenario =
-	 * serviceScenario.getFromAnalysisById(idAnalysis, fieldEditor.getId()); Field field =
-	 * ControllerEditField.FindField(Scenario.class, fieldEditor.getFieldName()); if (field == null)
-	 * { AssetTypeValue assetData = null; for (AssetTypeValue assetTypeValue :
-	 * scenario.getAssetTypeValues()) { if
-	 * (fieldEditor.getFieldName().equals(assetTypeValue.getAssetType().getType())) { assetData =
-	 * assetTypeValue; break; } } if (assetData != null) assetData.setValue((Integer)
-	 * fieldEditor.getValue()); else return null; } else { field.setAccessible(true);
-	 * field.set(scenario, fieldEditor.getValue()); } serviceScenario.saveOrUpdate(scenario);
-	 * 
-	 * Locale customLocale = new
-	 * Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
-	 * 
-	 * return chartGenerator.rrfByScenario(scenario, idAnalysis, measures, customLocale != null ?
-	 * customLocale : locale, fieldEditor.getFilter()); }
-	 */
 	/***************
 	 * Measures
 	 ***************/
@@ -432,4 +407,49 @@ public class ControllerRRF {
 		return chartGenerator.rrfByMeasure(measure, idAnalysis, scenarios, customLocale != null ? customLocale : locale);
 	}
 
+	/**
+	 * importRRF: <br>
+	 * Description
+	 * 
+	 * @param session
+	 * @param principal
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Import", headers = "Accept=application/json;charset=UTF-8")
+	public String importRRF(HttpSession session, Principal principal, Model model) throws Exception {
+		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		List<Standard> standards = serviceStandard.getAllFromAnalysis(idAnalysis);
+		List<Integer> idStandards = new ArrayList<Integer>(standards.size());
+		for (Standard standard : standards) {
+			if (!Constant.STANDARD_MATURITY.equalsIgnoreCase(standard.getLabel()))
+				idStandards.add(standard.getId());
+		}
+		List<Analysis> profiles = serviceAnalysis.getAllProfileContainsStandard(standards);
+		model.addAttribute("idStandards", idStandards);
+		model.addAttribute("profiles", profiles);
+		return "analyses/singleAnalysis/components/forms/importMeasureCharacteristics";
+
+	}
+
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	@RequestMapping(value = "/Import/Save", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody Object importRRFSave(@ModelAttribute ImportRRFForm rrfForm, HttpSession session, Principal principal, Locale locale) {
+		try {
+			if (rrfForm.getProfile() < 1)
+				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.no_profile", null, "No profile", locale));
+			else if (rrfForm.getStandards() == null || rrfForm.getStandards().isEmpty())
+				return JsonMessage.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
+			measureManager.importStandard((Integer) session.getAttribute("selectedAnalysis"), rrfForm);
+
+			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+
+	}
+	
 }

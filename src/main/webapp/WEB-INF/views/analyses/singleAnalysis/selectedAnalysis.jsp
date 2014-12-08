@@ -22,6 +22,7 @@
 	<script type="text/javascript" src="<spring:url value="js/trickservice/scenario.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/phase.js" />"></script>
 	<script type="text/javascript" src="<spring:url value="js/trickservice/rrfManager.js" />"></script>
+	<script type="text/javascript" src="<spring:url value="js/trickservice/rrf.js" />"></script>
 	<c:if test="${!analysis.isProfile()}">
 		<script type="text/javascript" src="<spring:url value="js/trickservice/actionplan.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/assessment.js" />"></script>
