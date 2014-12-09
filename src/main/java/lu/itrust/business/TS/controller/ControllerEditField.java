@@ -1740,9 +1740,9 @@ public class ControllerEditField {
 				return (String) fieldEditor.getValue();
 			else if (fieldEditor.getType().equalsIgnoreCase("integer"))
 				return NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).intValue();
-			else if (fieldEditor.getType().equalsIgnoreCase("double"))
-				return NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue();
-			else if (fieldEditor.getType().equalsIgnoreCase("float"))
+			else if (fieldEditor.getType().equalsIgnoreCase("double")){
+					return NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).doubleValue();
+			}else if (fieldEditor.getType().equalsIgnoreCase("float"))
 				return NumberFormat.getInstance(Locale.FRANCE).parse(fieldEditor.getValue().toString()).floatValue();
 			else if (fieldEditor.getType().equalsIgnoreCase("boolean"))
 				return Boolean.parseBoolean(fieldEditor.getValue().toString());

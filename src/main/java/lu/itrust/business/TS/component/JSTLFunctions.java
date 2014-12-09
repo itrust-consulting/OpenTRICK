@@ -1,11 +1,13 @@
 package lu.itrust.business.TS.component;
 
+import java.math.BigDecimal;
+
 /**
  * Function.java: <br>
  * Detailed description...
  *
  * @author eomar itrust consulting s.a.rl.:
- * @version 
+ * @version
  * @since Nov 4, 2014
  */
 public final class JSTLFunctions {
@@ -18,8 +20,37 @@ public final class JSTLFunctions {
 	 * @param regex
 	 * @return
 	 */
-	public static boolean matches(String value, String regex){
-		return value == null || regex == null? false : value.matches(regex);
+	public static boolean matches(String value, String regex) {
+		return value == null || regex == null ? false : value.matches(regex);
 	}
+
+	/*public static double round(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
+
+		// ;
+
+	}*/
 	
+	public static double round(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(places, BigDecimal.ROUND_HALF_UP);
+		return bd.doubleValue() / factor;
+
+		/*
+		 * long tmp = Math.round(value); return (double) tmp / factor;
+		 */
+	}
+
 }

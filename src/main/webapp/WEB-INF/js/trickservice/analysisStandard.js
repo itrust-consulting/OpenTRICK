@@ -558,22 +558,9 @@ function newAssetMeasure(idStandard) {
 						function(event) {
 							var field = event.target.name;
 							var fieldValue = event.value;
-							var displayvalue = fieldValue;
-							if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective")
-								displayvalue = fieldValue.toFixed(1);
-							$("#manageAssetMeasure_form div#group_3 input[id='measure_" + field + "_value']").attr("value", displayvalue);
+				
+							$("#manageAssetMeasure_form div#group_3 input[id='measure_" + field + "_value']").attr("value", fieldValue);
 
-							if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective") {
-								var result = +$("#manageAssetMeasure_form #group_3 #measure_preventive_value").val() + +$("#manageAssetMeasure_form #group_3 #measure_detective_value").val()
-										+ +$("#manageAssetMeasure_form #group_3 #measure_limitative_value").val() + +$("#manageAssetMeasure_form #group_3 #measure_corrective_value").val();
-								result = result.toFixed(1);
-								$("#manageAssetMeasure_form #group_3 .pdlc").removeClass("success");
-								$("#manageAssetMeasure_form #group_3 .pdlc").removeClass("danger");
-								if (result == 1)
-									$("#manageAssetMeasure_form #group_3 .pdlc").addClass("success");
-								else
-									$("#manageAssetMeasure_form #group_3 .pdlc").addClass("danger");
-							}
 						});
 			});
 
@@ -754,23 +741,8 @@ function editAssetMeasure(idMeasure, idStandard) {
 						function(event) {
 							var field = event.target.name;
 							var fieldValue = event.value;
-							var displayvalue = fieldValue;
-							if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective")
-								displayvalue = fieldValue.toFixed(1);
-
-							$("#manageAssetMeasure_form div#group_3 input[id='measure_" + field + "_value']").attr("value", displayvalue);
-
-							if (field == "preventive" || field == "detective" || field == "limitative" || field == "corrective") {
-								var result = +$("#manageAssetMeasure_form #group_3 #measure_preventive_value").val() + +$("#manageAssetMeasure_form #group_3 #measure_detective_value").val()
-										+ +$("#manageAssetMeasure_form #group_3 #measure_limitative_value").val() + +$("#manageAssetMeasure_form #group_3 #measure_corrective_value").val();
-								result = result.toFixed(1);
-								$("#manageAssetMeasure_form #group_3 .pdlc").removeClass("success");
-								$("#manageAssetMeasure_form #group_3 .pdlc").removeClass("danger");
-								if (result == 1)
-									$("#manageAssetMeasure_form #group_3 .pdlc").addClass("success");
-								else
-									$("#manageAssetMeasure_form #group_3 .pdlc").addClass("danger");
-							}
+							
+							$("#manageAssetMeasure_form div#group_3 input[id='measure_" + field + "_value']").attr("value", fieldValue);
 
 						});
 			});
@@ -942,6 +914,10 @@ function saveAssetMeasure(form) {
 
 	});
 
+	var text = $(form).find("textarea[name='description']").text();
+	
+	data['description'] = text; 
+	
 	data["properties"] = measureProperties;
 
 	measureProperties["categories"] = categories;

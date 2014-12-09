@@ -5,6 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <div class="section" id="section_standard" style="z-index: 3">
 	<div class="page-header">
 		<h3 id="Measure">
@@ -72,6 +73,7 @@
 						<tfoot>
 						</tfoot>
 						<tbody>
+							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach items="${measures.get(standard)}" var="measure">
 								<c:set var="css">
 									<c:if test="${not(measure.implementationRateValue==100 or measure.status=='NA')}">class="success"</c:if>
@@ -118,29 +120,28 @@
 													maxFractionDigits="2" /></td>
 											<td ${css} trick-field="externalWL" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.externalWL}"
 													maxFractionDigits="2" /></td>
-											<td ${css} trick-field="investment" trick-field-type="double" ondblclick="return editField(this);" title='<fmt:formatNumber value="${measure.investment}" />&euro;'
-												real-value='<fmt:formatNumber
-			value="${measure.investment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber value="${measure.investment*0.001}"
-													maxFractionDigits="0" /></td>
+											<td ${css} trick-field="investment" trick-field-type="double" ondblclick="return editField(this);"
+												title='<fmt:formatNumber value="${fct:round(measure.investment,0)}" maxFractionDigits="0" /> &euro;'
+												real-value='<fmt:formatNumber value="${measure.investment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber maxFractionDigits="0"
+													value="${fct:round(measure.investment*0.001,0)}" /></td>
 											<td ${css} trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.lifetime}" maxFractionDigits="2" /></td>
 											<td ${css} trick-field="internalMaintenance" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.internalMaintenance}"
 													maxFractionDigits="2" /></td>
 											<td ${css} trick-field="externalMaintenance" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.externalMaintenance}"
 													maxFractionDigits="2" /></td>
 											<td ${css} trick-field="recurrentInvestment" trick-field-type="double" ondblclick="return editField(this);"
-												title='<fmt:formatNumber value="${measure.recurrentInvestment}" />&euro;'
-												real-value='<fmt:formatNumber
-			value="${measure.recurrentInvestment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
-													value="${measure.recurrentInvestment*0.001}" maxFractionDigits="0" /></td>
-											<c:set var="cost">
-												<fmt:formatNumber value="${measure.cost*0.001}" maxFractionDigits="0" />
-											</c:set>
+												title='<fmt:formatNumber value="${fct:round(measure.recurrentInvestment,0)}" maxFractionDigits="0" /> &euro;'
+												real-value='<fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
+													value="${fct:round(measure.recurrentInvestment*0.001,0)}" maxFractionDigits="0" /></td>
 											<c:choose>
 												<c:when test="${measure.getImplementationRateValue()==100 || measure.getStatus().equals('NA')}">
-													<td class='textaligncenter' title='<fmt:formatNumber value="${measure.cost}"/>&euro;'>${cost}</td>
+													<td class='textaligncenter' title='<fmt:formatNumber value="${fct:round(measure.cost,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber
+															value="${fct:round(measure.cost*0.001,0)}" maxFractionDigits="0" /></td>
 												</c:when>
 												<c:otherwise>
-													<td ${measure.cost == 0? "class='textaligncenter danger'" : "class='textaligncenter'" } title='<fmt:formatNumber value="${measure.cost}"/>&euro;'>${cost}</td>
+													<td ${measure.cost == 0? "class='textaligncenter danger'" : "class='textaligncenter'" }
+														title='<fmt:formatNumber value="${fct:round(measure.cost,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber value="${fct:round(measure.cost*0.001,0)}"
+															maxFractionDigits="0" /></td>
 												</c:otherwise>
 											</c:choose>
 											<td ${css} trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)"
@@ -165,6 +166,7 @@
 							</c:forEach>
 						</tbody>
 					</table>
+					<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 				</div>
 			</div>
 		</div>

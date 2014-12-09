@@ -10,4 +10,9 @@
 <function-class>lu.itrust.business.TS.component.JSTLFunctions</function-class>
 <function-signature>boolean matches(java.lang.String, java.lang.String)</function-signature>
 </function>
+<function>
+<name>round</name>
+<function-class>lu.itrust.business.TS.component.JSTLFunctions</function-class>
+<function-signature>double round(double	, int)</function-signature>
+</function>
 </taglib>

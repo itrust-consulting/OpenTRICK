@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.naming.directory.InvalidAttributesException;
 
+import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
@@ -1110,18 +1111,10 @@ public class ActionPlanComputation {
 		
 		String soarisk = messageSource.getMessage("label.asset", null, "Asset", locale) + ": " + asm.getAsset().getName() + " \n ";
 		soarisk += messageSource.getMessage("label.scenario", null, "Scenario", locale) + ": " + asm.getScenario().getName() + " \n ";
-		soarisk += messageSource.getMessage("label.rate", null, "Rate", locale) + ":" + String.valueOf(round(report,2));
+		soarisk += messageSource.getMessage("label.rate", null, "Rate", locale) + ":" + String.valueOf(JSTLFunctions.round(report,2));
 
 		((NormalMeasure) entry.getMeasure()).getMeasurePropertyList().setSoaRisk(soarisk);
 		// serviceMeasure.saveOrUpdate(entry.getMeasure());
-	}
-
-	public static double round(double value, int places) {
-	    if (places < 0) throw new IllegalArgumentException();
-
-	    BigDecimal bd = new BigDecimal(value);
-	    bd = bd.setScale(places, RoundingMode.HALF_UP);
-	    return bd.doubleValue();
 	}
 	
 	/***********************************************************************************************

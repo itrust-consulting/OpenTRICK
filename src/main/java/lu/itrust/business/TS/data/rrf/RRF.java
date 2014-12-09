@@ -3,6 +3,7 @@ package lu.itrust.business.TS.data.rrf;
 import java.math.BigDecimal;
 import java.util.List;
 
+import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.assessment.Assessment;
 import lu.itrust.business.TS.data.asset.Asset;
@@ -155,9 +156,9 @@ public class RRF {
 		// * Type calculation
 		// ****************************************************************
 
-		type = round((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive()), 2);
+		type = JSTLFunctions.round((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive()), 2);
 
-		type += round((measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective()), 2);
+		type += JSTLFunctions.round((measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective()), 2);
 
 		type /= 4.;
 
@@ -201,22 +202,6 @@ public class RRF {
 		// * return the value
 		// ****************************************************************
 		return RRF;
-	}
-
-	private static double round(double value, int places) {
-		if (places < 0)
-			throw new IllegalArgumentException();
-
-		long factor = (long) Math.pow(10, places);
-		value = value * factor;
-
-		BigDecimal bd = new BigDecimal(value);
-		bd = bd.setScale(places, BigDecimal.ROUND_HALF_UP);
-		return bd.doubleValue() / factor;
-
-		/*
-		 * long tmp = Math.round(value); return (double) tmp / factor;
-		 */
 	}
 
 	public static double calculateAssetMeasureRRF(Scenario scenario, Asset asset, Parameter parameter, AssetMeasure measure) throws TrickException {
@@ -269,9 +254,9 @@ public class RRF {
 		// ****************************************************************
 		// * Type calculation
 		// ****************************************************************
-		type = round((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive()), 2);
+		type = JSTLFunctions.round((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive()), 2);
 
-		type += round((measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective()), 2);
+		type += JSTLFunctions.round((measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective()), 2);
 
 		type /= 4.;
 

@@ -42,7 +42,7 @@
 				<div class="form-group" style="margin-bottom: 0;">
 					<label for="description" class="col-sm-2 control-label"><fmt:message key="label.measure.description" /></label>
 					<div class="col-sm-5">
-						<input name="description" id="measure_description" value="${desctext.description}" class="form-control" type="text" />
+						<textarea name="description" id="measure_description" class="form-control resize_vectical_only">${desctext.description}</textarea>
 					</div>
 				</div>
 			</div>
@@ -117,10 +117,10 @@
 														key="label.rrf.category.${fn:toLowerCase(fn:replace(category,'_','.'))}" /></th>
 											</c:forEach>
 										</c:if>
-										<th class="${cssclass} pdlc"><fmt:message key="label.rrf.measure.preventive" /></th>
-										<th class="${cssclass} pdlc"><fmt:message key="label.rrf.measure.detective" /></th>
-										<th class="${cssclass} pdlc"><fmt:message key="label.rrf.measure.limitative" /></th>
-										<th class="${cssclass} pdlc"><fmt:message key="label.rrf.measure.corrective" /></th>
+										<th class="success"><fmt:message key="label.rrf.measure.preventive" /></th>
+										<th class="success"><fmt:message key="label.rrf.measure.detective" /></th>
+										<th class="success"><fmt:message key="label.rrf.measure.limitative" /></th>
+										<th class="success"><fmt:message key="label.rrf.measure.corrective" /></th>
 										<th class="warning"><fmt:message key="label.rrf.measure.intentional" /></th>
 										<th class="warning"><fmt:message key="label.rrf.measure.accidental" /></th>
 										<th class="warning"><fmt:message key="label.rrf.measure.environmental" /></th>
@@ -144,22 +144,22 @@
 										<c:if test="${!empty(categories)}">
 											<c:forEach items="${categories.keySet()}" var="category">
 												<td class="info" trick-class="Category" trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
-													id="measure_${fn:replace(category,'.','_')}" value="${categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="4"
+													id="measure_${fn:replace(category,'.','_')}" value="${categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="1"
 													data-slider-value="${categories.get(category)}" name=<spring:message text="${category}" /> data-slider-orientation="vertical" data-slider-selection="after"
 													data-slider-tooltip="show"></td>
 											</c:forEach>
 										</c:if>
-										<td class="${cssclass} pdlc"><input type="text" id="measure_preventive" class="slider" value="${props.preventive}" data-slider-min="0" data-slider-max="1"
-											data-slider-step="0.1" data-slider-value="${props.preventive}" data-slider-orientation="vertical" data-slider-selection="after" name="preventive"
+										<td class="success"><input type="text" id="measure_preventive" class="slider" value="${props.preventive}" data-slider-min="0" data-slider-max="4"
+											data-slider-step="1" data-slider-value="${props.preventive}" data-slider-orientation="vertical" data-slider-selection="after" name="preventive"
 											data-slider-tooltip="show"></td>
-										<td class="${cssclass} pdlc"><input type="text" class="slider" id="measure_detective" value="${props.detective}" data-slider-min="0" data-slider-max="1"
-											data-slider-step="0.1" data-slider-value="${props.detective}" name="detective" data-slider-orientation="vertical" data-slider-selection="after"
+										<td class="success"><input type="text" class="slider" id="measure_detective" value="${props.detective}" data-slider-min="0" data-slider-max="4"
+											data-slider-step="1" data-slider-value="${props.detective}" name="detective" data-slider-orientation="vertical" data-slider-selection="after"
 											data-slider-tooltip="show"></td>
-										<td class="${cssclass} pdlc"><input type="text" id="measure_limitative" class="slider" value="${props.limitative}" data-slider-min="0" data-slider-max="1"
-											data-slider-step="0.1" data-slider-value="${props.limitative}" data-slider-orientation="vertical" data-slider-selection="after" name="limitative"
+										<td class="success"><input type="text" id="measure_limitative" class="slider" value="${props.limitative}" data-slider-min="0" data-slider-max="4"
+											data-slider-step="1" data-slider-value="${props.limitative}" data-slider-orientation="vertical" data-slider-selection="after" name="limitative"
 											data-slider-tooltip="show"></td>
-										<td class="${cssclass} pdlc"><input type="text" class="slider" id="measure_corrective" value="${props.corrective}" data-slider-min="0" data-slider-max="1"
-											data-slider-step="0.1" data-slider-value="${props.corrective}" name="corrective" data-slider-orientation="vertical" data-slider-selection="after"
+										<td class="success"><input type="text" class="slider" id="measure_corrective" value="${props.corrective}" data-slider-min="0" data-slider-max="4"
+											data-slider-step="1" data-slider-value="${props.corrective}" name="corrective" data-slider-orientation="vertical" data-slider-selection="after"
 											data-slider-tooltip="show"></td>
 										<td class="warning"><input type="text" class="slider" id="measure_intentional" value="${props.intentional}" data-slider-min="0" data-slider-max="4"
 											data-slider-step="1" data-slider-value="${props.intentional}" name="intentional" data-slider-orientation="vertical" data-slider-selection="after"
@@ -196,14 +196,14 @@
 													name="<spring:message text="${category}" />"></td>
 											</c:forEach>
 										</c:if>
-										<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="measure_preventive_value"
-											value="${props.preventive}" name="preventive"></td>
-										<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="measure_detective_value"
-											value="${props.detective}" name="detective"></td>
-										<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="measure_limitative_value"
-											value="${props.limitative}" name="limitative"></td>
-										<td class="${cssclass} pdlc" trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="measure_corrective_value"
-											value="${props.corrective}" name="corrective"></td>
+										<td class="success" trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="measure_preventive_value"
+											value='<fmt:formatNumber maxFractionDigits="0">${props.preventive}</fmt:formatNumber>' name="preventive"></td>
+										<td class="success" trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="measure_detective_value"
+											value="<fmt:formatNumber maxFractionDigits="0">${props.detective}</fmt:formatNumber>" name="detective"></td>
+										<td class="success" trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="measure_limitative_value"
+											value="<fmt:formatNumber maxFractionDigits="0">${props.limitative}</fmt:formatNumber>" name="limitative"></td>
+										<td class="success" trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="measure_corrective_value"
+											value="<fmt:formatNumber maxFractionDigits="0">${props.corrective}</fmt:formatNumber>" name="corrective"></td>
 										<td class="warning" trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="measure_intentional_value"
 											value="${props.intentional}" name="intentional"></td>
 										<td class="warning" trick-class="MeasureProperties"><input type="text" readonly="readonly" class="form-control" id="measure_accidental_value"

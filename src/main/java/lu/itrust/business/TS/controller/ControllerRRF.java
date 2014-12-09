@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.component.ChartGenerator;
+import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
@@ -141,7 +142,7 @@ public class ControllerRRF {
 				Double typeValue =
 					normalMeasure.getMeasurePropertyList().getPreventive() + normalMeasure.getMeasurePropertyList().getDetective() + normalMeasure.getMeasurePropertyList().getLimitative()
 						+ normalMeasure.getMeasurePropertyList().getCorrective();
-				model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
+				model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 				model.addAttribute("assetTypes", normalMeasure.getAssetTypeValues());
 			}
 			if (measure instanceof AssetMeasure) {
@@ -167,7 +168,7 @@ public class ControllerRRF {
 				double typeValue =
 					assetMeasure.getMeasurePropertyList().getPreventive() + assetMeasure.getMeasurePropertyList().getDetective() + assetMeasure.getMeasurePropertyList().getLimitative()
 						+ assetMeasure.getMeasurePropertyList().getCorrective();
-				model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
+				model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 				model.addAttribute("assets", assetMeasure.getMeasureAssetValues());
 			}
 
@@ -179,16 +180,6 @@ public class ControllerRRF {
 		}
 
 		return "analyses/singleAnalysis/components/forms/rrf/rrfEditor";
-	}
-
-	private static double round(double value, int places) {
-		if (places < 0)
-			throw new IllegalArgumentException();
-
-		long factor = (long) Math.pow(10, places);
-		value = value * factor;
-		long tmp = Math.round(value);
-		return (double) tmp / factor;
 	}
 
 	/***********************
@@ -216,7 +207,7 @@ public class ControllerRRF {
 			assetTypeValue.setAssetType(DAOHibernate.Initialise(assetTypeValue.getAssetType()));
 		model.addAttribute("selectedScenario", scenario);
 		double typeValue = scenario.getCorrective() + scenario.getDetective() + scenario.getPreventive() + scenario.getLimitative();
-		model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
+		model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 		return "analyses/singleAnalysis/components/forms/rrf/scenarioRRF";
 	}
 
@@ -321,7 +312,7 @@ public class ControllerRRF {
 			double typeValue =
 				normalMeasure.getMeasurePropertyList().getPreventive() + normalMeasure.getMeasurePropertyList().getDetective() + normalMeasure.getMeasurePropertyList().getLimitative()
 					+ normalMeasure.getMeasurePropertyList().getCorrective();
-			model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
+			model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 			model.addAttribute("intentional", normalMeasure.getMeasurePropertyList().getIntentional());
 			model.addAttribute("accidental", normalMeasure.getMeasurePropertyList().getAccidental());
 			model.addAttribute("environmental", normalMeasure.getMeasurePropertyList().getEnvironmental());
@@ -347,7 +338,7 @@ public class ControllerRRF {
 			double typeValue =
 				assetMeasure.getMeasurePropertyList().getPreventive() + assetMeasure.getMeasurePropertyList().getDetective() + assetMeasure.getMeasurePropertyList().getLimitative()
 					+ assetMeasure.getMeasurePropertyList().getCorrective();
-			model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
+			model.addAttribute("typeValue", JSTLFunctions.round(typeValue, 1) == 1 ? true : false);
 			model.addAttribute("intentional", assetMeasure.getMeasurePropertyList().getIntentional());
 			model.addAttribute("accidental", assetMeasure.getMeasurePropertyList().getAccidental());
 			model.addAttribute("environmental", assetMeasure.getMeasurePropertyList().getEnvironmental());

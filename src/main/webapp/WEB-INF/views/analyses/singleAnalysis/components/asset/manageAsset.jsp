@@ -60,7 +60,9 @@
 										<input name="value" id="asset_value" class="form-control" value="0">
 									</c:when>
 									<c:otherwise>
+										<fmt:setLocale value="fr" scope="session" />
 										<input name="value" id="asset_value" class="form-control" value='<fmt:formatNumber value="${asset.value*0.001}" maxFractionDigits="1" />'>
+										<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 									</c:otherwise>
 								</c:choose>
 								<span class="input-group-addon">k&euro;</span>

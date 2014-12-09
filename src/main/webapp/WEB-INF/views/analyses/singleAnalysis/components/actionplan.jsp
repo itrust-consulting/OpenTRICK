@@ -5,6 +5,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <span class="anchor" id="anchorActionPlan"></span>
 <div class="section" id="section_actionplans">
@@ -59,18 +60,27 @@
 								<tr>
 									<td colspan="6">&nbsp;</td>
 									<td colspan="20"><fmt:message key="label.action_plan.current_ale" /></td>
-									<spring:eval expression="${actionplansplitted.get(apt).get(0).totalALE+actionplansplitted.get(apt).get(0).deltaALE}" var="totalALE"></spring:eval>
-									<td colspan="23" ${totalALE == 0? "class='danger'" : "" } title="${totalALE}"><fmt:formatNumber value="${totalALE*0.001}" maxFractionDigits="0" /></td>
+									<fmt:setLocale value="fr" scope="session" />
+									<c:set var="totalALE">
+										${actionplansplitted.get(apt).get(0).totalALE + actionplansplitted.get(apt).get(0).deltaALE}
+									</c:set>
+									<fmt:parseNumber var="computedALE" type="number" value="${totalALE}" />
+									<td colspan="23" ${computedALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${computedALE}" maxFractionDigits="2" /> &euro;'>
+										<fmt:formatNumber value="${fct:round(computedALE*0.001,0)}" maxFractionDigits="0" />
+									</td>
 									<c:forEach items="${actionplanassets}" var="asset">
 										<c:choose>
 											<c:when test="${apt == 'APPO'}">
-												<td colspan="6" class="actionplanasset actionplanassethidden" title="${asset.ALEO}"><fmt:formatNumber value="${asset.ALEO*0.001}" maxFractionDigits="0" /></td>
+												<td colspan="6" class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${asset.ALEO}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+														value="${asset.ALEO*0.001}" maxFractionDigits="2" /></td>
 											</c:when>
 											<c:when test="${apt == 'APPP'}">
-												<td colspan="6" class="actionplanasset actionplanassethidden" title="${asset.ALEP}"><fmt:formatNumber value="${asset.ALEP*0.001}" maxFractionDigits="0" /></td>
+												<td colspan="6" class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${asset.ALEP}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+														value="${asset.ALEP*0.001}" maxFractionDigits="0" /></td>
 											</c:when>
 											<c:otherwise>
-												<td colspan="6" class="actionplanasset actionplanassethidden" title="${asset.ALE}"><fmt:formatNumber value="${asset.ALE*0.001}" maxFractionDigits="0" /></td>
+												<td colspan="6" class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${asset.ALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
+														value="${asset.ALE*0.001}" maxFractionDigits="0" /></td>
 											</c:otherwise>
 										</c:choose>
 									</c:forEach>
@@ -84,16 +94,25 @@
 									<td colspan="3"><spring:message text="${ape.measure.measureDescription.reference}" /></td>
 									<td colspan="20"><b><spring:message text="${ape.measure.measureDescription.getMeasureDescriptionTextByAlpha3(language).getDomain()}" /></b> <br /> <spring:message
 											text="${ape.measure.getToDo()}" /></td>
-									<td colspan="3" ${ape.totalALE == 0? "class='danger'" : "" } title="${ape.totalALE}"><fmt:formatNumber value="${ape.totalALE*0.001}" maxFractionDigits="0" /></td>
-									<td colspan="3" ${ape.deltaALE == 0? "class='danger'" : "" } title="${ape.deltaALE}"><fmt:formatNumber value="${ape.deltaALE*0.001}" maxFractionDigits="0" /></td>
-									<td colspan="3" ${ape.measure.cost == 0? "class='danger'" : "" } title="${ape.measure.cost}"><fmt:formatNumber value="${ape.measure.cost*0.001}" maxFractionDigits="0" /></td>
-									<td colspan="3" ${ape.ROI == 0? "class='danger'" : "" } title="${ape.ROI}"><fmt:formatNumber value="${ape.ROI*0.001}" maxFractionDigits="0" /></td>
+									<td colspan="3" ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'>
+										<fmt:formatNumber value="${fct:round(ape.totalALE*0.001,0)}" maxFractionDigits="0" />
+									</td>
+									<td colspan="3" ${ape.deltaALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.deltaALE}" maxFractionDigits="2" /> &euro;'>
+										<fmt:formatNumber value="${fct:round(ape.deltaALE*0.001,0)}" maxFractionDigits="0" />
+									</td>
+									<td colspan="3" ${ape.measure.cost == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.measure.cost}" maxFractionDigits="2" /> &euro;'>
+										<fmt:formatNumber value="${fct:round(ape.measure.cost*0.001,0)}" maxFractionDigits="0" />
+									</td>
+									<td colspan="3" ${ape.ROI == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.ROI}" maxFractionDigits="2" /> &euro;'>
+										<fmt:formatNumber value="${fct:round(ape.ROI*0.001,0)}" maxFractionDigits="0" />
+									</td>
 									<td colspan="3" ${ape.measure.internalWL == 0? "class='danger'" : "" } title="${ape.measure.internalWL}"><fmt:formatNumber value="${ape.measure.internalWL}"
 											maxFractionDigits="1" /></td>
 									<td colspan="3" ${ape.measure.externalWL == 0? "class='danger'" : "" } title="${ape.measure.externalWL}"><fmt:formatNumber value="${ape.measure.externalWL}"
 											maxFractionDigits="1" /></td>
-									<td colspan="3" ${ape.measure.investment == 0? "class='danger'" : "" } title="${ape.measure.investment}"><fmt:formatNumber value="${ape.measure.investment*0.001}"
-											maxFractionDigits="0" /></td>
+									<td colspan="3" ${ape.measure.investment == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.measure.investment}" maxFractionDigits="2" /> &euro;'>
+										<fmt:formatNumber value="${fct:round(ape.measure.investment*0.001,0)}" maxFractionDigits="0" />
+									</td>
 									<td colspan="2" class="success" trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)"
 										trick-real-value='${ape.measure.phase.number}'><c:choose>
 											<c:when test="${ape.measure.phase.number == 0}">
@@ -108,6 +127,7 @@
 									</c:forEach>
 								</tr>
 							</c:forEach>
+							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 						</tbody>
 						<tfoot></tfoot>
 					</table>

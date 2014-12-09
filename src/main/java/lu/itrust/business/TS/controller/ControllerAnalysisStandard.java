@@ -961,7 +961,6 @@ public class ControllerAnalysisStandard {
 				model.addAttribute("categories", result);
 			}
 
-			model.addAttribute("typeValue", false);
 			model.addAttribute("assets", new ArrayList<MeasureAssetValue>());
 
 			// return success message
@@ -1126,9 +1125,25 @@ public class ControllerAnalysisStandard {
 			model.addAttribute("availableAssets", availableAssets);
 
 			model.addAttribute("measureAssets", measureAssets);
-
-			model.addAttribute("measure", measure);
-
+			
+			if(availableAssets !=null && !availableAssets.isEmpty())
+				model.addAttribute("selectedAssetType", availableAssets.get(0).getAssetType().getType());
+			else
+				if(measureAssets !=null && !measureAssets.isEmpty())
+					model.addAttribute("selectedAssetType", measureAssets.get(0).getAssetType().getType());
+			
+			List<AssetType> assettypes = new ArrayList<AssetType>();
+			
+			for(Asset asset : availableAssets)
+				if(!assettypes.contains(asset.getAssetType()))
+					assettypes.add(asset.getAssetType());
+			
+			for(Asset asset : measureAssets)
+				if(!assettypes.contains(asset.getAssetType()))
+					assettypes.add(asset.getAssetType());
+			
+			model.addAttribute("assetTypes", assettypes);
+			
 			model.addAttribute("desc", measure.getMeasureDescription());
 
 			MeasureDescriptionText text = measure.getMeasureDescription().getMeasureDescriptionText(serviceAnalysis.getLanguageOfAnalysis(idAnalysis));
@@ -1148,10 +1163,6 @@ public class ControllerAnalysisStandard {
 				model.addAttribute("categories", measure.getMeasurePropertyList().getCIACategories());
 			}
 
-			double typeValue =
-				measure.getMeasurePropertyList().getPreventive() + measure.getMeasurePropertyList().getDetective() + measure.getMeasurePropertyList().getLimitative()
-					+ measure.getMeasurePropertyList().getCorrective();
-			model.addAttribute("typeValue", round(typeValue, 1) == 1 ? true : false);
 			model.addAttribute("assets", measure.getMeasureAssetValues());
 
 			// return success message
@@ -1162,16 +1173,6 @@ public class ControllerAnalysisStandard {
 			model.addAttribute("error", messageSource.getMessage("error.measure.new", null, "Error retrieving measure info", locale));
 			return "analyses/singleAnalysis/components/standards/measure/assetMeasure";
 		}
-	}
-
-	private static double round(double value, int places) {
-		if (places < 0)
-			throw new IllegalArgumentException();
-
-		long factor = (long) Math.pow(10, places);
-		value = value * factor;
-		long tmp = Math.round(value);
-		return (double) tmp / factor;
 	}
 
 	/**
@@ -1362,7 +1363,7 @@ public class ControllerAnalysisStandard {
 						if (property.equals("preventive") || property.equals("detective") || property.equals("limitative") || property.equals("corrective")) {
 							double val = jsonNode.get("properties").get(property).asDouble();
 
-							if (val < 0.0 || val > 1.0)
+							if (val < 0 || val > 4)
 								errors.put(property, "value is not valid");
 							else {
 								Field field = SecurityCriteria.class.getDeclaredField(property);
