@@ -86,8 +86,7 @@ function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
 		fixedTableHeader(table);
 	} else {
 		$(menu + " a#actionplanassetsmenulink").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;" + MessageResolver("action.actionplanassets.hide", "Hide Assets"));
-		fixedTableHeader(table);
-		$(table).floatThead('reflow');
+		//fixedTableHeader(table);
 	}
 	return false;
 }

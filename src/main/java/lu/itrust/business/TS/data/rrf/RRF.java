@@ -194,8 +194,8 @@ public class RRF {
 		// if
 		// ((measure.getMeasureDescription().getReference().equals("A.9.2.2")))
 		// {
-		System.out.println("Measure: " + measure.getMeasureDescription().getReference() + "Asset: " + assetType.getType() + "Scenario: " + scenario.getName() + " ;RRF=" + RRF + ", atv="
-			+ assetTypeValue.getValue() + ", strength=" + strength + ", Category=" + category + ", type=" + type + ", source=" + source + ", tuning=" + tuning);
+		/*System.out.println("Measure: " + measure.getMeasureDescription().getReference() + "Asset: " + assetType.getType() + "Scenario: " + scenario.getName() + " ;RRF=" + RRF + ", atv="
+			+ assetTypeValue.getValue() + ", strength=" + strength + ", Category=" + category + ", type=" + type + ", source=" + source + ", tuning=" + tuning);*/
 		// }
 
 		// ****************************************************************
@@ -288,8 +288,8 @@ public class RRF {
 		// if
 		// ((measure.getMeasureDescription().getReference().equals("A.9.2.2")))
 		// {
-		System.out.println("Measure: " + measure.getMeasureDescription().getReference() + "Asset: " + asset.getName() + "Scenario: " + scenario.getName() + " ;RRF=" + RRF + ", atv=" + assetValue
-			+ ", strength=" + strength + ", Category=" + category + ", type=" + type + ", source=" + source + ", tuning=" + tuning);
+		/*System.out.println("Measure: " + measure.getMeasureDescription().getReference() + "Asset: " + asset.getName() + "Scenario: " + scenario.getName() + " ;RRF=" + RRF + ", atv=" + assetValue
+			+ ", strength=" + strength + ", Category=" + category + ", type=" + type + ", source=" + source + ", tuning=" + tuning);*/
 		// }
 
 		// ****************************************************************

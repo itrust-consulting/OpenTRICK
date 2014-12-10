@@ -19,6 +19,8 @@ function loadRRF() {
 
 				initialiseScenariosClick();
 
+				initialiseStandardFilter();
+
 				$("#rrfEditor").modal("show");
 				setTimeout(function() {
 					loadMeasureChart();
@@ -367,4 +369,13 @@ function loadScenarioChart() {
 				}
 			});
 	return false;
+}
+
+function initialiseStandardFilter()
+{
+	$("#section_rrf [name='chapterselection']").change(function() {
+		var filter = $("option:selected", this).attr("value");
+		$("#selectable_rrf_measures_chapter_controls [class='list-group'][trick-filter-value]").css("display", "none");
+		$("#selectable_rrf_measures_chapter_controls [class='list-group'][trick-filter-value='" + filter + "']").css("display", "block");
+	});
 }

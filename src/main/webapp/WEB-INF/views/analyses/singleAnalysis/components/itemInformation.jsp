@@ -33,7 +33,7 @@
 								<tr trick-class="ItemInformation" trick-id="${itemInformation.id}">
 									<td colspan="1">
 									<fmt:message key="label.item_information.${itemInformation.description.trim()}" /></td>
-									<td colspan="2" ondblclick="return editField(this.firstElementChild);" class="success"><pre trick-field="value" trick-content="text" trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
+									<td colspan="3" ondblclick="return editField(this.firstElementChild);" class="success"><pre trick-field="value" trick-content="text" trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
 								</tr>
 							</c:forEach>
 						</tbody>

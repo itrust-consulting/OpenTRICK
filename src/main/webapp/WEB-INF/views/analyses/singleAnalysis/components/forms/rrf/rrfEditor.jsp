@@ -47,9 +47,15 @@
 								</div>
 								<div class="panel panel-primary" style="height: 390px; margin-bottom: -41px;">
 									<div class="panel-body">
-										<div class="list-group" style="min-height: 319px; max-height: 319px; overflow: auto; margin-bottom: 0;" id="selectable_rrf_measures_chapter_controls">
+										<select name="chapterselection" class="form-control" style="width: 50%;margin-left:auto;margin-right: auto;margin-bottom: 10px;">
 											<c:forEach items="${measures.keySet()}" var="chapter" varStatus="status">
-												<div class="list-group" trick-id="${chapter.standard.id}">
+												<option value="${status.index}"><spring:message text="${chapter.standard.label}" /> -
+													<spring:message code="label.measure.chapter" arguments="${chapter.reference}" text="Chapter ${chapter.reference}" /></option>
+											</c:forEach>
+										</select>
+										<div class="list-group" style="min-height: 278px; max-height: 278px; overflow: auto; margin-bottom: 0;" id="selectable_rrf_measures_chapter_controls">
+											<c:forEach items="${measures.keySet()}" var="chapter" varStatus="status">
+												<div class="list-group" trick-id="${chapter.standard.id}" trick-filter-value="${status.index}" style="${status.index==0?'display:block':'display:none'}">
 													<h4 class="list-group-item-heading">
 														<a href="#" onclick="return false;" class="list-group-item${status.index==0?' active':''}" trick-class="Standard"
 															title='<spring:message text="${chapter.reference}"/>' trick-id="${chapter.standard.id}" trick-value=<spring:message text="${chapter.reference}"/>> <spring:message
@@ -206,8 +212,8 @@
 															</c:if>
 															<c:if test="${!empty(assets)}">
 																<c:forEach items="${assets}" var="asset">
-																	<td trick-class="MeasureAssetValue"><input type="text" id='measure_asset_<spring:message text="${asset.asset.name}"/>_value' style="min-width: 50px;" readonly="readonly"
-																		class="form-control" value="${asset.asset.value}" name="<spring:message text="${asset.asset.name}" />"></td>
+																	<td trick-class="MeasureAssetValue"><input type="text" id='measure_asset_<spring:message text="${asset.asset.name}"/>_value' style="min-width: 50px;"
+																		readonly="readonly" class="form-control" value="${asset.asset.value}" name="<spring:message text="${asset.asset.name}" />"></td>
 																</c:forEach>
 															</c:if>
 														</tr>

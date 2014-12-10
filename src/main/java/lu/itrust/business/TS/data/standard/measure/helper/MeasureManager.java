@@ -2,6 +2,7 @@ package lu.itrust.business.TS.data.standard.measure.helper;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -161,10 +162,27 @@ public class MeasureManager {
 	 * @param measures
 	 * @return
 	 */
-	public static Map<Chapter, List<Measure>> SplitByChapter(List<? extends Measure> measures) {
+	public static Map<Chapter, List<Measure>> SplitByChapter(List<Measure> measures) {
 		Map<Chapter, List<Measure>> chapters = new LinkedHashMap<Chapter, List<Measure>>();
 		Map<String, Chapter> chapterMapping = new LinkedHashMap<String, Chapter>();
-		for (Measure measure : measures) {
+		
+		Comparator<Measure> cmp = new Comparator<Measure>() {
+			public int compare(Measure o1, Measure o2) {
+				return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
+			}
+		};
+		
+		Map<String,List<Measure>> splittedmeasures = MeasureManager.SplitByStandard(measures);
+		
+		List<Measure> allmeasures = new ArrayList<Measure>();
+		
+		for(String key : splittedmeasures.keySet()) {
+			List<Measure> tmpMeasures = splittedmeasures.get(key);
+			Collections.sort(tmpMeasures, cmp);
+			allmeasures.addAll(tmpMeasures);
+		}
+		
+		for (Measure measure : allmeasures) {
 			String reference = extractMainChapter(measure.getMeasureDescription().getReference());
 			Standard standard = measure.getMeasureDescription().getStandard();
 			Chapter chapter = chapterMapping.get(standard.getLabel() + "|-|" + reference);

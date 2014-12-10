@@ -214,25 +214,37 @@ public class CustomDelete {
 	}
 
 	@Transactional
-	public void deleteAnalysisMeasure(MeasureDescription measureDescription) throws Exception {
+	public void deleteAnalysisMeasure(Integer analysisID, MeasureDescription measureDescription) throws Exception {
 
 		List<AnalysisStandard> astandards = daoAnalysisStandard.getAllFromStandard(measureDescription.getStandard());
 
 		for (AnalysisStandard astandard : astandards) {
-			
+
 			Measure mes = null;
-			
+
 			for (Measure measure : astandard.getMeasures()) {
 				if (measure.getMeasureDescription().equals(measureDescription)) {
 					mes = measure;
 					break;
 				}
 			}
+
+			List<ActionPlanEntry> entries = daoActionPlan.getAllFromAnalysis(analysisID);
+
+			boolean contains = false;
+
+			for (ActionPlanEntry entry : entries)
+				if (entry.getMeasure().equals(mes)) {
+					contains = true;
+					break;
+				}
+			if(contains)
+				daoActionPlan.deleteAllFromAnalysis(analysisID);
 			
 			astandard.getMeasures().remove(mes);
-			
+
 			daoMeasure.delete(mes);
-			
+
 			daoAnalysisStandard.saveOrUpdate(astandard);
 		}
 

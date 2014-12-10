@@ -859,13 +859,15 @@ public class ControllerAnalysisStandard {
 			// try to delete measure
 			MeasureDescription measureDescription = serviceMeasure.get(idMeasure).getMeasureDescription();
 
+			Integer analysisID = (Integer)session.getAttribute("selectedAnalysis");
+			
 			if (measureDescription == null || measureDescription.getStandard().getId() != idStandard)
 				return JsonMessage.Error(messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 
 			if (!measureDescription.getStandard().isAnalysisOnly())
 				return JsonMessage.Error(messageSource.getMessage("error.measure.manage_knowledgebase_measure", null, "This measure can only be managed from the knowledge base", locale));
 
-			customDelete.deleteAnalysisMeasure(measureDescription);
+			customDelete.deleteAnalysisMeasure(analysisID, measureDescription);
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null, "Measure was deleted successfully", locale));
 		} catch (Exception e) {

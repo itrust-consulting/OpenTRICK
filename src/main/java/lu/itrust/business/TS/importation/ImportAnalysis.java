@@ -38,12 +38,15 @@ import lu.itrust.business.TS.data.riskinformation.RiskInformation;
 import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.data.scenario.ScenarioType;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
+import lu.itrust.business.TS.data.standard.AssetStandard;
 import lu.itrust.business.TS.data.standard.MaturityStandard;
 import lu.itrust.business.TS.data.standard.NormalStandard;
 import lu.itrust.business.TS.data.standard.Standard;
 import lu.itrust.business.TS.data.standard.StandardType;
+import lu.itrust.business.TS.data.standard.measure.AssetMeasure;
 import lu.itrust.business.TS.data.standard.measure.MaturityMeasure;
 import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.MeasureAssetValue;
 import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
@@ -55,6 +58,7 @@ import lu.itrust.business.TS.database.dao.DAOLanguage;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
+import lu.itrust.business.TS.database.dao.DAOScenarioType;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOAssetTypeHBM;
@@ -62,6 +66,8 @@ import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionTextHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOParameterTypeHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOScenarioHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOScenarioTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
@@ -91,6 +97,8 @@ public class ImportAnalysis {
 
 	private DAOAssetType daoAssetType;
 
+	private DAOScenarioType daoScenarioType;
+	
 	private DAOAnalysis daoAnalysis;
 
 	private DAOLanguage daoLanguage;
@@ -392,7 +400,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.asset_type_value.importing", "Import asset type values", null, 70));
 			importAssetTypeValues();
-
+			importAssetValues();
 			// ****************************************************************
 			// * import maturity measures
 			// ****************************************************************
@@ -934,36 +942,29 @@ public class ImportAnalysis {
 		// ****************************************************************
 		ResultSet rs = null;
 		String query = "";
-		Map<Integer, ScenarioType> scenarioTypes = new HashMap<Integer, ScenarioType>();
 		scenarios = new HashMap<Integer, Scenario>();
-		String type = null;
-		ScenarioType scenarioType = null;
 		Scenario tempScenario = null;
 
 		// ****************************************************************
 		// * Query sqlite for all scenario types
 		// ****************************************************************
 
-		// build query
-		query = "SELECT * FROM threat_types order by id_type_threat";
-
-		// execute query
-		rs = sqlite.query(query, null);
-
-		// Loop scenario types
-		while (rs.next()) {
-
-			// ****************************************************************
-			// * Insert data into scenario type table
-			// ****************************************************************
-			type = rs.getString(Constant.THREAT_TYPE_LABEL);
-
-			scenarioType = ScenarioType.getByName(type);
-
-			// add scneario type to map
-			scenarioTypes.put(rs.getInt(Constant.THREAT_ID_TYPE_THREAT), scenarioType);
-		}
-
+		/*
+		 * // build query query = "SELECT * FROM threat_types order by id_type_threat";
+		 * 
+		 * // execute query rs = sqlite.query(query, null);
+		 * 
+		 * // Loop scenario types while (rs.next()) {
+		 * 
+		 * // **************************************************************** // * Insert data into
+		 * scenario type table // ****************************************************************
+		 * type = rs.getString(Constant.THREAT_TYPE_LABEL);
+		 * 
+		 * scenarioType = ScenarioType.getByName(type);
+		 * 
+		 * // add scneario type to map scenarioTypes.put(rs.getInt(Constant.THREAT_ID_TYPE_THREAT),
+		 * scenarioType); }
+		 */
 		// System.out.println("scenariotypes ok");
 
 		// ****************************************************************
@@ -1009,7 +1010,8 @@ public class ImportAnalysis {
 			tempScenario.setEnvironmental(rs.getInt(Constant.THREAT_ENVIRONMENTAL));
 			tempScenario.setExternalThreat(rs.getInt(Constant.THREAT_EXTERNAL_THREAT));
 			tempScenario.setInternalThreat(rs.getInt(Constant.THREAT_INTERNAL_THREAT));
-			tempScenario.setType(scenarioTypes.get(rs.getInt(Constant.THREAT_ID_TYPE_THREAT)));
+			tempScenario.setScenarioType(daoScenarioType.get(rs.getInt(Constant.THREAT_ID_TYPE_THREAT)));
+			tempScenario.setType(ScenarioType.getByName(rs.getString("type_threat")));
 
 			// set scenario asset types
 			setScenarioAssetValues(tempScenario, rs);
@@ -1930,12 +1932,20 @@ public class ImportAnalysis {
 			// standard is not in database create new standard and save in into
 			// database for future
 			if (standard == null) {
-				standard = new Standard(idNormalMeasure, StandardType.NORMAL, standardVersion, description, standardComputable);
+				standard = new Standard(idNormalMeasure, StandardType.getByName(rs.getString("norme_type")), standardVersion, description, standardComputable);
+				standard.setAnalysisOnly(rs.getBoolean("norme_analysisOnly"));
+				daoStandard.save(standard);
+				// add standard to map
+				standards.put(standard.getLabel() + "_" + standard.getVersion(), standard);
+			} else if(standard.isAnalysisOnly()){
+				
+				standard = standard.duplicate();
+				standard.setVersion(standard.getVersion()+1);
 				daoStandard.save(standard);
 				// add standard to map
 				standards.put(standard.getLabel() + "_" + standard.getVersion(), standard);
 			}
-
+			
 			// retrieve analysisstandard of the standard
 			analysisStandard = analysisStandards.get(standard);
 
@@ -1943,7 +1953,11 @@ public class ImportAnalysis {
 			if (analysisStandard == null)
 
 				// add standard to analysisstandards map as new analysis standard
-				analysisStandards.put(standard, analysisStandard = new NormalStandard(standard));
+
+				if (standard.getType().equals(StandardType.NORMAL))
+					analysisStandards.put(standard, analysisStandard = new NormalStandard(standard));
+				else
+					analysisStandards.put(standard, analysisStandard = new AssetStandard(standard));
 
 			// ****************************************************************
 			// * Import measure to database
@@ -2033,42 +2047,51 @@ public class ImportAnalysis {
 
 			// retrieve id for the instance creation (NormalMeasure ID)
 			// insertID = mysql.getLastInsertId();
-			NormalMeasure normalMeasure = new NormalMeasure();
-			normalMeasure.setMeasureDescription(mesDesc);
+			Measure measure = null;
+			
+			if (standard.getType().equals(StandardType.NORMAL))
+				measure = new NormalMeasure();
+			 else if (standard.getType().equals(StandardType.ASSET))
+				 measure = new AssetMeasure();
+		
+			measure.setMeasureDescription(mesDesc);
 			if (rs.getString(Constant.MEASURE_REVISION) == null)
-				normalMeasure.setComment("");
+				measure.setComment("");
 			else
-				normalMeasure.setComment(rs.getString(Constant.MEASURE_COMMENT));
+				measure.setComment(rs.getString(Constant.MEASURE_COMMENT));
 
-			normalMeasure.setInternalWL(rs.getInt(Constant.MEASURE_INTERNAL_SETUP));
-			normalMeasure.setExternalWL(rs.getInt(Constant.MEASURE_EXTERNAL_SETUP));
-			normalMeasure.setImplementationRate(rs.getDouble(Constant.MEASURE_IMPLEMENTATION_RATE));
-			normalMeasure.setInvestment(rs.getDouble(Constant.MEASURE_INVESTISMENT));
-			normalMeasure.setLifetime(rs.getInt(Constant.MEASURE_LIFETIME));
-			normalMeasure.setMaintenance(0);
-			normalMeasure.setInternalMaintenance(rs.getDouble("internal_maintenance"));
-			normalMeasure.setExternalMaintenance(rs.getDouble("external_maintenance"));
-			normalMeasure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
-			normalMeasure.setStatus(rs.getString(Constant.MEASURE_STATUS));
-			if (rs.getString(Constant.MEASURE_REVISION) == null)
-				normalMeasure.setToCheck("");
-			else
-				normalMeasure.setToCheck(rs.getString(Constant.MEASURE_REVISION));
-			normalMeasure.setToDo(rs.getString(Constant.MEASURE_TODO));
-			normalMeasure.getMeasureDescription().setComputable(measurecomputable);
+			measure.setInternalWL(rs.getInt(Constant.MEASURE_INTERNAL_SETUP));
+			measure.setExternalWL(rs.getInt(Constant.MEASURE_EXTERNAL_SETUP));
+			measure.setImplementationRate(rs.getDouble(Constant.MEASURE_IMPLEMENTATION_RATE));
+			measure.setInvestment(rs.getDouble(Constant.MEASURE_INVESTISMENT));
+			measure.setLifetime(rs.getInt(Constant.MEASURE_LIFETIME));
+			measure.setMaintenance(0);
+			measure.setInternalMaintenance(rs.getDouble("internal_maintenance"));
+			measure.setExternalMaintenance(rs.getDouble("external_maintenance"));
+			measure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
+			measure.setStatus(rs.getString(Constant.MEASURE_STATUS));
+			if (rs.getString(Constant.MEASURE_REVISION) == null) {
+				if (standard.getType().equals(StandardType.NORMAL))
+					((NormalMeasure) measure).setToCheck("");
+			} else {
+				if (standard.getType().equals(StandardType.ASSET))
+					((AssetMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION));
+			}
+			measure.setToDo(rs.getString(Constant.MEASURE_TODO));
+			measure.getMeasureDescription().setComputable(measurecomputable);
 
 			// calculate cost
 			cost =
 				Analysis.computeCost(this.analysis.getParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE), this.analysis.getParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE), this.analysis
-						.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), normalMeasure.getInternalMaintenance(), normalMeasure.getExternalMaintenance(), normalMeasure.getRecurrentInvestment(),
-						normalMeasure.getInternalWL(), normalMeasure.getExternalWL(), normalMeasure.getInvestment(), normalMeasure.getLifetime());
+						.getParameter(Constant.PARAMETER_LIFETIME_DEFAULT), measure.getInternalMaintenance(), measure.getExternalMaintenance(), measure.getRecurrentInvestment(), measure
+						.getInternalWL(), measure.getExternalWL(), measure.getInvestment(), measure.getLifetime());
 
-			normalMeasure.setCost(cost);
+			measure.setCost(cost);
 
 			// ****************************************************************
 			// * add phase instance to the measure instance
 			// ****************************************************************
-			normalMeasure.setPhase(phase);
+			measure.setPhase(phase);
 
 			// ****************************************************************
 			// * create measureproperties instance for this measure
@@ -2098,17 +2121,25 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add measureporperties instance to measure instance
 			// ****************************************************************
-			normalMeasure.setMeasurePropertyList(measureProperties);
+
+			if (standard.getType().equals(StandardType.NORMAL))
+				((NormalMeasure) measure).setMeasurePropertyList(measureProperties);
+			else if (standard.getType().equals(StandardType.ASSET))
+				((AssetMeasure) measure).setMeasurePropertyList(measureProperties);
 
 			// ****************************************************************
 			// * add measure to standard
 			// ****************************************************************
 
+			if (standard.getType().equals(StandardType.NORMAL))
+				((NormalStandard) analysisStandard).addMeasure((NormalMeasure) measure);
+			else if (standard.getType().equals(StandardType.ASSET))
+				((AssetStandard) analysisStandard).addMeasure((AssetMeasure) measure);
+
 			// add measure to standard
-			((NormalStandard) analysisStandard).addMeasure(normalMeasure);
 
 			// add measure to map
-			measures.put(idNormalMeasure + "_" + standardVersion + "_" + measureRefMeasure, normalMeasure);
+			measures.put(idNormalMeasure + "_" + standardVersion + "_" + measureRefMeasure, measure);
 		}
 		// close result
 		rs.close();
@@ -2179,6 +2210,88 @@ public class ImportAnalysis {
 						updateAssetTypeValue(normalMeasure, assetTypeValue);
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * importAssetTypeValues: <br>
+	 * <ul>
+	 * <li>Imports all Asset Type Values for Measure standards</li>
+	 * <li>creates Objects for each Asset Type Value in each Measure</li>
+	 * </ul>
+	 * 
+	 * @throws Exception
+	 */
+	private void importAssetValues() throws Exception {
+
+		System.out.println("Import Asset Values ");
+
+		// ****************************************************************
+		// * initialise variables
+		// ****************************************************************
+		AssetMeasure assetMeasure = null;
+
+		// ****************************************************************
+		// * create asset type default values in mysql database
+		// ****************************************************************
+		// createAssetTypeDefaultValues();
+
+		// ****************************************************************
+		// * check assettypevalues for values of 101 (-1) then find
+		// * previous levels until an acceptable value was found
+		// ****************************************************************
+
+		// parse measures
+		for (Measure measure : measures.values()) {
+
+			// standard measure -> YES
+			if (measure instanceof AssetMeasure && measure.getMeasureDescription().isComputable()) {
+
+				// store into object
+				assetMeasure = (AssetMeasure) measure;
+
+				ResultSet rs = null;
+				String query = "";
+				MeasureAssetValue assetValue = null;
+				Asset asset = null;
+
+				// ****************************************************************
+				// * retrieve asset type values for measures
+				// ****************************************************************
+
+				currentSqliteTable = "spec_asset_measure";
+
+				// build query
+				query = "SELECT id_asset, value_spec FROM spec_asset_measure where id_norme = ? and version_norme = ? and ref_measure = ?";
+
+				List<Object> params = new ArrayList<Object>();
+
+				params.add(assetMeasure.getMeasureDescription().getStandard().getLabel());
+				params.add(assetMeasure.getMeasureDescription().getStandard().getVersion()-1);
+				params.add(assetMeasure.getMeasureDescription().getReference());
+
+				// execute query
+				rs = sqlite.query(query, params);
+
+				while (rs.next()) {
+
+					// ****************************************************************
+					// * retrieve standard and measure
+					// ****************************************************************
+
+					asset = assets.get(rs.getInt("id_asset"));
+
+					if (asset == null)
+						continue;
+
+					assetValue = new MeasureAssetValue(asset, rs.getInt("value_spec"));
+
+					// add the asset type value to the measure
+					assetMeasure.addAnMeasureAssetValue(assetValue);
+				}
+				// close result
+				rs.close();
 			}
 		}
 	}
@@ -3053,6 +3166,7 @@ public class ImportAnalysis {
 	protected void initialiseDAO(Session session) {
 		setDaoAnalysis(new DAOAnalysisHBM(session));
 		setDaoAssetType(new DAOAssetTypeHBM(session));
+		setDaoScenarioType(new DAOScenarioTypeHBM(session));
 		setDaoLanguage(new DAOLanguageHBM(session));
 		setDaoMeasureDescription(new DAOMeasureDescriptionHBM(session));
 		setDaoMeasureDescriptionText(new DAOMeasureDescriptionTextHBM(session));
@@ -3100,6 +3214,14 @@ public class ImportAnalysis {
 		this.daoAnalysis = daoAnalysis;
 	}
 
+	/**
+	 * @param daoAnalysis
+	 *            the daoAnalysis to set
+	 */
+	public void setDaoScenarioType(DAOScenarioType daoScenarioType) {
+		this.daoScenarioType = daoScenarioType;
+	}
+	
 	/**
 	 * @param daoLanguage
 	 *            the daoLanguage to set

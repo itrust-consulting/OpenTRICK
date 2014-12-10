@@ -516,7 +516,6 @@ function newAssetMeasure(idStandard) {
 			var parser = new DOMParser();
 			var doc = parser.parseFromString(response, "text/html");
 			$("#manageAssetMeasureModel #manageAssetMeasure_form").html($(doc).find("form#manageAssetMeasure_form").html());
-			return;
 		},
 		error : unknowError
 	});
@@ -914,7 +913,7 @@ function saveAssetMeasure(form) {
 
 	});
 
-	var text = $(form).find("textarea[name='description']").text();
+	var text = $(form).find("textarea[name='description']").val();
 	
 	data['description'] = text; 
 	
