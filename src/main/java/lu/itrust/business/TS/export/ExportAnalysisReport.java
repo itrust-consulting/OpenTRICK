@@ -623,6 +623,7 @@ public class ExportAnalysisReport {
 					isFirst = false;
 				else {
 					paragraph = document.createParagraph();
+					paragraph.setAlignment(ParagraphAlignment.CENTER);
 					paragraph.createRun().addCarriageReturn();
 				}
 
@@ -1096,9 +1097,9 @@ public class ExportAnalysisReport {
 			row.getCell(0).setText(getMessage("report.parameter.level", null, "Level", locale));
 			row.getCell(1).setText(getMessage("report.parameter.acronym", null, "Acro", locale));
 			row.getCell(2).setText(getMessage("report.parameter.qualification", null, "Qualification", locale));
-			row.getCell(3).setText(getMessage("report.parameter.value", null, "Value", locale));
-			row.getCell(4).setText(getMessage("report.parameter.value.from", null, "Value From [", locale));
-			row.getCell(5).setText(getMessage("report.parameter.value.to", null, "Value To [", locale));
+			row.getCell(3).setText(getMessage("report.parameter.value", null, "Value (k€/y)", locale));
+			row.getCell(4).setText(getMessage("report.parameter.value.from", null, "Value From", locale));
+			row.getCell(5).setText(getMessage("report.parameter.value.to", null, "Value To", locale));
 
 			int countrow = 0;
 			// set data
@@ -1307,7 +1308,7 @@ public class ExportAnalysisReport {
 			row.getCell(1).setColor("c6d9f1");
 			row.getCell(2).setText(getMessage("report.assessment.probability", null, "P.", locale));
 			row.getCell(2).setColor("c6d9f1");
-			row.getCell(3).setText(getMessage("report.assessment.ale", null, "ALE(k€/y", locale));
+			row.getCell(3).setText(getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
 			row.getCell(3).setColor("c6d9f1");
 			row.getCell(4).setText(getMessage("report.assessment.comment", null, "Comment", locale));
 			row.getCell(4).setColor("c6d9f1");
