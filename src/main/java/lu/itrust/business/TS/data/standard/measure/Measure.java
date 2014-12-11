@@ -70,9 +70,6 @@ public abstract class Measure implements Cloneable {
 	/** The LifeTime of the Measure (in Years) */
 	private double lifetime = 0;
 
-	/** The old Maintenance of the Measure (in percent) */
-	private double maintenance = 0;
-
 	/** The internal Maintenance of the Measure (in Man Days) */
 	private double internalMaintenance = 0;
 
@@ -312,31 +309,6 @@ public abstract class Measure implements Cloneable {
 	}
 
 	/**
-	 * getMaintenance: <br>
-	 * Returns the "maintenance" field value
-	 * 
-	 * @return The Maintenance
-	 */
-	@Column(name = "dtMaintenance", nullable = false)
-	public double getMaintenance() {
-		return maintenance;
-	}
-
-	/**
-	 * setMaintenance: <br>
-	 * Sets the "maintenance" field with a value
-	 * 
-	 * @param maintenance
-	 *            The value to set the Maintenance
-	 * @throws TrickException
-	 */
-	public void setMaintenance(double maintenance) throws TrickException {
-		if (maintenance < 0 && maintenance != -1)
-			throw new TrickException("error.measure.maintenance", "Maintenance cannot be negative except -1");
-		this.maintenance = maintenance;
-	}
-
-	/**
 	 * getCost: <br>
 	 * Returns the "cost" field value
 	 * 
@@ -570,70 +542,6 @@ public abstract class Measure implements Cloneable {
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * ComputeCost: <br>
-	 * Description
-	 * 
-	 * @param measure
-	 * @param analysis
-	 * @throws TrickException
-	 */
-	@Deprecated
-	public static void ComputeCost(Measure measure, List<Parameter> parameters) throws TrickException {
-		// ****************************************************************
-		// * variable initialisation
-		// ****************************************************************
-		double cost = 0;
-		double externalSetupValue = -1;
-		double internalSetupValue = -1;
-		double lifetimeDefault = -1;
-		double maintenanceDefault = -1;
-
-		// ****************************************************************
-		// * select external and internal setup rate from parameters
-		// ****************************************************************
-
-		for (Parameter parameter : parameters) {
-			if (parameter.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE)) {
-				internalSetupValue = parameter.getValue();
-				break;
-			}
-
-		}
-
-		for (Parameter parameter : parameters) {
-			if (parameter.getDescription().equals(Constant.PARAMETER_EXTERNAL_SETUP_RATE)) {
-				externalSetupValue = parameter.getValue();
-				break;
-			}
-
-		}
-
-		for (Parameter parameter : parameters) {
-			if (parameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
-				lifetimeDefault = parameter.getValue();
-				break;
-			}
-
-		}
-
-		for (Parameter parameter : parameters) {
-			if (parameter.getDescription().equals(Constant.PARAMETER_MAINTENANCE_DEFAULT)) {
-				maintenanceDefault = parameter.getValue();
-				break;
-			}
-
-		}
-
-		// calculate the cost
-		cost =
-			Analysis.computeCost(internalSetupValue, externalSetupValue, lifetimeDefault, maintenanceDefault, measure.getMaintenance(), measure.getInternalWL(), measure.getExternalWL(), measure
-					.getInvestment(), measure.getLifetime());
-		// return calculated cost
-		if (cost >= 0)
-			measure.setCost(cost);
 	}
 
 	/**

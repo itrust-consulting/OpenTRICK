@@ -1419,7 +1419,7 @@ public class ExportAnalysis {
 								+ "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4'," + "? as 'i5',"
 								+ "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9'," + "? as 'i10'," + "? as 'preventive',"
 								+ "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional'," + "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat',"
-								+ "? as 'external_threat'," + "? as 'internal_setup'," + "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," + "? as 'maintenance',"
+								+ "? as 'external_threat'," + "? as 'internal_setup'," + "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," 
 								+ "? as 'internal_maintenance'," + "? as 'external_maintenance'," + "? as 'recurrent_investment'," + "? as 'implmentation_rate'," + "? as 'status',"
 								+ "? as 'comment'," + "? as 'todo'," + "? as 'revision'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk'," + "? as 'soa_comment',"
 								+ "? as 'index2' UNION";
@@ -1427,13 +1427,13 @@ public class ExportAnalysis {
 						// System.out.println(measurequery);
 
 						// set ? limit
-						measurecounter = 68;
+						measurecounter = 67;
 					} else {
 
 						// check if first part of query -> NO
 
 						// limit reached ? -> YES
-						if (measurecounter + 68 >= 999) {
+						if (measurecounter + 67 >= 999) {
 
 							// execute query
 							measurequery = measurequery.substring(0, measurequery.length() - 6);
@@ -1451,21 +1451,21 @@ public class ExportAnalysis {
 									+ "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9'," + "? as 'i10',"
 									+ "? as 'preventive'," + "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional'," + "? as 'accidental'," + "? as 'environmental',"
 									+ "? as 'internal_threat'," + "? as 'external_threat'," + "? as 'internal_setup'," + "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime',"
-									+ "? as 'maintenance'," + "? as 'internal_maintenance'," + "? as 'external_maintenance'," + "? as 'recurrent_investment'," + "? as 'implmentation_rate',"
+									+ "? as 'internal_maintenance'," + "? as 'external_maintenance'," + "? as 'recurrent_investment'," + "? as 'implmentation_rate',"
 									+ "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk',"
 									+ "? as 'soa_comment'," + "? as 'index2' UNION";
 
 							// reset limit counter
-							measurecounter = 68;
+							measurecounter = 67;
 						} else {
 
 							// limit reached ? -> NO
 
 							// add data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
-							measurecounter += 68;
+							measurecounter += 67;
 						}
 					}
 
@@ -1504,7 +1504,6 @@ public class ExportAnalysis {
 					measureparams.add(measure.getExternalWL());
 					measureparams.add(measure.getInvestment());
 					measureparams.add(measure.getLifetime());
-					measureparams.add(measure.getMaintenance());
 					measureparams.add(measure.getInternalMaintenance());
 					measureparams.add(measure.getExternalMaintenance());
 					measureparams.add(measure.getRecurrentInvestment());
@@ -1741,7 +1740,7 @@ public class ExportAnalysis {
 								+ "? as 'd61'," + "? as 'd62'," + "? as 'd63'," + "? as 'd64'," + "? as 'd7'," + "? as 'i1'," + "? as 'i2'," + "? as 'i3'," + "? as 'i4'," + "? as 'i5',"
 								+ "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9'," + "? as 'i10'," + "? as 'preventive',"
 								+ "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional'," + "? as 'accidental'," + "? as 'environmental'," + "? as 'internal_threat',"
-								+ "? as 'external_threat'," + "? as 'internal_setup'," + "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," + "? as 'maintenance',"
+								+ "? as 'external_threat'," + "? as 'internal_setup'," + "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime'," 
 								+ "? as 'internal_maintenance'," + "? as 'external_maintenance'," + "? as 'recurrent_investment'," + "? as 'implmentation_rate'," + "? as 'status',"
 								+ "? as 'comment'," + "? as 'todo'," + "? as 'revision'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk'," + "? as 'soa_comment',"
 								+ "? as 'index2' UNION";
@@ -1749,13 +1748,13 @@ public class ExportAnalysis {
 						// System.out.println(measurequery);
 
 						// set ? limit
-						measurecounter = 68;
+						measurecounter = 67;
 					} else {
 
 						// check if first part of query -> NO
 
 						// limit reached ? -> YES
-						if (measurecounter + 68 >= 999) {
+						if (measurecounter + 67 >= 999) {
 
 							// execute query
 							measurequery = measurequery.substring(0, measurequery.length() - 6);
@@ -1773,21 +1772,21 @@ public class ExportAnalysis {
 									+ "? as 'i5'," + "? as 'i6'," + "? as 'i7'," + "? as 'i8'," + "? as 'i81'," + "? as 'i82'," + "? as 'i83'," + "? as 'i84'," + "? as 'i9'," + "? as 'i10',"
 									+ "? as 'preventive'," + "? as 'detective'," + "? as 'limiting'," + "? as 'corrective'," + "? as 'intentional'," + "? as 'accidental'," + "? as 'environmental',"
 									+ "? as 'internal_threat'," + "? as 'external_threat'," + "? as 'internal_setup'," + "? as 'external_setup'," + "? as 'investment'," + "? as 'lifetime',"
-									+ "? as 'maintenance'," + "? as 'internal_maintenance'," + "? as 'external_maintenance'," + "? as 'recurrent_investment'," + "? as 'implmentation_rate',"
+									+ "? as 'internal_maintenance'," + "? as 'external_maintenance'," + "? as 'recurrent_investment'," + "? as 'implmentation_rate',"
 									+ "? as 'status'," + "? as 'comment'," + "? as 'todo'," + "? as 'revision'," + "? as 'phase'," + "? as 'soa_reference'," + "? as 'soa_risk',"
 									+ "? as 'soa_comment'," + "? as 'index2' UNION";
 
 							// reset limit counter
-							measurecounter = 68;
+							measurecounter = 67;
 						} else {
 
 							// limit reached ? -> NO
 
 							// add data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
-							measurecounter += 68;
+							measurecounter += 67;
 						}
 					}
 
@@ -1826,7 +1825,6 @@ public class ExportAnalysis {
 					measureparams.add(measure.getExternalWL());
 					measureparams.add(measure.getInvestment());
 					measureparams.add(measure.getLifetime());
-					measureparams.add(measure.getMaintenance());
 					measureparams.add(measure.getInternalMaintenance());
 					measureparams.add(measure.getExternalMaintenance());
 					measureparams.add(measure.getRecurrentInvestment());
@@ -1971,19 +1969,19 @@ public class ExportAnalysis {
 
 						// set query
 						measurequery = "INSERT INTO maturities SELECT ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
-						measurequery += " 'domain',? as 'phase', ? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime',? as 'maintenance', ? as ";
+						measurequery += " 'domain',? as 'phase', ? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ? as ";
 						measurequery += "'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo',? as 'sml1',? as 'sml2',? as 'sml3',";
 						measurequery += "? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
 						// set limit
-						measurecounter = 27;
+						measurecounter = 26;
 
 					} else {
 
 						// check if first part -> NO
 
 						// check if limit reached -> YES
-						if (measurecounter + 27 >= 999) {
+						if (measurecounter + 26 >= 999) {
 
 							// execute query
 							measurequery = measurequery.substring(0, measurequery.length() - 6);
@@ -1994,21 +1992,21 @@ public class ExportAnalysis {
 
 							// reset query
 							measurequery = "INSERT INTO maturities SELECT ? as 'version_norme', ? as 'norme_description', ? as 'norm_computable',? as 'ref',? as 'measure_computable',? as";
-							measurequery += " 'domain',? as 'phase', ? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime',? as 'maintenance', ";
+							measurequery += " 'domain',? as 'phase', ? as 'level',? as 'status',? as 'rate',? as 'intwl',? as 'extwl',? as 'investment',? as 'lifetime', ";
 							measurequery += "? as 'internal_maintenance',? as 'external_maintenance',? as 'recurrent_investment',? as 'comment',? as 'todo',? as 'sml1',? as 'sml2',? as 'sml3',";
 							measurequery += "? as 'sml4',? as 'sml5',? as 'index2',? as 'reached' UNION";
 
 							// reset limit
-							measurecounter = 27;
+							measurecounter = 26;
 						} else {
 
 							// limit reached -> NO
 
 							// add insert data to query
-							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
+							measurequery += " SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? UNION";
 
 							// increment limit
-							measurecounter += 27;
+							measurecounter += 26;
 						}
 					}
 
@@ -2028,7 +2026,6 @@ public class ExportAnalysis {
 					measureparams.add(maturity.getExternalWL());
 					measureparams.add(maturity.getInvestment());
 					measureparams.add(maturity.getLifetime());
-					measureparams.add(maturity.getMaintenance());
 					measureparams.add(maturity.getInternalMaintenance());
 					measureparams.add(maturity.getExternalMaintenance());
 					measureparams.add(maturity.getRecurrentInvestment());

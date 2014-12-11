@@ -2065,7 +2065,6 @@ public class ImportAnalysis {
 			measure.setImplementationRate(rs.getDouble(Constant.MEASURE_IMPLEMENTATION_RATE));
 			measure.setInvestment(rs.getDouble(Constant.MEASURE_INVESTISMENT));
 			measure.setLifetime(rs.getInt(Constant.MEASURE_LIFETIME));
-			measure.setMaintenance(0);
 			measure.setInternalMaintenance(rs.getDouble("internal_maintenance"));
 			measure.setExternalMaintenance(rs.getDouble("external_maintenance"));
 			measure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
@@ -2675,7 +2674,6 @@ public class ImportAnalysis {
 			maturityMeasure.setImplementationRate(implementationRateParameter);
 			maturityMeasure.setInvestment(rs.getDouble(Constant.MATURITY_INVESTMENT));
 			maturityMeasure.setLifetime(rs.getInt(Constant.MEASURE_LIFETIME));
-			maturityMeasure.setMaintenance(0);
 			maturityMeasure.setInternalMaintenance(rs.getDouble("internal_maintenance"));
 			maturityMeasure.setExternalMaintenance(rs.getDouble("external_maintenance"));
 			maturityMeasure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));

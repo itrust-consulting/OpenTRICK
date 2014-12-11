@@ -13,6 +13,7 @@
 		</c:set>
 		<div class="pull-left" style="width: 25%;">
 			<c:set value="${pageContext.response.locale}" var="languagecode" />
+			${languagecode.getISO3Language()}
 			<c:choose>
 				<c:when test="${languagecode.getISO3Language()=='eng'}">
 					<a role="changeUILanguage" style="color: #c3c3c3; display: inline-block; padding: 5px; margin-top: 5px;"><img src="<spring:url value="/images/flags/en_disabled.png" />" />

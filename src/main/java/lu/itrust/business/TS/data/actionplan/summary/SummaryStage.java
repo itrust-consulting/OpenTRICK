@@ -62,14 +62,6 @@ public class SummaryStage {
 	@Access(AccessType.FIELD)
 	private List<SummaryStandardConformance> conformances = new ArrayList<SummaryStandardConformance>();
 
-	/** Percentage of AnalysisStandard 27001 Conformance for this Stage */
-	@Column(name = "dt27001Conformance", nullable = false)
-	private double conformance27001 = 0;
-
-	/** Percentage of AnalysisStandard 27002 Conformance for this Stage */
-	@Column(name = "dt27002Conformance", nullable = false)
-	private double conformance27002 = 0;
-
 	/** Number of Measures in this Stage */
 	@Column(name = "dtMeasureCount", nullable = false)
 	private int measureCount = 0;
@@ -233,48 +225,6 @@ public class SummaryStage {
 	 */
 	public void addConformance(AnalysisStandard analysisStandard, double conformance) {
 		this.conformances.add(new SummaryStandardConformance(analysisStandard, conformance));
-	}
-
-	/**
-	 * getConformance27001: <br>
-	 * Returns the conformance27001 field value.
-	 * 
-	 * @return The value of the conformance27001 field
-	 */
-	public double getConformance27001() {
-		return conformance27001;
-	}
-
-	/**
-	 * setConformance27001: <br>
-	 * Sets the Field "conformance27001" with a value.
-	 * 
-	 * @param conformance27001
-	 *            The Value to set the conformance27001 field
-	 */
-	public void setConformance27001(double conformance27001) {
-		this.conformance27001 = conformance27001;
-	}
-
-	/**
-	 * getConformance27002: <br>
-	 * Returns the conformance27002 field value.
-	 * 
-	 * @return The value of the conformance27002 field
-	 */
-	public double getConformance27002() {
-		return conformance27002;
-	}
-
-	/**
-	 * setConformance27002: <br>
-	 * Sets the Field "conformance27002" with a value.
-	 * 
-	 * @param conformance27002
-	 *            The Value to set the conformance27002 field
-	 */
-	public void setConformance27002(double conformance27002) {
-		this.conformance27002 = conformance27002;
 	}
 
 	/**

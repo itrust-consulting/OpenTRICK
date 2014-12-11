@@ -287,7 +287,6 @@ public class Duplicator {
 			copy.setInternalWL(0);
 			copy.setInvestment(0);
 			copy.setLifetime(0);
-			copy.setMaintenance(0);
 		}
 		if (copy instanceof MaturityMeasure) {
 			MaturityMeasure matmeasure = (MaturityMeasure) copy;
