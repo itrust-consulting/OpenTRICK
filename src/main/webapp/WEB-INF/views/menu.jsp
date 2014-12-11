@@ -19,7 +19,7 @@
 			</button>
 		</div>
 		<sec:authorize access="isAuthenticated()">
-			<a class="navbar-brand" style="color:#ffffff;font-weight:bold;" href="${pageContext.request.contextPath}/Home">TRICK SERVICE</a>
+			<a class="navbar-brand" style="color: #ffffff; font-weight: bold;" href="${pageContext.request.contextPath}/Home">TRICK SERVICE</a>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
 					<li ${menu.equals("Home")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Home"> <spring:message code="label.menu.home" text="Home" /></a></li>
@@ -40,55 +40,17 @@
 					<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
 						<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><spring:message code="label.runtime" text="Runtime" /><span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li class="dropdown-header">
-									<spring:message code="label.runtime.dropdown_header.Anytime" text="Anytime patches" />
-								</li>
-								<li>
-									<a href="#" onclick="return fixMeasureAssetTypeValue()">
-										<spring:message code="label.measure.fix.asset_type_value" text="Update duplicate measure asset type values" />
-									</a>
-								</li>
-								<li>
-									<a href="#" onclick="return updateMeasureAssetTypeValue()">
-										<spring:message code="label.measure.update.asset_type_value" text="Create missing asset type values for measures" />
-									</a>
-								</li>
-								<li>
-									<a href="#" onclick="return fixAllScenarioCategories()">
-										<spring:message code="label.scenario.fix.categories" text="Update category of Scenarios from all analyses" />
-									</a>
-								</li>
-								<li>
-									<a href="#" onclick="return fixAllAssessments()">
-										<spring:message code="label.scenario.fix.assessments" text="Update assessments of all analyses" />
-									</a>
-								</li>
-								<li>
-									<a href="#" onclick="return fixImplementationScaleParameterDescription()">
-										<spring:message code="label.measure.fix.implementationscale" text="Update Implementation Scale description" />
-									</a>
-								</li>
+								<li class="dropdown-header"><spring:message code="label.runtime.dropdown_header.Anytime" text="Anytime patches" /></li>
+								<li><a href="#" onclick="return updateMeasureAssetTypeValue()"> <spring:message code="label.measure.update.asset_type_value"
+											text="Create missing asset type values for measures" />
+								</a></li>
+								<li><a href="#" onclick="return fixAllScenarioCategories()"> <spring:message code="label.scenario.fix.categories"
+											text="Update category of Scenarios from all analyses" />
+								</a></li>
+								<li><a href="#" onclick="return fixAllAssessments()"> <spring:message code="label.scenario.fix.assessments" text="Update assessments of all analyses" />
+								</a></li>
 								<li class="divider"></li>
-								<li class="dropdown-header">
-									<spring:message code="label.runtime.dropdown_header.Major" text="Major patches" />
-								</li>
-								<li>
-									<a href="#" onclick="return fixSummaryCompliance()">
-										<spring:message code="label.patch.fix.compliance" text="Upgrade summary compliance (V 0.6.3a)" />
-									</a>
-								</li>
-								<li>
-									<a href="#" onclick="return upgradeAnalysisAndUserSettings()">
-										<spring:message code="label.patch.fix.ApplicationSettings" text="Upgrade Application Settings (V 0.6.3d)" />
-									</a>
-								</li>
-								<li>
-									<a href="#" onclick="return upgradeScenarioTypes()">
-										<spring:message code="label.patch.fix.ScenarioTypes" text="Upgrade ScenarioTypes (V 0.6.4)" />
-									</a>
-								</li>
-								
-								
+								<li class="dropdown-header"><spring:message code="label.runtime.dropdown_header.Major" text="Major patches" /></li>
 							</ul></li>
 					</sec:authorize>
 					<li><a href="${pageContext.request.contextPath}/j_spring_security_logout"> <spring:message code="label.menu.logout" text="Logout" /></a></li>
