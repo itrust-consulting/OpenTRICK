@@ -41,6 +41,13 @@ body {
 	width: 96%;
 }
 
+.nav-analysis{
+	z-index: 1030;
+	background-color: white;
+	padding-top: 5px;
+	max-width: 94.5%;
+}
+
 #footer>.container {
 	padding-left: 15px;
 	padding-right: 15px;
@@ -155,6 +162,35 @@ table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1
 .autofitpanelbodydefinition {
 	max-height: 600px;
 	overflow: auto;
+}
+
+
+@media (min-height: 600px) {
+	.panel-max-tab{
+		max-height: auto;
+		overflow: auto;
+	}
+}
+
+@media (min-height: 768px) {
+	.panel-max-tab{
+		max-height: 633px;
+		overflow: auto;
+	}
+}
+
+@media (min-height: 800px) {
+	.panel-max-tab{
+		max-height: 665px;
+		overflow: auto;
+	}
+}
+
+@media (min-height: 1080px) {
+	.panel-max-tab{
+		max-height: 740px;
+		overflow: auto;
+	}
 }
 
 .textaligncenter {

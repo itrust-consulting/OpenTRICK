@@ -52,7 +52,8 @@ $(function() {
 		even : '', // odd row zebra striping
 		odd : '' // even row zebra striping
 	});
-
+	
+	
 	//prevent unknown error modal display
 	$(window).bind("beforeunload", function() {
         application["isReloading"] = true;
