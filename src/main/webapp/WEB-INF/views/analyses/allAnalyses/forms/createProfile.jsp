@@ -1,0 +1,56 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<div class="modal fade" id="analysisProfileModal" tabindex="-1" role="dialog" data-aria-labelledby="newAnalysisProfile" data-aria-hidden="true" data-backdrop="static"
+	data-keyboard="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="createAnalysisProfile-title">
+					<spring:message code="label.title.create.analysis.profile" text="Create new profile" />
+				</h4>
+			</div>
+			<div class="modal-body">
+				<div class="col-sm-12 row">
+					<form id="analysisProfileform" action="/AnalysisProfile/Save" method="post" class="form">
+						<input type="hidden" id="id" name="id" value="${id}" />
+						<div class="form-group">
+							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile.description" text="Description" /></label>
+							<div class="col-sm-10">
+								<textarea class="form-control resize_vectical_only" id="name" name="name" style="height: 65px;"></textarea>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="name" class="col-sm-2 control-label"> <spring:message code="label.analysis.profile.standards" text="Standards" /></label>
+							<div class="panel-body col-sm-10">
+								<c:if test="${!empty analysisStandards}">
+									<select class="form-control" name="standards" id="standards" multiple="multiple" style="display: none;">
+										<c:forEach items="${analysisStandards}" var="analysisStandard">
+											<option value="standard_${analysisStandard.standard.id}">${analysisStandard.standard.label}</option>
+										</c:forEach>
+									</select>
+									<ul class="list-group">
+										<c:forEach items="${analysisStandards}" var="analysisStandard">
+											<a opt="standard_${analysisStandard.standard.id}" class="list-group-item active" style="border: 1px solid #dddddd;">${analysisStandard.standard.label}</a>
+										</c:forEach>
+									</ul>
+								</c:if>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="saveAnalysisProfile('analysisProfileform')">
+					<spring:message code="label.action.save" text="Save" />
+				</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

@@ -7,7 +7,7 @@
 <div class="section" id="section_user">
 	<div class="page-header">
 		<h3 id="Users">
-			<spring:message code="menu.admin.user" text="User"/>
+			<spring:message code="menu.admin.user" text="User" />
 		</h3>
 	</div>
 	<c:if test="${!empty users}">
@@ -17,8 +17,8 @@
 					<li><a href="#" onclick="return newUser();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" text="Add" /> </a></li>
 					<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleUser();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 								code="label.action.edit" text="Edit" /> </a></li>
-					<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteUser();"><span class="glyphicon glyphicon-remove"></span> <spring:message
-								code="label.action.delete" text="Delete" /> </a></li>
+					<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteUser();"><span class="glyphicon glyphicon-remove"></span>
+							<spring:message code="label.action.delete" text="Delete" /> </a></li>
 				</ul>
 			</div>
 			<div class="panel-body autofitpanelbodydefinition">
@@ -26,12 +26,12 @@
 					<thead>
 						<tr>
 							<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'user')" disabled="disabled"></th>
-							<th><spring:message code="label.user.login" text="Username"/></th>
-							<th><spring:message code="label.user.first_name" text="Firstname"/></th>
-							<th><spring:message code="label.user.last_name" text="Lastname"/></th>
-							<th><spring:message code="label.user.email" text="Email address"/></th>
-							<th><spring:message code="label.user.account.status" text="Status"/></th>
-							<th><spring:message code="label.user.account.role" text="Roles"/></th>
+							<th><spring:message code="label.user.login" text="Username" /></th>
+							<th><spring:message code="label.user.first_name" text="Firstname" /></th>
+							<th><spring:message code="label.user.last_name" text="Lastname" /></th>
+							<th><spring:message code="label.user.email" text="Email address" /></th>
+							<th><spring:message code="label.user.account.status" text="Status" /></th>
+							<th><spring:message code="label.user.account.role" text="Roles" /></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -42,11 +42,14 @@
 								<td>${user.firstName}</td>
 								<td>${user.lastName}</td>
 								<td>${user.email}</td>
-								<td><spring:message code="label.user.account.state_${fn:toLowerCase(user.enable)}" text="${user.enable?'Enabled':'Disabled'}"/></td>
-								<td><ul class="list-group"><c:forEach items="${user.roles}" var="role">
+								<td><spring:message code="label.user.account.state_${fn:toLowerCase(user.enable)}" text="${user.enable?'Enabled':'Disabled'}" /></td>
+								<td><c:forEach items="${user.roles}" var="role">
 										<c:set var="role_value" value="${fn:replace(role.type,'ROLE_','')}" />
-										<li class="list-group-item pull-left" style="margin-right: 5px;"><spring:message code="label.role.${fn:toLowerCase(role_value)}" text="${role_value}"/></li>
-									</c:forEach></ul></td>
+										<div style="padding: 6px; border: 1px solid #dddddd; text-align: center; border-radius: 4px; background-color: #eeeeee; display:inline-block;">
+											<spring:message code="label.role.${fn:toLowerCase(role_value)}" text="${role_value}" />
+										</div>
+									</c:forEach>
+								</td>
 							</tr>
 						</c:forEach>
 					</tbody>

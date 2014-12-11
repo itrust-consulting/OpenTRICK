@@ -1,11 +1,10 @@
 function TimeoutInterceptor() {
 	this.lastUpdate = null;
 	this.LIMIT_SESSION = 15.01 * 60 * 1000;
-	this.ALERT_TIME = 3 * 60 * 1000;
-	this.stopState = true;
+	this.ALERT_TIME = 1 * 60 * 1000;
 	this.timer = {};
-	this.loginShow = false;
 	this.intervalTimeout = null;
+	this.logoutTimeout = null;
 	this.TIME_TO_DISPLAY_ALERT = 0;
 	this.alertDialog = null;
 	this.messages = {
@@ -16,53 +15,67 @@ function TimeoutInterceptor() {
 
 TimeoutInterceptor.prototype = {
 	Update : function() {
-		if (this.stopState) {
-			if (!this.loginShow)
-				return this.ShowLogin();
-			return false;
-		}
 		if (this.lastUpdate == null || this.CurrentTime() < this.LIMIT_SESSION)
 			this.lastUpdate = new Date();
 	},
 	IsAuthenticate : function() {
 		var authentificated = false;
-		$.ajax({
-			url : context + "/IsAuthenticate",
-			contentType : "application/json;charset=UTF-8",
-			async : false,
-			success : function(response) {
-				authentificated = response === true;
-			}
-		});
+		try {
+			$.ajax({
+				url : context + "/IsAuthenticate",
+				contentType : "application/json;charset=UTF-8",
+				async : false,
+				success : function(response) {
+					authentificated = response === true;
+				},
+			});
+		} catch (e) {
+			if(e["name"]==="NS_ERROR_FAILURE")
+				console.log("Server appears to be offline... Try again later!");
+		}
 		return authentificated;
 	},
 	CurrentTime : function() {
 		return (new Date().getTime() - this.lastUpdate.getTime());
 	},
 	ShowLogin : function() {
-		this.Stop();
+
 		var url = undefined;
 		if ($("#nav-container").length) {
 			var idAnalysis = $("#nav-container").attr("trick-id");
 			if (idAnalysis != undefined)
-				url = context + "/Analysis/" + idAnalysis + "/SelectOnly";
+				url = context + "/Analysis/" + idAnalysis + "/Select";
 		}
+
 		if (url == undefined)
-			url = document.URL;
-		this.loginShow = true;
-		new Login(url, this).Display();
+			url = window.location.href;
+
+		location.href = url;
+
 		return false;
 	},
 	AlertTimout : function() {
+
 		var that = this;
+
 		if (this.alertDialog == null) {
+
 			this.alertDialog = new Modal();
 			this.alertDialog.FromContent($("#alert-dialog").clone());
+
 			$(this.alertDialog.modal).find(".btn-danger").on("click", function() {
-				setTimeout(function() {
-					if (!that.Reinitialise())
-						return that.ShowLogin();
-				}, 2000);
+
+				if (!that.Reinitialise())
+					return that.ShowLogin();
+				else {
+					that.alertDialog.Hide();
+
+					clearTimeout(that.logoutTimeout);
+					that.timer = setTimeout(function() {
+						that.Check();
+					}, that.TIME_TO_DISPLAY_ALERT);
+				}
+
 				return false;
 			});
 
@@ -80,32 +93,62 @@ TimeoutInterceptor.prototype = {
 				} else
 					that.alertDialog.setBody(that.messages.Logout);
 			});
+
 			$(this.alertDialog.modal).on("hidden.bs.modal", function() {
 				clearInterval(that.intervalTimeout);
 			});
 		}
-		if (this.loginShow)
-			return false;
-		if (this.alertDialog.isHidden) {
+
+		if (this.alertDialog.isHidden)
 			this.alertDialog.Show();
-			if ((this.LIMIT_SESSION - this.CurrentTime()) > 10000) {
-				setTimeout(function() {
-					that.alertDialog.Hide();
-				}, 5000);
-			}
-		}
+
 		return false;
 	},
 	Initialise : function() {
-		this.messages.Alert = MessageResolver("info.session.expired", "Your session will be expired in %d secondes");
-		this.messages.Logout = MessageResolver("info.session.expired.alert", "Your session has been expired");
-		this.TIME_TO_DISPLAY_ALERT = this.LIMIT_SESSION - this.ALERT_TIME;
+
+		var that = this;
+
+		this.stopState = false;
+		this.lastUpdate = null;
+		this.loginShow = false;
+
+		if (!this.IsAuthenticate())
+			this.ShowLogin();
+		else {
+
+			this.TIME_TO_DISPLAY_ALERT = this.LIMIT_SESSION - this.ALERT_TIME;
+
+			// before jQuery send the request we will push it to our array
+			$.ajaxSetup({
+				beforeSend : function(jqXHR, options) {
+					that.Update();
+					//console.log(options.url);
+					if (!options.url.match("/IsAuthenticate$")) {
+						if (!that.IsAuthenticate())
+							that.ShowLogin();
+						else {
+							clearTimeout(that.timer);
+							that.timer = setTimeout(function() {
+								that.Check();
+							}, that.TIME_TO_DISPLAY_ALERT);
+						}
+					}
+				}
+			});
+
+			this.messages.Alert = MessageResolver("info.session.expired", "Your session will be expired in %d secondes");
+			this.messages.Logout = MessageResolver("info.session.expired.alert", "Your session has been expired, redirecting to Login ...");
+
+			this.timer = setTimeout(function() {
+				this.Check();
+			}, this.TIME_TO_DISPLAY_ALERT);
+		}
 
 	},
 	Reinitialise : function() {
-		var temp = this.loginShow;
-		this.loginShow = true;
+
 		var authentificated = false;
+
 		$.ajax({
 			url : context + "/IsAuthenticate",
 			contentType : "application/json;charset=UTF-8",
@@ -115,37 +158,21 @@ TimeoutInterceptor.prototype = {
 			},
 			error : unknowError
 		});
-		this.loginShow = temp;
+
 		return authentificated;
-	},
-	UpdateInterval : function() {
-		if (this.stopState || this.loginShow)
-			return;
-		var that = this;
-		var daily = this.LIMIT_SESSION - this.CurrentTime();
-		var interval = 50000;
-		if (daily < 10000)
-			interval = 5000;
-		else if (daily < 30000)
-			interval = 10000;
-		else if (daily < 60000)
-			interval = 30000;
-		this.timer = setTimeout(function() {
-			that.Check();
-		}, interval);
+
 	},
 	Check : function() {
+		var that = this;
 		if (this.CurrentTime() > this.LIMIT_SESSION) {
 			this.ShowLogin();
-		} else if (this.CurrentTime() > this.TIME_TO_DISPLAY_ALERT)
+		} else if (this.CurrentTime() > this.TIME_TO_DISPLAY_ALERT) {
 			this.AlertTimout();
-		this.UpdateInterval();
-	},
-	Stop : function() {
-		this.stopState = true;
-		if (this.alertDialog != null)
-			this.alertDialog.Hide();
-		clearTimeout(this.timer);
+			var daily = this.LIMIT_SESSION - this.CurrentTime();
+			this.logoutTimeout = setTimeout(function() {
+				that.ShowLogin();
+			}, daily);
+		}
 	},
 	Start : function(login) {
 		if (login != null) {
@@ -159,20 +186,6 @@ TimeoutInterceptor.prototype = {
 			}
 		} else
 			this.Initialise();
-		var that = this;
-		this.stopState = false;
-		this.lastUpdate = new Date();
-		this.loginShow = false;
-		if (!this.IsAuthenticate())
-			this.ShowLogin();
-		else
-			this.UpdateInterval();
-		// before jQuery send the request we will push it to our array
-		$.ajaxSetup({
-			beforeSend : function() {
-				that.Update();
-			}
-		});
 		return false;
 	}
 };

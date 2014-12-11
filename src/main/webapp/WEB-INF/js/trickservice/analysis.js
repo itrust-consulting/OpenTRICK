@@ -7,19 +7,62 @@ $(document).ready(function() {
 	// ******************************************************************************************************************
 	// * load charts
 	// ******************************************************************************************************************
-	reloadCharts();
+	
 
 	// ******************************************************************************************************************
 	// * uncheck checked checkboxes
 	// ******************************************************************************************************************
 
 	$("input[type='checkbox']").removeAttr("checked");
+	
+	//loadAnalysisSections();
+	reloadCharts();
 });
 
-// reload measures
-function reloadMeasureRow(idMeasure, norm) {
+function loadAnalysisSections() {
+	
+	
+	
+}
+
+function updateSettings(element, entryKey) {
 	$.ajax({
-		url : context + "/Measure/SingleMeasure/" + idMeasure,
+		url : context + "/Settings/Update",
+		type : 'post',
+		data : {
+			'key' : entryKey,
+			'value' : !$(element).hasClass('glyphicon-ok')
+		},
+		async : false,
+		success : function(response) {
+			if (response == undefined || response !== true)
+				unknowError();
+			else {
+				if ($(element).hasClass('glyphicon-ok'))
+					$(element).removeClass('glyphicon-ok');
+				else
+					$(element).addClass('glyphicon-ok');
+				var sections = $(element).attr("trick-section-dependency");
+				if (sections != undefined)
+					return reloadSection(sections.split(','));
+				var callBack = $(element).attr("trick-callback");
+				if (callBack != undefined)
+					return eval(callBack);
+				var reload = $(element).attr("trick-reload");
+				if (reload == undefined || reload == 'true')
+					location.reload();
+			}
+			return true;
+		},
+		error : unknowError
+	});
+	return false;
+}
+
+// reload measures
+function reloadMeasureRow(idMeasure, standard) {
+	$.ajax({
+		url : context + "/Analysis/Standard/"+standard+"/SingleMeasure/" + idMeasure,
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
@@ -28,8 +71,8 @@ function reloadMeasureRow(idMeasure, norm) {
 			$(element).html(response);
 			var tag = $(element).find("tr[trick-id='" + idMeasure + "']");
 			if (tag.length) {
-				$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']").replaceWith(tag);
-				$("#section_measure_" + norm + " tr[trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
+				$("#section_standard_" + standard + " tr[trick-id='" + idMeasure + "']").replaceWith(tag);
+				$("#section_standard_" + standard + " tr[trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
 			}
 		},
 		error : unknowError
@@ -37,9 +80,9 @@ function reloadMeasureRow(idMeasure, norm) {
 	return false;
 }
 
-function reloadMeausreAndCompliance(norm, idMeasure) {
-	reloadMeasureRow(idMeasure, norm);
-	compliance(norm);
+function reloadMeasureAndCompliance(standard, idMeasure) {
+	reloadMeasureRow(idMeasure, standard);
+	compliance(standard);
 	return false;
 }
 
@@ -47,40 +90,41 @@ function reloadMeausreAndCompliance(norm, idMeasure) {
 
 function compliances() {
 	$.ajax({
-		url : context + "/Measure/Compliances",
+		url : context + "/Analysis/Standard/Compliances",
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
 
-			if (response.norms == undefined || response.norms == null)
+			if (response.standards == undefined || response.standards == null)
 				return;
-			
+
 			var panelbody = $("#chart_compliance .panel-body");
-			
+
 			$(panelbody).html("");
-			
-			$.each(response.norms, function (key, data) {
-			    //console.log(key); 
-			    
-			    $(panelbody).append("<div id='chart_compliance_"+ key +"'></div>");
-			    
-				$('#chart_compliance_' + key).highcharts(data[0]);
-			    
+
+			$.each(response.standards, function(key, data) {
+				
+				//console.log(key);
+
+				$(panelbody).append("<div id='chart_compliance_" + key + "'></div>");
+
+				$('div[id="chart_compliance_' + key + '"]').highcharts(data[0]);
+
 			});
-			
+
 		},
 		error : unknowError
 	});
 	return false;
 }
 
-function compliance(norm) {
-	if (!$('#chart_compliance_' + norm).length)
+function compliance(standard) {
+	if (!$('#chart_compliance_' + standard).length)
 		return false;
 	$.ajax({
-		url : context + "/Measure/Compliance/" + norm,
+		url : context + "/Analysis/Standard/" + standard +"/Compliance",
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
@@ -88,7 +132,7 @@ function compliance(norm) {
 		success : function(response) {
 			if (response.chart == undefined || response.chart == null)
 				return;
-			$('#chart_compliance_' + norm).highcharts(response);
+			$('#chart_compliance_' + standard).highcharts(response);
 		},
 		error : unknowError
 	});
@@ -99,7 +143,7 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 	if (!$('#chart_evolution_profitability_compliance_' + actionPlanType).length)
 		return false;
 	return $.ajax({
-		url : context + "/ActionPlanSummary/Evolution/" + actionPlanType,
+		url : context + "/Analysis/ActionPlanSummary/Evolution/" + actionPlanType,
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
@@ -117,7 +161,7 @@ function budgetByActionPlanType(actionPlanType) {
 	if (!$('#chart_budget_' + actionPlanType).length)
 		return false;
 	return $.ajax({
-		url : context + "/ActionPlanSummary/Budget/" + actionPlanType,
+		url : context + "/Analysis/ActionPlanSummary/Budget/" + actionPlanType,
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
@@ -162,7 +206,7 @@ function reloadActionPlansAndCharts() {
 function chartALE() {
 	if ($('#chart_ale_scenario_type').length) {
 		$.ajax({
-			url : context + "/Scenario/Chart/Type/Ale",
+			url : context + "/Analysis/Scenario/Chart/Type/Ale",
 			type : "get",
 			async : true,
 			contentType : "application/json;charset=UTF-8",
@@ -175,7 +219,7 @@ function chartALE() {
 	}
 	if ($('#chart_ale_scenario').length) {
 		$.ajax({
-			url : context + "/Scenario/Chart/Ale",
+			url : context + "/Analysis/Scenario/Chart/Ale",
 			type : "get",
 			async : true,
 			contentType : "application/json;charset=UTF-8",
@@ -189,7 +233,7 @@ function chartALE() {
 
 	if ($('#chart_ale_asset').length) {
 		$.ajax({
-			url : context + "/Asset/Chart/Ale",
+			url : context + "/Analysis/Asset/Chart/Ale",
 			type : "get",
 			async : true,
 			contentType : "application/json;charset=UTF-8",
@@ -202,7 +246,7 @@ function chartALE() {
 	}
 	if ($('#chart_ale_asset_type').length) {
 		$.ajax({
-			url : context + "/Asset/Chart/Type/Ale",
+			url : context + "/Analysis/Asset/Chart/Type/Ale",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
@@ -214,120 +258,38 @@ function chartALE() {
 	return false;
 }
 
-// add new standard to analysis
-
-function manageStandard() {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.ALL)) {
-		$.ajax({
-			url : context + "/Analysis/Add/Standard",
-			type : "get",
-			async : false,
-			success : function(response) {
-				if (response["error"] != undefined)
-					showError($("#addStandardModal .modal-body")[0], response["error"]);
-				else {
-					var parser = new DOMParser();
-					var doc = parser.parseFromString(response, "text/html");
-					var forms = $(doc).find("#addStandardModal");
-					if (!forms.length) {
-						showError($("#addStandardModal .modal-body")[0], MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
-					} else {
-						$("#addStandardModal").replaceWith(forms);
-						$("#addStandardModal").modal("toggle");
-						$("#addStandardModal").find("a[role='remove-standard']").click(function() {
-							if ($(this).is(":disabled"))
-								return false;
-							var modal = new Modal($("#confirm-dialog").clone(), MessageResolver("confirm.delete.analysis.norm", "Are you sure, you want to remove this standard from this analysis?"));
-							var selectedNorm = this;
-							$(modal.modal_footer).find("button[name='yes']").click(function() {
-								if ($(selectedNorm).is(":disabled"))
-									return false;
-								enableButtonSaveStandardState(false);
-								$.ajax({
-									url : context + "/Analysis/Delete/Standard/" + $(selectedNorm).attr("trick-id"),
-									type : "get",
-									async : false,
-									contentType : "application/json;charset=UTF-8",
-									success : function(response) {
-										if (response["error"] != undefined) {
-											enableButtonSaveStandardState(true);
-											showError($("#addStandardModal .modal-footer")[0], response["error"]);
-										} else if (response["success"] != undefined) {
-											showSuccess($("#addStandardModal .modal-footer")[0], response["success"]);
-											location.reload();
-											setTimeout(function() {
-												$("#addStandardModal").modal("hide");
-											}, 10000);
-										} else
-											unknowError();
-									},
-									error : unknowError
-								});
-							});
-							modal.Show();
-						});
-					}
-				}
-			},
-			error : unknowError
-		});
-		enableButtonSaveStandardState(true);
-	} else
-		permissionError();
-	return false;
-}
-
-function enableButtonSaveStandardState(state) {
-	if (!($("#btn_save_standard").length || $("#addStandardModal").find("a[role='remove-standard']").length))
+function measureSortTable(element) {
+	// check if datatable has to be initialised
+	var tables = $(element).find("table");
+	if (!tables.length)
 		return false;
-	$("#addStandardModal .alert").remove();
-	if (!state)
-		$("#add_standard_progressbar").show();
-	else
-		$("#add_standard_progressbar").hide();
+	// define sort order of text
+	Array.AlphanumericSortOrder = 'AaÃ�Ã¡BbCcDdÃ�Ã°EeÃ‰Ã©Ä˜Ä™FfGgHhIiÃ�Ã­JjKkLlMmNnOoÃ“Ã³PpQqRrSsTtUuÃšÃºVvWwXxYyÃ�Ã½ZzÃžÃ¾Ã†Ã¦Ã–Ã¶';
 
-	$("#btn_save_standard").prop("disabled", !state);
-	$("#addStandardModal").find("a[role='remove-standard']").prop("disabled", !state);
+	// flag to check for case sensitive comparation
+	Array.AlphanumericSortIgnoreCase = true;
 
-	if (state) {
-		$("#btn_save_standard").removeClass("disabled");
-		$("#addStandardModal").find("a[role='remove-standard']").removeClass("disabled");
-	} else {
-		$("#btn_save_standard").addClass("disabled");
-		$("#addStandardModal").find("a[role='remove-standard']").addClass("disabled");
-	}
-	return false;
-}
-
-function saveStandard(form) {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.ALL)) {
-		if ($("#btn_save_standard").is(":disabled"))
-			return false;
-		enableButtonSaveStandardState(false);
-		var normId = $("#" + form + " select").val();
-		$.ajax({
-			url : context + "/Analysis/Save/Standard/" + normId,
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				if (response["error"] != undefined) {
-					enableButtonSaveStandardState(true);
-					showError($("#addStandardModal .modal-footer")[0], response["error"]);
-				} else if (response["success"] != undefined) {
-					showSuccess($("#addStandardModal .modal-footer")[0], response["success"]);
-					location.reload();
-					setTimeout(function() {
-						$("#addStandardModal").modal("hide");
-					}, 10000);
-				}
+	// call the tablesorter plugin and apply the uitheme widget
+	$(tables).tablesorter({
+		headers : {
+			0 : {
+				sorter : false,
+			}
+		},
+		textSorter : {
+			1 : Array.AlphanumericSort,
+			2 : function(a, b, direction, column, table) {
+				if (table.config.sortLocaleCompare)
+					return a.localeCompare(b);
+				return versionComparator(a, b);
 			},
-			error : unknowError
-		});
-	} else
-		permissionError();
-	return false;
+			3 : $.tablesorter.sortNatural
+		},
+		theme : "bootstrap",
+		headerTemplate : '{icon} {content}',
+		widthFixed : true,
+		widgets : [ "uitheme" ]
+	});
 }
 
 // common

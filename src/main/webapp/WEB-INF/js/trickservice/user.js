@@ -110,10 +110,10 @@ function deleteUser(userId, name) {
 			},
 			error : unknowError
 		});
-		$("#deleteUserModel").modal('toggle');
+		$("#deleteUserModel").modal('hide');
 		return false;
 	});
-	$("#deleteUserModel").modal('toggle');
+	$("#deleteUserModel").modal('show');
 	return false;
 }
 

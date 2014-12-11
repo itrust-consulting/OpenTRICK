@@ -5,8 +5,10 @@ function AssessmentViewer() {
 	AssessmentViewer.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
 		$(this.modal_dialog).prop("style", "width: 95%; min-width:1170px;");
-		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale");
-		var probabilityScale = MessageResolver("label.menu.show.probability_scale", "Show probability scale");
+		var lang = $("#nav-container").attr("trick-language");
+
+		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale", null, lang);
+		var probabilityScale = MessageResolver("label.menu.show.probability_scale", "Show probability scale", null, lang);
 		$(this.modal_title).replaceWith(
 				$("<div class='modal-title'><h4 role='title' class=''></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
 						+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale + "</a></li><ul></div>"));
@@ -17,27 +19,30 @@ function AssessmentViewer() {
 		this.setTitle("Assessment");
 
 		$(this.modal).on("hidden.bs.modal", function() {
-			reloadSection("section_asset");// it will call reloadSection for scenario
+			reloadSection("section_asset");// it will call reloadSection for
+											// scenario
 		});
 
 		$(this.modal_header).find("*[role='impact_scale']").on("click", function() {
 			var view = new Modal();
 			view.Intialise();
 			$(view.modal_footer).remove();
-			view.setTitle(MessageResolver("label.title.impact_scale", "Impact scale"));
+			view.setTitle(MessageResolver("label.title.impact_scale", "Impact scale", null, lang));
 			view.setBody($("#Scale_Impact .panel-body").html());
 			$(view.modal_body).find("td").removeAttributes();
 			view.Show();
+			return false;
 		});
 
 		$(this.modal_header).find("*[role='probability_scale']").on("click", function() {
 			var view = new Modal();
 			view.Intialise();
 			$(view.modal_footer).remove();
-			view.setTitle(MessageResolver("label.title.probability_scale", "Probability scale"));
+			view.setTitle(MessageResolver("label.title.probability_scale", "Probability scale", null, lang));
 			view.setBody($("#Scale_Probability .panel-body").html());
 			$(view.modal_body).find("td").removeAttributes();
 			view.Show();
+			return false;
 		});
 		return false;
 
@@ -113,8 +118,7 @@ function AssessmentViewer() {
 	};
 
 	AssessmentViewer.prototype.ShowError = function(message) {
-		var error = $('<div class="alert alert-danger alert-dismissable">' + message
-				+ '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>');
+		var error = $('<div class="alert alert-danger alert-dismissable">' + message + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>');
 		error.attr("style", "margin-bottom: 0px;");
 		$(error).appendTo(this.modal_title);
 		setTimeout(function() {
@@ -139,7 +143,7 @@ function AssessmentAssetViewer(assetId) {
 			this.Intialise();
 		var instance = this;
 		return $.ajax({
-			url : context + "/Assessment/Asset/" + instance.assetId,
+			url : context + "/Analysis/Assessment/Asset/" + instance.assetId,
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
@@ -167,7 +171,7 @@ function AssessmentAssetViewer(assetId) {
 	AssessmentAssetViewer.prototype.Update = function() {
 		var instance = this;
 		return $.ajax({
-			url : context + "/Assessment/Asset/" + instance.assetId + "/Update",
+			url : context + "/Analysis/Assessment/Asset/" + instance.assetId + "/Update",
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
@@ -205,7 +209,7 @@ function AssessmentScenarioViewer(scenarioId) {
 			this.Intialise();
 		var instance = this;
 		return $.ajax({
-			url : context + "/Assessment/Scenario/" + instance.scenarioId,
+			url : context + "/Analysis/Assessment/Scenario/" + instance.scenarioId,
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
@@ -234,7 +238,7 @@ function AssessmentScenarioViewer(scenarioId) {
 	AssessmentScenarioViewer.prototype.Update = function() {
 		var instance = this;
 		return $.ajax({
-			url : context + "/Assessment/Scenario/" + instance.scenarioId + "/Update",
+			url : context + "/Analysis/Assessment/Scenario/" + instance.scenarioId + "/Update",
 			contentType : "application/json;charset=UTF-8",
 			async : false,
 			success : function(reponse) {
@@ -282,7 +286,7 @@ function computeAssessment(silent) {
 	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
-			url : context + "/Assessment/Update",
+			url : context + "/Analysis/Assessment/Update",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			async : true,
@@ -313,7 +317,7 @@ function refreshAssessment() {
 		$("#confirm-dialog .modal-body").html(MessageResolver("confirm.refresh.assessment", "Are you sure, you want to rebuild all assessments"));
 		$("#confirm-dialog .btn-danger").click(function() {
 			$.ajax({
-				url : context + "/Assessment/Refresh",
+				url : context + "/Analysis/Assessment/Refresh",
 				type : "get",
 				contentType : "application/json;charset=UTF-8",
 				async : true,
@@ -341,7 +345,7 @@ function updateAssessmentAle(silent) {
 	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
-			url : context + "/Assessment/Update/ALE",
+			url : context + "/Analysis/Assessment/Update/ALE",
 			type : "get",
 			contentType : "application/json;charset=UTF-8",
 			async : true,

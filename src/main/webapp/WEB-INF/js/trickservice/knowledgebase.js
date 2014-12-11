@@ -10,8 +10,8 @@ function editSingleAnalysis(analysisId) {
 			return false;
 		analysisId = selectedScenario[0];
 	}
-	$("#addAnalysisModel .progress").hide();
-	$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
+	$("#editAnalysisModel .progress").hide();
+	$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
 	$.ajax({
 		url : context + "/Analysis/Edit/" + analysisId,
 		type : "get",
@@ -24,10 +24,7 @@ function editSingleAnalysis(analysisId) {
 				$("#alert-dialog").modal("toggle");
 			} else {
 				$("#analysis_form").html($(form).html());
-				$("#addAnalysisModel-title").text(MessageResolver("title.analysis.update", "Update an Analysis"));
-				$("#addAnalysisButton").text(MessageResolver("label.action.edit", "Edit"));
-				$("#analysis_form").prop("action", "/update");
-				$("#addAnalysisModel").modal('toggle');
+				$("#editAnalysisModel").modal('toggle');
 			}
 		},
 		error : unknowError
@@ -74,17 +71,17 @@ function selectAnalysis(analysisId) {
 }
 
 function saveAnalysis(form, reloadaction) {
-	$("#addAnalysisModel .progress").show();
-	$("#addAnalysisModel #addAnalysisButton").prop("disabled", true);
+	$("#editAnalysisModel .progress").show();
+	$("#editAnalysisModel #editAnalysisButton").prop("disabled", true);
 	$.ajax({
 		url : context + "/Analysis/Save",
 		type : "post",
 		data : serializeForm(form),
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			$("#addAnalysisModel .progress").hide();
-			$("#addAnalysisModel #addAnalysisButton").prop("disabled", false);
-			var alert = $("#addAnalysisModel .label-danger");
+			$("#editAnalysisModel .progress").hide();
+			$("#editAnalysisModel #editAnalysisButton").prop("disabled", false);
+			var alert = $("#editAnalysisModel .label-danger");
 			if (alert.length)
 				alert.remove();
 			for ( var error in response) {
@@ -92,10 +89,7 @@ function saveAnalysis(form, reloadaction) {
 				errorElement.setAttribute("class", "label label-danger");
 				$(errorElement).text(response[error]);
 				switch (error) {
-				case "analysiscustomer":
-					$(errorElement).appendTo($("#analysiscustomercontainer"));
-					break;
-
+				
 				case "analysislanguage":
 					$(errorElement).appendTo($("#analysislanguagecontainer"));
 					break;
@@ -105,25 +99,13 @@ function saveAnalysis(form, reloadaction) {
 
 					break;
 
-				case "profile":
-					$(errorElement).appendTo($("#analysis_form select[name='profile']").parent());
-					break;
-
-				case "author":
-					$(errorElement).appendTo($("#analysis_form input[name='author']").parent());
-					break;
-
-				case "version":
-					$(errorElement).appendTo($("#analysis_version").parent());
-					break;
-
 				case "analysis":
-					$(errorElement).appendTo($("#addAnalysisModel .modal-body"));
+					$(errorElement).appendTo($("#editAnalysisModel .modal-body"));
 					break;
 				}
 			}
-			if (!$("#addAnalysisModel .label-danger").length) {
-				$("#addAnalysisModel").modal("hide");
+			if (!$("#editAnalysisModel .label-danger").length) {
+				$("#editAnalysisModel").modal("hide");
 				reloadSection("section_profile_analysis");
 			}
 			return false;
@@ -189,12 +171,10 @@ function analysisTableSortable() {
 			0 : {
 				sorter : false,
 				filter : false,
-				width : "0.5%"
 			},
 			1 : {
 				sorter : "text",
 				filter : false,
-				width : "20%",
 			},
 			2 : {
 				sorter : "text",
@@ -236,16 +216,8 @@ function analysisTableSortable() {
 		'width' : '2px'
 	});
 	$("th[class~='tablesorter-header'][data-column='1']").css({
-		'width' : '150px'
+		'width' : '25%'
 	});
-	$("th[class~='tablesorter-header'][data-column='3']").css({
-		'width' : '250px'
-	});
-	$("th[class~='tablesorter-header'][data-column='4']").css({
-		'width' : '250px'
-	});
-	$("th[class~='tablesorter-header'][data-column='5']").css({
-		'width' : '150px'
-	});
+
 	return false;
 }

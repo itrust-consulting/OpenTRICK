@@ -176,7 +176,7 @@ function FieldEditor(element, validator) {
 		} else {
 			if (that.HasChanged()) {
 				$.ajax({
-					url : context + "/EditField/" + that.controllor + "/" + that.classId,
+					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
@@ -248,7 +248,10 @@ function PhaseFieldEditor(element) {
 
 			$(this.fieldEditor).datepicker({
 				format : "yyyy-mm-dd",
-				language : l_lang
+				language : l_lang,
+				autoclose : true,
+				weekStart : 1,
+				todayHighlight : true,
 			}).on("hide", function() {
 				if ($(that.fieldEditor).val() == "")
 					that.Rollback();
@@ -276,7 +279,7 @@ function ExtendedFieldEditor(element) {
 		} else {
 			if (that.HasChanged()) {
 				$.ajax({
-					url : context + "/EditField/" + that.controllor + "/" + that.classId,
+					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
@@ -377,7 +380,7 @@ function AssessmentFieldEditor(element) {
 		} else {
 			if (that.HasChanged()) {
 				$.ajax({
-					url : context + "/EditField/" + that.controllor + "/" + that.classId,
+					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
 					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)

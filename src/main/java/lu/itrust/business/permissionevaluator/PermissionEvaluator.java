@@ -2,7 +2,7 @@ package lu.itrust.business.permissionevaluator;
 
 import java.security.Principal;
 
-import lu.itrust.business.TS.AnalysisRight;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 
 /** 
  * PermissionEvaluator.java: <br>

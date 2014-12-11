@@ -6,6 +6,7 @@
 <!-- ################################################################ Set Page Title ################################################################ -->
 <c:set scope="request" var="title">label.title.knowledgebase</c:set>
 <!-- ###################################################################### HTML #################################################################### -->
+<!DOCTYPE html>
 <html>
 <!-- Include Header -->
 <jsp:include page="../header.jsp" />
@@ -25,7 +26,7 @@
 			<div class="content" id="content" role="main" data-spy="scroll">
 				<jsp:include page="customer/customers.jsp" />
 				<jsp:include page="language/languages.jsp" />
-				<jsp:include page="standard/norm/norms.jsp" />
+				<jsp:include page="standards/standard/standards.jsp" />
 				<jsp:include page="analysis/analyses.jsp" />
 				<jsp:include page="widget.jsp" />
 			</div>
@@ -37,7 +38,7 @@
 		<script type="text/javascript" src="<spring:url value="js/trickservice/knowledgebase.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/jquery.fileDownload.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/measuredescription.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/trickservice/norm.js" />"></script>
+		<script type="text/javascript" src="<spring:url value="js/trickservice/standard.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/language.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/customer.js" />"></script>
 	</div>

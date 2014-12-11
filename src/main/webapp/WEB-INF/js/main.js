@@ -54,9 +54,9 @@ $(function() {
 	});
 
 	//prevent unknown error modal display
-	$("a[role='changeUILanguage'], div[role='main-menu'] a").click(function() {
-		application["isReloading"] = true;
-	});
+	$(window).bind("beforeunload", function() {
+        application["isReloading"] = true;
+    });
 
 	if ($(".popover-element").length)
 		$(".popover-element").popover('hide');
@@ -205,43 +205,8 @@ var ANALYSIS_RIGHT = {
 };
 
 function permissionError() {
-	new Modal($("#alert-dialog").clone(), MessageResolver("error.not_authorized", "Insufficient permissions!")).Show();
-	return false;
-}
-
-function updateSettings(element, group, name, entryKey) {
-	$.ajax({
-		url : context + "/Settings/Update",
-		type : 'post',
-		data : {
-			'group' : group,
-			'name' : name,
-			'key' : entryKey,
-			'value' : !$(element).hasClass('glyphicon-ok')
-		},
-		async : false,
-		success : function(response) {
-			if (response == undefined || response !== true)
-				unknowError();
-			else {
-				if ($(element).hasClass('glyphicon-ok'))
-					$(element).removeClass('glyphicon-ok');
-				else
-					$(element).addClass('glyphicon-ok');
-				var sections = $(element).attr("trick-section-dependency");
-				if (sections != undefined)
-					return reloadSection(sections.split(','));
-				var callBack = $(element).attr("trick-callback");
-				if (callBack != undefined)
-					return eval(callBack);
-				var reload = $(element).attr("trick-reload");
-				if (reload == undefined || reload == 'true')
-					location.reload();
-			}
-			return true;
-		},
-		error : unknowError
-	});
+	var language = $("#nav-container").attr("trick-language");
+	new Modal($("#alert-dialog").clone(), MessageResolver("error.not_authorized", "Insufficient permissions!", null, language)).Show();
 	return false;
 }
 
@@ -273,7 +238,7 @@ function userCan(idAnalysis, action) {
  * @param params
  * @returns
  */
-function MessageResolver(code, defaulttext, params) {
+function MessageResolver(code, defaulttext, params, language) {
 	var uniqueCode = "|^|" + code + "__uPu_*+*_*+*_+*+_PuP__" + params + "|$|";// mdr
 	if (application.localesMessages[uniqueCode] != undefined)
 		return application.localesMessages[uniqueCode];
@@ -282,6 +247,7 @@ function MessageResolver(code, defaulttext, params) {
 	var data = {
 		"code" : code,
 		"message" : defaulttext,
+		"language" : language,
 		parameters : []
 	}
 	if ($.isArray(params))
@@ -310,7 +276,7 @@ function fixedTableHeader(table) {
 	$(table).floatThead({
 		scrollContainer : function($table) {
 			return $table.closest('.panel-body');
-		}
+		},
 	});
 	return true;
 }
@@ -488,29 +454,6 @@ function updateStatus(progressBar, idTask, callback, status) {
 				eval(status.taskName.action);
 		}
 	}
-	return false;
-}
-
-function deleteAssetTypeValueDuplication() {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
-	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
-		$.ajax({
-			url : context + "/Scenario/Delete/AssetTypeValueDuplication",
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("toggle");
-				} else if (response["success"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["success"]);
-					$("#alert-dialog").modal("toggle");
-				}
-			},
-			error : unknowError
-		});
-	} else
-		permissionError();
 	return false;
 }
 

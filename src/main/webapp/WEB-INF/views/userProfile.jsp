@@ -1,12 +1,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <c:set scope="request" var="title">label.title.profile</c:set>
+<!DOCTYPE html>
 <html>
-<!-- Include Header -->
 <jsp:include page="header.jsp" />
 <body>
 	<div id="wrap">
@@ -18,8 +18,13 @@
 				</h1>
 			</div>
 			<span id="success" hidden="hidden"></span>
-			<div style="margin: 0 auto; max-width: 600px; padding: 15px;">
+			<div style="margin: 0 auto; max-width: 600px;">
 				<form id="updateprofileform" name="updateprofileform" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/Profile/Update">
+					<div class="page-header">
+						<h3>
+							<spring:message code="label.user.title.login_information" text="Login Information" />
+						</h3>
+					</div>
 					<div class="form-group">
 						<label for="login" class="col-sm-3 control-label"> <spring:message code="label.user.login" text="Username" />
 						</label>
@@ -48,6 +53,11 @@
 							<input type="password" id="repeatPassword" name="repeatPassword" class="form-control" required="required" />
 						</div>
 					</div>
+					<div class="page-header">
+						<h3>
+							<spring:message code="label.user.title.personal_information" text="Personal Information" />
+						</h3>
+					</div>
 					<div class="form-group">
 						<label for="firstName" class="col-sm-3 control-label"> <spring:message code="label.user.first_name" text="Firstname" />
 						</label>
@@ -71,19 +81,43 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="roles" class="col-sm-3 control-label"> <spring:message code="label.user.account.role" text="Roles" />
-						</label>
+						<c:if test="${user.roles.size()>1}">
+							<label for="roles" class="col-sm-3 control-label"> <spring:message code="label.user.account.roles" text="Roles" />
+							</label>
+						</c:if>
+						<c:if test="${user.roles.size()==1}">
+							<label for="roles" class="col-sm-3 control-label"> <spring:message code="label.user.account.role" text="Role" />
+							</label>
+						</c:if>
 						<div class="col-sm-9">
-							<ul class="list-group">
-								<c:forEach items="${user.roles}" var="role">
-									<c:set var="role_value" value="${fn:replace(role.type,'ROLE_','')}" />
-									<li class="list-group-item pull-left" style="margin-right: 5px;"><spring:message code="label.role.${fn:toLowerCase(role_value)}" text="${role_value}" /></li>
-								</c:forEach>
-							</ul>
+							<c:forEach items="${user.roles}" var="role">
+								<c:set var="role_value" value="${fn:replace(role.type,'ROLE_','')}" />
+								<div style="padding: 6px; border: 1px solid #dddddd; text-align: center; border-radius: 4px; background-color: #eeeeee;">
+									<spring:message code="label.role.${fn:toLowerCase(role_value)}" text="${role_value}" />
+								</div>
+							</c:forEach>
 						</div>
 					</div>
+					<div class="page-header">
+						<h3>
+							<spring:message code="label.user.title.application_settings" text="Application Settings" />
+						</h3>
+					</div>
 					<div class="form-group">
-						<div class="col-sm-offset-3 col-sm-9">
+						<label for="locale" class="col-sm-6 control-label"> <spring:message code="label.user.default_ui_language" text="Default User Interface Language" />
+						</label>
+						<div class="col-sm-6">
+							<select class="form-control" name="locale" id="locale">
+								<option value="en" ${user.locale.equals("en")?"selected='selected'":"" } class="list-group-item pull-left"
+									style="margin-right: 5px;background: white url(${pageContext.request.contextPath}/images/flags/en.png) no-repeat 1%;border:1px solid white;padding:0px;padding-top:3px;padding-bottom:3px;padding-left: 25px;">English</option>
+								<option value="fr" ${user.locale.equals("fr")?"selected='selected'":"" } class="list-group-item pull-left"
+									style="margin-right: 5px;background: white url(${pageContext.request.contextPath}/images/flags/fr.png) no-repeat 1%;border:1px solid white;padding:0px;padding-top:3px;padding-bottom:3px;padding-left: 25px;">Français</option>
+							</select>
+						</div>
+						<input type="hidden" value="${user.locale}" id="perviouslanguage" />
+					</div>
+					<div class="form-group">
+						<div class="col-sm-12" style="text-align: center;">
 							<button class="btn btn-primary" onclick="return updateProfile('updateprofileform');" type="button">
 								<spring:message code="label.user.update" text="Update" />
 							</button>

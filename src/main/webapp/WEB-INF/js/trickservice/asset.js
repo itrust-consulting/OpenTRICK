@@ -23,7 +23,7 @@ function selectAsset(assetId, value) {
 				requiredUpdate.push(selectedItem[i]);
 		}
 		$.ajax({
-			url : context + "/Asset/Select",
+			url : context + "/Analysis/Asset/Select",
 			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(requiredUpdate, null, 2),
 			type : 'post',
@@ -35,7 +35,7 @@ function selectAsset(assetId, value) {
 		});
 	} else {
 		$.ajax({
-			url : context + "/Asset/Select/" + assetId,
+			url : context + "/Analysis/Asset/Select/" + assetId,
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {
@@ -50,34 +50,52 @@ function selectAsset(assetId, value) {
 
 function deleteAsset(assetId) {
 	if (assetId == null || assetId == undefined) {
-		var selectedScenario = $("#section_asset :checked");
-		if (selectedScenario.length != 1)
+		var selectedScenario = findSelectItemIdBySection(("section_asset"));
+		if (!selectedScenario.length)
 			return false;
-		assetId = findTrickID(selectedScenario[0]);
 	}
-	var assetname = $("#section_asset tr[trick-id='" + assetId + "'] td:nth-child(3)").text();
-	$("#confirm-dialog .modal-body").html(
-			MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset <b>" + assetname
-					+ "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", [ assetname ]));
+
+	var lang = $("#nav-container").attr("trick-language");
+	if (selectedScenario.length == 1) {
+		var assetname = $("#section_asset tr[trick-id='" + assetId + "'] td:nth-child(3)").text();
+		$("#confirm-dialog .modal-body").html(
+				MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset <b>" + assetname
+						+ "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", assetname, lang));
+	} else
+		$("#confirm-dialog .modal-body")
+				.html(
+						MessageResolver(
+								"confirm.delete.selected.asset",
+								"Are you sure, you want to delete the selected assets?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on these assets!",
+								assetname, lang));
 	$("#confirm-dialog .btn-danger").click(function() {
-		$.ajax({
-			url : context + "/Asset/Delete/" + assetId,
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				if (response["success"] != undefined)
-					reloadSection("section_asset");
-				 else if (response["error"] != undefined) {
-					$("#alert-dialog .modal-body").html(response["error"]);
-					$("#alert-dialog").modal("toggle");
-				} else {
-					$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset"));
-					$("#alert-dialog").modal("toggle");
-				}
-				return false;
-			},
-			error : unknowError
-		});
+		while (selectedScenario.length) {
+			rowTrickId = selectedScenario.pop();
+			$.ajax({
+				url : context + "/Analysis/Asset/Delete/" + rowTrickId,
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				success : function(response) {
+
+					var trickSelect = parseJson(response);
+					if (trickSelect != undefined && trickSelect["success"] == undefined) {
+
+						if (response["error"] != undefined) {
+							$("#alert-dialog .modal-body").html(response["error"]);
+							$("#alert-dialog").modal("toggle");
+						} else {
+							$("#alert-dialog .modal-body").html(MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset", null, lang));
+							$("#alert-dialog").modal("toggle");
+						}
+
+					}
+
+					return false;
+				},
+				error : unknowError
+			});
+		}
+		reloadSection("section_asset");
 	});
 	$("#confirm-dialog").modal("toggle");
 	return false;
@@ -85,16 +103,19 @@ function deleteAsset(assetId) {
 }
 
 function editAsset(rowTrickId, isAdd) {
-	if (isAdd)
+	if (isAdd) {
+		var selectedScenario = $("#section_asset :checked");
+		if (selectedScenario.length != 0)
+			return false;
 		rowTrickId = undefined;
-	else if (rowTrickId == null || rowTrickId == undefined) {
+	} else if (rowTrickId == null || rowTrickId == undefined) {
 		var selectedScenario = $("#section_asset :checked");
 		if (selectedScenario.length != 1)
 			return false;
 		rowTrickId = findTrickID(selectedScenario[0]);
 	}
 	$.ajax({
-		url : context + ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Asset/Add" : "/Asset/Edit/" + rowTrickId),
+		url : context + ((rowTrickId == null || rowTrickId == undefined || rowTrickId < 1) ? "/Analysis/Asset/Add" : "/Analysis/Asset/Edit/" + rowTrickId),
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
@@ -113,7 +134,7 @@ function editAsset(rowTrickId, isAdd) {
 
 function saveAsset(form) {
 	return $.ajax({
-		url : context + "/Asset/Save",
+		url : context + "/Analysis/Asset/Save",
 		type : "post",
 		async : true,
 		data : serializeAssetForm(form),

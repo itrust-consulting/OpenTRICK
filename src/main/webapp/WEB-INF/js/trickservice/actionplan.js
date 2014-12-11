@@ -1,33 +1,19 @@
 function displayActionPlanOptions(analysisId) {
 
 	$.ajax({
-		url : context + "/ActionPlan/" + analysisId + "/ComputeOptions",
+		url : context + "/Analysis/ActionPlan/ComputeOptions",
 		type : "GET",
 		async : true,
 		contentType : "application/json",
 		success : function(response) {
 
-			dialog = new Modal();
+			var parser = new DOMParser();
+			var doc = parser.parseFromString(response, "text/html");
+			var actionplancomputeoptions = $(doc).find("* div#actionplancomputeoptions");
 
-			var button_footer_compute = document.createElement("button");
-			var button_footer_cancel = document.createElement("button");
-			button_footer_compute.setAttribute("onclick", "return calculateActionPlanWithOptions(" + analysisId + " ,'#modalBox')");
-			button_footer_compute.setAttribute("class", "btn btn-default");
-			button_footer_compute.setAttribute("data-dismiss", "modal");
-			button_footer_cancel.setAttribute("class", "btn btn-default");
-			button_footer_cancel.setAttribute("data-dismiss", "modal");
-			$(button_footer_compute).html(MessageResolver("label.actionplan.compute", "Compute"));
-			$(button_footer_cancel).html("Cancel");
-
-			dialog.modal_footer_buttons = [ button_footer_compute, button_footer_cancel ];
-
-			dialog.Intialise();
-
-			dialog.setTitle(MessageResolver("title.actionplan.compute.options", "Compute Action Plan: Options"));
-
-			dialog.setBody(response);
-
-			dialog.Show();
+			if ($("#actionplancomputeoptions").length)
+				$("#actionplancomputeoptions").html($(actionplancomputeoptions).html());
+			$("#actionplancomputeoptions").modal("toggle");
 
 		},
 		error : unknowError
@@ -35,25 +21,15 @@ function displayActionPlanOptions(analysisId) {
 	return false;
 }
 
-function removeModal(modalpopup) {
-	$("*[class='modal-backdrop fade in']*").remove();
+function calculateActionPlanWithOptions(form) {
 
-	$(modalpopup).remove();
-}
-
-function calculateActionPlanWithOptions(analysisId, modalBox) {
-
-	var form = $(modalBox + " #actionplancomputationoptionsform");
+	var form = $("#" + form);
 
 	var data = {};
 
-	data["id"] = analysisId;
+	data["id"] = form.find("input[name='id']").val();
 
-	var uncertainty = form.find(" input[name='uncertainty']").is(":checked");
-
-	data["uncertainty"] = uncertainty;
-
-	form.find("input[name^='norm_']").each(function() {
+	form.find("input[name^='standard_']").each(function() {
 
 		var name = $(this).attr("name");
 
@@ -65,17 +41,16 @@ function calculateActionPlanWithOptions(analysisId, modalBox) {
 
 	var jsonarray = JSON.stringify(data);
 
-	// removeModal(modalBox);
-
 	$.ajax({
-		url : context + "/ActionPlan/Compute",
+		url : context + "/Analysis/ActionPlan/Compute",
 		type : "post",
 		data : jsonarray,
 		async : true,
 		contentType : "application/json",
 		success : function(response) {
 			if (response["success"] != undefined) {
-				new TaskManager(MessageResolver("title.actionplan.compute", "Compute Action Plan")).Start();
+				var language = $("#nav-container").attr("trick-language");
+				new TaskManager(MessageResolver("title.actionplan.compute", "Compute Action Plan", null, language)).Start();
 			} else if (message["error"]) {
 				$("#alert-dialog .modal-body").html(message["error"]);
 				$("#alert-dialog").modal("toggle");
@@ -94,7 +69,7 @@ function hideActionplanAssets(sectionactionplan, menu) {
 
 	if (!$("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
 		$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
-		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
+		$(menu + " a#actionplanassetsmenulink").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
 	}
 
 	return false;
@@ -107,17 +82,18 @@ function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
 	table.floatThead('destroy');
 	$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
 	if ($("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
-		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
+		$(menu + " a#actionplanassetsmenulink").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
 		fixedTableHeader(table);
 	} else {
-		$(menu + " a").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;" + MessageResolver("action.actionplanassets.hide", "Hide Assets"));
+		$(menu + " a#actionplanassetsmenulink").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;" + MessageResolver("action.actionplanassets.hide", "Hide Assets"));
+		//fixedTableHeader(table);
 	}
 	return false;
 }
 
-function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
+function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) {
 	$.ajax({
-		url : context + "/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
+		url : context + "/Analyis/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
@@ -130,6 +106,6 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, norm) {
 		},
 		error : unknowError
 	});
-	reloadMeasureRow(idMeasure, norm);
+	reloadMeasureRow(idMeasure, standard);
 	return false;
 }

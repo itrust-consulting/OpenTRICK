@@ -4,7 +4,7 @@
 package TS;
 
 import junit.framework.TestCase;
-import lu.itrust.business.TS.actionplan.ActionPlanComputation;
+import lu.itrust.business.TS.data.actionplan.helper.ActionPlanComputation;
 
 /**
  * @author oensuifudine

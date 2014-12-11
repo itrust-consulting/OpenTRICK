@@ -1,7 +1,10 @@
 function editScenario(rowTrickId, isAdd) {
-	if (isAdd)
+	if (isAdd) {
+		var selectedScenario = $("#section_scenario :checked");
+		if (selectedScenario.length != 0)
+			return false;
 		rowTrickId = undefined;
-	else if (rowTrickId == null || rowTrickId == undefined) {
+	} else if (rowTrickId == null || rowTrickId == undefined) {
 		var selectedScenario = $("#section_scenario :checked");
 		if (selectedScenario.length != 1)
 			return false;
@@ -9,7 +12,7 @@ function editScenario(rowTrickId, isAdd) {
 	}
 
 	$.ajax({
-		url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Scenario/Add" : "/Scenario/Edit/" + rowTrickId),
+		url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Analysis/Scenario/Add" : "/Analysis/Scenario/Edit/" + rowTrickId),
 		contentType : "application/json;charset=UTF-8",
 		async : true,
 		success : function(response) {
@@ -29,7 +32,7 @@ function editScenario(rowTrickId, isAdd) {
 
 function saveScenario(form) {
 	return $.ajax({
-		url : context + "/Scenario/Save",
+		url : context + "/Analysis/Scenario/Save",
 		type : "post",
 		data : serializeScenarioForm(form),
 		contentType : "application/json;charset=UTF-8",
@@ -92,25 +95,26 @@ function deleteScenario(scenarioId) {
 		var selectedScenario = findSelectItemIdBySection(("section_scenario"));
 		if (!selectedScenario.length)
 			return false;
-		var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") : MessageResolver(
-				"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios");
+		var lang = $("#nav-container").attr("trick-language");
+		var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang) : MessageResolver(
+				"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios", null, lang);
 		$("#confirm-dialog .modal-body").text(text);
 		$("#confirm-dialog .btn-danger").click(function() {
 			while (selectedScenario.length) {
 				rowTrickId = selectedScenario.pop();
 				$.ajax({
-					url : context + "/Scenario/Delete/" + rowTrickId,
+					url : context + "/Analysis/Scenario/Delete/" + rowTrickId,
 					contentType : "application/json;charset=UTF-8",
 					async : false,
 					success : function(response) {
 						var trickSelect = parseJson(response);
 						if (trickSelect != undefined && trickSelect["success"] != undefined) {
-							var row = $("#section_scenario tr[trick-id='" + rowTrickId + "']");
+							/*var row = $("#section_scenario tr[trick-id='" + rowTrickId + "']");
 							var checked = $("#section_scenario tr[trick-id='" + rowTrickId + "'] :checked");
 							if (checked.length)
 								$(checked).removeAttr("checked");
 							if (row.length)
-								$(row).remove();
+								$(row).remove();*/
 						}
 						return false;
 					},
@@ -120,10 +124,10 @@ function deleteScenario(scenarioId) {
 			reloadSection('section_scenario');
 		});
 	} else {
-		$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario"));
+		$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang));
 		$("#confirm-dialog .btn-danger").click(function() {
 			$.ajax({
-				url : context + "/Scenario/Delete/" + scenarioId,
+				url : context + "/Analysis/Scenario/Delete/" + scenarioId,
 				contentType : "application/json;charset=UTF-8",
 				async : true,
 				success : function(reponse) {
@@ -150,7 +154,8 @@ function serializeScenarioForm(formId) {
 }
 
 function clearScenarioFormData() {
-	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario"));
+	var lang = $("#nav-container").attr("trick-language");
+	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario", null, lang));
 	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
 
@@ -166,7 +171,7 @@ function selectScenario(scenarioId, value) {
 				requiredUpdate.push(selectedItem[i]);
 		}
 		$.ajax({
-			url : context + "/Scenario/Select",
+			url : context + "/Analysis/Scenario/Select",
 			contentType : "application/json;charset=UTF-8",
 			data : JSON.stringify(requiredUpdate, null, 2),
 			type : 'post',
@@ -178,7 +183,7 @@ function selectScenario(scenarioId, value) {
 		});
 	} else {
 		$.ajax({
-			url : context + "/Scenario/Select/" + scenarioId,
+			url : context + "/Analysis/Scenario/Select/" + scenarioId,
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(reponse) {

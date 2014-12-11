@@ -19,10 +19,10 @@
 			</button>
 		</div>
 		<sec:authorize access="isAuthenticated()">
-			<a class="navbar-brand" style="color:#ffffff;font-weight:bold;" href="${pageContext.request.contextPath}/home">TRICK SERVICE</a>
+			<a class="navbar-brand" style="color:#ffffff;font-weight:bold;" href="${pageContext.request.contextPath}/Home">TRICK SERVICE</a>
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-					<li ${menu.equals("home")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/home"> <spring:message code="label.menu.home" text="Home" /></a></li>
+					<li ${menu.equals("Home")? "class='active'" : "" }><a href="${pageContext.request.contextPath}/Home"> <spring:message code="label.menu.home" text="Home" /></a></li>
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')">
 						<li ${menu.startsWith("KnowledgeBase")? "class='active'" : ""}><a href="${pageContext.request.contextPath}/KnowledgeBase"> <spring:message
 									code="label.menu.analysis.knowledgebase" text="Knowledge base" /></a></li>
@@ -45,7 +45,12 @@
 								</li>
 								<li>
 									<a href="#" onclick="return fixMeasureAssetTypeValue()">
-										<spring:message code="label.measure.fix.asset_type_value" text="Update measure characteristics for the assets" />
+										<spring:message code="label.measure.fix.asset_type_value" text="Update duplicate measure asset type values" />
+									</a>
+								</li>
+								<li>
+									<a href="#" onclick="return updateMeasureAssetTypeValue()">
+										<spring:message code="label.measure.update.asset_type_value" text="Create missing asset type values for measures" />
 									</a>
 								</li>
 								<li>
@@ -72,6 +77,18 @@
 										<spring:message code="label.patch.fix.compliance" text="Upgrade summary compliance (V 0.6.3a)" />
 									</a>
 								</li>
+								<li>
+									<a href="#" onclick="return upgradeAnalysisAndUserSettings()">
+										<spring:message code="label.patch.fix.ApplicationSettings" text="Upgrade Application Settings (V 0.6.3d)" />
+									</a>
+								</li>
+								<li>
+									<a href="#" onclick="return upgradeScenarioTypes()">
+										<spring:message code="label.patch.fix.ScenarioTypes" text="Upgrade ScenarioTypes (V 0.6.4)" />
+									</a>
+								</li>
+								
+								
 							</ul></li>
 					</sec:authorize>
 					<li><a href="${pageContext.request.contextPath}/j_spring_security_logout"> <spring:message code="label.menu.logout" text="Logout" /></a></li>

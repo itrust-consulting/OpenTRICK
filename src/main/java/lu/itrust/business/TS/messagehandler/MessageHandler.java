@@ -1,7 +1,7 @@
 package lu.itrust.business.TS.messagehandler;
 
-import lu.itrust.business.component.helper.AsyncCallback;
-import lu.itrust.business.exception.TrickException;
+import lu.itrust.business.TS.asynchronousWorkers.AsyncCallback;
+import lu.itrust.business.TS.exception.TrickException;
 
 /**
  * MessageHandler: <br>
@@ -29,6 +29,8 @@ public class MessageHandler {
 
 	private String message = null;
 
+	private String language = null;
+	
 	private int progress = 0;
 
 	/** The Exception */
@@ -47,19 +49,21 @@ public class MessageHandler {
 	 * @param message
 	 * @param exception
 	 */
-	public MessageHandler(String code, String message, Exception exception) {
+	public MessageHandler(String code, String message, String language, Exception exception) {
 		this.code = code;
 		this.message = message;
+		this.language = language;
 		setException(exception);
 	}
-
+	
 	/**
 	 * @param code
 	 * @param message
 	 */
-	public MessageHandler(String code, String message, int progress) {
+	public MessageHandler(String code, String message, String language, int progress) {
 		this.code = code;
 		this.message = message;
+		this.language = language;
 		this.progress = progress;
 	}
 
@@ -85,6 +89,39 @@ public class MessageHandler {
 		this.parameters = parameters;
 		this.message = message;
 		setException(exception);
+	}
+
+	/**
+	 * @param code
+	 * @param parameters
+	 * @param message
+	 * @param exception
+	 */
+	public MessageHandler(String code, Object[] parameters, String message,String locale, Exception exception) {
+		this.code = code;
+		this.parameters = parameters;
+		this.message = message;
+		this.language = locale;
+		setException(exception);
+	}
+	
+	/** getLanguage: <br>
+	 * Returns the language field value.
+	 * 
+	 * @return The value of the language field
+	 */
+	public String getLanguage() {
+		return language;
+	}
+
+	/** setLanguage: <br>
+	 * Sets the Field "language" with a value.
+	 * 
+	 * @param language 
+	 * 			The Value to set the language field
+	 */
+	public void setLanguage(String language) {
+		this.language = language;
 	}
 
 	/**

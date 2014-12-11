@@ -1,0 +1,45 @@
+package lu.itrust.business.TS.database.service;
+
+import java.util.List;
+
+import lu.itrust.business.TS.data.general.Customer;
+import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.User;
+
+/**
+ * ServiceUser.java: <br>
+ * Detailed description...
+ * 
+ * @author eomar, itrust consulting s.a.rl.
+ * @version
+ * @since Jan 1, 2013
+ */
+public interface ServiceUser {
+	public User get(Integer id) throws Exception;
+
+	public User get(String login) throws Exception;
+
+	public User get(String login, String password) throws Exception;
+
+	public boolean noUsers() throws Exception;
+
+	public List<User> getAll() throws Exception;
+
+	public List<User> getAllByFirstName(String name) throws Exception;
+
+	public List<User> getAllByCountry(String name) throws Exception;
+
+	public List<User> getAllFromCustomer(Integer customer) throws Exception;
+
+	public List<User> getAllFromCustomer(Customer customer) throws Exception;
+
+	public boolean hasRole(User user, Role role) throws Exception;
+
+	public void save(User user) throws Exception;
+
+	public void saveOrUpdate(User user) throws Exception;
+
+	public void delete(Integer id) throws Exception;
+
+	public void delete(User user) throws Exception;
+}
