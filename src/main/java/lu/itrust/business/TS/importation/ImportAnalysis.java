@@ -1202,7 +1202,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 
 		// build query
-		query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, tuning, soaThreshold, mandatoryPhase, importanceThreshold FROM scope";
+		query = "SELECT internal_setup_rate, external_setup_rate, lifetime_default, max_rrf, soaThreshold, mandatoryPhase, importanceThreshold FROM scope";
 
 		// execute query
 		rs = sqlite.query(query, null);
@@ -1281,9 +1281,9 @@ public class ImportAnalysis {
 			// * create instance of tuning
 			// *****************************************************************
 			parameter = new Parameter();
-			parameter.setDescription(Constant.PARAMETER_TUNING);
+			parameter.setDescription(Constant.PARAMETER_MAX_RRF);
 			parameter.setType(parameterType);
-			parameter.setValue(rs.getInt(Constant.PARAMETER_TUNING));
+			parameter.setValue(rs.getInt(Constant.PARAMETER_MAX_RRF));
 			/*
 			 * // **************************************************************** // * add instance
 			 * to list of parameters //

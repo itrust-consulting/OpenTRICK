@@ -1109,9 +1109,9 @@ public class ActionPlanComputation {
 		
 		Locale locale = new Locale(language);
 		
-		String soarisk = messageSource.getMessage("label.asset", null, "Asset", locale) + ": " + asm.getAsset().getName() + " \n ";
-		soarisk += messageSource.getMessage("label.scenario", null, "Scenario", locale) + ": " + asm.getScenario().getName() + " \n ";
-		soarisk += messageSource.getMessage("label.rate", null, "Rate", locale) + ":" + String.valueOf(JSTLFunctions.round(report,2));
+		String soarisk = messageSource.getMessage("label.soa.asset", null, "Asset:", locale) + " " + asm.getAsset().getName() + " \n ";
+		soarisk += messageSource.getMessage("label.soa.scenario", null, "Scenario:", locale) + " " + asm.getScenario().getName() + " \n ";
+		soarisk += messageSource.getMessage("label.soa.rate", null, "Rate:", locale) + " " + String.valueOf(JSTLFunctions.round(report,2));
 
 		((NormalMeasure) entry.getMeasure()).getMeasurePropertyList().setSoaRisk(soarisk);
 		// serviceMeasure.saveOrUpdate(entry.getMeasure());

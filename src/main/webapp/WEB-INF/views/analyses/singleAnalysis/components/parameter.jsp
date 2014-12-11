@@ -179,7 +179,7 @@
 								<th class="textaligncenter"><fmt:message key="label.parameter.simple.internal_setup" /></th>
 								<th class="textaligncenter"><fmt:message key="label.parameter.simple.external_setup" /></th>
 								<th class="textaligncenter"><fmt:message key="label.parameter.simple.default_life_time" /></th>
-								<th class="textaligncenter"><fmt:message key="label.parameter.simple.tuning" /></th>
+								<th class="textaligncenter"><fmt:message key="label.parameter.simple.max_rrf" /></th>
 								<th class="textaligncenter"><fmt:message key="label.parameter.simple.soa" /></th>
 								<th class="textaligncenter"><fmt:message key="label.parameter.simple.mandatory_phase" /></th>
 								<th class="textaligncenter"><fmt:message key="label.parameter.simple.importance_threshold" /></th>

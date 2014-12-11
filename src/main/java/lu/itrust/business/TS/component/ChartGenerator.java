@@ -876,24 +876,32 @@ public class ChartGenerator {
 
 			Map<String, Object> rrfs = computeRRFByScenario(scenario, measures, idAnalysis);
 
+			double biggestrrf = 0.;
+			
 			for (String key : rrfs.keySet()) {
 				String rrf = "[";
 				if (rrfs.get(key) instanceof RRFAssetType) {
 					RRFAssetType rrfAssetType = (RRFAssetType) rrfs.get(key);
-					for (RRFMeasure rrfMeasure : rrfAssetType.getRrfMeasures())
+					for (RRFMeasure rrfMeasure : rrfAssetType.getRrfMeasures()) {
 						rrf += rrfMeasure.getValue() + ",";
+						if(biggestrrf<rrfMeasure.getValue())
+							biggestrrf = rrfMeasure.getValue();
+					}
 					if (rrf.endsWith(","))
 						rrf = rrf.substring(0, rrf.length() - 1);
 					rrf += "]";
 					series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": true},";
 				} else if (rrfs.get(key) instanceof RRFAsset) {
 					RRFAsset rrfAsset = (RRFAsset) rrfs.get(key);
-					for (RRFMeasure rrfMeasure : rrfAsset.getRrfMeasures())
+					for (RRFMeasure rrfMeasure : rrfAsset.getRrfMeasures()) {
 						rrf += rrfMeasure.getValue() + ",";
+						if(biggestrrf<rrfMeasure.getValue())
+							biggestrrf = rrfMeasure.getValue();
+					}
 					if (rrf.endsWith(","))
 						rrf = rrf.substring(0, rrf.length() - 1);
 					rrf += "]";
-					series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 0, \"visible\": true},";
+					series += "{\"name\":\"" + key + "\", \"data\":" + rrf + ",\"valueDecimals\": 2, \"visible\": true},";
 				}
 			}
 
@@ -916,7 +924,9 @@ public class ChartGenerator {
 
 			String xAxis = null;
 
-			String yAxis = "\"yAxis\": {\"min\": 0 , \"max\": 0.25, \"title\": {\"text\": \"RRF\"}}";
+			biggestrrf += 0.25;
+			
+			String yAxis = "\"yAxis\": {\"min\": 0 , \"max\": " + String.valueOf(biggestrrf) + ", \"title\": {\"text\": \"RRF\"}}";
 
 			if (measures.size() >= 10)
 				xAxis =
@@ -961,10 +971,28 @@ public class ChartGenerator {
 
 			String series = "";
 
-			if (measure instanceof NormalMeasure)
-				series = generateNormalMeasureSeries(idAnalysis, (NormalMeasure) measure, scenarios);
-			else if (measure instanceof AssetMeasure)
-				series = generateAssetMeasureSeries(idAnalysis, (AssetMeasure) measure, scenarios);
+			double biggestrrf = 0.;
+			
+			if (measure instanceof NormalMeasure) {
+				
+				List<AssetType> assetTypes = daoAssetType.getAll();
+				
+				Map<String, RRFAssetType> rrfs = computeRRFByNormalMeasure((NormalMeasure)measure, assetTypes, scenarios, idAnalysis);
+				
+				for(String key : rrfs.keySet())
+					for(RRFMeasure mes : rrfs.get(key).getRrfMeasures())
+						if(mes.getValue()>biggestrrf)
+							biggestrrf = mes.getValue();
+				
+				series = generateNormalMeasureSeries(rrfs);
+			} else if (measure instanceof AssetMeasure) {
+				Map<String, RRFAsset> rrfs = computeRRFByAssetMeasure((AssetMeasure)measure, scenarios, idAnalysis);
+				for(String key : rrfs.keySet())
+					for(RRFMeasure mes : rrfs.get(key).getRrfMeasures())
+						if(mes.getValue()>biggestrrf)
+							biggestrrf = mes.getValue();
+				series = generateAssetMeasureSeries(rrfs);
+			}
 
 			String chart =
 				"\"chart\":{ \"type\":\"" + (scenarios.size() == 1 ? "column" : "spline")
@@ -981,7 +1009,9 @@ public class ChartGenerator {
 
 			String xAxis = null;
 
-			String yAxis = "\"yAxis\": {\"min\": 0 , \"max\": 0.25, \"title\": {\"text\": \"RRF\"}}";
+			biggestrrf += 0.25;
+			
+			String yAxis = "\"yAxis\": {\"min\": 0 , \"max\": "+ String.valueOf(biggestrrf) +", \"title\": {\"text\": \"RRF\"}}";
 
 			if (scenarios.size() >= 10)
 				xAxis =
@@ -1003,11 +1033,8 @@ public class ChartGenerator {
 		return null;
 	}
 
-	private String generateNormalMeasureSeries(Integer analysisID, NormalMeasure measure, List<Scenario> scenarios) throws Exception {
+	private String generateNormalMeasureSeries(Map<String, RRFAssetType> rrfs) throws Exception {
 		String series = "\"series\":[";
-		List<AssetType> assetTypes = daoAssetType.getAll();
-
-		Map<String, RRFAssetType> rrfs = computeRRFByNormalMeasure(measure, assetTypes, scenarios, analysisID);
 
 		for (String key : rrfs.keySet()) {
 			String rrf = "[";
@@ -1027,10 +1054,8 @@ public class ChartGenerator {
 		return series;
 	}
 
-	private String generateAssetMeasureSeries(Integer analysisID, AssetMeasure measure, List<Scenario> scenarios) throws Exception {
+	private String generateAssetMeasureSeries(Map<String, RRFAsset> rrfs) throws Exception {
 		String series = "\"series\":[";
-
-		Map<String, RRFAsset> rrfs = computeRRFByAssetMeasure(measure, scenarios, analysisID);
 
 		for (String key : rrfs.keySet()) {
 			String rrf = "[";
@@ -1062,7 +1087,7 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	private Map<String, RRFAssetType> computeRRFByNormalMeasure(NormalMeasure measure, List<AssetType> assetTypes, List<Scenario> scenarios, int idAnalysis) throws Exception {
-		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
+		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAssetType> rrfs = new LinkedHashMap<String, RRFAssetType>(assetTypes.size());
 		for (AssetType assetType : assetTypes) {
 			RRFAssetType rrfAssetType = new RRFAssetType(assetType.getType());
@@ -1087,7 +1112,7 @@ public class ChartGenerator {
 	 * @throws Exception
 	 */
 	private Map<String, RRFAsset> computeRRFByAssetMeasure(AssetMeasure measure, List<Scenario> scenarios, int idAnalysis) throws Exception {
-		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
+		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, RRFAsset> rrfs = new LinkedHashMap<String, RRFAsset>(measure.getMeasureAssetValues().size());
 		if (measure.getMeasureAssetValues().size() == 0)
 			throw new TrickException("error.rrf.measure.no_assets", "The measure " + measure.getMeasureDescription().getReference() + " does not have any assets attributed!", measure
@@ -1105,7 +1130,7 @@ public class ChartGenerator {
 	}
 
 	private Map<String, Object> computeRRFByScenario(Scenario scenario, List<Measure> measures, int idAnalysis) throws Exception {
-		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_TUNING);
+		Parameter parameter = daoParameter.getFromAnalysisByTypeAndDescription(idAnalysis, Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, Constant.PARAMETER_MAX_RRF);
 		Map<String, Object> rrfs = new LinkedHashMap<String, Object>();
 		if (scenario.getAssetTypeValues().size() == 0)
 			throw new TrickException("error.rrf.scneario.no_assettypevalues", "The scenario " + scenario.getName() + " does not have any asset types attributed!", scenario.getName());

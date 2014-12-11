@@ -56,7 +56,7 @@ public class RRF {
 		for (int i = 0; i < parameters.size(); i++) {
 
 			// check if parameter is tuning -> YES
-			if ((parameters.get(i).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)) && (parameters.get(i).getDescription().equals(Constant.PARAMETER_TUNING))) {
+			if ((parameters.get(i).getType().getLabel().equals(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME)) && (parameters.get(i).getDescription().equals(Constant.PARAMETER_MAX_RRF))) {
 				// ****************************************************************
 				// * store tuning value
 				// ****************************************************************
@@ -189,15 +189,11 @@ public class RRF {
 			throw new TrickException("error.analysis.rrf.assettypevalue.null", String.format("RRF computation: asset type value not found for asset type (%s)", assetType.getType()), assetType
 					.getType());
 
-		RRF = ((assetTypeValue.getValue() / 100. * strength * category * type * source) / 500.) * tuning;
+		RRF = ((assetTypeValue.getValue() / 100. * strength * category * type * source)) * (tuning / 100.);
 
-		// if
-		// ((measure.getMeasureDescription().getReference().equals("A.9.2.2")))
-		// {
-		/*System.out.println("Measure: " + measure.getMeasureDescription().getReference() + "Asset: " + assetType.getType() + "Scenario: " + scenario.getName() + " ;RRF=" + RRF + ", atv="
+	/*	System.out.println("Measure: " + measure.getMeasureDescription().getReference() + "Asset: " + assetType.getType() + "Scenario: " + scenario.getName() + " ;RRF=" + RRF + ", atv="
 			+ assetTypeValue.getValue() + ", strength=" + strength + ", Category=" + category + ", type=" + type + ", source=" + source + ", tuning=" + tuning);*/
-		// }
-
+		
 		// ****************************************************************
 		// * return the value
 		// ****************************************************************
@@ -283,15 +279,11 @@ public class RRF {
 		// * (((Asset_Measure/100)*Strength*CID*Type*Source) / 500) * tuning
 		// ****************************************************************
 
-		RRF = ((assetValue / 100. * strength * category * type * source) / 500.) * tuning;
+		RRF = ((assetValue / 100. * strength * category * type * source)) * (tuning / 100.);
 
-		// if
-		// ((measure.getMeasureDescription().getReference().equals("A.9.2.2")))
-		// {
 		/*System.out.println("Measure: " + measure.getMeasureDescription().getReference() + "Asset: " + asset.getName() + "Scenario: " + scenario.getName() + " ;RRF=" + RRF + ", atv=" + assetValue
 			+ ", strength=" + strength + ", Category=" + category + ", type=" + type + ", source=" + source + ", tuning=" + tuning);*/
-		// }
-
+		
 		// ****************************************************************
 		// * return the value
 		// ****************************************************************

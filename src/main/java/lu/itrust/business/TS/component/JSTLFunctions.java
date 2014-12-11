@@ -1,6 +1,8 @@
 package lu.itrust.business.TS.component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 /**
  * Function.java: <br>
@@ -40,13 +42,11 @@ public final class JSTLFunctions {
 	public static double round(double value, int places) {
 		if (places < 0)
 			throw new IllegalArgumentException();
-
-		long factor = (long) Math.pow(10, places);
-		value = value * factor;
-
+		DecimalFormat df2 = new DecimalFormat("###.##");
+        
 		BigDecimal bd = new BigDecimal(value);
-		bd = bd.setScale(places, BigDecimal.ROUND_HALF_UP);
-		return bd.doubleValue() / factor;
+	    bd = bd.setScale(places, RoundingMode.HALF_UP);
+	    return Double.valueOf(df2.format(bd.doubleValue()));
 
 		/*
 		 * long tmp = Math.round(value); return (double) tmp / factor;

@@ -657,7 +657,7 @@ public class Constant {
 	public static final String VALUE_TO_IMPACT = "value_to_impact";
 
 	/** List of Constants for the Sqlite Table "parameter" */
-	public static final String PARAMETER_TUNING = "tuning";
+	public static final String PARAMETER_MAX_RRF = "max_rrf";
 	public static final String MANDATORY_PHASE = "mandatoryPhase";
 	public static final String SOA_THRESHOLD = "soaThreshold";
 	public static final String IMPORTANCE_THRESHOLD = "importanceThreshold";
@@ -727,7 +727,7 @@ public class Constant {
 	public static final String ASSET_ID_TYPE_ASSET = "id_type_asset";
 	public static final String ASSET_ID_ASSET = "id_asset";
 
-	public static final String SCOPE_EXCLUDE = "security_requirement_organism,key_information_organism,composants_organism,soaThreshold,mandatoryPhase,importanceThreshold,internal_setup_rate,external_setup_rate,lifetime_default,maintenance_default,tuning";
+	public static final String SCOPE_EXCLUDE = "security_requirement_organism,key_information_organism,composants_organism,soaThreshold,mandatoryPhase,importanceThreshold,internal_setup_rate,external_setup_rate,lifetime_default,maintenance_default,max_rrf";
 
 	/** List of Constants for the Sqlite Table "asset_types" */
 	public static final String ASSET_TYPE_LABEL = "name_type_asset";
