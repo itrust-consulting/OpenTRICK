@@ -3,6 +3,9 @@ package lu.itrust.business.TS.component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 
 /**
  * Function.java: <br>
@@ -26,19 +29,6 @@ public final class JSTLFunctions {
 		return value == null || regex == null ? false : value.matches(regex);
 	}
 
-	/*public static double round(double value, int places) {
-		if (places < 0)
-			throw new IllegalArgumentException();
-
-		long factor = (long) Math.pow(10, places);
-		value = value * factor;
-		long tmp = Math.round(value);
-		return (double) tmp / factor;
-
-		// ;
-
-	}*/
-	
 	public static double round(double value, int places) {
 		if (places < 0)
 			throw new IllegalArgumentException();
@@ -46,7 +36,13 @@ public final class JSTLFunctions {
         
 		BigDecimal bd = new BigDecimal(value);
 	    bd = bd.setScale(places, RoundingMode.HALF_UP);
-	    return Double.valueOf(df2.format(bd.doubleValue()));
+
+	    try {
+			return NumberFormat.getInstance(Locale.FRANCE).parse(df2.format(bd.doubleValue())).doubleValue();
+		} catch (ParseException e) {
+			//e.printStackTrace();
+			throw new IllegalArgumentException(e.getMessage());
+		}
 
 		/*
 		 * long tmp = Math.round(value); return (double) tmp / factor;
