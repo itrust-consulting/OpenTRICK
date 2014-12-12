@@ -16,23 +16,17 @@
 		<li class="active"><a href="#tabHistory" data-toggle="tab"><fmt:message key="label.menu.analysis.history" /></a></li>
 		<li><a href="#tabScope" data-toggle="tab"><fmt:message key="label.menu.analysis.item_information" /></a></li>
 	</c:if>
-	<li><a href="#tabParameter" data-toggle="tab"><fmt:message key="label.menu.analysis.parmeter" /></a></li>
-	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="label.menu.analysis.parmeter" /><span class="caret"></span></a>
 		<ul class="dropdown-menu">
-			<li><a href="#anchorParameter_Impact"><fmt:message key="label.menu.analysis.parameter.impact" /></a></li>
-			<li><a href="#anchorParameter_Probability"><fmt:message key="label.menu.analysis.parameter.probability" /></a></li>
-			<li><a href="#anchorParameter_ILPS"><fmt:message key="label.menu.analysis.parameter.ilps" /></a></li>
-			<li><a href="#anchorParameter_Various"><fmt:message key="label.menu.analysis.parameter.various" /></a></li>
-			<li><a href="#anchorParameter_MaxEfficiency"><fmt:message key="label.menu.analysis.parameter.maxeff" /></a></li>
-			<li><a href="#anchorParameter_ImplementationRate"><fmt:message key="label.menu.analysis.parameter.implmentation_rate" /></a></li>
+			<li><a href="#tabParameterImpactProba" data-toggle="tab"><fmt:message key="label.menu.analysis.parameter.impact_probability" /></a></li>
+			<li><a href="#tabParameterOther" data-toggle="tab"><fmt:message key="label.menu.analysis.parameter.various" /></a></li>
 		</ul></li>
 	<c:if test="${!analysis.isProfile() }">
-		<li><a href="#" data-toggle="tab"><fmt:message key="label.menu.analysis.risk_information" /></a></li>
-		<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+		<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="label.menu.analysis.risk_information" /><span class="caret"></span></a>
 			<ul class="dropdown-menu">
-				<li><a href="#anchorRiskInformation_Threat"><fmt:message key="label.menu.analysis.threat" /></a></li>
-				<li><a href="#anchorRiskInformation_Vul"><fmt:message key="label.menu.analysis.vulnerability" /></a></li>
-				<li><a href="#anchorRiskInformation_Risk"><fmt:message key="label.menu.analysis.risk" /></a></li>
+				<li><a href="#tabRiskInformation_Threat" data-toggle="tab" ><fmt:message key="label.menu.analysis.threat" /></a></li>
+				<li><a href="#tabRiskInformation_Vul" data-toggle="tab" ><fmt:message key="label.menu.analysis.vulnerability" /></a></li>
+				<li><a href="#tabRiskInformation_Risk" data-toggle="tab" ><fmt:message key="label.menu.analysis.risk" /></a></li>
 			</ul></li>
 		<li><a href="#tabAsset" data-toggle="tab"><fmt:message key="label.menu.analysis.asset" /></a></li>
 	</c:if>
@@ -61,14 +55,13 @@
 		<c:if test="${show_cssf}">
 			<li><a href="#tabRiskRegister" data-toggle="tab"> <fmt:message key="label.menu.analysis.risk_register" /></a></li>
 		</c:if>
-		<li><a href="#tabChart" data-toggle="tab"> <fmt:message key="label.menu.analysis.chart" /></a></li>
-		<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+		<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.menu.analysis.chart" /><span class="caret"></span></a>
 			<ul class="dropdown-menu">
-				<li><a href="#anchorChartAsset"> <fmt:message key="label.chart.asset" /></a></li>
-				<li><a href="#anchorChartScenario"> <fmt:message key="label.chart.scenario" /></a></li>
-				<li><a href="#anchorChartCompliance"> <fmt:message key="label.chart.compliance" /></a></li>
-				<li><a href="#anchorChartEvolution"> <fmt:message key="label.chart.evolution" /></a></li>
-				<li><a href="#anchorChartBudget"> <fmt:message key="label.chart.budget" /></a></li>
+				<li><a href="#tabChartAsset" data-toggle="tab" > <fmt:message key="label.chart.asset" /></a></li>
+				<li><a href="#tabChartScenario" data-toggle="tab" > <fmt:message key="label.chart.scenario" /></a></li>
+				<li><a href="#tabChartCompliance" data-toggle="tab" > <fmt:message key="label.chart.compliance" /></a></li>
+				<li><a href="#tabChartEvolution" data-toggle="tab" > <fmt:message key="label.chart.evolution" /></a></li>
+				<li><a href="#tabChartBudget" data-toggle="tab" > <fmt:message key="label.chart.budget" /></a></li>
 			</ul></li>
 	</c:if>
 	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <fmt:message key="label.actions" /><span class="caret"></span></a>

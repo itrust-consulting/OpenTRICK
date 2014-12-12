@@ -52,12 +52,11 @@ $(function() {
 		even : '', // odd row zebra striping
 		odd : '' // even row zebra striping
 	});
-	
-	
-	//prevent unknown error modal display
+
+	// prevent unknown error modal display
 	$(window).bind("beforeunload", function() {
-        application["isReloading"] = true;
-    });
+		application["isReloading"] = true;
+	});
 
 	if ($(".popover-element").length)
 		$(".popover-element").popover('hide');
@@ -82,24 +81,22 @@ $(function() {
 			$("#alert-dialog .btn-danger").unbind("click");
 		});
 	}
-	
-	if($("ul.nav-analysis").length){
-		$(".dropdown-submenu").on("hide.bs.dropdown",function(e){
+
+	if ($("ul.nav-analysis").length) {
+		$(".dropdown-submenu").on("hide.bs.dropdown", function(e) {
 			var $target = $(e.currentTarget);
-			if($target.find("li.active").length && !$target.hasClass("active"))
+			if ($target.find("li.active").length && !$target.hasClass("active"))
 				$target.addClass("active");
 		});
-	}
-	
-	
-	
-	/*if ($('.table-fixed-header-analysis').length) {
-		$('table.table-fixed-header-analysis').floatThead({
-			scrollContainer : function($table) {
-				return $table.closest('.tab-content');
+
+		$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+			var target = $(e.target).attr("href");
+			if($(target).attr("data-update-required")=="true"){
+				window[$(target).attr("data-trigger")].apply();
+				$(target).attr("data-update-required","false");
 			}
 		});
-	}*/
+	}
 
 	if ($('.table-fixed-header').length) {
 		$('table.table-fixed-header').floatThead({
