@@ -58,7 +58,6 @@ import lu.itrust.business.TS.database.dao.DAOLanguage;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOParameterType;
-import lu.itrust.business.TS.database.dao.DAOScenarioType;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOAssetTypeHBM;
@@ -66,8 +65,6 @@ import lu.itrust.business.TS.database.dao.hbm.DAOLanguageHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionTextHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOParameterTypeHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAOScenarioHBM;
-import lu.itrust.business.TS.database.dao.hbm.DAOScenarioTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
@@ -96,8 +93,6 @@ public class ImportAnalysis {
 	private DAOParameterType daoParameterType;
 
 	private DAOAssetType daoAssetType;
-
-	private DAOScenarioType daoScenarioType;
 	
 	private DAOAnalysis daoAnalysis;
 
@@ -183,9 +178,10 @@ public class ImportAnalysis {
 	 * Description
 	 * 
 	 * @return
+	 * @throws Exception 
 	 */
 	@Transactional
-	public boolean simpleAnalysisImport() {
+	public boolean simpleAnalysisImport() throws Exception {
 
 		Session session = null;
 
@@ -277,10 +273,24 @@ public class ImportAnalysis {
 
 			return true;
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		} finally {
+		} catch (SQLException sqle) {
+			
+			if (session != null)
+				session.getTransaction().rollback();
+			
+			throw new TrickException("error.sql", "SQL error: "+sqle.getMessage(), sqle.getMessage());
+			
+		}
+	 catch (Exception e) {
+		
+		if (session != null)
+			session.getTransaction().rollback();
+		
+		throw new Exception(e.getMessage());
+		
+	}
+		
+		finally {
 			try {
 				this.sqlite.close();
 			} catch (Exception e) {
@@ -1010,7 +1020,6 @@ public class ImportAnalysis {
 			tempScenario.setEnvironmental(rs.getInt(Constant.THREAT_ENVIRONMENTAL));
 			tempScenario.setExternalThreat(rs.getInt(Constant.THREAT_EXTERNAL_THREAT));
 			tempScenario.setInternalThreat(rs.getInt(Constant.THREAT_INTERNAL_THREAT));
-			tempScenario.setScenarioType(daoScenarioType.get(rs.getInt(Constant.THREAT_ID_TYPE_THREAT)));
 			tempScenario.setType(ScenarioType.getByName(rs.getString("type_threat")));
 
 			// set scenario asset types
@@ -2065,7 +2074,6 @@ public class ImportAnalysis {
 			measure.setImplementationRate(rs.getDouble(Constant.MEASURE_IMPLEMENTATION_RATE));
 			measure.setInvestment(rs.getDouble(Constant.MEASURE_INVESTISMENT));
 			measure.setLifetime(rs.getInt(Constant.MEASURE_LIFETIME));
-			measure.setMaintenance(0);
 			measure.setInternalMaintenance(rs.getDouble("internal_maintenance"));
 			measure.setExternalMaintenance(rs.getDouble("external_maintenance"));
 			measure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
@@ -2675,7 +2683,6 @@ public class ImportAnalysis {
 			maturityMeasure.setImplementationRate(implementationRateParameter);
 			maturityMeasure.setInvestment(rs.getDouble(Constant.MATURITY_INVESTMENT));
 			maturityMeasure.setLifetime(rs.getInt(Constant.MEASURE_LIFETIME));
-			maturityMeasure.setMaintenance(0);
 			maturityMeasure.setInternalMaintenance(rs.getDouble("internal_maintenance"));
 			maturityMeasure.setExternalMaintenance(rs.getDouble("external_maintenance"));
 			maturityMeasure.setRecurrentInvestment(rs.getDouble("recurrent_investment"));
@@ -3166,7 +3173,6 @@ public class ImportAnalysis {
 	protected void initialiseDAO(Session session) {
 		setDaoAnalysis(new DAOAnalysisHBM(session));
 		setDaoAssetType(new DAOAssetTypeHBM(session));
-		setDaoScenarioType(new DAOScenarioTypeHBM(session));
 		setDaoLanguage(new DAOLanguageHBM(session));
 		setDaoMeasureDescription(new DAOMeasureDescriptionHBM(session));
 		setDaoMeasureDescriptionText(new DAOMeasureDescriptionTextHBM(session));
@@ -3212,14 +3218,6 @@ public class ImportAnalysis {
 	 */
 	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
 		this.daoAnalysis = daoAnalysis;
-	}
-
-	/**
-	 * @param daoAnalysis
-	 *            the daoAnalysis to set
-	 */
-	public void setDaoScenarioType(DAOScenarioType daoScenarioType) {
-		this.daoScenarioType = daoScenarioType;
 	}
 	
 	/**

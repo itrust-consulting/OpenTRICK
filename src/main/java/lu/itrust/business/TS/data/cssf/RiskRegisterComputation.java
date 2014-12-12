@@ -160,7 +160,7 @@ public class RiskRegisterComputation {
 		for (RiskRegisterItem registerItem : registers) {
 			System.out.println("--------------------------------------------------------------------" + "----------------------------------------");
 			System.out.print(registerItem.getId() + " | " + registerItem.getPosition() + " | " + registerItem.getScenario().getId() + " | " + registerItem.getAsset().getId() + " | "
-				+ registerItem.getScenario().getScenarioType().getName() + " | " + registerItem.getScenario().getName());
+				+ registerItem.getScenario().getType().getName() + " | " + registerItem.getScenario().getName());
 			printRiskRegisterItem(registerItem.getRawEvaluation());
 			printRiskRegisterItem(registerItem.getNetEvaluation());
 			printRiskRegisterItem(registerItem.getExpectedImportance());

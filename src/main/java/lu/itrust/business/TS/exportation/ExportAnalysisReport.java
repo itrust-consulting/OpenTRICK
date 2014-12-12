@@ -397,7 +397,7 @@ public class ExportAnalysisReport {
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
+			ALE ale = ales.get(assessment.getAsset().getId());
 			if (ale == null) {
 				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
 				ales2.add(ale);
@@ -469,9 +469,9 @@ public class ExportAnalysisReport {
 		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
 		List<ALE> ales2 = new LinkedList<ALE>();
 		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getScenario().getScenarioType().getId());
+			ALE ale = ales.get(assessment.getScenario().getType().getValue());
 			if (ale == null) {
-				ales.put(assessment.getScenario().getScenarioType().getId(), ale = new ALE(assessment.getScenario().getScenarioType().getName(), 0));
+				ales.put(assessment.getScenario().getType().getValue(), ale = new ALE(assessment.getScenario().getType().getName(), 0));
 				ales2.add(ale);
 			}
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
@@ -579,18 +579,22 @@ public class ExportAnalysisReport {
 		run.setText(number);
 		return run;
 	}
-
-	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text) {
-		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
-		paragraph.setStyle("TableParagraphTS");
-		paragraph.setAlignment(ParagraphAlignment.LEFT);
+	
+	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text, boolean add) {
+		XWPFParagraph paragraph = !add && cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
 		String[] texts = text.split("(\r\n|\n\r|\r|\n)");
 		for (int i = 0; i < texts.length; i++) {
 			if (i > 0)
-				paragraph.createRun().addBreak();
+				paragraph = cell.addParagraph();
+			paragraph.setStyle("TableParagraphTS");
 			paragraph.createRun().setText(texts[i]);
 		}
 		return paragraph;
+	}
+
+
+	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text) {
+		return addCellParagraph(cell,text ,false );
 	}
 
 	private void generateMeasures() {
@@ -620,6 +624,7 @@ public class ExportAnalysisReport {
 					isFirst = false;
 				else {
 					paragraph = document.createParagraph();
+					paragraph.setAlignment(ParagraphAlignment.CENTER);
 					paragraph.createRun().addCarriageReturn();
 				}
 
@@ -1006,11 +1011,12 @@ public class ExportAnalysisReport {
 				row.getCell(1).setText(entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
 				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
 				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
-				paragraph = addCellParagraph(row.getCell(3), descriptionText == null ? "" : descriptionText.getDomain() + ":");
-				for (XWPFRun run : paragraph.getRuns())
-					run.setBold(true);
-				paragraph.createRun().addBreak();
-				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo());
+				addCellParagraph(row.getCell(3), descriptionText == null ? "" :  descriptionText.getDomain() +  (locale == Locale.FRENCH ? " : " : ": "));
+				for (XWPFParagraph paragraph2 : row.getCell(3).getParagraphs()) {
+					for (XWPFRun run : paragraph2.getRuns())
+						run.setBold(true);
+				}
+				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo(),true);
 				addCellNumber(row.getCell(4), numberFormat.format(entry.getTotalALE() * 0.001));
 				addCellNumber(row.getCell(5), numberFormat.format(entry.getDeltaALE() * 0.001));
 				addCellNumber(row.getCell(6), numberFormat.format(entry.getMeasure().getCost() * 0.001));
@@ -1091,9 +1097,9 @@ public class ExportAnalysisReport {
 			row.getCell(0).setText(getMessage("report.parameter.level", null, "Level", locale));
 			row.getCell(1).setText(getMessage("report.parameter.acronym", null, "Acro", locale));
 			row.getCell(2).setText(getMessage("report.parameter.qualification", null, "Qualification", locale));
-			row.getCell(3).setText(getMessage("report.parameter.value", null, "Value", locale));
-			row.getCell(4).setText(getMessage("report.parameter.value.from", null, "Value From [", locale));
-			row.getCell(5).setText(getMessage("report.parameter.value.to", null, "Value To [", locale));
+			row.getCell(3).setText(getMessage("report.parameter.value", null, "Value (k€/y)", locale));
+			row.getCell(4).setText(getMessage("report.parameter.value.from", null, "Value From", locale));
+			row.getCell(5).setText(getMessage("report.parameter.value.to", null, "Value To", locale));
 
 			int countrow = 0;
 			// set data
@@ -1302,7 +1308,7 @@ public class ExportAnalysisReport {
 			row.getCell(1).setColor("c6d9f1");
 			row.getCell(2).setText(getMessage("report.assessment.probability", null, "P.", locale));
 			row.getCell(2).setColor("c6d9f1");
-			row.getCell(3).setText(getMessage("report.assessment.ale", null, "ALE(k€/y", locale));
+			row.getCell(3).setText(getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
 			row.getCell(3).setColor("c6d9f1");
 			row.getCell(4).setText(getMessage("report.assessment.comment", null, "Comment", locale));
 			row.getCell(4).setColor("c6d9f1");

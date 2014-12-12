@@ -28,7 +28,6 @@ import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceScenario;
-import lu.itrust.business.TS.database.service.ServiceScenarioType;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.ScenarioValidator;
@@ -59,9 +58,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/Analysis/Scenario")
 public class ControllerScenario {
-
-	@Autowired
-	private ServiceScenarioType serviceScenarioType;
 
 	@Autowired
 	private ServiceScenario serviceScenario;
@@ -518,9 +514,7 @@ public class ControllerScenario {
 				scenarioType = ScenarioType.valueOf(i);
 
 				returnvalue.setType(scenarioType);
-
-				returnvalue.setScenarioType(serviceScenarioType.getAll().get(0));
-		
+	
 				// set category according to value of scenario type
 				returnvalue.setCategoryValue(CategoryConverter.getTypeFromScenario(returnvalue), 1);
 

@@ -9,7 +9,6 @@
 		<org.springframework.security.version>3.2.5.RELEASE</org.springframework.security.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-
 	<dependencies>
 
 		<!-- Spring dependencies -->
