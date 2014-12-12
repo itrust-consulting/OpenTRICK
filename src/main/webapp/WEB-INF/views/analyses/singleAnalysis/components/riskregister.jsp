@@ -11,7 +11,7 @@
 			<div class="panel-heading"><fmt:message key="label.title.risk_register" /></div>
 			<div class="panel-body">
 				<c:if test="${!empty(riskregister)}">
-					<table class="table table-hover">
+					<table class="table table-hover table-fixed-header-analysis">
 						<thead>
 							<tr>
 								<th rowspan="2" colspan="2"><fmt:message key="label.risk_register.category" /></th>

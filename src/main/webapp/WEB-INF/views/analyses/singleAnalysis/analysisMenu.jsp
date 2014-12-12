@@ -38,12 +38,11 @@
 	</c:if>
 	<li><a href="#tabScenario" data-toggle="tab"><fmt:message key="label.menu.analysis.scenario" /></a></li>
 	<li><a href="#tabPhase" data-toggle="tab"> <fmt:message key="label.menu.analysis.phase" /></a></li>
-	<li><a href="#tabStandard" data-toggle="tab"> <fmt:message key="label.menu.analysis.standards" /></a></li>
-	<li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></a>
+	<li class="dropdown-submenu" id="tabStandard"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><fmt:message key="label.menu.analysis.standards" /><span class="caret"></span></a>
 		<ul class="dropdown-menu" id="standardmenu">
 			<c:if test="${!empty(standards)}">
 				<c:forEach items="${standards}" var="standard">
-					<li><a href="#anchorMeasure_${standard.id}"> <spring:message text="${standard.label}" /></a>
+					<li><a href="#tabStandard${standard.label}" data-toggle="tab"> <spring:message text="${standard.label}" /></a>
 				</c:forEach>
 			</c:if>
 			<c:if test="${analysis.getRightsforUserString(login).right.ordinal() <= 4}">

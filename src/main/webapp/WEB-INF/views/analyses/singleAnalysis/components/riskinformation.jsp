@@ -33,7 +33,7 @@
 					</c:choose>
 				</div>
 				<div class="panel-body">
-					<table id="${categoryRiskInformation}table" class="table table-condensed table-hover">
+					<table id="${categoryRiskInformation}table" class="table table-condensed table-hover table-fixed-header-analysis">
 						<thead>
 							<tr>
 								<th><fmt:message key="label.risk_information.id"  /></th>

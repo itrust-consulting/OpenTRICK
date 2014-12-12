@@ -13,8 +13,8 @@
 					<div class="panel-heading">
 					<fmt:message key="label.title.scope" />
 					</div>
-					<div class="panel-body panel-max-tab">
-						<table id="iteminformationtable" class="table table-condensed table-hover table-fixed-header">
+					<div class="panel-body">
+						<table id="iteminformationtable" class="table table-condensed table-hover table-fixed-header-analysis">
 							<thead>
 								<tr>
 									<th colspan="1"><fmt:message key="label.item_information.description" /></th>

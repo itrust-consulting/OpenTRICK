@@ -27,7 +27,7 @@
 				</ul>
 			</div>
 			<div class="panel-body">
-				<table id="scenariotable" class="table table-hover">
+				<table id="scenariotable" class="table table-hover table-fixed-header-analysis">
 					<thead>
 						<tr>
 							<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>

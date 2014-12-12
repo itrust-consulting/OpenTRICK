@@ -25,7 +25,7 @@
 				</ul>
 			</div>
 			<div class="panel-body">
-				<table class="table table-hover" id="assetTable">
+				<table class="table table-hover table-fixed-header-analysis" id="assetTable">
 					<thead>
 						<tr>
 							<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'asset')"></th>

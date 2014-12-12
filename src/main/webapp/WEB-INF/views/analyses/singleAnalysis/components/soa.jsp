@@ -12,7 +12,7 @@
 					<spring:message text="27002" />
 				</div>
 				<div class="panel-body">
-					<table class="table table-hover" id="table_SOA_27002">
+					<table class="table table-hover table-fixed-header-analysis" id="table_SOA_27002">
 						<thead>
 							<tr>
 								<th><fmt:message key="label.measure.ref" /></th>

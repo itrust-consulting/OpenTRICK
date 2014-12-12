@@ -29,7 +29,7 @@
 			<div class="panel-body">
 				<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 					<div trick-nav-data="${apt}" ${status.index!=0? "hidden='true'" : "" }>
-						<table class="table table-hover" id="actionplantable_${apt}">
+						<table class="table table-hover table-fixed-header-analysis" id="actionplantable_${apt}">
 							<thead>
 								<tr>
 									<th><fmt:message key="label.table.index" /></th>

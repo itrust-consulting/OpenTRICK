@@ -23,7 +23,7 @@
 				<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 					<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
 					<div trick-nav-data="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
-						<table class="table table-hover ${status.index>0?'':'table-fixed-header' }" id="summarytable_<spring:message text='${actionPlanType.name}' />">
+						<table class="table table-hover table-fixed-header-analysis" id="summarytable_<spring:message text='${actionPlanType.name}' />">
 							<thead>
 								<tr>
 									<th colspan="5"><fmt:message key="label.characteristic" /></th>

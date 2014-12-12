@@ -120,8 +120,8 @@
 					<div class="panel-heading">
 						<fmt:message key="label.title.parameter.maturity_ilps" />
 					</div>
-					<div class="panel-body autofitpanelbodydefinition" style="max-height: 619px; overflow: auto; min-height: 619px">
-						<table class="table table-hover table-fixed-header" id="tableMaturityIlps">
+					<div class="panel-body" style="max-height: 619px; overflow: auto; min-height: 619px">
+						<table class="table table-hover table-fixed-header-analysis" id="tableMaturityIlps">
 							<thead>
 								<tr>
 									<th class="textaligncenter"><fmt:message key="label.parameter.maturity.category" /></th>

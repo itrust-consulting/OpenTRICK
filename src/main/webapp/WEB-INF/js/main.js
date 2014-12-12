@@ -82,6 +82,24 @@ $(function() {
 			$("#alert-dialog .btn-danger").unbind("click");
 		});
 	}
+	
+	if($("ul.nav-analysis").length){
+		$(".dropdown-submenu").on("hide.bs.dropdown",function(e){
+			var $target = $(e.currentTarget);
+			if($target.find("li.active").length && !$target.hasClass("active"))
+				$target.addClass("active");
+		});
+	}
+	
+	
+	
+	/*if ($('.table-fixed-header-analysis').length) {
+		$('table.table-fixed-header-analysis').floatThead({
+			scrollContainer : function($table) {
+				return $table.closest('.tab-content');
+			}
+		});
+	}*/
 
 	if ($('.table-fixed-header').length) {
 		$('table.table-fixed-header').floatThead({

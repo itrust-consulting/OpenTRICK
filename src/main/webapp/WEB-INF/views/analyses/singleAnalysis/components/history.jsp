@@ -9,7 +9,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading"><fmt:message key="label.title.history" /></div>
 			<div class="panel-body">
-				<table class="table table-hover">
+				<table class="table table-hover table-fixed-header-analysis">
 					<thead>
 						<tr>
 							<th><fmt:message key="label.history.version" /></th>
