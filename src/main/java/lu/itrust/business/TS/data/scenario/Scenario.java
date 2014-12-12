@@ -52,9 +52,6 @@ public class Scenario extends SecurityCriteria {
 	private String name = "";
 
 	private ScenarioType type = null;
-	
-	/** The Scenario Type */
-	private OldScenarioType scenarioType = null;
 
 	/** The Selected Flag (Selected for calculation) */
 	private boolean selected = false;
@@ -112,19 +109,6 @@ public class Scenario extends SecurityCriteria {
 			throw new TrickException("error.scenario.name.empty", "Name cannot be empty!");
 		this.name = name;
 	}
-
-	/**
-	 * getType: <br>
-	 * Returns the "type" field value
-	 * 
-	 * @return The Scenario Type
-	 */
-	@ManyToOne 
-	@JoinColumn(name="fiScenarioType", nullable=false)
-	@Access(AccessType.FIELD)
-	public OldScenarioType getScenarioType() {
-		return scenarioType;
-	}
 	
 	/**
 	 * getType: <br>
@@ -137,21 +121,6 @@ public class Scenario extends SecurityCriteria {
 	@Access(AccessType.PROPERTY)
 	public ScenarioType getType() {
 		return type;
-	}
-
-	
-	/**
-	 * setType: <br>
-	 * Sets the "type" field with a value
-	 * 
-	 * @param type
-	 *            The value to set the Scenario Type
-	 * @throws TrickException
-	 */
-	public void setScenarioType(OldScenarioType type) throws TrickException {
-		if ((type == null) || (type.getName() == null) || (type.getName().trim().isEmpty()))
-			throw new TrickException("error.scenario.type.empty", "Type cannot be empty!");
-		this.scenarioType = type;
 	}
 
 	/**
@@ -544,7 +513,7 @@ public class Scenario extends SecurityCriteria {
 		int result = 1;
 		result = prime * result + getId();
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((scenarioType == null) ? 0 : scenarioType.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -581,11 +550,11 @@ public class Scenario extends SecurityCriteria {
 		} else if (!name.equals(other.name)) {
 			return false;
 		}
-		if (scenarioType == null) {
-			if (other.scenarioType != null) {
+		if (type == null) {
+			if (other.type != null) {
 				return false;
 			}
-		} else if (!scenarioType.equals(other.scenarioType)) {
+		} else if (!type.equals(other.type)) {
 			return false;
 		}
 		return true;

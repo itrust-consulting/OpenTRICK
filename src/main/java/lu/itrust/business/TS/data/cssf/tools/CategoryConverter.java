@@ -427,7 +427,7 @@ public class CategoryConverter {
 		for (String string : SCENARIO_TYPE_CSSF_KEYS) {
 
 			// scenario type was found in cssf
-			if (string.equals(scenario.getScenarioType().getName()))
+			if (string.equals(scenario.getType().getName()))
 				return true;
 		}
 

@@ -274,7 +274,7 @@ public class ChartGenerator {
 		for (Assessment assessment : assessments) {
 			ALE ale = ales.get(assessment.getScenario().getType().getValue());
 			if (ale == null) {
-				ales.put(assessment.getScenario().getType().getValue(), ale = new ALE(assessment.getScenario().getScenarioType().getName(), 0));
+				ales.put(assessment.getScenario().getType().getValue(), ale = new ALE(assessment.getScenario().getType().getName(), 0));
 				ales2.add(ale);
 			}
 			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());

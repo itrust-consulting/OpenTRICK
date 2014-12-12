@@ -14,27 +14,12 @@ function installTrickService() {
 		contentType : "application/json",
 		success : function(response) {
 
-			var alert = $("#content [class='alert alert-warning alert-dismissable']");
-			if (alert.length)
-				alert.remove();
-
-			for ( var error in response) {
-				var errorElement = document.createElement("div");
-				errorElement.setAttribute("class", "alert alert-warning alert-dismissable");
-
-				var tmpelement = document.createElement("button");
-				tmpelement.setAttribute("class", "close");
-				tmpelement.setAttribute("data-dismiss", "alert");
-				tmpelement.setAttribute("aria-hidden", "true");
-				$(tmpelement).text("&times;");
-
-				$(errorElement).text(response[error]);
-
-				$(tmpelement).appendTo($(errorElement));
-
-				$(errorElement).appendTo($("#content"));
-			}
-			if (!$("#content [class='alert alert-warning alert-dismissable']").length) {
+			if (response["error"]!=undefined) {
+				$("#alert-dialog .modal-body").html(response["error"]);
+				$("#alert-dialog").modal("toggle");
+			} else if (response["success"]!=undefined) {
+				$("#success-dialog .modal-body").html(response["success"]);
+				$("#success-dialog").modal("toggle");
 				location.reload(true);
 			}
 		},

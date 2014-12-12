@@ -83,7 +83,7 @@ public class CSSFSort {
 
 			// retrieve group name from scenario type (direct, indirect or
 			// other)
-			String groupName = findGroup(registerItem.getScenario().getScenarioType().getName());
+			String groupName = findGroup(registerItem.getScenario().getType().getName());
 
 			// retrieve group from name (the risk register item list)
 			List<RiskRegisterItemGroup> registerItemGroups = groups.get(groupName);

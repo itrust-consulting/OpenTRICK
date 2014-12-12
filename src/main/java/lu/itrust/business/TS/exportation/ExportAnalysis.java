@@ -1190,14 +1190,12 @@ public class ExportAnalysis {
 		for (int index = 0; index < this.analysis.getScenarios().size(); index++) {
 
 			// build query
-			query = DatabaseHandler.generateInsertQuery("threats", 53);
+			query = DatabaseHandler.generateInsertQuery("threats", 52);
 
 			// add aprameters
 			params.clear();
 			params.add(this.analysis.getAScenario(index).getId());
 			params.add(this.analysis.getAScenario(index).getName());
-			// System.out.println(this.analysis.getAScenario(index).getType()+",");
-			params.add(this.analysis.getAScenario(index).getScenarioType().getId());
 			params.add(this.analysis.getAScenario(index).getType().name());
 			params.add(this.analysis.getAScenario(index).getDescription());
 			if (this.analysis.getAScenario(index).isSelected()) {

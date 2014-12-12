@@ -124,12 +124,18 @@ public class ControllerIntstallation {
 			return errors;
 		}
 
-		String fileName = request.getServletContext().getRealPath("/WEB-INF/data") + "/TL1.4_TRICKService_DefaultProfile_v1.1.sqlite";
+		String fileName = request.getServletContext().getRealPath("/WEB-INF/data") + "/TL1.4_TRICKService_DefaultProfile_v1.2.sqlite";
 
 		installProfileCustomer(errors, locale);
 
+		if(!errors.isEmpty())
+			return errors;
+		
 		installDefaultProfile(fileName, principal, errors, locale);
 
+		if(!errors.isEmpty())
+			return errors;
+		
 		status.setVersion(version);
 
 		serviceTrickService.saveOrUpdate(status);
@@ -202,7 +208,7 @@ public class ControllerIntstallation {
 				customer = installProfileCustomer(errors, locale);
 				if (customer == null) {
 					System.out.println("Customer could not be installed!");
-					errors.put("installDefaultProfile - Customer", messageSource.getMessage("error.customer_profile.no_found", null, "Could not find profile customer!", locale));
+					errors.put("error", messageSource.getMessage("error.customer_profile.no_found", null, "Could not find profile customer!", locale));
 					return false;
 				}
 			}
@@ -212,7 +218,7 @@ public class ControllerIntstallation {
 
 			if (owner == null) {
 				System.out.println("Could not determine owner! Canceling default Profile creation...");
-				errors.put("installDefaultProfile - Owner", messageSource.getMessage("error.analysis.owner.no_found", null, "Could not determine owner!", locale));
+				errors.put("error", messageSource.getMessage("error.analysis.owner.no_found", null, "Could not determine owner!", locale));
 				return false;
 			}
 
@@ -243,14 +249,16 @@ public class ControllerIntstallation {
 
 			serviceAnalysis.saveOrUpdate(importAnalysis.getAnalysis());
 
+			errors.put("success", messageSource.getMessage("label.ts.install.success", null, "Installation successfull", locale));
+			
 			return returnvalue;
 
 		} catch (TrickException e) {
-			errors.put("installDefaultProfile - Create Profile", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			return false;
 		} catch (Exception e) {
 			e.printStackTrace();
-			errors.put("installDefaultProfile - Create Profile", e.getMessage());
+			errors.put("error", e.getMessage());
 			return false;
 		}
 	}
