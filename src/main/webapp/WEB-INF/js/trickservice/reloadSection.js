@@ -11,9 +11,8 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			var tag = response.substring(response.indexOf('<'));
 			var parser = new DOMParser();
-			var doc = parser.parseFromString(tag, "text/html");
+			var doc = parser.parseFromString(response, "text/html");
 			if (subSection != null && subSection != undefined)
 				section += "_" + subSection;
 			newSection = $(doc).find("*[id = '" + section + "']");
@@ -53,7 +52,7 @@ function reloadSection(section, subSection, refreshOnly) {
 		if (controller == null || controller == undefined)
 			return false;
 
-		if (section == "section_standard"){
+		if (section == "section_standard") {
 			location.reload();
 			return false;
 		}
@@ -64,21 +63,26 @@ function reloadSection(section, subSection, refreshOnly) {
 			async : true,
 			contentType : "application/json;charset=UTF-8",
 			success : function(response) {
-				var tag = response.substring(response.indexOf('<'));
 				var parser = new DOMParser();
-				var doc = parser.parseFromString(tag, "text/html");
+				var doc = parser.parseFromString(response, "text/html");
 				if (subSection != null && subSection != undefined)
 					section += "_" + subSection;
 				newSection = $(doc).find("*[id = '" + section + "']");
-				var smartUpdate = new SectionSmartUpdate(section, newSection);
-				if (smartUpdate.Update()) {
-					$("#" + section).replaceWith(newSection);
-					var tableFixedHeader = $("#" + section).find("table.table-fixed-header");
-					if (tableFixedHeader.length) {
-						setTimeout(function() {
-							fixedTableHeader(tableFixedHeader);
-						}, 500);
+				if (newSection.length) {
+					var smartUpdate = new SectionSmartUpdate(section, newSection);
+					if (smartUpdate.Update()) {
+						$("#" + section).replaceWith(newSection);
+						var tableFixedHeader = $("#" + section).find("table.table-fixed-header");
+						if (tableFixedHeader.length) {
+							setTimeout(function() {
+								fixedTableHeader(tableFixedHeader);
+							}, 500);
+						}
 					}
+				} else {
+					var $tabsSection = $(doc).find(".tab-pane");
+					for (var i = 0; i < $tabsSection.length; i++)
+						$("#" + $($tabsSection[i]).attr("id")).html($($tabsSection[i]).html());
 				}
 				if (!refreshOnly) {
 					var callback = callbackBySection(section);
