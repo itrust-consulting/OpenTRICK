@@ -61,15 +61,6 @@ $(function() {
 	if ($(".popover-element").length)
 		$(".popover-element").popover('hide');
 
-	$('.modal').on('shown.bs.modal', function() {
-		$('body').on('wheel.modal mousewheel.modal', function() {
-			if ($(".modal-open").length || $(".modal.fade.in").length)
-				return false;
-			$('body').off('wheel.modal mousewheel.modal');
-			return true;
-		});
-	});
-
 	if ($('#confirm-dialog').length) {
 		$('#confirm-dialog').on('hidden.bs.modal', function() {
 			$("#confirm-dialog .btn-danger").unbind("click");
