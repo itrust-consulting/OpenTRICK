@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="tab-pane" id="tabChartAsset" data-update-required="true" data-trigger="loadChartAsset">
 	<div id="chart_asset" class="sectionpanel">
-		<div class="page-header">
+		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
@@ -22,7 +22,7 @@
 </div>
 <div class="tab-pane" id="tabChartScenario" data-update-required="true" data-trigger="loadChartScenario">
 	<div id="chart_scenario">
-		<div class="page-header">
+		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
@@ -38,7 +38,7 @@
 </div>
 <div class="tab-pane" id="tabChartCompliance" data-update-required="true" data-trigger="compliances">
 	<div id="chart_compliance">
-		<div class="page-header">
+		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
@@ -52,7 +52,7 @@
 </div>
 <div class="tab-pane" id="tabChartEvolution" data-update-required="true" data-trigger="loadChartEvolution">
 	<div id="chart_evolution">
-		<div class="page-header">
+		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
 					<h3>
@@ -73,7 +73,7 @@
 </div>
 <div class="tab-pane" id="tabChartBudget" data-update-required="true" data-trigger="loadChartBudget">
 	<div id="chart_budget">
-		<div class="page-header">
+		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
 					<h3>

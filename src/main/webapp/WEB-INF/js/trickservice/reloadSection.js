@@ -53,8 +53,10 @@ function reloadSection(section, subSection, refreshOnly) {
 		if (controller == null || controller == undefined)
 			return false;
 
-		if (section == "section_standard")
-			$("#" + section).html("");
+		if (section == "section_standard"){
+			location.reload();
+			return false;
+		}
 
 		$.ajax({
 			url : context + controller,

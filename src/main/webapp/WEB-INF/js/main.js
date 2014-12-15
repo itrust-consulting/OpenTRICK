@@ -91,10 +91,11 @@ $(function() {
 
 		$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 			var target = $(e.target).attr("href");
-			if($(target).attr("data-update-required")=="true"){
+			if ($(target).attr("data-update-required") == "true") {
 				window[$(target).attr("data-trigger")].apply();
-				$(target).attr("data-update-required","false");
+				$(target).attr("data-update-required", "false");
 			}
+			
 		});
 	}
 

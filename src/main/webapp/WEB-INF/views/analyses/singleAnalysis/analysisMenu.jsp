@@ -36,7 +36,7 @@
 		<ul class="dropdown-menu" id="standardmenu">
 			<c:if test="${!empty(standards)}">
 				<c:forEach items="${standards}" var="standard">
-					<li><a href="#tabStandard${standard.label}" data-toggle="tab"> <spring:message text="${standard.label}" /></a>
+					<li><a href="#tabStandard_${standard.id}" data-toggle="tab"> <spring:message text="${standard.label}" /></a>
 				</c:forEach>
 			</c:if>
 			<c:if test="${analysis.getRightsforUserString(login).right.ordinal() <= 4}">
