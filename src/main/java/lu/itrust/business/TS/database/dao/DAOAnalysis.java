@@ -23,7 +23,7 @@ public interface DAOAnalysis {
 
 	public Analysis getDefaultProfile() throws Exception;
 
-	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception;
+	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID) throws Exception;
 
 	public boolean exists(Integer idAnalysis) throws Exception;
 

@@ -75,8 +75,8 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	 */
 
 	@Override
-	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception {
-		return daoAnalysis.getFromIdentifierVersion(identifier, version);
+	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerID) throws Exception {
+		return daoAnalysis.getFromIdentifierVersionCustomer(identifier, version, customerID);
 	}
 
 	/**
