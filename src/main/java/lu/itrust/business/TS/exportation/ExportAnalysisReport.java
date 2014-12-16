@@ -1277,59 +1277,85 @@ public class ExportAnalysisReport {
 			alesmap.clear();
 
 			Collections.sort(ales, new AssetComparatorByALE());
+			
+			XWPFRun run = paragraph.createRun();
+			
+			run.setText(getMessage("report.assessment.total_ale.assets", null, "Total ALE of Assets", locale));
+			
+			paragraph.createRun().addTab();
+		
+			run = paragraph.createRun();
+			
+			run.setText(String.format("%s k€", numberFormat.format(totalale * 0.001)));
+			
+			//paragraph.
 
-			table = document.insertNewTbl(paragraph.getCTP().newCursor());
-
-			table.setStyleID("TableTSAssessment");
-
-			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-			width.setW(BigInteger.valueOf(10000));
+			/*CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
+			width.setW(BigInteger.valueOf(10000));*/
 
 			// set header
 
-			row = table.getRow(0);
 
 			// set header
-			row.getCell(0).setText(getMessage("report.assessment.assets", null, "Assets", locale));
+			//row.getCell(0).setText(getMessage("report.assessment.assets", null, "Assets", locale));
 
-			row.getCell(0).getCTTc().addNewTcPr();
+			//row.getCell(0).getCTTc().addNewTcPr();
 
-			if (row.getCell(0).getCTTc().getTcPr().getGridSpan() == null)
+			/*if (row.getCell(0).getCTTc().getTcPr().getGridSpan() == null)
 				row.getCell(0).getCTTc().getTcPr().addNewGridSpan();
 			row.getCell(0).getCTTc().getTcPr().getGridSpan().setVal(BigInteger.valueOf(5));
 
-			row = table.createRow();
+			row = table.createRow();*/
 
-			for (int i = 1; i < 5; i++)
-				row.addNewTableCell();
-
-			row.getCell(0).setText(getMessage("report.assessment.scenarios", null, "Scenarios", locale));
-			row.getCell(1).setText(getMessage("report.assessment.impact.financial", null, "Fin.", locale));
-			row.getCell(1).setColor("c6d9f1");
-			row.getCell(2).setText(getMessage("report.assessment.probability", null, "P.", locale));
-			row.getCell(2).setColor("c6d9f1");
-			row.getCell(3).setText(getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
-			row.getCell(3).setColor("c6d9f1");
-			row.getCell(4).setText(getMessage("report.assessment.comment", null, "Comment", locale));
-			row.getCell(4).setColor("c6d9f1");
-
-			row = table.createRow();
-			for (int i = 1; i < 5; i++)
-				row.addNewTableCell().setColor("c6d9f1");
-
-			row.getCell(0).setText(getMessage("report.assessment.total_ale.assets", null, "Total ALE of Assets", locale));
-			addCellNumber(row.getCell(3), numberFormat.format(totalale * 0.001));
+			
+			/*row.getCell(0).setText();
+			addCellNumber(row.getCell(3), );*/
 
 			for (ALE ale : ales) {
+				paragraph.createRun().addBreak();
+				paragraph = document.insertNewParagraph(paragraph.getCTP().newCursor());
+				paragraph.createRun().setText(ale.getAssetName());
+				paragraph.setStyle("Titre 4");
+				
+				paragraph.createRun().addBreak();
+				paragraph = document.insertNewParagraph(paragraph.getCTP().newCursor());
+				
+				//paragraph.setStyle("Normal");
+				
+				run = paragraph.createRun();
+				
+				run.setText(getMessage("report.assessment.total.ale.for.asset", null, "Total ALE for asset", locale));
+				
+				paragraph.createRun().addTab();
+				
+				paragraph.createRun().setText(String.format("%f k€", ale.getValue()));
+			
+
+				paragraph.createRun().addBreak();
+				paragraph = document.insertNewParagraph(paragraph.getCTP().newCursor());
+				
+				table = document.insertNewTbl(paragraph.getCTP().newCursor());
+				table.setStyleID("TableTSAssessment");
+				
+				row = table.getRow(0);
+				
+				while(row.getCtRow().getTcList().size()<5)
+					row.addNewTableCell();
+				
+				row.getCell(0).setText(getMessage("report.assessment.scenarios", null, "Scenarios", locale));
+				row.getCell(1).setText(getMessage("report.assessment.impact.financial", null, "Fin.", locale));
+				row.getCell(1).setColor("c6d9f1");
+				row.getCell(2).setText(getMessage("report.assessment.probability", null, "P.", locale));
+				row.getCell(2).setColor("c6d9f1");
+				row.getCell(3).setText(getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
+				row.getCell(3).setColor("c6d9f1");
+				row.getCell(4).setText(getMessage("report.assessment.comment", null, "Comment", locale));
+				row.getCell(4).setColor("c6d9f1");
+				
 				List<Assessment> assessmentsofasset = assessementsmap.get(ale.getAssetName());
-				row = table.createRow();
-				for (int i = 1; i < 5; i++)
-					row.addNewTableCell().setColor("c6d9f1");
-				row.getCell(0).setText(ale.getAssetName());
-				addCellNumber(row.getCell(3), numberFormat.format(ale.getValue() * 0.001));
 				for (Assessment assessment : assessmentsofasset) {
 					row = table.createRow();
-					for (int i = 1; i < 5; i++)
+					while(row.getCtRow().getTcList().size()<5)
 						row.addNewTableCell();
 					row.getCell(0).setText(assessment.getScenario().getName());
 					addCellNumber(row.getCell(1), formatedImpact(assessment.getImpactFin()));
