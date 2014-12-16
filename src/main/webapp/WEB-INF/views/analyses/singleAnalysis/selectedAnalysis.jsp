@@ -9,7 +9,7 @@
 <c:set scope="request" var="title">label.title.analysis</c:set>
 <html>
 <jsp:include page="../../header.jsp" />
-<body data-spy="scroll" data-target="#analysismenu" data-offset="40">
+<body>
 	<jsp:include page="../../scripts.jsp" />
 	<script src="<spring:url value="js/trickservice/analysis.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/highcharts.js" />"></script>
@@ -36,15 +36,11 @@
 		<div class="container">
 			<jsp:include page="analysisMenu.jsp" />
 			<jsp:include page="../../successErrors.jsp" />
-			<div id="nav-container" trick-id="${analysis.id}" trick-class="Analysis" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}"
+			<div class="tab-content" id="nav-container" trick-id="${analysis.id}" trick-class="Analysis" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}"
 				trick-language="${fn:substring(analysis.language.alpha3,0,2)}">
 				<c:if test="${!analysis.isProfile()}">
-					<h2>${analysis.label}|${ analysis.version }</h2>
 					<c:set var="histories" value="${analysis.histories}" scope="request" />
 					<jsp:include page="./components/history.jsp" />
-				</c:if>
-				<c:if test="${analysis.isProfile()}">
-					<h2>${analysis.identifier}|${ analysis.version }</h2>
 				</c:if>
 				<c:if test="${!analysis.isProfile() }">
 					<c:set var="itemInformations" value="${analysis.itemInformations}" scope="request" />

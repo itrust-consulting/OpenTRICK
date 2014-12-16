@@ -4,80 +4,90 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div class="section" id="section_chart">
-	<div class="page-header">
-		<h3 id="Charts">
-			<fmt:message key="label.title.charts" />
-		</h3>
-	</div>
-	<span class="anchor" id="anchorChartAsset"></span>
+<div class="tab-pane" id="tabChartAsset" data-update-required="true" data-trigger="loadChartAsset">
 	<div id="chart_asset" class="sectionpanel">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<fmt:message key="label.title.chart.asset"  />
-			</div>
-			<div class="panel-body">
-				<div id="chart_ale_asset"></div>
-				<hr style="margin: 30px 0;" />
-				<div id="chart_ale_asset_type"></div>
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.chart.asset" />
+					</h3>
+				</div>
 			</div>
 		</div>
+		<div id="chart_ale_asset" class="col-xs-12"></div>
+		<hr style="margin: 30px 0;" class="col-xs-12"/>
+		<div id="chart_ale_asset_type" class="col-xs-12"></div>
 	</div>
-	<span class="anchor" id="anchorChartScenario"></span>
-	<div id="chart_scenario" class="sectionpanel">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<fmt:message key="label.title.chart.scenario"  />
-			</div>
-			<div class="panel-body">
-				<div id="chart_ale_scenario"></div>
-				<hr style="margin: 30px 0;" />
-				<div id="chart_ale_scenario_type"></div>
+</div>
+<div class="tab-pane" id="tabChartScenario" data-update-required="true" data-trigger="loadChartScenario">
+	<div id="chart_scenario">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.chart.scenario" />
+					</h3>
+				</div>
 			</div>
 		</div>
+		<div id="chart_ale_scenario" class="col-xs-12"></div>
+		<hr style="margin: 30px 0;" class="col-xs-12"/>
+		<div id="chart_ale_scenario_type" class="col-xs-12"></div>
 	</div>
-	<span class="anchor" id="anchorChartCompliance"></span>
-	<div id="chart_compliance" class="sectionpanel">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<fmt:message key="label.title.chart.compliance"  />
-			</div>
-			<div class="panel-body">
+</div>
+<div class="tab-pane" id="tabChartCompliance" data-update-required="true" data-trigger="compliances">
+	<div id="chart_compliance">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.chart.compliance" />
+					</h3>
+				</div>
 			</div>
 		</div>
+		<div id="chart_compliance_body" class="col-xs-12"></div>
 	</div>
-	<span class="anchor" id="anchorChartEvolution"></span>
-	<div id="chart_evolution" class="sectionpanel">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<fmt:message key="label.title.chart.evolution.profitability.compliance"  />
-			</div>
-			<div class="panel-body">
-				<div id="chart_evolution_profitability_compliance_APPN"></div>
-				<c:if test="${show_uncertainty}">
-					<hr style="margin: 30px 0;" />
-					<div id="chart_evolution_profitability_compliance_APPO"></div>
-					<hr style="margin: 30px 0;" />
-					<div id="chart_evolution_profitability_compliance_APPP"></div>
-				</c:if>
+</div>
+<div class="tab-pane" id="tabChartEvolution" data-update-required="true" data-trigger="loadChartEvolution">
+	<div id="chart_evolution">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.chart.evolution.profitability.compliance" />
+					</h3>
+				</div>
 			</div>
 		</div>
+		<div id="chart_evolution_profitability_compliance_APPN" class="col-xs-12"></div>
+		<c:if test="${show_uncertainty}">
+			<hr style="margin: 30px 0;" class="col-xs-12"/>
+			<div id="chart_evolution_profitability_compliance_APPO" class="col-xs-12"></div>
+			<hr style="margin: 30px 0;" class="col-xs-12" />
+			<div id="chart_evolution_profitability_compliance_APPP" class="col-xs-12"></div>
+		</c:if>
+
 	</div>
-	<span class="anchor" id="anchorChartBudget"></span>
-	<div id="chart_budget" class="sectionpanel">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<fmt:message key="label.title.chart.budget"  />
-			</div>
-			<div class="panel-body">
-				<div id="chart_budget_APPN"></div>
-				<c:if test="${show_uncertainty}">
-					<hr style="margin: 30px 0;" />
-					<div id="chart_budget_APPO"></div>
-					<hr style="margin: 30px 0;" />
-					<div id="chart_budget_APPP"></div>
-				</c:if>
+</div>
+<div class="tab-pane" id="tabChartBudget" data-update-required="true" data-trigger="loadChartBudget">
+	<div id="chart_budget">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<fmt:message key="label.title.chart.budget" />
+					</h3>
+				</div>
 			</div>
 		</div>
+		<div id="chart_budget_APPN" class="col-xs-12"></div>
+		<c:if test="${show_uncertainty}">
+			<hr style="margin: 30px 0;" class="col-xs-12"/>
+			<div id="chart_budget_APPO" class="col-xs-12"></div>
+			<hr style="margin: 30px 0;" class="col-xs-12" />
+			<div id="chart_budget_APPP" class="col-xs-12"></div>
+		</c:if>
 	</div>
 </div>

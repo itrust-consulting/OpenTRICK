@@ -7,22 +7,16 @@ $(document).ready(function() {
 	// ******************************************************************************************************************
 	// * load charts
 	// ******************************************************************************************************************
-	
 
 	// ******************************************************************************************************************
 	// * uncheck checked checkboxes
 	// ******************************************************************************************************************
 
 	$("input[type='checkbox']").removeAttr("checked");
-	
-	//loadAnalysisSections();
-	reloadCharts();
 });
 
 function loadAnalysisSections() {
-	
-	
-	
+
 }
 
 function updateSettings(element, entryKey) {
@@ -62,7 +56,7 @@ function updateSettings(element, entryKey) {
 // reload measures
 function reloadMeasureRow(idMeasure, standard) {
 	$.ajax({
-		url : context + "/Analysis/Standard/"+standard+"/SingleMeasure/" + idMeasure,
+		url : context + "/Analysis/Standard/" + standard + "/SingleMeasure/" + idMeasure,
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
@@ -100,13 +94,13 @@ function compliances() {
 			if (response.standards == undefined || response.standards == null)
 				return;
 
-			var panelbody = $("#chart_compliance .panel-body");
+			var panelbody = $("#chart_compliance_body");
 
 			$(panelbody).html("");
 
 			$.each(response.standards, function(key, data) {
-				
-				//console.log(key);
+
+				// console.log(key);
 
 				$(panelbody).append("<div id='chart_compliance_" + key + "'></div>");
 
@@ -123,56 +117,67 @@ function compliances() {
 function compliance(standard) {
 	if (!$('#chart_compliance_' + standard).length)
 		return false;
-	$.ajax({
-		url : context + "/Analysis/Standard/" + standard +"/Compliance",
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response.chart == undefined || response.chart == null)
-				return;
-			$('#chart_compliance_' + standard).highcharts(response);
-		},
-		error : unknowError
-	});
+	if ($('#chart_compliance_' + standard).is(":visible")) {
+		$.ajax({
+			url : context + "/Analysis/Standard/" + standard + "/Compliance",
+			type : "get",
+			async : true,
+			contentType : "application/json;charset=UTF-8",
+			async : true,
+			success : function(response) {
+				if (response.chart == undefined || response.chart == null)
+					return;
+				$('#chart_compliance_' + standard).highcharts(response);
+			},
+			error : unknowError
+		});
+	} else
+		$("#tabChartCompliance").attr("data-update-required", "true");
 	return false;
 }
 
 function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 	if (!$('#chart_evolution_profitability_compliance_' + actionPlanType).length)
 		return false;
-	return $.ajax({
-		url : context + "/Analysis/ActionPlanSummary/Evolution/" + actionPlanType,
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response.chart == undefined || response.chart == null)
-				return true;
-			$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
-		},
-		error : unknowError
-	});
+	if ($('#chart_evolution_profitability_compliance_' + actionPlanType).is(":visible")) {
+		$.ajax({
+			url : context + "/Analysis/ActionPlanSummary/Evolution/" + actionPlanType,
+			type : "get",
+			async : true,
+			contentType : "application/json;charset=UTF-8",
+			async : true,
+			success : function(response) {
+				if (response.chart == undefined || response.chart == null)
+					return true;
+				$('#chart_evolution_profitability_compliance_' + actionPlanType).highcharts(response);
+			},
+			error : unknowError
+		});
+	} else
+		$("#tabChartEvolution").attr("data-update-required", "true");
+	return false;
 }
 
 function budgetByActionPlanType(actionPlanType) {
 	if (!$('#chart_budget_' + actionPlanType).length)
 		return false;
-	return $.ajax({
-		url : context + "/Analysis/ActionPlanSummary/Budget/" + actionPlanType,
-		type : "get",
-		async : true,
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			if (response.chart == undefined || response.chart == null)
-				return true;
-			$('#chart_budget_' + actionPlanType).highcharts(response);
-		},
-		error : unknowError
-	});
+	if ($('#chart_budget_' + actionPlanType).is(":visible")) {
+		$.ajax({
+			url : context + "/Analysis/ActionPlanSummary/Budget/" + actionPlanType,
+			type : "get",
+			async : true,
+			contentType : "application/json;charset=UTF-8",
+			async : true,
+			success : function(response) {
+				if (response.chart == undefined || response.chart == null)
+					return true;
+				$('#chart_budget_' + actionPlanType).highcharts(response);
+			},
+			error : unknowError
+		});
+	} else
+		$("#tabChartBudget").attr("data-update-required", "true");
+	return false;
 }
 
 function summaryCharts() {
@@ -185,7 +190,30 @@ function summaryCharts() {
 		} catch (e) {
 			console.log(e);
 		}
+	}
+	return false;
+}
 
+function loadChartEvolution(){
+	var actionPlanTypes = $("#section_summary *[trick-nav-control]");
+	for (var i = 0; i < actionPlanTypes.length; i++) {
+		try {
+			evolutionProfitabilityComplianceByActionPlanType($(actionPlanTypes[i]).attr("trick-nav-control"));
+		} catch (e) {
+			console.log(e);
+		}
+	}
+	return false;
+}
+
+function loadChartBudget(){
+	var actionPlanTypes = $("#section_summary *[trick-nav-control]");
+	for (var i = 0; i < actionPlanTypes.length; i++) {
+		try {
+			budgetByActionPlanType($(actionPlanTypes[i]).attr("trick-nav-control"));
+		} catch (e) {
+			console.log(e);
+		}
 	}
 	return false;
 }
@@ -193,68 +221,87 @@ function summaryCharts() {
 function reloadCharts() {
 	chartALE();
 	compliances();
-	// compliance('27001');
-	// compliance('27002');
 	summaryCharts();
 	return false;
 };
+
+function loadChartAsset() {
+
+	if ($('#chart_ale_asset').length) {
+		if ($('#chart_ale_asset').is(":visible")) {
+			$.ajax({
+				url : context + "/Analysis/Asset/Chart/Ale",
+				type : "get",
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				async : true,
+				success : function(response) {
+					$('#chart_ale_asset').highcharts(response);
+				},
+				error : unknowError
+			});
+		} else
+			$("#tabChartAsset").attr("data-update-required", "true");
+	}
+	if ($('#chart_ale_asset_type').length) {
+		if ($('#chart_ale_asset_type').is(":visible")) {
+			$.ajax({
+				url : context + "/Analysis/Asset/Chart/Type/Ale",
+				type : "get",
+				contentType : "application/json;charset=UTF-8",
+				success : function(response) {
+					$('#chart_ale_asset_type').highcharts(response);
+				},
+				error : unknowError
+			});
+		} else
+			$("#tabChartAsset").attr("data-update-required", "true");
+	}
+}
+
+function loadChartScenario() {
+	if ($('#chart_ale_scenario_type').length) {
+		if ($('#chart_ale_scenario_type').is(":visible")) {
+			$.ajax({
+				url : context + "/Analysis/Scenario/Chart/Type/Ale",
+				type : "get",
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				async : true,
+				success : function(response) {
+					$('#chart_ale_scenario_type').highcharts(response);
+				},
+				error : unknowError
+			});
+		} else
+			$("#tabChartScenario").attr("data-update-required", "true");
+	}
+
+	if ($('#chart_ale_scenario').length) {
+		if ($('#chart_ale_scenario').is(":visible")) {
+			$.ajax({
+				url : context + "/Analysis/Scenario/Chart/Ale",
+				type : "get",
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				async : true,
+				success : function(response) {
+					$('#chart_ale_scenario').highcharts(response);
+				},
+				error : unknowError
+			});
+		} else
+			$("#tabChartScenario").attr("data-update-required", "true");
+	}
+}
 
 function reloadActionPlansAndCharts() {
 	reloadSection('section_actionplans');
 }
 
 function chartALE() {
-	if ($('#chart_ale_scenario_type').length) {
-		$.ajax({
-			url : context + "/Analysis/Scenario/Chart/Type/Ale",
-			type : "get",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			async : true,
-			success : function(response) {
-				$('#chart_ale_scenario_type').highcharts(response);
-			},
-			error : unknowError
-		});
-	}
-	if ($('#chart_ale_scenario').length) {
-		$.ajax({
-			url : context + "/Analysis/Scenario/Chart/Ale",
-			type : "get",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			async : true,
-			success : function(response) {
-				$('#chart_ale_scenario').highcharts(response);
-			},
-			error : unknowError
-		});
-	}
-
-	if ($('#chart_ale_asset').length) {
-		$.ajax({
-			url : context + "/Analysis/Asset/Chart/Ale",
-			type : "get",
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			async : true,
-			success : function(response) {
-				$('#chart_ale_asset').highcharts(response);
-			},
-			error : unknowError
-		});
-	}
-	if ($('#chart_ale_asset_type').length) {
-		$.ajax({
-			url : context + "/Analysis/Asset/Chart/Type/Ale",
-			type : "get",
-			contentType : "application/json;charset=UTF-8",
-			success : function(response) {
-				$('#chart_ale_asset_type').highcharts(response);
-			},
-			error : unknowError
-		});
-	}
+	loadChartAsset();
+	loadChartScenario();
 	return false;
 }
 

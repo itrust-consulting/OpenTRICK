@@ -6,20 +6,16 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib prefix="fct" uri="http://trickservice.itrust.lu/JSTLFunctions"%>
-<div class="section" id="section_standard" style="z-index: 3">
-	<div class="page-header">
-		<h3 id="Measure">
-			<fmt:message key="label.title.norms" />
-		</h3>
-	</div>
-	<c:forEach items="${measures.keySet()}" var="standard">
-		<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandardType(standards, standard)" var="standardType" scope="page" />
-		<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandardId(standards, standard)" var="standardid" scope="page" />
-		<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).isAnalysisOnlyStandard(standards, standard)" var="analysisOnly" scope="page" />
+<c:forEach items="${measures.keySet()}" var="standard">
+	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandardType(standards, standard)" var="standardType" scope="page" />
+	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).getStandardId(standards, standard)" var="standardid" scope="page" />
+	<spring:eval expression="T(lu.itrust.business.TS.data.standard.measure.helper.MeasureManager).isAnalysisOnlyStandard(standards, standard)" var="analysisOnly" scope="page" />
+	<div class="tab-pane" id="tabStandard_${standardid}">
 		<span class="anchor" id="anchorMeasure_${standardid}"></span>
 		<div id="section_standard_${standardid}" trick-id="${standardid}" trick-label="${standard}">
-			<div class="panel panel-default">
-				<c:if test="${analysisOnly}">
+		<c:choose>
+			<c:when test="${analysisOnly}">
+				<div class="panel panel-default">
 					<div class="panel-heading" style="min-height: 60px;">
 						<ul class="nav nav-pills" id="menu_standard_${standardid}">
 							<li style="padding: 10px 15px;"><spring:message text="${standard}" /></li>
@@ -37,14 +33,21 @@
 									class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
 						</ul>
 					</div>
-				</c:if>
-				<c:if test="${!analysisOnly}">
-					<div class="panel-heading">
-						<spring:message text="${standard}" />
-					</div>
-				</c:if>
-				<div class="panel-body autofitpanelbodydefinition">
-					<table class="table table-hover table-fixed-header" id="table_Measure_${standardid}">
+					<div class="panel-body">
+				</c:when>
+				<c:otherwise>
+					<div class="page-header tab-content-header">
+						<div class="container">
+							<div class="row-fluid">
+								<h3>
+									<spring:message text="${standard}" />
+								</h3>
+								</div>
+							</div>
+						</div>
+				</c:otherwise>
+				</c:choose>
+					<table class="table table-hover table-fixed-header-analysis" id="table_Measure_${standardid}">
 						<thead>
 							<tr>
 								<c:if test="${analysisOnly}">
@@ -52,7 +55,7 @@
 								</c:if>
 								<th colspan="2"><fmt:message key="label.measure.ref" /></th>
 								<th colspan="5"><fmt:message key="label.measure.domain" /></th>
-								<th><label class="text-rotate-270"><fmt:message key="label.measure.status" /></label></th>
+								<th><label><fmt:message key="label.measure.status" /></label></th>
 								<th><fmt:message key="label.measure.ir" /></th>
 								<th><fmt:message key="label.measure.iw" /></th>
 								<th><fmt:message key="label.measure.ew" /></th>
@@ -62,7 +65,7 @@
 								<th><fmt:message key="label.measure.em" /></th>
 								<th><fmt:message key="label.measure.ri" /></th>
 								<th><fmt:message key="label.measure.cost" /></th>
-								<th><label class="text-rotate-270"><fmt:message key="label.measure.phase" /></label></th>
+								<th><label><fmt:message key="label.measure.phase" /></label></th>
 								<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
 									<th colspan="8"><fmt:message key="label.measure.tocheck" /></th>
 								</c:if>
@@ -169,6 +172,8 @@
 					<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 				</div>
 			</div>
+<c:if test="${analysisOnly}">
 		</div>
-	</c:forEach>
-</div>
+	</div>
+</c:if>
+</c:forEach>
