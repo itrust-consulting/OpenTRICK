@@ -538,14 +538,23 @@ public class ImportAnalysis {
 		// it to the database
 		if (language == null) {
 
+			language = new Language();
+			
+			if(acroLanguage.equals("FRA")) {
+				language.setAlpha3(acroLanguage);
+				language.setName("Françaus");
+				language.setAltName("French");
+			} else {
+				language.setAlpha3("ENG");
+				language.setName("English");
+				language.setAltName("Anglais");
+			}
+			
 			// ****************************************************************
 			// * create language object
 			// ****************************************************************
-			language = new Language();
-			language.setAlpha3("ENG");
-			language.setName("English");
-			language.setAltName("Anglais");
-			// daoLanguage.save(language);
+			
+			
 		}
 
 		// ****************************************************************
@@ -635,7 +644,7 @@ public class ImportAnalysis {
 				if (i == 0) {
 					analysis.setBasedOnAnalysis(null);
 				} else {
-					analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), this.analysis.getAHistory(i - 1).getVersion()));
+					analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), this.analysis.getAHistory(i - 1).getVersion(), this.analysis.getCustomer().getId()));
 				}
 
 				// add history entries to this history entry
@@ -655,7 +664,7 @@ public class ImportAnalysis {
 		}
 
 		// retrive last version of the analysis if it exists
-		analysis = daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), this.analysis.getVersion());
+		analysis = daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), this.analysis.getVersion(), this.analysis.getCustomer().getId());
 
 		// if analysis is not null (The Analysis and its version has aready been
 		// imported)
@@ -679,7 +688,7 @@ public class ImportAnalysis {
 		if (history == null) {
 			this.analysis.setBasedOnAnalysis(null);
 		} else {
-			this.analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersion(this.analysis.getIdentifier(), history.getVersion()));
+			this.analysis.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), history.getVersion(), this.analysis.getCustomer().getId()));
 		}
 
 	}
@@ -2174,7 +2183,7 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * create asset type default values in mysql database
 		// ****************************************************************
-		createAssetTypeDefaultValues();
+		//createAssetTypeDefaultValues();
 
 		// ****************************************************************
 		// * check assettypevalues for values of 101 (-1) then find
@@ -2190,34 +2199,53 @@ public class ImportAnalysis {
 				// store into object
 				normalMeasure = (NormalMeasure) measure;
 
-				// ****************************************************************
-				// * for each standard: parse measures to find a 101 (-1) value
-				// ****************************************************************
+				ResultSet rs = null;
+				String query = "";
+				AssetTypeValue assetTypeValue = null;
+				AssetType assetType = null;
 
 				// ****************************************************************
-				// * parse each assettypevalue for this measure (each measure
-				// has
-				// * as much as there are asset types for this analysis)
-				// * For each value of 101 (-1) lookup previous levels until a
-				// * valid value (0-100) was found
+				// * retrieve asset type values for measures
 				// ****************************************************************
 
-				// parse assettypevalues of current measure
-				for (AssetTypeValue assetTypeValue : normalMeasure.getAssetTypeValues()) {
+				currentSqliteTable = "spec_type_asset_measure";
+
+				
+				
+				// build query
+				query = "SELECT id_type_asset, value_spec FROM spec_type_asset_measure where id_norme=? and version_norme=? and ref_measure=?";
+
+				List<Object> params = new ArrayList<Object>();
+				
+				params.add(normalMeasure.getAnalysisStandard().getStandard().getLabel());
+				
+				params.add(normalMeasure.getAnalysisStandard().getStandard().getVersion());
+				
+				params.add(normalMeasure.getMeasureDescription().getReference());
+				
+				// execute query
+				rs = sqlite.query(query, params);
+
+				while (rs.next()) {
 
 					// ****************************************************************
-					// * check if asset type value is 101 (-1) and level is
-					// 3
-					// * -> to change to valid value
+					// * retrieve standard and measure
+					// ****************************************************************
+					assetTypeValue = new AssetTypeValue();
+
+					// ****************************************************************
+					// * retrieve asset type label for the instance creation
 					// ****************************************************************
 
-					// check if value is 101 and level 3 -> YES
-					if ((assetTypeValue.getValue() == -1) && (normalMeasure.getMeasureDescription().isComputable())) {
+					assetType = assetTypes.get(rs.getInt(Constant.ASSET_ID_TYPE_ASSET));
+					assetTypeValue.setAssetType(assetType);
+					assetTypeValue.setValue(rs.getInt(Constant.VALUE_SPEC));
 
-						// set this asset type value with a valid value
-						updateAssetTypeValue(normalMeasure, assetTypeValue);
-					}
+					// add the asset type value to the measure
+					normalMeasure.addAnAssetTypeValue(assetTypeValue);
 				}
+				// close result
+				rs.close();
 			}
 		}
 	}

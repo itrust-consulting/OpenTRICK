@@ -73,9 +73,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	 *      java.lang.String)
 	 */
 	@Override
-	public Analysis getFromIdentifierVersion(String identifier, String version) throws Exception {
-		String query = "From Analysis where identifier = :identifier and version = :version";
-		return (Analysis) getSession().createQuery(query).setString("identifier", identifier).setString("version", version).uniqueResult();
+	public Analysis getFromIdentifierVersionCustomer(String identifier, String version, Integer customerid) throws Exception {
+		String query = "Select analysis From Analysis analysis join analysis.customer customer where analysis.identifier = :identifier and analysis.version = :version and customer.id=analysis.customer.id and customer.id = :customerid";
+		return (Analysis) getSession().createQuery(query).setString("identifier", identifier).setString("version", version).setInteger("customerid", customerid).uniqueResult();
 	}
 
 	/**

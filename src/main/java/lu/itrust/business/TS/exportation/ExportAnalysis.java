@@ -1352,7 +1352,6 @@ public class ExportAnalysis {
 		List<Object> measureparams = new ArrayList<Object>();
 		List<Object> specparams = new ArrayList<Object>();
 		List<Object> defaultspecparams = new ArrayList<Object>();
-		String specquery = "";
 		String specdefaultquery = "";
 		
 		MaturityStandard maturityStandard = null;
@@ -1360,7 +1359,6 @@ public class ExportAnalysis {
 		
 		String measurequery = "";
 		int measurecounter = 0;
-		int speccounter = 0;
 		int specdefaultcounter = 0;
 
 		// ****************************************************************
@@ -1393,7 +1391,6 @@ public class ExportAnalysis {
 				specparams.clear();
 				defaultspecparams.clear();
 				measurequery = "";
-				specquery = "";
 				specdefaultquery = "";
 
 				// parse measures
@@ -1538,7 +1535,7 @@ public class ExportAnalysis {
 
 							// set query
 							specdefaultquery =
-								"INSERT INTO spec_default_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
+								"INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 							// set limit
 							specdefaultcounter = 5;
@@ -1559,7 +1556,7 @@ public class ExportAnalysis {
 
 								// reset query
 								specdefaultquery =
-									"INSERT INTO spec_default_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
+									"INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme', ? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
 
 								// reset limit
 								specdefaultcounter = 5;
@@ -1578,100 +1575,14 @@ public class ExportAnalysis {
 						// add parameters
 						defaultspecparams.add(assetTypeValue.getAssetType().getId());
 
-						// check if standard is custom -> YES
-						if (normalStandard.getStandard().getLabel().startsWith(Constant.STANDARD_CUSTOM)) {
-
-							// set custom standard name
-							defaultspecparams.add(Constant.STANDARD_CUSTOM);
-						} else {
-
-							// check if standard is custom -> NO
-
-							// set all other standard name
-							defaultspecparams.add(normalStandard.getStandard().getLabel());
-						}
-
+						defaultspecparams.add(normalStandard.getStandard().getLabel());
+						
 						defaultspecparams.add(normalStandard.getStandard().getVersion());
 
 						defaultspecparams.add(measure.getMeasureDescription().getReference());
 
-						if (assetTypeValue.getValue() == 101)
-							defaultspecparams.add(-1);
-						else
-							defaultspecparams.add(assetTypeValue.getValue());
+						defaultspecparams.add(assetTypeValue.getValue());
 
-						// check if measure is level 3 -> YES
-						if (measure.getMeasureDescription().isComputable()) {
-
-							// ****************************************************************
-							// * export level 3 asset type value into
-							// spec_type_asset_measure
-							// * sqlite table
-							// ****************************************************************
-
-							// check if first part -> YES
-							if (specquery.isEmpty()) {
-
-								// set query
-								specquery = "INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme',? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
-
-								// set limit
-								speccounter = 5;
-							} else {
-
-								// check if first part -> NO
-
-								// check if limit reached -> YES
-								if (speccounter + 5 >= 999) {
-
-									// execute query
-									specquery = specquery.substring(0, specquery.length() - 6);
-									sqlite.query(specquery, specparams);
-
-									// reset parameters
-									specparams.clear();
-
-									// reset query
-									specquery = "INSERT INTO spec_type_asset_measure SELECT ? as 'id_type_asset', ? as 'id_norme',? as 'version_norme', ? as 'ref_measure', ? as 'value_spec' UNION";
-
-									// reset limit
-									speccounter = 5;
-								} else {
-
-									// check if limit reached -> NO
-
-									// add insert values to query
-									specquery += " SELECT ?,?,?,?,? UNION";
-
-									// increment limit
-									speccounter += 5;
-								}
-							}
-
-							// add parameters
-							specparams.add(assetTypeValue.getAssetType().getId());
-
-							// check if standard is custom -> YES
-							if (normalStandard.getStandard().getLabel().startsWith(Constant.STANDARD_CUSTOM)) {
-
-								// set custom standard name
-								specparams.add(Constant.STANDARD_CUSTOM);
-							} else {
-
-								// check if standard is custom -> NO
-
-								// set all other standard name
-								specparams.add(normalStandard.getStandard().getLabel());
-							}
-
-							specparams.add(normalStandard.getStandard().getVersion());
-
-							specparams.add(measure.getMeasureDescription().getReference());
-							if (assetTypeValue.getValue() == 101)
-								specparams.add(-1);
-							else
-								specparams.add(assetTypeValue.getValue());
-						}
 					}
 				}
 
@@ -1683,18 +1594,12 @@ public class ExportAnalysis {
 				// remove UNION from queries
 				if (measurequery.endsWith("UNION"))
 					measurequery = measurequery.substring(0, measurequery.length() - 6);
-				if (specquery.endsWith("UNION"))
-					specquery = specquery.substring(0, specquery.length() - 6);
 				if (specdefaultquery.endsWith("UNION"))
 					specdefaultquery = specdefaultquery.substring(0, specdefaultquery.length() - 6);
 
 				// execute the query
 				if (!measurequery.isEmpty())
 					sqlite.query(measurequery, measureparams);
-
-				if (!specquery.isEmpty())
-					// execute the query
-					sqlite.query(specquery, specparams);
 
 				if (!specdefaultquery.isEmpty())
 					// execute the query
@@ -1711,10 +1616,8 @@ public class ExportAnalysis {
 
 				// reinitialise variables
 				measureparams.clear();
-				specparams.clear();
 				defaultspecparams.clear();
 				measurequery = "";
-				specquery = "";
 				specdefaultquery = "";
 
 				// parse measures
@@ -1949,7 +1852,6 @@ public class ExportAnalysis {
 				measureparams.clear();
 				specparams.clear();
 				measurequery = "";
-				specquery = "";
 				measurecounter = 0;
 
 				// parse measures
