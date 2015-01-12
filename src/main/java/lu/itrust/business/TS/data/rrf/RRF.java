@@ -1,6 +1,8 @@
 package lu.itrust.business.TS.data.rrf;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 import lu.itrust.business.TS.component.JSTLFunctions;
@@ -156,13 +158,13 @@ public class RRF {
 		// * Type calculation
 		// ****************************************************************
 
-		type = JSTLFunctions.round(measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative(),2);
+		type = measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative();
 		
-		type += JSTLFunctions.round(measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive(),2);
+		type += measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive();
 		
-		type += JSTLFunctions.round(measure.getMeasurePropertyList().getDetective() * scenario.getDetective(),2); 
+		type += measure.getMeasurePropertyList().getDetective() * scenario.getDetective(); 
 				
-		type += JSTLFunctions.round(measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective(), 2);
+		type += measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective();
 
 		type /= 4.;
 
@@ -171,6 +173,11 @@ public class RRF {
 					.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel()), scenario.getName(), measure.getMeasureDescription().getReference(), measure
 					.getAnalysisStandard().getStandard().getLabel());
 
+		NumberFormat nf = new DecimalFormat();
+	    nf.setMaximumFractionDigits(2);
+		
+	    type = Double.valueOf(nf.format(type));
+		
 		// ****************************************************************
 		// * Source calculation
 		// ****************************************************************
@@ -195,7 +202,7 @@ public class RRF {
 
 		RRF = ((assetTypeValue.getValue() / 100. * strength * category * type * source)) * (tuning / 100.);
 
-	/*	System.out.println("Measure: " + measure.getMeasureDescription().getReference() + "Asset: " + assetType.getType() + "Scenario: " + scenario.getName() + " ;RRF=" + RRF + ", atv="
+		/*System.out.println("Measure: " + measure.getMeasureDescription().getReference() + "Asset: " + assetType.getType() + "Scenario: " + scenario.getName() + " ;RRF=" + RRF + ", atv="
 			+ assetTypeValue.getValue() + ", strength=" + strength + ", Category=" + category + ", type=" + type + ", source=" + source + ", tuning=" + tuning);*/
 		
 		// ****************************************************************
@@ -254,9 +261,14 @@ public class RRF {
 		// ****************************************************************
 		// * Type calculation
 		// ****************************************************************
-		type = JSTLFunctions.round((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive()), 2);
-
-		type += JSTLFunctions.round((measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective()), 2);
+		
+		type = measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative();
+		
+		type += measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive();
+		
+		type += measure.getMeasurePropertyList().getDetective() * scenario.getDetective(); 
+				
+		type += measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective();
 
 		type /= 4.;
 
@@ -265,6 +277,11 @@ public class RRF {
 					.getMeasureDescription().getReference(), measure.getAnalysisStandard().getStandard().getLabel()), scenario.getName(), measure.getMeasureDescription().getReference(), measure
 					.getAnalysisStandard().getStandard().getLabel());
 
+		NumberFormat nf = new DecimalFormat();
+	    nf.setMaximumFractionDigits(2);
+		
+	    type = Double.valueOf(nf.format(type));
+		
 		// ****************************************************************
 		// * Source calculation
 		// ****************************************************************

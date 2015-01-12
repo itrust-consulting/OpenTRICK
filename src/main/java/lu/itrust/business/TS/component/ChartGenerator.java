@@ -1,5 +1,7 @@
 package lu.itrust.business.TS.component;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -1091,7 +1093,16 @@ public class ChartGenerator {
 			RRFAssetType rrfAssetType = new RRFAssetType(assetType.getType());
 			for (Scenario scenario : scenarios) {
 				RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
-				rrfMeasure.setValue(RRF.calculateNormalMeasureRRF(scenario, assetType, parameter, measure));
+				
+				double val = RRF.calculateNormalMeasureRRF(scenario, assetType, parameter, measure);
+				
+				NumberFormat nf = new DecimalFormat();
+			    nf.setMaximumFractionDigits(2);
+				
+			    val = Double.valueOf(nf.format(val));
+			    
+				rrfMeasure.setValue(val);
+				
 				rrfAssetType.getRrfMeasures().add(rrfMeasure);
 			}
 			rrfs.put(rrfAssetType.getLabel(), rrfAssetType);
@@ -1119,7 +1130,16 @@ public class ChartGenerator {
 			RRFAsset rrfAsset = new RRFAsset(assetValue.getAsset().getName());
 			for (Scenario scenario : scenarios) {
 				RRFMeasure rrfMeasure = new RRFMeasure(measure.getId(), measure.getMeasureDescription().getReference());
-				rrfMeasure.setValue(RRF.calculateAssetMeasureRRF(scenario, assetValue.getAsset(), parameter, measure));
+				
+				double val = RRF.calculateAssetMeasureRRF(scenario, assetValue.getAsset(), parameter, measure);
+				
+				NumberFormat nf = new DecimalFormat();
+			    nf.setMaximumFractionDigits(2);
+				
+			    val = Double.valueOf(nf.format(val));
+			    
+				rrfMeasure.setValue(val);
+				
 				rrfAsset.getRrfMeasures().add(rrfMeasure);
 			}
 			rrfs.put(rrfAsset.getLabel(), rrfAsset);
@@ -1150,7 +1170,14 @@ public class ChartGenerator {
 
 					AssetTypeValue matv = normalMeasure.getAssetTypeValueByAssetType(atv.getAssetType());
 			
-					rrfMeasure.setValue(RRF.calculateNormalMeasureRRF(scenario, matv.getAssetType(), parameter, normalMeasure));
+					double val = RRF.calculateNormalMeasureRRF(scenario, matv.getAssetType(), parameter, normalMeasure);
+					
+					NumberFormat nf = new DecimalFormat();
+				    nf.setMaximumFractionDigits(2);
+					
+				    val = Double.valueOf(nf.format(val));
+				    
+					rrfMeasure.setValue(val);
 					
 					rrfAssetType.getRrfMeasures().add(rrfMeasure);
 
@@ -1166,7 +1193,14 @@ public class ChartGenerator {
 
 					for (MeasureAssetValue mav : mavs) {
 
-						rrfMeasure.setValue(rrfMeasure.getValue()+RRF.calculateAssetMeasureRRF(scenario, mav.getAsset(), parameter, (AssetMeasure) measure));
+						double val = RRF.calculateAssetMeasureRRF(scenario, mav.getAsset(), parameter, (AssetMeasure) measure);
+						
+						NumberFormat nf = new DecimalFormat();
+					    nf.setMaximumFractionDigits(2);
+						
+					    val = Double.valueOf(nf.format(val));
+					    					
+						rrfMeasure.setValue(rrfMeasure.getValue()+val);
 					}
 					rrfAssetType.getRrfMeasures().add(rrfMeasure);
 				}
