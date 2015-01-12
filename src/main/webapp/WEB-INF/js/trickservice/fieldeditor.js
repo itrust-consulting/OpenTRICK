@@ -63,7 +63,7 @@ function FieldEditor(element, validator) {
 			if (this.defaultValue.length > 100 || $(this.element).attr("trick-content") == "text") {
 				this.fieldEditor = document.createElement("textarea");
 				
-				var elementheight = (19*rows);
+				var elementheight = height-8;
 				
 				this.fieldEditor.setAttribute("style", "width:100%;height:"+elementheight+"px; padding:2px;");
 				//this.fieldEditor.setAttribute("rows", rows);
