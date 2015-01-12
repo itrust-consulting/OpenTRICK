@@ -30,21 +30,21 @@
 				<table id="scenariotable" class="table table-hover table-fixed-header-analysis">
 					<thead>
 						<tr>
-							<th><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
-							<th><fmt:message key="label.row.index" /></th>
-							<th colspan="15"><fmt:message key="label.scenario.name" /></th>
-							<th colspan="3"><fmt:message key="label.scenario.type" /></th>
+							<th style="width:2%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')"></th>
+							<th style="width:3%"><fmt:message key="label.row.index" /></th>
+							<th style="width:25%"><fmt:message key="label.scenario.name" /></th>
+							<th style="width:5%"><fmt:message key="label.scenario.type" /></th>
 							<c:choose>
 								<c:when test="${show_uncertainty}">
-									<th colspan="2"><fmt:message key="label.scenario.aleo" /></th>
-									<th colspan="2"><fmt:message key="label.scenario.ale" /></th>
-									<th colspan="2"><fmt:message key="label.scenario.alep" /></th>
+									<th style="width:5%"><fmt:message key="label.scenario.aleo" /></th>
+									<th style="width:5%"><fmt:message key="label.scenario.ale" /></th>
+									<th style="width:5%"><fmt:message key="label.scenario.alep" /></th>
 								</c:when>
 								<c:otherwise>
-									<th colspan="2"><fmt:message key="label.scenario.ale" /></th>
+									<th style="width:5%"><fmt:message key="label.scenario.ale" /></th>
 								</c:otherwise>
 							</c:choose>
-							<th colspan="20"><fmt:message key="label.scenario.description" /></th>
+							<th><fmt:message key="label.scenario.description" /></th>
 						</tr>
 					</thead>
 					<tfoot></tfoot>
@@ -57,25 +57,25 @@
 								<c:set var="ale" value="${scenarioALE[scenario.id]}" />
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');"></td>
 								<td>${status.index+1}</td>
-								<td class="${cssClass}" colspan="15"><spring:message text="${scenario.name}" /></td>
-								<td class="${cssClass}" colspan="3"><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
+								<td class="${cssClass}"><spring:message text="${scenario.name}" /></td>
+								<td class="${cssClass}"><fmt:message key="label.scenario.type.${fn:toLowerCase(fn:replace(scenario.type.name,'-','_'))}" /></td>
 								<fmt:setLocale value="fr" scope="session" />
 								<c:choose>
 									<c:when test="${show_uncertainty}">
-										<td colspan="2" title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+										<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 												value="${fct:round(ale[0].value*0.001,0)}" maxFractionDigits="0" /></td>
-										<td colspan="2" title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+										<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 												value="${fct:round(ale[1].value*0.001,0)}" maxFractionDigits="0" /></td>
-										<td colspan="2" title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+										<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 												value="${fct:round(ale[2].value*0.001,0)}" maxFractionDigits="0" /></td>
 									</c:when>
 									<c:otherwise>
-										<td colspan="2" title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+										<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 												value="${fct:round(ale[1].value*0.001,0)}" maxFractionDigits="0" /></td>
 									</c:otherwise>
 								</c:choose>
 								<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
-								<td class="${cssClass}" colspan="20"><pre>
+								<td class="${cssClass}"><pre>
 										<spring:message text="${scenario.description}" />
 									</pre></td>
 							</tr>
@@ -85,24 +85,24 @@
 						<tfoot>
 							<tr class="panel-footer" style="font-weight: bold;">
 								<spring:eval expression="T(lu.itrust.business.TS.data.assessment.helper.AssessmentManager).ComputeTotalALE(scenarioALE)" var="ale" />
-								<td colspan="20"><fmt:message key="label.total.ale" /></td>
+								<td colspan="4"><fmt:message key="label.total.ale" /></td>
 								<fmt:setLocale value="fr" scope="session" />
 								<c:choose>
 									<c:when test="${show_uncertainty}">
-										<td colspan="2" title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+										<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 												value="${fct:round(ale[0].value*0.001,0)}" maxFractionDigits="0" /></td>
-										<td colspan="2" title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+										<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 												value="${fct:round(ale[1].value*0.001,0)}" maxFractionDigits="0" /></td>
-										<td colspan="2" title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+										<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 												value="${fct:round(ale[2].value*0.001,0)}" maxFractionDigits="0" /></td>
 									</c:when>
 									<c:otherwise>
-										<td colspan="2" title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+										<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 												value="${fct:round(ale[1].value*0.001,0)}" maxFractionDigits="0" /></td>
 									</c:otherwise>
 								</c:choose>
 								<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
-								<td colspan="20"></td>
+								<td colspan="2"></td>
 							</tr>
 						</tfoot>
 					</c:if>

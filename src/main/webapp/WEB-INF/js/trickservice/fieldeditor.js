@@ -39,18 +39,47 @@ function FieldEditor(element, validator) {
 		if (!this.LoadData())
 			return true;
 		if (!this.choose.length) {
-			var width = $(this.element).width();
+
+			var width = 0;
+			var height = 0;
+
+			var rows = 2;
+
+			if (!$(this.element).is("td")) {
+				width = $(this.element).closest("td").outerWidth();
+				height = $(this.element).closest("td").outerHeight();
+				$(this.element).closest("td").css("width", width);
+				$(this.element).closest("td").css("height", height);
+				rows = $(this.element).html().split(/\n/).length;
+				if (rows == 1)
+					rows = 2;
+			} else {
+				width = $(this.element).outerWidth();
+				height = $(this.element).outerHeight();
+				$(this.element).css("width", width);
+				$(this.element).css("height", height);
+			}
+
 			if (this.defaultValue.length > 100 || $(this.element).attr("trick-content") == "text") {
 				this.fieldEditor = document.createElement("textarea");
-				this.fieldEditor.setAttribute("style", "min-width:" + width + "px; min-height:" + $(this.element).height() + "px;");
+				
+				var elementheight = (19*rows);
+				
+				this.fieldEditor.setAttribute("style", "width:100%;height:"+elementheight+"px; padding:2px;");
+				//this.fieldEditor.setAttribute("rows", rows);
 			} else {
 				this.fieldEditor = document.createElement("input");
 				this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
-				this.fieldEditor.setAttribute("style", "min-width:" + (width < 80 ? 80 : width) + "px;");
+				this.fieldEditor.setAttribute("style", "width:100%; height:34px;padding:2px;");
 			}
 		} else {
+				
+				$(this.element).css("min-width", "40px");
+				$(this.element).css("height", "34px");
+			
 			this.fieldEditor = document.createElement("select");
-			this.fieldEditor.setAttribute("style", "min-width:70px;");
+			this.fieldEditor.setAttribute("style", "width:100%;height:34px;padding:2px;");
+			
 			for (var i = 0; i < this.choose.length; i++) {
 				var option = document.createElement("option");
 				option.setAttribute("value", this.choose[i]);
@@ -137,7 +166,14 @@ function FieldEditor(element, validator) {
 		var style = $(this.fieldEditor).attr("style");
 		$(this.fieldEditor).prop("value", this.realValue != null ? this.realValue : $(this.element).text().trim());
 		$(this.fieldEditor).attr("style", style + (style.endsWith(";") ? ";" : "") + "position: relative;")
+
 		$(this.element).html(this.fieldEditor);
+
+		if (!$(this.element).is("td"))
+			$(this.element).closest("td").css("padding", "3px");
+		else
+			$(this.element).css("padding", "3px");
+
 		$(this.fieldEditor).focus();
 		return false;
 	};
@@ -163,6 +199,15 @@ function FieldEditor(element, validator) {
 
 	FieldEditor.prototype.UpdateUI = function() {
 		$(this.element).text($(this.fieldEditor).prop("value"));
+		if (!$(this.element).is("td")) {
+			$(this.element).closest("td").css("padding", "5px");
+			$(this.element).closest("td").css("min-width", "");
+			$(this.element).closest("td").css("height", "");
+		} else {
+			$(this.element).css("padding", "5px");
+			$(this.element).css("min-width", "");
+			$(this.element).css("height", "");
+		}
 		return false;
 	};
 
@@ -179,8 +224,8 @@ function FieldEditor(element, validator) {
 					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
-							+ '", "type": "' + that.fieldType + '"}',
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true) + '", "type": "' + that.fieldType
+							+ '"}',
 					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
@@ -212,6 +257,15 @@ function FieldEditor(element, validator) {
 
 	FieldEditor.prototype.Rollback = function() {
 		$(this.element).html(this.defaultValue);
+		if (!$(this.element).is("td")) {
+			$(this.element).closest("td").css("padding", "5px");
+			$(this.element).closest("td").css("min-width", "");
+			$(this.element).closest("td").css("height", "");
+		} else {
+			$(this.element).css("padding", "5px");
+			$(this.element).css("min-width", "");
+			$(this.element).css("height", "");
+		}
 		return false;
 	};
 }
@@ -282,8 +336,8 @@ function ExtendedFieldEditor(element) {
 					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
-							+ '", "type": "' + that.fieldType + '"}',
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true) + '", "type": "' + that.fieldType
+							+ '"}',
 					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
@@ -383,8 +437,8 @@ function AssessmentFieldEditor(element) {
 					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
-							+ '", "type": "' + that.fieldType + '"}',
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true) + '", "type": "' + that.fieldType
+							+ '"}',
 					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
@@ -430,11 +484,21 @@ function AssessmentExtendedParameterEditor(element) {
 
 		var indexOf = this.acromym.indexOf(this.defaultValue);
 		var value = indexOf >= 0 ? this.choose[indexOf] : this.realValue != null ? this.realValue : this.defaultValue;
+		
+		var width = $(this.element).outerWidth();
+
+		var height = $(this.element).outerHeight();
+
+		$(this.element).css("width", width);
+
+		$(this.element).css("height", height);
+		
 		this.fieldEditor = document.createElement("input");
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("placeholder", value);
 		this.fieldEditor.setAttribute("value", value);
-		this.fieldEditor.setAttribute("style", "min-width:90px;");
+		this.fieldEditor.setAttribute("style", "width:100%; height:100%;min-width:80px;");
+
 		var that = this;
 		$(this.fieldEditor).blur(function() {
 			return that.Save(that);
@@ -449,6 +513,7 @@ function AssessmentExtendedParameterEditor(element) {
 		if (this.element == null || this.element == undefined)
 			return false;
 		$(this.element).html(this.fieldEditor);
+		$(this.element).css("padding", "3px");
 		var data = [];
 		for (var i = 0; i < this.choose.length; i++)
 			data.push({
@@ -483,7 +548,10 @@ function AssessmentExtendedParameterEditor(element) {
 	};
 
 	AssessmentExtendedParameterEditor.prototype.Rollback = function() {
+		if (this.defaultValue == '')
+			this.defaultValue = 0;
 		$(this.element).html(this.defaultValue);
+		$(this.element).css("padding", "5px");
 		return false;
 	};
 
@@ -538,8 +606,17 @@ function AssessmentProbaFieldEditor(element) {
 			return true;
 		if (!this.LoadData())
 			return true;
+		
+		var width = $(this.element).outerWidth();
+
+		var height = $(this.element).outerHeight();
+
+		$(this.element).css("width", width);
+
+		$(this.element).css("height", height);
+		
 		this.fieldEditor = document.createElement("select");
-		this.fieldEditor.setAttribute("style", "min-width:100px;");
+		this.fieldEditor.setAttribute("style", "width:100%;height:36px;min-width:90px;padding:2px;");
 		for (var i = 0; i < this.choose.length; i++) {
 			var option = document.createElement("option");
 			option.setAttribute("value", this.acromym[i]);

@@ -156,9 +156,13 @@ public class RRF {
 		// * Type calculation
 		// ****************************************************************
 
-		type = JSTLFunctions.round((measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative()) + (measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive()), 2);
-
-		type += JSTLFunctions.round((measure.getMeasurePropertyList().getDetective() * scenario.getDetective()) + (measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective()), 2);
+		type = JSTLFunctions.round(measure.getMeasurePropertyList().getLimitative() * scenario.getLimitative(),2);
+		
+		type += JSTLFunctions.round(measure.getMeasurePropertyList().getPreventive() * scenario.getPreventive(),2);
+		
+		type += JSTLFunctions.round(measure.getMeasurePropertyList().getDetective() * scenario.getDetective(),2); 
+				
+		type += JSTLFunctions.round(measure.getMeasurePropertyList().getCorrective() * scenario.getCorrective(), 2);
 
 		type /= 4.;
 

@@ -5,7 +5,7 @@ function TimeoutInterceptor() {
 	this.timer = {};
 	this.intervalTimeout = null;
 	this.logoutTimeout = null;
-	this.TIME_TO_DISPLAY_ALERT = 0;
+	this.TIME_TO_DISPLAY_ALERT = 14 * 60 * 1000;
 	this.alertDialog = null;
 	this.messages = {
 		Alert : "",
@@ -115,8 +115,6 @@ TimeoutInterceptor.prototype = {
 		if (!this.IsAuthenticate())
 			this.ShowLogin();
 		else {
-
-			this.TIME_TO_DISPLAY_ALERT = this.LIMIT_SESSION - this.ALERT_TIME;
 
 			// before jQuery send the request we will push it to our array
 			$.ajaxSetup({

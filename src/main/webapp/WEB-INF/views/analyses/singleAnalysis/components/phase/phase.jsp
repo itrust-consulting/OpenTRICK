@@ -20,10 +20,10 @@
 				<table class="table table-hover table-fixed-header-analysis">
 					<thead>
 						<tr>
-							<th>&nbsp;</th>
-							<th><fmt:message key="label.table.index" /></th>
-							<th colspan="15"><fmt:message key="label.phase.begin_date" /></th>
-							<th colspan="15"><fmt:message key="label.phase.end_date" /></th>
+							<th style="width:2%">&nbsp;</th>
+							<th style="width:3%"><fmt:message key="label.table.index" /></th>
+							<th><fmt:message key="label.phase.begin_date" /></th>
+							<th><fmt:message key="label.phase.end_date" /></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -32,8 +32,8 @@
 								<tr trick-id='${phase.id}' trick-class="Phase">
 									<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_phase','#menu_phase');"></td>
 									<td><spring:message text="${phase.number}" /></td>
-									<td colspan="15" class="success" trick-field="beginDate" trick-field-type="date" ondblclick="editPhase(${phase.id});"><spring:message text="${phase.beginDate}" /></td>
-									<td colspan="15" class="success" trick-field="endDate" trick-field-type="date" ondblclick="editPhase(${phase.id});"><spring:message text="${phase.endDate}" /></td>
+									<td class="success" trick-field="beginDate" trick-field-type="date" ondblclick="editPhase(${phase.id});"><spring:message text="${phase.beginDate}" /></td>
+									<td class="success" trick-field="endDate" trick-field-type="date" ondblclick="editPhase(${phase.id});"><spring:message text="${phase.endDate}" /></td>
 								</tr>
 							</c:if>
 						</c:forEach>

@@ -83,7 +83,7 @@ function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
 	$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
 	if ($("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
 		$(menu + " a#actionplanassetsmenulink").html("<span class='glyphicon glyphicon-chevron-down'></span>&nbsp;" + MessageResolver("action.actionplanassets.show", "Show Assets"));
-		fixedTableHeader(table);
+		//fixedTableHeader(table);
 	} else {
 		$(menu + " a#actionplanassetsmenulink").html("<span class='glyphicon glyphicon-chevron-up'></span>&nbsp;" + MessageResolver("action.actionplanassets.hide", "Hide Assets"));
 		//fixedTableHeader(table);
