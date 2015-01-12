@@ -286,7 +286,7 @@ public class ExportAnalysisReport {
 			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataALEs.get(i)));
 			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataRiskReductions.get(i)));
 			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataROSIs.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(6).setCellValue(Double.parseDouble(dataRelatifROSIs.get(i)));
+			xssfSheet.getRow(rowIndex++).getCell(6).setCellValue(Double.parseDouble(dataRelatifROSIs.get(i)));
 		}
 		reportExcelSheet.save();
 	}
@@ -1048,9 +1048,9 @@ public class ExportAnalysisReport {
 		XWPFTableRow row = null;
 		String parmetertype = "";
 		if (type.equals(Constant.PARAMETERTYPE_TYPE_IMPACT_NAME))
-			parmetertype = "Proba";
-		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
 			parmetertype = "Impact";
+		else if (type.equals(Constant.PARAMETERTYPE_TYPE_PROPABILITY_NAME))
+			parmetertype = "Proba";
 
 		paragraph = findParagraphByText("<" + parmetertype + ">");
 

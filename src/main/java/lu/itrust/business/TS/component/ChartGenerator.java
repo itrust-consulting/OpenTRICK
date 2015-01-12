@@ -13,7 +13,6 @@ import lu.itrust.business.TS.data.actionplan.ActionPlanMode;
 import lu.itrust.business.TS.data.actionplan.helper.ActionPlanComputation;
 import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
 import lu.itrust.business.TS.data.actionplan.summary.helper.ActionPlanSummaryManager;
-import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.assessment.Assessment;
 import lu.itrust.business.TS.data.assessment.helper.ALE;
 import lu.itrust.business.TS.data.assessment.helper.AssetComparatorByALE;
@@ -24,7 +23,6 @@ import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.rrf.RRF;
 import lu.itrust.business.TS.data.rrf.RRFAsset;
 import lu.itrust.business.TS.data.rrf.RRFAssetType;
-import lu.itrust.business.TS.data.rrf.RRFFilter;
 import lu.itrust.business.TS.data.rrf.RRFMeasure;
 import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
@@ -44,7 +42,6 @@ import lu.itrust.business.TS.database.dao.DAOPhase;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.exception.TrickException;
 
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
@@ -462,11 +459,11 @@ public class ChartGenerator {
 
 			Boolean goodPhase = measure.getPhase().getNumber() == phase.getNumber();
 
-			if (measure.getMeasureDescription().isComputable() && !status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) && goodPhase) {
+			if (goodPhase && measure.getMeasureDescription().isComputable() && !status.equals(Constant.MEASURE_STATUS_NOT_APPLICABLE) ) {
 				String chapter = ActionPlanComputation.extractMainChapter(measure.getMeasureDescription().getReference());
 				Object[] compliance = compliances.get(chapter);
 				if (actionPlanMeasures.containsKey(measure.getId()))
-					compliance[1] = ((Double) compliance[1] + Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) - measure.getImplementationRateValue();
+					compliance[1] = ((Double) compliance[1] + (Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE) - measure.getImplementationRateValue());
 			}
 		}
 		return compliances;
@@ -544,13 +541,13 @@ public class ChartGenerator {
 
 		List<Phase> phases = daoPhase.getAllFromAnalysisActionPlan(idAnalysis);
 
-		Hibernate.initialize(phases);
+		//Hibernate.initialize(phases);
 
 		if (!actionPlanMeasures.isEmpty()) {
 
 			for (Phase phase : phases) {
 
-				Hibernate.initialize(phase);
+				//Hibernate.initialize(phase);
 
 				if (phase.getNumber() == Constant.PHASE_NOT_USABLE)
 					continue;

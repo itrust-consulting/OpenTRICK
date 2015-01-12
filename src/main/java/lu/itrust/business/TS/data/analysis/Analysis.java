@@ -2433,7 +2433,7 @@ public class Analysis implements Cloneable {
 	}
 
 	public List<? extends Measure> findMeasureByStandard(String string) {
-		for (AnalysisStandard analysisStandard : analysisStandards)
+		for (AnalysisStandard analysisStandard : this.analysisStandards)
 			if (analysisStandard.getStandard().getLabel().equalsIgnoreCase(string))
 				return analysisStandard.getMeasures();
 		return null;
@@ -2441,7 +2441,7 @@ public class Analysis implements Cloneable {
 
 	public List<Measure> findMeasuresByActionPlan(ActionPlanMode appn) {
 		List<Measure> measures = new ArrayList<Measure>();
-		for (ActionPlanEntry planEntry : actionPlans)
+		for (ActionPlanEntry planEntry : this.actionPlans)
 			if (planEntry.getActionPlanType().getActionPlanMode() == appn)
 				measures.add(planEntry.getMeasure());
 		return measures;
@@ -2449,7 +2449,7 @@ public class Analysis implements Cloneable {
 
 	public List<Measure> findMeasuresByActionPlanAndNotToImplement(ActionPlanMode appn) {
 		List<Measure> measures = new ArrayList<Measure>();
-		for (ActionPlanEntry planEntry : actionPlans)
+		for (ActionPlanEntry planEntry : this.actionPlans)
 			if (planEntry.getActionPlanType().getActionPlanMode() == appn && planEntry.getROI() <= 0.0)
 				measures.add(planEntry.getMeasure());
 		return measures;
@@ -2457,9 +2457,25 @@ public class Analysis implements Cloneable {
 
 	public List<Phase> findUsablePhase() {
 		List<Phase> phases = new ArrayList<Phase>();
-		for (Phase phase : phases)
-			if (phase.getNumber() > 0)
+		if(this.actionPlans == null || this.actionPlans.isEmpty())
+			return phases;
+		for (ActionPlanEntry actionPlanEntry : this.actionPlans){
+			Phase phase= actionPlanEntry.getMeasure().getPhase();
+			if (phase!=null && !phases.contains(phase))
 				phases.add(phase);
+		}
+		
+		for (int i = 0; i < phases.size(); i++) {
+			Phase phase = phases.get(i);
+			for (int j = 0; j < phases.size(); j++) {
+				if(phases.get(j).getNumber()>phase.getNumber()){
+					phases.set(i, phases.get(j));
+					phases.set(j, phase);
+					phase = phases.get(i);
+				}
+			}
+		}
+		
 		return phases;
 
 	}
@@ -2482,7 +2498,7 @@ public class Analysis implements Cloneable {
 
 	public Map<Integer, Boolean> findIdMeasuresImplementedByActionPlanType(ActionPlanMode appn) {
 		Map<Integer, Boolean> actionPlanMeasures = new LinkedHashMap<Integer, Boolean>();
-		for (ActionPlanEntry planEntry : actionPlans)
+		for (ActionPlanEntry planEntry : this.actionPlans)
 			if (planEntry.getActionPlanType().getActionPlanMode() == appn)
 				actionPlanMeasures.put(planEntry.getMeasure().getId(), true);
 		return actionPlanMeasures;
