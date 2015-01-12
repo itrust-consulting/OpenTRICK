@@ -166,11 +166,7 @@ public class MeasureManager {
 		Map<Chapter, List<Measure>> chapters = new LinkedHashMap<Chapter, List<Measure>>();
 		Map<String, Chapter> chapterMapping = new LinkedHashMap<String, Chapter>();
 		
-		Comparator<Measure> cmp = new Comparator<Measure>() {
-			public int compare(Measure o1, Measure o2) {
-				return Measure.compare(o1.getMeasureDescription().getReference(), o2.getMeasureDescription().getReference());
-			}
-		};
+		Comparator<Measure> cmp = new MeasureComparator();
 		
 		Map<String,List<Measure>> splittedmeasures = MeasureManager.SplitByStandard(measures);
 		

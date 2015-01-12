@@ -10,6 +10,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,6 +42,7 @@ import lu.itrust.business.TS.data.riskinformation.helper.RiskInformationManager;
 import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.measure.Measure;
+import lu.itrust.business.TS.data.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.exception.TrickException;
@@ -614,6 +616,8 @@ public class ExportAnalysisReport {
 				paragraph.removeRun(0);
 
 			boolean isFirst = true;
+			
+			Comparator<Measure> comparator = new MeasureComparator();
 
 			for (AnalysisStandard analysisStandard : analysisStandards) {
 
@@ -671,6 +675,8 @@ public class ExportAnalysisReport {
 				row.getCell(12).setText(getMessage("report.measure.comment", null, "Comment", locale));
 				row.getCell(13).setText(getMessage("report.measure.to_do", null, "To Do", locale));
 				// set data
+				Collections.sort(analysisStandard.getMeasures(), comparator);
+				
 				for (Measure measure : analysisStandard.getMeasures()) {
 
 					row = table.createRow();
