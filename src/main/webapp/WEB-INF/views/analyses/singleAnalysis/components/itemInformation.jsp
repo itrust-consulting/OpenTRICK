@@ -10,8 +10,8 @@
 		<table id="iteminformationtable" class="table table-condensed table-hover table-fixed-header-analysis">
 			<thead>
 				<tr>
-					<th colspan="1"><fmt:message key="label.item_information.description" /></th>
-					<th colspan="2"><fmt:message key="label.item_information.value" /></th>
+					<th style="width:25%"><fmt:message key="label.item_information.description" /></th>
+					<th><fmt:message key="label.item_information.value" /></th>
 					
 				</tr>
 			</thead>
@@ -19,9 +19,9 @@
 			<tbody>
 				<c:forEach items="${itemInformations}" var="itemInformation">
 					<tr trick-class="ItemInformation" trick-id="${itemInformation.id}">
-						<td colspan="1">
+						<td>
 						<fmt:message key="label.item_information.${itemInformation.description.trim()}" /></td>
-						<td colspan="3" ondblclick="return editField(this.firstElementChild);" class="success"><pre trick-field="value" trick-content="text" trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
+						<td onclick="return editField(this.firstElementChild);" class="success"><pre trick-field="value" trick-content="text" trick-field-type="string"><spring:message text="${itemInformation.value}" /></pre></td>
 					</tr>
 				</c:forEach>
 			</tbody>

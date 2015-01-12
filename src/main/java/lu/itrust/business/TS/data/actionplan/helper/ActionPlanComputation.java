@@ -1,5 +1,6 @@
 package lu.itrust.business.TS.data.actionplan.helper;
-
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -9,7 +10,6 @@ import java.util.Map;
 
 import javax.naming.directory.InvalidAttributesException;
 
-import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
@@ -1109,7 +1109,15 @@ public class ActionPlanComputation {
 		
 		String soarisk = messageSource.getMessage("label.soa.asset", null, "Asset:", locale) + " " + asm.getAsset().getName() + " \n ";
 		soarisk += messageSource.getMessage("label.soa.scenario", null, "Scenario:", locale) + " " + asm.getScenario().getName() + " \n ";
-		soarisk += messageSource.getMessage("label.soa.rate", null, "Rate:", locale) + " " + String.valueOf(JSTLFunctions.round(report,2));
+		
+		double val = report;
+		
+		NumberFormat nf = new DecimalFormat();
+	    nf.setMaximumFractionDigits(2);
+		
+	    val = Double.valueOf(nf.format(val));
+		
+		soarisk += messageSource.getMessage("label.soa.rate", null, "Rate:", locale) + " " + String.valueOf(val);
 
 		((NormalMeasure) entry.getMeasure()).getMeasurePropertyList().setSoaRisk(soarisk);
 		// serviceMeasure.saveOrUpdate(entry.getMeasure());

@@ -1,26 +1,18 @@
 package lu.itrust.business.TS.controller;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.data.TrickService;
-import lu.itrust.business.TS.data.actionplan.summary.SummaryStage;
-import lu.itrust.business.TS.data.actionplan.summary.SummaryStandardConformance;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.data.cssf.tools.CategoryConverter;
 import lu.itrust.business.TS.data.general.AssetTypeValue;
-import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.scenario.Scenario;
-import lu.itrust.business.TS.data.scenario.ScenarioType;
-import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.NormalStandard;
 import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
@@ -35,8 +27,6 @@ import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceTrickService;
 import lu.itrust.business.TS.database.service.ServiceUser;
-import lu.itrust.business.TS.exception.TrickException;
-import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;

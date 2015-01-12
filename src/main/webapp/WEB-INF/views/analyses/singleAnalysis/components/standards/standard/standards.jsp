@@ -47,30 +47,30 @@
 						</div>
 				</c:otherwise>
 				</c:choose>
-					<table class="table table-hover table-fixed-header-analysis" id="table_Measure_${standardid}">
+					<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_Measure_${standardid}">
 						<thead>
 							<tr>
 								<c:if test="${analysisOnly}">
 									<th><input type="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')" class="checkbox"></th>
 								</c:if>
-								<th colspan="2"><fmt:message key="label.measure.ref" /></th>
-								<th colspan="5"><fmt:message key="label.measure.domain" /></th>
-								<th><label><fmt:message key="label.measure.status" /></label></th>
-								<th><fmt:message key="label.measure.ir" /></th>
-								<th><fmt:message key="label.measure.iw" /></th>
-								<th><fmt:message key="label.measure.ew" /></th>
-								<th><fmt:message key="label.measure.inv" /></th>
-								<th><fmt:message key="label.measure.lt" /></th>
-								<th><fmt:message key="label.measure.im" /></th>
-								<th><fmt:message key="label.measure.em" /></th>
-								<th><fmt:message key="label.measure.ri" /></th>
-								<th><fmt:message key="label.measure.cost" /></th>
-								<th><label><fmt:message key="label.measure.phase" /></label></th>
+								<th style="width:5%"><fmt:message key="label.measure.ref" /></th>
+								<th style="width:15%"><fmt:message key="label.measure.domain" /></th>
+								<th style="width:3%"><fmt:message key="label.measure.status" /></th>
+								<th style="width:3%"><fmt:message key="label.measure.ir" /></th>
+								<th style="width:3%"><fmt:message key="label.measure.iw" /></th>
+								<th style="width:3%"><fmt:message key="label.measure.ew" /></th>
+								<th style="width:3%"><fmt:message key="label.measure.inv" /></th>
+								<th style="width:3%"><fmt:message key="label.measure.lt" /></th>
+								<th style="width:3%"><fmt:message key="label.measure.im" /></th>
+								<th style="width:3%"><fmt:message key="label.measure.em" /></th>
+								<th style="width:3%"><fmt:message key="label.measure.ri" /></th>
+								<th style="width:3%"><fmt:message key="label.measure.cost" /></th>
+								<th style="width:3%"><fmt:message key="label.measure.phase" /></th>
 								<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
-									<th colspan="8"><fmt:message key="label.measure.tocheck" /></th>
+									<th><fmt:message key="label.measure.tocheck" /></th>
 								</c:if>
-								<th colspan="8"><fmt:message key="label.measure.comment" /></th>
-								<th colspan="8"><fmt:message key="label.measure.todo" /></th>
+								<th><fmt:message key="label.measure.comment" /></th>
+								<th><fmt:message key="label.measure.todo" /></th>
 							</tr>
 						</thead>
 						<tfoot>
@@ -99,8 +99,8 @@
 											<c:if test="${analysisOnly}">
 												<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 											</c:if>
-											<td colspan="2"><spring:message text="${measure.measureDescription.reference}" /></td>
-											<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'40':'32'}"><spring:message
+											<td><spring:message text="${measure.measureDescription.reference}" /></td>
+											<td colspan="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')?'16':'15'}"><spring:message
 													text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 										</tr>
 									</c:when>
@@ -110,29 +110,29 @@
 											<c:if test="${analysisOnly}">
 												<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 											</c:if>
-											<td colspan="2" class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
+											<td class="popover-element" data-toggle="popover" data-container="body" data-placement="right" data-trigger="hover" data-html="true"
 												data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measure.measureDescription.reference}" />'
 												${analysisOnly?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
-											<td colspan="5" ${analysisOnly?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-											<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" ondblclick="return editField(this);"><spring:message
+											<td ${analysisOnly?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+											<td ${css} textaligncenter" trick-field="status" trick-choose="M,AP,NA" trick-field-type="string" onclick="return editField(this);"><spring:message
 													text="${measure.status}" /></td>
 											<td ${css} trick-field="implementationRate" ${standardType.name.equals('MATURITY')?'trick-class="MaturityMeasure"':''} trick-field-type="double"
-												trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" ondblclick="return editField(this);"><fmt:formatNumber
+												trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber
 													value="${measure.getImplementationRateValue()}" maxFractionDigits="0" minFractionDigits="0" /></td>
-											<td ${css} trick-field="internalWL" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.internalWL}"
+											<td ${css} trick-field="internalWL" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.internalWL}"
 													maxFractionDigits="2" /></td>
-											<td ${css} trick-field="externalWL" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.externalWL}"
+											<td ${css} trick-field="externalWL" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.externalWL}"
 													maxFractionDigits="2" /></td>
-											<td ${css} trick-field="investment" trick-field-type="double" ondblclick="return editField(this);"
+											<td ${css} trick-field="investment" trick-field-type="double" onclick="return editField(this);"
 												title='<fmt:formatNumber value="${fct:round(measure.investment,0)}" maxFractionDigits="0" /> &euro;'
 												real-value='<fmt:formatNumber value="${measure.investment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber maxFractionDigits="0"
 													value="${fct:round(measure.investment*0.001,0)}" /></td>
-											<td ${css} trick-field="lifetime" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.lifetime}" maxFractionDigits="2" /></td>
-											<td ${css} trick-field="internalMaintenance" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.internalMaintenance}"
+											<td ${css} trick-field="lifetime" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.lifetime}" maxFractionDigits="2" /></td>
+											<td ${css} trick-field="internalMaintenance" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.internalMaintenance}"
 													maxFractionDigits="2" /></td>
-											<td ${css} trick-field="externalMaintenance" trick-field-type="double" ondblclick="return editField(this);"><fmt:formatNumber value="${measure.externalMaintenance}"
+											<td ${css} trick-field="externalMaintenance" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber value="${measure.externalMaintenance}"
 													maxFractionDigits="2" /></td>
-											<td ${css} trick-field="recurrentInvestment" trick-field-type="double" ondblclick="return editField(this);"
+											<td ${css} trick-field="recurrentInvestment" trick-field-type="double" onclick="return editField(this);"
 												title='<fmt:formatNumber value="${fct:round(measure.recurrentInvestment,0)}" maxFractionDigits="0" /> &euro;'
 												real-value='<fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
 													value="${fct:round(measure.recurrentInvestment*0.001,0)}" maxFractionDigits="0" /></td>
@@ -147,20 +147,20 @@
 															maxFractionDigits="0" /></td>
 												</c:otherwise>
 											</c:choose>
-											<td ${css} trick-field="phase" trick-field-type="integer" ondblclick="return editField(this);" trick-callback-pre="extractPhase(this)"
+											<td ${css} trick-field="phase" trick-field-type="integer" onclick="return editField(this);" trick-callback-pre="extractPhase(this)"
 												real-value='${measure.phase.number}'><c:choose>
 													<c:when test="${measure.phase.number == 0}">NA</c:when>
 													<c:otherwise>${measure.phase.number}</c:otherwise>
 												</c:choose></td>
 											<c:if test="${standardType.name.equals('NORMAL') || standardType.name.equals('ASSET')}">
-												<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toCheck" trick-content="text" trick-field-type="string">
+												<td ${css} onclick="return editField(this.firstElementChild);"><pre trick-field="toCheck" trick-content="text" trick-field-type="string">
 														<spring:message text="${measure.toCheck}" />
 													</pre></td>
 											</c:if>
-											<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string">
+											<td ${css} onclick="return editField(this.firstElementChild);"><pre trick-field="comment" trick-content="text" trick-field-type="string">
 													<spring:message text="${measure.comment}" />
 												</pre></td>
-											<td colspan="8" ${css} ondblclick="return editField(this.firstElementChild);"><pre trick-field="toDo" trick-content="text" trick-field-type="string">
+											<td ${css} onclick="return editField(this.firstElementChild);"><pre trick-field="toDo" trick-content="text" trick-field-type="string">
 													<spring:message text="${measure.toDo}" />
 												</pre></td>
 										</tr>
