@@ -8,7 +8,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="section" id="section_scenario_assessment" trick-name="<fmt:message key="label.assessment.for.scenario"><fmt:param value="${scenario.name}" /></fmt:message>">
 	<div class="panel panel-default">
-		<div class="panel-body autofitpanelbodydefinition" style="max-height: 700px; overflow: visible;">
+		<div class="panel-body autofitpanelbodydefinition" style="max-height: 700px; overflow: show;">
 			<table class="table table-hover table-condensed">
 				<thead>
 					<tr>
