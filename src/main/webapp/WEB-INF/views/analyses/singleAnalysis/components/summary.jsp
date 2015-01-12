@@ -23,10 +23,10 @@
 				<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 					<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
 					<div trick-nav-data="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
-						<table class="table table-hover table-fixed-header-analysis" id="summarytable_<spring:message text='${actionPlanType.name}' />">
+						<table class="table table-hover table-condensed table-fixed-header-analysis" id="summarytable_<spring:message text='${actionPlanType.name}' />">
 							<thead>
 								<tr>
-									<th colspan="5"><fmt:message key="label.characteristic" /></th>
+									<th style="width:30%;"><fmt:message key="label.characteristic" /></th>
 									<c:set var="stages" value="${summaryStages.get('label.characteristic')}" />
 									<c:set var="columncount" value="${stages.size()}" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
@@ -52,13 +52,13 @@
 								<c:set var="recurrentcosts" value="${summaryStages.get('label.resource.planning.recurrent.cost')}"></c:set>
 								<c:set var="totalcosts" value="${summaryStages.get('label.resource.planning.total.phase.cost')}"></c:set>
 								<tr>
-									<td colspan="5"><fmt:message key="label.phase.begin.date" /></td>
+									<td><fmt:message key="label.phase.begin.date" /></td>
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<td class="text-right"><spring:message text="${begindates.get(i)}" /></td>
 									</c:forEach>
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.phase.end.date" /></td>
+									<td><fmt:message key="label.phase.end.date" /></td>
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<td class="text-right"><spring:message text="${enddates.get(i)}" /></td>
 									</c:forEach>
@@ -67,7 +67,7 @@
 									<c:if test="${fn:startsWith(key, 'label.characteristic.compliance')}">
 										<c:set var="standardLabel" value="${fn:substring(key, 31, key.length())}" />
 										<tr>
-											<td colspan="5"><fmt:message key="label.characteristic.compliance" /> <spring:message text="${standardLabel}" /> (%)</td>
+											<td><fmt:message key="label.characteristic.compliance" /> <spring:message text="${standardLabel}" /> (%)</td>
 											<c:set var="data" value="label.characteristic.compliance${standardLabel}" />
 											<c:set value="${summaryStages.get(data)}" var="compliances" />
 											<fmt:setLocale value="fr" scope="session" />
@@ -80,7 +80,7 @@
 									</c:if>
 								</c:forEach>
 								<tr>
-									<td colspan="5"><fmt:message key="label.characteristic.count.measure.phase" /></td>
+									<td><fmt:message key="label.characteristic.count.measure.phase" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${measurecounts.get(i)}" maxFractionDigits="0" var="value" />
@@ -89,7 +89,7 @@
 									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.characteristic.count.measure.implemented" /></td>
+									<td><fmt:message key="label.characteristic.count.measure.implemented" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${implementedcounts.get(i)}" maxFractionDigits="0" var="value" />
@@ -101,7 +101,7 @@
 									<td style="background-color: #F8F8F8;" colspan="${columncount+5}"><fmt:message key="label.profitability" /></td>
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.profitability.ale.until.end" /></td>
+									<td><fmt:message key="label.profitability.ale.until.end" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${fct:round(totalales.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
@@ -110,7 +110,7 @@
 									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.profitability.risk.reduction" /></td>
+									<td><fmt:message key="label.profitability.risk.reduction" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${fct:round(deltaales.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
@@ -119,7 +119,7 @@
 									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.profitability.rosi" /></td>
+									<td><fmt:message key="label.profitability.rosi" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${fct:round(rosis.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
@@ -128,7 +128,7 @@
 									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.profitability.rosi.relatif" /></td>
+									<td><fmt:message key="label.profitability.rosi.relatif" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${fct:round(relativerosis.get(i),0)}" maxFractionDigits="0" var="value" />
@@ -140,7 +140,7 @@
 									<td style="background-color: #F8F8F8;" colspan="${columncount+5}"><fmt:message key="label.resource.planning" /></td>
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.resource.planning.internal.workload" /></td>
+									<td><fmt:message key="label.resource.planning.internal.workload" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${internalworkloads.get(i)}" maxFractionDigits="2" var="value" />
@@ -149,7 +149,7 @@
 									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.resource.planning.external.workload" /></td>
+									<td><fmt:message key="label.resource.planning.external.workload" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${externalworkloads.get(i)}" maxFractionDigits="2" var="value" />
@@ -158,7 +158,7 @@
 									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.resource.planning.investment" /></td>
+									<td><fmt:message key="label.resource.planning.investment" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${fct:round(investments.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
@@ -167,7 +167,7 @@
 									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.resource.planning.internal.maintenance" /></td>
+									<td><fmt:message key="label.resource.planning.internal.maintenance" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${fct:round(internalmaintenances.get(i),0)}" maxFractionDigits="0" var="value" />
@@ -176,7 +176,7 @@
 									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.resource.planning.external.maintenance" /></td>
+									<td><fmt:message key="label.resource.planning.external.maintenance" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${fct:round(externalmaintenances.get(i),0)}" maxFractionDigits="0" var="value" />
@@ -185,7 +185,7 @@
 									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.resource.planning.recurrent.investment" /></td>
+									<td><fmt:message key="label.resource.planning.recurrent.investment" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${fct:round(recurrentinvestments.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
@@ -194,7 +194,7 @@
 									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.resource.planning.recurrent.cost" /></td>
+									<td><fmt:message key="label.resource.planning.recurrent.cost" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${fct:round(recurrentcosts.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />
@@ -203,7 +203,7 @@
 									<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 								</tr>
 								<tr>
-									<td colspan="5"><fmt:message key="label.resource.planning.total.phase.cost" /></td>
+									<td><fmt:message key="label.resource.planning.total.phase.cost" /></td>
 									<fmt:setLocale value="fr" scope="session" />
 									<c:forEach var="i" begin="0" end="${columncount-1}">
 										<fmt:formatNumber value="${fct:round(totalcosts.get(i)*0.001,0)}" maxFractionDigits="0" var="value" />

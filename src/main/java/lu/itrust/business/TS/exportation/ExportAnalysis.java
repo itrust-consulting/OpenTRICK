@@ -22,7 +22,6 @@ import lu.itrust.business.TS.data.parameter.ExtendedParameter;
 import lu.itrust.business.TS.data.parameter.MaturityParameter;
 import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.riskinformation.RiskInformation;
-import lu.itrust.business.TS.data.scenario.ScenarioType;
 import lu.itrust.business.TS.data.standard.AssetStandard;
 import lu.itrust.business.TS.data.standard.MaturityStandard;
 import lu.itrust.business.TS.data.standard.NormalStandard;

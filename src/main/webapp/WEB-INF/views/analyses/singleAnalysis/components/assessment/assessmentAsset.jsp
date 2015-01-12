@@ -9,51 +9,51 @@
 <div class="section" id="section_asset_assessment" trick-name="<fmt:message key="label.assessment.for.asset"><fmt:param value="${asset.name}" /></fmt:message>">
 	<div class="panel panel-default">
 		<div class="panel-body autofitpanelbodydefinition" style="max-height: 700px; overflow: show;">
-			<table class="table table-hover table-fixed-header">
+			<table class="table table-hover table-condensed">
 				<thead>
 					<tr>
-						<th colspan="4"><fmt:message key="label.assessment.scenario" /></th>
+						<th style="width: 25%"><fmt:message key="label.assessment.scenario" /></th>
 						<c:if test="${show_cssf}">
-							<th><fmt:message key="label.assessment.impact_rep" /></th>
-							<th><fmt:message key="label.assessment.impact_op" /></th>
-							<th><fmt:message key="label.assessment.impact_leg" /></th>
-							<th><fmt:message key="label.assessment.impact_fin" /></th>
+							<th style="width: 5%"><fmt:message key="label.assessment.impact_rep" /></th>
+							<th style="width: 5%"><fmt:message key="label.assessment.impact_op" /></th>
+							<th style="width: 5%"><fmt:message key="label.assessment.impact_leg" /></th>
+							<th style="width: 5%"><fmt:message key="label.assessment.impact_fin" /></th>
 						</c:if>
 						<c:if test="${!show_cssf}">
-							<th><fmt:message key="label.assessment.impact" /></th>
+							<th style="width: 5%"><fmt:message key="label.assessment.impact" /></th>
 						</c:if>
-						<th><fmt:message key="label.assessment.likelihood" /></th>
+						<th style="width: 5%"><fmt:message key="label.assessment.likelihood" /></th>
 						<c:choose>
 							<c:when test="${show_uncertainty}">
-								<th><fmt:message key="label.assessment.uncertainty" /></th>
-								<th><fmt:message key="label.assessment.alep" /></th>
-								<th><fmt:message key="label.assessment.ale" /></th>
-								<th><fmt:message key="label.assessment.aleo" /></th>
+								<th style="width: 5%"><fmt:message key="label.assessment.uncertainty" /></th>
+								<th style="width: 5%"><fmt:message key="label.assessment.alep" /></th>
+								<th style="width: 5%"><fmt:message key="label.assessment.ale" /></th>
+								<th style="width: 5%"><fmt:message key="label.assessment.aleo" /></th>
 							</c:when>
 							<c:otherwise>
-								<th><fmt:message key="label.assessment.ale" /></th>
+								<th style="width: 5%"><fmt:message key="label.assessment.ale" /></th>
 							</c:otherwise>
 						</c:choose>
-						<th colspan="6"><fmt:message key="label.assessment.comment" /></th>
-						<th colspan="6"><fmt:message key="label.assessment.hidden_comment" /></th>
+						<th><fmt:message key="label.assessment.comment" /></th>
+						<th><fmt:message key="label.assessment.hidden_comment" /></th>
 					</tr>
 				</thead>
 				<tbody>
 					<spring:eval expression="T(lu.itrust.business.TS.data.assessment.helper.AssessmentManager).Sort(assessments)" var="sortedAssessments" />
 					<c:forEach items="${sortedAssessments}" var="assessment">
 						<tr trick-class="Assessment" trick-id="${assessment.id}" trick-callback="chartALE()">
-							<td colspan="4"><spring:message text="${assessment.scenario.name}" /></td>
+							<td style="height:32px;"><spring:message text="${assessment.scenario.name}" /></td>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:if test="${show_cssf}">
 								<c:choose>
 									<c:when test="${parameters.containsKey(assessment.impactRep)}">
-										<td trick-field="impactRep" trick-field-type="string" class="success" title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactRep),0)}" maxFractionDigits="0"/> &euro;'
-											ondblclick="return editField(this);"><spring:message text="${assessment.impactRep}" /></td>
+										<td trick-field="impactRep" trick-field-type="string" class="success"
+											title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactRep),0)}" maxFractionDigits="0"/> &euro;' onclick="return editField(this);"><spring:message
+												text="${assessment.impactRep}" /></td>
 									</c:when>
 									<c:otherwise>
-										<td trick-field="impactRep" trick-field-type="string" class="success" ondblclick="return editField(this);"
-											title='<fmt:formatNumber value="${fct:round(assessment.impactRep,0)}" maxFractionDigits="0"/> &euro;'>
-											<c:catch>
+										<td trick-field="impactRep" trick-field-type="string" class="success" onclick="return editField(this);"
+											title='<fmt:formatNumber value="${fct:round(assessment.impactRep,0)}" maxFractionDigits="0"/> &euro;'><c:catch>
 												<fmt:formatNumber value="${fct:round(assessment.impactRep*0.001,0)}" maxFractionDigits="0" var="impactRep" />
 											</c:catch> <c:choose>
 												<c:when test="${!empty impactRep}">
@@ -67,14 +67,14 @@
 								</c:choose>
 								<c:choose>
 									<c:when test="${parameters.containsKey(assessment.impactOp)}">
-										<td trick-field="impactOp" trick-field-type="string" class="success" title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactOp),0)}" maxFractionDigits="0"/> &euro;'
-											ondblclick="return editField(this);"><spring:message text="${assessment.impactOp}" /></td>
+										<td trick-field="impactOp" trick-field-type="string" class="success"
+											title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactOp),0)}" maxFractionDigits="0"/> &euro;' onclick="return editField(this);"><spring:message
+												text="${assessment.impactOp}" /></td>
 									</c:when>
 									<c:otherwise>
-										<td trick-field="impactOp" trick-field-type="string" class="success" ondblclick="return editField(this);"
-											title='<fmt:formatNumber value="${fct:round(assessment.impactOp,0)}" maxFractionDigits="0"/> &euro;'>
-											<c:catch>
-											<fmt:formatNumber value="${fct:round(assessment.impactOp*0.001,0)}" maxFractionDigits="0" var="impactOp" />
+										<td trick-field="impactOp" trick-field-type="string" class="success" onclick="return editField(this);"
+											title='<fmt:formatNumber value="${fct:round(assessment.impactOp,0)}" maxFractionDigits="0"/> &euro;'><c:catch>
+												<fmt:formatNumber value="${fct:round(assessment.impactOp*0.001,0)}" maxFractionDigits="0" var="impactOp" />
 											</c:catch> <c:choose>
 												<c:when test="${!empty impactOp}">
 													<spring:message text="${impactOp}" />
@@ -87,14 +87,14 @@
 								</c:choose>
 								<c:choose>
 									<c:when test="${parameters.containsKey(assessment.impactLeg)}">
-										<td trick-field="impactLeg" trick-field-type="string" class="success" title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactLeg),0)}" maxFractionDigits="0"/> &euro;'
-											ondblclick="return editField(this);"><spring:message text="${assessment.impactLeg}" /></td>
+										<td trick-field="impactLeg" trick-field-type="string" class="success"
+											title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactLeg),0)}" maxFractionDigits="0"/> &euro;' onclick="return editField(this);"><spring:message
+												text="${assessment.impactLeg}" /></td>
 									</c:when>
 									<c:otherwise>
-										<td trick-field="impactLeg" trick-field-type="string" class="success" ondblclick="return editField(this);"
-											title='<fmt:formatNumber value="${fct:round(assessment.impactLeg,0)}" maxFractionDigits="0"/> &euro;'>
-											<c:catch>
-											<fmt:formatNumber value="${fct:round(assessment.impactLeg*0.001,0)}" maxFractionDigits="0" var="impactLeg" />
+										<td trick-field="impactLeg" trick-field-type="string" class="success" onclick="return editField(this);"
+											title='<fmt:formatNumber value="${fct:round(assessment.impactLeg,0)}" maxFractionDigits="0"/> &euro;'><c:catch>
+												<fmt:formatNumber value="${fct:round(assessment.impactLeg*0.001,0)}" maxFractionDigits="0" var="impactLeg" />
 											</c:catch> <c:choose>
 												<c:when test="${!empty impactLeg}">
 													<spring:message text="${impactLeg}" />
@@ -108,14 +108,14 @@
 							</c:if>
 							<c:choose>
 								<c:when test="${parameters.containsKey(assessment.impactFin)}">
-									<td trick-field="impactFin" trick-field-type="string" class="success" title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactFin),0)}" maxFractionDigits="0"/> &euro;'
-										ondblclick="return editField(this);"><spring:message text="${assessment.impactFin}" /></td>
+									<td trick-field="impactFin" trick-field-type="string" class="success"
+										title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.impactFin),0)}" maxFractionDigits="0"/> &euro;' onclick="return editField(this);"><spring:message
+											text="${assessment.impactFin}" /></td>
 								</c:when>
 								<c:otherwise>
-									<td trick-field="impactFin" trick-field-type="string" class="success" ondblclick="return editField(this);"
-										title='<fmt:formatNumber value="${fct:round(assessment.impactFin,0)}" maxFractionDigits="0"/> &euro;'>
-										<c:catch>
-										<fmt:formatNumber value="${fct:round(assessment.impactFin*0.001,0)}" maxFractionDigits="0" var="impactFin" />
+									<td trick-field="impactFin" trick-field-type="string" class="success" onclick="return editField(this);"
+										title='<fmt:formatNumber value="${fct:round(assessment.impactFin,0)}" maxFractionDigits="0"/> &euro;'><c:catch>
+											<fmt:formatNumber value="${fct:round(assessment.impactFin*0.001,0)}" maxFractionDigits="0" var="impactFin" />
 										</c:catch> <c:choose>
 											<c:when test="${not empty impactFin}">
 												<spring:message text="${impactFin}" />
@@ -129,13 +129,12 @@
 							<c:choose>
 								<c:when test="${parameters.containsKey(assessment.likelihood)}">
 									<td trick-field="likelihood" trick-field-type="string" class="success"
-										title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.likelihood),2)}" maxFractionDigits="2" /> <fmt:message key="label.assessment.likelihood.unit" />' ondblclick="return editField(this);"><spring:message
-											text="${assessment.likelihood}" /></td>
+										title='<fmt:formatNumber value="${fct:round(parameters.get(assessment.likelihood),2)}" maxFractionDigits="2" /> <fmt:message key="label.assessment.likelihood.unit" />'
+										onclick="return editField(this);"><spring:message text="${assessment.likelihood}" /></td>
 								</c:when>
 								<c:otherwise>
-									<td trick-field="likelihood" trick-field-type="string" class="success" ondblclick="return editField(this);" real-value="${assessment.likelihood}">
-									<c:catch>
-									<fmt:formatNumber value="${fct:round(assessment.likelihood,2)}" maxFractionDigits="2" var="likelihood" />
+									<td trick-field="likelihood" trick-field-type="string" class="success" onclick="return editField(this);" real-value="${assessment.likelihood}"><c:catch>
+											<fmt:formatNumber value="${fct:round(assessment.likelihood,2)}" maxFractionDigits="2" var="likelihood" />
 										</c:catch> <c:choose>
 											<c:when test="${not empty likelihood }">
 												<spring:message text="${likelihood}" />
@@ -147,8 +146,8 @@
 								</c:otherwise>
 							</c:choose>
 							<c:if test="${show_uncertainty}">
-								<td trick-field="uncertainty" trick-field-type="double" class="success" trick-real-value='<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" />' ondblclick="return editField(this);"><fmt:formatNumber
-										value="${assessment.uncertainty}" maxFractionDigits="2" /></td>
+								<td trick-field="uncertainty" trick-field-type="double" class="success" trick-real-value='<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" />'
+									onclick="return editField(this);"><fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" /></td>
 								<td title="<fmt:formatNumber value="${assessment.ALEO}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(assessment.ALEO*0.001,0)}"
 										maxFractionDigits="0" /></td>
 							</c:if>
@@ -159,10 +158,10 @@
 										maxFractionDigits="0" /></td>
 							</c:if>
 							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
-							<td colspan="6" ondblclick="return editField(this);" class="success" trick-field="comment" trick-field-type="string" colspan="3" trick-content="text"><spring:message
-									text="${assessment.comment}" /></td>
-							<td colspan="6" ondblclick="return editField(this);" class="success" trick-field="hiddenComment" trick-field-type="string" trick-content="text"><spring:message
-									text="${assessment.hiddenComment}" /></td>
+							<td onclick="return editField(this.firstChild);" class="success"><pre trick-field="comment" trick-field-type="string" trick-content="text"><spring:message
+									text="${assessment.comment}" /></pre></td>
+							<td onclick="return editField(this.firstChild);" class="success"><pre trick-field="hiddenComment" trick-field-type="string" trick-content="text"><spring:message
+									text="${assessment.hiddenComment}" /></pre></td>
 						</tr>
 					</c:forEach>
 					<tr class="panel-footer" style="font-weight: bold;">
@@ -170,34 +169,30 @@
 							<c:when test="${show_uncertainty}">
 								<c:choose>
 									<c:when test="${show_cssf}">
-										<td colspan="10"><fmt:message key="label.total.ale" /></td>
+										<td colspan="6"><fmt:message key="label.total.ale" /></td>
 									</c:when>
 									<c:otherwise>
-										<td colspan="7"><fmt:message key="label.total.ale" /></td>
+										<td colspan="3"><fmt:message key="label.total.ale" /></td>
 									</c:otherwise>
 								</c:choose>
-								<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleo.value*0.001,0)}"
-										maxFractionDigits="0" /></td>
-								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,0)}"
-										maxFractionDigits="0" /></td>
-								<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(alep.value*0.001,0)}"
-										maxFractionDigits="0" /></td>
-										<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
+								<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleo.value*0.001,0)}" maxFractionDigits="0" /></td>
+								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,0)}" maxFractionDigits="0" /></td>
+								<td title="<fmt:formatNumber value="${alep.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(alep.value*0.001,0)}" maxFractionDigits="0" /></td>
+								<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 							</c:when>
 							<c:otherwise>
 								<c:choose>
 									<c:when test="${show_cssf}">
-										<td colspan="9"><fmt:message key="label.total.ale" /></td>
+										<td colspan="6"><fmt:message key="label.total.ale" /></td>
 									</c:when>
 									<c:otherwise>
-										<td colspan="6"><fmt:message key="label.total.ale" /></td>
+										<td colspan="3"><fmt:message key="label.total.ale" /></td>
 									</c:otherwise>
 								</c:choose>
-								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,0)}"
-										maxFractionDigits="0" /></td>
+								<td title="<fmt:formatNumber value="${ale.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(ale.value*0.001,0)}" maxFractionDigits="0" /></td>
 							</c:otherwise>
 						</c:choose>
-						<td colspan="12" />
+						<td colspan="2">&nbsp;</td>
 					</tr>
 				</tbody>
 			</table>

@@ -4,7 +4,7 @@ function AssessmentViewer() {
 
 	AssessmentViewer.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
-		$(this.modal_dialog).prop("style", "width: 95%; min-width:1170px;");
+		$(this.modal_dialog).prop("style", "width: 100%;");
 		var lang = $("#nav-container").attr("trick-language");
 
 		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale", null, lang);
