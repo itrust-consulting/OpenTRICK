@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.data.actionplan.helper;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -1064,7 +1065,7 @@ public class ActionPlanComputation {
 		TMAList.clear();
 	}
 
-	private void setSOARisk(ActionPlanEntry entry, List<TMA> TMAList) {
+	private void setSOARisk(ActionPlanEntry entry, List<TMA> TMAList) throws TrickException {
 
 		double report = 0;
 
@@ -1114,8 +1115,14 @@ public class ActionPlanComputation {
 		
 		NumberFormat nf = new DecimalFormat();
 	    nf.setMaximumFractionDigits(2);
+	    
+	    try {
+			val = nf.parse(nf.format(val)).doubleValue();
+		} catch (ParseException e) {
+			e.printStackTrace();
+			throw new TrickException("error.number.format", e.getMessage());
+		}
 		
-	    val = Double.valueOf(nf.format(val));
 		
 		soarisk += messageSource.getMessage("label.soa.rate", null, "Rate:", locale) + " " + String.valueOf(val);
 
@@ -2525,7 +2532,7 @@ public class ActionPlanComputation {
 		// * initialise variables
 		// ****************************************************************
 		List<SummaryStage> sumStage = new ArrayList<SummaryStage>();
-		SummaryValues tmpval = new SummaryValues(this.analysis.getAnalysisStandards());
+		SummaryValues tmpval = new SummaryValues(this.standards);
 		boolean anticipated = true;
 		ActionPlanEntry ape = null;
 		int phase = 0;

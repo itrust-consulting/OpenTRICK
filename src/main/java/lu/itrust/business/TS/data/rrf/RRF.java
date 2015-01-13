@@ -3,7 +3,9 @@ package lu.itrust.business.TS.data.rrf;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.List;
+import java.util.Locale;
 
 import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.constants.Constant;
@@ -174,9 +176,14 @@ public class RRF {
 					.getAnalysisStandard().getStandard().getLabel());
 
 		NumberFormat nf = new DecimalFormat();
+	
 	    nf.setMaximumFractionDigits(2);
-		
-	    type = Double.valueOf(nf.format(type));
+	    
+	    try {
+			type= nf.parse(nf.format(type)).doubleValue();
+		} catch (ParseException e) {
+			throw new TrickException("error.number.format", e.getMessage());
+		}
 		
 		// ****************************************************************
 		// * Source calculation
@@ -279,8 +286,14 @@ public class RRF {
 
 		NumberFormat nf = new DecimalFormat();
 	    nf.setMaximumFractionDigits(2);
+	    
+	    
 		
-	    type = Double.valueOf(nf.format(type));
+	    try {
+			type= nf.parse(nf.format(type)).doubleValue();
+		} catch (ParseException e) {
+			throw new TrickException("error.number.format", e.getMessage());
+		}
 		
 		// ****************************************************************
 		// * Source calculation

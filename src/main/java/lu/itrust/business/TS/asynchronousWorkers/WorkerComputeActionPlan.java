@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.TS.asynchronousWorkers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lu.itrust.business.TS.data.actionplan.helper.ActionPlanComputation;
@@ -59,7 +60,7 @@ public class WorkerComputeActionPlan implements Worker {
 
 	private int idAnalysis;
 
-	private List<AnalysisStandard> standards = null;
+	private List<Integer> standards = null;
 
 	private Boolean uncertainty = false;
 
@@ -73,7 +74,7 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @param serviceTaskFeedback
 	 * @param idAnalysis
 	 */
-	public WorkerComputeActionPlan(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisStandard> standards, Boolean uncertainty,
+	public WorkerComputeActionPlan(SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<Integer> standards, Boolean uncertainty,
 			Boolean reloadSection, MessageSource messageSource) {
 		this.sessionFactory = sessionFactory;
 		this.serviceTaskFeedback = serviceTaskFeedback;
@@ -107,7 +108,7 @@ public class WorkerComputeActionPlan implements Worker {
 	 * @param standards
 	 * @param uncertainty
 	 */
-	public WorkerComputeActionPlan(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<AnalysisStandard> standards,
+	public WorkerComputeActionPlan(WorkersPoolManager poolManager, SessionFactory sessionFactory, ServiceTaskFeedback serviceTaskFeedback, int idAnalysis, List<Integer> standards,
 			Boolean uncertainty, Boolean reloadSection, MessageSource messageSource) {
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;
@@ -152,12 +153,15 @@ public class WorkerComputeActionPlan implements Worker {
 				return;
 			}
 			session.beginTransaction();
-			initAnalysis(analysis);
+			
+			List<AnalysisStandard> analysisStandards = new ArrayList<AnalysisStandard>();
+			
+			initAnalysis(analysis, analysisStandards);
 
 			System.out.println("Delete previous action plan and summary...");
 
 			deleteActionPlan(analysis);
-			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, this.standards, this.uncertainty, this.messageSource);
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, daoAnalysis, serviceTaskFeedback, id, analysis, analysisStandards, this.uncertainty, this.messageSource);
 			if (computation.calculateActionPlans() == null) {
 				session.getTransaction().commit();
 				MessageHandler messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!",language, 100);
@@ -218,8 +222,9 @@ public class WorkerComputeActionPlan implements Worker {
 	 * Description
 	 * 
 	 * @param analysis
+	 * @param analysisStandards 
 	 */
-	private void initAnalysis(Analysis analysis) {
+	private void initAnalysis(Analysis analysis, List<AnalysisStandard> analysisStandards) {
 		Hibernate.initialize(analysis);
 		Hibernate.initialize(analysis.getLanguage());
 		Hibernate.initialize(analysis.getHistories());
@@ -230,16 +235,17 @@ public class WorkerComputeActionPlan implements Worker {
 		Hibernate.initialize(analysis.getRiskInformations());
 		Hibernate.initialize(analysis.getParameters());
 		Hibernate.initialize(analysis.getPhases());
-		// for (int i = 0; i < analysis.getUsedPhases().size(); i++)
-		// Hibernate.initialize(analysis.getAPhase(i));
 		Hibernate.initialize(analysis.getAnalysisStandards());
-		Hibernate.initialize(this.standards);
-		for (int i = 0; i < this.standards.size(); i++)
-			Hibernate.initialize(this.standards.get(i).getStandard());
-		// Hibernate.initialize(analysis.getActionPlans());
-		// Hibernate.initialize(analysis.getSummaries());
-
-		// Hibernate.initialize(analysis.getRiskRegisters());
+		
+		for(Integer id : this.standards) {
+			for(AnalysisStandard aStandard : analysis.getAnalysisStandards()) {
+				if(aStandard.getId()==id)
+					analysisStandards.add(aStandard);
+			}
+		}
+			
+		
+		
 	}
 
 	/**

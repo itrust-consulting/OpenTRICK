@@ -354,19 +354,19 @@ function navToogled(section, navSelected, fixedHeader) {
 		else
 			$(controls[i]).removeClass("disabled");
 		if ($(data[i]).attr("trick-nav-data") != navSelected) {
-			if (fixedHeader) {
+			/*if (fixedHeader) {
 				var table = $(data[i]).find("table");
 				if (table.length)
 					$(table).floatThead("destroy");
-			}
+			}*/
 			$(data[i]).hide();
 		} else {
 			$(data[i]).show();
-			if (fixedHeader) {
+			/*if (fixedHeader) {
 				var table = $(data[i]).find("table");
 				if (table.length)
 					fixedTableHeader(table);
-			}
+			}*/
 		}
 	}
 	return false;
