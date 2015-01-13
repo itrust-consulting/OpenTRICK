@@ -236,8 +236,9 @@ public class ExportAnalysisReport {
 	private void generateEvolutionOfProfitabilityGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 		if (reportExcelSheet == null || analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
 			return;
-		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(analysis.getSummaries(), analysis.getPhases());
-		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(analysis.getSummaries()));
+		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
+		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
+		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
 		int rowIndex = 1;
 		for (Phase phase : usesPhases.values()) {
@@ -298,9 +299,10 @@ public class ExportAnalysisReport {
 
 		if (analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
 			return;
-
-		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(analysis.getSummaries(), analysis.getPhases());
-		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(analysis.getSummaries()));
+		
+		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
+		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
+		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
 		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
 		int rowIndex = 1;
 		for (Phase phase : usesPhases.values()) {

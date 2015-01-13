@@ -1096,9 +1096,10 @@ public class ChartGenerator {
 				double val = RRF.calculateNormalMeasureRRF(scenario, assetType, parameter, measure);
 				
 				NumberFormat nf = new DecimalFormat();
-			    nf.setMaximumFractionDigits(2);
-				
-			    val = Double.valueOf(nf.format(val));
+			   
+				nf.setMaximumFractionDigits(2);
+			    
+			    val= nf.parse(nf.format(val)).doubleValue(); 
 			    
 				rrfMeasure.setValue(val);
 				
@@ -1133,9 +1134,10 @@ public class ChartGenerator {
 				double val = RRF.calculateAssetMeasureRRF(scenario, assetValue.getAsset(), parameter, measure);
 				
 				NumberFormat nf = new DecimalFormat();
-			    nf.setMaximumFractionDigits(2);
+			    
+				nf.setMaximumFractionDigits(2);
 				
-			    val = Double.valueOf(nf.format(val));
+				val= nf.parse(nf.format(val)).doubleValue(); 
 			    
 				rrfMeasure.setValue(val);
 				
@@ -1172,9 +1174,10 @@ public class ChartGenerator {
 					double val = RRF.calculateNormalMeasureRRF(scenario, matv.getAssetType(), parameter, normalMeasure);
 					
 					NumberFormat nf = new DecimalFormat();
-				    nf.setMaximumFractionDigits(2);
-					
-				    val = Double.valueOf(nf.format(val));
+				    
+					nf.setMaximumFractionDigits(2);
+				    
+				    val= nf.parse(nf.format(val)).doubleValue(); 
 				    
 					rrfMeasure.setValue(val);
 					
