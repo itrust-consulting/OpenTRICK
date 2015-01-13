@@ -221,12 +221,12 @@ public class ControllerActionPlan {
 
 			List<AnalysisStandard> analysisStandards = serviceAnalysisStandard.getAllFromAnalysis(analysisId);
 
-			List<AnalysisStandard> standards = new ArrayList<AnalysisStandard>();
+			List<Integer> standards = new ArrayList<Integer>();
 
 			for (AnalysisStandard analysisStandard : analysisStandards) {
 				if (jsonNode.get("standard_" + analysisStandard.getId()) != null)
 					if (jsonNode.get("standard_" + analysisStandard.getId()).asBoolean())
-						standards.add(analysisStandard);
+						standards.add(analysisStandard.getId());
 			}
 
 			boolean reloadSection = session.getAttribute("selectedAnalysis") != null;

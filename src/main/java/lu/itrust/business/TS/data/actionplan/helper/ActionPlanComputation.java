@@ -2525,7 +2525,7 @@ public class ActionPlanComputation {
 		// * initialise variables
 		// ****************************************************************
 		List<SummaryStage> sumStage = new ArrayList<SummaryStage>();
-		SummaryValues tmpval = new SummaryValues(this.analysis.getAnalysisStandards());
+		SummaryValues tmpval = new SummaryValues(this.standards);
 		boolean anticipated = true;
 		ActionPlanEntry ape = null;
 		int phase = 0;
