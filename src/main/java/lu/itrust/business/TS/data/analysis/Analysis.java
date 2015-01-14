@@ -146,7 +146,7 @@ public class Analysis implements Cloneable {
 
 	/** List of users and their access rights */
 	@OneToMany
-	@JoinColumn(name = "fiAnalysis", nullable = false)
+	@JoinColumn(name = "fiAnalysis", nullable = false, insertable = true)
 	@Access(AccessType.FIELD)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
@@ -2457,25 +2457,25 @@ public class Analysis implements Cloneable {
 
 	public List<Phase> findUsablePhase() {
 		List<Phase> phases = new ArrayList<Phase>();
-		if(this.actionPlans == null || this.actionPlans.isEmpty())
+		if (this.actionPlans == null || this.actionPlans.isEmpty())
 			return phases;
-		for (ActionPlanEntry actionPlanEntry : this.actionPlans){
-			Phase phase= actionPlanEntry.getMeasure().getPhase();
-			if (phase!=null && !phases.contains(phase))
+		for (ActionPlanEntry actionPlanEntry : this.actionPlans) {
+			Phase phase = actionPlanEntry.getMeasure().getPhase();
+			if (phase != null && !phases.contains(phase))
 				phases.add(phase);
 		}
-		
+
 		for (int i = 0; i < phases.size(); i++) {
 			Phase phase = phases.get(i);
 			for (int j = 0; j < phases.size(); j++) {
-				if(phases.get(j).getNumber()>phase.getNumber()){
+				if (phases.get(j).getNumber() > phase.getNumber()) {
 					phases.set(i, phases.get(j));
 					phases.set(j, phase);
 					phase = phases.get(i);
 				}
 			}
 		}
-		
+
 		return phases;
 
 	}

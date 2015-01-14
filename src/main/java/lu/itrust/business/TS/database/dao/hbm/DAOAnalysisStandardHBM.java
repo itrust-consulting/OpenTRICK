@@ -6,7 +6,6 @@ import java.util.List;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.Standard;
-import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.TS.database.dao.DAOAnalysisStandard;

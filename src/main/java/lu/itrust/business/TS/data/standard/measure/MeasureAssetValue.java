@@ -12,9 +12,6 @@ import javax.persistence.ManyToOne;
 import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.exception.TrickException;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
 /**
  * AssetTypeValue: <br>
  * This class represents an AssetValue for AssetMeasure (1 measure -> 0..* Assets with asset values)

@@ -1,14 +1,8 @@
 package lu.itrust.business.TS.database.dao.hbm;
 
-import java.util.List;
-
-import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.data.standard.measure.MeasureAssetValue;
-import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
-import lu.itrust.business.TS.database.dao.DAOAssetTypeValue;
 import lu.itrust.business.TS.database.dao.DAOMeasureAssetValue;
 
-import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
 /**

@@ -1,7 +1,5 @@
 package lu.itrust.business.TS.data.standard.measure;
 
-import java.util.List;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
@@ -18,7 +16,6 @@ import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.general.Phase;
-import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.exception.TrickException;

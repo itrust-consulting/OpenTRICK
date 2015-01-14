@@ -2987,6 +2987,8 @@ public class ImportAnalysis {
 	 * 
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unused")
+	@Deprecated
 	private void createAssetTypeDefaultValues() throws Exception {
 
 		// ****************************************************************
@@ -3051,6 +3053,8 @@ public class ImportAnalysis {
 	 * @param assetTypeValue
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unused")
+	@Deprecated
 	private void updateAssetTypeValue(NormalMeasure normalMeasure, AssetTypeValue assetTypeValue) throws Exception {
 
 		// ****************************************************************

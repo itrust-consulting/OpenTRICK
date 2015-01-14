@@ -1,13 +1,10 @@
 package lu.itrust.business.TS.data.rrf;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
-import java.util.Locale;
 
-import lu.itrust.business.TS.component.JSTLFunctions;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.assessment.Assessment;
 import lu.itrust.business.TS.data.asset.Asset;
