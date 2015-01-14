@@ -299,9 +299,9 @@ public class ControllerScenario {
 			return null;
 
 		if (serviceAnalysis.isAnalysisCssf(idAnalysis))
-			model.addAttribute("scenariotypes", ScenarioType.getAllCSSF());
-		else
 			model.addAttribute("scenariotypes", ScenarioType.getAll());
+		else
+			model.addAttribute("scenariotypes", ScenarioType.getAllCIA());
 
 		// add scenario to model
 		model.addAttribute("scenario", serviceScenario.getFromAnalysisById(idAnalysis, elementID));
