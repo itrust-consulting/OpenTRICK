@@ -475,7 +475,7 @@ function AssessmentExtendedParameterEditor(element) {
 	AssessmentExtendedParameterEditor.prototype.constructor = AssessmentExtendedParameterEditor;
 
 	AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function() {
-		if ($(this.element).find("select").length)
+		if ($(this.element).find("select").length || $(this.element).find("input").length)
 			return true;
 		if (!this.LoadData())
 			return true;

@@ -9,7 +9,8 @@ function TimeoutInterceptor() {
 	this.alertDialog = null;
 	this.messages = {
 		Alert : "",
-		Logout : ""
+		Logout : "",
+		Offine : ""
 	};
 }
 
@@ -30,8 +31,30 @@ TimeoutInterceptor.prototype = {
 				},
 			});
 		} catch (e) {
-			if(e["name"]==="NS_ERROR_FAILURE")
-				console.log("Server appears to be offline... Try again later!");
+			if(e["name"]==="NS_ERROR_FAILURE"){
+				
+				this.Stop();
+				
+				if(this.alertDialog == null)
+					this.alertDialog = new Modal($("#alert-dialog").clone());
+				
+				var alertDialog = this.alertDialog;
+				
+				alertDialog.setBody(this.messages.Offine);
+				
+				var $buttonOK = $(alertDialog.modal).find(".btn-danger");
+				
+				$buttonOK.unbind("click");
+				
+				$(alertDialog.modal).find(".btn-danger").on("click", function() {
+					alertDialog.Destroy();
+				});
+				
+				if (this.alertDialog.isHidden)
+					this.alertDialog.Show();
+				
+				return true;
+			}
 		}
 		return authentificated;
 	},
@@ -39,7 +62,8 @@ TimeoutInterceptor.prototype = {
 		return (new Date().getTime() - this.lastUpdate.getTime());
 	},
 	ShowLogin : function() {
-
+		if(this.IsAuthenticate())
+			return true;
 		var url = undefined;
 		if ($("#nav-container").length) {
 			var idAnalysis = $("#nav-container").attr("trick-id");
@@ -55,27 +79,20 @@ TimeoutInterceptor.prototype = {
 		return false;
 	},
 	AlertTimout : function() {
-
 		var that = this;
-
 		if (this.alertDialog == null) {
-
-			this.alertDialog = new Modal();
-			this.alertDialog.FromContent($("#alert-dialog").clone());
-
+			this.alertDialog = new Modal($("#alert-dialog").clone());
+			
 			$(this.alertDialog.modal).find(".btn-danger").on("click", function() {
-
 				if (!that.Reinitialise())
 					return that.ShowLogin();
 				else {
 					that.alertDialog.Hide();
-
 					clearTimeout(that.logoutTimeout);
 					that.timer = setTimeout(function() {
 						that.Check();
 					}, that.TIME_TO_DISPLAY_ALERT);
 				}
-
 				return false;
 			});
 
@@ -136,6 +153,7 @@ TimeoutInterceptor.prototype = {
 
 			this.messages.Alert = MessageResolver("info.session.expired", "Your session will be expired in %d secondes");
 			this.messages.Logout = MessageResolver("info.session.expired.alert", "Your session has been expired, redirecting to Login ...");
+			this.messages.Offine = MessageResolver("error.server.offline", "Server appears to be offline... Try again later!");
 
 			this.timer = setTimeout(function() {
 				this.Check();
@@ -171,6 +189,13 @@ TimeoutInterceptor.prototype = {
 				that.ShowLogin();
 			}, daily);
 		}
+	},
+	Stop : function(){
+		$.ajaxSetup({beforeSend : undefined});
+		clearTimeout(this.logoutTimeout);
+		clearTimeout(this.timer);
+		clearInterval(this.intervalTimeout);
+		return true;
 	},
 	Start : function(login) {
 		if (login != null) {

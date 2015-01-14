@@ -90,9 +90,9 @@ public class ControllerHome {
 
 	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody boolean isAuthenticate(Principal principal, HttpSession session, HttpServletResponse response) throws Exception {
-
+		if(principal == null)
+			return false;
 		User user = serviceUser.get(principal.getName());
-
 		if (user == null) {
 			session.invalidate();
 			response.reset();
