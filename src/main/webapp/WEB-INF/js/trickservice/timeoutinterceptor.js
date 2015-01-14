@@ -1,6 +1,6 @@
 function TimeoutInterceptor() {
 	this.lastUpdate = null;
-	this.LIMIT_SESSION = 15.01 * 60 * 1000;
+	this.LIMIT_SESSION = 15.1 * 60 * 1000;
 	this.ALERT_TIME = 1 * 60 * 1000;
 	this.timer = {};
 	this.intervalTimeout = null;
@@ -104,8 +104,10 @@ TimeoutInterceptor.prototype = {
 						daily = Math.floor((that.LIMIT_SESSION - that.CurrentTime()) * 0.001);
 						if (daily > 0)
 							that.alertDialog.setBody(that.messages.Alert.replace("%d", daily));
-						else
+						else{
 							that.alertDialog.setBody(that.messages.Logout);
+							that.alertDialog.Destroy();
+						}
 					}, 1000);
 				} else
 					that.alertDialog.setBody(that.messages.Logout);
