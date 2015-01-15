@@ -15,6 +15,7 @@ import lu.itrust.business.TS.data.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAsset;
+import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
@@ -57,6 +58,9 @@ public class ControllerRiskRegister {
 
 	@Autowired
 	private ServiceAnalysisStandard serviceAnalysisStandard;
+	
+	@Autowired
+	private ServiceParameter serviceParameter;
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -104,6 +108,8 @@ public class ControllerRiskRegister {
 
 		// prepare model
 		model.put("riskregister", riskregister);
+		
+		model.put("parameters", serviceParameter.getAllExtendedFromAnalysis(selected));
 
 		// return view
 		return "analyses/singleAnalysis/components/riskregister";
