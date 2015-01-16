@@ -44,15 +44,15 @@
 							<td><spring:message text="${item.position}" /></td>
 							<td><spring:message text="${item.scenario.name}" /></td>
 							<td><spring:message text="${item.asset.name}" /></td>
-							
-							<fmt:message key="label.metric.keuro_by_year" var="keuro_by_year"/>
-							<fmt:message key="label.assessment.likelihood.unit" var="by_year"/>
-							
-							
+
+							<fmt:message key="label.metric.keuro_by_year" var="keuro_by_year" />
+							<fmt:message key="label.assessment.likelihood.unit" var="by_year" />
+
+
 							<fmt:setLocale value="fr" scope="session" />
 
 							<c:set var="registerHelper" value="${mappingRegisterHelpers[item.id]}" />
-							<fmt:formatNumber value="${fct:round(item.rawEvaluation.probability,0)}" maxFractionDigits="0" var="probability" />
+							<fmt:formatNumber value="${fct:round(item.rawEvaluation.probability,3)}" maxFractionDigits="3" var="probability" />
 							<fmt:formatNumber value="${fct:round(item.rawEvaluation.impact*0.001,0)}" maxFractionDigits="0" var="impact" />
 							<fmt:formatNumber value="${fct:round(item.rawEvaluation.importance*0.001,0)}" maxFractionDigits="0" var="importance" />
 
@@ -63,7 +63,7 @@
 							<td data-scale-value="${importance}" data-scale-level='<fmt:formatNumber value="${registerHelper.rawEvaluation.importance}" maxFractionDigits="0"/>' class="text-center"
 								title='<fmt:formatNumber value="${item.rawEvaluation.importance}" maxFractionDigits="2" /> ${keuro_by_year}'>${importance}</td>
 
-							<fmt:formatNumber value="${fct:round(item.netEvaluation.probability,0)}" maxFractionDigits="0" var="probability" />
+							<fmt:formatNumber value="${fct:round(item.netEvaluation.probability,3)}" maxFractionDigits="3" var="probability" />
 							<fmt:formatNumber value="${fct:round(item.netEvaluation.impact*0.001,0)}" maxFractionDigits="0" var="impact" />
 							<fmt:formatNumber value="${fct:round(item.netEvaluation.importance*0.001,0)}" maxFractionDigits="0" var="importance" />
 
@@ -74,7 +74,7 @@
 							<td data-scale-value="${importance}" data-scale-level='<fmt:formatNumber value="${registerHelper.netEvaluation.importance}" maxFractionDigits="0"/>' class="text-center"
 								title='<fmt:formatNumber value="${item.netEvaluation.importance}" maxFractionDigits="2" /> ${keuro_by_year}'>${importance}</td>
 
-							<fmt:formatNumber value="${fct:round(item.expectedImportance.probability,0)}" maxFractionDigits="2" minFractionDigits="2" var="probability" />
+							<fmt:formatNumber value="${fct:round(item.expectedImportance.probability,3)}" maxFractionDigits="3" var="probability" />
 							<fmt:formatNumber value="${fct:round(item.expectedImportance.impact*0.001,0)}" maxFractionDigits="0" var="impact" />
 							<fmt:formatNumber value="${fct:round(item.expectedImportance.importance*0.001,0)}" maxFractionDigits="0" var="importance" />
 
@@ -86,7 +86,20 @@
 								title='<fmt:formatNumber value="${item.expectedImportance.importance}" maxFractionDigits="2" /> ${keuro_by_year}'>${importance}</td>
 
 							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
-							<td class="success" trick-id="${item.id}" trick-field="strategy" onclick="return editField(this);" trick-class="RiskRegister" trick-choose="shrink,accept,reject" trick-field-type="string" colspan="2"><fmt:message key="label.risk_register.strategy.${fn:toLowerCase(item.strategy)}" /></td>
+
+							<fmt:message key="label.risk_register.strategy.accept" var="accept" />
+							<fmt:message key="label.risk_register.strategy.reduce" var="reduce" />
+							<fmt:message key="label.risk_register.strategy.transfer" var="transfer" />
+							<fmt:message key="label.risk_register.strategy.avoid" var="avoid" />
+
+							<c:set value="${fn:toLowerCase(item.strategy)}" var="strategy" />
+
+							<c:if test="${strategy=='shrink' }">
+								<c:set value="reduce" var="strategy" />
+							</c:if>
+							<td class="success" trick-id="${item.id}" trick-field="strategy" onclick="return editField(this);" trick-class="RiskRegister" trick-choose="accept,reduce,transfer,avoid"
+								data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}" trick-field-type="string" colspan="2"><fmt:message
+									key="label.risk_register.strategy.${strategy}" /></td>
 						</tr>
 					</c:forEach>
 				</tbody>

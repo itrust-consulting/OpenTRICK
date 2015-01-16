@@ -39,9 +39,13 @@ import lu.itrust.business.TS.exception.TrickException;
 @Table(name="RiskRegister")
 public class RiskRegisterItem {
 
+	private static final String REDUCE_VALUE = "reduce";
+
+	private static final String SHRINK_OLD_REDUCE_VALUE = "Shrink";
+
 	/** Regular Expression for Strategy */
 	@Transient
-	public static final String ACCEPT_SHRINK = "Accept|Shrink";
+	public static final String REGEX_STRATEGY = "accept|reduce|transfer|avoid";
 	
 	/***********************************************************************************************
 	 * Fields
@@ -99,7 +103,7 @@ public class RiskRegisterItem {
 
 	/** Strategy */
 	@Column(name="dtResponseStrategy", nullable=false)
-	private String strategy = "Shrink";
+	private String strategy = REDUCE_VALUE;
 
 	/***********************************************************************************************
 	 * Constructors
@@ -287,8 +291,9 @@ public class RiskRegisterItem {
 	 */
 	public void setStrategy(String strategy) throws TrickException {
 
-		// check if strategy is Shrink or Accepted
-		if (strategy == null || !strategy.matches(ACCEPT_SHRINK))
+		if(SHRINK_OLD_REDUCE_VALUE.equalsIgnoreCase(strategy))
+			strategy=REDUCE_VALUE;
+		else if (strategy == null || !strategy.matches(REGEX_STRATEGY)) // check if strategy is Shrink or Accepted
 			throw new TrickException("error.risk_register.strategy.empty","Strategy is not valid");
 		this.strategy = strategy;
 	}

@@ -16,6 +16,7 @@ import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceRiskInformation;
+import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
@@ -47,7 +48,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 	@Autowired
 	private ServiceAssessment serviceAssessment;
-	
+
 	@Autowired
 	private ServiceAsset serviceAsset;
 
@@ -74,6 +75,9 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
 	@Autowired
 	private ServiceUser serviceUser;
+
+	@Autowired
+	private ServiceRiskRegister serviceRiskRegister;
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
@@ -118,72 +122,80 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				throw new InvalidParameterException("AnalysisRight cannot be null!");
 
 			switch (className) {
-				case "ActionPlanEntry": {
+			case "ActionPlanEntry": {
 
-					if (!serviceActionPlan.belongsToAnalysis(analysisId, elementId))
-						return false;
-					break;
-				}
-				case "ActionPlanSummary": {
+				if (!serviceActionPlan.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "ActionPlanSummary": {
 
-					if (!serviceActionPlanSummary.belongsToAnalysis(analysisId, elementId))
-						return false;
-					break;
-				}
-				case "Assessment": {
+				if (!serviceActionPlanSummary.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "Assessment": {
 
-					if (!serviceAssessment.belongsToAnalysis(analysisId, elementId))
-						return false;
-					break;
-				}
-				case "Asset": {
+				if (!serviceAssessment.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "Asset": {
 
-					if (!serviceAsset.belongsToAnalysis(analysisId, elementId))
-						return false;
-					break;
-				}
-				case "History": {
+				if (!serviceAsset.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "History": {
 
-					if (!serviceHistory.belongsToAnalysis(analysisId, elementId))
-						return false;
-					break;
-				}
-				case "ItemInformation": {
+				if (!serviceHistory.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "ItemInformation": {
 
-					if (!serviceItemInformation.belongsToAnalysis(analysisId, elementId))
-						return false;
-					break;
-				}
-				case "Measure": {
+				if (!serviceItemInformation.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "Measure": {
 
-					if (!serviceMeasure.belongsToAnalysis(analysisId, elementId))
-						return false;
-					break;
-				}
-				case "Parameter": {
+				if (!serviceMeasure.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "Parameter": {
 
-					if (!serviceParameter.belongsToAnalysis(analysisId, elementId))
-						return false;
-					break;
-				}
-				case "Phase": {
+				if (!serviceParameter.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "Phase": {
 
-					if (!servicePhase.belongsToAnalysis(analysisId, elementId))
-						return false;
-					break;
-				}
-				case "RiskInformation": {
+				if (!servicePhase.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "RiskInformation": {
 
-					if (!serviceRiskInformation.belongsToAnalysis(analysisId, elementId))
-						return false;
-					break;
-				}
-				case "Scenario": {
+				if (!serviceRiskInformation.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			case "Scenario": {
 
-					if (!serviceScenario.belongsToAnalysis(analysisId, elementId))
-						return false;
-					break;
-				}
+				if (!serviceScenario.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+
+			case "RiskRegister": {
+				if (!serviceRiskRegister.belongsToAnalysis(analysisId, elementId))
+					return false;
+				break;
+			}
+			default:
+				return false;
 			}
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
