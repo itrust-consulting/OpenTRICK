@@ -354,4 +354,14 @@ public class Standard implements Cloneable {
 		this.analysisOnly = analysisOnly;
 	}
 
+	public Standard update(Standard standard) {
+		this.analysisOnly = standard.analysisOnly;
+		this.computable = standard.computable;
+		this.description = standard.description;
+		this.version = standard.version;
+		this.label = standard.label;
+		this.type = standard.type;
+		return this;
+	}
+
 }

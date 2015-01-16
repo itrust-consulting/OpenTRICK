@@ -219,9 +219,10 @@ public class ControllerKnowledgeBaseStandard {
 			} else {
 
 				Standard tmpStandard = serviceStandard.get(standard.getId());
-
-				if (!tmpStandard.isAnalysisOnly())
-					serviceStandard.saveOrUpdate(standard);
+				if(tmpStandard == null)
+					errors.put("standard", messageSource.getMessage("error.norm.not_exist", null, "Norm does not exist", locale));
+				else if (!tmpStandard.isAnalysisOnly())
+					serviceStandard.saveOrUpdate(tmpStandard.update(standard));
 				else
 					errors.put("standard", messageSource.getMessage("error.norm.manage_analysis_standard", null,
 							"This standard can only be managed within the selected analysis where this standard belongs!", locale));

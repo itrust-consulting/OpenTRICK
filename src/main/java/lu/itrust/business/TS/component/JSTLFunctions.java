@@ -2,10 +2,6 @@ package lu.itrust.business.TS.component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.Locale;
 
 /**
  * Function.java: <br>
@@ -32,21 +28,9 @@ public final class JSTLFunctions {
 	public static double round(double value, int places) {
 		if (places < 0)
 			throw new IllegalArgumentException();
-		DecimalFormat df2 = new DecimalFormat()/*("###.##")*/;
-        
 		BigDecimal bd = new BigDecimal(value);
 	    bd = bd.setScale(places, RoundingMode.HALF_UP);
-
-	    try {
-			return NumberFormat.getInstance(Locale.FRANCE).parse(df2.format(bd.doubleValue())).doubleValue();
-		} catch (ParseException e) {
-			//e.printStackTrace();
-			throw new IllegalArgumentException(e.getMessage());
-		}
-
-		/*
-		 * long tmp = Math.round(value); return (double) tmp / factor;
-		 */
+	    return bd.doubleValue();
 	}
 
 }
