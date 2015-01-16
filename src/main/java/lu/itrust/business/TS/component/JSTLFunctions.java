@@ -32,7 +32,7 @@ public final class JSTLFunctions {
 	public static double round(double value, int places) {
 		if (places < 0)
 			throw new IllegalArgumentException();
-		DecimalFormat df2 = new DecimalFormat("###.##");
+		DecimalFormat df2 = new DecimalFormat()/*("###.##")*/;
         
 		BigDecimal bd = new BigDecimal(value);
 	    bd = bd.setScale(places, RoundingMode.HALF_UP);
