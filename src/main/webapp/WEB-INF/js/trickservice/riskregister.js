@@ -45,3 +45,20 @@ function calculateRiskRegister(analysisId) {
 		permissionError();
 	return false;
 }
+
+
+function riskRegisterSwitchData(element){
+	var $li = $(element);
+	if($li.hasClass("active"))
+		return false;
+	var type = $li.attr("role");
+	var tds = $("#section_riskregister table>tbody td[data-scale-value]");
+	for (var i = 0; i < tds.length; i++) {
+		if(type=="menu-control-value")
+			$(tds[i]).html($(tds[i]).attr("data-scale-value"));
+		else $(tds[i]).html($(tds[i]).attr("data-scale-level"));
+	}
+	$("#menu_riskRegister>li.active").removeClass("active");
+	$li.addClass("active");
+	return false;
+}

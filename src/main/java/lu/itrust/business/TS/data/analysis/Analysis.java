@@ -236,6 +236,7 @@ public class Analysis implements Cloneable {
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
 	@Access(AccessType.FIELD)
+	@OrderBy("position asc,dtRawEvaluationImportance desc, dtNetEvaluationImportance, dtExpEvaluationImportance")
 	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();
 
 	/***********************************************************************************************

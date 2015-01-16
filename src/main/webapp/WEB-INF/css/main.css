@@ -95,6 +95,9 @@ body {
 	padding-top: 120px;
 }
 
+.nav.bordered-bottom{
+	border-bottom: 1px solid #dddddd;
+}
 .navbar-custom {
 	margin-top: 50px;
 	width: auto;

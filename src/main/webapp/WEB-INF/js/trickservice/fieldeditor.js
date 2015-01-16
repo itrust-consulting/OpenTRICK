@@ -26,6 +26,7 @@ function FieldEditor(element, validator) {
 	this.controllor = null;
 	this.defaultValue = $(element).text().trim();
 	this.choose = [];
+	this.chooseTranslate = [];
 	this.fieldEditor = null;
 	this.realValue = null;
 	this.fieldName = null;
@@ -62,30 +63,36 @@ function FieldEditor(element, validator) {
 
 			if (this.defaultValue.length > 100 || $(this.element).attr("trick-content") == "text") {
 				this.fieldEditor = document.createElement("textarea");
-				
-				var elementheight = height-8;
-				
-				this.fieldEditor.setAttribute("style", "width:100%;height:"+elementheight+"px; padding:2px;");
-				//this.fieldEditor.setAttribute("rows", rows);
+
+				var elementheight = height - 8;
+
+				this.fieldEditor.setAttribute("style", "width:100%;height:" + elementheight + "px; padding:2px;");
+				// this.fieldEditor.setAttribute("rows", rows);
 			} else {
 				this.fieldEditor = document.createElement("input");
 				this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
 				this.fieldEditor.setAttribute("style", "width:100%; height:34px;padding:2px;");
 			}
 		} else {
-				
-				$(this.element).css("min-width", "40px");
-				$(this.element).css("height", "34px");
-			
+
+			$(this.element).css("min-width", "40px");
+			$(this.element).css("height", "34px");
+
 			this.fieldEditor = document.createElement("select");
 			this.fieldEditor.setAttribute("style", "width:100%;height:34px;padding:2px;");
-			
+
 			for (var i = 0; i < this.choose.length; i++) {
 				var option = document.createElement("option");
 				option.setAttribute("value", this.choose[i]);
-				$(option).text(this.choose[i]);
-				if (this.choose[i] == this.defaultValue)
-					option.setAttribute("selected", true);
+				if (this.chooseTranslate.length) {
+					$(option).text(this.chooseTranslate[i]);
+					if (this.chooseTranslate[i] == this.defaultValue)
+						option.setAttribute("selected", true);
+				} else {
+					$(option).text(this.choose[i]);
+					if (this.choose[i] == this.defaultValue)
+						option.setAttribute("selected", true);
+				}
 				$(option).appendTo($(this.fieldEditor));
 			}
 		}
@@ -119,6 +126,12 @@ function FieldEditor(element, validator) {
 	FieldEditor.prototype.__findChoose = function(element) {
 		if ($(element).attr("trick-choose") != undefined)
 			return $(element).attr("trick-choose").split(",");
+		return [];
+	};
+
+	FieldEditor.prototype.__findChooseTranslate = function(element) {
+		if ($(element).attr("data-trick-choose-translate") != undefined)
+			return $(element).attr("data-trick-choose-translate").split(",");
 		return [];
 	};
 
@@ -188,6 +201,8 @@ function FieldEditor(element, validator) {
 			eval(callback);
 		if (!this.choose.length)
 			this.choose = this.__findChoose(this.element);
+		if (this.choose.length && !this.chooseTranslate.length)
+			this.chooseTranslate = this.__findChooseTranslate(element);
 		return true;
 	};
 
@@ -198,7 +213,16 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.UpdateUI = function() {
-		$(this.element).text($(this.fieldEditor).prop("value"));
+		var value = $(this.fieldEditor).prop("value");
+		if (this.choose.length && this.chooseTranslate.length) {
+			for (var i = 0; i < this.choose.length; i++) {
+				if (this.choose[i] == value) {
+					$(this.element).text(this.chooseTranslate[i]);
+					break;
+				}
+			}
+		} else
+			$(this.element).text(value);
 		if (!$(this.element).is("td")) {
 			$(this.element).closest("td").css("padding", "5px");
 			$(this.element).closest("td").css("min-width", "");
@@ -224,8 +248,8 @@ function FieldEditor(element, validator) {
 					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true) + '", "type": "' + that.fieldType
-							+ '"}',
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
@@ -336,8 +360,8 @@ function ExtendedFieldEditor(element) {
 					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true) + '", "type": "' + that.fieldType
-							+ '"}',
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
@@ -437,8 +461,8 @@ function AssessmentFieldEditor(element) {
 					url : context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
 					type : "post",
 					async : true,
-					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true) + '", "type": "' + that.fieldType
-							+ '"}',
+					data : '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+							+ '", "type": "' + that.fieldType + '"}',
 					contentType : "application/json;charset=UTF-8",
 					success : function(response) {
 						if (response["success"] != undefined) {
@@ -484,7 +508,7 @@ function AssessmentExtendedParameterEditor(element) {
 
 		var indexOf = this.acromym.indexOf(this.defaultValue);
 		var value = indexOf >= 0 ? this.choose[indexOf] : this.realValue != null ? this.realValue : this.defaultValue;
-		
+
 		var width = $(this.element).outerWidth();
 
 		var height = $(this.element).outerHeight();
@@ -492,7 +516,7 @@ function AssessmentExtendedParameterEditor(element) {
 		$(this.element).css("width", width);
 
 		$(this.element).css("height", height);
-		
+
 		this.fieldEditor = document.createElement("input");
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("placeholder", value);
@@ -606,7 +630,7 @@ function AssessmentProbaFieldEditor(element) {
 			return true;
 		if (!this.LoadData())
 			return true;
-		
+
 		var width = $(this.element).outerWidth();
 
 		var height = $(this.element).outerHeight();
@@ -614,7 +638,7 @@ function AssessmentProbaFieldEditor(element) {
 		$(this.element).css("width", width);
 
 		$(this.element).css("height", height);
-		
+
 		this.fieldEditor = document.createElement("select");
 		this.fieldEditor.setAttribute("style", "width:100%;height:36px;min-width:90px;padding:2px;");
 		for (var i = 0; i < this.choose.length; i++) {
