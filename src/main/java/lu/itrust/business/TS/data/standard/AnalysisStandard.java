@@ -52,11 +52,12 @@ public abstract class AnalysisStandard implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiStandard", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cascade({CascadeType.SAVE_UPDATE,CascadeType.MERGE})
 	private Standard standard = null;
 
 	/** AnalysisStandard List of measures */
 	@OneToMany(mappedBy = "analysisStandard")
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<Measure> measures = new ArrayList<Measure>();
 

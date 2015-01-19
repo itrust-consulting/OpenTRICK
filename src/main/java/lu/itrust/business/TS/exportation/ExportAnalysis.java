@@ -1380,7 +1380,6 @@ public class ExportAnalysis {
 				
 				// store standard as measurestandard
 				
-
 				// ****************************************************************
 				// * parse measures of this standard
 				// ****************************************************************

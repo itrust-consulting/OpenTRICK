@@ -9,6 +9,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.exception.TrickException;
 
@@ -37,6 +40,7 @@ public class MeasureAssetValue implements Cloneable {
 	@ManyToOne
 	@JoinColumn(name = "fiAsset", nullable = false)
 	@Access(AccessType.FIELD)
+	@Cascade({CascadeType.SAVE_UPDATE,CascadeType.MERGE})
 	private Asset asset = null;
 
 	/** The Asset Value */

@@ -498,4 +498,24 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public boolean isAnalysisCssf(Integer analysisID) throws Exception {
 		return daoAnalysis.isAnalysisCssf(analysisID);
 	}
+
+	@Override
+	public List<String> getAllNotEmptyVersion(int analysisId) {
+		return daoAnalysis.getAllNotEmptyVersion(analysisId);
+	}
+
+	@Override
+	public String getIdentifierByIdAnalysis(int analysisId) {
+		return daoAnalysis.getIdentifierByIdAnalysis(analysisId);
+	}
+
+	@Override
+	public List<String> getAllNotEmptyVersion(String identfier) {
+		return daoAnalysis.getAllNotEmptyVersion(identfier);
+	}
+
+	@Override
+	public Integer getCustomerIdByIdAnalysis(int analysisId) {
+		return daoAnalysis.getCustomerIdByIdAnalysis(analysisId);
+	}
 }

@@ -148,34 +148,34 @@ public class Analysis implements Cloneable {
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false, insertable = true)
 	@Access(AccessType.FIELD)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
 
 	/** List of History data of the Analysis */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<History> histories = new ArrayList<History>();
 
 	/** List of Item Information */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<ItemInformation> itemInformations = new ArrayList<ItemInformation>();
 
 	/** List of parameters */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<Parameter> parameters = new ArrayList<Parameter>();
 
 	/** List of assets */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	@OrderBy("value DESC, ALE DESC, name ASC")
 	private List<Asset> assets = new ArrayList<Asset>();
@@ -183,14 +183,14 @@ public class Analysis implements Cloneable {
 	/** List of Risk Information */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<RiskInformation> riskInformations = new ArrayList<RiskInformation>();
 
 	/** List of Scenarios */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	@OrderBy("type,name")
 	private List<Scenario> scenarios = new ArrayList<Scenario>();
@@ -198,7 +198,7 @@ public class Analysis implements Cloneable {
 	/** List of Assessment */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<Assessment> assessments = new ArrayList<Assessment>();
 
@@ -206,13 +206,13 @@ public class Analysis implements Cloneable {
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
 	@OrderBy("standard")
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<AnalysisStandard> analysisStandards = new ArrayList<AnalysisStandard>();
 
 	/** List of Phases that is used for Action Plan Computation */
 	@OneToMany(mappedBy = "analysis")
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	@OrderBy("number")
 	private List<Phase> phases = new ArrayList<Phase>();
@@ -220,21 +220,21 @@ public class Analysis implements Cloneable {
 	/** The Final Action Plan without Phase Computation - Normal */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<ActionPlanEntry> actionPlans = new ArrayList<ActionPlanEntry>();
 
 	/** The Action Plan Summary without Phase Computation - Normal */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	private List<SummaryStage> summaries = new ArrayList<SummaryStage>();
 
 	/** The Risk Register (CSSF) */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis", nullable = false)
-	@Cascade({ CascadeType.SAVE_UPDATE, CascadeType.DELETE })
+	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
 	@OrderBy("position asc,dtRawEvaluationImportance desc, dtNetEvaluationImportance, dtExpEvaluationImportance")
 	private List<RiskRegisterItem> riskRegisters = new ArrayList<RiskRegisterItem>();

@@ -53,7 +53,7 @@ public class Standard implements Cloneable {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtType", nullable = false)
 	@Access(AccessType.FIELD)
-	@Cascade(CascadeType.SAVE_UPDATE)
+	@Cascade({CascadeType.SAVE_UPDATE, CascadeType.MERGE})
 	private StandardType type = null;
 
 	/** Standard available for actionplan computation */
