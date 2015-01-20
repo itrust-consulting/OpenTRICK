@@ -88,4 +88,12 @@ public interface DAOAnalysis {
 	public String getLabelFromId(int idAnalysis);
 
 	public String getCustomerNameFromId(int idAnalysis);
+
+	public List<String> getAllNotEmptyVersion(int analysisId);
+
+	public String getIdentifierByIdAnalysis(int analysisId);
+
+	public List<String> getAllNotEmptyVersion(String identfier);
+
+	public Integer getCustomerIdByIdAnalysis(int analysisId);
 }

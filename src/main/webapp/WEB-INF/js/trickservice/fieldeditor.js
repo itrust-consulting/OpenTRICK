@@ -690,6 +690,5 @@ function editField(element, controller, id, field, type) {
 			fieldEditor = new FieldEditor(element);
 		if (!fieldEditor.Initialise())
 			fieldEditor.Show();
-	} else
-		permissionError();
+	}
 }

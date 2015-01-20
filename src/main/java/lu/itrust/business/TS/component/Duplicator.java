@@ -194,7 +194,7 @@ public class Duplicator {
 	 */
 	public AnalysisStandard duplicateAnalysisStandard(AnalysisStandard analysisStandard, Map<Integer, Phase> phases, Map<String, Parameter> parameters, boolean anonymize) throws Exception {
 
-		if (analysisStandard.getStandard().isAnalysisOnly() == false) {
+		if (!analysisStandard.getStandard().isAnalysisOnly()) {
 
 			AnalysisStandard astandard = analysisStandard.duplicate();
 
@@ -213,8 +213,6 @@ public class Duplicator {
 
 			standard.setVersion(daoStandard.getBiggestVersionFromStandardByNameAndType(standard.getLabel(), standard.getType()) + 1);
 
-			// daoStandard.save(standard);
-
 			List<MeasureDescription> mesDescs = daoMeasureDescription.getAllByStandard(analysisStandard.getStandard());
 
 			Map<String, MeasureDescription> newMesDescs = new LinkedHashMap<String, MeasureDescription>();
@@ -222,8 +220,6 @@ public class Duplicator {
 			for (MeasureDescription mesDesc : mesDescs) {
 
 				MeasureDescription desc = mesDesc.duplicate(standard);
-
-				// daoMeasureDescription.save(desc);
 
 				newMesDescs.put(desc.getReference(), desc);
 
@@ -233,11 +229,9 @@ public class Duplicator {
 
 			if (analysisStandard instanceof NormalStandard)
 				tmpAnalysisStandard = new NormalStandard(standard);
-
-			if (analysisStandard instanceof MaturityStandard)
+			else if (analysisStandard instanceof MaturityStandard)
 				tmpAnalysisStandard = new MaturityStandard(standard);
-
-			if (analysisStandard instanceof AssetStandard)
+			else if (analysisStandard instanceof AssetStandard)
 				tmpAnalysisStandard = new AssetStandard(standard);
 
 			List<Measure> measures = new ArrayList<>(analysisStandard.getMeasures().size());
@@ -250,8 +244,6 @@ public class Duplicator {
 				MeasureDescription mesDesc = newMesDescs.get(tmpmeasure.getMeasureDescription().getReference());
 
 				tmpmeasure.setMeasureDescription(mesDesc);
-
-				// tmpmeasure.getAnalysisStandard().getMeasures().add(tmpmeasure);
 
 				measures.add(tmpmeasure);
 

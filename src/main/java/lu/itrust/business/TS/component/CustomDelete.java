@@ -31,6 +31,7 @@ import lu.itrust.business.TS.database.dao.DAOCustomer;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
+import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.DAOUser;
@@ -89,6 +90,9 @@ public class CustomDelete {
 
 	@Autowired
 	private DAOAssetTypeValue daoAssetTypeValue;
+	
+	@Autowired
+	private DAORiskRegister daoRiskRegister;
 
 	@Transactional
 	public void deleteAsset(Asset asset) throws Exception {
@@ -269,6 +273,20 @@ public class CustomDelete {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	@Transactional
+	public void deleteAnalysis(int idAnalysis) throws Exception{
+		
+		daoActionPlan.deleteAllFromAnalysis(idAnalysis);
+
+		daoActionPlanSummary.deleteAllFromAnalysis(idAnalysis);
+
+		daoRiskRegister.deleteAllFromAnalysis(idAnalysis);
+
+		daoAnalysisStandard.deleteAllFromAnalysis(idAnalysis);
+
+		daoAnalysis.delete(idAnalysis);
 	}
 
 }

@@ -18,12 +18,15 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
+import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.GeneralComperator;
 import lu.itrust.business.TS.component.JsonMessage;
+import lu.itrust.business.TS.component.ManageAnalysisRight;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.data.general.Language;
@@ -36,7 +39,6 @@ import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceActionPlanSummary;
 import lu.itrust.business.TS.database.service.ServiceActionPlanType;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.database.service.ServiceAnalysisStandard;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
 import lu.itrust.business.TS.database.service.ServiceAsset;
 import lu.itrust.business.TS.database.service.ServiceAssetType;
@@ -46,11 +48,8 @@ import lu.itrust.business.TS.database.service.ServiceHistory;
 import lu.itrust.business.TS.database.service.ServiceItemInformation;
 import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
-import lu.itrust.business.TS.database.service.ServiceMeasureDescription;
 import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
-import lu.itrust.business.TS.database.service.ServiceRiskInformation;
-import lu.itrust.business.TS.database.service.ServiceRiskRegister;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceStandard;
@@ -131,9 +130,6 @@ public class ControllerAnalysis {
 	private ServiceActionPlanSummary serviceActionPlanSummary;
 
 	@Autowired
-	private ServiceRiskRegister serviceRiskRegister;
-
-	@Autowired
 	private AssessmentManager assessmentManager;
 
 	@Autowired
@@ -164,12 +160,6 @@ public class ControllerAnalysis {
 	private ServiceDataValidation serviceDataValidation;
 
 	@Autowired
-	private ServiceMeasureDescription serviceMeasureDescription;
-
-	@Autowired
-	private ServiceRiskInformation serviceRiskInformation;
-
-	@Autowired
 	private ServiceItemInformation serviceItemInformation;
 
 	@Autowired
@@ -191,9 +181,6 @@ public class ControllerAnalysis {
 	private ServiceRole serviceRole;
 
 	@Autowired
-	private ServiceAnalysisStandard serviceAnalysisStandard;
-
-	@Autowired
 	private MeasureManager measureManager;
 
 	@Autowired
@@ -201,6 +188,12 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private Duplicator duplicator;
+	
+	@Autowired
+	private ManageAnalysisRight manageAnalysisRight;
+	
+	@Autowired
+	private CustomDelete customDelete;
 
 	@Value("${app.settings.report.french.template.name}")
 	private String frenchReportName;
@@ -616,17 +609,39 @@ public class ControllerAnalysis {
 				return JsonMessage.Error(messageSource.getMessage("error.profile.delete.failed", null, "Default profile cannot be deleted!", locale));
 
 			// delete the analysis
-
-			serviceActionPlan.deleteAllFromAnalysis(analysisId);
-
-			serviceActionPlanSummary.deleteAllFromAnalysis(analysisId);
-
-			serviceRiskRegister.deleteAllFromAnalysis(analysisId);
-
-			serviceAnalysisStandard.deleteAllFromAnalysis(analysisId);
-
-			serviceAnalysis.delete(analysisId);
-
+			List<UserAnalysisRight> currentAnalysisRights = serviceUserAnalysisRight.getAllFromAnalysis(analysisId);
+			
+			String identifier = serviceAnalysis.getIdentifierByIdAnalysis(analysisId);
+			
+			List<String> versions = serviceAnalysis.getAllNotEmptyVersion(identifier);
+			
+			Comparator<String> comparator = new Comparator<String>() {
+				@Override
+				public int compare(String o1, String o2) {
+					return GeneralComperator.VersionComparator(o1, o2);
+				}
+			};
+			
+			Collections.sort(versions, Collections.reverseOrder(comparator));
+			if(!versions.isEmpty())
+				versions.remove(0);
+			
+			Analysis lastVersion = null;
+			if(!versions.isEmpty()){
+				lastVersion = serviceAnalysis.getFromIdentifierVersionCustomer(identifier, versions.get(0), serviceAnalysis.getCustomerIdByIdAnalysis(analysisId));
+				if(lastVersion !=null){
+					for (UserAnalysisRight userAnalysisRight : currentAnalysisRights) {
+						UserAnalysisRight analysisRight = lastVersion.getRightsforUser(userAnalysisRight.getUser());
+						if(analysisRight!=null)
+							analysisRight.setRight(userAnalysisRight.getRight());
+					}
+				}
+			}
+			
+			customDelete.deleteAnalysis(analysisId);
+			if(lastVersion!=null)
+				serviceAnalysis.saveOrUpdate(lastVersion);
+			
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 			if (selectedAnalysis != null && selectedAnalysis == analysisId)
@@ -764,7 +779,9 @@ public class ControllerAnalysis {
 			copy.setDefaultProfile(false);
 
 			serviceAnalysis.saveOrUpdate(copy);
-
+			
+			manageAnalysisRight.switchAnalysisToReadOnly(copy.getIdentifier(), copy.getId());
+			
 		} catch (CloneNotSupportedException e) {
 			// return dubplicate error message
 			e.printStackTrace();

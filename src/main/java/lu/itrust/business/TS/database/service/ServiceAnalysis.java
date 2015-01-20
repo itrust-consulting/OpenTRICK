@@ -89,4 +89,12 @@ public interface ServiceAnalysis {
 
 	public String getCustomerNameFromId(int scenario);
 
+	public List<String> getAllNotEmptyVersion(int analysisId);
+
+	public String getIdentifierByIdAnalysis(int analysisId);
+
+	public List<String> getAllNotEmptyVersion(String identfier);
+
+	public Integer getCustomerIdByIdAnalysis(int analysisId);
+
 }
