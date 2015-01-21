@@ -235,4 +235,26 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
 		return false;
 	}
+
+	@Override
+	public boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) throws Exception {
+		try {
+
+			if (analysisId == null || analysisId <= 0)
+				throw new InvalidParameterException("Invalid analysis id!");
+			else if (!serviceAnalysis.exists(analysisId))
+				throw new NotFoundException("Analysis does not exist!");
+
+			if (principal == null)
+				return false;
+
+			if (right == null)
+				throw new InvalidParameterException("AnalysisRight cannot be null!");
+
+			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right) || serviceAnalysis.isAnalysisOwner(analysisId, principal.getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

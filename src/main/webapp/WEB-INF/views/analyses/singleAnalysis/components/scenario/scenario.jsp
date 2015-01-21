@@ -11,18 +11,20 @@
 		<div class="panel panel-default">
 			<div class="panel-heading" style="min-height: 60px">
 				<ul class="nav nav-pills" id="menu_scenario">
-					<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /> </a></li>
-					<li class="disabled" trick-selectable="true"><a href="#" onclick="return editScenario();"><span class="glyphicon glyphicon-edit danger"></span> <fmt:message
+					<c:if test="${isEditable}">
+						<li><a href="#" onclick="return editScenario(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /> </a></li>
+					</c:if>
+					<li trick-check="isEditable()" class="disabled" trick-selectable="true"><a href="#" onclick="return editScenario();"><span class="glyphicon glyphicon-edit danger"></span> <fmt:message
 								key="label.action.edit" /> </a></li>
-					<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span class="glyphicon glyphicon-plus-sign"></span> <fmt:message
+					<li trick-check="isEditable()" class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'true')"><span class="glyphicon glyphicon-plus-sign"></span> <fmt:message
 								key="label.action.select" /> </a></li>
-					<li class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <fmt:message
+					<li trick-check="isEditable()" class="disabled" trick-selectable="multi"><a href="#" onclick="return selectScenario(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span> <fmt:message
 								key="label.action.unselect" /> </a></li>
 					<c:if test="${!analysis.isProfile() }">
 						<li class="disabled" trick-selectable="true" trick-check="isSelected('scenario')"><a href="#" onclick="return displayAssessmentByScenario()"><span
 								class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.assessment" /> </a></li>
 					</c:if>
-					<li class="disabled pull-right" trick-selectable="multi"><a href="#" class="text-danger" onclick="return deleteScenario();"><span class="glyphicon glyphicon-remove"></span>
+					<li trick-check="isEditable()" class="disabled pull-right" trick-selectable="multi"><a href="#" class="text-danger" onclick="return deleteScenario();"><span class="glyphicon glyphicon-remove"></span>
 							<fmt:message key="label.action.delete" /> </a></li>
 				</ul>
 			</div>

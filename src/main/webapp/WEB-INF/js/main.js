@@ -86,7 +86,7 @@ $(function() {
 				window[$(target).attr("data-trigger")].apply();
 				$(target).attr("data-update-required", "false");
 			}
-			
+
 		});
 	}
 
@@ -238,6 +238,16 @@ function userCan(idAnalysis, action) {
 	return false;
 }
 
+function hasRight(action) {
+	if (!(action instanceof jQuery))
+		action = ANALYSIS_RIGHT[action];
+	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("trick-id"), action);
+}
+
+function canManageAccess() {
+	return $("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-analysis-owner") == "true" || hasRight("ALL");
+}
+
 /**
  * MessageResolver
  * 
@@ -386,14 +396,24 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 				$($lis[i]).removeClass("disabled");
 			else
 				$($lis[i]).addClass("disabled");
+
+			var checker = $($lis[i]).attr("trick-check");
+
+			if (!$($lis[i]).hasClass("disabled") && !(checker == undefined || eval(checker)))
+				$($lis[i]).addClass("disabled");
 		}
 	} else if (checkedCount == 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
 			var checker = $($lis[i]).attr("trick-check");
-			if ($($lis[i]).attr("trick-selectable") != undefined && (checker == undefined || eval(checker)))
+			if ($($lis[i]).attr("trick-selectable") != undefined)
 				$($lis[i]).removeClass("disabled");
 			else
+				$($lis[i]).addClass("disabled");
+
+			var checker = $($lis[i]).attr("trick-check");
+
+			if (!$($lis[i]).hasClass("disabled") && !(checker == undefined || eval(checker)))
 				$($lis[i]).addClass("disabled");
 		}
 	} else {
@@ -403,6 +423,11 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 				$($lis[i]).addClass("disabled");
 			else
 				$($lis[i]).removeClass("disabled");
+
+			var checker = $($lis[i]).attr("trick-check");
+
+			if (!$($lis[i]).hasClass("disabled") && !(checker == undefined || eval(checker)))
+				$($lis[i]).addClass("disabled");
 		}
 	}
 

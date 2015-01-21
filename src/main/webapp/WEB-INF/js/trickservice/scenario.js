@@ -1,32 +1,34 @@
 function editScenario(rowTrickId, isAdd) {
-	if (isAdd) {
-		var selectedScenario = $("#section_scenario :checked");
-		if (selectedScenario.length != 0)
-			return false;
-		rowTrickId = undefined;
-	} else if (rowTrickId == null || rowTrickId == undefined) {
-		var selectedScenario = $("#section_scenario :checked");
-		if (selectedScenario.length != 1)
-			return false;
-		rowTrickId = findTrickID(selectedScenario[0]);
-	}
-
-	$.ajax({
-		url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Analysis/Scenario/Add" : "/Analysis/Scenario/Edit/" + rowTrickId),
-		contentType : "application/json;charset=UTF-8",
-		async : true,
-		success : function(response) {
-			var parser = new DOMParser();
-			var doc = parser.parseFromString(response, "text/html");
-			if ((addScenarioModal = doc.getElementById("addScenarioModal")) == null)
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		if (isAdd) {
+			var selectedScenario = $("#section_scenario :checked");
+			if (selectedScenario.length != 0)
 				return false;
-			if ($("#addScenarioModal").length)
-				$("#addScenarioModal").html($(addScenarioModal).html());
-			$("#addScenarioModal").modal("toggle");
-			return false;
-		},
-		error : unknowError
-	});
+			rowTrickId = undefined;
+		} else if (rowTrickId == null || rowTrickId == undefined) {
+			var selectedScenario = $("#section_scenario :checked");
+			if (selectedScenario.length != 1)
+				return false;
+			rowTrickId = findTrickID(selectedScenario[0]);
+		}
+
+		$.ajax({
+			url : context + (rowTrickId == null || rowTrickId == undefined || rowTrickId < 1 ? "/Analysis/Scenario/Add" : "/Analysis/Scenario/Edit/" + rowTrickId),
+			contentType : "application/json;charset=UTF-8",
+			async : true,
+			success : function(response) {
+				var parser = new DOMParser();
+				var doc = parser.parseFromString(response, "text/html");
+				if ((addScenarioModal = doc.getElementById("addScenarioModal")) == null)
+					return false;
+				if ($("#addScenarioModal").length)
+					$("#addScenarioModal").html($(addScenarioModal).html());
+				$("#addScenarioModal").modal("toggle");
+				return false;
+			},
+			error : unknowError
+		});
+	}
 	return false;
 }
 
@@ -91,54 +93,59 @@ function saveScenario(form) {
 }
 
 function deleteScenario(scenarioId) {
-	if (scenarioId == null || scenarioId == undefined) {
-		var selectedScenario = findSelectItemIdBySection(("section_scenario"));
-		if (!selectedScenario.length)
-			return false;
-		var lang = $("#nav-container").attr("trick-language");
-		var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang) : MessageResolver(
-				"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios", null, lang);
-		$("#confirm-dialog .modal-body").text(text);
-		$("#confirm-dialog .btn-danger").click(function() {
-			while (selectedScenario.length) {
-				rowTrickId = selectedScenario.pop();
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		if (scenarioId == null || scenarioId == undefined) {
+			var selectedScenario = findSelectItemIdBySection(("section_scenario"));
+			if (!selectedScenario.length)
+				return false;
+			var lang = $("#nav-container").attr("trick-language");
+			var text = selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang) : MessageResolver(
+					"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios", null, lang);
+			$("#confirm-dialog .modal-body").text(text);
+			$("#confirm-dialog .btn-danger").click(function() {
+				while (selectedScenario.length) {
+					rowTrickId = selectedScenario.pop();
+					$.ajax({
+						url : context + "/Analysis/Scenario/Delete/" + rowTrickId,
+						contentType : "application/json;charset=UTF-8",
+						async : false,
+						success : function(response) {
+							var trickSelect = parseJson(response);
+							if (trickSelect != undefined && trickSelect["success"] != undefined) {
+								/*
+								 * var row = $("#section_scenario tr[trick-id='" +
+								 * rowTrickId + "']"); var checked =
+								 * $("#section_scenario tr[trick-id='" +
+								 * rowTrickId + "'] :checked"); if
+								 * (checked.length)
+								 * $(checked).removeAttr("checked"); if
+								 * (row.length) $(row).remove();
+								 */
+							}
+							return false;
+						},
+						error : unknowError
+					});
+				}
+				reloadSection('section_scenario');
+			});
+		} else {
+			$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang));
+			$("#confirm-dialog .btn-danger").click(function() {
 				$.ajax({
-					url : context + "/Analysis/Scenario/Delete/" + rowTrickId,
+					url : context + "/Analysis/Scenario/Delete/" + scenarioId,
 					contentType : "application/json;charset=UTF-8",
-					async : false,
-					success : function(response) {
-						var trickSelect = parseJson(response);
-						if (trickSelect != undefined && trickSelect["success"] != undefined) {
-							/*var row = $("#section_scenario tr[trick-id='" + rowTrickId + "']");
-							var checked = $("#section_scenario tr[trick-id='" + rowTrickId + "'] :checked");
-							if (checked.length)
-								$(checked).removeAttr("checked");
-							if (row.length)
-								$(row).remove();*/
-						}
+					async : true,
+					success : function(reponse) {
+						reloadSection("section_scenario");
 						return false;
 					},
 					error : unknowError
 				});
-			}
-			reloadSection('section_scenario');
-		});
-	} else {
-		$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario", null, lang));
-		$("#confirm-dialog .btn-danger").click(function() {
-			$.ajax({
-				url : context + "/Analysis/Scenario/Delete/" + scenarioId,
-				contentType : "application/json;charset=UTF-8",
-				async : true,
-				success : function(reponse) {
-					reloadSection("section_scenario");
-					return false;
-				},
-				error : unknowError
 			});
-		});
+		}
+		$("#confirm-dialog").modal("toggle");
 	}
-	$("#confirm-dialog").modal("toggle");
 	return false;
 
 }
@@ -160,38 +167,40 @@ function clearScenarioFormData() {
 }
 
 function selectScenario(scenarioId, value) {
-	if (scenarioId == undefined) {
-		var selectedItem = findSelectItemIdBySection("section_scenario");
-		if (!selectedItem.length)
-			return false;
-		var requiredUpdate = [];
-		for (var i = 0; i < selectedItem.length; i++) {
-			var selected = $("#section_scenario tbody tr[trick-id='" + selectedItem[i] + "']").attr("trick-selected");
-			if (value != selected)
-				requiredUpdate.push(selectedItem[i]);
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		if (scenarioId == undefined) {
+			var selectedItem = findSelectItemIdBySection("section_scenario");
+			if (!selectedItem.length)
+				return false;
+			var requiredUpdate = [];
+			for (var i = 0; i < selectedItem.length; i++) {
+				var selected = $("#section_scenario tbody tr[trick-id='" + selectedItem[i] + "']").attr("trick-selected");
+				if (value != selected)
+					requiredUpdate.push(selectedItem[i]);
+			}
+			$.ajax({
+				url : context + "/Analysis/Scenario/Select",
+				contentType : "application/json;charset=UTF-8",
+				data : JSON.stringify(requiredUpdate, null, 2),
+				type : 'post',
+				success : function(reponse) {
+					reloadSection('section_scenario');
+					return false;
+				},
+				error : unknowError
+			});
+		} else {
+			$.ajax({
+				url : context + "/Analysis/Scenario/Select/" + scenarioId,
+				async : true,
+				contentType : "application/json;charset=UTF-8",
+				success : function(reponse) {
+					reloadSection("section_scenario");
+					return false;
+				},
+				error : unknowError
+			});
 		}
-		$.ajax({
-			url : context + "/Analysis/Scenario/Select",
-			contentType : "application/json;charset=UTF-8",
-			data : JSON.stringify(requiredUpdate, null, 2),
-			type : 'post',
-			success : function(reponse) {
-				reloadSection('section_scenario');
-				return false;
-			},
-			error : unknowError
-		});
-	} else {
-		$.ajax({
-			url : context + "/Analysis/Scenario/Select/" + scenarioId,
-			async : true,
-			contentType : "application/json;charset=UTF-8",
-			success : function(reponse) {
-				reloadSection("section_scenario");
-				return false;
-			},
-			error : unknowError
-		});
 	}
 	return false;
 }

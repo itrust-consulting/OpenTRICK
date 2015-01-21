@@ -18,9 +18,11 @@ import javax.servlet.http.HttpSession;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.data.general.Phase;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServicePhase;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 
 import org.codehaus.jackson.JsonNode;
@@ -51,6 +53,9 @@ public class ControllerPhase {
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
+	
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -74,6 +79,8 @@ public class ControllerPhase {
 		if (integer == null)
 			return null;
 
+		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
+		
 		// add phases of this analysis
 		model.addAttribute("phases", servicePhase.getAllFromAnalysis(integer));
 

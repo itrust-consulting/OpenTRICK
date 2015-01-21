@@ -671,7 +671,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public String addHistory(@PathVariable("analysisId") Integer analysisId, Map<String, Object> model, Principal principal, HttpSession session) throws Exception {
 
 		// retrieve user
@@ -702,7 +702,7 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Duplicate/{analysisId}", headers = "Accept=application/json")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
@@ -777,6 +777,10 @@ public class ControllerAnalysis {
 			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
 			copy.setProfile(false);
 			copy.setDefaultProfile(false);
+			
+			UserAnalysisRight userAnalysisRight = copy.getRightsforUserString(principal.getName());
+			
+			userAnalysisRight.setRight(AnalysisRight.ALL);
 
 			serviceAnalysis.saveOrUpdate(copy);
 			

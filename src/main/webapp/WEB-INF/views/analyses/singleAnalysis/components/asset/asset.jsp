@@ -11,16 +11,18 @@
 		<div class="panel panel-default">
 			<div class="panel-heading" style="min-height: 60px">
 				<ul class="nav nav-pills" id="menu_asset">
-					<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add.asset" /></a></li>
-					<li class="disabled" trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <fmt:message
+					<c:if test="${isEditable}">
+						<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add.asset" /></a></li>
+					</c:if>
+					<li trick-check="isEditable()" class="disabled" trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <fmt:message
 								key="label.action.edit.asset" /> </a></li>
-					<li class="disabled" trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span class="glyphicon glyphicon-plus-sign"></span>
+					<li trick-check="isEditable()" class="disabled" trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span class="glyphicon glyphicon-plus-sign"></span>
 							<fmt:message key="label.action.select.asset" /> </a></li>
-					<li class="disabled" trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span>
+					<li trick-check="isEditable()" class="disabled" trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span>
 							<fmt:message key="label.action.unselect.asset" /> </a></li>
-					<li class="disabled" trick-selectable="true" trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return displayAssessmentByAsset()"><span
+					<li  class="disabled" trick-selectable="true" trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return displayAssessmentByAsset()"><span
 							class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.show.asset.assessment" /> </a></li>
-					<li class="disabled pull-right" trick-selectable="multi"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
+					<li trick-check="isEditable()" class="disabled pull-right" trick-selectable="multi"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
 							class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete.asset" /> </a></li>
 				</ul>
 			</div>

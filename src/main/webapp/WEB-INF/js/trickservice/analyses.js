@@ -13,7 +13,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 		analysisId = selectedAnalysis[0];
 	}
 
-	if (userCan(analysisId, ANALYSIS_RIGHT.ALL)) {
+	if (canManageAccess()) {
 		$.ajax({
 			url : context + "/Analysis/ManageAccess/" + analysisId,
 			type : "get",
@@ -389,8 +389,8 @@ function customAnalysis(element) {
 										if (typeof response == 'object') {
 											var $analysisVersions = $(modal.modal_body).find("#analysis-versions");
 											for (var i = 0; i < response.length; i++) {
-												var $li = $("<li class='list-group-item' trick-id='" + response[i].id + "' title='" + response[i].label + " v." + response[i].version + "'>"
-														+ response[i].version + "</li>");
+												var $li = $("<li class='list-group-item' trick-id='" + response[i].id + "' title='" + response[i].label + " v."
+														+ response[i].version + "'>" + response[i].version + "</li>");
 												$li.appendTo($analysisVersions);
 											}
 											$(modal.modal_body).find("#analysis-versions li").hover(function() {
@@ -445,19 +445,20 @@ function customAnalysis(element) {
 								$(this).addClass("success");
 								$(this).parent().find('input').attr("value", ui.draggable.attr("trick-id"));
 								var callback = $(this).parent().attr("trick-callback");
-								$("<a href='#' class='pull-right text-danger' title='" + $removeText + "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>")
-										.appendTo($(this)).click(function() {
-											var $parent = $(this).parent();
-											$(this).remove();
-											$parent.removeAttr("trick-id");
-											$parent.removeAttr("title");
-											$parent.removeClass("success");
-											$parent.text($emptyText);
-											$parent.parent().find('input').attr("value", '-1');
-											if (callback != undefined)
-												eval(callback);
-											return false;
-										});
+								$(
+										"<a href='#' class='pull-right text-danger' title='" + $removeText
+												+ "' style='font-size:18px'><span class='glyphicon glyphicon-remove-circle'></span></a>").appendTo($(this)).click(function() {
+									var $parent = $(this).parent();
+									$(this).remove();
+									$parent.removeAttr("trick-id");
+									$parent.removeAttr("title");
+									$parent.removeClass("success");
+									$parent.text($emptyText);
+									$parent.parent().find('input').attr("value", '-1');
+									if (callback != undefined)
+										eval(callback);
+									return false;
+								});
 
 								if (callback != undefined)
 									eval(callback);
@@ -555,17 +556,20 @@ function addHistory(analysisId) {
 		analysisId = selectedAnalysis[0];
 		oldVersion = $("#section_analysis tr[trick-id='" + analysisId + "']>td:nth-child(6)").text();
 	}
-	$.ajax({
-		url : context + "/Analysis/" + analysisId + "/NewVersion",
-		type : "get",
-		contentType : "application/json;charset=UTF-8",
-		success : function(response) {
-			$("#addHistoryModal").replaceWith(response);
-			$('#addHistoryModal').modal("toggle");
-		},
-		error : unknowError
-	});
 
+	if (userCan(analysisId, ANALYSIS_RIGHT.READ)) {
+		$.ajax({
+			url : context + "/Analysis/" + analysisId + "/NewVersion",
+			type : "get",
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				$("#addHistoryModal").replaceWith(response);
+				$('#addHistoryModal').modal("toggle");
+			},
+			error : unknowError
+		});
+	} else
+		permissionError();
 	return false;
 }
 

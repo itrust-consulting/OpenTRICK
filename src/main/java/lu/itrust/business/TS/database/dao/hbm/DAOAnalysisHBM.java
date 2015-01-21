@@ -463,4 +463,10 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 		return (Integer) getSession().createQuery("select analysis.customer.id from Analysis as analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis)
 				.uniqueResult();
 	}
+
+	@Override
+	public boolean isAnalysisOwner(Integer analysisId, String userName) {
+		return (boolean) getSession().createQuery("select count(analysis)>0 from Analysis as analysis where analysis.id = :idAnalysis and analysis.owner.login = :username")
+				.setParameter("idAnalysis", analysisId).setString("username", userName).uniqueResult();
+	}
 }

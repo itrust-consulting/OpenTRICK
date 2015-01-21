@@ -20,16 +20,20 @@
 						<ul class="nav nav-pills" id="menu_standard_${standardid}">
 							<li style="padding: 10px 15px;"><spring:message text="${standard}" /></li>
 							<c:if test="${standardType.name.equals('ASSET')}">
-								<li><a onclick="return newAssetMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
-								<li trick-selectable="true" class="disabled"><a onclick="return editAssetMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
+								<c:if test="${isEditable}">
+									<li><a onclick="return newAssetMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
+								</c:if>
+								<li trick-check="isEditable()" trick-selectable="true" class="disabled"><a onclick="return editAssetMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
 										<fmt:message key="label.action.edit" /></a></li>
 							</c:if>
 							<c:if test="${!standardType.name.equals('ASSET')}">
-								<li><a onclick="return newMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
-								<li trick-selectable="true" class="disabled"><a onclick="return editSingleMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
+								<c:if test="${isEditable}">
+									<li><a onclick="return newMeasure(${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add" /></a></li>
+								</c:if>
+								<li trick-check="isEditable()" trick-selectable="true" class="disabled"><a onclick="return editSingleMeasure(null, ${standardid});" href="#"><span class="glyphicon glyphicon-edit danger"></span>
 										<fmt:message key="label.action.edit" /></a></li>
 							</c:if>
-							<li trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger" href="#"><span
+							<li trick-check="isEditable()" trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger" href="#"><span
 									class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete" /></a></li>
 						</ul>
 					</div>

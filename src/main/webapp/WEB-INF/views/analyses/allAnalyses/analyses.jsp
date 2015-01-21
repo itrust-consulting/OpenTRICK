@@ -6,6 +6,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <c:set scope="request" var="title">label.title.analyses</c:set>
+<sec:authentication var="user" property="principal" />
 <html>
 <jsp:include page="../../header.jsp" />
 <body data-spy="scroll" data-target="#analysismenu" data-offset="40">
@@ -24,21 +25,21 @@
 						<ul class="nav nav-pills" id="menu_analysis">
 							<li><a href="#" onclick="return customAnalysis(this);"> <span class="glyphicon glyphicon-plus"></span> <spring:message code="label.menu.build.analysis"
 										text="Build an analysis" /></a></li>
-							<li class="disabled" trick-selectable="true"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span class="glyphicon glyphicon-folder-open"></span>
+							<li class="disabled" trick-selectable="true" trick-check="hasRight('READ','open')"><a href="#" onclick="return selectAnalysis(undefined, 'true')"> <span class="glyphicon glyphicon-folder-open"></span>
 									&nbsp;<spring:message code="label.menu.open.analysis" text="Open analysis" /></a></li>
-							<li class="disabled profilemenu" trick-selectable="true"><a href="#" onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span
+							<li class="disabled profilemenu" trick-selectable="true" trick-check="canManageAccess()"><a href="#" onclick="return manageAnalysisAccess(null, 'section_analysis');"> <span
 									class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.manage.access.analysis" text="Manage Access Rights" /></a></li>
-							<li class="disabled" trick-selectable="true"><a href="#" onclick="return addHistory()"> <span class="glyphicon glyphicon-new-window"></span> <spring:message
+							<li class="disabled" trick-selectable="true" trick-check="hasRight('READ')"><a href="#" onclick="return addHistory()"> <span class="glyphicon glyphicon-new-window"></span> <spring:message
 										code="label.menu.create.analysis.new_version" text="New version" /></a></li>
-							<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleAnalysis();"> <span class="glyphicon glyphicon-edit"></span> <spring:message
+							<li class="disabled" trick-selectable="true" trick-check="hasRight('MODIFY')"><a href="#" onclick="return editSingleAnalysis();" trick-check="hasRight('MODIFY')"> <span class="glyphicon glyphicon-edit"></span> <spring:message
 										code="label.analysis.editInfo" text="Edit info" /></a></li>
-							<li class="disabled" trick-selectable="true"><a href="#" onclick="return createAnalysisProfile(null, 'section_analysis');"> <span class="glyphicon glyphicon-file"></span>
+							<li class="disabled" trick-selectable="true" trick-check="hasRight('READ')"><a href="#" onclick="return createAnalysisProfile(null, 'section_analysis');"> <span class="glyphicon glyphicon-file"></span>
 									<spring:message code="label.menu.create.analysis_profile" text="New profile" /></a></li>
-							<li class="disabled" trick-selectable="true"><a href="#" onclick="return exportAnalysis()"> <span class="glyphicon glyphicon-download-alt"></span> <spring:message
+							<li class="disabled" trick-selectable="true" trick-check="hasRight('EXPORT')"><a href="#" onclick="return exportAnalysis()"> <span class="glyphicon glyphicon-download-alt"></span> <spring:message
 										code="label.menu.export.analysis" text="Export" /></a></li>
-							<li class="disabled" trick-selectable="true"><a href="#" onclick="return exportAnalysisReport()"> <span class="glyphicon glyphicon-download-alt"></span> <spring:message
+							<li class="disabled" trick-selectable="true" trick-check="hasRight('EXPORT')"><a href="#" onclick="return exportAnalysisReport()"> <span class="glyphicon glyphicon-download-alt"></span> <spring:message
 										code="label.menu.export.report" text="Export Report" /></a></li>
-							<li class="disabled pull-right" trick-selectable="true"><a href="#" onclick="return deleteAnalysis();" class="text-danger"> <span class="glyphicon glyphicon-remove"></span>
+							<li class="disabled pull-right" trick-selectable="true" trick-check="hasRight('DELETE')"><a href="#" onclick="return deleteAnalysis();" class="text-danger"> <span class="glyphicon glyphicon-remove"></span>
 									<spring:message code="label.menu.delete.analysis" text="Delete" /></a></li>
 						</ul>
 					</div>
@@ -73,7 +74,7 @@
 							<tbody>
 								<c:forEach items="${analyses}" var="analysis">
 									<tr trick-id="${analysis.id}" trick-rights-id="${analysis.getRightsforUserString(login).right.ordinal()}" data="${analysis.hasData()}"
-										ondblclick="return editSingleAnalysis(${analysis.id});">
+										ondblclick="return editSingleAnalysis(${analysis.id});" data-analysis-owner="${user.username == analysis.owner.login}">
 										<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');"></td>
 										<td trick-version="${analysis.version}">${analysis.version}</td>
 										<td><spring:message text="${analysis.label}" /></td>

@@ -19,6 +19,14 @@ function loadAnalysisSections() {
 
 }
 
+function findAnalysisId() {
+	return $("#nav-container").attr("trick-id");
+}
+
+function isEditable(){
+	return userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY);
+}
+
 function updateSettings(element, entryKey) {
 	$.ajax({
 		url : context + "/Settings/Update",

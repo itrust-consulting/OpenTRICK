@@ -18,6 +18,7 @@ import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.data.cssf.tools.CategoryConverter;
@@ -56,6 +57,7 @@ import lu.itrust.business.TS.database.service.ServiceParameter;
 import lu.itrust.business.TS.database.service.ServicePhase;
 import lu.itrust.business.TS.database.service.ServiceStandard;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.MeasureDescriptionTextValidator;
 import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
@@ -145,6 +147,9 @@ public class ControllerAnalysisStandard {
 
 	@Autowired
 	private ServicePhase servicePhase;
+	
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	/**
 	 * selected analysis actions (reload section. single measure, load soa, get compliances)
@@ -181,6 +186,8 @@ public class ControllerAnalysisStandard {
 		Map<String, List<Measure>> measures = mapMeasures(null, analysisStandards);
 
 		model.addAttribute("measures", measures);
+		
+		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.MODIFY));
 
 		// add language of the analysis
 		model.addAttribute("language", serviceLanguage.getFromAnalysis(idAnalysis).getAlpha3());

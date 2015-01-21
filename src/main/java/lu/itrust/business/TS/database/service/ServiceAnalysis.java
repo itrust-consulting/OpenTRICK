@@ -97,4 +97,6 @@ public interface ServiceAnalysis {
 
 	public Integer getCustomerIdByIdAnalysis(int analysisId);
 
+	public boolean isAnalysisOwner(Integer analysisId, String userName);
+
 }

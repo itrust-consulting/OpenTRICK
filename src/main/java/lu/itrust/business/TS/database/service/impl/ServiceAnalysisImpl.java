@@ -518,4 +518,10 @@ public class ServiceAnalysisImpl implements ServiceAnalysis {
 	public Integer getCustomerIdByIdAnalysis(int analysisId) {
 		return daoAnalysis.getCustomerIdByIdAnalysis(analysisId);
 	}
+
+	@Override
+	public boolean isAnalysisOwner(Integer analysisId, String userName) {
+		
+		return daoAnalysis.isAnalysisOwner(analysisId, userName);
+	}
 }

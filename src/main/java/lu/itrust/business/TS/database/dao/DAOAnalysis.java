@@ -96,4 +96,6 @@ public interface DAOAnalysis {
 	public List<String> getAllNotEmptyVersion(String identfier);
 
 	public Integer getCustomerIdByIdAnalysis(int analysisId);
+
+	public boolean isAnalysisOwner(Integer analysisId, String userName);
 }

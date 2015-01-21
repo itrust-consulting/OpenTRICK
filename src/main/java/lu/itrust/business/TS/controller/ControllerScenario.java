@@ -14,6 +14,7 @@ import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.data.assessment.Assessment;
 import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.data.asset.AssetType;
@@ -29,6 +30,7 @@ import lu.itrust.business.TS.database.service.ServiceLanguage;
 import lu.itrust.business.TS.database.service.ServiceMeasure;
 import lu.itrust.business.TS.database.service.ServiceScenario;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.validator.ScenarioValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
@@ -91,6 +93,9 @@ public class ControllerScenario {
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
+	
+	@Autowired
+	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -256,6 +261,7 @@ public class ControllerScenario {
 		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
 		model.addAttribute("scenarios", scenarios);
 		model.addAttribute("scenarioALE", AssessmentManager.ComputeScenarioALE(scenarios, assessments));
+		model.addAttribute("isEditable", serviceUserAnalysisRight.isUserAuthorized(integer, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
 		return "analyses/singleAnalysis/components/scenario/scenario";
 	}
