@@ -57,7 +57,7 @@
 										<td colspan="3"><fmt:message key="label.action_plan.current_ale" /></td>
 										<fmt:setLocale value="fr" scope="session" />
 										<c:set var="totalALE">
-											${actionplansplitted.get(apt).get(0).totalALE + actionplansplitted.get(apt).get(0).deltaALE}
+											${fct:round(actionplansplitted.get(apt).get(0).totalALE,2)+ fct:round(actionplansplitted.get(apt).get(0).deltaALE,2)}
 										</c:set>
 										<fmt:parseNumber var="computedALE" type="number" value="${totalALE}" />
 										<td ${computedALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${computedALE}" maxFractionDigits="2" /> &euro;'>
@@ -117,9 +117,11 @@
 												<c:otherwise>
 													${ape.measure.phase.number}
 												</c:otherwise>
-											</c:choose></td>
-										<c:forEach items="${ape.actionPlanAssets}" var="apa">
-											<td class="actionplanasset actionplanassethidden" title="${apa.currentALE}"><fmt:formatNumber value="${apa.currentALE*0.001}" maxFractionDigits="0" /></td>
+											</c:choose>
+										</td>
+										<spring:eval expression="T(lu.itrust.business.TS.data.actionplan.helper.ActionPlanManager).orderActionPlanAssetsByAssetList(ape, actionplanassets)" var="actionPlanAssets" />
+										<c:forEach items="${actionPlanAssets}" var="apa">
+											<td class="actionplanasset actionplanassethidden" title='<fmt:formatNumber value="${apa.currentALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber value="${fct:round(apa.currentALE*0.001,0)}" maxFractionDigits="0" /></td>
 										</c:forEach>
 									</tr>
 								</c:forEach>

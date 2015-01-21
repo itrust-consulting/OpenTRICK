@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lu.itrust.business.TS.component;
+package lu.itrust.business.TS.data.analysis.helper;
 
 import java.util.List;
 

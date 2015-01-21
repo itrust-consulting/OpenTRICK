@@ -2083,10 +2083,6 @@ public class ActionPlanComputation {
 				// -> YES
 				if (tmpAssessment.isUsable()) {
 
-					if(measure instanceof AssetMeasure)
-						if(((AssetMeasure)measure).getMeasureAssetValueByAsset(tmpAssessment.getAsset())==null)
-							continue;
-					
 					// ****************************************************************
 					// * calculate RRF
 					// ****************************************************************
@@ -2101,7 +2097,12 @@ public class ActionPlanComputation {
 					// ****************************************************************
 					// * calculate deltaALE for this TMA
 					// ****************************************************************
-					tmpTMA.calculateDeltaALE();
+					
+					if(measure instanceof AssetMeasure)
+						if(((AssetMeasure)measure).getMeasureAssetValueByAsset(tmpAssessment.getAsset())!=null)
+							tmpTMA.calculateDeltaALE();
+						else
+							tmpTMA.setDeltaALE(0);
 
 					// ****************************************************************
 					// * check if measure needs to taken into account for action
