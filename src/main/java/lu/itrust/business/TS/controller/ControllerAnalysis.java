@@ -780,6 +780,8 @@ public class ControllerAnalysis {
 			
 			UserAnalysisRight userAnalysisRight = copy.getRightsforUserString(principal.getName());
 			
+			copy.setOwner(userAnalysisRight.getUser());
+			
 			userAnalysisRight.setRight(AnalysisRight.ALL);
 
 			serviceAnalysis.saveOrUpdate(copy);
