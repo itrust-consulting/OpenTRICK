@@ -142,6 +142,7 @@ public class ControllerRegister {
 	 */
 	private boolean buildUser(Map<String, String> errors, User user, String source, Locale locale) {
 		try {
+			System.out.println(source);
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
