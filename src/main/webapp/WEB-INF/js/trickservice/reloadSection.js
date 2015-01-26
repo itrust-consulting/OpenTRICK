@@ -78,6 +78,13 @@ function reloadSection(section, subSection, refreshOnly) {
 								fixedTableHeader(tableFixedHeader);
 							}, 500);
 						}
+						tableFixedHeader = $("#" + section).find("table.table-fixed-header-analysis");
+						if(tableFixedHeader.length){
+							$(tableFixedHeader).stickyTableHeaders({
+								cssTopOffset : ".nav-analysis",
+								fixedOffset : 6
+							});
+						}
 					}
 				} else {
 					var $tabsSection = $(doc).find(".tab-pane");

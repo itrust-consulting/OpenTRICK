@@ -18,6 +18,5 @@
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/slider.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/datepicker.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/select2-bootstrap.css" />' />
-<link rel="stylesheet" type="text/css" href='<spring:url value="/css/bootstrap-table.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<spring:url value="/css/main.css" />' />
 </head>

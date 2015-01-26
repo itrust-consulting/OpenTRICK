@@ -364,16 +364,20 @@ function navToogled(section, navSelected, fixedHeader) {
 		if ($(data[i]).attr("trick-nav-data") != navSelected) {
 			/*if (fixedHeader) {
 				var table = $(data[i]).find("table");
-				if (table.length)
-					$(table).floatThead("destroy");
+				if (table.length && $(table).destroy != undefined)
+					$(table).destroy();
 			}*/
 			$(data[i]).hide();
 		} else {
 			$(data[i]).show();
 			/*if (fixedHeader) {
 				var table = $(data[i]).find("table");
-				if (table.length)
-					fixedTableHeader(table);
+				if (table.length){
+					$(table).stickyTableHeaders({
+						cssTopOffset : ".nav-analysis",
+						fixedOffset : 6
+					});
+				}
 			}*/
 		}
 	}
