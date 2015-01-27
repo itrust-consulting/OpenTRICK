@@ -9,9 +9,9 @@
 		<ul id="menu_manage_standards" class="nav nav-pills">
 			<li><a onclick="return createStandard();" href="#"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<fmt:message key="label.action.create" /></a></li>
 			<li><a onclick="return addStandard();" href="#"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<fmt:message key="label.action.add" /></a></li>
-			<li trick-selectable="true" trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled"><a onclick="return editStandard();" href="#"><span
+			<li data-trick-selectable="true" data-trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled"><a onclick="return editStandard();" href="#"><span
 					class="glyphicon glyphicon-edit primary"></span>&nbsp;<fmt:message key="label.action.edit" /></a></li>
-			<li trick-selectable="true" class="disabled pull-right"><a onclick="return removeStandard();" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<fmt:message
+			<li data-trick-selectable="true" class="disabled pull-right"><a onclick="return removeStandard();" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<fmt:message
 						key="label.action.remove" /></a></li>
 		</ul>
 	</div>
@@ -31,7 +31,7 @@
 				</thead>
 				<tbody>
 					<c:forEach items="${currentStandards}" var="standard">
-						<tr ondblclick="return editStandard(this);" trick-id="${standard.id}" trick-analysisOnly="${standard.analysisOnly}" trick-type="${standard.type}" trick-computable="${standard.computable}">
+						<tr ondblclick="return editStandard(this);" data-trick-id="${standard.id}" data-trick-analysisOnly="${standard.analysisOnly}" data-trick-type="${standard.type}" data-trick-computable="${standard.computable}">
 							<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_manage_standards','#menu_manage_standards');"></td>
 							<td><spring:message text="${standard.label}" /></td>
 							<td><spring:message text="${standard.version}" /></td>

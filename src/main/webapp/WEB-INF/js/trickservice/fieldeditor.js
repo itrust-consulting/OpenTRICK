@@ -61,26 +61,21 @@ function FieldEditor(element, validator) {
 				$(this.element).css("height", height);
 			}
 
-			if (this.defaultValue.length > 100 || $(this.element).attr("trick-content") == "text") {
+			if (this.defaultValue.length > 100 || $(this.element).attr("data-trick-content") == "text") {
 				this.fieldEditor = document.createElement("textarea");
-
 				var elementheight = height - 8;
-
 				this.fieldEditor.setAttribute("style", "width:100%;height:" + elementheight + "px; padding:2px;");
-				// this.fieldEditor.setAttribute("rows", rows);
 			} else {
 				this.fieldEditor = document.createElement("input");
-				this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
+				this.realValue = this.element.hasAttribute("data-real-value") ? $(this.element).attr("data-real-value") : null;
 				this.fieldEditor.setAttribute("style", "width:100%; height:34px;padding:2px;");
 			}
 		} else {
 
 			$(this.element).css("min-width", "40px");
 			$(this.element).css("height", "34px");
-
 			this.fieldEditor = document.createElement("select");
 			this.fieldEditor.setAttribute("style", "width:100%;height:34px;padding:2px;");
-
 			for (var i = 0; i < this.choose.length; i++) {
 				var option = document.createElement("option");
 				option.setAttribute("value", this.choose[i]);
@@ -99,9 +94,11 @@ function FieldEditor(element, validator) {
 		var that = this;
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
-		$(this.fieldEditor).blur(function() {
-			return that.Save(that);
-		});
+		if (!application.editMode) {
+			$(this.fieldEditor).blur(function() {
+				return that.Save(that);
+			});
+		}
 		return false;
 	};
 
@@ -116,28 +113,28 @@ function FieldEditor(element, validator) {
 			this.controllor = this.__findControllor(this.element);
 			this.classId = this.__findClassId(this.element);
 			this.callback = this.__findCallback(this.element);
-			this.fieldName = $(this.element).attr("trick-field");
-			this.fieldType = $(this.element).attr("trick-field-type");
+			this.fieldName = $(this.element).attr("data-trick-field");
+			this.fieldType = $(this.element).attr("data-trick-field-type");
 			return false;
 		}
 		return true;
 	};
 
 	FieldEditor.prototype.__findChoose = function(element) {
-		if ($(element).attr("trick-choose") != undefined)
-			return $(element).attr("trick-choose").split(",");
+		if ($(element).attr("data-trick-choose") != undefined)
+			return $(element).attr("data-trick-choose").split(",");
 		return [];
 	};
 
 	FieldEditor.prototype.__findChooseTranslate = function(element) {
-		if ($(element).attr("data-trick-choose-translate") != undefined)
-			return $(element).attr("data-trick-choose-translate").split(",");
+		if ($(element).attr("data-data-trick-choose-translate") != undefined)
+			return $(element).attr("data-data-trick-choose-translate").split(",");
 		return [];
 	};
 
 	FieldEditor.prototype.__findControllor = function(element) {
-		if ($(element).attr("trick-class") != undefined)
-			return $(element).attr("trick-class");
+		if ($(element).attr("data-trick-class") != undefined)
+			return $(element).attr("data-trick-class");
 		else if ($(element).parent().prop("tagName") != "BODY")
 			return this.__findControllor($(element).parent());
 		else
@@ -145,8 +142,8 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.__findClassId = function(element) {
-		if ($(element).attr("trick-id") != undefined)
-			return $(element).attr("trick-id");
+		if ($(element).attr("data-trick-id") != undefined)
+			return $(element).attr("data-trick-id");
 		else if ($(element).parent().prop("tagName") != "BODY")
 			return this.__findClassId($(element).parent());
 		else
@@ -154,8 +151,8 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.__findCallback = function(element) {
-		if ($(element).attr("trick-callback") != undefined)
-			return $(element).attr("trick-callback");
+		if ($(element).attr("data-trick-callback") != undefined)
+			return $(element).attr("data-trick-callback");
 		else if ($(element).parent().prop("tagName") != "BODY")
 			return this.__findCallback($(element).parent());
 		else
@@ -163,8 +160,8 @@ function FieldEditor(element, validator) {
 	};
 
 	FieldEditor.prototype.__findCallbackPreExec = function(element) {
-		if ($(element).attr("trick-callback-pre") != undefined)
-			return $(element).attr("trick-callback-pre");
+		if ($(element).attr("data-trick-callback-pre") != undefined)
+			return $(element).attr("data-trick-callback-pre");
 		else if ($(element).parent().prop("tagName") != "BODY")
 			return this.__findCallbackPreExec($(element).parent());
 		else
@@ -345,12 +342,9 @@ function PhaseFieldEditor(element) {
 ExtendedFieldEditor.prototype = new FieldEditor();
 
 function ExtendedFieldEditor(element) {
-	this.element = element;
+
+	FieldEditor.call(this, element);
 	this.controllor = "ExtendedParameter";
-	this.defaultValue = $(element).text().trim();
-
-	ExtendedFieldEditor.prototype.constructor = ExtendedFieldEditor;
-
 	ExtendedFieldEditor.prototype.Save = function(that) {
 		if (!that.Validate()) {
 			that.Rollback();
@@ -395,20 +389,18 @@ function ExtendedFieldEditor(element) {
 MaturityMeasureFieldEditor.prototype = new FieldEditor();
 
 function MaturityMeasureFieldEditor(element) {
-	this.element = element;
-	this.defaultValue = $(element).text().trim();
+	FieldEditor.call(this, element);
+
 	this.implementations = [];
 
-	MaturityMeasureFieldEditor.prototype.constructor = MaturityMeasureFieldEditor;
-
 	MaturityMeasureFieldEditor.prototype.LoadData = function() {
-		var $implementationRate = $("#Maturity_implementation_rate tr[trick-class='Parameter']");
+		var $implementationRate = $("#Maturity_implementation_rate tr[data-trick-class='Parameter']");
 		if (!$implementationRate.length)
 			return true;
 		for (var i = 0; i < $implementationRate.length; i++)
 			this.implementations[i] = {
-				'id' : $($implementationRate[i]).attr('trick-id'),
-				'value' : $($implementationRate[i]).find("td[trick-field='value']").text()
+				'id' : $($implementationRate[i]).attr('data-trick-id'),
+				'value' : $($implementationRate[i]).find("td[data-trick-field='value']").text()
 			};
 		return !this.implementations.length;
 	};
@@ -425,7 +417,7 @@ function MaturityMeasureFieldEditor(element) {
 		for ( var i in this.implementations) {
 			var option = document.createElement("option");
 			option.setAttribute("value", this.implementations[i].value);
-			option.setAttribute("trick-id", this.implementations[i].id);
+			option.setAttribute("data-trick-id", this.implementations[i].id);
 			$(option).text(this.implementations[i].value);
 			$(option).appendTo($(this.fieldEditor));
 			if (this.defaultValue == this.implementations[i].value)
@@ -433,10 +425,12 @@ function MaturityMeasureFieldEditor(element) {
 		}
 
 		var that = this;
-		this.realValue = this.element.hasAttribute("real-value") ? $(this.element).attr("real-value") : null;
-		$(this.fieldEditor).blur(function() {
-			return that.Save(that);
-		});
+		this.realValue = this.element.hasAttribute("data-real-value") ? $(this.element).attr("data-real-value") : null;
+		if (!application.editMode) {
+			$(this.fieldEditor).blur(function() {
+				return that.Save(that);
+			});
+		}
 		return false;
 	};
 
@@ -446,11 +440,7 @@ AssessmentFieldEditor.prototype = new FieldEditor();
 
 function AssessmentFieldEditor(element) {
 
-	this.element = element;
-
-	this.defaultValue = $(element).text().trim();
-
-	AssessmentFieldEditor.prototype.constructor = AssessmentFieldEditor;
+	FieldEditor.call(this, element);
 
 	AssessmentFieldEditor.prototype.Save = function(that) {
 		if (!that.Validate()) {
@@ -492,19 +482,18 @@ function AssessmentFieldEditor(element) {
 AssessmentExtendedParameterEditor.prototype = new FieldEditor();
 
 function AssessmentExtendedParameterEditor(element) {
-	this.element = element;
-	this.defaultValue = $(element).text().trim();
-	this.acromym = [];
 
-	AssessmentExtendedParameterEditor.prototype.constructor = AssessmentExtendedParameterEditor;
+	FieldEditor.call(this, element);
+
+	this.acromym = [];
 
 	AssessmentExtendedParameterEditor.prototype.GeneratefieldEditor = function() {
 		if ($(this.element).find("select").length || $(this.element).find("input").length)
 			return true;
 		if (!this.LoadData())
 			return true;
-		if ($(this.element).attr("real-value") != undefined)
-			this.realValue = $(this.element).attr("real-value").trim();
+		if ($(this.element).attr("data-real-value") != undefined)
+			this.realValue = $(this.element).attr("data-real-value").trim();
 
 		var indexOf = this.acromym.indexOf(this.defaultValue);
 		var value = indexOf >= 0 ? this.choose[indexOf] : this.realValue != null ? this.realValue : this.defaultValue;
@@ -524,9 +513,12 @@ function AssessmentExtendedParameterEditor(element) {
 		this.fieldEditor.setAttribute("style", "width:100%; height:100%;min-width:80px;");
 
 		var that = this;
-		$(this.fieldEditor).blur(function() {
-			return that.Save(that);
-		});
+
+		if (!application.editMode) {
+			$(this.fieldEditor).blur(function() {
+				return that.Save(that);
+			});
+		}
 
 		return false;
 	};
@@ -591,13 +583,12 @@ function AssessmentExtendedParameterEditor(element) {
 AssessmentImpactFieldEditor.prototype = new AssessmentExtendedParameterEditor();
 
 function AssessmentImpactFieldEditor(element) {
-	this.element = element;
-	this.defaultValue = $(element).text().trim();
-	AssessmentImpactFieldEditor.prototype.constructor = AssessmentImpactFieldEditor;
+
+	FieldEditor.call(this, element);
 
 	AssessmentImpactFieldEditor.prototype.LoadData = function() {
-		var $impactAcronyms = $("#Scale_Impact td[trick-field='acronym']");
-		var $impactValue = $("#Scale_Impact td[trick-field='value']");
+		var $impactAcronyms = $("#Scale_Impact td[data-trick-field='acronym']");
+		var $impactValue = $("#Scale_Impact td[data-trick-field='value']");
 		for (var i = 0; i < $impactAcronyms.length; i++) {
 			this.acromym[i] = $($impactAcronyms[i]).text();
 			this.choose[i] = this.acromym[i] + " (" + $($impactValue[i]).text() + ")";
@@ -609,15 +600,14 @@ function AssessmentImpactFieldEditor(element) {
 AssessmentProbaFieldEditor.prototype = new FieldEditor();
 
 function AssessmentProbaFieldEditor(element) {
-	this.element = element;
-	this.defaultValue = $(element).text().trim();
+
+	FieldEditor.call(this, element);
+
 	this.acromym = [];
 
-	AssessmentProbaFieldEditor.prototype.constructor = AssessmentProbaFieldEditor;
-
 	AssessmentProbaFieldEditor.prototype.LoadData = function() {
-		var $probAcronyms = $("#Scale_Probability td[trick-field='acronym']");
-		var $probaAcronymsValues = $("#Scale_Probability td[trick-field='value']");
+		var $probAcronyms = $("#Scale_Probability td[data-trick-field='acronym']");
+		var $probaAcronymsValues = $("#Scale_Probability td[data-trick-field='value']");
 		for (var i = 0; i < $probAcronyms.length; i++) {
 			this.acromym[i] = $($probAcronyms[i]).text();
 			this.choose[i] = this.acromym[i] + " (" + $($probaAcronymsValues[i]).text() + ")";
@@ -652,9 +642,11 @@ function AssessmentProbaFieldEditor(element) {
 		var that = this;
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
-		$(this.fieldEditor).blur(function() {
-			return that.Save(that);
-		});
+		if (!application.editMode) {
+			$(this.fieldEditor).blur(function() {
+				return that.Save(that);
+			});
+		}
 		return false;
 	};
 
@@ -664,16 +656,58 @@ function AssessmentProbaFieldEditor(element) {
 
 }
 
+function SelectText(element) {
+    var doc = document
+        , text = doc.getElementById(element)
+        , range, selection;    
+    if (doc.body.createTextRange) {
+        range = document.body.createTextRange();
+        range.moveToElementText(text);
+        range.select();
+    } else if (window.getSelection) {
+        selection = window.getSelection();        
+        range = document.createRange();
+        range.selectNodeContents(text);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+}
+
+function SelectAllText() {
+	if (!application.editMode)
+		return false;
+	application.fieldEditors.each(function(){
+		this.fieldEditor.select();
+	});
+	
+	return false;
+}
+
+function EnableEditMode() {
+	if (application.editMode)
+		return false;
+	application.editMode = true;
+	application.fieldEditors = [];
+	$("[data-trick-content='text']").each(function() {
+		var fieldEditor = editField(this);
+		if (fieldEditor != null){
+			application.fieldEditors.push(fieldEditor);
+			$(fieldEditor.fieldEditor).select();
+		}
+	});
+	return false;
+}
+
 function editField(element, controller, id, field, type) {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
+	var fieldEditor = null;
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
-		var fieldEditor = null;
 		if (controller == null || controller == undefined)
 			controller = FieldEditor.prototype.__findControllor(element);
 		if (controller == "ExtendedParameter")
 			fieldEditor = new ExtendedFieldEditor(element);
 		else if (controller == "Assessment") {
-			field = $(element).attr("trick-field");
+			field = $(element).attr("data-trick-field");
 			var fieldImpact = [ "impactRep", "impactLeg", "impactOp", "impactFin" ];
 			var fieldProba = "likelihood";
 			if (fieldImpact.indexOf(field) != -1)
@@ -691,4 +725,5 @@ function editField(element, controller, id, field, type) {
 		if (!fieldEditor.Initialise())
 			fieldEditor.Show();
 	}
+	return fieldEditor;
 }

@@ -13,9 +13,9 @@
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_language">
 				<li><a href="#" onclick="return newLanguage();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.language" text="Add" /> </a></li>
-				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleLanguage();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
+				<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleLanguage();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 							code="label.menu.edit.language" text="Edit" /> </a></li>
-				<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteLanguage();"><span class="glyphicon glyphicon-remove"></span> <spring:message
+				<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteLanguage();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 							code="label.menu.delete.language" text="Delete" /> </a></li>
 			</ul>
 		</div>
@@ -33,7 +33,7 @@
 						</thead>
 						<tbody>
 							<c:forEach items="${languages}" var="language">
-								<tr trick-id="${language.id}" ondblclick="return editSingleLanguage('${language.id}');">
+								<tr data-trick-id="${language.id}" ondblclick="return editSingleLanguage('${language.id}');">
 									<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_language','#menu_language');"></td>
 									<td><spring:message text="${language.alpha3}" /></td>
 									<td><spring:message text="${language.name}" /></td>

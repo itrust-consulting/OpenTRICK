@@ -7,7 +7,7 @@ $(document).ready(function() {
 });
 
 function isAnalysisOnlyStandard(section) {
-	var selectedStandard = $(section + " tbody :checked").parent().parent().attr("trick-analysisOnly");
+	var selectedStandard = $(section + " tbody :checked").parent().parent().attr("data-trick-analysisOnly");
 	if (selectedStandard === "true")
 		return true;
 	else
@@ -15,8 +15,8 @@ function isAnalysisOnlyStandard(section) {
 }
 
 function manageStandard() {
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
-	var locale = $("#nav-container").attr("trick-language");
+	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
+	var locale = $("#nav-container").attr("data-trick-language");
 	var alert = $("#standardModal .alert");
 	if (alert.length)
 		alert.remove();
@@ -57,14 +57,14 @@ function createStandard() {
 	if (selectedItem.length != 0)
 		return false;
 
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 
 		var alert = $("#createStandardModal .label-danger");
 		if (alert.length)
 			alert.remove();
 
-		var locale = $("#nav-container").attr("trick-language");
+		var locale = $("#nav-container").attr("data-trick-language");
 
 		$("#createStandardModal #createstandardbutton").prop("disabled", false);
 		$("#createStandardModal #standard_label").prop("value", "");
@@ -84,7 +84,7 @@ function createStandard() {
 
 function doCreateStandard(form) {
 	$("#createStandardModal #createstandardbutton").prop("disabled", true);
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/Standard/Create",
@@ -163,25 +163,25 @@ function editStandard(standardrowobject) {
 	} else {
 		selectedItem = standardrowobject;
 	}
-	var canbeedited = $(selectedItem).attr("trick-analysisOnly");
+	var canbeedited = $(selectedItem).attr("data-trick-analysisOnly");
 
 	if (canbeedited === "true") {
 
-		var idItem = $(selectedItem).attr("trick-id");
+		var idItem = $(selectedItem).attr("data-trick-id");
 
-		var idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+		var idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 		if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 
 			var alert = $("#createStandardModal .label-danger");
 			if (alert.length)
 				alert.remove();
 
-			var locale = $("#nav-container").attr("trick-language");
+			var locale = $("#nav-container").attr("data-trick-language");
 
 			var label = $(selectedItem).find("td:nth-child(2)").text();
 			var description = $(selectedItem).find("td:nth-child(4)").text();
-			var type = $(selectedItem).attr("trick-type");
-			var computable = $(selectedItem).attr("trick-computable");
+			var type = $(selectedItem).attr("data-trick-type");
+			var computable = $(selectedItem).attr("data-trick-computable");
 
 			$("#createStandardModal #createstandardbutton").prop("disabled", false);
 			$("#createStandardModal #standard_label").prop("value", label);
@@ -207,7 +207,7 @@ function editStandard(standardrowobject) {
 
 function doEditStandard(form) {
 	$("#createStandardModal #createstandardbutton").prop("disabled", true);
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/Standard/Save",
@@ -285,7 +285,7 @@ function addStandard() {
 	if (selectedItem.length != 0)
 		return false;
 
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	var alert = $("#addStandardModal .alert");
 	if (alert.length)
 		alert.remove();
@@ -312,7 +312,7 @@ function addStandard() {
 
 						}
 
-						var lang = $("#nav-container").attr("trick-language");
+						var lang = $("#nav-container").attr("data-trick-language");
 
 						text += '</select></div><div class="col-sm-2">';
 						text += '<button type="button" class="btn btn-primary" onclick="return doAddStandard(\'addStandardModal\');">' + MessageResolver("label.action.add", "add", null, lang)
@@ -322,7 +322,7 @@ function addStandard() {
 
 					} else {
 
-						var lang = $("#nav-container").attr("trick-language");
+						var lang = $("#nav-container").attr("data-trick-language");
 						var text = '<div class="col-sm-12"><b>' + MessageResolver("label.no_standards_available", "No standards available", null, lang) + '</b></div>';
 						$("#addStandardModal .modal-body").html(text);
 					}
@@ -341,7 +341,7 @@ function doAddStandard(form) {
 	var alert = $("#standardModal .alert");
 	if (alert.length)
 		alert.remove();
-	idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+	idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$("#add_standard_progressbar").css("display", "inline-block");
 		var idStandard = $("#" + form + " select").val();
@@ -391,7 +391,7 @@ function doAddStandard(form) {
 
 function removeStandard() {
 
-	var lang = $("#nav-container").attr("trick-language");
+	var lang = $("#nav-container").attr("data-trick-language");
 	var selectedStandard = $("#section_manage_standards :checked");
 	if (selectedStandard.length != 1)
 		return false;
@@ -472,7 +472,7 @@ function newMeasure(idStandard) {
 
 	$("#addMeasureModel #measure_form").prop("action", context + "/Analysis/Standard/" + idStandard + "/Measure/Save");
 
-	var lang = $("#nav-container").attr("trick-language");
+	var lang = $("#nav-container").attr("data-trick-language");
 
 	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.Measure.Add", "Add a new Measure", null, lang));
 	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.add", "Add", null, lang));
@@ -503,7 +503,7 @@ function newAssetMeasure(idStandard) {
 	$("#manageAssetMeasureModel #assetTabs li").removeClass("active");
 	$("#manageAssetMeasureModel #assetTabs li a#group_1").parent().addClass("active");
 
-	var lang = $("#nav-container").attr("trick-language");
+	var lang = $("#nav-container").attr("data-trick-language");
 
 	$("#manageAssetMeasureModel #addMeasureModel-title").text(MessageResolver("title.measure.add", "Add a new Measure", null, lang));
 
@@ -538,10 +538,10 @@ function newAssetMeasure(idStandard) {
 	$('#manageAssetMeasure_form #measure_computable').change(function() {
 		if (this.checked) {
 			$("#assetTabs li:nth-child(2)").css("display", "block");
-			$("#manageAssetMeasure_form div#group_3 [trick-class='MeasureAssetValue']").css("display", "");
+			$("#manageAssetMeasure_form div#group_3 [data-trick-class='MeasureAssetValue']").css("display", "");
 		} else {
 			$("#assetTabs li:nth-child(2)").css("display", "none");
-			$("#manageAssetMeasure_form div#group_3 [trick-class='MeasureAssetValue']").css("display", "none");
+			$("#manageAssetMeasure_form div#group_3 [data-trick-class='MeasureAssetValue']").css("display", "none");
 		}
 	});
 
@@ -571,21 +571,21 @@ function newAssetMeasure(idStandard) {
 function manageAssetLiClick(event) {
 	var asset = $(event).attr("opt");
 	var assetname = $(event).text();
-	if ($(event).parent().attr("trick-type") == 'available') {
+	if ($(event).parent().attr("data-trick-type") == 'available') {
 		$("select#availableAssets option[value='" + asset + "']").clone().appendTo("select#measureAssets");
 		$("select#availableAssets option[value='" + asset + "']").remove();
-		$(event).clone().appendTo("ul[trick-type='measure']");
+		$(event).clone().appendTo("ul[data-trick-type='measure']");
 		$("li[opt='" + asset + "']").click(function(ev) {
 			manageAssetLiClick($(this));
 		});
 		$(event).remove();
 
-		var assetexists = $("#group_3 #tableheaderrow th[trick-class='MeasureAssetValue'][trick-name='" + assetname + "']");
+		var assetexists = $("#group_3 #tableheaderrow th[data-trick-class='MeasureAssetValue'][data-trick-name='" + assetname + "']");
 		if (assetexists.length == 0) {
 			// console.log("add asset");
-			$("#group_3 #tableheaderrow").append('<th trick-class="MeasureAssetValue" trick-name="' + assetname + '">' + assetname + "</th>");
+			$("#group_3 #tableheaderrow").append('<th data-trick-class="MeasureAssetValue" data-trick-name="' + assetname + '">' + assetname + "</th>");
 			$("#group_3 #tablesliderrow").append(
-					'<td trick-class="MeasureAssetValue"><input type="text" class="slider" id="measure_' + assetname
+					'<td data-trick-class="MeasureAssetValue"><input type="text" class="slider" id="measure_' + assetname
 							+ '" value="0" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0" name="' + assetname
 							+ '" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>');
 			$("#manageAssetMeasure_form div#group_3 input[id='measure_" + assetname + "']").slider().on("slideStop", function(event) {
@@ -594,25 +594,25 @@ function manageAssetLiClick(event) {
 				$("#manageAssetMeasure_form div#group_3 input[id='measure_" + field + "_value']").attr("value", fieldValue);
 			});
 			$("#group_3 #tabledatarow").append(
-					'<td trick-class="MeasureAssetValue"><input type="text" name="' + assetname + '" value="0" class="form-control" readonly="readonly" style="min-width: 50px;" id="measure_'
+					'<td data-trick-class="MeasureAssetValue"><input type="text" name="' + assetname + '" value="0" class="form-control" readonly="readonly" style="min-width: 50px;" id="measure_'
 							+ assetname + '_value"></td>');
 		}
 
-	} else if ($(event).parent().attr("trick-type") == 'measure') {
+	} else if ($(event).parent().attr("data-trick-type") == 'measure') {
 		$("select#measureAssets option[value='" + asset + "']").clone().appendTo("select#availableAssets");
 		$("select#measureAssets option[value='" + asset + "']").remove();
-		$(event).clone().appendTo("ul[trick-type='available']");
+		$(event).clone().appendTo("ul[data-trick-type='available']");
 		$("li[opt='" + asset + "']").click(function(ev) {
 			manageAssetLiClick($(this));
 		});
 		$(event).remove();
 
-		var assetexists = $("#group_3 #tableheaderrow th[trick-class='MeasureAssetValue'][trick-name='" + assetname + "']");
+		var assetexists = $("#group_3 #tableheaderrow th[data-trick-class='MeasureAssetValue'][data-trick-name='" + assetname + "']");
 		if (assetexists.length == 1) {
 			// console.log("remove asset");
-			$("#group_3 #tableheaderrow th[trick-class='MeasureAssetValue'][trick-name='" + assetname + "']").remove();
-			$("#group_3 #tablesliderrow input[id='measure_" + assetname + "']").closest("td[trick-class='MeasureAssetValue']").remove();
-			$("#group_3 #tabledatarow td[trick-class='MeasureAssetValue'] input[id='measure_" + assetname + "_value']").closest("td").remove();
+			$("#group_3 #tableheaderrow th[data-trick-class='MeasureAssetValue'][data-trick-name='" + assetname + "']").remove();
+			$("#group_3 #tablesliderrow input[id='measure_" + assetname + "']").closest("td[data-trick-class='MeasureAssetValue']").remove();
+			$("#group_3 #tabledatarow td[data-trick-class='MeasureAssetValue'] input[id='measure_" + assetname + "_value']").closest("td").remove();
 		}
 
 	}
@@ -628,7 +628,7 @@ function editSingleMeasure(measureId, idStandard) {
 	if (measureId == null || measureId == undefined)
 		measureId = $("#section_standard_" + idStandard + " tbody :checked").parent().parent();
 	else {
-		measureId = $("#section_standard_" + idStandard + " tr[trick-id='" + measureId + "']");
+		measureId = $("#section_standard_" + idStandard + " tr[data-trick-id='" + measureId + "']");
 	}
 	if (measureId.length != 1)
 		return false;
@@ -639,14 +639,14 @@ function editSingleMeasure(measureId, idStandard) {
 
 	var measure = $(measureId).find("td:not(:first-child)");
 
-	$("#addMeasureModel #measure_id").prop("value", $(measureId).attr("trick-id"));
+	$("#addMeasureModel #measure_id").prop("value", $(measureId).attr("data-trick-id"));
 	$("#addMeasureModel #measure_reference").prop("value", $(measure[0]).text());
-	$("#addMeasureModel #measure_level").prop("value", $(measureId).attr("trick-level"));
-	$("#addMeasureModel #measure_computable").prop("checked", $(measureId).attr("trick-computable") === "true");
+	$("#addMeasureModel #measure_level").prop("value", $(measureId).attr("data-trick-level"));
+	$("#addMeasureModel #measure_computable").prop("checked", $(measureId).attr("data-trick-computable") === "true");
 
 	$("#addMeasureModel #measure_form").prop("action", context + "/Analysis/Standard/" + idStandard + "/Measure/Save");
 
-	var lang = $("#nav-container").attr("trick-language");
+	var lang = $("#nav-container").attr("data-trick-language");
 
 	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.measure.update", "Update Measure", null, lang));
 	$("#addMeasureModel #addmeasurebutton").text(MessageResolver("label.action.edit", "Update", null, lang));
@@ -655,7 +655,7 @@ function editSingleMeasure(measureId, idStandard) {
 
 	var domain = $(measure[1]).text();
 
-	var description = $(measureId).attr("trick-description") == undefined ? '' : $(measureId).attr("trick-description");
+	var description = $(measureId).attr("data-trick-description") == undefined ? '' : $(measureId).attr("data-trick-description");
 
 	var text = '<div style="display: block;"><div class="form-group"><label class="col-sm-2 control-label" for="domain">' + MessageResolver("label.measure.domain", "Domain", null, lang)
 			+ '</label><div class="col-sm-10"><input type="text" class="form-control" id="measure_domain" value="' + domain + '" name="domain"></div></div>';
@@ -686,7 +686,7 @@ function editAssetMeasure(idMeasure, idStandard) {
 	$("#manageAssetMeasureModel #assetTabs li").removeClass("active");
 	$("#manageAssetMeasureModel #assetTabs li a#group_1").parent().addClass("active");
 
-	var lang = $("#nav-container").attr("trick-language");
+	var lang = $("#nav-container").attr("data-trick-language");
 
 	$("#manageAssetMeasureModel #addMeasureModel-title").text(MessageResolver("title.measure.edit", "Edit Measure", null, lang));
 
@@ -721,10 +721,10 @@ function editAssetMeasure(idMeasure, idStandard) {
 	$('#manageAssetMeasure_form #measure_computable').change(function() {
 		if (this.checked) {
 			$("#assetTabs li:nth-child(2)").css("display", "block");
-			$("#manageAssetMeasure_form div#group_3 [trick-class='MeasureAssetValue']").css("display", "");
+			$("#manageAssetMeasure_form div#group_3 [data-trick-class='MeasureAssetValue']").css("display", "");
 		} else {
 			$("#assetTabs li:nth-child(2)").css("display", "none");
-			$("#manageAssetMeasure_form div#group_3 [trick-class='MeasureAssetValue']").css("display", "none");
+			$("#manageAssetMeasure_form div#group_3 [data-trick-class='MeasureAssetValue']").css("display", "none");
 		}
 	});
 
@@ -816,13 +816,13 @@ function deleteMeasure(measureId, standardid) {
 			return false;
 	}
 
-	var lang = $("#nav-container").attr("trick-language");
+	var lang = $("#nav-container").attr("data-trick-language");
 
 	var standard = $("#section_standard_" + standardid + " #menu_standard_" + standardid + " li:first-child").text();
 
 	if (selectedScenario.length == 1) {
 		measureId = selectedScenario[0];
-		var measure = $("#section_standard_" + standardid + " tr[trick-id='" + measureId + "'] td:not(:first-child)");
+		var measure = $("#section_standard_" + standardid + " tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
 		reference = $(measure[0]).text();
 
 		$("#confirm-dialog .modal-body").html(
@@ -899,7 +899,7 @@ function saveAssetMeasure(form) {
 				value = this.checked ? "on" : "";
 			else
 				value = "";
-		var trickclass = $(this).parent().attr("trick-class");
+		var trickclass = $(this).parent().attr("data-trick-class");
 		if (trickclass == undefined || trickclass == null)
 			data[name] = value;
 		else {
@@ -978,11 +978,11 @@ function saveAssetMeasure(form) {
 function initialiseAssetmanagement() {
 	verifyListItemDesign();
 	$("#group_2 #assettypes").change(function() {
-		var type = $("option:selected", this).attr("trick-type");
-		$("#group_2 ul[trick-type='available'] li").css("display", "none");
-		$("#group_2 ul[trick-type='available'] li[trick-type='" + type + "']").css("display", "block");
-		$("#group_2 ul[trick-type='measure'] li").css("display", "none");
-		$("#group_2 ul[trick-type='measure'] li[trick-type='" + type + "']").css("display", "block");
+		var type = $("option:selected", this).attr("data-trick-type");
+		$("#group_2 ul[data-trick-type='available'] li").css("display", "none");
+		$("#group_2 ul[data-trick-type='available'] li[data-trick-type='" + type + "']").css("display", "block");
+		$("#group_2 ul[data-trick-type='measure'] li").css("display", "none");
+		$("#group_2 ul[data-trick-type='measure'] li[data-trick-type='" + type + "']").css("display", "block");
 		verifyListItemDesign();
 	});
 }
@@ -992,7 +992,7 @@ function verifyListItemDesign() {
 
 	var last = null;
 
-	$("#group_2 ul[trick-type='available'] li").each(function() {
+	$("#group_2 ul[data-trick-type='available'] li").each(function() {
 		$(this).css("border", "1px solid #dddddd");
 		$(this).css('border-top-left-radius', '0px');
 		$(this).css('border-top-right-radius', '0px');
@@ -1017,7 +1017,7 @@ function verifyListItemDesign() {
 
 	last = null;
 
-	$("#group_2 ul[trick-type='measure'] li").each(function() {
+	$("#group_2 ul[data-trick-type='measure'] li").each(function() {
 		$(this).css("border", "1px solid #dddddd");
 		$(this).css('border-top-left-radius', '0px');
 		$(this).css('border-top-right-radius', '0px');

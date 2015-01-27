@@ -12,13 +12,13 @@
 		<spring:eval expression="T(lu.itrust.business.TS.data.actionplan.summary.helper.ActionPlanSummaryManager).getRows(summaries,phases)" var="summariesStages" />
 		<ul class="nav nav-pills bordered-bottom">
 			<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
-				<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${actionPlanType.name}"><a href="#"
+				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${actionPlanType.name}"><a href="#"
 					onclick="return navToogled('section_summary','${actionPlanType.name}', true);"><fmt:message key="label.action_plan_type.${fn:toLowerCase(actionPlanType.name)}" /></a></li>
 			</c:forEach>
 		</ul>
 		<c:forEach items="${summariesStages.keySet()}" var="actionPlanType" varStatus="status">
 			<c:set var="summaryStages" value="${summariesStages.get(actionPlanType)}" />
-			<div trick-nav-data="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
+			<div data-trick-nav-data="<spring:message text='${actionPlanType.name}' />" ${status.index!=0? "hidden='true'" : "" }>
 				<table class="table table-hover table-condensed table-fixed-header-analysis" id="summarytable_<spring:message text='${actionPlanType.name}' />">
 					<thead>
 						<tr>

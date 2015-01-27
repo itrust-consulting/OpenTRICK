@@ -103,7 +103,7 @@ function deleteCustomer(customerId, organisation) {
 		if (selectedScenario.length != 1)
 			return false;
 		customerId = selectedScenario[0];
-		organisation = $("#section_customer tbody tr[trick-id='" + customerId + "']>td:nth-child(2)").text();
+		organisation = $("#section_customer tbody tr[data-trick-id='" + customerId + "']>td:nth-child(2)").text();
 	}
 	$("#deleteCustomerBody").html(
 			MessageResolver("label.customer.question.delete", "Are you sure that you want to delete the customer <strong>" + organisation + "</strong>?", organisation));
@@ -166,7 +166,7 @@ function editSingleCustomer(customerId) {
 	if (alert.length)
 		alert.remove();
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
-	var rows = $("#section_customer").find("tr[trick-id='" + customerId + "'] td:not(:first-child)");
+	var rows = $("#section_customer").find("tr[data-trick-id='" + customerId + "'] td:not(:first-child)");
 	$("#customer_id").prop("value", customerId);
 	$("#customer_organisation").prop("value", $(rows[0]).text());
 	$("#customer_contactPerson").prop("value", $(rows[1]).text());
@@ -177,7 +177,7 @@ function editSingleCustomer(customerId) {
 	$("#customer_ZIPCode").prop("value", $(rows[6]).text());
 	$("#customer_country").prop("value", $(rows[7]).text());
 	if ($("#customer_canBeUsed").length)
-		$("#customer_canBeUsed").prop("checked", $(rows[8]).attr("trick-real-value") == "false");
+		$("#customer_canBeUsed").prop("checked", $(rows[8]).attr("data-real-value") == "false");
 	$("#addCustomerModel-title").text(MessageResolver("title.knowledgebase.Customer.Update", "Update a Customer"));
 	$("#addcustomerbutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#customer_form").prop("action", "Customer/Edit/" + customerId);

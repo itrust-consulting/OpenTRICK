@@ -85,7 +85,7 @@ function deleteUser(userId, name) {
 		if (selectedScenario.length != 1)
 			return false;
 		userId = selectedScenario[0];
-		name = $("#section_user tbody tr[trick-id='" + userId + "'] td:nth-child(3)").text();
+		name = $("#section_user tbody tr[data-trick-id='" + userId + "'] td:nth-child(3)").text();
 	}
 	$("#deleteUserBody").html(MessageResolver("label.user.question.delete", "Are you sure that you want to delete the user") + "&nbsp;<strong>" + name + "</strong>?");
 	$("#deleteuserbuttonYes").click(function() {
@@ -152,7 +152,7 @@ function editSingleUser(userId) {
 			return false;
 		userId = selectedScenario[0];
 	}
-	var rows = $("#section_user").find("tr[trick-id='" + userId + "'] td:not(:first-child)");
+	var rows = $("#section_user").find("tr[data-trick-id='" + userId + "'] td:not(:first-child)");
 	$("#user_id").prop("value", userId);
 	$("#user_login").prop("value", $(rows[0]).text());
 	$("#user_login").prop("disabled", "disabled");

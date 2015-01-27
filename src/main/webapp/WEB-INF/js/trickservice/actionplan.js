@@ -49,7 +49,7 @@ function calculateActionPlanWithOptions(form) {
 		contentType : "application/json",
 		success : function(response) {
 			if (response["success"] != undefined) {
-				var language = $("#nav-container").attr("trick-language");
+				var language = $("#nav-container").attr("data-trick-language");
 				new TaskManager(MessageResolver("title.actionplan.compute", "Compute Action Plan", null, language)).Start();
 			} else if (message["error"]) {
 				$("#alert-dialog .modal-body").html(message["error"]);
@@ -65,7 +65,7 @@ function calculateActionPlanWithOptions(form) {
 
 function hideActionplanAssets(sectionactionplan, menu) {
 
-	var actionplantype = $(sectionactionplan).find(".disabled[trick-nav-control]").attr("trick-nav-control");
+	var actionplantype = $(sectionactionplan).find(".disabled[data-trick-nav-control]").attr("data-trick-nav-control");
 
 	if (!$("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
 		$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
@@ -77,7 +77,7 @@ function hideActionplanAssets(sectionactionplan, menu) {
 }
 
 function toggleDisplayActionPlanAssets(sectionactionplan, menu) {
-	var actionplantype = $(sectionactionplan).find(".disabled[trick-nav-control]").attr("trick-nav-control");
+	var actionplantype = $(sectionactionplan).find(".disabled[data-trick-nav-control]").attr("data-trick-nav-control");
 	var table = $("#actionplantable_" + actionplantype);
 	$(table).stickyTableHeaders("destroy");
 	$("#actionplantable_" + actionplantype + " .actionplanasset").toggleClass("actionplanassethidden");
@@ -103,7 +103,7 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) 
 		success : function(response) {
 			if (!response.length)
 				return false;
-			$("#section_actionplan_" + type + " tr[trick-id='" + idActionPlanEntry + "']").replaceWith(response);
+			$("#section_actionplan_" + type + " tr[data-trick-id='" + idActionPlanEntry + "']").replaceWith(response);
 			return false;
 		},
 		error : unknowError

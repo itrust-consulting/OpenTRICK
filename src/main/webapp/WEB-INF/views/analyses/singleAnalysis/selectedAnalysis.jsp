@@ -16,8 +16,8 @@
 		<div class="container">
 			<jsp:include page="analysisMenu.jsp" />
 			<jsp:include page="../../successErrors.jsp" />
-			<div class="tab-content" id="nav-container" trick-id="${analysis.id}" trick-class="Analysis" trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}"
-				trick-language="${fn:substring(analysis.language.alpha3,0,2)}">
+			<div class="tab-content" id="nav-container" data-trick-id="${analysis.id}" data-trick-class="Analysis" data-trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}"
+				data-trick-language="${fn:substring(analysis.language.alpha3,0,2)}">
 				<c:if test="${!analysis.isProfile()}">
 					<c:set var="histories" value="${analysis.histories}" scope="request" />
 					<jsp:include page="./components/history.jsp" />

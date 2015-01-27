@@ -15,17 +15,17 @@
 			<div class="col-md-12">
 				<ul class="nav nav-pills" id="menu_standard">
 					<li><a href="#" onclick="return newStandard();"><span class="glyphicon glyphicon-plus primary"></span>&nbsp;<spring:message code="label.menu.add.norm" text="Add" /> </a></li>
-					<li class="disabled" trick-selectable="true"><a href="#" onclick="return showMeasures();"><span class="glyphicon glyphicon-new-window"></span>&nbsp;<spring:message
+					<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return showMeasures();"><span class="glyphicon glyphicon-new-window"></span>&nbsp;<spring:message
 								code="label.action.show_measures" text="Show measures" /> </a></li>
-					<li class="disabled" trick-selectable="true"><a href="#" onclick="return exportSingleStandard();"><span class="glyphicon glyphicon-edit danger"></span>&nbsp;<spring:message
+					<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return exportSingleStandard();"><span class="glyphicon glyphicon-edit danger"></span>&nbsp;<spring:message
 								code="label.menu.export.norm" text="Export" /> </a></li>
-					<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleStandard();"><span class="glyphicon glyphicon-edit danger"></span>&nbsp;<spring:message
+					<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleStandard();"><span class="glyphicon glyphicon-edit danger"></span>&nbsp;<spring:message
 								code="label.menu.edit.norm" text="Edit" /> </a></li>
 					<li><a href="#" onclick="return getImportStandardTemplate();"><span class="glyphicon glyphicon-file"></span>&nbsp;<spring:message
 								code="label.menu.norm.download.import_norm_template" text="Get Import Template" /> </a></li>
 					<li><a href="#" onclick="return uploadImportStandardFile();"><span class="glyphicon glyphicon-import"></span>&nbsp;<spring:message code="label.menu.import.norm"
 								text="Import Standard" /> </a></li>
-					<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteStandard();"><span class="glyphicon glyphicon-remove"></span>&nbsp;
+					<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteStandard();"><span class="glyphicon glyphicon-remove"></span>&nbsp;
 							<spring:message code="label.action.delete.norm" text="Delete" /> </a></li>
 				</ul>
 			</div>
@@ -46,13 +46,13 @@
 						</thead>
 						<tbody>
 							<c:forEach items="${standards}" var="standard">
-								<tr trick-id="${standard.id}" ondblclick="return editSingleStandard('${standard.id}');">
+								<tr data-trick-id="${standard.id}" ondblclick="return editSingleStandard('${standard.id}');">
 									<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_kb_standard','#menu_standard');"></td>
 									<td><spring:message text="${standard.label}" /></td>
 									<td><spring:message text="${standard.version}" /></td>
 									<td><spring:message text="${standard.description}" /></td>
-									<td trick-type="${standard.type}"><spring:message code="label.norm.type_${fn:toLowerCase(standard.type)}" text="${standard.type}" /></td>
-									<td computable="${standard.computable?'Yes':'No'}"><spring:message code="label.yes_no.${standard.computable}" text="${standard.computable?'Yes':'No'}" /></td>
+									<td data-trick-type="${standard.type}"><spring:message code="label.norm.type_${fn:toLowerCase(standard.type)}" text="${standard.type}" /></td>
+									<td data-trick-computable="${standard.computable?'Yes':'No'}"><spring:message code="label.yes_no.${standard.computable}" text="${standard.computable?'Yes':'No'}" /></td>
 								</tr>
 							</c:forEach>
 						</tbody>

@@ -13,15 +13,15 @@
 			<c:if test="${isEditable}">
 				<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add.asset" /></a></li>
 			</c:if>
-			<li trick-check="isEditable()" class="disabled" trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <fmt:message
+			<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true"><a href="#anchorAsset" onclick="return editAsset();"><span class="glyphicon glyphicon-edit danger"></span> <fmt:message
 						key="label.action.edit.asset" /> </a></li>
-			<li trick-check="isEditable()" class="disabled" trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span class="glyphicon glyphicon-plus-sign"></span>
+			<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined,'true')"><span class="glyphicon glyphicon-plus-sign"></span>
 					<fmt:message key="label.action.select.asset" /> </a></li>
-			<li trick-check="isEditable()" class="disabled" trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span>
+			<li data-trick-check="isEditable()" class="disabled" data-trick-selectable="multi"><a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')"><span class="glyphicon glyphicon-minus-sign "></span>
 					<fmt:message key="label.action.unselect.asset" /> </a></li>
-			<li  class="disabled" trick-selectable="true" trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return displayAssessmentByAsset()"><span
+			<li  class="disabled" data-trick-selectable="true" data-trick-check="isSelected('asset')"><a href="#anchorAsset" onclick="return displayAssessmentByAsset()"><span
 					class="glyphicon glyphicon-new-window"></span> <fmt:message key="label.action.show.asset.assessment" /> </a></li>
-			<li trick-check="isEditable()" class="disabled pull-right" trick-selectable="multi"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
+			<li data-trick-check="isEditable()" class="disabled pull-right" data-trick-selectable="multi"><a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();"><span
 					class="glyphicon glyphicon-remove"></span> <fmt:message key="label.action.delete.asset" /> </a></li>
 		</ul>
 		<table class="table table-hover table-fixed-header-analysis" id="assetTable">
@@ -49,7 +49,7 @@
 			<tfoot></tfoot>
 			<tbody>
 				<c:forEach items="${assets}" var="asset" varStatus="status">
-					<tr trick-id="${asset.id}" trick-selected="${asset.selected}" ondblclick="return editAsset('${asset.id}');">
+					<tr data-trick-id="${asset.id}" data-trick-selected="${asset.selected}" ondblclick="return editAsset('${asset.id}');">
 						<c:set var="ale" value="${assetALE[asset.id]}" />
 						<c:set var="cssClass">${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}</c:set>
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset');"></td>

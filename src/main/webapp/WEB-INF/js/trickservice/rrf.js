@@ -1,6 +1,6 @@
 function importRRF(idAnalysis) {
 	if (idAnalysis == null || idAnalysis == undefined)
-		idAnalysis = $("*[trick-rights-id][trick-id]").attr("trick-id");
+		idAnalysis = $("*[data-trick-rights-id][data-trick-id]").attr("data-trick-id");
 	if (userCan(idAnalysis, ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
 			url : context + "/Analysis/RRF/Import",

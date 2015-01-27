@@ -19,7 +19,7 @@ function selectAsset(assetId, value) {
 				return false;
 			var requiredUpdate = [];
 			for (var i = 0; i < selectedItem.length; i++) {
-				var selected = $("#section_asset tbody tr[trick-id='" + selectedItem[i] + "']").attr("trick-selected");
+				var selected = $("#section_asset tbody tr[data-trick-id='" + selectedItem[i] + "']").attr("data-trick-selected");
 				if (value != selected)
 					requiredUpdate.push(selectedItem[i]);
 			}
@@ -58,9 +58,9 @@ function deleteAsset(assetId) {
 				return false;
 		}
 
-		var lang = $("#nav-container").attr("trick-language");
+		var lang = $("#nav-container").attr("data-trick-language");
 		if (selectedScenario.length == 1) {
-			var assetname = $("#section_asset tr[trick-id='" + assetId + "'] td:nth-child(3)").text();
+			var assetname = $("#section_asset tr[data-trick-id='" + assetId + "'] td:nth-child(3)").text();
 			$("#confirm-dialog .modal-body").html(
 					MessageResolver("confirm.delete.asset", "Are you sure, you want to delete the asset <b>" + assetname
 							+ "</b>?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on this asset!", assetname, lang));
