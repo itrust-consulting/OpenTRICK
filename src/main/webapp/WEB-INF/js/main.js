@@ -81,12 +81,12 @@ $(function() {
 		});
 
 		$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+			disableEditMode();
 			var target = $(e.target).attr("href");
 			if ($(target).attr("data-update-required") == "true") {
 				window[$(target).attr("data-trigger")].apply();
 				$(target).attr("data-update-required", "false");
 			}
-
 		});
 	}
 
@@ -511,13 +511,6 @@ function parseJson(data) {
 	} catch (e) {
 		return undefined;
 	}
-}
-
-function escape(key, val) {
-	if (typeof (val) != "string")
-		return val;
-	return val.replace(/[\\]/g, '\\\\').replace(/[\/]/g, '\\/').replace(/[\b]/g, '\\b').replace(/[\f]/g, '\\f').replace(/[\n]/g, '\\n').replace(/[\r]/g, '\\r').replace(/[\t]/g,
-			'\\t').replace(/[\"]/g, '\\"').replace(/\\'/g, "\\'");
 }
 
 function log(msg) {

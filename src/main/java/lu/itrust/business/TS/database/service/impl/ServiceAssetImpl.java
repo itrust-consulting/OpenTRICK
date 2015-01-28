@@ -2,13 +2,13 @@ package lu.itrust.business.TS.database.service.impl;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import lu.itrust.business.TS.data.asset.Asset;
 import lu.itrust.business.TS.database.dao.DAOAsset;
 import lu.itrust.business.TS.database.service.ServiceAsset;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ServiceAssetImpl.java: <br>
@@ -240,5 +240,10 @@ public class ServiceAssetImpl implements ServiceAsset {
 	@Override
 	public boolean exist(Integer idAnalysis, String name) {
 		return daoAsset.exist(idAnalysis, name);
+	}
+
+	@Override
+	public Asset getFromAnalysisById(Integer idAnalysis, int idAsset) {
+		return daoAsset.getFromAnalysisById(idAnalysis,idAsset);
 	}
 }

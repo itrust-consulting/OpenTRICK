@@ -72,10 +72,8 @@
 			<c:if test="${analysis.isProfile() || isEditable }">
 				<li class="divider"></li>
 				<li class="dropdown-header"><fmt:message key="label.title.edit_mode" /></li>
-				<li><a href="#" onclick="return EnableEditMode()"><fmt:message key="label.action.edit_mode.open" /></a></li>
-				<li class="disable"><a href="#"><fmt:message key="label.action.edit_mode.close" /></a></li>
-				<li class="divider"></li>
-				<li><a href="#" onclick="return SelectAllText"><fmt:message key="label.action.edit_mode.select_text" /></a></li>
+				<li role="enterEditMode"><a href="#" onclick="return enableEditMode()"><fmt:message key="label.action.edit_mode.open" /></a></li>
+				<li class="disabled" onclick="return disableEditMode()" role="leaveEditMode"><a href="#"><fmt:message key="label.action.edit_mode.close" /></a></li>
 			</c:if>
 			<li class="divider"></li>
 			<li class="dropdown-header"><fmt:message key="label.title.rrf" /></li>

@@ -51,7 +51,7 @@
 					<c:set var="cssClass">
 							${scenario.selected? 'success' : ''}
 						</c:set>
-					<tr data-trick-id="${scenario.id}" data-trick-selected="${scenario.selected}" ondblclick="return editScenario(${scenario.id})">
+					<tr data-trick-id="${scenario.id}" data-trick-selected="${scenario.selected}" data-trick-class="Scenario" ondblclick="return editScenario(${scenario.id})">
 						<c:set var="ale" value="${scenarioALE[scenario.id]}" />
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');"></td>
 						<td>${status.index+1}</td>
@@ -73,9 +73,7 @@
 							</c:otherwise>
 						</c:choose>
 						<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
-						<td class="${cssClass}"><pre>
-								<spring:message text="${scenario.description}" />
-							</pre></td>
+						<td class="${cssClass}" onclick="editField(this.firstElementChild);"><pre  data-trick-field="description" data-trick-field-type="string" data-trick-content="text"><spring:message text="${scenario.description}" /></pre></td>
 					</tr>
 				</c:forEach>
 			</tbody>

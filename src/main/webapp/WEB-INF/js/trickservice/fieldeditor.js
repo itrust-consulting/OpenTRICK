@@ -1,3 +1,10 @@
+function escape(key, val) {
+	if (typeof (val) != "string")
+		return val;
+	return val.replace(/[\\]/g, '\\\\').replace(/[\/]/g, '\\/').replace(/[\b]/g, '\\b').replace(/[\f]/g, '\\f').replace(/[\n]/g, '\\n').replace(/[\r]/g, '\\r').replace(/[\t]/g,
+			'\\t').replace(/[\"]/g, '\\"').replace(/\\'/g, "\\'");
+}
+
 function defaultValueByType(value, type, protect) {
 	if (value.length == 0) {
 		if (type == "int" || type == "integer")
@@ -94,7 +101,7 @@ function FieldEditor(element, validator) {
 		var that = this;
 		this.fieldEditor.setAttribute("class", "form-control");
 		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
-		if (!application.editMode) {
+		if (!application.editMode || $(this.element).attr("data-trick-content") != "text") {
 			$(this.fieldEditor).blur(function() {
 				return that.Save(that);
 			});
@@ -183,8 +190,10 @@ function FieldEditor(element, validator) {
 			$(this.element).closest("td").css("padding", "3px");
 		else
 			$(this.element).css("padding", "3px");
-
-		$(this.fieldEditor).focus();
+		
+		if (!application.editMode || $(this.element).attr("data-trick-content") != "text")
+			$(this.fieldEditor).focus();
+		
 		return false;
 	};
 
@@ -657,43 +666,45 @@ function AssessmentProbaFieldEditor(element) {
 }
 
 function SelectText(element) {
-    var doc = document
-        , text = doc.getElementById(element)
-        , range, selection;    
-    if (doc.body.createTextRange) {
-        range = document.body.createTextRange();
-        range.moveToElementText(text);
-        range.select();
-    } else if (window.getSelection) {
-        selection = window.getSelection();        
-        range = document.createRange();
-        range.selectNodeContents(text);
-        selection.removeAllRanges();
-        selection.addRange(range);
-    }
+	var doc = document, text = doc.getElementById(element), range, selection;
+	if (doc.body.createTextRange) {
+		range = document.body.createTextRange();
+		range.moveToElementText(text);
+		range.select();
+	} else if (window.getSelection) {
+		selection = window.getSelection();
+		range = document.createRange();
+		range.selectNodeContents(text);
+		selection.removeAllRanges();
+		selection.addRange(range);
+	}
 }
 
-function SelectAllText() {
+function disableEditMode() {
 	if (!application.editMode)
 		return false;
-	application.fieldEditors.each(function(){
-		this.fieldEditor.select();
+	application.editMode = false
+	$("li[role='enterEditMode']").removeClass("disabled");
+	$("li[role='leaveEditMode']").addClass("disabled");
+	$(application.fieldEditors).each(function() {
+		this.Save(this);
 	});
-	
 	return false;
 }
 
-function EnableEditMode() {
+function enableEditMode() {
 	if (application.editMode)
 		return false;
 	application.editMode = true;
+	$("li[role='leaveEditMode']").removeClass("disabled");
+	$("li[role='enterEditMode']").addClass("disabled");
 	application.fieldEditors = [];
-	$("[data-trick-content='text']").each(function() {
+	var $data = application.modal["AssessmentViewer"] ? $(application.modal["AssessmentViewer"].modal_body).find("[data-trick-content='text']")
+			: $(".tab-pane.active [data-trick-content='text']");
+	$data.each(function() {
 		var fieldEditor = editField(this);
-		if (fieldEditor != null){
+		if (fieldEditor != null)
 			application.fieldEditors.push(fieldEditor);
-			$(fieldEditor.fieldEditor).select();
-		}
 	});
 	return false;
 }

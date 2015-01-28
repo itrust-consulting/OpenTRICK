@@ -49,13 +49,13 @@
 			<tfoot></tfoot>
 			<tbody>
 				<c:forEach items="${assets}" var="asset" varStatus="status">
-					<tr data-trick-id="${asset.id}" data-trick-selected="${asset.selected}" ondblclick="return editAsset('${asset.id}');">
+					<tr data-trick-id="${asset.id}" data-trick-selected="${asset.selected}" data-trick-class="Asset" ondblclick="return editAsset('${asset.id}');">
 						<c:set var="ale" value="${assetALE[asset.id]}" />
 						<c:set var="cssClass">${asset.selected? asset.value < 1 ? 'warning' : 'success' : ''}</c:set>
 						<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset');"></td>
 						<td>${status.index+1}</td>
 						<td class="${cssClass}"><spring:message text="${asset.name}" /></td>
-						<td class="${cssClass}"><spring:message text="${ asset.assetType.type}" /></td>
+						<td class="${cssClass}"><spring:message text="${asset.assetType.type}" /></td>
 						<fmt:setLocale value="fr" scope="session" />
 						<td class="${cssClass}" title='<fmt:formatNumber value="${fct:round(asset.value,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber
 								value="${fct:round(asset.value*0.001,0)}" maxFractionDigits="0" /></td>
@@ -74,12 +74,8 @@
 							</c:otherwise>
 						</c:choose>
 						<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
-						<td class="${cssClass}"><pre>
-								<spring:message text="${asset.comment}" />
-							</pre></td>
-						<td class="${cssClass}"><pre>
-								<spring:message text="${asset.hiddenComment}" />
-							</pre></td>
+						<td class="${cssClass}" onclick="editField(this.firstElementChild);"><pre data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.comment}" /></pre></td>
+						<td class="${cssClass}" onclick="editField(this.firstElementChild);"><pre data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.hiddenComment}" /></pre></td>
 					</tr>
 				</c:forEach>
 			</tbody>

@@ -9,9 +9,12 @@ function AssessmentViewer() {
 
 		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale", null, lang);
 		var probabilityScale = MessageResolver("label.menu.show.probability_scale", "Show probability scale", null, lang);
+		var enableEditModeText = MessageResolver("label.menu.edit_mode.open", "Open edit mode", null, lang);
+		var disableEditModeText = MessageResolver("label.menu.edit_mode.close", "Close edit mode", null, lang);
 		$(this.modal_title).replaceWith(
 				$("<div class='modal-title'><h4 role='title' class=''></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
-						+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale + "</a></li><ul></div>"));
+						+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale + "</a></li><li role='enterEditMode'><a href='#' onclick='return enableEditMode()'>"
+						+ enableEditModeText + "</a></li><li class='disabled' role='leaveEditMode'><a href='#' onclick='return disableEditMode()'>" + disableEditModeText + "</a></li><ul></div>"));
 		$(this.modal_footer).remove();
 		this.dialogError = $("#alert-dialog").clone();
 		$(this.dialogError).removeAttr("id");
@@ -19,8 +22,9 @@ function AssessmentViewer() {
 		this.setTitle("Assessment");
 
 		$(this.modal).on("hidden.bs.modal", function() {
+			disableEditMode();
 			reloadSection("section_asset");// it will call reloadSection for
-											// scenario
+			// scenario
 		});
 
 		$(this.modal_header).find("*[role='impact_scale']").on("click", function() {
@@ -44,14 +48,25 @@ function AssessmentViewer() {
 			view.Show();
 			return false;
 		});
-		
+
 		var that = this;
-		var resizer = function() {$(that.modal_body).css({'max-height': ($(window).height() * 0.79)+'px','overflow': 'auto'});}
+		var resizer = function() {
+			$(that.modal_body).css({
+				'max-height' : ($(window).height() * 0.79) + 'px',
+				'overflow' : 'auto'
+			});
+		}
 		$(window).resize(resizer);
 		resizer.apply(resizer, null);
-		$(this.modal).on("hidden.bs.modal",function(){
+		$(this.modal).on("hidden.bs.modal", function() {
+			application.modal["AssessmentViewer"] = undefined;
 			$(window).off(resizer);
 		});
+
+		$(this.modal).on("show.bs.modal", function() {
+			disableEditMode();
+		});
+
 		return false;
 
 	};
@@ -126,7 +141,8 @@ function AssessmentViewer() {
 	};
 
 	AssessmentViewer.prototype.ShowError = function(message) {
-		var error = $('<div class="alert alert-danger alert-dismissable">' + message + '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>');
+		var error = $('<div class="alert alert-danger alert-dismissable">' + message
+				+ '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>');
 		error.attr("style", "margin-bottom: 0px;");
 		$(error).appendTo(this.modal_title);
 		setTimeout(function() {
@@ -142,11 +158,11 @@ function AssessmentViewer() {
 AssessmentAssetViewer.prototype = new AssessmentViewer();
 
 function AssessmentAssetViewer(assetId) {
-	
+
 	AssessmentViewer.call(this);
-	
+
 	this.assetId = assetId;
-	
+
 	AssessmentAssetViewer.prototype.Load = function(callback) {
 		if (this.modal_body == null)
 			this.Intialise();
@@ -199,11 +215,11 @@ function AssessmentAssetViewer(assetId) {
 AssessmentScenarioViewer.prototype = new AssessmentViewer();
 
 function AssessmentScenarioViewer(scenarioId) {
-	
+
 	AssessmentViewer.call(this)
-	
+
 	this.scenarioId = scenarioId;
-	
+
 	AssessmentScenarioViewer.prototype.Load = function(callback) {
 		if (this.modal_body == null)
 			this.Intialise();

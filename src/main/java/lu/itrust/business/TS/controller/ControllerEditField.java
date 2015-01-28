@@ -22,6 +22,8 @@ import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.assessment.Assessment;
 import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
+import lu.itrust.business.TS.data.asset.Asset;
+import lu.itrust.business.TS.data.asset.AssetType;
 import lu.itrust.business.TS.data.cssf.RiskRegisterItem;
 import lu.itrust.business.TS.data.general.AssetTypeValue;
 import lu.itrust.business.TS.data.general.Phase;
@@ -42,6 +44,8 @@ import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
 import lu.itrust.business.TS.database.service.ServiceActionPlan;
 import lu.itrust.business.TS.database.service.ServiceAnalysis;
 import lu.itrust.business.TS.database.service.ServiceAssessment;
+import lu.itrust.business.TS.database.service.ServiceAsset;
+import lu.itrust.business.TS.database.service.ServiceAssetType;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceHistory;
 import lu.itrust.business.TS.database.service.ServiceItemInformation;
@@ -125,6 +129,12 @@ public class ControllerEditField {
 
 	@Autowired
 	private ServiceRiskRegister serviceRiskRegister;
+
+	@Autowired
+	private ServiceAsset serviceAsset;
+	
+	@Autowired
+	private ServiceAssetType serviceAssetType;
 
 	/**
 	 * itemInformation: <br>
@@ -248,6 +258,71 @@ public class ControllerEditField {
 			// return error
 			e.printStackTrace();
 			return JsonMessage.Error(messageSource.getMessage(e.getMessage(), null, e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+		}
+	}
+
+	@RequestMapping(value = "/Asset/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'Asset', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String asset(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+		try {
+
+			// retrieve analysis
+			Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			if (idAnalysis == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+
+			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
+
+			// retrieve measure
+			Asset asset = serviceAsset.getFromAnalysisById(idAnalysis, elementID);
+			if (asset == null)
+				return JsonMessage.Error(messageSource.getMessage("error.asset.not_found", null, "Asset cannot be found", cutomLocale != null ? cutomLocale : locale));
+			// set field
+
+			if (!fieldEditor.getFieldName().equalsIgnoreCase("assetType")) {
+
+				Field field = asset.getClass().getDeclaredField(fieldEditor.getFieldName());
+				// check if field is a phase
+
+				field.setAccessible(true);
+
+				field.set(asset, fieldEditor.getValue());
+			}else {
+				AssetType assetType = serviceAssetType.getByName(fieldEditor.getValue().toString());
+				if(assetType!=null)
+					asset.setAssetType(assetType);
+				else return JsonMessage.Error(messageSource.getMessage("error.asset_type.not_found", null, "Asset type cannot be found", cutomLocale != null ? cutomLocale : locale));
+			}
+
+			// update measure
+			serviceAsset.saveOrUpdate(asset);
+
+			// return success message
+			return JsonMessage.Success(messageSource.getMessage("success.asset.updated", null, "Asset was successfully updated", cutomLocale != null ? cutomLocale : locale));
+
+		} catch (TrickException e) {
+			// retrieve analysis id
+			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+
+			// check if analysis exist
+			if (id == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+
+			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha3().substring(0, 2));
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), cutomLocale != null ? cutomLocale : locale));
+		} catch (Exception e) {
+			// retrieve analysis id
+			Integer id = (Integer) session.getAttribute("selectedAnalysis");
+
+			// check if analysis exist
+			if (id == null)
+				return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "No selected analysis", locale));
+
+			Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(id).getAlpha3().substring(0, 2));
+			// return error
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", cutomLocale != null ? cutomLocale : locale));
 		}
 	}
 
@@ -1118,7 +1193,7 @@ public class ControllerEditField {
 
 			}
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null, "Measure was successfully updated", cutomLocale != null ? cutomLocale : locale));
+			return JsonMessage.Success(messageSource.getMessage("success.scenario.updated", null, "Scenario was successfully updated", cutomLocale != null ? cutomLocale : locale));
 
 		} catch (TrickException e) {
 			// retrieve analysis id
@@ -1736,7 +1811,8 @@ public class ControllerEditField {
 
 	@RequestMapping(value = "/RiskRegister/{elementID}", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #elementID, 'RiskRegister', #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
-	public @ResponseBody String riskRegister(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal) throws Exception {
+	public @ResponseBody String riskRegister(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor, HttpSession session, Locale locale, Principal principal)
+			throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 		Locale cutomLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha3().substring(0, 2));
 		if (fieldEditor.getFieldName().equalsIgnoreCase("strategy")) {
