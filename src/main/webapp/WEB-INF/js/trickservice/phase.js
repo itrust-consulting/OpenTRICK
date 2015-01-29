@@ -76,7 +76,7 @@ function newPhase() {
 			todayHighlight : true,
 			startDate : $("#addPhaseModel #phase_begin_date").prop("value"),
 		}).on('changeDate', endDateChanged);
-		var lang = $("#nav-container").attr("trick-language");
+		var lang = $("#nav-container").attr("data-trick-language");
 		$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.add", "Add new phase", null, lang));
 		$("#addPhaseModel #phaseid").prop("value", -1);
 		$('#addPhaseModel').modal('show');
@@ -106,7 +106,7 @@ function editPhase(phaseid) {
 		if (previewError.length)
 			previewError.remove();
 
-		var currentrow = $("#section_phase tr[trick-id='" + phaseid + "']");
+		var currentrow = $("#section_phase tr[data-trick-id='" + phaseid + "']");
 
 		var previousphaserow = null;
 		var nextphaserow = null;
@@ -114,12 +114,12 @@ function editPhase(phaseid) {
 		var phasestartlimit = null;
 		var phaseendlimit = null;
 
-		previousphaserow = $("#section_phase tr[trick-id='" + phaseid + "']").prev();
+		previousphaserow = $("#section_phase tr[data-trick-id='" + phaseid + "']").prev();
 
 		if (previousphaserow.length)
 			phasestartlimit = $(previousphaserow).find("td:last").text();
 
-		nextphaserow = $("#section_phase tr[trick-id='" + phaseid + "']").next();
+		nextphaserow = $("#section_phase tr[data-trick-id='" + phaseid + "']").next();
 
 		if (nextphaserow.length)
 			phaseendlimit = $(nextphaserow).find("td:eq(2)").text();
@@ -154,7 +154,7 @@ function editPhase(phaseid) {
 
 		$("#addPhaseModel #phaseid").prop("value", phaseid);
 
-		var lang = $("#nav-container").attr("trick-language");
+		var lang = $("#nav-container").attr("data-trick-language");
 		$("#addPhaseModel #phaseNewModal-title").html(MessageResolver("label.title.phase.edit", "Edit phase", null, lang) + " #" + $(currentrow).find("td:eq(1)").text());
 
 		$('#addPhaseModel').modal('show');
@@ -233,7 +233,7 @@ function deletePhase(idPhase) {
 			return false;
 		idPhase = selectedScenario[0];
 	}
-	var lang = $("#nav-container").attr("trick-language");
+	var lang = $("#nav-container").attr("data-trick-language");
 	$("#confirm-dialog .modal-body").text(MessageResolver("confirm.delete.phase", "Are you sure, you want to delete this phase", null, lang));
 	$("#confirm-dialog .btn-danger").click(function() {
 		$.ajax({
@@ -264,7 +264,7 @@ function deletePhase(idPhase) {
 // phase
 
 function extractPhase(that) {
-	var phases = $("#section_phase *[trick-class='Phase']>*:nth-child(2)");
+	var phases = $("#section_phase *[data-trick-class='Phase']>*:nth-child(2)");
 	if (!$(phases).length)
 		return true;
 	for (var i = 0; i < phases.length; i++)

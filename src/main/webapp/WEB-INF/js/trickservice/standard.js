@@ -61,7 +61,7 @@ function deleteStandard(idStandard, name) {
 		if (selectedScenario.length != 1)
 			return false;
 		idStandard = selectedScenario[0];
-		name = $("#section_kb_standard tbody tr[trick-id='" + idStandard + "']>td:nth-child(2)").text();
+		name = $("#section_kb_standard tbody tr[data-trick-id='" + idStandard + "']>td:nth-child(2)").text();
 	}
 	$("#deleteStandardBody").html(MessageResolver("label.norm.question.delete", "Are you sure that you want to delete the standard <strong>" + name + "</strong>?", name));
 	$("#deletestandardbuttonYes").click(function() {
@@ -222,14 +222,14 @@ function editSingleStandard(idStandard) {
 	if (alert.length)
 		alert.remove();
 	$("#addStandardModel #addstandardbutton").prop("disabled", false);
-	var rows = $("#section_kb_standard").find("tr[trick-id='" + idStandard + "'] td:not(:first-child)");
+	var rows = $("#section_kb_standard").find("tr[data-trick-id='" + idStandard + "'] td:not(:first-child)");
 	$("#standard_id").prop("value", idStandard);
 	$("#standard_label").prop("value", $(rows[0]).text());
 	$("#standard_version").prop("value", $(rows[1]).text());
 	$("#standard_description").prop("value", $(rows[2]).text());
-	var standardtype = $($(rows[3])[0]).attr("trick-type");
+	var standardtype = $($(rows[3])[0]).attr("data-trick-type");
 	$("#addStandardModel input[name='type'][value='" + standardtype + "']").prop("checked", "checked");
-	$("#standard_computable").prop("checked", $(rows[4]).attr("computable") == 'Yes' ? "checked" : "");
+	$("#standard_computable").prop("checked", $(rows[4]).attr("data-trick-computable") == 'Yes' ? "checked" : "");
 	$("#addStandardModel-title").text(MessageResolver("title.knowledgebase.norm.update", "Update a Standard"));
 	$("#addstandardbutton").text(MessageResolver("label.action.edit", "Edit"));
 	$("#standard_form").prop("action", "/Save");

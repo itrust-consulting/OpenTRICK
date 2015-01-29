@@ -42,4 +42,6 @@ public interface ServiceAsset {
 	public void delete(Asset asset) throws Exception;
 
 	public boolean exist(Integer idAnalysis, String name);
+
+	public Asset getFromAnalysisById(Integer idAnalysis, int idAsset);
 }

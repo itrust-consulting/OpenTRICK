@@ -7,8 +7,8 @@ function showMeasures(idStandard, languageId) {
 	}
 	
 	if(languageId == undefined || languageId == null) {
-		var language = $("#section_language tbody tr[trick-id]:first-child");
-		languageId = language.length ? $(language).attr('trick-id') : 1;
+		var language = $("#section_language tbody tr[data-trick-id]:first-child");
+		languageId = language.length ? $(language).attr('data-trick-id') : 1;
 	}
 	
 	$.ajax({
@@ -68,8 +68,8 @@ function newMeasure(idStandard) {
 				$("#addMeasureModel #measurelanguages").html(response);
 				$("#addMeasureModel #measurelanguageselect").change(function() {
 					var language = parseInt($(this).find("option:selected").attr("value"));
-					$("#addMeasureModel #measurelanguages div[trick-id][trick-id!='" + language + "']").css("display","none");
-					$("#addMeasureModel #measurelanguages div[trick-id][trick-id='" + language + "']").css("display","block");
+					$("#addMeasureModel #measurelanguages div[data-trick-id][data-trick-id!='" + language + "']").css("display","none");
+					$("#addMeasureModel #measurelanguages div[data-trick-id][data-trick-id='" + language + "']").css("display","block");
 				});
 				$("#addMeasureModel #measurelanguageselect option[value='" + language + "']").prop("selected", true);
 				$("#addMeasureModel #measurelanguageselect").change();
@@ -101,12 +101,12 @@ function editSingleMeasure(measureId, idStandard) {
 			return false;
 		measureId = selectedScenario[0];
 	}
-	var measure = $("#section_measure_description #measures_body tr[trick-id='" + measureId + "'] td:not(:first-child)");
+	var measure = $("#section_measure_description #measures_body tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
 	
 	$("#addMeasureModel #measure_id").prop("value", measureId);
 	$("#addMeasureModel #measure_reference").prop("value", $(measure[1]).text());
 	$("#addMeasureModel #measure_level").prop("value", $(measure[0]).text());
-	$("#addMeasureModel #measure_computable").prop("checked", $(measure[4]).attr("trick-computable") == "true");
+	$("#addMeasureModel #measure_computable").prop("checked", $(measure[4]).attr("data-trick-computable") == "true");
 	
 	$("#addMeasureModel #measure_form").prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");
 	$("#addMeasureModel #addMeasureModel-title").text(MessageResolver("title.knowledgebase.measure.update", "Update Measure"));
@@ -123,8 +123,8 @@ function editSingleMeasure(measureId, idStandard) {
 				$("#addMeasureModel #measurelanguages").html(response);
 				$("#addMeasureModel #measurelanguageselect").change(function() {
 					var language = parseInt($(this).find("option:selected").attr("value"));
-					$("#addMeasureModel #measurelanguages div[trick-id][trick-id!='" + language + "']").css("display","none");
-					$("#addMeasureModel #measurelanguages div[trick-id][trick-id='" + language + "']").css("display","block");
+					$("#addMeasureModel #measurelanguages div[data-trick-id][data-trick-id!='" + language + "']").css("display","none");
+					$("#addMeasureModel #measurelanguages div[data-trick-id][data-trick-id='" + language + "']").css("display","block");
 				});
 				$("#addMeasureModel #measurelanguageselect option[value='" + language + "']").prop("selected", true);
 				$("#addMeasureModel #measurelanguageselect").change();
@@ -215,7 +215,7 @@ function deleteMeasure(measureId, reference, standard) {
 	if (standard == null || standard == undefined)
 		standard = $("#section_measure_description #measures_header #standardLabel").val();
 	
-	var measure = $("#section_measure_description #measures_body tr[trick-id='" + measureId + "'] td:not(:first-child)");
+	var measure = $("#section_measure_description #measures_body tr[data-trick-id='" + measureId + "'] td:not(:first-child)");
 	reference = $(measure[1]).text();
 	
 	var deleteModal = new Modal();

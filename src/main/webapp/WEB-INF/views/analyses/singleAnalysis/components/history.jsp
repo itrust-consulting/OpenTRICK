@@ -17,11 +17,11 @@
 			</thead>
 			<tbody>
 				<c:forEach items="${histories}" var="history">
-					<tr trick-class="History" trick-id="${history.id}">
+					<tr data-trick-class="History" data-trick-id="${history.id}">
 						<td><spring:message text="${history.version}" /></td>
 						<td><fmt:formatDate value="${history.date}" pattern="dd/MM/yyyy" /></td>
-						<td trick-field="author" trick-field-type="string" class="success" onclick="editField(this);"><spring:message text="${history.author}" /></td>
-						<td onclick="editField(this.firstElementChild);" class="success"><pre trick-field="comment" trick-field-type="string" trick-content="text"><spring:message text="${history.comment}" /></pre></td>
+						<td data-trick-field="author" data-trick-field-type="string" class="success" onclick="editField(this);"><spring:message text="${history.author}" /></td>
+						<td onclick="editField(this.firstElementChild);" class="success"><pre data-trick-field="comment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${history.comment}" /></pre></td>
 					</tr>
 				</c:forEach>
 			</tbody>

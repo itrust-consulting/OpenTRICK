@@ -2098,11 +2098,12 @@ public class ActionPlanComputation {
 					// * calculate deltaALE for this TMA
 					// ****************************************************************
 					
-					if(measure instanceof AssetMeasure)
+					if(measure instanceof AssetMeasure){
 						if(((AssetMeasure)measure).getMeasureAssetValueByAsset(tmpAssessment.getAsset())!=null)
 							tmpTMA.calculateDeltaALE();
 						else
 							tmpTMA.setDeltaALE(0);
+					}else tmpTMA.calculateDeltaALE();
 
 					// ****************************************************************
 					// * check if measure needs to taken into account for action

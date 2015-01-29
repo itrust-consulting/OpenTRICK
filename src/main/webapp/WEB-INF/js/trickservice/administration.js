@@ -35,8 +35,8 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 		if (selectedAnalysis.length != 1)
 			return false;
 		analysisId = selectedAnalysis[0];
-		var profile = $("#" + section_analysis + " [trick-id='" + analysisId + "']");
-		if (profile.length && $(profile).attr("trick-isprofile") == "true")
+		var profile = $("#" + section_analysis + " [data-trick-id='" + analysisId + "']");
+		if (profile.length && $(profile).attr("data-trick-isprofile") == "true")
 			return false;
 	}
 
@@ -97,8 +97,8 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 
 function findTrickisProfile(element) {
 	if (element != undefined && element != null && element.length > 0 && element.length < 2)
-		if ($(element).attr("trick-isProfile") != undefined)
-			return $(element).attr("trick-isProfile");
+		if ($(element).attr("data-trick-isProfile") != undefined)
+			return $(element).attr("data-trick-isProfile");
 		else if ($(element).parent().prop("tagName") != "BODY")
 			return findTrickisProfile($(element).parent());
 		else

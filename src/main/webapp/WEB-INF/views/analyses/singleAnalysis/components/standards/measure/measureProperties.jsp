@@ -16,7 +16,7 @@
 							<th class="warning"><fmt:message key="label.rrf.measure.strength_sectoral" /></th>
 							<c:if test="${!empty(categories)}">
 								<c:forEach items="${categories.keySet()}" var="category">
-									<th class="info" trick-class="Category" trick-value=<spring:message text="${category}" />><fmt:message
+									<th class="info" data-trick-class="Category" data-trick-value=<spring:message text="${category}" />><fmt:message
 											key="label.rrf.category.${fn:toLowerCase(fn:replace(category,'_','.'))}" /></th>
 								</c:forEach>
 							</c:if>
@@ -44,7 +44,7 @@
 								data-slider-value="${strength_sectorial}" name="fsectoral" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 							<c:if test="${!empty(categories)}">
 								<c:forEach items="${categories.keySet()}" var="category">
-									<td class="info" trick-class="Category" trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
+									<td class="info" data-trick-class="Category" data-trick-value=<spring:message text="${category}"/>><input type="text" class="slider"
 										id="measure_${fn:replace(category,'.','_')}" value="${categories.get(category)}" data-slider-min="0" data-slider-max="4" data-slider-step="4"
 										data-slider-value="${categories.get(category)}" name=<spring:message text="${category}" /> data-slider-orientation="vertical" data-slider-selection="after"
 										data-slider-tooltip="show"></td>
@@ -70,7 +70,7 @@
 								data-slider-value="${externalThreat}" name="externalThreat" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 							<c:if test="${!empty(assets)}">
 								<c:forEach items="${assets}" var="asset">
-									<td trick-class="MeasureAssetValue"><input type="text" class="slider" id='measure_<spring:message text="${asset.asset.name}"/>' value="${asset.value}"
+									<td data-trick-class="MeasureAssetValue"><input type="text" class="slider" id='measure_<spring:message text="${asset.asset.name}"/>' value="${asset.value}"
 										data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="${asset.value}" name="<spring:message text="${asset.asset.name}"/>"
 										data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="show"></td>
 								</c:forEach>
@@ -81,7 +81,7 @@
 							<td class="warning"><input type="text" readonly="readonly" class="form-control" id="measure_fsectoral_value" value="${strength_sectorial}" name="fsectoral"></td>
 							<c:if test="${!empty(categories)}">
 								<c:forEach items="${categories.keySet()}" var="category" varStatus="catStatus">
-									<td class="info" trick-class="Category" trick-value="<spring:message text="${category}" />"><input type="text"
+									<td class="info" data-trick-class="Category" data-trick-value="<spring:message text="${category}" />"><input type="text"
 										id='measure_<spring:message text="${fn:replace(category,'.','_')}"/>_value' readonly="readonly" class="form-control" value="${categories.get(category)}"
 										name="<spring:message text="${category}" />"></td>
 								</c:forEach>

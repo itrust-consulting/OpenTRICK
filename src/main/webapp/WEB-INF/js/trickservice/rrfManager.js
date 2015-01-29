@@ -46,7 +46,7 @@ function initialiseMeasureSliders() {
 }
 
 function updateMeasureProperty(property, value, previousValue, slider) {
-	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']").attr("data-trick-id");
 	if (idMeasure == null || idMeasure == undefined)
 		return false;
 	$.ajax({
@@ -89,7 +89,7 @@ function initialiseScenarioSliders() {
 }
 
 function updateScenarioProperty(property, value, previousValue, slider) {
-	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
+	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[data-trick-class='Scenario']").attr("data-trick-id");
 	if (idScenario == null || idScenario == undefined)
 		return false;
 	if (property == "preventive" || property == "detective" || property == "limitative" || property == "corrective")
@@ -139,17 +139,17 @@ function initialiseScenariosClick() {
 		$("#rrfEditor #selectable_rrf_scenario_controls a.active").removeClass("active");
 
 		// get current element data
-		var classname = $(this).attr("trick-class");
-		var trickid = $(this).attr("trick-id");
+		var classname = $(this).attr("data-trick-class");
+		var trickid = $(this).attr("data-trick-id");
 
 		// select current
 		$(this).addClass("active");
 
 		if (classname === "ScenarioType") {
-			var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+			var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']").attr("data-trick-id");
 			if (idMeasure == null || idMeasure == undefined) {
-				$("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Standard']").parent().parent().find("div.list-group a:first").addClass("active");
-				idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+				$("#rrfEditor #selectable_rrf_measures_chapter_controls .active[data-trick-class='Standard']").parent().parent().find("div.list-group a:first").addClass("active");
+				idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']").attr("data-trick-id");
 				if (idMeasure == null || idMeasure == undefined)
 					return false;
 			}
@@ -160,7 +160,7 @@ function initialiseScenariosClick() {
 			// select measure parent
 			$(this).parent().parent().find("h4 a").addClass("active");
 			// $("#rrfEditor #selectable_rrf_measures_chapter_controls
-			// .active[trick-class='Measure']").removeClass("active");
+			// .active[data-trick-class='Measure']").removeClass("active");
 			loadScenario();
 			loadScenarioChart();
 		}
@@ -176,17 +176,17 @@ function initialiseMeasuresClick() {
 		$("#rrfEditor #selectable_rrf_measures_chapter_controls a.active").removeClass("active");
 
 		// get current element data
-		var classname = $(this).attr("trick-class");
-		var trickid = $(this).attr("trick-id");
+		var classname = $(this).attr("data-trick-class");
+		var trickid = $(this).attr("data-trick-id");
 
 		// select current
 		$(this).addClass("active");
 
 		if (classname === "Standard") {
-			var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
+			var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[data-trick-class='Scenario']").attr("data-trick-id");
 			if (idScenario == null || idScenario == undefined) {
-				$("#rrfEditor #selectable_rrf_scenario_controls .active[trick-class='ScenarioType']").parent().parent().find("div.list-group a:first").addClass("active");
-				idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
+				$("#rrfEditor #selectable_rrf_scenario_controls .active[data-trick-class='ScenarioType']").parent().parent().find("div.list-group a:first").addClass("active");
+				idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[data-trick-class='Scenario']").attr("data-trick-id");
 				if (idScenario == null || idScenario == undefined)
 					return false;
 			}
@@ -198,7 +198,7 @@ function initialiseMeasuresClick() {
 			$(this).parent().parent().find("h4 a").addClass("active");
 
 			// $("#rrfEditor #selectable_rrf_scenario_controls
-			// .active[trick-class='Scenario']").removeClass("active");
+			// .active[data-trick-class='Scenario']").removeClass("active");
 
 			loadMeasure();
 			loadMeasureChart();
@@ -208,10 +208,10 @@ function initialiseMeasuresClick() {
 }
 
 function loadMeasure() {
-	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']").attr("data-trick-id");
 	if (idMeasure == null || idMeasure == undefined)
 		return false;
-	var idStandard = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Standard']").attr("trick-id");
+	var idStandard = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[data-trick-class='Standard']").attr("data-trick-id");
 	if (idStandard == null || idStandard == undefined)
 		return false;
 	$.ajax({
@@ -246,13 +246,13 @@ function loadMeasure() {
 }
 
 function loadMeasureChart() {
-	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']").attr("data-trick-id");
 	if (idMeasure == null || idMeasure == undefined)
 		return false;
-	var idScenarioType = $("#rrfEditor #selectable_rrf_scenario_controls .active[trick-class='ScenarioType']").attr("trick-id");
+	var idScenarioType = $("#rrfEditor #selectable_rrf_scenario_controls .active[data-trick-class='ScenarioType']").attr("data-trick-id");
 	if (idScenarioType == null || idScenarioType == undefined)
 		return false;
-	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
+	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[data-trick-class='Scenario']").attr("data-trick-id");
 	$
 			.ajax({
 				url : context + "/Analysis/RRF/Measure/" + idMeasure + "/Chart",
@@ -288,7 +288,7 @@ function loadMeasureChart() {
 }
 
 function loadScenario() {
-	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
+	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[data-trick-class='Scenario']").attr("data-trick-id");
 	if (idScenario == null || idScenario == undefined)
 		return false;
 	$.ajax({
@@ -324,17 +324,17 @@ function loadScenario() {
 
 function loadScenarioChart() {
 
-	var idStandard = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Standard']").attr("trick-id");
+	var idStandard = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[data-trick-class='Standard']").attr("data-trick-id");
 	if (idStandard == null || idStandard == undefined)
 		return false;
 
-	var chapter = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Standard']").attr("trick-value");
+	var chapter = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[data-trick-class='Standard']").attr("data-trick-value");
 	if (chapter == null || chapter == undefined)
 		return false;
 
-	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[trick-class='Measure']").attr("trick-id");
+	var idMeasure = $("#rrfEditor #selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']").attr("data-trick-id");
 
-	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[trick-class='Scenario']").attr("trick-id");
+	var idScenario = $("#rrfEditor #selectable_rrf_scenario_controls .active[data-trick-class='Scenario']").attr("data-trick-id");
 	if (idScenario == null || idScenario == undefined)
 		return null;
 
@@ -375,7 +375,7 @@ function initialiseStandardFilter()
 {
 	$("#section_rrf [name='chapterselection']").change(function() {
 		var filter = $("option:selected", this).attr("value");
-		$("#selectable_rrf_measures_chapter_controls [class='list-group'][trick-filter-value]").css("display", "none");
-		$("#selectable_rrf_measures_chapter_controls [class='list-group'][trick-filter-value='" + filter + "']").css("display", "block");
+		$("#selectable_rrf_measures_chapter_controls [class='list-group'][data-trick-filter-value]").css("display", "none");
+		$("#selectable_rrf_measures_chapter_controls [class='list-group'][data-trick-filter-value='" + filter + "']").css("display", "block");
 	});
 }

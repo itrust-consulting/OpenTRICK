@@ -69,6 +69,12 @@
 		<ul class="dropdown-menu" id="actionmenu">
 			<li class="dropdown-header"><fmt:message key="label.analysis" /></li>
 			<li><a href="${pageContext.request.contextPath}/Analysis/Deselect"> <fmt:message key="label.action.close.analysis" /></a></li>
+			<c:if test="${analysis.isProfile() || isEditable }">
+				<li class="divider"></li>
+				<li class="dropdown-header"><fmt:message key="label.title.edit_mode" /></li>
+				<li role="enterEditMode"><a href="#" onclick="return enableEditMode()"><fmt:message key="label.action.edit_mode.open" /></a></li>
+				<li class="disabled" onclick="return disableEditMode()" role="leaveEditMode"><a href="#"><fmt:message key="label.action.edit_mode.close" /></a></li>
+			</c:if>
 			<li class="divider"></li>
 			<li class="dropdown-header"><fmt:message key="label.title.rrf" /></li>
 			<li><a href="#" onclick="return loadRRF();"> <fmt:message key="label.action.open" /></a></li>

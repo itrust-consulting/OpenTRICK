@@ -20,7 +20,7 @@ function loadAnalysisSections() {
 }
 
 function findAnalysisId() {
-	return $("#nav-container").attr("trick-id");
+	return $("#nav-container").attr("data-trick-id");
 }
 
 function isEditable(){
@@ -44,13 +44,13 @@ function updateSettings(element, entryKey) {
 					$(element).removeClass('glyphicon-ok');
 				else
 					$(element).addClass('glyphicon-ok');
-				var sections = $(element).attr("trick-section-dependency");
+				var sections = $(element).attr("data-trick-section-dependency");
 				if (sections != undefined)
 					return reloadSection(sections.split(','));
-				var callBack = $(element).attr("trick-callback");
+				var callBack = $(element).attr("data-trick-callback");
 				if (callBack != undefined)
 					return eval(callBack);
-				var reload = $(element).attr("trick-reload");
+				var reload = $(element).attr("data-trick-reload");
 				if (reload == undefined || reload == 'true')
 					location.reload();
 			}
@@ -71,10 +71,10 @@ function reloadMeasureRow(idMeasure, standard) {
 		success : function(response) {
 			var element = document.createElement("div");
 			$(element).html(response);
-			var tag = $(element).find("tr[trick-id='" + idMeasure + "']");
+			var tag = $(element).find("tr[data-trick-id='" + idMeasure + "']");
 			if (tag.length) {
-				$("#section_standard_" + standard + " tr[trick-id='" + idMeasure + "']").replaceWith(tag);
-				$("#section_standard_" + standard + " tr[trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
+				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']").replaceWith(tag);
+				$("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']>td.popover-element").popover('hide');
 			}
 		},
 		error : unknowError
@@ -189,10 +189,10 @@ function budgetByActionPlanType(actionPlanType) {
 }
 
 function summaryCharts() {
-	var actionPlanTypes = $("#section_summary *[trick-nav-control]");
+	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
-			actionPlanType = $(actionPlanTypes[i]).attr("trick-nav-control");
+			actionPlanType = $(actionPlanTypes[i]).attr("data-trick-nav-control");
 			evolutionProfitabilityComplianceByActionPlanType(actionPlanType);
 			budgetByActionPlanType(actionPlanType);
 		} catch (e) {
@@ -203,10 +203,10 @@ function summaryCharts() {
 }
 
 function loadChartEvolution(){
-	var actionPlanTypes = $("#section_summary *[trick-nav-control]");
+	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
-			evolutionProfitabilityComplianceByActionPlanType($(actionPlanTypes[i]).attr("trick-nav-control"));
+			evolutionProfitabilityComplianceByActionPlanType($(actionPlanTypes[i]).attr("data-trick-nav-control"));
 		} catch (e) {
 			console.log(e);
 		}
@@ -215,10 +215,10 @@ function loadChartEvolution(){
 }
 
 function loadChartBudget(){
-	var actionPlanTypes = $("#section_summary *[trick-nav-control]");
+	var actionPlanTypes = $("#section_summary *[data-trick-nav-control]");
 	for (var i = 0; i < actionPlanTypes.length; i++) {
 		try {
-			budgetByActionPlanType($(actionPlanTypes[i]).attr("trick-nav-control"));
+			budgetByActionPlanType($(actionPlanTypes[i]).attr("data-trick-nav-control"));
 		} catch (e) {
 			console.log(e);
 		}
@@ -350,18 +350,18 @@ function measureSortTable(element) {
 // common
 
 function navToogled(section, navSelected, fixedHeader) {
-	var currentMenu = $("#" + section + " *[trick-nav-control='" + navSelected + "']");
+	var currentMenu = $("#" + section + " *[data-trick-nav-control='" + navSelected + "']");
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
 		return false;
-	var controls = $("#" + section + " *[trick-nav-control]");
-	var data = $("#" + section + " *[trick-nav-data]");
+	var controls = $("#" + section + " *[data-trick-nav-control]");
+	var data = $("#" + section + " *[data-trick-nav-data]");
 
 	for (var i = 0; i < controls.length; i++) {
-		if ($(controls[i]).attr("trick-nav-control") == navSelected)
+		if ($(controls[i]).attr("data-trick-nav-control") == navSelected)
 			$(controls[i]).addClass("disabled");
 		else
 			$(controls[i]).removeClass("disabled");
-		if ($(data[i]).attr("trick-nav-data") != navSelected) {
+		if ($(data[i]).attr("data-trick-nav-data") != navSelected) {
 			/*if (fixedHeader) {
 				var table = $(data[i]).find("table");
 				if (table.length && $(table).destroy != undefined)

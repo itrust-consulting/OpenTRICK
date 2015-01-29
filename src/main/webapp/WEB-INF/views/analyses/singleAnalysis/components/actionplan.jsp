@@ -12,7 +12,7 @@
 		<spring:eval expression="T(lu.itrust.business.TS.data.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
 		<ul class="nav nav-pills bordered-bottom" id="menu_actionplan">
 			<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
-				<li ${status.index==0? "class='disabled'" : ""} trick-nav-control="${apt}"><a href="#"
+				<li ${status.index==0? "class='disabled'" : ""} data-trick-nav-control="${apt}"><a href="#"
 					onclick="hideActionplanAssets('#section_actionplans', '#menu_actionplan'); return navToogled('section_actionplans','${apt}',true);"> <fmt:message
 							key="label.action_plan_type.${fn:toLowerCase(apt)}" />
 				</a></li>
@@ -24,7 +24,7 @@
 			</c:if>
 		</ul>
 		<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
-			<div trick-nav-data="${apt}" ${status.index!=0? "hidden='true'" : "" }>
+			<div data-trick-nav-data="${apt}" ${status.index!=0? "hidden='true'" : "" }>
 				<table class="table table-hover table-condensed table-fixed-header-analysis" id="actionplantable_${apt}">
 					<thead>
 						<tr>
@@ -79,8 +79,8 @@
 							</tr>
 						</c:if>
 						<c:forEach items="${actionplansplitted.get(apt)}" var="ape">
-							<tr trick-class="ActionPlanEntry" trick-id="${ape.id}"
-								trick-callback="reloadMeasureRow('${ape.measure.id}', '<spring:message text="${ape.measure.analysisStandard.standard.label}" />')">
+							<tr data-trick-class="ActionPlanEntry" data-trick-id="${ape.id}"
+								data-trick-callback="reloadMeasureRow('${ape.measure.id}', '<spring:message text="${ape.measure.analysisStandard.standard.label}" />')">
 								<td><spring:message text="${ape.order}" /></td>
 								<td><spring:message text="${ape.measure.analysisStandard.standard.label}" /></td>
 								<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
@@ -105,8 +105,8 @@
 								<td ${ape.measure.investment == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.measure.investment}" maxFractionDigits="2" /> &euro;'>
 									<fmt:formatNumber value="${fct:round(ape.measure.investment*0.001,0)}" maxFractionDigits="0" />
 								</td>
-								<td class="success" trick-field="phase" trick-field-type="integer" onclick="return editField(this);" trick-callback-pre="extractPhase(this)"
-									trick-real-value='${ape.measure.phase.number}'><c:choose>
+								<td class="success" data-trick-field="phase" data-trick-field-type="integer" onclick="return editField(this);" data-trick-callback-pre="extractPhase(this)"
+									data-real-value='${ape.measure.phase.number}'><c:choose>
 										<c:when test="${ape.measure.phase.number == 0}">
 											NA
 										</c:when>

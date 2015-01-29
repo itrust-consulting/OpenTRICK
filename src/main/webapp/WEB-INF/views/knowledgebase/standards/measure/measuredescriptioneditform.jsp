@@ -15,7 +15,7 @@
 		</div>
 	</div>
 	<c:forEach items="${measuredescriptionTexts}" var="measureDescriptionText">
-		<div trick-id="${measureDescriptionText.language.id}" ${measureDescriptionText.language.id != selectedLanguage.id?'hidden="true"':""}>
+		<div data-trick-id="${measureDescriptionText.language.id}" ${measureDescriptionText.language.id != selectedLanguage.id?'hidden="true"':""}>
 			<div class="form-group">
 				<label for="domain_${measureDescriptionText.language.id}" class="col-sm-2 control-label"> <spring:message code="label.measure.domain" text="Domain" /></label>
 				<div class="col-sm-10">

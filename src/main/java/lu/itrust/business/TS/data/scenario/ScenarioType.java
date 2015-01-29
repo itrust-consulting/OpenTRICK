@@ -119,7 +119,7 @@ public enum ScenarioType {
 	public static ScenarioType getByName(String name) {
 		ScenarioType[] values = values();
 		for (int i = 0; i < values.length; i++)
-			if (values[i].getName().equals(name.trim()))
+			if (values[i].name().equals(name.trim()))
 				return values[i];
 		return null;
 	}

@@ -66,7 +66,7 @@ TimeoutInterceptor.prototype = {
 			return true;
 		var url = undefined;
 		if ($("#nav-container").length) {
-			var idAnalysis = $("#nav-container").attr("trick-id");
+			var idAnalysis = $("#nav-container").attr("data-trick-id");
 			if (idAnalysis != undefined)
 				url = context + "/Analysis/" + idAnalysis + "/Select";
 		}

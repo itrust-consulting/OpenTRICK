@@ -29,13 +29,13 @@
 					<tbody>
 						<fmt:setLocale value="fr" scope="session" />
 						<c:forEach items="${extendedParameters[0]}" var="parameter" varStatus="status">
-							<tr trick-class="ExtendedParameter" trick-id="${parameter.id}">
+							<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
 								<!--<td>${itemInformation.id}</td>-->
 								<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
-								<td trick-field="acronym" trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
-								<td trick-field="description" trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
+								<td data-trick-field="acronym" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
+								<td data-trick-field="description" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 										text="${parameter.description}" /></td>
-								<td trick-field="value" trick-field-type="double" title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'
+								<td data-trick-field="value" data-trick-field-type="double" title='<fmt:formatNumber value="${parameter.value}" maxFractionDigits="0" />&euro;'
 									${(parameter.level mod 2)==0? 'onclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'}><fmt:formatNumber
 										value="${parameter.value*0.001}" maxFractionDigits="0" /></td>
 								<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from*0.001}" maxFractionDigits="0" /></td>
@@ -74,24 +74,24 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr trick-class="ExtendedParameter" hidden="true">
-							<td trick-field="acronym" colspan="3"><spring:message text="NA" /></td>
-							<td trick-field="value" colspan="3">0</td>
+						<tr data-trick-class="ExtendedParameter" hidden="true">
+							<td data-trick-field="acronym" colspan="3"><spring:message text="NA" /></td>
+							<td data-trick-field="value" colspan="3">0</td>
 						</tr>
 						<fmt:setLocale value="fr" scope="session" />
 						<c:forEach items="${extendedParameters[1]}" var="parameter" varStatus="status">
-							<tr trick-class="ExtendedParameter" trick-id="${parameter.id}">
+							<tr data-trick-class="ExtendedParameter" data-trick-id="${parameter.id}">
 								<!--<td>${itemInformation.id}</td>-->
 								<td class="textaligncenter"><spring:message text="${parameter.level}" /></td>
-								<td trick-field="acronym" trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
-								<td trick-field="description" trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
+								<td data-trick-field="acronym" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message text="${parameter.acronym}" /></td>
+								<td data-trick-field="description" data-trick-field-type="string" class="success textaligncenter" onclick="return editField(this);"><spring:message
 										text="${parameter.description}" /></td>
 								<c:set var="parameterValue">
 									<fmt:formatNumber value="${parameter.value}" />
 								</c:set>
-								<td trick-field="value" trick-field-type="double"
+								<td data-trick-field="value" data-trick-field-type="double"
 									${(parameter.level mod 2)==0? 'onclick="return editField(this);" class="success textaligncenter"': 'class="textaligncenter"'} title="${parameterValue}"
-									real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" minFractionDigits="2" /></td>
+									data-real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" minFractionDigits="2" /></td>
 								<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from}" maxFractionDigits="2" minFractionDigits="2" /></td>
 								<td class="textaligncenter"><c:choose>
 										<c:when test="${status.index!=10}">
@@ -134,21 +134,21 @@
 					<tfoot></tfoot>
 					<tbody>
 						<c:forEach items="${maturityParameters}" var="parameter">
-							<tr trick-class="MaturityParameter" trick-id="${parameter.id}">
+							<tr data-trick-class="MaturityParameter" data-trick-id="${parameter.id}">
 								<td class="textaligncenter"><fmt:message key="label.parameter.maturity.rsml.category.${fn:toLowerCase(parameter.category)}" /></td>
 								<td class="textaligncenter"><fmt:message key="label.parameter.maturity.rsml.description.${fn:toLowerCase(fn:replace(parameter.description,' ','_'))}" /></td>
 								<fmt:setLocale value="fr" scope="session" />
-								<td class="success textaligncenter" trick-field="SMLLevel0" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
+								<td class="success textaligncenter" data-trick-field="SMLLevel0" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
 										value="${parameter.SMLLevel0*100}" maxFractionDigits="0" /></td>
-								<td class="success textaligncenter" trick-field="SMLLevel1" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
+								<td class="success textaligncenter" data-trick-field="SMLLevel1" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
 										value="${parameter.SMLLevel1*100}" maxFractionDigits="0" /></td>
-								<td class="success textaligncenter" trick-field="SMLLevel2" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
+								<td class="success textaligncenter" data-trick-field="SMLLevel2" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
 										value="${parameter.SMLLevel2*100}" maxFractionDigits="0" /></td>
-								<td class="success textaligncenter" trick-field="SMLLevel3" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
+								<td class="success textaligncenter" data-trick-field="SMLLevel3" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
 										value="${parameter.SMLLevel3*100}" maxFractionDigits="0" /></td>
-								<td class="success textaligncenter" trick-field="SMLLevel4" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
+								<td class="success textaligncenter" data-trick-field="SMLLevel4" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
 										value="${parameter.SMLLevel4*100}" maxFractionDigits="0" /></td>
-								<td class="success textaligncenter" trick-field="SMLLevel5" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
+								<td class="success textaligncenter" data-trick-field="SMLLevel5" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
 										value="${parameter.SMLLevel5*100}" maxFractionDigits="0" /></td>
 								<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 							</tr>
@@ -181,7 +181,7 @@
 						<fmt:setLocale value="fr" scope="session" />
 						<tr>
 							<c:forEach items="${simpleParameters[0]}" var="parameter">
-								<td trick-class="Parameter" trick-id="${parameter.id}" class="success textaligncenter" trick-field="value" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
+								<td data-trick-class="Parameter" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
 										value="${parameter.value}" maxFractionDigits="0" pattern="#" /></td>
 							</c:forEach>
 						</tr>
@@ -213,7 +213,7 @@
 						<tr>
 							<fmt:setLocale value="fr" scope="session" />
 							<c:forEach items="${simpleParameters[1]}" var="parameter">
-								<td trick-class="Parameter" trick-id="${parameter.id}" class="success textaligncenter" trick-field="value" trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
+								<td data-trick-class="Parameter" data-trick-id="${parameter.id}" class="success textaligncenter" data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);"><fmt:formatNumber
 										value="${parameter.value}" maxFractionDigits="0" /></td>
 							</c:forEach>
 							<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
@@ -239,10 +239,10 @@
 					</thead>
 					<tbody>
 						<c:forEach items="${simpleParameters[2]}" var="parameter">
-							<tr trick-class="Parameter" trick-id="${parameter.id}">
+							<tr data-trick-class="Parameter" data-trick-id="${parameter.id}">
 								<td class="textaligncenter"><fmt:message key="label.parameter.simple.smt.level_${parameter.description}" /></td>
 								<fmt:setLocale value="fr" scope="session" />
-								<td trick-field="value" trick-field-type="double" class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}"
+								<td data-trick-field="value" data-trick-field-type="double" class="success textaligncenter" onclick="return editField(this);"><fmt:formatNumber value="${parameter.value}"
 										maxFractionDigits="0" /></td>
 								<fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 							</tr>

@@ -14,10 +14,10 @@
 	<div class="panel panel-default">
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_admin_analysis">
-				<li class="disabled" trick-selectable="true" trick-check="isProfile('#section_admin_analysis')"><a href="#"
+				<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
 					onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="glyphicon glyphicon-plus primary"></span> <spring:message
 							code="label.menu.manage.access.analysis" text="Manage access rights" /></a></li>
-				<li class="disabled pull-right" trick-selectable="true" trick-check="isProfile('#section_admin_analysis')"><a href="#" onclick="return deleteAdminAnalysis(undefined,'section_admin_analysis');" class="text-danger"> <span
+				<li class="disabled pull-right" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#" onclick="return deleteAdminAnalysis(undefined,'section_admin_analysis');" class="text-danger"> <span
 						class="glyphicon glyphicon-remove"></span> <spring:message code="label.menu.delete.analysis" text="Delete" /></a></li>
 			</ul>
 		</div>
@@ -48,12 +48,12 @@
 					</thead>
 					<tbody>
 						<c:forEach items="${analyses}" var="analysis">
-							<tr trick-id="${analysis.id}" trick-rights-id="0" data="${analysis.hasData()}" trick-isProfile="${analysis.profile}">
+							<tr data-trick-id="${analysis.id}" data-trick-rights-id="0" data="${analysis.hasData()}" data-trick-isProfile="${analysis.profile}">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_admin_analysis','#menu_admin_analysis');"></td>
 								<td><spring:message text="${analysis.identifier}" /></td>
 								<td><spring:message text="${analysis.label}" /></td>
 								<td><spring:message text="${analysis.creationDate}" /></td>
-								<td trick-version="${analysis.version}"><spring:message text="${analysis.version}" /></td>
+								<td data-trick-version="${analysis.version}"><spring:message text="${analysis.version}" /></td>
 								<td><spring:message text="${analysis.owner.getFirstName()} ${analysis.owner.getLastName()}" /></td>
 								<td><spring:message text="${analysis.language.name}" /></td>
 								<c:choose>

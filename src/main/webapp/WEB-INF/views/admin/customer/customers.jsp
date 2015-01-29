@@ -14,13 +14,13 @@
 		<div class="panel-heading" style="min-height: 60px">
 			<ul class="nav nav-pills" id="menu_customer">
 				<li><a href="#" onclick="return newCustomer();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.menu.add.customer" text="Add" /> </a></li>
-				<li class="disabled" trick-selectable="true"><a href="#" onclick="return editSingleCustomer();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
+				<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleCustomer();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message
 							code="label.menu.edit.customer" text="Edit" /> </a></li>
-				<li class="disabled pull-right" trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span> <spring:message
+				<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 							code="label.menu.delete.customer" text="Delete" /> </a></li>
 				<c:if test="${!empty(adminView)}">
 					<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-						<li class="disabled" trick-selectable="true"><a href="#" onclick="return manageUsers();"><span class="glyphicon glyphicon-remove"></span> <spring:message
+						<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return manageUsers();"><span class="glyphicon glyphicon-remove"></span> <spring:message
 									code="label.menu.manage.access.user_customer" text="Manage user access" /> </a></li>
 					</sec:authorize>
 				</c:if>
@@ -50,7 +50,7 @@
 						</thead>
 						<tbody>
 							<c:forEach items="${customers}" var="customer">
-								<tr trick-id="${customer.id}" ondblclick="return editSingleCustomer('${customer.id}');">
+								<tr data-trick-id="${customer.id}" ondblclick="return editSingleCustomer('${customer.id}');">
 									<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_customer','#menu_customer');"></td>
 									<td><spring:message text="${customer.organisation}" /></td>
 									<td><spring:message text="${customer.contactPerson}" /></td>
@@ -62,7 +62,7 @@
 									<td><spring:message text="${customer.country}" /></td>
 									<c:if test="${!empty(adminView)}">
 										<sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
-											<td trick-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${fn:toLowerCase(!customer.canBeUsed)}" text="${customer.canBeUsed?'No':'Yes'}" /></td>
+											<td data-real-value="${customer.canBeUsed}"><spring:message code="label.yes_no.${fn:toLowerCase(!customer.canBeUsed)}" text="${customer.canBeUsed?'No':'Yes'}" /></td>
 										</sec:authorize>
 									</c:if>
 								</tr>

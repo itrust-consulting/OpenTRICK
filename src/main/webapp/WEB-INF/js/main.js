@@ -81,12 +81,12 @@ $(function() {
 		});
 
 		$('ul.nav-analysis a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+			disableEditMode();
 			var target = $(e.target).attr("href");
 			if ($(target).attr("data-update-required") == "true") {
 				window[$(target).attr("data-trigger")].apply();
 				$(target).attr("data-update-required", "false");
 			}
-
 		});
 	}
 
@@ -220,16 +220,16 @@ var ANALYSIS_RIGHT = {
 };
 
 function permissionError() {
-	var language = $("#nav-container").attr("trick-language");
+	var language = $("#nav-container").attr("data-trick-language");
 	new Modal($("#alert-dialog").clone(), MessageResolver("error.not_authorized", "Insufficient permissions!", null, language)).Show();
 	return false;
 }
 
 function findRight(idAnalysis) {
-	var right = $("*[trick-id='" + idAnalysis + "'][trick-rights-id]");
+	var right = $("*[data-trick-id='" + idAnalysis + "'][data-trick-rights-id]");
 	if (!right.length)
 		return undefined;
-	var idRight = $(right).attr('trick-rights-id');
+	var idRight = $(right).attr('data-trick-rights-id');
 	if (!$.trim(idRight).length)
 		return undefined;
 	for ( var key in ANALYSIS_RIGHT)
@@ -248,7 +248,7 @@ function userCan(idAnalysis, action) {
 function hasRight(action) {
 	if (!(action instanceof jQuery))
 		action = ANALYSIS_RIGHT[action];
-	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("trick-id"), action);
+	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"), action);
 }
 
 function canManageAccess() {
@@ -352,14 +352,14 @@ function showSuccess(parent, text) {
  */
 
 function isSelected(sectionName) {
-	return $("#section_" + sectionName + " tbody tr[trick-selected='true'] td:first-child input:checked").length > 0;
+	return $("#section_" + sectionName + " tbody tr[data-trick-selected='true'] td:first-child input:checked").length > 0;
 }
 
 function checkControlChange(checkbox, sectionName, appModalVar) {
 	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input") : $(application[appModalVar].modal).find(
 			"tbody tr td:first-child input");
-	var multiSelectAllowed = ((appModalVar == undefined || appModalVar == null) ? $("#menu_" + sectionName + " li[trick-selectable='multi']") : $(application[appModalVar].modal)
-			.find("#menu_" + sectionName + " li[trick-selectable='multi']")).length > 0;
+	var multiSelectAllowed = ((appModalVar == undefined || appModalVar == null) ? $("#menu_" + sectionName + " li[data-trick-selectable='multi']") : $(application[appModalVar].modal)
+			.find("#menu_" + sectionName + " li[data-trick-selectable='multi']")).length > 0;
 	if (!multiSelectAllowed) {
 		$(checkbox).prop("disabled", true);
 		$(checkbox).prop("checked", false);
@@ -380,8 +380,8 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 	if (sender) {
 		if ($(sender).is(":checked")) {
 			$(sender).parent().parent().addClass("info")
-			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $(idMenu + " li[trick-selectable='multi']") : $(application[appModalVar].modal).find(
-					idMenu + " li[trick-selectable='multi']")).length == 0;
+			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $(idMenu + " li[data-trick-selectable='multi']") : $(application[appModalVar].modal).find(
+					idMenu + " li[data-trick-selectable='multi']")).length == 0;
 			if (multiSelectNotAllowed) {
 				var items = (appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked");
 				for (var i = 0; i < items.length; i++) {
@@ -399,12 +399,12 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 	if (checkedCount > 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			if ($($lis[i]).attr("trick-selectable") === "multi")
+			if ($($lis[i]).attr("data-trick-selectable") === "multi")
 				$($lis[i]).removeClass("disabled");
 			else
 				$($lis[i]).addClass("disabled");
 
-			var checker = $($lis[i]).attr("trick-check");
+			var checker = $($lis[i]).attr("data-trick-check");
 
 			if (!$($lis[i]).hasClass("disabled") && !(checker == undefined || eval(checker)))
 				$($lis[i]).addClass("disabled");
@@ -412,13 +412,13 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 	} else if (checkedCount == 1) {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			var checker = $($lis[i]).attr("trick-check");
-			if ($($lis[i]).attr("trick-selectable") != undefined)
+			var checker = $($lis[i]).attr("data-trick-check");
+			if ($($lis[i]).attr("data-trick-selectable") != undefined)
 				$($lis[i]).removeClass("disabled");
 			else
 				$($lis[i]).addClass("disabled");
 
-			var checker = $($lis[i]).attr("trick-check");
+			var checker = $($lis[i]).attr("data-trick-check");
 
 			if (!$($lis[i]).hasClass("disabled") && !(checker == undefined || eval(checker)))
 				$($lis[i]).addClass("disabled");
@@ -426,12 +426,12 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 	} else {
 		var $lis = (appModalVar == undefined || appModalVar == null) ? $(idMenu + " li") : $(application[appModalVar].modal).find(idMenu + " li");
 		for (var i = 0; i < $lis.length; i++) {
-			if ($($lis[i]).attr("trick-selectable") != undefined)
+			if ($($lis[i]).attr("data-trick-selectable") != undefined)
 				$($lis[i]).addClass("disabled");
 			else
 				$($lis[i]).removeClass("disabled");
 
-			var checker = $($lis[i]).attr("trick-check");
+			var checker = $($lis[i]).attr("data-trick-check");
 
 			if (!$($lis[i]).hasClass("disabled") && !(checker == undefined || eval(checker)))
 				$($lis[i]).addClass("disabled");
@@ -513,13 +513,6 @@ function parseJson(data) {
 	}
 }
 
-function escape(key, val) {
-	if (typeof (val) != "string")
-		return val;
-	return val.replace(/[\\]/g, '\\\\').replace(/[\/]/g, '\\/').replace(/[\b]/g, '\\b').replace(/[\f]/g, '\\f').replace(/[\n]/g, '\\n').replace(/[\r]/g, '\\r').replace(/[\t]/g,
-			'\\t').replace(/[\"]/g, '\\"').replace(/\\'/g, "\\'");
-}
-
 function log(msg) {
 	setTimeout(function() {
 		throw new Error(msg);
@@ -552,8 +545,8 @@ function findSelectItemIdBySection(section, modal) {
 }
 
 function findTrickID(element) {
-	if ($(element).attr("trick-id") != undefined)
-		return $(element).attr("trick-id");
+	if ($(element).attr("data-trick-id") != undefined)
+		return $(element).attr("data-trick-id");
 	else if ($(element).parent().prop("tagName") != "BODY")
 		return findTrickID($(element).parent());
 	else

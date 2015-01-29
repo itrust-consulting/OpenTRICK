@@ -169,8 +169,8 @@ function callbackBySection(section) {
 			var text = "";
 
 			$("#" + section + " div[id^='section_standard_']").each(function() {
-				var standard = $(this).attr("trick-label");
-				var standardid = $(this).attr("trick-id");
+				var standard = $(this).attr("data-trick-label");
+				var standardid = $(this).attr("data-trick-id");
 				var link = "#anchorMeasure_" + standardid;
 				text += "<li><a href='" + link + "'>" + standard + "</a></li>";
 			});
@@ -223,11 +223,11 @@ SectionSmartUpdate.prototype = {
 				throw "Table header has been changed";
 
 			for (var i = 0; i < tableDestTrs.length; i++) {
-				var trickId = $(tableDestTrs[i]).attr("trick-id");
+				var trickId = $(tableDestTrs[i]).attr("data-trick-id");
 				if (trickId == undefined)
-					throw "trick-id cannot be found";
+					throw "data-trick-id cannot be found";
 				var $check = $(tableDestTrs[i]).find("td:first-child>input:checked");
-				var $tr = $(src).find("tbody tr[trick-id='" + trickId + "']");
+				var $tr = $(src).find("tbody tr[data-trick-id='" + trickId + "']");
 				if ($tr.length) {
 					if ($check.length)
 						$($tr).find("td:first-child>input").prop("checked", true);
@@ -239,10 +239,10 @@ SectionSmartUpdate.prototype = {
 				}
 			}
 			var $tbody = $(dest).find("tbody");
-			var tableSourceTrs = $(src).find("tbody tr[trick-id]");
+			var tableSourceTrs = $(src).find("tbody tr[data-trick-id]");
 			for (var i = 0; i < tableSourceTrs.length; i++) {
-				var trickId = $(tableSourceTrs[i]).attr("trick-id");
-				var $tr = $(dest).find("tbody tr[trick-id='" + trickId + "']");
+				var trickId = $(tableSourceTrs[i]).attr("data-trick-id");
+				var $tr = $(dest).find("tbody tr[data-trick-id='" + trickId + "']");
 				if (!$tr.length)
 					$(tableSourceTrs[i]).appendTo($tbody);
 			}
