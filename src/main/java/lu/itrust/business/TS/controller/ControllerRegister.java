@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
+import lu.itrust.business.TS.database.service.ServiceEmailSender;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.usermanagement.Role;
@@ -52,6 +53,9 @@ public class ControllerRegister {
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
+	@Autowired 
+	private ServiceEmailSender serviceEmailSender;
+	
 	/**
 	 * add: <br>
 	 * Description
@@ -119,6 +123,8 @@ public class ControllerRegister {
 			// save user
 			this.serviceUser.save(user);
 
+			serviceEmailSender.sendRegistrationMail(user.getLogin(), user.getEmail());
+			
 			return errors;
 		}
 		catch (ConstraintViolationException | DataIntegrityViolationException e) {
@@ -142,7 +148,7 @@ public class ControllerRegister {
 	 */
 	private boolean buildUser(Map<String, String> errors, User user, String source, Locale locale) {
 		try {
-			System.out.println(source);
+			//System.out.println(source);
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
