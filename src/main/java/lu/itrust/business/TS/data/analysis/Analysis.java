@@ -145,10 +145,9 @@ public class Analysis implements Cloneable {
 	private boolean data;
 
 	/** List of users and their access rights */
-	@OneToMany
-	@JoinColumn(name = "fiAnalysis", nullable = false, insertable = true)
-	@Access(AccessType.FIELD)
+	@OneToMany(mappedBy="analysis")
 	@Cascade(CascadeType.ALL)
+	@Access(AccessType.FIELD)
 	private List<UserAnalysisRight> userRights = new ArrayList<UserAnalysisRight>();
 
 	/** List of History data of the Analysis */
@@ -2130,6 +2129,7 @@ public class Analysis implements Cloneable {
 	 * @param userRight
 	 */
 	public void addUserRight(UserAnalysisRight userRight) {
+		userRight.setAnalysis(this);
 		this.userRights.add(userRight);
 	}
 

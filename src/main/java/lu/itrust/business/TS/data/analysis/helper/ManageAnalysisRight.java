@@ -3,15 +3,21 @@
  */
 package lu.itrust.business.TS.data.analysis.helper;
 
+import java.security.Principal;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
+import lu.itrust.business.TS.data.analysis.Analysis;
 import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOUserAnalysisRight;
+import lu.itrust.business.TS.usermanagement.User;
 
+import org.codehaus.jackson.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,18 +28,66 @@ import org.springframework.stereotype.Component;
 @Component
 @Transactional
 public class ManageAnalysisRight {
-	
+
 	@Autowired
 	private DAOUserAnalysisRight daoUserAnalysisRight;
-	
+
 	@Autowired
 	private DAOAnalysis daoAnalysis;
-	
+
 	public void switchAnalysisToReadOnly(String identifier, int idAnalysis) throws Exception {
-		List<UserAnalysisRight> userAnalysisRights = daoUserAnalysisRight.getAllFromIdenfierExceptAnalysisIdAndRightNotRead(identifier,idAnalysis);
+		List<UserAnalysisRight> userAnalysisRights = daoUserAnalysisRight.getAllFromIdenfierExceptAnalysisIdAndRightNotRead(identifier, idAnalysis);
 		for (UserAnalysisRight userAnalysisRight : userAnalysisRights) {
 			userAnalysisRight.setRight(AnalysisRight.READ);
 			daoUserAnalysisRight.saveOrUpdate(userAnalysisRight);
 		}
+	}
+
+	public Map<User, AnalysisRight> updateAnalysisRights(Principal principal, Analysis analysis, List<User> users, JsonNode jsonNode) throws Exception {
+		Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
+		for (User user : users) {
+
+			if (analysis.getRightsforUser(user) != null)
+				userrights.put(user, analysis.getRightsforUser(user).getRight());
+			else
+				userrights.put(user, null);
+
+			if (user.getLogin().equals(principal.getName()))
+				continue;
+
+			int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
+
+			UserAnalysisRight uar = analysis.getRightsforUser(user);
+
+			if (uar != null) {
+
+				if (useraccess == -1) {
+					analysis.getUserRights().remove(uar);
+					daoUserAnalysisRight.delete(uar);
+					userrights.put(user, null);
+				} else {
+					uar.setRight(AnalysisRight.valueOf(useraccess));
+					daoUserAnalysisRight.saveOrUpdate(uar);
+					userrights.put(user, uar.getRight());
+				}
+			} else {
+
+				if (useraccess != -1) {
+
+					if (!user.getCustomers().contains(analysis.getCustomer()))
+						user.addCustomer(analysis.getCustomer());
+
+					uar = new UserAnalysisRight(user, AnalysisRight.valueOf(useraccess));
+					analysis.addUserRight(uar);
+					daoUserAnalysisRight.save(uar);
+					userrights.put(user, uar.getRight());
+				}
+
+			}
+		}
+
+		daoAnalysis.saveOrUpdate(analysis);
+
+		return userrights;
 	}
 }

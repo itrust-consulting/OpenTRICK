@@ -13,6 +13,7 @@ import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.TrickService;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.data.general.Customer;
@@ -85,6 +86,9 @@ public class ControllerAdministration {
 
 	@Autowired
 	private ServiceTrickService serviceTrickService;
+	
+	@Autowired
+	private ManageAnalysisRight manageAnalysisRight;
 
 	@Value("${app.settings.version}")
 	private String version;
@@ -267,63 +271,13 @@ public class ControllerAdministration {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(value);
 
-			Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
-
 			Analysis analysis = serviceAnalysis.get(analysisID);
-
-			List<UserAnalysisRight> uars = analysis.getUserRights();
-
-			for (User user : serviceUser.getAll())
-				userrights.put(DAOHibernate.Initialise(user), null);
-
-			for (UserAnalysisRight uar : uars)
-				userrights.put(DAOHibernate.Initialise(uar.getUser()), DAOHibernate.Initialise(uar.getRight()));
 
 			int currentUser = jsonNode.get("userselect").asInt();
 
 			model.addAttribute("currentUser", currentUser);
 
-			for (User user : serviceUser.getAll()) {
-
-				user = DAOHibernate.Initialise(user);
-
-				if (user.getLogin().equals(principal.getName()))
-					continue;
-
-				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
-
-				for (UserAnalysisRight uar : analysis.getUserRights())
-					uar.setUser(DAOHibernate.Initialise(uar.getUser()));
-
-				UserAnalysisRight uar = analysis.getRightsforUser(user);
-
-				if (uar != null) {
-
-					if (useraccess == -1) {
-						analysis.removeRights(user);
-						serviceUserAnalysisRight.delete(uar);
-						serviceAnalysis.saveOrUpdate(analysis);
-						userrights.put(user, null);
-					} else {
-						uar.setRight(AnalysisRight.valueOf(useraccess));
-						serviceUserAnalysisRight.saveOrUpdate(uar);
-						serviceAnalysis.saveOrUpdate(analysis);
-						userrights.put(user, uar.getRight());
-					}
-				} else {
-
-					if (!user.getCustomers().contains(analysis.getCustomer()))
-						user.addCustomer(analysis.getCustomer());
-
-					if (useraccess != -1) {
-						uar = new UserAnalysisRight(user, AnalysisRight.valueOf(useraccess));
-						userrights.put(user, uar.getRight());
-						serviceUserAnalysisRight.save(uar);
-						serviceAnalysis.saveOrUpdate(analysis);
-					}
-
-				}
-			}
+			Map<User, AnalysisRight> userrights = manageAnalysisRight.updateAnalysisRights(principal, analysis, serviceUser.getAll(), jsonNode);
 
 			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 
@@ -351,7 +305,7 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/User/Section", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public String section(Model model, HttpSession session, Principal principal) throws Exception {
+	public String userSection(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("users", serviceUser.getAll());
 		return "admin/user/users";
 	}
@@ -530,7 +484,7 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/User/Save", method = RequestMethod.POST, headers = "Accept=application/json")
-	public @ResponseBody Map<String, String> save(@RequestBody String value, Locale locale, Principal principal) throws Exception {
+	public @ResponseBody Map<String, String> saveUser(@RequestBody String value, Locale locale, Principal principal) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
@@ -565,23 +519,29 @@ public class ControllerAdministration {
 	 * @throws Exception
 	 */
 	@RequestMapping("/User/Delete/{userId}")
-	public @ResponseBody Boolean delete(@PathVariable("userId") int userId, Principal principal) throws Exception {
+	public @ResponseBody Map<String, String> deleteUser(@PathVariable("userId") int userId, Principal principal, Locale locale) throws Exception {
+
+		Map<String, String> errors = new LinkedHashMap<String, String>();
+
 		try {
 
 			User user = serviceUser.get(userId);
 
 			if (!user.getLogin().equals(principal.getName())) {
-				user.disable();
-				serviceUser.saveOrUpdate(user);
-				serviceUser.delete(userId);
-				return true;
+				customDelete.deleteUser(user);
 			} else {
-				return false;
+
+				errors.put("error", messageSource.getMessage("error.user.delete_your_account", null, "You cannot delete your own account!", locale));
+
+				return errors;
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			errors.put("error", messageSource.getMessage("error.user.delete_failed", null, "Could not delete the account! Make sure the user does not own any analyses!", locale));
 		}
+
+		return errors;
+
 	}
 }

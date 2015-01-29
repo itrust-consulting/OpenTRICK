@@ -8,6 +8,7 @@ import java.util.List;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.usermanagement.Role;
+import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.Session;
@@ -143,6 +144,20 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 		return getSession().createQuery("SELECT user From User as user inner join user.customers as customer where customer = :customer").setParameter("customer", customer).list();
 	}
 
+	/**
+	 * getAllAdministrators: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.TS.database.dao.DAOUser#getAllAdministrators()
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<User> getAllAdministrators() throws Exception {
+		return getSession().createQuery("SELECT user From User as user join user.roles as role where role.type = :role").setParameter("role", RoleType.ROLE_ADMIN).list();
+	}
+	
 	/**
 	 * hasRole: <br>
 	 * Description

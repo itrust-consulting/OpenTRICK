@@ -4,8 +4,6 @@
 package lu.itrust.business.TS.data.actionplan.helper;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,7 +13,6 @@ import lu.itrust.business.TS.data.actionplan.ActionPlanAsset;
 import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
 import lu.itrust.business.TS.data.actionplan.ActionPlanType;
 import lu.itrust.business.TS.data.asset.Asset;
-import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.exception.TrickException;
 
 /**

@@ -289,4 +289,12 @@ public class CustomDelete {
 		daoAnalysis.delete(idAnalysis);
 	}
 
+	@Transactional
+	public void deleteUser(User user) throws Exception {
+		user.disable();
+		user.getCustomers().clear();
+		daoUser.saveOrUpdate(user);
+		daoUser.delete(user.getId());
+	}
+	
 }

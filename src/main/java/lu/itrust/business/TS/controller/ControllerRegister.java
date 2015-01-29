@@ -1,6 +1,7 @@
 package lu.itrust.business.TS.controller;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -120,10 +121,24 @@ public class ControllerRegister {
 			// set role of new user
 			user.addRole(role);
 
-			// save user
+			List<User> admins = serviceUser.getAllAdministrators();
+			
+			
+			try {
+			
+			serviceEmailSender.sendRegistrationMail(admins, user);
+			
 			this.serviceUser.save(user);
-
-			serviceEmailSender.sendRegistrationMail(user.getLogin(), user.getEmail());
+			
+			} catch (Exception e) {
+			// save user
+				e.printStackTrace();
+				
+				errors.put("general", messageSource.getMessage("error.user.save", null, "Error during account creation, please try again later...", locale) );
+			}
+			
+			
+			
 			
 			return errors;
 		}

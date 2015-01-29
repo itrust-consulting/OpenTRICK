@@ -166,6 +166,19 @@ public class ServiceUserImpl implements ServiceUser {
 	}
 
 	/**
+	 * getAllAdministrators: <br>
+	 * Description
+	 *
+	 * @{tags}
+	 *
+	 * @see lu.itrust.business.TS.database.service.ServiceUser#getAllAdministrators()
+	 */
+	@Override
+	public List<User> getAllAdministrators() throws Exception {
+		return daoUser.getAllAdministrators();
+	}
+	
+	/**
 	 * 
 	 * hasRole: <br>
 	 * Description

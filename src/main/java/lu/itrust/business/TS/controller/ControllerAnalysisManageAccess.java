@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.database.dao.hbm.DAOHibernate;
@@ -54,6 +55,9 @@ public class ControllerAnalysisManageAccess {
 	@Autowired
 	private MessageSource messageSource;
 
+	@Autowired
+	private ManageAnalysisRight manageAnalysisRight;
+	
 	/**
 	 * manageaccessrights: <br>
 	 * Description
@@ -107,59 +111,14 @@ public class ControllerAnalysisManageAccess {
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(value);
 
-			Map<User, AnalysisRight> userrights = new LinkedHashMap<>();
-
 			Analysis analysis = serviceAnalysis.get(analysisID);
-
-			List<UserAnalysisRight> uars = analysis.getUserRights();
-
-			for (User user : serviceUser.getAll())
-				userrights.put(DAOHibernate.Initialise(user), null);
-
-			for (UserAnalysisRight uar : uars)
-				userrights.put(DAOHibernate.Initialise(uar.getUser()), DAOHibernate.Initialise(uar.getRight()));
 
 			int currentUser = jsonNode.get("userselect").asInt();
 
 			model.addAttribute("currentUser", currentUser);
 
-			for (User user : serviceUser.getAll()) {
-
-				if (user.getLogin().equals(principal.getName()))
-					continue;
-
-				int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
-
-				UserAnalysisRight uar = analysis.getRightsforUser(user);
-
-				if (uar != null) {
-
-					if (useraccess == -1) {
-						analysis.removeRights(user);
-						serviceUserAnalysisRight.delete(uar);
-						serviceAnalysis.saveOrUpdate(analysis);
-						userrights.put(user, null);
-					} else {
-						uar.setRight(AnalysisRight.valueOf(useraccess));
-						serviceUserAnalysisRight.saveOrUpdate(uar);
-						serviceAnalysis.saveOrUpdate(analysis);
-						userrights.put(user, uar.getRight());
-					}
-				} else {
-
-					if (!user.getCustomers().contains(analysis.getCustomer()))
-						user.addCustomer(analysis.getCustomer());
-
-					if (useraccess != -1) {
-						uar = new UserAnalysisRight(user, AnalysisRight.valueOf(useraccess));
-						analysis.addUserRight(uar);
-						//serviceUserAnalysisRight.save(uar);
-						serviceAnalysis.saveOrUpdate(analysis);
-						userrights.put(user, uar.getRight());
-					}
-
-				}
-			}
+			Map<User, AnalysisRight> userrights = manageAnalysisRight.updateAnalysisRights(principal, analysis, serviceUser.getAll(), jsonNode);
+			
 			model.addAttribute("success", messageSource.getMessage("label.analysis.manage.users.success", null, "Analysis access rights, EXPECT your own, were successfully updated!", locale));
 			model.addAttribute("analysisRights", AnalysisRight.values());
 			model.addAttribute("analysis", analysis);

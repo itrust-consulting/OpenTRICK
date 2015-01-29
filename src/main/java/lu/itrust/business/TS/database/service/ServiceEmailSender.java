@@ -1,5 +1,9 @@
 package lu.itrust.business.TS.database.service;
 
+import java.util.List;
+
+import lu.itrust.business.TS.usermanagement.User;
+
 /** EmailSenderService.java: <br>
  * Detailed description...
  *
@@ -8,7 +12,5 @@ package lu.itrust.business.TS.database.service;
  * @since Jan 26, 2015
  */
 public interface ServiceEmailSender {
-	public static String RESOURCE_FOLDER = "emailTemplate/";
-
-	public abstract void sendRegistrationMail(String user, String email);
+	public void sendRegistrationMail(List<User> recipient, User user) throws Exception;
 }
