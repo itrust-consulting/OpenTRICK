@@ -16,8 +16,8 @@ function importRRF(idAnalysis) {
 						var value = $(e.target).val();
 						if (value == undefined)
 							value = -1;
-						$standards.find("option[name!='" + value + "']").hide().prop("selected", false);
-						$standards.find("option[name='" + value + "']").show();
+						$standards.find("option[data-trick-id!='" + value + "']").hide().prop("selected", false);
+						$standards.find("option[data-trick-id='" + value + "']").show();
 					});
 					var $closeButton = $(modal.modal_header).find("button");
 					var $switchRRFButton = $(modal.modal_footer).find("button[name='show_rrf']");

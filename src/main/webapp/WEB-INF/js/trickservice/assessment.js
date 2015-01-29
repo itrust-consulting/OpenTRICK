@@ -52,7 +52,7 @@ function AssessmentViewer() {
 		var that = this;
 		var resizer = function() {
 			$(that.modal_body).css({
-				'max-height' : ($(window).height() * 0.79) + 'px',
+				'max-height' : ($(window).height() * 0.77) + 'px',
 				'overflow' : 'auto'
 			});
 		}
@@ -62,6 +62,8 @@ function AssessmentViewer() {
 			application.modal["AssessmentViewer"] = undefined;
 			$(window).off(resizer);
 		});
+		
+		$(this.modal).find(".modal-content").css({'padding-bottom':'20px'});
 
 		$(this.modal).on("show.bs.modal", function() {
 			disableEditMode();

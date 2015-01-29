@@ -1,19 +1,15 @@
-			
-					<spring:message code="error.405.method.not.allowed" text="Method Not Allowed" />
-				
-				
-				
-				
-				<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<spring:message code="error.405.method.not.allowed" text="Method Not Allowed" />
 <!-- ################################################################ Set Page Title ################################################################ -->
 <c:set scope="request" var="title">
 	title.405
 </c:set>
 <!-- ###################################################################### HTML #################################################################### -->
+<!DOCTYPE html>
 <html>
 <!-- Include Header -->
 <jsp:include page="../header.jsp" />

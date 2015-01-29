@@ -114,7 +114,7 @@
 										data-content='<pre><spring:message text="${measureDescriptionText.description}" /></pre>' title='<spring:message text="${measure.measureDescription.reference}" />'
 										${analysisOnly?dblclickaction:''}><spring:message text="${measure.measureDescription.reference}" /></td>
 									<td ${analysisOnly?dblclickaction:''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-									<td ${css} textaligncenter" data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-field-type="string" onclick="return editField(this);"><spring:message
+									<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-field-type="string" onclick="return editField(this);"><spring:message
 											text="${measure.status}" /></td>
 									<td ${css} data-trick-field="implementationRate" ${standardType.name.equals('MATURITY')?'data-trick-class="MaturityMeasure"':''} data-trick-field-type="double"
 										data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')" onclick="return editField(this);"><fmt:formatNumber

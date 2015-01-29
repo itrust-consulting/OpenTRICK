@@ -27,7 +27,7 @@
 						<c:forEach items="${profiles}" var="profile">
 							<c:forEach items="${profile.analysisStandards}" var="analysisStandard">
 								<c:if test="${idStandards.contains(analysisStandard.standard.id)}">
-									<option title="${analysisStandard.standard.label} - v. ${analysisStandard.standard.version}" value="${analysisStandard.standard.id}" name="${profile.id}"><spring:message
+									<option title="${analysisStandard.standard.label} - v. ${analysisStandard.standard.version}" value="${analysisStandard.standard.id}" data-trick-id="${profile.id}"><spring:message
 											text="${analysisStandard.standard.label}" /></option>
 								</c:if>
 							</c:forEach>

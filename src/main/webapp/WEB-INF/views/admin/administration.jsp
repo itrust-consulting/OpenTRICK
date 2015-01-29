@@ -16,15 +16,15 @@
 		<!-- ################################################################### Nav Menu ################################################################### -->
 		<jsp:include page="../menu.jsp" />
 		<div class="container">
-			<jsp:include page="../successErrors.jsp" />
 			<!-- #################################################################### Content ################################################################### -->
-			<div class="page-header">
-				<h1>
-					<spring:message code="label.title.administration" text="Administration" />
-				</h1>
-			</div>
-			<div class="content" id="content">
-				<div id="messages"></div>
+			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
+				<li class="active"><a href="#tab_status" data-toggle="tab"><spring:message code="label.menu.installation.status" text="Status" /></a></li>
+				<li><a href="#tab_user" data-toggle="tab"><spring:message code="menu.admin.user" text="User" /></a></li>
+				<li><a href="#tab_customer" data-toggle="tab"><spring:message code="menu.knowledgebase.customers" text="Customers"/></a></li>
+				<li><a href="#tab_analyses" data-toggle="tab"><spring:message code="label.analysis.title" text="All Analyses" /></a></li>
+			</ul>
+			<jsp:include page="../successErrors.jsp" />
+			<div class="tab-content" id="tab-container">
 				<jsp:include page="status.jsp" />
 				<jsp:include page="user/users.jsp" />
 				<jsp:include page="./customer/customers.jsp" />

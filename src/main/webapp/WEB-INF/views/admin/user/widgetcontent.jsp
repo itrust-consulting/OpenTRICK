@@ -14,7 +14,7 @@
 			</div>
 			<div class="modal-body">
 				<span id="success" hidden="hidden"></span>
-				<form name="user" action="User/Save" class="form-horizontal" id="user_form" commandName="user">
+				<form name="user" action="User/Save" class="form-horizontal" id="user_form" name="user">
 					<input type="hidden" name="id" value="-1" id="user_id">
 					<div class="form-group">
 						<label for="login" class="col-sm-2 control-label"> <spring:message code="label.user.login" text="Username"/>

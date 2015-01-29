@@ -18,12 +18,14 @@
 		<div class="container">
 			<jsp:include page="../successErrors.jsp" />
 			<!-- #################################################################### Content ################################################################### -->
-			<div class="page-header">
-				<h1>
-					<spring:message code="title.knowledgebase" text="Knowledge Base" />
-				</h1>
-			</div>
-			<div class="content" id="content" role="main" data-spy="scroll">
+			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
+				<li class="active"><a href="#tab_customer" data-toggle="tab"><spring:message code="title.menu.knowledgebase.customers" text="Customers"/></a></li>
+				<li><a href="#tab_language" data-toggle="tab"><spring:message code="title.menu.knowledgebase.languages" text="Language"/></a></li>
+				<li><a href="#tab_standard" data-toggle="tab"><spring:message code="label.menu.knowledgebase.standards" text="Standards" /></a></li>
+				<li><a href="#tab_analyses" data-toggle="tab"><spring:message code="label.analysis.profile.title" text="Analysis profiles" /></a></li>
+				
+			</ul>
+			<div class="tab-content" id="tab-container">
 				<jsp:include page="customer/customers.jsp" />
 				<jsp:include page="language/languages.jsp" />
 				<jsp:include page="standards/standard/standards.jsp" />

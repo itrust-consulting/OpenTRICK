@@ -2,7 +2,10 @@ var previous;
 
 $(document).ready(function() {
 	$("input[type='checkbox']").removeAttr("checked");
-	analysisTableSortable();
+	$("#tab-container table").stickyTableHeaders({
+		cssTopOffset : ".nav-tab",
+		fixedOffset : 6
+	});
 });
 
 function installTrickService() {
@@ -97,8 +100,8 @@ function updatemanageAnalysisAccess(analysisId, userrightsform) {
 
 function findTrickisProfile(element) {
 	if (element != undefined && element != null && element.length > 0 && element.length < 2)
-		if ($(element).attr("data-trick-isProfile") != undefined)
-			return $(element).attr("data-trick-isProfile");
+		if ($(element).attr("data-trick-is-profile") != undefined)
+			return $(element).attr("data-trick-is-profile");
 		else if ($(element).parent().prop("tagName") != "BODY")
 			return findTrickisProfile($(element).parent());
 		else
@@ -122,7 +125,11 @@ function adminCustomerChange(selector) {
 			var doc = parser.parseFromString(response, "text/html");
 			newSection = $(doc).find("*[id ='section_admin_analysis']");
 			$("#section_admin_analysis").replaceWith(newSection);
-			analysisTableSortable();
+			$("#section_admin_analysis table").stickyTableHeaders({
+				cssTopOffset : ".nav-tab",
+				fixedOffset : 6
+			});
+			
 		},
 		error : unknowError
 	});
@@ -171,101 +178,5 @@ function deleteAdminAnalysis(analysisId, section_analysis) {
 	});
 	$(modal.modal).find("#deleteanalysisbuttonYes").prop("disabled", false);
 	modal.Show();
-	return false;
-}
-
-function analysisTableSortable() {
-
-	// check if datatable has to be initialised
-	var tables = $("#section_admin_analysis table");
-
-	if (!tables.length)
-		return false;
-
-	// define sort order of text
-	Array.AlphanumericSortOrder = 'AaÁáBbCcDdÐðEeÉéĘęFfGgHhIiÍíJjKkLlMmNnOoÓóPpQqRrSsTtUuÚúVvWwXxYyÝýZzÞþÆæÖö';
-
-	// flag to check for case sensitive comparation
-	Array.AlphanumericSortIgnoreCase = true;
-
-	// call the tablesorter plugin and apply the uitheme widget
-	$(tables).tablesorter({
-		headers : {
-			0 : {
-				sorter : false,
-				filter : false,
-				width : "0.5%"
-			},
-			1 : {
-				sorter : "text",
-				filter : false,
-				width : "10%",
-			},
-			2 : {
-				sorter : "text",
-				filter : false,
-			},
-			3 : {
-				sorter : "text",
-				filter : false,
-			},
-			4 : {
-				sorter : "text",
-				filter : false,
-			},
-			5 : {
-				sorter : "text",
-				filter : false,
-			},
-			6 : {
-				sorter : "text",
-				filter : false,
-			},
-			7 : {
-				sorter : "text",
-				filter : false,
-			},
-		},
-		textSorter : {
-			1 : Array.AlphanumericSort,
-			2 : function(a, b, direction, column, table) {
-				if (table.config.sortLocaleCompare)
-					return a.localeCompare(b);
-				return versionComparator(a, b, direction);
-			},
-			3 : $.tablesorter.sortNatural,
-		},
-		theme : "bootstrap",
-		dateFormat : "yyyymmdd",
-		widthFixed : false,
-		headerTemplate : '{content} {icon}',
-		widgets : [ "uitheme", "filter", "zebra" ],
-		widgetOptions : {
-			zebra : [ "even", "odd" ],
-			filter_reset : ".reset"
-		}
-	});
-	$("th[class~='tablesorter-header'][data-column='0']").css({
-		'width' : '2px'
-	});
-	$("th[class~='tablesorter-header'][data-column='1']").css({
-		'width' : '250px'
-	});
-	// $("th[class~='tablesorter-header'][data-column='2']").css({'width':'2px'});
-	$("th[class~='tablesorter-header'][data-column='3']").css({
-		'width' : '250px'
-	});
-	$("th[class~='tablesorter-header'][data-column='4']").css({
-		'width' : '150px'
-	});
-	$("th[class~='tablesorter-header'][data-column='5']").css({
-		'width' : '250px'
-	});
-	$("th[class~='tablesorter-header'][data-column='6']").css({
-		'width' : '150px'
-	});
-	$("th[class~='tablesorter-header'][data-column='7']").css({
-		'width' : '50px'
-	});
 	return false;
 }
