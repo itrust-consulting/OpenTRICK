@@ -41,7 +41,7 @@ body {
 	width: 96%;
 }
 
-.nav-analysis {
+.nav-analysis, .nav-tab {
 	z-index: 1030;
 	background-color: white;
 	padding-top: 5px;
@@ -63,8 +63,7 @@ body {
 	z-index: 10;
 }
 
-.carousel-control.no-background .icon-next, .carousel-control.no-background .icon-prev
-	{
+.carousel-control.no-background .icon-next, .carousel-control.no-background .icon-prev {
 	font-size: 60px;
 }
 
@@ -85,7 +84,7 @@ body {
 	margin-top: -50px;
 }
 
-#nav-container {
+#nav-container,#tab-container {
 	margin-top: 50px;
 	padding-top: 5px;
 }
@@ -95,9 +94,10 @@ body {
 	padding-top: 120px;
 }
 
-.nav.bordered-bottom{
+.nav.bordered-bottom {
 	border-bottom: 1px solid #dddddd;
 }
+
 .navbar-custom {
 	margin-top: 50px;
 	width: auto;
@@ -115,8 +115,7 @@ body {
 	width: 100%;
 }
 
-table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1
-	{
+table.dataTable tr.odd td.sorting_1, table.dataTable tr.even td.sorting_1 {
 	background-color: #FFFFFF;
 }
 
@@ -456,9 +455,7 @@ a[role="changeUILanguage"]:hover {
 	margin-top: 0px;
 }
 
-.tab-content-header h1, .tab-content-header h2, .tab-content-header h3,
-	.tab-content-header h4, .tab-content-header h5, .tab-content-header h6
-	{
+.tab-content-header h1, .tab-content-header h2, .tab-content-header h3, .tab-content-header h4, .tab-content-header h5, .tab-content-header h6 {
 	margin-top: 10px;
 }
 

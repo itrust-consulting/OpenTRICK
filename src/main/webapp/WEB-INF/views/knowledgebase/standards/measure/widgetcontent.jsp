@@ -5,12 +5,12 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="section_measure_description" class="modal fade" tabindex="-1" role="dialog" data-aria-labelledby="showMeasures" data-aria-hidden="true">
 	<div class="modal-dialog" style="width: 95%;min-width:1170px;">
-		<div class="modal-content">
+		<div class="modal-content" style="padding-bottom:20px">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="measures_header"></h4>
 			</div>
-			<div id="measures_body" class="modal-body"></div>
+			<div id="measures_body" class="modal-body" style="max-height: 700px; overflow: auto; padding-bottom: 10px;"></div>
 		</div>
 	</div>
 </div>

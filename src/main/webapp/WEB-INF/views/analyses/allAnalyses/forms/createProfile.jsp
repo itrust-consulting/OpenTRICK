@@ -34,7 +34,7 @@
 									</select>
 									<ul class="list-group">
 										<c:forEach items="${analysisStandards}" var="analysisStandard">
-											<a opt="standard_${analysisStandard.standard.id}" class="list-group-item active" style="border: 1px solid #dddddd;">${analysisStandard.standard.label}</a>
+											<a data-trick-opt="standard_${analysisStandard.standard.id}" class="list-group-item active" style="border: 1px solid #dddddd;">${analysisStandard.standard.label}</a>
 										</c:forEach>
 									</ul>
 								</c:if>

@@ -14,7 +14,7 @@ function initUserCustomerList() {
 		$(this).toggleClass('active');
 		var allVal = new Array();
 		$('#customerusersform .list-group li.active').each(function() {
-			allVal.push($(this).attr('opt'));
+			allVal.push($(this).attr(data-trick-opt));
 		});
 		$('#usercustomer').val(allVal);
 	});
@@ -186,7 +186,8 @@ function editSingleCustomer(customerId) {
 }
 
 function manageUsers(customerID) {
-
+	if(!isNotCustomerProfile())
+		return false;
 	if (customerID == null || customerID == undefined) {
 		var selectedScenario = findSelectItemIdBySection(("section_customer"));
 		if (selectedScenario.length != 1)
@@ -208,6 +209,11 @@ function manageUsers(customerID) {
 	});
 	$("#manageCustomerUserModel").modal('toggle');
 	return false;
+}
+
+function isNotCustomerProfile(){
+	var $selectedCustomer = $("#section_customer tbody>tr>td>input:checked");
+	return $selectedCustomer.parent().parent().attr("data-trick-is-profile")==="false";
 }
 
 function updateManageUsers(customerID, form) {

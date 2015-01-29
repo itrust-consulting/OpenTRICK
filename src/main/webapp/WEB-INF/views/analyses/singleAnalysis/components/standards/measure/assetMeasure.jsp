@@ -76,7 +76,7 @@
 					</select>
 					<ul style="padding: 0; margin: 0; max-height: 300px; overflow: scroll;" data-trick-type="available">
 						<c:forEach items="${availableAssets}" var="availableAsset">
-							<li style="cursor: pointer;${availableAsset.assetType.type.equals(selectedAssetType)?'display:block;':'display:none;' }" opt="asset_${availableAsset.id}"
+							<li style="cursor: pointer;${availableAsset.assetType.type.equals(selectedAssetType)?'display:block;':'display:none;' }" data-trick-opt="asset_${availableAsset.id}"
 								class="list-group-item" data-trick-type="${availableAsset.assetType.type}"><spring:message text="${availableAsset.name}" /></li>
 						</c:forEach>
 					</ul>
@@ -95,7 +95,7 @@
 					</select>
 					<ul style="padding: 0; margin: 0;" data-trick-type="measure">
 						<c:forEach items="${measureAssets}" var="measureAsset">
-							<li style="cursor: pointer;${measureAsset.assetType.type.equals(selectedAssetType)?'display:block;':'display:none;' }" opt="asset_${measureAsset.id}" class="list-group-item"
+							<li style="cursor: pointer;${measureAsset.assetType.type.equals(selectedAssetType)?'display:block;':'display:none;' }" data-trick-opt="asset_${measureAsset.id}" class="list-group-item"
 								data-trick-type="${measureAsset.assetType.type}"><spring:message text="${measureAsset.name}" /></li>
 						</c:forEach>
 					</ul>

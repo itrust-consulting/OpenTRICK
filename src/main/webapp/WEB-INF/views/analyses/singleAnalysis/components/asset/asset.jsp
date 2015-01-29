@@ -8,7 +8,6 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="tab-pane"  id="tabAsset">
 	<div class="section" id="section_asset">
-	
 		<ul class="nav nav-pills bordered-bottom" id="menu_asset">
 			<c:if test="${isEditable}">
 				<li><a href="#anchorAsset" onclick="return editAsset(undefined,true);"><span class="glyphicon glyphicon-plus primary"></span> <fmt:message key="label.action.add.asset" /></a></li>
@@ -86,15 +85,15 @@
 					<fmt:setLocale value="fr" scope="session" />
 					<c:choose>
 						<c:when test="${show_uncertainty}">
-							<td name="ale" title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+							<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 									value="${fct:round(ale[0].value*0.001,0)}" maxFractionDigits="0" /></td>
-							<td name="ale" title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+							<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 									value="${fct:round(ale[1].value*0.001,0)}" maxFractionDigits="0" /></td>
-							<td name="ale" title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+							<td title="<fmt:formatNumber value="${fct:round(ale[2].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 									value="${fct:round(ale[2].value*0.001,0)}" maxFractionDigits="0" /></td>
 						</c:when>
 						<c:otherwise>
-							<td name="ale" title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
+							<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" maxFractionDigits="0" /> &euro;"><fmt:formatNumber
 									value="${fct:round(ale[1].value*0.001,0)}" maxFractionDigits="0" /></td>
 						</c:otherwise>
 					</c:choose>
