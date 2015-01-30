@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>TrickService</artifactId>
-	<version>0.7.8e</version>
+	<version>0.7.8f</version>
 	<packaging>war</packaging>
 	<properties>
 		<org.springframework.version>4.1.4.RELEASE</org.springframework.version>
@@ -11,18 +11,18 @@
 	</properties>
 	<dependencies>
 
-<dependency>
-    <groupId>javax.servlet</groupId>
-    <artifactId>javax.servlet-api</artifactId>
-    <version>3.0.1</version>
-    <scope>provided</scope>
-</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.0.1</version>
+			<scope>provided</scope>
+		</dependency>
 
-<dependency>
-	<groupId>javax.mail</groupId>
-	<artifactId>mail</artifactId>
-	<version>1.4</version>
-</dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>1.4</version>
+		</dependency>
 
 		<!-- Spring dependencies -->
 		<dependency>
@@ -171,18 +171,18 @@
 			<artifactId>standard</artifactId>
 			<version>1.1.2</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>javax.servlet.jsp.jstl</groupId>
 			<artifactId>javax.servlet.jsp.jstl-api</artifactId>
 			<version>1.2.1</version>
 		</dependency>
 
-		<dependency>
+		<!-- <dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.30</version>
-		</dependency>
+		</dependency> -->
 
 		<dependency>
 			<groupId>commons-dbcp</groupId>
@@ -222,9 +222,9 @@
 
 		<!-- AJAX json -->
 		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.9.2</version>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.5.0</version>
 		</dependency>
 
 		<dependency>

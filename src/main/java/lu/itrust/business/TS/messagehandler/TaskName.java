@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.TS.messagehandler;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author eom

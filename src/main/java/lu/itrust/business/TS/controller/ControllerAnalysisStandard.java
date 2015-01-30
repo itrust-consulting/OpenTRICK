@@ -64,8 +64,6 @@ import lu.itrust.business.TS.validator.MeasureDescriptionValidator;
 import lu.itrust.business.TS.validator.StandardValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -77,6 +75,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * ControllerAnalysisStandard.java: <br>
@@ -1281,7 +1282,7 @@ public class ControllerAnalysisStandard {
 
 			if (mesdesc.isComputable()) {
 
-				Iterator<String> assetnodes = jsonNode.get("measureassetvalues").getFieldNames();
+				Iterator<String> assetnodes = jsonNode.get("measureassetvalues").fieldNames();
 
 				Map<Asset, Integer> assets = new LinkedHashMap<Asset, Integer>();
 
@@ -1343,7 +1344,7 @@ public class ControllerAnalysisStandard {
 				}
 				measure.getMeasureAssetValues().clear();
 			}
-			Iterator<String> properties = jsonNode.get("properties").getFieldNames();
+			Iterator<String> properties = jsonNode.get("properties").fieldNames();
 
 			while (properties.hasNext()) {
 
@@ -1351,7 +1352,7 @@ public class ControllerAnalysisStandard {
 
 				if (property.equals("categories")) {
 
-					Iterator<String> categories = jsonNode.get("properties").get("categories").getFieldNames();
+					Iterator<String> categories = jsonNode.get("properties").get("categories").fieldNames();
 
 					while (categories.hasNext()) {
 						String category = categories.next();
