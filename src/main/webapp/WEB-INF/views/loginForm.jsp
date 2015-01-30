@@ -40,9 +40,9 @@
 						<input name="j_password" value="${(!empty (j_password))? j_password : ''}" type="password" class="form-control"
 							placeholder="<spring:message code='label.signin.password' text='Password' />" required="required" />
 					</div>
-					<!-- <div class="checkbox">
-						<label><spring:message code="label.signin.rememberMe" text="Remember me" /> <input type='checkbox' name='_spring_security_remember_me' /></label>
-					</div> -->
+					<div class="form-group">
+						<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/ResetPassword" > <spring:message code="label.reset.password" text="Reset password" /></a>
+					</div>
 					<div class="form-group">
 						<button type="submit" id="login_signin_button" class="btn btn-danger navbar-btn" style="width: 100%;">
 							<spring:message code="label.action.signin" text="Sign in" />

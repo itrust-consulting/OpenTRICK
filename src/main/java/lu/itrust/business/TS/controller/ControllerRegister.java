@@ -1,19 +1,28 @@
 package lu.itrust.business.TS.controller;
 
+import java.security.Principal;
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceEmailSender;
+import lu.itrust.business.TS.database.service.ServiceResetPassword;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.usermanagement.ChangePasswordhelper;
+import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.Role;
 import lu.itrust.business.TS.usermanagement.RoleType;
 import lu.itrust.business.TS.usermanagement.User;
+import lu.itrust.business.TS.usermanagement.helper.ResetPasswordHelper;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
 
@@ -23,6 +32,12 @@ import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -55,9 +70,12 @@ public class ControllerRegister {
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
-	@Autowired 
+	@Autowired
 	private ServiceEmailSender serviceEmailSender;
-	
+
+	@Autowired
+	private ServiceResetPassword serviceResetPassword;
+
 	/**
 	 * add: <br>
 	 * Description
@@ -67,11 +85,146 @@ public class ControllerRegister {
 	 */
 	@RequestMapping("/Register")
 	public String add(Map<String, Object> model) {
-
 		// create new user object and add it to model
 		model.put("user", new User());
-
 		return "register";
+	}
+
+	@RequestMapping("/ResetPassword")
+	public String resetPassword(Principal principal, Model model, HttpSession session) {
+		if (principal != null)
+			return "redirect:/Home";
+		Integer attemption = (Integer) session.getAttribute("attemption");
+		if (attemption == null)
+			attemption = 1;
+		else {
+			if (++attemption > 3 && session.getMaxInactiveInterval() < 90000)
+				return "redirect:/Login";
+			if (attemption > 3)
+				attemption = 1;
+		}
+		session.setAttribute("attemption", attemption);
+		model.addAttribute("resetPassword", new ResetPasswordHelper());
+		return "resetPassword";
+	}
+
+	@RequestMapping("/ChangePassword/{keyControl}")
+	public String updatePassword(@PathVariable String keyControl, Principal principal,Model model, RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
+		if (principal != null)
+			return "redirect:/Home";
+		HttpSession session = request.getSession();
+		Integer attemption = (Integer) session.getAttribute("attemption-request");
+		if (attemption == null)
+			attemption = 1;
+		else {
+			if (++attemption > 4 && session.getMaxInactiveInterval() < 90000)
+				return "redirect:/Login";
+			if (attemption > 4)
+				attemption = 1;
+		}
+		session.setAttribute("attemption-request", attemption);
+		ResetPassword resetPassword = serviceResetPassword.get(keyControl);
+		if (resetPassword == null)
+			return "redirect:/Login";
+		session.removeAttribute("attemption-request");
+		if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.reset.password.request.expired", null, "Your request has been expired", locale));
+			return "redirect:/Login";
+		}
+		model.addAttribute("changePassword", new ChangePasswordhelper(keyControl));
+		return "changePassword";
+	}
+	
+	
+	@RequestMapping("/ChangePassword/Save")
+	public String updatePassword(@ModelAttribute ChangePasswordhelper changePasswordhelper, BindingResult result, Principal principal,Model model, RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
+		if (principal != null)
+			return "redirect:/Home";
+		HttpSession session = request.getSession();
+		Integer attemption = (Integer) session.getAttribute("attemption-change-password");
+		if (attemption == null)
+			attemption = 1;
+		else {
+			if (++attemption > 4 && session.getMaxInactiveInterval() < 90000)
+				return "redirect:/Login";
+			if (attemption > 4)
+				attemption = 1;
+		}
+		ValidationUtils.rejectIfEmptyOrWhitespace(result,"password", "error.user.password.empty", "Password cannot be empty");
+		ValidationUtils.rejectIfEmptyOrWhitespace(result,"repeatPassword", "error.user.password.empty", "Password cannot be empty");
+		if (!result.hasFieldErrors("password") && !changePasswordhelper.getRepeatPassword().matches(Constant.REGEXP_VALID_PASSWORD))
+			result.rejectValue("password", "errors.user.password.invalid", "Password does not match policy (8 characters, at least one digit, one lower and one uppercase)");
+		if (!result.hasFieldErrors("repeatPassword") && !changePasswordhelper.getRepeatPassword().equals(changePasswordhelper.getPassword()))
+			result.rejectValue("repeatPassword", "errors.user.repeatPassword.not_same", "Passwords are not the same");
+		if(result.hasErrors())
+			return "changePassword";
+		session.setAttribute("attemption-request", attemption);
+		ResetPassword resetPassword = serviceResetPassword.get(changePasswordhelper.getRequestId());
+		if (resetPassword == null)
+			return "redirect:/Login";
+		session.removeAttribute("attemption-change-password");
+		if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.reset.password.request.expired", null, "Your request has been expired", locale));
+			return "redirect:/Login";
+		}
+		
+		try {
+			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+			resetPassword.getUser().setPassword(passwordEncoder.encodePassword(changePasswordhelper.getPassword(), resetPassword.getUser().getLogin()));
+			serviceUser.saveOrUpdate(resetPassword.getUser());
+			serviceResetPassword.delete(resetPassword);
+			attributes.addFlashAttribute("success", messageSource.getMessage("success.change.password", null, "Your password was successfully changed", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+	
+		return "redirect:/Login";
+	}
+	
+
+	@RequestMapping("/ResetPassword/Save")
+	public String resetPassword(@ModelAttribute ResetPasswordHelper resetPassword, BindingResult result, Principal principal, RedirectAttributes attributes, Locale locale,
+			HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		if (principal != null)
+			return "redirect:/Home";
+		Integer attemption = (Integer) session.getAttribute("attemption-save");
+		if (attemption == null)
+			attemption = 1;
+		else {
+			if (++attemption > 4 && session.getMaxInactiveInterval() < 90000)
+				return "redirect:/Login";
+			if (attemption > 4)
+				attemption = 1;
+		}
+		session.setAttribute("attemption-save", attemption);
+		if (resetPassword.isEmpty()) {
+			result.reject("error.reset.password.field.empty", "Please enter your username or your eamil address");
+			return "resetPassword";
+		}
+
+		try {
+			User user = StringUtils.isEmpty(resetPassword.getUsername()) ? serviceUser.getByEmail(resetPassword.getEmail()) : serviceUser.get(resetPassword.getUsername());
+			if (user != null) {
+				ResetPassword resetPassword2 = serviceResetPassword.get(user);
+				if (resetPassword2 != null)
+					serviceResetPassword.delete(resetPassword2);
+				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+				resetPassword2 = new ResetPassword(user, passwordEncoder.encodePassword(String.valueOf(System.nanoTime()), user.getLogin()), new Timestamp(
+						System.currentTimeMillis() + 90000));
+				String url = request.getRequestURL().toString().replace("ResetPassword/Save", "ChangePassword/" + resetPassword2.getKeyControl());
+				serviceResetPassword.saveOrUpdate(resetPassword2);
+				serviceEmailSender.sendResetPassword(resetPassword2, url, locale);
+			}
+			attributes.addFlashAttribute("success",
+					messageSource.getMessage("success.reset.password.email.send", null, "You will receive an email to reset your password, you have 15 minutes to do.", locale));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+		return "redirect:/Login";
 	}
 
 	/**
@@ -87,16 +240,16 @@ public class ControllerRegister {
 	 */
 	@RequestMapping(value = "/DoRegister", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, HttpServletResponse response) throws Exception {
-		
+
 		Map<String, String> errors = new LinkedHashMap<>();
-		
+
 		try {
 
 			User user = new User();
-			
+
 			if (!buildUser(errors, user, source, locale))
 				return errors;
-			
+
 			// check if users exist and give first user admin role
 			Role role = null;
 			if (serviceUser.noUsers()) {
@@ -118,40 +271,36 @@ public class ControllerRegister {
 			}
 
 			user.getRoles().clear();
-			
+
 			// set role of new user
 			user.addRole(role);
 
 			List<User> admins = serviceUser.getAllAdministrators();
-			
-			
+
 			try {
-			
-			serviceEmailSender.sendRegistrationMail(admins, user);
-			
-			this.serviceUser.save(user);
-			
+
+				serviceEmailSender.sendRegistrationMail(admins, user);
+
+				this.serviceUser.save(user);
+
 			} catch (Exception e) {
-			// save user
+				// save user
 				e.printStackTrace();
-				
-				errors.put("general", messageSource.getMessage("error.user.save", null, "Error during account creation, please try again later...", locale) );
+
+				errors.put("general", messageSource.getMessage("error.user.save", null, "Error during account creation, please try again later...", locale));
 			}
-			
-			
-			
-			
+
 			return errors;
-		}
-		catch (ConstraintViolationException | DataIntegrityViolationException e) {
-			
-			errors.put("constraint", messageSource.getMessage("error.user.constraint", null, "A username already exists with this email! Choose another username or email!", locale));
-			errors.put("login",messageSource.getMessage("error.user.username.used_change", null, "Change the username", locale) );
-			errors.put("email",messageSource.getMessage("error.user.email.used_change", null, "Change the email", locale) );
+		} catch (ConstraintViolationException | DataIntegrityViolationException e) {
+
+			errors.put("constraint",
+					messageSource.getMessage("error.user.constraint", null, "A username already exists with this email! Choose another username or email!", locale));
+			errors.put("login", messageSource.getMessage("error.user.username.used_change", null, "Change the username", locale));
+			errors.put("email", messageSource.getMessage("error.user.email.used_change", null, "Change the email", locale));
 			return errors;
 		}
 	}
-	
+
 	/**
 	 * buildCustomer: <br>
 	 * Description
@@ -164,7 +313,7 @@ public class ControllerRegister {
 	 */
 	private boolean buildUser(Map<String, String> errors, User user, String source, Locale locale) {
 		try {
-			//System.out.println(source);
+			// System.out.println(source);
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
 			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
@@ -180,25 +329,25 @@ public class ControllerRegister {
 			String email = jsonNode.get("email").asText();
 			String userlocale = jsonNode.get("locale").asText();
 			String error = null;
-			
+
 			error = validator.validate(user, "login", login);
 			if (error != null)
 				errors.put("login", serviceDataValidation.ParseError(error, messageSource, locale));
-			else 
+			else
 				user.setLogin(login);
-			
+
 			error = validator.validate(user, "password", password);
 			if (error != null)
 				errors.put("password", serviceDataValidation.ParseError(error, messageSource, locale));
-			else 
+			else
 				user.setPassword(password);
-			
+
 			error = validator.validate(user, "repeatPassword", repeatedPassword);
 			if (error != null)
 				errors.put("repeatPassword", serviceDataValidation.ParseError(error, messageSource, locale));
-			else 
+			else
 				user.setPassword(passwordEncoder.encodePassword(user.getPassword(), user.getLogin()));
-			
+
 			error = validator.validate(user, "firstName", firstname);
 			if (error != null)
 				errors.put("firstName", serviceDataValidation.ParseError(error, messageSource, locale));
@@ -210,27 +359,26 @@ public class ControllerRegister {
 				errors.put("lastName", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
 				user.setLastName(lastname);
-			
+
 			error = validator.validate(user, "email", email);
 			if (error != null)
 				errors.put("email", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
 				user.setEmail(email);
-			
+
 			error = validator.validate(user, "locale", userlocale);
 			if (error != null)
 				errors.put("locale", serviceDataValidation.ParseError(error, messageSource, locale));
 			else
 				user.setLocale(userlocale);
-			
+
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage(e.getMessage(), null, e.getMessage(), locale));
 			e.printStackTrace();
 		}
 
-
 		return errors.isEmpty();
 
 	}
-	
+
 }

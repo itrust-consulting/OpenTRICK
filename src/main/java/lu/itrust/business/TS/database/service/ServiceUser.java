@@ -44,4 +44,6 @@ public interface ServiceUser {
 	public void delete(Integer id) throws Exception;
 
 	public void delete(User user) throws Exception;
+
+	public User getByEmail(String email);
 }

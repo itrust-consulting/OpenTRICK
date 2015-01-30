@@ -10,8 +10,9 @@
 <jsp:include page="header.jsp" />
 <body>
 	<div class="container">
-		<div style="margin: 0 auto; max-width: 600px; padding: 15px;">
-			<h2 class="form-signin-heading col-sm-offset-5">
+		<img class="center-block"  alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/TrickService.png" /> style="height: 200px; margin-top: 50px;">
+		<div style="margin: 0 auto; max-width: 600px; padding: 0px 15px">
+			<h2 class="form-signin-heading col-sm-offset-3">
 				<spring:message code="label.title.user.register" text="Sign up" />
 			</h2>
 			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/Login" style="margin-top: -35px;"><spring:message code="label.menu.navigate.back" text="Back" /></a>

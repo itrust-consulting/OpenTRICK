@@ -81,8 +81,16 @@
 
 	<bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
 		<property name="host" value="smtp.pt.lu" />
-		<!-- <property name="username" value="yourgmailid@gmail.com" /> <property name="password" value="yourgmailpassword" /> <property name="javaMailProperties"> <props> <prop key="mail.smtp.auth">true</prop> 
-			<prop key="mail.smtp.socketFactory.port">465</prop> <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop> <prop key="mail.smtp.port">465</prop> </props> </property> -->
+	</bean>
+	
+	<bean id="velocityEngine"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="velocityProperties">
+			<value>
+				resource.loader=class
+				class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+			</value>
+		</property>
 	</bean>
 
 	<mvc:interceptors>

@@ -251,4 +251,9 @@ public class ServiceUserImpl implements ServiceUser {
 	public void delete(User user) throws Exception {
 		daoUser.delete(user);
 	}
+
+	@Override
+	public User getByEmail(String email) {
+		return daoUser.getByEmail(email);
+	}
 }

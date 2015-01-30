@@ -213,4 +213,9 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 	public void delete(Integer id) throws Exception {
 		delete(get(id));
 	}
+
+	@Override
+	public User getByEmail(String email) {
+		return (User) getSession().createQuery("From User where email = :email").setString("email", email).uniqueResult();
+	}
 }
