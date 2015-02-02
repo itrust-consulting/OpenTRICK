@@ -103,6 +103,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
 
+	private static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
+
 	@Autowired
 	private ServiceUser serviceUser;
 
@@ -189,10 +191,10 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private Duplicator duplicator;
-	
+
 	@Autowired
 	private ManageAnalysisRight manageAnalysisRight;
-	
+
 	@Autowired
 	private CustomDelete customDelete;
 
@@ -237,8 +239,8 @@ public class ControllerAnalysis {
 
 			User user = serviceUser.get(principal.getName());
 
-			hasPermission =
-				analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : permissionEvaluator.userIsAuthorized(selected, principal, AnalysisRight.READ);
+			hasPermission = analysis.isProfile() ? user.hasRole(RoleType.ROLE_CONSULTANT) || user.hasRole(RoleType.ROLE_ADMIN) : permissionEvaluator.userIsAuthorized(selected,
+					principal, AnalysisRight.READ);
 
 			if (hasPermission) {
 
@@ -274,11 +276,28 @@ public class ControllerAnalysis {
 			// retrieve currently selected customer
 			Integer customer = (Integer) session.getAttribute("currentCustomer");
 
-			// check if the current customer is set -> no
-			if (customer == null && !customers.isEmpty())
+			User user = null;
 
+			if (customer == null) {
+				user = serviceUser.get(principal.getName());
+				if (user == null)
+					return "redirect:/Logout";
+				customer = user.getInteger(LAST_SELECTED_CUSTOMER_ID);
+			}
+
+			// check if the current customer is set -> no
+			if (customer == null && !customers.isEmpty()) {
 				// use first customer as selected customer
 				session.setAttribute("currentCustomer", customer = customers.get(0).getId());
+				if (user == null) {
+					user = serviceUser.get(principal.getName());
+					if (user == null)
+						return "redirect:/Logout";
+				}
+				user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer);
+				serviceUser.saveOrUpdate(user);
+			}
+
 			if (customer != null)
 				// load model with objects by the selected customer
 				model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
@@ -324,14 +343,19 @@ public class ControllerAnalysis {
 		Integer customer = (Integer) request.getSession().getAttribute("currentCustomer");
 		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
 		if (customer == null) {
-			if (!customers.isEmpty())
+			if (!customers.isEmpty()) {
 				request.getSession().setAttribute("currentCustomer", customer = customers.get(0).getId());
+				User user = serviceUser.get(principal.getName());
+				if (user == null)
+					return "redirect:/Logout";
+				user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer);
+				serviceUser.saveOrUpdate(user);
+			}
 		}
 		model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
 		model.addAttribute("customer", customer);
 		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
-
 		return "analyses/allAnalyses/analyses";
 	}
 
@@ -353,6 +377,11 @@ public class ControllerAnalysis {
 		model.addAttribute("customer", customerSection);
 		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 		model.addAttribute("login", principal.getName());
+		User user = serviceUser.get(principal.getName());
+		if (user == null)
+			return "redirect:/Logout";
+		user.setSetting(LAST_SELECTED_CUSTOMER_ID, customerSection);
+		serviceUser.saveOrUpdate(user);
 		return "analyses/allAnalyses/analyses";
 	}
 
@@ -540,7 +569,7 @@ public class ControllerAnalysis {
 			// check if it is a new analysis or the user is authorized to modify
 			// the analysis
 			if (analysisId == -1 || permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)
-				|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
+					|| serviceUser.hasRole(serviceUser.get(principal.getName()), serviceRole.getByName(RoleType.ROLE_CONSULTANT.name()))) {
 
 				// create/update analysis object and set access rights
 				buildAnalysis(errors, serviceUser.get(principal.getName()), value, locale, null);
@@ -601,7 +630,8 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json; charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).DELETE)")
-	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session) throws Exception {
+	public @ResponseBody String deleteAnalysis(@PathVariable("analysisId") int analysisId, RedirectAttributes attributes, Locale locale, Principal principal, HttpSession session)
+			throws Exception {
 		try {
 
 			Analysis analysis = serviceAnalysis.getDefaultProfile();
@@ -611,38 +641,38 @@ public class ControllerAnalysis {
 
 			// delete the analysis
 			List<UserAnalysisRight> currentAnalysisRights = serviceUserAnalysisRight.getAllFromAnalysis(analysisId);
-			
+
 			String identifier = serviceAnalysis.getIdentifierByIdAnalysis(analysisId);
-			
+
 			List<String> versions = serviceAnalysis.getAllNotEmptyVersion(identifier);
-			
+
 			Comparator<String> comparator = new Comparator<String>() {
 				@Override
 				public int compare(String o1, String o2) {
 					return GeneralComperator.VersionComparator(o1, o2);
 				}
 			};
-			
+
 			Collections.sort(versions, Collections.reverseOrder(comparator));
-			if(!versions.isEmpty())
+			if (!versions.isEmpty())
 				versions.remove(0);
-			
+
 			Analysis lastVersion = null;
-			if(!versions.isEmpty()){
+			if (!versions.isEmpty()) {
 				lastVersion = serviceAnalysis.getFromIdentifierVersionCustomer(identifier, versions.get(0), serviceAnalysis.getCustomerIdByIdAnalysis(analysisId));
-				if(lastVersion !=null){
+				if (lastVersion != null) {
 					for (UserAnalysisRight userAnalysisRight : currentAnalysisRights) {
 						UserAnalysisRight analysisRight = lastVersion.getRightsforUser(userAnalysisRight.getUser());
-						if(analysisRight!=null)
+						if (analysisRight != null)
 							analysisRight.setRight(userAnalysisRight.getRight());
 					}
 				}
 			}
-			
+
 			customDelete.deleteAnalysis(analysisId);
-			if(lastVersion!=null)
+			if (lastVersion != null)
 				serviceAnalysis.saveOrUpdate(lastVersion);
-			
+
 			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");
 
 			if (selectedAnalysis != null && selectedAnalysis == analysisId)
@@ -704,7 +734,8 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping(value = "/Duplicate/{analysisId}", headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
-	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale) throws Exception {
+	public @ResponseBody Map<String, String> createNewVersion(@RequestBody String value, BindingResult result, @PathVariable int analysisId, Principal principal, Locale locale)
+			throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
@@ -778,17 +809,17 @@ public class ControllerAnalysis {
 			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
 			copy.setProfile(false);
 			copy.setDefaultProfile(false);
-			
+
 			UserAnalysisRight userAnalysisRight = copy.getRightsforUserString(principal.getName());
-			
+
 			copy.setOwner(userAnalysisRight.getUser());
-			
+
 			userAnalysisRight.setRight(AnalysisRight.ALL);
 
 			serviceAnalysis.saveOrUpdate(copy);
-			
+
 			manageAnalysisRight.switchAnalysisToReadOnly(copy.getIdentifier(), copy.getId());
-			
+
 		} catch (CloneNotSupportedException e) {
 			// return dubplicate error message
 			e.printStackTrace();
@@ -850,8 +881,8 @@ public class ControllerAnalysis {
 	 * @throws Exception
 	 */
 	@RequestMapping("/Import/Execute")
-	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request, @RequestParam(value = "file") MultipartFile file,
-			final RedirectAttributes attributes, Locale locale) throws Exception {
+	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request,
+			@RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
 
 		// retrieve the customer
 		Customer customer = serviceCustomer.get(customerId);
@@ -950,7 +981,7 @@ public class ControllerAnalysis {
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""
-			+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
 
 		// set sqlite file size as response size
 		response.setContentLength((int) userSqLite.getSize());
@@ -975,8 +1006,8 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/Export/Report/{analysisId}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).EXPORT)")
-	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal, Locale locale)
-			throws Exception {
+	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal,
+			Locale locale) throws Exception {
 
 		File file = null;
 
@@ -985,18 +1016,18 @@ public class ControllerAnalysis {
 			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
 
 			switch (serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().toLowerCase()) {
-				case "fra":
-					locale = Locale.FRENCH;
-					exportAnalysisReport.setReportName(frenchReportName);
-					break;
-				case "eng":
-					locale = Locale.ENGLISH;
-					exportAnalysisReport.setReportName(englishReportName);
-					break;
-				default: {
-					locale = Locale.ENGLISH;
-					exportAnalysisReport.setReportName(englishReportName);
-				}
+			case "fra":
+				locale = Locale.FRENCH;
+				exportAnalysisReport.setReportName(frenchReportName);
+				break;
+			case "eng":
+				locale = Locale.ENGLISH;
+				exportAnalysisReport.setReportName(englishReportName);
+				break;
+			default: {
+				locale = Locale.ENGLISH;
+				exportAnalysisReport.setReportName(englishReportName);
+			}
 			}
 
 			exportAnalysisReport.setMessageSource(messageSource);

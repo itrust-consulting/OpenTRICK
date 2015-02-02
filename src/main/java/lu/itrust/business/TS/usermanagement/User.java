@@ -2,16 +2,21 @@ package lu.itrust.business.TS.usermanagement;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -26,64 +31,70 @@ import org.hibernate.annotations.CascadeType;
  * Detailed description...
  *
  * @author oensuifudine itrust consulting s.a.rl.:
- * @version 
+ * @version
  * @since Aug 19, 2012
  */
 @Entity
-@Table(uniqueConstraints=@UniqueConstraint(columnNames={"dtLogin","dtEmail"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "dtLogin", "dtEmail" }))
 public class User implements Serializable {
+
+	@Transient
+	private static final String DEFAULT_LANGUAGE = "default-language";
 
 	@Transient
 	private static final long serialVersionUID = 1L;
 
 	/** Fields */
-	
-	@Id @GeneratedValue
-	@Column(name="idUser")
+
+	@Id
+	@GeneratedValue
+	@Column(name = "idUser")
 	private Integer id = -1;
 
-	@Column(name="dtLogin", nullable=false)
+	@Column(name = "dtLogin", nullable = false)
 	private String login = null;
 
-	@Column(name="dtPassword", nullable=false)
+	@Column(name = "dtPassword", nullable = false)
 	private String password = null;
 
 	@Transient
 	private String repeatPassword = null;
 
-	@Column(name="dtFirstName", nullable=false)
+	@Column(name = "dtFirstName", nullable = false)
 	private String firstName = null;
 
-	@Column(name="dtLastName", nullable=false)
+	@Column(name = "dtLastName", nullable = false)
 	private String lastName = null;
 
-	@Column(name="dtEmail", nullable=false)
+	@Column(name = "dtEmail", nullable = false)
 	private String email = null;
 
-	@Column(name="dtEnabled", nullable=false, columnDefinition="TINYINT(1)")
+	@Column(name = "dtEnabled", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean enable = true;
-	
+
 	@ManyToMany
-	@JoinTable(name = "UserRole", 
-			   joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, 
-			   inverseJoinColumns = { @JoinColumn(name = "fiRole", nullable = false, updatable = false) }
-	)
+	@JoinTable(name = "UserRole", joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = { @JoinColumn(name = "fiRole", nullable = false, updatable = false) })
 	private List<Role> roles = null;
 
 	@ManyToMany
-	@JoinTable(name = "UserCustomer", 
-			   joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, 
-			   inverseJoinColumns = { @JoinColumn(name = "fiCustomer", nullable = false, updatable = false) },
-			   uniqueConstraints = @UniqueConstraint(columnNames={"fiUser","fiCustomer"})
-	)
+	@JoinTable(name = "UserCustomer", joinColumns = { @JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = { @JoinColumn(name = "fiCustomer", nullable = false, updatable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = {
+			"fiUser", "fiCustomer" }))
 	@Cascade(CascadeType.ALL)
 	private List<Customer> customers = null;
-	
-	@Column(name="dtLocale", nullable=false)
+
+	@Column(name = "dtLocale", nullable = false)
 	private String locale = "en";
-	
+
+	@ElementCollection
+	@MapKeyColumn(name = "dtName")
+	@Column(name = "dtValue")
+	@Cascade(CascadeType.ALL)
+	@CollectionTable(name = "UserSetting", joinColumns = @JoinColumn(name = "fiUser"))
+	private Map<String, String> userSettings = new HashMap<String, String>();
+
 	/**
 	 * Constructor: <br>
+	 * 
 	 * @param login
 	 * @param password
 	 * @param firstName
@@ -106,7 +117,7 @@ public class User implements Serializable {
 		roles = new ArrayList<Role>();
 		customers = new ArrayList<Customer>();
 	}
-	
+
 	/**
 	 * getId: <br>
 	 * Description
@@ -320,7 +331,7 @@ public class User implements Serializable {
 			return null;
 		return roles.get(roles.indexOf(role));
 	}
-	
+
 	/**
 	 * getLocale: <br>
 	 * Description
@@ -328,13 +339,16 @@ public class User implements Serializable {
 	 * @return
 	 */
 	public String getLocale() {
-		return locale;
+		String local = getSetting(DEFAULT_LANGUAGE);
+		if (local == null)
+			setLocale(local = "en");
+		return local;
 	}
 
-	public Locale getLocaleObject(){
-		return new Locale(locale);
+	public Locale getLocaleObject() {
+		return new Locale(getLocale());
 	}
-	
+
 	/**
 	 * setLocale: <br>
 	 * Description
@@ -342,7 +356,7 @@ public class User implements Serializable {
 	 * @param locale
 	 */
 	public void setLocale(String locale) {
-		this.locale = locale;
+		setSetting(DEFAULT_LANGUAGE, locale);
 	}
 
 	/**
@@ -352,9 +366,9 @@ public class User implements Serializable {
 	 * @param locale
 	 */
 	public void setLocaleObject(Locale locale) {
-		this.locale = locale.getISO3Language().substring(0, 2);
+		setLocale(locale.getISO3Language().substring(0, 2));
 	}
-	
+
 	/**
 	 * isAutorised: <br>
 	 * Description
@@ -365,7 +379,6 @@ public class User implements Serializable {
 	public boolean isAutorised(RoleType role) {
 
 		if (role != null && roles != null) {
-
 			for (Role role2 : roles)
 				if (role2.getType().ordinal() >= role.ordinal())
 					return true;
@@ -429,7 +442,7 @@ public class User implements Serializable {
 	 * @return
 	 */
 	public boolean hasRole(RoleType roleType) {
-		if(roles == null || roleType == null)
+		if (roles == null || roleType == null)
 			return false;
 		for (Role role : roles) {
 			if (role.getType().equals(roleType))
@@ -476,7 +489,7 @@ public class User implements Serializable {
 	public boolean containsCustomer(Customer customer) {
 		return customers.contains(customer);
 	}
-	
+
 	/**
 	 * removeCustomer: <br>
 	 * Description
@@ -488,6 +501,33 @@ public class User implements Serializable {
 		if (customers.contains(customer))
 			return customers.remove(customer);
 		return true;
+	}
+
+	public Map<String, String> getUserSettings() {
+		return userSettings;
+	}
+
+	public void setUserSettings(Map<String, String> userSettings) {
+		this.userSettings = userSettings;
+	}
+
+	public String getSetting(String name) {
+		return this.userSettings.get(name);
+	}
+
+	public Integer getInteger(String name) {
+		try {
+			String value = getSetting(name);
+			if (value == null)
+				return null;
+			return Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	public void setSetting(String name, Object value) {
+		this.userSettings.put(name, String.valueOf(value));
 	}
 
 }
