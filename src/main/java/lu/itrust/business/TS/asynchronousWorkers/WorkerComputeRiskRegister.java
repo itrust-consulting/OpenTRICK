@@ -176,6 +176,8 @@ public class WorkerComputeRiskRegister implements Worker {
 					session.close();
 			} catch (HibernateException e) {
 				e.printStackTrace();
+			}catch(Exception ex){
+				ex.printStackTrace();
 			}
 			synchronized (this) {
 				working = false;

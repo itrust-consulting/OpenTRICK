@@ -117,12 +117,14 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			public void prepare(MimeMessage mimeMessage) throws Exception {
 				MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-				message.setFrom(FROM_EMAIL);
+				message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
 				message.setSubject(messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
 				Map<String, Object> model = new LinkedHashMap<String, Object>();
 				model.put("hostname", hotname);
 				model.put("username", password.getUser().getLogin());
-				message.setText(VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER + "reset-password-en.vm", "UTF-8", model), true);
+				message.setText(
+						VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
+								+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "reset-password-fr.vm" : "reset-password-en.vm"), "UTF-8", model), true);
 				message.setTo(password.getUser().getEmail());
 			}
 		};

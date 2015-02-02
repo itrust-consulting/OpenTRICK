@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +29,7 @@ import lu.itrust.business.TS.validator.field.ValidatorField;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
@@ -76,6 +78,12 @@ public class ControllerRegister {
 	@Autowired
 	private ServiceResetPassword serviceResetPassword;
 
+	@Value("${app.settings.time.to.valid.reset.password}")
+	private int timeoutValue = 90000;
+
+	@Value("${app.settings.max.attempt}")
+	private int maxAttempt = 3;
+
 	/**
 	 * add: <br>
 	 * Description
@@ -88,143 +96,6 @@ public class ControllerRegister {
 		// create new user object and add it to model
 		model.put("user", new User());
 		return "register";
-	}
-
-	@RequestMapping("/ResetPassword")
-	public String resetPassword(Principal principal, Model model, HttpSession session) {
-		if (principal != null)
-			return "redirect:/Home";
-		Integer attemption = (Integer) session.getAttribute("attemption");
-		if (attemption == null)
-			attemption = 1;
-		else {
-			if (++attemption > 3 && session.getMaxInactiveInterval() < 90000)
-				return "redirect:/Login";
-			if (attemption > 3)
-				attemption = 1;
-		}
-		session.setAttribute("attemption", attemption);
-		model.addAttribute("resetPassword", new ResetPasswordHelper());
-		return "resetPassword";
-	}
-
-	@RequestMapping("/ChangePassword/{keyControl}")
-	public String updatePassword(@PathVariable String keyControl, Principal principal,Model model, RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
-		if (principal != null)
-			return "redirect:/Home";
-		HttpSession session = request.getSession();
-		Integer attemption = (Integer) session.getAttribute("attemption-request");
-		if (attemption == null)
-			attemption = 1;
-		else {
-			if (++attemption > 4 && session.getMaxInactiveInterval() < 90000)
-				return "redirect:/Login";
-			if (attemption > 4)
-				attemption = 1;
-		}
-		session.setAttribute("attemption-request", attemption);
-		ResetPassword resetPassword = serviceResetPassword.get(keyControl);
-		if (resetPassword == null)
-			return "redirect:/Login";
-		session.removeAttribute("attemption-request");
-		if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.reset.password.request.expired", null, "Your request has been expired", locale));
-			return "redirect:/Login";
-		}
-		model.addAttribute("changePassword", new ChangePasswordhelper(keyControl));
-		return "changePassword";
-	}
-	
-	
-	@RequestMapping("/ChangePassword/Save")
-	public String updatePassword(@ModelAttribute ChangePasswordhelper changePasswordhelper, BindingResult result, Principal principal,Model model, RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
-		if (principal != null)
-			return "redirect:/Home";
-		HttpSession session = request.getSession();
-		Integer attemption = (Integer) session.getAttribute("attemption-change-password");
-		if (attemption == null)
-			attemption = 1;
-		else {
-			if (++attemption > 4 && session.getMaxInactiveInterval() < 90000)
-				return "redirect:/Login";
-			if (attemption > 4)
-				attemption = 1;
-		}
-		ValidationUtils.rejectIfEmptyOrWhitespace(result,"password", "error.user.password.empty", "Password cannot be empty");
-		ValidationUtils.rejectIfEmptyOrWhitespace(result,"repeatPassword", "error.user.password.empty", "Password cannot be empty");
-		if (!result.hasFieldErrors("password") && !changePasswordhelper.getRepeatPassword().matches(Constant.REGEXP_VALID_PASSWORD))
-			result.rejectValue("password", "errors.user.password.invalid", "Password does not match policy (8 characters, at least one digit, one lower and one uppercase)");
-		if (!result.hasFieldErrors("repeatPassword") && !changePasswordhelper.getRepeatPassword().equals(changePasswordhelper.getPassword()))
-			result.rejectValue("repeatPassword", "errors.user.repeatPassword.not_same", "Passwords are not the same");
-		if(result.hasErrors())
-			return "changePassword";
-		session.setAttribute("attemption-request", attemption);
-		ResetPassword resetPassword = serviceResetPassword.get(changePasswordhelper.getRequestId());
-		if (resetPassword == null)
-			return "redirect:/Login";
-		session.removeAttribute("attemption-change-password");
-		if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.reset.password.request.expired", null, "Your request has been expired", locale));
-			return "redirect:/Login";
-		}
-		
-		try {
-			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-			resetPassword.getUser().setPassword(passwordEncoder.encodePassword(changePasswordhelper.getPassword(), resetPassword.getUser().getLogin()));
-			serviceUser.saveOrUpdate(resetPassword.getUser());
-			serviceResetPassword.delete(resetPassword);
-			attributes.addFlashAttribute("success", messageSource.getMessage("success.change.password", null, "Your password was successfully changed", locale));
-		} catch (Exception e) {
-			e.printStackTrace();
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-		}
-	
-		return "redirect:/Login";
-	}
-	
-
-	@RequestMapping("/ResetPassword/Save")
-	public String resetPassword(@ModelAttribute ResetPasswordHelper resetPassword, BindingResult result, Principal principal, RedirectAttributes attributes, Locale locale,
-			HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		if (principal != null)
-			return "redirect:/Home";
-		Integer attemption = (Integer) session.getAttribute("attemption-save");
-		if (attemption == null)
-			attemption = 1;
-		else {
-			if (++attemption > 4 && session.getMaxInactiveInterval() < 90000)
-				return "redirect:/Login";
-			if (attemption > 4)
-				attemption = 1;
-		}
-		session.setAttribute("attemption-save", attemption);
-		if (resetPassword.isEmpty()) {
-			result.reject("error.reset.password.field.empty", "Please enter your username or your eamil address");
-			return "resetPassword";
-		}
-
-		try {
-			User user = StringUtils.isEmpty(resetPassword.getUsername()) ? serviceUser.getByEmail(resetPassword.getEmail()) : serviceUser.get(resetPassword.getUsername());
-			if (user != null) {
-				ResetPassword resetPassword2 = serviceResetPassword.get(user);
-				if (resetPassword2 != null)
-					serviceResetPassword.delete(resetPassword2);
-				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
-				resetPassword2 = new ResetPassword(user, passwordEncoder.encodePassword(String.valueOf(System.nanoTime()), user.getLogin()), new Timestamp(
-						System.currentTimeMillis() + 90000));
-				String url = request.getRequestURL().toString().replace("ResetPassword/Save", "ChangePassword/" + resetPassword2.getKeyControl());
-				serviceResetPassword.saveOrUpdate(resetPassword2);
-				serviceEmailSender.sendResetPassword(resetPassword2, url, locale);
-			}
-			attributes.addFlashAttribute("success",
-					messageSource.getMessage("success.reset.password.email.send", null, "You will receive an email to reset your password, you have 15 minutes to do.", locale));
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-		}
-		return "redirect:/Login";
 	}
 
 	/**
@@ -299,6 +170,129 @@ public class ControllerRegister {
 			errors.put("email", messageSource.getMessage("error.user.email.used_change", null, "Change the email", locale));
 			return errors;
 		}
+	}
+
+	public String checkAttempt(String name, HttpSession session, Principal principal) {
+		if (principal != null)
+			return "redirect:/Home";
+		Integer attempt = (Integer) session.getAttribute(name);
+		if (attempt == null)
+			attempt = 1;
+		else {
+			if (++attempt > maxAttempt && (System.currentTimeMillis() - session.getLastAccessedTime()) < timeoutValue)
+				return "redirect:/Login";
+			if (attempt > maxAttempt)
+				attempt = 1;
+		}
+		session.setAttribute(name, attempt);
+		return null;
+	}
+
+	@RequestMapping("/ResetPassword")
+	public String resetPassword(Principal principal, Model model, HttpSession session) {
+
+		String attempt = checkAttempt("attempt-reset-password", session, principal);
+		if (attempt != null)
+			return attempt;
+		model.addAttribute("resetPassword", new ResetPasswordHelper());
+		return "resetPassword";
+	}
+
+	@RequestMapping("/ResetPassword/Save")
+	public String resetPassword(@ModelAttribute("resetPassword") ResetPasswordHelper resetPassword, BindingResult result, Principal principal, RedirectAttributes attributes,
+			Locale locale, HttpServletRequest request) {
+		HttpSession session = request.getSession();
+
+		String attempt = checkAttempt("attempt-reset-password-save", session, principal);
+
+		if (attempt != null)
+			return attempt;
+
+		if (resetPassword.isEmpty()) {
+			result.reject("error.reset.password.field.empty", "Please enter your username or your eamil address");
+			return "resetPassword";
+		}
+
+		try {
+			User user = StringUtils.isEmpty(resetPassword.getUsername()) ? serviceUser.getByEmail(resetPassword.getEmail()) : serviceUser.get(resetPassword.getUsername());
+			if (user != null) {
+				ResetPassword resetPassword2 = serviceResetPassword.get(user);
+				if (resetPassword2 != null)
+					serviceResetPassword.delete(resetPassword2);
+				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+				resetPassword2 = new ResetPassword(user, passwordEncoder.encodePassword(String.valueOf(System.nanoTime()),
+						String.valueOf(new Random(System.currentTimeMillis()).nextDouble())), new Timestamp(System.currentTimeMillis() + timeoutValue));
+				String url = request.getRequestURL().toString().replace("ResetPassword/Save", "ChangePassword/" + resetPassword2.getKeyControl());
+				serviceResetPassword.saveOrUpdate(resetPassword2);
+				serviceEmailSender.sendResetPassword(resetPassword2, url, locale);
+			}
+			attributes.addFlashAttribute("success",
+					messageSource.getMessage("success.reset.password.email.send", null, "You will receive an email to reset your password, you have 15 minutes to do.", locale));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+		return "redirect:/Login";
+	}
+
+	@RequestMapping("/ChangePassword/{keyControl}")
+	public String updatePassword(@PathVariable String keyControl, Principal principal, Model model, RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		String attempt = checkAttempt("attempt-request", session, principal);
+		if (attempt != null)
+			return attempt;
+		ResetPassword resetPassword = serviceResetPassword.get(keyControl);
+		if (resetPassword == null)
+			return "redirect:/Login";
+		session.removeAttribute("attempt-request");
+		if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.reset.password.request.expired", null, "Your request has been expired", locale));
+			return "redirect:/Login";
+		}
+		model.addAttribute("changePassword", new ChangePasswordhelper(keyControl));
+		return "changePassword";
+	}
+
+	@RequestMapping("/ChangePassword/Save")
+	public String updatePassword(@ModelAttribute("changePassword") ChangePasswordhelper changePassword, BindingResult result, Principal principal, Model model,
+			RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
+
+		HttpSession session = request.getSession();
+		String attempt = checkAttempt("attempt-change-password", session, principal);
+		if (attempt != null)
+			return attempt;
+
+		ValidationUtils.rejectIfEmptyOrWhitespace(result, "password", "error.user.password.empty", "Password cannot be empty");
+		ValidationUtils.rejectIfEmptyOrWhitespace(result, "repeatPassword", "error.user.password.empty", "Password cannot be empty");
+		if (!result.hasFieldErrors("password") && !changePassword.getRepeatPassword().matches(Constant.REGEXP_VALID_PASSWORD))
+			result.rejectValue("password", "errors.user.password.invalid", "Password does not match policy (8 characters, at least one digit, one lower and one uppercase)");
+		if (!result.hasFieldErrors("repeatPassword") && !changePassword.getRepeatPassword().equals(changePassword.getPassword()))
+			result.rejectValue("repeatPassword", "errors.user.repeatPassword.not_same", "Passwords are not the same");
+		if (result.hasErrors())
+			return "changePassword";
+		ResetPassword resetPassword = serviceResetPassword.get(changePassword.getRequestId());
+		if (resetPassword == null)
+			return "redirect:/Login";
+
+		session.removeAttribute("attempt-change-password");
+		if (resetPassword.getLimitTime().getTime() < System.currentTimeMillis()) {
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.reset.password.request.expired", null, "Your request has been expired", locale));
+			return "redirect:/Login";
+		}
+
+		try {
+			ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
+			resetPassword.getUser().setPassword(passwordEncoder.encodePassword(changePassword.getPassword(), resetPassword.getUser().getLogin()));
+			serviceUser.saveOrUpdate(resetPassword.getUser());
+			serviceResetPassword.delete(resetPassword);
+			attributes.addFlashAttribute("success", messageSource.getMessage("success.change.password", null, "Your password was successfully changed", locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
+		}
+
+		return "redirect:/Login";
 	}
 
 	/**

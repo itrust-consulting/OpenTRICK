@@ -10,37 +10,44 @@
 <jsp:include page="header.jsp" />
 <body>
 	<div class="container">
-		<img class="center-block"  alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/TrickService.png" /> style="height: 200px; margin-top: 50px;">
+		<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/TrickService.png" /> style="height: 200px; margin-top: 50px;">
 		<div style="margin: 0 auto; max-width: 600px; padding: 0px 15px">
 			<h2 class="form-signin-heading col-sm-offset-3">
 				<spring:message code="label.title.user.reset.password" text="Reset your password" />
 			</h2>
-			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/Login" style="margin-top: -35px;"><spring:message code="label.menu.navigate.back" text="Back" /></a>
-			<span id="success" hidden="hidden"></span>
-			<form id="resetPassword" name="resetPassword" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/ResetPassword/Save">
-				<div class="form-group">
-					<label for="username" class="col-sm-3 control-label">
+			<a class="navbar-link pull-right" href="${pageContext.request.contextPath}/Login" style="margin-top: -30px;"><spring:message code="label.menu.navigate.back" text="Back" /></a>
+			<form:form modelAttribute="resetPassword" class="form-horizontal" method="post" action="${pageContext.request.contextPath}/ResetPassword/Save">
+				<div class="form-group" style="margin-top: 20px; margin-bottom: 5px;">
+					<form:label path="username" class="col-sm-3 control-label">
 						<spring:message code="label.user.login" text="Username" />
-					</label>
+					</form:label>
 					<div class="col-sm-9">
-						<input type="text" id="username" name="username" class="form-control" />
+						<form:input path="username" class="form-control" />
 					</div>
 				</div>
-				
-				<div class="form-group">
-					<label class="col-xs-offset-6" style="font-size: 15px">
-						<spring:message code="label.or" text="or" />
-					</label>
+
+				<div class="form-group" style="margin: 0px auto">
+					<div class="col-sm-offset-3 col-sm-9">
+						<label class="col-sm-offset-5" style="font-size: 15px"> <spring:message code="label.or" text="or" />
+						</label>
+					</div>
 				</div>
-				
+
 				<div class="form-group">
-					<label for="email" class="col-sm-3 control-label">
+					<form:label path="email" class="col-sm-3 control-label">
 						<spring:message code="label.user.email" text="Email address" />
-					</label>
+					</form:label>
 					<div class="col-sm-9">
-						<input type="email" id="email" name="email" class="form-control" pattern='^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$' />
+						<form:input type="email" path="email" class="form-control" pattern='^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$' />
 					</div>
 				</div>
+				<spring:hasBindErrors name="resetPassword">
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-sm-9">
+							<form:errors path="*" element="label" cssClass="label label-danger " cssStyle="font-size: 12px"/>
+						</div>
+					</div>
+				</spring:hasBindErrors>
 				<div class="form-group">
 					<div class="col-sm-offset-3 col-sm-9">
 						<button class="btn btn-default" type="submit">
@@ -48,7 +55,7 @@
 						</button>
 					</div>
 				</div>
-			</form>
+			</form:form>
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
 		<jsp:include page="footer.jsp" />
