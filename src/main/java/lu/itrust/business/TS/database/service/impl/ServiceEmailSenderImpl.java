@@ -7,20 +7,18 @@ import java.util.Map;
 
 import javax.mail.internet.MimeMessage;
 
-import org.apache.velocity.app.VelocityEngine;
-
 import lu.itrust.business.TS.database.service.ServiceEmailSender;
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
 
-import org.springframework.ui.velocity.VelocityEngineUtils;
-import org.springframework.stereotype.Service;
+import org.apache.velocity.app.VelocityEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.stereotype.Service;
+import org.springframework.ui.velocity.VelocityEngineUtils;
 
 /**
  * ServiceEmailImpl.java: <br>
@@ -42,22 +40,6 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	@Autowired
 	private VelocityEngine velocityEngine;
 
-	private static String FROM_EMAIL = "no-reply@itrust.lu";
-
-	private static String ADMIN_PART = "A new user registered on TRICK Service using the following information:";
-
-	private static String USER_PART = "Welcome to TRICK Service\n\nYou successfully registered to TRICK Service using the following information:";
-
-	private static String LOGIN_NAME = "Login name: ";
-
-	private static String NAME = "Name: ";
-
-	private static String EMAIL = "Email: ";
-
-	private static String ADMIN_SUBJECT = "New TRICK Service User";
-
-	private static String USER_SUBJECT = "TRICK Service user registration";
-
 	public void setMailSender(JavaMailSender mailSender) {
 		this.javaMailSender = mailSender;
 	}
@@ -72,54 +54,74 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	 *      java.lang.String)
 	 */
 	@Override
-	public void sendRegistrationMail(List<User> recipients, User user) throws Exception {
-		// creating message
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setFrom(FROM_EMAIL);
-		String messagebody = "";
-
+	public void sendRegistrationMail(final List<User> recipients, final User user) throws Exception {
 		if (recipients == null || recipients.isEmpty()) {
-			message.setSubject(USER_SUBJECT);
-			messagebody = USER_PART + "\n\n";
-			messagebody += LOGIN_NAME + user.getLogin() + "\n";
-			messagebody += NAME + user.getFirstName() + " " + user.getLastName() + "\n";
-			messagebody += EMAIL + user.getEmail() + "\n";
-			message.setText(messagebody);
-			message.setTo(user.getEmail());
-			javaMailSender.send(message);
+			MimeMessagePreparator preparator = new MimeMessagePreparator() {
+				public void prepare(MimeMessage mimeMessage) throws Exception {
+					Locale locale = user.getLocaleObject();
+					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
+					message.setSubject(messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
+					Map<String, Object> model = new LinkedHashMap<String, Object>();
+					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
+					model.put("user", user);
+					message.setText(
+							VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
+									+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.vm" : "new-user-info-en.vm"), "UTF-8", model), true);
+					message.setTo(user.getEmail());
+				}
+			};
+			javaMailSender.send(preparator);
 		} else {
-
-			message.setSubject(ADMIN_SUBJECT);
-			messagebody = ADMIN_PART + "\n\n";
-			messagebody += LOGIN_NAME + user.getLogin() + "\n";
-			messagebody += NAME + user.getFirstName() + " " + user.getLastName() + "\n";
-			messagebody += EMAIL + user.getEmail() + "\n";
-			message.setText(messagebody);
-
-			for (User recipient : recipients) {
-				message.setTo(recipient.getEmail());
-				javaMailSender.send(message);
+			MimeMessagePreparator preparator = new MimeMessagePreparator() {
+				public void prepare(MimeMessage mimeMessage) throws Exception {
+					Locale locale = user.getLocaleObject();
+					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
+					message.setSubject(messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
+					Map<String, Object> model = new LinkedHashMap<String, Object>();
+					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
+					model.put("user", user);
+					message.setText(
+							VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
+									+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.vm" : "new-user-info-en.vm"), "UTF-8", model), true);
+					message.setTo(user.getEmail());
+				}
+			};
+			javaMailSender.send(preparator);
+			for (final User admin : recipients) {
+				preparator = new MimeMessagePreparator() {
+					public void prepare(MimeMessage mimeMessage) throws Exception {
+						Locale locale = admin.getLocaleObject();
+						MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+						message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
+						message.setSubject(messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
+						Map<String, Object> model = new LinkedHashMap<String, Object>();
+						model.put("title", messageSource.getMessage("label.registration.admin.email.subject", null, "New TRICK Service user", locale));
+						model.put("admin", admin);
+						model.put("user", user);
+						message.setText(
+								VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
+										+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-admin-fr.vm" : "new-user-admin-en.vm"), "UTF-8", model), true);
+						message.setTo(user.getEmail());
+					}
+				};
+				javaMailSender.send(preparator);
 			}
 
-			message.setSubject(USER_SUBJECT);
-			messagebody = USER_PART + "\n\n";
-			messagebody += LOGIN_NAME + user.getLogin() + "\n";
-			messagebody += NAME + user.getFirstName() + " " + user.getLastName() + "\n";
-			messagebody += EMAIL + user.getEmail() + "\n";
-			message.setText(messagebody);
-			message.setTo(user.getEmail());
-			javaMailSender.send(message);
 		}
 	}
 
 	@Override
-	public void sendResetPassword(final ResetPassword password, final String hotname, final Locale locale) {
+	public void sendResetPassword(final ResetPassword password, final String hotname) {
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 			public void prepare(MimeMessage mimeMessage) throws Exception {
+				Locale locale = password.getUser().getLocaleObject();
 				MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 				message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
 				message.setSubject(messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
 				Map<String, Object> model = new LinkedHashMap<String, Object>();
+				model.put("title", messageSource.getMessage("label.reset.password.email.subject", null, "Reset password", locale));
 				model.put("hostname", hotname);
 				model.put("username", password.getUser().getLogin());
 				message.setText(

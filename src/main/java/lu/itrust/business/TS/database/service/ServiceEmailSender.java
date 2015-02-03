@@ -1,7 +1,6 @@
 package lu.itrust.business.TS.database.service;
 
 import java.util.List;
-import java.util.Locale;
 
 import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
@@ -19,5 +18,5 @@ public interface ServiceEmailSender {
 	
 	void sendRegistrationMail(List<User> recipient, User user) throws Exception;
 	
-	void sendResetPassword(ResetPassword password,String hotname, Locale locale);
+	void sendResetPassword(ResetPassword password,String hotname);
 }

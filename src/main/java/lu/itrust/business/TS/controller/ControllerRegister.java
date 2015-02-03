@@ -110,7 +110,8 @@ public class ControllerRegister {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/DoRegister", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, HttpServletResponse response) throws Exception {
+	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<>();
 
@@ -224,7 +225,7 @@ public class ControllerRegister {
 						String.valueOf(new Random(System.currentTimeMillis()).nextDouble())), new Timestamp(System.currentTimeMillis() + timeoutValue));
 				String url = request.getRequestURL().toString().replace("ResetPassword/Save", "ChangePassword/" + resetPassword2.getKeyControl());
 				serviceResetPassword.saveOrUpdate(resetPassword2);
-				serviceEmailSender.sendResetPassword(resetPassword2, url, locale);
+				serviceEmailSender.sendResetPassword(resetPassword2, url);
 			}
 			attributes.addFlashAttribute("success",
 					messageSource.getMessage("success.reset.password.email.send", null, "You will receive an email to reset your password, you have 15 minutes to do.", locale));
