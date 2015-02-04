@@ -149,9 +149,6 @@ function callbackBySection(section) {
 			chartALE();
 			return false;
 		},
-		"section_analysis" : function() {
-			return analysisTableSortable();
-		},
 		"section_actionplans" : function() {
 			compliance('27001');
 			compliance('27002');

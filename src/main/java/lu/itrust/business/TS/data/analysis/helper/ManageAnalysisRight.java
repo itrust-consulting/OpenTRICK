@@ -30,10 +30,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 @Transactional
 public class ManageAnalysisRight {
 
-	@Autowired
 	private DAOUserAnalysisRight daoUserAnalysisRight;
 
-	@Autowired
 	private DAOAnalysis daoAnalysis;
 
 	public void switchAnalysisToReadOnly(String identifier, int idAnalysis) throws Exception {
@@ -91,4 +89,16 @@ public class ManageAnalysisRight {
 
 		return userrights;
 	}
+
+	@Autowired
+	public void setDaoUserAnalysisRight(DAOUserAnalysisRight daoUserAnalysisRight) {
+		this.daoUserAnalysisRight = daoUserAnalysisRight;
+	}
+
+	@Autowired
+	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
+		this.daoAnalysis = daoAnalysis;
+	}
+	
+	
 }

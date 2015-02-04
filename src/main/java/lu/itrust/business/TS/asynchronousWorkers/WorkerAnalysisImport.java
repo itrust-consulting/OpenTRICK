@@ -15,7 +15,6 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.SessionFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author eom
@@ -101,7 +100,6 @@ public class WorkerAnalysisImport implements Worker {
 	 * @see lu.itrust.business.task.Worker#start()
 	 */
 	@Override
-	@Transactional
 	public void start() {
 		run();
 	}

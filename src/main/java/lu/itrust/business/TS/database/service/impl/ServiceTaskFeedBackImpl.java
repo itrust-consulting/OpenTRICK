@@ -8,8 +8,11 @@ import java.util.Map;
 import java.util.Queue;
 
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,6 +29,15 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	private Map<String, List<Long>> userTasks = Collections.synchronizedMap(new LinkedHashMap<String, List<Long>>());
 
 	private Map<Long, Queue<MessageHandler>> messageHandlers = Collections.synchronizedMap(new LinkedHashMap<Long, Queue<MessageHandler>>());
+
+	@Autowired
+	private WorkersPoolManager workersPoolManager;
+
+	@Value("${app.settings.background.task.max.pool.size}")
+	private int maxPoolSize;
+
+	@Value("${app.settings.background.task.max.user.size}")
+	private int maxUserSize;
 
 	/**
 	 * messageCount: <br>
@@ -96,7 +108,8 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#hasTask(java.lang.String, long)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#hasTask(java.lang.String,
+	 *      long)
 	 */
 	@Override
 	public boolean hasTask(String userName, long id) {
@@ -116,14 +129,17 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @return
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#registerTask(java.lang.String, long)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#registerTask(java.lang.String,
+	 *      long)
 	 */
 	@Override
 	public boolean registerTask(String userName, long id) {
 		if (messageHandlers.containsKey(id))
 			return false;
-		messageHandlers.put(id, new LinkedList<MessageHandler>());
 		List<Long> tasks = userTasks.containsKey(userName) ? userTasks.get(userName) : Collections.synchronizedList(new LinkedList<Long>());
+		if (tasks.size() >= maxUserSize || workersPoolManager.poolSize() >= maxPoolSize)
+			return false;
+		messageHandlers.put(id, new LinkedList<MessageHandler>());
 		tasks.add(id);
 		if (!userTasks.containsKey(userName))
 			userTasks.put(userName, tasks);
@@ -137,7 +153,8 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param userName
 	 * @param id
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#unregisterTask(java.lang.String, long)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#unregisterTask(java.lang.String,
+	 *      long)
 	 */
 	@Override
 	public void unregisterTask(String userName, long id) {
@@ -152,6 +169,7 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 		if (messageHandlers.containsKey(id) && !messageHandlers.get(id).isEmpty())
 			messageHandlers.get(id).clear();
 		messageHandlers.remove(id);
+		workersPoolManager.remove(id);
 	}
 
 	/**
@@ -196,8 +214,8 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 	 * @param id
 	 * @param handler
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#send(java.lang.String, long,
-	 *      lu.itrust.business.TS.messagehandler.MessageHandler)
+	 * @see lu.itrust.business.TS.database.service.ServiceTaskFeedback#send(java.lang.String,
+	 *      long, lu.itrust.business.TS.messagehandler.MessageHandler)
 	 */
 	@Override
 	public void send(String userName, long id, MessageHandler handler) {

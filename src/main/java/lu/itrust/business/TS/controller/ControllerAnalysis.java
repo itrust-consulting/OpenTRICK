@@ -2,7 +2,6 @@ package lu.itrust.business.TS.controller;
 
 import java.io.File;
 import java.security.Principal;
-import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -17,6 +16,7 @@ import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisVersion;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.Duplicator;
@@ -739,8 +739,6 @@ public class ControllerAnalysis {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();
 
-		Analysis copy = null;
-
 		try {
 
 			// retrieve analysis object
@@ -800,50 +798,28 @@ public class ControllerAnalysis {
 				// return error on failure
 				return errors;
 
-			copy = duplicator.duplicateAnalysis(analysis, null);
-
-			copy.setBasedOnAnalysis(analysis);
-			copy.addAHistory(history);
-			copy.setVersion(history.getVersion());
-			copy.setLabel(analysis.getLabel());
-			copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
-			copy.setProfile(false);
-			copy.setDefaultProfile(false);
-
-			UserAnalysisRight userAnalysisRight = copy.getRightsforUserString(principal.getName());
-
-			copy.setOwner(userAnalysisRight.getUser());
-
-			userAnalysisRight.setRight(AnalysisRight.ALL);
-
-			serviceAnalysis.saveOrUpdate(copy);
-
-			manageAnalysisRight.switchAnalysisToReadOnly(copy.getIdentifier(), copy.getId());
+			Worker worker = new WorkerCreateAnalysisVersion(analysisId, history, principal.getName(), serviceTaskFeedback, sessionFactory, workersPoolManager);
+			// register worker to tasklist
+			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())){
+				// execute task
+				executor.execute(worker);
+				errors.put("analysis_task_id", String.valueOf(worker.getId()));
+			}
+			else
+				errors.put("analysis", messageSource.getMessage("error.task.register", null, "Task cannot be registered", locale));
 
 		} catch (CloneNotSupportedException e) {
-			// return dubplicate error message
 			e.printStackTrace();
 			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate", null, "Analysis cannot be duplicated!", locale));
-
-			if (copy != null)
-				removeStandardsOnError(copy.getAnalysisOnlyStandards());
-
 		} catch (TrickException e) {
 			e.printStackTrace();
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate.unknown", null, "An unknown error occurred during duplication!", locale));
-		} finally {
-			if (!errors.isEmpty() && copy != null)
-				removeStandardsOnError(copy.getAnalysisOnlyStandards());
 		}
 
 		return errors;
-	}
-
-	private void removeStandardsOnError(List<AnalysisStandard> standards) {
-		// TODO remove standards in case of an error
 	}
 
 	// *****************************************************************

@@ -68,7 +68,6 @@ public class WorkerImportStandard implements Worker {
 	private MessageHandler messageHandler;
 
 	public WorkerImportStandard(ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory, WorkersPoolManager poolManager, File importFile) {
-		super();
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.sessionFactory = sessionFactory;
 		this.poolManager = poolManager;

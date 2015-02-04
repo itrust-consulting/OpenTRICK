@@ -44,9 +44,7 @@
 						</div>
 					</div>
 				</form>
-				<div class="progress progress-striped" hidden="true">
-					<div class="progress-bar" role="progressbar" data-aria-valuenow="100" data-aria-valuemin="0" data-aria-valuemax="100" style="width: 100%"></div>
-				</div>
+				
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-primary" id="history_submit_button" onclick="return duplicateAnalysis('history_form', '${analysisId}')">

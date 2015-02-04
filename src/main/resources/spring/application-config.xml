@@ -22,9 +22,13 @@
 	<task:annotation-driven executor="executor" scheduler="scheduler" />
 
 	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	<util:properties id="propertyConfigurer" location="classpath:jdbc.properties" />
+
+	<context:property-placeholder properties-ref="propertyConfigurer" />
 
 	<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="maxPoolSize" value="100" />
+		<property name="maxPoolSize" value="${app.settings.background.task.max.pool.size}" />
 	</bean>
 
 	<task:scheduler id="scheduler" pool-size="5" />
@@ -55,10 +59,6 @@
 	</mvc:interceptors>
 
 	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
-
-	<util:properties id="propertyConfigurer" location="classpath:jdbc.properties" />
-
-	<context:property-placeholder properties-ref="propertyConfigurer" />
 
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close" p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}" p:username="${jdbc.username}"
 		p:password="${jdbc.password}" />

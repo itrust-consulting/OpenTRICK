@@ -1,0 +1,276 @@
+/**
+ * 
+ */
+package lu.itrust.business.TS.asynchronousWorkers;
+
+import java.sql.Timestamp;
+
+import lu.itrust.business.TS.component.Duplicator;
+import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.helper.ManageAnalysisRight;
+import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
+import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
+import lu.itrust.business.TS.data.history.History;
+import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
+import lu.itrust.business.TS.database.service.WorkersPoolManager;
+import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.messagehandler.MessageHandler;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+/**
+ * @author eomar
+ *
+ */
+public class WorkerCreateAnalysisVersion implements Worker {
+
+	private long id = System.nanoTime();
+
+	private Exception error;
+
+	private boolean working = false;
+
+	private boolean canceled = false;
+
+	private WorkersPoolManager poolManager;
+
+	private SessionFactory sessionFactory;
+
+	private ServiceTaskFeedback serviceTaskFeedback;
+
+	private int idAnalysis;
+
+	private History history;
+
+	private String userName;
+
+	/**
+	 * @param idAnalysis
+	 * @param history
+	 * @param userName
+	 * @param serviceTaskFeedback
+	 * @param sessionFactory
+	 * @param poolManager
+	 */
+	public WorkerCreateAnalysisVersion(int idAnalysis, History history, String userName, ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory,
+			WorkersPoolManager poolManager) {
+		this.idAnalysis = idAnalysis;
+		this.history = history;
+		this.userName = userName;
+		this.serviceTaskFeedback = serviceTaskFeedback;
+		this.sessionFactory = sessionFactory;
+		this.poolManager = poolManager;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Runnable#run()
+	 */
+	@Override
+	public void run() {
+		Session session = null;
+		String language = null;
+		try {
+
+			synchronized (this) {
+				if (poolManager != null && !poolManager.exist(getId()))
+					if (!poolManager.add(this))
+						return;
+				if (canceled || working)
+					return;
+				working = true;
+			}
+
+			session = sessionFactory.openSession();
+
+			Duplicator duplicator = new Duplicator(session);
+
+			session.getTransaction().begin();
+
+			Analysis analysis = duplicator.getDaoAnalysis().get(idAnalysis);
+
+			if (analysis == null)
+				serviceTaskFeedback.send(id, new MessageHandler("error.analysis.not_exist", "Analysis not found", language, 0));
+			else {
+
+				language = analysis.getLanguage().getAlpha3();
+
+				Analysis copy = duplicator.duplicateAnalysis(analysis, null, serviceTaskFeedback, id, 5, 95);
+
+				serviceTaskFeedback.send(id, new MessageHandler("info.analysis.update.setting", "Update analysis settings", language, 95));
+
+				copy.setBasedOnAnalysis(analysis);
+
+				copy.addAHistory(history);
+
+				copy.setVersion(history.getVersion());
+
+				copy.setLabel(analysis.getLabel());
+
+				copy.setCreationDate(new Timestamp(System.currentTimeMillis()));
+
+				copy.setProfile(false);
+
+				copy.setDefaultProfile(false);
+
+				UserAnalysisRight userAnalysisRight = copy.getRightsforUserString(userName);
+
+				copy.setOwner(userAnalysisRight.getUser());
+
+				userAnalysisRight.setRight(AnalysisRight.ALL);
+
+				serviceTaskFeedback.send(id, new MessageHandler("info.saving.analysis", "Saving analysis", language, 96));
+
+				duplicator.getDaoAnalysis().saveOrUpdate(copy);
+
+				serviceTaskFeedback.send(id, new MessageHandler("info.analysis.switch.read.only.preview", "Turn on readonly all preview version", language, 98));
+
+				ManageAnalysisRight manageAnalysisRight = new ManageAnalysisRight();
+
+				manageAnalysisRight.setDaoAnalysis(duplicator.getDaoAnalysis());
+
+				manageAnalysisRight.setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
+
+				manageAnalysisRight.switchAnalysisToReadOnly(copy.getIdentifier(), copy.getId());
+
+				session.getTransaction().commit();
+
+				serviceTaskFeedback.send(id, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", language, 100));
+			}
+
+		} catch (InterruptedException e) {
+			serviceTaskFeedback.send(id, new MessageHandler("info.task.interrupted", "Task has been interrupted", language, 0));
+		} catch (TrickException e) {
+			serviceTaskFeedback.send(id, new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), error = e));
+			rollback(session);
+		} catch (Exception e) {
+			rollback(session);
+			serviceTaskFeedback.send(id, new MessageHandler("error.analysis.duplicate", "An unknown error occurred while copying analysis", language, 0));
+		} finally {
+			try {
+				if (session != null)
+					session.close();
+			} catch (HibernateException e) {
+				e.printStackTrace();
+			}
+			synchronized (this) {
+				working = false;
+			}
+			if (poolManager != null)
+				poolManager.remove(getId());
+		}
+	}
+
+	protected void rollback(Session session) {
+		try {
+			if (session != null && session.getTransaction().isInitiator())
+				session.getTransaction().rollback();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#isWorking()
+	 */
+	@Override
+	public boolean isWorking() {
+		return working;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#isCanceled()
+	 */
+	@Override
+	public boolean isCanceled() {
+		return canceled;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#getError()
+	 */
+	@Override
+	public Exception getError() {
+		return error;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#setId(java.lang.Long)
+	 */
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * lu.itrust.business.TS.asynchronousWorkers.Worker#setPoolManager(lu.itrust
+	 * .business.TS.database.service.WorkersPoolManager)
+	 */
+	@Override
+	public void setPoolManager(WorkersPoolManager poolManager) {
+		this.poolManager = poolManager;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#getId()
+	 */
+	@Override
+	public Long getId() {
+		return id;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#start()
+	 */
+	@Override
+	public void start() {
+		run();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see lu.itrust.business.TS.asynchronousWorkers.Worker#cancel()
+	 */
+	@Override
+	public void cancel() {
+		try {
+			synchronized (this) {
+				if (working) {
+					Thread.currentThread().interrupt();
+					canceled = true;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			error = e;
+		} finally {
+			synchronized (this) {
+				working = false;
+			}
+			if (poolManager != null)
+				poolManager.remove(getId());
+		}
+	}
+
+}

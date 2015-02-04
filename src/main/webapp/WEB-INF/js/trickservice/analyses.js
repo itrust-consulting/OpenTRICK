@@ -421,7 +421,8 @@ function customAnalysis(element) {
 						});
 
 				var checkPhase = function() {
-					$(modal.modal_body).find("input[name='phase']").prop("disabled", $(modal.modal_body).find("#analysis-build-standards .well").attr("data-trick-id") == undefined);
+					$(modal.modal_body).find("input[name='phase']")
+							.prop("disabled", $(modal.modal_body).find("#analysis-build-standards .well").attr("data-trick-id") == undefined);
 					$(modal.modal_body).find("input[name='phase']").prop("checked", false);
 				}
 
@@ -788,8 +789,9 @@ function exportAnalysisReportData(analysisId) {
 
 function duplicateAnalysis(form, analyisId) {
 	var oldVersion = $("#history_oldVersion").prop("value");
-	$(".progress-striped").show();
-	$(".progress-striped").addClass("active");
+	/*
+	 * $(".progress-striped").show(); $(".progress-striped").addClass("active");
+	 */
 	var labels = $("#addHistoryModal .label-danger");
 	if (labels.length)
 		labels.remove();
@@ -830,39 +832,41 @@ function duplicateAnalysis(form, analyisId) {
 					errorcounter++;
 					$(errorElement).appendTo($("#addHistoryModal #history_comment").parent());
 					break;
-				case "analysis": {
+				case "analysis":
 					errorcounter++;
 					var alertElement = document.createElement("div");
 					alertElement.setAttribute("class", "alert alert-warning");
-
 					$(alertElement).text($(errorElement).text());
-
 					$("#addHistoryModal .modal-body").prepend($(alertElement));
 					break;
-				}
 				}
 
 			}
 			if (errorcounter == 0) {
-
-				var alertElement = document.createElement("div");
-				alertElement.setAttribute("class", "alert alert-success");
-
-				$(alertElement).text(MessageResolver("success.newversion.created", "New version created sucessfully!"));
-
-				$("#addHistoryModal div.modal-body").prepend($(alertElement));
-
-				$(".progress-striped").removeClass("active");
-
-				setTimeout("location.reload()", 2000);
+				progressBar = new ProgressBar();
+				progressBar.Initialise();
+				$(progressBar.progress).appendTo($("#history_form").parent());
+				callback = {
+					failed : function() {
+						progressBar.Destroy();
+						$("#addHistoryModal").modal("hide");
+						$("#alert-dialog .modal-body").html(MessageResolver("error.unknown.task.execution", "An unknown error occurred during the execution of the task"));
+						$("#alert-dialog").modal("show");
+					},
+					success : function() {
+						progressBar.Destroy();
+						setTimeout("location.reload()", 1000);
+						$("#addHistoryModal").modal("hide");
+					}
+				};
+				progressBar.OnComplete(callback.success);
+				updateStatus(progressBar, response["analysis_task_id"], callback, undefined);
 			}
-
 		},
 		error : unknowError
 	});
 	return false;
 }
-
 
 function downloadExportedSqLite(idFile) {
 	$.fileDownload(context + '/Analysis/Download/' + idFile).fail(unknowError);
