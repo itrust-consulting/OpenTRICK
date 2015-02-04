@@ -14,7 +14,7 @@ import lu.itrust.business.TS.usermanagement.User;
  */
 public interface ServiceEmailSender {
 	
-	public static String RESOURCE_FOLDER = "email/template/";
+	public static String RESOURCE_FOLDER = "../data/email/template/";
 	
 	void sendRegistrationMail(List<User> recipient, User user) throws Exception;
 	

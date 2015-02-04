@@ -79,10 +79,13 @@ public class ControllerRegister {
 	private ServiceResetPassword serviceResetPassword;
 
 	@Value("${app.settings.time.to.valid.reset.password}")
-	private int timeoutValue = 90000;
+	private int timeoutValue;
+
+	@Value("${app.settings.time.hostserver}")
+	private String hostServer;
 
 	@Value("${app.settings.max.attempt}")
-	private int maxAttempt = 3;
+	private int maxAttempt;
 
 	/**
 	 * add: <br>
@@ -199,6 +202,14 @@ public class ControllerRegister {
 		return "resetPassword";
 	}
 
+	public static String URL(HttpServletRequest request) {
+		return request.getScheme()
+				+ "://"
+				+ request.getServerName()
+				+ ("http".equals(request.getScheme()) && request.getServerPort() == 80 || "https".equals(request.getScheme()) && request.getServerPort() == 443 ? "" : ":"
+						+ request.getServerPort()) + request.getRequestURI() + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
+	}
+
 	@RequestMapping("/ResetPassword/Save")
 	public String resetPassword(@ModelAttribute("resetPassword") ResetPasswordHelper resetPassword, BindingResult result, Principal principal, RedirectAttributes attributes,
 			Locale locale, HttpServletRequest request) {
@@ -223,9 +234,8 @@ public class ControllerRegister {
 				ShaPasswordEncoder passwordEncoder = new ShaPasswordEncoder(256);
 				resetPassword2 = new ResetPassword(user, passwordEncoder.encodePassword(String.valueOf(System.nanoTime()),
 						String.valueOf(new Random(System.currentTimeMillis()).nextDouble())), new Timestamp(System.currentTimeMillis() + timeoutValue));
-				String url = request.getRequestURL().toString().replace("ResetPassword/Save", "ChangePassword/" + resetPassword2.getKeyControl());
 				serviceResetPassword.saveOrUpdate(resetPassword2);
-				serviceEmailSender.sendResetPassword(resetPassword2, url);
+				serviceEmailSender.sendResetPassword(resetPassword2, hostServer + "/ChangePassword/" + resetPassword2.getKeyControl());
 			}
 			attributes.addFlashAttribute("success",
 					messageSource.getMessage("success.reset.password.email.send", null, "You will receive an email to reset your password, you have 15 minutes to do.", locale));
@@ -253,6 +263,23 @@ public class ControllerRegister {
 		}
 		model.addAttribute("changePassword", new ChangePasswordhelper(keyControl));
 		return "changePassword";
+	}
+
+	@RequestMapping("/ChangePassword/{keyControl}/Cancel")
+	public String cancel(@PathVariable String keyControl, Principal principal, Model model, RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		String attempt = checkAttempt("attempt-request-cancel", session, principal);
+		if (attempt != null)
+			return attempt;
+		ResetPassword resetPassword = serviceResetPassword.get(keyControl);
+		if (resetPassword != null) {
+			session.removeAttribute("attempt-request-cancel");
+			serviceResetPassword.delete(resetPassword);
+		}
+		attributes.addFlashAttribute("success",
+				messageSource.getMessage("success.reset.password.canceled", null, "Request to reset your password has been successfully canceled", locale));
+		return "redirect:/Login";
+
 	}
 
 	@RequestMapping("/ChangePassword/Save")

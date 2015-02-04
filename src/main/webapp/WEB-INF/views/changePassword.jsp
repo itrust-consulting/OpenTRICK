@@ -38,9 +38,12 @@
 				</div>
 				<div class="form-group">
 					<div class="col-sm-offset-3 col-sm-9">
-						<button class="btn btn-default" type="submit">
+						<button class="btn btn-primary" type="submit">
 							<spring:message code="label.action.update" text="Update" />
 						</button>
+						<a class="btn btn-danger pull-right" href="${pageContext.request.contextPath}/ChangePassword/${changePassword.requestId}/Cancel">
+							<spring:message code="label.action.cancel" />
+						</a>
 					</div>
 				</div>
 			</form:form>

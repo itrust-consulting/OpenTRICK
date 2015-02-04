@@ -31,11 +31,13 @@ import lu.itrust.business.TS.database.dao.DAOCustomer;
 import lu.itrust.business.TS.database.dao.DAOMeasure;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescription;
 import lu.itrust.business.TS.database.dao.DAOMeasureDescriptionText;
+import lu.itrust.business.TS.database.dao.DAOResetPassword;
 import lu.itrust.business.TS.database.dao.DAORiskRegister;
 import lu.itrust.business.TS.database.dao.DAOScenario;
 import lu.itrust.business.TS.database.dao.DAOStandard;
 import lu.itrust.business.TS.database.dao.DAOUser;
 import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.usermanagement.ResetPassword;
 import lu.itrust.business.TS.usermanagement.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +85,9 @@ public class CustomDelete {
 	private DAOUser daoUser;
 
 	@Autowired
+	private DAOResetPassword daoResetPassword;
+
+	@Autowired
 	private DAOActionPlan daoActionPlan;
 
 	@Autowired
@@ -90,7 +95,7 @@ public class CustomDelete {
 
 	@Autowired
 	private DAOAssetTypeValue daoAssetTypeValue;
-	
+
 	@Autowired
 	private DAORiskRegister daoRiskRegister;
 
@@ -242,9 +247,9 @@ public class CustomDelete {
 					contains = true;
 					break;
 				}
-			if(contains)
+			if (contains)
 				daoActionPlan.deleteAllFromAnalysis(analysisID);
-			
+
 			astandard.getMeasures().remove(mes);
 
 			daoMeasure.delete(mes);
@@ -274,10 +279,10 @@ public class CustomDelete {
 			return false;
 		}
 	}
-	
+
 	@Transactional
-	public void deleteAnalysis(int idAnalysis) throws Exception{
-		
+	public void deleteAnalysis(int idAnalysis) throws Exception {
+
 		daoActionPlan.deleteAllFromAnalysis(idAnalysis);
 
 		daoActionPlanSummary.deleteAllFromAnalysis(idAnalysis);
@@ -292,9 +297,12 @@ public class CustomDelete {
 	@Transactional
 	public void deleteUser(User user) throws Exception {
 		user.disable();
+		ResetPassword resetPassword = daoResetPassword.get(user);
+		if (resetPassword != null)
+			daoResetPassword.delete(resetPassword);
 		user.getCustomers().clear();
 		daoUser.saveOrUpdate(user);
 		daoUser.delete(user.getId());
 	}
-	
+
 }
