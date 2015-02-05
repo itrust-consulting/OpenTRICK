@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 
 import lu.itrust.business.TS.data.analysis.Analysis;
-import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
-import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
@@ -211,13 +209,7 @@ public class WorkerAnalysisImport implements Worker {
 				working = true;
 			}
 			DatabaseHandler DatabaseHandler = new DatabaseHandler(fileName);
-			Analysis analysis = new Analysis();
-			analysis.setCustomer(customer);
-			analysis.setOwner(owner);
-			UserAnalysisRight uar = new UserAnalysisRight(owner, AnalysisRight.ALL);
-
-			analysis.addUserRight(uar);
-
+			Analysis analysis = new Analysis(customer,owner);
 			importAnalysis.setAnalysis(analysis);
 			importAnalysis.setIdTask(getId());
 			importAnalysis.setDatabaseHandler(DatabaseHandler);

@@ -453,9 +453,9 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<String> getAllNotEmptyVersion(String identfier) {
+	public List<String> getAllNotEmptyVersion(String identifier) {
 		return getSession().createQuery("Select distinct analysis.version from Analysis as analysis where analysis.data = true and analysis.identifier = :identifier")
-				.setParameter("identifier", identfier).list();
+				.setParameter("identifier", identifier).list();
 	}
 
 	@Override
@@ -468,5 +468,18 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public boolean isAnalysisOwner(Integer analysisId, String userName) {
 		return (boolean) getSession().createQuery("select count(analysis)>0 from Analysis as analysis where analysis.id = :idAnalysis and analysis.owner.login = :username")
 				.setParameter("idAnalysis", analysisId).setString("username", userName).uniqueResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getAllVersion(String identifier) {
+		return getSession().createQuery("Select distinct analysis.version from Analysis as analysis where analysis.identifier = :identifier")
+				.setParameter("identifier", identifier).list();
+	}
+
+	@Override
+	public Integer getIdFromIdentifierAndVersion(String identifier, String version) {
+		return (Integer) getSession().createQuery("select id from Analysis where identifier = :identifier and version = :version").setParameter("identifier", identifier)
+				.setString("version", version).uniqueResult();
 	}
 }

@@ -9,12 +9,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.analysis.helper.ManageAnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.AnalysisRight;
 import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.data.assessment.Assessment;
@@ -51,6 +53,7 @@ import lu.itrust.business.TS.data.standard.measure.MeasureProperties;
 import lu.itrust.business.TS.data.standard.measure.NormalMeasure;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
+import lu.itrust.business.TS.data.standard.measuredescription.helper.ComparatorMeasureDescription;
 import lu.itrust.business.TS.database.DatabaseHandler;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.DAOAssetType;
@@ -66,6 +69,7 @@ import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOMeasureDescriptionTextHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOParameterTypeHBM;
 import lu.itrust.business.TS.database.dao.hbm.DAOStandardHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOUserAnalysisRightHBM;
 import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
@@ -435,9 +439,25 @@ public class ImportAnalysis {
 
 			daoAnalysis.saveOrUpdate(this.analysis);
 
-			if (session != null)
-				session.getTransaction().commit();
+			List<String> versions = daoAnalysis.getAllNotEmptyVersion(analysis.getIdentifier());
 
+			Collections.sort(versions, new Comparator<String>() {
+				@Override
+				public int compare(String o1, String o2) {
+					return ComparatorMeasureDescription.Compare(o2, o1);
+				}
+			});
+			
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.switch.read.only.preview", "Turn on readonly all preview version", null, 95));
+			Integer idAnalysis = daoAnalysis.getIdFromIdentifierAndVersion(analysis.getIdentifier(), versions.get(0));
+			ManageAnalysisRight manageAnalysisRight = new ManageAnalysisRight();
+			manageAnalysisRight.setDaoAnalysis(daoAnalysis);
+			manageAnalysisRight.setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
+			manageAnalysisRight.switchAnalysisToReadOnly(analysis.getIdentifier(), idAnalysis);
+			if (session != null){
+				session.getTransaction().commit();
+				serviceTaskFeedback.send(idTask, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", null, 100));
+			}
 			System.out.println("Import Done!");
 
 			return true;
@@ -544,7 +564,7 @@ public class ImportAnalysis {
 
 			if (acroLanguage.equals("FRA")) {
 				language.setAlpha3(acroLanguage);
-				language.setName("Françaus");
+				language.setName("Français");
 				language.setAltName("French");
 			} else {
 				language.setAlpha3("ENG");
@@ -693,7 +713,6 @@ public class ImportAnalysis {
 			this.analysis
 					.setBasedOnAnalysis(daoAnalysis.getFromIdentifierVersionCustomer(this.analysis.getIdentifier(), history.getVersion(), this.analysis.getCustomer().getId()));
 		}
-
 	}
 
 	/**

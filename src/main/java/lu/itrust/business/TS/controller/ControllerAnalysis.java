@@ -103,6 +103,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/Analysis")
 public class ControllerAnalysis {
 
+	private static final String ANALYSIS_TASK_ID = "analysis_task_id";
+
+	private static final String SELECTED_ANALYSIS = "selectedAnalysis";
+
+	private static final String CURRENT_CUSTOMER = "currentCustomer";
+
 	private static final String LAST_SELECTED_CUSTOMER_ID = "last-selected-customer-id";
 
 	@Autowired
@@ -220,7 +226,7 @@ public class ControllerAnalysis {
 	public String displayAll(Principal principal, Model model, HttpSession session, RedirectAttributes attributes, Locale locale, HttpServletRequest request) throws Exception {
 
 		// retrieve analysisId if an analysis was already selected
-		Integer selected = (Integer) session.getAttribute("selectedAnalysis");
+		Integer selected = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 
 		// check if an analysis is selected
 		if (selected != null) {
@@ -233,8 +239,8 @@ public class ControllerAnalysis {
 			Analysis analysis = serviceAnalysis.get(selected);
 
 			if (analysis == null) {
-				attributes.addFlashAttribute("errors", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
-				throw new ResourceNotFoundException((String) attributes.getFlashAttributes().get("errors"));
+				attributes.addFlashAttribute("error", messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+				throw new ResourceNotFoundException((String) attributes.getFlashAttributes().get("error"));
 			}
 
 			User user = serviceUser.get(principal.getName());
@@ -274,7 +280,7 @@ public class ControllerAnalysis {
 			List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
 
 			// retrieve currently selected customer
-			Integer customer = (Integer) session.getAttribute("currentCustomer");
+			Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
 
 			User user = null;
 
@@ -283,19 +289,13 @@ public class ControllerAnalysis {
 				if (user == null)
 					return "redirect:/Logout";
 				customer = user.getInteger(LAST_SELECTED_CUSTOMER_ID);
-			}
-
-			// check if the current customer is set -> no
-			if (customer == null && !customers.isEmpty()) {
-				// use first customer as selected customer
-				session.setAttribute("currentCustomer", customer = customers.get(0).getId());
-				if (user == null) {
-					user = serviceUser.get(principal.getName());
-					if (user == null)
-						return "redirect:/Logout";
+				// check if the current customer is set -> no
+				if (customer == null && !customers.isEmpty()) {
+					// use first customer as selected customer
+					user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer = customers.get(0).getId());
+					serviceUser.saveOrUpdate(user);
 				}
-				user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer);
-				serviceUser.saveOrUpdate(user);
+				session.setAttribute(CURRENT_CUSTOMER, customer);
 			}
 
 			if (customer != null)
@@ -340,17 +340,18 @@ public class ControllerAnalysis {
 
 	@RequestMapping("/Section")
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
-		Integer customer = (Integer) request.getSession().getAttribute("currentCustomer");
+		Integer customer = (Integer) request.getSession().getAttribute(CURRENT_CUSTOMER);
 		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());
 		if (customer == null) {
-			if (!customers.isEmpty()) {
-				request.getSession().setAttribute("currentCustomer", customer = customers.get(0).getId());
-				User user = serviceUser.get(principal.getName());
-				if (user == null)
-					return "redirect:/Logout";
-				user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer);
+			User user = serviceUser.get(principal.getName());
+			if (user == null)
+				return "redirect:/Logout";
+			customer = user.getInteger(LAST_SELECTED_CUSTOMER_ID);
+			if (customer == null && !customers.isEmpty()) {
+				user.setSetting(LAST_SELECTED_CUSTOMER_ID, customer = customers.get(0).getId());
 				serviceUser.saveOrUpdate(user);
 			}
+			request.getSession().setAttribute(CURRENT_CUSTOMER, customer);
 		}
 		model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customer));
 		model.addAttribute("customer", customer);
@@ -372,7 +373,7 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/DisplayByCustomer/{customerSection}")
 	public String section(@PathVariable Integer customerSection, HttpSession session, Principal principal, Model model) throws Exception {
-		session.setAttribute("currentCustomer", customerSection);
+		session.setAttribute(CURRENT_CUSTOMER, customerSection);
 		model.addAttribute("analyses", serviceAnalysis.getAllNotEmptyFromUserAndCustomer(principal.getName(), customerSection));
 		model.addAttribute("customer", customerSection);
 		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
@@ -401,7 +402,7 @@ public class ControllerAnalysis {
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session.getAttribute('selectedAnalysis'), #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String update(HttpSession session, Locale locale) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+		Integer idAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 		if (idAnalysis == null)
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null, "There is no selected analysis", locale));
 		try {
@@ -440,7 +441,7 @@ public class ControllerAnalysis {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public String selectAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
 		// select the analysis
-		session.setAttribute("selectedAnalysis", analysisId);
+		session.setAttribute(SELECTED_ANALYSIS, analysisId);
 		return "redirect:/Analysis";
 	}
 
@@ -461,8 +462,8 @@ public class ControllerAnalysis {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody boolean selectOnly(Principal principal, @PathVariable("analysisId") Integer analysisId, HttpSession session) throws Exception {
 		// select the analysis
-		session.setAttribute("selectedAnalysis", analysisId);
-		return session.getAttribute("selectedAnalysis") == analysisId;
+		session.setAttribute(SELECTED_ANALYSIS, analysisId);
+		return session.getAttribute(SELECTED_ANALYSIS) == analysisId;
 	}
 
 	/**
@@ -481,9 +482,9 @@ public class ControllerAnalysis {
 	@RequestMapping("/Deselect")
 	public String DeselectAnalysis(HttpSession session) throws Exception {
 		// retrieve selected analysis
-		Integer integer = (Integer) session.getAttribute("selectedAnalysis");
+		Integer integer = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 		if (integer != null) {
-			session.removeAttribute("selectedAnalysis");
+			session.removeAttribute(SELECTED_ANALYSIS);
 			if (serviceAnalysis.isProfile(integer))
 				return "redirect:/KnowledgeBase";
 			else
@@ -673,10 +674,10 @@ public class ControllerAnalysis {
 			if (lastVersion != null)
 				serviceAnalysis.saveOrUpdate(lastVersion);
 
-			Integer selectedAnalysis = (Integer) session.getAttribute("selectedAnalysis");
+			Integer selectedAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 
 			if (selectedAnalysis != null && selectedAnalysis == analysisId)
-				session.removeAttribute("selectedAnalysis");
+				session.removeAttribute(SELECTED_ANALYSIS);
 
 			// return success message
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));
@@ -800,12 +801,11 @@ public class ControllerAnalysis {
 
 			Worker worker = new WorkerCreateAnalysisVersion(analysisId, history, principal.getName(), serviceTaskFeedback, sessionFactory, workersPoolManager);
 			// register worker to tasklist
-			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())){
+			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId())) {
 				// execute task
 				executor.execute(worker);
-				errors.put("analysis_task_id", String.valueOf(worker.getId()));
-			}
-			else
+				errors.put(ANALYSIS_TASK_ID, String.valueOf(worker.getId()));
+			} else
 				errors.put("analysis", messageSource.getMessage("error.task.register", null, "Task cannot be registered", locale));
 
 		} catch (CloneNotSupportedException e) {
@@ -860,8 +860,17 @@ public class ControllerAnalysis {
 	public Object importAnalysisSave(Principal principal, @RequestParam(value = "customerId") Integer customerId, HttpServletRequest request,
 			@RequestParam(value = "file") MultipartFile file, final RedirectAttributes attributes, Locale locale) throws Exception {
 
+		User user = serviceUser.get(principal.getName());
+		if (user == null)
+			return "redirect:/Logout";
+
 		// retrieve the customer
-		Customer customer = serviceCustomer.get(customerId);
+		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
+
+		if (customer == null) {
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
+			throw new ResourceNotFoundException((String) attributes.getFlashAttributes().get("error"));
+		}
 
 		// if the customer or the file are not correct
 		if (customer == null || file.isEmpty()) {
@@ -870,7 +879,12 @@ public class ControllerAnalysis {
 		}
 
 		// set selected customer, the selected customer of the analysis
-		request.getSession().setAttribute("currentCustomer", customer.getId());
+		request.getSession().setAttribute(CURRENT_CUSTOMER, customer.getId());
+
+		if (customerId != user.getInteger(LAST_SELECTED_CUSTOMER_ID)) {
+			user.setSetting(LAST_SELECTED_CUSTOMER_ID, String.valueOf(customerId));
+			serviceUser.saveOrUpdate(user);
+		}
 
 		// the file to import
 		File importFile = new File(request.getServletContext().getRealPath("/WEB-INF/tmp") + "/" + principal.getName() + "_" + System.nanoTime() + "");
@@ -990,20 +1004,14 @@ public class ControllerAnalysis {
 		try {
 
 			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
-
 			switch (serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().toLowerCase()) {
 			case "fra":
 				locale = Locale.FRENCH;
 				exportAnalysisReport.setReportName(frenchReportName);
 				break;
-			case "eng":
+			default:
 				locale = Locale.ENGLISH;
 				exportAnalysisReport.setReportName(englishReportName);
-				break;
-			default: {
-				locale = Locale.ENGLISH;
-				exportAnalysisReport.setReportName(englishReportName);
-			}
 			}
 
 			exportAnalysisReport.setMessageSource(messageSource);
@@ -1011,8 +1019,7 @@ public class ControllerAnalysis {
 			file = exportAnalysisReport.exportToWordDocument(analysisId, request.getServletContext(), serviceAnalysis, true);
 
 			if (file != null) {
-
-				response.setContentType("docx");
+				response.setContentType("docm");
 				response.setContentLength((int) file.length());
 				response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
 				FileCopyUtils.copy(FileCopyUtils.copyToByteArray(file), response.getOutputStream());

@@ -69,6 +69,12 @@ public class UserAnalysisRight implements Cloneable {
 		this.right = right;
 	}
 
+	public UserAnalysisRight(Analysis analysis, User user, AnalysisRight right) {
+		setAnalysis(analysis);
+		setRight(right);
+		setUser(user);
+	}
+
 	/**
 	 * getUser: <br>
 	 * Returns the user field value.

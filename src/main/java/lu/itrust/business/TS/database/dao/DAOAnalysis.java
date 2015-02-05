@@ -98,4 +98,8 @@ public interface DAOAnalysis {
 	public Integer getCustomerIdByIdAnalysis(int analysisId);
 
 	public boolean isAnalysisOwner(Integer analysisId, String userName);
+
+	public List<String> getAllVersion(String identifier);
+
+	public Integer getIdFromIdentifierAndVersion(String identifier, String string);
 }
