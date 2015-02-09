@@ -51,10 +51,15 @@ public class ManageAnalysisRight {
 			else
 				userrights.put(user, null);
 
-			if (user.getLogin().equals(principal.getName()))
+			boolean isOwner = analysis.getOwner().getLogin().equals(principal.getName());
+
+			if (user.getLogin().equals(principal.getName()) && !isOwner)
 				continue;
 
 			int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
+
+			if (isOwner && !AnalysisRight.isValid(useraccess))
+				continue;
 
 			UserAnalysisRight uar = analysis.getRightsforUser(user);
 
@@ -75,9 +80,8 @@ public class ManageAnalysisRight {
 
 					if (!user.getCustomers().contains(analysis.getCustomer()))
 						user.addCustomer(analysis.getCustomer());
-
-					uar = new UserAnalysisRight(user, AnalysisRight.valueOf(useraccess));
-					analysis.addUserRight(uar);
+					
+					uar = analysis.addUserRight(user,  AnalysisRight.valueOf(useraccess));
 					daoUserAnalysisRight.save(uar);
 					userrights.put(user, uar.getRight());
 				}
@@ -99,6 +103,5 @@ public class ManageAnalysisRight {
 	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
 		this.daoAnalysis = daoAnalysis;
 	}
-	
-	
+
 }

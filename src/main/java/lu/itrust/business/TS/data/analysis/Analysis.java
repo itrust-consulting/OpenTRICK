@@ -2157,17 +2157,19 @@ public class Analysis implements Cloneable {
 	 * Description
 	 * 
 	 * @param userRight
+	 * @return
 	 */
-	public void addUserRight(User user, AnalysisRight right) {
+	public UserAnalysisRight addUserRight(User user, AnalysisRight right) {
 		if (user == null)
-			return;
+			return null;
 		UserAnalysisRight userAnalysisRight = getRightsforUser(user);
 		if (userAnalysisRight == null)
-			this.userRights.add(new UserAnalysisRight(this, user, right));
+			this.userRights.add(userAnalysisRight = new UserAnalysisRight(this, user, right));
 		else if (right == null)
 			this.userRights.remove(userAnalysisRight);
 		else if (!right.equals(userAnalysisRight.getRight()))
 			userAnalysisRight.setRight(right);
+		return userAnalysisRight;
 	}
 
 	/**
