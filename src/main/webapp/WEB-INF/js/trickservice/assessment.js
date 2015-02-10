@@ -4,28 +4,28 @@ function AssessmentViewer() {
 
 	AssessmentViewer.prototype.Intialise = function() {
 		Modal.prototype.Intialise.call(this);
+
 		$(this.modal_dialog).prop("style", "width: 100%;");
+
 		var lang = $("#nav-container").attr("data-trick-language");
 
 		var impactScale = MessageResolver("label.menu.show.impact_scale", "Show impact scale", null, lang);
-		var probabilityScale = MessageResolver("label.menu.show.probability_scale", "Show probability scale", null, lang);
-		var enableEditModeText = MessageResolver("label.menu.edit_mode.open", "Open edit mode", null, lang);
-		var disableEditModeText = MessageResolver("label.menu.edit_mode.close", "Close edit mode", null, lang);
-		$(this.modal_title).replaceWith(
-				$("<div class='modal-title'><h4 role='title' class=''></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
-						+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale + "</a></li><li role='enterEditMode'><a href='#' onclick='return enableEditMode()'>"
-						+ enableEditModeText + "</a></li><li class='disabled' role='leaveEditMode'><a href='#' onclick='return disableEditMode()'>" + disableEditModeText + "</a></li><ul></div>"));
-		$(this.modal_footer).remove();
-		this.dialogError = $("#alert-dialog").clone();
-		$(this.dialogError).removeAttr("id");
-		$(this.dialogError).appendTo($(this.modal));
-		this.setTitle("Assessment");
 
-		$(this.modal).on("hidden.bs.modal", function() {
-			disableEditMode();
-			reloadSection("section_asset");// it will call reloadSection for
-			// scenario
-		});
+		var probabilityScale = MessageResolver("label.menu.show.probability_scale", "Show probability scale", null, lang);
+
+		var $newTitle = $("<div class='modal-title'><h4 role='title'></h4><ul class='nav nav-pills'><li role='impact_scale'><a href='#'>" + impactScale
+				+ "</a></li><li role='probability_scale'><a href='#'>" + probabilityScale + "</a></li></ul></div>");
+
+		if (isEditable()) {
+			var enableEditModeText = MessageResolver("label.menu.edit_mode.open", "Open edit mode", null, lang);
+			var disableEditModeText = MessageResolver("label.menu.edit_mode.close", "Close edit mode", null, lang);
+			$(
+					"<li role='enterEditMode'><a href='#' onclick='return enableEditMode()'>" + enableEditModeText
+							+ "</a></li><li class='disabled' role='leaveEditMode'><a href='#' onclick='return disableEditMode()'>" + disableEditModeText + "</a></li>").appendTo(
+					$newTitle.find("ul.nav"));
+		}
+
+		$(this.modal_title).replaceWith($newTitle);
 
 		$(this.modal_header).find("*[role='impact_scale']").on("click", function() {
 			var view = new Modal();
@@ -49,21 +49,39 @@ function AssessmentViewer() {
 			return false;
 		});
 
+		this.dialogError = $("#alert-dialog").clone();
+		$(this.dialogError).removeAttr("id");
+		$(this.dialogError).appendTo($(this.modal));
+
+		$(this.modal_footer).remove();
+
+		$(this.modal).on("hidden.bs.modal", function() {
+			disableEditMode();
+			reloadSection("section_asset");// it will call reloadSection for
+			// scenario
+		});
+
 		var that = this;
 		var resizer = function() {
+			var height = $(window).height();
+			var multi = height < 200 ? 0.50 : height < 520 ? 0.60 : height < 600 ? 0.65 : height < 770 ? 0.72 : height < 820 ? 0.76 : height < 900 ? 0.77 : 0.79;
 			$(that.modal_body).css({
-				'max-height' : ($(window).height() * 0.77) + 'px',
+				'max-height' : (height * multi) + 'px',
 				'overflow' : 'auto'
 			});
 		}
+
 		$(window).resize(resizer);
+
 		resizer.apply(resizer, null);
+
 		$(this.modal).on("hidden.bs.modal", function() {
 			application.modal["AssessmentViewer"] = undefined;
-			$(window).off(resizer);
 		});
-		
-		$(this.modal).find(".modal-content").css({'padding-bottom':'20px'});
+
+		$(this.modal).find(".modal-content").css({
+			'padding-bottom' : '20px'
+		});
 
 		$(this.modal).on("show.bs.modal", function() {
 			disableEditMode();

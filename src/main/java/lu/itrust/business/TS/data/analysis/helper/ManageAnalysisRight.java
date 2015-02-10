@@ -51,14 +51,12 @@ public class ManageAnalysisRight {
 			else
 				userrights.put(user, null);
 
-			boolean isOwner = analysis.getOwner().getLogin().equals(principal.getName());
-
-			if (user.getLogin().equals(principal.getName()) && !isOwner)
+			if (user.getLogin().equals(principal.getName()) && !analysis.getOwner().getLogin().equals(principal.getName()))
 				continue;
 
 			int useraccess = jsonNode.get("analysisRight_" + user.getId()).asInt();
 
-			if (isOwner && !AnalysisRight.isValid(useraccess))
+			if (analysis.getOwner().equals(user) && !AnalysisRight.isValid(useraccess))
 				continue;
 
 			UserAnalysisRight uar = analysis.getRightsforUser(user);
