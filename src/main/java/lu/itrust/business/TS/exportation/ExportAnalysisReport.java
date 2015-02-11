@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-
 import lu.itrust.business.TS.component.ChartGenerator;
 import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.data.actionplan.ActionPlanEntry;
@@ -44,8 +42,7 @@ import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.measure.Measure;
 import lu.itrust.business.TS.data.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.TS.data.standard.measuredescription.MeasureDescriptionText;
-import lu.itrust.business.TS.database.service.ServiceAnalysis;
-import lu.itrust.business.TS.exception.TrickException;
+import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.exportation.helper.ReportExcelSheet;
 
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -61,7 +58,6 @@ import org.apache.poi.xwpf.usermodel.XWPFStyles;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.hibernate.Hibernate;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblWidth;
 import org.springframework.context.MessageSource;
 
@@ -75,37 +71,72 @@ import org.springframework.context.MessageSource;
  */
 public class ExportAnalysisReport {
 
-	private static final String SUPER_HEAD_COLOR = "95b3d7";
-
 	private static final String DEFAULT_CELL_COLOR = "f5f9f0";
-
-	private static final String ZERO_COST_COLOR = "e6b8b7";
-
-	private static final String SUB_HEADER_COLOR = "dbe5f1";
 
 	private static final String HEADER_COLOR = "B8CCE4";
 
-	private XWPFDocument document = null;
+	private static final String SUB_HEADER_COLOR = "dbe5f1";
 
-	private ServiceAnalysis serviceAnalysis = null;
+	private static final String SUPER_HEAD_COLOR = "95b3d7";
 
-	private ServletContext context = null;
+	private static final String ZERO_COST_COLOR = "e6b8b7";
 
 	private Analysis analysis = null;
+
+	private String contextPath;
+
+	private XWPFDocument document = null;
+
+	private long idTask;
+
+	private DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
 
 	private Locale locale = null;
 
 	private MessageSource messageSource;
 
+	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+
 	private String reportName;
 
-	private DecimalFormat kEuroFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+	private ServiceTaskFeedback serviceTaskFeedback;
 
-	private DecimalFormat numberFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
+	private File workFile;
 
 	public ExportAnalysisReport() {
 		kEuroFormat.setMaximumFractionDigits(1);
 		numberFormat.setMaximumFractionDigits(0);
+	}
+
+	public ExportAnalysisReport(MessageSource messageSource, ServiceTaskFeedback serviceTaskFeedback, String contextPath) {
+		setMessageSource(messageSource);
+		setContextPath(contextPath);
+		setServiceTaskFeedback(serviceTaskFeedback);
+	}
+
+	private XWPFRun addCellNumber(XWPFTableCell cell, String number) {
+		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
+		paragraph.setStyle("TableParagraphTS");
+		paragraph.setAlignment(ParagraphAlignment.RIGHT);
+		XWPFRun run = paragraph.createRun();
+		run.setText(number);
+		return run;
+	}
+
+	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text) {
+		return addCellParagraph(cell, text, false);
+	}
+
+	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text, boolean add) {
+		XWPFParagraph paragraph = !add && cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
+		String[] texts = text.split("(\r\n|\n\r|\r|\n)");
+		for (int i = 0; i < texts.length; i++) {
+			if (i > 0)
+				paragraph = cell.addParagraph();
+			paragraph.setStyle("TableParagraphTS");
+			paragraph.createRun().setText(texts[i]);
+		}
+		return paragraph;
 	}
 
 	/**
@@ -118,19 +149,10 @@ public class ExportAnalysisReport {
 	 * @return
 	 * @throws Exception
 	 */
-	public File exportToWordDocument(Integer analysisId, ServletContext context, ServiceAnalysis serviceAnalysis, boolean template) throws Exception {
+	public void exportToWordDocument(Analysis analysis, boolean template) throws Exception {
 		InputStream inputStream = null;
 		try {
-			if (!serviceAnalysis.exists(analysisId)) {
-				throw new TrickException("error.analysis.not_exist", "Analysis not found");
-			} else if (serviceAnalysis.isProfile(analysisId)) {
-				throw new TrickException("error.analysis.is_profile", "Profile cannot be exported as report");
-			} else if (!serviceAnalysis.hasData(analysisId)) {
-				throw new TrickException("error.analysis.no_data", "Empty analysis cannot be exported");
-			}
-
-			Analysis analysis = serviceAnalysis.get(analysisId);
-
+			setAnalysis(analysis);
 			switch (analysis.getLanguage().getAlpha3().toLowerCase()) {
 			case "fra":
 				locale = Locale.FRENCH;
@@ -139,35 +161,22 @@ public class ExportAnalysisReport {
 			default:
 				locale = Locale.ENGLISH;
 			}
-
-			this.analysis = analysis;
-
-			this.context = context;
-
-			this.serviceAnalysis = serviceAnalysis;
-
-			XWPFDocument document = null;
-
-			File doctemp = new File(this.getContext().getRealPath(String.format("/WEB-INF/tmp/STA_%s_V%s.docm", analysis.getLabel(), analysis.getVersion())));
-
-			if (!doctemp.exists())
-				doctemp.createNewFile();
+			workFile = new File(String.format("%s/WEB-INF/tmp/STA_%s_V%s.docm", contextPath, analysis.getLabel(), analysis.getVersion()));
+			if (!workFile.exists())
+				workFile.createNewFile();
 
 			if (template) {
-				File doctemplate = new File(this.getContext().getRealPath(String.format("/WEB-INF/data/%s.dotm", reportName)));
+				File doctemplate = new File(String.format("%s/WEB-INF/data/%s.dotm", contextPath, reportName));
 				OPCPackage pkg = OPCPackage.open(doctemplate.getAbsoluteFile());
 				pkg.replaceContentType("application/vnd.ms-word.template.macroEnabledTemplate.main+xml", "application/vnd.ms-word.document.macroEnabled.main+xml");
-				pkg.save(doctemp);
-				document = new XWPFDocument(inputStream = new FileInputStream(doctemp));
+				pkg.save(workFile);
+				document = new XWPFDocument(inputStream = new FileInputStream(workFile));
 			} else {
-				XWPFDocument templateDocx = new XWPFDocument(inputStream = new FileInputStream(new File(this.getContext().getRealPath(
-						String.format("/WEB-INF/data/%s.dotm", reportName)))));
+				XWPFDocument templateDocx = new XWPFDocument(inputStream = new FileInputStream(new File(String.format("%s/WEB-INF/data/%s.dotm", contextPath, reportName))));
 				document = new XWPFDocument();
 				XWPFStyles xwpfStyles = document.createStyles();
 				xwpfStyles.setStyles(templateDocx.getStyle());
 			}
-
-			this.document = document;
 
 			generatePlaceholders();
 
@@ -193,520 +202,109 @@ public class ExportAnalysisReport {
 
 			generateGraphics();
 
-			document.write(new FileOutputStream(doctemp));
-
-			return doctemp;
+			document.write(new FileOutputStream(workFile));
 		} finally {
 			if (inputStream != null)
 				inputStream.close();
 		}
 	}
 
-	private void generateGraphics() throws OpenXML4JException, IOException {
-		for (PackagePart packagePart : this.document.getPackage().getParts())
-			if (packagePart.getPartName().getExtension().contains("xls")) {
-				ReportExcelSheet reportExcelSheet = new ReportExcelSheet(packagePart, context.getRealPath("/WEB-INF/tmp/"));
-				switch (reportExcelSheet.getName()) {
-				case "Compliance27001":
-				case "Compliance27002":
-					generateComplianceGraphic(reportExcelSheet);
-					break;
-				case "ALEByScenarioType":
-					generateALEByScenarioTypeGraphic(reportExcelSheet);
-					break;
-				case "ALEByScenario":
-					generateALEByScenarioGraphic(reportExcelSheet);
-					break;
-				case "ALEByAssetType":
-					generateALEByAssetTypeGraphic(reportExcelSheet);
-					break;
-				case "ALEByAsset":
-					generateALEByAssetGraphic(reportExcelSheet);
-					break;
-				case "EvolutionOfProfitability":
-					generateEvolutionOfProfitabilityGraphic(reportExcelSheet);
-					break;
-				case "Budget":
-					generateBudgetGraphic(reportExcelSheet);
-					break;
-				}
-			}
+	private XWPFParagraph findParagraphByText(String text) {
+		List<XWPFParagraph> paragraphs = document.getParagraphs();
+		for (XWPFParagraph paragraph : paragraphs) {
+			if (paragraph.getParagraphText().equals(text))
+				return paragraph;
+		}
+		return null;
 	}
 
-	private void generateEvolutionOfProfitabilityGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null || analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
-			return;
-		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
-		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
-		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		int rowIndex = 1;
-		for (Phase phase : usesPhases.values()) {
-			if (xssfSheet.getRow(rowIndex) == null)
-				xssfSheet.createRow(rowIndex);
-			if (xssfSheet.getRow(rowIndex).getCell(0) == null)
-				xssfSheet.getRow(rowIndex).createCell(0);
-			xssfSheet.getRow(rowIndex++).getCell(0).setCellValue(String.format("P%d", phase.getNumber()));
+	private String formatedImpact(String impactFin) {
+		try {
+			return kEuroFormat.format(Double.parseDouble(impactFin) * 0.001);
+		} catch (Exception e) {
+			return impactFin;
 		}
-
-		List<String> dataCompliance27001s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + "27001");
-		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + "27002");
-		List<String> dataALEs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
-		List<String> dataRiskReductions = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION);
-		List<String> dataROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI);
-		List<String> dataRelatifROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF);
-
-		for (int j = 1; j < 7; j++) {
-			if (xssfSheet.getRow(0) == null)
-				xssfSheet.createRow(0);
-			if (xssfSheet.getRow(0).getCell(j) == null)
-				xssfSheet.getRow(0).createCell(j);
-		}
-
-		xssfSheet.getRow(0).getCell(1).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " 27001");
-		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " 27002");
-		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale));
-		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale));
-		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale));
-		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale));
-		rowIndex = 1;
-
-		int size = 0;
-
-		if (dataCompliance27001s != null)
-			size = dataCompliance27001s.size();
-		else if (dataCompliance27002s != null)
-			size = dataCompliance27002s.size();
-
-		for (int i = 0; i < size; i++) {
-			for (int j = 1; j < 7; j++) {
-				if (xssfSheet.getRow(rowIndex) == null)
-					xssfSheet.createRow(rowIndex);
-				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
-					xssfSheet.getRow(rowIndex).createCell(j);
-			}
-			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble((dataCompliance27001s == null ? "0" : dataCompliance27001s.get(i))) * 0.01);
-			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble((dataCompliance27002s == null ? "0" : dataCompliance27002s.get(i))) * 0.01);
-			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataALEs.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataRiskReductions.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataROSIs.get(i)));
-			xssfSheet.getRow(rowIndex++).getCell(6).setCellValue(Double.parseDouble(dataRelatifROSIs.get(i)));
-		}
-		reportExcelSheet.save();
 	}
 
-	private void generateBudgetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-
-		if (analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
-			return;
-		
-		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
-		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
-		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		int rowIndex = 1;
-		for (Phase phase : usesPhases.values()) {
-			if (xssfSheet.getRow(rowIndex) == null)
-				xssfSheet.createRow(rowIndex);
-			if (xssfSheet.getRow(rowIndex).getCell(0) == null)
-				xssfSheet.getRow(rowIndex).createCell(0);
-			xssfSheet.getRow(rowIndex++).getCell(0).setCellValue(String.format("P%d", phase.getNumber()));
+	private String formatLikelihood(String likelihood) {
+		try {
+			return kEuroFormat.format(Double.parseDouble(likelihood));
+		} catch (Exception e) {
+			return likelihood;
 		}
-
-		List<String> dataInternalWorkload = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD);
-
-		List<String> dataExternalWorkload = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD);
-
-		List<String> dataInternalMaintenace = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
-
-		List<String> dataExternalMaintenance = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
-
-		List<String> dataInvestment = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT);
-
-		List<String> dataCurrentCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST);
-
-		List<String> dataTotalPhaseCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
-
-		for (int j = 1; j < 8; j++) {
-			if (xssfSheet.getRow(0) == null)
-				xssfSheet.createRow(0);
-			if (xssfSheet.getRow(0).getCell(j) == null)
-				xssfSheet.getRow(0).createCell(j);
-		}
-		xssfSheet.getRow(0).getCell(1).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD, null, "Internal workload", locale));
-		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, null, "External workload", locale));
-		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, null, "Internal maintenance", locale));
-		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, null, "External maintenance", locale));
-		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, null, "Investment", locale));
-		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST, null, "Current cost", locale));
-		xssfSheet.getRow(0).getCell(7).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale));
-
-		rowIndex = 1;
-		for (int i = 0; i < dataInternalWorkload.size(); i++) {
-			for (int j = 1; j < 8; j++) {
-				if (xssfSheet.getRow(rowIndex) == null)
-					xssfSheet.createRow(rowIndex);
-				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
-					xssfSheet.getRow(rowIndex).createCell(j, Cell.CELL_TYPE_NUMERIC);
-			}
-			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble(dataInternalWorkload.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble(dataExternalWorkload.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataInternalMaintenace.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataExternalMaintenance.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataInvestment.get(i)));
-			xssfSheet.getRow(rowIndex).getCell(6).setCellValue(Double.parseDouble(dataCurrentCost.get(i)));
-			xssfSheet.getRow(rowIndex++).getCell(7).setCellValue(Double.parseDouble(dataTotalPhaseCost.get(i)));
-		}
-		reportExcelSheet.save();
 	}
 
-	private void generateALEByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null)
-			return;
-		List<Assessment> assessments = analysis.getSelectedAssessments();
-		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
-			if (ale == null) {
-				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
-				ales2.add(ale);
-			}
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
-		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		int rowCount = 0;
-		if (xssfSheet.getRow(rowCount) == null)
-			xssfSheet.createRow(rowCount);
-		if (xssfSheet.getRow(rowCount).getCell(1) == null)
-			xssfSheet.getRow(rowCount).createCell(1);
-		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.asset_type", null, "Asset type", locale));
-		for (ALE ale : ales2) {
-			if (xssfSheet.getRow(rowCount) == null)
-				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(0) == null)
-				xssfSheet.getRow(rowCount).createCell(0);
-			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1);
-			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
-		}
-		reportExcelSheet.save();
-	}
-
-	private void generateALEByAssetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null)
-			return;
-		List<Assessment> assessments = analysis.getSelectedAssessments();
-		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getAsset().getId());
-			if (ale == null) {
-				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
-				ales2.add(ale);
-			}
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
-		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		int rowCount = 0;
-		if (xssfSheet.getRow(rowCount) == null)
-			xssfSheet.createRow(rowCount);
-		if (xssfSheet.getRow(rowCount).getCell(1) == null)
-			xssfSheet.getRow(rowCount).createCell(1);
-		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.asset", null, "Asset", locale));
-		for (ALE ale : ales2) {
-			if (xssfSheet.getRow(rowCount) == null)
-				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(0) == null)
-				xssfSheet.getRow(rowCount).createCell(0);
-			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1);
-			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
-		}
-		reportExcelSheet.save();
-	}
-
-	private void generateALEByScenarioGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null)
-			return;
-		List<Assessment> assessments = analysis.getSelectedAssessments();
-		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getScenario().getId());
-			if (ale == null) {
-				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
-				ales2.add(ale);
-			}
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
-		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		int rowCount = 0;
-		if (xssfSheet.getRow(rowCount) == null)
-			xssfSheet.createRow(rowCount);
-		if (xssfSheet.getRow(rowCount).getCell(1) == null)
-			xssfSheet.getRow(rowCount).createCell(1);
-		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.scenario", null, "Scenario", locale));
-		for (ALE ale : ales2) {
-			if (xssfSheet.getRow(rowCount) == null)
-				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(0) == null)
-				xssfSheet.getRow(rowCount).createCell(0);
-			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1);
-			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
-		}
-		reportExcelSheet.save();
-
-	}
-
-	private void generateALEByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null)
-			return;
-		List<Assessment> assessments = analysis.getSelectedAssessments();
-		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
-		List<ALE> ales2 = new LinkedList<ALE>();
-		for (Assessment assessment : assessments) {
-			ALE ale = ales.get(assessment.getScenario().getType().getValue());
-			if (ale == null) {
-				ales.put(assessment.getScenario().getType().getValue(), ale = new ALE(assessment.getScenario().getType().getName(), 0));
-				ales2.add(ale);
-			}
-			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
-		}
-		Collections.sort(ales2, new AssetComparatorByALE());
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		int rowCount = 0;
-		if (xssfSheet.getRow(rowCount) == null)
-			xssfSheet.createRow(rowCount);
-		if (xssfSheet.getRow(rowCount).getCell(1) == null)
-			xssfSheet.getRow(rowCount).createCell(1);
-		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.scenario_type", null, "Scenario type", locale));
-		for (ALE ale : ales2) {
-			if (xssfSheet.getRow(rowCount) == null)
-				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(0) == null)
-				xssfSheet.getRow(rowCount).createCell(0);
-			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1);
-			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
-		}
-		reportExcelSheet.save();
-
-	}
-
-	@SuppressWarnings("unchecked")
-	private void generateComplianceGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
-		if (reportExcelSheet == null)
-			return;
-		String standard = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
-		List<Measure> measures = (List<Measure>) analysis.findMeasureByStandard(standard);
-		if (measures == null)
-			return;
-		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
-		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures);
-		int rowCount = 0;
-		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
-		if (xssfSheet.getRow(rowCount) == null)
-			xssfSheet.createRow(rowCount);
-		xssfSheet.getRow(rowCount).createCell(0);
-		xssfSheet.getRow(rowCount).createCell(1);
-		xssfSheet.getRow(rowCount).getCell(0).setCellValue(getMessage("report.compliance.chapter", null, "Chapter", locale));
-		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(phaseLabel);
-		for (String key : compliances.keySet()) {
-			Object[] compliance = compliances.get(key);
-			if (xssfSheet.getRow(rowCount) == null)
-				xssfSheet.createRow(rowCount);
-			if (xssfSheet.getRow(rowCount).getCell(0) == null)
-				xssfSheet.getRow(rowCount).createCell(0);
-			if (xssfSheet.getRow(rowCount).getCell(1) == null)
-				xssfSheet.getRow(rowCount).createCell(1, Cell.CELL_TYPE_NUMERIC);
-			xssfSheet.getRow(rowCount).getCell(0).setCellValue(key);
-			xssfSheet.getRow(rowCount++).getCell(1).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
-		}
-
-		Map<Integer, Boolean> actionPlanMeasures = analysis.findIdMeasuresImplementedByActionPlanType(ActionPlanMode.APPN);
-
-		if (!actionPlanMeasures.isEmpty()) {
-			List<Phase> phases = analysis.findUsablePhase();
-			int columnIndex = 2;
-			for (Phase phase : phases) {
-				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances);
-				if (xssfSheet.getRow(rowCount = 0) == null)
-					xssfSheet.createRow(rowCount);
-				if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
-					xssfSheet.getRow(rowCount).createCell(columnIndex);
-				xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(getMessage("label.chart.phase", null, "Phase", locale) + " " + phase.getNumber());
-				for (String key : compliances.keySet()) {
-					Object[] compliance = compliances.get(key);
-					if (xssfSheet.getRow(rowCount) == null)
-						xssfSheet.createRow(rowCount);
-					if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
-						xssfSheet.getRow(rowCount).createCell(columnIndex, Cell.CELL_TYPE_NUMERIC);
-					xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
-				}
-				columnIndex++;
-			}
-		}
-		reportExcelSheet.save();
-	}
-
-	private void generatePlaceholders() {
-		document.createParagraph().createRun().setText("<Measures>");
-	}
-
-	private XWPFRun addCellNumber(XWPFTableCell cell, String number) {
-		XWPFParagraph paragraph = cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
-		paragraph.setStyle("TableParagraphTS");
-		paragraph.setAlignment(ParagraphAlignment.RIGHT);
-		XWPFRun run = paragraph.createRun();
-		run.setText(number);
-		return run;
-	}
-
-	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text, boolean add) {
-		XWPFParagraph paragraph = !add && cell.getParagraphs().size() == 1 ? cell.getParagraphs().get(0) : cell.addParagraph();
-		String[] texts = text.split("(\r\n|\n\r|\r|\n)");
-		for (int i = 0; i < texts.length; i++) {
-			if (i > 0)
-				paragraph = cell.addParagraph();
-			paragraph.setStyle("TableParagraphTS");
-			paragraph.createRun().setText(texts[i]);
-		}
-		return paragraph;
-	}
-
-	private XWPFParagraph addCellParagraph(XWPFTableCell cell, String text) {
-		return addCellParagraph(cell, text, false);
-	}
-
-	private void generateMeasures() {
+	private void generateActionPlan() throws Exception {
 		XWPFParagraph paragraph = null;
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 
-		paragraph = findParagraphByText("<Measures>");
+		paragraph = findParagraphByText("<ActionPlan>");
 
 		// run = paragraph.getRuns().get(0);
 
-		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
+		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
 
-		if (paragraph != null && analysisStandards.size() > 0) {
+		if (paragraph != null && actionplan != null && actionplan.size() > 0) {
 
 			while (!paragraph.getRuns().isEmpty())
 				paragraph.removeRun(0);
 
-			boolean isFirst = true;
-			
-			Comparator<Measure> comparator = new MeasureComparator();
+			// initialise table with 1 row and 1 column after the paragraph
+			// cursor
 
-			for (AnalysisStandard analysisStandard : analysisStandards) {
+			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
-				// initialise table with 1 row and 1 column after the paragraph
-				// cursor
+			table.setStyleID("TableTSActionPlan");
 
-				if (isFirst)
-					isFirst = false;
-				else {
-					paragraph = document.createParagraph();
-					paragraph.setAlignment(ParagraphAlignment.CENTER);
-					paragraph.createRun().addCarriageReturn();
-				}
+			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
+			width.setW(BigInteger.valueOf(10000));
 
-				table = document.insertNewTbl(paragraph.getCTP().newCursor());
+			// set header
 
-				table.setStyleID("TableTSMeasure");
+			row = table.getRow(0);
 
-				CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-				width.setW(BigInteger.valueOf(10000));
+			for (int i = 1; i < 12; i++)
+				row.addNewTableCell();
 
-				// set header
-
-				row = table.getRow(0);
-
-				if (row.getTableCells().isEmpty())
-					row.addNewTableCell();
-				if (row.getCell(0).getCTTc().getTcPr() == null)
-					row.getCell(0).getCTTc().addNewTcPr();
-
-				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(14));
-
-				row.getCell(0).setText(analysisStandard.getStandard().getLabel());
-
+			row.getCell(0).setText(getMessage("report.action_plan.row_number", null, "Nr", locale));
+			row.getCell(1).setText(getMessage("report.action_plan.norm", null, "Standard", locale));
+			row.getCell(2).setText(getMessage("report.action_plan.reference", null, "Ref.", locale));
+			row.getCell(3).setText(getMessage("report.action_plan.description", null, "Description", locale));
+			row.getCell(4).setText(getMessage("report.action_plan.ale", null, "ALE (k€/y)", locale));
+			row.getCell(5).setText(getMessage("report.action_plan.delta_ale", null, "Delta ALE (k€/y)", locale));
+			row.getCell(6).setText(getMessage("report.action_plan.cost", null, "CS (k€/y)", locale));
+			row.getCell(7).setText(getMessage("report.action_plan.rosi", null, "ROSI (k€/y)", locale));
+			row.getCell(8).setText(getMessage("report.action_plan.internal.workload", null, "IS", locale));
+			row.getCell(9).setText(getMessage("report.action_plan.external.workload", null, "ES", locale));
+			row.getCell(10).setText(getMessage("report.action_plan.investment", null, "INV (k€)", locale));
+			row.getCell(11).setText(getMessage("report.action_plan.probability", null, "P", locale));
+			int nr = 0;
+			// set data
+			for (ActionPlanEntry entry : actionplan) {
 				row = table.createRow();
-
-				if (!row.getTableCells().isEmpty())
-					row.getCell(0).setColor(SUPER_HEAD_COLOR);
-
-				while (row.getTableCells().size() < 14)
-					row.createCell().setColor(SUPER_HEAD_COLOR);
-
-				row.getCell(0).setText(getMessage("report.measure.reference", null, "Ref.", locale));
-				row.getCell(1).setText(getMessage("report.measure.domain", null, "Domain", locale));
-				row.getCell(2).setText(getMessage("report.measure.status", null, "ST", locale));
-				row.getCell(3).setText(getMessage("report.measure.implementation_rate", null, "IR(%)", locale));
-				row.getCell(4).setText(getMessage("report.measure.internal.workload", null, "IS(md)", locale));
-				row.getCell(5).setText(getMessage("report.measure.external.workload", null, "ES(md)", locale));
-				row.getCell(6).setText(getMessage("report.measure.investment", null, "INV(k€)", locale));
-				row.getCell(7).setText(getMessage("report.measure.life_time", null, "LT(y)", locale));
-				row.getCell(8).setText(getMessage("report.measure.internal.maintenance", null, "IM(md)", locale));
-				row.getCell(9).setText(getMessage("report.measure.external.maintenance", null, "EM(md)", locale));
-				row.getCell(10).setText(getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
-				row.getCell(11).setText(getMessage("report.measure.cost", null, "CS(k€)", locale));
-				row.getCell(12).setText(getMessage("report.measure.comment", null, "Comment", locale));
-				row.getCell(13).setText(getMessage("report.measure.to_do", null, "To Do", locale));
-				// set data
-				Collections.sort(analysisStandard.getMeasures(), comparator);
-				
-				for (Measure measure : analysisStandard.getMeasures()) {
-
-					row = table.createRow();
-					while (row.getTableCells().size() < 2)
-						row.createCell();
-					row.getCell(0).setText(measure.getMeasureDescription().getReference());
-					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
-					row.getCell(1).setText(description == null ? "" : description.getDomain());
-					if (measure.getMeasureDescription().getLevel() < 3) {
-						if (row.getCell(1).getCTTc().getTcPr() == null)
-							row.getCell(1).getCTTc().addNewTcPr();
-						row.getCell(1).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(13));
-						for (int i = 0; i < 2; i++)
-							row.getCell(i).setColor(measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
-					} else {
-						while (row.getTableCells().size() < 14)
-							row.createCell();
-						row.getCell(2).setText(measure.getStatus());
-						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
-						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
-						addCellNumber(row.getCell(5), kEuroFormat.format(measure.getExternalWL()));
-						addCellNumber(row.getCell(6), numberFormat.format(measure.getInvestment() * 0.001));
-						addCellNumber(row.getCell(7), numberFormat.format(measure.getLifetime()));
-						addCellNumber(row.getCell(8), kEuroFormat.format(measure.getInternalMaintenance()));
-						addCellNumber(row.getCell(9), kEuroFormat.format(measure.getExternalMaintenance()));
-						addCellNumber(row.getCell(10), numberFormat.format(measure.getRecurrentInvestment() * 0.001));
-						addCellNumber(row.getCell(11), numberFormat.format(measure.getCost() * 0.001));
-						addCellParagraph(row.getCell(12), measure.getComment());
-						addCellParagraph(row.getCell(13), measure.getToDo());
-
-						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue() >= 100) {
-							for (int i = 0; i < 14; i++)
-								row.getCell(i).setColor(DEFAULT_CELL_COLOR);
-						} else {
-							row.getCell(0).setColor(SUB_HEADER_COLOR);
-							row.getCell(1).setColor(SUB_HEADER_COLOR);
-							row.getCell(11).setColor(measure.getCost() == 0 ? ZERO_COST_COLOR : SUB_HEADER_COLOR);
-						}
-
-					}
+				row.getCell(0).setText("" + (++nr));
+				row.getCell(1).setText(entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
+				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
+				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
+				addCellParagraph(row.getCell(3), descriptionText == null ? "" : descriptionText.getDomain() + (locale == Locale.FRENCH ? " : " : ": "));
+				for (XWPFParagraph paragraph2 : row.getCell(3).getParagraphs()) {
+					for (XWPFRun run : paragraph2.getRuns())
+						run.setBold(true);
 				}
+				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo(), true);
+				addCellNumber(row.getCell(4), numberFormat.format(entry.getTotalALE() * 0.001));
+				addCellNumber(row.getCell(5), numberFormat.format(entry.getDeltaALE() * 0.001));
+				addCellNumber(row.getCell(6), numberFormat.format(entry.getMeasure().getCost() * 0.001));
+				addCellNumber(row.getCell(7), numberFormat.format(entry.getROI() * 0.001));
+				numberFormat.setMaximumFractionDigits(1);
+				addCellNumber(row.getCell(8), numberFormat.format(entry.getMeasure().getInternalWL()));
+				addCellNumber(row.getCell(9), numberFormat.format(entry.getMeasure().getExternalWL()));
+				numberFormat.setMaximumFractionDigits(0);
+				addCellNumber(row.getCell(10), numberFormat.format(entry.getMeasure().getInvestment() * 0.001));
+				addCellNumber(row.getCell(11), "" + entry.getMeasure().getPhase().getNumber());
+				for (int i = 0; i < 11; i++)
+					row.getCell(i).setColor(SUB_HEADER_COLOR);
 			}
 		}
 	}
@@ -947,28 +545,270 @@ public class ExportAnalysisReport {
 
 	}
 
-	private void generateActionPlan() throws Exception {
+	private void generateALEByAssetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+		if (reportExcelSheet == null)
+			return;
+		List<Assessment> assessments = analysis.getSelectedAssessments();
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getAsset().getId());
+			if (ale == null) {
+				ales.put(assessment.getAsset().getId(), ale = new ALE(assessment.getAsset().getName(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowCount = 0;
+		if (xssfSheet.getRow(rowCount) == null)
+			xssfSheet.createRow(rowCount);
+		if (xssfSheet.getRow(rowCount).getCell(1) == null)
+			xssfSheet.getRow(rowCount).createCell(1);
+		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.asset", null, "Asset", locale));
+		for (ALE ale : ales2) {
+			if (xssfSheet.getRow(rowCount) == null)
+				xssfSheet.createRow(rowCount);
+			if (xssfSheet.getRow(rowCount).getCell(0) == null)
+				xssfSheet.getRow(rowCount).createCell(0);
+			if (xssfSheet.getRow(rowCount).getCell(1) == null)
+				xssfSheet.getRow(rowCount).createCell(1);
+			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
+		}
+	}
+
+	private void generateALEByAssetTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+		if (reportExcelSheet == null)
+			return;
+		List<Assessment> assessments = analysis.getSelectedAssessments();
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getAsset().getAssetType().getId());
+			if (ale == null) {
+				ales.put(assessment.getAsset().getAssetType().getId(), ale = new ALE(assessment.getAsset().getAssetType().getType(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowCount = 0;
+		if (xssfSheet.getRow(rowCount) == null)
+			xssfSheet.createRow(rowCount);
+		if (xssfSheet.getRow(rowCount).getCell(1) == null)
+			xssfSheet.getRow(rowCount).createCell(1);
+		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.asset_type", null, "Asset type", locale));
+		for (ALE ale : ales2) {
+			if (xssfSheet.getRow(rowCount) == null)
+				xssfSheet.createRow(rowCount);
+			if (xssfSheet.getRow(rowCount).getCell(0) == null)
+				xssfSheet.getRow(rowCount).createCell(0);
+			if (xssfSheet.getRow(rowCount).getCell(1) == null)
+				xssfSheet.getRow(rowCount).createCell(1);
+			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
+		}
+	}
+
+	private void generateALEByScenarioGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+		if (reportExcelSheet == null)
+			return;
+		List<Assessment> assessments = analysis.getSelectedAssessments();
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getScenario().getId());
+			if (ale == null) {
+				ales.put(assessment.getScenario().getId(), ale = new ALE(assessment.getScenario().getName(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
+
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowCount = 0;
+		if (xssfSheet.getRow(rowCount) == null)
+			xssfSheet.createRow(rowCount);
+		if (xssfSheet.getRow(rowCount).getCell(1) == null)
+			xssfSheet.getRow(rowCount).createCell(1);
+		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.scenario", null, "Scenario", locale));
+		for (ALE ale : ales2) {
+			if (xssfSheet.getRow(rowCount) == null)
+				xssfSheet.createRow(rowCount);
+			if (xssfSheet.getRow(rowCount).getCell(0) == null)
+				xssfSheet.getRow(rowCount).createCell(0);
+			if (xssfSheet.getRow(rowCount).getCell(1) == null)
+				xssfSheet.getRow(rowCount).createCell(1);
+			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
+		}
+
+	}
+
+	private void generateALEByScenarioTypeGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+		if (reportExcelSheet == null)
+			return;
+		List<Assessment> assessments = analysis.getSelectedAssessments();
+		Map<Integer, ALE> ales = new LinkedHashMap<Integer, ALE>();
+		List<ALE> ales2 = new LinkedList<ALE>();
+		for (Assessment assessment : assessments) {
+			ALE ale = ales.get(assessment.getScenario().getType().getValue());
+			if (ale == null) {
+				ales.put(assessment.getScenario().getType().getValue(), ale = new ALE(assessment.getScenario().getType().getName(), 0));
+				ales2.add(ale);
+			}
+			ale.setValue(assessment.getALE() * 0.001 + ale.getValue());
+		}
+		Collections.sort(ales2, new AssetComparatorByALE());
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowCount = 0;
+		if (xssfSheet.getRow(rowCount) == null)
+			xssfSheet.createRow(rowCount);
+		if (xssfSheet.getRow(rowCount).getCell(1) == null)
+			xssfSheet.getRow(rowCount).createCell(1);
+		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(getMessage("report.chart.scenario_type", null, "Scenario type", locale));
+		for (ALE ale : ales2) {
+			if (xssfSheet.getRow(rowCount) == null)
+				xssfSheet.createRow(rowCount);
+			if (xssfSheet.getRow(rowCount).getCell(0) == null)
+				xssfSheet.getRow(rowCount).createCell(0);
+			if (xssfSheet.getRow(rowCount).getCell(1) == null)
+				xssfSheet.getRow(rowCount).createCell(1);
+			xssfSheet.getRow(rowCount).getCell(0).setCellValue(ale.getAssetName());
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue(ale.getValue());
+		}
+	}
+
+	private void generateAssessements() {
+		XWPFParagraph paragraph = null;
+		XWPFParagraph paragraphOrigin = null;
+		XWPFTable table = null;
+		XWPFTableRow row = null;
+
+		paragraphOrigin = findParagraphByText("<Assessment>");
+
+		List<Assessment> assessments = analysis.getSelectedAssessments();
+
+		Collections.sort(assessments, new AssessmentComparator());
+
+		double totalale = 0;
+
+		for (Assessment assessment : assessments)
+			totalale += assessment.getALE();
+
+		if (paragraphOrigin != null && assessments.size() > 0) {
+
+			while (!paragraphOrigin.getRuns().isEmpty())
+				paragraphOrigin.removeRun(0);
+
+			paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
+
+			Map<String, ALE> alesmap = new LinkedHashMap<String, ALE>();
+			Map<String, List<Assessment>> assessementsmap = new LinkedHashMap<String, List<Assessment>>();
+
+			AssessmentManager.SplitAssessment(assessments, alesmap, assessementsmap);
+
+			List<ALE> ales = new ArrayList<ALE>(alesmap.size());
+
+			for (ALE ale : alesmap.values())
+				ales.add(ale);
+
+			alesmap.clear();
+
+			Collections.sort(ales, new AssetComparatorByALE());
+
+			XWPFRun run = paragraph.createRun();
+
+			run.setText(getMessage("report.assessment.total_ale.assets", null, "Total ALE for all assets", locale));
+
+			paragraph.createRun().addTab();
+
+			run = paragraph.createRun();
+
+			run.setText(String.format("%s k€", numberFormat.format(totalale * 0.001)));
+
+			paragraph.setStyle("TSAssessmentTotalALE");
+
+			for (ALE ale : ales) {
+				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
+				paragraph.createRun().setText(ale.getAssetName());
+				paragraph.setStyle("Titre4");
+
+				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
+
+				run = paragraph.createRun();
+
+				run.setText(getMessage("report.assessment.total.ale.for.asset", null, "Total ALE of asset", locale));
+
+				paragraph.createRun().addTab();
+
+				run = paragraph.createRun();
+
+				run.setText(String.format("%s k€", numberFormat.format(ale.getValue() * 0.001)));
+
+				run.setBold(true);
+
+				paragraph.setStyle("TSAssessmentTotalALEByAsset");
+
+				document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
+
+				table = document.insertNewTbl(paragraphOrigin.getCTP().newCursor());
+
+				table.setStyleID("TableTSAssessment");
+
+				row = table.getRow(0);
+
+				while (row.getTableCells().size() < 5)
+					row.addNewTableCell();
+
+				row.getCell(0).setText(getMessage("report.assessment.scenarios", null, "Scenarios", locale));
+				row.getCell(1).setText(getMessage("report.assessment.impact.financial", null, "Fin.", locale));
+				row.getCell(1).setColor("c6d9f1");
+				row.getCell(2).setText(getMessage("report.assessment.probability", null, "P.", locale));
+				row.getCell(2).setColor("c6d9f1");
+				row.getCell(3).setText(getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
+				row.getCell(3).setColor("c6d9f1");
+				row.getCell(4).setText(getMessage("report.assessment.comment", null, "Comment", locale));
+				row.getCell(4).setColor("c6d9f1");
+
+				List<Assessment> assessmentsofasset = assessementsmap.get(ale.getAssetName());
+				for (Assessment assessment : assessmentsofasset) {
+					row = table.createRow();
+					while (row.getTableCells().size() < 5)
+						row.addNewTableCell();
+					row.getCell(0).setText(assessment.getScenario().getName());
+					addCellNumber(row.getCell(1), formatedImpact(assessment.getImpactFin()));
+					addCellNumber(row.getCell(2), formatLikelihood(assessment.getLikelihood()));
+					addCellNumber(row.getCell(3), numberFormat.format(assessment.getALE() * 0.001));
+					addCellParagraph(row.getCell(4), assessment.getComment());
+				}
+			}
+			assessementsmap.clear();
+			ales.clear();
+		}
+	}
+
+	private void generateAssets() {
 		XWPFParagraph paragraph = null;
 		XWPFTable table = null;
 		XWPFTableRow row = null;
 
-		paragraph = findParagraphByText("<ActionPlan>");
+		paragraph = findParagraphByText("<Asset>");
 
-		// run = paragraph.getRuns().get(0);
+		List<Asset> assets = analysis.getSelectedAssets();
 
-		List<ActionPlanEntry> actionplan = analysis.getActionPlan(ActionPlanMode.APPN);
-
-		if (paragraph != null && actionplan != null && actionplan.size() > 0) {
+		if (paragraph != null && assets.size() > 0) {
 
 			while (!paragraph.getRuns().isEmpty())
 				paragraph.removeRun(0);
 
-			// initialise table with 1 row and 1 column after the paragraph
-			// cursor
-
 			table = document.insertNewTbl(paragraph.getCTP().newCursor());
 
-			table.setStyleID("TableTSActionPlan");
+			table.setStyleID("TableTSAsset");
 
 			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
 			width.setW(BigInteger.valueOf(10000));
@@ -977,61 +817,211 @@ public class ExportAnalysisReport {
 
 			row = table.getRow(0);
 
-			for (int i = 1; i < 12; i++)
+			for (int i = 1; i < 6; i++)
 				row.addNewTableCell();
 
-			row.getCell(0).setText(getMessage("report.action_plan.row_number", null, "Nr", locale));
-			row.getCell(1).setText(getMessage("report.action_plan.norm", null, "Standard", locale));
-			row.getCell(2).setText(getMessage("report.action_plan.reference", null, "Ref.", locale));
-			row.getCell(3).setText(getMessage("report.action_plan.description", null, "Description", locale));
-			row.getCell(4).setText(getMessage("report.action_plan.ale", null, "ALE (k€/y)", locale));
-			row.getCell(5).setText(getMessage("report.action_plan.delta_ale", null, "Delta ALE (k€/y)", locale));
-			row.getCell(6).setText(getMessage("report.action_plan.cost", null, "CS (k€/y)", locale));
-			row.getCell(7).setText(getMessage("report.action_plan.rosi", null, "ROSI (k€/y)", locale));
-			row.getCell(8).setText(getMessage("report.action_plan.internal.workload", null, "IS", locale));
-			row.getCell(9).setText(getMessage("report.action_plan.external.workload", null, "ES", locale));
-			row.getCell(10).setText(getMessage("report.action_plan.investment", null, "INV (k€)", locale));
-			row.getCell(11).setText(getMessage("report.action_plan.probability", null, "P", locale));
-			int nr = 0;
+			// set header
+			table.getRow(0).getCell(0).setText(getMessage("report.asset.title.number.row", null, "Nr", locale));
+			table.getRow(0).getCell(1).setText(getMessage("report.asset.title.name", null, "Name", locale));
+			table.getRow(0).getCell(2).setText(getMessage("report.asset.title.type", null, "Type", locale));
+			table.getRow(0).getCell(3).setText(getMessage("report.asset.title.value", null, "Value(k€)", locale));
+			table.getRow(0).getCell(4).setText(getMessage("report.asset.title.ale", null, "ALE(k€)", locale));
+			table.getRow(0).getCell(5).setText(getMessage("report.asset.title.comment", null, "Comment", locale));
+
+			int number = 0;
+
 			// set data
-			for (ActionPlanEntry entry : actionplan) {
+			for (Asset asset : assets) {
 				row = table.createRow();
-				nr++;
-				Hibernate.initialize(entry);
-				Hibernate.initialize(entry.getMeasure());
-				Hibernate.initialize(entry.getActionPlanAssets());
-				row.getCell(0).setText("" + nr);
-				row.getCell(1).setText(entry.getMeasure().getAnalysisStandard().getStandard().getLabel());
-				row.getCell(2).setText(entry.getMeasure().getMeasureDescription().getReference());
-				MeasureDescriptionText descriptionText = entry.getMeasure().getMeasureDescription().findByLanguage(analysis.getLanguage());
-				addCellParagraph(row.getCell(3), descriptionText == null ? "" : descriptionText.getDomain() + (locale == Locale.FRENCH ? " : " : ": "));
-				for (XWPFParagraph paragraph2 : row.getCell(3).getParagraphs()) {
-					for (XWPFRun run : paragraph2.getRuns())
-						run.setBold(true);
-				}
-				addCellParagraph(row.getCell(3), entry.getMeasure().getToDo(), true);
-				addCellNumber(row.getCell(4), numberFormat.format(entry.getTotalALE() * 0.001));
-				addCellNumber(row.getCell(5), numberFormat.format(entry.getDeltaALE() * 0.001));
-				addCellNumber(row.getCell(6), numberFormat.format(entry.getMeasure().getCost() * 0.001));
-				addCellNumber(row.getCell(7), numberFormat.format(entry.getROI() * 0.001));
-				numberFormat.setMaximumFractionDigits(1);
-				addCellNumber(row.getCell(8), numberFormat.format(entry.getMeasure().getInternalWL()));
-				addCellNumber(row.getCell(9), numberFormat.format(entry.getMeasure().getExternalWL()));
-				numberFormat.setMaximumFractionDigits(0);
-				addCellNumber(row.getCell(10), numberFormat.format(entry.getMeasure().getInvestment() * 0.001));
-				addCellNumber(row.getCell(11), "" + entry.getMeasure().getPhase().getNumber());
-				for (int i = 0; i < 11; i++)
-					row.getCell(i).setColor(SUB_HEADER_COLOR);
-
+				number++;
+				row.getCell(0).setText("" + (number));
+				row.getCell(1).setText(asset.getName());
+				row.getCell(2).setText(asset.getAssetType().getType());
+				addCellNumber(row.getCell(3), kEuroFormat.format(asset.getValue() * 0.001));
+				row.getCell(4).setColor("c6d9f1");
+				addCellNumber(row.getCell(4), kEuroFormat.format(asset.getALE() * 0.001));
+				addCellParagraph(row.getCell(5), asset.getComment());
 			}
+		}
+	}
 
-			// Set the table style. If the style is not defined, the table style
-			// will become
-			// "Normal".
-			// table.getCTTbl().getTblPr().addNewTblStyle().setVal("TableTS");
+	private void generateBudgetGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
 
-			// table.setStyleID("TableTS");
+		if (analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
+			return;
 
+		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
+		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
+		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowIndex = 1;
+		for (Phase phase : usesPhases.values()) {
+			if (xssfSheet.getRow(rowIndex) == null)
+				xssfSheet.createRow(rowIndex);
+			if (xssfSheet.getRow(rowIndex).getCell(0) == null)
+				xssfSheet.getRow(rowIndex).createCell(0);
+			xssfSheet.getRow(rowIndex++).getCell(0).setCellValue(String.format("P%d", phase.getNumber()));
+		}
+
+		List<String> dataInternalWorkload = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD);
+
+		List<String> dataExternalWorkload = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD);
+
+		List<String> dataInternalMaintenace = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE);
+
+		List<String> dataExternalMaintenance = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE);
+
+		List<String> dataInvestment = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT);
+
+		List<String> dataCurrentCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST);
+
+		List<String> dataTotalPhaseCost = summaries.get(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST);
+
+		for (int j = 1; j < 8; j++) {
+			if (xssfSheet.getRow(0) == null)
+				xssfSheet.createRow(0);
+			if (xssfSheet.getRow(0).getCell(j) == null)
+				xssfSheet.getRow(0).createCell(j);
+		}
+		xssfSheet.getRow(0).getCell(1).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_WORKLOAD, null, "Internal workload", locale));
+		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_WORKLOAD, null, "External workload", locale));
+		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INTERNAL_MAINTENANCE, null, "Internal maintenance", locale));
+		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_EXTERNAL_MAINTENANCE, null, "External maintenance", locale));
+		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT, null, "Investment", locale));
+		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_COST, null, "Current cost", locale));
+		xssfSheet.getRow(0).getCell(7).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST, null, "Total phase cost", locale));
+
+		rowIndex = 1;
+		for (int i = 0; i < dataInternalWorkload.size(); i++) {
+			for (int j = 1; j < 8; j++) {
+				if (xssfSheet.getRow(rowIndex) == null)
+					xssfSheet.createRow(rowIndex);
+				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
+					xssfSheet.getRow(rowIndex).createCell(j, Cell.CELL_TYPE_NUMERIC);
+			}
+			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble(dataInternalWorkload.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble(dataExternalWorkload.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataInternalMaintenace.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataExternalMaintenance.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataInvestment.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(6).setCellValue(Double.parseDouble(dataCurrentCost.get(i)));
+			xssfSheet.getRow(rowIndex++).getCell(7).setCellValue(Double.parseDouble(dataTotalPhaseCost.get(i)));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void generateComplianceGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+		if (reportExcelSheet == null)
+			return;
+		String standard = reportExcelSheet.getName().endsWith("27001") ? "27001" : "27002";
+		List<Measure> measures = (List<Measure>) analysis.findMeasureByStandard(standard);
+		if (measures == null)
+			return;
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		Map<String, Object[]> compliances = ChartGenerator.ComputeComplianceBefore(measures);
+		int rowCount = 0;
+		String phaseLabel = getMessage("label.chart.series.current_level", null, "Current Level", locale);
+		if (xssfSheet.getRow(rowCount) == null)
+			xssfSheet.createRow(rowCount);
+		xssfSheet.getRow(rowCount).createCell(0);
+		xssfSheet.getRow(rowCount).createCell(1);
+		xssfSheet.getRow(rowCount).getCell(0).setCellValue(getMessage("report.compliance.chapter", null, "Chapter", locale));
+		xssfSheet.getRow(rowCount++).getCell(1).setCellValue(phaseLabel);
+		for (String key : compliances.keySet()) {
+			Object[] compliance = compliances.get(key);
+			if (xssfSheet.getRow(rowCount) == null)
+				xssfSheet.createRow(rowCount);
+			if (xssfSheet.getRow(rowCount).getCell(0) == null)
+				xssfSheet.getRow(rowCount).createCell(0);
+			if (xssfSheet.getRow(rowCount).getCell(1) == null)
+				xssfSheet.getRow(rowCount).createCell(1, Cell.CELL_TYPE_NUMERIC);
+			xssfSheet.getRow(rowCount).getCell(0).setCellValue(key);
+			xssfSheet.getRow(rowCount++).getCell(1).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
+		}
+
+		Map<Integer, Boolean> actionPlanMeasures = analysis.findIdMeasuresImplementedByActionPlanType(ActionPlanMode.APPN);
+
+		if (!actionPlanMeasures.isEmpty()) {
+			List<Phase> phases = analysis.findUsablePhase();
+			int columnIndex = 2;
+			for (Phase phase : phases) {
+				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances);
+				if (xssfSheet.getRow(rowCount = 0) == null)
+					xssfSheet.createRow(rowCount);
+				if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
+					xssfSheet.getRow(rowCount).createCell(columnIndex);
+				xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue(getMessage("label.chart.phase", null, "Phase", locale) + " " + phase.getNumber());
+				for (String key : compliances.keySet()) {
+					Object[] compliance = compliances.get(key);
+					if (xssfSheet.getRow(rowCount) == null)
+						xssfSheet.createRow(rowCount);
+					if (xssfSheet.getRow(rowCount).getCell(columnIndex) == null)
+						xssfSheet.getRow(rowCount).createCell(columnIndex, Cell.CELL_TYPE_NUMERIC);
+					xssfSheet.getRow(rowCount++).getCell(columnIndex).setCellValue((((Double) compliance[1]).doubleValue() / ((Integer) compliance[0]).doubleValue()) * 0.01);
+				}
+				columnIndex++;
+			}
+		}
+	}
+
+	private void generateEvolutionOfProfitabilityGraphic(ReportExcelSheet reportExcelSheet) throws OpenXML4JException, IOException {
+		if (reportExcelSheet == null || analysis.getSummaries() == null || analysis.getSummaries().isEmpty())
+			return;
+		List<SummaryStage> summaryStages = analysis.getSummary(ActionPlanMode.APPN);
+		Map<String, List<String>> summaries = ActionPlanSummaryManager.buildTable(summaryStages, analysis.getPhases());
+		Map<String, Phase> usesPhases = ActionPlanSummaryManager.buildPhase(analysis.getPhases(), ActionPlanSummaryManager.extractPhaseRow(summaryStages));
+		XSSFSheet xssfSheet = reportExcelSheet.getXssfWorkbook().getSheetAt(0);
+		int rowIndex = 1;
+		for (Phase phase : usesPhases.values()) {
+			if (xssfSheet.getRow(rowIndex) == null)
+				xssfSheet.createRow(rowIndex);
+			if (xssfSheet.getRow(rowIndex).getCell(0) == null)
+				xssfSheet.getRow(rowIndex).createCell(0);
+			xssfSheet.getRow(rowIndex++).getCell(0).setCellValue(String.format("P%d", phase.getNumber()));
+		}
+
+		List<String> dataCompliance27001s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + "27001");
+		List<String> dataCompliance27002s = summaries.get(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE + "27002");
+		List<String> dataALEs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END);
+		List<String> dataRiskReductions = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION);
+		List<String> dataROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI);
+		List<String> dataRelatifROSIs = summaries.get(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF);
+
+		for (int j = 1; j < 7; j++) {
+			if (xssfSheet.getRow(0) == null)
+				xssfSheet.createRow(0);
+			if (xssfSheet.getRow(0).getCell(j) == null)
+				xssfSheet.getRow(0).createCell(j);
+		}
+
+		xssfSheet.getRow(0).getCell(1).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " 27001");
+		xssfSheet.getRow(0).getCell(2).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE, null, "Compliance", locale) + " 27002");
+		xssfSheet.getRow(0).getCell(3).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ALE_UNTIL_END, null, "ALE (k€)... at end", locale));
+		xssfSheet.getRow(0).getCell(4).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_RISK_REDUCTION, null, "Risk reduction", locale));
+		xssfSheet.getRow(0).getCell(5).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI, null, "ROSI", locale));
+		xssfSheet.getRow(0).getCell(6).setCellValue(getMessage(ActionPlanSummaryManager.LABEL_PROFITABILITY_ROSI_RELATIF, null, "ROSI relatif", locale));
+		rowIndex = 1;
+
+		int size = 0;
+
+		if (dataCompliance27001s != null)
+			size = dataCompliance27001s.size();
+		else if (dataCompliance27002s != null)
+			size = dataCompliance27002s.size();
+
+		for (int i = 0; i < size; i++) {
+			for (int j = 1; j < 7; j++) {
+				if (xssfSheet.getRow(rowIndex) == null)
+					xssfSheet.createRow(rowIndex);
+				if (xssfSheet.getRow(rowIndex).getCell(j) == null)
+					xssfSheet.getRow(rowIndex).createCell(j);
+			}
+			xssfSheet.getRow(rowIndex).getCell(1).setCellValue(Double.parseDouble((dataCompliance27001s == null ? "0" : dataCompliance27001s.get(i))) * 0.01);
+			xssfSheet.getRow(rowIndex).getCell(2).setCellValue(Double.parseDouble((dataCompliance27002s == null ? "0" : dataCompliance27002s.get(i))) * 0.01);
+			xssfSheet.getRow(rowIndex).getCell(3).setCellValue(Double.parseDouble(dataALEs.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(4).setCellValue(Double.parseDouble(dataRiskReductions.get(i)));
+			xssfSheet.getRow(rowIndex).getCell(5).setCellValue(Double.parseDouble(dataROSIs.get(i)));
+			xssfSheet.getRow(rowIndex++).getCell(6).setCellValue(Double.parseDouble(dataRelatifROSIs.get(i)));
 		}
 	}
 
@@ -1128,14 +1118,259 @@ public class ExportAnalysisReport {
 
 				countrow++;
 			}
+		}
+	}
 
-			// Set the table style. If the style is not defined, the table style
-			// will become
-			// "Normal".
-			// table.getCTTbl().getTblPr().addNewTblStyle().setVal("TableTS");
+	private void generateGraphics() throws OpenXML4JException, IOException {
+		for (PackagePart packagePart : this.document.getPackage().getParts())
+			if (packagePart.getPartName().getExtension().contains("xls")) {
+				ReportExcelSheet reportExcelSheet = new ReportExcelSheet(packagePart, String.format("%s/WEB-INF/tmp/", contextPath));
+				try {
+					switch (reportExcelSheet.getName()) {
+					case "Compliance27001":
+					case "Compliance27002":
+						generateComplianceGraphic(reportExcelSheet);
+						break;
+					case "ALEByScenarioType":
+						generateALEByScenarioTypeGraphic(reportExcelSheet);
+						break;
+					case "ALEByScenario":
+						generateALEByScenarioGraphic(reportExcelSheet);
+						break;
+					case "ALEByAssetType":
+						generateALEByAssetTypeGraphic(reportExcelSheet);
+						break;
+					case "ALEByAsset":
+						generateALEByAssetGraphic(reportExcelSheet);
+						break;
+					case "EvolutionOfProfitability":
+						generateEvolutionOfProfitabilityGraphic(reportExcelSheet);
+						break;
+					case "Budget":
+						generateBudgetGraphic(reportExcelSheet);
+						break;
+					}
+				} finally {
+					reportExcelSheet.save();
+				}
+			}
+	}
 
-			// table.setStyleID("TableTS");
+	private void generateItemInformation() throws Exception {
+		XWPFParagraph paragraph = null;
+		XWPFTable table = null;
+		XWPFTableRow row = null;
 
+		paragraph = findParagraphByText("<Scope>");
+
+		List<ItemInformation> iteminformations = analysis.getItemInformations();
+
+		Collections.sort(iteminformations, new ComparatorItemInformation());
+
+		if (paragraph != null && iteminformations.size() > 0) {
+
+			while (!paragraph.getRuns().isEmpty())
+				paragraph.removeRun(0);
+
+			// initialise table with 1 row and 1 column after the paragraph
+			// cursor
+
+			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+			table.setStyleID("TableTSScope");
+
+			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
+			width.setW(BigInteger.valueOf(10000));
+
+			// set header
+
+			row = table.getRow(0);
+
+			for (int i = 1; i < 2; i++)
+				row.addNewTableCell();
+
+			row.getCell(0).setText(getMessage("report.scope.title.description", null, "Description", locale));
+			row.getCell(1).setText(getMessage("report.scope.title.value", null, "Value", locale));
+
+			// set data
+			for (ItemInformation iteminfo : iteminformations) {
+				row = table.createRow();
+				row.getCell(0).setText(getMessage("report.scope.name." + iteminfo.getDescription().toLowerCase(), null, iteminfo.getDescription(), locale));
+				addCellParagraph(row.getCell(1), iteminfo.getValue());
+			}
+		}
+	}
+
+	private void generateMeasures() {
+		XWPFParagraph paragraph = null;
+		XWPFTable table = null;
+		XWPFTableRow row = null;
+
+		paragraph = findParagraphByText("<Measures>");
+
+		// run = paragraph.getRuns().get(0);
+
+		List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards();
+
+		if (paragraph != null && analysisStandards.size() > 0) {
+
+			while (!paragraph.getRuns().isEmpty())
+				paragraph.removeRun(0);
+
+			boolean isFirst = true;
+
+			Comparator<Measure> comparator = new MeasureComparator();
+
+			for (AnalysisStandard analysisStandard : analysisStandards) {
+
+				// initialise table with 1 row and 1 column after the paragraph
+				// cursor
+
+				if (isFirst)
+					isFirst = false;
+				else {
+					paragraph = document.createParagraph();
+					paragraph.setAlignment(ParagraphAlignment.CENTER);
+					paragraph.createRun().addCarriageReturn();
+				}
+
+				table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+				table.setStyleID("TableTSMeasure");
+
+				CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
+				width.setW(BigInteger.valueOf(10000));
+
+				// set header
+
+				row = table.getRow(0);
+
+				if (row.getTableCells().isEmpty())
+					row.addNewTableCell();
+				if (row.getCell(0).getCTTc().getTcPr() == null)
+					row.getCell(0).getCTTc().addNewTcPr();
+
+				row.getCell(0).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(14));
+
+				row.getCell(0).setText(analysisStandard.getStandard().getLabel());
+
+				row = table.createRow();
+
+				if (!row.getTableCells().isEmpty())
+					row.getCell(0).setColor(SUPER_HEAD_COLOR);
+
+				while (row.getTableCells().size() < 14)
+					row.createCell().setColor(SUPER_HEAD_COLOR);
+
+				row.getCell(0).setText(getMessage("report.measure.reference", null, "Ref.", locale));
+				row.getCell(1).setText(getMessage("report.measure.domain", null, "Domain", locale));
+				row.getCell(2).setText(getMessage("report.measure.status", null, "ST", locale));
+				row.getCell(3).setText(getMessage("report.measure.implementation_rate", null, "IR(%)", locale));
+				row.getCell(4).setText(getMessage("report.measure.internal.workload", null, "IS(md)", locale));
+				row.getCell(5).setText(getMessage("report.measure.external.workload", null, "ES(md)", locale));
+				row.getCell(6).setText(getMessage("report.measure.investment", null, "INV(k€)", locale));
+				row.getCell(7).setText(getMessage("report.measure.life_time", null, "LT(y)", locale));
+				row.getCell(8).setText(getMessage("report.measure.internal.maintenance", null, "IM(md)", locale));
+				row.getCell(9).setText(getMessage("report.measure.external.maintenance", null, "EM(md)", locale));
+				row.getCell(10).setText(getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale));
+				row.getCell(11).setText(getMessage("report.measure.cost", null, "CS(k€)", locale));
+				row.getCell(12).setText(getMessage("report.measure.comment", null, "Comment", locale));
+				row.getCell(13).setText(getMessage("report.measure.to_do", null, "To Do", locale));
+				// set data
+				Collections.sort(analysisStandard.getMeasures(), comparator);
+
+				for (Measure measure : analysisStandard.getMeasures()) {
+
+					row = table.createRow();
+					while (row.getTableCells().size() < 2)
+						row.createCell();
+					row.getCell(0).setText(measure.getMeasureDescription().getReference());
+					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
+					row.getCell(1).setText(description == null ? "" : description.getDomain());
+					if (measure.getMeasureDescription().getLevel() < 3) {
+						if (row.getCell(1).getCTTc().getTcPr() == null)
+							row.getCell(1).getCTTc().addNewTcPr();
+						row.getCell(1).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(13));
+						for (int i = 0; i < 2; i++)
+							row.getCell(i).setColor(measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
+					} else {
+						while (row.getTableCells().size() < 14)
+							row.createCell();
+						row.getCell(2).setText(measure.getStatus());
+						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
+						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
+						addCellNumber(row.getCell(5), kEuroFormat.format(measure.getExternalWL()));
+						addCellNumber(row.getCell(6), numberFormat.format(measure.getInvestment() * 0.001));
+						addCellNumber(row.getCell(7), numberFormat.format(measure.getLifetime()));
+						addCellNumber(row.getCell(8), kEuroFormat.format(measure.getInternalMaintenance()));
+						addCellNumber(row.getCell(9), kEuroFormat.format(measure.getExternalMaintenance()));
+						addCellNumber(row.getCell(10), numberFormat.format(measure.getRecurrentInvestment() * 0.001));
+						addCellNumber(row.getCell(11), numberFormat.format(measure.getCost() * 0.001));
+						addCellParagraph(row.getCell(12), measure.getComment());
+						addCellParagraph(row.getCell(13), measure.getToDo());
+
+						if (Constant.MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus()) || measure.getImplementationRateValue() >= 100) {
+							for (int i = 0; i < 14; i++)
+								row.getCell(i).setColor(DEFAULT_CELL_COLOR);
+						} else {
+							row.getCell(0).setColor(SUB_HEADER_COLOR);
+							row.getCell(1).setColor(SUB_HEADER_COLOR);
+							row.getCell(11).setColor(measure.getCost() == 0 ? ZERO_COST_COLOR : SUB_HEADER_COLOR);
+						}
+
+					}
+				}
+			}
+		}
+	}
+
+	private void generatePlaceholders() {
+		document.createParagraph().createRun().setText("<Measures>");
+	}
+
+	private void generateScenarios() {
+		XWPFParagraph paragraph = null;
+		XWPFTable table = null;
+		XWPFTableRow row = null;
+
+		paragraph = findParagraphByText("<Scenario>");
+
+		List<Scenario> scenarios = analysis.getSelectedScenarios();
+
+		if (paragraph != null && scenarios.size() > 0) {
+
+			while (!paragraph.getRuns().isEmpty())
+				paragraph.removeRun(0);
+
+			table = document.insertNewTbl(paragraph.getCTP().newCursor());
+
+			table.setStyleID("TableTSScenario");
+
+			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
+			width.setW(BigInteger.valueOf(10000));
+
+			// set header
+
+			row = table.getRow(0);
+
+			for (int i = 1; i < 3; i++)
+				row.addNewTableCell();
+
+			// set header
+			table.getRow(0).getCell(0).setText(getMessage("report.scenario.title.number.row", null, "Nr", locale));
+			table.getRow(0).getCell(1).setText(getMessage("report.scenario.title.number.name", null, "Name", locale));
+			table.getRow(0).getCell(2).setText(getMessage("report.scenario.title.number.description", null, "Description", locale));
+
+			int number = 0;
+
+			// set data
+			for (Scenario scenario : scenarios) {
+				row = table.createRow();
+				number++;
+				row.getCell(0).setText("" + number);
+				addCellParagraph(row.getCell(1), scenario.getName());
+				addCellParagraph(row.getCell(2), scenario.getDescription());
+			}
 		}
 	}
 
@@ -1236,289 +1471,6 @@ public class ExportAnalysisReport {
 		}
 	}
 
-	private void generateAssessements() {
-		XWPFParagraph paragraph = null;
-		XWPFParagraph paragraphOrigin = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-
-		paragraphOrigin = findParagraphByText("<Assessment>");
-
-		List<Assessment> assessments = analysis.getSelectedAssessments();
-
-		Collections.sort(assessments, new AssessmentComparator());
-
-		double totalale = 0;
-
-		for (Assessment assessment : assessments)
-			totalale += assessment.getALE();
-
-		if (paragraphOrigin != null && assessments.size() > 0) {
-
-			while (!paragraphOrigin.getRuns().isEmpty())
-				paragraphOrigin.removeRun(0);
-			
-			paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
-
-			Map<String, ALE> alesmap = new LinkedHashMap<String, ALE>();
-			Map<String, List<Assessment>> assessementsmap = new LinkedHashMap<String, List<Assessment>>();
-
-			AssessmentManager.SplitAssessment(assessments, alesmap, assessementsmap);
-
-			List<ALE> ales = new ArrayList<ALE>(alesmap.size());
-
-			for (ALE ale : alesmap.values())
-				ales.add(ale);
-
-			alesmap.clear();
-
-			Collections.sort(ales, new AssetComparatorByALE());
-
-			XWPFRun run = paragraph.createRun();
-
-			run.setText(getMessage("report.assessment.total_ale.assets", null, "Total ALE for all assets", locale));
-
-			paragraph.createRun().addTab();
-
-			run = paragraph.createRun();
-
-			run.setText(String.format("%s k€", numberFormat.format(totalale * 0.001)));
-			
-			paragraph.setStyle("TSAssessmentTotalALE");
-
-			for (ALE ale : ales) {
-				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
-				paragraph.createRun().setText(ale.getAssetName());
-				paragraph.setStyle("Titre4");
-
-				paragraph = document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
-
-				run = paragraph.createRun();
-
-				run.setText(getMessage("report.assessment.total.ale.for.asset", null, "Total ALE of asset", locale));
-
-				paragraph.createRun().addTab();
-				
-				run = paragraph.createRun();
-
-				run.setText(String.format("%s k€", numberFormat.format(ale.getValue() * 0.001)));
-			
-				run.setBold(true);
-				
-				paragraph.setStyle("TSAssessmentTotalALEByAsset");
-				
-				document.insertNewParagraph(paragraphOrigin.getCTP().newCursor());
-
-				table = document.insertNewTbl(paragraphOrigin.getCTP().newCursor());
-
-				table.setStyleID("TableTSAssessment");
-
-				row = table.getRow(0);
-
-				while (row.getTableCells().size() < 5)
-					row.addNewTableCell();
-
-				row.getCell(0).setText(getMessage("report.assessment.scenarios", null, "Scenarios", locale));
-				row.getCell(1).setText(getMessage("report.assessment.impact.financial", null, "Fin.", locale));
-				row.getCell(1).setColor("c6d9f1");
-				row.getCell(2).setText(getMessage("report.assessment.probability", null, "P.", locale));
-				row.getCell(2).setColor("c6d9f1");
-				row.getCell(3).setText(getMessage("report.assessment.ale", null, "ALE(k€/y)", locale));
-				row.getCell(3).setColor("c6d9f1");
-				row.getCell(4).setText(getMessage("report.assessment.comment", null, "Comment", locale));
-				row.getCell(4).setColor("c6d9f1");
-
-				List<Assessment> assessmentsofasset = assessementsmap.get(ale.getAssetName());
-				for (Assessment assessment : assessmentsofasset) {
-					row = table.createRow();
-					while (row.getTableCells().size() < 5)
-						row.addNewTableCell();
-					row.getCell(0).setText(assessment.getScenario().getName());
-					addCellNumber(row.getCell(1), formatedImpact(assessment.getImpactFin()));
-					addCellNumber(row.getCell(2), formatLikelihood(assessment.getLikelihood()));
-					addCellNumber(row.getCell(3), numberFormat.format(assessment.getALE() * 0.001));
-					addCellParagraph(row.getCell(4), assessment.getComment());
-				}
-			}
-			assessementsmap.clear();
-			ales.clear();
-		}
-	}
-
-	private String formatLikelihood(String likelihood) {
-		try {
-			return kEuroFormat.format(Double.parseDouble(likelihood));
-		} catch (Exception e) {
-			return likelihood;
-		}
-	}
-
-	private String formatedImpact(String impactFin) {
-		try {
-			return kEuroFormat.format(Double.parseDouble(impactFin) * 0.001);
-		} catch (Exception e) {
-			return impactFin;
-		}
-	}
-
-	private void generateScenarios() {
-		XWPFParagraph paragraph = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-
-		paragraph = findParagraphByText("<Scenario>");
-
-		List<Scenario> scenarios = analysis.getSelectedScenarios();
-
-		if (paragraph != null && scenarios.size() > 0) {
-
-			while (!paragraph.getRuns().isEmpty())
-				paragraph.removeRun(0);
-
-			table = document.insertNewTbl(paragraph.getCTP().newCursor());
-
-			table.setStyleID("TableTSScenario");
-
-			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-			width.setW(BigInteger.valueOf(10000));
-
-			// set header
-
-			row = table.getRow(0);
-
-			for (int i = 1; i < 3; i++)
-				row.addNewTableCell();
-
-			// set header
-			table.getRow(0).getCell(0).setText(getMessage("report.scenario.title.number.row", null, "Nr", locale));
-			table.getRow(0).getCell(1).setText(getMessage("report.scenario.title.number.name", null, "Name", locale));
-			table.getRow(0).getCell(2).setText(getMessage("report.scenario.title.number.description", null, "Description", locale));
-
-			int number = 0;
-
-			// set data
-			for (Scenario scenario : scenarios) {
-				row = table.createRow();
-				number++;
-				row.getCell(0).setText("" + number);
-				addCellParagraph(row.getCell(1), scenario.getName());
-				addCellParagraph(row.getCell(2), scenario.getDescription());
-			}
-		}
-	}
-
-	private void generateAssets() {
-		XWPFParagraph paragraph = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-
-		paragraph = findParagraphByText("<Asset>");
-
-		List<Asset> assets = analysis.getSelectedAssets();
-
-		if (paragraph != null && assets.size() > 0) {
-
-			while (!paragraph.getRuns().isEmpty())
-				paragraph.removeRun(0);
-
-			table = document.insertNewTbl(paragraph.getCTP().newCursor());
-
-			table.setStyleID("TableTSAsset");
-
-			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-			width.setW(BigInteger.valueOf(10000));
-
-			// set header
-
-			row = table.getRow(0);
-
-			for (int i = 1; i < 6; i++)
-				row.addNewTableCell();
-
-			// set header
-			table.getRow(0).getCell(0).setText(getMessage("report.asset.title.number.row", null, "Nr", locale));
-			table.getRow(0).getCell(1).setText(getMessage("report.asset.title.name", null, "Name", locale));
-			table.getRow(0).getCell(2).setText(getMessage("report.asset.title.type", null, "Type", locale));
-			table.getRow(0).getCell(3).setText(getMessage("report.asset.title.value", null, "Value(k€)", locale));
-			table.getRow(0).getCell(4).setText(getMessage("report.asset.title.ale", null, "ALE(k€)", locale));
-			table.getRow(0).getCell(5).setText(getMessage("report.asset.title.comment", null, "Comment", locale));
-
-			int number = 0;
-
-			// set data
-			for (Asset asset : assets) {
-				row = table.createRow();
-				number++;
-				row.getCell(0).setText("" + (number));
-				row.getCell(1).setText(asset.getName());
-				row.getCell(2).setText(asset.getAssetType().getType());
-				addCellNumber(row.getCell(3), kEuroFormat.format(asset.getValue() * 0.001));
-				row.getCell(4).setColor("c6d9f1");
-				addCellNumber(row.getCell(4), kEuroFormat.format(asset.getALE() * 0.001));
-				addCellParagraph(row.getCell(5), asset.getComment());
-			}
-		}
-	}
-
-	private void generateItemInformation() throws Exception {
-		XWPFParagraph paragraph = null;
-		XWPFTable table = null;
-		XWPFTableRow row = null;
-
-		paragraph = findParagraphByText("<Scope>");
-
-		List<ItemInformation> iteminformations = analysis.getItemInformations();
-
-		Collections.sort(iteminformations, new ComparatorItemInformation());
-
-		if (paragraph != null && iteminformations.size() > 0) {
-
-			while (!paragraph.getRuns().isEmpty())
-				paragraph.removeRun(0);
-
-			// initialise table with 1 row and 1 column after the paragraph
-			// cursor
-
-			table = document.insertNewTbl(paragraph.getCTP().newCursor());
-
-			table.setStyleID("TableTSScope");
-
-			CTTblWidth width = table.getCTTbl().addNewTblPr().addNewTblW();
-			width.setW(BigInteger.valueOf(10000));
-
-			// set header
-
-			row = table.getRow(0);
-
-			for (int i = 1; i < 2; i++)
-				row.addNewTableCell();
-
-			row.getCell(0).setText(getMessage("report.scope.title.description", null, "Description", locale));
-			row.getCell(1).setText(getMessage("report.scope.title.value", null, "Value", locale));
-
-			// set data
-			for (ItemInformation iteminfo : iteminformations) {
-				row = table.createRow();
-				row.getCell(0).setText(getMessage("report.scope.name." + iteminfo.getDescription().toLowerCase(), null, iteminfo.getDescription(), locale));
-				addCellParagraph(row.getCell(1), iteminfo.getValue());
-			}
-		}
-	}
-
-	private String getMessage(String code, Object[] parameters, String defaultMessage, Locale locale) {
-		// System.out.println(String.format("%s=%s", code, defaultMessage));
-		return messageSource.getMessage(code, parameters, defaultMessage, locale);
-	}
-
-	private XWPFParagraph findParagraphByText(String text) {
-		List<XWPFParagraph> paragraphs = document.getParagraphs();
-		for (XWPFParagraph paragraph : paragraphs) {
-			if (paragraph.getParagraphText().equals(text))
-				return paragraph;
-		}
-		return null;
-	}
-
 	/**
 	 * getAnalysis: <br>
 	 * Returns the analysis field value.
@@ -1527,6 +1479,45 @@ public class ExportAnalysisReport {
 	 */
 	public Analysis getAnalysis() {
 		return analysis;
+	}
+
+	public String getContextPath() {
+		return contextPath;
+	}
+
+	/**
+	 * getDocument: <br>
+	 * Returns the document field value.
+	 * 
+	 * @return The value of the document field
+	 */
+	public XWPFDocument getDocument() {
+		return document;
+	}
+
+	public long getIdTask() {
+		return idTask;
+	}
+
+	public Locale getLocale() {
+		return locale;
+	}
+
+	private String getMessage(String code, Object[] parameters, String defaultMessage, Locale locale) {
+		// System.out.println(String.format("%s=%s", code, defaultMessage));
+		return messageSource.getMessage(code, parameters, defaultMessage, locale);
+	}
+
+	public MessageSource getMessageSource() {
+		return messageSource;
+	}
+
+	public String getReportName() {
+		return reportName;
+	}
+
+	public ServiceTaskFeedback getServiceTaskFeedback() {
+		return serviceTaskFeedback;
 	}
 
 	/**
@@ -1540,56 +1531,8 @@ public class ExportAnalysisReport {
 		this.analysis = analysis;
 	}
 
-	/**
-	 * getContext: <br>
-	 * Returns the context field value.
-	 * 
-	 * @return The value of the context field
-	 */
-	public ServletContext getContext() {
-		return context;
-	}
-
-	/**
-	 * setContext: <br>
-	 * Sets the Field "context" with a value.
-	 * 
-	 * @param context
-	 *            The Value to set the context field
-	 */
-	public void setContext(ServletContext context) {
-		this.context = context;
-	}
-
-	/**
-	 * getServiceAnalysis: <br>
-	 * Returns the serviceAnalysis field value.
-	 * 
-	 * @return The value of the serviceAnalysis field
-	 */
-	public ServiceAnalysis getServiceAnalysis() {
-		return serviceAnalysis;
-	}
-
-	/**
-	 * setServiceAnalysis: <br>
-	 * Sets the Field "serviceAnalysis" with a value.
-	 * 
-	 * @param serviceAnalysis
-	 *            The Value to set the serviceAnalysis field
-	 */
-	public void setServiceAnalysis(ServiceAnalysis serviceAnalysis) {
-		this.serviceAnalysis = serviceAnalysis;
-	}
-
-	/**
-	 * getDocument: <br>
-	 * Returns the document field value.
-	 * 
-	 * @return The value of the document field
-	 */
-	public XWPFDocument getDocument() {
-		return document;
+	public void setContextPath(String contextPath) {
+		this.contextPath = contextPath;
 	}
 
 	/**
@@ -1603,27 +1546,31 @@ public class ExportAnalysisReport {
 		this.document = document;
 	}
 
-	public MessageSource getMessageSource() {
-		return messageSource;
-	}
-
-	public void setMessageSource(MessageSource messageSource) {
-		this.messageSource = messageSource;
-	}
-
-	public Locale getLocale() {
-		return locale;
+	public void setIdTask(long idTask) {
+		this.idTask = idTask;
 	}
 
 	public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
 
-	public String getReportName() {
-		return reportName;
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
 	}
 
 	public void setReportName(String reportName) {
 		this.reportName = reportName;
+	}
+
+	public void setServiceTaskFeedback(ServiceTaskFeedback serviceTaskFeedback) {
+		this.serviceTaskFeedback = serviceTaskFeedback;
+	}
+
+	public File getWorkFile() {
+		return workFile;
+	}
+
+	public void setWorkFile(File workFile) {
+		this.workFile = workFile;
 	}
 }

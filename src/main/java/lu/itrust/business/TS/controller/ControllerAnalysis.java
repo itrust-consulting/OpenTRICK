@@ -18,6 +18,7 @@ import lu.itrust.business.TS.asynchronousWorkers.Worker;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerAnalysisImport;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerCreateAnalysisVersion;
 import lu.itrust.business.TS.asynchronousWorkers.WorkerExportAnalysis;
+import lu.itrust.business.TS.asynchronousWorkers.WorkerExportWordReport;
 import lu.itrust.business.TS.component.CustomDelete;
 import lu.itrust.business.TS.component.Duplicator;
 import lu.itrust.business.TS.component.GeneralComperator;
@@ -806,7 +807,7 @@ public class ControllerAnalysis {
 				executor.execute(worker);
 				errors.put(ANALYSIS_TASK_ID, String.valueOf(worker.getId()));
 			} else
-				errors.put("analysis", messageSource.getMessage("error.task.register", null, "Task cannot be registered", locale));
+				errors.put("analysis", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
@@ -903,7 +904,7 @@ public class ControllerAnalysis {
 		else
 			// prepare error return message
 			// add return message
-			attributes.addFlashAttribute("errors", messageSource.getMessage("failed.start.import.analysis", null, "Analysis importation was failed", locale));
+			attributes.addFlashAttribute("error", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 		return "redirect:/Analysis/Import";
 	}
 
@@ -940,7 +941,7 @@ public class ControllerAnalysis {
 		} else
 
 			// return error message
-			return JsonMessage.Error(messageSource.getMessage("failed.start.export.analysis", null, "Analysis export was failed", locale));
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 	}
 
 	/**
@@ -996,14 +997,9 @@ public class ControllerAnalysis {
 	 */
 	@RequestMapping("/Export/Report/{analysisId}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).EXPORT)")
-	public String exportReport(@PathVariable Integer analysisId, HttpServletResponse response, HttpServletRequest request, RedirectAttributes attributes, Principal principal,
-			Locale locale) throws Exception {
-
-		File file = null;
-
+	public @ResponseBody String exportReport(@PathVariable Integer analysisId, HttpServletRequest request, Principal principal, Locale locale) {
 		try {
-
-			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport();
+			ExportAnalysisReport exportAnalysisReport = new ExportAnalysisReport(messageSource, serviceTaskFeedback, request.getServletContext().getRealPath(""));
 			switch (serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha3().toLowerCase()) {
 			case "fra":
 				locale = Locale.FRENCH;
@@ -1013,25 +1009,17 @@ public class ControllerAnalysis {
 				locale = Locale.ENGLISH;
 				exportAnalysisReport.setReportName(englishReportName);
 			}
-
-			exportAnalysisReport.setMessageSource(messageSource);
-
-			file = exportAnalysisReport.exportToWordDocument(analysisId, request.getServletContext(), serviceAnalysis, true);
-
-			if (file != null) {
-				response.setContentType("docm");
-				response.setContentLength((int) file.length());
-				response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-				FileCopyUtils.copy(FileCopyUtils.copyToByteArray(file), response.getOutputStream());
-			}
-			return null;
-		} catch (Throwable t) {
-			t.printStackTrace();
-			attributes.addFlashAttribute("errors", messageSource.getMessage(t.getMessage(), null, t.getMessage(), locale));
-			return "redirect:/Analysis";
-		} finally {
-			if (file != null && file.exists())
-				file.delete();
+			Worker worker = new WorkerExportWordReport(analysisId, principal.getName(), sessionFactory, exportAnalysisReport, workersPoolManager);
+			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId()))
+				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+			executor.execute(worker);
+			return JsonMessage.Success(messageSource.getMessage("success.analysis.report.exporting", null, "Exporting report", locale));
+		} catch (TrickException e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return JsonMessage.Error(messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 	}
 
