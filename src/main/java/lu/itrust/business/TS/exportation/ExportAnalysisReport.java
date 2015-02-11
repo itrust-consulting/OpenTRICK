@@ -560,19 +560,6 @@ public class ExportAnalysisReport {
 	}
 
 	private void generatePlaceholders() {
-		/*
-		 * document.createParagraph().createRun().setText("<Scope>");
-		 * document.createParagraph().createRun().setText("<Asset>");
-		 * document.createParagraph().createRun().setText("<Scenario>");
-		 * document.createParagraph().createRun().setText("<Assessment>");
-		 * document.createParagraph().createRun().setText("<Threat>");
-		 * document.createParagraph().createRun().setText("<Vul>");
-		 * document.createParagraph().createRun().setText("<Risk>");
-		 * document.createParagraph().createRun().setText("<Impact>");
-		 * document.createParagraph().createRun().setText("<Proba>");
-		 * document.createParagraph().createRun().setText("<ActionPlan>");
-		 * document.createParagraph().createRun().setText("<Summary>");
-		 */
 		document.createParagraph().createRun().setText("<Measures>");
 	}
 
@@ -645,7 +632,7 @@ public class ExportAnalysisReport {
 
 				row = table.getRow(0);
 
-				if (row.getCtRow().getTcList().isEmpty())
+				if (row.getTableCells().isEmpty())
 					row.addNewTableCell();
 				if (row.getCell(0).getCTTc().getTcPr() == null)
 					row.getCell(0).getCTTc().addNewTcPr();
@@ -682,22 +669,20 @@ public class ExportAnalysisReport {
 				for (Measure measure : analysisStandard.getMeasures()) {
 
 					row = table.createRow();
-					while (row.getTableCells().size() < 14)
+					while (row.getTableCells().size() < 2)
 						row.createCell();
-
 					row.getCell(0).setText(measure.getMeasureDescription().getReference());
 					MeasureDescriptionText description = measure.getMeasureDescription().findByLanguage(analysis.getLanguage());
 					row.getCell(1).setText(description == null ? "" : description.getDomain());
 					if (measure.getMeasureDescription().getLevel() < 3) {
-						while (row.getCtRow().getTcList().size() > 2)
-							row.getCtRow().getTcList().remove(2);
 						if (row.getCell(1).getCTTc().getTcPr() == null)
 							row.getCell(1).getCTTc().addNewTcPr();
 						row.getCell(1).getCTTc().getTcPr().addNewGridSpan().setVal(BigInteger.valueOf(13));
 						for (int i = 0; i < 2; i++)
 							row.getCell(i).setColor(measure.getMeasureDescription().getLevel() < 2 ? SUPER_HEAD_COLOR : HEADER_COLOR);
 					} else {
-
+						while (row.getTableCells().size() < 14)
+							row.createCell();
 						row.getCell(2).setText(measure.getStatus());
 						addCellNumber(row.getCell(3), numberFormat.format(measure.getImplementationRateValue()));
 						addCellNumber(row.getCell(4), kEuroFormat.format(measure.getInternalWL()));
@@ -829,7 +814,7 @@ public class ExportAnalysisReport {
 				break;
 			}
 			case 7: {
-				while (row.getCtRow().getTcList().size() > 1)
+				while (row.getCtRow().sizeOfTcArray() > 1)
 					row.getCtRow().removeTc(1);
 				if (row.getCell(0).getCTTc().getTcPr() == null)
 					row.getCell(0).getCTTc().addNewTcPr();
@@ -873,7 +858,7 @@ public class ExportAnalysisReport {
 				break;
 			}
 			case 13: {
-				while (row.getCtRow().getTcList().size() > 1)
+				while (row.getCtRow().sizeOfTcArray() > 1)
 					row.getCtRow().removeTc(1);
 				if (row.getCell(0).getCTTc().getTcPr() == null)
 					row.getCell(0).getCTTc().addNewTcPr();
@@ -1114,7 +1099,7 @@ public class ExportAnalysisReport {
 			for (ExtendedParameter extendedParameter : extendedParameters) {
 				row = table.createRow();
 
-				while (row.getCtRow().getTcList().size() < 6)
+				while (row.getTableCells().size() < 6)
 					row.addNewTableCell();
 				row.getCell(0).setText("" + extendedParameter.getLevel());
 				row.getCell(1).setText(extendedParameter.getAcronym());
@@ -1330,7 +1315,7 @@ public class ExportAnalysisReport {
 
 				row = table.getRow(0);
 
-				while (row.getCtRow().getTcList().size() < 5)
+				while (row.getTableCells().size() < 5)
 					row.addNewTableCell();
 
 				row.getCell(0).setText(getMessage("report.assessment.scenarios", null, "Scenarios", locale));
@@ -1346,7 +1331,7 @@ public class ExportAnalysisReport {
 				List<Assessment> assessmentsofasset = assessementsmap.get(ale.getAssetName());
 				for (Assessment assessment : assessmentsofasset) {
 					row = table.createRow();
-					while (row.getCtRow().getTcList().size() < 5)
+					while (row.getTableCells().size() < 5)
 						row.addNewTableCell();
 					row.getCell(0).setText(assessment.getScenario().getName());
 					addCellNumber(row.getCell(1), formatedImpact(assessment.getImpactFin()));

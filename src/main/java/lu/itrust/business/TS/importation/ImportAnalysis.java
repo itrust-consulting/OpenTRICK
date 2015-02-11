@@ -76,7 +76,6 @@ import lu.itrust.business.TS.messagehandler.MessageHandler;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * ImportAnalysis: <br>
@@ -165,6 +164,12 @@ public class ImportAnalysis {
 	public ImportAnalysis() {
 	}
 
+	public ImportAnalysis(Analysis analysis, ServiceTaskFeedback serviceTaskFeedback, SessionFactory sessionFactory) {
+		setAnalysis(analysis);
+		setSessionFactory(sessionFactory);
+		setServiceTaskFeedback(serviceTaskFeedback);
+	}
+
 	/**
 	 * getAnalysis: <br>
 	 * Returns the analysis of the object
@@ -175,141 +180,6 @@ public class ImportAnalysis {
 		return this.analysis;
 	}
 
-	/***********************************************************************************************
-	 * Methods
-	 **********************************************************************************************/
-	/**
-	 * simpleAnalysisImport: <br>
-	 * Description
-	 * 
-	 * @return
-	 * @throws Exception
-	 */
-	@Transactional
-	public boolean simpleAnalysisImport() throws Exception {
-
-		Session session = null;
-
-		try {
-
-			if (sessionFactory != null) {
-				session = sessionFactory.openSession();
-				initialiseDAO(session);
-				session.getTransaction().begin();
-			}
-
-			System.out.println("Importing...");
-
-			// ****************************************************************
-			// * create analysis id, analysis label, analysis language and
-			// * Histories. Creates Analysis Entries into the Database
-			// ****************************************************************
-			importAnalyses();
-
-			// ****************************************************************
-			// * import risk information
-			// ****************************************************************
-			importRiskInformation();
-
-			// ****************************************************************
-			// * import item information
-			// ****************************************************************
-			importItemInformation();
-
-			// ****************************************************************
-			// * import simple parameters
-			// ****************************************************************
-			importSimpleParameters();
-
-			// ****************************************************************
-			// * import extended parameters
-			// ****************************************************************
-			importExtendedParameters();
-
-			// ****************************************************************
-			// * import maturity parameters
-			// ****************************************************************
-			importMaturityParameters();
-
-			// ****************************************************************
-			// * import assets
-			// ****************************************************************
-			importAssets();
-
-			// ****************************************************************
-			// * import scenarios
-			// ****************************************************************
-			importScenarios();
-
-			// ****************************************************************
-			// * import assessments
-			// ****************************************************************
-			importAssessments();
-
-			// ****************************************************************
-			// * import phases
-			// ****************************************************************
-			importPhases();
-
-			// ****************************************************************
-			// * import AnalysisStandard measures
-			// ****************************************************************
-			importNormalMeasures();
-
-			// ****************************************************************
-			// * import asset type values
-			// ****************************************************************
-			importAssetTypeValues();
-
-			// ****************************************************************
-			// * import maturity measures
-			// ****************************************************************
-			importMaturityMeasures();
-
-			System.out.println("Saving Analysis Data...");
-
-			// save or update analysis
-			daoAnalysis.save(this.analysis);
-
-			if (session != null)
-				session.getTransaction().commit();
-
-			System.out.println("Import Done!");
-
-			return true;
-
-		} catch (SQLException sqle) {
-
-			if (session != null)
-				session.getTransaction().rollback();
-
-			throw new TrickException("error.sql", "SQL error: " + sqle.getMessage(), sqle.getMessage());
-
-		} catch (Exception e) {
-
-			if (session != null)
-				session.getTransaction().rollback();
-
-			throw new Exception(e.getMessage());
-
-		}
-
-		finally {
-			try {
-				this.sqlite.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-				return false;
-			} finally {
-				// clear maps
-				clearData();
-				if (session != null)
-					session.close();
-			}
-
-		}
-	}
-
 	/**
 	 * ImportAnAnalysis: <br>
 	 * Method used to import and given analysis using an sqlite file into the
@@ -317,7 +187,6 @@ public class ImportAnalysis {
 	 * 
 	 * @throws Exception
 	 */
-	@Transactional
 	public boolean ImportAnAnalysis() throws Exception {
 
 		Session session = null;
@@ -447,14 +316,14 @@ public class ImportAnalysis {
 					return ComparatorMeasureDescription.Compare(o2, o1);
 				}
 			});
-			
+
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.switch.read.only.preview", "Turn on readonly all preview version", null, 95));
 			Integer idAnalysis = daoAnalysis.getIdFromIdentifierAndVersion(analysis.getIdentifier(), versions.get(0));
 			ManageAnalysisRight manageAnalysisRight = new ManageAnalysisRight();
 			manageAnalysisRight.setDaoAnalysis(daoAnalysis);
 			manageAnalysisRight.setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
 			manageAnalysisRight.switchAnalysisToReadOnly(analysis.getIdentifier(), idAnalysis);
-			if (session != null){
+			if (session != null) {
 				session.getTransaction().commit();
 				serviceTaskFeedback.send(idTask, new MessageHandler("success.saving.analysis", "Analysis has been successfully saved", null, 100));
 			}
@@ -510,11 +379,11 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		ResultSet rs = null;
 		String acroLanguage = "";
-		String query = "";
 		Language language = null;
 
+		ResultSet rs = null;
+		String query = "";
 		setCurrentSqliteTable("identifier");
 
 		// ****************************************************************
@@ -533,12 +402,14 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * set analysis ID
 			// ****************************************************************
-			this.analysis.setIdentifier(rs.getString(Constant.IDENTIFIER_ID));
+			if (analysis.getIdentifier() == null)
+				this.analysis.setIdentifier(rs.getString(Constant.IDENTIFIER_ID));
 
 			// ****************************************************************
 			// * set analysis label
 			// ****************************************************************
-			this.analysis.setLabel(rs.getString(Constant.IDENTIFIER_LABEL));
+			if (analysis.getLabel() == null)
+				this.analysis.setLabel(rs.getString(Constant.IDENTIFIER_LABEL));
 		}
 
 		// close result
@@ -559,11 +430,9 @@ public class ImportAnalysis {
 		// if language is not found, create the english language object and save
 		// it to the database
 		if (language == null) {
-
 			language = new Language();
-
-			if (acroLanguage.equals("FRA")) {
-				language.setAlpha3(acroLanguage);
+			if (acroLanguage.equalsIgnoreCase("FRA")) {
+				language.setAlpha3("FRA");
 				language.setName("Français");
 				language.setAltName("French");
 			} else {
@@ -582,6 +451,16 @@ public class ImportAnalysis {
 		// * add the language to the object variable
 		// ****************************************************************
 		this.analysis.setLanguage(language);
+		
+		if(analysis.isProfile()){
+			Timestamp ts = new Timestamp(System.currentTimeMillis());
+
+			SimpleDateFormat outDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+			String tsstring = outDateFormat.format(ts);
+
+			getAnalysis().setIdentifier(getAnalysis().getLanguage().getAlpha3() + "_" + tsstring);
+		}
 
 		// ****************************************************************
 		// * load Histories

@@ -42,7 +42,7 @@
 	<sec:authorize ifNotGranted="ROLE_ANONYMOUS" >
 	<!--
 	new TimeoutInterceptor().Start();
-	new TaskManager().Start();
+	application['taskManager'] = new TaskManager().Start();
 	-->
 	</sec:authorize>
 </script>

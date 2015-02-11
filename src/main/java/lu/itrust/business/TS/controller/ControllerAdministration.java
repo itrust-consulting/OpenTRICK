@@ -381,10 +381,8 @@ public class ControllerAdministration {
 			ValidatorField validator = serviceDataValidation.findByClass(User.class);
 			if (validator == null)
 				serviceDataValidation.register(validator = new UserValidator());
-
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode jsonNode = mapper.readTree(source);
-
 			login = jsonNode.get("login").asText();
 			password = jsonNode.get("password").asText();
 			firstname = jsonNode.get("firstName").asText();

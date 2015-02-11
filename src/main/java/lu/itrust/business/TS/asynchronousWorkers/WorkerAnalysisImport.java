@@ -28,6 +28,8 @@ public class WorkerAnalysisImport implements Worker {
 
 	private boolean canceled = false;
 
+	private boolean canDeleteFile = true;
+
 	private WorkersPoolManager poolManager;
 
 	private ImportAnalysis importAnalysis;
@@ -38,10 +40,23 @@ public class WorkerAnalysisImport implements Worker {
 
 	private User owner;
 
+	private AsyncCallback asyncCallback;
+
+	private MessageHandler messageHandler;
+
 	/**
 	 * 
 	 */
 	public WorkerAnalysisImport() {
+	}
+
+	/**
+	 * @param importAnalysis
+	 * @param fileName
+	 */
+	public WorkerAnalysisImport(ImportAnalysis importAnalysis, String fileName) {
+		this.importAnalysis = importAnalysis;
+		this.fileName = fileName;
 	}
 
 	/**
@@ -62,7 +77,6 @@ public class WorkerAnalysisImport implements Worker {
 		setCustomer(customer);
 		setFileName(importFile.getCanonicalPath());
 		setImportAnalysis(new ImportAnalysis());
-
 		importAnalysis.setServiceTaskFeedback(serviceTaskFeedback);
 		importAnalysis.setSessionFactory(sessionFactory);
 	}
@@ -122,9 +136,11 @@ public class WorkerAnalysisImport implements Worker {
 		} finally {
 			synchronized (this) {
 				working = false;
-				File file = new File(fileName);
-				if (file.exists())
-					file.delete();
+				if (canDeleteFile) {
+					File file = new File(fileName);
+					if (file.exists())
+						file.delete();
+				}
 			}
 			if (poolManager != null)
 				poolManager.remove(getId());
@@ -197,6 +213,15 @@ public class WorkerAnalysisImport implements Worker {
 		this.importAnalysis = importAnalysis;
 	}
 
+	protected void OnSuccess() {
+		if (getMessageHandler() == null)
+			setMessageHandler(new MessageHandler("success.analysis.import", "Import Done!", null, 100));
+		if (getAsyncCallback() == null)
+			setAsyncCallback(new AsyncCallback("window.location.assign(context+\"/Analysis\")", null));
+		getMessageHandler().setAsyncCallback(getAsyncCallback());
+		importAnalysis.getServiceTaskFeedback().send(getId(), getMessageHandler());
+	}
+
 	@Override
 	public void run() {
 		try {
@@ -209,24 +234,24 @@ public class WorkerAnalysisImport implements Worker {
 				working = true;
 			}
 			DatabaseHandler DatabaseHandler = new DatabaseHandler(fileName);
-			Analysis analysis = new Analysis(customer,owner);
-			importAnalysis.setAnalysis(analysis);
+			if (importAnalysis.getAnalysis() == null) {
+				Analysis analysis = new Analysis(customer, owner);
+				importAnalysis.setAnalysis(analysis);
+			}
 			importAnalysis.setIdTask(getId());
 			importAnalysis.setDatabaseHandler(DatabaseHandler);
-			if (importAnalysis.ImportAnAnalysis()) {
-				MessageHandler messageHandler = new MessageHandler("success.analysis.import", "Import Done!", null, 100);
-				messageHandler.setAsyncCallback(new AsyncCallback("window.location.assign(\"../Analysis\")", null));
-				importAnalysis.getServiceTaskFeedback().send(getId(), messageHandler);
-			}
-
+			if (importAnalysis.ImportAnAnalysis())
+				OnSuccess();
 		} catch (Exception e) {
 			error = e;
 		} finally {
 			synchronized (this) {
 				working = false;
-				File file = new File(fileName);
-				if (file.exists())
-					file.delete();
+				if (canDeleteFile) {
+					File file = new File(fileName);
+					if (file.exists())
+						file.delete();
+				}
 			}
 			if (poolManager != null)
 				poolManager.remove(getId());
@@ -253,5 +278,29 @@ public class WorkerAnalysisImport implements Worker {
 	public void setPoolManager(WorkersPoolManager poolManager) {
 		this.poolManager = poolManager;
 
+	}
+
+	public AsyncCallback getAsyncCallback() {
+		return asyncCallback;
+	}
+
+	public void setAsyncCallback(AsyncCallback asyncCallback) {
+		this.asyncCallback = asyncCallback;
+	}
+
+	public MessageHandler getMessageHandler() {
+		return messageHandler;
+	}
+
+	public void setMessageHandler(MessageHandler messageHandler) {
+		this.messageHandler = messageHandler;
+	}
+
+	public boolean isCanDeleteFile() {
+		return canDeleteFile;
+	}
+
+	public void setCanDeleteFile(boolean canDeleteFile) {
+		this.canDeleteFile = canDeleteFile;
 	}
 }

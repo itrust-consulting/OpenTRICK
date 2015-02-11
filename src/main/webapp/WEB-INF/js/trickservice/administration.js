@@ -16,15 +16,11 @@ function installTrickService() {
 		async : true,
 		contentType : "application/json",
 		success : function(response) {
-
-			if (response["error"]!=undefined) {
+			if (response["error"] != undefined) {
 				$("#alert-dialog .modal-body").html(response["error"]);
 				$("#alert-dialog").modal("toggle");
-			} else if (response["success"]!=undefined) {
-				$("#success-dialog .modal-body").html(response["success"]);
-				$("#success-dialog").modal("toggle");
-				location.reload(true);
-			}
+			} else if (response["idTask"] != undefined) 
+				application['taskManager'].Start();
 		},
 		error : unknowError
 	});
@@ -110,8 +106,8 @@ function findTrickisProfile(element) {
 		return null;
 }
 
-function isProfile(section){
-	return findTrickisProfile($(section + " tbody :checked"))!="true";
+function isProfile(section) {
+	return findTrickisProfile($(section + " tbody :checked")) != "true";
 }
 
 function adminCustomerChange(selector) {
@@ -129,7 +125,7 @@ function adminCustomerChange(selector) {
 				cssTopOffset : ".nav-tab",
 				fixedOffset : 6
 			});
-			
+
 		},
 		error : unknowError
 	});
@@ -148,7 +144,9 @@ function deleteAdminAnalysis(analysisId, section_analysis) {
 		selectedAnalysis = analysisId;
 
 	var modal = new Modal($("#deleteAnalysisModel").clone()).setBody(MessageResolver("label.analysis.question.delete", "Are you sure that you want to delete the analysis?"));
-	$(modal.modal).find("#deleteanalysisbuttonNo").click(function() {modal.Destroy();});
+	$(modal.modal).find("#deleteanalysisbuttonNo").click(function() {
+		modal.Destroy();
+	});
 	$(modal.modal).find("#deleteanalysisbuttonYes").click(function() {
 		$(modal.modal).find("#deleteprogressbar").show();
 		$(modal.modal).find(".btn").prop("disabled", true);
