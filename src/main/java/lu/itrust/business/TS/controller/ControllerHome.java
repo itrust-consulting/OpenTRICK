@@ -62,7 +62,7 @@ public class ControllerHome {
 	@RequestMapping("/Home")
 	public String home(Model model, Principal principal, SessionLocaleResolver session, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		model.addAttribute("userSqLites", serviceUserSqLite.getByFileName(principal.getName()));
-		return "home";
+		return "default/home";
 	}
 
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -85,7 +85,7 @@ public class ControllerHome {
 			model.addAttribute("j_username", request.getParameter("login") == null ? "" : request.getParameter("login"));
 		}
 
-		return "loginForm";
+		return "default/login";
 	}
 
 	@RequestMapping(value = "/IsAuthenticate", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

@@ -9,14 +9,14 @@
 <!DOCTYPE html>
 <html>
 <!-- Include Header -->
-<jsp:include page="../../../header.jsp" />
+<jsp:include page="../../../template/header.jsp" />
 <!-- ################################################################# Start Container ############################################################## -->
 <body>
 	<div id="wrap">
 		<!-- ################################################################### Nav Menu ################################################################### -->
-		<jsp:include page="../../../menu.jsp" />
+		<jsp:include page="../../../template/menu.jsp" />
 		<div class="container">
-			<jsp:include page="../../../successErrors.jsp" />
+			<jsp:include page="../../../template/successErrors.jsp" />
 			<!-- #################################################################### Content ################################################################### -->
 			<div class="row">
 				<div class="page-header">
@@ -48,8 +48,8 @@
 				</div>
 			</div>
 		</div>
-		<jsp:include page="../../../footer.jsp" />
-		<jsp:include page="../../../scripts.jsp" />
+		<jsp:include page="../../../template/footer.jsp" />
+		<jsp:include page="../../../template/scripts.jsp" />
 	</div>
 </body>
 </html>

@@ -7,10 +7,10 @@
 <c:set scope="request" var="title">label.title.profile</c:set>
 <!DOCTYPE html>
 <html>
-<jsp:include page="header.jsp" />
+<jsp:include page="../template/header.jsp" />
 <body>
 	<div id="wrap">
-		<jsp:include page="menu.jsp" />
+		<jsp:include page="../template/menu.jsp" />
 		<div class="container">
 			<div class="page-header">
 				<h1>
@@ -126,8 +126,8 @@
 				</form>
 			</div>
 		</div>
-		<jsp:include page="footer.jsp" />
-		<jsp:include page="scripts.jsp" />
+		<jsp:include page="../template/footer.jsp" />
+		<jsp:include page="../template/scripts.jsp" />
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/profile.js" />"></script>
 	</div>
 </body>

@@ -8,13 +8,13 @@
 <c:set scope="request" var="title">label.title.analyses</c:set>
 <sec:authentication var="user" property="principal" />
 <html>
-<jsp:include page="../../header.jsp" />
+<jsp:include page="../../template/header.jsp" />
 <body>
 	<div id="wrap">
-		<jsp:include page="../../menu.jsp" />
+		<jsp:include page="../../template/menu.jsp" />
 		<div class="container">
 			<div class="section" id="section_analysis">
-				<jsp:include page="../../successErrors.jsp" />
+				<jsp:include page="../../template/successErrors.jsp" />
 				<ul class="nav nav-pills bordered-bottom" style="margin-top: 5px; margin-bottom: 5px;" id="menu_analysis">
 					<li><a href="#" onclick="return customAnalysis(this);"> <span class="glyphicon glyphicon-plus"></span> <spring:message code="label.menu.build.analysis"
 								text="Build an analysis" /></a></li>
@@ -92,8 +92,8 @@
 			</div>
 		</div>
 		<jsp:include page="widgets.jsp" />
-		<jsp:include page="../../footer.jsp" />
-		<jsp:include page="../../scripts.jsp" />
+		<jsp:include page="../../template/footer.jsp" />
+		<jsp:include page="../../template/scripts.jsp" />
 		<script type="text/javascript" src="<spring:url value="js/trickservice/analyses.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/jquery.fileDownload.js" />"></script>
 	</div>

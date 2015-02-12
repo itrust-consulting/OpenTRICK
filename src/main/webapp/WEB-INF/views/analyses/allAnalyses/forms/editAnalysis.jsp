@@ -3,7 +3,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<jsp:include page="../../../successErrors.jsp" />
+<jsp:include page="../../../template/successErrors.jsp" />
 <c:if test="${analysis != null}">
 	<div id="form_edit_analysis">
 		<input type="hidden" name="id" value="${analysis.id}" id="analysis_id">

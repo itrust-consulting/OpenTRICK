@@ -4,7 +4,7 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="customerusers">
-	<jsp:include page="../../successErrors.jsp" />
+	<jsp:include page="../../template/successErrors.jsp" />
 	<form action="Update" name="usercustomer" id="customerusersform">
 		<div>
 			<input type="hidden" value="${customer.id}" name="customerid" />

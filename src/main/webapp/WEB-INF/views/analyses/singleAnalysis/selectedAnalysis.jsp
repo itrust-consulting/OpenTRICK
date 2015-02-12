@@ -8,14 +8,14 @@
 <html lang="${fn:substring(analysis.language.alpha3,0, 2)}">
 <fmt:setLocale value="${fn:substring(analysis.language.alpha3,0, 2)}" scope="session" />
 <c:set scope="request" var="title">label.title.analysis</c:set>
-<jsp:include page="../../header.jsp" />
+<jsp:include page="../../template/header.jsp" />
 <body>
 	<div id="wrap">
 		<c:set var="isEditable" value="${analysis.getRightsforUserString(login).right.ordinal()<5}" scope="request" />
-		<jsp:include page="../../menu.jsp" />
+		<jsp:include page="../../template/menu.jsp" />
 		<div class="container">
 			<jsp:include page="analysisMenu.jsp" />
-			<jsp:include page="../../successErrors.jsp" />
+			<jsp:include page="../../template/successErrors.jsp" />
 			<div class="tab-content" id="nav-container" data-trick-id="${analysis.id}" data-trick-class="Analysis" data-trick-rights-id="${analysis.profile? 0 : analysis.getRightsforUserString(login).right.ordinal()}"
 				data-trick-language="${fn:substring(analysis.language.alpha3,0,2)}">
 				<c:if test="${!analysis.isProfile()}">
@@ -57,9 +57,9 @@
 			</div>
 			<jsp:include page="./components/widgets.jsp" />
 		</div>
-		<jsp:include page="../../footer.jsp" />
+		<jsp:include page="../../template/footer.jsp" />
 	</div>
-	<jsp:include page="../../scripts.jsp" />
+	<jsp:include page="../../template/scripts.jsp" />
 	<script src="<spring:url value="js/trickservice/analysis.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/highcharts.js" />"></script>
 	<script src="<spring:url value="/js/highcharts/highcharts-more.js" />"></script>

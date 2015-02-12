@@ -5,16 +5,16 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <html>
 <c:set scope="request" var="title" value="label.title.analysis.import"/>
-<jsp:include page="../header.jsp" />
+<jsp:include page="../template/header.jsp" />
 <body>
 	<div id="wrap">
-		<jsp:include page="../menu.jsp" />
+		<jsp:include page="../template/menu.jsp" />
 		<div class="container">
 			<div class="page-header">
 				<h1>
 					<spring:message code="label.title.import.analysis" text="Import a new Analysis" />
 				</h1>
-				<jsp:include page="../successErrors.jsp" />
+				<jsp:include page="../template/successErrors.jsp" />
 			</div>
 			<div id="import-container">
 				<c:if test="${!empty customers}">
@@ -78,8 +78,8 @@
 				</c:if>
 			</div>
 		</div>
-		<jsp:include page="../footer.jsp" />
-		<jsp:include page="../scripts.jsp" />
+		<jsp:include page="../template/footer.jsp" />
+		<jsp:include page="../template/scripts.jsp" />
 		<script type="text/javascript">
 			function customerChanged() {
 				var e = document.getElementById("customerId");

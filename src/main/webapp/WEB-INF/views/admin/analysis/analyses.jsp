@@ -6,7 +6,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div class="tab-pane" id="tab_analyses">
 	<div class="section" id="section_admin_analysis">
-		<jsp:include page="../../successErrors.jsp" />
+		<jsp:include page="../../template/successErrors.jsp" />
 		<ul class="nav nav-pills bordered-bottom" id="menu_admin_analysis">
 			<li class="disabled" data-trick-selectable="true" data-trick-check="isProfile('#section_admin_analysis')"><a href="#"
 				onclick="return manageAnalysisAccess(null, 'section_admin_analysis');"> <span class="glyphicon glyphicon-plus primary"></span> <spring:message

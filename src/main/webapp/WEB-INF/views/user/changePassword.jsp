@@ -7,7 +7,7 @@
 <c:set scope="request" var="title">label.title.register</c:set>
 <!DOCTYPE html>
 <html>
-<jsp:include page="header.jsp" />
+<jsp:include page="../template/header.jsp" />
 <body>
 	<div class="container">
 		<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src=<spring:url value="/data/TrickService.png" /> style="height: 200px; margin-top: 50px;">
@@ -49,8 +49,8 @@
 			</form:form>
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
-		<jsp:include page="footer.jsp" />
-		<jsp:include page="scripts.jsp" />
+		<jsp:include page="../template/footer.jsp" />
+		<jsp:include page="../template/scripts.jsp" />
 		<script type="text/javascript" src="<spring:url value="/js/trickservice/register.js" />"></script>
 	</div>
 	<!-- ################################################################ End Container ################################################################# -->

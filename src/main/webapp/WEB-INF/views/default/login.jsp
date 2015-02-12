@@ -9,7 +9,7 @@
 <!DOCTYPE html>
 <html>
 <!-- Include Header -->
-<jsp:include page="header.jsp" />
+<jsp:include page="../template/header.jsp" />
 <!-- ################################################################# Start Container ############################################################## -->
 <body>
 	<div id="wrap">
@@ -27,7 +27,7 @@
 					<c:remove var="LOGIN_ERROR" scope="session"/>
 				</c:if>
 				
-				<jsp:include page="successErrors.jsp" />
+				<jsp:include page="../template/successErrors.jsp" />
 				<form id="login_form" method="post" action="<c:url value='${pageContext.request.contextPath}/j_spring_security_check'/>">
 					<div class="form-group">
 						<input id="username" name="j_username" value="${(!empty (j_username))? j_username : ''}" placeholder="<spring:message code='label.signin.login' text='Username'/>"
@@ -57,8 +57,8 @@
 				</script>
 			</div>
 		</div>
-		<jsp:include page="footer.jsp" />
-		<jsp:include page="scripts.jsp" />
+		<jsp:include page="../template/footer.jsp" />
+		<jsp:include page="../template/scripts.jsp" />
 	</div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->

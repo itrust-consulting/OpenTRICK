@@ -78,11 +78,11 @@ public class ControllerUser {
 			// add profile to model
 			model.addAttribute("user", user);
 
-			return "userProfile";
+			return "user/profile";
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("user", null);
-			return "userProfile";
+			return "user/profile";
 		}
 
 	}
@@ -110,11 +110,11 @@ public class ControllerUser {
 			// add profile to model
 			model.addAttribute("user", user);
 
-			return "userProfile";
+			return "user/profile";
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("user", null);
-			return "userProfile";
+			return "user/profile";
 		}
 	}
 

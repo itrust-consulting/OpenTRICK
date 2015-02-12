@@ -13,7 +13,7 @@
 				</h4>
 			</div>
 			<div class="modal-body">
-				<jsp:include page="../../../successErrors.jsp" />
+				<jsp:include page="../../../template/successErrors.jsp" />
 				<form name="importStandard" method="post" action="${pageContext.request.contextPath}/KnowledgeBase/Standard/Import" class="form-inline" id="uploadStandard_form"
 					enctype="multipart/form-data">
 					<div class="row">

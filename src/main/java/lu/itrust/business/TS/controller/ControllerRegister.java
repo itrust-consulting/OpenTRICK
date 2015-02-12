@@ -98,7 +98,7 @@ public class ControllerRegister {
 	public String add(Map<String, Object> model) {
 		// create new user object and add it to model
 		model.put("user", new User());
-		return "register";
+		return "user/register";
 	}
 
 	/**
@@ -199,7 +199,7 @@ public class ControllerRegister {
 		if (attempt != null)
 			return attempt;
 		model.addAttribute("resetPassword", new ResetPasswordHelper());
-		return "resetPassword";
+		return "user/resetPassword";
 	}
 
 	public static String URL(HttpServletRequest request) {
@@ -222,7 +222,7 @@ public class ControllerRegister {
 
 		if (resetPassword.isEmpty()) {
 			result.reject("error.reset.password.field.empty", "Please enter your username or your eamil address");
-			return "resetPassword";
+			return "user/resetPassword";
 		}
 
 		try {
@@ -262,7 +262,7 @@ public class ControllerRegister {
 			return "redirect:/Login";
 		}
 		model.addAttribute("changePassword", new ChangePasswordhelper(keyControl));
-		return "changePassword";
+		return "user/changePassword";
 	}
 
 	@RequestMapping("/ChangePassword/{keyControl}/Cancel")
@@ -298,7 +298,7 @@ public class ControllerRegister {
 		if (!result.hasFieldErrors("repeatPassword") && !changePassword.getRepeatPassword().equals(changePassword.getPassword()))
 			result.rejectValue("repeatPassword", "errors.user.repeatPassword.not_same", "Passwords are not the same");
 		if (result.hasErrors())
-			return "changePassword";
+			return "user/changePassword";
 		ResetPassword resetPassword = serviceResetPassword.get(changePassword.getRequestId());
 		if (resetPassword == null)
 			return "redirect:/Login";

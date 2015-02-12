@@ -9,14 +9,14 @@
 <!DOCTYPE html>
 <html>
 <!-- Include Header -->
-<jsp:include page="../header.jsp" />
+<jsp:include page="../template/header.jsp" />
 <!-- ################################################################# Start Container ############################################################## -->
 <body>
 	<div id="wrap">
 		<!-- ################################################################### Nav Menu ################################################################### -->
-		<jsp:include page="../menu.jsp" />
+		<jsp:include page="../template/menu.jsp" />
 		<div class="container">
-			<jsp:include page="../successErrors.jsp" />
+			<jsp:include page="../template/successErrors.jsp" />
 			<!-- #################################################################### Content ################################################################### -->
 			<ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
 				<li class="active"><a href="#tab_customer" data-toggle="tab"><spring:message code="title.menu.knowledgebase.customers" text="Customers"/></a></li>
@@ -35,8 +35,8 @@
 			<!-- ################################################################ End Container ################################################################# -->
 		</div>
 		<!-- ################################################################ Include Footer ################################################################ -->
-		<jsp:include page="../footer.jsp" />
-		<jsp:include page="../scripts.jsp" />
+		<jsp:include page="../template/footer.jsp" />
+		<jsp:include page="../template/scripts.jsp" />
 		<script type="text/javascript" src="<spring:url value="js/trickservice/knowledgebase.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/jquery.fileDownload.js" />"></script>
 		<script type="text/javascript" src="<spring:url value="js/trickservice/measuredescription.js" />"></script>
