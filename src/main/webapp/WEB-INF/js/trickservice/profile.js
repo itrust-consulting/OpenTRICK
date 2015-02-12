@@ -7,8 +7,8 @@ function updateProfile(form) {
 		data : serializeForm(form),
 		success : function(response) {
 
-			$("#success").attr("hidden", "hidden");
-			$("#success div").remove();
+			$("#profileInfo").attr("hidden", "hidden");
+			$("#profileInfo div").remove();
 
 			var alert = $("#" + form + " .label-danger");
 			if (alert.length)
@@ -16,8 +16,8 @@ function updateProfile(form) {
 
 			for ( var error in response) {
 
-				$("#success").attr("hidden", "hidden");
-				$("#success div").remove();
+				$("#profileInfo").attr("hidden", "hidden");
+				$("#profileInfo div").remove();
 				var errorElement = document.createElement("label");
 				errorElement.setAttribute("class", "label label-danger");
 
@@ -49,8 +49,8 @@ function updateProfile(form) {
 					var errElement = document.createElement("div");
 					errElement.setAttribute("class", "alert alert-success");
 					$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
-					$(errElement).appendTo($("#success"));
-					$("#success").removeAttr("hidden");
+					$(errElement).appendTo($("#profileInfo"));
+					$("#profileInfo").removeAttr("hidden");
 				}
 
 				}
@@ -60,8 +60,8 @@ function updateProfile(form) {
 				var successElement = document.createElement("div");
 				successElement.setAttribute("class", "alert alert-success");
 				$(successElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + MessageResolver("label.user.update.success", "Profile successfully updated"));
-				$(successElement).appendTo($("#success"));
-				$("#success").removeAttr("hidden");
+				$(successElement).appendTo($("#profileInfo"));
+				$("#profileInfo").removeAttr("hidden");
 				var prevlang = $("#perviouslanguage").val();
 				var newlang = $("#" + form + " #locale").val();
 				if (prevlang !== newlang)
@@ -80,8 +80,8 @@ function updateProfile(form) {
 			var errElement = document.createElement("div");
 			errElement.setAttribute("class", "alert alert-success");
 			$(errElement).html("<button type='button' class='close' data-dismiss='alert'>&times;</button>" + $(errorElement).text());
-			$(errElement).appendTo($("#success"));
-			$("#success").removeAttr("hidden");
+			$(errElement).appendTo($("#profileInfo"));
+			$("#profileInfo").removeAttr("hidden");
 		},
 	});
 

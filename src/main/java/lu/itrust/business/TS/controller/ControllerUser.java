@@ -21,7 +21,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -78,44 +77,13 @@ public class ControllerUser {
 			// add profile to model
 			model.addAttribute("user", user);
 
-			return "user/profile";
+			return "user/home";
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("user", null);
-			return "user/profile";
+			return "user/home";
 		}
 
-	}
-
-	/**
-	 * profileOfUser: <br>
-	 * Description
-	 * 
-	 * @param userId
-	 * @param session
-	 * @param model
-	 * @return
-	 * @throws Exception
-	 */
-	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
-	@RequestMapping("/{userId}")
-	public String profileOfUser(@PathVariable("userId") int userId, Model model) throws Exception {
-
-		try {
-
-			User user = serviceUser.get(userId);
-
-			user.setPassword(Constant.EMPTY_STRING);
-
-			// add profile to model
-			model.addAttribute("user", user);
-
-			return "user/profile";
-		} catch (Exception e) {
-			e.printStackTrace();
-			model.addAttribute("user", null);
-			return "user/profile";
-		}
 	}
 
 	/**
