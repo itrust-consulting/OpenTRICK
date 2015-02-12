@@ -765,8 +765,21 @@ function exportAnalysisReport(analysisId) {
 		analysisId = selectedScenario[0];
 	}
 	if (userCan(analysisId, ANALYSIS_RIGHT.EXPORT)) {
-		$.fileDownload(context + '/Analysis/Export/Report/' + analysisId).fail(unknowError);
-		return false;
+		$.ajax({
+			url : context + "/Analysis/Export/Report/" + analysisId,
+			type : "get",
+			async : true,
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				if (response["success"] != undefined) 
+					application["taskManager"].Start();
+				else if (message["error"]) {
+					$("#alert-dialog .modal-body").html(message["error"]);
+					$("#alert-dialog").modal("toggle");
+				}
+			},
+			error : unknowError
+		});
 	} else
 		permissionError();
 	return false;
@@ -865,11 +878,6 @@ function duplicateAnalysis(form, analyisId) {
 		},
 		error : unknowError
 	});
-	return false;
-}
-
-function downloadExportedSqLite(idFile) {
-	$.fileDownload(context + '/Analysis/Download/' + idFile).fail(unknowError);
 	return false;
 }
 

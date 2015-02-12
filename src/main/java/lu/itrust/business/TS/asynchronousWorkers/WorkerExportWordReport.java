@@ -6,16 +6,21 @@ package lu.itrust.business.TS.asynchronousWorkers;
 import java.io.File;
 
 import lu.itrust.business.TS.data.analysis.Analysis;
+import lu.itrust.business.TS.data.general.WordReport;
 import lu.itrust.business.TS.database.dao.DAOAnalysis;
 import lu.itrust.business.TS.database.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOUserHBM;
+import lu.itrust.business.TS.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.TrickException;
 import lu.itrust.business.TS.exportation.ExportAnalysisReport;
 import lu.itrust.business.TS.messagehandler.MessageHandler;
+import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.util.FileCopyUtils;
 
 /**
  * @author eomar
@@ -78,6 +83,7 @@ public class WorkerExportWordReport implements Worker {
 				throw new TrickException("error.analysis.is_profile", "Profile cannot be exported as report");
 			else if (!analysis.hasData())
 				throw new TrickException("error.analysis.no_data", "Empty analysis cannot be exported");
+			exportAnalysisReport.setMaxProgress(98);
 			exportAnalysisReport.setIdTask(id);
 			exportAnalysisReport.exportToWordDocument(analysis, true);
 			saveWordDocument(session);
@@ -104,8 +110,29 @@ public class WorkerExportWordReport implements Worker {
 		}
 	}
 
-	private void saveWordDocument(Session session) {
-
+	private void saveWordDocument(Session session) throws Exception {
+		File file = exportAnalysisReport.getWorkFile();
+		User user = new DAOUserHBM(session).get(username);
+		Analysis analysis = exportAnalysisReport.getAnalysis();
+		WordReport report = new WordReport(analysis.getIdentifier(), analysis.getLabel(), analysis.getVersion(), user, file.getName(), file.length(),
+				FileCopyUtils.copyToByteArray(file));
+		try {
+			exportAnalysisReport.getServiceTaskFeedback().send(id, new MessageHandler("info.saving.word.report", "Saving word report", null, 99));
+			session.getTransaction().begin();
+			new DAOWordReportHBM(session).saveOrUpdate(report);
+			session.getTransaction().commit();
+			MessageHandler messageHandler = new MessageHandler("success.save.word.report", "Report has been successfully saved", null, 100);
+			messageHandler.setAsyncCallback(new AsyncCallback("downloadWordReport(\"" + report.getId() + "\")", null));
+			exportAnalysisReport.getServiceTaskFeedback().send(id, messageHandler);
+		} catch (Exception e) {
+			try {
+				if (session.getTransaction().isInitiator())
+					session.getTransaction().rollback();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			throw e;
+		}
 	}
 
 	@Override

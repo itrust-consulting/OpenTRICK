@@ -32,6 +32,7 @@ import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.data.general.Language;
 import lu.itrust.business.TS.data.general.UserSQLite;
+import lu.itrust.business.TS.data.general.WordReport;
 import lu.itrust.business.TS.data.history.History;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.measure.Measure;
@@ -58,6 +59,7 @@ import lu.itrust.business.TS.database.service.ServiceTaskFeedback;
 import lu.itrust.business.TS.database.service.ServiceUser;
 import lu.itrust.business.TS.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
+import lu.itrust.business.TS.database.service.ServiceWordReport;
 import lu.itrust.business.TS.database.service.WorkersPoolManager;
 import lu.itrust.business.TS.exception.ResourceNotFoundException;
 import lu.itrust.business.TS.exception.TrickException;
@@ -147,6 +149,9 @@ public class ControllerAnalysis {
 
 	@Autowired
 	private ServiceUserSqLite serviceUserSqLite;
+
+	@Autowired
+	private ServiceWordReport serviceWordReport;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -954,8 +959,8 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Download/{idFile}")
-	public String download(@PathVariable Integer idFile, Principal principal, HttpServletResponse response) throws Exception {
+	@RequestMapping("/Sqlite/{idFile}/Download")
+	public String downloadSqlite(@PathVariable Integer idFile, Principal principal, HttpServletResponse response) throws Exception {
 
 		// get user file by given file id and username
 		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(idFile, principal.getName());
@@ -987,6 +992,44 @@ public class ControllerAnalysis {
 	}
 
 	/**
+	 * download: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @param principal
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Report/{id}/Download")
+	public String downloadReport(@PathVariable Integer id, Principal principal, HttpServletResponse response) throws Exception {
+
+		// get user file by given file id and username
+		WordReport wordReport = serviceWordReport.getByIdAndUser(id, principal.getName());
+
+		// if file could not be found retrun 404 error
+		if (wordReport == null)
+			return "errors/404";
+
+		// set response contenttype to sqlite
+		response.setContentType("docm");
+
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_V%s.docm", wordReport.getLabel(), wordReport.getVersion()) + "\"");
+
+		// set sqlite file size as response size
+		response.setContentLength((int) wordReport.getSize());
+
+		// return the sqlite file (as copy) to the response outputstream ( whihc
+		// creates on the
+		// client side the sqlite file)
+		FileCopyUtils.copy(wordReport.getFile(), response.getOutputStream());
+
+		// return
+		return null;
+	}
+
+	/**
 	 * computeRiskRegister: <br>
 	 * Description
 	 * 
@@ -995,7 +1038,7 @@ public class ControllerAnalysis {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Export/Report/{analysisId}")
+	@RequestMapping(value = "/Export/Report/{analysisId}", method = RequestMethod.GET, headers = "Accept=application/json")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.TS.data.analysis.rights.AnalysisRight).EXPORT)")
 	public @ResponseBody String exportReport(@PathVariable Integer analysisId, HttpServletRequest request, Principal principal, Locale locale) {
 		try {

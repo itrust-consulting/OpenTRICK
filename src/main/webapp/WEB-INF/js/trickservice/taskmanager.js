@@ -21,7 +21,7 @@ function TaskManager(title) {
 	};
 
 	TaskManager.prototype.Show = function() {
-		if (this.view == null || this.view == undefined)
+		if (this.view == null || this.view == undefined || this.view.isDisposed)
 			this.__CreateView();
 		this.view.Show();
 	};
@@ -56,7 +56,8 @@ function TaskManager(title) {
 					if (!instance.isEmpty())
 						instance.Show();
 				}
-			},error : unknowError
+			},
+			error : unknowError
 		});
 		return false;
 	};
@@ -68,7 +69,7 @@ function TaskManager(title) {
 		var instance = this;
 		progressBar.Initialise();
 		progressBar.progress.setAttribute("id", "task_" + taskId);
-		if(this.view!=null && this.view.modal_body)
+		if (this.view != null && this.view.modal_body)
 			progressBar.Anchor(this.view.modal_body);
 		progressBar.OnComplete(function(sender) {
 			setTimeout(function() {
@@ -121,7 +122,7 @@ function TaskManager(title) {
 						instance.Remove(taskId);
 					}, 10000);
 					if (reponse.asyncCallback != undefined && reponse.asyncCallback != null) {
-						if (reponse.asyncCallback.args !=null && reponse.asyncCallback.args.length)
+						if (reponse.asyncCallback.args != null && reponse.asyncCallback.args.length)
 							window[reponse.asyncCallback.action].apply(null, reponse.asyncCallback.args);
 						else
 							eval(reponse.asyncCallback.action);
@@ -129,7 +130,8 @@ function TaskManager(title) {
 						eval(reponse.taskName.action);
 				}
 				return false;
-			},error : unknowError
+			},
+			error : unknowError
 		});
 	};
 };

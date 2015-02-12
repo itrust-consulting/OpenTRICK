@@ -21,6 +21,16 @@ function unknowError(jqXHR, textStatus, errorThrown) {
 	return true;
 }
 
+function downloadWordReport(id) {
+	$.fileDownload(context + '/Analysis/Report/' + id + "/Download").fail(unknowError);
+	return false;
+}
+
+function downloadExportedSqLite(id) {
+	$.fileDownload(context + '/Analysis/Sqlite/' + id + "/Download").fail(unknowError);
+	return false;
+}
+
 $(function() {
 
 	// prevent unknown error modal display
@@ -74,8 +84,6 @@ $(function() {
 	});
 
 });
-
-
 
 $.fn.removeAttributes = function(only, except) {
 	if (only) {
@@ -328,8 +336,8 @@ function isSelected(sectionName) {
 function checkControlChange(checkbox, sectionName, appModalVar) {
 	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input") : $(application[appModalVar].modal).find(
 			"tbody tr td:first-child input");
-	var multiSelectAllowed = ((appModalVar == undefined || appModalVar == null) ? $("#menu_" + sectionName + " li[data-trick-selectable='multi']") : $(application[appModalVar].modal)
-			.find("#menu_" + sectionName + " li[data-trick-selectable='multi']")).length > 0;
+	var multiSelectAllowed = ((appModalVar == undefined || appModalVar == null) ? $("#menu_" + sectionName + " li[data-trick-selectable='multi']") : $(
+			application[appModalVar].modal).find("#menu_" + sectionName + " li[data-trick-selectable='multi']")).length > 0;
 	if (!multiSelectAllowed) {
 		$(checkbox).prop("disabled", true);
 		$(checkbox).prop("checked", false);
@@ -350,8 +358,8 @@ function updateMenu(sender, idsection, idMenu, appModalVar) {
 	if (sender) {
 		if ($(sender).is(":checked")) {
 			$(sender).parent().parent().addClass("info")
-			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $(idMenu + " li[data-trick-selectable='multi']") : $(application[appModalVar].modal).find(
-					idMenu + " li[data-trick-selectable='multi']")).length == 0;
+			var multiSelectNotAllowed = ((appModalVar == undefined || appModalVar == null) ? $(idMenu + " li[data-trick-selectable='multi']") : $(application[appModalVar].modal)
+					.find(idMenu + " li[data-trick-selectable='multi']")).length == 0;
 			if (multiSelectNotAllowed) {
 				var items = (appModalVar == undefined || appModalVar == null) ? $(idsection + " tbody :checked") : $(application[appModalVar].modal).find("tbody :checked");
 				for (var i = 0; i < items.length; i++) {
