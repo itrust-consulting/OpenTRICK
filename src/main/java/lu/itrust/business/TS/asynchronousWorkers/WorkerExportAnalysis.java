@@ -120,7 +120,7 @@ public class WorkerExportAnalysis implements Worker {
 				if (messageHandler != null)
 					error = messageHandler.getException();
 				else
-					saveSqLite(session, analysis.getIdentifier());
+					saveSqLite(session, analysis);
 			}
 		} catch (HibernateException e) {
 			this.error = e;
@@ -153,7 +153,7 @@ public class WorkerExportAnalysis implements Worker {
 
 	}
 
-	private void saveSqLite(Session session, String analysisIdentifier) {
+	private void saveSqLite(Session session, Analysis analysis) {
 		DAOUser daoUser = new DAOUserHBM(session);
 		DAOUserSqLite daoUserSqLite = new DAOUserSqLiteHBM(session);
 		Transaction transaction = null;
@@ -167,9 +167,7 @@ public class WorkerExportAnalysis implements Worker {
 				serviceTaskFeedback.send(id, new MessageHandler("error.export.save.file.abort", "File cannot be save",null, null));
 				return;
 			}
-			UserSQLite userSqLite = new UserSQLite(sqlite.getName(), user, FileCopyUtils.copyToByteArray(sqlite));
-			userSqLite.setSize(sqlite.length());
-			userSqLite.setAnalysisIdentifier(analysisIdentifier);
+			UserSQLite userSqLite = new UserSQLite(analysis.getIdentifier(),analysis.getLabel(),analysis.getVersion(),sqlite.getName(), user, FileCopyUtils.copyToByteArray(sqlite), sqlite.length());
 			transaction = session.beginTransaction();
 			daoUserSqLite.saveOrUpdate(userSqLite);
 			transaction.commit();

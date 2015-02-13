@@ -11,6 +11,8 @@ import lu.itrust.business.TS.constants.Constant;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceUser;
+import lu.itrust.business.TS.database.service.ServiceUserSqLite;
+import lu.itrust.business.TS.database.service.ServiceWordReport;
 import lu.itrust.business.TS.usermanagement.User;
 import lu.itrust.business.TS.validator.UserValidator;
 import lu.itrust.business.TS.validator.field.ValidatorField;
@@ -24,6 +26,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -51,6 +54,12 @@ public class ControllerUser {
 
 	@Autowired
 	private MessageSource messageSource;
+	
+	@Autowired
+	private ServiceUserSqLite serviceUserSqLite;
+	
+	@Autowired
+	private ServiceWordReport serviceWordReport;
 
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
@@ -84,6 +93,19 @@ public class ControllerUser {
 			return "user/home";
 		}
 
+	}
+	
+	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public String sectionSqlite(@RequestParam(defaultValue="1") Integer page,Principal principal, Model model) throws Exception {
+		model.addAttribute("sqlites", serviceUserSqLite.getAllFromUserByPageAndSizeIndex(principal.getName(), page, 60));
+		return "user/sqlites";
+	}
+	
+	@RequestMapping(value = "/Section/Report", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public String sectionReport(@RequestParam(defaultValue="1") Integer page,Principal principal, Model model){
+		model.addAttribute("reports", serviceWordReport.getAllFromUser(principal.getName(), page, 60));
+		return "user/reports";
+		
 	}
 
 	/**

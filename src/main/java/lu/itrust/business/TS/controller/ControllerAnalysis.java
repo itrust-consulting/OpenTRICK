@@ -973,7 +973,7 @@ public class ControllerAnalysis {
 		response.setContentType("sqlite");
 
 		// retireve sqlite file name to set
-		String identifierName = userSqLite.getAnalysisIdentifier();
+		String identifierName = userSqLite.getIdentifier();
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""

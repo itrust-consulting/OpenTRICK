@@ -61,7 +61,7 @@ public class ControllerHome {
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/Home")
 	public String home(Model model, Principal principal, SessionLocaleResolver session, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		model.addAttribute("userSqLites", serviceUserSqLite.getByFileName(principal.getName()));
+		model.addAttribute("userSqLites", serviceUserSqLite.getByFilename(principal.getName()));
 		return "default/home";
 	}
 

@@ -43,15 +43,15 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * getByFileName: <br>
 	 * Description
 	 * 
-	 * @param fileName
+	 * @param filename
 	 * @return
 	 * @throws Exception
 	 * 
-	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#getByFileName(java.lang.String)
+	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#getByFilename(java.lang.String)
 	 */
 	@Override
-	public UserSQLite getByFileName(String fileName) throws Exception {
-		return daoUserSqLite.getByFileName(fileName);
+	public UserSQLite getByFilename(String filename) throws Exception {
+		return daoUserSqLite.getByFilename(filename);
 	}
 
 	/**
@@ -170,15 +170,15 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	 * delete: <br>
 	 * Description
 	 * 
-	 * @param fileName
+	 * @param filename
 	 * @throws Exception
 	 * 
 	 * @see lu.itrust.business.TS.database.service.ServiceUserSqLite#delete(java.lang.String)
 	 */
 	@Transactional
 	@Override
-	public void delete(String fileName) throws Exception {
-		daoUserSqLite.delete(fileName);
+	public void delete(String filename) throws Exception {
+		daoUserSqLite.delete(filename);
 	}
 
 	/**

@@ -15,7 +15,7 @@ import lu.itrust.business.TS.data.general.UserSQLite;
 public interface ServiceUserSqLite {
 	public UserSQLite get(Integer id) throws Exception;
 
-	public UserSQLite getByFileName(String fileName) throws Exception;
+	public UserSQLite getByFilename(String filename) throws Exception;
 
 	public UserSQLite getByIdAndUser(Integer idFile, String username) throws Exception;
 
@@ -31,7 +31,7 @@ public interface ServiceUserSqLite {
 
 	public void delete(Integer idUserSqLite) throws Exception;
 
-	public void delete(String fileName) throws Exception;
+	public void delete(String filename) throws Exception;
 
 	public void delete(UserSQLite userSqLite) throws Exception;
 }

@@ -52,11 +52,11 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * getByFileName: <br>
 	 * Description
 	 * 
-	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#getByFileName(java.lang.String)
+	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#getByFilename(java.lang.String)
 	 */
 	@Override
-	public UserSQLite getByFileName(String fileName) throws Exception {
-		return (UserSQLite) getSession().createQuery("From UserSQLite where fileName = :fileName").setParameter("fileName", fileName).uniqueResult();
+	public UserSQLite getByFilename(String filename) throws Exception {
+		return (UserSQLite) getSession().createQuery("From UserSQLite where filename = :filename").setParameter("filename", filename).uniqueResult();
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserSQLite> getAllFromUser(String username) throws Exception {
-		return getSession().createQuery("From UserSQLite where user.login = :username").setParameter("username", username).list();
+		return getSession().createQuery("From UserSQLite where user.login = :username order by exportTime desc").setParameter("username", username).list();
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserSQLite> getAllFromUserByPageAndSizeIndex(String username, Integer pageIndex, Integer pageSize) throws Exception {
-		String query = "From UserSQLite where user.login = :username";
+		String query = "From UserSQLite where user.login = :username order by exportTime desc";
 		return getSession().createQuery(query).setParameter("username", username).setFirstResult((pageIndex - 1) * pageSize).setMaxResults(pageSize).list();
 	}
 
@@ -149,8 +149,8 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	 * @see lu.itrust.business.TS.database.dao.DAOUserSqLite#delete(java.lang.String)
 	 */
 	@Override
-	public void delete(String fileName) throws Exception {
-		delete(getByFileName(fileName));
+	public void delete(String filename) throws Exception {
+		delete(getByFilename(filename));
 	}
 
 	/**
