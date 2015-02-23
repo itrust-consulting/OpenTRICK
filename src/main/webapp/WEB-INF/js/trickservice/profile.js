@@ -8,7 +8,7 @@ $(function() {
 	});
 });
 
-function loadUserSqlite(){
+function loadUserSqlite() {
 	$.ajax({
 		url : context + "/Profile/Section/Sqlite",
 		type : "get",
@@ -18,6 +18,12 @@ function loadUserSqlite(){
 			var parser = new DOMParser();
 			var $section = $(parser.parseFromString(response, "text/html")).find("#section_sqlite");
 			$("#section_sqlite").replaceWith($section);
+			setTimeout(function() {
+				$("#section_sqlite table").stickyTableHeaders({
+					cssTopOffset : ".nav-tab",
+					fixedOffset : 6
+				});
+			}, 500);
 			return false;
 		},
 		error : unknowError
@@ -25,7 +31,19 @@ function loadUserSqlite(){
 	return true;
 }
 
-function loadUserReport(){
+function updateReportControl(element){
+	if(element!=undefined && !$(element).is(":checked"))
+		return false;
+	console.log("here");
+}
+
+function updateSqliteControl(element){
+	if(element!=undefined && !$(element).is(":checked"))
+		return false;
+	console.log("here");
+}
+
+function loadUserReport() {
 	$.ajax({
 		url : context + "/Profile/Section/Report",
 		type : "get",
@@ -35,6 +53,12 @@ function loadUserReport(){
 			var parser = new DOMParser();
 			var $section = $(parser.parseFromString(response, "text/html")).find("#section_report");
 			$("#section_report").replaceWith($section);
+			setTimeout(function() {
+				$("#section_report table").stickyTableHeaders({
+					cssTopOffset : ".nav-tab",
+					fixedOffset : 6
+				});
+			}, 500);
 			return false;
 		},
 		error : unknowError

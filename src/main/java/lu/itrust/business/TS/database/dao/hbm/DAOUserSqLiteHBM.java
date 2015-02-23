@@ -6,7 +6,9 @@ package lu.itrust.business.TS.database.dao.hbm;
 import java.util.List;
 
 import lu.itrust.business.TS.data.general.UserSQLite;
+import lu.itrust.business.TS.data.general.helper.FilterControl;
 import lu.itrust.business.TS.database.dao.DAOUserSqLite;
+import lu.itrust.business.TS.usermanagement.User;
 
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -162,5 +164,26 @@ public class DAOUserSqLiteHBM extends DAOHibernate implements DAOUserSqLite {
 	@Override
 	public void delete(UserSQLite userSqLite) throws Exception {
 		getSession().delete(userSqLite);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> getDistinctIdentifierByUser(User user) {
+		return getSession().createQuery("Select distinct identifier From UserSQLite where user = :user order by identifier desc").setParameter("user", user).list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UserSQLite> getAllFromUserByPageAndFilterControl(String username, Integer page, FilterControl filter) {
+		if (!filter.validate())
+			throw new IllegalArgumentException();
+		if ("ALL".equalsIgnoreCase(filter.getFilter()))
+			return getSession().createQuery(String.format("From UserSQLite where user.login = :username order by %s %s", filter.getSort(), filter.getDirection()))
+					.setParameter("username", username).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).list();
+		else
+			return getSession()
+					.createQuery(String.format("From UserSQLite where user.login = :username and identifier = :filter order by %s %s", filter.getSort(), filter.getDirection()))
+					.setParameter("username", username).setString("filter", filter.getFilter()).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize())
+					.list();
 	}
 }

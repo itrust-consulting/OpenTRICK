@@ -3,6 +3,8 @@ package lu.itrust.business.TS.database.dao;
 import java.util.List;
 
 import lu.itrust.business.TS.data.general.UserSQLite;
+import lu.itrust.business.TS.data.general.helper.FilterControl;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * DAOUserSqLite.java: <br>
@@ -34,4 +36,8 @@ public interface DAOUserSqLite {
 	public void delete(String filename) throws Exception;
 
 	public void delete(UserSQLite userSqLite) throws Exception;
+
+	public List<String> getDistinctIdentifierByUser(User user);
+
+	public List<UserSQLite> getAllFromUserByPageAndFilterControl(String username, Integer page, FilterControl filter);
 }

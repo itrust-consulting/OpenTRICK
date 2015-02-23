@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -60,8 +59,7 @@ public class ControllerHome {
 
 	@PreAuthorize(Constant.ROLE_MIN_USER)
 	@RequestMapping("/Home")
-	public String home(Model model, Principal principal, SessionLocaleResolver session, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		model.addAttribute("userSqLites", serviceUserSqLite.getByFilename(principal.getName()));
+	public String home() throws Exception {
 		return "default/home";
 	}
 
@@ -79,7 +77,6 @@ public class ControllerHome {
 
 	@RequestMapping("/Login")
 	public String login(HttpServletRequest request, HttpServletResponse response, Locale locale, Model model) {
-
 		if (request.getParameter("registerSuccess") != null) {
 			model.addAttribute("success", messageSource.getMessage("success.create.account", null, "Account has been created successfully", locale));
 			model.addAttribute("j_username", request.getParameter("login") == null ? "" : request.getParameter("login"));

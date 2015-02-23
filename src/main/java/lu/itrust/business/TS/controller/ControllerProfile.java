@@ -6,8 +6,10 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.general.helper.FilterControl;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceRole;
 import lu.itrust.business.TS.database.service.ServiceUser;
@@ -34,7 +36,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * ControllerUser.java: <br>
+ * ControllerProfile.java: <br>
  * Detailed description...
  * 
  * @author eomar, itrust consulting s.à.rl.
@@ -44,7 +46,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/Profile")
 @Controller
-public class ControllerUser {
+public class ControllerProfile {
+
+	private static final String FILTER_CONTROL_SQLITE = "SQLITE";
+
+	private static final String FILTER_CONTROL_REPORT = "REPORT";
+
+	private static final String FILTER_CONTROL_SORT_KEY = "%s_SORT";
+
+	private static final String FILTER_CONTROL_SORT_DIRCTION_KEY = "%s_SORT_DIRECTION";
+
+	private static final String FILTER_CONTROL_SIZE_KEY = "%s_SIZE";
+
+	private static final String FILTER_CONTROL_FILTER_KEY = "%s_FILTER";
 
 	@Autowired
 	private ServiceUser serviceUser;
@@ -54,10 +68,10 @@ public class ControllerUser {
 
 	@Autowired
 	private MessageSource messageSource;
-	
+
 	@Autowired
 	private ServiceUserSqLite serviceUserSqLite;
-	
+
 	@Autowired
 	private ServiceWordReport serviceWordReport;
 
@@ -75,37 +89,56 @@ public class ControllerUser {
 	 * @throws Exception
 	 */
 	@RequestMapping
-	public String profile(Model model, Principal principal) {
-
-		try {
-
-			User user = serviceUser.get(principal.getName());
-
-			user.setPassword(Constant.EMPTY_STRING);
-
-			// add profile to model
-			model.addAttribute("user", user);
-
-			return "user/home";
-		} catch (Exception e) {
-			e.printStackTrace();
-			model.addAttribute("user", null);
-			return "user/home";
-		}
-
+	public String home(Model model, HttpSession session, Principal principal) throws Exception {
+		if (principal == null)
+			return "redirect:/Logout";
+		User user = serviceUser.get(principal.getName());
+		if (user == null)
+			return "redirect:/Logout";
+		user.setPassword(Constant.EMPTY_STRING);
+		// add profile to model
+		model.addAttribute("user", user);
+		model.addAttribute("sqliteIdentifiers", serviceUserSqLite.getDistinctIdentifierByUser(user));
+		model.addAttribute("reportIdentifiers", serviceWordReport.getDistinctIdentifierByUser(user));
+		FilterControl filterControl = buildFromUser(user, FILTER_CONTROL_SQLITE);
+		session.setAttribute("sqliteControl", filterControl);
+		filterControl = buildFromUser(user, FILTER_CONTROL_REPORT);
+		session.setAttribute("reportControl", filterControl);
+		return "user/home";
 	}
-	
+
+	private FilterControl buildFromUser(User user, String type) {
+		String sort = user.getSetting(String.format(FILTER_CONTROL_SORT_KEY, type)), direction = user.getSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type)), filter = user
+				.getSetting(String.format(FILTER_CONTROL_FILTER_KEY, type));
+		Integer size = user.getInteger(String.format(FILTER_CONTROL_SIZE_KEY, type));
+		if (size == null)
+			size = 30;
+		if (sort == null)
+			sort = "identifier";
+		if (filter == null)
+			filter = "ALL";
+		if(direction == null)
+			direction = "asc";
+		return new FilterControl(sort, direction, size, filter);
+	}
+
 	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public String sectionSqlite(@RequestParam(defaultValue="1") Integer page,Principal principal, Model model) throws Exception {
-		model.addAttribute("sqlites", serviceUserSqLite.getAllFromUserByPageAndSizeIndex(principal.getName(), page, 60));
+	public String sectionSqlite(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) throws Exception {
+		FilterControl filter = (FilterControl) session.getAttribute("sqliteControl");
+		if (filter == null)
+			filter = new FilterControl();
+		model.addAttribute("sqlites", serviceUserSqLite.getAllFromUserByFilterControl(principal.getName(), page, filter));
 		return "user/sqlites";
 	}
-	
+
 	@RequestMapping(value = "/Section/Report", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
-	public String sectionReport(@RequestParam(defaultValue="1") Integer page,Principal principal, Model model){
-		model.addAttribute("reports", serviceWordReport.getAllFromUser(principal.getName(), page, 60));
+	public String sectionReport(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) {
+		FilterControl filter = (FilterControl) session.getAttribute("sqliteControl");
+		if (filter == null)
+			filter = new FilterControl();
+		model.addAttribute("reports", serviceWordReport.getAllFromUserByFilterControl(principal.getName(), page, filter));
 		return "user/reports";
-		
+
 	}
 
 	/**
@@ -120,7 +153,8 @@ public class ControllerUser {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
-	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, Principal principal, HttpServletResponse response) throws Exception {
+	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes, Locale locale, Principal principal, HttpServletResponse response)
+			throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<>();
 

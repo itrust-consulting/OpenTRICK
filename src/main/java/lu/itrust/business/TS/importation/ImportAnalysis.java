@@ -36,6 +36,8 @@ import lu.itrust.business.TS.data.parameter.MaturityParameter;
 import lu.itrust.business.TS.data.parameter.Parameter;
 import lu.itrust.business.TS.data.parameter.ParameterType;
 import lu.itrust.business.TS.data.parameter.helper.Bounds;
+import lu.itrust.business.TS.data.parameter.helper.ExtendedParameterComparator;
+import lu.itrust.business.TS.data.parameter.helper.ParameterManager;
 import lu.itrust.business.TS.data.riskinformation.RiskInformation;
 import lu.itrust.business.TS.data.scenario.Scenario;
 import lu.itrust.business.TS.data.scenario.ScenarioType;
@@ -451,8 +453,8 @@ public class ImportAnalysis {
 		// * add the language to the object variable
 		// ****************************************************************
 		this.analysis.setLanguage(language);
-		
-		if(analysis.isProfile()){
+
+		if (analysis.isProfile()) {
 			Timestamp ts = new Timestamp(System.currentTimeMillis());
 
 			SimpleDateFormat outDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -1435,6 +1437,8 @@ public class ImportAnalysis {
 		// execute query
 		rs = sqlite.query(query, null);
 
+		List<ExtendedParameter> extendedParameters = new ArrayList<ExtendedParameter>();
+
 		// retrieve results
 		while (rs.next()) {
 
@@ -1457,7 +1461,7 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(extenededParameter);
+			extendedParameters.add(extenededParameter);
 		}
 
 		// close result
@@ -1470,6 +1474,16 @@ public class ImportAnalysis {
 		// ****************************************************************
 		// * retrieve parameter type label
 		// ****************************************************************
+
+		Comparator<ExtendedParameter> comparator = new ExtendedParameterComparator();
+
+		Collections.sort(extendedParameters, comparator);
+
+		ParameterManager.ComputeImpactValue(extendedParameters);
+
+		this.analysis.getParameters().addAll(extendedParameters);
+
+		extendedParameters.clear();
 
 		parameterType = daoParameterType.get(Constant.PARAMETERTYPE_TYPE_PROPABILITY);
 
@@ -1519,11 +1533,19 @@ public class ImportAnalysis {
 			// ****************************************************************
 			// * add instance to list of parameters
 			// ****************************************************************
-			this.analysis.addAParameter(extenededParameter);
+			extendedParameters.add(extenededParameter);
 		}
 
 		// close result
 		rs.close();
+
+		Collections.sort(extendedParameters, comparator);
+
+		ParameterManager.ComputeImpactValue(extendedParameters);
+
+		this.analysis.getParameters().addAll(extendedParameters);
+
+		extendedParameters.clear();
 
 		// recalculate parameter scales of impact and probability
 		// this.analysis.computeParameterScales();

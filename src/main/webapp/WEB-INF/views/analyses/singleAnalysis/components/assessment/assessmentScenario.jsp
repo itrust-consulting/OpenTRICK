@@ -171,10 +171,10 @@
 					<c:when test="${show_uncertainty}">
 						<c:choose>
 							<c:when test="${show_cssf}">
-								<td colspan="7"><fmt:message key="label.total.ale" /></td>
+								<td colspan="8"><fmt:message key="label.total.ale" /></td>
 							</c:when>
 							<c:otherwise>
-								<td colspan="4"><fmt:message key="label.total.ale" /></td>
+								<td colspan="5"><fmt:message key="label.total.ale" /></td>
 							</c:otherwise>
 						</c:choose>
 						<fmt:setLocale value="fr" scope="session" />

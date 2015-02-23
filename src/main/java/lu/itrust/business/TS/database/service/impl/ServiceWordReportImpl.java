@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lu.itrust.business.TS.data.general.WordReport;
+import lu.itrust.business.TS.data.general.helper.FilterControl;
 import lu.itrust.business.TS.database.dao.DAOWordReport;
 import lu.itrust.business.TS.database.service.ServiceWordReport;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author eomar
@@ -124,6 +126,16 @@ public class ServiceWordReportImpl implements ServiceWordReport {
 	@Override
 	public void delete(WordReport wordReport) {
 		daoWordReport.delete(wordReport);
+	}
+
+	@Override
+	public List<String> getDistinctIdentifierByUser(User user) {
+		return daoWordReport.getDistinctIdentifierByUser(user);
+	}
+
+	@Override
+	public List<WordReport> getAllFromUserByFilterControl(String username, Integer page, FilterControl filter) {
+		return daoWordReport.getAllFromUserByFilterControl(username,page,filter);
 	}
 
 }

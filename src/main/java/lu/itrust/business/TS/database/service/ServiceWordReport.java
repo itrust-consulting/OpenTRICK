@@ -6,6 +6,8 @@ package lu.itrust.business.TS.database.service;
 import java.util.List;
 
 import lu.itrust.business.TS.data.general.WordReport;
+import lu.itrust.business.TS.data.general.helper.FilterControl;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * @author eomar
@@ -23,6 +25,8 @@ public interface ServiceWordReport {
 
 	List<WordReport> getAllFromUser(String username, Integer pageIndex, Integer pageSize);
 	
+	List<WordReport> getAllFromUserByFilterControl(String name, Integer page, FilterControl filter);
+	
 	List<WordReport> getAllFromUserAndIdentifier(String username,String identifier, Integer pageIndex, Integer pageSize);
 
 	WordReport save(WordReport wordReport);
@@ -36,4 +40,7 @@ public interface ServiceWordReport {
 	void delete(String filename);
 
 	void delete(WordReport wordReport);
+
+	List<String> getDistinctIdentifierByUser(User user);
+
 }

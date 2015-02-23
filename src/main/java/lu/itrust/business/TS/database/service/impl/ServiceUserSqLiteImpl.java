@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lu.itrust.business.TS.data.general.UserSQLite;
+import lu.itrust.business.TS.data.general.helper.FilterControl;
 import lu.itrust.business.TS.database.dao.DAOUserSqLite;
 import lu.itrust.business.TS.database.service.ServiceUserSqLite;
+import lu.itrust.business.TS.usermanagement.User;
 
 /**
  * ServiceUserSqLiteImpl.java: <br>
@@ -194,5 +196,15 @@ public class ServiceUserSqLiteImpl implements ServiceUserSqLite {
 	@Override
 	public void delete(UserSQLite userSqLite) throws Exception {
 		daoUserSqLite.delete(userSqLite);
+	}
+
+	@Override
+	public List<String> getDistinctIdentifierByUser(User user) {
+		return daoUserSqLite.getDistinctIdentifierByUser(user);
+	}
+
+	@Override
+	public List<UserSQLite> getAllFromUserByFilterControl(String username, Integer page, FilterControl filter) {
+		return daoUserSqLite.getAllFromUserByPageAndFilterControl(username,page, filter);
 	}
 }

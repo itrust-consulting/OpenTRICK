@@ -167,10 +167,10 @@
 					<c:when test="${show_uncertainty}">
 						<c:choose>
 							<c:when test="${show_cssf}">
-								<td colspan="6"><fmt:message key="label.total.ale" /></td>
+								<td colspan="7"><fmt:message key="label.total.ale" /></td>
 							</c:when>
 							<c:otherwise>
-								<td colspan="3"><fmt:message key="label.total.ale" /></td>
+								<td colspan="4"><fmt:message key="label.total.ale" /></td>
 							</c:otherwise>
 						</c:choose>
 						<td title="<fmt:formatNumber value="${aleo.value}" maxFractionDigits="2" /> &euro;"><fmt:formatNumber value="${fct:round(aleo.value*0.001,0)}" maxFractionDigits="0" /></td>
