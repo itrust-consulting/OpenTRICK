@@ -231,8 +231,9 @@ public class WorkerAnalysisImport implements Worker {
 						return;
 				if (canceled || working)
 					return;
-				working = true;
+				OnStarted();
 			}
+			OnStarted();
 			DatabaseHandler DatabaseHandler = new DatabaseHandler(fileName);
 			if (importAnalysis.getAnalysis() == null) {
 				Analysis analysis = new Analysis(customer, owner);
@@ -244,18 +245,22 @@ public class WorkerAnalysisImport implements Worker {
 				OnSuccess();
 		} catch (Exception e) {
 			error = e;
+			importAnalysis.getServiceTaskFeedback().send(id, new MessageHandler("error.unknown.occurred", "An unknown error occurred",null,e));
+			e.printStackTrace();
 		} finally {
 			synchronized (this) {
 				working = false;
-				if (canDeleteFile) {
-					File file = new File(fileName);
-					if (file.exists())
-						file.delete();
-				}
+				File file = new File(fileName);
+				if (canDeleteFile && file.exists())
+					file.delete();
 			}
 			if (poolManager != null)
 				poolManager.remove(getId());
 		}
+	}
+
+	protected synchronized void OnStarted() throws Exception {
+		working = true;
 	}
 
 	@Override

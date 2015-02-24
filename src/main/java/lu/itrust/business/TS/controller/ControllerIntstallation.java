@@ -79,42 +79,6 @@ public class ControllerIntstallation {
 	private String defaultProfileSqlitePath;
 
 	/**
-	 * install: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param principal
-	 * @param request
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/Install")
-	public String install(Model model, Principal principal, HttpServletRequest request) throws Exception {
-		return "redirect:/RemoveDefaultProfile";
-	}
-
-	/**
-	 * removeDefault: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param principal
-	 * @param request
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/RemoveDefaultProfile")
-	public String removeDefault(Model model, Principal principal, HttpServletRequest request) throws Exception {
-
-		Analysis analysis = serviceAnalysis.getDefaultProfile();
-
-		if (analysis != null)
-			serviceAnalysis.delete(analysis);
-
-		return "redirect:/InstallTS";
-	}
-
-	/**
 	 * installTS: <br>
 	 * Description
 	 * 
@@ -125,7 +89,7 @@ public class ControllerIntstallation {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/InstallTS")
+	@RequestMapping("/Install")
 	public @ResponseBody Map<String, String> installTS(Model model, Principal principal, HttpServletRequest request, Locale locale) throws Exception {
 
 		Map<String, String> errors = new LinkedHashMap<String, String>();

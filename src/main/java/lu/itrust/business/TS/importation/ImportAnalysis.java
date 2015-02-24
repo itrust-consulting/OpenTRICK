@@ -319,7 +319,7 @@ public class ImportAnalysis {
 				}
 			});
 
-			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.switch.read.only.preview", "Turn on readonly all preview version", null, 95));
+			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.switch.read.only.previous", "Turn on readonly all previous version", null, 95));
 			Integer idAnalysis = daoAnalysis.getIdFromIdentifierAndVersion(analysis.getIdentifier(), versions.get(0));
 			ManageAnalysisRight manageAnalysisRight = new ManageAnalysisRight();
 			manageAnalysisRight.setDaoAnalysis(daoAnalysis);
@@ -341,6 +341,8 @@ public class ImportAnalysis {
 			clearData();
 			if (session != null)
 				session.close();
+			if(sqlite !=null)
+				sqlite.close();
 		}
 	}
 
