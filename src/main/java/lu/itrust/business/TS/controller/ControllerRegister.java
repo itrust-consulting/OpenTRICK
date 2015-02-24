@@ -80,8 +80,11 @@ public class ControllerRegister {
 
 	@Value("${app.settings.time.to.valid.reset.password}")
 	private int timeoutValue;
+	
+	@Value("${app.settings.time.attempt.tiemout}")
+	private int attemptTimeout;
 
-	@Value("${app.settings.time.hostserver}")
+	@Value("${app.settings.hostserver}")
 	private String hostServer;
 
 	@Value("${app.settings.max.attempt}")
@@ -183,7 +186,7 @@ public class ControllerRegister {
 		if (attempt == null)
 			attempt = 1;
 		else {
-			if (++attempt > maxAttempt && (System.currentTimeMillis() - session.getLastAccessedTime()) < timeoutValue)
+			if (++attempt > maxAttempt && (System.currentTimeMillis() - session.getLastAccessedTime()) < attemptTimeout)
 				return "redirect:/Login";
 			if (attempt > maxAttempt)
 				attempt = 1;
@@ -238,7 +241,7 @@ public class ControllerRegister {
 				serviceEmailSender.sendResetPassword(resetPassword2, hostServer + "/ChangePassword/" + resetPassword2.getKeyControl());
 			}
 			attributes.addFlashAttribute("success",
-					messageSource.getMessage("success.reset.password.email.send", null, "You will receive an email to reset your password, you have 15 minutes to do.", locale));
+					messageSource.getMessage("success.reset.password.email.send", null, "You will receive an email to reset your password, you have one hour to do.", locale));
 
 		} catch (Exception e) {
 			e.printStackTrace();

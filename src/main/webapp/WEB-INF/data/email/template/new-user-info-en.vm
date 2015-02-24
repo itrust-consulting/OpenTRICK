@@ -120,7 +120,8 @@
                                 <div class="contentEditable" align='center'>
 								<h4 align="left">Hello ${user.login},</h4>
                                    <p style="margin-top:5px;">
-                                   TRICK Service is An easy to use web application designed to conduct risk assessments according to ISO 27005 or CSSF 12/544. A wide variety of features such as multi-user support, quantitative analysis of risk scenarios, maturity assessment, access controls, import/export, risk analysis versioning, definition of risk profiles, embedding of own security control catalogues or international standards lead to an efficient risk management.
+									Your user account has been successfully created and you’re now ready to use TRICK Service.<br>
+									This is an automatically generated message, please do not reply to it.
                                   </p>
                                 </div>
                               </div>

@@ -55,40 +55,23 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 	 */
 	@Override
 	public void sendRegistrationMail(final List<User> recipients, final User user) throws Exception {
-		if (recipients == null || recipients.isEmpty()) {
-			MimeMessagePreparator preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws Exception {
-					Locale locale = user.getLocaleObject();
-					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
-					message.setSubject(messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
-					Map<String, Object> model = new LinkedHashMap<String, Object>();
-					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
-					model.put("user", user);
-					message.setText(
-							VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
-									+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.vm" : "new-user-info-en.vm"), "UTF-8", model), true);
-					message.setTo(user.getEmail());
-				}
-			};
-			javaMailSender.send(preparator);
-		} else {
-			MimeMessagePreparator preparator = new MimeMessagePreparator() {
-				public void prepare(MimeMessage mimeMessage) throws Exception {
-					Locale locale = user.getLocaleObject();
-					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-					message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
-					message.setSubject(messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
-					Map<String, Object> model = new LinkedHashMap<String, Object>();
-					model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
-					model.put("user", user);
-					message.setText(
-							VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
-									+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.vm" : "new-user-info-en.vm"), "UTF-8", model), true);
-					message.setTo(user.getEmail());
-				}
-			};
-			javaMailSender.send(preparator);
+		MimeMessagePreparator preparator = new MimeMessagePreparator() {
+			public void prepare(MimeMessage mimeMessage) throws Exception {
+				Locale locale = user.getLocaleObject();
+				MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
+				message.setFrom(messageSource.getMessage("label.email.not_reply", new String[] { "@itrust.lu" }, "no-reply", locale));
+				message.setSubject(messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
+				Map<String, Object> model = new LinkedHashMap<String, Object>();
+				model.put("title", messageSource.getMessage("label.registration.email.subject", null, "Registration", locale));
+				model.put("user", user);
+				message.setText(
+						VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
+								+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-info-fr.vm" : "new-user-info-en.vm"), "UTF-8", model), true);
+				message.setTo(user.getEmail());
+			}
+		};
+		javaMailSender.send(preparator);
+		if (!(recipients == null || recipients.isEmpty())) {
 			for (final User admin : recipients) {
 				preparator = new MimeMessagePreparator() {
 					public void prepare(MimeMessage mimeMessage) throws Exception {
@@ -103,12 +86,11 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 						message.setText(
 								VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, RESOURCE_FOLDER
 										+ (locale.getISO3Language().equalsIgnoreCase("fra") ? "new-user-admin-fr.vm" : "new-user-admin-en.vm"), "UTF-8", model), true);
-						message.setTo(user.getEmail());
+						message.setTo(admin.getEmail());
 					}
 				};
 				javaMailSender.send(preparator);
 			}
-
 		}
 	}
 

@@ -24,12 +24,8 @@
 <script src="<spring:url value="/js/bootstrap/bootstrap-tooltip.js" />"></script>
 <script src="<spring:url value="/js/bootstrap/jquery.floatThead.js" />"></script>
 <script src="<spring:url value="/js/bootstrap/stickyTableHeaders.js" />"></script>
-<script src="<spring:url value="/js/tablesorter/jquery.tablesorter.min.js" />"></script>
-<script src="<spring:url value="/js/tablesorter/jquery.tablesorter.widgets.js" />"></script>
-<script src="<spring:url value="/js/tablesorter/jquery.tablesorter.pager.js" />"></script>
-
+<script type="text/javascript" src="<spring:url value="js/jquery.fileDownload.js" />"></script>
 <script src="<spring:url value="/js/main.js" />"></script>
-
 <script src="<spring:url value="/js/trickservice/reloadSection.js" />"></script>
 <script src="<spring:url value="/js/trickservice/login.js" />"></script>
 <script src="<spring:url value="/js/trickservice/timeoutinterceptor.js" />"></script>

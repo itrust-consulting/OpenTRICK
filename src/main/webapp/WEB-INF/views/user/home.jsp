@@ -19,13 +19,13 @@
 			</ul>
 			<div class="tab-content" id="tab-container">
 				<jsp:include page="profile.jsp" />
-				<div id="sqlite" class="tab-pane" data-update-required="true" data-trigger="loadUserSqlite">
+				<div id="sqlite" class="tab-pane" data-update-required="true" data-trigger="loadUserSqlite" data-scroll-trigger="userSqliteScrolling">
 					<div class="col-xs-2">
-						<div class="affix">
+						<div data-spy="affix">
 							<strong class="col-xs-12" style="font-size: 14px; display: block; border-bottom: 2px solid #dddddd; margin: 8px; padding-bottom: 8px"> <spring:message
 									code="label.title.control" text="Control" />
 							</strong>
-							<form class="form-horizontal" name="sqliteControl">
+							<form class="form-horizontal" name="sqliteControl" id="formSqliteControl">
 								<div class="form-group">
 									<label for="sort" class="col-sm-4 control-label"><spring:message code="label.action.sort" text="Sort" /></label>
 									<div class="col-sm-8">
@@ -33,7 +33,7 @@
 											<option value="identifier" ${sqliteControl.sort == 'identifier'?'selected="selected"':''}><spring:message code="label.analysis.identifier" text="TRICK name" /></option>
 											<option value="label" ${sqliteControl.sort == 'label'?'selected="selected"':''}><spring:message code="label.analysis.label" text="Name" /></option>
 											<option value="version" ${sqliteControl.sort == 'version'?'selected="selected"':''}><spring:message code="label.analysis.version" text="Version" /></option>
-											<option value="created" ${sqliteControl.sort == 'created'?'selected="selected"':''}><spring:message code="label.date.created" text="Created date" /></option>
+											<option value="exportTime" ${sqliteControl.sort == 'created'?'selected="selected"':''}><spring:message code="label.date.created" text="Created date" /></option>
 											<option value="size" ${sqliteControl.sort == 'size'?'selected="selected"':''}><spring:message code="label.file.size" text="Size" /></option>
 										</select>
 									</div>
@@ -44,10 +44,10 @@
 										<div class="btn-group" data-toggle="buttons">
 											<label class="btn btn-default ${sqliteControl.direction=='asc'? 'active':'' }" title='<spring:message
 													code="label.action.sort_direction.ascending" text="Ascending" />'> <input type="radio"
-												name="direction" id="sliteSortDirectionAsc" autocomplete="off" onchange="updateSqliteControl(this)"><i class="fa fa-play fa-rotate-270"></i>
+												name="direction" value="asc" ${sqliteControl.direction=='asc'? 'checked="checked"':'' } autocomplete="off" onchange="updateSqliteControl(this)"><i class="fa fa-play fa-rotate-270"></i>
 											</label> <label class="btn btn-default ${sqliteControl.direction=='desc'? 'active':'' }" title='<spring:message
 													code="label.action.sort_direction.descending" text="Descending" />'> <input type="radio"
-												name="direction" id="sliteSortDirectionDesc" autocomplete="off" onchange="updateSqliteControl(this)"><i class="fa fa-play fa-rotate-90"></i>
+												name="direction" value="desc" ${sqliteControl.direction=='desc'? 'checked="checked"':'' } autocomplete="off" onchange="updateSqliteControl(this)"><i class="fa fa-play fa-rotate-90"></i>
 											</label>
 										</div>
 									</div>
@@ -56,7 +56,7 @@
 									<label for="pageSize" class="col-sm-4 control-label"> <spring:message code="label.page.size" text="Page size" />
 									</label>
 									<div class="col-sm-8">
-										<select name="pageSize" class="form-control" onchange="updateSqliteControl()">
+										<select name="size" class="form-control" onchange="updateSqliteControl()" id="sqlitePageSize">
 											<option value="30" ${sqliteControl.size == 30?'selected="selected"':''}>30</option>
 											<option value="120" ${sqliteControl.size == 120?'selected="selected"':''}>120</option>
 											<option value=500 ${sqliteControl.size == 500?'selected="selected"':''}>500</option>
@@ -87,13 +87,13 @@
 						</div>
 					</div>
 				</div>
-				<div id="report" class="tab-pane row" data-update-required="true" data-trigger="loadUserReport">
+				<div id="report" class="tab-pane" data-update-required="true" data-trigger="loadUserReport" data-scroll-trigger="userReportScrolling">
 					<div class="col-xs-2">
-						<div class="affix">
+						<div data-spy="affix">
 							<strong class="col-xs-12" style="font-size: 14px; display: block; border-bottom: 2px solid #dddddd; margin: 8px; padding-bottom: 8px"> <spring:message
 									code="label.title.control" text="Control" />
 							</strong>
-							<form class="form-horizontal" name="reportControl">
+							<form class="form-horizontal" name="reportControl" id="formReportControl">
 								<div class="form-group">
 									<label for="sort" class="col-sm-4 control-label"><spring:message code="label.action.sort" text="Sort" /></label>
 									<div class="col-sm-8">
@@ -112,10 +112,10 @@
 										<div class="btn-group" data-toggle="buttons">
 											<label class="btn btn-default ${reportControl.direction=='asc'? 'active':'' }" title='<spring:message
 													code="label.action.sort_direction.ascending" text="Ascending" />'> <input type="radio"
-												name="direction" id="reportSortDirectionAsc" autocomplete="off" onchange="updateReportControl(this)"><i class="fa fa-play fa-rotate-270"></i>
+												name="direction" autocomplete="off" ${reportControl.direction=='asc'? 'checked="checked"':'' } value="asc" onchange="updateReportControl(this)"><i class="fa fa-play fa-rotate-270"></i>
 											</label> <label class="btn btn-default ${reportControl.direction=='desc'? 'active':'' }" title='<spring:message
 													code="label.action.sort_direction.descending" text="Descending" />'> <input type="radio"
-												name="direction" id="reportSortDirectionDesc" autocomplete="off" onchange="updateReportControl(this)"><i class="fa fa-play fa-rotate-90"></i>
+												name="direction" ${reportControl.direction=='desc'? 'checked="checked"':'' } autocomplete="off" value="desc" onchange="updateReportControl(this)"><i class="fa fa-play fa-rotate-90"></i>
 											</label>
 										</div>
 									</div>
@@ -124,7 +124,7 @@
 									<label for="pageSize" class="col-sm-4 control-label"> <spring:message code="label.page.size" text="Page size" />
 									</label>
 									<div class="col-sm-8">
-										<select name="size" class="form-control" onchange="updateReportControl()">
+										<select name="size" class="form-control" onchange="updateReportControl()" id="reportPageSize">
 											<option value="30" ${reportControl.size == 30?'selected="selected"':''}>30</option>
 											<option value="120" ${reportControl.size == 120?'selected="selected"':''}>120</option>
 											<option value=500 ${reportControl.size == 500?'selected="selected"':''}>500</option>

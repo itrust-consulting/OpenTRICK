@@ -8,7 +8,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import lu.itrust.business.TS.component.JsonMessage;
 import lu.itrust.business.TS.constants.Constant;
+import lu.itrust.business.TS.data.general.UserSQLite;
+import lu.itrust.business.TS.data.general.WordReport;
 import lu.itrust.business.TS.data.general.helper.FilterControl;
 import lu.itrust.business.TS.database.service.ServiceDataValidation;
 import lu.itrust.business.TS.database.service.ServiceRole;
@@ -25,6 +28,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -117,9 +122,41 @@ public class ControllerProfile {
 			sort = "identifier";
 		if (filter == null)
 			filter = "ALL";
-		if(direction == null)
+		if (direction == null)
 			direction = "asc";
 		return new FilterControl(sort, direction, size, filter);
+	}
+
+	@RequestMapping(value = "/Control/Sqlite/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String updateSqliteControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+		if (!filterControl.validate())
+			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
+		User user = serviceUser.get(principal.getName());
+		if (user == null)
+			return JsonMessage.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
+		updateFilterControl(user, filterControl, FILTER_CONTROL_SQLITE);
+		session.setAttribute("sqliteControl", filterControl);
+		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+	}
+
+	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String updateReportControl(@RequestBody FilterControl filterControl, HttpSession session, Principal principal, Locale locale) throws Exception {
+		if (!filterControl.validate())
+			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
+		User user = serviceUser.get(principal.getName());
+		if (user == null)
+			return JsonMessage.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
+		updateFilterControl(user, filterControl, FILTER_CONTROL_REPORT);
+		session.setAttribute("reportControl", filterControl);
+		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null, "Filter has been successfully updated", locale));
+	}
+
+	private void updateFilterControl(User user, FilterControl value, String type) throws Exception {
+		user.setSetting(String.format(FILTER_CONTROL_SORT_KEY, type), value.getSort());
+		user.setSetting(String.format(FILTER_CONTROL_SORT_DIRCTION_KEY, type), value.getDirection());
+		user.setSetting(String.format(FILTER_CONTROL_FILTER_KEY, type), value.getFilter());
+		user.setSetting(String.format(FILTER_CONTROL_SIZE_KEY, type), value.getSize());
+		serviceUser.saveOrUpdate(user);
 	}
 
 	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
@@ -133,13 +170,113 @@ public class ControllerProfile {
 
 	@RequestMapping(value = "/Section/Report", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
 	public String sectionReport(@RequestParam(defaultValue = "1") Integer page, HttpSession session, Principal principal, Model model) {
-		FilterControl filter = (FilterControl) session.getAttribute("sqliteControl");
+		FilterControl filter = (FilterControl) session.getAttribute("reportControl");
 		if (filter == null)
 			filter = new FilterControl();
 		model.addAttribute("reports", serviceWordReport.getAllFromUserByFilterControl(principal.getName(), page, filter));
 		return "user/reports";
 
 	}
+	
+	@RequestMapping(value = "/Sqlite/{id}/Delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String deleteSqlite(@PathVariable Integer id, Principal principal, Locale locale) throws Exception{
+		UserSQLite userSQLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
+		if(userSQLite == null)
+			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
+		serviceUserSqLite.delete(userSQLite);
+		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
+	}
+	
+	@RequestMapping(value = "/Report/{id}/Delete", method = RequestMethod.GET, headers = "Accept=application/json;charset=UTF-8")
+	public @ResponseBody String deleteReport(@PathVariable Integer id, Principal principal, Locale locale){
+		WordReport report = serviceWordReport.getByIdAndUser(id, principal.getName());
+		if(report == null)
+			return JsonMessage.Error(messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
+		serviceWordReport.delete(report);
+		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null, "Resource has been successfully deleted", locale));
+		
+	}
+	
+	/**
+	 * download: <br>
+	 * Description
+	 * 
+	 * @param idFile
+	 * @param principal
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Sqlite/{idFile}/Download")
+	public String downloadSqlite(@PathVariable Integer idFile, Principal principal, HttpServletResponse response) throws Exception {
+
+		// get user file by given file id and username
+		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(idFile, principal.getName());
+
+		// if file could not be found retrun 404 error
+		if (userSqLite == null)
+			return "errors/404";
+
+		// set response contenttype to sqlite
+		response.setContentType("sqlite");
+
+		// retireve sqlite file name to set
+		String identifierName = userSqLite.getIdentifier();
+
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition", "attachment; filename=\""
+				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
+
+		// set sqlite file size as response size
+		response.setContentLength((int) userSqLite.getSize());
+
+		// return the sqlite file (as copy) to the response outputstream ( whihc
+		// creates on the
+		// client side the sqlite file)
+		FileCopyUtils.copy(userSqLite.getSqLite(), response.getOutputStream());
+
+		// return
+		return null;
+	}
+
+	/**
+	 * download: <br>
+	 * Description
+	 * 
+	 * @param id
+	 * @param principal
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/Report/{id}/Download")
+	public String downloadReport(@PathVariable Integer id, Principal principal, HttpServletResponse response) throws Exception {
+
+		// get user file by given file id and username
+		WordReport wordReport = serviceWordReport.getByIdAndUser(id, principal.getName());
+
+		// if file could not be found retrun 404 error
+		if (wordReport == null)
+			return "errors/404";
+
+		// set response contenttype to sqlite
+		response.setContentType("docm");
+
+		// set response header with location of the filename
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_V%s.docm", wordReport.getLabel(), wordReport.getVersion()) + "\"");
+
+		// set sqlite file size as response size
+		response.setContentLength((int) wordReport.getSize());
+
+		// return the sqlite file (as copy) to the response outputstream ( whihc
+		// creates on the
+		// client side the sqlite file)
+		FileCopyUtils.copy(wordReport.getFile(), response.getOutputStream());
+
+		// return
+		return null;
+	}
+
 
 	/**
 	 * save: <br>
@@ -176,7 +313,8 @@ public class ControllerProfile {
 			return errors;
 		}
 	}
-
+	
+	
 	/**
 	 * buildCustomer: <br>
 	 * Description

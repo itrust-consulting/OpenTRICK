@@ -1,29 +1,177 @@
 $(function() {
 	$('ul.nav-tab a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
 		var target = $(e.target).attr("href");
-		if ($(target).attr("data-update-required") == "true") {
+		if ($(target).attr("data-update-required") === "true") {
 			window[$(target).attr("data-trigger")].apply();
 			$(target).attr("data-update-required", "false");
 		}
 	});
+
+	$(window).scroll(function(e) {
+		if (($(window).scrollTop() + $(window).height()) === $(document).height()) {
+			var $selectedTab = $(".tab-pane.active"), attr = $selectedTab.attr("data-scroll-trigger");
+			if ($selectedTab.attr("data-update-required") === "false" && typeof attr !== typeof undefined && attr !== false)
+				window[$selectedTab.attr("data-scroll-trigger")].apply();
+		}
+	});
 });
 
-function loadUserSqlite() {
+function deleteSqlite(id) {
+	var currentSize = $("#section_sqlite>table>tbody>tr").length, size = parseInt($("#sqlitePageSize").val());
+	$.ajax({
+		url : context + "/Profile/Sqlite/" + id + "/Delete",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			if (response["success"] != undefined) {
+				$("#section_sqlite>table>tbody>tr[data-trick-id='" + id + "']").remove();
+				if (currentSize == size)
+					loadUserSqlite(true);
+			} else if (response["error"] != undefined)
+				new Modal($("#alert-dialog").clone(), response["error"]).Show();
+			else
+				unknowError();
+		},
+		error : unknowError
+	});
+	return false;
+}
+
+function deleteReport(id) {
+	var currentSize = $("#section_report>table>tbody>tr").length, size = parseInt($("#reportPageSize").val());
+	$.ajax({
+		url : context + "/Profile/Report/" + id + "/Delete",
+		type : "get",
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			if (response["success"] != undefined) {
+				$("#section_report>table>tbody>tr[data-trick-id='" + id + "']").remove();
+				if (currentSize == size)
+					loadUserReport(true);
+			} else if (response["error"] != undefined)
+				new Modal($("#alert-dialog").clone(), response["error"]).Show();
+			else
+				unknowError();
+		},
+		error : unknowError
+	});
+	return false;
+}
+
+function userSqliteScrolling() {
+	var currentSize = $("#section_sqlite table>tbody>tr").length, size = parseInt($("#sqlitePageSize").val());
+	if (currentSize >= size && currentSize % size === 0) {
+		$.ajax({
+			url : context + "/Profile/Section/Sqlite",
+			async : false,
+			type : "get",
+			data : {
+				"page" : (currentSize / size) + 1
+			},
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
+					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
+					if (!$current.length)
+						$(this).appendTo($("#section_sqlite>table>tbody"));
+				});
+				return false;
+			},
+			error : unknowError
+		});
+	}
+	return true;
+}
+
+function userReportScrolling() {
+	var currentSize = $("#section_report>table>tbody>tr").length, size = parseInt($("#reportPageSize").val());
+	if (currentSize >= size && currentSize % size === 0) {
+		$.ajax({
+			url : context + "/Profile/Section/Report",
+			async : false,
+			type : "get",
+			data : {
+				"page" : (currentSize / size) + 1
+			},
+			contentType : "application/json;charset=UTF-8",
+			success : function(response) {
+				$(new DOMParser().parseFromString(response, "text/html")).find("#section_report>table>tbody>tr").each(function() {
+					var $current = $("#section_report>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
+					if (!$current.length)
+						$(this).appendTo($("#section_report>table>tbody"));
+				});
+				return false;
+			},
+			error : unknowError
+		});
+	}
+	return true;
+}
+
+function updateReportControl(element) {
+	if (element != undefined && !$(element).is(":checked"))
+		return false;
+	$.ajax({
+		url : context + "/Profile/Control/Report/Update",
+		type : "post",
+		data : serializeForm("#formReportControl"),
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			if (response["success"] != undefined)
+				return loadUserReport();
+			else if (response["error"] != undefined)
+				new Modal($("#alert-dialog").clone(), response["error"]).Show();
+			else
+				unknowError();
+		},
+		error : unknowError
+	});
+	return false;
+}
+
+function updateSqliteControl(element) {
+	if (element != undefined && !$(element).is(":checked"))
+		return false;
+	$.ajax({
+		url : context + "/Profile/Control/Sqlite/Update",
+		type : "post",
+		data : serializeForm("#formSqliteControl"),
+		contentType : "application/json;charset=UTF-8",
+		success : function(response) {
+			if (response["success"] != undefined)
+				return loadUserSqlite();
+			else if (response["error"] != undefined)
+				new Modal($("#alert-dialog").clone(), response["error"]).Show();
+			else
+				unknowError();
+		},
+		error : unknowError
+	});
+	return false;
+}
+
+function loadUserSqlite(update) {
 	$.ajax({
 		url : context + "/Profile/Section/Sqlite",
 		type : "get",
 		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			var parser = new DOMParser();
-			var $section = $(parser.parseFromString(response, "text/html")).find("#section_sqlite");
-			$("#section_sqlite").replaceWith($section);
-			setTimeout(function() {
-				$("#section_sqlite table").stickyTableHeaders({
-					cssTopOffset : ".nav-tab",
-					fixedOffset : 6
+			if (update) {
+				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
+					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
+					if (!$current.length)
+						$(this).appendTo($("#section_sqlite>table>tbody"));
 				});
-			}, 500);
+			} else {
+				$("#section_sqlite").replaceWith($(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite"));
+				setTimeout(function() {
+					$("#section_sqlite>table").stickyTableHeaders({
+						cssTopOffset : ".nav-tab",
+						fixedOffset : 6
+					});
+				}, 500);
+			}
 			return false;
 		},
 		error : unknowError
@@ -31,34 +179,27 @@ function loadUserSqlite() {
 	return true;
 }
 
-function updateReportControl(element){
-	if(element!=undefined && !$(element).is(":checked"))
-		return false;
-	console.log("here");
-}
-
-function updateSqliteControl(element){
-	if(element!=undefined && !$(element).is(":checked"))
-		return false;
-	console.log("here");
-}
-
-function loadUserReport() {
+function loadUserReport(update) {
 	$.ajax({
 		url : context + "/Profile/Section/Report",
 		type : "get",
-		async : true,
 		contentType : "application/json;charset=UTF-8",
 		success : function(response) {
-			var parser = new DOMParser();
-			var $section = $(parser.parseFromString(response, "text/html")).find("#section_report");
-			$("#section_report").replaceWith($section);
-			setTimeout(function() {
-				$("#section_report table").stickyTableHeaders({
-					cssTopOffset : ".nav-tab",
-					fixedOffset : 6
+			if (update) {
+				$(new DOMParser().parseFromString(response, "text/html")).find("#section_sqlite>table>tbody>tr").each(function() {
+					var $current = $("#section_sqlite>table>tbody>tr[data-trick-id='" + $(this).attr("data-trick-id") + "']");
+					if (!$current.length)
+						$(this).appendTo($("#section_sqlite>table>tbody"));
 				});
-			}, 500);
+			} else {
+				$("#section_report").replaceWith($(new DOMParser().parseFromString(response, "text/html")).find("#section_report"));
+				setTimeout(function() {
+					$("#section_report table").stickyTableHeaders({
+						cssTopOffset : ".nav-tab",
+						fixedOffset : 6
+					});
+				}, 500);
+			}
 			return false;
 		},
 		error : unknowError

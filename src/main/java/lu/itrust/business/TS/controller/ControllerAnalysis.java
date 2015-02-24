@@ -11,7 +11,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import lu.itrust.business.TS.asynchronousWorkers.Worker;
@@ -31,8 +30,6 @@ import lu.itrust.business.TS.data.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.TS.data.assessment.helper.AssessmentManager;
 import lu.itrust.business.TS.data.general.Customer;
 import lu.itrust.business.TS.data.general.Language;
-import lu.itrust.business.TS.data.general.UserSQLite;
-import lu.itrust.business.TS.data.general.WordReport;
 import lu.itrust.business.TS.data.history.History;
 import lu.itrust.business.TS.data.standard.AnalysisStandard;
 import lu.itrust.business.TS.data.standard.measure.Measure;
@@ -79,7 +76,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -949,85 +945,7 @@ public class ControllerAnalysis {
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
 	}
 
-	/**
-	 * download: <br>
-	 * Description
-	 * 
-	 * @param idFile
-	 * @param principal
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/Sqlite/{idFile}/Download")
-	public String downloadSqlite(@PathVariable Integer idFile, Principal principal, HttpServletResponse response) throws Exception {
-
-		// get user file by given file id and username
-		UserSQLite userSqLite = serviceUserSqLite.getByIdAndUser(idFile, principal.getName());
-
-		// if file could not be found retrun 404 error
-		if (userSqLite == null)
-			return "errors/404";
-
-		// set response contenttype to sqlite
-		response.setContentType("sqlite");
-
-		// retireve sqlite file name to set
-		String identifierName = userSqLite.getIdentifier();
-
-		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\""
-				+ (identifierName == null || identifierName.trim().isEmpty() ? "Analysis" : identifierName.trim().replaceAll(":|-|[ ]", "_")) + ".sqlite\"");
-
-		// set sqlite file size as response size
-		response.setContentLength((int) userSqLite.getSize());
-
-		// return the sqlite file (as copy) to the response outputstream ( whihc
-		// creates on the
-		// client side the sqlite file)
-		FileCopyUtils.copy(userSqLite.getSqLite(), response.getOutputStream());
-
-		// return
-		return null;
-	}
-
-	/**
-	 * download: <br>
-	 * Description
-	 * 
-	 * @param id
-	 * @param principal
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping("/Report/{id}/Download")
-	public String downloadReport(@PathVariable Integer id, Principal principal, HttpServletResponse response) throws Exception {
-
-		// get user file by given file id and username
-		WordReport wordReport = serviceWordReport.getByIdAndUser(id, principal.getName());
-
-		// if file could not be found retrun 404 error
-		if (wordReport == null)
-			return "errors/404";
-
-		// set response contenttype to sqlite
-		response.setContentType("docm");
-
-		// set response header with location of the filename
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + String.format("STA_%s_V%s.docm", wordReport.getLabel(), wordReport.getVersion()) + "\"");
-
-		// set sqlite file size as response size
-		response.setContentLength((int) wordReport.getSize());
-
-		// return the sqlite file (as copy) to the response outputstream ( whihc
-		// creates on the
-		// client side the sqlite file)
-		FileCopyUtils.copy(wordReport.getFile(), response.getOutputStream());
-
-		// return
-		return null;
-	}
+	
 
 	/**
 	 * computeRiskRegister: <br>

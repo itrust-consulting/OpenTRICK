@@ -11,7 +11,7 @@ public class FilterControl {
 
 	private static final String REG_SORT_DIRCTION = "asc|desc";
 
-	private static final String REG_SORT = "identifier|label|size|version|created";
+	private static final String REG_SORT = "identifier|label|size|version|created|exportTime";
 
 	private String sort = "identifier";
 

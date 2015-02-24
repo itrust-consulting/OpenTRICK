@@ -95,7 +95,6 @@
 		<jsp:include page="../../template/footer.jsp" />
 		<jsp:include page="../../template/scripts.jsp" />
 		<script type="text/javascript" src="<spring:url value="js/trickservice/analyses.js" />"></script>
-		<script type="text/javascript" src="<spring:url value="js/jquery.fileDownload.js" />"></script>
 	</div>
 </body>
 </html>
